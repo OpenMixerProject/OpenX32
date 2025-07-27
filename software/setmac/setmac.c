@@ -20,6 +20,7 @@
 #include <sys/socket.h>
 #include <linux/if.h>
 #include <arpa/inet.h>
+#include "../../linux/include/uapi/linux/if_arp.h"
 
 #define MMC_DEVICE "/dev/mmcblk0"
 #define SD_READ_OFFSET_START 0x1B0
@@ -55,7 +56,7 @@ int main() {
     
     // check for expected 0xFEEDBEEF
     uint32_t magic_number = ((uint32_t)buffer[0x08] << 24) + ((uint32_t)buffer[0x09] << 16) + ((uint32_t)buffer[0x0A] << 8) + ((uint32_t)buffer[0x0B]);
-    if (magic_numer != 0xFEEDBEEF) {
+    if (magic_number != 0xFEEDBEEF) {
         // unexpected data
         return EXIT_FAILURE;
     }
