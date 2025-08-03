@@ -14,6 +14,10 @@
 	path = u-boot
 	url = https://github.com/u-boot/u-boot
 	ignore = dirty
+[submodule "barebox"]
+	path = barebox
+	url = https://github.com/barebox/barebox.git
+	ignore = dirty
 [submodule "software/x32ctrl/lv_port_linux"]
 	path = software/x32ctrl/lv_port_linux
 	url = https://github.com/lvgl/lv_port_linux.git
