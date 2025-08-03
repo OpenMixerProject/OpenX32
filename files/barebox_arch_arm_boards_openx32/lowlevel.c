@@ -15,9 +15,9 @@
 #include <asm-generic/memory_layout.h>
 #include <debug_ll.h>
 
-static inline void setup_uart(void)
+static inline void setup_uart5(void)
 {
-	void __iomem *uartbase = (void *)MX25_UART1_BASE_ADDR;
+	void __iomem *uartbase = (void *)MX25_UART5_BASE_ADDR;
 	void __iomem *iomuxbase = (void *)MX25_IOMUXC_BASE_ADDR;
 
 	writel(0x0, iomuxbase + 0x174);
@@ -135,7 +135,7 @@ static void __bare_init openx32_common_init(void)
 	writel(0xffffffff, MX25_CCM_BASE_ADDR + MX25_CCM_CGCR1);
 	writel(0x000fdfff, MX25_CCM_BASE_ADDR + MX25_CCM_CGCR2);
 
-	setup_uart();
+	setup_uart5();
 
 	/* Skip SDRAM initialization if we run from RAM */
 	r = get_pc();

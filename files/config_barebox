@@ -1,0 +1,995 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Barebox/arm 2025.07.0 Configuration
+#
+CONFIG_ARM=y
+CONFIG_ARCH_LINUX_NAME="arm"
+CONFIG_ARCH_MKIMAGE_NAME="arm"
+CONFIG_ARM32=y
+CONFIG_ARCH_TEXT_BASE=0x00000000
+CONFIG_ARM_LINUX=y
+
+#
+# System Type
+#
+CONFIG_ARCH_MULTIARCH=y
+# CONFIG_ARCH_AT91 is not set
+# CONFIG_ARCH_CLPS711X is not set
+# CONFIG_ARCH_MVEBU is not set
+# CONFIG_ARCH_MXS is not set
+# CONFIG_ARCH_PXA is not set
+# CONFIG_ARCH_SOCFPGA is not set
+# CONFIG_ARCH_TEGRA is not set
+# CONFIG_ARCH_ZYNQ is not set
+# CONFIG_ARCH_BCM283X is not set
+CONFIG_ARCH_IMX=y
+# CONFIG_ARCH_K3 is not set
+# CONFIG_ARCH_SUNXI is not set
+# CONFIG_ARCH_LAYERSCAPE is not set
+# CONFIG_ARCH_OMAP_MULTI is not set
+# CONFIG_ARCH_ROCKCHIP is not set
+# CONFIG_ARCH_STM32MP is not set
+CONFIG_ARCH_VERSATILE=y
+# CONFIG_ARCH_VEXPRESS is not set
+
+#
+# Processor Type
+#
+CONFIG_CPU_32=y
+CONFIG_CPU_ARM1176=y
+CONFIG_CPU_ARM926T=y
+CONFIG_CPU_V6=y
+CONFIG_CPU_32v5=y
+CONFIG_CPU_32v6=y
+
+#
+# processor features
+#
+# CONFIG_BOOT_ENDIANNESS_SWITCH is not set
+CONFIG_ARCH_IMX_IMXIMAGE=y
+CONFIG_ARCH_IMX_EXTERNAL_BOOT_NAND=y
+
+#
+# i.MX boards
+#
+CONFIG_ARCH_IMX25=y
+
+#
+# i.MX1 boards
+#
+# CONFIG_MACH_SCB9328 is not set
+
+#
+# i.MX25 boards
+#
+CONFIG_MACH_OPENX32=y
+# CONFIG_MACH_TX25 is not set
+
+#
+# i.MX27 boards
+#
+# CONFIG_MACH_PCA100 is not set
+# CONFIG_MACH_PCM038 is not set
+
+#
+# i.MX50 boards
+#
+# CONFIG_MACH_KINDLE_MX50 is not set
+
+#
+# i.MX51 boards
+#
+# CONFIG_MACH_CCMX51 is not set
+# CONFIG_MACH_EFIKA_MX_SMARTBOOK is not set
+# CONFIG_MACH_FREESCALE_MX51_PDK is not set
+
+#
+# i.MX53 boards
+#
+# CONFIG_MACH_CCMX53 is not set
+# CONFIG_MACH_FREESCALE_MX53_LOCO is not set
+# CONFIG_MACH_GUF_VINCELL is not set
+# CONFIG_MACH_TX53 is not set
+# CONFIG_MACH_TQMA53 is not set
+# CONFIG_MACH_FREESCALE_MX53_VMX53 is not set
+# CONFIG_MACH_ZII_RDU1 is not set
+
+#
+# i.MX6 boards
+#
+# CONFIG_MACH_ADVANTECH_ROM_742X is not set
+# CONFIG_MACH_NITROGEN6 is not set
+# CONFIG_MACH_CM_FX6 is not set
+# CONFIG_MACH_REALQ7 is not set
+# CONFIG_MACH_DFI_FS700_M60 is not set
+# CONFIG_MACH_DIGI_CCIMX6ULSBCPRO is not set
+# CONFIG_MACH_ELTEC_HIPERCAM is not set
+# CONFIG_MACH_EMBEDSKY_E9 is not set
+# CONFIG_MACH_EMBEST_MARSBOARD is not set
+# CONFIG_MACH_EMBEST_RIOTBOARD is not set
+# CONFIG_MACH_TORADEX_COLIBRI_IMX6 is not set
+# CONFIG_MACH_SABRELITE is not set
+# CONFIG_MACH_SABRESD is not set
+# CONFIG_MACH_FREESCALE_IMX6SX_SABRESDB is not set
+# CONFIG_MACH_UDOO is not set
+# CONFIG_MACH_UDOO_NEO is not set
+# CONFIG_MACH_GUF_SANTARO is not set
+# CONFIG_MACH_GW_VENTANA is not set
+# CONFIG_MACH_GRINN_LITEBOARD is not set
+# CONFIG_MACH_TX6X is not set
+# CONFIG_MACH_KONTRON_SAMX6I is not set
+# CONFIG_MACH_NOVENA is not set
+# CONFIG_MACH_NXP_IMX6ULL_EVK is not set
+# CONFIG_MACH_PHYTEC_SOM_IMX6 is not set
+# CONFIG_MACH_PROTONIC_IMX6 is not set
+# CONFIG_MACH_SKOV_IMX6 is not set
+# CONFIG_MACH_SOLIDRUN_MICROSOM is not set
+# CONFIG_MACH_TECHNEXION_PICO_HOBBIT is not set
+# CONFIG_MACH_TECHNEXION_WANDBOARD is not set
+# CONFIG_MACH_TQMA6X is not set
+# CONFIG_MACH_TQMA6UL is not set
+# CONFIG_MACH_VARISCITE_MX6 is not set
+# CONFIG_MACH_WEBASTO_CCBV2 is not set
+# CONFIG_MACH_GK802 is not set
+# CONFIG_MACH_ZII_RDU2 is not set
+
+#
+# i.MX7 boards
+#
+# CONFIG_MACH_MEERKAT96 is not set
+# CONFIG_MACH_AC_SXB is not set
+# CONFIG_MACH_WARP7 is not set
+# CONFIG_MACH_FREESCALE_MX7_SABRESD is not set
+# CONFIG_MACH_PHYTEC_PHYCORE_IMX7 is not set
+# CONFIG_MACH_VARISCITE_SOM_MX7 is not set
+# CONFIG_MACH_ZII_IMX7D_DEV is not set
+# CONFIG_MACH_KAMSTRUP_MX7_CONCENTRATOR is not set
+
+#
+# VF610 boards
+#
+# CONFIG_MACH_VF610_TWR is not set
+# CONFIG_MACH_ZII_VF610_DEV is not set
+# end of i.MX boards
+
+#
+# i.MX specific settings
+#
+# CONFIG_IMX_IIM is not set
+# CONFIG_HABV3 is not set
+# end of i.MX specific settings
+
+CONFIG_MACH_VERSATILEPB=y
+CONFIG_BOARD_ARM_GENERIC_DT=y
+CONFIG_AEABI=y
+# end of System Type
+
+# CONFIG_64BIT is not set
+CONFIG_32BIT=y
+
+#
+# ARM specific settings
+#
+# CONFIG_ARM_OPTIMZED_STRING_FUNCTIONS is not set
+CONFIG_ARM_EXCEPTIONS=y
+# CONFIG_ARM_UNWIND is not set
+# CONFIG_ARM_SEMIHOSTING is not set
+# CONFIG_BOOT_ATAGS is not set
+# CONFIG_ARM_BOOTM_ELF is not set
+# CONFIG_ARM_BOOTM_FIP is not set
+# end of ARM specific settings
+
+#
+# General architecture-dependent options
+#
+CONFIG_BOARD_GENERIC_DT=y
+CONFIG_BOARD_GENERIC_FIT=y
+# end of General architecture-dependent options
+
+CONFIG_ARCH_HAS_DATA_ABORT_MASK=y
+CONFIG_ARCH_HAS_ZERO_PAGE=y
+CONFIG_HAVE_ARCH_BOARD_GENERIC_DT=y
+CONFIG_HAVE_ARCH_BOOTM_OFTREE=y
+CONFIG_HAVE_MOD_ARCH_SPECIFIC=y
+CONFIG_ARCH_HAS_SJLJ=y
+CONFIG_HAS_DEBUG_LL=y
+CONFIG_HAVE_ARCH_KASAN=y
+CONFIG_CC_IS_GCC=y
+CONFIG_GCC_VERSION=130201
+CONFIG_CLANG_VERSION=0
+CONFIG_GREGORIAN_CALENDER=y
+CONFIG_HAS_KALLSYMS=y
+CONFIG_HAS_MODULES=y
+CONFIG_HAS_DMA=y
+CONFIG_GENERIC_GPIO=y
+CONFIG_BLOCK=y
+CONFIG_FILETYPE=y
+CONFIG_BINFMT=y
+CONFIG_UIMAGE=y
+CONFIG_STDDEV=y
+
+#
+# General Settings
+#
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_HAS_INSECURE_DEFAULTS=y
+CONFIG_INSECURE=y
+CONFIG_BANNER=y
+CONFIG_MEMINFO=y
+CONFIG_ENVIRONMENT_VARIABLES=y
+CONFIG_GLOBALVAR=y
+CONFIG_NVVAR=y
+
+#
+# memory layout
+#
+CONFIG_HAVE_PBL_IMAGE=y
+CONFIG_HAVE_PBL_MULTI_IMAGES=y
+CONFIG_HAVE_IMAGE_COMPRESSION=y
+CONFIG_PBL_IMAGE=y
+CONFIG_PBL_MULTI_IMAGES=y
+CONFIG_USE_COMPRESSED_DTB=y
+CONFIG_PBL_RELOCATABLE=y
+CONFIG_IMAGE_COMPRESSION=y
+CONFIG_IMAGE_COMPRESSION_LZ4=y
+# CONFIG_IMAGE_COMPRESSION_LZO is not set
+# CONFIG_IMAGE_COMPRESSION_GZIP is not set
+# CONFIG_IMAGE_COMPRESSION_XZKERN is not set
+# CONFIG_IMAGE_COMPRESSION_NONE is not set
+# CONFIG_MMU is not set
+CONFIG_BAREBOX_MAX_IMAGE_SIZE=0xffffffff
+CONFIG_BAREBOX_MAX_PBL_SIZE=0xffffffff
+CONFIG_BAREBOX_MAX_BARE_INIT_SIZE=0xffffffff
+CONFIG_STACK_SIZE=0x8000
+CONFIG_MALLOC_SIZE=0x400000
+CONFIG_SCRATCH_SIZE=0x8000
+CONFIG_MALLOC_ALIGNMENT=8
+# end of memory layout
+
+# CONFIG_EXPERIMENTAL is not set
+CONFIG_MALLOC_TLSF=y
+# CONFIG_KALLSYMS is not set
+CONFIG_RELOCATABLE=y
+# CONFIG_PANIC_POWEROFF is not set
+# CONFIG_PANIC_HANG is not set
+CONFIG_PANIC_RESET=y
+CONFIG_PROMPT="barebox:"
+CONFIG_BAUDRATE=115200
+CONFIG_SIMPLE_READLINE=y
+CONFIG_CBSIZE=1024
+CONFIG_SHELL_HUSH=y
+# CONFIG_SHELL_SIMPLE is not set
+# CONFIG_SHELL_NONE is not set
+CONFIG_GLOB=y
+# CONFIG_GLOB_SORT is not set
+CONFIG_PROMPT_HUSH_PS2="> "
+# CONFIG_HUSH_FANCY_PROMPT is not set
+# CONFIG_CMDLINE_EDITING is not set
+# CONFIG_MENU is not set
+# CONFIG_PASSWORD is not set
+CONFIG_ERRNO_MESSAGES=y
+CONFIG_TIMESTAMP=y
+CONFIG_BOOTM=y
+# CONFIG_BOOT_OVERRIDE is not set
+# CONFIG_BOOTM_SHOW_TYPE is not set
+# CONFIG_BOOTM_VERBOSE is not set
+# CONFIG_BOOTM_INITRD is not set
+CONFIG_BOOTM_OFTREE=y
+CONFIG_BOOTM_OFTREE_FALLBACK=y
+CONFIG_BOOTM_UIMAGE=y
+# CONFIG_BOOTM_OFTREE_UIMAGE is not set
+# CONFIG_BOOTM_AIMAGE is not set
+# CONFIG_BOOTM_FITIMAGE is not set
+CONFIG_BOOTM_OPTIONAL_SIGNED_IMAGES=y
+# CONFIG_FLEXIBLE_BOOTARGS is not set
+# CONFIG_BAREBOX_UPDATE is not set
+# CONFIG_SYSTEM_PARTITIONS is not set
+# CONFIG_IMD is not set
+CONFIG_CONSOLE_FULL=y
+# CONFIG_CONSOLE_SIMPLE is not set
+# CONFIG_CONSOLE_NONE is not set
+# CONFIG_CONSOLE_ACTIVATE_FIRST is not set
+# CONFIG_CONSOLE_ACTIVATE_ALL is not set
+CONFIG_CONSOLE_ACTIVATE_ALL_FALLBACK=y
+# CONFIG_CONSOLE_ACTIVATE_NONE is not set
+# CONFIG_CONSOLE_ALLOW_COLOR is not set
+# CONFIG_CONSOLE_DISABLE_INPUT is not set
+# CONFIG_PBL_CONSOLE is not set
+# CONFIG_CONSOLE_RATP is not set
+CONFIG_PARTITION=y
+CONFIG_PARTITION_DISK=y
+CONFIG_PARTITION_DISK_DOS=y
+# CONFIG_PARTITION_DISK_EFI is not set
+CONFIG_ENV_HANDLING=y
+CONFIG_DEFAULT_ENVIRONMENT=y
+CONFIG_DEFAULT_COMPRESSION_NONE=y
+# CONFIG_DEFAULT_ENVIRONMENT_GENERIC_NEW is not set
+# CONFIG_DEFAULT_ENVIRONMENT_GENERIC is not set
+CONFIG_DEFAULT_ENVIRONMENT_PATH=""
+CONFIG_HAS_SCHED=y
+CONFIG_POLLER=y
+# CONFIG_BTHREAD is not set
+# CONFIG_TLV is not set
+# CONFIG_STATE is not set
+# CONFIG_BOOTCHOOSER is not set
+# CONFIG_BOOT_DEFAULTS is not set
+CONFIG_BAREBOX_DT_2ND=y
+# CONFIG_RESET_SOURCE is not set
+CONFIG_EXTERNAL_DTS_FRAGMENTS=""
+
+#
+# OP-TEE loading
+#
+# CONFIG_BOOTM_OPTEE is not set
+# CONFIG_PBL_OPTEE is not set
+# end of OP-TEE loading
+
+CONFIG_FILETYPE_STRINGS=y
+# end of General Settings
+
+#
+# Debugging
+#
+CONFIG_COMPILE_LOGLEVEL=6
+CONFIG_DEFAULT_LOGLEVEL=7
+# CONFIG_DEBUG_LL is not set
+CONFIG_DEBUG_IMX_UART_PORT=1
+# CONFIG_DEBUG_INITCALLS is not set
+# CONFIG_DEBUG_PROBES is not set
+# CONFIG_DMA_API_DEBUG is not set
+# CONFIG_DEBUG_LIST is not set
+# CONFIG_DEBUG_RESOURCES is not set
+# CONFIG_PBL_BREAK is not set
+# CONFIG_PRINTF_FULL is not set
+# CONFIG_UBSAN is not set
+CONFIG_CC_HAS_KASAN_GENERIC=y
+# CONFIG_KASAN is not set
+# CONFIG_COMPILE_TEST is not set
+# CONFIG_WERROR is not set
+
+#
+# arm Debugging
+#
+# end of Debugging
+
+#
+# EFI (Extensible Firmware Interface) Support
+#
+CONFIG_HAVE_EFI_STUB=y
+# end of EFI (Extensible Firmware Interface) Support
+
+CONFIG_COMMAND_SUPPORT=y
+
+#
+# Commands
+#
+
+#
+# Information
+#
+# CONFIG_CMD_TUTORIAL is not set
+CONFIG_CMD_ARM_CPUINFO=y
+# CONFIG_CMD_CLASS is not set
+CONFIG_CMD_DEVINFO=y
+# CONFIG_CMD_DEVLOOKUP is not set
+# CONFIG_CMD_DEVUNBIND is not set
+# CONFIG_CMD_DMESG is not set
+CONFIG_CMD_DRVINFO=y
+CONFIG_CMD_HELP=y
+# CONFIG_LONGHELP is not set
+# CONFIG_CMD_IOMEM is not set
+# CONFIG_CMD_IMD is not set
+# CONFIG_CMD_MEMINFO is not set
+# CONFIG_CMD_BLKSTATS is not set
+# CONFIG_CMD_VARINFO is not set
+CONFIG_CMD_VERSION=y
+# CONFIG_CMD_POLLER is not set
+# CONFIG_CMD_SLICE is not set
+# end of Information
+
+#
+# Boot
+#
+# CONFIG_CMD_BOOT is not set
+CONFIG_CMD_BOOTM=y
+CONFIG_CMD_BOOTU=y
+# CONFIG_CMD_BOOTZ is not set
+# CONFIG_CMD_GO is not set
+# CONFIG_CMD_LOADB is not set
+# CONFIG_CMD_LOADS is not set
+# CONFIG_CMD_LOADY is not set
+# CONFIG_CMD_RESET is not set
+# CONFIG_CMD_UIMAGE is not set
+# end of Boot
+
+#
+# Partition
+#
+# CONFIG_CMD_PARTITION is not set
+# CONFIG_CMD_AUTOMOUNT is not set
+CONFIG_CMD_MOUNT=y
+# CONFIG_CMD_FINDMNT is not set
+# CONFIG_CMD_PARTED is not set
+CONFIG_CMD_UMOUNT=y
+# end of Partition
+
+#
+# Environment
+#
+# CONFIG_CMD_NV is not set
+# CONFIG_CMD_EXPORT is not set
+# CONFIG_CMD_DEFAULTENV is not set
+# CONFIG_CMD_GLOBAL is not set
+# CONFIG_CMD_LOADENV is not set
+# CONFIG_CMD_PRINTENV is not set
+# CONFIG_CMD_MAGICVAR is not set
+# CONFIG_CMD_SAVEENV is not set
+CONFIG_CMD_SETENV=y
+# end of Environment
+
+#
+# File
+#
+# CONFIG_CMD_BASENAME is not set
+CONFIG_CMD_CAT=y
+CONFIG_CMD_CD=y
+CONFIG_CMD_CP=y
+# CONFIG_CMD_CMP is not set
+# CONFIG_CMD_DIGEST is not set
+# CONFIG_CMD_DIRNAME is not set
+# CONFIG_CMD_FILETYPE is not set
+# CONFIG_CMD_LN is not set
+CONFIG_CMD_LS=y
+CONFIG_CMD_TREE=y
+# CONFIG_CMD_STAT is not set
+# CONFIG_CMD_MD5SUM is not set
+CONFIG_CMD_MKDIR=y
+CONFIG_CMD_PWD=y
+# CONFIG_CMD_READLINK is not set
+CONFIG_CMD_RM=y
+CONFIG_CMD_RMDIR=y
+# CONFIG_CMD_SHA1SUM is not set
+# CONFIG_CMD_SHA224SUM is not set
+# CONFIG_CMD_SHA256SUM is not set
+# CONFIG_CMD_BASE64 is not set
+# CONFIG_CMD_SHA384SUM is not set
+# CONFIG_CMD_SHA512SUM is not set
+# CONFIG_CMD_FIPTOOL is not set
+# CONFIG_CMD_UNCOMPRESS is not set
+# end of File
+
+#
+# Shell scripting
+#
+CONFIG_CMD_FALSE=y
+# CONFIG_CMD_GETOPT is not set
+# CONFIG_CMD_LET is not set
+# CONFIG_CMD_MSLEEP is not set
+# CONFIG_CMD_READF is not set
+# CONFIG_CMD_SLEEP is not set
+CONFIG_CMD_TEST=y
+CONFIG_CMD_TRUE=y
+# end of Shell scripting
+
+#
+# Network
+#
+# CONFIG_CMD_DHCP is not set
+# CONFIG_CMD_HOST is not set
+# CONFIG_NET_CMD_IFUP is not set
+# CONFIG_CMD_PING is not set
+# CONFIG_CMD_IP is not set
+CONFIG_CMD_IP_ROUTE_GET=y
+# CONFIG_CMD_ETHLOG is not set
+# end of Network
+
+#
+# Console and Framebuffer interaction
+#
+CONFIG_CMD_CLEAR=y
+CONFIG_CMD_ECHO=y
+# CONFIG_CMD_ECHO_E is not set
+# CONFIG_CMD_EDIT is not set
+# CONFIG_CMD_LOGIN is not set
+# CONFIG_CMD_READLINE is not set
+# CONFIG_CMD_TIMEOUT is not set
+# end of Console and Framebuffer interaction
+
+#
+# Memory
+#
+# CONFIG_CMD_CRC is not set
+CONFIG_CMD_MD=y
+CONFIG_CMD_MEMCMP=y
+CONFIG_CMD_MEMCPY=y
+CONFIG_CMD_MEMSET=y
+# CONFIG_CMD_MEMTEST is not set
+# CONFIG_CMD_MEMTESTER is not set
+# CONFIG_CMD_MM is not set
+CONFIG_CMD_MW=y
+# end of Memory
+
+#
+# Hardware manipulation
+#
+# CONFIG_CMD_CLK is not set
+# CONFIG_CMD_DETECT is not set
+# CONFIG_CMD_TRUNCATE is not set
+# CONFIG_CMD_SYNC is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_GPIO is not set
+# CONFIG_CMD_POWEROFF is not set
+# CONFIG_CMD_SPI is not set
+CONFIG_CMD_USB=y
+# end of Hardware manipulation
+
+#
+# Miscellaneous
+#
+# CONFIG_CMD_2048 is not set
+# CONFIG_CMD_BAREBOX_UPDATE is not set
+# CONFIG_CMD_BLOBGEN is not set
+# CONFIG_CMD_FIRMWARELOAD is not set
+# CONFIG_CMD_OF_COMPATIBLE is not set
+# CONFIG_CMD_OF_DIFF is not set
+# CONFIG_CMD_OF_DUMP is not set
+# CONFIG_CMD_OF_NODE is not set
+# CONFIG_CMD_OF_PROPERTY is not set
+# CONFIG_CMD_OF_DISPLAY_TIMINGS is not set
+# CONFIG_CMD_OF_FIXUP_STATUS is not set
+# CONFIG_CMD_OF_OVERLAY is not set
+# CONFIG_CMD_OFTREE is not set
+# CONFIG_CMD_TIME is not set
+# CONFIG_CMD_WATCH is not set
+# CONFIG_CMD_UPTIME is not set
+# CONFIG_CMD_DHRYSTONE is not set
+# CONFIG_CMD_SPD_DECODE is not set
+# CONFIG_CMD_SEED is not set
+# end of Miscellaneous
+# end of Commands
+
+CONFIG_NET=y
+# CONFIG_NET_NETCONSOLE is not set
+CONFIG_NET_RESOLV=y
+CONFIG_NET_IFUP=y
+CONFIG_NET_DHCP=y
+# CONFIG_NET_SNTP is not set
+# CONFIG_NET_FASTBOOT is not set
+# CONFIG_NET_9P is not set
+
+#
+# Drivers
+#
+# CONFIG_DEEP_PROBE_DEFAULT is not set
+CONFIG_OFTREE=y
+CONFIG_OFTREE_MEM_GENERIC=y
+CONFIG_DTC=y
+CONFIG_OF=y
+CONFIG_OFDEVICE=y
+CONFIG_OF_GPIO=y
+# CONFIG_OF_BAREBOX_DRIVERS is not set
+# CONFIG_OF_OVERLAY is not set
+# CONFIG_AIODEV is not set
+CONFIG_ARM_AMBA=y
+
+#
+# serial drivers
+#
+# CONFIG_SERIAL_DEV_BUS is not set
+# CONFIG_DRIVER_SERIAL_ARM_DCC is not set
+# CONFIG_SERIAL_AMBA_PL011 is not set
+CONFIG_DRIVER_SERIAL_IMX=y
+# CONFIG_DRIVER_SERIAL_NS16550 is not set
+# CONFIG_DRIVER_SERIAL_CADENCE is not set
+# CONFIG_DRIVER_SERIAL_LPUART32 is not set
+# CONFIG_SERIAL_SIFIVE is not set
+# end of serial drivers
+
+CONFIG_ARCH_HAS_FEC_IMX=y
+
+#
+# Network drivers
+#
+# CONFIG_DRIVER_NET_ARC_EMAC is not set
+# CONFIG_DRIVER_NET_BCMGENET is not set
+# CONFIG_DRIVER_NET_DESIGNWARE_GENERIC is not set
+# CONFIG_DRIVER_NET_ENC28J60 is not set
+# CONFIG_DRIVER_NET_FEC_IMX is not set
+# CONFIG_DRIVER_NET_FSL_FMAN is not set
+# CONFIG_DRIVER_NET_KS8851_MLL is not set
+# CONFIG_DRIVER_NET_MICREL is not set
+# CONFIG_DRIVER_NET_SMC911X is not set
+# CONFIG_DRIVER_NET_SMC91111 is not set
+# CONFIG_DRIVER_NET_LITEETH is not set
+
+#
+# phylib
+#
+# end of phylib
+
+# CONFIG_NET_USB is not set
+# CONFIG_DSA is not set
+# end of Network drivers
+
+#
+# SPI drivers
+#
+CONFIG_SPI=y
+# CONFIG_SPI_MEM is not set
+# CONFIG_DRIVER_SPI_GPIO is not set
+# CONFIG_DRIVER_SPI_IMX is not set
+CONFIG_DRIVER_SPI_IMX_0_7=y
+# CONFIG_DRIVER_SPI_LITEX_SPIFLASH is not set
+# end of SPI drivers
+
+# CONFIG_I2C is not set
+# CONFIG_MTD is not set
+CONFIG_DISK=y
+# CONFIG_DISK_WRITE is not set
+
+#
+# drive types
+#
+# CONFIG_DISK_ATA is not set
+# CONFIG_DISK_AHCI is not set
+
+#
+# interface types
+#
+# CONFIG_DISK_INTF_PLATFORM_IDE is not set
+CONFIG_USB=y
+CONFIG_USB_HOST=y
+# CONFIG_USB_IMX_CHIPIDEA is not set
+CONFIG_USB_IMX_CHIPIDEA_USBMISC=y
+# CONFIG_USB_DWC2_HOST is not set
+# CONFIG_USB_DWC3 is not set
+CONFIG_USB_EHCI=y
+CONFIG_USB_OHCI=y
+CONFIG_USB_XHCI=y
+CONFIG_USB_ULPI=y
+CONFIG_USB_STORAGE=y
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_ONBOARD_DEV is not set
+# CONFIG_USB_GADGET is not set
+# CONFIG_USB_MUSB is not set
+# CONFIG_VIDEO is not set
+# CONFIG_SOUND is not set
+# CONFIG_MCI is not set
+CONFIG_HAVE_CLK=y
+CONFIG_CLKDEV_LOOKUP=y
+CONFIG_COMMON_CLK=y
+CONFIG_COMMON_CLK_OF_PROVIDER=y
+CONFIG_COMMON_CLK_GPIO=y
+
+#
+# Clocksource
+#
+CONFIG_ARCH_HAS_IMX_GPT=y
+CONFIG_AMBA_SP804=y
+CONFIG_CLOCKSOURCE_DUMMY_RATE=1000
+CONFIG_CLOCKSOURCE_IMX_GPT=y
+# CONFIG_CLOCKSOURCE_DW_APB_TIMER is not set
+# end of Clocksource
+
+#
+# Multifunction device drivers
+#
+# CONFIG_MFD_MC13XXX is not set
+# CONFIG_MFD_SYSCON is not set
+# CONFIG_MFD_ATMEL_FLEXCOM is not set
+# CONFIG_MFD_RK808 is not set
+# end of Multifunction device drivers
+
+#
+# Misc devices
+#
+# CONFIG_JTAG is not set
+# CONFIG_SRAM is not set
+CONFIG_DEV_MEM=y
+# CONFIG_UBOOTVAR is not set
+# CONFIG_STORAGE_BY_ALIAS is not set
+# end of Misc devices
+
+# CONFIG_LED is not set
+
+#
+# EEPROM support
+#
+# CONFIG_EEPROM_AT25 is not set
+# end of EEPROM support
+
+#
+# Input device support
+#
+# CONFIG_INPUT_EVBUG is not set
+# CONFIG_KEYBOARD_GPIO is not set
+# CONFIG_KEYBOARD_IMX_KEYPAD is not set
+# CONFIG_KEYBOARD_USB is not set
+# CONFIG_INPUT_SPECIALKEYS is not set
+# end of Input device support
+
+CONFIG_WATCHDOG_IMX_RESET_SOURCE=y
+# CONFIG_WATCHDOG is not set
+# CONFIG_PWM is not set
+# CONFIG_HWRNG is not set
+
+#
+# DMA support
+#
+# CONFIG_DMADEVICES is not set
+# end of DMA support
+
+CONFIG_GPIOLIB=y
+
+#
+# GPIO
+#
+# CONFIG_GPIO_74164 is not set
+# CONFIG_GPIO_74XX_MMIO is not set
+# CONFIG_GPIO_GENERIC_PLATFORM is not set
+CONFIG_GPIO_IMX=y
+# CONFIG_GPIO_PL061 is not set
+# CONFIG_GPIO_DESIGNWARE is not set
+# CONFIG_GPIO_SIFIVE is not set
+# CONFIG_GPIO_LATCH is not set
+# end of GPIO
+
+# CONFIG_W1 is not set
+
+#
+# Pin controllers
+#
+CONFIG_PINCTRL=y
+CONFIG_PINCTRL_IMX_IOMUX_V3=y
+# CONFIG_PINCTRL_SINGLE is not set
+# end of Pin controllers
+
+# CONFIG_NVMEM is not set
+
+#
+# Bus devices
+#
+# CONFIG_IMX_WEIM is not set
+# end of Bus devices
+
+# CONFIG_REGULATOR is not set
+
+#
+# Remoteproc drivers
+#
+# CONFIG_REMOTEPROC is not set
+# end of Remoteproc drivers
+
+# CONFIG_RESET_CONTROLLER is not set
+CONFIG_HW_HAS_PCI=y
+
+#
+# PCI bus options
+#
+# CONFIG_PCI is not set
+# CONFIG_PCI_ECAM_GENERIC is not set
+# end of PCI bus options
+
+# CONFIG_RTC_CLASS is not set
+
+#
+# Firmware Drivers
+#
+# CONFIG_FIRMWARE_ALTERA_SERIAL is not set
+# CONFIG_QEMU_FW_CFG is not set
+
+#
+# ARM System Control and Management Interface Protocol
+#
+# CONFIG_ARM_SCMI_PROTOCOL is not set
+# end of ARM System Control and Management Interface Protocol
+# end of Firmware Drivers
+
+#
+# FPGA Configuration Support
+#
+# CONFIG_FPGA is not set
+# end of FPGA Configuration Support
+
+# CONFIG_GENERIC_PHY is not set
+
+#
+# Hardware crypto devices
+#
+# CONFIG_CRYPTO_DEV_MXC_SCC is not set
+# CONFIG_CRYPTO_DEV_MXC_SCC_BLOB_GEN is not set
+# end of Hardware crypto devices
+
+#
+# Memory controller drivers
+#
+# end of Memory controller drivers
+
+#
+# SoC drivers
+#
+
+#
+# i.MX SoC drivers
+#
+# end of i.MX SoC drivers
+
+#
+# KVX SoC drivers
+#
+# end of KVX SoC drivers
+# end of SoC drivers
+
+#
+# PM Domains
+#
+
+#
+# i.MX PM Domains
+#
+# end of i.MX PM Domains
+# end of PM Domains
+
+#
+# NVME Support
+#
+# end of NVME Support
+
+# CONFIG_POWER_RESET_SYSCON is not set
+# CONFIG_POWER_RESET_SYSCON_POWEROFF is not set
+# CONFIG_POWER_RESET_GPIO is not set
+# CONFIG_POWER_RESET_GPIO_RESTART is not set
+CONFIG_VIRTIO_MENU=y
+# CONFIG_VIRTIO_MMIO is not set
+# CONFIG_MAILBOX is not set
+# CONFIG_TEE is not set
+# end of Drivers
+
+#
+# Filesystem support
+#
+CONFIG_FS=y
+CONFIG_FS_WRITABLE=y
+# CONFIG_FS_CRAMFS is not set
+CONFIG_FS_EXT4=y
+CONFIG_FS_RAMFS=y
+CONFIG_FS_DEVFS=y
+# CONFIG_FS_TFTP is not set
+# CONFIG_FS_NFS is not set
+# CONFIG_FS_FAT is not set
+# CONFIG_FS_BPKFS is not set
+# CONFIG_FS_UIMAGEFS is not set
+# CONFIG_FS_PSTORE is not set
+# CONFIG_FS_SQUASHFS is not set
+
+#
+# ZLIB support disabled
+#
+
+#
+# LZ4 support disabled
+#
+
+#
+# LZO support disabled
+#
+
+#
+# XZ support disabled
+#
+
+#
+# ZSTD support disabled
+#
+# CONFIG_FS_QEMU_FW_CFG is not set
+# end of Filesystem support
+
+#
+# Library routines
+#
+CONFIG_PARAMETER=y
+CONFIG_UNCOMPRESS=y
+# CONFIG_ZLIB is not set
+# CONFIG_BZLIB is not set
+CONFIG_LZ4_DECOMPRESS=y
+# CONFIG_ZSTD_DECOMPRESS is not set
+# CONFIG_XZ_DECOMPRESS is not set
+# CONFIG_BASE64 is not set
+# CONFIG_LZO_DECOMPRESS is not set
+CONFIG_FNMATCH=y
+CONFIG_LIBFDT=y
+# CONFIG_RATP is not set
+# CONFIG_ALLOW_PRNG_FALLBACK is not set
+# CONFIG_CRC_CCITT is not set
+# CONFIG_CRC8 is not set
+
+#
+# Library gui routines
+#
+# end of Library gui routines
+
+# CONFIG_NLS is not set
+# CONFIG_BLOBGEN is not set
+# end of Library routines
+
+#
+# Hardening options
+#
+
+#
+# This barebox configuration has CONFIG_HAS_INSECURE_DEFAULTS=y indicating
+#
+
+#
+# that some of the configured options have potentially insecure defaults.
+#
+
+#
+# Extra care needs to be taken in secure booted systems.
+#
+# CONFIG_BUG_ON_DATA_CORRUPTION is not set
+
+#
+# Memory initialization
+#
+CONFIG_CC_HAS_AUTO_VAR_INIT_PATTERN=y
+CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO_BARE=y
+CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO=y
+# CONFIG_INIT_STACK_NONE is not set
+# CONFIG_INIT_STACK_ALL_PATTERN is not set
+CONFIG_INIT_STACK_ALL_ZERO=y
+# CONFIG_INIT_ON_ALLOC_DEFAULT_ON is not set
+# CONFIG_INIT_ON_FREE_DEFAULT_ON is not set
+CONFIG_CC_HAS_ZERO_CALL_USED_REGS=y
+# CONFIG_ZERO_CALL_USED_REGS is not set
+# end of Memory initialization
+
+#
+# Buffer overflow protection
+#
+CONFIG_STACKPROTECTOR_NONE=y
+# CONFIG_STACKPROTECTOR_STRONG is not set
+CONFIG_PBL_STACKPROTECTOR_NONE=y
+# CONFIG_PBL_STACKPROTECTOR_STRONG is not set
+# end of Buffer overflow protection
+# end of Hardening options
+
+#
+# Crypto support
+#
+CONFIG_CRC32=y
+# CONFIG_DIGEST is not set
+# CONFIG_CRYPTO_RSA is not set
+# CONFIG_CRYPTO_ECDSA is not set
+# CONFIG_CRYPTO_BUILTIN_KEYS is not set
+# CONFIG_CRYPTO_KEYSTORE is not set
+# end of Crypto support
+
+#
+# Firmware files
+#
+CONFIG_EXTRA_FIRMWARE_DIR="firmware"
+CONFIG_MISSING_FIRMWARE_ERROR=y
+# end of Firmware files
+
+#
+# Host Tools
+#
+# CONFIG_COMPILE_HOST_TOOLS is not set
+CONFIG_ARCH_IMX_USBLOADER=y
+# end of Host Tools
+
+#
+# Target Tools
+#
+# CONFIG_KERNEL_INSTALL_TARGET is not set
+# CONFIG_BAREBOXENV_TARGET is not set
+# CONFIG_BAREBOXCRC32_TARGET is not set
+# CONFIG_MVEBU_KWBOOT_TARGET is not set
+# end of Target Tools
+
+# CONFIG_TEST is not set

@@ -13,21 +13,25 @@ cp files/mx25pdk.h u-boot/include/configs/mx25pdk.h
 cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
 
 # prepare Barebox
-cp -rP files/barebox_arch_arm_boards_openx32    barebox/arch/arm/boards/openx23
-echo "obj-$(CONFIG_MACH_OPENX32)				+= openx32/" >> barebox/arch/arm/boards/Makefile
+cp -rP files/barebox_arch_arm_boards_openx32/*    barebox/arch/arm/boards/openx23/
+echo 'obj-$(CONFIG_MACH_OPENX32) += openx32/' >> barebox/arch/arm/boards/Makefile
 cp files/barebox_arc_arm_mach-imx_Kconfig       barebox/arch/arm/mach-imx/
 cp files/imx25-pdk.dts                          barebox/arch/arm/dts/imx25-openx32.dts
 cp files/barebox_arc_arm_dts_Makefile           barebox/arch/arm/dts/Makefile
 cp files/barebox_images_Makefile.imx            barebox/images/Makefile.imx
+cp files/config_barebox                         barebox/.config
 
 # =================== Loader =======================
 
 echo "1/8 Compiling Miniloader..."
 cd miniloader
-make > /dev/null
+make
 echo "2/8 Compiling u-boot..."
 cd ../u-boot
-ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make > /dev/null
+ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make
+echo "2/8 Compiling barebox..."
+cd ../barebox
+ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make
 
 # =================== Linux =======================
 
@@ -80,7 +84,8 @@ dd if=u-boot/u-boot.bin of=/tmp/openx32.bin bs=1 seek=$((0xC0)) conv=notrunc > /
 #echo "    40% Copying Linux-Kernel...."
 echo "    41% copy barebox..."
 #dd if=/tmp/uImage of=/tmp/openx32.bin bs=1 seek=$((0x60000)) conv=notrunc > /dev/null 2>&1
-#dd if=../barebox/barebox-2025.07.0/images/barebox-dt-2nd.img of=/tmp/openx32.bin bs=1 seek=$((0x60000)) conv=notrunc
+dd if=barebox/images/barebox-dt-2nd.img of=/tmp/openx32.bin bs=1 seek=$((0x60000)) conv=notrunc
+dd if=barebox/arch/arm/dts/versatile-pb.dtb of=/tmp/openx32.bin bs=1 seek=$((0x100000)) conv=notrunc > /dev/null 2>&1
 # DeviceTreeBlob at offset 0x800000 (~8 MiB for Kernel)
 #echo "    60% Copying DeviceTreeBlob..."
 #dd if=linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dtb of=/tmp/openx32.bin bs=1 seek=$((0x800000)) conv=notrunc > /dev/null 2>&1

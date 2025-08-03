@@ -63,7 +63,7 @@ static void noinline gpio_fec_active(void)
 
 static int openx32_init(void)
 {
-	// if (!of_machine_is_compatible("karo,imx25-tx25"))
+	//if (!of_machine_is_compatible("karo,imx25-tx25"))
 	// 	return 0;
 
 	//gpio_fec_active();
@@ -81,31 +81,31 @@ static int openx32_init(void)
 console_initcall(openx32_init);
 
 static iomux_v3_cfg_t openx32_lcdc_gpios[] = {
-	MX25_PAD_A18__GPIO_2_4,		/* LCD Reset (active LOW) */
-	MX25_PAD_PWM__GPIO_1_26,	/* LCD Backlight brightness 0: full 1: off */
-	MX25_PAD_A19__GPIO_2_5,		/* LCD Power Enable 0: off 1: on */
-	MX25_PAD_LSCLK__LSCLK,
-	MX25_PAD_LD0__LD0,
-	MX25_PAD_LD1__LD1,
-	MX25_PAD_LD2__LD2,
-	MX25_PAD_LD3__LD3,
-	MX25_PAD_LD4__LD4,
-	MX25_PAD_LD5__LD5,
-	MX25_PAD_LD6__LD6,
-	MX25_PAD_LD7__LD7,
-	MX25_PAD_LD8__LD8,
-	MX25_PAD_LD9__LD9,
-	MX25_PAD_LD10__LD10,
-	MX25_PAD_LD11__LD11,
-	MX25_PAD_LD12__LD12,
-	MX25_PAD_LD13__LD13,
-	MX25_PAD_LD14__LD14,
-	MX25_PAD_LD15__LD15,
-	MX25_PAD_D15__LD16,
-	MX25_PAD_D14__LD17,
-	MX25_PAD_HSYNC__HSYNC,
-	MX25_PAD_VSYNC__VSYNC,
-	MX25_PAD_OE_ACD__OE_ACD,
+	//MX25_PAD_A18__GPIO_2_4,		/* LCD Reset (active LOW) */
+	MX25_PAD_PWM__GPIO_1_26//,	/* LCD Backlight brightness 0: full 1: off */
+	// MX25_PAD_A19__GPIO_2_5,		/* LCD Power Enable 0: off 1: on */
+	// MX25_PAD_LSCLK__LSCLK,
+	// MX25_PAD_LD0__LD0,
+	// MX25_PAD_LD1__LD1,
+	// MX25_PAD_LD2__LD2,
+	// MX25_PAD_LD3__LD3,
+	// MX25_PAD_LD4__LD4,
+	// MX25_PAD_LD5__LD5,
+	// MX25_PAD_LD6__LD6,
+	// MX25_PAD_LD7__LD7,
+	// MX25_PAD_LD8__LD8,
+	// MX25_PAD_LD9__LD9,
+	// MX25_PAD_LD10__LD10,
+	// MX25_PAD_LD11__LD11,
+	// MX25_PAD_LD12__LD12,
+	// MX25_PAD_LD13__LD13,
+	// MX25_PAD_LD14__LD14,
+	// MX25_PAD_LD15__LD15,
+	// MX25_PAD_D15__LD16,
+	// MX25_PAD_D14__LD17,
+	// MX25_PAD_HSYNC__HSYNC,
+	// MX25_PAD_VSYNC__VSYNC,
+	// MX25_PAD_OE_ACD__OE_ACD,
 };
 
 static struct fb_videomode stk5_fb_mode = {
@@ -146,11 +146,15 @@ static struct imx_fb_platform_data openx32_fb_data = {
 
 static int openx32_init_fb(void)
 {
-	// if (!IS_ENABLED(CONFIG_DRIVER_VIDEO_IMX))
+	//if (!IS_ENABLED(CONFIG_DRIVER_VIDEO_IMX))
+	//	return 0;
+
+	//if (!of_machine_is_compatible("karo,imx25-tx25"))
 	// 	return 0;
 
-	// if (!of_machine_is_compatible("karo,imx25-tx25"))
-	// 	return 0;
+
+	mxc_iomux_v3_setup_multiple_pads(openx32_lcdc_gpios,
+			ARRAY_SIZE(openx32_lcdc_gpios));
 
 	openx32_lamp_enable(0);
 	mdelay(1000);
@@ -169,9 +173,6 @@ static int openx32_init_fb(void)
 	openx32_lamp_enable(1);
 	mdelay(1000);
 	openx32_lamp_enable(0);
-
-	//mxc_iomux_v3_setup_multiple_pads(openx32_lcdc_gpios,
-	//		ARRAY_SIZE(openx32_lcdc_gpios));
 
 	//add_generic_device("imxfb", -1, NULL, (resource_size_t)MX25_LCDC_BASE_ADDR, 0x1000,
 	//		   IORESOURCE_MEM, &openx32_fb_data);
