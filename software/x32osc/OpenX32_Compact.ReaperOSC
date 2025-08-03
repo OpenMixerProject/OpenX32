@@ -1,0 +1,270 @@
+# OSC pattern config file.
+
+# Make a copy of this file, rename it, and edit the file to create a 
+# custom pattern configuration.
+
+# For basic information about OSC and REAPER, see 
+# http://www.cockos.com/reaper/sdk/osc/osc.php .
+
+# ----------------------------------------------------------------
+
+# Default settings for how this device displays information.
+
+# (these can all be overridden by the device sending OSC messages, search for these
+# names below to see the messages)
+#
+# DEVICE_TRACK_COUNT is how many tracks this device can display at once 
+# (the track bank size).
+# DEVICE_SEND_COUNT/DEVICE_RECEIVE_COUNT is how many sends and receives this
+# device can display at once.
+# DEVICE_FX_COUNT is how many track insert FX this device can display at once.
+# DEVICE_FX_PARAM_COUNT is how many FX parameters this device can display at once
+# (the FX parameter bank size).
+# DEVICE_FX_INST_PARAM_COUNT is how many FX instrument parameters this device can
+# display at once (the FX instrument parameter bank size).
+# DEVICE_MARKER_COUNT is how many markers for which this device would like to 
+# receive information 
+# DEVICE_REGION_COUNT is how many regions for which this device would like to 
+# receive information 
+
+DEVICE_TRACK_COUNT 16
+DEVICE_SEND_COUNT 0
+DEVICE_RECEIVE_COUNT 0
+DEVICE_FX_COUNT 0
+DEVICE_FX_PARAM_COUNT 0
+DEVICE_FX_INST_PARAM_COUNT 0
+DEVICE_MARKER_COUNT 0
+DEVICE_REGION_COUNT 0
+
+# ----------------------------------------------------------------
+
+# Default values for how this device behaves. The device has a selected track, bank 
+# of tracks, and FX, which are not necessarily the same as the selected track or FX 
+# in the REAPER window.
+
+# REAPER_TRACK_FOLLOWS determines whether the selected track in REAPER changes
+# only when the user changes it in the REAPER window, or if it follows the track
+# currently selected in the OSC device.
+# Allowed values: REAPER, DEVICE
+
+# DEVICE_TRACK_FOLLOWS determines whether the selected track in the device changes
+# only when the device changes it, or if it follows the last touched track in the 
+# REAPER window.
+# Allowed values: DEVICE, LAST_TOUCHED
+
+# DEVICE_TRACK_BANK_FOLLOWS determines whether the selected track bank in the device 
+# changes only when the device changes it, or if it follows the REAPER mixer view.
+# Allowed values: DEVICE, MIXER
+
+# DEVICE_FX_FOLLOWS determines whether the selected FX in the device changes only 
+# when the  device changes it, or if it follows the last touched or currently focused
+# FX in the REAPER window.
+# Allowed values: DEVICE, LAST_TOUCHED, FOCUSED
+
+# DEVICE_EQ determines whether sending any FX_EQ message will automatically insert
+# ReaEQ on the target track if it does not exist, or the message will only affect
+# an existing instance of ReaEQ.
+# Allowed values: INSERT, EXISTING
+
+# DEVICE_ROTARY_CENTER defines the argument that represents no change, for rotary 
+# controls.
+# Allowed values: 0, 0.5
+
+REAPER_TRACK_FOLLOWS REAPER
+DEVICE_TRACK_FOLLOWS DEVICE
+DEVICE_TRACK_BANK_FOLLOWS DEVICE
+DEVICE_FX_FOLLOWS DEVICE
+
+DEVICE_EQ INSERT
+
+DEVICE_ROTARY_CENTER 0
+
+# ----------------------------------------------------------------
+
+# Each line below is an action description in all caps, followed by a number of OSC
+# message patterns. You can add, remove, or change patterns, delete lines, or comment 
+# out lines by adding '#', but do not change the action descriptions.
+
+# The patterns following the action are the messages that REAPER will send and receive
+# to and from the OSC device. An action can have no patterns (and will be ignored), 
+# one pattern, or many patterns.
+
+# The patterns may contain the wildcard character '@'. (This is REAPER-only, not part
+# of the OSC specification.) The '@' wildcard is used to specify the action target.
+
+# ----------------------------------------------------------------
+
+# The OSC device sends patterns to trigger actions, and REAPER sends patterns to the
+# device as feedback.  OSC patterns can include arguments, which are be interpreted
+# in various ways, defined by a flag immediately before the pattern.
+
+# n: normalized floating-point argument. 0 means the minimum value, and 1 means the 
+# maximum value.  This can be used for continous controls like sliders and knobs.
+
+# Example: TRACK_VOLUME n/track/volume n/track/@/volume
+# The device sends /track/3/volume 0.5 to set the volume to 0.5 for track 3, or
+# /track/volume 0.5 to set the volume for the track that is currently selected in 
+# the device. REAPER sends /track/3/volume 0.5 when track 3 volume changes to 0.5.
+# If track 3 is currently selected in the device, REAPER will also send 
+# /track/volume 0.5. The floating-point argument represents as the track fader 
+# position in the REAPER window. 0 sets the fader all the way down, 1 sets the fader
+# all the way up, 0.5 sets the fader exactly in the middle. Therefore, the actual 
+# volume that is set depends on the REAPER track fader preference settings.
+
+# f: raw floating-point argument. The argument is interpreted directly, to set or
+# report a value.
+
+# Example: TEMPO f/tempo/raw
+# The device sends /tempo/raw 100.351 to change the REAPER tempo to 100.351 bpm.
+# REAPER sends /tempo/raw 120 when the tempo changes to 120 bpm. 
+
+# Normalized and raw floating-point arguments also support multiple parameters 
+# sent from the device.
+# Example: FX_PARAM_VALUE n/track/@/fx/@/fxparam/@/value
+# The device can send /track/3/fx/1,2,5/fxparam/6,7,7/value 0.25 0.5 0.75
+# to set three FX parameter values at once, to 0.25, 0.5, 0.75 respectively.
+
+# b: binary argument, either 0 or 1. The device sets or clears the state when 
+# sending the message. Can be used to emulate switches or momentary controls.
+
+# Example: TRACK_MUTE b/track/mute b/track/@/mute
+# The device sends /track/3/mute 1 to mute track 3, or /track/mute 1 to mute the 
+# track that is currently selected in the device. /track/3/mute 0 will unmute
+# track 3. REAPER sends /track/3/mute 1 when track 3 is muted, and /track/3/mute 0
+# when track 3 is unmuted. If track 3 is currently selected in the device, REAPER 
+# will also send /track/mute 1 and /track/mute 0.
+
+# Example: REWIND b/rewind
+# The device sends /rewind 1 to begin rewinding, and sends /rewind 0 to stop
+# rewinding. REAPER sends /rewind 1 when the rewind button in the REAPER window is
+# pressed, and /rewind 0 when the button is released. 
+
+# t: trigger or toggle message. The device triggers the action, or toggles the
+# state, when the pattern is sent with no arguments, or with an argument of 1.
+# The feedback values REAPER sends are identical to those sent for binary 
+# arguments.
+
+# Example: METRONOME t/click
+# The device sends /click or /click 1 to toggle the metronome on or off. REAPER 
+# sends /click 1 when the metronome is enabled, and /click 0 when the metronome 
+# is disabled. 
+
+# r: rotary. The device triggers the action in the forward direction when sent 
+# with an argument greater than ROTARY_CENTER, and in the reverse direction when 
+# sent with an argument less than ROTARY_CENTER. For some messages, the magnitude 
+# of the argument affects the rate of change. REAPER does not send feedback for 
+# these messages.
+
+# Example: SCRUB r/scrub
+# The device sends /scrub 1 to scrub forward, and /scrub -1 to scrub in reverse
+# (if ROTARY_CENTER is 0).
+
+# s: string. These messages include a string argument. Many of these messages
+# are sent from REAPER to the device for feedback/display, but some can be sent
+# from the device to REAPER.
+
+# Example: TRACK_NAME s/track/name s/track/@/name
+# The device sends /track/3/name "vox" to rename track 3 in REAPER, or /track/name
+# "vox" to rename the track that is currently selected in the device. REAPER sends 
+# /track/3/name "vox" to report that name of track 3 is "vox". If track 3 is 
+# currently selected in the device, REAPER will also send /track/name "vox".
+
+# Example: DEVICE_FX_FOLLOWS s/fxfollows
+# The device sends /fxfollows "FOCUSED" to inform REAPER that the selected FX in the
+# device will now follow the FX that is focused in the REAPER window.
+
+# i: integer. These messages include an integer argument, and are sent from the 
+# device to REAPER.
+
+# Example: ACTION i/action t/action/@
+# The device sends /action 40757 or /action/40757 to trigger the REAPER action
+# "split items at edit cursor". See the REAPER actions window for a complete list
+# of action command ID numbers.
+
+# Example: DEVICE_TRACK_BANK_SELECT i/bankedit t/bankedit/@
+# The device sends /bankedit 2 or /bankedit/2 to inform REAPER that the active 
+# track bank is bank 2. If NUM_TRACKS is 8, that means REAPER will now interpret
+# a message like /track/1/volume as targeting the volume for track 9, and  REAPER 
+# will only send the device feedback messages for tracks 9-16.
+
+# ----------------------------------------------------------------
+
+# Note: the default configuration includes a lot of feedback messages, which can
+# flood the device. Avoid flooding by removing messages (by deleting the patterns, 
+# or commenting out the lines) that the device does not want, especially the
+# TIME, BEAT, SAMPLES, FRAMES, VU, FX_PARAM, LAST_MARKER, LAST_REGION messages.
+
+# Note: FX parameter feedback will only be sent for the track that is currently
+# selected in the device. If messages exist that can target FX on other tracks,
+# feedback will be sent whenever the parameter values change. This can be a lot of
+# data, so only include those messages if you want the feedback.
+# Example: FX_PARAM_VALUE /fxparam/@/value /fx/@/fxparam/@/value
+# This action can only target FX on the currently selected track, so feedback will
+# only be sent for that track.
+# Example: FX_PARAM_VALUE /fxparam/@/value /fx/@/fxparam/@/value /track/@/fx/@/fxparam/@/value
+# This action can target FX on any track, so feedback will be sent for all tracks.
+
+# Note: multiple patterns for a given action can all be listed on the same line, 
+# or split onto separate lines.
+
+# ----------------------------------------------------------------
+
+# The default REAPER OSC pattern configuration follows. To create a custom 
+# configuration, copy this file and edit the copy.
+
+ACTION i/action t/action/@
+
+
+RECORD t/record
+STOP t/stop
+PLAY t/play
+PAUSE t/pause
+
+SOLO_RESET t/soloreset
+ANY_SOLO b/anysolo
+
+MASTER_VOLUME n/master/volume s/master/volume/str
+MASTER_PAN n/master/pan s/master/pan/str
+#MASTER_VU n/master/vu
+MASTER_VU_L n/master/vu/L
+MASTER_VU_R n/master/vu/R
+
+MASTER_SEND_NAME s/master/send/@/name
+MASTER_SEND_VOLUME n/master/send/@/volume s/master/send/@/volume/str
+MASTER_SEND_PAN n/master/send/@/pan s/master/send/@/pan/str
+
+TRACK_NAME s/track/name s/track/@/name
+TRACK_NUMBER s/track/number/str s/track/@/number/str
+
+TRACK_MUTE b/track/mute b/track/@/mute t/track/mute/toggle t/track/@/mute/toggle
+TRACK_SOLO b/track/solo b/track/@/solo t/track/solo/toggle t/track/@/solo/toggle
+TRACK_REC_ARM b/track/recarm b/track/@/recarm t/track/recarm/toggle t/track/@/recarm/toggle
+
+TRACK_SELECT b/track/select b/track/@/select t/track/@/select/toggle
+
+TRACK_VU n/track/@/vu
+
+TRACK_VOLUME n/track/volume n/track/@/volume
+TRACK_VOLUME s/track/volume/str s/track/@/volume/str
+TRACK_VOLUME f/track/volume/db f/track/@/volume/db
+TRACK_PAN n/track/pan n/track/@/pan s/track/pan/str s/track/@/pan/str
+TRACK_PAN2 n/track/pan2 n/track/@/pan2 s/track/pan2/str s/track/@/pan2/str
+TRACK_PAN_MODE s/track/panmode s/track/@/panmode
+
+
+# ----------------------------------------------------------------
+
+# The following messages are sent from the device, to inform REAPER
+# of a change in the device state, behavior, or display capabilities.
+
+DEVICE_TRACK_COUNT i/device/track/count t/device/track/count/@
+
+DEVICE_TRACK_SELECT i/device/track/select t/device/track/select/@ 
+DEVICE_PREV_TRACK t/device/track/-
+DEVICE_NEXT_TRACK t/device/track/+
+
+DEVICE_TRACK_BANK_SELECT i/device/track/bank/select t/device/track/bank/select/@
+DEVICE_PREV_TRACK_BANK t/device/track/bank/-
+DEVICE_NEXT_TRACK_BANK t/device/track/bank/+
+
+
