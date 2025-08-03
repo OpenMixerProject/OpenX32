@@ -2,7 +2,7 @@
 #define SURFACE_H_
 
 #include "x32osc-reaper.h"
-#include "constants.h"
+#include "../x32ctrl/constants.h"
 
 void setFader(uint8_t boardId, uint8_t index, uint16_t position);
 void setLed(uint8_t boardId, uint8_t ledId, uint8_t state);

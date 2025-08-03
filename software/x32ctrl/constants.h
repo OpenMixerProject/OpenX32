@@ -1,8 +1,6 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#include "x32ctrl.h"
-
 //########################################################
 //
 //               X32 Generic Stuff

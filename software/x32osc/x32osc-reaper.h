@@ -37,7 +37,7 @@
 #include "uart.h"
 #include "surface.h"
 #include "auxiliary.h"
-#include "constants.h"
+#include "../x32ctrl/constants.h"
 #include "osc.h"
 
 // function prototypes
