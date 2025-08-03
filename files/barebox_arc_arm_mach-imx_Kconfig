@@ -1,0 +1,986 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+if ARCH_IMX
+
+config ARCH_IMX_IMXIMAGE
+	bool
+	default y
+	help
+	  if enabled the imx-image tool is compiled
+
+config ARCH_IMX_IMXIMAGE_SSL_SUPPORT
+	bool
+	help
+	  This enables SSL support for the imx-image tool. This is required
+	  for created images for HABv3. This adds openssl to the build dependencies
+
+config ARCH_IMX_EXTERNAL_BOOT_NAND
+	bool
+	depends on ARCH_IMX25 || ARCH_IMX27 || ARCH_IMX31 || ARCH_IMX35
+	prompt "Support Starting barebox from NAND in external bootmode"
+
+config BAREBOX_UPDATE_IMX_EXTERNAL_NAND
+	bool
+	depends on ARCH_IMX_EXTERNAL_BOOT_NAND
+	depends on BAREBOX_UPDATE
+	depends on MTD
+	depends on MTD_WRITE
+	default y
+
+config USB_GADGET_DRIVER_ARC_PBL
+	bool
+
+config RESET_IMX_SRC
+	def_bool y
+	depends on ARCH_IMX6 || ARCH_IMX50 || ARCH_IMX51 || ARCH_IMX53
+
+config ARCH_IMX_ATF
+	def_bool y
+	depends on ARCH_IMX8M || ARCH_IMX9
+
+config ARCH_IMX_ROMAPI
+	def_bool y
+	depends on ARCH_IMX8M || ARCH_IMX9
+
+config ARCH_IMX_SCRATCHMEM
+	def_bool y
+	depends on ARCH_IMX8M || ARCH_IMX9
+
+#
+# PMIC configuration found on i.MX51 Babbadge board
+#
+config MACH_FREESCALE_MX51_PDK_POWER
+        bool
+	select SPI
+	select DRIVER_SPI_IMX
+	select MFD_MC13XXX
+
+menu "i.MX boards"
+
+config ARCH_IMX1
+	bool
+	select CPU_ARM920T
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V1
+
+config ARCH_IMX21
+	bool
+	select CPU_ARM926T
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V1
+
+config ARCH_IMX25
+	bool
+	select CPU_ARM926T
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V3
+
+config ARCH_IMX27
+	bool
+	select CPU_ARM926T
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V1
+	select COMMON_CLK_OF_PROVIDER
+
+config ARCH_IMX31
+	select CPU_V6
+	bool
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V2
+
+config ARCH_IMX35
+	bool
+	select CPU_V6
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V3
+
+config ARCH_IMX50
+	bool
+	select CPU_V7
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V3
+
+config ARCH_IMX51
+	bool
+	select CPU_V7
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V3
+
+config ARCH_IMX53
+	bool
+	select CPU_V7
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+	select PINCTRL_IMX_IOMUX_V3
+
+config ARCH_IMX6
+	bool
+	select ARCH_HAS_L2X0
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+	select CPU_V7
+	select PINCTRL_IMX_IOMUX_V3
+	select COMMON_CLK_OF_PROVIDER
+	select PBL_VERIFY_PIGGY if HABV4
+
+config ARCH_IMX6SL
+	bool
+	select ARCH_IMX6
+
+config ARCH_IMX6SX
+	bool
+	select ARCH_IMX6
+
+config ARCH_IMX6UL
+	bool
+	select ARCH_IMX6
+
+config ARCH_IMX7
+	bool
+	select CPU_V7
+	select HAS_PSCI_PROVIDER
+	select PINCTRL_IMX_IOMUX_V3
+	select COMMON_CLK_OF_PROVIDER
+	select ARCH_HAS_FEC_IMX
+	select ARCH_HAS_IMX_GPT
+
+config ARCH_IMX8M
+	bool
+	select CPU_V8
+	select PINCTRL_IMX_IOMUX_V3
+	select COMMON_CLK_OF_PROVIDER
+	select ARCH_HAS_FEC_IMX
+	select IMX8M_DRAM
+	select PBL_VERIFY_PIGGY if HABV4
+	select SOC_BUS
+	imply FSL_CAAM_RNG_PBL_INIT if HAVE_OPTEE
+
+config ARCH_IMX8MM
+	select ARCH_IMX8M
+	bool
+
+config ARCH_IMX8MN
+	select ARCH_IMX8M
+	bool
+
+config ARCH_IMX8MP
+	select ARCH_IMX8M
+	bool
+
+config ARCH_IMX8MQ
+	select ARCH_IMX8M
+	bool
+
+config ARCH_IMX9
+	select AHAB
+	bool
+
+config ARCH_IMX93
+	bool
+	select ARCH_IMX9
+	select CPU_V8
+	select PINCTRL_IMX_IOMUX_V3
+	select COMMON_CLK_OF_PROVIDER
+	select ARCH_HAS_FEC_IMX
+	select PBL_VERIFY_PIGGY if !INSECURE
+
+config ARCH_VF610
+	bool
+	select ARCH_HAS_L2X0
+	select ARCH_HAS_FEC_IMX
+	select CPU_V7
+	select PINCTRL
+	select COMMON_CLK
+	select COMMON_CLK_OF_PROVIDER
+	select NVMEM
+	select IMX_OCOTP	# Needed for clock adjustement
+	select CLOCKSOURCE_ARM_GLOBAL_TIMER
+
+config MACH_ZII_COMMON
+	bool
+
+if 32BIT
+
+comment "i.MX1 boards"
+
+config MACH_SCB9328
+	bool "Synertronixx scb9328"
+	select ARCH_IMX1
+	select HAS_DM9000
+	help
+	  Say Y here if you are using the Synertronixx scb9328 board
+
+comment "i.MX25 boards"
+
+config MACH_OPENX32
+	bool "OpenX32"
+	select ARCH_IMX25
+	select ARCH_IMX_EXTERNAL_BOOT_NAND
+	help
+	  Say Y here if you are using the OpenX32 board
+
+config MACH_TX25
+	bool "Ka-Ro TX25"
+	select ARCH_IMX25
+	select ARCH_IMX_EXTERNAL_BOOT_NAND
+	help
+	  Say Y here if you are using the Ka-Ro tx25 board
+
+comment "i.MX27 boards"
+
+config MACH_PCA100
+	bool "phyCard-i.MX27"
+	select ARCH_IMX27
+	select ARCH_IMX_EXTERNAL_BOOT_NAND
+	help
+	  Say Y here if you are using Phytec's phyCard-i.MX27 (pca100) equipped
+	  with a Freescale i.MX27 Processor
+
+config MACH_PCM038
+	bool "phyCORE-i.MX27"
+	select ARCH_IMX27
+	select SPI
+	select DRIVER_SPI_IMX
+	select MFD_MC13XXX
+	select ARCH_IMX_EXTERNAL_BOOT_NAND
+	help
+	  Say Y here if you are using Phytec's phyCORE-i.MX27 (pcm038) equipped
+	  with a Freescale i.MX27 Processor
+
+comment "i.MX50 boards"
+
+config MACH_KINDLE_MX50
+	bool "i.MX50 based Amazon Kindle 4 and 5"
+	select ARCH_IMX50
+	select SPI
+	select DRIVER_SPI_IMX
+	select I2C
+	select I2C_IMX
+	select MFD_MC13XXX
+	select BOOT_ATAGS
+	select ARM_BOARD_APPEND_ATAG
+	select ARM_LINUX
+	select OFTREE
+	help
+	  Say Y here if you are using the fourth or fifth generation Amazon
+	  Kindle Model No. D01100 (Kindle Wi-Fi), D01200 (Kindle Touch) or
+	  EY21 (Kindle Paperwhite).
+
+comment "i.MX51 boards"
+
+config MACH_CCMX51
+	bool "ConnectCore i.MX51"
+	select ARCH_IMX51
+	select IMX_IIM
+	select SPI
+	select DRIVER_SPI_IMX
+	select MFD_MC13XXX
+	help
+	  Say Y here if you are using Digi ConnectCore (W)i-i.MX51
+	  equipped with a Freescale i.MX51 Processor
+
+config MACH_EFIKA_MX_SMARTBOOK
+	bool "Efika MX smartbook"
+	select ARCH_IMX51
+	select SPI
+	select DRIVER_SPI_IMX
+	select MFD_MC13XXX
+	help
+	  Choose this to compile barebox for the Efika MX Smartbook
+
+config MACH_FREESCALE_MX51_PDK
+	bool "Freescale i.MX51 PDK"
+	select ARCH_IMX51
+	select MACH_FREESCALE_MX51_PDK_POWER
+
+comment "i.MX53 boards"
+
+config MACH_CCMX53
+	bool "Digi ConnectCore i.MX53"
+	select ARCH_IMX53
+	select I2C
+	help
+	  Say Y here if you are using the Digi ConnectCore ccxmx53
+	  series SoM
+
+config MACH_FREESCALE_MX53_LOCO
+	bool "Freescale i.MX53 LOCO"
+	select ARCH_IMX53
+	select I2C
+	select I2C_IMX
+	select MFD_MC13XXX
+
+config MACH_GUF_VINCELL
+	bool "Garz-Fricke Vincell"
+	select ARCH_IMX53
+
+config MACH_TX53
+	bool "Ka-Ro TX53"
+	select ARCH_IMX53
+	help
+	  Say Y here if you are using the Ka-Ro tx53 board
+
+config MACH_TQMA53
+	bool "TQ i.MX53 TQMa53"
+	select ARCH_IMX53
+
+config MACH_FREESCALE_MX53_VMX53
+	bool "Voipac i.MX53"
+	select ARCH_IMX53
+	help
+	  Say Y here if you are using the Voipac Technologies X53-DMM-668
+	  module equipped with a Freescale i.MX53 Processor
+
+config MACH_ZII_RDU1
+	bool "ZII i.MX51 RDU1"
+	select ARCH_IMX51
+	select MACH_FREESCALE_MX51_PDK_POWER
+	select CRC8
+	select MACH_ZII_COMMON
+
+comment "i.MX6 boards"
+
+config MACH_ADVANTECH_ROM_742X
+	bool "Advantech ROM 742X"
+	select ARCH_IMX6
+
+config MACH_NITROGEN6
+	bool "BoundaryDevices Nitrogen6 boards"
+	select ARCH_IMX6
+
+config MACH_CM_FX6
+	bool "CM FX6"
+	select ARCH_IMX6
+	select MCI_IMX_ESDHC_PBL
+
+config MACH_REALQ7
+	bool "DataModul i.MX6Q Real Qseven Board"
+	select ARCH_IMX6
+
+config MACH_DFI_FS700_M60
+	bool "DFI i.MX6 FS700 M60 Q7 Board"
+	select ARCH_IMX6
+
+config MACH_DIGI_CCIMX6ULSBCPRO
+	bool "Digi Internal CC-IMX6UL SBC Pro"
+	select ARCH_IMX6
+	select ARCH_IMX6UL
+
+config MACH_ELTEC_HIPERCAM
+	bool "ELTEC HiPerCam"
+	select ARCH_IMX6
+
+config MACH_EMBEDSKY_E9
+	bool "Embedsky E9 Mini-PC"
+	select ARCH_IMX6
+	help
+	  Choose this to compile barebox for the Embedsky E9 Mini PC
+
+config MACH_EMBEST_MARSBOARD
+	bool "Embest MarSboard"
+	select ARCH_IMX6
+
+config MACH_EMBEST_RIOTBOARD
+	bool "Embest RIoTboard"
+	select ARCH_IMX6
+	imply AT803X_PHY
+
+config MACH_TORADEX_COLIBRI_IMX6
+	bool "Toradex Colibri iMX6"
+	select ARCH_IMX6
+	select ARM_USE_COMPRESSED_DTB
+
+config MACH_SABRELITE
+	bool "Freescale i.MX6 Sabre Lite"
+	select ARCH_IMX6
+
+config MACH_SABRESD
+	bool "Freescale i.MX6 SabreSD"
+	select ARCH_IMX6
+
+config MACH_FREESCALE_IMX6SX_SABRESDB
+	bool "Freescale i.MX6sx SabreSDB"
+	select ARCH_IMX6SX
+	select I2C
+	select I2C_IMX
+
+config MACH_UDOO
+	bool "Freescale i.MX6 UDOO Board"
+	select ARCH_IMX6
+
+config MACH_UDOO_NEO
+	bool "Freescale i.MX6 UDOO Neo Board (full variant)"
+	select ARCH_IMX6SX
+
+config MACH_GUF_SANTARO
+	bool "Garz+Fricke Santaro Board"
+	select ARCH_IMX6
+	select I2C
+	select I2C_IMX
+
+config MACH_GW_VENTANA
+	bool "Gateworks Ventana SBC"
+	select ARCH_IMX6
+	select I2C
+	select I2C_IMX
+
+config MACH_GRINN_LITEBOARD
+	bool "Grinn liteboard"
+	select ARCH_IMX6UL
+
+config MACH_TX6X
+	bool "Karo TX6x"
+	select ARCH_IMX6
+	select I2C
+	select I2C_IMX
+
+config MACH_KONTRON_SAMX6I
+        bool "Kontron sAMX6i"
+        select ARCH_IMX6
+
+config MACH_NOVENA
+	bool "Kosagi Novena board"
+	select ARCH_IMX6
+	select DDR_SPD
+	select I2C_IMX_EARLY
+	select MCI_IMX_ESDHC_PBL
+	select USB_GADGET_DRIVER_ARC_PBL
+
+config MACH_NXP_IMX6ULL_EVK
+	bool "NXP i.MX6ull EVK Board"
+	select ARCH_IMX6UL
+
+config MACH_PHYTEC_SOM_IMX6
+        bool "Phytec phyCARD-i.MX6 and phyFLEX-i.MX6"
+        select ARCH_IMX6
+	select ARCH_IMX6UL
+	select I2C
+	select I2C_IMX
+
+config MACH_PROTONIC_IMX6
+	bool "Protonic-Holland i.MX6 based boards"
+	select ARCH_IMX6
+	select ARCH_IMX6UL
+	select IMX_OCOTP
+
+config MACH_SKOV_IMX6
+	bool "Skov IMX6"
+	select ARCH_IMX6
+	select MCI_IMX_ESDHC_PBL
+	select DSA
+	select DRIVER_NET_KSZ8873
+
+config MACH_SOLIDRUN_MICROSOM
+	bool "SolidRun MicroSOM based devices"
+	select ARCH_IMX6
+
+config MACH_TECHNEXION_PICO_HOBBIT
+	bool "Technexion Pico Hobbit"
+	select ARCH_IMX6
+	select ARCH_IMX6UL
+
+config MACH_TECHNEXION_WANDBOARD
+	bool "Technexion Wandboard"
+	select ARCH_IMX6
+	select MCI_IMX_ESDHC_PBL
+
+config MACH_TQMA6X
+	bool "TQ tqma6x on mba6x"
+	select ARCH_IMX6
+
+config MACH_TQMA6UL
+	bool "TQ tqma6ul on mba6ulx"
+	select ARCH_IMX6UL
+	select BOARD_TQ
+	select I2C_IMX_EARLY
+
+config MACH_VARISCITE_MX6
+	bool "Variscite i.MX6 Quad SOM"
+	select ARCH_IMX6
+	select I2C
+	select I2C_IMX
+
+config MACH_WEBASTO_CCBV2
+	bool "Webasto Common Communication Board V2"
+	select ARCH_IMX6UL
+
+config MACH_GK802
+	bool "Zealz GK802 Mini PC"
+	select ARCH_IMX6
+
+config MACH_ZII_RDU2
+	bool "ZII i.MX6Q(+) RDU2"
+	select ARCH_IMX6
+	select MCI_IMX_ESDHC_PBL
+	select MACH_ZII_COMMON
+
+comment "i.MX7 boards"
+
+config MACH_MEERKAT96
+	bool "96Boards: i.MX7 Meerkat96"
+	select ARCH_IMX7
+
+config MACH_AC_SXB
+	bool "Atlas Copco: SXB board"
+	select ARCH_IMX7
+	select MCI_IMX_ESDHC_PBL
+
+config MACH_WARP7
+	bool "NXP i.MX7: element 14 WaRP7 Board"
+	select ARCH_IMX7
+
+config MACH_FREESCALE_MX7_SABRESD
+	bool "NXP i.MX7 SabreSD Board"
+	select ARCH_IMX7
+	# Nedded to de-assert reset on Ethernet PHY
+	select DRIVER_SPI_GPIO if DRIVER_NET_FEC_IMX
+	select GPIO_74164 if DRIVER_NET_FEC_IMX
+	help
+	  Support for NXP i.MX7 SabreSD board - one of the official
+	  i.MX7 evaluation boards from NXP.
+
+	  https://goo.gl/6EKGdk
+
+config MACH_PHYTEC_PHYCORE_IMX7
+	bool "Phytec phyCORE i.MX7"
+	select ARCH_IMX7
+
+config MACH_VARISCITE_SOM_MX7
+	bool "Variscite VAR-SOM-MX7"
+	select ARCH_IMX7
+	help
+	  Support for boards that use a Variscite SOM-MX7, like:
+	  - Gossen Metrawatt e143_01
+
+config MACH_ZII_IMX7D_DEV
+	bool "ZII i.MX7D based devices"
+	select ARCH_IMX7
+
+config MACH_KAMSTRUP_MX7_CONCENTRATOR
+	bool "Kamstrup i.MX7 Concentrator"
+	select ARCH_IMX7
+
+comment "VF610 boards"
+
+config MACH_VF610_TWR
+	bool "Freescale VF610 Tower Board"
+	select ARCH_VF610
+
+config MACH_ZII_VF610_DEV
+	bool "ZII VF610 Dev Family"
+	select ARCH_VF610
+	select MACH_ZII_COMMON
+
+endif
+
+if 64BIT
+
+comment "i.MX8M boards"
+
+config MACH_CONGATEC_QMX8P_SOM
+	bool
+	select ARCH_IMX8MP
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MP_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+
+config MACH_KOENIGBAUER_ALPHAJET
+	bool "Koenig+Bauer AlphaJet"
+	select MACH_CONGATEC_QMX8P_SOM
+
+config MACH_INNOCOMM_WB15
+	bool "InnoComm WB15 (i.MX8MM) EVK"
+	select ARCH_IMX8MM
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MM_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+	select USB_GADGET_DRIVER_ARC_PBL
+	imply AT803X_PHY
+
+config MACH_KARO_QSXP_ML81
+	bool "Karo QSXP ML81 (i.MX8MP) SOM on QSBASE4 Board"
+	select ARCH_IMX8MP
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MP_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+
+config MACH_MNT_REFORM
+	bool "MNT Reform"
+	select ARCH_IMX8MQ
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MQ_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select I2C_IMX_EARLY
+
+config MACH_NXP_IMX8MM_EVK
+	bool "NXP i.MX8MM EVK Board"
+	select ARCH_IMX8MM
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MM_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+	select USB_GADGET_DRIVER_ARC_PBL
+
+config MACH_NXP_IMX8MN_EVK
+	bool "NXP i.MX8MN EVK Board"
+	select ARCH_IMX8MN
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX_DDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MN_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+
+config MACH_NXP_IMX8MP_EVK
+	bool "NXP i.MX8MP EVK Board"
+	select ARCH_IMX8MP
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MP_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+
+config MACH_NXP_IMX8MQ_EVK
+	bool "NXP i.MX8MQ EVK Board"
+	select ARCH_IMX8MQ
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MQ_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+
+config MACH_PHYTEC_SOM_IMX8MM
+	bool "Phytec i.MX8MM SOM"
+	select ARCH_IMX8MM
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MM_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+	select USB_GADGET_DRIVER_ARC_PBL
+	select BOARD_PHYTEC_SOM_IMX8M_DETECTION
+	imply AT803X_PHY
+
+config MACH_PHYTEC_SOM_IMX8MQ
+	bool "Phytec i.MX8M SOM"
+	select ARCH_IMX8MQ
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MQ_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+
+config MACH_POLYHEX_DEBIX
+	bool "Polyhex DEBIX i.MX8MP Boards"
+	select ARCH_IMX8MP
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MP_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+	help
+	  Support for DEBIX Model-A/B and SOM A + SOM A I/O board
+
+config MACH_PROTONIC_IMX8M
+	bool "Protonic-Holland i.MX8Mx based boards"
+	select ARCH_IMX8MM
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MM_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select USB_GADGET_DRIVER_ARC_PBL
+
+config MACH_SKOV_IMX8MP
+	bool "Skov i.MX8MP based boards"
+	select ARCH_IMX8MP
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MP_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+
+config MACH_TQ_MBA8MPXL
+	bool "TQ i.MX8MP Dual/Quad on MBa8MPxL Board"
+	select ARCH_IMX8MP
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MP_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+
+config MACH_VARISCITE_DT8MCUSTOMBOARD_IMX8MP
+	bool "Variscite DT8MCustomBoard with DART-MX8M-PLUS"
+	select ARCH_IMX8MP
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MP_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select IMX8M_DRAM
+	select I2C_IMX_EARLY
+
+config MACH_ZII_IMX8MQ_DEV
+	bool "ZII i.MX8MQ based devices"
+	select ARCH_IMX8MQ
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+	select FIRMWARE_IMX8MQ_ATF
+	select ARM_SMCCC
+	select MCI_IMX_ESDHC_PBL
+	select MACH_ZII_COMMON
+
+comment "i.MX93 boards"
+
+config MACH_PHYTEC_PHYCORE_IMX93
+	bool "phyCORE i.MX93 SoM based devices"
+	select ARCH_IMX93
+	select IMX9_DRAM
+	select I2C
+	select I2C_IMX_LPI2C
+	select FIRMWARE_IMX93_ATF
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+
+config MACH_TQMA93XX
+	bool "TQ i.MX93 on TQMA93XX Board"
+	select ARCH_IMX93
+	select IMX9_DRAM
+	select BOARD_TQ
+	select I2C
+	select I2C_IMX_LPI2C
+	select FIRMWARE_IMX93_ATF
+	select FIRMWARE_IMX_LPDDR4_PMU_TRAIN
+
+endif
+
+endmenu
+
+# ----------------------------------------------------------
+
+menu "i.MX specific settings"
+
+config IMX_IIM
+	tristate "IIM fusebox device"
+	depends on !ARCH_IMX21
+	help
+	  Device driver for the IC Identification Module (IIM) fusebox. Use the
+	  regular md/mw commands to program and read the fusebox.
+
+	  Fuses are grouped in "rows", 8 bits per row. When using md/mw commands,
+	  employ the -b switch and consider the region to be specifying the "Fuse
+	  Row Index" rather than "Fuse Row Offset" (which is FRI * 4). You should
+	  consult the documentation for your chip for more elaborate description,
+	  including the eFuse map, e.g. see AN3682 for i.MX25.
+
+config IMX_IIM_FUSE_BLOW
+	bool "IIM fuses blow support"
+	depends on IMX_IIM
+	help
+	  Enable this option to add permanent programming of the fusebox, using
+	  fuses blowing.
+
+	  Warning: blown fuses can not be unblown. Using this option may damage
+	  your CPU, or make it unbootalbe. Use with care.
+
+	  Before being actually able to blow the fuses, you need to explicitely
+	  enable it:
+	    imx_iim0.permanent_write_enable=1
+
+config IMX_SAVE_BOOTROM_LOG
+	bool
+	default CMD_BOOTROM
+
+config HAB
+	bool
+
+config AHAB
+	bool
+	select HAB
+
+config HABV4
+	tristate "HABv4 support"
+	select HAB
+	select NVMEM
+	select IMX_OCOTP
+	depends on ARCH_IMX6 || ARCH_IMX8M
+	help
+	  High Assurance Boot, as found on i.MX28/i.MX6/i.MX8M.
+
+config HABV4_QSPI
+	depends on HABV4
+	bool "HABv4 QPSI support"
+	help
+	  Enable this option to build signed QSPI/FlexSPI images.
+
+config HABV4_CSF_SRK_REVOKE_UNLOCK
+	depends on HABV4
+	bool "Unlock SRK revocation"
+	help
+	  Enable this option to instruct the HAB code to not lock
+	  the SRK_REVOKE_LOCK sticky bit. This is required for key
+	  revocation. Don't enable this if you are unsure.
+
+config HABV4_CSF_UNLOCK_FIELD_RETURN
+	depends on HABV4
+	bool "Unlock field return"
+	help
+	  Enable this option to instruct the HAB code to not lock
+	  the FIELD_RETURN_LOCK sticky bit. This is required to be
+	  able to fuse the FIELD_RETURN fuse. It is also required
+	  that the CONFIG_HABV4_CSF_UNLOCK_UID is set correct as
+	  well.
+
+config HAB_CERTS_ENV
+	depends on HAB
+	bool "Specify certificates in environment"
+	help
+	  If this option is enabled the pathes to the HAB certificates are
+	  taken from environment variables which allows for better integration
+	  with build systems. With this option disabled the pathes can be
+	  specified below.
+
+	  The environment variables have the same name as the corresponding
+	  Kconfig variables. For HABv3 these are:
+
+	  CONFIG_HABV3_SRK_PEM
+	  CONFIG_HABV3_CSF_CRT_DER
+	  CONFIG_HABV3_IMG_CRT_DER
+
+	  For HABv4:
+
+	  CONFIG_HABV4_TABLE_BIN
+	  CONFIG_HABV4_CSF_CRT_PEM
+	  CONFIG_HABV4_CSF_UNLOCK_UID
+	  CONFIG_HABV4_IMG_CRT_PEM
+
+config HABV4_SRK_INDEX
+	depends on HABV4
+	int "SRK index"
+	default 0
+	help
+	  Select the Super Root Key used in the Command Sequence File to sign
+	  the CSF binary. This should only be changed if a previous key was
+	  revoked and another key needs to be used. For HABV4 the Index is in
+	  the range from 0 to 3.
+
+if HABV4 && !HAB_CERTS_ENV
+
+config HABV4_TABLE_BIN
+	string "Path to SRK table"
+	default "../crts/SRK_1_2_3_4_table.bin"
+	help
+	  Path to the Super Root Key (SRK) table, produced by the
+	  Freescale Code Signing Tool (cst).
+
+	  This file will be inserted into the Command Sequence File
+	  (CSF) when using the CSF template that comes with barebox.
+
+config HABV4_CSF_CRT_PEM
+	string "Path to CSF certificate"
+	default "../crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem"
+	help
+	  Path to the Command Sequence File (CSF) certificate, produced by the
+	  Freescale Public Key Infrastructure (PKI) script.
+
+	  This file will be inserted into the Command Sequence File
+	  (CSF) when using the CSF template that comes with barebox.
+
+config HABV4_CSF_UNLOCK_UID
+	depends on HABV4 && HABV4_CSF_UNLOCK_FIELD_RETURN
+	string "CSF Unlock UID"
+	help
+	  Device specific 64-bit UID Required to unlock the field-return
+          feature. This value must match the per device UNIQUE_ID fuses.
+
+	  The below example shows the expected format. The UNIQUE_ID is
+	  queried by Linux via:
+            - cat /sys/devices/soc0/serial_number
+	      7766554433221100
+
+	  So this value have to be set:
+	    - 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77
+
+config HABV4_IMG_CRT_PEM
+	string "Path to IMG certificate"
+	default "../crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem"
+	help
+	  Path to the Image certificate, produced by the Freescale
+	  Public Key Infrastructure (PKI) script.
+
+	  This file will be inserted into the Command Sequence File
+	  (CSF) when using the CSF template that comes with barebox.
+
+endif
+
+if HABV4
+
+config HABV4_IMAGE_SIGNED
+	bool "build signed images"
+	help
+	  enable the creation of a signed image, if the habv4-imx*-gencsf.h
+	  file appropriate for the SoC is included in the flash-header and
+	  the NXP cst Tool is available
+
+config HABV4_IMAGE_SIGNED_USB
+	bool "build signed USB images"
+	depends on ARCH_IMX6
+	help
+	  enable the creation of a usb signed image, if the habv4-imx6-gencsf.h
+	  included in the flash-header and the NXP cst Tool is available
+
+config HABV4_IMAGE_SIGNED_ENCRYPTED
+	bool "build signed encrypted images"
+	help
+	  enable the creation of the encrypted image, if the habv4-imx*-gencsf.h
+	  file appropriate for the SoC is included in the flash-header and
+	  the NXP cst Tool is available
+
+endif
+
+config HABV3
+	tristate "HABv3 support"
+	select HAB
+	select IMX_IIM
+	select ARCH_IMX_IMXIMAGE_SSL_SUPPORT
+	depends on ARCH_IMX25
+	help
+	  High Assurance Boot, as found on i.MX25.
+
+if HABV3 && !HAB_CERTS_ENV
+
+config HABV3_SRK_PEM
+	string "Path to SRK Certificate (PEM)"
+	default "../crts/SRK1_sha256_2048_65537_v3_ca_x509_crt.pem"
+
+config HABV3_CSF_CRT_DER
+	string "Path to CSF certificate"
+	default "../crts/CSF1_1_sha256_2048_65537_v3_ca_crt.der"
+
+config HABV3_IMG_CRT_DER
+	string "Path to IMG certificate"
+	default "../crts/IMG1_1_sha256_2048_65537_v3_usr_crt.der"
+
+endif
+
+endmenu
+
+endif

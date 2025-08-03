@@ -1,0 +1,1 @@
+savedcmd_arch/arm/boards/openx32/built-in.pbl.a := rm -f arch/arm/boards/openx32/built-in.pbl.a; /usr/bin/arm-none-eabi-ar cDPrST arch/arm/boards/openx32/built-in.pbl.a arch/arm/boards/openx32/lowlevel.pbl.o
