@@ -164,7 +164,21 @@ void addaCallback(char *msg) {
         // we received acknowledge-message like *1Y# -> ignore it
     }else{
         // we received other messages -> print them
-        printf("ADDA Message: %s\n", msg);
+
+        // check for *i8CHIN#
+        if ((strlen(msg) >= 8) && (msg[3] == 'C') && (msg[4] == 'H')) {
+            uint8_t boardId = (uint8_t)msg[1]-0x30;
+            uint8_t chanCount = (uint8_t)msg[2]-0x30;
+
+            if ((msg[5] == 'I') && (msg[6] == 'N')) {
+                printf("Board %d is input-card with %d channels\n", boardId, chanCount);
+            }else if ((msg[5] == 'O') && (msg[6] == 'U')) {
+                printf("Board %d is output-card with %d channels\n", boardId, chanCount);
+            }else{
+                printf("ADDA Message: %s\n", msg);
+			}
+        }
+
         lv_label_set_text_fmt(objects.debugtext, "ADDA Message: %s\n", msg);
     }
 }

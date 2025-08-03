@@ -1,6 +1,8 @@
 #include "adda.h"
 
 char uartBufferAdda[256]; // buffer for UART-readings
+int addaPacketBufLen = 0;
+char addaPacketBuffer[ADDA_MAX_PACKET_LENGTH];
 
 void addaInit(uint32_t samplerate) {
   // send identification-commands to all possible boards (not sure if this is correct for smaller X32)
@@ -164,8 +166,6 @@ void addaSendCmd(char *cmd) {
 
 void addaProcessUartData(int bytesToProcess) {
   uint8_t currentByte;
-  int addaPacketBufLen = 0;
-  char addaPacketBuffer[ADDA_MAX_PACKET_LENGTH];
 
   if (bytesToProcess <= 0) {
     return;
@@ -205,7 +205,7 @@ void addaProcessUartData(int bytesToProcess) {
         }
 
         receivedPacketLength = (packetEnd - packetBegin + 1);
-        if ((packetBegin > 0) && (packetEnd > 0) && (receivedPacketLength > 0)) {
+        if ((packetBegin >= 0) && (packetEnd > 0) && (receivedPacketLength > 0)) {
           // we found a valid answer from the ADDA-boards
 
           // copy the message including * and # into a new buffer and 0-terminate it
@@ -225,7 +225,6 @@ void addaProcessUartData(int bytesToProcess) {
     }
   }
 }
-
 
 void addaSetMute(bool muted) {
     int fd = open("/sys/class/leds/audio_mute/brightness", O_WRONLY);
