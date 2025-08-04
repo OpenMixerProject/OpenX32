@@ -46,11 +46,14 @@
 #include "eez/src/ui/vars.h"
 
 // our own includes
+#include "x32ctrl_types.h"
 #include "gui.h"
 #include "uart.h"
 #include "surface.h"
 #include "auxiliary.h"
 #include "adda.h"
+#include "mixing.h"
+#include "fpga.h"
 
 // variables
 extern int8_t x32model; // -1=unknown, 0=X32, 1=X32Compact, 2=X32Producer, 3=X32Rack, 4=X32Core
@@ -61,5 +64,6 @@ void timer10msCallback(int sig, siginfo_t *si, void *uc);
 void surfaceDemo(void);
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value);
 void addaCallback(char *msg);
+void fpgaCallback(char *buf, uint8_t len);
 
 #endif

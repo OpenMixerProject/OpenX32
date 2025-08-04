@@ -1,8 +1,11 @@
 #include "uart.h"
 
 messageBuilder message;
+//int fdDebug
 int fdSurface;
 int fdAdda;
+int fdFpga;
+//int fdMidi;
 
 void messageBuilderInit(messageBuilder *message) {
     message->current_length = 0;
@@ -185,4 +188,32 @@ int uartRx(int *fd, char *buf, uint16_t bufLen) {
 	}
 
 	return 0;
+}
+
+int uartTxToFPGA(uint16_t cmd, data_64b *data) {
+  uint8_t serialData[14];
+  data_16b ErrorCheckWord;
+
+  ErrorCheckWord.u16 = data->u8[0] + data->u8[1] + data->u8[2] + data->u8[3] + data->u8[4] + data->u8[5] + data->u8[6] + data->u8[7];
+
+  serialData[0] = '*';  // * = begin of command
+  serialData[1] = (cmd >> 8);  // MSB of 16-bit cmd
+  serialData[2] = cmd;         // LSB of 16-bit cmd
+  serialData[3] = data->u8[7]; // MSB of 64-bit payload
+  serialData[4] = data->u8[6];
+  serialData[5] = data->u8[5];
+  serialData[6] = data->u8[4];
+  serialData[7] = data->u8[3];
+  serialData[8] = data->u8[2];
+  serialData[9] = data->u8[1];
+  serialData[10] = data->u8[0]; // LSB of payload
+  serialData[11] = ErrorCheckWord.u8[1]; // MSB
+  serialData[12] = ErrorCheckWord.u8[0]; // LSB
+  serialData[13] = '#';  // # = end of command
+
+  messageBuilderInit(&message);
+  for (uint8_t i=0; i<14; i++) {
+      messageBuilderAddRawByte(&message, serialData[i]);
+  }
+  return uartTx(&fdFpga, &message, false);
 }

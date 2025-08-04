@@ -13,8 +13,11 @@ typedef struct {
 } messageBuilder;
 
 extern messageBuilder message;
+//extern int fdDebug;
 extern int fdSurface;
 extern int fdAdda;
+extern int fdFpga;
+//extern int fdMidi;
 
 void messageBuilderInit(messageBuilder *message);
 int messageBuilderAddRawByte(messageBuilder *message, char byte);
@@ -26,5 +29,6 @@ uint8_t calculateChecksum(const char *data, uint16_t len);
 int uartOpen(char *ttydev, uint32_t baudrate, int *fd);
 int uartTx(int *fd, messageBuilder *builder, bool addChecksum);
 int uartRx(int *fd, char *buf, uint16_t bufLen);
+int uartTxToFPGA(uint16_t cmd, data_64b *data);
 
 #endif

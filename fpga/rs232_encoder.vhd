@@ -1,8 +1,8 @@
 -- RS232 data encoder
--- (c) 2023-2024 Dr.-Ing. Christian Noeding
+-- (c) 2023-2025 Dr.-Ing. Christian Noeding
 -- christian@noeding-online.de
 -- Released under GNU General Public License v3
--- Source: https://www.github.com/xn--nding-jua/xfbape
+-- Source: https://www.github.com/xn--nding-jua/OpenX32
 --
 -- This file contains a RS232 data-encoder to transmit individual bytes via a rs232-transmitter
 -- It is like a signal multiplexer, that will prepare multiple bytes for a serial-transmitter
@@ -34,10 +34,10 @@ architecture Behavioral of rs232_encoder is
 	constant PAYLOAD_TO_TX : integer := 4;
 	
 	type t_SM_Encoder is (s_Idle, s_Send, s_Prepare, s_Wait);
-	signal s_SM_Encoder 	: t_SM_Encoder := s_Idle;
+	signal s_SM_Encoder	: t_SM_Encoder := s_Idle;
 	
 	signal txd_rate_cnt	: natural range 0 to clk_rate_hz/(2*txd_rate_hz) := 0;
-	signal byte_cnt 		: natural range 0 to PAYLOAD_TO_TX + 4 - 1 := 0; -- payload-bytes + 4 frame-bytes
+	signal byte_cnt		: natural range 0 to PAYLOAD_TO_TX + 4 - 1 := 0; -- payload-bytes + 4 frame-bytes
 	
 	signal tx_next_byte	: std_logic := '0';
 	
@@ -82,7 +82,7 @@ begin
 					case byte_cnt is
 						when 0 =>
 							-- start of frame
-							TX_data <= to_unsigned(65, 8); -- character "A"
+							TX_data <= to_unsigned(42, 8); -- character "*"
 						when PAYLOAD_TO_TX + 1 =>
 							-- payload part 1
 							TX_data <= PayloadSum(15 downto 8);
@@ -91,7 +91,7 @@ begin
 							TX_data <= PayloadSum(7 downto 0);
 						when PAYLOAD_TO_TX + 3 =>
 							-- end of frame
-							TX_data <= to_unsigned(69, 8); -- character "E"
+							TX_data <= to_unsigned(35, 8); -- character "#"
 						when others =>
 							-- byte 1...end
 							TX_data <= bytearray(byte_cnt - 1);

@@ -30,6 +30,9 @@ void timer10msCallback(int sig, siginfo_t *si, void *uc) {
 
   // read data from ADDA-Boards (8ch input/output)
   addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
+
+  // read data from FPGA
+  fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
 }
 
 void surfaceDemo(void) {
@@ -183,6 +186,10 @@ void addaCallback(char *msg) {
     }
 }
 
+void fpgaCallback(char *buf, uint8_t len) {
+    // do something with the received data
+}
+
 // the main-function - of course
 int main() {
     srand(time(NULL));
@@ -212,35 +219,62 @@ int main() {
     }
     printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
+    //printf("Connecting to UART0...");
+    //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside
+
     printf("Connecting to UART1...\n");
-    uartOpen("/dev/ttymxc1", 115200, &fdSurface);
+    uartOpen("/dev/ttymxc1", 115200, &fdSurface); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
 
     printf("Connecting to UART2...\n");
-    uartOpen("/dev/ttymxc2", 38400, &fdAdda);
+    uartOpen("/dev/ttymxc2", 38400, &fdAdda); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards
+
+    printf("Connecting to UART3...\n");
+    uartOpen("/dev/ttymxc3", 115200, &fdFpga); // this UART is connected to the FPGA
+
+    //printf("Connecting to UART4...\n");
+    //uartOpen("/dev/ttymxc4", 115200, &fdMidi); //
 
     printf("Initializing X32 Surface...\n");
     //surfaceReset(); // resets all microcontrollers on the board
     //surfaceInit(); // initialize whole surface with default values
     surfaceDemo(); // sets demo-values for faders, leds and lcds
 
-    printf("Initializing Analog-Boards...\n");
+    printf("Initializing X32 Audio...\n");
     addaInit(48000);
+    mixingDefaultConfig();
+
+    // **************** TESTING ****************
+    // set gain for all local xlr-input-channels to +15.5dB for testing with microphone
+    for (uint8_t ch=1; ch<=32; ch++) {
+        mixingSetGain(ch, 15.5);
+    }
+
+    // turn on Phantom-Power on some channels for testing
+    mixingSetPhantomPower(1+0, true); // first channel on board 1 (1-8)
+    mixingSetPhantomPower(9+1, true); // second channel on board 3 (9-16)
+    mixingSetPhantomPower(17+2, true); // third channel on board 0 (17-24)
+    mixingSetPhantomPower(25+3, true); // fourth channel on board 2 (25-32)
+    // **************** END OF TESTING ****************
+
+    // unmute the local audio-boards
     addaSetMute(false);
-    addaSetGain(1, 0, 15.5, true); // boardId, Channel, Gain in dB, +48V
-    addaSetGain(3, 1, 15.5, true); // boardId, Channel, Gain in dB, +48V
-    addaSetGain(0, 2, 15.5, true); // boardId, Channel, Gain in dB, +48V
-    addaSetGain(2, 3, 15.5, true); // boardId, Channel, Gain in dB, +48V
 
 /*
-    printf("Start Timer...\n");
-    initTimer(); // only necessary if LVGL is not used
+    // only necessary if LVGL is not used
+    printf("Starting Timer...\n");
+    initTimer();
 
     printf("Wait for incoming data on /dev/ttymxc1...\n");
     printf("Press Ctrl+C to terminate program.\n");
     while (1) {
-	  surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface, sizeof(uartBufferSurface)));
+      // read data from surface and calls surfaceCallback()
+      surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
 
-	  addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda, sizeof(uartBufferAdda)));
+      // read data from ADDA-Boards (8ch input/output)
+      addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
+
+      // read data from FPGA
+      fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
 
       // sleep for 1ms to lower CPU-load
       usleep(1000);

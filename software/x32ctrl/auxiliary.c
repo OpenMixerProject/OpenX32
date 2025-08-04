@@ -54,6 +54,63 @@ int readConfig(const char *filename, const char *key, char *value_buffer, size_t
 	return found;
 }
 
+// saturates a value to a specific minimum value
+uint8_t limitMin(uint8_t value, uint8_t min) {
+  if (value<min) {
+    return min;
+  }else{
+    return value;
+  }
+}
+
+// saturates a value to a specific maximum value
+uint8_t limitMax(uint8_t value, uint8_t max) {
+  if (value>max) {
+    return max;
+  }else{
+    return value;
+  }
+}
+
+// saturates a float-value to a specific minimum value
+float saturateMin_f(float value, float min) {
+  if (value<min) {
+    return min;
+  }else{
+    return value;
+  }
+}
+// saturates a float-value to a specific maximum value
+float saturateMax_f(float value, float max) {
+  if (value>max) {
+    return max;
+  }else{
+    return value;
+  }
+}
+
+// saturates a value to a specific minimum and maximum value
+uint8_t saturate(uint8_t value, uint8_t min, uint8_t max) {
+  if (value>max) {
+    return max;
+  }else if (value<min) {
+    return min;
+  }else{
+    return value;
+  }
+}
+
+// saturates a float-value to a specific minimum and maximum value
+float saturate_f(float value, float min, float max) {
+  if (value>max) {
+    return max;
+  }else if (value<min) {
+    return min;
+  }else{
+    return value;
+  }
+}
+
 /*
 int valueToBinaryString(uint8_t value, char *output) {
     if (value > 15) {

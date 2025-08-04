@@ -131,13 +131,13 @@ void addaSetSamplerate(uint32_t samplerate) {
   usleep(1000);
 }
 
-void addaSetGain(uint8_t boardId, uint8_t ch, float gain, bool phantomPower) {
+void addaSetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower) {
   messageBuilderInit(&message);
 
   messageBuilderAddRawByte(&message, '*');
   messageBuilderAddRawByte(&message, boardId + 0x30); // convert to ASCII-number
   messageBuilderAddRawByte(&message, 'G');
-  messageBuilderAddRawByte(&message, ch + 0x30); // convert to ASCII-number
+  messageBuilderAddRawByte(&message, (channel-1) + 0x30); // convert to ASCII-number
 
   // convert gain-value between -2dB and +45.5dB to three-digit value
   char buf[4];
@@ -235,4 +235,21 @@ void addaSetMute(bool muted) {
         write(fd, "0", 1);
     }
     close(fd);
+}
+
+int8_t addaGetBoardId(uint8_t channel) {
+    // we have up to 4 boards. Now we have to find the right BoardId for the desired channel
+
+    // TODO: check why the order is 1->3->0->2 and if it could change between X32-types and even startups
+    if ((channel >= 1) && (channel <= 8)) {
+        return 1;
+    }else if ((channel >= 9) && (channel <= 16)) {
+        return 3;
+    }else if ((channel >= 17) && (channel <= 24)) {
+        return 0;
+    }else if ((channel >= 25) && (channel <= 32)) {
+        return 2;
+    }else{
+        return -1;
+    }
 }
