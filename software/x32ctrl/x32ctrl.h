@@ -47,6 +47,7 @@
 
 // our own includes
 #include "x32ctrl_types.h"
+#include "WString.h"
 #include "gui.h"
 #include "uart.h"
 #include "surface.h"
