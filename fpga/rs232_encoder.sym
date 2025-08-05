@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="rs232_encoder">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2025-7-23T18:43:27</timestamp>
+    <timestamp>2025-8-5T9:8:28</timestamp>
     <pin polarity="Input" x="0" y="-352" name="clk" />
     <pin polarity="Input" x="0" y="-288" name="TX_rdy" />
     <pin polarity="Input" x="0" y="-224" name="byte1(7:0)" />

@@ -26,7 +26,7 @@ architecture rtl of tdm_8ch_tx is
 	signal sdata_tmp		: std_logic;
 	signal zbclk, zzbclk, zzzbclk		: std_logic;
 	signal zfsync							: std_logic;
-	signal bit_cnt							: integer range 0 to (32 * 8) - 1 := 0; -- one extra bit to prevent additional bitshift on following ch1 after ch8
+	signal bit_cnt							: integer range 0 to (32 * 8) + 1 := 0; -- one extra bit to prevent additional bitshift on following ch1 after ch8
 begin
 	process(clk)
 	begin

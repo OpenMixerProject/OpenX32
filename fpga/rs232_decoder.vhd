@@ -12,16 +12,20 @@ use ieee.std_logic_1164.all;
 use IEEE.NUMERIC_STD.ALL;
 
 entity rs232_decoder is 
+	generic (
+		NUM_OUTPUT_PORTS	: integer := 112;	-- 16x Analog-Output, 32x Card-Output, 8x AUX-Output, 16x UltraNet-Output, 40 DSP-Input
+		NUM_DSP_CHANNELS	: integer := 40
+	);
 	port
 	(
-		clk		: in std_logic;
+		clk				: in std_logic;
 		RX_DataReady	: in std_logic;
-		RX_Data		: in std_logic_vector(7 downto 0);
+		RX_Data			: in std_logic_vector(7 downto 0);
 
 		-- deserialized values
-		routing		: out std_logic_vector(895 downto 0); -- 112x 8-bit
-		volume_left	: out std_logic_vector(319 downto 0); -- 40x 8-bit
-		volume_right	: out std_logic_vector(319 downto 0) -- 40x 8-bit
+		routing			: out std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0); -- we are using only 7-bit for the selector-signal, but 8-bits are easier to handle with multiplications
+		volume_left		: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0); -- audio-volume uses 8-bits
+		volume_right	: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0) -- audio-volume uses 8-bits
 	);
 end entity;
 
@@ -94,12 +98,12 @@ begin
 				selector := to_integer(unsigned(b2 & b3));
 
 				if (selector >= 0 and selector <= 111) then
-					-- routing signal
-					routing((selector * 8) + 64 - 1 downto (selector * 8)) <= b4 & b5 & b6 & b7 & b8 & b9 & b10 & b11;
+					-- routing signal uses only 7 bit as we select between 112 input/output signals, but 8-bits are easier to handle with multiplications
+					routing((selector * 8) + (8 * 8) - 1 downto (selector * 8)) <= b4 & b5 & b6 & b7 & b8 & b9 & b10 & b11;
 				elsif (selector >= 200 and selector <= 240) then
 					-- volume-information
-					volume_left(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b11;
-					volume_right(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b10;
+					volume_left(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b11; -- volume uses 8-bit
+					volume_right(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b10; -- volume uses 8-bit
 				--elsif (selector = 1000) then
 					-- set individual 64-bit value
 					--value6(63 downto 56) <= b4;

@@ -1,10 +1,13 @@
 
 # PlanAhead Launch Script for Pre-Synthesis Floorplanning, created by Project Navigator
 
-create_project -name OpenX32 -dir "C:/GitCheckout/GitHub/OpenX32/fpga/planAhead_run_4" -part xc3s1400aft256-4
+create_project -name OpenX32 -dir "C:/GitCheckout/GitHub/OpenX32/fpga/planAhead_run_1" -part xc3s1400aft256-4
 set_param project.pinAheadLayout yes
 set srcset [get_property srcset [current_run -impl]]
 set_property target_constrs_file "main.ucf" [current_fileset -constrset]
+set hdlfile [add_files [list {ultranet_tx.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
 set hdlfile [add_files [list {uart_tx.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
@@ -42,6 +45,12 @@ set hdlfile [add_files [list {cs2000cp_config.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {audiotestclk.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {audiomatrix_ram.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {audiomatrix.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {audioclk.vhd}]]

@@ -39,11 +39,9 @@ NET "DA_FSYNC" LOC = L3;
 NET "DA_MCLK" LOC = K3;
 NET "DA_RX" LOC = L1;
 NET "DA_TX" LOC = L2;
-NET "nAD_RESET" LOC = C7;
 NET "imx25_uart3_txd" LOC = P11;
 NET "imx25_uart3_rxd" LOC = T12;
 
-# PlanAhead Generated physical constraints 
 
 NET "AD0_BCLK" LOC = A5;
 NET "AD0_DATA0" LOC = A6;
@@ -60,4 +58,27 @@ NET "AD1_MCLK" LOC = G2;
 NET "AD1_RX" LOC = J1;
 NET "AD1_TX" LOC = J2;
 NET "DA_DATA1" LOC = M1;
+
+
+NET "CARD_BCLK" LOC = T3;
+NET "CARD_FSYNC" LOC = R3;
+NET "nCARD_RESET" LOC = T4;
+NET "nAD_RESET" LOC = C7;
+NET "CARD_IN0" LOC = N6;
+NET "CARD_IN1" LOC = T5;
+NET "CARD_IN2" LOC = R5;
+NET "CARD_IN3" LOC = P5;
+NET "CARD_OUT0" LOC = T7;
+NET "CARD_OUT1" LOC = R7;
+NET "CARD_OUT2" LOC = P7;
+NET "CARD_OUT3" LOC = T6;
+NET "CARD_TX" LOC = N1;
+NET "CARD_RX" LOC = P2;
+
+# PlanAhead Generated physical constraints 
+
+NET "P16_A_TXP" LOC = T13;
+NET "P16_A_TXM" LOC = R13;
+NET "P16_B_TXP" LOC = P12;
+NET "P16_B_TXM" LOC = N12;
 NET "nDA_RESET" LOC = N3;
