@@ -13,13 +13,13 @@ cp files/mx25pdk.h u-boot/include/configs/mx25pdk.h
 cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
 
 # prepare Barebox
-cp -rP files/barebox_arch_arm_boards_openx32/*  barebox/arch/arm/boards/openx23/
-cp files/barebox_arch_arm_boards_Makefile       barebox/arch/arm/boards/Makefile
-cp files/barebox_arc_arm_mach-imx_Kconfig       barebox/arch/arm/mach-imx/
-cp files/imx25-pdk.dts                          barebox/arch/arm/dts/imx25-openx32.dts
-cp files/barebox_arc_arm_dts_Makefile           barebox/arch/arm/dts/Makefile
-cp files/barebox_images_Makefile.imx            barebox/images/Makefile.imx
-cp files/config_barebox                         barebox/.config
+# cp -rP files/barebox_arch_arm_boards_openx32/*  barebox/arch/arm/boards/openx32/
+# cp files/barebox_arch_arm_boards_Makefile       barebox/arch/arm/boards/Makefile
+# cp files/barebox_arc_arm_mach-imx_Kconfig       barebox/arch/arm/mach-imx/
+# cp files/imx25-pdk.dts                          barebox/arch/arm/dts/imx25-openx32.dts
+# cp files/barebox_arc_arm_dts_Makefile           barebox/arch/arm/dts/Makefile
+# cp files/barebox_images_Makefile.imx            barebox/images/Makefile.imx
+# cp files/config_barebox                         barebox/.config
 #cp files/imximage.cfg                           
 
 # =================== Loader =======================
@@ -27,12 +27,12 @@ cp files/config_barebox                         barebox/.config
 echo "1/8 Compiling Miniloader..."
 cd miniloader
 make
-echo "2/8 Compiling u-boot..."
-cd ../u-boot
-ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make
-echo "2/8 Compiling barebox..."
-cd ../barebox
-ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make
+#echo "2/8 Compiling u-boot..."
+#cd ../u-boot
+#ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make
+#echo "2/8 Compiling barebox..."
+#cd ../barebox_openx32
+#ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make
 
 # =================== Linux =======================
 
@@ -83,10 +83,10 @@ echo "    20% Copying U-Boot..."
 dd if=u-boot/u-boot.bin of=/tmp/openx32.bin bs=1 seek=$((0xC0)) conv=notrunc > /dev/null 2>&1
 # Linux-Kernel at offset 0x060000 (384 kiB for Miniloader + U-Boot): will be started by U-Boot
 #echo "    40% Copying Linux-Kernel...."
-echo "    41% copy barebox..."
+echo "    41% copy barebox_openx32..."
 #dd if=/tmp/uImage of=/tmp/openx32.bin bs=1 seek=$((0x60000)) conv=notrunc > /dev/null 2>&1
-dd if=barebox/images/barebox-dt-2nd.img of=/tmp/openx32.bin bs=1 seek=$((0x60000)) conv=notrunc
-dd if=barebox/arch/arm/dts/versatile-pb.dtb of=/tmp/openx32.bin bs=1 seek=$((0x100000)) conv=notrunc
+dd if=barebox_openx32/images/barebox-dt-2nd.img of=/tmp/openx32.bin bs=1 seek=$((0x60000)) conv=notrunc
+dd if=barebox_openx32/arch/arm/dts/imx25-openx32.dtb of=/tmp/openx32.bin bs=1 seek=$((0x100000)) conv=notrunc
 # DeviceTreeBlob at offset 0x800000 (~8 MiB for Kernel)
 #echo "    60% Copying DeviceTreeBlob..."
 #dd if=linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dtb of=/tmp/openx32.bin bs=1 seek=$((0x800000)) conv=notrunc > /dev/null 2>&1
