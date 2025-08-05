@@ -78,7 +78,7 @@ Download ISE 14.7 from the Xilinx (AMD) website: https://www.xilinx.com/support/
 4. On modern Windows 10/11 ISE 14.7 will not start beyond the Splash-Screen due to the use of "SmartHeap" within the file "libPortability.dll". Download the patch from https://github.com/cbureriu/xilinx-14.7-patch-for-Win10-32-64 that simply will replace the file "libPortability.dll" by "libPortabilityNOSH.dll" (NOSH = NoSmartHeap) that comes with the original installation.
 5. Start ISE 14.7, open the OpenX32 project and compile the logic of the main-schematic.
 
-An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: https://github.com/xn--nding-jua/OpenX32/Documentation/FPGA.pdf.
+An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: [View Schematic as PDF](https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/Documentation/FPGA.pdf).
 
 ### Step 5: Compiling code for the SHARC DSPs
 
