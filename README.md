@@ -78,6 +78,8 @@ Download ISE 14.7 from the Xilinx (AMD) website: https://www.xilinx.com/support/
 4. On modern Windows 10/11 ISE 14.7 will not start beyond the Splash-Screen due to the use of "SmartHeap" within the file "libPortability.dll". Download the patch from https://github.com/cbureriu/xilinx-14.7-patch-for-Win10-32-64 that simply will replace the file "libPortability.dll" by "libPortabilityNOSH.dll" (NOSH = NoSmartHeap) that comes with the original installation.
 5. Start ISE 14.7, open the OpenX32 project and compile the logic of the main-schematic.
 
+An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: https://github.com/xn--nding-jua/OpenX32/Documentation/FPGA.pdf.
+
 ### Step 5: Compiling code for the SHARC DSPs
 
 At the moment it seems that the DSPs can only be programmed using a closed-source toolchain with a paid license. Currently I'm searching for a working solution for this problem...
@@ -99,10 +101,10 @@ At the moment it seems that the DSPs can only be programmed using a closed-sourc
 So the most important things (audio in/out, control-surface, display) are working already. The high-level-audio-functions within the DSP need still more investigation...
 
 More things are on the ToDo-list:
-* [ ] Planned: routing-function for the available 72 inputs (32x XLR, 8x AUX, 32x Card) to 56 outputs (16x XLR, 8x AUX, 32x Card)
+* [ ] Prepared: routing-function for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
+* [ ] Prepared: Support of UltraNet-Output
 * [ ] Planned: basic audio-mixing (at least volume controlled by i.MX25) within the FPGA until the two AnalogDevices SHARC DSPs are under control
 * [ ] Planned: Support of both AnalogDevices DSPs via SPI (find toolchain for Analog Devices SHARC DSPs)
-* [ ] Planned: Support of UltraNet (create S/PDIF or AES/EBU transmitter with 384kHz)
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
 * [ ] Planned: Support of AES50 (needs more investigation on AES50-protocol)
