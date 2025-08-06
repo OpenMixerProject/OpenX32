@@ -124,10 +124,10 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
   if (class == 'f') {
       float pct = value / 40.95; // convert to percent
       //printf("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, pct);
-	  lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
+      lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
   }else if (class == 'b') {
       //printf("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-	  lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
 
       // register buttons
       switch (boardId) {
@@ -136,8 +136,40 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
           case 1: // eq-section and screen-area
             switch(index) {
               case 0: // left
+                // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
+                for (uint8_t ch=1; ch<=8; ch++) {
+                  mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8
+                  mixingSetRouting('x', ch+8, mixingGetInputSource('d', ch)); // set xlr-output 9-16
+
+                  mixingSetRouting('a', ch, mixingGetInputSource('d', ch)); // set aux-channel 1-8
+
+                  mixingSetRouting('c', ch, mixingGetInputSource('d', ch)); // set card-output 1-8
+                  mixingSetRouting('c', ch+8, mixingGetInputSource('d', ch)); // set card-output 9-16
+                  mixingSetRouting('c', ch+16, mixingGetInputSource('d', ch)); // set card-output 17-24
+                  mixingSetRouting('c', ch+24, mixingGetInputSource('d', ch)); // set card-output 25-32
+
+                  mixingSetRouting('p', ch, mixingGetInputSource('d', ch)); // set P16-output 1-8
+                  mixingSetRouting('p', ch+8, mixingGetInputSource('d', ch)); // set P16-output 9-16
+                }
+
                 break;
               case 1: // right
+                // set routing to audio-inputs
+                for (uint8_t ch=1; ch<=8; ch++) {
+                  mixingSetRouting('x', ch, mixingGetInputSource('x', ch)); // set xlr-output 1-8 to xlr-inputs 1-8
+                  mixingSetRouting('x', ch+8, mixingGetInputSource('x', ch+8)); // set xlr-output 9-16 to xlr-inputs 9-16
+
+                  mixingSetRouting('a', ch, mixingGetInputSource('a', ch)); // set aux-channel 1-8 to aux-inputs 1-8
+
+                  mixingSetRouting('c', ch, mixingGetInputSource('x', ch)); // set card-output 1-8 to xlr-inputs 1-8
+                  mixingSetRouting('c', ch+8, mixingGetInputSource('x', ch+8)); // set card-output 9-16 to xlr-inputs 9-16
+                  mixingSetRouting('c', ch+16, mixingGetInputSource('x', ch+16)); // set card-output 17-24 to xlr-inputs 17-24
+                  mixingSetRouting('c', ch+24, mixingGetInputSource('x', ch+14)); // set card-output 25-32 to xlr-inputs 25-32
+
+                  mixingSetRouting('p', ch, mixingGetInputSource('x', ch)); // set P16-output 1-8 to xlr-inputs 1-8
+                  mixingSetRouting('p', ch+8, mixingGetInputSource('x', ch)); // set P16-output 9-16 to xlr-inputs 9-16
+                }
+
                 break;
               case 2: // up
                 break;
@@ -157,7 +189,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       guiNewButtonPress(((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F), (value >> 7));
   }else if (class == 'e') {
       //printf("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-	  lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
   }
 }
 
@@ -168,18 +200,18 @@ void addaCallback(char *msg) {
     }else{
         // we received other messages -> print them
 
-        // check for *i8CHIN#
+        // check for *i8CHIN# or *i8CHOUT#
         if ((strlen(msg) >= 8) && (msg[3] == 'C') && (msg[4] == 'H')) {
             uint8_t boardId = (uint8_t)msg[1]-0x30;
             uint8_t chanCount = (uint8_t)msg[2]-0x30;
 
             if ((msg[5] == 'I') && (msg[6] == 'N')) {
                 printf("Board %d is input-card with %d channels\n", boardId, chanCount);
-            }else if ((msg[5] == 'O') && (msg[6] == 'U')) {
+            }else if ((msg[5] == 'O') && (msg[6] == 'U') && (msg[7] == 'T')) {
                 printf("Board %d is output-card with %d channels\n", boardId, chanCount);
             }else{
                 printf("ADDA Message: %s\n", msg);
-			}
+            }
         }
 
         lv_label_set_text_fmt(objects.debugtext, "ADDA Message: %s\n", msg);
@@ -188,13 +220,15 @@ void addaCallback(char *msg) {
 
 void fpgaCallback(char *buf, uint8_t len) {
     // do something with the received data
+    // at the moment the FPGA is sending "*X32 #" 5 times per second
+    // later it is planned to receive information about audio-levels here
 }
 
 // the main-function - of course
 int main() {
     srand(time(NULL));
     printf("OpenX32 UserInterface\n");
-    printf("v0.0.3, 02.08.2025\n");
+    printf("v0.0.4, 06.08.2025\n");
     printf("https://github.com/xn--nding-jua/OpenX32\n");
 
     printf("Reading config...");
@@ -219,41 +253,58 @@ int main() {
     }
     printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
-    //printf("Connecting to UART0...");
+    //printf("Connecting to UART1 (Debug)...");
     //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside
 
-    printf("Connecting to UART1...\n");
+    printf("Connecting to UART2 (Surface)...\n");
     uartOpen("/dev/ttymxc1", 115200, &fdSurface); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
 
-    printf("Connecting to UART2...\n");
+    printf("Connecting to UART3 (ADDA-Boards)...\n");
     uartOpen("/dev/ttymxc2", 38400, &fdAdda); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards
 
-    printf("Connecting to UART3...\n");
+    printf("Connecting to UART4 (FPGA)...\n");
     uartOpen("/dev/ttymxc3", 115200, &fdFpga); // this UART is connected to the FPGA
 
-    //printf("Connecting to UART4...\n");
+    //printf("Connecting to UART5 (MIDI)...\n");
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); //
 
     printf("Initializing X32 Surface...\n");
-    //surfaceReset(); // resets all microcontrollers on the board
+    //surfaceReset(); // resets all microcontrollers on the board (not necessary)
     //surfaceInit(); // initialize whole surface with default values
     surfaceDemo(); // sets demo-values for faders, leds and lcds
 
     printf("Initializing X32 Audio...\n");
     addaInit(48000);
-    mixingDefaultConfig();
+    //mixingDefaultRoutingConfig(); // set default routing configuration
 
     // **************** TESTING ****************
     // set gain for all local xlr-input-channels to +15.5dB for testing with microphone
     for (uint8_t ch=1; ch<=32; ch++) {
-        mixingSetGain(ch, 15.5);
+        mixingSetGain('x', ch, 15.5);
     }
 
-    // turn on Phantom-Power on some channels for testing
-    mixingSetPhantomPower(1+0, true); // first channel on board 1 (1-8)
-    mixingSetPhantomPower(9+1, true); // second channel on board 3 (9-16)
-    mixingSetPhantomPower(17+2, true); // third channel on board 0 (17-24)
-    mixingSetPhantomPower(25+3, true); // fourth channel on board 2 (25-32)
+    // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
+    for (uint8_t ch=1; ch<=8; ch++) {
+        mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8
+        mixingSetRouting('x', ch+8, mixingGetInputSource('d', ch)); // set xlr-output 9-16
+
+        mixingSetRouting('a', ch, mixingGetInputSource('d', ch)); // set aux-channel 1-8
+
+        mixingSetRouting('c', ch, mixingGetInputSource('d', ch)); // set card-output 1-8
+        mixingSetRouting('c', ch+8, mixingGetInputSource('d', ch)); // set card-output 9-16
+        mixingSetRouting('c', ch+16, mixingGetInputSource('d', ch)); // set card-output 17-24
+        mixingSetRouting('c', ch+24, mixingGetInputSource('d', ch)); // set card-output 25-32
+
+        mixingSetRouting('p', ch, mixingGetInputSource('d', ch)); // set P16-output 1-8
+        mixingSetRouting('p', ch+8, mixingGetInputSource('d', ch)); // set P16-output 9-16
+    }
+
+
+    // turn on Phantom-Power on channels 1, 10, 19 and 27 for testing (LED identifies board)
+    mixingSetPhantomPower('x', 1+0, true); // first channel on board 1 (1-8)
+    mixingSetPhantomPower('x', 9+1, true); // second channel on board 3 (9-16)
+    mixingSetPhantomPower('x', 17+2, true); // third channel on board 0 (17-24)
+    mixingSetPhantomPower('x', 25+3, true); // fourth channel on board 2 (25-32)
     // **************** END OF TESTING ****************
 
     // unmute the local audio-boards

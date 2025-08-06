@@ -9,15 +9,25 @@
 #pragma pack(push, 1)
 // size of sRouting must be multiplier of 8 to fit into 64-bit-value
 typedef struct __attribute__((packed)) {
-  uint8_t xlrOutput[16];
-  uint8_t auxOutput[8];
-  uint8_t cardOutput[32];
-  uint8_t p16Output[16];
-  uint8_t dspInput[40];
-  //uint8_t aes50aOutput[48];
-  //uint8_t aes50bOutput[48];
+  uint8_t xlr[16];
+  uint8_t p16[16];
+  uint8_t card[32];
+  uint8_t aux[8];
+  uint8_t dsp[40];
+  uint8_t aes50a[48];
+  uint8_t aes50b[48];
 } sRouting;
 #pragma pack(pop)
+
+typedef struct {
+  float gainXlr[32];
+  float gainAes50a[48];
+  float gainAes50b[48];
+
+  bool phantomPowerXlr[32];
+  bool phantomPowerAes50a[48];
+  bool phantomPowerAes50b[48];
+} sPreamps;
 
 typedef struct {
   float volume; // volume in dBfs
@@ -27,15 +37,15 @@ typedef struct {
 
 typedef struct {
   sRouting routing;
-  float gain[32]; // XLR-Gains
-  bool phantomPower[32]; // XLR-Phantom-Power
+  sPreamps preamps;
   sDspChannel dspChannel[40]; // DSP-Channels
 } sOpenx32;
 
-void mixingDefaultConfig(void);
-void mixingSetRouting(uint8_t group, uint8_t dst, uint8_t src);
-void mixingSetGain(uint8_t channel, float gain);
-void mixingSetPhantomPower(uint8_t channel, bool active);
+void mixingDefaultRoutingConfig(void);
+void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource);
+uint8_t mixingGetInputSource(uint8_t group, uint8_t channel);
+void mixingSetGain(uint8_t group, uint8_t channel, float gain);
+void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active);
 void mixingSetVolume(uint8_t channel, float volume);
 void mixingSetBalance(uint8_t channel, uint8_t balance);
 void mixingTxRoutingConfig(void);
