@@ -4,6 +4,7 @@
 #include "x32ctrl.h"
 
 #define FPGA_MAX_PACKET_LENGTH 32
+#define FPGA_PACKET_LENGTH 8
 
 extern char uartBufferFpga[256];
 
