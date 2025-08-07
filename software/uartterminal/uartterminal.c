@@ -32,7 +32,7 @@ char buffer_uart[256]; // Puffer für UART-Lesevorgänge
 ssize_t bytes_read;
 int bytes_available;
 
-int uartOpen(const char* uartport) {
+int uartOpen(const char* uartport, uint32_t baudrate) {
     fd = open(uartport, O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd < 0) {
         perror("Error opening uart port !");
@@ -58,8 +58,52 @@ int uartOpen(const char* uartport) {
     tty.c_cc[VMIN] = 0; // Nicht blockierend lesen
     tty.c_cc[VTIME] = 0;
 
-    cfsetispeed(&tty, B115200);
-    cfsetospeed(&tty, B115200);
+    if (baudrate == 9600) {
+        cfsetispeed(&tty, B9600);
+        cfsetospeed(&tty, B9600);
+    } else if (baudrate == 19200) {
+        cfsetispeed(&tty, B19200);
+        cfsetospeed(&tty, B19200);
+    } else if (baudrate == 38400) {
+        cfsetispeed(&tty, B38400);
+        cfsetospeed(&tty, B38400);
+    } else if (baudrate == 57600) {
+        cfsetispeed(&tty, B57600);
+        cfsetospeed(&tty, B57600);
+    } else if (baudrate == 115200) {
+        cfsetispeed(&tty, B115200);
+        cfsetospeed(&tty, B115200);
+    } else if (baudrate == 500000) {
+        cfsetispeed(&tty, B500000);
+        cfsetospeed(&tty, B500000);
+    } else if (baudrate == 921600) {
+        cfsetispeed(&tty, B921600);
+        cfsetospeed(&tty, B921600);
+    } else if (baudrate == 1000000) {
+        cfsetispeed(&tty, B1000000);
+        cfsetospeed(&tty, B1000000);
+    } else if (baudrate == 1500000) {
+        cfsetispeed(&tty, B1500000);
+        cfsetospeed(&tty, B1500000);
+    } else if (baudrate == 2000000) {
+        cfsetispeed(&tty, B2000000);
+        cfsetospeed(&tty, B2000000);
+    } else if (baudrate == 2500000) {
+        cfsetispeed(&tty, B2500000);
+        cfsetospeed(&tty, B2500000);
+    } else if (baudrate == 3000000) {
+        cfsetispeed(&tty, B3000000);
+        cfsetospeed(&tty, B3000000);
+    } else if (baudrate == 3500000) {
+        cfsetispeed(&tty, B3500000);
+        cfsetospeed(&tty, B3500000);
+    } else if (baudrate == 4000000) {
+        cfsetispeed(&tty, B4000000);
+        cfsetospeed(&tty, B4000000);
+    } else {
+        perror("Error: unsupported baudrate!");
+        return 1;
+    }
 
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
         perror("Error setting serial-port-attributes!");
@@ -107,16 +151,17 @@ int uartRead() {
 
 int main(int argc, char *argv[]) {                                                                                                                                                           srand(time(NULL));
     printf("UART Tester\n");
-    printf("v0.0.1, 23.07.2025\n");
+    printf("v0.0.2, 07.08.2025\n");
     printf("https://github.com/xn--nding-jua/OpenX32\n");
 
-    if (argc != 2) {
+    if (argc != 3) {
         printf("Error: Wrong parameter!\n");
-        printf("Start this software like this: ./uarttest /dev/ttymxc3\n");
+        printf("Start this software like this: ./uartterminal /dev/ttymxc3 115200\n");
     }else{
         char* uartport = argv[1];
-        printf("Connecting to UART on port %s...\n", uartport);
-        uartOpen(uartport);
+        char* baudrate = argv[2];
+        printf("Connecting to UART on port %s with %s baud...\n", uartport, baudrate);
+        uartOpen(uartport, atoi(baudrate));
 
         printf("Wait for incoming data on %s...\n", uartport);
         printf("Press Ctrl+C to terminate program.\n");

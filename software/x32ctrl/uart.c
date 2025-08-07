@@ -125,12 +125,48 @@ int uartOpen(char *ttydev, uint32_t baudrate, int *fd) {
     tty.c_cc[VMIN] = 0; // Nicht blockierend lesen
     tty.c_cc[VTIME] = 0;
 
-    if (baudrate == 115200) {
-        cfsetispeed(&tty, B115200);
-        cfsetospeed(&tty, B115200);
+    if (baudrate == 9600) {
+        cfsetispeed(&tty, B9600);
+        cfsetospeed(&tty, B9600);
+    } else if (baudrate == 19200) {
+        cfsetispeed(&tty, B19200);
+        cfsetospeed(&tty, B19200);
     } else if (baudrate == 38400) {
         cfsetispeed(&tty, B38400);
         cfsetospeed(&tty, B38400);
+    } else if (baudrate == 57600) {
+        cfsetispeed(&tty, B57600);
+        cfsetospeed(&tty, B57600);
+    } else if (baudrate == 115200) {
+        cfsetispeed(&tty, B115200);
+        cfsetospeed(&tty, B115200);
+    } else if (baudrate == 500000) {
+        cfsetispeed(&tty, B500000);
+        cfsetospeed(&tty, B500000);
+    } else if (baudrate == 921600) {
+        cfsetispeed(&tty, B921600);
+        cfsetospeed(&tty, B921600);
+    } else if (baudrate == 1000000) {
+        cfsetispeed(&tty, B1000000);
+        cfsetospeed(&tty, B1000000);
+    } else if (baudrate == 1500000) {
+        cfsetispeed(&tty, B1500000);
+        cfsetospeed(&tty, B1500000);
+    } else if (baudrate == 2000000) {
+        cfsetispeed(&tty, B2000000);
+        cfsetospeed(&tty, B2000000);
+    } else if (baudrate == 2500000) {
+        cfsetispeed(&tty, B2500000);
+        cfsetospeed(&tty, B2500000);
+    } else if (baudrate == 3000000) {
+        cfsetispeed(&tty, B3000000);
+        cfsetospeed(&tty, B3000000);
+    } else if (baudrate == 3500000) {
+        cfsetispeed(&tty, B3500000);
+        cfsetospeed(&tty, B3500000);
+    } else if (baudrate == 4000000) {
+        cfsetispeed(&tty, B4000000);
+        cfsetospeed(&tty, B4000000);
     } else {
         perror("Error: unsupported baudrate!");
         return 1;
@@ -192,9 +228,12 @@ int uartRx(int *fd, char *buf, uint16_t bufLen) {
 
 int uartTxToFPGA(uint16_t cmd, data_64b *data) {
   uint8_t serialData[14];
-  data_16b ErrorCheckWord;
+  uint16_t ErrorCheckWord;
 
-  ErrorCheckWord.u16 = data->u8[0] + data->u8[1] + data->u8[2] + data->u8[3] + data->u8[4] + data->u8[5] + data->u8[6] + data->u8[7];
+  ErrorCheckWord = 0;
+  for (uint8_t i=0; i<8; i++) {
+    ErrorCheckWord += data->u8[i];
+  }
 
   serialData[0] = '*';  // * = begin of command
   serialData[1] = (cmd >> 8);  // MSB of 16-bit cmd
@@ -207,8 +246,8 @@ int uartTxToFPGA(uint16_t cmd, data_64b *data) {
   serialData[8] = data->u8[2];
   serialData[9] = data->u8[1];
   serialData[10] = data->u8[0]; // LSB of payload
-  serialData[11] = ErrorCheckWord.u8[1]; // MSB
-  serialData[12] = ErrorCheckWord.u8[0]; // LSB
+  serialData[11] = (ErrorCheckWord >> 8); // MSB
+  serialData[12] = ErrorCheckWord; // LSB
   serialData[13] = '#';  // # = end of command
 
   messageBuilderInit(&message);
