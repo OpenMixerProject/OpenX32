@@ -5,17 +5,18 @@
 
 #define FPGA_IDX_ROUTING   0    // reserve 200 slots
 #define FPGA_IDX_CH_VOL    200  // here we need 40 values here
+#define NUM_INPUT_CHANNEL  112  // at the moment we are not using AES50A and AES50B
 
 #pragma pack(push, 1)
 // size of sRouting must be multiplier of 8 to fit into 64-bit-value
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed,aligned(1))) {
   uint8_t xlr[16];
   uint8_t p16[16];
   uint8_t card[32];
   uint8_t aux[8];
   uint8_t dsp[40];
-  uint8_t aes50a[48];
-  uint8_t aes50b[48];
+  uint8_t aes50a[48]; // not used in FPGA at the moment
+  uint8_t aes50b[48]; // not used in FPGA at the moment
 } sRouting;
 #pragma pack(pop)
 

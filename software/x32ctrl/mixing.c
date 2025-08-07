@@ -31,6 +31,9 @@ void mixingDefaultRoutingConfig(void) {
     for (uint8_t ch=1; ch<=8; ch++) {
         mixingSetRouting('d', ch+32, mixingGetInputSource('a', ch));
     }
+
+    // transmit routing-configuration to FPGA
+    mixingTxRoutingConfig();
 }
 
 // set the outputs of the audio-routing-matrix to desired input-sources
@@ -75,9 +78,6 @@ void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource) {
             //openx32.routing.aes50b[channel - 1] = inputsource - 1;
             break;
     }
-
-    // send new routing-configuration to FPGA
-    mixingTxRoutingConfig();
 }
 
 // get the absolute input-source (global channel-number)
@@ -195,14 +195,12 @@ void mixingTxRoutingConfig(void) {
     uint8_t buf[sizeof(openx32.routing)];
     memcpy(buf, &openx32.routing, sizeof(openx32.routing));
 
-	addaSetMute(true);
     // now copy this array into chunks of 64-bit-data and transmit it to FPGA
-    for (uint8_t i = 0; i < 14; i++) {
+    for (uint8_t i = 0; i < (NUM_INPUT_CHANNEL/8); i++) {
         // copy 8 bytes from routing-data
         memcpy(&routingData.u8[0], &buf[i * 8], 8);
 
         // now send data to FPGA
         uartTxToFPGA(FPGA_IDX_ROUTING + (i * 8), &routingData);
     }
-	addaSetMute(false);
 }
