@@ -24,19 +24,18 @@ end tdm_8ch_tx;
 architecture rtl of tdm_8ch_tx is
 	signal sample_data	: std_logic_vector(32 * 8 - 1 downto 0) := (others=>'0');
 	signal sdata_tmp		: std_logic;
-	signal zbclk, zzbclk, zzzbclk		: std_logic;
-	signal zfsync							: std_logic;
-	signal bit_cnt							: integer range 0 to (32 * 8) + 1 := 0; -- one extra bit to prevent additional bitshift on following ch1 after ch8
+	signal zbclk			: std_logic;
+	signal zfsync			: std_logic;
+	signal bit_cnt			: integer range 0 to (32 * 8) + 1 := 0; -- one extra bit to prevent additional bitshift on following ch1 after ch8
 begin
 	process(clk)
 	begin
 		if rising_edge(clk) then
 			zbclk <= bclk;
-			zzbclk <= zbclk;
-			zzzbclk <= zzbclk;
 
-			if (zzbclk = '1' and zzzbclk = '0') then
+			if (bclk = '1' and zbclk = '0') then
 				-- rising edge of bitclk
+				zfsync <= fsync;
 
 				-- check for positive edge of frame-sync (1 bit-clock before bit 0 of channel 1)
 				if (fsync = '1' and zfsync = '0') then
@@ -58,15 +57,18 @@ begin
 					sdata_tmp <= sample_data(sample_data'high - bit_cnt);
 					bit_cnt <= bit_cnt + 1;
 				end if;
-				zfsync <= fsync;
+			end if;
+			
+			if (bclk = '0' and zbclk = '1') then
+				 -- falling edge of bitclk
+				sdata <= sdata_tmp;
 			end if;
 		end if;
 
-		if falling_edge(clk) then
+		--if falling_edge(bclk) then
 			-- continuously outputing data from output-register on falling edge
-			sdata <= sdata_tmp;
-		end if;
-	
+			--sdata <= sdata_tmp;
+		--end if;
 	end process;
 end rtl;
         

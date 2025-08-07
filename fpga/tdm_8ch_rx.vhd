@@ -36,9 +36,10 @@ entity tdm_8ch_rx is
 end tdm_8ch_rx;
 
 architecture rtl of tdm_8ch_rx is
-	signal zbclk, zzbclk, zzzbclk		: std_logic;
-	signal zfsync							: std_logic;
-	signal bit_cnt							: integer range 0 to (32 * 8) - 1 := 0; -- one extra bit to prevent additional bitshift on following ch1 after ch8
+	signal zbclk		: std_logic;
+	signal zfsync		: std_logic;
+	signal bit_cnt		: integer range 0 to (32 * 8) + 1 := 0; -- one extra bit to prevent additional bitshift on following ch1 after ch8
+	signal sync_out_tmp	: std_logic;
 	
 	signal ch1	: std_logic_vector(31 downto 0);
 	signal ch2	: std_logic_vector(31 downto 0);
@@ -53,14 +54,10 @@ begin
 	begin
 		if rising_edge(clk) then
 			zbclk <= bclk;
-			zzbclk <= zbclk;
-			zzzbclk <= zzbclk;
 
-			if (zzbclk = '1' and zzzbclk = '0') then
+			if (bclk = '1' and zbclk = '0') then
 				-- rising edge of bitclk
 
-				zfsync <= fsync;
-				
 				-- continuously reading bit into shift-register
 				if ((bit_cnt >= 0) and (bit_cnt <= 31)) then
 					ch1 <= ch1(ch1'high - 1 downto 0) & sdata;
@@ -80,10 +77,8 @@ begin
 					ch8 <= ch8(ch8'high - 1 downto 0) & sdata;
 				end if;
 
-				-- check for positive edge of frame-sync (1 bit-clock before bit 0 of channel 1)
-				if (fsync = '1' and zfsync = '0') then
-					-- rising edge of sync-signal
-				
+				if (bit_cnt = 0) then
+					-- we are reading MSB of ch1, so all channel-bits are within vectors
 					ch1_out <= ch1(31 downto 8);
 					ch2_out <= ch2(31 downto 8);
 					ch3_out <= ch3(31 downto 8);
@@ -91,20 +86,27 @@ begin
 					ch5_out <= ch5(31 downto 8);
 					ch6_out <= ch6(31 downto 8);
 					ch7_out <= ch7(31 downto 8);
-					ch8_out <= ch8(30 downto 7); -- in this step we are missing a single bit
-					sync_out <= '1';
+					ch8_out <= ch8(31 downto 8);
+					sync_out_tmp <= '1'; -- will be resseted one clk later
+				end if;
 
-					bit_cnt <= 0;
+				-- check for positive edge of frame-sync (1 bit-clock before bit 0 of channel 1)
+				if (fsync = '1' and zfsync = '0') then
+					-- rising edge of sync-signal (while reading LSB of ch8)
+					bit_cnt <= 0; -- reset bit-counter
 				else
 					bit_cnt <= bit_cnt + 1;
 				end if;
 				
-				if (bit_cnt = 4) then
-					-- reset sync_out
-					sync_out <= '0';
-				end if;
+				zfsync <= fsync;
+			end if;
+			
+			if (sync_out_tmp = '1') then
+				sync_out_tmp <= '0';
 			end if;
 		end if;
 	end process;
+
+	sync_out <= sync_out_tmp;
 end rtl;
         

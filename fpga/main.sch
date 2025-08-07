@@ -135,7 +135,6 @@
         <signal name="CARD_TX" />
         <signal name="CARD_RX" />
         <signal name="audio_output(1559:1536)" />
-        <signal name="audio_output(23:0)" />
         <signal name="CARD_IN0" />
         <signal name="audio_input(791:768)" />
         <signal name="audio_input(815:792)" />
@@ -233,22 +232,10 @@
         <signal name="audio_input(1847:1824)" />
         <signal name="audiosync" />
         <signal name="routing_select(895:0)" />
-        <signal name="XLXN_1908(23:0)" />
-        <signal name="XLXN_1909(6:0)" />
-        <signal name="XLXN_1912(6:0)" />
-        <signal name="XLXN_1916(23:0)" />
-        <signal name="XLXN_1918(23:0)" />
         <signal name="aes_sclk" />
-        <signal name="XLXN_1897(6:0)" />
-        <signal name="XLXN_1929(6:0)" />
         <signal name="XLXN_1898" />
-        <signal name="XLXN_1899(6:0)" />
-        <signal name="XLXN_1900(23:0)" />
-        <signal name="XLXN_1933(23:0)" />
         <signal name="XLXN_1901(23:0)" />
-        <signal name="XLXN_1935(23:0)" />
         <signal name="audio_input(2687:0)" />
-        <signal name="audio_output(2687:0)" />
         <signal name="P16_A_TXP" />
         <signal name="P16_B_TXP" />
         <signal name="audio_output(407:384)" />
@@ -267,12 +254,13 @@
         <signal name="audio_output(719:696)" />
         <signal name="audio_output(743:720)" />
         <signal name="audio_output(767:744)" />
-        <signal name="XLXN_1967" />
-        <signal name="XLXN_1968" />
-        <signal name="XLXN_1969" />
-        <signal name="XLXN_1970" />
         <signal name="P16_A_TXM" />
         <signal name="P16_B_TXM" />
+        <signal name="XLXN_1972(6:0)" />
+        <signal name="XLXN_1973(6:0)" />
+        <signal name="XLXN_1974(23:0)" />
+        <signal name="audio_output(2687:0)" />
+        <signal name="audio_output(23:0)" />
         <port polarity="Output" name="imx25_uart4_rxd" />
         <port polarity="Input" name="imx25_uart4_txd" />
         <port polarity="Input" name="DA_RX" />
@@ -557,27 +545,6 @@
             <rect width="64" x="368" y="-300" height="24" />
             <line x2="432" y1="-288" y2="-288" x1="368" />
         </blockdef>
-        <blockdef name="audiomatrix">
-            <timestamp>2025-8-5T22:33:56</timestamp>
-            <rect width="432" x="64" y="-320" height="320" />
-            <line x2="0" y1="-288" y2="-288" x1="64" />
-            <line x2="0" y1="-224" y2="-224" x1="64" />
-            <rect width="64" x="0" y="-172" height="24" />
-            <line x2="0" y1="-160" y2="-160" x1="64" />
-            <rect width="64" x="0" y="-108" height="24" />
-            <line x2="0" y1="-96" y2="-96" x1="64" />
-            <rect width="64" x="0" y="-44" height="24" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="560" y1="-288" y2="-288" x1="496" />
-            <rect width="64" x="496" y="-236" height="24" />
-            <line x2="560" y1="-224" y2="-224" x1="496" />
-            <rect width="64" x="496" y="-172" height="24" />
-            <line x2="560" y1="-160" y2="-160" x1="496" />
-            <rect width="64" x="496" y="-108" height="24" />
-            <line x2="560" y1="-96" y2="-96" x1="496" />
-            <rect width="64" x="496" y="-44" height="24" />
-            <line x2="560" y1="-32" y2="-32" x1="496" />
-        </blockdef>
         <blockdef name="audiotestclk">
             <timestamp>2025-8-5T22:47:8</timestamp>
             <rect width="256" x="64" y="-192" height="192" />
@@ -616,6 +583,27 @@
             <line x2="64" y1="-32" y2="0" x1="128" />
             <line x2="64" y1="0" y2="-64" x1="64" />
             <circle r="16" cx="144" cy="-32" />
+        </blockdef>
+        <blockdef name="audiomatrix">
+            <timestamp>2025-8-7T13:53:0</timestamp>
+            <rect width="432" x="64" y="-320" height="320" />
+            <line x2="0" y1="-288" y2="-288" x1="64" />
+            <line x2="0" y1="-224" y2="-224" x1="64" />
+            <rect width="64" x="0" y="-172" height="24" />
+            <line x2="0" y1="-160" y2="-160" x1="64" />
+            <rect width="64" x="0" y="-108" height="24" />
+            <line x2="0" y1="-96" y2="-96" x1="64" />
+            <rect width="64" x="0" y="-44" height="24" />
+            <line x2="0" y1="-32" y2="-32" x1="64" />
+            <line x2="560" y1="-288" y2="-288" x1="496" />
+            <rect width="64" x="496" y="-236" height="24" />
+            <line x2="560" y1="-224" y2="-224" x1="496" />
+            <rect width="64" x="496" y="-172" height="24" />
+            <line x2="560" y1="-160" y2="-160" x1="496" />
+            <rect width="64" x="496" y="-108" height="24" />
+            <line x2="560" y1="-96" y2="-96" x1="496" />
+            <rect width="64" x="496" y="-44" height="24" />
+            <line x2="560" y1="-32" y2="-32" x1="496" />
         </blockdef>
         <block symbolname="rs232_encoder" name="XLXI_23">
             <blockpin signalname="clk_main" name="clk" />
@@ -1193,22 +1181,10 @@
         <block symbolname="audiomatrix_ram" name="XLXI_457">
             <blockpin signalname="clk_main" name="clk" />
             <blockpin signalname="XLXN_1898" name="wr_en" />
-            <blockpin signalname="XLXN_1897(6:0)" name="read_addr(6:0)" />
-            <blockpin signalname="XLXN_1899(6:0)" name="write_addr(6:0)" />
-            <blockpin signalname="XLXN_1900(23:0)" name="i_data(23:0)" />
+            <blockpin signalname="XLXN_1972(6:0)" name="read_addr(6:0)" />
+            <blockpin signalname="XLXN_1973(6:0)" name="write_addr(6:0)" />
+            <blockpin signalname="XLXN_1974(23:0)" name="i_data(23:0)" />
             <blockpin signalname="XLXN_1901(23:0)" name="o_data(23:0)" />
-        </block>
-        <block symbolname="audiomatrix" name="XLXI_461">
-            <blockpin signalname="clk_main" name="clk" />
-            <blockpin signalname="audiosync" name="sync_in" />
-            <blockpin signalname="audio_input(2687:0)" name="input_data(2687:0)" />
-            <blockpin signalname="routing_select(895:0)" name="select_lines(895:0)" />
-            <blockpin signalname="XLXN_1901(23:0)" name="i_ram_data(23:0)" />
-            <blockpin signalname="XLXN_1898" name="o_ram_wr_en" />
-            <blockpin signalname="audio_output(2687:0)" name="output_data(2687:0)" />
-            <blockpin signalname="XLXN_1899(6:0)" name="o_ram_write_addr(6:0)" />
-            <blockpin signalname="XLXN_1897(6:0)" name="o_ram_read_addr(6:0)" />
-            <blockpin signalname="XLXN_1900(23:0)" name="o_ram_data(23:0)" />
         </block>
         <block symbolname="ultranet_tx" name="XLXI_471">
             <blockpin signalname="aes_sclk" name="bit_clock" />
@@ -1241,6 +1217,18 @@
         <block symbolname="inv" name="XLXI_474">
             <blockpin signalname="P16_B_TXP" name="I" />
             <blockpin signalname="P16_B_TXM" name="O" />
+        </block>
+        <block symbolname="audiomatrix" name="XLXI_475">
+            <blockpin signalname="clk_main" name="clk" />
+            <blockpin signalname="audiosync" name="sync_in" />
+            <blockpin signalname="audio_input(2687:0)" name="input_data(2687:0)" />
+            <blockpin signalname="routing_select(895:0)" name="select_lines(895:0)" />
+            <blockpin signalname="XLXN_1901(23:0)" name="i_ram_data(23:0)" />
+            <blockpin signalname="XLXN_1898" name="o_ram_wr_en" />
+            <blockpin signalname="XLXN_1972(6:0)" name="o_ram_read_addr(6:0)" />
+            <blockpin signalname="XLXN_1973(6:0)" name="o_ram_write_addr(6:0)" />
+            <blockpin signalname="XLXN_1974(23:0)" name="o_ram_data(23:0)" />
+            <blockpin signalname="audio_output(2687:0)" name="output_data(2687:0)" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
@@ -1640,7 +1628,6 @@
         <instance x="5568" y="816" name="XLXI_119" orien="R0">
         </instance>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1656" x="40" y="4344" height="1012" />
-        <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="76" y="4384">8CH INPUT XLR AD0 (Ch 1-16)</text>
         <branch name="clk_main">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="960" y="4512" type="branch" />
             <wire x2="960" y1="4512" y2="4512" x1="896" />
@@ -1950,10 +1937,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3456" type="branch" />
             <wire x2="384" y1="3456" y2="3456" x1="272" />
             <wire x2="512" y1="3456" y2="3456" x1="384" />
-        </branch>
-        <branch name="audio_output(23:0)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3520" type="branch" />
-            <wire x2="512" y1="3520" y2="3520" x1="384" />
         </branch>
         <branch name="audio_output(47:24)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3584" type="branch" />
@@ -2649,21 +2632,8 @@
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4528" y="1488" type="branch" />
             <wire x2="4688" y1="1488" y2="1488" x1="4528" />
         </branch>
-        <branch name="XLXN_1897(6:0)">
-            <wire x2="4608" y1="1744" y2="1744" x1="4320" />
-            <wire x2="4688" y1="1616" y2="1616" x1="4608" />
-            <wire x2="4608" y1="1616" y2="1744" x1="4608" />
-        </branch>
         <branch name="XLXN_1898">
             <wire x2="4688" y1="1552" y2="1552" x1="4320" />
-        </branch>
-        <branch name="XLXN_1899(6:0)">
-            <wire x2="4688" y1="1680" y2="1680" x1="4320" />
-        </branch>
-        <branch name="XLXN_1900(23:0)">
-            <wire x2="4672" y1="1808" y2="1808" x1="4320" />
-            <wire x2="4688" y1="1744" y2="1744" x1="4672" />
-            <wire x2="4672" y1="1744" y2="1808" x1="4672" />
         </branch>
         <branch name="XLXN_1901(23:0)">
             <wire x2="3760" y1="1808" y2="1808" x1="3680" />
@@ -2688,13 +2658,6 @@
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="3616" y="1552" type="branch" />
             <wire x2="3760" y1="1552" y2="1552" x1="3616" />
         </branch>
-        <branch name="audio_output(2687:0)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="4464" y="1616" type="branch" />
-            <wire x2="4464" y1="1616" y2="1616" x1="4320" />
-            <wire x2="4496" y1="1616" y2="1616" x1="4464" />
-        </branch>
-        <instance x="3760" y="1840" name="XLXI_461" orien="R0">
-        </instance>
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="3324" y="1404">Audio Routing Matrix</text>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2236" x="3204" y="2136" height="748" />
         <branch name="aes_sclk">
@@ -2800,5 +2763,26 @@
             <wire x2="5216" y1="2192" y2="2192" x1="5200" />
         </branch>
         <iomarker fontsize="28" x="5216" y="2192" name="P16_B_TXM" orien="R0" />
+        <instance x="3760" y="1840" name="XLXI_475" orien="R0">
+        </instance>
+        <branch name="XLXN_1972(6:0)">
+            <wire x2="4688" y1="1616" y2="1616" x1="4320" />
+        </branch>
+        <branch name="XLXN_1973(6:0)">
+            <wire x2="4688" y1="1680" y2="1680" x1="4320" />
+        </branch>
+        <branch name="XLXN_1974(23:0)">
+            <wire x2="4688" y1="1744" y2="1744" x1="4320" />
+        </branch>
+        <branch name="audio_output(2687:0)">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="4480" y="1808" type="branch" />
+            <wire x2="4480" y1="1808" y2="1808" x1="4320" />
+            <wire x2="4496" y1="1808" y2="1808" x1="4480" />
+        </branch>
+        <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="80" y="4384">8CH INPUT XLR AD0 (Ch 1-16)</text>
+        <branch name="audio_output(23:0)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3520" type="branch" />
+            <wire x2="512" y1="3520" y2="3520" x1="384" />
+        </branch>
     </sheet>
 </drawing>

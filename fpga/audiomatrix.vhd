@@ -17,14 +17,14 @@ entity audiomatrix is
 		clk					: in std_logic;
 		sync_in				: in std_logic;
 		input_data			: in  std_logic_vector(NUM_INPUT_PORTS * DATA_WIDTH - 1 downto 0);
-		select_lines		: in  std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0); -- log2(32) = 5, log2(72) = 7, log2(112) = 7 bit
+		select_lines		: in  std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0); -- log2(NUM_INPUT_PORTS) = 8, log2(72) = 7, log2(112) = 7 bit
 		i_ram_data			: in  std_logic_vector(DATA_WIDTH - 1 downto 0);
 		
-		output_data			: out std_logic_vector(NUM_OUTPUT_PORTS * DATA_WIDTH - 1 downto 0);
-		o_ram_write_addr	: out unsigned(6 downto 0); -- log2(112) = 7 bit
 		o_ram_read_addr	: out unsigned(6 downto 0); -- log2(112) = 7 bit
+		o_ram_write_addr	: out unsigned(6 downto 0); -- log2(112) = 7 bit
 		o_ram_data			: out std_logic_vector(DATA_WIDTH - 1 downto 0);
-		o_ram_wr_en			: out std_logic
+		o_ram_wr_en			: out std_logic;
+		output_data			: out std_logic_vector(NUM_OUTPUT_PORTS * DATA_WIDTH - 1 downto 0)
 	);
 end entity audiomatrix;
 

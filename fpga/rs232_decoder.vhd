@@ -98,7 +98,6 @@ begin
 				selector := to_integer(unsigned(b2 & b3));
 
 				if (selector >= 0 and selector <= 111) then
-					-- routing signal uses only 7 bit as we select between 112 input/output signals, but 8-bits are easier to handle with multiplications
 					routing((selector * 8) + (8 * 8) - 1 downto (selector * 8)) <= b4 & b5 & b6 & b7 & b8 & b9 & b10 & b11;
 				elsif (selector >= 200 and selector <= 240) then
 					-- volume-information
