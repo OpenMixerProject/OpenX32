@@ -1,3 +1,8 @@
+-- Block-RAM-Module for Audio-Routing-Matrix
+-- v0.1.0, 08.08.2025
+-- OpenX32 Project
+-- https://github.com/xn--nding-jua/OpenX32
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -24,7 +29,7 @@ architecture behavioral of audiomatrix_ram is
 begin
 	process(clk)
 	begin
-		if rising_edge(clk) then
+		if falling_edge(clk) then
 			-- write data to RAM
 			if wr_en = '1' then
 				ram_inst(to_integer(write_addr)) <= i_data;
