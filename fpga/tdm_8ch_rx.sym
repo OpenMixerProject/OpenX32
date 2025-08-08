@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="tdm_8ch_rx">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2025-7-25T7:44:51</timestamp>
+    <timestamp>2025-8-8T18:27:29</timestamp>
     <pin polarity="Input" x="0" y="-544" name="clk" />
     <pin polarity="Input" x="0" y="-384" name="bclk" />
     <pin polarity="Input" x="0" y="-224" name="fsync" />

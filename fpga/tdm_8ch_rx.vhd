@@ -36,77 +36,44 @@ entity tdm_8ch_rx is
 end tdm_8ch_rx;
 
 architecture rtl of tdm_8ch_rx is
-	signal zbclk		: std_logic;
-	signal zfsync		: std_logic;
-	signal bit_cnt		: integer range 0 to (32 * 8) + 1 := 0; -- one extra bit to prevent additional bitshift on following ch1 after ch8
-	signal sync_out_tmp	: std_logic;
-	
-	signal ch1	: std_logic_vector(31 downto 0);
-	signal ch2	: std_logic_vector(31 downto 0);
-	signal ch3	: std_logic_vector(31 downto 0);
-	signal ch4	: std_logic_vector(31 downto 0);
-	signal ch5	: std_logic_vector(31 downto 0);
-	signal ch6	: std_logic_vector(31 downto 0);
-	signal ch7	: std_logic_vector(31 downto 0);
-	signal ch8	: std_logic_vector(31 downto 0);
+	signal zfsync				: std_logic;
+	signal bit_cnt				: integer range 0 to (32 * 8) - 1 := 0;
+	signal sample_data		: std_logic_vector((32 * 8) - 1 downto 0) := (others => '0');
 begin
-	process(clk)
+	process(bclk)
 	begin
-		if rising_edge(clk) then
-			zbclk <= bclk;
+		if rising_edge(bclk) then
+			-- continuously reading bit into shift-register
+			sample_data <= sample_data(sample_data'high - 1 downto 0) & sdata;
+			
+			-- check for positive edge of frame-sync (1 bit-clock before bit 0 of channel 1)
+			if (fsync = '1' and zfsync = '0') then
+				-- reading LSB of channel 8
 
-			if (bclk = '1' and zbclk = '0') then
-				-- rising edge of bitclk
-
-				-- continuously reading bit into shift-register
-				if ((bit_cnt >= 0) and (bit_cnt <= 31)) then
-					ch1 <= ch1(ch1'high - 1 downto 0) & sdata;
-				elsif ((bit_cnt >= 32) and (bit_cnt <= 63)) then
-					ch2 <= ch2(ch2'high - 1 downto 0) & sdata;
-				elsif ((bit_cnt >= 64) and (bit_cnt <= 95)) then
-					ch3 <= ch3(ch3'high - 1 downto 0) & sdata;
-				elsif ((bit_cnt >= 96) and (bit_cnt <= 127)) then
-					ch4 <= ch4(ch4'high - 1 downto 0) & sdata;
-				elsif ((bit_cnt >= 128) and (bit_cnt <= 159)) then
-					ch5 <= ch5(ch5'high - 1 downto 0) & sdata;
-				elsif ((bit_cnt >= 160) and (bit_cnt <= 191)) then
-					ch6 <= ch6(ch6'high - 1 downto 0) & sdata;
-				elsif ((bit_cnt >= 192) and (bit_cnt <= 223)) then
-					ch7 <= ch7(ch7'high - 1 downto 0) & sdata;
-				elsif ((bit_cnt >= 224) and (bit_cnt <= 255)) then
-					ch8 <= ch8(ch8'high - 1 downto 0) & sdata;
-				end if;
-
-				if (bit_cnt = 0) then
-					-- we are reading MSB of ch1, so all channel-bits are within vectors
-					ch1_out <= ch1(31 downto 8);
-					ch2_out <= ch2(31 downto 8);
-					ch3_out <= ch3(31 downto 8);
-					ch4_out <= ch4(31 downto 8);
-					ch5_out <= ch5(31 downto 8);
-					ch6_out <= ch6(31 downto 8);
-					ch7_out <= ch7(31 downto 8);
-					ch8_out <= ch8(31 downto 8);
-					sync_out_tmp <= '1'; -- will be resseted one clk later
-				end if;
-
-				-- check for positive edge of frame-sync (1 bit-clock before bit 0 of channel 1)
-				if (fsync = '1' and zfsync = '0') then
-					-- rising edge of sync-signal (while reading LSB of ch8)
-					bit_cnt <= 0; -- reset bit-counter
-				else
-					bit_cnt <= bit_cnt + 1;
-				end if;
-				
-				zfsync <= fsync;
+				-- set bit_cnt for next MSB
+				bit_cnt <= 0;
+			else
+				bit_cnt <= bit_cnt + 1;
 			end if;
 			
-			if (sync_out_tmp = '1') then
-				sync_out_tmp <= '0';
+			if (bit_cnt = 0) then
+				-- we are reading MSB of ch1, so all channel-bits are within sample_data
+				ch1_out <= sample_data(31 + (32*0) downto 8 + (32*0));
+				ch2_out <= sample_data(31 + (32*1) downto 8 + (32*1));
+				ch3_out <= sample_data(31 + (32*2) downto 8 + (32*2));
+				ch4_out <= sample_data(31 + (32*3) downto 8 + (32*3));
+				ch5_out <= sample_data(31 + (32*4) downto 8 + (32*4));
+				ch6_out <= sample_data(31 + (32*5) downto 8 + (32*5));
+				ch7_out <= sample_data(31 + (32*6) downto 8 + (32*6));
+				ch8_out <= sample_data(31 + (32*7) downto 8 + (32*7));
+
+				sync_out <= '1'; -- tell everyone that we have new set of audio-samples
+			else
+				sync_out <= '0';
 			end if;
+
+			zfsync <= fsync;
 		end if;
 	end process;
-
-	sync_out <= sync_out_tmp;
 end rtl;
         

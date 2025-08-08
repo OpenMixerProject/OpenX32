@@ -28,8 +28,8 @@ begin
 	process (clk)
 	begin
 		if rising_edge(clk) then
-			-- generate 24.576 MHz clock for UltraNet
-			if (count_sclk_a = (122880000/(2*24576000))) then -- divide clk by 5 (122.88 MHz -> 24.576 MHz)
+			-- generate 24.576 MHz clock for UltraNet (not possible with testclock)
+			if (count_sclk_a = 3) then -- divide clk by 6 (122.88 MHz -> 24.576 MHz)
 				sclk_a <= not sclk_a;
 				count_sclk_a <= 1;
 			else
@@ -38,16 +38,22 @@ begin
 		
 			-- generate 12.288 MHz clock for TDM8
 			if (count_sclk_b = (122880000/(2*12288000))) then -- divide clk by 10 (122.88 MHz -> 12.288 MHz)
-				sclk_b <= not sclk_b;
-				count_sclk_b <= 1;
-
-				-- derive fs from sclk
-				if (count_fs = (12288000/48000)) then -- divide sclk by 256 (12.288 MHz -> 48 kHz)
-					fs <= not fs;
-					count_fs <= 1;
+				if (sclk_b = '0') then
+					-- rising edge of sclk
+					sclk_b <= '1';
 				else
-					count_fs <= count_fs + 1;
+					-- falling edge of sclk
+					sclk_b <= '0';
+
+					-- derive fs from sclk
+					if (count_fs = (12288000/(2*48000))) then -- divide sclk by 256 (12.288 MHz -> 48 kHz)
+						fs <= not fs;
+						count_fs <= 1;
+					else
+						count_fs <= count_fs + 1;
+					end if;
 				end if;
+				count_sclk_b <= 1;
 			else
 				count_sclk_b <= count_sclk_b + 1;
 			end if;

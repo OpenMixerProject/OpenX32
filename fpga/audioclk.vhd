@@ -22,7 +22,7 @@ architecture behavioral of audioclk is
 begin
 	process (i_sclk)
 	begin
-		if rising_edge(i_sclk) then
+		if falling_edge(i_sclk) then
 			if (count_fs = (12288000/(2*48000))) then -- divide sclk by 256 (12.288 MHz -> 48 kHz)
 				fs <= not fs;
 				count_fs <= 1;

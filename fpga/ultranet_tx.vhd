@@ -47,40 +47,46 @@ architecture behavioral of ultranet_tx is
 begin
 	bit_clock_counter : process (bit_clock)
 	begin
-		if bit_clock'event and bit_clock = '1' then
+		if rising_edge(bit_clock) then
 			bit_counter <= bit_counter + 1;
 		end if;
 	end process bit_clock_counter;
 
 	data_latch : process (bit_clock)
 	begin
-		if bit_clock'event and bit_clock = '1' then
+		if rising_edge(bit_clock) then
 			parity <= data_in_buffer(23) xor data_in_buffer(22) xor data_in_buffer(21) xor data_in_buffer(20) xor data_in_buffer(19) xor data_in_buffer(18) xor data_in_buffer(17)  xor data_in_buffer(16) xor data_in_buffer(15) xor data_in_buffer(14) xor data_in_buffer(13) xor data_in_buffer(12) xor data_in_buffer(11) xor data_in_buffer(10) xor data_in_buffer(9) xor data_in_buffer(8) xor data_in_buffer(7) xor data_in_buffer(6) xor data_in_buffer(5) xor data_in_buffer(4) xor data_in_buffer(3) xor data_in_buffer(2) xor data_in_buffer(1) xor data_in_buffer(0) xor validity xor user_status_shift(user_status_shift'high) xor channel_status_shift(channel_status_shift'high);
-				if bit_counter = "000011" then
-					if channel_counter = 0 then
-						data_in_buffer <= ch1;
-					elsif channel_counter = 1 then
-						data_in_buffer <= ch2;
-					elsif channel_counter = 2 then
-						data_in_buffer <= ch3;
-					elsif channel_counter = 3 then
-						data_in_buffer <= ch4;
-					elsif channel_counter = 4 then
-						data_in_buffer <= ch5;
-					elsif channel_counter = 5 then
-						data_in_buffer <= ch6;
-					elsif channel_counter = 6 then
-						data_in_buffer <= ch7;
-					else
-						data_in_buffer <= ch8;
-					end if;
+			if bit_counter = 3 then
+				-- we are near the end of the preamble, load the sound data in the buffer
+				if channel_counter = 0 then
+					data_in_buffer <= ch1;
+				elsif channel_counter = 1 then
+					data_in_buffer <= ch2;
+				elsif channel_counter = 2 then
+					data_in_buffer <= ch3;
+				elsif channel_counter = 3 then
+					data_in_buffer <= ch4;
+				elsif channel_counter = 4 then
+					data_in_buffer <= ch5;
+				elsif channel_counter = 5 then
+					data_in_buffer <= ch6;
+				elsif channel_counter = 6 then
+					data_in_buffer <= ch7;
+				else
+					data_in_buffer <= ch8;
 				end if;
+			end if;
+			
+			if bit_counter = 63 then
+				-- we are at the 32th bit (2x due to biphase) which means the end of a frame
 				
-				if bit_counter = "111111" then
-					if frame_counter = "101111111" then
-						frame_counter <= (others => '0');
-					else
-						frame_counter <= frame_counter + 1;
+				-- check if this is the last frame in the audio block
+				if frame_counter = "101111111" then
+					-- yes, reset the frame counter
+					frame_counter <= (others => '0');
+				else
+					-- nope, increment the frame counter
+					frame_counter <= frame_counter + 1;
 				end if;
 			end if;
 		end if;
@@ -88,23 +94,35 @@ begin
 
 	data_output : process (bit_clock)
 	begin
-		if bit_clock'event and bit_clock = '1' then
-			if bit_counter = "111111" then
+		if rising_edge(bit_clock) then
+			if bit_counter = 63 then
+				-- we are at the 32th bit of the frame (2x due to biphase) which means the end of a frame
+			
 				if frame_counter = "101111111" then -- prepare data as next frame is 0, 
+					-- next frame will be the first of the new audio block, load the Z preamble
+				
 					channel_counter <= 0; -- reset channel-counter
 					validity <= '1'; -- for AES/EBU this should be '0', but for UltraNet we have to set it to '1' permanently
 					user_status_shift <= user_status; -- load user-shift-register
 					channel_status_shift <= channel_status; -- load channel-shift-register
 					data_out_buffer <= "10011100"; -- load preamble Z
 				else
-					if frame_counter(0) = '1' then -- prepare data as next frame is even
-						user_status_shift <= user_status_shift(user_status_shift'high - 1 downto 0) & '0';
-						channel_status_shift <= channel_status_shift(channel_status_shift'high - 1 downto 0) & '0';
+					-- next frame is NOT the first of the audio block
+
+					-- Check if the frame is even/odd (generally attributed to left/right)
+					if frame_counter(0) = '1' then
+						-- prepare data as next frame is even
 						data_out_buffer <= "10010011"; -- -- load preable X
-					else -- prepare data as next frame is odd
+					else
+						-- prepare data as next frame is odd
 						data_out_buffer <= "10010110"; -- load preable Y
 					end if;
 					
+					-- shift the channel status and user by one to the left
+					user_status_shift <= user_status_shift(user_status_shift'high - 1 downto 0) & '0';
+					channel_status_shift <= channel_status_shift(channel_status_shift'high - 1 downto 0) & '0';
+
+					-- increment or reset channel-counter
 					if (channel_counter < 7) then
 						channel_counter <= channel_counter + 1;
 					else
@@ -127,7 +145,7 @@ begin
 						when "101" =>
 							data_out_buffer <= '1' & data_in_buffer(20) & '1' & data_in_buffer(21) & '1' & data_in_buffer(22) & '1' & data_in_buffer(23);
 						when "110" =>
-							data_out_buffer <= "1" & validity & "1" & user_status_shift(user_status_shift'high) & "1" & channel_status_shift(channel_status_shift'high) & "1" & parity;
+							data_out_buffer <= '1' & validity & '1' & user_status_shift(user_status_shift'high) & '1' & channel_status_shift(channel_status_shift'high) & '1' & parity;
 						when others =>
 					end case;
 				else
@@ -139,7 +157,7 @@ begin
 
 	biphaser : process (bit_clock)
 	begin
-		if bit_clock'event and bit_clock = '1' then
+		if rising_edge(bit_clock) then
 			if data_out_buffer(data_out_buffer'left) = '1' then
 				data_biphase <= not data_biphase;
 			end if;
