@@ -52,17 +52,17 @@
 		model = "Innolux-AT070TN";
 		bits-per-pixel = <32>;
 		bus-width = <18>;
-		fsl,pcr = <0xFC228080>;
+		fsl,pcr = <0xFC228082>;
 		display-timings {
 			native-mode = <&wvga_timings>;
 			wvga_timings: timing0 {
 				hactive = <800>;
-				hfront-porch = <210>;
-				hback-porch = <52>;
+				hfront-porch = <208>;
+				hback-porch = <47>;
 				hsync-len = <1>;
 				vactive = <480>;
-				vfront-porch = <22>;
-				vback-porch = <22>;
+				vfront-porch = <130>;
+				vback-porch = <24>;
 				vsync-len = <1>;
 				clock-frequency = <40000000>;
 				hsync-active = <0>; // asserted when LOW
