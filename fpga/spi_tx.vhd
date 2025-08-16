@@ -28,7 +28,7 @@ architecture behavioral of spi_tx is
 	signal s_SM			: t_SM := s_Idle;
 	
 	signal startup		: std_logic := '1';
-	signal count_clk	: natural range 0 to 2 := 0;
+	signal count_clk	: natural range 0 to 1 := 0;
 	signal nCS			: std_logic := '0';
 	signal cclk			: std_logic := '0';
 	signal cdata		: std_logic := '0';
@@ -60,8 +60,8 @@ begin
 				end if;
 				
 			elsif (s_SM = s_Tx) then
-				-- transmit at around 5MHz (CS42438 is able to handle SPI at max. 6 MHz)
-				if (count_clk = 2 or startup = '1') then -- divide clk by 3 (16 MHz / 3 = 5.33 MHz)
+				-- transmit at around 4 MHz (CS42438 is able to handle SPI at max. 6 MHz)
+				if (count_clk = 1 or startup = '1') then -- divide clk by 4 (16 MHz / 4 = 4 MHz)
 					if (cclk = '0' and startup = '0') then
 						-- we have rising edge
 						cclk <= '1';
