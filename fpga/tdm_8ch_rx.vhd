@@ -58,14 +58,14 @@ begin
 			
 			if (bit_cnt = 0) then
 				-- we are reading MSB of ch1, so all channel-bits are within sample_data
-				ch1_out <= sample_data(31 + (32*0) downto 8 + (32*0));
-				ch2_out <= sample_data(31 + (32*1) downto 8 + (32*1));
-				ch3_out <= sample_data(31 + (32*2) downto 8 + (32*2));
-				ch4_out <= sample_data(31 + (32*3) downto 8 + (32*3));
-				ch5_out <= sample_data(31 + (32*4) downto 8 + (32*4));
-				ch6_out <= sample_data(31 + (32*5) downto 8 + (32*5));
-				ch7_out <= sample_data(31 + (32*6) downto 8 + (32*6));
-				ch8_out <= sample_data(31 + (32*7) downto 8 + (32*7));
+				ch1_out <= sample_data(31 + (32*7) downto 8 + (32*7));
+				ch2_out <= sample_data(31 + (32*6) downto 8 + (32*6));
+				ch3_out <= sample_data(31 + (32*5) downto 8 + (32*5));
+				ch4_out <= sample_data(31 + (32*4) downto 8 + (32*4));
+				ch5_out <= sample_data(31 + (32*3) downto 8 + (32*3));
+				ch6_out <= sample_data(31 + (32*2) downto 8 + (32*2));
+				ch7_out <= sample_data(31 + (32*1) downto 8 + (32*1));
+				ch8_out <= sample_data(31 + (32*0) downto 8 + (32*0));
 
 				sync_out <= '1'; -- tell everyone that we have new set of audio-samples
 			else
