@@ -7,14 +7,14 @@ lv_indev_t *buttons_indev; // will be updated by buttonCallback
 lv_indev_t *encoder_indev;
 */
 
-uint16_t lastButton;
+X32_BTN lastButton;
 bool lastButtonPressed;
 
 void timer100msCallback(int sig, siginfo_t *si, void *uc) {
   // TODO
 }
 
-void guiNewButtonPress(uint16_t button, bool pressed) {
+void guiNewButtonPress(X32_BTN button, bool pressed) {
   lastButton = button;
   lastButtonPressed = pressed;
 
@@ -31,7 +31,7 @@ void guiKeypadInputCallback(lv_indev_t * indev, lv_indev_data_t * data){
     data->state = LV_INDEV_STATE_RELEASED;
   }
 
-  lv_label_set_text_fmt(objects.testbartext, "Button %i pressed!", lastButton);
+  lv_label_set_text_fmt(objects.testbartext, "Button %i pressed!", enum2button(lastButton));
 }
 
 void guiMouseInputCallback(lv_indev_t * indev, lv_indev_data_t * data) {
@@ -82,17 +82,17 @@ void guiMouseInputCallback(lv_indev_t * indev, lv_indev_data_t * data) {
   }
 */
   if (lastButtonPressed) {
-    if (lastButton == 290) {
+    if (lastButton == HOME) {
       data->point.x = 50;
       data->point.y = 15;
       data->state = LV_INDEV_STATE_PRESSED;
     }
-    if (lastButton == 291) {
+    if (lastButton == METERS) {
       data->point.x = 400;
       data->point.y = 15;
       data->state = LV_INDEV_STATE_PRESSED;
     }
-    if (lastButton == 292) {
+    if (lastButton == ROUTING) {
       data->point.x = 750;
       data->point.y = 15;
       data->state = LV_INDEV_STATE_PRESSED;

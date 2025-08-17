@@ -7,7 +7,7 @@ extern backend_t *sel_display_backend;
 
 void guiInitInput();
 void guiInit();
-void guiNewButtonPress(uint16_t button, bool pressed);
+void guiNewButtonPress(X32_BTN button, bool pressed);
 void timer100msCallback(int sig, siginfo_t *si, void *uc);
 
 #endif

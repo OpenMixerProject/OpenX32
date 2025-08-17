@@ -1,15 +1,6 @@
 #ifndef X32CTRL_H_
 #define X32CTRL_H_
 
-// X32 Destination System
-
-//#define X32_MODEL_FULL
-#define X32_MODEL_COMPACT
-//#define X32_MODEL_PRODUCER
-//#define X32_MODEL_RACK
-//#define X32_MODEL_CORE
-//TODO: replace preprocessor-defines with check against x32model-variable
-
 // standard includes
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +38,7 @@
 
 // our own includes
 #include "x32ctrl_types.h"
+#include "constants.h"
 #include "WString.h"
 #include "gui.h"
 #include "uart.h"
@@ -56,8 +48,6 @@
 #include "mixing.h"
 #include "fpga.h"
 
-// variables
-extern int8_t x32model; // -1=unknown, 0=X32, 1=X32Compact, 2=X32Producer, 3=X32Rack, 4=X32Core
 
 // function prototypes
 //void timer50Callback(int signum);

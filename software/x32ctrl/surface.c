@@ -1,7 +1,10 @@
 #include "surface.h"
 
+extern X32_MODEL x32model;
+
 char uartBufferSurface[256]; // buffer for UART-readings
 uint8_t receivedBoardId = 0;
+
 
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
@@ -495,4 +498,101 @@ void surfaceProcessUartData(int bytesToProcess) {
             }
         }
     }
+}
+
+struct buttonInfo {
+    X32_BTN button;
+    uint16_t buttonNr;
+};
+
+#define MAX_BUTTONS 10
+struct buttonInfo x32buttons[MAX_BUTTONS];
+int buttonDefinitionIndex = 0;
+
+void addButtonDefinition(X32_BTN _button, uint16_t _buttonNr) {
+    if (buttonDefinitionIndex >= MAX_BUTTONS)
+    {
+        //TODO: Error Message
+        printf("MAX_BUTTONS");
+        return;
+    }
+    
+    x32buttons[buttonDefinitionIndex].button = _button;
+    x32buttons[buttonDefinitionIndex].buttonNr = _buttonNr;
+    buttonDefinitionIndex++;
+
+    printf("DEBUG: added button definition: Button %d -> ButtonNr %d\n", _button, _buttonNr);
+}
+
+void initButtonDefinition(X32_MODEL modell) {
+    switch(modell) {
+                case FULL:
+                    printf("DEBUG: FULL");
+                    fflush(stdout);
+                    addButtonDefinition(X32_BTN_TALK_A,         0x012E);
+                    addButtonDefinition(X32_BTN_TALK_B,         0x012F);
+                    addButtonDefinition(X32_BTN_VIEW_TALK,      0x0130);
+                    addButtonDefinition(X32_BTN_MONITOR_DIM,    0x012C);
+                    addButtonDefinition(X32_BTN_VIEW_MONITOR,   0x012D);
+
+                    addButtonDefinition(X32_BTN_UP,             0x011D);
+                    addButtonDefinition(X32_BTN_DOWN,           0x0120);
+                    addButtonDefinition(X32_BTN_LEFT,           0x011E);
+                    addButtonDefinition(X32_BTN_RIGHT,          0x011F);
+                    break;
+                case COMPACT:
+                    printf("DEBUG: COMPACT");
+                    fflush(stdout);
+                    addButtonDefinition(X32_BTN_TALK_A,         0x0100);
+                    addButtonDefinition(X32_BTN_TALK_B,         0x0101);
+                    addButtonDefinition(X32_BTN_MONITOR_DIM,    0x0102);
+                    addButtonDefinition(X32_BTN_VIEW_MONITOR,   0x0103);
+
+                    addButtonDefinition(X32_BTN_HOME, 0x011E);
+                    addButtonDefinition(X32_BTN_METERS, 0x011F);
+                    addButtonDefinition(X32_BTN_ROUTING, 0x0120);
+                    addButtonDefinition(X32_BTN_SETUP, 0x0121);
+                    addButtonDefinition(X32_BTN_LIBRARY, 0x0122);
+                    addButtonDefinition(X32_BTN_EFFECTS, 0x0123);
+                    addButtonDefinition(X32_BTN_MUTE_GRP, 0x0124);
+                    addButtonDefinition(X32_BTN_UTILITY, 0x0125);
+
+                    addButtonDefinition(X32_BTN_UP,             0x0126);
+                    addButtonDefinition(X32_BTN_DOWN,           0x0127);
+                    addButtonDefinition(X32_BTN_LEFT,           0x0128);
+                    addButtonDefinition(X32_BTN_RIGHT,          0x0129);
+                    break;
+    }
+}
+
+uint16_t enum2button(X32_BTN button) {
+    printf("DEBUG: enum2button: Button %d -> ", button);
+    fflush(stdout);
+
+    for(int i = 0; i < buttonDefinitionIndex; i++) {
+        if (x32buttons[i].button == button) {
+            printf("gefunden: Button %d\n", x32buttons[i].buttonNr);
+            fflush(stdout);
+            return x32buttons[i].buttonNr;
+        }
+    }
+
+    printf(" NICHT gefunden!\n");
+    return 0;
+}
+
+X32_BTN button2enum(uint16_t buttonNr) {
+    printf("DEBUG: button2enum: ButtonNr %d -> ", buttonNr);
+    fflush(stdout);
+
+    for(int i = 0; i < buttonDefinitionIndex; i++) {
+        if (x32buttons[i].buttonNr == buttonNr) {
+            printf("gefunden: Button %d\n", x32buttons[i].button);
+            fflush(stdout);
+            return x32buttons[i].button;
+        }
+    }
+    
+    printf(" NICHT gefunden!\n");
+    return X32_BTN_NONE;
 }

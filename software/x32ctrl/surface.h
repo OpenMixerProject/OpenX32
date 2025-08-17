@@ -26,4 +26,10 @@ void surfaceInit(void);
 void surfaceReset(void);
 void surfaceProcessUartData(int bytesToProcess);
 
+void initButtonDefinition();
+void addButtonDefinition(X32_BTN _button, uint16_t _buttonNr);
+
+uint16_t enum2button(X32_BTN button);
+X32_BTN button2enum(uint16_t button);
+
 #endif

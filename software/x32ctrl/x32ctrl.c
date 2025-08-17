@@ -12,8 +12,6 @@
 
 #include "x32ctrl.h"
 
-// global variables
-int8_t x32model = -1;
 
 /*
 // called every 50ms
@@ -129,14 +127,15 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
   }else if (class == 'b') {
       // calculate user-readable variables
-      uint16_t buttonNr = ((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F);
+      X32_BTN button = button2enum(((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F));
+
       bool buttonPressed = (value >> 7) == 1;
 
       //printf("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
       lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
 
-      switch (buttonNr) {
-          case 286: // left
+      switch (button) {
+          case X32_BTN_LEFT:
               // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
               for (uint8_t ch=1; ch<=8; ch++) {
                   mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8
@@ -156,7 +155,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
               mixingTxRoutingConfig();
 
               break;
-          case 287: // right
+          case X32_BTN_RIGHT:
               // set routing to XLR-inputs
               for (uint8_t ch=1; ch<=8; ch++) {
                   mixingSetRouting('x', ch, mixingGetInputSource('x', ch)); // set xlr-output 1-8 to xlr-inputs 1-8
@@ -176,7 +175,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
               mixingTxRoutingConfig();
 
               break;
-          case 285: // up
+          case X32_BTN_UP:
               // set routing to AUX-inputs
               for (uint8_t ch=1; ch<=8; ch++) {
                   mixingSetRouting('x', ch, mixingGetInputSource('a', ch)); // set xlr-output 1-8 to xlr-inputs 1-8
@@ -196,7 +195,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
               mixingTxRoutingConfig();
 
               break;
-          case 288: // down
+          case X32_BTN_DOWN:
               // set routing to Card-inputs
               for (uint8_t ch=1; ch<=8; ch++) {
                   mixingSetRouting('x', ch, mixingGetInputSource('c', ch)); // set xlr-output 1-8 to xlr-inputs 1-8
@@ -220,7 +219,8 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       }
 
       // inform LVGL about this new button-press
-      guiNewButtonPress(buttonNr, buttonPressed);
+      guiNewButtonPress(button, buttonPressed);
+
   }else if (class == 'e') {
       // calculate user-readable variables
       uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
@@ -281,17 +281,18 @@ int main() {
     readConfig("/etc/x32.conf", "SN=", serial, 12);
     readConfig("/etc/x32.conf", "DATE=", date, 16);
     if (strcmp(model, "X32Core") == 0) {
-        x32model = 4;
+        initButtonDefinition(CORE);
     }else if (strcmp(model, "X32Rack") == 0) {
-        x32model = 3;
+        initButtonDefinition(RACK);
     }else if (strcmp(model, "X32Producer") == 0) {
-        x32model = 2;
-    }else if (strcmp(model, "X32Compact") == 0) {
-        x32model = 1;
+        initButtonDefinition(PRODUCER);
+    }else if (strcmp(model, "X32C") == 0) {
+        initButtonDefinition(COMPACT);
     }else if (strcmp(model, "X32") == 0) {
-        x32model = 0;
+        initButtonDefinition(FULL);
     }else{
-        x32model = -1;
+        printf("ERROR: No model detected!\n");
+        return;
     }
     printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
@@ -385,6 +386,8 @@ int main() {
 
     printf("Initializing GUI...\n");
     guiInit(); // initializes LVGL, FBDEV and starts endless loop
+
+    fflush(stdout);
 
     return 0;
 }
