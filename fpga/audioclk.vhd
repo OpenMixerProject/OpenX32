@@ -10,29 +10,38 @@ use ieee.numeric_std.all;
 
 entity audioclk is
 	port (
-		i_sclk	: in std_logic; -- 12.288 MHz for 48kHz
-		o_sclk	: out std_logic; -- 12.288 MHz
+		i_clk		: in std_logic; -- 24.576 MHz
+		o_clk		: out std_logic; -- 12.288 MHz
 		o_fs		: out std_logic -- 48 kHz
 	);
 end entity;
 
 architecture behavioral of audioclk is
 	signal count_fs		: natural range 0 to 256 := 1;
+	signal clk				: std_logic := '0';
 	signal fs				: std_logic := '0';
 begin
-	process (i_sclk)
+	process (i_clk)
 	begin
-		if falling_edge(i_sclk) then
-			if (count_fs = (12288000/(2*48000))) then -- divide sclk by 256 (12.288 MHz -> 48 kHz)
-				fs <= not fs;
-				count_fs <= 1;
+		if rising_edge(i_clk) then
+			if (clk = '0') then
+				-- rising edge of clk
+				clk <= '1';
 			else
-				count_fs <= count_fs + 1;
+				-- falling edge of clk
+				clk <= '0';
+
+				if (count_fs = (12288000/(2*48000))) then -- divide sclk by 256 (12.288 MHz -> 48 kHz)
+					fs <= not fs;
+					count_fs <= 1;
+				else
+					count_fs <= count_fs + 1;
+				end if;
 			end if;
 		end if;
 	end process;
 	
 	-- output the signals
-	o_sclk <= i_sclk;
+	o_clk <= clk;
 	o_fs <= fs;
 end behavioral;
