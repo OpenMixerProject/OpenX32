@@ -36,25 +36,20 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 35, 73);
+                            // openx32logo
+                            lv_obj_t *obj = lv_image_create(parent_obj);
+                            objects.openx32logo = obj;
+                            lv_obj_set_pos(obj, -118, -5);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text(obj, "OpenX32 - The OpenSource Operating System for the Behringer X32");
-                        }
-                        {
-                            lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 280, 22);
-                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text(obj, "OpenX32 GUI");
+                            lv_image_set_src(obj, &img_openx32logo);
+                            lv_image_set_scale(obj, 177);
                         }
                         {
                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                             lv_obj_set_pos(obj, 35, 127);
                             lv_obj_set_size(obj, 691, 254);
-                            lv_textarea_set_max_length(obj, 128);
-                            lv_textarea_set_text(obj, "Currently (rudimentary) implemented pages:\n- Home\n- Meters\n- Utility (for Development)");
+                            lv_textarea_set_max_length(obj, 255);
+                            lv_textarea_set_text(obj, "Currently (rudimentary) implemented pages:\n- HOME\n- METERS\n- UTILITY (for Development)\n\n\n\n-> Press the EFFECTS button to get a nice demo <-");
                             lv_textarea_set_one_line(obj, false);
                             lv_textarea_set_password_mode(obj, false);
                         }
@@ -68,17 +63,101 @@ void create_screen_main() {
                             // slider01
                             lv_obj_t *obj = lv_slider_create(parent_obj);
                             objects.slider01 = obj;
-                            lv_obj_set_pos(obj, 50, 294);
+                            lv_obj_set_pos(obj, 14, 279);
                             lv_obj_set_size(obj, 11, 111);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
-                            // meter01
-                            lv_obj_t *obj = lv_bar_create(parent_obj);
-                            objects.meter01 = obj;
-                            lv_obj_set_pos(obj, 50, 164);
-                            lv_obj_set_size(obj, 11, 93);
-                            lv_bar_set_value(obj, 25, LV_ANIM_OFF);
+                            // slider02
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider02 = obj;
+                            lv_obj_set_pos(obj, 51, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider03
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider03 = obj;
+                            lv_obj_set_pos(obj, 91, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider04
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider04 = obj;
+                            lv_obj_set_pos(obj, 131, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider05
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider05 = obj;
+                            lv_obj_set_pos(obj, 172, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider06
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider06 = obj;
+                            lv_obj_set_pos(obj, 211, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider07
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider07 = obj;
+                            lv_obj_set_pos(obj, 252, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider08
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider08 = obj;
+                            lv_obj_set_pos(obj, 293, 279);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // phantomindicators
+                            lv_obj_t *obj = lv_buttonmatrix_create(parent_obj);
+                            objects.phantomindicators = obj;
+                            lv_obj_set_pos(obj, -14, 192);
+                            lv_obj_set_size(obj, 350, 78);
+                            static const char *map[9] = {
+                                "48V",
+                                "48V",
+                                "48V",
+                                "48V",
+                                "48V",
+                                "48V",
+                                "48V",
+                                "48V",
+                                NULL,
+                            };
+                            static lv_buttonmatrix_ctrl_t ctrl_map[8] = {
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                            };
+                            lv_buttonmatrix_set_map(obj, map);
+                            lv_buttonmatrix_set_ctrl_map(obj, ctrl_map);
+                        }
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 14, 403);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            lv_label_set_text(obj, "1        2        3        4        5        6        7        8 ");
                         }
                     }
                 }

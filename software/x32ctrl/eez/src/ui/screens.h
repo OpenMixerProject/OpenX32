@@ -10,8 +10,16 @@ extern "C" {
 typedef struct _objects_t {
     lv_obj_t *main;
     lv_obj_t *maintab;
+    lv_obj_t *openx32logo;
     lv_obj_t *slider01;
-    lv_obj_t *meter01;
+    lv_obj_t *slider02;
+    lv_obj_t *slider03;
+    lv_obj_t *slider04;
+    lv_obj_t *slider05;
+    lv_obj_t *slider06;
+    lv_obj_t *slider07;
+    lv_obj_t *slider08;
+    lv_obj_t *phantomindicators;
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;

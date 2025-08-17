@@ -127,6 +127,8 @@ void addaSetSamplerate(uint32_t samplerate) {
 }
 
 void addaSetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower) {
+  x32debug("addaSetGain(%d, %d, %f, %d)\n", boardId, channel, gain, phantomPower);
+
   messageBuilderInit(&message);
 
   messageBuilderAddRawByte(&message, '*');

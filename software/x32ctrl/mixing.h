@@ -42,6 +42,8 @@ typedef struct {
   sDspChannel dspChannel[40]; // DSP-Channels
 } sOpenx32;
 
+extern sOpenx32 openx32;
+
 void mixingDefaultRoutingConfig(void);
 void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource);
 uint8_t mixingGetInputSource(uint8_t group, uint8_t channel);

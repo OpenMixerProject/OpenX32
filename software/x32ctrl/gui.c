@@ -10,9 +10,6 @@ lv_indev_t *encoder_indev;
 X32_BTN lastButton = X32_BTN_NONE;
 bool lastButtonPressed;
 
-void timer100msCallback(int sig, siginfo_t *si, void *uc) {
-  // TODO
-}
 
 void guiNewButtonPress(X32_BTN button, bool pressed) {
   lastButton = button;
@@ -185,7 +182,7 @@ void guiInit() {
   driver_backends_init_backend("FBDEV");
 
   lv_timer_create(timer10msCallback, 10, NULL);
-  lv_timer_create(timer100msCallback, 100, NULL);
+  lv_timer_create(timer100msCallback, 100, NULL); // surface/gui sync
 
   // initialize GUI created by EEZ
   ui_init();
