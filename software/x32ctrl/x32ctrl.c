@@ -278,7 +278,7 @@ void fpgaCallback(char *buf, uint8_t len) {
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
 }
 
-void x32printf(const char *format, ...)
+void x32log(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -289,14 +289,27 @@ void x32printf(const char *format, ...)
     va_end(args);
 }
 
+void x32debug(const char *format, ...)
+{
+#if DEBUG == 1
+    va_list args;
+    va_start(args, format);
+
+    printf(format, args);
+    fflush(stdout); // immediately write to console!
+
+    va_end(args);
+#endif
+}
+
 // the main-function - of course
 int main() {
     srand(time(NULL));
-    printf("OpenX32 UserInterface\n");
-    printf("v0.0.6, 17.08.2025\n");
-    printf("https://github.com/xn--nding-jua/OpenX32\n");
+    x32log("OpenX32 UserInterface\n");
+    x32log("v0.0.6, 17.08.2025\n");
+    x32log("https://github.com/xn--nding-jua/OpenX32\n");
 
-    x32printf("Reading config...");
+    x32log("Reading config...");
     char model[12];
     char serial[12];
     char date[16];
@@ -314,8 +327,8 @@ int main() {
     }else if (strcmp(model, "X32") == 0) {
         initButtonDefinition(X32_MODEL_FULL);
     }else{
-        printf("ERROR: No model detected - assume X32 Fullsize!\n");
-        initButtonDefinition(FULL);
+        x32log("ERROR: No model detected - assume X32 Fullsize!\n");
+        initButtonDefinition(X32_MODEL_NONE);
 
         // (for development without inserted sd card)
         //
@@ -325,29 +338,29 @@ int main() {
         //x32printf("ERROR: No model detected - assume X32 Compact!\n");
         //initButtonDefinition(X32_MODEL_COMPACT);
     }
-    x32printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
+    x32log(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
-    //x32printf("Connecting to UART1 (Debug)...");
+    //x32log("Connecting to UART1 (Debug)...");
     //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside
 
-    x32printf("Connecting to UART2 (Surface)...\n");
+    x32log("Connecting to UART2 (Surface)...\n");
     uartOpen("/dev/ttymxc1", 115200, &fdSurface); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
 
-    x32printf("Connecting to UART3 (ADDA-Boards)...\n");
+    x32log("Connecting to UART3 (ADDA-Boards)...\n");
     uartOpen("/dev/ttymxc2", 38400, &fdAdda); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards
 
-    x32printf("Connecting to UART4 (FPGA)...\n");
+    x32log("Connecting to UART4 (FPGA)...\n");
     uartOpen("/dev/ttymxc3", 115200, &fdFpga); // this UART is connected to the FPGA
 
-    //x32printf("Connecting to UART5 (MIDI)...\n");
+    //x32log("Connecting to UART5 (MIDI)...\n");
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); //
 
-    x32printf("Initializing X32 Surface...\n");
+    x32log("Initializing X32 Surface...\n");
     //surfaceReset(); // resets all microcontrollers on the board (not necessary)
     //surfaceInit(); // initialize whole surface with default values
     surfaceDemo(); // sets demo-values for faders, leds and lcds
 
-    x32printf("Initializing X32 Audio...\n");
+    x32log("Initializing X32 Audio...\n");
     addaInit(48000);
     //mixingDefaultRoutingConfig(); // set default routing configuration
 
@@ -415,7 +428,7 @@ int main() {
     }
 */
 
-    x32printf("Initializing GUI...\n");
+    x32log("Initializing GUI...\n");
     guiInit(); // initializes LVGL, FBDEV and starts endless loop
 
     return 0;
