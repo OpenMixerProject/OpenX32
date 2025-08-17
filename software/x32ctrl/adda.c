@@ -24,77 +24,72 @@ void addaInit(uint32_t samplerate) {
   usleep(10000);
 
   // -1=unknown, 0=X32, 1=X32Compact, 2=X32Producer, 3=X32Rack, 4=X32Core
-  if (x32model == 0) {
-    // initialize X32 Fullsize
-    // set gains to -2dB and turnoff phantom-power
-    addaSendCmd("*1G00000#*1G00000#*1G10000#*1G10000#*1G20000#*1G20000#*1G30000#*1G30000#*1G40000#*1G40000#*1G50000#*1G50000#*1G60000#*1G60000#*1G70000#*1G70000#");
-    addaSendCmd("*3G00000#*3G00000#*3G10000#*3G10000#*3G20000#*3G20000#*3G30000#*3G30000#*3G40000#*3G40000#*3G50000#*3G50000#*3G60000#*3G60000#*3G70000#*3G70000#");
-    addaSendCmd("*0G00000#*0G00000#*0G10000#*0G10000#*0G20000#*0G20000#*0G30000#*0G30000#*0G40000#*0G40000#*0G50000#*0G50000#*0G60000#*0G60000#*0G70000#*0G70000#");
-    addaSendCmd("*2G00000#*2G00000#*2G10000#*2G10000#*2G20000#*2G20000#*2G30000#*2G30000#*2G40000#*2G40000#*2G50000#*2G50000#*2G60000#*2G60000#*2G70000#*2G70000#");
-    usleep(50000);
+  // set gains to -2dB and turnoff phantom-power
+  addaSendCmd("*1G00000#*1G00000#*1G10000#*1G10000#*1G20000#*1G20000#*1G30000#*1G30000#*1G40000#*1G40000#*1G50000#*1G50000#*1G60000#*1G60000#*1G70000#*1G70000#");
+  addaSendCmd("*3G00000#*3G00000#*3G10000#*3G10000#*3G20000#*3G20000#*3G30000#*3G30000#*3G40000#*3G40000#*3G50000#*3G50000#*3G60000#*3G60000#*3G70000#*3G70000#");
+  addaSendCmd("*0G00000#*0G00000#*0G10000#*0G10000#*0G20000#*0G20000#*0G30000#*0G30000#*0G40000#*0G40000#*0G50000#*0G50000#*0G60000#*0G60000#*0G70000#*0G70000#");
+  addaSendCmd("*2G00000#*2G00000#*2G10000#*2G10000#*2G20000#*2G20000#*2G30000#*2G30000#*2G40000#*2G40000#*2G50000#*2G50000#*2G60000#*2G60000#*2G70000#*2G70000#");
+  usleep(50000);
 
-    // initialize the 8ch-input-boards
-    addaSendCmd("*0R:W018B#");
-    usleep(20000);
-    addaSendCmd("*1R:W018B#");
-    usleep(20000);
-    addaSendCmd("*2R:W018B#");
-    usleep(20000);
-    addaSendCmd("*3R:W018B#");
-    usleep(20000);
+  // initialize the 8ch-input-boards
+  addaSendCmd("*0R:W018B#");
+  usleep(20000);
+  addaSendCmd("*1R:W018B#");
+  usleep(20000);
+  addaSendCmd("*2R:W018B#");
+  usleep(20000);
+  addaSendCmd("*3R:W018B#");
+  usleep(20000);
 
-    // initialize the 8ch-output-boards
-    addaSendCmd("*4R:W0281C0:W0800:W0280#");
-    usleep(20000);
-    addaSendCmd("*5R:W0281C0:W0800:W0280#");
-    usleep(20000);
+  // initialize the 8ch-output-boards
+  addaSendCmd("*4R:W0281C0:W0800:W0280#");
+  usleep(20000);
+  addaSendCmd("*5R:W0281C0:W0800:W0280#");
+  usleep(20000);
 
-    if (samplerate == 44100) {
-      // set all boards to 48kHz
-      addaSendCmd("*8C40U#");
-      usleep(10000);
-      addaSendCmd("*8R8#*8C40U#");
-      usleep(10000);
-      addaSendCmd("*8C40U#");
-      usleep(10000);
-    } else if (samplerate == 48000) {
-      // set all boards to 48kHz
-      addaSendCmd("*8C80U#");
-      usleep(10000);
-      addaSendCmd("*8R8#*8C80U#");
-      usleep(10000);
-      addaSendCmd("*8C80U#");
-      usleep(10000);
-    } else if (samplerate == 96000) {
-      // currently unknown, but the X32 is able to handle 96kHz for sure
-    } else {
-      // unsupported sample-rate
-    }
-
-    // and send some more commands (no information about the usage up to now)
-    addaSendCmd("*9R0#*9G0#");
+  if (samplerate == 44100) {
+    // set all boards to 48kHz
+    addaSendCmd("*8C40U#");
     usleep(10000);
-    addaSendCmd("*9AF#");
+    addaSendCmd("*8R8#*8C40U#");
     usleep(10000);
-    addaSendCmd("*9N0#");
+    addaSendCmd("*8C40U#");
     usleep(10000);
-    addaSendCmd("*9AN#");
+  } else if (samplerate == 48000) {
+    // set all boards to 48kHz
+    addaSendCmd("*8C80U#");
     usleep(10000);
-    addaSendCmd("*9AN#");
+    addaSendCmd("*8R8#*8C80U#");
     usleep(10000);
-    addaSendCmd("*9AN#");
+    addaSendCmd("*8C80U#");
     usleep(10000);
-    addaSendCmd("*9AN#");
-    usleep(10000);
-    addaSendCmd("*9AN#");
-    usleep(10000);
-    addaSendCmd("*9AN#");
-    usleep(10000);
-    addaSendCmd("*9N0#");
-    usleep(10000);
+  } else if (samplerate == 96000) {
+    // currently unknown, but the X32 is able to handle 96kHz for sure
   } else {
-    // TODO: implement functions for other X32
+    // unsupported sample-rate
   }
+
+  // and send some more commands (no information about the usage up to now)
+  addaSendCmd("*9R0#*9G0#");
+  usleep(10000);
+  addaSendCmd("*9AF#");
+  usleep(10000);
+  addaSendCmd("*9N0#");
+  usleep(10000);
+  addaSendCmd("*9AN#");
+  usleep(10000);
+  addaSendCmd("*9AN#");
+  usleep(10000);
+  addaSendCmd("*9AN#");
+  usleep(10000);
+  addaSendCmd("*9AN#");
+  usleep(10000);
+  addaSendCmd("*9AN#");
+  usleep(10000);
+  addaSendCmd("*9AN#");
+  usleep(10000);
+  addaSendCmd("*9N0#");
+  usleep(10000);
 }
 
 void addaSetSamplerate(uint32_t samplerate) {

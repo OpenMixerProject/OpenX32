@@ -82,17 +82,17 @@ void guiMouseInputCallback(lv_indev_t * indev, lv_indev_data_t * data) {
   }
 */
   if (lastButtonPressed) {
-    if (lastButton == HOME) {
+    if (lastButton == X32_BTN_HOME) {
       data->point.x = 50;
       data->point.y = 15;
       data->state = LV_INDEV_STATE_PRESSED;
     }
-    if (lastButton == METERS) {
+    if (lastButton == X32_BTN_METERS) {
       data->point.x = 400;
       data->point.y = 15;
       data->state = LV_INDEV_STATE_PRESSED;
     }
-    if (lastButton == ROUTING) {
+    if (lastButton == X32_BTN_ROUTING) {
       data->point.x = 750;
       data->point.y = 15;
       data->state = LV_INDEV_STATE_PRESSED;

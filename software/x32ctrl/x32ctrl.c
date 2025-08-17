@@ -212,9 +212,12 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                   mixingSetRouting('p', ch+8, mixingGetInputSource('c', ch+8)); // set P16-output 9-16 to xlr-inputs 9-16
               }
               // transmit routing-configuration to FPGA
+              mixingTxRoutingConfig();
 
               addaSendCmd("*8C80U#"); // switch Card to 48kHz and USB-input
 
+              break;
+          default:
               break;
       }
 
@@ -291,8 +294,8 @@ int main() {
     }else if (strcmp(model, "X32") == 0) {
         initButtonDefinition(FULL);
     }else{
-        printf("ERROR: No model detected!\n");
-        return;
+        printf("ERROR: No model detected - assume X32 Fullsize!\n");
+        initButtonDefinition(FULL);
     }
     printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
