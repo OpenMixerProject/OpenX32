@@ -22,7 +22,9 @@ void create_screen_main() {
     {
         lv_obj_t *parent_obj = obj;
         {
+            // maintab
             lv_obj_t *obj = lv_tabview_create(parent_obj);
+            objects.maintab = obj;
             lv_obj_set_pos(obj, 0, 0);
             lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
             lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
@@ -30,7 +32,58 @@ void create_screen_main() {
             {
                 lv_obj_t *parent_obj = obj;
                 {
-                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Main");
+                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Home");
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 35, 73);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text(obj, "OpenX32 - The OpenSource Operating System for the Behringer X32");
+                        }
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 280, 22);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text(obj, "OpenX32 GUI");
+                        }
+                        {
+                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                            lv_obj_set_pos(obj, 35, 127);
+                            lv_obj_set_size(obj, 691, 254);
+                            lv_textarea_set_max_length(obj, 128);
+                            lv_textarea_set_text(obj, "Currently (rudimentary) implemented pages:\n- Home\n- Meters\n- Utility (for Development)");
+                            lv_textarea_set_one_line(obj, false);
+                            lv_textarea_set_password_mode(obj, false);
+                        }
+                    }
+                }
+                {
+                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Meters");
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            // slider01
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider01 = obj;
+                            lv_obj_set_pos(obj, 50, 294);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // meter01
+                            lv_obj_t *obj = lv_bar_create(parent_obj);
+                            objects.meter01 = obj;
+                            lv_obj_set_pos(obj, 50, 164);
+                            lv_obj_set_size(obj, 11, 93);
+                            lv_bar_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                    }
+                }
+                {
+                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Utility");
                     {
                         lv_obj_t *parent_obj = obj;
                         {
@@ -54,37 +107,17 @@ void create_screen_main() {
                             }
                         }
                         {
+                            // debugtext
                             lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 35, 118);
+                            objects.debugtext = obj;
+                            lv_obj_set_pos(obj, 55, 297);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text(obj, "OpenX32 - The OpenSource Operating System for the Behringer X32");
-                        }
-                        {
-                            lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 270, 53);
-                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text(obj, "OpenX32 GUI");
+                            lv_label_set_text(obj, "...");
                         }
                     }
                 }
-                {
-                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Setup");
-                }
-                {
-                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Info");
-                }
             }
-        }
-        {
-            // debugtext
-            lv_obj_t *obj = lv_label_create(parent_obj);
-            objects.debugtext = obj;
-            lv_obj_set_pos(obj, 55, 297);
-            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_obj_set_style_text_font(obj, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_label_set_text(obj, "...");
         }
     }
     

@@ -132,9 +132,18 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       bool buttonPressed = (value >> 7) == 1;
 
       //printf("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-      lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      //lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
 
       switch (button) {
+          case X32_BTN_HOME:
+            lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
+            break;
+            case X32_BTN_METERS:
+            lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            break;
+            case X32_BTN_UTILITY:
+            lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+            break;
           case X32_BTN_LEFT:
               // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
               for (uint8_t ch=1; ch<=8; ch++) {
@@ -269,6 +278,17 @@ void fpgaCallback(char *buf, uint8_t len) {
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
 }
 
+void x32printf(const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    printf(format, args);
+    fflush(stdout); // immediately write to console!
+
+    va_end(args);
+}
+
 // the main-function - of course
 int main() {
     srand(time(NULL));
@@ -276,7 +296,7 @@ int main() {
     printf("v0.0.6, 17.08.2025\n");
     printf("https://github.com/xn--nding-jua/OpenX32\n");
 
-    printf("Reading config...");
+    x32printf("Reading config...");
     char model[12];
     char serial[12];
     char date[16];
@@ -284,42 +304,50 @@ int main() {
     readConfig("/etc/x32.conf", "SN=", serial, 12);
     readConfig("/etc/x32.conf", "DATE=", date, 16);
     if (strcmp(model, "X32Core") == 0) {
-        initButtonDefinition(CORE);
+        initButtonDefinition(X32_MODEL_CORE);
     }else if (strcmp(model, "X32Rack") == 0) {
-        initButtonDefinition(RACK);
+        initButtonDefinition(X32_MODEL_RACK);
     }else if (strcmp(model, "X32Producer") == 0) {
-        initButtonDefinition(PRODUCER);
+        initButtonDefinition(X32_MODEL_PRODUCER);
     }else if (strcmp(model, "X32C") == 0) {
-        initButtonDefinition(COMPACT);
+        initButtonDefinition(X32_MODEL_COMPACT);
     }else if (strcmp(model, "X32") == 0) {
-        initButtonDefinition(FULL);
+        initButtonDefinition(X32_MODEL_FULL);
     }else{
-        printf("ERROR: No model detected!\n");
-        return -1;
-    }
-    printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
+        printf("ERROR: No model detected - assume X32 Fullsize!\n");
+        initButtonDefinition(FULL);
 
-    //printf("Connecting to UART1 (Debug)...");
+        // (for development without inserted sd card)
+        //
+        //x32printf("ERROR: No model detected - assume X32 Fullsize!\n");
+        //initButtonDefinition(X32_MODEL_FULL);
+        //
+        //x32printf("ERROR: No model detected - assume X32 Compact!\n");
+        //initButtonDefinition(X32_MODEL_COMPACT);
+    }
+    x32printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
+
+    //x32printf("Connecting to UART1 (Debug)...");
     //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside
 
-    printf("Connecting to UART2 (Surface)...\n");
+    x32printf("Connecting to UART2 (Surface)...\n");
     uartOpen("/dev/ttymxc1", 115200, &fdSurface); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
 
-    printf("Connecting to UART3 (ADDA-Boards)...\n");
+    x32printf("Connecting to UART3 (ADDA-Boards)...\n");
     uartOpen("/dev/ttymxc2", 38400, &fdAdda); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards
 
-    printf("Connecting to UART4 (FPGA)...\n");
+    x32printf("Connecting to UART4 (FPGA)...\n");
     uartOpen("/dev/ttymxc3", 115200, &fdFpga); // this UART is connected to the FPGA
 
-    //printf("Connecting to UART5 (MIDI)...\n");
+    //x32printf("Connecting to UART5 (MIDI)...\n");
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); //
 
-    printf("Initializing X32 Surface...\n");
+    x32printf("Initializing X32 Surface...\n");
     //surfaceReset(); // resets all microcontrollers on the board (not necessary)
     //surfaceInit(); // initialize whole surface with default values
     surfaceDemo(); // sets demo-values for faders, leds and lcds
 
-    printf("Initializing X32 Audio...\n");
+    x32printf("Initializing X32 Audio...\n");
     addaInit(48000);
     //mixingDefaultRoutingConfig(); // set default routing configuration
 
@@ -367,11 +395,11 @@ int main() {
 
 /*
     // only necessary if LVGL is not used
-    printf("Starting Timer...\n");
+    x32printf("Starting Timer...\n");
     initTimer();
 
-    printf("Wait for incoming data on /dev/ttymxc1...\n");
-    printf("Press Ctrl+C to terminate program.\n");
+    x32printf("Wait for incoming data on /dev/ttymxc1...\n");
+    x32printf("Press Ctrl+C to terminate program.\n");
     while (1) {
       // read data from surface and calls surfaceCallback()
       surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
@@ -387,10 +415,8 @@ int main() {
     }
 */
 
-    printf("Initializing GUI...\n");
+    x32printf("Initializing GUI...\n");
     guiInit(); // initializes LVGL, FBDEV and starts endless loop
-
-    fflush(stdout);
 
     return 0;
 }

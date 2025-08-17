@@ -7,6 +7,8 @@
 //
 //########################################################
 
+#define MAX_BUTTONS 255
+
 // LED Brightness
 #define X32_BRIGHTNESS_1 0x0
 #define X32_BRIGHTNESS_2 0x40
@@ -14,16 +16,18 @@
 #define X32_BRIGHTNESS_4 0xC0
 
 typedef enum {
-    NONE,
-    FULL,
-    COMPACT,
-    PRODUCER,
-    RACK,
-    CORE
+    X32_MODEL_NONE,
+    X32_MODEL_FULL,
+    X32_MODEL_COMPACT,
+    X32_MODEL_PRODUCER,
+    X32_MODEL_RACK,
+    X32_MODEL_CORE
 } X32_MODEL;
 
 typedef enum {
     X32_BTN_NONE,
+
+    // Board Main
 
     X32_BTN_TALK_A,
     X32_BTN_TALK_B,
@@ -31,42 +35,42 @@ typedef enum {
     X32_BTN_MONITOR_DIM,
     X32_BTN_VIEW_MONITOR,
 
-    VIEW_USB,
+    X32_BTN_VIEW_USB,
 
-    PHANTOM_48V,
-    PHASE_INVERT,
-    LOW_CUT,
-    VIEW_CONFIG,
+    X32_BTN_PHANTOM_48V,
+    X32_BTN_PHASE_INVERT,
+    X32_BTN_LOW_CUT,
+    X32_BTN_VIEW_CONFIG,
 
-    GATE,
-    VIEW_GATE,
+    X32_BTN_GATE,
+    X32_BTN_VIEW_GATE,
 
-    COMPRESSOR,
-    VIEW_COMPRESSOR,
+    X32_BTN_COMPRESSOR,
+    X32_BTN_VIEW_COMPRESSOR,
 
-    EQ,
-    EQ_MODE,
-    EQ_HIGH,
-    EQ_HIGH_MID,
-    EQ_LOW_MID,
-    EQ_LOW,
-    VIEW_EQ,
+    X32_BTN_EQ,
+    X32_BTN_EQ_MODE,
+    X32_BTN_EQ_HIGH,
+    X32_BTN_EQ_HIGH_MID,
+    X32_BTN_EQ_LOW_MID,
+    X32_BTN_EQ_LOW,
+    X32_BTN_VIEW_EQ,
 
-    VIEW_MIX_BUS_SENDS,
-    MONO_BUS,
-    MAIN_LR_BUS,
-    VIEW_BUS_MIXES,
-    BUS_SEND_1_4,
-    BUS_SEND_5_8,
-    BUS_SEND_9_12,
-    BUS_SEND_13_16,
+    X32_BTN_VIEW_MIX_BUS_SENDS,
+    X32_BTN_MONO_BUS,
+    X32_BTN_MAIN_LR_BUS,
+    X32_BTN_VIEW_BUS_MIXES,
+    X32_BTN_BUS_SEND_1_4,
+    X32_BTN_BUS_SEND_5_8,
+    X32_BTN_BUS_SEND_9_12,
+    X32_BTN_BUS_SEND_13_16,
 
-    ENCODER1,
-    ENCODER2,
-    ENCODER3,
-    ENCODER4,
-    ENCODER5,
-    ENCODER6,
+    X32_BTN_ENCODER1,
+    X32_BTN_ENCODER2,
+    X32_BTN_ENCODER3,
+    X32_BTN_ENCODER4,
+    X32_BTN_ENCODER5,
+    X32_BTN_ENCODER6,
 
     X32_BTN_HOME,
     X32_BTN_METERS,
@@ -82,134 +86,173 @@ typedef enum {
     X32_BTN_LEFT,
     X32_BTN_RIGHT,
 
-    // Board L
+    //###########################################
+    //#
+    //#    Board L
+    //#
+    //#    - X32 Full
+    //#    - X32 Compact
+    //#    - X32 Producer
+    //#
+    //###########################################
 
-    DAW_REMOTE,
-    CH_1_16 ,
-    CH_17_32 ,
-    AUX_IN_EFFECTS ,
-    BUS_MASTER ,
+    // X32 Full
+    X32_BTN_CH_1_16,                
+    X32_BTN_CH_17_32,
+    X32_BTN_AUX_IN_EFFECTS,
+    X32_BTN_EFFECTS_RETURNS,
+    X32_BTN_BUS_MASTER ,
+    // X32 Compact/Producer
+    X32_BTN_CH_1_8,
+    X32_BTN_CH_9_16,
+    X32_BTN_CH_17_24,
+    X32_BTN_CH_25_32,
+    X32_BTN_AUX_IN_1_6_USB_REC, 
+    X32_BTN_BUS_1_8_MASTER,
+    X32_BTN_BUS_9_16_MASTER,
 
-    BOARD_L_CH_1_SELECT ,
-    BOARD_L_CH_2_SELECT ,
-    BOARD_L_CH_3_SELECT ,
-    BOARD_L_CH_4_SELECT ,
-    BOARD_L_CH_5_SELECT ,
-    BOARD_L_CH_6_SELECT ,
-    BOARD_L_CH_7_SELECT ,
-    BOARD_L_CH_8_SELECT ,
+    X32_BTN_BOARD_L_CH_1_SELECT,
+    X32_BTN_BOARD_L_CH_2_SELECT,
+    X32_BTN_BOARD_L_CH_3_SELECT,
+    X32_BTN_BOARD_L_CH_4_SELECT,
+    X32_BTN_BOARD_L_CH_5_SELECT,
+    X32_BTN_BOARD_L_CH_6_SELECT,
+    X32_BTN_BOARD_L_CH_7_SELECT,
+    X32_BTN_BOARD_L_CH_8_SELECT,
 
-    BOARD_L_CH_1_SOLO,
-    BOARD_L_CH_2_SOLO,
-    BOARD_L_CH_3_SOLO,
-    BOARD_L_CH_4_SOLO,
-    BOARD_L_CH_5_SOLO,
-    BOARD_L_CH_6_SOLO,
-    BOARD_L_CH_7_SOLO,
-    BOARD_L_CH_8_SOLO,
+    X32_BTN_BOARD_L_CH_1_SOLO,
+    X32_BTN_BOARD_L_CH_2_SOLO,
+    X32_BTN_BOARD_L_CH_3_SOLO,
+    X32_BTN_BOARD_L_CH_4_SOLO,
+    X32_BTN_BOARD_L_CH_5_SOLO,
+    X32_BTN_BOARD_L_CH_6_SOLO,
+    X32_BTN_BOARD_L_CH_7_SOLO,
+    X32_BTN_BOARD_L_CH_8_SOLO,
 
-    BOARD_L_CH_1_MUTE,
-    BOARD_L_CH_2_MUTE,
-    BOARD_L_CH_3_MUTE,
-    BOARD_L_CH_4_MUTE,
-    BOARD_L_CH_5_MUTE,
-    BOARD_L_CH_6_MUTE,
-    BOARD_L_CH_7_MUTE,
-    BOARD_L_CH_8_MUTE,
+    X32_BTN_BOARD_L_CH_1_MUTE,
+    X32_BTN_BOARD_L_CH_2_MUTE,
+    X32_BTN_BOARD_L_CH_3_MUTE,
+    X32_BTN_BOARD_L_CH_4_MUTE,
+    X32_BTN_BOARD_L_CH_5_MUTE,
+    X32_BTN_BOARD_L_CH_6_MUTE,
+    X32_BTN_BOARD_L_CH_7_MUTE,
+    X32_BTN_BOARD_L_CH_8_MUTE,
 
-    // Board M
+    //###########################################
+    //#
+    //#   Board M
+    //#
+    //#    - X32 Full
+    //#
+    //###########################################
 
-    BOARD_M_CH_1_SELECT,
-    BOARD_M_CH_2_SELECT,
-    BOARD_M_CH_3_SELECT,
-    BOARD_M_CH_4_SELECT,
-    BOARD_M_CH_5_SELECT,
-    BOARD_M_CH_6_SELECT,
-    BOARD_M_CH_7_SELECT,
-    BOARD_M_CH_8_SELECT,
+    X32_BTN_BOARD_M_CH_1_SELECT,
+    X32_BTN_BOARD_M_CH_2_SELECT,
+    X32_BTN_BOARD_M_CH_3_SELECT,
+    X32_BTN_BOARD_M_CH_4_SELECT,
+    X32_BTN_BOARD_M_CH_5_SELECT,
+    X32_BTN_BOARD_M_CH_6_SELECT,
+    X32_BTN_BOARD_M_CH_7_SELECT,
+    X32_BTN_BOARD_M_CH_8_SELECT,
 
-    BOARD_M_CH_1_SOLO,
-    BOARD_M_CH_2_SOLO,
-    BOARD_M_CH_3_SOLO,
-    BOARD_M_CH_4_SOLO,
-    BOARD_M_CH_5_SOLO,
-    BOARD_M_CH_6_SOLO,
-    BOARD_M_CH_7_SOLO,
-    BOARD_M_CH_8_SOLO,
+    X32_BTN_BOARD_M_CH_1_SOLO,
+    X32_BTN_BOARD_M_CH_2_SOLO,
+    X32_BTN_BOARD_M_CH_3_SOLO,
+    X32_BTN_BOARD_M_CH_4_SOLO,
+    X32_BTN_BOARD_M_CH_5_SOLO,
+    X32_BTN_BOARD_M_CH_6_SOLO,
+    X32_BTN_BOARD_M_CH_7_SOLO,
+    X32_BTN_BOARD_M_CH_8_SOLO,
 
-    BOARD_M_CH_1_MUTE,
-    BOARD_M_CH_2_MUTE,
-    BOARD_M_CH_3_MUTE,
-    BOARD_M_CH_4_MUTE,
-    BOARD_M_CH_5_MUTE,
-    BOARD_M_CH_6_MUTE,
-    BOARD_M_CH_7_MUTE,
-    BOARD_M_CH_8_MUTE,
+    X32_BTN_BOARD_M_CH_1_MUTE,
+    X32_BTN_BOARD_M_CH_2_MUTE,
+    X32_BTN_BOARD_M_CH_3_MUTE,
+    X32_BTN_BOARD_M_CH_4_MUTE,
+    X32_BTN_BOARD_M_CH_5_MUTE,
+    X32_BTN_BOARD_M_CH_6_MUTE,
+    X32_BTN_BOARD_M_CH_7_MUTE,
+    X32_BTN_BOARD_M_CH_8_MUTE,
 
-    // Board R
+    //###########################################
+    //#
+    //#    Board R
+    //#
+    //#    - X32 Full
+    //#    - X32 Compact
+    //#    - X32 Producer
+    //#
+    //###########################################
 
-    SEND_ON_FADERS,
-    GROUP_DCA_1_8,
-    BUS_1_8,
-    BUS_9_16,
-    MATRIX_MAIN_C,
-    CLEAR_SOLO,
+    X32_BTN_DAW_REMOTE,
+    X32_BTN_SEND_ON_FADERS,
+    X32_BTN_GROUP_DCA_1_8,
+    X32_BTN_BUS_1_8,
+    X32_BTN_BUS_9_16,
+    X32_BTN_MATRIX_MAIN_C,
+    X32_BTN_CLEAR_SOLO,
 
-    SCENES_UNDO,
-    SCENES_GO,
-    SCENES_PREV,
-    SCENES_NEXT,
-    VIEW_SCENES,
+    X32_BTN_SCENES_UNDO,
+    X32_BTN_SCENES_GO,
+    X32_BTN_SCENES_PREV,
+    X32_BTN_SCENES_NEXT,
+    X32_BTN_VIEW_SCENES,
 
-    ASSIGN_5,
-    ASSIGN_6,
-    ASSIGN_7,
-    ASSIGN_8,
-    ASSIGN_9,
-    ASSIGN_10,
-    ASSIGN_11,
-    ASSIGN_12,
-    ASSIGN_A,
-    ASSIGN_B,
-    ASSIGN_C,
-    VIEW_ASSIGN,
+    X32_BTN_ASSIGN_1,
+    X32_BTN_ASSIGN_2,
+    X32_BTN_ASSIGN_3,
+    X32_BTN_ASSIGN_4,
+    X32_BTN_ASSIGN_5,
+    X32_BTN_ASSIGN_6,
+    X32_BTN_ASSIGN_7,
+    X32_BTN_ASSIGN_8,
+    X32_BTN_VIEW_ASSIGN,
 
-    MUTE_GROUP_1,
-    MUTE_GROUP_2,
-    MUTE_GROUP_3,
-    MUTE_GROUP_4,
-    MUTE_GROUP_5,
-    MUTE_GROUP_6,
+    // Only X32 Full
+    X32_BTN_ASSIGN_9,
+    X32_BTN_ASSIGN_10,
+    X32_BTN_ASSIGN_11,
+    X32_BTN_ASSIGN_12,
+    X32_BTN_ASSIGN_A,
+    X32_BTN_ASSIGN_B,
+    X32_BTN_ASSIGN_C, 
 
-    BOARD_R_CH_1_SELECT,
-    BOARD_R_CH_2_SELECT,
-    BOARD_R_CH_3_SELECT,
-    BOARD_R_CH_4_SELECT,
-    BOARD_R_CH_5_SELECT,
-    BOARD_R_CH_6_SELECT,
-    BOARD_R_CH_7_SELECT,
-    BOARD_R_CH_8_SELECT,
-    MAIN_SELECT,
+    X32_BTN_MUTE_GROUP_1,
+    X32_BTN_MUTE_GROUP_2,
+    X32_BTN_MUTE_GROUP_3,
+    X32_BTN_MUTE_GROUP_4,
+    X32_BTN_MUTE_GROUP_5,
+    X32_BTN_MUTE_GROUP_6,
 
-    BOARD_R_CH_1_SOLO,
-    BOARD_R_CH_2_SOLO,
-    BOARD_R_CH_3_SOLO,
-    BOARD_R_CH_4_SOLO,
-    BOARD_R_CH_5_SOLO,
-    BOARD_R_CH_6_SOLO,
-    BOARD_R_CH_7_SOLO,
-    BOARD_R_CH_8_SOLO,
-    MAIN_SOLO,
+    X32_BTN_BOARD_R_CH_1_SELECT,
+    X32_BTN_BOARD_R_CH_2_SELECT,
+    X32_BTN_BOARD_R_CH_3_SELECT,
+    X32_BTN_BOARD_R_CH_4_SELECT,
+    X32_BTN_BOARD_R_CH_5_SELECT,
+    X32_BTN_BOARD_R_CH_6_SELECT,
+    X32_BTN_BOARD_R_CH_7_SELECT,
+    X32_BTN_BOARD_R_CH_8_SELECT,
+    X32_BTN_MAIN_SELECT,
 
-    BOARD_R_CH_1_MUTE,
-    BOARD_R_CH_2_MUTE,
-    BOARD_R_CH_3_MUTE,
-    BOARD_R_CH_4_MUTE,
-    BOARD_R_CH_5_MUTE,
-    BOARD_R_CH_6_MUTE,
-    BOARD_R_CH_7_MUTE,
-    BOARD_R_CH_8_MUTE,
-    MAIN_MUTE
+    X32_BTN_BOARD_R_CH_1_SOLO,
+    X32_BTN_BOARD_R_CH_2_SOLO,
+    X32_BTN_BOARD_R_CH_3_SOLO,
+    X32_BTN_BOARD_R_CH_4_SOLO,
+    X32_BTN_BOARD_R_CH_5_SOLO,
+    X32_BTN_BOARD_R_CH_6_SOLO,
+    X32_BTN_BOARD_R_CH_7_SOLO,
+    X32_BTN_BOARD_R_CH_8_SOLO,
+    X32_BTN_MAIN_SOLO,
+
+    X32_BTN_BOARD_R_CH_1_MUTE,
+    X32_BTN_BOARD_R_CH_2_MUTE,
+    X32_BTN_BOARD_R_CH_3_MUTE,
+    X32_BTN_BOARD_R_CH_4_MUTE,
+    X32_BTN_BOARD_R_CH_5_MUTE,
+    X32_BTN_BOARD_R_CH_6_MUTE,
+    X32_BTN_BOARD_R_CH_7_MUTE,
+    X32_BTN_BOARD_R_CH_8_MUTE,
+    X32_BTN_MAIN_MUTE
+
 } X32_BTN;
 
 
@@ -218,7 +261,7 @@ typedef enum {
 //               X32 Full
 //
 //########################################################
-#ifdef X32_MODEL_FULL
+#ifdef X32_MODEL_FULL___NO_MORE_USED
 
 #define X32_BOARD_MAIN 1
 #define X32_BOARD_L 4
@@ -440,7 +483,7 @@ typedef enum {
 //    tested 2025 by code@schulzalex.de - Firmware 4.13
 //
 //########################################################
-#ifdef X32_MODEL_COMPACT
+#ifdef X32_MODEL_COMPACT___NO_MORE_USED
 
 #define X32_BOARD_MAIN 0x01
 #define X32_BOARD_L 0x04
@@ -620,40 +663,6 @@ typedef enum {
 
 
 #endif
-
-//########################################################
-//
-//               X32 Producer - not tested
-//
-//########################################################
-#ifdef X32_MODEL_PRODUCER
-
-#define X32_BOARD_MAIN 1
-#define X32_BOARD_L 4
-#define X32_BOARD_R 8
-
-#endif
-
-//########################################################
-//
-//               X32 Rack - not tested
-//
-//########################################################
-#ifdef X32_MODEL_RACK
-
-
-#endif
-
-//########################################################
-//
-//               X32 Core - not tested
-//
-//########################################################
-#ifdef X32_MODEL_CORE
-
-
-#endif
-
 
 
 #endif

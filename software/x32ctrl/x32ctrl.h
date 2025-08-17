@@ -58,5 +58,6 @@ void surfaceDemo(void);
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value);
 void addaCallback(char *msg);
 void fpgaCallback(char *buf, uint8_t len);
+void x32printf(const char *format, ...);
 
 #endif
