@@ -273,7 +273,7 @@ void fpgaCallback(char *buf, uint8_t len) {
 int main() {
     srand(time(NULL));
     printf("OpenX32 UserInterface\n");
-    printf("v0.0.5, 07.08.2025\n");
+    printf("v0.0.6, 17.08.2025\n");
     printf("https://github.com/xn--nding-jua/OpenX32\n");
 
     printf("Reading config...");
@@ -294,8 +294,8 @@ int main() {
     }else if (strcmp(model, "X32") == 0) {
         initButtonDefinition(FULL);
     }else{
-        printf("ERROR: No model detected - assume X32 Fullsize!\n");
-        initButtonDefinition(FULL);
+        printf("ERROR: No model detected!\n");
+        return -1;
     }
     printf(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 

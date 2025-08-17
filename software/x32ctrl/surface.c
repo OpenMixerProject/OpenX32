@@ -513,22 +513,28 @@ void addButtonDefinition(X32_BTN _button, uint16_t _buttonNr) {
     if (buttonDefinitionIndex >= MAX_BUTTONS)
     {
         //TODO: Error Message
+        #if DEBUG == 1
         printf("MAX_BUTTONS");
+        #endif
         return;
     }
-    
+
     x32buttons[buttonDefinitionIndex].button = _button;
     x32buttons[buttonDefinitionIndex].buttonNr = _buttonNr;
     buttonDefinitionIndex++;
 
+    #if DEBUG == 1
     printf("DEBUG: added button definition: Button %d -> ButtonNr %d\n", _button, _buttonNr);
+    #endif
 }
 
 void initButtonDefinition(X32_MODEL modell) {
     switch(modell) {
                 case FULL:
+                    #if DEBUG == 1
                     printf("DEBUG: FULL");
                     fflush(stdout);
+                    #endif
                     addButtonDefinition(X32_BTN_TALK_A,         0x012E);
                     addButtonDefinition(X32_BTN_TALK_B,         0x012F);
                     addButtonDefinition(X32_BTN_VIEW_TALK,      0x0130);
@@ -541,21 +547,23 @@ void initButtonDefinition(X32_MODEL modell) {
                     addButtonDefinition(X32_BTN_RIGHT,          0x011F);
                     break;
                 case COMPACT:
+                    #if DEBUG == 1
                     printf("DEBUG: COMPACT");
                     fflush(stdout);
+                    #endif
                     addButtonDefinition(X32_BTN_TALK_A,         0x0100);
                     addButtonDefinition(X32_BTN_TALK_B,         0x0101);
                     addButtonDefinition(X32_BTN_MONITOR_DIM,    0x0102);
                     addButtonDefinition(X32_BTN_VIEW_MONITOR,   0x0103);
 
-                    addButtonDefinition(X32_BTN_HOME, 0x011E);
-                    addButtonDefinition(X32_BTN_METERS, 0x011F);
-                    addButtonDefinition(X32_BTN_ROUTING, 0x0120);
-                    addButtonDefinition(X32_BTN_SETUP, 0x0121);
-                    addButtonDefinition(X32_BTN_LIBRARY, 0x0122);
-                    addButtonDefinition(X32_BTN_EFFECTS, 0x0123);
-                    addButtonDefinition(X32_BTN_MUTE_GRP, 0x0124);
-                    addButtonDefinition(X32_BTN_UTILITY, 0x0125);
+                    addButtonDefinition(X32_BTN_HOME,           0x011E);
+                    addButtonDefinition(X32_BTN_METERS,         0x011F);
+                    addButtonDefinition(X32_BTN_ROUTING,        0x0120);
+                    addButtonDefinition(X32_BTN_SETUP,          0x0121);
+                    addButtonDefinition(X32_BTN_LIBRARY,        0x0122);
+                    addButtonDefinition(X32_BTN_EFFECTS,        0x0123);
+                    addButtonDefinition(X32_BTN_MUTE_GRP,       0x0124);
+                    addButtonDefinition(X32_BTN_UTILITY,        0x0125);
 
                     addButtonDefinition(X32_BTN_UP,             0x0126);
                     addButtonDefinition(X32_BTN_DOWN,           0x0127);
@@ -566,33 +574,45 @@ void initButtonDefinition(X32_MODEL modell) {
 }
 
 uint16_t enum2button(X32_BTN button) {
+    #if DEBUG == 1
     printf("DEBUG: enum2button: Button %d -> ", button);
     fflush(stdout);
+    #endif
 
     for(int i = 0; i < buttonDefinitionIndex; i++) {
         if (x32buttons[i].button == button) {
+            #if DEBUG == 1
             printf("gefunden: Button %d\n", x32buttons[i].buttonNr);
             fflush(stdout);
+            #endif
             return x32buttons[i].buttonNr;
         }
     }
 
+    #ifdef DEBUG == 1
     printf(" NICHT gefunden!\n");
+    #endif
     return 0;
 }
 
 X32_BTN button2enum(uint16_t buttonNr) {
+    #if DEBUG == 1
     printf("DEBUG: button2enum: ButtonNr %d -> ", buttonNr);
     fflush(stdout);
+    #endif
 
     for(int i = 0; i < buttonDefinitionIndex; i++) {
         if (x32buttons[i].buttonNr == buttonNr) {
+            #if DEBUG == 1
             printf("gefunden: Button %d\n", x32buttons[i].button);
             fflush(stdout);
+            #endif
             return x32buttons[i].button;
         }
     }
-    
+
+    #if DEBUG == 1
     printf(" NICHT gefunden!\n");
+    #endif
     return X32_BTN_NONE;
 }
