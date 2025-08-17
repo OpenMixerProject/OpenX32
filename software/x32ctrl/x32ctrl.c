@@ -123,7 +123,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       // calculate user-readable variables
       float pct = value / 40.95; // convert to percent
 
-      //printf("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, pct);
+      x32debug("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, pct);
       lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
   }else if (class == 'b') {
       // calculate user-readable variables
@@ -131,21 +131,18 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
 
       bool buttonPressed = (value >> 7) == 1;
 
-      //printf("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-      //lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      x32debug("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
 
       switch (button) {
         case X32_BTN_HOME:
-            lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_HOME, 1);
+            showPage(X32_PAGE_HOME);
             break;
         case X32_BTN_METERS:
-            lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_METERS, 1);
+            showPage(X32_PAGE_METERS);
             break;
         case X32_BTN_UTILITY:
-            lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_UTILITY, 1);
+            showPage(X32_PAGE_UTILITY);
             break;
         case X32_BTN_LEFT:
               // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
@@ -241,7 +238,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
       int16_t velocity = (int16_t)value;
 
-      //printf("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
       lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
   }
 }
@@ -261,11 +258,11 @@ void addaCallback(char *msg) {
             uint8_t chanCount = (uint8_t)msg[2]-0x30;
 
             if ((msg[5] == 'I') && (msg[6] == 'N')) {
-                printf("Board %d is input-card with %d channels\n", boardId, chanCount);
+                x32debug("Board %d is input-card with %d channels\n", boardId, chanCount);
             }else if ((msg[5] == 'O') && (msg[6] == 'U') && (msg[7] == 'T')) {
-                printf("Board %d is output-card with %d channels\n", boardId, chanCount);
+                x32debug("Board %d is output-card with %d channels\n", boardId, chanCount);
             }else{
-                printf("Received message: %s\n", msg);
+                x32debug("Received message: %s\n", msg);
             }
         }
 
@@ -281,12 +278,44 @@ void fpgaCallback(char *buf, uint8_t len) {
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
 }
 
+X32_PAGE activePage = X32_PAGE_HOME;
+
+void showPage(X32_PAGE page) {
+    // first turn all page LEDs off
+    setLedByEnum(X32_BTN_HOME, 0);
+    setLedByEnum(X32_BTN_METERS, 0);
+    setLedByEnum(X32_BTN_ROUTING, 0);
+    setLedByEnum(X32_BTN_SETUP, 0);
+    setLedByEnum(X32_BTN_LIBRARY, 0);
+    setLedByEnum(X32_BTN_EFFECTS, 0);
+    setLedByEnum(X32_BTN_MUTE_GRP, 0);
+    setLedByEnum(X32_BTN_UTILITY, 0);
+
+    activePage = page;
+
+    switch (page)
+    {
+        case X32_BTN_HOME:
+            lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_HOME, 1);
+            break;
+        case X32_BTN_METERS:
+            lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_METERS, 1);
+            break;
+        case X32_BTN_UTILITY:
+            lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_UTILITY, 1);
+            break;
+    }
+}
+
 void x32log(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    printf(format, args);
+    vprintf(format, args);
     fflush(stdout); // immediately write to console!
 
     va_end(args);
@@ -298,12 +327,14 @@ void x32debug(const char *format, ...)
     va_list args;
     va_start(args, format);
 
-    printf(format, args);
+    vprintf(format, args);
     fflush(stdout); // immediately write to console!
 
     va_end(args);
 #endif
 }
+
+
 
 // the main-function - of course
 int main() {
@@ -312,7 +343,7 @@ int main() {
     x32log("v0.0.6, 17.08.2025\n");
     x32log("https://github.com/xn--nding-jua/OpenX32\n");
 
-    x32log("Reading config...");
+    x32log("Reading config...\n");
     char model[12];
     char serial[12];
     char date[16];

@@ -25,6 +25,17 @@ typedef enum {
 } X32_MODEL;
 
 typedef enum {
+    X32_PAGE_HOME,
+    X32_PAGE_METERS,
+    X32_PAGE_ROUTING,
+    X32_PAGE_SETUP,
+    X32_PAGE_LIBRARY,
+    X32_PAGE_EFFECTS,
+    X32_PAGE_MUTE_GRP,
+    X32_PAGE_UTILITY
+} X32_PAGE;
+
+typedef enum  {
     X32_BTN_NONE,
 
     // Board Main

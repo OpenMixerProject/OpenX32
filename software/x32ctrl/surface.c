@@ -1,6 +1,5 @@
 #include "surface.h"
-
-extern X32_MODEL x32model;
+#include "constants.h"
 
 char uartBufferSurface[256]; // buffer for UART-readings
 uint8_t receivedBoardId = 0;
@@ -511,28 +510,26 @@ struct buttonInfo {
     uint16_t buttonNr;
 };
 
-struct buttonInfo x32buttons[MAX_BUTTONS];
+struct buttonInfo x32_btn_def[MAX_BUTTONS];
 int buttonDefinitionIndex = 0;
 
 void addButtonDefinition(X32_BTN _button, uint16_t _buttonNr) {
     if (buttonDefinitionIndex >= MAX_BUTTONS)
     {
         //TODO: Error Message
-        #if DEBUG == 1
-        printf("MAX_BUTTONS");
-        #endif
+        x32log("ERROR: MAX_BUTTONS");
         return;
     }
-    x32buttons[buttonDefinitionIndex].button = _button;
-    x32buttons[buttonDefinitionIndex].buttonNr = _buttonNr;
+    x32_btn_def[buttonDefinitionIndex].button = _button;
+    x32_btn_def[buttonDefinitionIndex].buttonNr = _buttonNr;
     buttonDefinitionIndex++;
-    x32debug("DEBUG: added button definition: Button %d -> ButtonNr %d\n", _button, _buttonNr);
+    x32debug("added button definition: Button %d -> ButtonNr %d\n", _button, _buttonNr);
 }
 
 void initButtonDefinition(X32_MODEL modell) {
     switch(modell) {
                 case X32_MODEL_FULL:
-                    x32debug("DEBUG: FULL");
+                    x32debug("DEBUG: FULL\n");
                     addButtonDefinition(X32_BTN_TALK_A,         0x012E);
                     addButtonDefinition(X32_BTN_TALK_B,         0x012F);
                     addButtonDefinition(X32_BTN_VIEW_TALK,      0x0130);
@@ -554,7 +551,7 @@ void initButtonDefinition(X32_MODEL modell) {
                     addButtonDefinition(X32_BTN_RIGHT,          0x011F);
                     break;
                 case X32_MODEL_COMPACT:
-                    x32debug("DEBUG: COMPACT");
+                    x32debug("DEBUG: COMPACT\n");
                     addButtonDefinition(X32_BTN_TALK_A,         0x0100);
                     addButtonDefinition(X32_BTN_TALK_B,         0x0101);
                     addButtonDefinition(X32_BTN_MONITOR_DIM,    0x0102);
@@ -588,9 +585,9 @@ void initButtonDefinition(X32_MODEL modell) {
 uint16_t enum2button(X32_BTN button) {
     x32debug("DEBUG: enum2button: Button %d -> ", button);
     for(int i = 0; i < buttonDefinitionIndex; i++) {
-        if (x32buttons[i].button == button) {
-            x32debug("gefunden: Button %d\n", x32buttons[i].buttonNr);
-            return x32buttons[i].buttonNr;
+        if (x32_btn_def[i].button == button) {
+            x32debug("gefunden: Button %d\n", x32_btn_def[i].buttonNr);
+            return x32_btn_def[i].buttonNr;
         }
     }
     x32debug(" NICHT gefunden!\n");
@@ -600,9 +597,9 @@ uint16_t enum2button(X32_BTN button) {
 X32_BTN button2enum(uint16_t buttonNr) {
     x32debug("DEBUG: button2enum: ButtonNr %d -> ", buttonNr);
     for(int i = 0; i < buttonDefinitionIndex; i++) {
-        if (x32buttons[i].buttonNr == buttonNr) {
-            x32debug("gefunden: Button %d\n", x32buttons[i].button);
-            return x32buttons[i].button;
+        if (x32_btn_def[i].buttonNr == buttonNr) {
+            x32debug("gefunden: Button %d\n", x32_btn_def[i].button);
+            return x32_btn_def[i].button;
         }
     }
     x32debug(" NICHT gefunden!\n");

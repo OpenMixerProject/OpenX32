@@ -7,7 +7,7 @@ lv_indev_t *buttons_indev; // will be updated by buttonCallback
 lv_indev_t *encoder_indev;
 */
 
-X32_BTN lastButton;
+X32_BTN lastButton = X32_BTN_NONE;
 bool lastButtonPressed;
 
 void timer100msCallback(int sig, siginfo_t *si, void *uc) {

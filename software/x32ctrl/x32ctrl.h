@@ -1,7 +1,7 @@
 #ifndef X32CTRL_H_
 #define X32CTRL_H_
 
-#define DEBUG 0
+#define DEBUG 1
 
 // standard includes
 #include <stdio.h>
@@ -58,6 +58,7 @@ void surfaceDemo(void);
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value);
 void addaCallback(char *msg);
 void fpgaCallback(char *buf, uint8_t len);
-void x32printf(const char *format, ...);
+void x32log(const char *format, ...);
+void x32debug(const char *format, ...);
 
 #endif
