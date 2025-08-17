@@ -135,16 +135,19 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       //lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
 
       switch (button) {
-          case X32_BTN_HOME:
+        case X32_BTN_HOME:
             lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_HOME, 1);
             break;
-            case X32_BTN_METERS:
+        case X32_BTN_METERS:
             lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_METERS, 1);
             break;
-            case X32_BTN_UTILITY:
+        case X32_BTN_UTILITY:
             lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_UTILITY, 1);
             break;
-          case X32_BTN_LEFT:
+        case X32_BTN_LEFT:
               // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
               for (uint8_t ch=1; ch<=8; ch++) {
                   mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8
@@ -327,16 +330,18 @@ int main() {
     }else if (strcmp(model, "X32") == 0) {
         initButtonDefinition(X32_MODEL_FULL);
     }else{
+        #if DEBUG == 0
         x32log("ERROR: No model detected - assume X32 Fullsize!\n");
         initButtonDefinition(X32_MODEL_NONE);
-
+        #else
         // (for development without inserted sd card)
         //
-        //x32printf("ERROR: No model detected - assume X32 Fullsize!\n");
+        //x32debug("ERROR: No model detected - assume X32 Fullsize!\n");
         //initButtonDefinition(X32_MODEL_FULL);
         //
-        //x32printf("ERROR: No model detected - assume X32 Compact!\n");
-        //initButtonDefinition(X32_MODEL_COMPACT);
+        x32debug("ERROR: No model detected - assume X32 Compact!\n");
+        initButtonDefinition(X32_MODEL_COMPACT);
+        #endif
     }
     x32log(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 

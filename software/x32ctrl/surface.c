@@ -59,7 +59,7 @@ void setLedByNr(uint16_t ledNr, uint8_t state) {
   uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
   uint8_t ledId = (uint8_t)(ledNr & 0x7F);
 
-  //printf("LedNr: 0x%04X -> BoardId: 0x%02X, LED: 0x%02X\n", ledNr, boardId, ledId);
+  x32debug("LedNr: 0x%04X -> BoardId: 0x%02X, LED: 0x%02X\n", ledNr, boardId, ledId);
 
   messageBuilderInit(&message);
 
@@ -75,6 +75,12 @@ void setLedByNr(uint16_t ledNr, uint8_t state) {
   messageBuilderAddRawByte(&message, 0xFE); // endbyte
 
   uartTx(&fdSurface, &message, true);
+}
+
+// ledNr = LED from X32_BTN enum
+// state = 0 / 1
+void setLedByEnum(X32_BTN led, uint8_t state) {
+    setLedByNr(enum2button(led), state);
 }
 
 
