@@ -17,7 +17,7 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wmissing-prototypes -Wno-discarded-qu
                    -Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body \
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value -std=gnu99
 CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS)
-LDFLAGS         ?= -lm
+LDFLAGS         ?= -lm -static
 
 BIN             = x32ctrl
 BUILD_DIR       = ../bin
