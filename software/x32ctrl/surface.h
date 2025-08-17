@@ -10,6 +10,7 @@ extern char uartBufferSurface[256];
 void setFader(uint8_t boardId, uint8_t index, uint16_t position);
 void setLed(uint8_t boardId, uint8_t ledId, uint8_t state);
 void setLedByNr(uint16_t ledNr, uint8_t state);
+void setLedByEnum(X32_BTN led, uint8_t state);
 void setMeterLed(uint8_t boardId, uint8_t index, uint8_t leds);
 void setMeterLedMain(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);
 void setEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, uint8_t pct, bool backlight);
@@ -26,8 +27,8 @@ void surfaceInit(void);
 void surfaceReset(void);
 void surfaceProcessUartData(int bytesToProcess);
 
-void initButtonDefinition();
-void addButtonDefinition(X32_BTN _button, uint16_t _buttonNr);
+void initButtonDefinition(X32_MODEL modell);
+void addButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr);
 
 uint16_t enum2button(X32_BTN button);
 X32_BTN button2enum(uint16_t button);

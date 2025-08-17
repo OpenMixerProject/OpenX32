@@ -192,6 +192,8 @@ void guiInit() {
 
   guiInitInput();
 
+  showPage(X32_PAGE_HOME);
+
   // start endless loop
   driver_backends_run_loop();
 }

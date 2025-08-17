@@ -278,7 +278,7 @@ void fpgaCallback(char *buf, uint8_t len) {
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
 }
 
-X32_PAGE activePage = X32_PAGE_HOME;
+//X32_PAGE activePage = X32_PAGE_HOME;
 
 void showPage(X32_PAGE page) {
     // first turn all page LEDs off
@@ -291,22 +291,24 @@ void showPage(X32_PAGE page) {
     setLedByEnum(X32_BTN_MUTE_GRP, 0);
     setLedByEnum(X32_BTN_UTILITY, 0);
 
-    activePage = page;
+    //activePage = page;
 
     switch (page)
     {
-        case X32_BTN_HOME:
+        case X32_PAGE_HOME:
             lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_HOME, 1);
             break;
-        case X32_BTN_METERS:
+        case X32_PAGE_METERS:
             lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_METERS, 1);
             break;
-        case X32_BTN_UTILITY:
+        case X32_PAGE_UTILITY:
             lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_UTILITY, 1);
             break;
+        default:
+            x32debug("ERROR: Page not found!\n");
     }
 }
 
@@ -374,6 +376,7 @@ int main() {
         initButtonDefinition(X32_MODEL_COMPACT);
         #endif
     }
+
     x32log(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
     //x32log("Connecting to UART1 (Debug)...");

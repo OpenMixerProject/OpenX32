@@ -1,7 +1,7 @@
 #ifndef X32CTRL_H_
 #define X32CTRL_H_
 
-#define DEBUG 1
+#define DEBUG 0
 
 // standard includes
 #include <stdio.h>
@@ -60,5 +60,6 @@ void addaCallback(char *msg);
 void fpgaCallback(char *buf, uint8_t len);
 void x32log(const char *format, ...);
 void x32debug(const char *format, ...);
+void showPage(X32_PAGE page);
 
 #endif

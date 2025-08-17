@@ -513,17 +513,17 @@ struct buttonInfo {
 struct buttonInfo x32_btn_def[MAX_BUTTONS];
 int buttonDefinitionIndex = 0;
 
-void addButtonDefinition(X32_BTN _button, uint16_t _buttonNr) {
+void addButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     if (buttonDefinitionIndex >= MAX_BUTTONS)
     {
         //TODO: Error Message
         x32log("ERROR: MAX_BUTTONS");
         return;
     }
-    x32_btn_def[buttonDefinitionIndex].button = _button;
-    x32_btn_def[buttonDefinitionIndex].buttonNr = _buttonNr;
+    x32_btn_def[buttonDefinitionIndex].button = p_button;
+    x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
     buttonDefinitionIndex++;
-    x32debug("added button definition: Button %d -> ButtonNr %d\n", _button, _buttonNr);
+    x32debug("added button definition: Button %d -> ButtonNr %d\n", p_button, p_buttonNr);
 }
 
 void initButtonDefinition(X32_MODEL modell) {
