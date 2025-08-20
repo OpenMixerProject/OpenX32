@@ -520,6 +520,10 @@ int main() {
     //x32log("Connecting to UART5 (MIDI)...\n");
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); //
 
+    // initialize mixer config
+    initMixer();
+
+
     x32log("Initializing X32 Surface...\n");
     surfaceReset(); // resets all microcontrollers on the board (not necessary)
     surfaceInit(); // initialize whole surface with default values

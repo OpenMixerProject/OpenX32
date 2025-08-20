@@ -48,6 +48,7 @@
 #include "auxiliary.h"
 #include "adda.h"
 #include "mixing.h"
+#include "mixer.h"
 #include "fpga.h"
 
 // something has changed, so the surface/gui should be synced
