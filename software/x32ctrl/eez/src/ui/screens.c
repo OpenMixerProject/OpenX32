@@ -65,6 +65,7 @@ void create_screen_main() {
                             objects.slider01 = obj;
                             lv_obj_set_pos(obj, 14, 279);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
@@ -73,6 +74,7 @@ void create_screen_main() {
                             objects.slider02 = obj;
                             lv_obj_set_pos(obj, 51, 280);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
@@ -81,6 +83,7 @@ void create_screen_main() {
                             objects.slider03 = obj;
                             lv_obj_set_pos(obj, 91, 280);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
@@ -89,6 +92,7 @@ void create_screen_main() {
                             objects.slider04 = obj;
                             lv_obj_set_pos(obj, 131, 280);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
@@ -97,6 +101,7 @@ void create_screen_main() {
                             objects.slider05 = obj;
                             lv_obj_set_pos(obj, 172, 280);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
@@ -105,6 +110,7 @@ void create_screen_main() {
                             objects.slider06 = obj;
                             lv_obj_set_pos(obj, 211, 280);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
@@ -113,6 +119,7 @@ void create_screen_main() {
                             objects.slider07 = obj;
                             lv_obj_set_pos(obj, 252, 280);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
@@ -121,16 +128,16 @@ void create_screen_main() {
                             objects.slider08 = obj;
                             lv_obj_set_pos(obj, 293, 279);
                             lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
                             // phantomindicators
                             lv_obj_t *obj = lv_buttonmatrix_create(parent_obj);
                             objects.phantomindicators = obj;
-                            lv_obj_set_pos(obj, -14, 192);
-                            lv_obj_set_size(obj, 350, 78);
-                            static const char *map[9] = {
-                                "48V",
+                            lv_obj_set_pos(obj, -15, 98);
+                            lv_obj_set_size(obj, 350, 82);
+                            static const char *map[8] = {
                                 "48V",
                                 "48V",
                                 "48V",
@@ -140,8 +147,7 @@ void create_screen_main() {
                                 "48V",
                                 NULL,
                             };
-                            static lv_buttonmatrix_ctrl_t ctrl_map[8] = {
-                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                            static lv_buttonmatrix_ctrl_t ctrl_map[7] = {
                                 1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
                                 1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
                                 1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
@@ -158,6 +164,14 @@ void create_screen_main() {
                             lv_obj_set_pos(obj, 14, 403);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_label_set_text(obj, "1        2        3        4        5        6        7        8 ");
+                        }
+                        {
+                            // volumes
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            objects.volumes = obj;
+                            lv_obj_set_pos(obj, -9, 216);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            lv_label_set_text(obj, "Text");
                         }
                     }
                 }

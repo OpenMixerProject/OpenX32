@@ -128,7 +128,12 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         float pct = value / 40.95; // convert to percent
     
         if (boardId == X32_BOARD_L) {
-            //mixingSetVolume(index, value); // TODO: value needs conversion to dBfs!
+            mixingSetVolume(index+1, fader2dBfs(value));
+            dirty = true;
+        }
+
+        if (boardId == X32_BOARD_R) {
+            mixingSetVolume(index+1, fader2dBfs(value));
             dirty = true;
         }
 
@@ -333,38 +338,46 @@ void syncGui(){
     }
 
     // sync fader position of first 8 DSP Channels (correct routing is for a later day...)
+    lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
+        openx32.dspChannel[0].volume,
+        openx32.dspChannel[1].volume,
+        openx32.dspChannel[2].volume,
+        openx32.dspChannel[3].volume,
+        openx32.dspChannel[4].volume,
+        openx32.dspChannel[5].volume,
+        openx32.dspChannel[6].volume,
+        openx32.dspChannel[7].volume
+    );    
     for(int i = 0; i < 8; i++){
 
         // TODO: implement touchcontrol and convert value to dBfs
-        //float volume_dbfs = openx32.dspChannel[i].volume; 
-        //setFader(X32_BOARD_L, i, volume_dbfs);
-
-        float pct = openx32.dspChannel[i].volume / 40.95;
+        u_int16_t volume = dBfs2fader(openx32.dspChannel[i].volume); 
+        setFader(X32_BOARD_L, i, volume);
 
         switch (i){
                 case 0:
-                    lv_slider_set_value(objects.slider01, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider01, volume, LV_ANIM_OFF);
                     break;
                 case 1:
-                    lv_slider_set_value(objects.slider02, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider02, volume, LV_ANIM_OFF);
                     break;
                 case 2:
-                    lv_slider_set_value(objects.slider03, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider03, volume, LV_ANIM_OFF);
                     break;
                 case 3:
-                    lv_slider_set_value(objects.slider04, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider04, volume, LV_ANIM_OFF);
                     break;
                 case 4:
-                    lv_slider_set_value(objects.slider05, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider05, volume, LV_ANIM_OFF);
                     break;
                 case 5:
-                    lv_slider_set_value(objects.slider06, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider06, volume, LV_ANIM_OFF);
                     break;
                 case 6:
-                    lv_slider_set_value(objects.slider07, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider07, volume, LV_ANIM_OFF);
                     break;
                 case 7:
-                    lv_slider_set_value(objects.slider08, (int)pct, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider08, volume, LV_ANIM_OFF);
                     break;
         }
     }
