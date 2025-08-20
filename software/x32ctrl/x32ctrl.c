@@ -332,6 +332,7 @@ void fpgaCallback(char *buf, uint8_t len) {
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
 }
 
+char lcdText[10]="   ";
 void syncGui(){
     
     // sync Phantom Power of first 8 lokal XLR inputs to select LEDs
@@ -362,10 +363,15 @@ void syncGui(){
         if (touchcontrol == 0){
             setFader(X32_BOARD_L, i, volume);
         }
+        
+        sprintf(lcdText, "%2.1FdB", openx32.dspChannel[i].volume);
+        //x32debug("lcdText=%s", lcdText);
+        //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+        setLcd(X32_BOARD_L,     i,     3,     0,    12,    0,  0x00,  0,  0,          lcdText,  0x00,  20, 48, "OpenX32");
 
         switch (i){
                 case 0:
-                    lv_slider_set_value(objects.slider01, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider01, volume, LV_ANIM_OFF);                     
                     break;
                 case 1:
                     lv_slider_set_value(objects.slider02, volume, LV_ANIM_OFF);
