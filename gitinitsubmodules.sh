@@ -7,15 +7,6 @@ git fetch --depth 1 origin tag v2020.10
 git checkout v2020.10
 cd ..
 
-#!/bin/bash
-echo "Preparing checkout of barebox without history..."
-cd barebox 
-git init https://github.com/barebox/barebox.git
-git remote add origin 
-git fetch --depth 1 origin master
-git checkout master
-cd ..
-
 echo "Preparing checkout of linux v6.12 LTS without history..."
 cd linux
 git init
