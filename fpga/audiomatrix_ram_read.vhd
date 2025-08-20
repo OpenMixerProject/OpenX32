@@ -29,6 +29,7 @@ architecture behavioral of audiomatrix_ram_read is
 
 	signal pSelect			: integer range 0 to NUM_OUTPUT_PORTS * 8;
 	signal pOutput			: integer range 0 to NUM_OUTPUT_PORTS * DATA_WIDTH;
+	signal readDelay		: std_logic := '1';
 begin
 	-- as the routing allows routing of input-channel 112 to output-channel 1, we have to write all audio-data
 	-- to block-ram, before we start the read-process
@@ -42,6 +43,7 @@ begin
 
 					pSelect <= 8; -- preload to next address address
 					pOutput <= 0; -- preload to first output-data
+					readDelay <= '1';
 				
 					r_SM_matrix <= s_Read;
 				end if;
@@ -52,17 +54,24 @@ begin
 				
 				-- set read-address for next read-operation
 				o_ram_read_addr <= unsigned(select_lines(pSelect + 6 downto pSelect)); -- we are taking only 7-bit out of this 8-bit value
-
-				if (pSelect < (NUM_OUTPUT_PORTS - 1) * 8) then
-					-- increase pointers
-					pSelect <= pSelect + 8;
-					pOutput <= pOutput + DATA_WIDTH;
-					
-					-- stay in this state
-					r_SM_matrix <= s_Read;
+				
+				if (readDelay = '1') then
+					readDelay <= '0';
 				else
-					-- we reached the last element
-					r_SM_matrix <= s_ReadLast;
+					if (pOutput < ((NUM_OUTPUT_PORTS - 1) * DATA_WIDTH)) then
+						pOutput <= pOutput + DATA_WIDTH;
+
+						-- stay in this state
+						r_SM_matrix <= s_Read;
+					else
+						-- we reached the last element
+						r_SM_matrix <= s_ReadLast;
+					end if;
+				end if;
+
+				-- increase read-pointer
+				if (pSelect < (NUM_OUTPUT_PORTS - 1) * 8) then
+					pSelect <= pSelect + 8;
 				end if;
 
 			elsif (r_SM_matrix = s_ReadLast) then
