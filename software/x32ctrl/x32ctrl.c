@@ -21,7 +21,7 @@ void timer100msCallback(int sig, siginfo_t *si, void *uc) {
     // sync surface/gui with mixing state
     if (touchcontrol > -1) {
         touchcontrol--;
-        x32debug("TC=%d\n", touchcontrol);
+        x32debug("TouchControl=%d\n", touchcontrol);
     }
 
     if (dirty | touchcontrol == 0)
