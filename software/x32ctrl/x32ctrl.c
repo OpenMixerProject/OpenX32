@@ -13,13 +13,18 @@
 #include "x32ctrl.h"
 
 bool dirty = true; // sync on first startup
-
+int touchcontrol = -1;
 
 
 // called every 100ms
 void timer100msCallback(int sig, siginfo_t *si, void *uc) {
     // sync surface/gui with mixing state
-    if (dirty)
+    if (touchcontrol > -1) {
+        touchcontrol--;
+        x32debug("TC=%d\n", touchcontrol);
+    }
+
+    if (dirty | touchcontrol == 0)
     {
         syncGui();
         dirty = false;
@@ -130,14 +135,16 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         if (boardId == X32_BOARD_L) {
             mixingSetVolume(index+1, fader2dBfs(value));
             dirty = true;
+            touchcontrol = 5;
         }
 
         if (boardId == X32_BOARD_R) {
             mixingSetVolume(index+1, fader2dBfs(value));
             dirty = true;
+            touchcontrol = 5;
         }
 
-        x32debug("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, pct);
+        x32debug("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f| TC=%d\n", boardId, class, index, value, pct, touchcontrol);
         lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
 
     } else if (class == 'b') {
@@ -352,7 +359,9 @@ void syncGui(){
 
         // TODO: implement touchcontrol and convert value to dBfs
         u_int16_t volume = dBfs2fader(openx32.dspChannel[i].volume); 
-        setFader(X32_BOARD_L, i, volume);
+        if (touchcontrol == 0){
+            setFader(X32_BOARD_L, i, volume);
+        }
 
         switch (i){
                 case 0:
