@@ -18,7 +18,7 @@ use ieee.numeric_std.all;
 entity uart_tx is
   generic(
     clk_rate    : integer := 124000000;
-    baud_rate   : integer := 115200 --1000000
+    baud_rate   : integer := 115200
     );
   port (
     i_Clk       : in  std_logic;

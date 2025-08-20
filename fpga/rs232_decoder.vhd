@@ -23,9 +23,9 @@ entity rs232_decoder is
 		RX_Data			: in std_logic_vector(7 downto 0);
 
 		-- deserialized values
-		routing			: out std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0); -- we are using only 7-bit for the selector-signal, but 8-bits are easier to handle with multiplications
-		volume_left		: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0); -- audio-volume uses 8-bits
-		volume_right	: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0) -- audio-volume uses 8-bits
+		routing			: out std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0) := (others => '0'); -- we are using only 7-bit for the selector-signal, but 8-bits are easier to handle with multiplications
+		volume_left		: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0) := (others => '0'); -- audio-volume uses 8-bits
+		volume_right	: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0) := (others => '0') -- audio-volume uses 8-bits
 	);
 end entity;
 

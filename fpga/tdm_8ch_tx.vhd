@@ -49,7 +49,7 @@ begin
 	process(bclk)
 	begin
 		if falling_edge(bclk) then
-			sdata <= sample_data(sample_data'high - bit_cnt);
+			sdata <= sample_data(sample_data'left - bit_cnt);
 		end if;
 	end process;
 end rtl;

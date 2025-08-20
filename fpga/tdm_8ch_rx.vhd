@@ -44,7 +44,7 @@ begin
 	begin
 		if rising_edge(bclk) then
 			-- continuously reading bit into shift-register
-			sample_data <= sample_data(sample_data'high - 1 downto 0) & sdata;
+			sample_data <= sample_data(sample_data'left - 1 downto 0) & sdata;
 			
 			-- check for positive edge of frame-sync (1 bit-clock before bit 0 of channel 1)
 			if (fsync = '1' and zfsync = '0') then

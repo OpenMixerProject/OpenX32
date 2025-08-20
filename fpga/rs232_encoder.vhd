@@ -14,7 +14,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity rs232_encoder is 
 	generic(
 		clk_rate_hz    : integer := 124000000;
-		txd_rate_hz   : integer := 5
+		txd_rate_hz   : integer := 1
 	);
 	port
 	(
@@ -38,8 +38,6 @@ architecture Behavioral of rs232_encoder is
 	
 	signal txd_rate_cnt	: natural range 0 to clk_rate_hz/(2*txd_rate_hz) := 0;
 	signal byte_cnt		: natural range 0 to PAYLOAD_TO_TX + 4 - 1 := 0; -- payload-bytes + 4 frame-bytes
-	
-	signal tx_next_byte	: std_logic := '0';
 	
 	type t_bytearray is array(PAYLOAD_TO_TX - 1 downto 0) of unsigned(7 downto 0);
 	signal bytearray	: t_bytearray;

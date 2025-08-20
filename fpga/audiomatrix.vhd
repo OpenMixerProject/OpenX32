@@ -34,87 +34,82 @@ architecture behavioral of audiomatrix is
 
 	signal pRam				: integer range 0 to NUM_INPUT_PORTS;
 	signal pInput			: integer range 0 to NUM_INPUT_PORTS * DATA_WIDTH;
-	signal pSelect			: integer range 0 to (NUM_INPUT_PORTS + 1) * 8;
+	signal pSelect			: integer range 0 to NUM_INPUT_PORTS * 8;
 	signal pOutput			: integer range 0 to NUM_OUTPUT_PORTS * DATA_WIDTH;
 begin
 	-- as the routing allows routing of input-channel 112 to output-channel 1, we have to write all audio-data
 	-- to block-ram, before we start the read-process
-
 	process(clk)
 	begin
 		if rising_edge(clk) then
-			case r_SM_matrix is
-				when s_Idle =>
-					-- check if we received new audio-data
-					if (sync_in = '1') then
-						
-						o_ram_write_addr <= to_unsigned(0, 7); -- address of first RAM-element
-						o_ram_data <= input_data(DATA_WIDTH - 1 downto 0); -- first input-channel
-						o_ram_wr_en <= '1';
+			if (sync_in = '1' and r_SM_matrix = s_Idle) then
+				o_ram_write_addr <= to_unsigned(0, 7); -- address of first RAM-element
+				o_ram_data <= input_data(DATA_WIDTH - 1 downto 0); -- first input-channel
+				o_ram_wr_en <= '1';
 
-						pRam <= 1; -- preload to next write-address
-						pInput <= DATA_WIDTH; -- preload to next write-address
+				pRam <= 1; -- preload to next write-address
+				pInput <= DATA_WIDTH; -- preload to next audio-sample					
+				r_SM_matrix <= s_Write;
+			
+			elsif (r_SM_matrix = s_Write) then
+				o_ram_write_addr <= to_unsigned(pRam, 7);
+				o_ram_data <= input_data(pInput + DATA_WIDTH - 1 downto pInput);
+
+				if (pRam < NUM_INPUT_PORTS - 1) then
+					-- increment for next write
+					pRam <= pRam + 1;
+					pInput <= pInput + DATA_WIDTH;
 					
-						r_SM_matrix <= s_Write;
-					end if;
-				
-				when s_Write =>
-					o_ram_write_addr <= to_unsigned(pRam, 7);
-					o_ram_data <= input_data(pInput + DATA_WIDTH - 1 downto pInput);
+					-- stay in this state
+					r_SM_matrix <= s_Write;
+				else
+					-- go to Wait-State
+					r_SM_matrix <= s_Wait;
+				end if;
 
-					if (pRam < NUM_INPUT_PORTS - 1) then
-						-- increment for next write
-						pRam <= pRam + 1;
-						pInput <= pInput + DATA_WIDTH;
-					else
-						-- go to Wait-State
-						r_SM_matrix <= s_Wait;
-					end if;
-				
-				when s_Wait =>
-					-- disable write
-					o_ram_wr_en <= '0';
+			elsif (r_SM_matrix = s_Wait) then
+				-- disable write
+				o_ram_wr_en <= '0';
 
-					-- start read-process
-					r_SM_matrix <= s_StartRead;
-				
-				when s_StartRead =>
-					-- set read-address for first read-operation
-					o_ram_read_addr <= unsigned(select_lines(6 downto 0)); -- we are taking only 7-bit out of this 8-bit value
+				-- start read-process
+				r_SM_matrix <= s_StartRead;
 
-					pSelect <= 8; -- preload to next address address
-					pOutput <= 0; -- preload to first output-data
+			elsif (r_SM_matrix = s_StartRead) then
+				-- set read-address for first read-operation
+				o_ram_read_addr <= unsigned(select_lines(6 downto 0)); -- we are taking only 7-bit out of this 8-bit value
+
+				pSelect <= 8; -- preload to next address address
+				pOutput <= 0; -- preload to first output-data
+			
+				r_SM_matrix <= s_Read;
+
+			elsif (r_SM_matrix = s_Read) then
+				-- read data from RAM
+				output_data(pOutput + DATA_WIDTH - 1 downto pOutput) <= i_ram_data;
 				
+				-- set read-address for next read-operation
+				o_ram_read_addr <= unsigned(select_lines(pSelect + 6 downto pSelect)); -- we are taking only 7-bit out of this 8-bit value
+
+				if (pSelect = (NUM_OUTPUT_PORTS - 1) * 8) then
+					-- we reached the last element
+					r_SM_matrix <= s_ReadLast;
+				else
+					-- increase pointers
+					pSelect <= pSelect + 8;
+					pOutput <= pOutput + DATA_WIDTH;
+					
+					-- stay in this state
 					r_SM_matrix <= s_Read;
-				
-				when s_Read =>
-					-- read data from RAM
-					--output_data(pOutput + DATA_WIDTH - 1 downto pOutput) <= i_ram_data;
-					output_data(pOutput + DATA_WIDTH - 1 downto pOutput) <= i_ram_data;
-					
-					-- set read-address for next read-operation
-					o_ram_read_addr <= unsigned(select_lines(pSelect + 6 downto pSelect)); -- we are taking only 7-bit out of this 8-bit value
+				end if;
 
-					if (pSelect = (NUM_OUTPUT_PORTS - 1) * 8) then
-						-- we reached the last element
-						r_SM_matrix <= s_ReadLast;
-					else
-						-- increase pointers
-						pSelect <= pSelect + 8;
-						pOutput <= pOutput + DATA_WIDTH;
-					end if;
+			elsif (r_SM_matrix = s_ReadLast) then
+				-- read last data from RAM
+				output_data(output_data'left downto output_data'left - DATA_WIDTH + 1) <= i_ram_data;
 				
-				when s_ReadLast =>
-					-- read last data from RAM
-					output_data(output_data'high downto output_data'length - DATA_WIDTH) <= i_ram_data;
-					
-					-- go into idle-state
-					r_SM_matrix <= s_Idle;
+				-- go into idle-state
+				r_SM_matrix <= s_Idle;
 				
-				when others =>
-					r_SM_matrix <= s_Idle;
-					
-			end case;
+			end if;
 		end if;
 	end process;
 end architecture behavioral;

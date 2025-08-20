@@ -19,7 +19,7 @@ entity audiomatrix_ram is
 		i_data			: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 		wr_en				: in std_logic;
 
-		o_data			: out  std_logic_vector(DATA_WIDTH - 1 downto 0)
+		o_data			: out std_logic_vector(DATA_WIDTH - 1 downto 0)
 	);
 end entity audiomatrix_ram;
 
@@ -29,7 +29,7 @@ architecture behavioral of audiomatrix_ram is
 begin
 	process(clk)
 	begin
-		if falling_edge(clk) then
+		if rising_edge(clk) then
 			-- write data to RAM
 			if wr_en = '1' then
 				ram_inst(to_integer(write_addr)) <= i_data;

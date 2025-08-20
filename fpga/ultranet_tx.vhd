@@ -55,7 +55,7 @@ begin
 	data_latch : process (bit_clock)
 	begin
 		if rising_edge(bit_clock) then
-			parity <= data_in_buffer(23) xor data_in_buffer(22) xor data_in_buffer(21) xor data_in_buffer(20) xor data_in_buffer(19) xor data_in_buffer(18) xor data_in_buffer(17)  xor data_in_buffer(16) xor data_in_buffer(15) xor data_in_buffer(14) xor data_in_buffer(13) xor data_in_buffer(12) xor data_in_buffer(11) xor data_in_buffer(10) xor data_in_buffer(9) xor data_in_buffer(8) xor data_in_buffer(7) xor data_in_buffer(6) xor data_in_buffer(5) xor data_in_buffer(4) xor data_in_buffer(3) xor data_in_buffer(2) xor data_in_buffer(1) xor data_in_buffer(0) xor validity xor user_status_shift(user_status_shift'high) xor channel_status_shift(channel_status_shift'high);
+			parity <= data_in_buffer(23) xor data_in_buffer(22) xor data_in_buffer(21) xor data_in_buffer(20) xor data_in_buffer(19) xor data_in_buffer(18) xor data_in_buffer(17)  xor data_in_buffer(16) xor data_in_buffer(15) xor data_in_buffer(14) xor data_in_buffer(13) xor data_in_buffer(12) xor data_in_buffer(11) xor data_in_buffer(10) xor data_in_buffer(9) xor data_in_buffer(8) xor data_in_buffer(7) xor data_in_buffer(6) xor data_in_buffer(5) xor data_in_buffer(4) xor data_in_buffer(3) xor data_in_buffer(2) xor data_in_buffer(1) xor data_in_buffer(0) xor validity xor user_status_shift(user_status_shift'left) xor channel_status_shift(channel_status_shift'left);
 			if bit_counter = 3 then
 				-- we are near the end of the preamble, load the sound data in the buffer
 				if channel_counter = 0 then
@@ -119,8 +119,8 @@ begin
 					end if;
 					
 					-- shift the channel status and user by one to the left
-					user_status_shift <= user_status_shift(user_status_shift'high - 1 downto 0) & '0';
-					channel_status_shift <= channel_status_shift(channel_status_shift'high - 1 downto 0) & '0';
+					user_status_shift <= user_status_shift(user_status_shift'left - 1 downto 0) & '0';
+					channel_status_shift <= channel_status_shift(channel_status_shift'left - 1 downto 0) & '0';
 
 					-- increment or reset channel-counter
 					if (channel_counter < 7) then
@@ -145,7 +145,7 @@ begin
 						when "101" =>
 							data_out_buffer <= '1' & data_in_buffer(20) & '1' & data_in_buffer(21) & '1' & data_in_buffer(22) & '1' & data_in_buffer(23);
 						when "110" =>
-							data_out_buffer <= '1' & validity & '1' & user_status_shift(user_status_shift'high) & '1' & channel_status_shift(channel_status_shift'high) & '1' & parity;
+							data_out_buffer <= '1' & validity & '1' & user_status_shift(user_status_shift'left) & '1' & channel_status_shift(channel_status_shift'left) & '1' & parity;
 						when others =>
 					end case;
 				else
