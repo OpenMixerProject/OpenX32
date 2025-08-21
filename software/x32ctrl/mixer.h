@@ -87,7 +87,17 @@ typedef enum {
     // selected channel has changed
     X32_DIRTY_SELECT,
 
+    // active bank has changed
+    X32_DIRTY_BANKING,
+
 } X32_DIRTY;
+
+// TouchControl Basic Plus - one fader at a time is touchcontrolled
+typedef struct{
+    uint8_t value;
+    X32_BOARD board;
+    uint8_t faderIndex;
+} s_TouchControl;
 
 typedef struct{
     X32_MODEL model;
@@ -96,6 +106,7 @@ typedef struct{
 
     // something was changed - sync surface/gui to mixer state
     X32_DIRTY dirty;
+    s_TouchControl touchcontrol;
 
     s_bank bank[4];
     s_vChannel vChannel[MAX_VCHANNELS];    
@@ -106,10 +117,22 @@ typedef struct{
 extern s_Mixer mixer;
 
 void initMixer(X32_BOARD model);
+bool mixerIsModelX32Full();
+bool mixerIsModelX32CompacrOrProducer();
+
 void mixerSetDirty(X32_DIRTY p_dirtyState);
+void mixerSetVolumeDirty();
+void mixerSetDirty(X32_DIRTY p_dirtyState);
+X32_DIRTY mixerGetDirty(void);
+bool mixerIsVolumeDirty(void);
+bool mixerIsBankingDirty(void);
+void mixerTouchControllTick(void);
+bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
 
 uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel);
+
 void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_buttonType, uint8_t p_index);
+void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue);
 
 void mixerSetSelect(uint8_t vChannelIndex, bool solo);
 void mixerToggleSelect(uint8_t vChannelIndex);
@@ -122,9 +145,6 @@ void mixerToggleMute(uint8_t vChannelIndex);
 void mixerBanking(X32_BTN p_button);
 
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
-
-bool mixerIsModelX32Full();
-bool mixerIsModelX32CompacrOrProducer();
 
 void mixerDebugPrintBank(uint8_t bank);
 void mixerDebugPrintvChannels();

@@ -12,27 +12,21 @@
 
 #include "x32ctrl.h"
 
-int touchcontrol = 0;
 
 
 // called every 100ms
 void timer100msCallback(int sig, siginfo_t *si, void *uc) {
-    if (touchcontrol > 0) {
-        touchcontrol--;
-        if (touchcontrol == 0)
-        {
-            mixer.dirty = X32_DIRTY_VOLUME;
-        }
-        x32debug("TouchControl=%d\n", touchcontrol);
-    }
-    if (mixer.dirty != X32_DIRTY_NONE)
+
+    mixerTouchControllTick();
+    
+    if (mixerIsDirty())
     {
         syncGui();
         syncSurface();
-        mixer.dirty = X32_DIRTY_NONE;
+
+        mixerSetDirtClean();
     }
 }
-
 
 void timer10msCallback(int sig, siginfo_t *si, void *uc) {
   // call EEZ-GUI tick
@@ -129,37 +123,10 @@ void surfaceDemo(void) {
 //#   function will be called by uart-receive-function
 //#
 //#######################################################
+
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value) {
     if (class == 'f') {
-        uint8_t vChannelIndex = VCHANNEL_NOT_SET;
-
-        if (mixer.model == X32_MODEL_FULL){
-            if (boardId == X32_BOARD_L) {
-                vChannelIndex = mixerSurfaceChannel2vChannel(index);
-            }
-            if (boardId == X32_BOARD_M) {
-                vChannelIndex = mixerSurfaceChannel2vChannel(index+8);
-            }
-            if (boardId == X32_BOARD_R) {
-                vChannelIndex = mixerSurfaceChannel2vChannel(index+16);
-            }
-        }
-
-        if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER)){
-            if (boardId == X32_BOARD_L) {
-                vChannelIndex = mixerSurfaceChannel2vChannel(index);
-            }
-            if (boardId == X32_BOARD_R) {
-                vChannelIndex = mixerSurfaceChannel2vChannel(index+8);
-            }
-        }
-
-        mixerSetVolume(vChannelIndex, fader2dBfs(value));
-        touchcontrol = 5;
-
-        //x32debug("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f| TC=%d\n", boardId, class, index, value, pct, touchcontrol);
-        //lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
-
+        mixerSurfaceFaderMoved(boardId, index, value);
     } else if (class == 'b') {
         // calculate user-readable variables
         X32_BTN button = button2enum(((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F));
@@ -534,8 +501,8 @@ void syncSurfaceBoard(X32_BOARD board) {
             setLed(board, 0x40+i, chan->mute);
 
             u_int16_t faderVolume = dBfs2fader(chan->volume); 
-            if (touchcontrol == 0){
-                setFader(board, i, faderVolume);
+            if (mixerIsVolumeDirty() && mixerTouchcontrolCanSetFader(board, i)){
+                    setFader(board, i, faderVolume);
             }
 
             char lcdText[10];
@@ -547,21 +514,23 @@ void syncSurfaceBoard(X32_BOARD board) {
 }
 
 void syncSurfaceBankIndicator(void) {
-    if (mixer.model == X32_MODEL_FULL){
-        setLedByEnum(X32_BTN_CH_1_16, 0);
-        setLedByEnum(X32_BTN_CH_17_32, 0);
-        if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
-        if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
-    }
-    if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER)) {
-        setLedByEnum(X32_BTN_CH_1_8, 0);
-        setLedByEnum(X32_BTN_CH_9_16, 0);
-        setLedByEnum(X32_BTN_CH_17_24, 0);
-        setLedByEnum(X32_BTN_CH_25_32, 0);
-        if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_8, 1); }
-        if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
-        if (mixer.activeBank == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
-        if (mixer.activeBank == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
+    if (mixerIsBankingDirty()){
+        if (mixerIsModelX32Full()){
+            setLedByEnum(X32_BTN_CH_1_16, 0);
+            setLedByEnum(X32_BTN_CH_17_32, 0);
+            if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
+            if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
+        }
+        if (mixerIsModelX32CompacrOrProducer()) {
+            setLedByEnum(X32_BTN_CH_1_8, 0);
+            setLedByEnum(X32_BTN_CH_9_16, 0);
+            setLedByEnum(X32_BTN_CH_17_24, 0);
+            setLedByEnum(X32_BTN_CH_25_32, 0);
+            if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_8, 1); }
+            if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
+            if (mixer.activeBank == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
+            if (mixer.activeBank == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
+        }
     }
 }
 

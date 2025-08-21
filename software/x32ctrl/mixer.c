@@ -95,8 +95,55 @@ void initMixer(X32_BOARD p_model) {
     x32debug("END ############# InitMixer() ############# END \n\n");
 }
 
+void mixerSetVolumeDirty(){
+    mixer.dirty = X32_DIRTY_VOLUME;
+}
+
 void mixerSetDirty(X32_DIRTY p_dirtyState){
     mixer.dirty = p_dirtyState;
+}
+
+X32_DIRTY mixerGetDirty(void){
+    return mixer.dirty;
+}
+
+bool mixerIsDirty(void){
+    return (mixer.dirty!=X32_DIRTY_NONE);
+}
+
+void mixerSetDirtClean(void){
+    mixer.dirty=X32_DIRTY_NONE;
+}
+
+bool mixerIsVolumeDirty(void){
+    return (mixer.dirty == X32_DIRTY_VOLUME) || (mixer.dirty == X32_DIRTY_ALL);
+}
+
+bool mixerIsBankingDirty(void){
+    return (mixer.dirty == X32_DIRTY_BANKING) || (mixer.dirty == X32_DIRTY_ALL);
+}
+
+void mixerTouchControllTick(void){
+    if (mixer.touchcontrol.value > 0) {
+        mixer.touchcontrol.value--;
+        if (mixer.touchcontrol.value == 0)
+        {
+            mixer.dirty = X32_DIRTY_VOLUME;
+        }
+        x32debug("TouchControl=%d\n", mixer.touchcontrol.value);
+    }
+}
+
+bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
+    if ((mixer.touchcontrol.board != p_board) && (mixer.touchcontrol.faderIndex != p_faderIndex)){
+        return true;
+    } 
+
+    if (mixer.touchcontrol.value == 0){
+        return true;
+    }
+
+    return false;
 }
 
 void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_number, bool p_disabled){
@@ -124,6 +171,29 @@ uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel)
     //     }
     // }
     return mixer.bank[mixer.activeBank].surfaceChannel2vChannel[surfaceChannel];
+}
+
+void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue){
+    uint8_t vChannelIndex = VCHANNEL_NOT_SET;
+
+    if (mixer.activeMode == X32_SURFACE_MODE_BANKING) {
+        uint8_t offset = 0;
+        if (p_board == X32_BOARD_M) { offset=8;}
+        if (mixerIsModelX32Full()){
+            if (p_board == X32_BOARD_R) { offset=16;}
+        } 
+        if (mixerIsModelX32CompacrOrProducer()){
+            if (p_board == X32_BOARD_R) { offset=8;}
+        }
+        vChannelIndex = mixerSurfaceChannel2vChannel(p_faderIndex + offset);
+        mixerSetVolume(vChannelIndex, fader2dBfs(p_faderValue));
+        
+        mixer.touchcontrol.board = p_board;
+        mixer.touchcontrol.faderIndex = p_faderIndex;
+        mixer.touchcontrol.value = 5;
+
+        x32debug("mixerSurfaceFaderMoved(p_board=%d, p_faderIndex=%d, p_faderValue=0x%02X): vChannel%d TouchControl=%d\n", p_board, p_faderIndex, p_faderValue, vChannelIndex, mixer.touchcontrol.value);
+    }    
 }
 
 // p_buttonType
