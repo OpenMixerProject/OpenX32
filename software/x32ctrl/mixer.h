@@ -16,14 +16,14 @@ typedef enum {
 } X32_SURFACE_MODE;
 
 typedef struct{
-    char name[MAX_NAME_LENGTH];
-    uint8_t input;
+    uint8_t group;
+    uint8_t hardwareChannel;
     bool phantomPower;
+    float gain;
     bool phaseInvert;
 } s_inputSource;
 
 typedef struct{
-    char name[MAX_NAME_LENGTH];
     uint8_t group;
     uint8_t hardwareChannel;
 } s_outputDestination;
@@ -73,6 +73,8 @@ typedef struct{
 #define X32_DIRTY_MUTE      0b0000000000010000
 #define X32_DIRTY_BANKING   0b0000000000100000
 #define X32_DIRTY_LCD       0b0000000001000000
+#define X32_DIRTY_PHANTOM   0b0000000010000000
+#define X32_DIRTY_PHASE_INVERT  0b0000000100000000
 
 // TouchControl Basic Plus - one fader at a time is touchcontrolled
 typedef struct{
@@ -100,9 +102,11 @@ typedef struct{
 
 extern s_Mixer mixer;
 
-void initMixer(X32_BOARD model);
+void initMixer(X32_MODEL model);
 bool mixerIsModelX32Full();
 bool mixerIsModelX32CompacrOrProducer();
+
+void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_number, bool p_disabled);
 
 void mixerSetAllDirty(void);
 void mixerSetVolumeDirty(void);
@@ -111,6 +115,9 @@ void mixerSetSoloDirty(void);
 void mixerSetMuteDirty(void);
 void mixerSetLCDDirty(void);
 void mixerSetBankingDirty(void);
+void mixerSetRoutingDirty(void);
+void mixerSetPhantomDirty(void);
+void mixerSetPhaseInvertDirty(void);
 void mixerSetDirtClean(void);
 bool mixerIsDirty(void);
 bool mixerIsVolumeDirty(void);
@@ -119,6 +126,9 @@ bool mixerIsSoloDirty(void);
 bool mixerIsMuteDirty(void);
 bool mixerIsLCDDirty(void);
 bool mixerIsBankingDirty(void);
+bool mixerIsRoutingDirty(void);
+bool mixerIsPhantomDirty(void);
+bool mixerIsPhaseInvertDirty(void);
 
 void mixerTouchControllTick(void);
 bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
@@ -132,8 +142,14 @@ void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_
 void mixerSetSelect(uint8_t vChannelIndex, bool solo);
 void mixerToggleSelect(uint8_t vChannelIndex);
 bool mixerIsSoloActivated(void);
+void mixerClearSolo(void);
 
-uint8_t mixerGetSelectedvChannel();
+void mixerSetPhantom(uint8_t vChannelIndex, bool p_phantom);
+void mixerTogglePhantom(uint8_t vChannelIndex);
+void mixerSetPhaseInvert(uint8_t vChannelIndex, bool p_phaseInvert);
+void mixerTogglePhaseInvert(uint8_t vChannelIndex);
+
+uint8_t mixerGetSelectedvChannel(void);
 
 void mixerSetSolo(uint8_t vChannelIndex, bool solo);
 void mixerToggleSolo(uint8_t vChannelIndex);
@@ -143,7 +159,13 @@ void mixerBanking(X32_BTN p_button);
 
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
 
+void mixerShowPage(X32_PAGE page);
+
+
+bool mixerIsModelX32Full(void);
+bool mixerIsModelX32CompacrOrProducer(void);
+
 void mixerDebugPrintBank(uint8_t bank);
-void mixerDebugPrintvChannels();
+void mixerDebugPrintvChannels(void);
 
 #endif

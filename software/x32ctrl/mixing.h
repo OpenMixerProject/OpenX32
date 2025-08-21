@@ -45,8 +45,10 @@ typedef struct {
 extern sOpenx32 openx32;
 
 void mixingDefaultRoutingConfig(void);
+void mixingSyncRoutingConfigFromMixer(void);
 void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource);
 uint8_t mixingGetInputSource(uint8_t group, uint8_t channel);
+void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel);
 void mixingSetGain(uint8_t group, uint8_t channel, float gain);
 void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active);
 void mixingSetVolume(uint8_t channel, float volume);

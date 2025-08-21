@@ -118,7 +118,7 @@ void guiEncoderInputCallback(lv_indev_t * indev, lv_indev_data_t * data) {
 }
 */
 
-void guiInitInput() {
+void guiInitInput(void) {
   // initialize keypad
   keypad_indev = lv_indev_create();
   lv_indev_set_type(keypad_indev, LV_INDEV_TYPE_KEYPAD);
@@ -175,7 +175,7 @@ void guiInitInput() {
 */
 }
 
-void guiInit() {
+void guiInit(void) {
   lv_init();
 
   driver_backends_register();

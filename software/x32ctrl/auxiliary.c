@@ -116,7 +116,7 @@ float fader2dBfs(uint16_t faderValue) {
   // the linear RAW-fader-value into a dBfs value matching the silk-screen
   // of the faders
   const uint16_t FADER_MAX = 4095;
-  const uint16_t FADER_0DB = (uint16_t)(0.75 * FADER_MAX);
+  //const uint16_t FADER_0DB = (uint16_t)(0.75 * FADER_MAX);  // unused
   const uint16_t FADER_MINUS_10DB = (uint16_t)(0.5 * FADER_MAX);
   const uint16_t FADER_MINUS_30DB = (uint16_t)(0.25 * FADER_MAX);
   const uint16_t FADER_MINUS_INFDB = 0; // TODO: check with real hardware
@@ -156,7 +156,7 @@ float fader2dBfs(uint16_t faderValue) {
 
 uint16_t dBfs2fader(float dbfsValue) {
   const uint16_t FADER_MAX = 4095;
-  const uint16_t FADER_0DB = (uint16_t)(0.75 * FADER_MAX);
+  //const uint16_t FADER_0DB = (uint16_t)(0.75 * FADER_MAX); // unused
   const uint16_t FADER_MINUS_10DB = (uint16_t)(0.5 * FADER_MAX);
   const uint16_t FADER_MINUS_30DB = (uint16_t)(0.25 * FADER_MAX);
   const uint16_t FADER_MINUS_INFDB = 0;

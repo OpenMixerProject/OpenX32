@@ -51,13 +51,9 @@
 #include "mixer.h"
 #include "fpga.h"
 
-// something has changed, so the surface/gui should be synced
-extern bool dirty;
-
-
 // function prototypes
-void timer100msCallback(int sig, siginfo_t *si, void *uc);
-void timer10msCallback(int sig, siginfo_t *si, void *uc);
+void timer100msCallback(struct _lv_timer_t *);
+void timer10msCallback(struct _lv_timer_t *);
 void surfaceDemo(void);
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value);
 void addaCallback(char *msg);

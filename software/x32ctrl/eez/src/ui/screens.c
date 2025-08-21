@@ -98,6 +98,7 @@ void create_screen_main() {
                 }
                 {
                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Home");
+                    lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
                     {
                         lv_obj_t *parent_obj = obj;
                         {
@@ -117,6 +118,81 @@ void create_screen_main() {
                                 }
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Config");
+                                    lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            lv_obj_t *obj = lv_obj_create(parent_obj);
+                                            lv_obj_set_pos(obj, -16, -17);
+                                            lv_obj_set_size(obj, 252, 373);
+                                            lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, 33, -16);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "vChannel Source");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -7, 20);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Source: ");
+                                                }
+                                                {
+                                                    // current_channel_source
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.current_channel_source = obj;
+                                                    lv_obj_set_pos(obj, 56, 20);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "x32");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -7, 44);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Gain:");
+                                                }
+                                                {
+                                                    // current_channel_gain
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.current_channel_gain = obj;
+                                                    lv_obj_set_pos(obj, 56, 44);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "0 dBfs");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -7, 69);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "48V:");
+                                                }
+                                                {
+                                                    // current_channel_phantom
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.current_channel_phantom = obj;
+                                                    lv_obj_set_pos(obj, 56, 69);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "0");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -7, 94);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Invert:");
+                                                }
+                                                {
+                                                    // current_channel_invert
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.current_channel_invert = obj;
+                                                    lv_obj_set_pos(obj, 56, 94);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "0");
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Gate");

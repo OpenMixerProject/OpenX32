@@ -36,6 +36,29 @@ void mixingDefaultRoutingConfig(void) {
     mixingTxRoutingConfig();
 }
 
+// "compiles" the current mixer state into mixing routing
+void mixingSyncRoutingConfigFromMixer(void) {
+    if (mixerIsRoutingDirty()){
+        // loop trough all vChannels
+        for (int i = 0; i < MAX_VCHANNELS; i++)
+        {
+            mixingSetRouting(
+                mixer.vChannel[i].outputDestination.group,
+                mixer.vChannel[i].outputDestination.hardwareChannel,
+                mixingGetInputSource(
+                    mixer.vChannel[i].inputSource.group,
+                    mixer.vChannel[i].inputSource.hardwareChannel
+                )
+            );
+        }
+        // transmit routing-configuration to FPGA
+        mixingTxRoutingConfig();
+
+        x32debug("Mixer routing to hardware synced\n");
+    }
+}
+
+
 // set the outputs of the audio-routing-matrix to desired input-sources
 void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource) {
     // input-sources:
@@ -114,6 +137,47 @@ uint8_t mixingGetInputSource(uint8_t group, uint8_t channel) {
     return 0;
 }
 
+
+// get the input-source name
+void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
+    // input-sources:
+    // 1-32 = XLR-inputs
+    // 33-64 = Card-inputs
+    // 65-72 = AUX-inputs
+    // 73-112 = DSP-outputs
+    // 113-160 = AES50A-inputs
+    // 161-208 = AES50B-inputs
+
+    channel++; //real people dont like zero based counting
+
+    if (group == 0){
+        sprintf(p_nameBuffer, "Off");
+        return;
+    }
+
+    switch (group) {
+        case 'x': // XLR-Inputs 1-32
+            sprintf(p_nameBuffer, "XLR%d", channel);
+            break;
+        case 'c': // Card-Inputs 1-32
+            sprintf(p_nameBuffer, "Card%d", channel);
+            break;
+        case 'a': // Aux-Inputs 1-8
+            sprintf(p_nameBuffer, "AUX%d", channel);
+            break;
+        case 'd': // DSP-Outputs 1-40
+            sprintf(p_nameBuffer, "DSP%d", channel);
+            break;
+        case 0: // AES50A-Inputs 1-48
+            sprintf(p_nameBuffer, "AESA%d", channel);
+            break;
+        case 1: // AES50B-Inputs 1-48
+            sprintf(p_nameBuffer, "AESB%d", channel);
+            break;
+    }
+}
+
+
 // set the gain of the local XLR head-amp-control
 void mixingSetGain(uint8_t group, uint8_t channel, float gain) {
     switch (group) {
@@ -136,7 +200,7 @@ void mixingSetGain(uint8_t group, uint8_t channel, float gain) {
             openx32.preamps.gainAes50b[channel - 1] = gain;
             break;
     }
-};
+}
 
 
 // enable or disable phatom-power of local XLR-inputs
@@ -161,7 +225,7 @@ void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active) {
             openx32.preamps.phantomPowerAes50b[channel - 1] = active;
             break;
     }
-};
+}
 
 // set the general volume of one of the 40 DSP-channels
 void mixingSetVolume(uint8_t channel, float volume) {

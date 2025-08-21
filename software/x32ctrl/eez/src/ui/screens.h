@@ -15,6 +15,10 @@ typedef struct _objects_t {
     lv_obj_t *maintab;
     lv_obj_t *openx32logo;
     lv_obj_t *hometab;
+    lv_obj_t *current_channel_source;
+    lv_obj_t *current_channel_gain;
+    lv_obj_t *current_channel_phantom;
+    lv_obj_t *current_channel_invert;
     lv_obj_t *slider01;
     lv_obj_t *slider02;
     lv_obj_t *slider03;

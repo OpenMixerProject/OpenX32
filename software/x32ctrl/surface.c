@@ -911,6 +911,8 @@ void initButtonDefinition(X32_MODEL modell) {
             addButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131);
             addButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132);
             break;
+        default:
+            break;
     }
 }
 

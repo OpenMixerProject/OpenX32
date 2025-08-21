@@ -15,7 +15,7 @@
 
 
 // called every 100ms
-void timer100msCallback(int sig, siginfo_t *si, void *uc) {
+void timer100msCallback(struct _lv_timer_t *) {
 
     mixerTouchControllTick();
     
@@ -23,12 +23,13 @@ void timer100msCallback(int sig, siginfo_t *si, void *uc) {
     {
         syncGui();
         syncSurface();
+        mixingSyncRoutingConfigFromMixer();
 
         mixerSetDirtClean();
     }
 }
 
-void timer10msCallback(int sig, siginfo_t *si, void *uc) {
+void timer10msCallback(struct _lv_timer_t *) {
   // call EEZ-GUI tick
   ui_tick();
 
@@ -329,6 +330,17 @@ void syncGui(void) {
     lv_label_set_text_fmt(objects.current_channel_name, "%s", selected_vChannel->name);
     lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 
+    //####################################
+    //#         Page Home
+    //####################################
+
+    char inputSourceName[10] = "";
+    mixingGetInputName(&inputSourceName, selected_vChannel->inputSource.group, selected_vChannel->inputSource.hardwareChannel);
+    lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
+    lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)selected_vChannel->inputSource.gain);
+    lv_label_set_text_fmt(objects.current_channel_phantom, "%d", selected_vChannel->inputSource.phantomPower);
+    lv_label_set_text_fmt(objects.current_channel_invert, "%d", selected_vChannel->inputSource.phaseInvert);
+
 
     //####################################
     //#         Page Meters
@@ -423,15 +435,20 @@ void syncGui(void) {
 
 // sync mixer state to Surface
 void syncSurface(void) {
-    //x32debug("active bank: bank%d\n", mixer.activeBank);
-
+    syncSurfaceBoardMain();
     syncSurfaceBoard(X32_BOARD_L);
     if (mixer.model == X32_MODEL_FULL){
         syncSurfaceBoard(X32_BOARD_M);
     }
     syncSurfaceBoard(X32_BOARD_R);
-
     syncSurfaceBankIndicator();
+}
+
+void syncSurfaceBoardMain() {
+    // Phantom
+    if (mixerIsPhantomDirty()) { setLedByEnum(X32_BTN_PHANTOM_48V, mixer.vChannel[mixer.selectedVChannel].inputSource.phantomPower); }
+    // Phase Invert
+    if (mixerIsPhaseInvertDirty()) { setLedByEnum(X32_BTN_PHASE_INVERT, mixer.vChannel[mixer.selectedVChannel].inputSource.phaseInvert); }
 }
 
 void syncSurfaceBoard(X32_BOARD p_board) {
@@ -471,8 +488,8 @@ void syncSurfaceBoard(X32_BOARD p_board) {
             }
 
             if (mixerIsLCDDirty()){
-                char lcdText[10];
-                sprintf(lcdText, "%2.1FdB", (double)chan->volume);
+                char lcdText[20];
+                sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
                 //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
                 setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
             }
