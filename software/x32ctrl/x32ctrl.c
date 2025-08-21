@@ -116,96 +116,30 @@ void surfaceDemo(void) {
     }
 }
 
-//#######################################################
-//#
-//#   Callback from surface actions (aka user input)
-//#
-//#   function will be called by uart-receive-function
-//#
-//#######################################################
-
+// function will be called by uart-receive-function
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value) {
     if (class == 'f') {
         mixerSurfaceFaderMoved(boardId, index, value);
     } else if (class == 'b') {
-        // calculate user-readable variables
-        X32_BTN button = button2enum(((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F));
 
-        bool buttonPressed = (value >> 7) == 1;
-       
-        if (buttonPressed){
-            switch (button) {
-                case X32_BTN_HOME:
-                    showPage(X32_PAGE_HOME);
-                    break;
-                case X32_BTN_METERS:
-                    showPage(X32_PAGE_METERS);
-                    break;
-                case X32_BTN_ROUTING:
-                    showPage(X32_PAGE_ROUTING);
-                    break;
-                case X32_BTN_SETUP:
-                    showPage(X32_PAGE_SETUP);
-                    break;
-                case X32_BTN_LIBRARY:
-                    showPage(X32_PAGE_LIBRARY);
-                    break;
-                case X32_BTN_EFFECTS:
-                    showPage(X32_PAGE_EFFECTS);
-                    break;
-                case X32_BTN_MUTE_GRP:
-                    showPage(X32_PAGE_MUTE_GRP);
-                    break;
-                case X32_BTN_UTILITY:
-                    showPage(X32_PAGE_UTILITY);
-                    break;
-                // TODO: not the final banking solution -> surface modes not implemented
-                case X32_BTN_CH_1_8:
-                case X32_BTN_CH_9_16:
-                case X32_BTN_CH_17_24:
-                case X32_BTN_CH_25_32:
-                case X32_BTN_CH_1_16:
-                case X32_BTN_CH_17_32:
-                    mixerBanking(button);
-                    break;
-                case X32_BTN_BOARD_L_CH_1_SELECT:
-                case X32_BTN_BOARD_L_CH_2_SELECT:
-                case X32_BTN_BOARD_L_CH_3_SELECT:
-                case X32_BTN_BOARD_L_CH_4_SELECT:
-                case X32_BTN_BOARD_L_CH_5_SELECT:
-                case X32_BTN_BOARD_L_CH_6_SELECT:
-                case X32_BTN_BOARD_L_CH_7_SELECT:
-                case X32_BTN_BOARD_L_CH_8_SELECT:
-                    mixerSurfaceButtonPressed(X32_BOARD_L, 0, button - X32_BTN_BOARD_L_CH_1_SELECT);
-                    break;
-                case X32_BTN_BOARD_L_CH_1_SOLO:
-                case X32_BTN_BOARD_L_CH_2_SOLO:
-                case X32_BTN_BOARD_L_CH_3_SOLO:
-                case X32_BTN_BOARD_L_CH_4_SOLO:
-                case X32_BTN_BOARD_L_CH_5_SOLO:
-                case X32_BTN_BOARD_L_CH_6_SOLO:
-                case X32_BTN_BOARD_L_CH_7_SOLO:
-                case X32_BTN_BOARD_L_CH_8_SOLO:
-                    mixerSurfaceButtonPressed(X32_BOARD_L, 1, button - X32_BTN_BOARD_L_CH_1_SOLO);
-                    break;
-                case X32_BTN_BOARD_L_CH_1_MUTE:
-                case X32_BTN_BOARD_L_CH_2_MUTE:
-                case X32_BTN_BOARD_L_CH_3_MUTE:
-                case X32_BTN_BOARD_L_CH_4_MUTE:
-                case X32_BTN_BOARD_L_CH_5_MUTE:
-                case X32_BTN_BOARD_L_CH_6_MUTE:
-                case X32_BTN_BOARD_L_CH_7_MUTE:
-                case X32_BTN_BOARD_L_CH_8_MUTE:
-                    mixerSurfaceButtonPressed(X32_BOARD_L, 2, button - X32_BTN_BOARD_L_CH_1_MUTE);
-                    break;
+        // handle button press by surface business logic
+        bool processed = mixerSurfaceButtonPressed(boardId, index, value);
 
-                //###################################################################
-                //#
-                //#       below buttons for debugging only!
-                //#
-                //###################################################################
+        //###################################################################
+        //#
+        //#       below buttons for debugging and development only!
+        //#
+        //###################################################################
+        if (!processed)
+        {
+            // calculate user-readable variables
+            X32_BTN button = button2enum(((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F));
 
-                case X32_BTN_LEFT:
+            bool buttonPressed = (value >> 7) == 1;
+        
+            if (buttonPressed){
+                switch (button) {
+                    case X32_BTN_LEFT:
                     // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
                     for (uint8_t ch=1; ch<=8; ch++) {
                         mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8
@@ -302,12 +236,12 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                     lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
 
                     break;
+                }
             }
-        }
-
-        // inform LVGL about this new button-press
-        guiNewButtonPress(button, buttonPressed);
-
+            
+            // inform LVGL about this new button-press
+            guiNewButtonPress(button, buttonPressed);  // TODO: needed?
+        }      
     } else if (class == 'e') {
       // calculate user-readable variables
       //uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
@@ -459,7 +393,7 @@ void syncGui(void) {
 
 // sync mixer state to Surface
 void syncSurface(void) {
-    x32debug("active bank: bank%d\n", mixer.activeBank);
+    //x32debug("active bank: bank%d\n", mixer.activeBank);
 
     syncSurfaceBoard(X32_BOARD_L);
     if (mixer.model == X32_MODEL_FULL){
@@ -484,6 +418,7 @@ void syncSurfaceBoard(X32_BOARD board) {
         uint8_t vChannelIndex = mixerSurfaceChannel2vChannel(i+offset);
 
         if (vChannelIndex == VCHANNEL_NOT_SET) {
+            
             setLed(board, 0x20+i, 0);
             setLed(board, 0x30+i, 0);
             setLed(board, 0x40+i, 0);
@@ -496,19 +431,21 @@ void syncSurfaceBoard(X32_BOARD board) {
 
             x32debug("syncronize vChannel%d: %s\n", vChannelIndex, chan->name);
 
-            setLed(board, 0x20+i, chan->selected);
-            setLed(board, 0x30+i, chan->solo);
-            setLed(board, 0x40+i, chan->mute);
-
-            u_int16_t faderVolume = dBfs2fader(chan->volume); 
+            if (mixerIsSelectDirty()){ setLed(board, 0x20+i, chan->selected); }
+            if (mixerIsSoloDirty()){ setLed(board, 0x30+i, chan->solo); }
+            if (mixerIsMuteDirty()){ setLed(board, 0x40+i, chan->mute); }
+             
             if (mixerIsVolumeDirty() && mixerTouchcontrolCanSetFader(board, i)){
-                    setFader(board, i, faderVolume);
+                u_int16_t faderVolume = dBfs2fader(chan->volume);
+                setFader(board, i, faderVolume);
             }
 
-            char lcdText[10];
-            sprintf(lcdText, "%2.1FdB", (double)chan->volume);
-            //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-            setLcd(board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
+            if (mixerIsLCDDirty()){
+                char lcdText[10];
+                sprintf(lcdText, "%2.1FdB", (double)chan->volume);
+                //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+                setLcd(board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
+            }
         }
     }
 }

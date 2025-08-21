@@ -95,32 +95,64 @@ void initMixer(X32_BOARD p_model) {
     x32debug("END ############# InitMixer() ############# END \n\n");
 }
 
-void mixerSetVolumeDirty(){
-    mixer.dirty = X32_DIRTY_VOLUME;
+void mixerSetAllDirty(void){
+    mixer.dirty = X32_DIRTY_ALL;
 }
 
-void mixerSetDirty(X32_DIRTY p_dirtyState){
-    mixer.dirty = p_dirtyState;
+void mixerSetVolumeDirty(void){
+    mixer.dirty = mixer.dirty | X32_DIRTY_VOLUME;
 }
 
-X32_DIRTY mixerGetDirty(void){
-    return mixer.dirty;
+void mixerSetSelectDirty(void){
+    mixer.dirty = mixer.dirty | X32_DIRTY_SELECT;
+}
+
+void mixerSetSoloDirty(void){
+    mixer.dirty = mixer.dirty | X32_DIRTY_SOLO;
+}
+
+void mixerSetMuteDirty(void){
+    mixer.dirty = mixer.dirty | X32_DIRTY_MUTE;
+}
+
+void mixerSetLCDDirty(void){
+    mixer.dirty = mixer.dirty | X32_DIRTY_LCD;
+}
+
+void mixerSetBankingDirty(void){
+    mixer.dirty = mixer.dirty | X32_DIRTY_BANKING;
+}
+
+void mixerSetDirtClean(void){
+    mixer.dirty = X32_DIRTY_NONE;
 }
 
 bool mixerIsDirty(void){
     return (mixer.dirty!=X32_DIRTY_NONE);
 }
 
-void mixerSetDirtClean(void){
-    mixer.dirty=X32_DIRTY_NONE;
+bool mixerIsVolumeDirty(void){
+    return ((mixer.dirty & X32_DIRTY_VOLUME) == X32_DIRTY_VOLUME);
 }
 
-bool mixerIsVolumeDirty(void){
-    return (mixer.dirty == X32_DIRTY_VOLUME) || (mixer.dirty == X32_DIRTY_ALL);
+bool mixerIsSelectDirty(void){
+    return ((mixer.dirty & X32_DIRTY_SELECT) == X32_DIRTY_SELECT);
+}
+
+bool mixerIsSoloDirty(void){
+    return ((mixer.dirty & X32_DIRTY_SOLO) == X32_DIRTY_SOLO);
+}
+
+bool mixerIsMuteDirty(void){
+    return ((mixer.dirty & X32_DIRTY_MUTE) == X32_DIRTY_MUTE);
+}
+
+bool mixerIsLCDDirty(void){
+    return ((mixer.dirty & X32_DIRTY_LCD) == X32_DIRTY_LCD);
 }
 
 bool mixerIsBankingDirty(void){
-    return (mixer.dirty == X32_DIRTY_BANKING) || (mixer.dirty == X32_DIRTY_ALL);
+    return ((mixer.dirty & X32_DIRTY_BANKING) == X32_DIRTY_BANKING);
 }
 
 void mixerTouchControllTick(void){
@@ -128,7 +160,7 @@ void mixerTouchControllTick(void){
         mixer.touchcontrol.value--;
         if (mixer.touchcontrol.value == 0)
         {
-            mixer.dirty = X32_DIRTY_VOLUME;
+            mixerSetVolumeDirty();
         }
         x32debug("TouchControl=%d\n", mixer.touchcontrol.value);
     }
@@ -196,33 +228,93 @@ void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_
     }    
 }
 
-// p_buttonType
-// 0 - select
-// 1 - solo
-// 2 - mute
-void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_buttonType, uint8_t p_index) {
-    if (mixer.activeMode == X32_SURFACE_MODE_BANKING) {
-        uint8_t offset = 0;
-        if (p_board == X32_BOARD_M) { offset=8;}
-        if (mixerIsModelX32Full()){
-            if (p_board == X32_BOARD_R) { offset=16;}
-        } 
-        if (mixerIsModelX32CompacrOrProducer()){
-            if (p_board == X32_BOARD_R) { offset=8;}
+
+bool mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_value) {
+    X32_BTN button = button2enum(((uint16_t)p_board << 8) + (uint16_t)(p_value & 0x7F));
+    bool buttonPressed = (p_value >> 7) == 1;
+    
+    if (mixer.activeMode == X32_SURFACE_MODE_BANKING) {      
+        if (buttonPressed){
+            switch (button) {
+                case X32_BTN_HOME:
+                    showPage(X32_PAGE_HOME);
+                    break;
+                case X32_BTN_METERS:
+                    showPage(X32_PAGE_METERS);
+                    break;
+                case X32_BTN_ROUTING:
+                    showPage(X32_PAGE_ROUTING);
+                    break;
+                case X32_BTN_SETUP:
+                    showPage(X32_PAGE_SETUP);
+                    break;
+                case X32_BTN_LIBRARY:
+                    showPage(X32_PAGE_LIBRARY);
+                    break;
+                case X32_BTN_EFFECTS:
+                    showPage(X32_PAGE_EFFECTS);
+                    break;
+                case X32_BTN_MUTE_GRP:
+                    showPage(X32_PAGE_MUTE_GRP);
+                    break;
+                case X32_BTN_UTILITY:
+                    showPage(X32_PAGE_UTILITY);
+                    break;
+                case X32_BTN_CH_1_8:
+                case X32_BTN_CH_9_16:
+                case X32_BTN_CH_17_24:
+                case X32_BTN_CH_25_32:
+                case X32_BTN_CH_1_16:
+                case X32_BTN_CH_17_32:
+                    mixerBanking(button);
+                    break;
+                case X32_BTN_BOARD_L_CH_1_SELECT:
+                case X32_BTN_BOARD_L_CH_2_SELECT:
+                case X32_BTN_BOARD_L_CH_3_SELECT:
+                case X32_BTN_BOARD_L_CH_4_SELECT:
+                case X32_BTN_BOARD_L_CH_5_SELECT:
+                case X32_BTN_BOARD_L_CH_6_SELECT:
+                case X32_BTN_BOARD_L_CH_7_SELECT:
+                case X32_BTN_BOARD_L_CH_8_SELECT:
+                    mixerToggleSelect(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_L_CH_1_SELECT));
+                    break;
+                case X32_BTN_BOARD_L_CH_1_SOLO:
+                case X32_BTN_BOARD_L_CH_2_SOLO:
+                case X32_BTN_BOARD_L_CH_3_SOLO:
+                case X32_BTN_BOARD_L_CH_4_SOLO:
+                case X32_BTN_BOARD_L_CH_5_SOLO:
+                case X32_BTN_BOARD_L_CH_6_SOLO:
+                case X32_BTN_BOARD_L_CH_7_SOLO:
+                case X32_BTN_BOARD_L_CH_8_SOLO:
+                    mixerToggleSolo(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_L_CH_1_SOLO));
+                    break;
+                case X32_BTN_BOARD_L_CH_1_MUTE:
+                case X32_BTN_BOARD_L_CH_2_MUTE:
+                case X32_BTN_BOARD_L_CH_3_MUTE:
+                case X32_BTN_BOARD_L_CH_4_MUTE:
+                case X32_BTN_BOARD_L_CH_5_MUTE:
+                case X32_BTN_BOARD_L_CH_6_MUTE:
+                case X32_BTN_BOARD_L_CH_7_MUTE:
+                case X32_BTN_BOARD_L_CH_8_MUTE:
+                    mixerToggleMute(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_L_CH_1_MUTE));
+                    break;            
+            }
         }
-        uint8_t vChan = mixerSurfaceChannel2vChannel(p_index + offset);
-        switch(p_buttonType){
-            case 0:
-                mixerToggleSelect(vChan);
-                break;
-            case 1:
-                mixerToggleSolo(vChan);
-                break;
-            case 2:
-                mixerToggleMute(vChan);
-                break;
-        }
+
+        return false;
     }
+}
+
+uint8_t mixerSurfaceSelectSoloMuteButtonGetvChannel(X32_BOARD p_board, uint16_t p_buttonIndex) {
+    uint8_t offset = 0;
+    if (p_board == X32_BOARD_M) { offset=8; }
+    if (mixerIsModelX32Full()){
+        if (p_board == X32_BOARD_R) { offset=16; }
+    } 
+    if (mixerIsModelX32CompacrOrProducer()){
+        if (p_board == X32_BOARD_R) { offset=8; }
+    }
+    return mixerSurfaceChannel2vChannel(p_buttonIndex + offset);
 }
 
 void mixerSetSelect(uint8_t vChannelIndex, bool select){
@@ -231,7 +323,7 @@ void mixerSetSelect(uint8_t vChannelIndex, bool select){
     }
     mixer.vChannel[vChannelIndex].selected = select;
     mixer.selectedVChannel=vChannelIndex;
-    mixerSetDirty(X32_DIRTY_SELECT);
+    mixerSetSelectDirty();
 }
 
 void mixerToggleSelect(uint8_t vChannelIndex){
@@ -244,7 +336,7 @@ uint8_t mixerGetSelectedvChannel(){
 
 void mixerSetSolo(uint8_t vChannelIndex, bool solo){
     mixer.vChannel[vChannelIndex].solo = solo;
-    mixerSetDirty(X32_DIRTY_SOLO);
+    mixerSetSoloDirty();
 
     //TODOs
     // - activate oder clear ClearSolo
@@ -257,7 +349,7 @@ void mixerToggleSolo(uint8_t vChannelIndex){
 
 void mixerSetMute(uint8_t vChannelIndex, bool mute){
     mixer.vChannel[vChannelIndex].mute = mute;
-    mixerSetDirty(X32_DIRTY_MUTE);
+    mixerSetMuteDirty();
 }
 
 void mixerToggleMute(uint8_t vChannelIndex){
@@ -265,38 +357,34 @@ void mixerToggleMute(uint8_t vChannelIndex){
 }
 
 void mixerBanking(X32_BTN p_button){
-    if (mixer.model == X32_MODEL_FULL){
+    if (mixerIsModelX32Full()){
         switch (p_button){
             case X32_BTN_CH_9_16:
                 mixer.activeBank = 0;
-                mixer.dirty = true;
                 break;
             case X32_BTN_CH_17_32:
                 mixer.activeBank = 1;
-                mixer.dirty = true;
                 break;    
         }
     }
-    if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER){
+    if (mixerIsModelX32CompacrOrProducer()){
         switch (p_button){
             case X32_BTN_CH_1_8:
                 mixer.activeBank = 0;
-                mixer.dirty = true;
                 break;
             case X32_BTN_CH_9_16:
                 mixer.activeBank = 1;
-                mixer.dirty = true;
                 break;
             case X32_BTN_CH_17_24:
                 mixer.activeBank = 2;
-                mixer.dirty = true;
                 break;
             case X32_BTN_CH_25_32:
                 mixer.activeBank = 3;
-                mixer.dirty = true;
                 break;
         }
     }
+
+    mixerSetAllDirty(); // banking affects all, so do a global refresh
 }
 
 // volume in dBfs
@@ -304,9 +392,10 @@ void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-
     mixer.vChannel[p_vChannelIndex].volume = p_volume;
-    mixerSetDirty(X32_DIRTY_VOLUME);
+
+    mixerSetVolumeDirty();
+    mixerSetLCDDirty();
 }
 
 bool mixerIsModelX32Full(){

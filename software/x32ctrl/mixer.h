@@ -64,33 +64,15 @@ typedef struct{
     uint8_t surfaceChannel2vChannel[MAX_SURFACECHANNELS];
 } s_bank;
 
-typedef enum {
-
-    // all clean ;-)
-    X32_DIRTY_NONE,
-
-    // sync all
-    X32_DIRTY_ALL,
-
-    // routing changed
-    X32_DIRTY_ROUTING,
-
-    // volume changed
-    X32_DIRTY_VOLUME,
-
-    // solo changed
-    X32_DIRTY_SOLO,
-
-    // mute changed
-    X32_DIRTY_MUTE,
-
-    // selected channel has changed
-    X32_DIRTY_SELECT,
-
-    // active bank has changed
-    X32_DIRTY_BANKING,
-
-} X32_DIRTY;
+#define X32_DIRTY_NONE      0b0000000000000000
+#define X32_DIRTY_ALL       0b1111111111111111
+#define X32_DIRTY_ROUTING   0b0000000000000001
+#define X32_DIRTY_VOLUME    0b0000000000000010
+#define X32_DIRTY_SELECT    0b0000000000000100
+#define X32_DIRTY_SOLO      0b0000000000001000
+#define X32_DIRTY_MUTE      0b0000000000010000
+#define X32_DIRTY_BANKING   0b0000000000100000
+#define X32_DIRTY_LCD       0b0000000001000000
 
 // TouchControl Basic Plus - one fader at a time is touchcontrolled
 typedef struct{
@@ -105,7 +87,7 @@ typedef struct{
     X32_SURFACE_MODE activeMode;
 
     // something was changed - sync surface/gui to mixer state
-    X32_DIRTY dirty;
+    uint16_t dirty;
     s_TouchControl touchcontrol;
 
     s_bank bank[4];
@@ -120,18 +102,29 @@ void initMixer(X32_BOARD model);
 bool mixerIsModelX32Full();
 bool mixerIsModelX32CompacrOrProducer();
 
-void mixerSetDirty(X32_DIRTY p_dirtyState);
-void mixerSetVolumeDirty();
-void mixerSetDirty(X32_DIRTY p_dirtyState);
-X32_DIRTY mixerGetDirty(void);
+void mixerSetAllDirty(void);
+void mixerSetVolumeDirty(void);
+void mixerSetSelectDirty(void);
+void mixerSetSoloDirty(void);
+void mixerSetMuteDirty(void);
+void mixerSetLCDDirty(void);
+void mixerSetBankingDirty(void);
+void mixerSetDirtClean(void);
+bool mixerIsDirty(void);
 bool mixerIsVolumeDirty(void);
+bool mixerIsSelectDirty(void);
+bool mixerIsSoloDirty(void);
+bool mixerIsMuteDirty(void);
+bool mixerIsLCDDirty(void);
 bool mixerIsBankingDirty(void);
+
 void mixerTouchControllTick(void);
 bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
 
 uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel);
 
-void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_buttonType, uint8_t p_index);
+bool mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
+uint8_t mixerSurfaceSelectSoloMuteButtonGetvChannel(X32_BOARD p_board, uint16_t p_buttonIndex);
 void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue);
 
 void mixerSetSelect(uint8_t vChannelIndex, bool solo);
