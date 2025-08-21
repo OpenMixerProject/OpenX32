@@ -320,6 +320,9 @@ bool mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_L_CH_8_MUTE:
                     mixerToggleMute(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_L_CH_1_MUTE));
                     break;            
+                case X32_BTN_CLEAR_SOLO:
+                    mixerClearSolo();
+                    break;
             }
         }
 
@@ -361,12 +364,29 @@ void mixerSetSolo(uint8_t vChannelIndex, bool solo){
     mixerSetSoloDirty();
 
     //TODOs
-    // - activate oder clear ClearSolo
     // - switch monitor source
 }
 
 void mixerToggleSolo(uint8_t vChannelIndex){
     mixerSetSolo(vChannelIndex, !mixer.vChannel[vChannelIndex].solo);
+}
+
+bool mixerIsSoloActivated(void){
+    for (int i=0; i<MAX_VCHANNELS; i++)
+    {
+        if (mixer.vChannel[i].solo){
+            return true;
+        }
+    } 
+    return false;
+}
+
+void mixerClearSolo(void){
+    if (mixerIsSoloActivated()){
+        for (int i=0; i<MAX_VCHANNELS; i++){
+            mixerSetSolo(i, false);
+        } 
+    }
 }
 
 void mixerSetMute(uint8_t vChannelIndex, bool mute){

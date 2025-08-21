@@ -83,8 +83,12 @@ typedef struct{
 
 typedef struct{
     X32_MODEL model;
-    uint8_t activeBank;
     X32_SURFACE_MODE activeMode;
+    uint8_t activeBank;
+    uint8_t selectedVChannel;
+    
+    // solo is (somewhere) activated
+    bool solo;
 
     // something was changed - sync surface/gui to mixer state
     uint16_t dirty;
@@ -92,8 +96,6 @@ typedef struct{
 
     s_bank bank[4];
     s_vChannel vChannel[MAX_VCHANNELS];    
-
-    uint8_t selectedVChannel;
 } s_Mixer;
 
 extern s_Mixer mixer;
@@ -129,6 +131,8 @@ void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_
 
 void mixerSetSelect(uint8_t vChannelIndex, bool solo);
 void mixerToggleSelect(uint8_t vChannelIndex);
+bool mixerIsSoloActivated(void);
+
 uint8_t mixerGetSelectedvChannel();
 
 void mixerSetSolo(uint8_t vChannelIndex, bool solo);

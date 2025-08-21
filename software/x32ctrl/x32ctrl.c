@@ -434,13 +434,13 @@ void syncSurface(void) {
     syncSurfaceBankIndicator();
 }
 
-void syncSurfaceBoard(X32_BOARD board) {
+void syncSurfaceBoard(X32_BOARD p_board) {
     uint8_t offset = 0;
     if (mixer.model == X32_MODEL_FULL){
-        if (board == X32_BOARD_M){ offset=8; }
-        if (board == X32_BOARD_R){ offset=16; }
+        if (p_board == X32_BOARD_M){ offset=8; }
+        if (p_board == X32_BOARD_R){ offset=16; }
     } else if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER)) {
-        if (board == X32_BOARD_R){ offset=8; }
+        if (p_board == X32_BOARD_R){ offset=8; }
     }
 
     for(int i=0; i<=7; i++){
@@ -449,35 +449,40 @@ void syncSurfaceBoard(X32_BOARD board) {
 
         if (vChannelIndex == VCHANNEL_NOT_SET) {
             
-            setLed(board, 0x20+i, 0);
-            setLed(board, 0x30+i, 0);
-            setLed(board, 0x40+i, 0);
-            setFader(board, i, 0);
+            setLed(p_board, 0x20+i, 0);
+            setLed(p_board, 0x30+i, 0);
+            setLed(p_board, 0x40+i, 0);
+            setFader(p_board, i, 0);
             //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-            setLcd(board,     i, 0,     0,    0,    0,  0x00,  0,  0,          "",  0x00,  0, 0, "");
+            setLcd(p_board,     i, 0,     0,    0,    0,  0x00,  0,  0,          "",  0x00,  0, 0, "");
 
         } else {
             s_vChannel *chan = &mixer.vChannel[vChannelIndex];
 
             x32debug("syncronize vChannel%d: %s\n", vChannelIndex, chan->name);
 
-            if (mixerIsSelectDirty()){ setLed(board, 0x20+i, chan->selected); }
-            if (mixerIsSoloDirty()){ setLed(board, 0x30+i, chan->solo); }
-            if (mixerIsMuteDirty()){ setLed(board, 0x40+i, chan->mute); }
+            if (mixerIsSelectDirty()){ setLed(p_board, 0x20+i, chan->selected); }
+            if (mixerIsSoloDirty()){ setLed(p_board, 0x30+i, chan->solo); }
+            if (mixerIsMuteDirty()){ setLed(p_board, 0x40+i, chan->mute); }
              
-            if (mixerIsVolumeDirty() && mixerTouchcontrolCanSetFader(board, i)){
+            if (mixerIsVolumeDirty() && mixerTouchcontrolCanSetFader(p_board, i)){
                 u_int16_t faderVolume = dBfs2fader(chan->volume);
-                setFader(board, i, faderVolume);
+                setFader(p_board, i, faderVolume);
             }
 
             if (mixerIsLCDDirty()){
                 char lcdText[10];
                 sprintf(lcdText, "%2.1FdB", (double)chan->volume);
                 //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-                setLcd(board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
+                setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
             }
         }
     }
+
+    if (p_board == X32_BOARD_R){
+        // Clear Solo
+        if (mixerIsSoloDirty()){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
+    }    
 }
 
 void syncSurfaceBankIndicator(void) {
