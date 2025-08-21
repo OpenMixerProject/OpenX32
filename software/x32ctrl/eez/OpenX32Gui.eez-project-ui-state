@@ -124,7 +124,7 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 15,
+              "weight": 18.66107723577236,
               "children": [
                 {
                   "type": "tabset",
@@ -172,7 +172,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -195,7 +196,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 53.90243902439025,
+              "weight": 50.24136178861789,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -210,8 +211,7 @@
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
@@ -959,17 +959,24 @@
       "selection": {
         "0": {
           "1": {
-            "2": {
-              "1": {},
-              "$selected": true
+            "1": {
+              "0": {
+                "1": {
+                  "0": {
+                    "3": {
+                      "$selected": true
+                    }
+                  }
+                }
+              }
             }
           }
         }
       },
       "transform": {
         "translate": {
-          "x": -400,
-          "y": -260
+          "x": -413.0813492063494,
+          "y": -188.10140692640704
         },
         "scale": 1
       },
@@ -994,9 +1001,9 @@
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
   "lvglPart": "MAIN",
-  "lvglState": "CHECKED",
+  "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "BACKGROUND"
+    "MISCELLANEOUS"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
