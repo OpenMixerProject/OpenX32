@@ -11,6 +11,10 @@
 
 #define VCHANNEL_IDX_MAIN 32
 
+typedef enum {
+    X32_SURFACE_MODE_BANKING,
+} X32_SURFACE_MODE;
+
 typedef struct{
     char name[MAX_NAME_LENGTH];
     uint8_t input;
@@ -88,7 +92,7 @@ typedef enum {
 typedef struct{
     X32_MODEL model;
     uint8_t activeBank;
-    uint8_t activeMode;
+    X32_SURFACE_MODE activeMode;
 
     // something was changed - sync surface/gui to mixer state
     X32_DIRTY dirty;
@@ -105,9 +109,12 @@ void initMixer(X32_BOARD model);
 void mixerSetDirty(X32_DIRTY p_dirtyState);
 
 uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel);
+void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_buttonType, uint8_t p_index);
+
 void mixerSetSelect(uint8_t vChannelIndex, bool solo);
 void mixerToggleSelect(uint8_t vChannelIndex);
 uint8_t mixerGetSelectedvChannel();
+
 void mixerSetSolo(uint8_t vChannelIndex, bool solo);
 void mixerToggleSolo(uint8_t vChannelIndex);
 void mixerSetMute(uint8_t vChannelIndex, bool solo);
@@ -115,6 +122,9 @@ void mixerToggleMute(uint8_t vChannelIndex);
 void mixerBanking(X32_BTN p_button);
 
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
+
+bool mixerIsModelX32Full();
+bool mixerIsModelX32CompacrOrProducer();
 
 void mixerDebugPrintBank(uint8_t bank);
 void mixerDebugPrintvChannels();

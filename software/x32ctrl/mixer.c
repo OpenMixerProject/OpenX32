@@ -3,7 +3,7 @@
 
 s_Mixer mixer;
 
-void initMixer(X32_BOARD p_model){
+void initMixer(X32_BOARD p_model) {
 
     x32debug("############# InitMixer() #############\n");
 
@@ -30,8 +30,7 @@ void initMixer(X32_BOARD p_model){
     //#   32       main bus - not really implemented right now
     //#
     //##################################################################################
-    for (int i=0; i<=31; i++)
-    {
+    for (int i=0; i<=31; i++) {
         s_vChannel *vChannel = &mixer.vChannel[i];
         mixerSetVChannelDefaults(vChannel, i+1, false);
 
@@ -63,7 +62,7 @@ void initMixer(X32_BOARD p_model){
     //#
     //##################################################################################
 
-    if (mixer.model == X32_MODEL_FULL){
+    if (mixerIsModelX32Full()){
         // bank is 16 channels wide
         for (int i = 0; i <=15; i++) {
             // bank0 - vChannel 0-15
@@ -73,7 +72,7 @@ void initMixer(X32_BOARD p_model){
         }
     } 
 
-    if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_COMPACT)){
+    if (mixerIsModelX32CompacrOrProducer()){
         // bank is 8 channels wide
         for (int i = 0; i <=7; i++) {
             // bank0 - vChannel 0-7
@@ -90,8 +89,8 @@ void initMixer(X32_BOARD p_model){
     // Main Fader
     //mixer.bank[0].surfaceChannel2vChannel[24] = 24;
     
+    mixer.activeMode = X32_SURFACE_MODE_BANKING;
     mixer.activeBank = 0;
-    mixer.activeMode = 0;
 
     x32debug("END ############# InitMixer() ############# END \n\n");
 }
@@ -127,6 +126,34 @@ uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel)
     return mixer.bank[mixer.activeBank].surfaceChannel2vChannel[surfaceChannel];
 }
 
+// p_buttonType
+// 0 - select
+// 1 - solo
+// 2 - mute
+void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_buttonType, uint8_t p_index) {
+    if (mixer.activeMode == X32_SURFACE_MODE_BANKING) {
+        uint8_t offset = 0;
+        if (p_board == X32_BOARD_M) { offset=8;}
+        if (mixerIsModelX32Full()){
+            if (p_board == X32_BOARD_R) { offset=16;}
+        } 
+        if (mixerIsModelX32CompacrOrProducer()){
+            if (p_board == X32_BOARD_R) { offset=8;}
+        }
+        uint8_t vChan = mixerSurfaceChannel2vChannel(p_index + offset);
+        switch(p_buttonType){
+            case 0:
+                mixerToggleSelect(vChan);
+                break;
+            case 1:
+                mixerToggleSolo(vChan);
+                break;
+            case 2:
+                mixerToggleMute(vChan);
+                break;
+        }
+    }
+}
 
 void mixerSetSelect(uint8_t vChannelIndex, bool select){
     for(uint8_t i=0; i<MAX_VCHANNELS;i++){
@@ -210,6 +237,13 @@ void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
 
     mixer.vChannel[p_vChannelIndex].volume = p_volume;
     mixerSetDirty(X32_DIRTY_VOLUME);
+}
+
+bool mixerIsModelX32Full(){
+    return (mixer.model == X32_MODEL_FULL);
+}
+bool mixerIsModelX32CompacrOrProducer(){
+    return ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER));
 }
 
 void mixerDebugPrintBank(uint8_t bank)

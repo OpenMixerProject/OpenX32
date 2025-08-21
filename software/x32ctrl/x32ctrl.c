@@ -12,7 +12,7 @@
 
 #include "x32ctrl.h"
 
-int touchcontrol = -1;
+int touchcontrol = 0;
 
 
 // called every 100ms
@@ -21,16 +21,15 @@ void timer100msCallback(int sig, siginfo_t *si, void *uc) {
         touchcontrol--;
         if (touchcontrol == 0)
         {
-            mixer.dirty = true;
+            mixer.dirty = X32_DIRTY_VOLUME;
         }
         x32debug("TouchControl=%d\n", touchcontrol);
     }
-    if (mixer.dirty)
+    if (mixer.dirty != X32_DIRTY_NONE)
     {
-        x32debug("dirty! -> sync GUI");
         syncGui();
         syncSurface();
-        mixer.dirty = false;
+        mixer.dirty = X32_DIRTY_NONE;
     }
 }
 
@@ -166,10 +165,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         X32_BTN button = button2enum(((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F));
 
         bool buttonPressed = (value >> 7) == 1;
-
-        x32debug("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-        lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-
+       
         if (buttonPressed){
             switch (button) {
                 case X32_BTN_HOME:
@@ -205,7 +201,6 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_CH_17_32:
                     mixerBanking(button);
                     break;
-                // TODO: not the final select solution -> surface modes not implemented
                 case X32_BTN_BOARD_L_CH_1_SELECT:
                 case X32_BTN_BOARD_L_CH_2_SELECT:
                 case X32_BTN_BOARD_L_CH_3_SELECT:
@@ -214,9 +209,8 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_BOARD_L_CH_6_SELECT:
                 case X32_BTN_BOARD_L_CH_7_SELECT:
                 case X32_BTN_BOARD_L_CH_8_SELECT:
-                    mixerToggleSelect(button - X32_BTN_BOARD_L_CH_1_SELECT);
+                    mixerSurfaceButtonPressed(X32_BOARD_L, 0, button - X32_BTN_BOARD_L_CH_1_SELECT);
                     break;
-                // TODO: not the final solo solution -> surface modes not implemented
                 case X32_BTN_BOARD_L_CH_1_SOLO:
                 case X32_BTN_BOARD_L_CH_2_SOLO:
                 case X32_BTN_BOARD_L_CH_3_SOLO:
@@ -225,9 +219,8 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_BOARD_L_CH_6_SOLO:
                 case X32_BTN_BOARD_L_CH_7_SOLO:
                 case X32_BTN_BOARD_L_CH_8_SOLO:
-                    mixerToggleSolo(button - X32_BTN_BOARD_L_CH_1_SOLO);
+                    mixerSurfaceButtonPressed(X32_BOARD_L, 1, button - X32_BTN_BOARD_L_CH_1_SOLO);
                     break;
-                // TODO: not the final mute solution -> surface modes not implemented
                 case X32_BTN_BOARD_L_CH_1_MUTE:
                 case X32_BTN_BOARD_L_CH_2_MUTE:
                 case X32_BTN_BOARD_L_CH_3_MUTE:
@@ -236,8 +229,15 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_BOARD_L_CH_6_MUTE:
                 case X32_BTN_BOARD_L_CH_7_MUTE:
                 case X32_BTN_BOARD_L_CH_8_MUTE:
-                    mixerToggleMute(button - X32_BTN_BOARD_L_CH_1_MUTE);
+                    mixerSurfaceButtonPressed(X32_BOARD_L, 2, button - X32_BTN_BOARD_L_CH_1_MUTE);
                     break;
+
+                //###################################################################
+                //#
+                //#       below buttons for debugging only!
+                //#
+                //###################################################################
+
                 case X32_BTN_LEFT:
                     // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
                     for (uint8_t ch=1; ch<=8; ch++) {
@@ -320,8 +320,20 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                     addaSendCmd("*8C80U#"); // switch Card to 48kHz and USB-input
 
                     break;
-
+                case X32_BTN_MUTE_GROUP_1:
+                    mixerDebugPrintvChannels();
+                    break;
+                case X32_BTN_MUTE_GROUP_2:
+                    mixerDebugPrintBank(0);
+                    mixerDebugPrintBank(1);
+                    mixerDebugPrintBank(2);
+                    mixerDebugPrintBank(3);
+                    break;
                 default:
+
+                    x32debug("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+                    lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+
                     break;
             }
         }
