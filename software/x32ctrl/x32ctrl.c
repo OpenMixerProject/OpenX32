@@ -297,7 +297,37 @@ void syncGui(void) {
     //#         General
     //####################################
 
-    lv_label_set_text_fmt(objects.channelname, "Selected Channel: %s", selected_vChannel->name);
+    lv_color_t color;
+    switch (selected_vChannel->color){
+        case SURFACE_COLOR_BLACK:
+            color = lv_color_make(0, 0, 0);
+            break;
+        case SURFACE_COLOR_RED:
+            color = lv_color_make(255, 0, 0);
+            break;
+        case SURFACE_COLOR_GREEN:
+            color = lv_color_make(0, 255, 0);
+            break;
+        case SURFACE_COLOR_YELLOW:
+            color = lv_color_make(255, 255, 0);
+            break;
+        case SURFACE_COLOR_BLUE:
+            color = lv_color_make(0, 0, 255);
+            break;
+        case SURFACE_COLOR_PINK:
+            color = lv_color_make(255, 0, 255);
+            break;
+        case SURFACE_COLOR_CYAN:
+            color = lv_color_make(0, 255, 255);
+            break;
+        case SURFACE_COLOR_WHITE:
+            color = lv_color_make(255, 255, 255);
+            break;
+    }
+    
+    lv_label_set_text_fmt(objects.current_channel_number, "CH%d", selected_vChannel->number);
+    lv_label_set_text_fmt(objects.current_channel_name, "%s", selected_vChannel->name);
+    lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 
 
     //####################################

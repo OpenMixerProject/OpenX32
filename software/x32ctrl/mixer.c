@@ -48,6 +48,24 @@ void initMixer(X32_BOARD p_model) {
         }
     }
 
+    // set color on first 8 channels for testing
+    mixer.vChannel[0].color = SURFACE_COLOR_WHITE;
+    sprintf(mixer.vChannel[0].name, "White");
+    mixer.vChannel[1].color = SURFACE_COLOR_YELLOW;
+    sprintf(mixer.vChannel[1].name, "Yellow");
+    mixer.vChannel[2].color = SURFACE_COLOR_BLUE;
+    sprintf(mixer.vChannel[2].name, "Blue");
+    mixer.vChannel[3].color = SURFACE_COLOR_CYAN;
+    sprintf(mixer.vChannel[3].name, "Cyan");
+    mixer.vChannel[4].color = SURFACE_COLOR_GREEN;
+    sprintf(mixer.vChannel[4].name, "Green");
+    mixer.vChannel[5].color = SURFACE_COLOR_PINK;
+    sprintf(mixer.vChannel[5].name, "Pink");
+    mixer.vChannel[6].color = SURFACE_COLOR_RED;
+    sprintf(mixer.vChannel[6].name, "Red");
+    mixer.vChannel[7].color = SURFACE_COLOR_BLACK;
+    sprintf(mixer.vChannel[7].name, "Black");
+
     s_vChannel *mainChannel = &mixer.vChannel[VCHANNEL_IDX_MAIN];
     mixerSetVChannelDefaults(mainChannel, VCHANNEL_IDX_MAIN + 1, false);
     sprintf(mainChannel->name, "Main");
@@ -184,7 +202,8 @@ void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_number, bool p_d
     if (p_disabled){
         p_vChannel->color = 0;
     } else {
-        p_vChannel->color = 7;
+        //p_vChannel->color = SURFACE_COLOR_WHITE;
+        p_vChannel->color = SURFACE_COLOR_YELLOW;
     }
     p_vChannel->icon = 0;
     p_vChannel->selected = false;
