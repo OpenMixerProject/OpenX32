@@ -156,7 +156,6 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         }
 
         mixerSetVolume(vChannelIndex, fader2dBfs(value));
-        mixer.dirty = true;
         touchcontrol = 5;
 
         //x32debug("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f| TC=%d\n", boardId, class, index, value, pct, touchcontrol);
@@ -197,6 +196,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_UTILITY:
                     showPage(X32_PAGE_UTILITY);
                     break;
+                // TODO: not the final banking solution -> surface modes not implemented
                 case X32_BTN_CH_1_8:
                 case X32_BTN_CH_9_16:
                 case X32_BTN_CH_17_24:
@@ -205,7 +205,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_CH_17_32:
                     mixerBanking(button);
                     break;
-                // TODO: not the final select solution!
+                // TODO: not the final select solution -> surface modes not implemented
                 case X32_BTN_BOARD_L_CH_1_SELECT:
                 case X32_BTN_BOARD_L_CH_2_SELECT:
                 case X32_BTN_BOARD_L_CH_3_SELECT:
@@ -216,7 +216,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_BOARD_L_CH_8_SELECT:
                     mixerToggleSelect(button - X32_BTN_BOARD_L_CH_1_SELECT);
                     break;
-                // TODO: not the final solo solution!
+                // TODO: not the final solo solution -> surface modes not implemented
                 case X32_BTN_BOARD_L_CH_1_SOLO:
                 case X32_BTN_BOARD_L_CH_2_SOLO:
                 case X32_BTN_BOARD_L_CH_3_SOLO:
@@ -227,7 +227,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_BOARD_L_CH_8_SOLO:
                     mixerToggleSolo(button - X32_BTN_BOARD_L_CH_1_SOLO);
                     break;
-                // TODO: not the final mute solution!
+                // TODO: not the final mute solution -> surface modes not implemented
                 case X32_BTN_BOARD_L_CH_1_MUTE:
                 case X32_BTN_BOARD_L_CH_2_MUTE:
                 case X32_BTN_BOARD_L_CH_3_MUTE:
@@ -553,6 +553,7 @@ void syncSurfaceBankIndicator(void) {
     }
 }
 
+// TODO: integrate into dirty logic
 void showPage(X32_PAGE page) {
     // first turn all page LEDs off
     setLedByEnum(X32_BTN_HOME, 0);
@@ -564,8 +565,6 @@ void showPage(X32_PAGE page) {
     setLedByEnum(X32_BTN_MUTE_GRP, 0);
     setLedByEnum(X32_BTN_UTILITY, 0);
 
-    //activePage = page;
-
     switch (page)
     {
         case X32_PAGE_HOME:
@@ -576,14 +575,26 @@ void showPage(X32_PAGE page) {
             lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_METERS, 1);
             break;
+        case X32_PAGE_ROUTING:
+            //lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_ROUTING, 1);
+            break;
         case X32_PAGE_SETUP:
             lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_SETUP, 1);
+            break;
+        case X32_PAGE_LIBRARY:
+            //lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_LIBRARY, 1);
             break;
         case X32_PAGE_EFFECTS:
             surfaceDemo();
             //lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_EFFECTS, 1);
+            break;
+        case X32_PAGE_MUTE_GRP:
+            //lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_MUTE_GRP, 1);
             break;
         case X32_PAGE_UTILITY:
             lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);

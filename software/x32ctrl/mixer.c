@@ -10,7 +10,7 @@ void initMixer(X32_BOARD p_model){
     // disable all vChannels
     for (int i = 0; i < MAX_VCHANNELS; i++)
     {
-        mixerSetVChannelDefaults(&mixer.vChannel[i], true);
+        mixerSetVChannelDefaults(&mixer.vChannel[i], i, true);
     }
 
     // empty all banks
@@ -20,15 +20,20 @@ void initMixer(X32_BOARD p_model){
         }
     }
 
-
     mixer.model = p_model;
 
-    // create default vChannels (what the user is refering to as "mixer channel")
-    for (int i = 0; i <=12; i++)
+    //##################################################################################
+    //#
+    //#   create default vChannels (what the user is refering to as "mixer channel")
+    //#
+    //#   0-31     traditional channels, xlr input 1-32 connected as source, xlr output 1-8 as destination on first 8 vChannels
+    //#   32       main bus - not really implemented right now
+    //#
+    //##################################################################################
+    for (int i=0; i<=31; i++)
     {
         s_vChannel *vChannel = &mixer.vChannel[i];
-        mixerSetVChannelDefaults(vChannel, false);
-        sprintf(vChannel->name, "Kanal %d", i+1);
+        mixerSetVChannelDefaults(vChannel, i+1, false);
 
         s_inputSource *input = &vChannel->inputSource;
         sprintf(input->name, "x%d", i);
@@ -36,70 +41,68 @@ void initMixer(X32_BOARD p_model){
         input->phaseInvert = false;
         input->input = mixingGetInputSource('x', i);
 
-        s_outputDestination *output = &vChannel->outputDestination;
-        sprintf(output->name, "output %d", i);
-        output->group = 'x';
-        output->hardwareChannel = i;       
+        if ((i>0) && (i<=7)) {
+            s_outputDestination *output = &vChannel->outputDestination;
+            sprintf(output->name, "xlr out %d", i);
+            output->group = 'x';
+            output->hardwareChannel = i;       
+        }
     }
 
-    s_vChannel *mainChannel = &mixer.vChannel[VCHANNEL_MAIN];
-    mixerSetVChannelDefaults(mainChannel, false);
+    s_vChannel *mainChannel = &mixer.vChannel[VCHANNEL_IDX_MAIN];
+    mixerSetVChannelDefaults(mainChannel, VCHANNEL_IDX_MAIN + 1, false);
     sprintf(mainChannel->name, "Main");
     mainChannel->vChannelType = 1; // main channel
 
     // vChannel0 selected by default
     mixerSetSelect(0, 1);
 
-    mixer.activeBank = 0;
-    mixer.activeMode = 0;
-    mixer.dirty = true;
+    //##################################################################################
+    //#
+    //#   assign vChannels to bank0, 1, (2, 3) - (easy mode - 1:1)
+    //#
+    //##################################################################################
 
-
-    // assing vChannels to bank0 (easy mode - 1:1)
-
-    // Board L
-    for (int i = 0; i <=7; i++)
-    {
-        mixer.bank[0].surfaceChannel2vChannel[i] = i;
-    }
-    
     if (mixer.model == X32_MODEL_FULL){
-        // Board M
-        for (int i = 8; i <=15; i++)
-        {
+        // bank is 16 channels wide
+        for (int i = 0; i <=15; i++) {
+            // bank0 - vChannel 0-15
             mixer.bank[0].surfaceChannel2vChannel[i] = i;
+            // bank1 - vChannel 16-31
+            mixer.bank[1].surfaceChannel2vChannel[i] = i+16;
         }
+    } 
 
-        // Board R
-        for (int i = 16; i <=23; i++)
-        {
+    if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_COMPACT)){
+        // bank is 8 channels wide
+        for (int i = 0; i <=7; i++) {
+            // bank0 - vChannel 0-7
             mixer.bank[0].surfaceChannel2vChannel[i] = i;
-        }
-    } else if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER)
-    {
-        // Board R
-        for (int i = 8; i <=15; i++)
-        {
-            mixer.bank[0].surfaceChannel2vChannel[i] = i;
+            // bank1 - vChannel 8-15
+            mixer.bank[1].surfaceChannel2vChannel[i] = i+8;
+            // bank2 - vChannel 16-23
+            mixer.bank[2].surfaceChannel2vChannel[i] = i+16;
+            // bank3 - vChannel 24-31
+            mixer.bank[3].surfaceChannel2vChannel[i] = i+24;
         }
     }
 
     // Main Fader
-    mixer.bank[0].surfaceChannel2vChannel[24] = 24;
-
-
-    // assing vChannels to bank1 (bit more advanced)
-    mixer.bank[1].surfaceChannel2vChannel[0] = 0;
-    mixer.bank[1].surfaceChannel2vChannel[1] = 4;
-    mixer.bank[1].surfaceChannel2vChannel[2] = 7;
-    mixer.bank[1].surfaceChannel2vChannel[3] = 17; //Main vChannel
-    mixer.bank[1].surfaceChannel2vChannel[24] = 9;
-
+    //mixer.bank[0].surfaceChannel2vChannel[24] = 24;
+    
+    mixer.activeBank = 0;
+    mixer.activeMode = 0;
 
     x32debug("END ############# InitMixer() ############# END \n\n");
 }
 
-void mixerSetVChannelDefaults(s_vChannel* p_vChannel, bool p_disabled){
+void mixerSetDirty(X32_DIRTY p_dirtyState){
+    mixer.dirty = p_dirtyState;
+}
+
+void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_number, bool p_disabled){
+    p_vChannel->number = p_number;
+    sprintf(p_vChannel->name, "Kanal %d", p_number); // german label :-)
     if (p_disabled){
         p_vChannel->color = 0;
     } else {
@@ -131,7 +134,7 @@ void mixerSetSelect(uint8_t vChannelIndex, bool select){
     }
     mixer.vChannel[vChannelIndex].selected = select;
     mixer.selectedVChannel=vChannelIndex;
-    mixer.dirty = true;
+    mixerSetDirty(X32_DIRTY_SELECT);
 }
 
 void mixerToggleSelect(uint8_t vChannelIndex){
@@ -144,7 +147,7 @@ uint8_t mixerGetSelectedvChannel(){
 
 void mixerSetSolo(uint8_t vChannelIndex, bool solo){
     mixer.vChannel[vChannelIndex].solo = solo;
-    mixer.dirty = true;
+    mixerSetDirty(X32_DIRTY_SOLO);
 
     //TODOs
     // - activate oder clear ClearSolo
@@ -157,7 +160,7 @@ void mixerToggleSolo(uint8_t vChannelIndex){
 
 void mixerSetMute(uint8_t vChannelIndex, bool mute){
     mixer.vChannel[vChannelIndex].mute = mute;
-    mixer.dirty = true;
+    mixerSetDirty(X32_DIRTY_MUTE);
 }
 
 void mixerToggleMute(uint8_t vChannelIndex){
@@ -201,7 +204,12 @@ void mixerBanking(X32_BTN p_button){
 
 // volume in dBfs
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
+    if (p_vChannelIndex == VCHANNEL_NOT_SET) {
+        return;
+    }
+
     mixer.vChannel[p_vChannelIndex].volume = p_volume;
+    mixerSetDirty(X32_DIRTY_VOLUME);
 }
 
 void mixerDebugPrintBank(uint8_t bank)

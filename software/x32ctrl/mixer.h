@@ -9,7 +9,7 @@
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
 #define VCHANNEL_NOT_SET MAX_VCHANNELS+1
 
-#define VCHANNEL_MAIN 24
+#define VCHANNEL_IDX_MAIN 32
 
 typedef struct{
     char name[MAX_NAME_LENGTH];
@@ -25,15 +25,18 @@ typedef struct{
 } s_outputDestination;
 
 typedef struct{
+
+    // starts with munber 1! users dont like zero based counting
+    uint8_t number;  // not sure if needed
     char name[MAX_NAME_LENGTH];
     uint8_t color;
     uint8_t icon;
     bool mute;
     bool solo;
     bool selected;
+
     // volume in dBfs
     float volume;
-    
 
     // 0 - normal channel
     // 1 - main channel
@@ -57,14 +60,38 @@ typedef struct{
     uint8_t surfaceChannel2vChannel[MAX_SURFACECHANNELS];
 } s_bank;
 
+typedef enum {
+
+    // all clean ;-)
+    X32_DIRTY_NONE,
+
+    // sync all
+    X32_DIRTY_ALL,
+
+    // routing changed
+    X32_DIRTY_ROUTING,
+
+    // volume changed
+    X32_DIRTY_VOLUME,
+
+    // solo changed
+    X32_DIRTY_SOLO,
+
+    // mute changed
+    X32_DIRTY_MUTE,
+
+    // selected channel has changed
+    X32_DIRTY_SELECT,
+
+} X32_DIRTY;
+
 typedef struct{
     X32_MODEL model;
     uint8_t activeBank;
     uint8_t activeMode;
 
-
     // something was changed - sync surface/gui to mixer state
-    bool dirty;
+    X32_DIRTY dirty;
 
     s_bank bank[4];
     s_vChannel vChannel[MAX_VCHANNELS];    
@@ -74,8 +101,9 @@ typedef struct{
 
 extern s_Mixer mixer;
 
-
 void initMixer(X32_BOARD model);
+void mixerSetDirty(X32_DIRTY p_dirtyState);
+
 uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel);
 void mixerSetSelect(uint8_t vChannelIndex, bool solo);
 void mixerToggleSelect(uint8_t vChannelIndex);
