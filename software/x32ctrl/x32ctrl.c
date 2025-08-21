@@ -390,7 +390,7 @@ void syncGui(void) {
     //####################################
     //#         Page Meters
     //####################################
-    // first 8 vChannels
+
     for(int i=0; i<=15; i++){
 
         s_vChannel *chan = &mixer.vChannel[i];
@@ -469,11 +469,11 @@ void syncGui(void) {
     //####################################
 
     selected_vChannel->solo ?
-        lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED):
+        lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
         lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
 
     selected_vChannel->mute ?
-        lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED):
+        lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
         lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
 
 }
