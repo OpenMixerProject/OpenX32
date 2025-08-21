@@ -132,7 +132,6 @@ void surfaceDemo(void) {
 //#######################################################
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value) {
     if (class == 'f') {
-    
         uint8_t vChannelIndex = VCHANNEL_NOT_SET;
 
         if (mixer.model == X32_MODEL_FULL){
@@ -145,16 +144,16 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
             if (boardId == X32_BOARD_R) {
                 vChannelIndex = mixerSurfaceChannel2vChannel(index+16);
             }
-        } 
+        }
 
-        if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER){
+        if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER)){
             if (boardId == X32_BOARD_L) {
                 vChannelIndex = mixerSurfaceChannel2vChannel(index);
             }
             if (boardId == X32_BOARD_R) {
                 vChannelIndex = mixerSurfaceChannel2vChannel(index+8);
             }
-        } 
+        }
 
         mixerSetVolume(vChannelIndex, fader2dBfs(value));
         mixer.dirty = true;
@@ -321,7 +320,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                     addaSendCmd("*8C80U#"); // switch Card to 48kHz and USB-input
 
                     break;
-                
+
                 default:
                     break;
             }
@@ -332,8 +331,8 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
 
     } else if (class == 'e') {
       // calculate user-readable variables
-      uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
-      int16_t velocity = (int16_t)value;
+      //uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
+      //int16_t velocity = (int16_t)value;
 
       x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
       lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
@@ -377,7 +376,7 @@ void fpgaCallback(char *buf, uint8_t len) {
 }
 
 // sync mixer state to GUI
-void syncGui(){
+void syncGui(void) {
 
     s_vChannel* selected_vChannel = &mixer.vChannel[mixerGetSelectedvChannel()];
 
@@ -455,14 +454,14 @@ void syncGui(){
     }
 
     lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-        mixer.vChannel[0].volume,
-        mixer.vChannel[1].volume,
-        mixer.vChannel[2].volume,
-        mixer.vChannel[3].volume,
-        mixer.vChannel[4].volume,
-        mixer.vChannel[5].volume,
-        mixer.vChannel[6].volume,
-        mixer.vChannel[7].volume
+        (double)mixer.vChannel[0].volume,
+        (double)mixer.vChannel[1].volume,
+        (double)mixer.vChannel[2].volume,
+        (double)mixer.vChannel[3].volume,
+        (double)mixer.vChannel[4].volume,
+        (double)mixer.vChannel[5].volume,
+        (double)mixer.vChannel[6].volume,
+        (double)mixer.vChannel[7].volume
     );
 
     //####################################
@@ -480,8 +479,7 @@ void syncGui(){
 }
 
 // sync mixer state to Surface
-void syncSurface(){
-
+void syncSurface(void) {
     x32debug("active bank: bank%d\n", mixer.activeBank);
 
     syncSurfaceBoard(X32_BOARD_L);
@@ -493,13 +491,12 @@ void syncSurface(){
     syncSurfaceBankIndicator();
 }
 
-void syncSurfaceBoard(X32_BOARD board){
-
+void syncSurfaceBoard(X32_BOARD board) {
     uint8_t offset = 0;
     if (mixer.model == X32_MODEL_FULL){
         if (board == X32_BOARD_M){ offset=8; }
         if (board == X32_BOARD_R){ offset=16; }
-    } else if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER) {
+    } else if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER)) {
         if (board == X32_BOARD_R){ offset=8; }
     }
 
@@ -511,7 +508,7 @@ void syncSurfaceBoard(X32_BOARD board){
             setLed(board, 0x20+i, 0);
             setLed(board, 0x30+i, 0);
             setLed(board, 0x40+i, 0);
-            setFader(board, i, VOLUME_MIN);
+            setFader(board, i, 0);
             //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
             setLcd(board,     i, 0,     0,    0,    0,  0x00,  0,  0,          "",  0x00,  0, 0, "");
 
@@ -530,21 +527,21 @@ void syncSurfaceBoard(X32_BOARD board){
             }
 
             char lcdText[10];
-            sprintf(lcdText, "%2.1FdB", chan->volume);
+            sprintf(lcdText, "%2.1FdB", (double)chan->volume);
             //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
             setLcd(board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
         }
     }
 }
 
-void syncSurfaceBankIndicator(){
+void syncSurfaceBankIndicator(void) {
     if (mixer.model == X32_MODEL_FULL){
         setLedByEnum(X32_BTN_CH_1_16, 0);
         setLedByEnum(X32_BTN_CH_17_32, 0);
         if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
         if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
     }
-    if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER){
+    if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER)) {
         setLedByEnum(X32_BTN_CH_1_8, 0);
         setLedByEnum(X32_BTN_CH_9_16, 0);
         setLedByEnum(X32_BTN_CH_17_24, 0);
@@ -553,7 +550,7 @@ void syncSurfaceBankIndicator(){
         if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
         if (mixer.activeBank == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
         if (mixer.activeBank == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
-    }   
+    }
 }
 
 void showPage(X32_PAGE page) {
@@ -685,13 +682,13 @@ int main() {
     uartOpen("/dev/ttymxc1", 115200, &fdSurface); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
 
     x32log("Connecting to UART3 (ADDA-Boards)...\n");
-    uartOpen("/dev/ttymxc2", 38400, &fdAdda); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards
+    uartOpen("/dev/ttymxc2", 38400, &fdAdda); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards and the Expansion Card
 
     x32log("Connecting to UART4 (FPGA)...\n");
     uartOpen("/dev/ttymxc3", 115200, &fdFpga); // this UART is connected to the FPGA
 
     //x32log("Connecting to UART5 (MIDI)...\n");
-    //uartOpen("/dev/ttymxc4", 115200, &fdMidi); //
+    //uartOpen("/dev/ttymxc4", 115200, &fdMidi); // this UART is connected to the MIDI-connectors but is used by the Linux-console
 
 
     x32log("Initializing X32 Surface...\n");

@@ -62,8 +62,12 @@ void surfaceDemo(void);
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value);
 void addaCallback(char *msg);
 void fpgaCallback(char *buf, uint8_t len);
+void syncGui(void);
+void syncSurface(void);
+void syncSurfaceBoard(X32_BOARD board);
+void syncSurfaceBankIndicator(void);
+void showPage(X32_PAGE page);
 void x32log(const char *format, ...);
 void x32debug(const char *format, ...);
-void showPage(X32_PAGE page);
 
 #endif
