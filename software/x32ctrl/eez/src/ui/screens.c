@@ -22,13 +22,21 @@ void create_screen_main() {
     {
         lv_obj_t *parent_obj = obj;
         {
+            // channelname
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.channelname = obj;
+            lv_obj_set_pos(obj, 12, 10);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_label_set_text(obj, "Text");
+        }
+        {
             // maintab
             lv_obj_t *obj = lv_tabview_create(parent_obj);
             objects.maintab = obj;
-            lv_obj_set_pos(obj, 0, 0);
-            lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+            lv_obj_set_pos(obj, 0, 37);
+            lv_obj_set_size(obj, 800, 443);
             lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
-            lv_tabview_set_tab_bar_size(obj, 32);
+            lv_tabview_set_tab_bar_size(obj, 0);
             {
                 lv_obj_t *parent_obj = obj;
                 {
@@ -49,7 +57,7 @@ void create_screen_main() {
                             lv_obj_set_pos(obj, 35, 127);
                             lv_obj_set_size(obj, 691, 254);
                             lv_textarea_set_max_length(obj, 255);
-                            lv_textarea_set_text(obj, "Currently (rudimentary) implemented pages:\n- HOME\n- METERS\n- UTILITY (for Development)\n\n\n\n-> Press the EFFECTS button to get a nice demo <-");
+                            lv_textarea_set_text(obj, "Currently (rudimentary) implemented pages:\n- HOME\n- METERS\n- SETUP\n- UTILITY (for Development)\n\n\n\n-> Press the EFFECTS button to get a nice demo <-");
                             lv_textarea_set_one_line(obj, false);
                             lv_textarea_set_password_mode(obj, false);
                         }
@@ -132,6 +140,78 @@ void create_screen_main() {
                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                         }
                         {
+                            // slider09
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider09 = obj;
+                            lv_obj_set_pos(obj, 335, 279);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider10
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider10 = obj;
+                            lv_obj_set_pos(obj, 375, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider11
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider11 = obj;
+                            lv_obj_set_pos(obj, 416, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider12
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider12 = obj;
+                            lv_obj_set_pos(obj, 457, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider13
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider13 = obj;
+                            lv_obj_set_pos(obj, 497, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider14
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider14 = obj;
+                            lv_obj_set_pos(obj, 538, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider15
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider15 = obj;
+                            lv_obj_set_pos(obj, 584, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
+                            // slider16
+                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                            objects.slider16 = obj;
+                            lv_obj_set_pos(obj, 625, 280);
+                            lv_obj_set_size(obj, 11, 111);
+                            lv_slider_set_range(obj, 0, 4095);
+                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                        }
+                        {
                             // phantomindicators
                             lv_obj_t *obj = lv_buttonmatrix_create(parent_obj);
                             objects.phantomindicators = obj;
@@ -180,12 +260,58 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            // channelname
-                            lv_obj_t *obj = lv_label_create(parent_obj);
-                            objects.channelname = obj;
-                            lv_obj_set_pos(obj, 46, 45);
-                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_label_set_text(obj, "Text");
+                            // setup_test
+                            lv_obj_t *obj = lv_button_create(parent_obj);
+                            objects.setup_test = obj;
+                            lv_obj_set_pos(obj, 330, 207);
+                            lv_obj_set_size(obj, 100, 50);
+                            {
+                                lv_obj_t *parent_obj = obj;
+                                {
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    lv_obj_set_pos(obj, 0, 0);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                    lv_label_set_text(obj, "Button");
+                                }
+                            }
+                        }
+                        {
+                            // setup_mute
+                            lv_obj_t *obj = lv_button_create(parent_obj);
+                            objects.setup_mute = obj;
+                            lv_obj_set_pos(obj, 172, 207);
+                            lv_obj_set_size(obj, 100, 50);
+                            {
+                                lv_obj_t *parent_obj = obj;
+                                {
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    lv_obj_set_pos(obj, 0, 0);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                    lv_label_set_text(obj, "MUTE");
+                                }
+                            }
+                        }
+                        {
+                            // setup_solo
+                            lv_obj_t *obj = lv_button_create(parent_obj);
+                            objects.setup_solo = obj;
+                            lv_obj_set_pos(obj, 172, 280);
+                            lv_obj_set_size(obj, 100, 50);
+                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffe7b000), LV_PART_MAIN | LV_STATE_CHECKED);
+                            {
+                                lv_obj_t *parent_obj = obj;
+                                {
+                                    // setup_solo_label
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    objects.setup_solo_label = obj;
+                                    lv_obj_set_pos(obj, 0, 0);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                    lv_label_set_text(obj, "SOLO");
+                                }
+                            }
                         }
                     }
                 }

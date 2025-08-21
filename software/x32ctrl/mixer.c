@@ -130,6 +130,7 @@ void mixerSetSelect(uint8_t vChannelIndex, bool select){
         mixer.vChannel[i].selected = false;
     }
     mixer.vChannel[vChannelIndex].selected = select;
+    mixer.selectedVChannel=vChannelIndex;
     mixer.dirty = true;
 }
 

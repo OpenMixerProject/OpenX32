@@ -58,7 +58,7 @@ void setLedByNr(uint16_t ledNr, uint8_t state) {
   uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
   uint8_t ledId = (uint8_t)(ledNr & 0x7F);
 
-  x32debug("LedNr: 0x%04X -> BoardId: 0x%02X, LED: 0x%02X\n", ledNr, boardId, ledId);
+  //x32debug("LedNr: 0x%04X -> BoardId: 0x%02X, LED: 0x%02X\n", ledNr, boardId, ledId);
 
   messageBuilderInit(&message);
 
@@ -915,25 +915,25 @@ void initButtonDefinition(X32_MODEL modell) {
 }
 
 uint16_t enum2button(X32_BTN button) {
-    x32debug("DEBUG: enum2button: Button %d -> ", button);
+    //x32debug("DEBUG: enum2button: Button %d -> ", button);
     for(int i = 0; i < buttonDefinitionIndex; i++) {
         if (x32_btn_def[i].button == button) {
-            x32debug("gefunden: Button %d\n", x32_btn_def[i].buttonNr);
+            //x32debug("gefunden: Button %d\n", x32_btn_def[i].buttonNr);
             return x32_btn_def[i].buttonNr;
         }
     }
-    x32debug(" NICHT gefunden!\n");
+    //x32debug(" NICHT gefunden!\n");
     return 0;
 }
 
 X32_BTN button2enum(uint16_t buttonNr) {
-    x32debug("DEBUG: button2enum: ButtonNr %d -> ", buttonNr);
+    //x32debug("DEBUG: button2enum: ButtonNr %d -> ", buttonNr);
     for(int i = 0; i < buttonDefinitionIndex; i++) {
         if (x32_btn_def[i].buttonNr == buttonNr) {
-            x32debug("gefunden: Button %d\n", x32_btn_def[i].button);
+            //x32debug("gefunden: Button %d\n", x32_btn_def[i].button);
             return x32_btn_def[i].button;
         }
     }
-    x32debug(" NICHT gefunden!\n");
+    //x32debug(" NICHT gefunden!\n");
     return X32_BTN_NONE;
 }

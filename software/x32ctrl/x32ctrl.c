@@ -17,11 +17,15 @@ int touchcontrol = -1;
 
 // called every 100ms
 void timer100msCallback(int sig, siginfo_t *si, void *uc) {
-    if (touchcontrol > -1) {
+    if (touchcontrol > 0) {
         touchcontrol--;
+        if (touchcontrol == 0)
+        {
+            mixer.dirty = true;
+        }
         x32debug("TouchControl=%d\n", touchcontrol);
     }
-    if (mixer.dirty | touchcontrol == 0)
+    if (mixer.dirty)
     {
         x32debug("dirty! -> sync GUI");
         syncGui();
@@ -375,11 +379,20 @@ void fpgaCallback(char *buf, uint8_t len) {
 // sync mixer state to GUI
 void syncGui(){
 
+    s_vChannel* selected_vChannel = &mixer.vChannel[mixerGetSelectedvChannel()];
+
+    //####################################
+    //#         General
+    //####################################
+
+    lv_label_set_text_fmt(objects.channelname, "Selected Channel: %s", selected_vChannel->name);
+
+
     //####################################
     //#         Page Meters
     //####################################
     // first 8 vChannels
-    for(int i=0; i<=7; i++){
+    for(int i=0; i<=15; i++){
 
         s_vChannel *chan = &mixer.vChannel[i];
 
@@ -414,6 +427,30 @@ void syncGui(){
                 case 7:
                     lv_slider_set_value(objects.slider08, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
+                case 8:
+                    lv_slider_set_value(objects.slider09, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
+                case 9:
+                    lv_slider_set_value(objects.slider10, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
+                case 10:
+                    lv_slider_set_value(objects.slider11, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
+                case 11:
+                    lv_slider_set_value(objects.slider12, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
+                case 12:
+                    lv_slider_set_value(objects.slider13, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
+                case 13:
+                    lv_slider_set_value(objects.slider14, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
+                case 14:
+                    lv_slider_set_value(objects.slider15, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
+                case 15:
+                    lv_slider_set_value(objects.slider16, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    break;
         }
     }
 
@@ -432,7 +469,14 @@ void syncGui(){
     //#         Page Setup
     //####################################
 
-    lv_label_set_text_fmt(objects.channelname, "Selected Channel: %s", mixer.vChannel[mixerGetSelectedvChannel()].name);
+    selected_vChannel->solo ?
+        lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED):
+        lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+
+    selected_vChannel->mute ?
+        lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED):
+        lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+
 }
 
 // sync mixer state to Surface
