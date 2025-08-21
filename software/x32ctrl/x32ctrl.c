@@ -12,22 +12,21 @@
 
 #include "x32ctrl.h"
 
-bool dirty = true; // sync on first startup
 int touchcontrol = -1;
 
 
 // called every 100ms
 void timer100msCallback(int sig, siginfo_t *si, void *uc) {
-    // sync surface/gui with mixing state
     if (touchcontrol > -1) {
         touchcontrol--;
         x32debug("TouchControl=%d\n", touchcontrol);
     }
-
-    if (dirty | touchcontrol == 0)
+    if (mixer.dirty | touchcontrol == 0)
     {
+        x32debug("dirty! -> sync GUI");
         syncGui();
-        dirty = false;
+        syncSurface();
+        mixer.dirty = false;
     }
 }
 
@@ -129,23 +128,36 @@ void surfaceDemo(void) {
 //#######################################################
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value) {
     if (class == 'f') {
-        // calculate user-readable variables
-        float pct = value / 40.95; // convert to percent
     
-        if (boardId == X32_BOARD_L) {
-            mixingSetVolume(index+1, fader2dBfs(value));
-            dirty = true;
-            touchcontrol = 5;
-        }
+        uint8_t vChannelIndex = VCHANNEL_NOT_SET;
 
-        if (boardId == X32_BOARD_R) {
-            mixingSetVolume(index+1, fader2dBfs(value));
-            dirty = true;
-            touchcontrol = 5;
-        }
+        if (mixer.model == X32_MODEL_FULL){
+            if (boardId == X32_BOARD_L) {
+                vChannelIndex = mixerSurfaceChannel2vChannel(index);
+            }
+            if (boardId == X32_BOARD_M) {
+                vChannelIndex = mixerSurfaceChannel2vChannel(index+8);
+            }
+            if (boardId == X32_BOARD_R) {
+                vChannelIndex = mixerSurfaceChannel2vChannel(index+16);
+            }
+        } 
 
-        x32debug("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f| TC=%d\n", boardId, class, index, value, pct, touchcontrol);
-        lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
+        if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER){
+            if (boardId == X32_BOARD_L) {
+                vChannelIndex = mixerSurfaceChannel2vChannel(index);
+            }
+            if (boardId == X32_BOARD_R) {
+                vChannelIndex = mixerSurfaceChannel2vChannel(index+8);
+            }
+        } 
+
+        mixerSetVolume(vChannelIndex, fader2dBfs(value));
+        mixer.dirty = true;
+        touchcontrol = 5;
+
+        //x32debug("Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f| TC=%d\n", boardId, class, index, value, pct, touchcontrol);
+        //lv_label_set_text_fmt(objects.debugtext, "Fader   : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%04X = %f\n", boardId, class, index, value, (double)pct);
 
     } else if (class == 'b') {
         // calculate user-readable variables
@@ -182,6 +194,15 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_UTILITY:
                     showPage(X32_PAGE_UTILITY);
                     break;
+                case X32_BTN_CH_1_8:
+                case X32_BTN_CH_9_16:
+                case X32_BTN_CH_17_24:
+                case X32_BTN_CH_25_32:
+                case X32_BTN_CH_1_16:
+                case X32_BTN_CH_17_32:
+                    mixerBanking(button);
+                    break;
+                // TODO: not the final select solution!
                 case X32_BTN_BOARD_L_CH_1_SELECT:
                 case X32_BTN_BOARD_L_CH_2_SELECT:
                 case X32_BTN_BOARD_L_CH_3_SELECT:
@@ -190,9 +211,29 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_BOARD_L_CH_6_SELECT:
                 case X32_BTN_BOARD_L_CH_7_SELECT:
                 case X32_BTN_BOARD_L_CH_8_SELECT:
-                    int channel = button - X32_BTN_BOARD_L_CH_1_SELECT + 1;
-                    mixingSetPhantomPower('x', channel, !openx32.preamps.phantomPowerXlr[channel-1]);
-                    dirty = true; // resync gui/surface
+                    mixerToggleSelect(button - X32_BTN_BOARD_L_CH_1_SELECT);
+                    break;
+                // TODO: not the final solo solution!
+                case X32_BTN_BOARD_L_CH_1_SOLO:
+                case X32_BTN_BOARD_L_CH_2_SOLO:
+                case X32_BTN_BOARD_L_CH_3_SOLO:
+                case X32_BTN_BOARD_L_CH_4_SOLO:
+                case X32_BTN_BOARD_L_CH_5_SOLO:
+                case X32_BTN_BOARD_L_CH_6_SOLO:
+                case X32_BTN_BOARD_L_CH_7_SOLO:
+                case X32_BTN_BOARD_L_CH_8_SOLO:
+                    mixerToggleSolo(button - X32_BTN_BOARD_L_CH_1_SOLO);
+                    break;
+                // TODO: not the final mute solution!
+                case X32_BTN_BOARD_L_CH_1_MUTE:
+                case X32_BTN_BOARD_L_CH_2_MUTE:
+                case X32_BTN_BOARD_L_CH_3_MUTE:
+                case X32_BTN_BOARD_L_CH_4_MUTE:
+                case X32_BTN_BOARD_L_CH_5_MUTE:
+                case X32_BTN_BOARD_L_CH_6_MUTE:
+                case X32_BTN_BOARD_L_CH_7_MUTE:
+                case X32_BTN_BOARD_L_CH_8_MUTE:
+                    mixerToggleMute(button - X32_BTN_BOARD_L_CH_1_MUTE);
                     break;
                 case X32_BTN_LEFT:
                     // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
@@ -297,7 +338,6 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
     }
 }
 
-
 void addaCallback(char *msg) {
     if ((strlen(msg) == 4) && (msg[2] == 'Y')) {
         // we received acknowledge-message like *1Y# -> ignore it
@@ -332,74 +372,145 @@ void fpgaCallback(char *buf, uint8_t len) {
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
 }
 
-char lcdText[10]="   ";
+// sync mixer state to GUI
 void syncGui(){
-    
-    // sync Phantom Power of first 8 lokal XLR inputs to select LEDs
-    for(int i = 0; i < 8; i++){
-        setLed(X32_BOARD_L, 0x20+i, openx32.preamps.phantomPowerXlr[i]);
-        if (openx32.preamps.phantomPowerXlr[i]){
+
+    //####################################
+    //#         Page Meters
+    //####################################
+    // first 8 vChannels
+    for(int i=0; i<=7; i++){
+
+        s_vChannel *chan = &mixer.vChannel[i];
+
+        if (chan->inputSource.phantomPower){
             lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
         } else {
             lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
         }
-    }
-
-    // sync fader position of first 8 DSP Channels (correct routing is for a later day...)
-    lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-        openx32.dspChannel[0].volume,
-        openx32.dspChannel[1].volume,
-        openx32.dspChannel[2].volume,
-        openx32.dspChannel[3].volume,
-        openx32.dspChannel[4].volume,
-        openx32.dspChannel[5].volume,
-        openx32.dspChannel[6].volume,
-        openx32.dspChannel[7].volume
-    );    
-    for(int i = 0; i < 8; i++){
-
-        // TODO: implement touchcontrol and convert value to dBfs
-        u_int16_t volume = dBfs2fader(openx32.dspChannel[i].volume); 
-        if (touchcontrol == 0){
-            setFader(X32_BOARD_L, i, volume);
-        }
-        
-        sprintf(lcdText, "%2.1FdB", openx32.dspChannel[i].volume);
-        //x32debug("lcdText=%s", lcdText);
-        //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-        setLcd(X32_BOARD_L,     i,     3,     0,    12,    0,  0x00,  0,  0,          lcdText,  0x00,  20, 48, "OpenX32");
 
         switch (i){
                 case 0:
-                    lv_slider_set_value(objects.slider01, volume, LV_ANIM_OFF);                     
+                    lv_slider_set_value(objects.slider01, dBfs2fader(chan->volume), LV_ANIM_OFF);                     
                     break;
                 case 1:
-                    lv_slider_set_value(objects.slider02, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider02, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
                 case 2:
-                    lv_slider_set_value(objects.slider03, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider03, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
                 case 3:
-                    lv_slider_set_value(objects.slider04, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider04, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
                 case 4:
-                    lv_slider_set_value(objects.slider05, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider05, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
                 case 5:
-                    lv_slider_set_value(objects.slider06, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider06, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
                 case 6:
-                    lv_slider_set_value(objects.slider07, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider07, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
                 case 7:
-                    lv_slider_set_value(objects.slider08, volume, LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider08, dBfs2fader(chan->volume), LV_ANIM_OFF);
                     break;
+        }
+    }
+
+    lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
+        mixer.vChannel[0].volume,
+        mixer.vChannel[1].volume,
+        mixer.vChannel[2].volume,
+        mixer.vChannel[3].volume,
+        mixer.vChannel[4].volume,
+        mixer.vChannel[5].volume,
+        mixer.vChannel[6].volume,
+        mixer.vChannel[7].volume
+    );
+
+    //####################################
+    //#         Page Setup
+    //####################################
+
+    lv_label_set_text_fmt(objects.channelname, "Selected Channel: %s", mixer.vChannel[mixerGetSelectedvChannel()].name);
+}
+
+// sync mixer state to Surface
+void syncSurface(){
+
+    x32debug("active bank: bank%d\n", mixer.activeBank);
+
+    syncSurfaceBoard(X32_BOARD_L);
+    if (mixer.model == X32_MODEL_FULL){
+        syncSurfaceBoard(X32_BOARD_M);
+    }
+    syncSurfaceBoard(X32_BOARD_R);
+
+    syncSurfaceBankIndicator();
+}
+
+void syncSurfaceBoard(X32_BOARD board){
+
+    uint8_t offset = 0;
+    if (mixer.model == X32_MODEL_FULL){
+        if (board == X32_BOARD_M){ offset=8; }
+        if (board == X32_BOARD_R){ offset=16; }
+    } else if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER) {
+        if (board == X32_BOARD_R){ offset=8; }
+    }
+
+    for(int i=0; i<=7; i++){
+
+        uint8_t vChannelIndex = mixerSurfaceChannel2vChannel(i+offset);
+
+        if (vChannelIndex == VCHANNEL_NOT_SET) {
+            setLed(board, 0x20+i, 0);
+            setLed(board, 0x30+i, 0);
+            setLed(board, 0x40+i, 0);
+            setFader(board, i, VOLUME_MIN);
+            //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+            setLcd(board,     i, 0,     0,    0,    0,  0x00,  0,  0,          "",  0x00,  0, 0, "");
+
+        } else {
+            s_vChannel *chan = &mixer.vChannel[vChannelIndex];
+
+            x32debug("syncronize vChannel%d: %s\n", vChannelIndex, chan->name);
+
+            setLed(board, 0x20+i, chan->selected);
+            setLed(board, 0x30+i, chan->solo);
+            setLed(board, 0x40+i, chan->mute);
+
+            u_int16_t faderVolume = dBfs2fader(chan->volume); 
+            if (touchcontrol == 0){
+                setFader(board, i, faderVolume);
+            }
+
+            char lcdText[10];
+            sprintf(lcdText, "%2.1FdB", chan->volume);
+            //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+            setLcd(board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
         }
     }
 }
 
-
-
+void syncSurfaceBankIndicator(){
+    if (mixer.model == X32_MODEL_FULL){
+        setLedByEnum(X32_BTN_CH_1_16, 0);
+        setLedByEnum(X32_BTN_CH_17_32, 0);
+        if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
+        if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
+    }
+    if (mixer.model == X32_MODEL_COMPACT | mixer.model == X32_MODEL_PRODUCER){
+        setLedByEnum(X32_BTN_CH_1_8, 0);
+        setLedByEnum(X32_BTN_CH_9_16, 0);
+        setLedByEnum(X32_BTN_CH_17_24, 0);
+        setLedByEnum(X32_BTN_CH_25_32, 0);
+        if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_8, 1); }
+        if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
+        if (mixer.activeBank == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
+        if (mixer.activeBank == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
+    }   
+}
 
 void showPage(X32_PAGE page) {
     // first turn all page LEDs off
@@ -424,13 +535,17 @@ void showPage(X32_PAGE page) {
             lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_METERS, 1);
             break;
+        case X32_PAGE_SETUP:
+            lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_SETUP, 1);
+            break;
         case X32_PAGE_EFFECTS:
             surfaceDemo();
             //lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_EFFECTS, 1);
             break;
         case X32_PAGE_UTILITY:
-            lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+            lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_UTILITY, 1);
             break;
         default:
@@ -463,7 +578,6 @@ void x32debug(const char *format, ...)
 }
 
 
-
 // the main-function - of course
 int main() {
     srand(time(NULL));
@@ -480,28 +594,43 @@ int main() {
     readConfig("/etc/x32.conf", "DATE=", date, 16);
     if (strcmp(model, "X32Core") == 0) {
         initButtonDefinition(X32_MODEL_CORE);
+        initMixer(X32_MODEL_CORE);
     }else if (strcmp(model, "X32Rack") == 0) {
         initButtonDefinition(X32_MODEL_RACK);
+        initMixer(X32_MODEL_RACK);
     }else if (strcmp(model, "X32Producer") == 0) {
         initButtonDefinition(X32_MODEL_PRODUCER);
+        initMixer(X32_MODEL_PRODUCER);
     }else if (strcmp(model, "X32C") == 0) {
         initButtonDefinition(X32_MODEL_COMPACT);
+        initMixer(X32_MODEL_COMPACT);
     }else if (strcmp(model, "X32") == 0) {
         initButtonDefinition(X32_MODEL_FULL);
+        initMixer(X32_MODEL_FULL);
     }else{
         #if DEBUG == 0
         x32log("ERROR: No model detected - assume X32 Fullsize!\n");
         initButtonDefinition(X32_MODEL_NONE);
+        initMixer(X32_MODEL_NONE);
         #else
         // (for development without inserted sd card)
         //
         //x32debug("ERROR: No model detected - assume X32 Fullsize!\n");
         //initButtonDefinition(X32_MODEL_FULL);
+        //initMixer(X32_MODEL_FULL);
         //
         x32debug("ERROR: No model detected - assume X32 Compact!\n");
         initButtonDefinition(X32_MODEL_COMPACT);
+        initMixer(X32_MODEL_COMPACT);
         #endif
     }
+
+    mixerDebugPrintvChannels();
+
+    mixerDebugPrintBank(0);
+    mixerDebugPrintBank(1);
+    mixerDebugPrintBank(2);
+    mixerDebugPrintBank(3);
 
     x32log(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
@@ -519,9 +648,6 @@ int main() {
 
     //x32log("Connecting to UART5 (MIDI)...\n");
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); //
-
-    // initialize mixer config
-    initMixer();
 
 
     x32log("Initializing X32 Surface...\n");

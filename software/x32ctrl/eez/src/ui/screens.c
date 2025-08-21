@@ -176,6 +176,20 @@ void create_screen_main() {
                     }
                 }
                 {
+                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Setup");
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            // channelname
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            objects.channelname = obj;
+                            lv_obj_set_pos(obj, 46, 45);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            lv_label_set_text(obj, "Text");
+                        }
+                    }
+                }
+                {
                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Utility");
                     {
                         lv_obj_t *parent_obj = obj;

@@ -3,6 +3,8 @@
 
 #include "x32ctrl.h"
 
+#define VOLUME_MIN -100.0f
+
 int readConfig(const char *filename, const char *key, char *value_buffer, size_t buffer_size);
 uint8_t limitMin(uint8_t value, uint8_t min);
 uint8_t limitMax(uint8_t value, uint8_t max);

@@ -122,7 +122,7 @@ float fader2dBfs(uint16_t faderValue) {
   const uint16_t FADER_MINUS_INFDB = 0; // TODO: check with real hardware
 
   if (faderValue <= FADER_MINUS_INFDB) {
-      return -100.0f;
+      return VOLUME_MIN;
   }
 
   // Group A: +10 dBfs to -10 dBfs (Fader from 4095 to FADER_MINUS_10DB)
