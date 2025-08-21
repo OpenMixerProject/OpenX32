@@ -256,28 +256,31 @@ bool mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
         if (buttonPressed){
             switch (button) {
                 case X32_BTN_HOME:
-                    showPage(X32_PAGE_HOME);
+                    mixerShowPage(X32_PAGE_HOME);
+                    break;
+                case X32_BTN_VIEW_CONFIG:
+                    mixerShowPage(X32_PAGE_CONFIG);
                     break;
                 case X32_BTN_METERS:
-                    showPage(X32_PAGE_METERS);
+                    mixerShowPage(X32_PAGE_METERS);
                     break;
                 case X32_BTN_ROUTING:
-                    showPage(X32_PAGE_ROUTING);
+                    mixerShowPage(X32_PAGE_ROUTING);
                     break;
                 case X32_BTN_SETUP:
-                    showPage(X32_PAGE_SETUP);
+                    mixerShowPage(X32_PAGE_SETUP);
                     break;
                 case X32_BTN_LIBRARY:
-                    showPage(X32_PAGE_LIBRARY);
+                    mixerShowPage(X32_PAGE_LIBRARY);
                     break;
                 case X32_BTN_EFFECTS:
-                    showPage(X32_PAGE_EFFECTS);
+                    mixerShowPage(X32_PAGE_EFFECTS);
                     break;
                 case X32_BTN_MUTE_GRP:
-                    showPage(X32_PAGE_MUTE_GRP);
+                    mixerShowPage(X32_PAGE_MUTE_GRP);
                     break;
                 case X32_BTN_UTILITY:
-                    showPage(X32_PAGE_UTILITY);
+                    mixerShowPage(X32_PAGE_UTILITY);
                     break;
                 case X32_BTN_CH_1_8:
                 case X32_BTN_CH_9_16:
@@ -416,6 +419,69 @@ void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
     mixerSetVolumeDirty();
     mixerSetLCDDirty();
 }
+
+
+void mixerShowPage(X32_PAGE page) {
+    // first turn all page LEDs off
+    setLedByEnum(X32_BTN_HOME, 0);
+    setLedByEnum(X32_BTN_METERS, 0);
+    setLedByEnum(X32_BTN_ROUTING, 0);
+    setLedByEnum(X32_BTN_SETUP, 0);
+    setLedByEnum(X32_BTN_LIBRARY, 0);
+    setLedByEnum(X32_BTN_EFFECTS, 0);
+    setLedByEnum(X32_BTN_MUTE_GRP, 0);
+    setLedByEnum(X32_BTN_UTILITY, 0);
+    // turn all view LEDs of
+    setLedByEnum(X32_BTN_VIEW_CONFIG, 0);
+    
+
+    switch (page)
+    {
+        case X32_PAGE_HOME:
+            lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            lv_tabview_set_active(objects.hometab, 0, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_HOME, 1);
+            break;
+        case X32_PAGE_CONFIG:
+            lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            lv_tabview_set_active(objects.hometab, 1, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_VIEW_CONFIG, 1);
+            break;
+
+        case X32_PAGE_METERS:
+            lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_METERS, 1);
+            break;
+        case X32_PAGE_ROUTING:
+            lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_ROUTING, 1);
+            break;
+        case X32_PAGE_SETUP:
+            lv_tabview_set_active(objects.maintab, 4, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_SETUP, 1);
+            break;
+        case X32_PAGE_LIBRARY:
+            lv_tabview_set_active(objects.maintab, 5, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_LIBRARY, 1);
+            break;
+        case X32_PAGE_EFFECTS:
+            surfaceDemo();
+            lv_tabview_set_active(objects.maintab, 6, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_EFFECTS, 1);
+            break;
+        case X32_PAGE_MUTE_GRP:
+            lv_tabview_set_active(objects.maintab, 7, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_MUTE_GRP, 1);
+            break;
+        case X32_PAGE_UTILITY:
+            lv_tabview_set_active(objects.maintab, 8, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_UTILITY, 1);
+            break;
+        default:
+            x32debug("ERROR: Page not found! Show welcome page instead.\n");
+    }
+}
+
 
 bool mixerIsModelX32Full(){
     return (mixer.model == X32_MODEL_FULL);

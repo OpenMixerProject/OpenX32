@@ -411,13 +411,13 @@ void syncGui(void) {
     //#         Page Setup
     //####################################
 
-    selected_vChannel->solo ?
-        lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-        lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+    // selected_vChannel->solo ?
+    //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+    //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
 
-    selected_vChannel->mute ?
-        lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-        lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+    // selected_vChannel->mute ?
+    //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+    //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
 
 }
 
@@ -498,58 +498,6 @@ void syncSurfaceBankIndicator(void) {
             if (mixer.activeBank == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
             if (mixer.activeBank == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
         }
-    }
-}
-
-// TODO: integrate into dirty logic
-void showPage(X32_PAGE page) {
-    // first turn all page LEDs off
-    setLedByEnum(X32_BTN_HOME, 0);
-    setLedByEnum(X32_BTN_METERS, 0);
-    setLedByEnum(X32_BTN_ROUTING, 0);
-    setLedByEnum(X32_BTN_SETUP, 0);
-    setLedByEnum(X32_BTN_LIBRARY, 0);
-    setLedByEnum(X32_BTN_EFFECTS, 0);
-    setLedByEnum(X32_BTN_MUTE_GRP, 0);
-    setLedByEnum(X32_BTN_UTILITY, 0);
-
-    switch (page)
-    {
-        case X32_PAGE_HOME:
-            lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_HOME, 1);
-            break;
-        case X32_PAGE_METERS:
-            lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_METERS, 1);
-            break;
-        case X32_PAGE_ROUTING:
-            //lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_ROUTING, 1);
-            break;
-        case X32_PAGE_SETUP:
-            lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_SETUP, 1);
-            break;
-        case X32_PAGE_LIBRARY:
-            //lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_LIBRARY, 1);
-            break;
-        case X32_PAGE_EFFECTS:
-            surfaceDemo();
-            //lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_EFFECTS, 1);
-            break;
-        case X32_PAGE_MUTE_GRP:
-            //lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_MUTE_GRP, 1);
-            break;
-        case X32_PAGE_UTILITY:
-            lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
-            setLedByEnum(X32_BTN_UTILITY, 1);
-            break;
-        default:
-            x32debug("ERROR: Page not found!\n");
     }
 }
 
