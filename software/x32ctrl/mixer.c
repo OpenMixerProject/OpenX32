@@ -581,6 +581,10 @@ bool mixerIsModelX32CompacrOrProducer(void){
     return ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER));
 }
 
+bool mixerIsModelX32Core(void){
+    return (mixer.model == X32_MODEL_CORE);
+}
+
 void mixerDebugPrintBank(uint8_t bank)
 {
     x32debug("################# BANK%d ###################\n", bank);

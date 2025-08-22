@@ -117,6 +117,8 @@ void surfaceDemo(void) {
     }
 }
 
+uint8_t led = 0;
+
 // function will be called by uart-receive-function
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value) {
     if (class == 'f') {
@@ -231,10 +233,54 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                     mixerDebugPrintBank(2);
                     mixerDebugPrintBank(3);
                     break;
+                case X32_BTN_SCENE_SETUP:
+                    setLed(X32_BOARD_MAIN, 0, 1);
+                    setLed(X32_BOARD_MAIN, 0xc, 1);
+                    setLed(X32_BOARD_MAIN, 0xe, 1);
+                    break;
+                case X32_BTN_ASSIGN_3:
+                    setLed(X32_BOARD_MAIN, 6, 1);
+                    setLed(X32_BOARD_MAIN, 0xd, 1);
+                    setLed(X32_BOARD_MAIN, 0xf, 1);
+                    break;
+                case X32_BTN_ASSIGN_4:
+                    led = 0;
+                    for (int i=0; i < 0x80; i++){
+                        setLed(X32_BOARD_MAIN, i, 0);                        
+                    }
+                    break;
+                case X32_BTN_ASSIGN_5:
+                    // LED Finder
+                    char ledText[20] = "";
+                    sprintf(&ledText, "LED: 0x%04X", led);
+                    setLcd(X32_BOARD_MAIN, 0, SURFACE_COLOR_YELLOW, 0, 0, 0, 0, 0, 0, ledText, 0x20, 0,  40, "OpenX32");
+                    setLed(X32_BOARD_MAIN, led, 1);
+                    led++;
+                    break;
+                case X32_BTN_ASSIGN_6:
+                    // X32 Core Demo
+                    setLedByEnum(X32_BTN_SCENE_SETUP, 1);
+                    setLedByEnum(X32_BTN_TALK_A, 1);
+                    setLedByEnum(X32_BTN_ASSIGN_3, 1);
+                    setLedByEnum(X32_BTN_ASSIGN_4, 1);
+                    setLedByEnum(X32_BTN_ASSIGN_5, 1);
+                    setLedByEnum(X32_BTN_ASSIGN_6, 1);
+
+                    setLcd(X32_BOARD_MAIN, 0, SURFACE_COLOR_YELLOW, 0, 0, 0, 0, 0, 20, "huhu", 0, 0,  40, "test");
+                    
+                    for (int i=0; i < 8; i++){
+                        setMeterLed(X32_BOARD_MAIN, 0, 1 << i);
+                        usleep(5000000);
+                    }
+
+                    break;
                 default:
 
-                    x32debug("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-                    lv_label_set_text_fmt(objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+                    x32debug("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X | X32_BTN = 0x%04X\n", boardId, class, index, value, button);
+                    
+                    if (!mixerIsModelX32Core()) {
+                        (objects.debugtext, "Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X | X32_BTN = 0x%04X\n", boardId, class, index, value, button);
+                    }
 
                     break;
                 }
@@ -249,7 +295,9 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
       //int16_t velocity = (int16_t)value;
 
       x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-      lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      if (!mixerIsModelX32Core()) {
+        lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+      }
     } else {
         x32debug("unknown message: boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
     }
@@ -276,8 +324,9 @@ void addaCallback(char *msg) {
                 x32debug("Received message: %s\n", msg);
             }
         }
-
-        lv_label_set_text_fmt(objects.debugtext, "Received Message: %s\n", msg);
+        if (!mixerIsModelX32Core()) {
+            lv_label_set_text_fmt(objects.debugtext, "Received Message: %s\n", msg);
+        }
     }
 }
 
@@ -291,6 +340,10 @@ void fpgaCallback(char *buf, uint8_t len) {
 
 // sync mixer state to GUI
 void syncGui(void) {
+
+    if (mixerIsModelX32Core()){
+        return;
+    }
 
     s_vChannel* selected_vChannel = &mixer.vChannel[mixerGetSelectedvChannel()];
 
@@ -589,9 +642,12 @@ int main() {
         //initButtonDefinition(X32_MODEL_FULL);
         //initMixer(X32_MODEL_FULL);
         //
-        x32debug("ERROR: No model detected - assume X32 Compact!\n");
-        initButtonDefinition(X32_MODEL_COMPACT);
-        initMixer(X32_MODEL_COMPACT);
+        // x32debug("ERROR: No model detected - assume X32 Compact!\n");
+        // initButtonDefinition(X32_MODEL_COMPACT);
+        // initMixer(X32_MODEL_COMPACT);
+        x32debug("ERROR: No model detected - assume X32 Core!\n");
+        initButtonDefinition(X32_MODEL_CORE);
+        initMixer(X32_MODEL_CORE);
         #endif
     }
 
@@ -670,30 +726,35 @@ int main() {
     // unmute the local audio-boards
     addaSetMute(false);
 
-/*
-    // only necessary if LVGL is not used
-    x32printf("Starting Timer...\n");
-    initTimer();
+    if (mixerIsModelX32Core()){
 
-    x32printf("Wait for incoming data on /dev/ttymxc1...\n");
-    x32printf("Press Ctrl+C to terminate program.\n");
-    while (1) {
-      // read data from surface and calls surfaceCallback()
-      surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
+        // only necessary if LVGL is not used
+        x32log("Starting Timer...\n");
+        initTimer();
 
-      // read data from ADDA-Boards (8ch input/output)
-      addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
+        mixerSetAllDirty();  // trigger first sync to gui/surface
 
-      // read data from FPGA
-      fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
+        x32log("Wait for incoming data on /dev/ttymxc1...\n");
+        x32log("Press Ctrl+C to terminate program.\n");
 
-      // sleep for 1ms to lower CPU-load
-      usleep(1000);
+        while (1) {
+            // read data from surface and calls surfaceCallback()
+            surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
+
+            // read data from ADDA-Boards (8ch input/output)
+            addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
+
+            // read data from FPGA
+            fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
+
+            // sleep for 1ms to lower CPU-load
+            usleep(1000);
+        }
+
+    } else {
+        x32log("Initializing GUI...\n");
+        guiInit(); // initializes LVGL, FBDEV and starts endless loop
     }
-*/
-
-    x32log("Initializing GUI...\n");
-    guiInit(); // initializes LVGL, FBDEV and starts endless loop
 
     return 0;
 }

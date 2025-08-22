@@ -897,7 +897,7 @@ void initButtonDefinition(X32_MODEL modell) {
             addButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
 
 
-            // LED only);
+            // LED only
 
             addButtonDefinition(X32_LED_USB_ACCESS, 0x0126);
 
@@ -911,6 +911,30 @@ void initButtonDefinition(X32_MODEL modell) {
             addButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131);
             addButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132);
             break;
+
+        case X32_MODEL_CORE:
+
+            addButtonDefinition(X32_BTN_SCENE_SETUP,    0x0000);
+            addButtonDefinition(X32_BTN_TALK_A,         0x0001);
+            addButtonDefinition(X32_BTN_ASSIGN_3,       0x0002);
+            addButtonDefinition(X32_BTN_ASSIGN_4,       0x0003);
+            addButtonDefinition(X32_BTN_ASSIGN_5,       0x0004);
+            addButtonDefinition(X32_BTN_ASSIGN_6,       0x0005);
+            addButtonDefinition(X32_BTN_ENCODER1,       0x0006);
+            //addButtonDefinition(X32_BTN_ENCODER1,       0x0006);
+
+            // LED only
+            addButtonDefinition(X32_LED_SCENE_SETUP_RED,0x0006);
+            addButtonDefinition(X32_LED_IN,             0x0007);
+            addButtonDefinition(X32_LED_AUX,            0x0008);
+            addButtonDefinition(X32_LED_BUS,            0x0009);
+            addButtonDefinition(X32_LED_MTX,            0x000A);
+            addButtonDefinition(X32_LED_DCA,            0x000B);
+            addButtonDefinition(X32_LED_AESA_GREEN,     0x000C);
+            addButtonDefinition(X32_LED_AESA_RED,       0x000D);
+            addButtonDefinition(X32_LED_AESB_GREEN,     0x000E);
+            addButtonDefinition(X32_LED_AESB_RED,       0x000F);
+
         default:
             break;
     }

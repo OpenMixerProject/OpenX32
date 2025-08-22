@@ -214,7 +214,7 @@ int valueToBinaryString(uint8_t value, char *output) {
 }
 */
 
-/*
+
 // variables
 timer_t timerid;
 struct sigevent sev;
@@ -225,7 +225,7 @@ sigset_t mask;
 int initTimer() {
   // Set up the signal handler
   struct sigaction sa;
-  sa.sa_handler = timerCallback;
+  sa.sa_handler = timer100msCallback;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
   if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
@@ -256,4 +256,4 @@ int initTimer() {
     return 1;
   }
 }
-*/
+

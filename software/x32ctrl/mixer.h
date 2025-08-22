@@ -164,6 +164,7 @@ void mixerShowPage(X32_PAGE page);
 
 bool mixerIsModelX32Full(void);
 bool mixerIsModelX32CompacrOrProducer(void);
+bool mixerIsModelX32Core(void);
 
 void mixerDebugPrintBank(uint8_t bank);
 void mixerDebugPrintvChannels(void);

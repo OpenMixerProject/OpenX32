@@ -46,7 +46,20 @@ typedef enum {
 typedef enum  {
     X32_BTN_NONE,
 
-    // Board Main
+    //###########################################
+    //#
+    //#    Board Main
+    //#
+    //#    - X32 Full
+    //#    - X32 Compact
+    //#    - X32 Producer
+    //#    - X32 Rack
+    //#    - X32 Core
+    //#
+    //###########################################
+
+    // Only X32 Core
+    X32_BTN_SCENE_SETUP,  
 
     X32_BTN_TALK_A,
     X32_BTN_TALK_B,
@@ -279,6 +292,7 @@ typedef enum  {
     //#    - X32 Full
     //#    - X32 Compact
     //#    - X32 Producer
+    //#    - X32 Core
     //#
     //###########################################
 
@@ -293,6 +307,21 @@ typedef enum  {
     X32_LED_BACKLIGHT_EQ_GAIN,
     X32_LED_BACKLIGHT_BUS_MIXES_LEVEL,
     X32_LED_BACKLIGHT_BUS_MIXES_PAN,
+
+    // X32 Core Only
+    X32_LED_SCENE_SETUP_RED,
+    X32_LED_IN,
+    X32_LED_AUX,
+    X32_LED_BUS,
+    X32_LED_MTX,
+    X32_LED_DCA,
+    X32_LED_AESA_GREEN,
+    X32_LED_AESA_RED,
+    X32_LED_AESB_GREEN,
+    X32_LED_AESB_RED,
+
+    X32_LED_BACKLIGHT_ASSING_1,
+    X32_LED_BACKLIGHT_ASSING_2,
 
 } X32_BTN;
 
