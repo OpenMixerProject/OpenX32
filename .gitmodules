@@ -22,7 +22,3 @@
 	path = software/openssh-portable
 	url = https://github.com/openssh/openssh-portable.git
 	ignore = dirty
-[submodule "barebox_openx32"]
-	path = barebox_openx32
-	url = https://github.com/borzel/barebox.git
-	branch = openx32
