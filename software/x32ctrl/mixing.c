@@ -38,7 +38,7 @@ void mixingDefaultRoutingConfig(void) {
 
 // "compiles" the current mixer state into mixing routing
 void mixingSyncRoutingConfigFromMixer(void) {
-    if (mixerIsRoutingDirty()){
+    if (mixerHasChanged(X32_MIXER_CHANGED_ROUTING)){
         // loop trough all vChannels
         for (int i = 0; i < MAX_VCHANNELS; i++)
         {

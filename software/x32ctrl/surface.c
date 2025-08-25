@@ -541,7 +541,7 @@ void addEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
     x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
     encoderDefinitionIndex++;
-    x32debug("added button definition: Button %d -> ButtonNr %d\n", p_encoder, p_encoderNr);
+    x32debug("added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
 }
 
 void initDefinitions() {
@@ -1004,13 +1004,13 @@ X32_BTN button2enum(uint16_t buttonNr) {
 }
 
 X32_ENC encoder2enum(uint16_t encoderNr) {
-    x32debug("DEBUG: encoder2enum: EncoderNr %d -> ", encoderNr);
+    //x32debug("DEBUG: encoder2enum: EncoderNr %d -> ", encoderNr);
     for(int i = 0; i < buttonDefinitionIndex; i++) {
         if (x32_enc_def[i].encoderNr == encoderNr) {
-            x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoder);
+            //x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoder);
             return x32_enc_def[i].encoder;
         }
     }
-    x32debug(" NICHT gefunden!\n");
+    //x32debug(" NICHT gefunden!\n");
     return X32_ENC_NONE;
 }

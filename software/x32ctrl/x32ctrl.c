@@ -18,15 +18,8 @@
 void timer100msCallback(struct _lv_timer_t *) {
 
     mixerTouchControllTick();
-    
-    if (mixerIsDirty())
-    {
-        syncGui();
-        syncSurface();
-        mixingSyncRoutingConfigFromMixer();
+    syncAll();    
 
-        mixerSetDirtClean();
-    }
 }
 
 void timer10msCallback(struct _lv_timer_t *) {
@@ -287,15 +280,16 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
             guiNewButtonPress(button, buttonPressed);  // TODO: needed?
               
     } else if (class == 'e') {
-        mixerSurfaceEncoderMoved(boardId, index, value);
+        mixerSurfaceEncoderTurned(boardId, index, value);
+        
         // calculate user-readable variables
-        uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
+        //uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
         //int16_t velocity = (int16_t)value;
 
-        x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-        if (!mixerIsModelX32Core()) {
-            lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-        }
+        //x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+        //if (!mixerIsModelX32Core()) {
+        //    lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+        //}
     } else {
         x32debug("unknown message: boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
     }
@@ -334,6 +328,32 @@ void fpgaCallback(char *buf, uint8_t len) {
     // later it is planned to receive information about audio-levels here
     //printf("Received: %s\n", buf);
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
+}
+
+// ####################################################################
+// #
+// #
+// #        Sync
+// #
+// #
+// ####################################################################
+
+void syncAll(void){
+    if (mixerHasAnyChanged()){
+        if (
+            mixerHasChanged(X32_MIXER_CHANGED_BANKING)   ||
+            mixerHasChanged(X32_MIXER_CHANGED_SELECT)    ||
+            mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL) 
+           ){            
+            syncGui();
+            syncSurface();
+        }
+        if (mixerHasChanged(X32_MIXER_CHANGED_ROUTING)){
+            mixingSyncRoutingConfigFromMixer();
+        }
+
+        mixerResetChangeFlags();
+    }
 }
 
 // sync mixer state to GUI
@@ -499,13 +519,45 @@ void syncSurface(void) {
 }
 
 void syncSurfaceBoardMain() {
-    // Phantom
-    if (mixerIsPhantomDirty()) { setLedByEnum(X32_BTN_PHANTOM_48V, mixer.vChannel[mixer.selectedVChannel].inputSource.phantomPower); }
-    // Phase Invert
-    if (mixerIsPhaseInvertDirty()) { setLedByEnum(X32_BTN_PHASE_INVERT, mixer.vChannel[mixer.selectedVChannel].inputSource.phaseInvert); }
+
+    bool needForSync = false;
+    bool fullSync = false;
+    s_vChannel* chan = mixerGetSelectedvChannel();
+
+    if (mixerHasChanged(X32_MIXER_CHANGED_SELECT)){ 
+        // vChannel selection has changed - do a full sync
+        needForSync=true;
+        fullSync=true; 
+    }
+    
+    if (mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL) && chan->changed != X32_VCHANNEL_CHANGED_NONE) {
+        // the data in the currently selected vChannel has changed
+        needForSync=true;
+    }
+    
+    if (needForSync){
+        if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+            setLedByEnum(X32_BTN_PHANTOM_48V, chan->inputSource.phantomPower); 
+        }
+        if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+            setLedByEnum(X32_BTN_PHANTOM_48V, chan->inputSource.phantomPower); 
+        }
+        if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHASE_INVERT)){
+            setLedByEnum(X32_BTN_PHASE_INVERT, chan->inputSource.phaseInvert);
+        }
+    }
 }
 
 void syncSurfaceBoard(X32_BOARD p_board) {
+
+    bool fullSync = false;
+    bool needForSync = false;
+
+    if (mixerHasChanged(X32_MIXER_CHANGED_BANKING)) {
+        fullSync=true;
+    }
+
+
     uint8_t offset = 0;
     if (mixer.model == X32_MODEL_FULL){
         if (p_board == X32_BOARD_M){ offset=8; }
@@ -519,7 +571,9 @@ void syncSurfaceBoard(X32_BOARD p_board) {
         uint8_t vChannelIndex = mixerSurfaceChannel2vChannel(i+offset);
 
         if (vChannelIndex == VCHANNEL_NOT_SET) {
-            
+
+            // TODO: do only, wenn channel got unassigned
+
             setLed(p_board, 0x20+i, 0);
             setLed(p_board, 0x30+i, 0);
             setLed(p_board, 0x40+i, 0);
@@ -530,34 +584,43 @@ void syncSurfaceBoard(X32_BOARD p_board) {
         } else {
             s_vChannel *chan = &mixer.vChannel[vChannelIndex];
 
-            x32debug("syncronize vChannel%d: %s\n", vChannelIndex, chan->name);
+            if (fullSync || mixerHasVChannelAnyChanged(chan)){
+                x32debug("syncronize vChannel%d: %s\n", vChannelIndex, chan->name);
 
-            if (mixerIsSelectDirty()){ setLed(p_board, 0x20+i, chan->selected); }
-            if (mixerIsSoloDirty()){ setLed(p_board, 0x30+i, chan->solo); }
-            if (mixerIsMuteDirty()){ setLed(p_board, 0x40+i, chan->mute); }
-             
-            if (mixerIsVolumeDirty() && mixerTouchcontrolCanSetFader(p_board, i)){
-                u_int16_t faderVolume = dBfs2fader(chan->volume);
-                setFader(p_board, i, faderVolume);
-            }
+                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SELECT)){ setLed(p_board, 0x20+i, chan->selected); }
+                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SOLO)){ setLed(p_board, 0x30+i, chan->solo); }
+                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)){ setLed(p_board, 0x40+i, chan->mute); }
+                
+                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME) && mixerTouchcontrolCanSetFader(p_board, i)){
+                    u_int16_t faderVolume = dBfs2fader(chan->volume);
+                    setFader(p_board, i, faderVolume);
+                }
 
-            if (mixerIsLCDDirty()){
-                char lcdText[20];
-                sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
-                //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-                setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
+                if (
+                    fullSync                                                    || 
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)  ||
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM) ||
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_COLOR)   ||
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_NAME)
+                   )
+                {
+                    char lcdText[20];
+                    sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
+                    //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+                    setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
+                }               
             }
         }
     }
 
     if (p_board == X32_BOARD_R){
         // Clear Solo
-        if (mixerIsSoloDirty()){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
+        if (mixerHasChanged(X32_MIXER_CHANGED_SOLO)){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
     }    
 }
 
 void syncSurfaceBankIndicator(void) {
-    if (mixerIsBankingDirty()){
+    if (mixerHasChanged(X32_MIXER_CHANGED_BANKING)){
         if (mixerIsModelX32Full()){
             setLedByEnum(X32_BTN_CH_1_16, 0);
             setLedByEnum(X32_BTN_CH_17_32, 0);
@@ -741,7 +804,7 @@ int main() {
         x32log("Starting Timer...\n");
         initTimer();
 
-        mixerSetAllDirty();  // trigger first sync to gui/surface
+        mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
         x32log("Wait for incoming data on /dev/ttymxc1...\n");
         x32log("Press Ctrl+C to terminate program.\n");

@@ -3,9 +3,18 @@
 
 s_Mixer mixer;
 
+
+// ####################################################################
+// #
+// #
+// #        Init
+// #
+// #
+// ####################################################################
+
 void initMixer(X32_MODEL p_model) {
 
-    x32debug("############# InitMixer() #############\n");
+    x32debug("############# InitMixer(model_index=%d) #############\n", p_model);
 
     mixer.model = p_model;
 
@@ -48,11 +57,9 @@ void initMixer(X32_MODEL p_model) {
     //#
     //##################################################################################
     for (int i=0; i<=31; i++) {
-        x32debug("Setting up vChannel%d - ", i);
         s_vChannel *vChannel = &(mixer.vChannel[i]);
         mixerSetVChannelDefaults(vChannel, i, false);
         sprintf(&(vChannel->name), "Kanal %d", i+1); // german label :-)
-        x32debug("%s\n", &(vChannel->name));
 
         s_inputSource *input = &vChannel->inputSource;
         input->phantomPower = false;
@@ -75,26 +82,34 @@ void initMixer(X32_MODEL p_model) {
 
 
 #if DEBUG
-    // // set color on first 8 channels for testing
-    // // set input to Off for channelindex 5
-    // mixer.vChannel[0].color = SURFACE_COLOR_WHITE;
-    // sprintf(mixer.vChannel[0].name, "White");
-    // mixer.vChannel[1].color = SURFACE_COLOR_YELLOW;
-    // sprintf(mixer.vChannel[1].name, "Yellow");
-    // mixer.vChannel[2].color = SURFACE_COLOR_BLUE;
-    // sprintf(mixer.vChannel[2].name, "Blue");
-    // mixer.vChannel[3].color = SURFACE_COLOR_CYAN;
-    // sprintf(mixer.vChannel[3].name, "Cyan has 30 characters - long.");
-    // mixer.vChannel[4].color = SURFACE_COLOR_GREEN;
-    // sprintf(mixer.vChannel[4].name, "Green");
-    // mixer.vChannel[5].color = SURFACE_COLOR_PINK;
-    // sprintf(mixer.vChannel[5].name, "Pink (Off)");
-    // mixer.vChannel[5].inputSource.group = 0;
-    // mixer.vChannel[5].inputSource.hardwareChannel = 0;
-    // mixer.vChannel[6].color = SURFACE_COLOR_RED;
-    // sprintf(mixer.vChannel[6].name, "Red");
-    // mixer.vChannel[7].color = SURFACE_COLOR_BLACK;
-    // sprintf(mixer.vChannel[7].name, "Black");
+    // set color on first 8 channels for testing
+    // set input to Off for channelindex 5
+    mixer.vChannel[0].color = SURFACE_COLOR_WHITE;
+    mixer.vChannel[0].volume = 0;
+    sprintf(mixer.vChannel[0].name, "White");
+    mixer.vChannel[1].color = SURFACE_COLOR_YELLOW;
+    mixer.vChannel[1].volume = 0;
+    sprintf(mixer.vChannel[1].name, "Yellow");
+    mixer.vChannel[2].color = SURFACE_COLOR_BLUE;
+    mixer.vChannel[2].volume = 0;
+    sprintf(mixer.vChannel[2].name, "Blue");
+    mixer.vChannel[3].color = SURFACE_COLOR_CYAN;
+    mixer.vChannel[3].volume = 0;
+    sprintf(mixer.vChannel[3].name, "Cyan has 30 characters - long.");
+    mixer.vChannel[4].color = SURFACE_COLOR_GREEN;
+    mixer.vChannel[4].volume = 0;
+    sprintf(mixer.vChannel[4].name, "Green");
+    mixer.vChannel[5].color = SURFACE_COLOR_PINK;
+    mixer.vChannel[5].volume = 0;
+    mixer.vChannel[5].inputSource.group = 0;
+    mixer.vChannel[5].inputSource.hardwareChannel = 0;
+    sprintf(mixer.vChannel[5].name, "Pink (Off)");
+    mixer.vChannel[6].color = SURFACE_COLOR_RED;
+    mixer.vChannel[6].volume = 0;
+    sprintf(mixer.vChannel[6].name, "Red");
+    mixer.vChannel[7].color = SURFACE_COLOR_BLACK;
+    mixer.vChannel[7].volume = 0;
+    sprintf(mixer.vChannel[7].name, "Black");
 #endif
 
     // AUX 1-6 / USB
@@ -236,112 +251,70 @@ void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_vChannelIndex, b
     p_vChannel->outputDestination.hardwareChannel = 0;
 }
 
-void mixerSetAllDirty(void){
-    mixer.dirty = X32_DIRTY_ALL;
+// ####################################################################
+// #
+// #
+// #        Changeflags
+// #
+// #
+// ####################################################################
+
+
+void mixerSetChangeFlags(uint16_t p_flag){
+    mixer.changed |= p_flag;
 }
 
-void mixerSetVolumeDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_VOLUME;
+bool mixerHasAnyChanged(void){
+    return (mixer.changed != X32_MIXER_CHANGED_NONE);
 }
 
-void mixerSetSelectDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_SELECT;
+bool mixerHasChanged(uint16_t p_flag){
+    return ((mixer.changed & p_flag) == p_flag);
 }
 
-void mixerSetSoloDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_SOLO;
-}
-
-void mixerSetMuteDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_MUTE;
-}
-
-void mixerSetLCDDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_LCD;
-}
-
-void mixerSetBankingDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_BANKING;
-}
-
-void mixerSetRoutingDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_ROUTING;
-}
-
-void mixerSetPhantomDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_PHANTOM;
-}
-
-void mixerSetPhaseInvertDirty(void){
-    mixer.dirty = mixer.dirty | X32_DIRTY_PHASE_INVERT;
-}
-
-void mixerSetDirtClean(void){
-    mixer.dirty = X32_DIRTY_NONE;
-}
-
-bool mixerIsDirty(void){
-    return (mixer.dirty!=X32_DIRTY_NONE);
-}
-
-bool mixerIsVolumeDirty(void){
-    return ((mixer.dirty & X32_DIRTY_VOLUME) == X32_DIRTY_VOLUME);
-}
-
-bool mixerIsSelectDirty(void){
-    return ((mixer.dirty & X32_DIRTY_SELECT) == X32_DIRTY_SELECT);
-}
-
-bool mixerIsSoloDirty(void){
-    return ((mixer.dirty & X32_DIRTY_SOLO) == X32_DIRTY_SOLO);
-}
-
-bool mixerIsMuteDirty(void){
-    return ((mixer.dirty & X32_DIRTY_MUTE) == X32_DIRTY_MUTE);
-}
-
-bool mixerIsLCDDirty(void){
-    return ((mixer.dirty & X32_DIRTY_LCD) == X32_DIRTY_LCD);
-}
-
-bool mixerIsBankingDirty(void){
-    return ((mixer.dirty & X32_DIRTY_BANKING) == X32_DIRTY_BANKING);
-}
-
-bool mixerIsRoutingDirty(void){
-    return ((mixer.dirty & X32_DIRTY_ROUTING) == X32_DIRTY_ROUTING);
-}
-
-bool mixerIsPhantomDirty(void){
-    return ((mixer.dirty & X32_DIRTY_PHANTOM) == X32_DIRTY_PHANTOM);
-}
-
-bool mixerIsPhaseInvertDirty(void){
-    return ((mixer.dirty & X32_DIRTY_PHASE_INVERT) == X32_DIRTY_PHASE_INVERT);
-}
-
-
-void mixerTouchControllTick(void){
-    if (mixer.touchcontrol.value > 0) {
-        mixer.touchcontrol.value--;
-        if (mixer.touchcontrol.value == 0)
-        {
-            mixerSetVolumeDirty();
-        }
-        x32debug("TouchControl=%d\n", mixer.touchcontrol.value);
+void mixerResetChangeFlags(void){
+    mixer.changed = X32_MIXER_CHANGED_NONE;
+    for (uint8_t i=0;i<MAX_VCHANNELS;i++){
+        mixerResetVChannelChangeFlags(&(mixer.vChannel[i])); 
     }
 }
 
-bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
-    if ((mixer.touchcontrol.board != p_board) && (mixer.touchcontrol.faderIndex != p_faderIndex)){
-        return true;
-    } 
+void mixerSetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag){
+    mixer.vChannel[p_chanIndex].changed |= p_flag;
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+}
 
-    if (mixer.touchcontrol.value == 0){
-        return true;
-    }
+void mixerSetVChannelChangeFlags(s_vChannel *p_chan, uint16_t p_flag){
+    p_chan->changed |= p_flag;
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+}
 
-    return false;
+bool mixerHasVChannelChanged(s_vChannel *p_chan, uint16_t p_flag){
+    return ((p_chan->changed & p_flag) == p_flag);
+}
+
+bool mixerHasVChannelAnyChanged(s_vChannel *p_chan){
+    return ((p_chan->changed) != X32_VCHANNEL_CHANGED_NONE);
+}
+
+void mixerResetVChannelChangeFlags(s_vChannel *p_chan){
+    p_chan->changed = X32_VCHANNEL_CHANGED_NONE;
+}
+
+// ####################################################################
+// #
+// #
+// #        vChannel Assigment
+// #
+// #
+// ####################################################################
+
+uint8_t mixerGetSelectedvChannelIndex(void){
+    return  mixer.selectedVChannel;
+}
+
+s_vChannel* mixerGetSelectedvChannel(void){
+    return  &(mixer.vChannel[mixerGetSelectedvChannelIndex()]);
 }
 
 uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel)
@@ -370,6 +343,26 @@ uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel)
         }
     }
 }
+
+uint8_t mixerGetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex) {
+    uint8_t offset = 0;
+    if (p_board == X32_BOARD_M) { offset=8; }
+    if (mixerIsModelX32Full()){
+        if (p_board == X32_BOARD_R) { offset=16; }
+    } 
+    if (mixerIsModelX32CompacrOrProducer()){
+        if (p_board == X32_BOARD_R) { offset=8; }
+    }
+    return mixerSurfaceChannel2vChannel(p_buttonIndex + offset);
+}
+
+// ####################################################################
+// #
+// #
+// #        Fader moved, button pressed, encoder turned and such
+// #
+// #
+// ####################################################################
 
 void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue){
     uint8_t vChannelIndex = VCHANNEL_NOT_SET;
@@ -453,7 +446,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_L_CH_6_SELECT:
                 case X32_BTN_BOARD_L_CH_7_SELECT:
                 case X32_BTN_BOARD_L_CH_8_SELECT:
-                    mixerToggleSelect(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_L_CH_1_SELECT));
+                    mixerToggleSelect(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_L_CH_1_SELECT));
                     break;
                 case X32_BTN_BOARD_M_CH_1_SELECT:
                 case X32_BTN_BOARD_M_CH_2_SELECT:
@@ -463,7 +456,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_M_CH_6_SELECT:
                 case X32_BTN_BOARD_M_CH_7_SELECT:
                 case X32_BTN_BOARD_M_CH_8_SELECT:
-                    mixerToggleSelect(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_M_CH_1_SELECT));
+                    mixerToggleSelect(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_M_CH_1_SELECT));
                     break;
                 case X32_BTN_BOARD_R_CH_1_SELECT:
                 case X32_BTN_BOARD_R_CH_2_SELECT:
@@ -473,7 +466,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_R_CH_6_SELECT:
                 case X32_BTN_BOARD_R_CH_7_SELECT:
                 case X32_BTN_BOARD_R_CH_8_SELECT:
-                    mixerToggleSelect(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_R_CH_1_SELECT));
+                    mixerToggleSelect(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_R_CH_1_SELECT));
                     break;
                 case X32_BTN_BOARD_L_CH_1_SOLO:
                 case X32_BTN_BOARD_L_CH_2_SOLO:
@@ -483,7 +476,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_L_CH_6_SOLO:
                 case X32_BTN_BOARD_L_CH_7_SOLO:
                 case X32_BTN_BOARD_L_CH_8_SOLO:
-                    mixerToggleSolo(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_L_CH_1_SOLO));
+                    mixerToggleSolo(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_L_CH_1_SOLO));
                     break;
                 case X32_BTN_BOARD_M_CH_1_SOLO:
                 case X32_BTN_BOARD_M_CH_2_SOLO:
@@ -493,7 +486,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_M_CH_6_SOLO:
                 case X32_BTN_BOARD_M_CH_7_SOLO:
                 case X32_BTN_BOARD_M_CH_8_SOLO:
-                    mixerToggleSolo(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_M_CH_1_SOLO));
+                    mixerToggleSolo(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_M_CH_1_SOLO));
                     break;
                 case X32_BTN_BOARD_R_CH_1_SOLO:
                 case X32_BTN_BOARD_R_CH_2_SOLO:
@@ -503,7 +496,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_R_CH_6_SOLO:
                 case X32_BTN_BOARD_R_CH_7_SOLO:
                 case X32_BTN_BOARD_R_CH_8_SOLO:
-                    mixerToggleSolo(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_R_CH_1_SOLO));
+                    mixerToggleSolo(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_R_CH_1_SOLO));
                     break;
                 case X32_BTN_BOARD_L_CH_1_MUTE:
                 case X32_BTN_BOARD_L_CH_2_MUTE:
@@ -513,7 +506,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_L_CH_6_MUTE:
                 case X32_BTN_BOARD_L_CH_7_MUTE:
                 case X32_BTN_BOARD_L_CH_8_MUTE:
-                    mixerToggleMute(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_L_CH_1_MUTE));
+                    mixerToggleMute(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_L_CH_1_MUTE));
                     break;         
                 case X32_BTN_BOARD_M_CH_1_MUTE:
                 case X32_BTN_BOARD_M_CH_2_MUTE:
@@ -523,7 +516,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_M_CH_6_MUTE:
                 case X32_BTN_BOARD_M_CH_7_MUTE:
                 case X32_BTN_BOARD_M_CH_8_MUTE:
-                    mixerToggleMute(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_M_CH_1_MUTE));
+                    mixerToggleMute(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_M_CH_1_MUTE));
                     break; 
                 case X32_BTN_BOARD_R_CH_1_MUTE:
                 case X32_BTN_BOARD_R_CH_2_MUTE:
@@ -533,7 +526,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_R_CH_6_MUTE:
                 case X32_BTN_BOARD_R_CH_7_MUTE:
                 case X32_BTN_BOARD_R_CH_8_MUTE:
-                    mixerToggleMute(mixerSurfaceSelectSoloMuteButtonGetvChannel(p_board, button - X32_BTN_BOARD_R_CH_1_MUTE));
+                    mixerToggleMute(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_R_CH_1_MUTE));
                     break;    
                 case X32_BTN_CLEAR_SOLO:
                     mixerClearSolo();
@@ -545,6 +538,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                     mixerTogglePhaseInvert(mixer.selectedVChannel);
                     break;
                 default:
+                    // TODO: Callback to x32ctrl if needed
                     x32debug("Unhandled button detected.\n");
                     break;
             }
@@ -552,48 +546,51 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
     }
 }
 
-void mixerSurfaceEncoderMoved(X32_BOARD p_board, uint8_t p_index, uint16_t p_value) {
-    // X32_BTN button = encoder2 (((uint16_t)p_board << 8) + (uint16_t)(p_value & 0x7F));
-    // bool buttonPressed = (p_value >> 7) == 1;
+void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_value) {
+    X32_ENC encoder = encoder2enum(((uint16_t)p_board << 8) + (uint16_t)(p_index));
+    int8_t amount = 0;
 
-}
-
-uint8_t mixerSurfaceSelectSoloMuteButtonGetvChannel(X32_BOARD p_board, uint16_t p_buttonIndex) {
-    uint8_t offset = 0;
-    if (p_board == X32_BOARD_M) { offset=8; }
-    if (mixerIsModelX32Full()){
-        if (p_board == X32_BOARD_R) { offset=16; }
-    } 
-    if (mixerIsModelX32CompacrOrProducer()){
-        if (p_board == X32_BOARD_R) { offset=8; }
+    if (p_value > 0 && p_value < 128){
+        amount = (uint8_t)p_value;
+    } else if (p_value > 128 && p_value < 256) {
+        amount = -(256 - (uint8_t)(p_value));
     }
-    return mixerSurfaceChannel2vChannel(p_buttonIndex + offset);
+    x32debug("Encoder: %d\n", amount);
+    
+    if (mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) {   
+        switch (encoder){
+            case X32_ENC_GAIN:
+                mixerChangeGain(mixerGetSelectedvChannel()->index, amount);
+                break;
+            default:
+                // TODO: Callback to x32ctrl if needed
+                x32debug("Unhandled encoder detected.\n");
+                break;
+        } 
+    }
+
 }
 
 void mixerSetSelect(uint8_t vChannelIndex, bool select){
     for(uint8_t i=0; i<MAX_VCHANNELS;i++){
         mixer.vChannel[i].selected = false;
+        mixer.vChannel[i].changed |= X32_VCHANNEL_CHANGED_SELECT;
     }
     mixer.vChannel[vChannelIndex].selected = select;
-    mixer.selectedVChannel=vChannelIndex;
+    mixer.vChannel[vChannelIndex].changed |= X32_VCHANNEL_CHANGED_SELECT;
     
-    // set all dirty on Board_Main
-    mixerSetSelectDirty();
-    mixerSetPhantomDirty();
-    mixerSetPhaseInvertDirty();
+    mixer.selectedVChannel=vChannelIndex;
+    mixerSetChangeFlags(X32_MIXER_CHANGED_SELECT);
 }
 
 void mixerToggleSelect(uint8_t vChannelIndex){
     mixerSetSelect(vChannelIndex, !mixer.vChannel[vChannelIndex].selected);
 }
 
-s_vChannel* mixerGetSelectedvChannel(void){
-    return  &(mixer.vChannel[mixer.selectedVChannel]);
-}
-
-void mixerSetSolo(uint8_t vChannelIndex, bool solo){
-    mixer.vChannel[vChannelIndex].solo = solo;
-    mixerSetSoloDirty();
+void mixerSetSolo(uint8_t p_vChannelIndex, bool solo){
+    mixer.vChannel[p_vChannelIndex].solo = solo;
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_SOLO);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 
     //TODOs
     // - switch monitor source
@@ -601,16 +598,6 @@ void mixerSetSolo(uint8_t vChannelIndex, bool solo){
 
 void mixerToggleSolo(uint8_t vChannelIndex){
     mixerSetSolo(vChannelIndex, !mixer.vChannel[vChannelIndex].solo);
-}
-
-bool mixerIsSoloActivated(void){
-    for (int i=0; i<MAX_VCHANNELS; i++)
-    {
-        if (mixer.vChannel[i].solo){
-            return true;
-        }
-    } 
-    return false;
 }
 
 void mixerClearSolo(void){
@@ -621,29 +608,30 @@ void mixerClearSolo(void){
     }
 }
 
-void mixerSetPhantom(uint8_t vChannelIndex, bool p_phantom){
-    mixer.vChannel[vChannelIndex].inputSource.phantomPower = p_phantom;
-    mixerSetPhantomDirty();
-    mixerSetLCDDirty();
+void mixerSetPhantom(uint8_t p_vChannelIndex, bool p_phantom){
+    mixer.vChannel[p_vChannelIndex].inputSource.phantomPower = p_phantom;
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_PHANTOM);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
-void mixerTogglePhantom(uint8_t vChannelIndex){
-    mixerSetPhantom(mixer.selectedVChannel, !mixer.vChannel[vChannelIndex].inputSource.phantomPower);
+void mixerTogglePhantom(uint8_t p_vChannelIndex){
+    mixerSetPhantom(mixer.selectedVChannel, !mixer.vChannel[p_vChannelIndex].inputSource.phantomPower);
 }
 
-void mixerSetPhaseInvert(uint8_t vChannelIndex, bool p_phaseInvert){
-    mixer.vChannel[vChannelIndex].inputSource.phaseInvert = p_phaseInvert;
-    mixerSetPhaseInvertDirty();
-    mixerSetLCDDirty();
+void mixerSetPhaseInvert(uint8_t p_vChannelIndex, bool p_phaseInvert){
+    mixer.vChannel[p_vChannelIndex].inputSource.phaseInvert = p_phaseInvert;
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_PHASE_INVERT);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 void mixerTogglePhaseInvert(uint8_t vChannelIndex){
     mixerSetPhaseInvert(mixer.selectedVChannel, !mixer.vChannel[vChannelIndex].inputSource.phaseInvert);
 }
 
-void mixerSetMute(uint8_t vChannelIndex, bool mute){
-    mixer.vChannel[vChannelIndex].mute = mute;
-    mixerSetMuteDirty();
+void mixerSetMute(uint8_t p_vChannelIndex, bool mute){
+    mixer.vChannel[p_vChannelIndex].mute = mute;
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_MUTE);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 void mixerToggleMute(uint8_t vChannelIndex){
@@ -706,7 +694,15 @@ void mixerBanking(X32_BTN p_button){
         }
     }
 
-    mixerSetAllDirty(); // banking affects all, so do a global refresh
+    mixerSetChangeFlags(X32_MIXER_CHANGED_BANKING);
+}
+
+// volume in dBfs
+void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount){
+    mixer.vChannel[p_vChannelIndex].inputSource.gain += p_amount;
+
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 // volume in dBfs
@@ -716,8 +712,8 @@ void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
     }
     mixer.vChannel[p_vChannelIndex].volume = p_volume;
 
-    mixerSetVolumeDirty();
-    mixerSetLCDDirty();
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 
@@ -782,6 +778,23 @@ void mixerShowPage(X32_PAGE page) {
     }
 }
 
+// ####################################################################
+// #
+// #
+// #        Current state
+// #
+// #
+// ###################################################################
+
+bool mixerIsSoloActivated(void){
+    for (int i=0; i<MAX_VCHANNELS; i++)
+    {
+        if (mixer.vChannel[i].solo){
+            return true;
+        }
+    } 
+    return false;
+}
 
 bool mixerIsModelX32Full(void){
     return (mixer.model == X32_MODEL_FULL);
@@ -793,6 +806,14 @@ bool mixerIsModelX32CompacrOrProducer(void){
 bool mixerIsModelX32Core(void){
     return (mixer.model == X32_MODEL_CORE);
 }
+
+// ####################################################################
+// #
+// #
+// #        Debug
+// #
+// #
+// ###################################################################
 
 void mixerDebugPrintBank(uint8_t bank)
 {

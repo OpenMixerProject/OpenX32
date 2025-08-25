@@ -50,6 +50,7 @@
 #include "mixing.h"
 #include "mixer.h"
 #include "fpga.h"
+#include "touchcontrol.h"
 
 // function prototypes
 void timer100msCallback(struct _lv_timer_t *);
@@ -58,6 +59,7 @@ void surfaceDemo(void);
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value);
 void addaCallback(char *msg);
 void fpgaCallback(char *buf, uint8_t len);
+void syncGuiAndSurface(void);
 void syncGui(void);
 void syncSurface(void);
 void syncSurfaceBoard(X32_BOARD board);

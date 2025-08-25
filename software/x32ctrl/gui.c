@@ -190,7 +190,7 @@ void guiInit(void) {
   guiInitInput();
 
   mixerShowPage(-1);   // shows the welcome page
-  mixerSetAllDirty();  // trigger first sync to gui/surface
+  mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
   // start endless loop
   driver_backends_run_loop();
