@@ -225,7 +225,7 @@ void setLcd(uint8_t boardId, uint8_t index, uint8_t color, uint8_t xicon, uint8_
   messageBuilderAddDataByte(&message, 0x80 + boardId); // start message for specific boardId
   messageBuilderAddDataByte(&message, 'D'); // class: D = Display
   messageBuilderAddDataByte(&message, index); // index
-  messageBuilderAddDataByte(&message, color & 0x07); // use only 3 bits (bit 0=R, 1=G, 2=B)
+  messageBuilderAddDataByte(&message, color & 0x0F); // use only 4 bits (bit 0=R, 1=G, 2=B, 3=Inverted)
 
   // begin of script
   // transmit icon

@@ -110,7 +110,10 @@ void surfaceDemo(void) {
     }
 }
 
-uint8_t led = 0;
+#if DEBUG
+uint8_t dbgLed = 0;
+uint8_t dbgColor = 0;
+#endif
 
 // function will be called by uart-receive-function
 void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value) {
@@ -121,6 +124,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         // handle button press by surface business logic
         mixerSurfaceButtonPressed(boardId, index, value);
 
+#if DEBUG
         //###################################################################
         //#
         //#       below buttons for debugging and development only!
@@ -234,7 +238,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                     setLed(X32_BOARD_MAIN, 0xf, 1);
                     break;
                 case X32_BTN_ASSIGN_4:
-                    led = 0;
+                    dbgLed = 0;
                     for (int i=0; i < 0x80; i++){
                         setLed(X32_BOARD_MAIN, i, 0);                        
                     }
@@ -242,10 +246,10 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_ASSIGN_5:
                     // LED Finder
                     char ledText[20] = "";
-                    sprintf(&ledText, "LED: 0x%04X", led);
+                    sprintf(&ledText, "LED: 0x%04X", dbgLed);
                     setLcd(X32_BOARD_MAIN, 0, SURFACE_COLOR_YELLOW, 0, 0, 0, 0, 0, 0, ledText, 0x20, 0,  40, "OpenX32");
-                    setLed(X32_BOARD_MAIN, led, 1);
-                    led++;
+                    setLed(X32_BOARD_MAIN, dbgLed, 1);
+                    dbgLed++;
                     break;
                 case X32_BTN_ASSIGN_6:
                     // X32 Core Demo
@@ -276,20 +280,46 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 }
             }
             
+#endif
             // inform LVGL about this new button-press
             guiNewButtonPress(button, buttonPressed);  // TODO: needed?
               
     } else if (class == 'e') {
         mixerSurfaceEncoderTurned(boardId, index, value);
-        
-        // calculate user-readable variables
-        //uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
-        //int16_t velocity = (int16_t)value;
 
-        //x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-        //if (!mixerIsModelX32Core()) {
-        //    lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-        //}
+#if DEBUG
+
+        //###################################################################
+        //#
+        //#       below buttons for debugging and development only!
+        //#
+        //###################################################################
+
+        X32_ENC encoder = encoder2enum(((uint16_t)boardId << 8) + (uint16_t)(index));
+        int8_t amount = 0;
+
+        if (value > 0 && value < 128){
+            amount = (uint8_t)value;
+        } else if (value > 128 && value < 256) {
+            amount = -(256 - (uint8_t)(value));
+        }
+        x32debug("Encoder: %d dbgColor=%d\n", amount, dbgColor);
+
+        switch(encoder){
+            case X32_ENC_ENCODER1:
+                dbgColor += amount;
+                //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+                    setLcd(X32_BOARD_R, 8, dbgColor,     0,    0,    0,  0x00,  0,  0,          "test",  0x00,  0, 50, "test");      
+                break;
+            default:
+                x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+                if (!mixerIsModelX32Core()) {
+                    lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+                }
+                break;
+        }
+#endif
+
     } else {
         x32debug("unknown message: boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
     }
