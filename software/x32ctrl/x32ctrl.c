@@ -126,15 +126,14 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
     } else if (class == 'b') {
 
         // handle button press by surface business logic
-        bool processed = mixerSurfaceButtonPressed(boardId, index, value);
+        mixerSurfaceButtonPressed(boardId, index, value);
 
         //###################################################################
         //#
         //#       below buttons for debugging and development only!
         //#
         //###################################################################
-        if (!processed)
-        {
+
             // calculate user-readable variables
             X32_BTN button = button2enum(((uint16_t)boardId << 8) + (uint16_t)(value & 0x7F));
 
@@ -228,10 +227,8 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                     mixerDebugPrintvChannels();
                     break;
                 case X32_BTN_MUTE_GROUP_2:
-                    mixerDebugPrintBank(0);
-                    mixerDebugPrintBank(1);
-                    mixerDebugPrintBank(2);
-                    mixerDebugPrintBank(3);
+                    mixerDebugPrintBank(0);                    
+                    mixerDebugPrintBusBank(0);
                     break;
                 case X32_BTN_SCENE_SETUP:
                     setLed(X32_BOARD_MAIN, 0, 1);
@@ -288,7 +285,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
             
             // inform LVGL about this new button-press
             guiNewButtonPress(button, buttonPressed);  // TODO: needed?
-        }      
+              
     } else if (class == 'e') {
       // calculate user-readable variables
       //uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
@@ -345,7 +342,7 @@ void syncGui(void) {
         return;
     }
 
-    s_vChannel* selected_vChannel = &mixer.vChannel[mixerGetSelectedvChannel()];
+    s_vChannel* selected_vChannel = mixerGetSelectedvChannel();
 
     //####################################
     //#         General
@@ -379,7 +376,7 @@ void syncGui(void) {
             break;
     }
     
-    lv_label_set_text_fmt(objects.current_channel_number, "CH%d", selected_vChannel->number);
+    lv_label_set_text_fmt(objects.current_channel_number, "vCh%d", selected_vChannel->index);
     lv_label_set_text_fmt(objects.current_channel_name, "%s", selected_vChannel->name);
     lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 
@@ -488,13 +485,16 @@ void syncGui(void) {
 
 // sync mixer state to Surface
 void syncSurface(void) {
-    syncSurfaceBoardMain();
-    syncSurfaceBoard(X32_BOARD_L);
-    if (mixer.model == X32_MODEL_FULL){
-        syncSurfaceBoard(X32_BOARD_M);
+    if ((mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) || (mixer.activeMode == X32_SURFACE_MODE_BANKING_USER))
+    {
+        syncSurfaceBoardMain();
+        syncSurfaceBoard(X32_BOARD_L);
+        if (mixer.model == X32_MODEL_FULL){
+            syncSurfaceBoard(X32_BOARD_M);
+        }
+        syncSurfaceBoard(X32_BOARD_R);
+        syncSurfaceBankIndicator();
     }
-    syncSurfaceBoard(X32_BOARD_R);
-    syncSurfaceBankIndicator();
 }
 
 void syncSurfaceBoardMain() {
@@ -560,19 +560,39 @@ void syncSurfaceBankIndicator(void) {
         if (mixerIsModelX32Full()){
             setLedByEnum(X32_BTN_CH_1_16, 0);
             setLedByEnum(X32_BTN_CH_17_32, 0);
-            if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
-            if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
+            setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 0);
+            setLedByEnum(X32_BTN_BUS_MASTER, 0);
+            if (mixer.activeBank_inputFader == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
+            if (mixer.activeBank_inputFader == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
+            if (mixer.activeBank_inputFader == 2) { setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 1); }
+            if (mixer.activeBank_inputFader == 3) { setLedByEnum(X32_BTN_BUS_MASTER, 1); }
         }
         if (mixerIsModelX32CompacrOrProducer()) {
             setLedByEnum(X32_BTN_CH_1_8, 0);
             setLedByEnum(X32_BTN_CH_9_16, 0);
             setLedByEnum(X32_BTN_CH_17_24, 0);
             setLedByEnum(X32_BTN_CH_25_32, 0);
-            if (mixer.activeBank == 0) { setLedByEnum(X32_BTN_CH_1_8, 1); }
-            if (mixer.activeBank == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
-            if (mixer.activeBank == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
-            if (mixer.activeBank == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
+            setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 0);
+            setLedByEnum(X32_BTN_EFFECTS_RETURNS, 0);
+            setLedByEnum(X32_BTN_BUS_1_8_MASTER, 0);
+            setLedByEnum(X32_BTN_BUS_9_16_MASTER, 0);
+            if (mixer.activeBank_inputFader == 0) { setLedByEnum(X32_BTN_CH_1_8, 1); }
+            if (mixer.activeBank_inputFader == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
+            if (mixer.activeBank_inputFader == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
+            if (mixer.activeBank_inputFader == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
+            if (mixer.activeBank_inputFader == 4) { setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 1); }
+            if (mixer.activeBank_inputFader == 5) { setLedByEnum(X32_BTN_EFFECTS_RETURNS, 1); }
+            if (mixer.activeBank_inputFader == 6) { setLedByEnum(X32_BTN_BUS_1_8_MASTER, 1); }
+            if (mixer.activeBank_inputFader == 7) { setLedByEnum(X32_BTN_BUS_9_16_MASTER, 1); }
         }
+        setLedByEnum(X32_BTN_GROUP_DCA_1_8, 0);
+        setLedByEnum(X32_BTN_BUS_1_8, 0);
+        setLedByEnum(X32_BTN_BUS_9_16, 0);
+        setLedByEnum(X32_BTN_MATRIX_MAIN_C, 0);
+        if (mixer.activeBank_busFader == 0) { setLedByEnum(X32_BTN_GROUP_DCA_1_8, 1); }
+        if (mixer.activeBank_busFader == 1) { setLedByEnum(X32_BTN_BUS_1_8, 1); }
+        if (mixer.activeBank_busFader == 2) { setLedByEnum(X32_BTN_BUS_9_16, 1); }
+        if (mixer.activeBank_busFader == 3) { setLedByEnum(X32_BTN_MATRIX_MAIN_C, 1); }
     }
 }
 
@@ -642,21 +662,14 @@ int main() {
         //initButtonDefinition(X32_MODEL_FULL);
         //initMixer(X32_MODEL_FULL);
         //
-        // x32debug("ERROR: No model detected - assume X32 Compact!\n");
-        // initButtonDefinition(X32_MODEL_COMPACT);
-        // initMixer(X32_MODEL_COMPACT);
-        x32debug("ERROR: No model detected - assume X32 Core!\n");
-        initButtonDefinition(X32_MODEL_CORE);
-        initMixer(X32_MODEL_CORE);
+        x32debug("ERROR: No model detected - assume X32 Compact!\n");
+        initButtonDefinition(X32_MODEL_COMPACT);
+        initMixer(X32_MODEL_COMPACT);
+        //x32debug("ERROR: No model detected - assume X32 Core!\n");
+        //initButtonDefinition(X32_MODEL_CORE);
+        //initMixer(X32_MODEL_CORE);
         #endif
     }
-
-    mixerDebugPrintvChannels();
-
-    mixerDebugPrintBank(0);
-    mixerDebugPrintBank(1);
-    mixerDebugPrintBank(2);
-    mixerDebugPrintBank(3);
 
     x32log(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 

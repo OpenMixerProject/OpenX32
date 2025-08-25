@@ -3,17 +3,39 @@
 
 #include "x32ctrl.h"
 
-#define MAX_BANKS 4
-#define MAX_VCHANNELS 100
-#define MAX_SURFACECHANNELS 35
+#define MAX_VCHANNELS 80
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
 #define VCHANNEL_NOT_SET MAX_VCHANNELS+1
 
 #define VCHANNEL_IDX_MAIN 32
 
 typedef enum {
-    X32_SURFACE_MODE_BANKING,
+    // Standard Layout like X32 Original
+    X32_SURFACE_MODE_BANKING_X32,
+
+    // User Layout
+    X32_SURFACE_MODE_BANKING_USER,
 } X32_SURFACE_MODE;
+
+#define X32_DIRTY_NONE      0b0000000000000000
+#define X32_DIRTY_ALL       0b1111111111111111
+#define X32_DIRTY_ROUTING   0b0000000000000001
+#define X32_DIRTY_VOLUME    0b0000000000000010
+#define X32_DIRTY_SELECT    0b0000000000000100
+#define X32_DIRTY_SOLO      0b0000000000001000
+#define X32_DIRTY_MUTE      0b0000000000010000
+#define X32_DIRTY_BANKING   0b0000000000100000
+#define X32_DIRTY_LCD       0b0000000001000000
+#define X32_DIRTY_PHANTOM   0b0000000010000000
+#define X32_DIRTY_PHASE_INVERT  0b0000000100000000
+
+// TouchControl Basic Plus - one fader at a time is touchcontrolled
+typedef struct{
+    uint8_t value;
+    X32_BOARD board;
+    uint8_t faderIndex;
+} s_TouchControl;
+
 
 typedef struct{
     uint8_t group;
@@ -30,8 +52,7 @@ typedef struct{
 
 typedef struct{
 
-    // starts with munber 1! users dont like zero based counting
-    uint8_t number;  // not sure if needed
+    uint8_t index;
     char name[MAX_NAME_LENGTH];
     uint8_t color;
     uint8_t icon;
@@ -61,32 +82,23 @@ typedef struct{
     // 24    Main Fader
     // 25-28 Assing 1-4 (only X32 Full)
     // 29-34 Display Encoder 1-6
-    uint8_t surfaceChannel2vChannel[MAX_SURFACECHANNELS];
+    uint8_t surfaceChannel2vChannel[35];
 } s_bank;
 
-#define X32_DIRTY_NONE      0b0000000000000000
-#define X32_DIRTY_ALL       0b1111111111111111
-#define X32_DIRTY_ROUTING   0b0000000000000001
-#define X32_DIRTY_VOLUME    0b0000000000000010
-#define X32_DIRTY_SELECT    0b0000000000000100
-#define X32_DIRTY_SOLO      0b0000000000001000
-#define X32_DIRTY_MUTE      0b0000000000010000
-#define X32_DIRTY_BANKING   0b0000000000100000
-#define X32_DIRTY_LCD       0b0000000001000000
-#define X32_DIRTY_PHANTOM   0b0000000010000000
-#define X32_DIRTY_PHASE_INVERT  0b0000000100000000
-
-// TouchControl Basic Plus - one fader at a time is touchcontrolled
 typedef struct{
-    uint8_t value;
-    X32_BOARD board;
-    uint8_t faderIndex;
-} s_TouchControl;
+    char name[MAX_NAME_LENGTH];
+
+    // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
+    s_bank inputBanks[8];
+
+    s_bank busBanks[4];
+} s_bankMode;
 
 typedef struct{
     X32_MODEL model;
     X32_SURFACE_MODE activeMode;
-    uint8_t activeBank;
+    uint8_t activeBank_inputFader;
+    uint8_t activeBank_busFader;
     uint8_t selectedVChannel;
     
     // solo is (somewhere) activated
@@ -96,7 +108,9 @@ typedef struct{
     uint16_t dirty;
     s_TouchControl touchcontrol;
 
-    s_bank bank[4];
+    s_bankMode modes[3];
+
+    // all virtual - channels / busses / matrix / etc.
     s_vChannel vChannel[MAX_VCHANNELS];    
 } s_Mixer;
 
@@ -106,7 +120,7 @@ void initMixer(X32_MODEL model);
 bool mixerIsModelX32Full();
 bool mixerIsModelX32CompacrOrProducer();
 
-void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_number, bool p_disabled);
+void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_vChannelIndex, bool p_disabled);
 
 void mixerSetAllDirty(void);
 void mixerSetVolumeDirty(void);
@@ -135,7 +149,7 @@ bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
 
 uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel);
 
-bool mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
+void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
 uint8_t mixerSurfaceSelectSoloMuteButtonGetvChannel(X32_BOARD p_board, uint16_t p_buttonIndex);
 void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue);
 
@@ -149,7 +163,7 @@ void mixerTogglePhantom(uint8_t vChannelIndex);
 void mixerSetPhaseInvert(uint8_t vChannelIndex, bool p_phaseInvert);
 void mixerTogglePhaseInvert(uint8_t vChannelIndex);
 
-uint8_t mixerGetSelectedvChannel(void);
+s_vChannel* mixerGetSelectedvChannel(void);
 
 void mixerSetSolo(uint8_t vChannelIndex, bool solo);
 void mixerToggleSolo(uint8_t vChannelIndex);
@@ -167,6 +181,7 @@ bool mixerIsModelX32CompacrOrProducer(void);
 bool mixerIsModelX32Core(void);
 
 void mixerDebugPrintBank(uint8_t bank);
+void mixerDebugPrintBusBank(uint8_t bank);
 void mixerDebugPrintvChannels(void);
 
 #endif
