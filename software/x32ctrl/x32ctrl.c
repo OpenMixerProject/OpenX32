@@ -287,14 +287,15 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
             guiNewButtonPress(button, buttonPressed);  // TODO: needed?
               
     } else if (class == 'e') {
-      // calculate user-readable variables
-      //uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
-      //int16_t velocity = (int16_t)value;
+        mixerSurfaceEncoderMoved(boardId, index, value);
+        // calculate user-readable variables
+        uint16_t encoderNr = ((uint16_t)boardId << 8) + (uint16_t)index;
+        //int16_t velocity = (int16_t)value;
 
-      x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-      if (!mixerIsModelX32Core()) {
-        lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
-      }
+        x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+        if (!mixerIsModelX32Core()) {
+            lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
+        }
     } else {
         x32debug("unknown message: boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
     }
@@ -635,41 +636,36 @@ int main() {
     readConfig("/etc/x32.conf", "MDL=", model, 12);
     readConfig("/etc/x32.conf", "SN=", serial, 12);
     readConfig("/etc/x32.conf", "DATE=", date, 16);
+
+    X32_MODEL modelEnum;
     if (strcmp(model, "X32Core") == 0) {
-        initButtonDefinition(X32_MODEL_CORE);
-        initMixer(X32_MODEL_CORE);
+        modelEnum = X32_MODEL_CORE;
     }else if (strcmp(model, "X32Rack") == 0) {
-        initButtonDefinition(X32_MODEL_RACK);
-        initMixer(X32_MODEL_RACK);
+        modelEnum = X32_MODEL_RACK;
     }else if (strcmp(model, "X32Producer") == 0) {
-        initButtonDefinition(X32_MODEL_PRODUCER);
-        initMixer(X32_MODEL_PRODUCER);
+        modelEnum = X32_MODEL_PRODUCER;        
     }else if (strcmp(model, "X32C") == 0) {
-        initButtonDefinition(X32_MODEL_COMPACT);
-        initMixer(X32_MODEL_COMPACT);
+        modelEnum =  X32_MODEL_COMPACT;
     }else if (strcmp(model, "X32") == 0) {
-        initButtonDefinition(X32_MODEL_FULL);
-        initMixer(X32_MODEL_FULL);
+        modelEnum = X32_MODEL_FULL;
     }else{
         #if DEBUG == 0
-        x32log("ERROR: No model detected - assume X32 Fullsize!\n");
-        initButtonDefinition(X32_MODEL_NONE);
-        initMixer(X32_MODEL_NONE);
+        x32log("ERROR: No model detected!\n");
+        modelEnum = X32_MODEL_NONE;
         #else
         // (for development without inserted sd card)
         //
         //x32debug("ERROR: No model detected - assume X32 Fullsize!\n");
-        //initButtonDefinition(X32_MODEL_FULL);
-        //initMixer(X32_MODEL_FULL);
+        //modelEnum = X32_MODEL_FULL;
         //
         x32debug("ERROR: No model detected - assume X32 Compact!\n");
-        initButtonDefinition(X32_MODEL_COMPACT);
-        initMixer(X32_MODEL_COMPACT);
+        modelEnum =  X32_MODEL_COMPACT;
         //x32debug("ERROR: No model detected - assume X32 Core!\n");
-        //initButtonDefinition(X32_MODEL_CORE);
-        //initMixer(X32_MODEL_CORE);
+        //modelEnum = X32_MODEL_CORE;
         #endif
     }
+
+    initMixer(modelEnum);
 
     x32log(" Detected model: %s with Serial %s built on %s\n", model, serial, date);
 

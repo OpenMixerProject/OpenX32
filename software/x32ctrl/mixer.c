@@ -7,6 +7,10 @@ void initMixer(X32_MODEL p_model) {
 
     x32debug("############# InitMixer() #############\n");
 
+    mixer.model = p_model;
+
+    initDefinitions();
+
     // disable all vChannels
     for (int i = 0; i < MAX_VCHANNELS; i++)
     {
@@ -27,7 +31,7 @@ void initMixer(X32_MODEL p_model) {
         }
     }
 
-    mixer.model = p_model;
+
 
     //##################################################################################
     //#
@@ -546,6 +550,12 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
             }
         }
     }
+}
+
+void mixerSurfaceEncoderMoved(X32_BOARD p_board, uint8_t p_index, uint16_t p_value) {
+    // X32_BTN button = encoder2 (((uint16_t)p_board << 8) + (uint16_t)(p_value & 0x7F));
+    // bool buttonPressed = (p_value >> 7) == 1;
+
 }
 
 uint8_t mixerSurfaceSelectSoloMuteButtonGetvChannel(X32_BOARD p_board, uint16_t p_buttonIndex) {

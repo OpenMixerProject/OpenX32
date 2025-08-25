@@ -14,6 +14,16 @@
 #define SURFACE_COLOR_CYAN 6
 #define SURFACE_COLOR_WHITE 7
 
+typedef struct{
+    X32_BTN button;
+    uint16_t buttonNr;
+} sButtonInfo;
+
+typedef struct{
+    X32_ENC encoder;
+    uint16_t encoderNr;
+} sEncoderInfo;
+
 extern char uartBufferSurface[256];
 
 void setFader(uint8_t boardId, uint8_t index, uint16_t position);
@@ -36,8 +46,9 @@ void surfaceInit(void);
 void surfaceReset(void);
 void surfaceProcessUartData(int bytesToProcess);
 
-void initButtonDefinition(X32_MODEL modell);
+void initDefinitions();
 void addButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr);
+//void addEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr);
 
 uint16_t enum2button(X32_BTN button);
 X32_BTN button2enum(uint16_t button);

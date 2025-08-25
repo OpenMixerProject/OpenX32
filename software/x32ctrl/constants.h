@@ -8,6 +8,7 @@
 //########################################################
 
 #define MAX_BUTTONS 255
+#define MAX_ENCODERS 23 // counted on X32 Full
 
 // LED Brightness
 #define X32_BRIGHTNESS_1 0x0
@@ -324,5 +325,37 @@ typedef enum  {
     X32_LED_BACKLIGHT_ASSING_2,
 
 } X32_BTN;
+
+typedef enum  {
+    X32_ENC_NONE,
+
+    X32_ENC_GAIN,
+    X32_ENC_LOWCUT,
+    X32_ENC_GATE,
+    X32_ENC_DYNAMICS,
+    X32_ENC_EQ_Q,
+    X32_ENC_EQ_FREQ,
+    X32_ENC_EQ_GAIN,
+    X32_ENC_MAIN,
+    X32_ENC_PAN,
+
+    X32_ENC_BUS_SEND_1,
+    X32_ENC_BUS_SEND_2,
+    X32_ENC_BUS_SEND_3,
+    X32_ENC_BUS_SEND_4,
+
+    X32_ENC_ENCODER1,
+    X32_ENC_ENCODER2,
+    X32_ENC_ENCODER3,
+    X32_ENC_ENCODER4,
+    X32_ENC_ENCODER5,
+    X32_ENC_ENCODER6,
+
+    X32_ENC_ASSIGN_1,  // only X32 Full and X32 Core
+    X32_ENC_ASSIGN_2,  // only X32 Full and X32 Core
+    X32_ENC_ASSIGN_3,  // only X32 Full
+    X32_ENC_ASSIGN_4,  // only X32 Full
+    
+} X32_ENC;
 
 #endif

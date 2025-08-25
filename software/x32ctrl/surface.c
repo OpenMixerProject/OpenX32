@@ -1,9 +1,9 @@
 #include "surface.h"
-#include "constants.h"
 
 char uartBufferSurface[256]; // buffer for UART-readings
 uint8_t receivedBoardId = 0;
-
+sButtonInfo x32_btn_def[MAX_BUTTONS];
+sEncoderInfo x32_enc_def[MAX_ENCODERS];
 
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
@@ -514,13 +514,9 @@ void surfaceProcessUartData(int bytesToProcess) {
     }
 }
 
-struct buttonInfo {
-    X32_BTN button;
-    uint16_t buttonNr;
-};
 
-struct buttonInfo x32_btn_def[MAX_BUTTONS];
 int buttonDefinitionIndex = 0;
+int encoderDefinitionIndex = 0;
 
 void addButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     if (buttonDefinitionIndex >= MAX_BUTTONS)
@@ -535,8 +531,21 @@ void addButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     x32debug("added button definition: Button %d -> ButtonNr %d\n", p_button, p_buttonNr);
 }
 
-void initButtonDefinition(X32_MODEL modell) {
-    switch(modell) {
+void addEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
+    if (encoderDefinitionIndex >= MAX_ENCODERS)
+    {
+        //TODO: Error Message
+        x32log("ERROR: MAX_ENCODERS");
+        return;
+    }
+    x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
+    x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
+    encoderDefinitionIndex++;
+    x32debug("added button definition: Button %d -> ButtonNr %d\n", p_encoder, p_encoderNr);
+}
+
+void initDefinitions() {
+    switch(mixer.model) {
         case X32_MODEL_FULL:   
             addButtonDefinition( X32_BTN_TALK_A, 0x012E);
             addButtonDefinition( X32_BTN_TALK_B, 0x012F);
@@ -739,6 +748,15 @@ void initButtonDefinition(X32_MODEL modell) {
             addButtonDefinition( X32_LED_BACKLIGHT_EQ_GAIN, 0x0130 );
             addButtonDefinition( X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131 );
             addButtonDefinition( X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132 );
+
+            // TODO: Check and add Encoders
+
+            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
+            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
+            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
+            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
+
+
             break;
 
         case X32_MODEL_COMPACT:
@@ -896,7 +914,6 @@ void initButtonDefinition(X32_MODEL modell) {
             addButtonDefinition(X32_BTN_BOARD_R_CH_8_MUTE, 0x847);
             addButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
 
-
             // LED only
 
             addButtonDefinition(X32_LED_USB_ACCESS, 0x0126);
@@ -910,6 +927,28 @@ void initButtonDefinition(X32_MODEL modell) {
             addButtonDefinition(X32_LED_BACKLIGHT_EQ_GAIN, 0x0130);
             addButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131);
             addButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132);
+
+            // Encoder
+
+            addEncoderDefinition(X32_ENC_GAIN, 0x0100);
+            addEncoderDefinition(X32_ENC_LOWCUT, 0x0101);
+            addEncoderDefinition(X32_ENC_GATE, 0x0102);
+            addEncoderDefinition(X32_ENC_DYNAMICS, 0x0103);
+
+            addEncoderDefinition(X32_ENC_EQ_Q, 0x0104);
+            addEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
+            addEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
+
+            addEncoderDefinition(X32_ENC_MAIN, 0x0107);
+            addEncoderDefinition(X32_ENC_PAN, 0x0108);
+
+            addEncoderDefinition(X32_ENC_ENCODER1, 0x0109);
+            addEncoderDefinition(X32_ENC_ENCODER2, 0x010A);
+            addEncoderDefinition(X32_ENC_ENCODER3, 0x010B);
+            addEncoderDefinition(X32_ENC_ENCODER4, 0x010C);
+            addEncoderDefinition(X32_ENC_ENCODER5, 0x010D);
+            addEncoderDefinition(X32_ENC_ENCODER6, 0x010E);
+
             break;
 
         case X32_MODEL_CORE:
@@ -962,4 +1001,16 @@ X32_BTN button2enum(uint16_t buttonNr) {
     }
     //x32debug(" NICHT gefunden!\n");
     return X32_BTN_NONE;
+}
+
+X32_ENC encoder2enum(uint16_t encoderNr) {
+    x32debug("DEBUG: encoder2enum: EncoderNr %d -> ", encoderNr);
+    for(int i = 0; i < buttonDefinitionIndex; i++) {
+        if (x32_enc_def[i].encoderNr == encoderNr) {
+            x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoder);
+            return x32_enc_def[i].encoder;
+        }
+    }
+    x32debug(" NICHT gefunden!\n");
+    return X32_ENC_NONE;
 }
