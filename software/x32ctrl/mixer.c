@@ -110,6 +110,32 @@ void initMixer(X32_MODEL p_model) {
     mixer.vChannel[7].color = SURFACE_COLOR_BLACK;
     mixer.vChannel[7].volume = 0;
     sprintf(mixer.vChannel[7].name, "Black");
+
+    // set inverted color on next 8 channels for testing
+    mixer.vChannel[8].color = SURFACE_COLOR_WHITE | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[8].volume = -20;
+    sprintf(mixer.vChannel[8].name, "Inverted White");
+    mixer.vChannel[9].color = SURFACE_COLOR_YELLOW | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[9].volume = -20;
+    sprintf(mixer.vChannel[9].name, "Inverted Yellow");
+    mixer.vChannel[10].color = SURFACE_COLOR_BLUE | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[10].volume = -20;
+    sprintf(mixer.vChannel[10].name, "Inverted Blue");
+    mixer.vChannel[11].color = SURFACE_COLOR_CYAN | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[11].volume = -20;
+    sprintf(mixer.vChannel[11].name, "Inverted Cyan");
+    mixer.vChannel[12].color = SURFACE_COLOR_GREEN | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[12].volume = -20;
+    sprintf(mixer.vChannel[12].name, "Inverted Green");
+    mixer.vChannel[13].color = SURFACE_COLOR_PINK | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[13].volume = -20;
+    sprintf(mixer.vChannel[13].name, "Inverted Pink");
+    mixer.vChannel[14].color = SURFACE_COLOR_RED | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[14].volume = -20;
+    sprintf(mixer.vChannel[14].name, "Inverted Red");
+    mixer.vChannel[15].color = SURFACE_COLOR_BLACK | SURFACE_COLOR_INVERTED;
+    mixer.vChannel[15].volume = -20;
+    sprintf(mixer.vChannel[15].name, "Inverted Black");
 #endif
 
     // AUX 1-6 / USB
