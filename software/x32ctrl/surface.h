@@ -13,6 +13,7 @@
 #define SURFACE_COLOR_PINK 5
 #define SURFACE_COLOR_CYAN 6
 #define SURFACE_COLOR_WHITE 7
+#define SURFACE_COLOR_INVERTED 8
 
 typedef struct{
     X32_BTN button;
