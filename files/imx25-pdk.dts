@@ -65,8 +65,8 @@
 				vback-porch = <24>;
 				vsync-len = <1>;
 				clock-frequency = <40000000>;
-				hsync-active = <0>; // asserted when LOW
-				vsync-active = <0>; // asserted when LOW
+				//hsync-active = <0>; // asserted when LOW
+				//vsync-active = <0>; // asserted when LOW
 				de-active = <1>; // asserted when HIGH
 				pixelclk-active = <1>; // 1 = falling edge
 			};
@@ -200,29 +200,29 @@
 
 		pinctrl_lcd: lcdgrp {
 			fsl,pins = <
-				MX25_PAD_LD0__LD0		0xe0
-				MX25_PAD_LD1__LD1		0xe0
-				MX25_PAD_LD2__LD2		0xe0
-				MX25_PAD_LD3__LD3		0xe0
-				MX25_PAD_LD4__LD4		0xe0
-				MX25_PAD_LD5__LD5		0xe0
-				MX25_PAD_LD6__LD6		0xe0
-				MX25_PAD_LD7__LD7		0xe0
-				MX25_PAD_LD8__LD8		0xe0
-				MX25_PAD_LD9__LD9		0xe0
-				MX25_PAD_LD10__LD10		0xe0
-				MX25_PAD_LD11__LD11		0xe0
-				MX25_PAD_LD12__LD12		0xe0
-				MX25_PAD_LD13__LD13		0xe0
-				MX25_PAD_LD14__LD14		0xe0
-				MX25_PAD_LD15__LD15		0xe0
-				MX25_PAD_D15__LD16		0xe0
-				MX25_PAD_D14__LD17		0xe0
-				MX25_PAD_HSYNC__HSYNC		0xe0
-				MX25_PAD_VSYNC__VSYNC		0xe0
-				MX25_PAD_LSCLK__LSCLK		0xe0
-				MX25_PAD_OE_ACD__OE_ACD		0xe0
-				MX25_PAD_CONTRAST__CONTRAST	0xe0
+				MX25_PAD_LD0__LD0		0x10
+				MX25_PAD_LD1__LD1		0x10
+				MX25_PAD_LD2__LD2		0x10
+				MX25_PAD_LD3__LD3		0x10
+				MX25_PAD_LD4__LD4		0x10
+				MX25_PAD_LD5__LD5		0x10
+				MX25_PAD_LD6__LD6		0x10
+				MX25_PAD_LD7__LD7		0x10
+				MX25_PAD_LD8__LD8		0x10
+				MX25_PAD_LD9__LD9		0x10
+				MX25_PAD_LD10__LD10		0x10
+				MX25_PAD_LD11__LD11		0x10
+				MX25_PAD_LD12__LD12		0x10
+				MX25_PAD_LD13__LD13		0x10
+				MX25_PAD_LD14__LD14		0x10
+				MX25_PAD_LD15__LD15		0x10
+				MX25_PAD_D15__LD16		0x1
+				MX25_PAD_D14__LD17		0x1
+				MX25_PAD_HSYNC__HSYNC		0x10
+				MX25_PAD_VSYNC__VSYNC		0x10
+				MX25_PAD_LSCLK__LSCLK		0x10
+				MX25_PAD_OE_ACD__OE_ACD		0x10
+				MX25_PAD_CONTRAST__CONTRAST	0x10
 				//MX25_PAD_CONTRAST__PWM4_PWMO
 			>;
 		};
@@ -339,9 +339,7 @@
 
 &lcdc {
 	display = <&wvga>;
-	fsl,lpccr = <0x00a903ff>;
-	fsl,lscr1 = <0x00120300>;
-	fsl,dmacr = <0x00020010>;
+	fsl,lpccr = <0x00a903ff>;  // Contrast Control Register   -> PWM-Source == Pixel-Clock 
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lcd>;
 	status = "okay";
