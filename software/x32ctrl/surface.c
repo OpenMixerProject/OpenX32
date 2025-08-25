@@ -210,7 +210,7 @@ void setContrast(uint8_t boardId, uint8_t contrast) {
 // boardId = 0, 4, 5, 8
 // index = 0 ... 8
 // color = 0=BLACK, 1=RED, 2=GREEN, 3=YELLOW, 4=BLUE, 5=PINK, 6=CYAN, 7=WHITE
-// icon = TODO
+// icon = 0xA0 (none), 0xA1 ... 0xE9
 // sizeA/B = 0x00 (small) or 0x20 (large)
 // xA/B = horizontal position in pixel
 // yA/B = vertical position in pixel

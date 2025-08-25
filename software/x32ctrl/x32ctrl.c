@@ -113,6 +113,10 @@ void surfaceDemo(void) {
 #if DEBUG
 uint8_t dbgLed = 0;
 uint8_t dbgColor = 0;
+uint8_t dbgx = 0;
+uint8_t dbgy = 0;
+uint8_t dbgsize = 0;
+uint8_t dbg2 = 0;
 #endif
 
 // function will be called by uart-receive-function
@@ -306,10 +310,20 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         x32debug("Encoder: %d dbgColor=%d\n", amount, dbgColor);
 
         switch(encoder){
+            case X32_ENC_ENCODER5:
+                dbg2 += amount;
+                break;
+            case X32_ENC_ENCODER4:
+                dbgsize += amount;
+                break;
+            case X32_ENC_ENCODER3:
+                dbgy += amount;
+                break;
+            case X32_ENC_ENCODER2:
+                dbgx += amount;
+                break;
             case X32_ENC_ENCODER1:
                 dbgColor += amount;
-                //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-                    setLcd(X32_BOARD_R, 8, dbgColor,     0,    0,    0,  0x00,  0,  0,          "test",  0x00,  0, 50, "test");      
                 break;
             default:
                 x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
@@ -318,6 +332,11 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 }
                 break;
         }
+
+        lv_label_set_text_fmt(
+            objects.debugtext, "LCD: color=0x%02X icon=0x%02X size=0x%02X xA=%d yA=%d\n", dbgColor, dbg2, dbgsize, dbgx, dbgy);
+        //  setLcd(boardId, index, color   , xicon, yicon, icon,   sizeA,    xA,    yA, const char* strA, sizeB, xB, yB, const char* strB)
+            setLcd(X32_BOARD_R, 8, dbgColor,    50,    10, dbg2, dbgsize,  dbgx,  dbgy,           "test",  0x00,  2, 46, "test"); 
 #endif
 
     } else {
@@ -637,7 +656,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
                     char lcdText[20];
                     sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
                     //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-                    setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  0,  0,          lcdText,  0x00,  20, 48, chan->name);
+                    setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  1,  1,          lcdText,  0x00,  1, 47, chan->name);
                 }               
             }
         }
