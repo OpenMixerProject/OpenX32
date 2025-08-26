@@ -7,14 +7,13 @@
 //
 //########################################################
 
-#define MAX_BUTTONS 255
-#define MAX_ENCODERS 23 // counted on X32 Full
+typedef enum {
+    // Standard Layout like X32 Original
+    X32_SURFACE_MODE_BANKING_X32,
 
-// LED Brightness
-#define X32_BRIGHTNESS_1 0x0
-#define X32_BRIGHTNESS_2 0x40
-#define X32_BRIGHTNESS_3 0x80
-#define X32_BRIGHTNESS_4 0xC0
+    // User Layout
+    X32_SURFACE_MODE_BANKING_USER,
+} X32_SURFACE_MODE;
 
 typedef enum {
     X32_BOARD_MAIN =    0x00,

@@ -112,7 +112,7 @@ void surfaceDemo(void) {
 
 #if DEBUG
 uint8_t dbgLed = 0;
-uint8_t dbgColor = 0;
+uint8_t dbgColor = 0xF;
 uint8_t dbgx = 0;
 uint8_t dbgy = 0;
 uint8_t dbgsize = 0;
@@ -307,7 +307,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         } else if (value > 128 && value < 256) {
             amount = -(256 - (uint8_t)(value));
         }
-        x32debug("Encoder: %d dbgColor=%d\n", amount, dbgColor);
+        //x32debug("Encoder: %d dbgColor=%d\n", amount, dbgColor);
 
         switch(encoder){
             case X32_ENC_ENCODER5:
@@ -333,10 +333,69 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 break;
         }
 
-        lv_label_set_text_fmt(
-            objects.debugtext, "LCD: color=0x%02X icon=0x%02X size=0x%02X xA=%d yA=%d\n", dbgColor, dbg2, dbgsize, dbgx, dbgy);
-        //  setLcd(boardId, index, color   , xicon, yicon, icon,   sizeA,    xA,    yA, const char* strA, sizeB, xB, yB, const char* strB)
-            setLcd(X32_BOARD_R, 8, dbgColor,    50,    10, dbg2, dbgsize,  dbgx,  dbgy,           "test",  0x00,  2, 46, "test"); 
+
+        x32debug("DEBUG: dbgColor=%d dbgx=%d\n", dbgColor, dbgx);
+         
+        // //setLcdX2(dbgColor, dbgx);
+
+        sLCDData* data;
+        data = malloc(sizeof(sLCDData));
+
+        data->boardId = X32_BOARD_R;
+        data->color = dbgColor;
+        data->index = 8; // Main Fader
+        data->icon.icon = 0x0;
+        data->icon.x = 0;
+        data->icon.y = 0;
+
+        // // 15,5dB 48V|Ø
+        // // L300Hz G|D|E
+        // // -30dB |---|---|
+        // // Saxophon1
+        
+        // Gain / Lowcut
+        sprintf(data->texts[0].text, "48,5dB 300Hz");
+        data->texts[0].size = 0;
+        data->texts[0].x = 3;
+        data->texts[0].y = 0;
+
+        // Phanton / Invert / Gate / Dynamics / EQ active
+        sprintf(data->texts[1].text, "48V @ G D E");
+        data->texts[1].size = 0;
+        data->texts[1].x = 10;
+        data->texts[1].y = 15;
+
+        // Volume / Panorama
+        sprintf(data->texts[2].text, "-100dB ---|---");
+        data->texts[2].size = 0;
+        data->texts[2].x = 8;
+        data->texts[2].y = 30;
+
+        // vChannel Name
+        if (dbgx<0) {
+            dbgx=1;
+        }
+        if (dbgy<0) {
+            dbgy=1;
+        }
+        char* blubb = calloc(dbgx + 5, sizeof(char));
+        
+        for (int t=0;t<dbgx; t++){
+            blubb[t] = dbgy;
+        }
+        blubb[dbgx]='\0';
+        sprintf(data->texts[3].text, "%s", blubb);
+        data->texts[3].size = 0;
+        data->texts[3].x = 0;
+        data->texts[3].y = 48;
+
+        setLcdX(data, 4);
+
+        lv_label_set_text_fmt(objects.debugtext, "dbcolor=%d dbgx=%d dbgy=%d text=%s", dbgColor, dbgx, dbgy, data->texts[3].text);
+
+        free(data);
+        data=NULL;
+
 #endif
 
     } else {
@@ -646,17 +705,20 @@ void syncSurfaceBoard(X32_BOARD p_board) {
                 }
 
                 if (
-                    fullSync                                                    || 
-                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)  ||
-                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM) ||
-                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_COLOR)   ||
+                    fullSync                                                           || 
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHASE_INVERT )  ||
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME )        ||
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)        ||
+                    mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_COLOR)          ||
                     mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_NAME)
                    )
                 {
-                    char lcdText[20];
-                    sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
-                    //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-                    setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  1,  1,          lcdText,  0x00,  1, 47, chan->name);
+                    setLcdFromVChannel(p_board, i, chan);
+
+                    // char lcdText[20];
+                    // sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
+                    // //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+                    // setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  1,  1,          lcdText,  0x00,  1, 47, chan->name);
                 }               
             }
         }
@@ -667,6 +729,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
         if (mixerHasChanged(X32_MIXER_CHANGED_SOLO)){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
     }    
 }
+
 
 void syncSurfaceBankIndicator(void) {
     if (mixerHasChanged(X32_MIXER_CHANGED_BANKING)){

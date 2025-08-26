@@ -725,7 +725,7 @@ void mixerBanking(X32_BTN p_button){
 
 // volume in dBfs
 void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount){
-    mixer.vChannel[p_vChannelIndex].inputSource.gain += p_amount;
+    mixer.vChannel[p_vChannelIndex].inputSource.gain += (2.5 * p_amount);
 
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);

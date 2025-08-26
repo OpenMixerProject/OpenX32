@@ -215,7 +215,12 @@ void setContrast(uint8_t boardId, uint8_t contrast) {
 // xA/B = horizontal position in pixel
 // yA/B = vertical position in pixel
 // strA/B = String of Text to be displayed
-void setLcd(uint8_t boardId, uint8_t index, uint8_t color, uint8_t xicon, uint8_t yicon, uint8_t icon, uint8_t sizeA, uint8_t xA, uint8_t yA, const char* strA, uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB) {
+void setLcd(
+    uint8_t boardId, uint8_t index, uint8_t color,
+    uint8_t xicon, uint8_t yicon, uint8_t icon, 
+    uint8_t sizeA, uint8_t xA, uint8_t yA, const char* strA,
+    uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB
+    ) {
   // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
   // 0x44, i, color.b, script[]
 
@@ -249,6 +254,110 @@ void setLcd(uint8_t boardId, uint8_t index, uint8_t color, uint8_t xicon, uint8_
 
   uartTx(&fdSurface, &message, true);
 }
+
+// set up to 7 LCD texts
+void setLcdX(sLCDData* p_data, uint8_t p_textCount) {
+    messageBuilderInit(&message);
+    messageBuilderAddRawByte(&message, 0xFE); // startbyte
+    messageBuilderAddDataByte(&message, 0x80 + p_data->boardId);
+    messageBuilderAddDataByte(&message, 'D'); // class: D = Display
+    messageBuilderAddDataByte(&message, p_data->index); 
+    messageBuilderAddDataByte(&message, (p_data->color) & 0x0F);
+    messageBuilderAddDataByte(&message, p_data->icon.icon);
+    messageBuilderAddDataByte(&message, p_data->icon.x);
+    messageBuilderAddDataByte(&message, p_data->icon.y);
+    for (int i=0;i<p_textCount;i++){
+        messageBuilderAddDataByte(&message, p_data->texts[i].size + strlen(p_data->texts[i].text)); // size + textLength
+        messageBuilderAddDataByte(&message, p_data->texts[i].x);
+        messageBuilderAddDataByte(&message, p_data->texts[i].y);
+        messageBuilderAddString(&message, p_data->texts[i].text); // this is ASCII, so we can omit byte-stuffing  
+    }
+    messageBuilderAddRawByte(&message, 0xFE); // endbyte
+    uartTx(&fdSurface, &message, true);
+}
+
+void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, s_vChannel* p_chan){
+    sLCDData* data;
+    data = malloc(sizeof(sLCDData));
+
+    data->boardId = p_boardId;
+    data->color = p_chan->color;
+    data->index = p_Index;
+    data->icon.icon = 0;
+    data->icon.x = 0;
+    data->icon.y = 0;
+    
+    // Gain / Lowcut
+    sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan->inputSource.gain);
+    data->texts[0].size = 0;
+    data->texts[0].x = 3;
+    data->texts[0].y = 0;
+
+    // Phanton / Invert / Gate / Dynamics / EQ active
+    sprintf(data->texts[1].text, "%s %s G D E",
+        p_chan->inputSource.phantomPower ? "48V" : "   ",
+        p_chan->inputSource.phaseInvert ? "@" : " "
+        );
+    data->texts[1].size = 0;
+    data->texts[1].x = 10;
+    data->texts[1].y = 15;
+
+    // Volume / Panorama
+    sprintf(data->texts[2].text, "%.1fdB ---|---", p_chan->volume);
+    data->texts[2].size = 0;
+    data->texts[2].x = 8;
+    data->texts[2].y = 30;
+
+    // vChannel Name
+    sprintf(data->texts[3].text, "%s", p_chan->name);
+    data->texts[3].size = 0;
+    data->texts[3].x = 0;
+    data->texts[3].y = 48;
+
+    setLcdX(data, 4);
+
+    free(data);
+    data=NULL;
+}
+
+#if DEBUG
+// set up to 7 LCD texts
+void setLcdX2(uint8_t plen, uint8_t textlen) {
+
+    if (plen < 0) plen=1;
+    if (textlen < 0) textlen=1;
+
+    messageBuilderInit(&message);
+    messageBuilderAddRawByte(&message, 0xFE); // startbyte
+    messageBuilderAddDataByte(&message, 0x80 + X32_BOARD_R);
+    messageBuilderAddDataByte(&message, 'D'); // class: D = Display
+    messageBuilderAddDataByte(&message, 7); 
+    messageBuilderAddDataByte(&message, 0xF);
+    messageBuilderAddDataByte(&message, 0xA0);
+    messageBuilderAddDataByte(&message, 0);
+    messageBuilderAddDataByte(&message, 0);
+
+    char* text = calloc(textlen + 5, sizeof(char));
+    
+    for (int t=0;t<textlen; t++){
+        text[t] = "X";
+    }
+    text[textlen]='\0';
+    x32debug("text=%s\n", text);
+
+    for (int i=0;i<plen;i++){
+        messageBuilderAddDataByte(&message, 0 + strlen(text)); // size + textLength
+        messageBuilderAddDataByte(&message, 0);
+        messageBuilderAddDataByte(&message, 0+(15*i));
+        messageBuilderAddString(&message, text); // this is ASCII, so we can omit byte-stuffing  
+    }
+
+    free(text);
+    messageBuilderAddRawByte(&message, 0xFE); // endbyte
+    uartTx(&fdSurface, &message, true);
+}
+#endif
+
 
 // bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight
 // CCW <- XXXXXX X XXXXXX -> CW
@@ -544,7 +653,7 @@ void addEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     x32debug("added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
 }
 
-void initDefinitions() {
+void initDefinitions(void) {
     switch(mixer.model) {
         case X32_MODEL_FULL:   
             addButtonDefinition( X32_BTN_TALK_A, 0x012E);
