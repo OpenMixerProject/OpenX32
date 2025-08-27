@@ -693,13 +693,23 @@ void syncSurfaceBoard(X32_BOARD p_board) {
             s_vChannel *chan = &mixer.vChannel[vChannelIndex];
 
             if (fullSync || mixerHasVChannelAnyChanged(chan)){
-                x32debug("syncronize vChannel%d: %s\n", vChannelIndex, chan->name);
+                x32debug("syncronize vChannel%d: %s -", vChannelIndex, chan->name);
 
-                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SELECT)){ setLed(p_board, 0x20+i, chan->selected); }
-                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SOLO)){ setLed(p_board, 0x30+i, chan->solo); }
-                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)){ setLed(p_board, 0x40+i, chan->mute); }
+                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SELECT)){ 
+                    x32debug(" Select");
+                    setLed(p_board, 0x20+i, chan->selected);
+                }
+                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SOLO)){
+                    x32debug(" Solo");
+                    setLed(p_board, 0x30+i, chan->solo); 
+                }
+                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)){
+                    x32debug(" Mute");
+                    setLed(p_board, 0x40+i, chan->mute); 
+                }
                 
                 if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME) && mixerTouchcontrolCanSetFader(p_board, i)){
+                    x32debug(" Fader");
                     u_int16_t faderVolume = dBfs2fader(chan->volume);
                     setFader(p_board, i, faderVolume);
                 }
@@ -713,13 +723,16 @@ void syncSurfaceBoard(X32_BOARD p_board) {
                     mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_NAME)
                    )
                 {
+                    x32debug(" LCD");
                     setLcdFromVChannel(p_board, i, chan);
 
                     // char lcdText[20];
                     // sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
                     // //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
                     // setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  1,  1,          lcdText,  0x00,  1, 47, chan->name);
-                }               
+                }
+
+                x32debug("\n");              
             }
         }
     }
