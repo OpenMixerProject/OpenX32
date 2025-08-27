@@ -34,7 +34,6 @@
         <signal name="XLXN_557(7:0)" />
         <signal name="XLXN_558(7:0)" />
         <signal name="XLXN_559(7:0)" />
-        <signal name="AD0_DATA1" />
         <signal name="audio_input(215:192)" />
         <signal name="audio_input(239:216)" />
         <signal name="audio_input(263:240)" />
@@ -43,7 +42,6 @@
         <signal name="audio_input(335:312)" />
         <signal name="audio_input(359:336)" />
         <signal name="audio_input(383:360)" />
-        <signal name="AD1_DATA0" />
         <signal name="audio_input(407:384)" />
         <signal name="audio_input(431:408)" />
         <signal name="audio_input(455:432)" />
@@ -52,7 +50,6 @@
         <signal name="audio_input(527:504)" />
         <signal name="audio_input(551:528)" />
         <signal name="audio_input(575:552)" />
-        <signal name="AD1_DATA1" />
         <signal name="audio_input(599:576)" />
         <signal name="audio_input(623:600)" />
         <signal name="audio_input(647:624)" />
@@ -61,7 +58,6 @@
         <signal name="audio_input(719:696)" />
         <signal name="audio_input(743:720)" />
         <signal name="audio_input(767:744)" />
-        <signal name="AD0_DATA0" />
         <signal name="audio_input(47:24)" />
         <signal name="audio_input(71:48)" />
         <signal name="audio_input(95:72)" />
@@ -84,25 +80,9 @@
         <signal name="audio_output(1679:1656)" />
         <signal name="audio_output(1703:1680)" />
         <signal name="audio_output(1727:1704)" />
-        <signal name="DA_DATA0" />
-        <signal name="audio_output(95:72)" />
-        <signal name="audio_output(119:96)" />
-        <signal name="audio_output(143:120)" />
-        <signal name="audio_output(167:144)" />
-        <signal name="audio_output(191:168)" />
-        <signal name="DA_DATA1" />
-        <signal name="audio_output(215:192)" />
-        <signal name="audio_output(239:216)" />
-        <signal name="audio_output(263:240)" />
-        <signal name="audio_output(287:264)" />
-        <signal name="audio_output(311:288)" />
-        <signal name="audio_output(335:312)" />
-        <signal name="audio_output(359:336)" />
-        <signal name="audio_output(383:360)" />
         <signal name="CARD_TX" />
         <signal name="CARD_RX" />
         <signal name="audio_output(1559:1536)" />
-        <signal name="CARD_IN0" />
         <signal name="audio_input(791:768)" />
         <signal name="audio_input(815:792)" />
         <signal name="audio_input(839:816)" />
@@ -113,7 +93,6 @@
         <signal name="audio_input(959:936)" />
         <signal name="CARD_BCLK" />
         <signal name="CARD_FSYNC" />
-        <signal name="CARD_IN1" />
         <signal name="audio_input(983:960)" />
         <signal name="audio_input(1007:984)" />
         <signal name="audio_input(1031:1008)" />
@@ -122,7 +101,6 @@
         <signal name="audio_input(1103:1080)" />
         <signal name="audio_input(1127:1104)" />
         <signal name="audio_input(1151:1128)" />
-        <signal name="CARD_IN3" />
         <signal name="audio_input(1367:1344)" />
         <signal name="audio_input(1391:1368)" />
         <signal name="audio_input(1415:1392)" />
@@ -131,7 +109,6 @@
         <signal name="audio_input(1487:1464)" />
         <signal name="audio_input(1511:1488)" />
         <signal name="audio_input(1535:1512)" />
-        <signal name="CARD_IN2" />
         <signal name="audio_input(1175:1152)" />
         <signal name="audio_input(1199:1176)" />
         <signal name="audio_input(1223:1200)" />
@@ -140,7 +117,6 @@
         <signal name="audio_input(1295:1272)" />
         <signal name="audio_input(1319:1296)" />
         <signal name="audio_input(1343:1320)" />
-        <signal name="CARD_OUT3" />
         <signal name="audio_output(1367:1344)" />
         <signal name="audio_output(1391:1368)" />
         <signal name="audio_output(1415:1392)" />
@@ -149,7 +125,6 @@
         <signal name="audio_output(1487:1464)" />
         <signal name="audio_output(1511:1488)" />
         <signal name="audio_output(1535:1512)" />
-        <signal name="CARD_OUT2" />
         <signal name="audio_output(1175:1152)" />
         <signal name="audio_output(1223:1200)" />
         <signal name="audio_output(1247:1224)" />
@@ -157,7 +132,6 @@
         <signal name="audio_output(1295:1272)" />
         <signal name="audio_output(1319:1296)" />
         <signal name="audio_output(1343:1320)" />
-        <signal name="CARD_OUT1" />
         <signal name="audio_output(983:960)" />
         <signal name="audio_output(1007:984)" />
         <signal name="audio_output(1031:1008)" />
@@ -166,7 +140,6 @@
         <signal name="audio_output(1103:1080)" />
         <signal name="audio_output(1127:1104)" />
         <signal name="audio_output(1151:1128)" />
-        <signal name="CARD_OUT0" />
         <signal name="audio_output(791:768)" />
         <signal name="audio_output(815:792)" />
         <signal name="audio_output(839:816)" />
@@ -178,12 +151,6 @@
         <signal name="DA_MCLK" />
         <signal name="DA_BCLK" />
         <signal name="DA_FSYNC" />
-        <signal name="AD0_MCLK" />
-        <signal name="AD0_BCLK" />
-        <signal name="AD0_FSYNC" />
-        <signal name="AD1_MCLK" />
-        <signal name="AD1_BCLK" />
-        <signal name="AD1_FSYNC" />
         <signal name="AUX_MCLK" />
         <signal name="AUX_SCLK" />
         <signal name="AUX_FSYNC" />
@@ -197,8 +164,6 @@
         <signal name="audio_input(1847:1824)" />
         <signal name="audiosync" />
         <signal name="routing(895:0)" />
-        <signal name="P16_A_TXP" />
-        <signal name="P16_B_TXP" />
         <signal name="audio_output(407:384)" />
         <signal name="audio_output(479:456)" />
         <signal name="audio_output(503:480)" />
@@ -213,9 +178,6 @@
         <signal name="audio_output(719:696)" />
         <signal name="audio_output(743:720)" />
         <signal name="audio_output(767:744)" />
-        <signal name="P16_A_TXM" />
-        <signal name="P16_B_TXM" />
-        <signal name="audio_output(23:0)" />
         <signal name="XLXN_67(7:0)" />
         <signal name="XLXN_68(7:0)" />
         <signal name="XLXN_69(7:0)" />
@@ -229,10 +191,6 @@
         <signal name="XLXN_330" />
         <signal name="PLL_IN" />
         <signal name="clk_24_576MHz" />
-        <signal name="nRST" />
-        <signal name="nDA_RESET" />
-        <signal name="nAD_RESET" />
-        <signal name="nCARD_RESET" />
         <signal name="XLXN_222" />
         <signal name="XLXN_223(7:0)" />
         <signal name="XLXN_224(7:0)" />
@@ -258,10 +216,59 @@
         <signal name="volume_left(319:0)" />
         <signal name="volume_right(319:0)" />
         <signal name="audio_output(1583:1560)" />
-        <signal name="audio_output(47:24)" />
-        <signal name="audio_output(71:48)" />
         <signal name="audio_output(455:432)" />
         <signal name="audio_output(431:408)" />
+        <signal name="XLXN_2359" />
+        <signal name="XLXN_2362" />
+        <signal name="P16_A_TXP" />
+        <signal name="P16_A_TXM" />
+        <signal name="P16_B_TXP" />
+        <signal name="XLXN_2391" />
+        <signal name="P16_B_TXM" />
+        <signal name="AD0_MCLK" />
+        <signal name="AD0_BCLK" />
+        <signal name="AD0_FSYNC" />
+        <signal name="DA_DATA0" />
+        <signal name="DA_DATA1" />
+        <signal name="audio_output(383:360)" />
+        <signal name="audio_output(359:336)" />
+        <signal name="audio_output(335:312)" />
+        <signal name="audio_output(311:288)" />
+        <signal name="audio_output(287:264)" />
+        <signal name="audio_output(263:240)" />
+        <signal name="audio_output(239:216)" />
+        <signal name="audio_output(215:192)" />
+        <signal name="AD1_DATA1" />
+        <signal name="AD0_DATA1" />
+        <signal name="AD1_DATA0" />
+        <signal name="AD0_DATA0" />
+        <signal name="AD1_MCLK" />
+        <signal name="AD1_BCLK" />
+        <signal name="AD1_FSYNC" />
+        <signal name="audio_output(23:0)" />
+        <signal name="audio_output(47:24)" />
+        <signal name="audio_output(71:48)" />
+        <signal name="audio_output(95:72)" />
+        <signal name="audio_output(119:96)" />
+        <signal name="audio_output(143:120)" />
+        <signal name="audio_output(167:144)" />
+        <signal name="audio_output(191:168)" />
+        <signal name="CARD_OUT2" />
+        <signal name="CARD_OUT3" />
+        <signal name="CARD_OUT0" />
+        <signal name="CARD_OUT1" />
+        <signal name="CARD_IN1" />
+        <signal name="CARD_IN0" />
+        <signal name="CARD_IN3" />
+        <signal name="CARD_IN2" />
+        <signal name="XLXN_2486" />
+        <signal name="XLXN_2487" />
+        <signal name="nDA_RESET" />
+        <signal name="nAD_RESET" />
+        <signal name="nCARD_RESET" />
+        <signal name="XLXN_2499" />
+        <signal name="nRST" />
+        <signal name="XLXN_2501" />
         <port polarity="Output" name="imx25_uart4_rxd" />
         <port polarity="Input" name="DA_RX" />
         <port polarity="Output" name="imx25_uart3_rxd" />
@@ -271,57 +278,56 @@
         <port polarity="Output" name="DA_TX" />
         <port polarity="Output" name="AD0_TX" />
         <port polarity="Output" name="AD1_TX" />
-        <port polarity="Input" name="AD0_DATA1" />
-        <port polarity="Input" name="AD1_DATA0" />
-        <port polarity="Input" name="AD1_DATA1" />
-        <port polarity="Input" name="AD0_DATA0" />
         <port polarity="Input" name="AUX_AD" />
         <port polarity="Output" name="AUX_DA" />
-        <port polarity="Output" name="DA_DATA0" />
-        <port polarity="Output" name="DA_DATA1" />
         <port polarity="Output" name="CARD_TX" />
         <port polarity="Input" name="CARD_RX" />
-        <port polarity="Input" name="CARD_IN0" />
         <port polarity="Output" name="CARD_BCLK" />
         <port polarity="Output" name="CARD_FSYNC" />
-        <port polarity="Input" name="CARD_IN1" />
-        <port polarity="Input" name="CARD_IN3" />
-        <port polarity="Input" name="CARD_IN2" />
-        <port polarity="Output" name="CARD_OUT3" />
-        <port polarity="Output" name="CARD_OUT2" />
-        <port polarity="Output" name="CARD_OUT1" />
-        <port polarity="Output" name="CARD_OUT0" />
         <port polarity="Output" name="DA_MCLK" />
         <port polarity="Output" name="DA_BCLK" />
         <port polarity="Output" name="DA_FSYNC" />
-        <port polarity="Output" name="AD0_MCLK" />
-        <port polarity="Output" name="AD0_BCLK" />
-        <port polarity="Output" name="AD0_FSYNC" />
-        <port polarity="Output" name="AD1_MCLK" />
-        <port polarity="Output" name="AD1_BCLK" />
-        <port polarity="Output" name="AD1_FSYNC" />
         <port polarity="Output" name="AUX_MCLK" />
         <port polarity="Output" name="AUX_SCLK" />
         <port polarity="Output" name="AUX_FSYNC" />
-        <port polarity="Output" name="P16_A_TXP" />
-        <port polarity="Output" name="P16_B_TXP" />
-        <port polarity="Output" name="P16_A_TXM" />
-        <port polarity="Output" name="P16_B_TXM" />
         <port polarity="Output" name="AUX_nRST" />
         <port polarity="Output" name="AUX_nCS" />
         <port polarity="Output" name="AUX_CCLK" />
         <port polarity="Output" name="AUX_CDATA" />
         <port polarity="Input" name="FPGACLK" />
         <port polarity="Output" name="PLL_IN" />
-        <port polarity="Output" name="nRST" />
-        <port polarity="Output" name="nDA_RESET" />
-        <port polarity="Output" name="nAD_RESET" />
-        <port polarity="Output" name="nCARD_RESET" />
         <port polarity="Output" name="PLL_nCS" />
         <port polarity="Output" name="PLL_CDATA" />
         <port polarity="Output" name="PLL_CCLK" />
         <port polarity="Input" name="PLL_OUT" />
         <port polarity="Input" name="imx25_uart4_txd" />
+        <port polarity="Output" name="P16_A_TXP" />
+        <port polarity="Output" name="P16_A_TXM" />
+        <port polarity="Output" name="P16_B_TXP" />
+        <port polarity="Output" name="P16_B_TXM" />
+        <port polarity="Output" name="AD0_MCLK" />
+        <port polarity="Output" name="AD0_BCLK" />
+        <port polarity="Output" name="AD0_FSYNC" />
+        <port polarity="Output" name="DA_DATA0" />
+        <port polarity="Output" name="DA_DATA1" />
+        <port polarity="Input" name="AD1_DATA1" />
+        <port polarity="Input" name="AD0_DATA1" />
+        <port polarity="Input" name="AD1_DATA0" />
+        <port polarity="Input" name="AD0_DATA0" />
+        <port polarity="Output" name="AD1_MCLK" />
+        <port polarity="Output" name="AD1_BCLK" />
+        <port polarity="Output" name="AD1_FSYNC" />
+        <port polarity="Output" name="CARD_OUT2" />
+        <port polarity="Output" name="CARD_OUT3" />
+        <port polarity="Output" name="CARD_OUT0" />
+        <port polarity="Output" name="CARD_OUT1" />
+        <port polarity="Input" name="CARD_IN1" />
+        <port polarity="Input" name="CARD_IN0" />
+        <port polarity="Input" name="CARD_IN3" />
+        <port polarity="Input" name="CARD_IN2" />
+        <port polarity="Output" name="nDA_RESET" />
+        <port polarity="Output" name="nAD_RESET" />
+        <port polarity="Output" name="nCARD_RESET" />
         <blockdef name="dcm1">
             <timestamp>2025-7-22T19:46:16</timestamp>
             <rect width="336" x="64" y="-256" height="256" />
@@ -798,7 +804,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="AD1_DATA1" name="sdata" />
+            <blockpin signalname="AD0_DATA0" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(599:576)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(623:600)" name="ch2_out(23:0)" />
@@ -813,7 +819,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="AD0_DATA0" name="sdata" />
+            <blockpin signalname="AD1_DATA1" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(23:0)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(47:24)" name="ch2_out(23:0)" />
@@ -904,7 +910,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN0" name="sdata" />
+            <blockpin signalname="CARD_IN2" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(791:768)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(815:792)" name="ch2_out(23:0)" />
@@ -919,7 +925,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN1" name="sdata" />
+            <blockpin signalname="CARD_IN3" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(983:960)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(1007:984)" name="ch2_out(23:0)" />
@@ -934,7 +940,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN3" name="sdata" />
+            <blockpin signalname="CARD_IN1" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(1367:1344)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(1391:1368)" name="ch2_out(23:0)" />
@@ -949,7 +955,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN2" name="sdata" />
+            <blockpin signalname="CARD_IN0" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(1175:1152)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(1199:1176)" name="ch2_out(23:0)" />
@@ -972,7 +978,7 @@
             <blockpin signalname="audio_output(1487:1464)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(1511:1488)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(1535:1512)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT3" name="sdata" />
+            <blockpin signalname="CARD_OUT2" name="sdata" />
         </block>
         <block symbolname="tdm_8ch_tx" name="XLXI_410">
             <blockpin signalname="clk_124MHz" name="clk" />
@@ -986,7 +992,7 @@
             <blockpin signalname="audio_output(1295:1272)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(1319:1296)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(1343:1320)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT2" name="sdata" />
+            <blockpin signalname="CARD_OUT3" name="sdata" />
         </block>
         <block symbolname="tdm_8ch_tx" name="XLXI_405">
             <blockpin signalname="clk_124MHz" name="clk" />
@@ -1000,7 +1006,7 @@
             <blockpin signalname="audio_output(1103:1080)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(1127:1104)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(1151:1128)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT1" name="sdata" />
+            <blockpin signalname="CARD_OUT0" name="sdata" />
         </block>
         <block symbolname="tdm_8ch_tx" name="XLXI_415">
             <blockpin signalname="clk_124MHz" name="clk" />
@@ -1014,7 +1020,7 @@
             <blockpin signalname="audio_output(911:888)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(935:912)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(959:936)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT0" name="sdata" />
+            <blockpin signalname="CARD_OUT1" name="sdata" />
         </block>
         <block symbolname="buf" name="XLXI_96">
             <blockpin signalname="clk_12_288MHz" name="I" />
@@ -1027,30 +1033,6 @@
         <block symbolname="buf" name="XLXI_98">
             <blockpin signalname="tdm_fs" name="I" />
             <blockpin signalname="DA_FSYNC" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_163">
-            <blockpin signalname="clk_12_288MHz" name="I" />
-            <blockpin signalname="AD0_MCLK" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_164">
-            <blockpin signalname="clk_12_288MHz" name="I" />
-            <blockpin signalname="AD0_BCLK" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_165">
-            <blockpin signalname="tdm_fs" name="I" />
-            <blockpin signalname="AD0_FSYNC" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_172">
-            <blockpin signalname="clk_12_288MHz" name="I" />
-            <blockpin signalname="AD1_MCLK" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_173">
-            <blockpin signalname="clk_12_288MHz" name="I" />
-            <blockpin signalname="AD1_BCLK" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_174">
-            <blockpin signalname="tdm_fs" name="I" />
-            <blockpin signalname="AD1_FSYNC" name="O" />
         </block>
         <block symbolname="buf" name="XLXI_87">
             <blockpin signalname="clk_12_288MHz" name="I" />
@@ -1092,10 +1074,6 @@
             <blockpin signalname="P16_A_TXP" name="I" />
             <blockpin signalname="P16_A_TXM" name="O" />
         </block>
-        <block symbolname="inv" name="XLXI_474">
-            <blockpin signalname="P16_B_TXP" name="I" />
-            <blockpin signalname="P16_B_TXM" name="O" />
-        </block>
         <block symbolname="spi_tx" name="XLXI_122">
             <blockpin signalname="clk_16MHz" name="clk" />
             <blockpin signalname="XLXN_346" name="i_start" />
@@ -1120,7 +1098,7 @@
         <block symbolname="dcm1" name="XLXI_20">
             <blockpin name="RST_IN" />
             <blockpin signalname="FPGACLK" name="CLKIN_IN" />
-            <blockpin signalname="nRST" name="LOCKED_OUT" />
+            <blockpin signalname="XLXN_2487" name="LOCKED_OUT" />
             <blockpin signalname="clk_124MHz" name="CLKFX_OUT" />
             <blockpin signalname="PLL_IN" name="CLKIN_IBUFG_OUT" />
             <blockpin signalname="XLXN_330" name="CLK0_OUT" />
@@ -1128,23 +1106,6 @@
         <block symbolname="bufg" name="XLXI_83">
             <blockpin signalname="XLXN_330" name="I" />
             <blockpin signalname="clk_16MHz" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_556">
-            <blockpin signalname="nRST" name="I" />
-            <blockpin signalname="nDA_RESET" name="O" />
-        </block>
-        <block symbolname="buf" name="XLXI_557">
-            <blockpin signalname="nRST" name="I" />
-            <blockpin signalname="nAD_RESET" name="O" />
-        </block>
-        <block symbolname="reset" name="XLXI_38">
-            <blockpin signalname="clk_16MHz" name="clk" />
-            <blockpin signalname="nRST" name="i_pll_locked" />
-            <blockpin signalname="rst" name="o_reset" />
-        </block>
-        <block symbolname="buf" name="XLXI_575">
-            <blockpin signalname="nRST" name="I" />
-            <blockpin signalname="nCARD_RESET" name="O" />
         </block>
         <block symbolname="cs2000cp_config" name="XLXI_126">
             <blockpin signalname="clk_16MHz" name="clk" />
@@ -1213,6 +1174,55 @@
             <blockpin signalname="routing(895:0)" name="routing(895:0)" />
             <blockpin signalname="volume_left(319:0)" name="volume_left(319:0)" />
             <blockpin signalname="volume_right(319:0)" name="volume_right(319:0)" />
+        </block>
+        <block symbolname="inv" name="XLXI_474">
+            <blockpin signalname="P16_B_TXP" name="I" />
+            <blockpin signalname="P16_B_TXM" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_163">
+            <blockpin signalname="clk_12_288MHz" name="I" />
+            <blockpin signalname="AD0_MCLK" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_164">
+            <blockpin signalname="clk_12_288MHz" name="I" />
+            <blockpin signalname="AD0_BCLK" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_165">
+            <blockpin signalname="tdm_fs" name="I" />
+            <blockpin signalname="AD0_FSYNC" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_172">
+            <blockpin signalname="clk_12_288MHz" name="I" />
+            <blockpin signalname="AD1_MCLK" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_173">
+            <blockpin signalname="clk_12_288MHz" name="I" />
+            <blockpin signalname="AD1_BCLK" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_174">
+            <blockpin signalname="tdm_fs" name="I" />
+            <blockpin signalname="AD1_FSYNC" name="O" />
+        </block>
+        <block symbolname="reset" name="XLXI_38">
+            <blockpin signalname="clk_16MHz" name="clk" />
+            <blockpin signalname="XLXN_2487" name="i_pll_locked" />
+            <blockpin signalname="rst" name="o_reset" />
+        </block>
+        <block symbolname="inv" name="XLXI_615">
+            <blockpin signalname="rst" name="I" />
+            <blockpin signalname="nRST" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_556">
+            <blockpin signalname="nRST" name="I" />
+            <blockpin signalname="nDA_RESET" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_557">
+            <blockpin signalname="nRST" name="I" />
+            <blockpin signalname="nAD_RESET" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_575">
+            <blockpin signalname="nRST" name="I" />
+            <blockpin signalname="nCARD_RESET" name="O" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
@@ -1395,7 +1405,7 @@
         </instance>
         <instance x="5568" y="816" name="XLXI_119" orien="R0">
         </instance>
-        <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1656" x="40" y="4344" height="1012" />
+        <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="3484" x="40" y="4344" height="1012" />
         <branch name="clk_124MHz">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1072" y="4512" type="branch" />
             <wire x2="1072" y1="4512" y2="4512" x1="896" />
@@ -1410,9 +1420,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1072" y="4832" type="branch" />
             <wire x2="1072" y1="4832" y2="4832" x1="896" />
             <wire x2="1136" y1="4832" y2="4832" x1="1072" />
-        </branch>
-        <branch name="AD0_DATA1">
-            <wire x2="1136" y1="4992" y2="4992" x1="1104" />
         </branch>
         <branch name="audio_input(215:192)">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1584" y="4576" type="branch" />
@@ -1459,14 +1466,6 @@
             <wire x2="1968" y1="4832" y2="4832" x1="1760" />
             <wire x2="2000" y1="4832" y2="4832" x1="1968" />
         </branch>
-        <branch name="AD1_DATA0">
-            <wire x2="2000" y1="4992" y2="4992" x1="1968" />
-        </branch>
-        <branch name="clk_12_288MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2016" y="5136" type="branch" />
-            <wire x2="2016" y1="5136" y2="5136" x1="1920" />
-            <wire x2="2112" y1="5136" y2="5136" x1="2016" />
-        </branch>
         <branch name="audio_input(407:384)">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2464" y="4576" type="branch" />
             <wire x2="2464" y1="4576" y2="4576" x1="2384" />
@@ -1510,9 +1509,6 @@
             <wire x2="2816" y1="4832" y2="4832" x1="2624" />
             <wire x2="2864" y1="4832" y2="4832" x1="2816" />
         </branch>
-        <branch name="AD1_DATA1">
-            <wire x2="2864" y1="4992" y2="4992" x1="2832" />
-        </branch>
         <branch name="audio_input(599:576)">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="3312" y="4576" type="branch" />
             <wire x2="3312" y1="4576" y2="4576" x1="3248" />
@@ -1543,7 +1539,7 @@
         </branch>
         <instance x="2864" y="5056" name="XLXI_151" orien="R0">
         </instance>
-        <iomarker fontsize="28" x="2832" y="4992" name="AD1_DATA1" orien="R180" />
+        <iomarker fontsize="28" x="2832" y="4992" name="AD0_DATA0" orien="R180" />
         <branch name="clk_124MHz">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="256" y="4512" type="branch" />
             <wire x2="256" y1="4512" y2="4512" x1="176" />
@@ -1558,9 +1554,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="256" y="4832" type="branch" />
             <wire x2="256" y1="4832" y2="4832" x1="176" />
             <wire x2="288" y1="4832" y2="4832" x1="256" />
-        </branch>
-        <branch name="AD0_DATA0">
-            <wire x2="288" y1="4992" y2="4992" x1="256" />
         </branch>
         <branch name="audio_input(47:24)">
             <wire x2="816" y1="4640" y2="4640" x1="672" />
@@ -1585,7 +1578,7 @@
         </branch>
         <instance x="288" y="5056" name="XLXI_146" orien="R0">
         </instance>
-        <iomarker fontsize="28" x="256" y="4992" name="AD0_DATA0" orien="R180" />
+        <iomarker fontsize="28" x="256" y="4992" name="AD1_DATA1" orien="R180" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1976" x="40" y="3156" height="1160" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1980" x="36" y="2104" height="1012" />
         <instance x="1376" y="2768" name="XLXI_49" orien="R0">
@@ -1681,9 +1674,6 @@
         <iomarker fontsize="28" x="1344" y="2704" name="AUX_AD" orien="R180" />
         <iomarker fontsize="28" x="928" y="2352" name="AUX_DA" orien="R0" />
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="64" y="3204">8CH OUTPUT XLR DA (Ch 1-16)</text>
-        <branch name="DA_DATA0">
-            <wire x2="928" y1="3328" y2="3328" x1="896" />
-        </branch>
         <branch name="clk_124MHz">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3328" type="branch" />
             <wire x2="384" y1="3328" y2="3328" x1="272" />
@@ -1699,31 +1689,9 @@
             <wire x2="384" y1="3456" y2="3456" x1="272" />
             <wire x2="512" y1="3456" y2="3456" x1="384" />
         </branch>
-        <branch name="audio_output(95:72)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3712" type="branch" />
-            <wire x2="512" y1="3712" y2="3712" x1="384" />
-        </branch>
-        <branch name="audio_output(119:96)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3776" type="branch" />
-            <wire x2="512" y1="3776" y2="3776" x1="384" />
-        </branch>
-        <branch name="audio_output(143:120)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3840" type="branch" />
-            <wire x2="512" y1="3840" y2="3840" x1="384" />
-        </branch>
-        <branch name="audio_output(167:144)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3904" type="branch" />
-            <wire x2="512" y1="3904" y2="3904" x1="384" />
-        </branch>
-        <branch name="audio_output(191:168)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3968" type="branch" />
-            <wire x2="512" y1="3968" y2="3968" x1="384" />
-        </branch>
         <instance x="512" y="4000" name="XLXI_99" orien="R0">
         </instance>
         <iomarker fontsize="28" x="928" y="3328" name="DA_DATA0" orien="R0" />
-        <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1716" x="1724" y="4344" height="1012" />
-        <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="1772" y="4384">8CH INPUT XLR AD1 (Ch 17-32)</text>
         <instance x="1376" y="4000" name="XLXI_152" orien="R0">
         </instance>
         <branch name="clk_124MHz">
@@ -1740,41 +1708,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1248" y="3456" type="branch" />
             <wire x2="1248" y1="3456" y2="3456" x1="1136" />
             <wire x2="1376" y1="3456" y2="3456" x1="1248" />
-        </branch>
-        <branch name="DA_DATA1">
-            <wire x2="1792" y1="3328" y2="3328" x1="1760" />
-        </branch>
-        <branch name="audio_output(215:192)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3520" type="branch" />
-            <wire x2="1376" y1="3520" y2="3520" x1="1280" />
-        </branch>
-        <branch name="audio_output(239:216)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3584" type="branch" />
-            <wire x2="1376" y1="3584" y2="3584" x1="1280" />
-        </branch>
-        <branch name="audio_output(263:240)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3648" type="branch" />
-            <wire x2="1376" y1="3648" y2="3648" x1="1280" />
-        </branch>
-        <branch name="audio_output(287:264)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3712" type="branch" />
-            <wire x2="1376" y1="3712" y2="3712" x1="1280" />
-        </branch>
-        <branch name="audio_output(311:288)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3776" type="branch" />
-            <wire x2="1376" y1="3776" y2="3776" x1="1280" />
-        </branch>
-        <branch name="audio_output(335:312)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3840" type="branch" />
-            <wire x2="1376" y1="3840" y2="3840" x1="1280" />
-        </branch>
-        <branch name="audio_output(359:336)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3904" type="branch" />
-            <wire x2="1376" y1="3904" y2="3904" x1="1280" />
-        </branch>
-        <branch name="audio_output(383:360)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3968" type="branch" />
-            <wire x2="1376" y1="3968" y2="3968" x1="1280" />
         </branch>
         <iomarker fontsize="28" x="1792" y="3328" name="DA_DATA1" orien="R0" />
         <instance x="4736" y="1088" name="XLXI_452" orien="R0" />
@@ -1807,9 +1740,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="4224" y="4928" type="branch" />
             <wire x2="4224" y1="4928" y2="4928" x1="4144" />
             <wire x2="4256" y1="4928" y2="4928" x1="4224" />
-        </branch>
-        <branch name="CARD_IN0">
-            <wire x2="4256" y1="5088" y2="5088" x1="4224" />
         </branch>
         <branch name="audio_input(791:768)">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="4704" y="4672" type="branch" />
@@ -1862,9 +1792,6 @@
             <wire x2="4992" y1="4928" y2="4928" x1="4896" />
             <wire x2="5136" y1="4928" y2="4928" x1="4992" />
         </branch>
-        <branch name="CARD_IN1">
-            <wire x2="5136" y1="5088" y2="5088" x1="5104" />
-        </branch>
         <branch name="audio_input(983:960)">
             <wire x2="5664" y1="4672" y2="4672" x1="5520" />
         </branch>
@@ -1905,9 +1832,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="6800" y="4928" type="branch" />
             <wire x2="6800" y1="4928" y2="4928" x1="6704" />
             <wire x2="6944" y1="4928" y2="4928" x1="6800" />
-        </branch>
-        <branch name="CARD_IN3">
-            <wire x2="6944" y1="5088" y2="5088" x1="6912" />
         </branch>
         <branch name="audio_input(1367:1344)">
             <wire x2="7472" y1="4672" y2="4672" x1="7328" />
@@ -1950,9 +1874,6 @@
             <wire x2="5888" y1="4928" y2="4928" x1="5792" />
             <wire x2="6032" y1="4928" y2="4928" x1="5888" />
         </branch>
-        <branch name="CARD_IN2">
-            <wire x2="6032" y1="5088" y2="5088" x1="6000" />
-        </branch>
         <branch name="audio_input(1175:1152)">
             <wire x2="6560" y1="4672" y2="4672" x1="6416" />
         </branch>
@@ -1979,12 +1900,12 @@
         </branch>
         <instance x="6032" y="5152" name="XLXI_364" orien="R0">
         </instance>
-        <iomarker fontsize="28" x="4224" y="5088" name="CARD_IN0" orien="R180" />
+        <iomarker fontsize="28" x="4224" y="5088" name="CARD_IN2" orien="R180" />
         <iomarker fontsize="28" x="4560" y="5216" name="CARD_BCLK" orien="R0" />
         <iomarker fontsize="28" x="4560" y="5296" name="CARD_FSYNC" orien="R0" />
-        <iomarker fontsize="28" x="5104" y="5088" name="CARD_IN1" orien="R180" />
-        <iomarker fontsize="28" x="6912" y="5088" name="CARD_IN3" orien="R180" />
-        <iomarker fontsize="28" x="6000" y="5088" name="CARD_IN2" orien="R180" />
+        <iomarker fontsize="28" x="5104" y="5088" name="CARD_IN3" orien="R180" />
+        <iomarker fontsize="28" x="6912" y="5088" name="CARD_IN1" orien="R180" />
+        <iomarker fontsize="28" x="6000" y="5088" name="CARD_IN0" orien="R180" />
         <instance x="6944" y="4352" name="XLXI_411" orien="R0">
         </instance>
         <branch name="clk_124MHz">
@@ -2001,9 +1922,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="6816" y="3808" type="branch" />
             <wire x2="6816" y1="3808" y2="3808" x1="6704" />
             <wire x2="6944" y1="3808" y2="3808" x1="6816" />
-        </branch>
-        <branch name="CARD_OUT3">
-            <wire x2="7360" y1="3680" y2="3680" x1="7328" />
         </branch>
         <branch name="audio_output(1367:1344)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="6848" y="3872" type="branch" />
@@ -2055,9 +1973,6 @@
             <wire x2="5904" y1="3808" y2="3808" x1="5792" />
             <wire x2="6032" y1="3808" y2="3808" x1="5904" />
         </branch>
-        <branch name="CARD_OUT2">
-            <wire x2="6448" y1="3680" y2="3680" x1="6416" />
-        </branch>
         <branch name="audio_output(1175:1152)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="5936" y="3872" type="branch" />
             <wire x2="6032" y1="3872" y2="3872" x1="5936" />
@@ -2106,9 +2021,6 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="5008" y="3808" type="branch" />
             <wire x2="5008" y1="3808" y2="3808" x1="4896" />
             <wire x2="5136" y1="3808" y2="3808" x1="5008" />
-        </branch>
-        <branch name="CARD_OUT1">
-            <wire x2="5552" y1="3680" y2="3680" x1="5520" />
         </branch>
         <branch name="audio_output(983:960)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="5040" y="3872" type="branch" />
@@ -2159,9 +2071,6 @@
             <wire x2="4128" y1="3808" y2="3808" x1="4016" />
             <wire x2="4256" y1="3808" y2="3808" x1="4128" />
         </branch>
-        <branch name="CARD_OUT0">
-            <wire x2="4672" y1="3680" y2="3680" x1="4640" />
-        </branch>
         <branch name="audio_output(791:768)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4160" y="3872" type="branch" />
             <wire x2="4256" y1="3872" y2="3872" x1="4160" />
@@ -2195,10 +2104,10 @@
             <wire x2="4256" y1="4320" y2="4320" x1="4160" />
         </branch>
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="3888" y="3548">8CH OUTPUT CARD (Ch 1-32)</text>
-        <iomarker fontsize="28" x="7360" y="3680" name="CARD_OUT3" orien="R0" />
-        <iomarker fontsize="28" x="6448" y="3680" name="CARD_OUT2" orien="R0" />
-        <iomarker fontsize="28" x="5552" y="3680" name="CARD_OUT1" orien="R0" />
-        <iomarker fontsize="28" x="4672" y="3680" name="CARD_OUT0" orien="R0" />
+        <iomarker fontsize="28" x="7360" y="3680" name="CARD_OUT2" orien="R0" />
+        <iomarker fontsize="28" x="6448" y="3680" name="CARD_OUT3" orien="R0" />
+        <iomarker fontsize="28" x="5552" y="3680" name="CARD_OUT0" orien="R0" />
+        <iomarker fontsize="28" x="4672" y="3680" name="CARD_OUT1" orien="R0" />
         <instance x="576" y="4112" name="XLXI_96" orien="R0" />
         <instance x="576" y="4192" name="XLXI_97" orien="R0" />
         <instance x="576" y="4272" name="XLXI_98" orien="R0" />
@@ -2229,61 +2138,6 @@
         <iomarker fontsize="28" x="832" y="4080" name="DA_MCLK" orien="R0" />
         <iomarker fontsize="28" x="832" y="4160" name="DA_BCLK" orien="R0" />
         <iomarker fontsize="28" x="832" y="4240" name="DA_FSYNC" orien="R0" />
-        <instance x="384" y="5168" name="XLXI_163" orien="R0" />
-        <instance x="384" y="5248" name="XLXI_164" orien="R0" />
-        <instance x="384" y="5328" name="XLXI_165" orien="R0" />
-        <branch name="clk_12_288MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="288" y="5136" type="branch" />
-            <wire x2="288" y1="5136" y2="5136" x1="192" />
-            <wire x2="384" y1="5136" y2="5136" x1="288" />
-        </branch>
-        <branch name="clk_12_288MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="288" y="5216" type="branch" />
-            <wire x2="288" y1="5216" y2="5216" x1="192" />
-            <wire x2="384" y1="5216" y2="5216" x1="288" />
-        </branch>
-        <branch name="tdm_fs">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="272" y="5296" type="branch" />
-            <wire x2="272" y1="5296" y2="5296" x1="192" />
-            <wire x2="384" y1="5296" y2="5296" x1="272" />
-        </branch>
-        <branch name="AD0_MCLK">
-            <wire x2="640" y1="5136" y2="5136" x1="608" />
-        </branch>
-        <branch name="AD0_BCLK">
-            <wire x2="640" y1="5216" y2="5216" x1="608" />
-        </branch>
-        <branch name="AD0_FSYNC">
-            <wire x2="640" y1="5296" y2="5296" x1="608" />
-        </branch>
-        <iomarker fontsize="28" x="640" y="5136" name="AD0_MCLK" orien="R0" />
-        <iomarker fontsize="28" x="640" y="5216" name="AD0_BCLK" orien="R0" />
-        <iomarker fontsize="28" x="640" y="5296" name="AD0_FSYNC" orien="R0" />
-        <instance x="2112" y="5168" name="XLXI_172" orien="R0" />
-        <instance x="2112" y="5248" name="XLXI_173" orien="R0" />
-        <instance x="2112" y="5328" name="XLXI_174" orien="R0" />
-        <branch name="clk_12_288MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2016" y="5216" type="branch" />
-            <wire x2="2016" y1="5216" y2="5216" x1="1920" />
-            <wire x2="2112" y1="5216" y2="5216" x1="2016" />
-        </branch>
-        <branch name="tdm_fs">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2000" y="5296" type="branch" />
-            <wire x2="2000" y1="5296" y2="5296" x1="1920" />
-            <wire x2="2112" y1="5296" y2="5296" x1="2000" />
-        </branch>
-        <branch name="AD1_MCLK">
-            <wire x2="2368" y1="5136" y2="5136" x1="2336" />
-        </branch>
-        <branch name="AD1_BCLK">
-            <wire x2="2368" y1="5216" y2="5216" x1="2336" />
-        </branch>
-        <branch name="AD1_FSYNC">
-            <wire x2="2368" y1="5296" y2="5296" x1="2336" />
-        </branch>
-        <iomarker fontsize="28" x="2368" y="5136" name="AD1_MCLK" orien="R0" />
-        <iomarker fontsize="28" x="2368" y="5216" name="AD1_BCLK" orien="R0" />
-        <iomarker fontsize="28" x="2368" y="5296" name="AD1_FSYNC" orien="R0" />
         <instance x="1456" y="2896" name="XLXI_87" orien="R0" />
         <instance x="1456" y="2976" name="XLXI_88" orien="R0" />
         <instance x="1456" y="3056" name="XLXI_89" orien="R0" />
@@ -2357,17 +2211,6 @@
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="92" y="2164">AUX INPUT / OUTPUT</text>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2924" x="2352" y="1352" height="700" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2236" x="3204" y="2136" height="748" />
-        <branch name="P16_A_TXP">
-            <wire x2="4048" y1="2288" y2="2288" x1="4032" />
-            <wire x2="4096" y1="2288" y2="2288" x1="4048" />
-            <wire x2="4064" y1="2176" y2="2176" x1="4048" />
-            <wire x2="4048" y1="2176" y2="2288" x1="4048" />
-        </branch>
-        <branch name="P16_B_TXP">
-            <wire x2="4960" y1="2288" y2="2288" x1="4928" />
-            <wire x2="5008" y1="2288" y2="2288" x1="4960" />
-            <wire x2="4960" y1="2192" y2="2288" x1="4960" />
-        </branch>
         <instance x="3648" y="2832" name="XLXI_471" orien="R0">
         </instance>
         <instance x="4544" y="2832" name="XLXI_472" orien="R0">
@@ -2432,20 +2275,8 @@
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="3244" y="2192">P16 / UltraNet Output</text>
         <iomarker fontsize="28" x="4096" y="2288" name="P16_A_TXP" orien="R0" />
         <iomarker fontsize="28" x="5008" y="2288" name="P16_B_TXP" orien="R0" />
-        <instance x="4960" y="2224" name="XLXI_474" orien="R0" />
-        <branch name="P16_A_TXM">
-            <wire x2="4320" y1="2176" y2="2176" x1="4288" />
-        </branch>
-        <iomarker fontsize="28" x="4320" y="2176" name="P16_A_TXM" orien="R0" />
-        <branch name="P16_B_TXM">
-            <wire x2="5216" y1="2192" y2="2192" x1="5184" />
-        </branch>
         <iomarker fontsize="28" x="5216" y="2192" name="P16_B_TXM" orien="R0" />
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="80" y="4384">8CH INPUT XLR AD0 (Ch 1-16)</text>
-        <branch name="audio_output(23:0)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3520" type="branch" />
-            <wire x2="512" y1="3520" y2="3520" x1="384" />
-        </branch>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1808" x="5760" y="40" height="588" />
         <branch name="XLXN_67(7:0)">
             <wire x2="6864" y1="304" y2="304" x1="6368" />
@@ -2550,50 +2381,6 @@
         </branch>
         <instance x="1328" y="960" name="XLXI_21" orien="R0">
         </instance>
-        <branch name="nRST">
-            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="832" y="368" type="branch" />
-            <wire x2="832" y1="368" y2="368" x1="752" />
-        </branch>
-        <branch name="nDA_RESET">
-            <wire x2="1968" y1="368" y2="368" x1="1872" />
-        </branch>
-        <branch name="nAD_RESET">
-            <wire x2="1968" y1="464" y2="464" x1="1872" />
-        </branch>
-        <instance x="1648" y="400" name="XLXI_556" orien="R0" />
-        <instance x="1648" y="496" name="XLXI_557" orien="R0" />
-        <branch name="clk_16MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1488" y="160" type="branch" />
-            <wire x2="1488" y1="160" y2="160" x1="1392" />
-            <wire x2="1584" y1="160" y2="160" x1="1488" />
-        </branch>
-        <branch name="rst">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1984" y="160" type="branch" />
-            <wire x2="1984" y1="160" y2="160" x1="1968" />
-            <wire x2="2048" y1="160" y2="160" x1="1984" />
-        </branch>
-        <instance x="1584" y="256" name="XLXI_38" orien="R0">
-        </instance>
-        <iomarker fontsize="28" x="1968" y="368" name="nDA_RESET" orien="R0" />
-        <iomarker fontsize="28" x="1968" y="464" name="nAD_RESET" orien="R0" />
-        <instance x="1648" y="592" name="XLXI_575" orien="R0" />
-        <iomarker fontsize="28" x="1968" y="560" name="nCARD_RESET" orien="R0" />
-        <branch name="nCARD_RESET">
-            <wire x2="1968" y1="560" y2="560" x1="1872" />
-        </branch>
-        <branch name="nRST">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1456" y="416" type="branch" />
-            <wire x2="1456" y1="416" y2="416" x1="1392" />
-            <wire x2="1552" y1="416" y2="416" x1="1456" />
-            <wire x2="1552" y1="416" y2="464" x1="1552" />
-            <wire x2="1552" y1="464" y2="560" x1="1552" />
-            <wire x2="1648" y1="560" y2="560" x1="1552" />
-            <wire x2="1648" y1="464" y2="464" x1="1552" />
-            <wire x2="1552" y1="224" y2="368" x1="1552" />
-            <wire x2="1648" y1="368" y2="368" x1="1552" />
-            <wire x2="1552" y1="368" y2="416" x1="1552" />
-            <wire x2="1584" y1="224" y2="224" x1="1552" />
-        </branch>
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="3196" y="88">PLL Config</text>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2540" x="3172" y="44" height="588" />
         <branch name="XLXN_222">
@@ -2735,8 +2522,7 @@
             <wire x2="2096" y1="1120" y2="1120" x1="2064" />
         </branch>
         <branch name="imx25_uart4_txd">
-            <wire x2="2080" y1="1184" y2="1184" x1="2064" />
-            <wire x2="2096" y1="1184" y2="1184" x1="2080" />
+            <wire x2="2096" y1="1184" y2="1184" x1="2064" />
         </branch>
         <branch name="XLXN_62(7:0)">
             <wire x2="2624" y1="1184" y2="1184" x1="2528" />
@@ -2792,27 +2578,250 @@
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="2608" type="branch" />
             <wire x2="512" y1="2608" y2="2608" x1="400" />
         </branch>
-        <branch name="audio_output(47:24)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3584" type="branch" />
-            <wire x2="512" y1="3584" y2="3584" x1="384" />
-        </branch>
         <branch name="audio_input(23:0)">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="736" y="4576" type="branch" />
             <wire x2="736" y1="4576" y2="4576" x1="672" />
             <wire x2="816" y1="4576" y2="4576" x1="736" />
         </branch>
-        <branch name="audio_output(71:48)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="384" y="3648" type="branch" />
-            <wire x2="512" y1="3648" y2="3648" x1="384" />
-        </branch>
         <branch name="audio_output(431:408)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="3536" y="2416" type="branch" />
-            <wire x2="3568" y1="2416" y2="2416" x1="3536" />
-            <wire x2="3648" y1="2416" y2="2416" x1="3568" />
+            <wire x2="3648" y1="2416" y2="2416" x1="3536" />
         </branch>
         <branch name="audio_output(455:432)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="3536" y="2480" type="branch" />
             <wire x2="3648" y1="2480" y2="2480" x1="3536" />
+        </branch>
+        <iomarker fontsize="28" x="4352" y="2176" name="P16_A_TXM" orien="R0" />
+        <instance x="4960" y="2224" name="XLXI_474" orien="R0" />
+        <branch name="P16_A_TXP">
+            <wire x2="4048" y1="2288" y2="2288" x1="4032" />
+            <wire x2="4096" y1="2288" y2="2288" x1="4048" />
+            <wire x2="4064" y1="2176" y2="2176" x1="4048" />
+            <wire x2="4048" y1="2176" y2="2288" x1="4048" />
+        </branch>
+        <branch name="P16_A_TXM">
+            <wire x2="4352" y1="2176" y2="2176" x1="4288" />
+        </branch>
+        <branch name="P16_B_TXP">
+            <wire x2="4944" y1="2288" y2="2288" x1="4928" />
+            <wire x2="5008" y1="2288" y2="2288" x1="4944" />
+            <wire x2="4960" y1="2192" y2="2192" x1="4944" />
+            <wire x2="4944" y1="2192" y2="2288" x1="4944" />
+        </branch>
+        <branch name="P16_B_TXM">
+            <wire x2="5216" y1="2192" y2="2192" x1="5184" />
+        </branch>
+        <instance x="288" y="5168" name="XLXI_163" orien="R0" />
+        <instance x="288" y="5248" name="XLXI_164" orien="R0" />
+        <instance x="288" y="5328" name="XLXI_165" orien="R0" />
+        <branch name="clk_12_288MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="192" y="5136" type="branch" />
+            <wire x2="192" y1="5136" y2="5136" x1="96" />
+            <wire x2="288" y1="5136" y2="5136" x1="192" />
+        </branch>
+        <branch name="clk_12_288MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="192" y="5216" type="branch" />
+            <wire x2="192" y1="5216" y2="5216" x1="96" />
+            <wire x2="288" y1="5216" y2="5216" x1="192" />
+        </branch>
+        <branch name="tdm_fs">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="176" y="5296" type="branch" />
+            <wire x2="176" y1="5296" y2="5296" x1="96" />
+            <wire x2="288" y1="5296" y2="5296" x1="176" />
+        </branch>
+        <branch name="AD0_MCLK">
+            <wire x2="544" y1="5136" y2="5136" x1="512" />
+        </branch>
+        <branch name="AD0_BCLK">
+            <wire x2="544" y1="5216" y2="5216" x1="512" />
+        </branch>
+        <branch name="AD0_FSYNC">
+            <wire x2="544" y1="5296" y2="5296" x1="512" />
+        </branch>
+        <iomarker fontsize="28" x="544" y="5136" name="AD0_MCLK" orien="R0" />
+        <iomarker fontsize="28" x="544" y="5216" name="AD0_BCLK" orien="R0" />
+        <iomarker fontsize="28" x="544" y="5296" name="AD0_FSYNC" orien="R0" />
+        <branch name="DA_DATA0">
+            <wire x2="928" y1="3328" y2="3328" x1="896" />
+        </branch>
+        <branch name="DA_DATA1">
+            <wire x2="1792" y1="3328" y2="3328" x1="1760" />
+        </branch>
+        <branch name="audio_output(383:360)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3968" type="branch" />
+            <wire x2="1376" y1="3968" y2="3968" x1="1280" />
+        </branch>
+        <branch name="audio_output(359:336)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3904" type="branch" />
+            <wire x2="1376" y1="3904" y2="3904" x1="1280" />
+        </branch>
+        <branch name="audio_output(335:312)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3840" type="branch" />
+            <wire x2="1376" y1="3840" y2="3840" x1="1280" />
+        </branch>
+        <branch name="audio_output(311:288)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3776" type="branch" />
+            <wire x2="1376" y1="3776" y2="3776" x1="1280" />
+        </branch>
+        <branch name="audio_output(287:264)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3712" type="branch" />
+            <wire x2="1376" y1="3712" y2="3712" x1="1280" />
+        </branch>
+        <branch name="audio_output(263:240)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3648" type="branch" />
+            <wire x2="1376" y1="3648" y2="3648" x1="1280" />
+        </branch>
+        <branch name="audio_output(239:216)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3584" type="branch" />
+            <wire x2="1376" y1="3584" y2="3584" x1="1280" />
+        </branch>
+        <branch name="audio_output(215:192)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3520" type="branch" />
+            <wire x2="1376" y1="3520" y2="3520" x1="1280" />
+        </branch>
+        <branch name="AD1_DATA1">
+            <wire x2="288" y1="4992" y2="4992" x1="256" />
+        </branch>
+        <branch name="AD0_DATA1">
+            <wire x2="1136" y1="4992" y2="4992" x1="1104" />
+        </branch>
+        <branch name="AD1_DATA0">
+            <wire x2="2000" y1="4992" y2="4992" x1="1968" />
+        </branch>
+        <branch name="AD0_DATA0">
+            <wire x2="2864" y1="4992" y2="4992" x1="2832" />
+        </branch>
+        <instance x="1136" y="5168" name="XLXI_172" orien="R0" />
+        <instance x="1136" y="5248" name="XLXI_173" orien="R0" />
+        <instance x="1136" y="5328" name="XLXI_174" orien="R0" />
+        <branch name="clk_12_288MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1040" y="5216" type="branch" />
+            <wire x2="1040" y1="5216" y2="5216" x1="944" />
+            <wire x2="1136" y1="5216" y2="5216" x1="1040" />
+        </branch>
+        <branch name="tdm_fs">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1024" y="5296" type="branch" />
+            <wire x2="1024" y1="5296" y2="5296" x1="944" />
+            <wire x2="1136" y1="5296" y2="5296" x1="1024" />
+        </branch>
+        <branch name="AD1_MCLK">
+            <wire x2="1392" y1="5136" y2="5136" x1="1360" />
+        </branch>
+        <branch name="AD1_BCLK">
+            <wire x2="1392" y1="5216" y2="5216" x1="1360" />
+        </branch>
+        <branch name="AD1_FSYNC">
+            <wire x2="1392" y1="5296" y2="5296" x1="1360" />
+        </branch>
+        <branch name="clk_12_288MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1040" y="5136" type="branch" />
+            <wire x2="1040" y1="5136" y2="5136" x1="944" />
+            <wire x2="1136" y1="5136" y2="5136" x1="1040" />
+        </branch>
+        <iomarker fontsize="28" x="1392" y="5136" name="AD1_MCLK" orien="R0" />
+        <iomarker fontsize="28" x="1392" y="5216" name="AD1_BCLK" orien="R0" />
+        <iomarker fontsize="28" x="1392" y="5296" name="AD1_FSYNC" orien="R0" />
+        <branch name="audio_output(23:0)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3520" type="branch" />
+            <wire x2="512" y1="3520" y2="3520" x1="400" />
+        </branch>
+        <branch name="audio_output(47:24)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3584" type="branch" />
+            <wire x2="512" y1="3584" y2="3584" x1="400" />
+        </branch>
+        <branch name="audio_output(71:48)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3648" type="branch" />
+            <wire x2="512" y1="3648" y2="3648" x1="400" />
+        </branch>
+        <branch name="audio_output(95:72)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3712" type="branch" />
+            <wire x2="512" y1="3712" y2="3712" x1="400" />
+        </branch>
+        <branch name="audio_output(119:96)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3776" type="branch" />
+            <wire x2="512" y1="3776" y2="3776" x1="400" />
+        </branch>
+        <branch name="audio_output(143:120)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3840" type="branch" />
+            <wire x2="512" y1="3840" y2="3840" x1="400" />
+        </branch>
+        <branch name="audio_output(167:144)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3904" type="branch" />
+            <wire x2="512" y1="3904" y2="3904" x1="400" />
+        </branch>
+        <branch name="audio_output(191:168)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3968" type="branch" />
+            <wire x2="512" y1="3968" y2="3968" x1="400" />
+        </branch>
+        <branch name="CARD_OUT2">
+            <wire x2="7360" y1="3680" y2="3680" x1="7328" />
+        </branch>
+        <branch name="CARD_OUT3">
+            <wire x2="6448" y1="3680" y2="3680" x1="6416" />
+        </branch>
+        <branch name="CARD_OUT0">
+            <wire x2="5552" y1="3680" y2="3680" x1="5520" />
+        </branch>
+        <branch name="CARD_OUT1">
+            <wire x2="4672" y1="3680" y2="3680" x1="4640" />
+        </branch>
+        <branch name="CARD_IN1">
+            <wire x2="6944" y1="5088" y2="5088" x1="6912" />
+        </branch>
+        <branch name="CARD_IN0">
+            <wire x2="6032" y1="5088" y2="5088" x1="6000" />
+        </branch>
+        <branch name="CARD_IN3">
+            <wire x2="5136" y1="5088" y2="5088" x1="5104" />
+        </branch>
+        <branch name="CARD_IN2">
+            <wire x2="4256" y1="5088" y2="5088" x1="4224" />
+        </branch>
+        <branch name="XLXN_2487">
+            <wire x2="768" y1="368" y2="368" x1="752" />
+            <wire x2="1104" y1="368" y2="368" x1="768" />
+        </branch>
+        <branch name="clk_16MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1008" y="304" type="branch" />
+            <wire x2="1008" y1="304" y2="304" x1="912" />
+            <wire x2="1104" y1="304" y2="304" x1="1008" />
+        </branch>
+        <branch name="rst">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1504" y="304" type="branch" />
+            <wire x2="1504" y1="304" y2="304" x1="1488" />
+            <wire x2="1568" y1="304" y2="304" x1="1504" />
+            <wire x2="1616" y1="304" y2="304" x1="1568" />
+        </branch>
+        <instance x="1104" y="400" name="XLXI_38" orien="R0">
+        </instance>
+        <branch name="nDA_RESET">
+            <wire x2="2208" y1="208" y2="208" x1="2176" />
+            <wire x2="2224" y1="208" y2="208" x1="2208" />
+        </branch>
+        <branch name="nAD_RESET">
+            <wire x2="2208" y1="304" y2="304" x1="2176" />
+            <wire x2="2224" y1="304" y2="304" x1="2208" />
+        </branch>
+        <branch name="nCARD_RESET">
+            <wire x2="2208" y1="400" y2="400" x1="2176" />
+            <wire x2="2224" y1="400" y2="400" x1="2208" />
+        </branch>
+        <instance x="1952" y="240" name="XLXI_556" orien="R0" />
+        <instance x="1952" y="336" name="XLXI_557" orien="R0" />
+        <instance x="1952" y="432" name="XLXI_575" orien="R0" />
+        <iomarker fontsize="28" x="2224" y="208" name="nDA_RESET" orien="R0" />
+        <iomarker fontsize="28" x="2224" y="304" name="nAD_RESET" orien="R0" />
+        <iomarker fontsize="28" x="2224" y="400" name="nCARD_RESET" orien="R0" />
+        <instance x="1616" y="336" name="XLXI_615" orien="R0" />
+        <branch name="nRST">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1904" y="208" type="branch" />
+            <wire x2="1888" y1="304" y2="304" x1="1840" />
+            <wire x2="1952" y1="304" y2="304" x1="1888" />
+            <wire x2="1888" y1="304" y2="400" x1="1888" />
+            <wire x2="1952" y1="400" y2="400" x1="1888" />
+            <wire x2="1888" y1="208" y2="304" x1="1888" />
+            <wire x2="1904" y1="208" y2="208" x1="1888" />
+            <wire x2="1952" y1="208" y2="208" x1="1904" />
         </branch>
     </sheet>
 </drawing>
