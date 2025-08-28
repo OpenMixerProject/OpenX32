@@ -227,10 +227,6 @@
         <signal name="audio_output(263:240)" />
         <signal name="audio_output(239:216)" />
         <signal name="audio_output(215:192)" />
-        <signal name="AD1_DATA1" />
-        <signal name="AD0_DATA1" />
-        <signal name="AD1_DATA0" />
-        <signal name="AD0_DATA0" />
         <signal name="AD1_MCLK" />
         <signal name="AD1_BCLK" />
         <signal name="AD1_FSYNC" />
@@ -242,14 +238,6 @@
         <signal name="audio_output(143:120)" />
         <signal name="audio_output(167:144)" />
         <signal name="audio_output(191:168)" />
-        <signal name="CARD_OUT2" />
-        <signal name="CARD_OUT3" />
-        <signal name="CARD_OUT0" />
-        <signal name="CARD_OUT1" />
-        <signal name="CARD_IN1" />
-        <signal name="CARD_IN0" />
-        <signal name="CARD_IN3" />
-        <signal name="CARD_IN2" />
         <signal name="XLXN_2487" />
         <signal name="nDA_RESET" />
         <signal name="nAD_RESET" />
@@ -257,6 +245,18 @@
         <signal name="nRST" />
         <signal name="audio_output(2687:1728)" />
         <signal name="audio_input(2687:1728)" />
+        <signal name="AD0_DATA1" />
+        <signal name="AD1_DATA1" />
+        <signal name="AD0_DATA0" />
+        <signal name="AD1_DATA0" />
+        <signal name="CARD_IN3" />
+        <signal name="CARD_IN2" />
+        <signal name="CARD_IN1" />
+        <signal name="CARD_IN0" />
+        <signal name="CARD_OUT0" />
+        <signal name="CARD_OUT1" />
+        <signal name="CARD_OUT2" />
+        <signal name="CARD_OUT3" />
         <port polarity="Output" name="imx25_uart4_rxd" />
         <port polarity="Input" name="DA_RX" />
         <port polarity="Output" name="imx25_uart3_rxd" />
@@ -298,24 +298,24 @@
         <port polarity="Output" name="AD0_FSYNC" />
         <port polarity="Output" name="DA_DATA0" />
         <port polarity="Output" name="DA_DATA1" />
-        <port polarity="Input" name="AD1_DATA1" />
-        <port polarity="Input" name="AD0_DATA1" />
-        <port polarity="Input" name="AD1_DATA0" />
-        <port polarity="Input" name="AD0_DATA0" />
         <port polarity="Output" name="AD1_MCLK" />
         <port polarity="Output" name="AD1_BCLK" />
         <port polarity="Output" name="AD1_FSYNC" />
-        <port polarity="Output" name="CARD_OUT2" />
-        <port polarity="Output" name="CARD_OUT3" />
-        <port polarity="Output" name="CARD_OUT0" />
-        <port polarity="Output" name="CARD_OUT1" />
-        <port polarity="Input" name="CARD_IN1" />
-        <port polarity="Input" name="CARD_IN0" />
-        <port polarity="Input" name="CARD_IN3" />
-        <port polarity="Input" name="CARD_IN2" />
         <port polarity="Output" name="nDA_RESET" />
         <port polarity="Output" name="nAD_RESET" />
         <port polarity="Output" name="nCARD_RESET" />
+        <port polarity="Input" name="AD0_DATA1" />
+        <port polarity="Input" name="AD1_DATA1" />
+        <port polarity="Input" name="AD0_DATA0" />
+        <port polarity="Input" name="AD1_DATA0" />
+        <port polarity="Input" name="CARD_IN3" />
+        <port polarity="Input" name="CARD_IN2" />
+        <port polarity="Input" name="CARD_IN1" />
+        <port polarity="Input" name="CARD_IN0" />
+        <port polarity="Output" name="CARD_OUT0" />
+        <port polarity="Output" name="CARD_OUT1" />
+        <port polarity="Output" name="CARD_OUT2" />
+        <port polarity="Output" name="CARD_OUT3" />
         <blockdef name="dcm1">
             <timestamp>2025-7-22T19:46:16</timestamp>
             <rect width="336" x="64" y="-256" height="256" />
@@ -776,7 +776,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="AD0_DATA1" name="sdata" />
+            <blockpin signalname="AD1_DATA1" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(215:192)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(239:216)" name="ch2_out(23:0)" />
@@ -791,7 +791,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="AD1_DATA0" name="sdata" />
+            <blockpin signalname="AD0_DATA0" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(407:384)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(431:408)" name="ch2_out(23:0)" />
@@ -806,7 +806,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="AD0_DATA0" name="sdata" />
+            <blockpin signalname="AD1_DATA0" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(599:576)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(623:600)" name="ch2_out(23:0)" />
@@ -821,7 +821,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="AD1_DATA1" name="sdata" />
+            <blockpin signalname="AD0_DATA1" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(23:0)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(47:24)" name="ch2_out(23:0)" />
@@ -912,7 +912,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN2" name="sdata" />
+            <blockpin signalname="CARD_IN3" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(791:768)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(815:792)" name="ch2_out(23:0)" />
@@ -927,7 +927,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN3" name="sdata" />
+            <blockpin signalname="CARD_IN2" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(983:960)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(1007:984)" name="ch2_out(23:0)" />
@@ -942,7 +942,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN1" name="sdata" />
+            <blockpin signalname="CARD_IN0" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(1367:1344)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(1391:1368)" name="ch2_out(23:0)" />
@@ -957,7 +957,7 @@
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
-            <blockpin signalname="CARD_IN0" name="sdata" />
+            <blockpin signalname="CARD_IN1" name="sdata" />
             <blockpin name="sync_out" />
             <blockpin signalname="audio_input(1175:1152)" name="ch1_out(23:0)" />
             <blockpin signalname="audio_input(1199:1176)" name="ch2_out(23:0)" />
@@ -980,7 +980,7 @@
             <blockpin signalname="audio_output(1487:1464)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(1511:1488)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(1535:1512)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT2" name="sdata" />
+            <blockpin signalname="CARD_OUT3" name="sdata" />
         </block>
         <block symbolname="tdm_8ch_tx" name="XLXI_410">
             <blockpin signalname="clk_124MHz" name="clk" />
@@ -994,7 +994,7 @@
             <blockpin signalname="audio_output(1295:1272)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(1319:1296)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(1343:1320)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT3" name="sdata" />
+            <blockpin signalname="CARD_OUT2" name="sdata" />
         </block>
         <block symbolname="tdm_8ch_tx" name="XLXI_405">
             <blockpin signalname="clk_124MHz" name="clk" />
@@ -1008,7 +1008,7 @@
             <blockpin signalname="audio_output(1103:1080)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(1127:1104)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(1151:1128)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT0" name="sdata" />
+            <blockpin signalname="CARD_OUT1" name="sdata" />
         </block>
         <block symbolname="tdm_8ch_tx" name="XLXI_415">
             <blockpin signalname="clk_124MHz" name="clk" />
@@ -1022,7 +1022,7 @@
             <blockpin signalname="audio_output(911:888)" name="ch6_in(23:0)" />
             <blockpin signalname="audio_output(935:912)" name="ch7_in(23:0)" />
             <blockpin signalname="audio_output(959:936)" name="ch8_in(23:0)" />
-            <blockpin signalname="CARD_OUT1" name="sdata" />
+            <blockpin signalname="CARD_OUT0" name="sdata" />
         </block>
         <block symbolname="buf" name="XLXI_96">
             <blockpin signalname="clk_12_288MHz" name="I" />
@@ -1502,8 +1502,8 @@
         <branch name="audio_input(575:552)">
             <wire x2="2528" y1="5024" y2="5024" x1="2384" />
         </branch>
-        <iomarker fontsize="28" x="1104" y="4992" name="AD0_DATA1" orien="R180" />
-        <iomarker fontsize="28" x="1968" y="4992" name="AD1_DATA0" orien="R180" />
+        <iomarker fontsize="28" x="1104" y="4992" name="AD1_DATA1" orien="R180" />
+        <iomarker fontsize="28" x="1968" y="4992" name="AD0_DATA0" orien="R180" />
         <branch name="clk_124MHz">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2816" y="4512" type="branch" />
             <wire x2="2816" y1="4512" y2="4512" x1="2624" />
@@ -1549,7 +1549,7 @@
         </branch>
         <instance x="2864" y="5056" name="XLXI_151" orien="R0">
         </instance>
-        <iomarker fontsize="28" x="2832" y="4992" name="AD0_DATA0" orien="R180" />
+        <iomarker fontsize="28" x="2832" y="4992" name="AD1_DATA0" orien="R180" />
         <branch name="clk_124MHz">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="256" y="4512" type="branch" />
             <wire x2="256" y1="4512" y2="4512" x1="176" />
@@ -1588,7 +1588,7 @@
         </branch>
         <instance x="288" y="5056" name="XLXI_146" orien="R0">
         </instance>
-        <iomarker fontsize="28" x="256" y="4992" name="AD1_DATA1" orien="R180" />
+        <iomarker fontsize="28" x="256" y="4992" name="AD0_DATA1" orien="R180" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1976" x="40" y="3156" height="1160" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1980" x="36" y="2104" height="1012" />
         <instance x="1376" y="2768" name="XLXI_49" orien="R0">
@@ -1910,12 +1910,12 @@
         </branch>
         <instance x="6032" y="5152" name="XLXI_364" orien="R0">
         </instance>
-        <iomarker fontsize="28" x="4224" y="5088" name="CARD_IN2" orien="R180" />
+        <iomarker fontsize="28" x="4224" y="5088" name="CARD_IN3" orien="R180" />
         <iomarker fontsize="28" x="4560" y="5216" name="CARD_BCLK" orien="R0" />
         <iomarker fontsize="28" x="4560" y="5296" name="CARD_FSYNC" orien="R0" />
-        <iomarker fontsize="28" x="5104" y="5088" name="CARD_IN3" orien="R180" />
-        <iomarker fontsize="28" x="6912" y="5088" name="CARD_IN1" orien="R180" />
-        <iomarker fontsize="28" x="6000" y="5088" name="CARD_IN0" orien="R180" />
+        <iomarker fontsize="28" x="5104" y="5088" name="CARD_IN2" orien="R180" />
+        <iomarker fontsize="28" x="6912" y="5088" name="CARD_IN0" orien="R180" />
+        <iomarker fontsize="28" x="6000" y="5088" name="CARD_IN1" orien="R180" />
         <instance x="6944" y="4352" name="XLXI_411" orien="R0">
         </instance>
         <branch name="clk_124MHz">
@@ -2114,10 +2114,10 @@
             <wire x2="4256" y1="4320" y2="4320" x1="4160" />
         </branch>
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="3888" y="3548">8CH OUTPUT CARD (Ch 1-32)</text>
-        <iomarker fontsize="28" x="7360" y="3680" name="CARD_OUT2" orien="R0" />
-        <iomarker fontsize="28" x="6448" y="3680" name="CARD_OUT3" orien="R0" />
-        <iomarker fontsize="28" x="5552" y="3680" name="CARD_OUT0" orien="R0" />
-        <iomarker fontsize="28" x="4672" y="3680" name="CARD_OUT1" orien="R0" />
+        <iomarker fontsize="28" x="7360" y="3680" name="CARD_OUT3" orien="R0" />
+        <iomarker fontsize="28" x="6448" y="3680" name="CARD_OUT2" orien="R0" />
+        <iomarker fontsize="28" x="5552" y="3680" name="CARD_OUT1" orien="R0" />
+        <iomarker fontsize="28" x="4672" y="3680" name="CARD_OUT0" orien="R0" />
         <instance x="576" y="4112" name="XLXI_96" orien="R0" />
         <instance x="576" y="4192" name="XLXI_97" orien="R0" />
         <instance x="576" y="4272" name="XLXI_98" orien="R0" />
@@ -2649,18 +2649,6 @@
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="3520" type="branch" />
             <wire x2="1376" y1="3520" y2="3520" x1="1280" />
         </branch>
-        <branch name="AD1_DATA1">
-            <wire x2="288" y1="4992" y2="4992" x1="256" />
-        </branch>
-        <branch name="AD0_DATA1">
-            <wire x2="1136" y1="4992" y2="4992" x1="1104" />
-        </branch>
-        <branch name="AD1_DATA0">
-            <wire x2="2000" y1="4992" y2="4992" x1="1968" />
-        </branch>
-        <branch name="AD0_DATA0">
-            <wire x2="2864" y1="4992" y2="4992" x1="2832" />
-        </branch>
         <instance x="1136" y="5168" name="XLXI_172" orien="R0" />
         <instance x="1136" y="5248" name="XLXI_173" orien="R0" />
         <instance x="1136" y="5328" name="XLXI_174" orien="R0" />
@@ -2722,30 +2710,6 @@
         <branch name="audio_output(191:168)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="400" y="3968" type="branch" />
             <wire x2="512" y1="3968" y2="3968" x1="400" />
-        </branch>
-        <branch name="CARD_OUT2">
-            <wire x2="7360" y1="3680" y2="3680" x1="7328" />
-        </branch>
-        <branch name="CARD_OUT3">
-            <wire x2="6448" y1="3680" y2="3680" x1="6416" />
-        </branch>
-        <branch name="CARD_OUT0">
-            <wire x2="5552" y1="3680" y2="3680" x1="5520" />
-        </branch>
-        <branch name="CARD_OUT1">
-            <wire x2="4672" y1="3680" y2="3680" x1="4640" />
-        </branch>
-        <branch name="CARD_IN1">
-            <wire x2="6944" y1="5088" y2="5088" x1="6912" />
-        </branch>
-        <branch name="CARD_IN0">
-            <wire x2="6032" y1="5088" y2="5088" x1="6000" />
-        </branch>
-        <branch name="CARD_IN3">
-            <wire x2="5136" y1="5088" y2="5088" x1="5104" />
-        </branch>
-        <branch name="CARD_IN2">
-            <wire x2="4256" y1="5088" y2="5088" x1="4224" />
         </branch>
         <branch name="XLXN_2487">
             <wire x2="768" y1="368" y2="368" x1="752" />
@@ -2818,6 +2782,42 @@
         <branch name="audio_input(2687:1728)">
             <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="6768" y="1888" type="branch" />
             <wire x2="6768" y1="1888" y2="1888" x1="6656" />
+        </branch>
+        <branch name="AD0_DATA1">
+            <wire x2="288" y1="4992" y2="4992" x1="256" />
+        </branch>
+        <branch name="AD1_DATA1">
+            <wire x2="1136" y1="4992" y2="4992" x1="1104" />
+        </branch>
+        <branch name="AD0_DATA0">
+            <wire x2="2000" y1="4992" y2="4992" x1="1968" />
+        </branch>
+        <branch name="AD1_DATA0">
+            <wire x2="2864" y1="4992" y2="4992" x1="2832" />
+        </branch>
+        <branch name="CARD_IN3">
+            <wire x2="4256" y1="5088" y2="5088" x1="4224" />
+        </branch>
+        <branch name="CARD_IN2">
+            <wire x2="5136" y1="5088" y2="5088" x1="5104" />
+        </branch>
+        <branch name="CARD_IN1">
+            <wire x2="6032" y1="5088" y2="5088" x1="6000" />
+        </branch>
+        <branch name="CARD_IN0">
+            <wire x2="6944" y1="5088" y2="5088" x1="6912" />
+        </branch>
+        <branch name="CARD_OUT0">
+            <wire x2="4672" y1="3680" y2="3680" x1="4640" />
+        </branch>
+        <branch name="CARD_OUT1">
+            <wire x2="5552" y1="3680" y2="3680" x1="5520" />
+        </branch>
+        <branch name="CARD_OUT2">
+            <wire x2="6448" y1="3680" y2="3680" x1="6416" />
+        </branch>
+        <branch name="CARD_OUT3">
+            <wire x2="7360" y1="3680" y2="3680" x1="7328" />
         </branch>
     </sheet>
 </drawing>

@@ -75,9 +75,9 @@ The X32 devices before 2020 are using a Xilinx Spartan-3A X3CS1400 FPGA to route
 Download ISE 14.7 from the Xilinx (AMD) website: https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/archive-ise.html. There are two options: a preinstalled linux virtual machine or the direct version. The virtual machine is working fine. If you want to use the direct version under Windows, here is a short manual as this needs some adjustments:
 
 1. Download the DVD image: https://www.xilinx.com/member/forms/download/xef.html?filename=Xilinx_ISE_DS_14.7_1015_1.tar
-2. Start the setup and install the software. At about 95% the installation will hang. Go into the taskmanager and kill the software "Webtalk32" several times until the setup finishes (successfully!)
+2. Start the setup and install the software (the setup will take a loooong time). Between 93% and 95% the installation will hang: go into the taskmanager and kill the software "Webtalk32.exe" and "xwebtalk.exe" several times until the setup finishes (successfully!)
 3. Set the Windows-Environmental-Variable "XILINX_VC_CHECK_NOOP" to "1". Otherwise the software will complain about a non-installed VisualStudio Runtime 2008 even if it is installed correctly
-4. On modern Windows 10/11 ISE 14.7 will not start beyond the Splash-Screen due to the use of "SmartHeap" within the file "libPortability.dll". Download the patch from https://github.com/cbureriu/xilinx-14.7-patch-for-Win10-32-64 that simply will replace the file "libPortability.dll" by "libPortabilityNOSH.dll" (NOSH = NoSmartHeap) that comes with the original installation.
+4. On modern Windows 10/11 ISE 14.7 will not start beyond the Splash-Screen due to the use of "SmartHeap" within the file "libPortability.dll". Download a hotfix from https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/files/xilinx_ise_hotfix.zip, extract to C:\Xilinx\ and run the batch-file. The script will replace the 32-bit/64-bit versions of libPortability.dll.
 5. Start ISE 14.7, open the OpenX32 project and compile the logic of the main-schematic.
 
 An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: [View Schematic as PDF](https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/Documentation/FPGA.pdf).
