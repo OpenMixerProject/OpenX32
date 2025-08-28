@@ -1268,7 +1268,51 @@ void initDefinitions(void) {
             addEncoderDefinition(X32_ENC_ENCODER4, 0x010C);
             addEncoderDefinition(X32_ENC_ENCODER5, 0x010D);
             addEncoderDefinition(X32_ENC_ENCODER6, 0x010E);
+            break;
 
+        case X32_MODEL_RACK:
+
+            addButtonDefinition(X32_BTN_VIEW_USB, 0x0000);
+            addButtonDefinition(X32_BTN_CHANNEL_SOLO, 0x0001);
+            addButtonDefinition(X32_BTN_CHANNEL_MUTE, 0x0002);
+            addButtonDefinition(X32_BTN_TALK_A, 0x0003);
+            addButtonDefinition(X32_BTN_CLEAR_SOLO, 0x0004);
+
+            addButtonDefinition(X32_BTN_HOME, 0x0006);
+            addButtonDefinition(X32_BTN_METERS, 0x0007);
+            addButtonDefinition(X32_BTN_ROUTING, 0x0008);
+            addButtonDefinition(X32_BTN_LIBRARY, 0x0009);
+            addButtonDefinition(X32_BTN_EFFECTS, 0x000A);
+            addButtonDefinition(X32_BTN_SETUP, 0x000B);
+            addButtonDefinition(X32_BTN_VIEW_MONITOR, 0x000C);
+            addButtonDefinition(X32_BTN_VIEW_SCENES, 0x000D);
+            addButtonDefinition(X32_BTN_MUTE_GRP, 0x000E);
+            addButtonDefinition(X32_BTN_UTILITY, 0x000F);
+
+            addButtonDefinition(X32_BTN_ENCODER1, 0x0010);
+            addButtonDefinition(X32_BTN_ENCODER2, 0x0011);
+            addButtonDefinition(X32_BTN_ENCODER3, 0x0012);
+            addButtonDefinition(X32_BTN_ENCODER4, 0x0013);
+            addButtonDefinition(X32_BTN_ENCODER5, 0x0014);
+            addButtonDefinition(X32_BTN_ENCODER6, 0x0015);
+
+            addButtonDefinition(X32_BTN_UP, 0x0016);
+            addButtonDefinition(X32_BTN_LEFT, 0x0017);
+            addButtonDefinition(X32_BTN_RIGHT, 0x0018);
+            addButtonDefinition(X32_BTN_DOWN, 0x0019);
+
+            // Encoder
+
+            addEncoderDefinition(X32_ENC_CHANNEL_LEVEL, 0x0000);
+            addEncoderDefinition(X32_ENC_MAIN_LEVEL, 0x0001);
+            addEncoderDefinition(X32_ENC_CHANNEL_SELECT, 0x0002);
+            addEncoderDefinition(X32_ENC_ENCODER1, 0x0003);
+            addEncoderDefinition(X32_ENC_ENCODER2, 0x0004);
+            addEncoderDefinition(X32_ENC_ENCODER3, 0x0005);
+            addEncoderDefinition(X32_ENC_ENCODER4, 0x0006);
+            addEncoderDefinition(X32_ENC_ENCODER5, 0x0007);
+            addEncoderDefinition(X32_ENC_ENCODER6, 0x0008);
+            
             break;
 
         case X32_MODEL_CORE:

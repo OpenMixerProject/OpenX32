@@ -17,10 +17,11 @@
 // called every 100ms
 void timer100msCallback(struct _lv_timer_t *) {
 
-      
+    // surface wants to know the current state of all LED's and Meters
+    surfaceKeepalive();  
+
     mixerTouchControllTick();
     syncAll();    
-
 }
 
 void timer10msCallback(struct _lv_timer_t *) {
@@ -35,9 +36,6 @@ void timer10msCallback(struct _lv_timer_t *) {
 
   // read data from FPGA
   fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
-
-  // surface wants to know the current state of all LED's and Meters
-  surfaceKeepalive();  
 }
 
 void surfaceDemo(void) {
@@ -855,8 +853,10 @@ int main() {
         //x32debug("ERROR: No model detected - assume X32 Fullsize!\n");
         //modelEnum = X32_MODEL_FULL;
         //
-        x32debug("ERROR: No model detected - assume X32 Compact!\n");
-        modelEnum =  X32_MODEL_COMPACT;
+        //x32debug("ERROR: No model detected - assume X32 Compact!\n");
+        //modelEnum =  X32_MODEL_COMPACT;
+        x32debug("ERROR: No model detected - assume X32 Rack!\n");
+        modelEnum =  X32_MODEL_RACK;
         //x32debug("ERROR: No model detected - assume X32 Core!\n");
         //modelEnum = X32_MODEL_CORE;
         #endif
