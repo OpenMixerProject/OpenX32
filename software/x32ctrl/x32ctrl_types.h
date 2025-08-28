@@ -32,6 +32,12 @@ typedef union {
 } data_16b;
 
 
+typedef struct {
+    char buffer[MAX_MESSAGE_SIZE];
+    size_t current_length;
+} messageBuilder;
+
+
 typedef struct{
     X32_BTN button;
     uint16_t buttonNr;

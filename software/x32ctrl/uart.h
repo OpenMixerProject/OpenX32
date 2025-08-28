@@ -3,14 +3,9 @@
 
 #include "x32ctrl.h"
 
-// Maximal mögliche Paketlänge inklusive Startbyte, Endbyte und Checksumme
-// Langes Paket: 0xFE (1) + BoardID (1) + ID (1) + Value_MSB (1) + Value_LSB (1) + 0xFE (1) + CHECKSUM (1) = 7 Bytes
-#define MAX_MESSAGE_SIZE 200
 
-typedef struct {
-    char buffer[MAX_MESSAGE_SIZE];
-    size_t current_length;
-} messageBuilder;
+
+
 
 extern messageBuilder message;
 //extern int fdDebug;
