@@ -736,9 +736,9 @@ void surfaceKeepalive(void){
     messageBuilderAddRawByte(&message, 0x81);
     messageBuilderAddRawByte(&message, 'M'); // Meter
     messageBuilderAddRawByte(&message, 0x00);
-    messageBuilderAddRawByte(&message, 0x0F); // Config / Preamp
-    messageBuilderAddRawByte(&message, 0x0F); // Gate/Dynamics
-    messageBuilderAddRawByte(&message, 0x0F); // Left -57 - -36
+    messageBuilderAddRawByte(&message, 0x00); // Config / Preamp
+    messageBuilderAddRawByte(&message, 0x00); // Gate/Dynamics
+    messageBuilderAddRawByte(&message, 0x00); // Left -57 - -36
     messageBuilderAddRawByte(&message, 0x00); // Left -33 - -12
     messageBuilderAddRawByte(&message, 0x00); // Left -10 - Clip
     messageBuilderAddRawByte(&message, 0x32); // 0x32 set every time
@@ -770,14 +770,14 @@ void surfaceKeepalive(void){
     messageBuilderAddRawByte(&message, 0x84);
     messageBuilderAddRawByte(&message, 'M'); // 0x4d == M Meter
     messageBuilderAddRawByte(&message, 0x00); // Null
-    messageBuilderAddRawByte(&message, 0x40); // Channel 0
-    messageBuilderAddRawByte(&message, 0x40); // Channel 1
-    messageBuilderAddRawByte(&message, 0x40); // Channel 2
+    messageBuilderAddRawByte(&message, 0x00); // Channel 0
+    messageBuilderAddRawByte(&message, 0x00); // Channel 1
+    messageBuilderAddRawByte(&message, 0x00); // Channel 2
     messageBuilderAddRawByte(&message, 0x00); // Channel 3
     messageBuilderAddRawByte(&message, 0x00); // Channel 4
     messageBuilderAddRawByte(&message, 0x00); // Channel 5
     messageBuilderAddRawByte(&message, 0x00); // Channel 6
-    messageBuilderAddRawByte(&message, 0x40); // Channel 7
+    messageBuilderAddRawByte(&message, 0x00); // Channel 7
     messageBuilderAddRawByte(&message, 0xfe);
     uartTx(&fdSurface, &message, true);
 
@@ -787,9 +787,9 @@ void surfaceKeepalive(void){
     messageBuilderAddRawByte(&message, 'L'); // Led
     messageBuilderAddRawByte(&message, 0x80);
     messageBuilderAddRawByte(&message, 0x40); // off
-    messageBuilderAddRawByte(&message, 0xc1); // Mute   = c
-    messageBuilderAddRawByte(&message, 0xb2); // Solo   = b
-    messageBuilderAddRawByte(&message, 0xa3); // Select = a
+    messageBuilderAddRawByte(&message, 0x41); // Mute   = c
+    messageBuilderAddRawByte(&message, 0x42); // Solo   = b
+    messageBuilderAddRawByte(&message, 0x43); // Select = a
     messageBuilderAddRawByte(&message, 0x44);
     messageBuilderAddRawByte(&message, 0x45);
     messageBuilderAddRawByte(&message, 0x46);
@@ -826,9 +826,9 @@ void surfaceKeepalive(void){
     messageBuilderAddRawByte(&message, 0x42); // Mute
     messageBuilderAddRawByte(&message, 0x43);
     messageBuilderAddRawByte(&message, 0x44);
-    messageBuilderAddRawByte(&message, 0xC5);
+    messageBuilderAddRawByte(&message, 0x45);
     messageBuilderAddRawByte(&message, 0x46);
-    messageBuilderAddRawByte(&message, 0xC7);
+    messageBuilderAddRawByte(&message, 0x47);
     messageBuilderAddRawByte(&message, 0xfe);
     uartTx(&fdSurface, &message, true);
 
