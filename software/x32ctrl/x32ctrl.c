@@ -98,27 +98,30 @@ void surfaceDemo(void) {
       usleep(5000);
     }
 
-    // set display
-    printf("  Setting Displays for board 0...\n");
-    for (uint8_t i=0; i<4; i++) {
-      setLcd(0, i, 7, 70, 8, 0xE2, 0x20, 0, 0, "Board 0", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-    }
+    if (!mixerIsModelX32Core()){
+        // set display
+        printf("  Setting Displays for board 0...\n");
+        for (uint8_t i=0; i<4; i++) {
+        setLcd(0, i, 7, 70, 8, 0xE2, 0x20, 0, 0, "Board 0", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+        }
 
-    printf("  Setting Displays for boards 4, 5 and 8...\n");
-    for (uint8_t i=0; i<=8; i++) {
-      setLcd(4, i, 1, 70, 8, 0xE2, 0x20, 0, 0, "Board 1", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-      setLcd(5, i, 2, 70, 8, 0xE2, 0x20, 0, 0, "Board 2", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-      setLcd(8, i, 4, 70, 8, 0xE2, 0x20, 0, 0, "Board 3", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+        printf("  Setting Displays for boards 4, 5 and 8...\n");
+        for (uint8_t i=0; i<=8; i++) {
+        setLcd(4, i, 1, 70, 8, 0xE2, 0x20, 0, 0, "Board 1", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+        setLcd(5, i, 2, 70, 8, 0xE2, 0x20, 0, 0, "Board 2", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+        setLcd(8, i, 4, 70, 8, 0xE2, 0x20, 0, 0, "Board 3", 0x00, 0, 48, "OpenX32"); // setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
+        }
     }
 }
 
 #if DEBUG
-uint8_t dbgLed = 0;
-uint8_t dbgColor = 0xF;
-uint8_t dbgx = 0;
-uint8_t dbgy = 0;
-uint8_t dbgsize = 0;
+// Use Encoders on Display for some testing
+uint8_t dbg1 = 0;
 uint8_t dbg2 = 0;
+uint8_t dbg3 = 0;
+uint8_t dbg4 = 0;
+uint8_t dbg5 = 0;
+uint8_t dbg6 = 0;
 #endif
 
 // function will be called by uart-receive-function
@@ -236,47 +239,6 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_MUTE_GROUP_3:
                     addaSetGain(3, 1, 15.5, 1);
                     break;
-                case X32_BTN_SCENE_SETUP:
-                    setLed(X32_BOARD_MAIN, 0, 1);
-                    setLed(X32_BOARD_MAIN, 0xc, 1);
-                    setLed(X32_BOARD_MAIN, 0xe, 1);
-                    break;
-                case X32_BTN_ASSIGN_3:
-                    setLed(X32_BOARD_MAIN, 6, 1);
-                    setLed(X32_BOARD_MAIN, 0xd, 1);
-                    setLed(X32_BOARD_MAIN, 0xf, 1);
-                    break;
-                case X32_BTN_ASSIGN_4:
-                    dbgLed = 0;
-                    for (int i=0; i < 0x80; i++){
-                        setLed(X32_BOARD_MAIN, i, 0);                        
-                    }
-                    break;
-                case X32_BTN_ASSIGN_5:
-                    // LED Finder
-                    char ledText[20] = "";
-                    sprintf(&ledText, "LED: 0x%04X", dbgLed);
-                    setLcd(X32_BOARD_MAIN, 0, SURFACE_COLOR_YELLOW, 0, 0, 0, 0, 0, 0, ledText, 0x20, 0,  40, "OpenX32");
-                    setLed(X32_BOARD_MAIN, dbgLed, 1);
-                    dbgLed++;
-                    break;
-                case X32_BTN_ASSIGN_6:
-                    // X32 Core Demo
-                    setLedByEnum(X32_BTN_SCENE_SETUP, 1);
-                    setLedByEnum(X32_BTN_TALK_A, 1);
-                    setLedByEnum(X32_BTN_ASSIGN_3, 1);
-                    setLedByEnum(X32_BTN_ASSIGN_4, 1);
-                    setLedByEnum(X32_BTN_ASSIGN_5, 1);
-                    setLedByEnum(X32_BTN_ASSIGN_6, 1);
-
-                    setLcd(X32_BOARD_MAIN, 0, SURFACE_COLOR_YELLOW, 0, 0, 0, 0, 0, 20, "huhu", 0, 0,  40, "test");
-                    
-                    for (int i=0; i < 8; i++){
-                        setMeterLed(X32_BOARD_MAIN, 0, 1 << i);
-                        usleep(5000000);
-                    }
-
-                    break;
                 default:
 
                     x32debug("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X | X32_BTN = 0x%04X\n", boardId, class, index, value, button);
@@ -315,20 +277,23 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         //x32debug("Encoder: %d dbgColor=%d\n", amount, dbgColor);
 
         switch(encoder){
+            case X32_ENC_ENCODER6:
+                dbg6 += amount;
+                break;
             case X32_ENC_ENCODER5:
-                dbg2 += amount;
+                dbg5 += amount;
                 break;
             case X32_ENC_ENCODER4:
-                dbgsize += amount;
+                dbg4 += amount;
                 break;
             case X32_ENC_ENCODER3:
-                dbgy += amount;
+                dbg3 += amount;
                 break;
             case X32_ENC_ENCODER2:
-                dbgx += amount;
+                dbg2 += amount;
                 break;
             case X32_ENC_ENCODER1:
-                dbgColor += amount;
+                dbg1 += amount;
                 break;
             default:
                 x32debug("Encoder : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, class, index, value);
@@ -338,10 +303,16 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 break;
         }
 
-
-        // x32debug("DEBUG: dbgColor=%d dbgx=%d\n", dbgColor, dbgx);
+        x32debug("DEBUG: dbg1=%d(0x%02X) dbg2=%d(0x%02X) dbg3=%d(0x%02X) dbg4=%d(0x%02X) dbg5=%d(0x%02X) dbg6=%d(0x%02X)\n",
+                 dbg1, dbg1, dbg2, dbg2, dbg3, dbg3, dbg4, dbg4, dbg5, dbg5, dbg6, dbg6);
          
-        // // //setLcdX2(dbgColor, dbgx);
+        switch(dbg1){
+            case 1:
+                // LED Test
+                setLed(dbg2, dbg3, dbg4);
+        }
+
+        
 
         // sLCDData* data;
         // data = malloc(sizeof(sLCDData));
