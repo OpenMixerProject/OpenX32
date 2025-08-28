@@ -593,8 +593,8 @@ void surfaceProcessUartData(int bytesToProcess) {
         // divide_after_next got no usage, because the uartBuffer was emptied out -> reason: no checksum was send
         // clean up this situation
         surfacePacketCurrent++;
-        while (surfacePacketCurrentIndex < 6){
-            // fill with zero
+        while (surfacePacketCurrentIndex < 6){  
+            // fill with zero - maybe not needed
             surfacePacketBuffer[surfacePacketCurrent][surfacePacketCurrentIndex++]=0x00;
         }
         surfacePacketCurrentIndex=0;
@@ -633,9 +633,9 @@ void surfaceProcessUartData(int bytesToProcess) {
 #if DEBUG
     // print packages, one in a row    
     uint8_t packagesToPrint = surfacePacketCurrent;
-    //if (lastPackageIncomplete){
+    if (lastPackageIncomplete){
         packagesToPrint++;
-    //}
+    }
     x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
 
     for (int package=0; package < packagesToPrint; package++) {
