@@ -585,6 +585,9 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
     
     if (mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) {   
         switch (encoder){
+            case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core - Channel Select    TODO: Implement on Core
+                mixerChangeSelect(amount);
+                break;
             case X32_ENC_GAIN:
                 mixerChangeGain(mixerGetSelectedvChannel()->index, amount);
                 break;
@@ -595,6 +598,18 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
         } 
     }
 
+}
+
+// direction - positive or negative integer value
+void mixerChangeSelect(uint8_t direction){
+    uint8_t newSelectedVChannel = mixer.selectedVChannel += direction;
+    if (newSelectedVChannel < 0) {
+        newSelectedVChannel = 0;
+    } else if (newSelectedVChannel >= MAX_VCHANNELS){
+        newSelectedVChannel = MAX_VCHANNELS-1;
+    }
+
+    mixerSetSelect(newSelectedVChannel, true);
 }
 
 void mixerSetSelect(uint8_t vChannelIndex, bool select){

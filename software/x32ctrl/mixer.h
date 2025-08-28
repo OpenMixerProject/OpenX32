@@ -28,6 +28,7 @@ uint8_t mixerGetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t 
 void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue);
 void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
 
+void mixerChangeSelect(uint8_t direction);
 void mixerSetSelect(uint8_t vChannelIndex, bool solo);
 void mixerToggleSelect(uint8_t vChannelIndex);
 bool mixerIsSoloActivated(void);
