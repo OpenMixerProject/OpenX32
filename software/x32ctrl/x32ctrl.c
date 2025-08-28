@@ -17,6 +17,7 @@
 // called every 100ms
 void timer100msCallback(struct _lv_timer_t *) {
 
+      
     mixerTouchControllTick();
     syncAll();    
 
@@ -34,6 +35,9 @@ void timer10msCallback(struct _lv_timer_t *) {
 
   // read data from FPGA
   fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
+
+  // surface wants to know the current state of all LED's and Meters
+  surfaceKeepalive();  
 }
 
 void surfaceDemo(void) {
@@ -231,6 +235,9 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                     mixerDebugPrintBank(0);                    
                     mixerDebugPrintBusBank(0);
                     break;
+                case X32_BTN_MUTE_GROUP_3:
+                    addaSetGain(3, 1, 15.5, 1);
+                    break;
                 case X32_BTN_SCENE_SETUP:
                     setLed(X32_BOARD_MAIN, 0, 1);
                     setLed(X32_BOARD_MAIN, 0xc, 1);
@@ -334,67 +341,68 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         }
 
 
-        x32debug("DEBUG: dbgColor=%d dbgx=%d\n", dbgColor, dbgx);
+        // x32debug("DEBUG: dbgColor=%d dbgx=%d\n", dbgColor, dbgx);
          
-        // //setLcdX2(dbgColor, dbgx);
+        // // //setLcdX2(dbgColor, dbgx);
 
-        sLCDData* data;
-        data = malloc(sizeof(sLCDData));
+        // sLCDData* data;
+        // data = malloc(sizeof(sLCDData));
 
-        data->boardId = X32_BOARD_R;
-        data->color = dbgColor;
-        data->index = 8; // Main Fader
-        data->icon.icon = 0x0;
-        data->icon.x = 0;
-        data->icon.y = 0;
+        // data->boardId = X32_BOARD_R;
+        // data->color = dbgColor;
+        // data->index = 8; // Main Fader
+        // data->icon.icon = 0x0;
+        // data->icon.x = 0;
+        // data->icon.y = 0;
 
-        // // 15,5dB 48V|Ø
-        // // L300Hz G|D|E
-        // // -30dB |---|---|
-        // // Saxophon1
+        // // // 15,5dB 48V|Ø
+        // // // L300Hz G|D|E
+        // // // -30dB |---|---|
+        // // // Saxophon1
         
-        // Gain / Lowcut
-        sprintf(data->texts[0].text, "48,5dB 300Hz");
-        data->texts[0].size = 0;
-        data->texts[0].x = 3;
-        data->texts[0].y = 0;
+        // // Gain / Lowcut
+        // sprintf(data->texts[0].text, "48,5dB 300Hz");
+        // data->texts[0].size = 0;
+        // data->texts[0].x = 3;
+        // data->texts[0].y = 0;
 
-        // Phanton / Invert / Gate / Dynamics / EQ active
-        sprintf(data->texts[1].text, "48V @ G D E");
-        data->texts[1].size = 0;
-        data->texts[1].x = 10;
-        data->texts[1].y = 15;
+        // // Phanton / Invert / Gate / Dynamics / EQ active
+        // sprintf(data->texts[1].text, "48V @ G D E");
+        // data->texts[1].size = 0;
+        // data->texts[1].x = 10;
+        // data->texts[1].y = 15;
 
-        // Volume / Panorama
-        sprintf(data->texts[2].text, "-100dB ---|---");
-        data->texts[2].size = 0;
-        data->texts[2].x = 8;
-        data->texts[2].y = 30;
+        // // Volume / Panorama
+        // sprintf(data->texts[2].text, "-100dB ---|---");
+        // data->texts[2].size = 0;
+        // data->texts[2].x = 8;
+        // data->texts[2].y = 30;
 
-        // vChannel Name
-        if (dbgx<0) {
-            dbgx=1;
-        }
-        if (dbgy<0) {
-            dbgy=1;
-        }
-        char* blubb = calloc(dbgx + 5, sizeof(char));
+        // // vChannel Name
+        // if (dbgx<0) {
+        //     dbgx=1;
+        // }
+        // if (dbgy<0) {
+        //     dbgy=1;
+        // }
+        // char* blubb = calloc(dbgx + 5, sizeof(char));
         
-        for (int t=0;t<dbgx; t++){
-            blubb[t] = dbgy;
-        }
-        blubb[dbgx]='\0';
-        sprintf(data->texts[3].text, "%s", blubb);
-        data->texts[3].size = 0;
-        data->texts[3].x = 0;
-        data->texts[3].y = 48;
+        // for (int t=0;t<dbgx; t++){
+        //     blubb[t] = dbgy;
+        // }
+        // blubb[dbgx]='\0';
+        // sprintf(data->texts[3].text, "%s", blubb);
+        // data->texts[3].size = 0;
+        // data->texts[3].x = 0;
+        // data->texts[3].y = 48;
 
-        setLcdX(data, 4);
+        // setLcdX(data, 4);
+        // if (!mixerIsModelX32Core()) {
+        //     lv_label_set_text_fmt(objects.debugtext, "dbcolor=%d dbgx=%d dbgy=%d text=%s", dbgColor, dbgx, dbgy, data->texts[3].text);
+        // }
 
-        lv_label_set_text_fmt(objects.debugtext, "dbcolor=%d dbgx=%d dbgy=%d text=%s", dbgColor, dbgx, dbgy, data->texts[3].text);
-
-        free(data);
-        data=NULL;
+        // free(data);
+        // data=NULL;
 
 #endif
 
@@ -404,6 +412,7 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
 }
 
 void addaCallback(char *msg) {
+    x32debug("Received message: %s\n", msg);
     if ((strlen(msg) == 4) && (msg[2] == 'Y')) {
         // we received acknowledge-message like *1Y# -> ignore it
     }else if ((strlen(msg) == 5) && ((msg[2] == 'B') && (msg[3] == 'E'))) {

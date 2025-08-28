@@ -53,7 +53,9 @@
 #define X32_BRIGHTNESS_3 0x80
 #define X32_BRIGHTNESS_4 0xC0
 
-
+// Maximal mögliche Paketlänge inklusive Startbyte, Endbyte und Checksumme
+// Langes Paket: 0xFE (1) + BoardID (1) + ID (1) + Value_MSB (1) + Value_LSB (1) + 0xFE (1) + CHECKSUM (1) = 7 Bytes
+#define MAX_MESSAGE_SIZE 200
 
 // standard includes
 #include <stdio.h>
