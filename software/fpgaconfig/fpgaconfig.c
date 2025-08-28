@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
-#include <gpiod.h>
+//#include <gpiod.h>
 
 // SPI configuration for i.MX25
 #define SPI_DEVICE "/dev/spidev2.0"
