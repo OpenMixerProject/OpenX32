@@ -154,14 +154,6 @@
         <signal name="AUX_MCLK" />
         <signal name="AUX_SCLK" />
         <signal name="AUX_FSYNC" />
-        <signal name="audio_input(1751:1728)" />
-        <signal name="audio_input(1775:1752)" />
-        <signal name="audio_input(1799:1776)" />
-        <signal name="audio_input(1823:1800)" />
-        <signal name="audio_input(1919:1896)" />
-        <signal name="audio_input(1895:1872)" />
-        <signal name="audio_input(1871:1848)" />
-        <signal name="audio_input(1847:1824)" />
         <signal name="audiosync" />
         <signal name="routing(895:0)" />
         <signal name="audio_output(407:384)" />
@@ -218,12 +210,9 @@
         <signal name="audio_output(1583:1560)" />
         <signal name="audio_output(455:432)" />
         <signal name="audio_output(431:408)" />
-        <signal name="XLXN_2359" />
-        <signal name="XLXN_2362" />
         <signal name="P16_A_TXP" />
         <signal name="P16_A_TXM" />
         <signal name="P16_B_TXP" />
-        <signal name="XLXN_2391" />
         <signal name="P16_B_TXM" />
         <signal name="AD0_MCLK" />
         <signal name="AD0_BCLK" />
@@ -261,14 +250,13 @@
         <signal name="CARD_IN0" />
         <signal name="CARD_IN3" />
         <signal name="CARD_IN2" />
-        <signal name="XLXN_2486" />
         <signal name="XLXN_2487" />
         <signal name="nDA_RESET" />
         <signal name="nAD_RESET" />
         <signal name="nCARD_RESET" />
-        <signal name="XLXN_2499" />
         <signal name="nRST" />
-        <signal name="XLXN_2501" />
+        <signal name="audio_output(2687:1728)" />
+        <signal name="audio_input(2687:1728)" />
         <port polarity="Output" name="imx25_uart4_rxd" />
         <port polarity="Input" name="DA_RX" />
         <port polarity="Output" name="imx25_uart3_rxd" />
@@ -612,6 +600,20 @@
             <rect width="64" x="496" y="-44" height="24" />
             <line x2="560" y1="-32" y2="-32" x1="496" />
         </blockdef>
+        <blockdef name="volumectrl">
+            <timestamp>2025-8-27T22:21:13</timestamp>
+            <rect width="416" x="64" y="-320" height="320" />
+            <line x2="0" y1="-288" y2="-288" x1="64" />
+            <line x2="0" y1="-224" y2="-224" x1="64" />
+            <rect width="64" x="0" y="-172" height="24" />
+            <line x2="0" y1="-160" y2="-160" x1="64" />
+            <rect width="64" x="0" y="-108" height="24" />
+            <line x2="0" y1="-96" y2="-96" x1="64" />
+            <rect width="64" x="0" y="-44" height="24" />
+            <line x2="0" y1="-32" y2="-32" x1="64" />
+            <rect width="64" x="480" y="-300" height="24" />
+            <line x2="544" y1="-288" y2="-288" x1="480" />
+        </blockdef>
         <block symbolname="rs232_encoder" name="XLXI_23">
             <blockpin signalname="clk_124MHz" name="clk" />
             <blockpin signalname="XLXN_54" name="TX_rdy" />
@@ -669,42 +671,42 @@
         <block symbolname="ddfs_drom" name="XLXI_185">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_559(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1847:1824)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="ddfs_drom" name="XLXI_188">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_556(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1919:1896)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="ddfs_drom" name="XLXI_184">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_555(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1823:1800)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="ddfs_drom" name="XLXI_183">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_554(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1799:1776)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="ddfs_drom" name="XLXI_187">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_557(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1895:1872)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="ddfs_drom" name="XLXI_186">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_558(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1871:1848)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="ddfs_drom" name="XLXI_182">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_553(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1775:1752)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="ddfs_drom" name="XLXI_118">
             <blockpin signalname="clk_16MHz" name="CLK" />
             <blockpin signalname="XLXN_342(7:0)" name="Freq_Data(7:0)" />
-            <blockpin signalname="audio_input(1751:1728)" name="Dout(23:0)" />
+            <blockpin name="Dout(23:0)" />
         </block>
         <block symbolname="constant" name="XLXI_189">
             <attr value="E0" name="CValue">
@@ -1223,6 +1225,14 @@
         <block symbolname="buf" name="XLXI_575">
             <blockpin signalname="nRST" name="I" />
             <blockpin signalname="nCARD_RESET" name="O" />
+        </block>
+        <block symbolname="volumectrl" name="XLXI_616">
+            <blockpin signalname="clk_24_576MHz" name="clk" />
+            <blockpin signalname="audiosync" name="sync_in" />
+            <blockpin signalname="audio_output(2687:1728)" name="audio_input(959:0)" />
+            <blockpin signalname="volume_left(319:0)" name="volume_left(319:0)" />
+            <blockpin signalname="volume_right(319:0)" name="volume_right(319:0)" />
+            <blockpin signalname="audio_input(2687:1728)" name="audio_output(959:0)" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
@@ -2168,46 +2178,6 @@
         <iomarker fontsize="28" x="1712" y="2864" name="AUX_MCLK" orien="R0" />
         <iomarker fontsize="28" x="1712" y="2944" name="AUX_SCLK" orien="R0" />
         <iomarker fontsize="28" x="1712" y="3024" name="AUX_FSYNC" orien="R0" />
-        <branch name="audio_input(1751:1728)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="6288" y="784" type="branch" />
-            <wire x2="6288" y1="784" y2="784" x1="6160" />
-            <wire x2="6320" y1="784" y2="784" x1="6288" />
-        </branch>
-        <branch name="audio_input(1775:1752)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="6240" y="1024" type="branch" />
-            <wire x2="6240" y1="1024" y2="1024" x1="6160" />
-            <wire x2="6320" y1="1024" y2="1024" x1="6240" />
-        </branch>
-        <branch name="audio_input(1799:1776)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="6256" y="1264" type="branch" />
-            <wire x2="6256" y1="1264" y2="1264" x1="6160" />
-            <wire x2="6320" y1="1264" y2="1264" x1="6256" />
-        </branch>
-        <branch name="audio_input(1823:1800)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="6256" y="1504" type="branch" />
-            <wire x2="6256" y1="1504" y2="1504" x1="6160" />
-            <wire x2="6320" y1="1504" y2="1504" x1="6256" />
-        </branch>
-        <branch name="audio_input(1919:1896)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="7264" y="1504" type="branch" />
-            <wire x2="7264" y1="1504" y2="1504" x1="7200" />
-            <wire x2="7328" y1="1504" y2="1504" x1="7264" />
-        </branch>
-        <branch name="audio_input(1895:1872)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="7264" y="1264" type="branch" />
-            <wire x2="7264" y1="1264" y2="1264" x1="7200" />
-            <wire x2="7328" y1="1264" y2="1264" x1="7264" />
-        </branch>
-        <branch name="audio_input(1871:1848)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="7248" y="1024" type="branch" />
-            <wire x2="7248" y1="1024" y2="1024" x1="7200" />
-            <wire x2="7328" y1="1024" y2="1024" x1="7248" />
-        </branch>
-        <branch name="audio_input(1847:1824)">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="7264" y="784" type="branch" />
-            <wire x2="7264" y1="784" y2="784" x1="7200" />
-            <wire x2="7328" y1="784" y2="784" x1="7264" />
-        </branch>
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="92" y="2164">AUX INPUT / OUTPUT</text>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2924" x="2352" y="1352" height="700" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2236" x="3204" y="2136" height="748" />
@@ -2822,6 +2792,32 @@
             <wire x2="1888" y1="208" y2="304" x1="1888" />
             <wire x2="1904" y1="208" y2="208" x1="1888" />
             <wire x2="1952" y1="208" y2="208" x1="1904" />
+        </branch>
+        <instance x="6112" y="2176" name="XLXI_616" orien="R0">
+        </instance>
+        <branch name="clk_24_576MHz">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="5968" y="1888" type="branch" />
+            <wire x2="6112" y1="1888" y2="1888" x1="5968" />
+        </branch>
+        <branch name="audiosync">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="5968" y="1952" type="branch" />
+            <wire x2="6112" y1="1952" y2="1952" x1="5968" />
+        </branch>
+        <branch name="volume_left(319:0)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="5968" y="2080" type="branch" />
+            <wire x2="6112" y1="2080" y2="2080" x1="5968" />
+        </branch>
+        <branch name="volume_right(319:0)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="5968" y="2144" type="branch" />
+            <wire x2="6112" y1="2144" y2="2144" x1="5968" />
+        </branch>
+        <branch name="audio_output(2687:1728)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="5968" y="2016" type="branch" />
+            <wire x2="6112" y1="2016" y2="2016" x1="5968" />
+        </branch>
+        <branch name="audio_input(2687:1728)">
+            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="6768" y="1888" type="branch" />
+            <wire x2="6768" y1="1888" y2="1888" x1="6656" />
         </branch>
     </sheet>
 </drawing>
