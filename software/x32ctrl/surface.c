@@ -1312,6 +1312,22 @@ void initDefinitions(void) {
             addEncoderDefinition(X32_ENC_ENCODER4, 0x0006);
             addEncoderDefinition(X32_ENC_ENCODER5, 0x0007);
             addEncoderDefinition(X32_ENC_ENCODER6, 0x0008);
+
+            // LED only
+
+            addButtonDefinition(X32_LED_VIEW_USB_RED, 0x0005);
+
+            addButtonDefinition(X32_LED_IN, 0x0010);
+            addButtonDefinition(X32_LED_AUX, 0x0011);
+            addButtonDefinition(X32_LED_BUS, 0x0012);
+            addButtonDefinition(X32_LED_DCA, 0x0013);
+            addButtonDefinition(X32_LED_MAIN, 0x0014);
+            addButtonDefinition(X32_LED_MATRIX, 0x0015);
+
+            addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
+            addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0017);
+
+            
             
             break;
 
