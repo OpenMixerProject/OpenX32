@@ -99,13 +99,13 @@ At the moment it seems that the DSPs can only be programmed using a closed-sourc
 * [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438)
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
 * [x] Configuration of main-FPGA (Xilinx Spartan 3A, X3CS1400) via internal SPI-interface (via fpgaconfig)
+* [x] Routing-function for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
+* [x] Basic audio-mixing of 40 channels within the FPGA controlled by i.MX25
 
 So the most important things (audio in/out, control-surface, display) are working already. The high-level-audio-functions within the DSP need still more investigation...
 
 More things are on the ToDo-list:
-* [ ] Prepared: routing-function for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
 * [ ] Prepared: Support of UltraNet-Output
-* [ ] Planned: basic audio-mixing (at least volume controlled by i.MX25) within the FPGA until the two AnalogDevices SHARC DSPs are under control
 * [ ] Planned: Support of both AnalogDevices DSPs via SPI (find toolchain for Analog Devices SHARC DSPs)
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
