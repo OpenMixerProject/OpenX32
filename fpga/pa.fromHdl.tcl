@@ -5,6 +5,9 @@ create_project -name OpenX32 -dir "C:/GitCheckout/GitHub/OpenX32/fpga/planAhead_
 set_param project.pinAheadLayout yes
 set srcset [get_property srcset [current_run -impl]]
 set_property target_constrs_file "main.ucf" [current_fileset -constrset]
+set hdlfile [add_files [list {volumectrl.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
 set hdlfile [add_files [list {ultranet_tx.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
@@ -35,19 +38,19 @@ set_property library work $hdlfile
 set hdlfile [add_files [list {dcm1.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {ddfs_drom.vhd}]]
-set_property file_type VHDL $hdlfile
-set_property library work $hdlfile
 set hdlfile [add_files [list {cs42438_config.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {cs2000cp_config.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {audiomatrix_ram.vhd}]]
+set hdlfile [add_files [list {audiomatrix_ram_write.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {audiomatrix.vhd}]]
+set hdlfile [add_files [list {audiomatrix_ram_read.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {audiomatrix_ram.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {audioclk.vhd}]]

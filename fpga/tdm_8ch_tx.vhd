@@ -5,7 +5,6 @@ use ieee.numeric_std.all; -- lib for unsigned and signed
 
 entity tdm_8ch_tx is
 	port (
-		clk 		: in std_logic; -- mainclock
 		bclk		: in std_logic; -- bit-clock of TDM signal (for X32 it is 12.288 MHz)
 		fsync		: in std_logic; -- Frame sync
 		ch1_in	: in std_logic_vector(23 downto 0);

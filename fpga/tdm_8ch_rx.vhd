@@ -18,7 +18,6 @@ use ieee.numeric_std.all; -- lib for unsigned and signed
 
 entity tdm_8ch_rx is
 	port (
-		clk 		: in std_logic; -- mainclock
 		bclk		: in std_logic; -- bit-clock of TDM signal (for X32 it is 12.288 MHz)
 		fsync		: in std_logic; -- Frame sync (for X32 it is 384 kHz)
 		sdata		: in std_logic; -- serial data (8x 32 bit audio-data: 24 bit of audio followed by 8 zero-bits)
