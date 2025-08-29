@@ -63,11 +63,34 @@ void create_screen_main() {
             }
         }
         {
+            lv_obj_t *obj = lv_buttonmatrix_create(parent_obj);
+            lv_obj_set_pos(obj, 2, 443);
+            lv_obj_set_size(obj, 796, 35);
+            static const char *map[7] = {
+                "Btn",
+                "Btn",
+                "Btn",
+                "Btn",
+                "Btn",
+                "Btn",
+                NULL,
+            };
+            lv_buttonmatrix_set_map(obj, map);
+            lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+            lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_top(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_bottom(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_left(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_right(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_column(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_row(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+        }
+        {
             // maintab
             lv_obj_t *obj = lv_tabview_create(parent_obj);
             objects.maintab = obj;
-            lv_obj_set_pos(obj, 3, 78);
-            lv_obj_set_size(obj, 795, 399);
+            lv_obj_set_pos(obj, 2, 78);
+            lv_obj_set_size(obj, 796, 363);
             lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
             lv_tabview_set_tab_bar_size(obj, 0);
             {
@@ -122,9 +145,11 @@ void create_screen_main() {
                                     {
                                         lv_obj_t *parent_obj = obj;
                                         {
+                                            // source_panel
                                             lv_obj_t *obj = lv_obj_create(parent_obj);
+                                            objects.source_panel = obj;
                                             lv_obj_set_pos(obj, -16, -17);
-                                            lv_obj_set_size(obj, 252, 373);
+                                            lv_obj_set_size(obj, 252, 340);
                                             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             {
                                                 lv_obj_t *parent_obj = obj;
@@ -189,6 +214,37 @@ void create_screen_main() {
                                                     lv_obj_set_pos(obj, 56, 94);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "0");
+                                                }
+                                            }
+                                        }
+                                        {
+                                            // destination_panel
+                                            lv_obj_t *obj = lv_obj_create(parent_obj);
+                                            objects.destination_panel = obj;
+                                            lv_obj_set_pos(obj, 523, -17);
+                                            lv_obj_set_size(obj, 252, 340);
+                                            lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, 23, -12);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "vChannel Destination");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -7, 20);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Destination: ");
+                                                }
+                                                {
+                                                    // current_channel_destination
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.current_channel_destination = obj;
+                                                    lv_obj_set_pos(obj, 89, 20);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "x32");
                                                 }
                                             }
                                         }
@@ -435,13 +491,19 @@ void create_screen_main() {
                 }
                 {
                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Routing");
+                    lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
                     {
                         lv_obj_t *parent_obj = obj;
                         {
                             lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 15, 20);
+                            lv_obj_set_pos(obj, 349, -10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_label_set_text(obj, "Routing");
+                        }
+                        {
+                            lv_obj_t *obj = lv_table_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 20);
+                            lv_obj_set_size(obj, 758, 304);
                         }
                     }
                 }

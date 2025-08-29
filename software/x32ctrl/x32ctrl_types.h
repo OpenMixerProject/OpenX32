@@ -149,12 +149,19 @@ typedef struct{
 } s_bankMode;
 
 typedef struct{
+    X32_PAGE pageEnum;
+    X32_PAGE nextPage;
+    X32_PAGE prevPage;    
+} s_mixerPage;
+
+typedef struct{
     X32_MODEL model;
     X32_SURFACE_MODE activeMode;
     uint8_t activeBank_inputFader;
     uint8_t activeBank_busFader;
     uint8_t selectedVChannel;
-    
+    X32_PAGE activePage;
+
     // solo is (somewhere) activated
     bool solo;
 
@@ -166,7 +173,8 @@ typedef struct{
     s_bankMode modes[3];
 
     // all virtual - channels / busses / matrix / etc.
-    s_vChannel vChannel[MAX_VCHANNELS];    
+    s_vChannel vChannel[MAX_VCHANNELS];
+    s_mixerPage pages[MAX_PAGES];    
 } s_Mixer;
 
 #endif

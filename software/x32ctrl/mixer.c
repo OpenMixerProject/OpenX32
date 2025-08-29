@@ -3,7 +3,6 @@
 
 s_Mixer mixer;
 
-
 // ####################################################################
 // #
 // #
@@ -13,6 +12,8 @@ s_Mixer mixer;
 // ####################################################################
 
 void initMixer(X32_MODEL p_model) {
+    
+    mixerInitPages();
 
     x32debug("############# InitMixer(model_index=%d) #############\n", p_model);
 
@@ -421,6 +422,12 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
     if (mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) {      
         if (buttonPressed){
             switch (button) {
+                case X32_BTN_LEFT:
+                    mixerShowPrevTab();
+                    break;
+                case X32_BTN_RIGHT:
+                    mixerShowNextTab();
+                    break;
                 case X32_BTN_HOME:
                     mixerShowPage(X32_PAGE_HOME);
                     break;
@@ -781,7 +788,38 @@ void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
 }
 
 
-void mixerShowPage(X32_PAGE page) {
+// ####################################################################
+// #
+// #
+// #        Pages
+// #
+// #
+// ###################################################################
+
+
+void mixerInitPages(){
+    // Init Pages
+    mixer.pages[X32_PAGE_HOME].prevPage = X32_PAGE_NONE;
+    mixer.pages[X32_PAGE_HOME].nextPage = X32_PAGE_CONFIG;
+
+    mixer.pages[X32_PAGE_CONFIG].prevPage = X32_PAGE_HOME;
+    mixer.pages[X32_PAGE_CONFIG].nextPage = X32_PAGE_NONE;
+}
+
+void mixerShowNextPage(void){
+    if (mixer.pages[mixer.activePage].nextPage != X32_PAGE_NONE){
+        mixerShowPage(mixer.pages[mixer.activePage].nextPage);
+    }
+}
+
+void mixerShowPrevPage(void){
+    if (mixer.pages[mixer.activePage].prevPage != X32_PAGE_NONE){
+        mixerShowPage(mixer.pages[mixer.activePage].prevPage);
+    }
+}
+
+void mixerShowPage(X32_PAGE p_page) {
+    
     // first turn all page LEDs off
     setLedByEnum(X32_BTN_HOME, 0);
     setLedByEnum(X32_BTN_METERS, 0);
@@ -794,8 +832,9 @@ void mixerShowPage(X32_PAGE page) {
     // turn all view LEDs of
     setLedByEnum(X32_BTN_VIEW_CONFIG, 0);
     
-
-    switch (page)
+    mixer.activePage = p_page;
+    
+    switch (p_page)
     {
         case X32_PAGE_HOME:
             lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);

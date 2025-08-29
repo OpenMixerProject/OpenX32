@@ -149,46 +149,46 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
         
             if (buttonPressed){
                 switch (button) {
-                    case X32_BTN_LEFT:
-                    // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
-                    for (uint8_t ch=1; ch<=8; ch++) {
-                        mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8
-                        mixingSetRouting('x', ch+8, mixingGetInputSource('d', ch)); // set xlr-output 9-16
+                //     case X32_BTN_LEFT:
+                //     // set routing to DSP-channels 1-8 which is just an 8-channel tone-generator at the moment
+                //     for (uint8_t ch=1; ch<=8; ch++) {
+                //         mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8
+                //         mixingSetRouting('x', ch+8, mixingGetInputSource('d', ch)); // set xlr-output 9-16
 
-                        mixingSetRouting('a', ch, mixingGetInputSource('d', ch)); // set aux-channel 1-8
+                //         mixingSetRouting('a', ch, mixingGetInputSource('d', ch)); // set aux-channel 1-8
 
-                        mixingSetRouting('c', ch, mixingGetInputSource('d', ch)); // set card-output 1-8
-                        mixingSetRouting('c', ch+8, mixingGetInputSource('d', ch)); // set card-output 9-16
-                        mixingSetRouting('c', ch+16, mixingGetInputSource('d', ch)); // set card-output 17-24
-                        mixingSetRouting('c', ch+24, mixingGetInputSource('d', ch)); // set card-output 25-32
+                //         mixingSetRouting('c', ch, mixingGetInputSource('d', ch)); // set card-output 1-8
+                //         mixingSetRouting('c', ch+8, mixingGetInputSource('d', ch)); // set card-output 9-16
+                //         mixingSetRouting('c', ch+16, mixingGetInputSource('d', ch)); // set card-output 17-24
+                //         mixingSetRouting('c', ch+24, mixingGetInputSource('d', ch)); // set card-output 25-32
 
-                        mixingSetRouting('p', ch, mixingGetInputSource('d', ch)); // set P16-output 1-8
-                        mixingSetRouting('p', ch+8, mixingGetInputSource('d', ch)); // set P16-output 9-16
-                    }
-                    // transmit routing-configuration to FPGA
-                    mixingTxRoutingConfig();
+                //         mixingSetRouting('p', ch, mixingGetInputSource('d', ch)); // set P16-output 1-8
+                //         mixingSetRouting('p', ch+8, mixingGetInputSource('d', ch)); // set P16-output 9-16
+                //     }
+                //     // transmit routing-configuration to FPGA
+                //     mixingTxRoutingConfig();
 
-                    break;
-                case X32_BTN_RIGHT:
-                    // set routing to XLR-inputs
-                    for (uint8_t ch=1; ch<=8; ch++) {
-                        mixingSetRouting('x', ch, mixingGetInputSource('x', ch)); // set xlr-output 1-8 to xlr-inputs 1-8
-                        mixingSetRouting('x', ch+8, mixingGetInputSource('x', ch+8)); // set xlr-output 9-16 to xlr-inputs 9-16
+                //     break;
+                // case X32_BTN_RIGHT:
+                //     // set routing to XLR-inputs
+                //     for (uint8_t ch=1; ch<=8; ch++) {
+                //         mixingSetRouting('x', ch, mixingGetInputSource('x', ch)); // set xlr-output 1-8 to xlr-inputs 1-8
+                //         mixingSetRouting('x', ch+8, mixingGetInputSource('x', ch+8)); // set xlr-output 9-16 to xlr-inputs 9-16
 
-                        mixingSetRouting('a', ch, mixingGetInputSource('x', ch)); // set aux-channel 1-8 to aux-inputs 1-8
+                //         mixingSetRouting('a', ch, mixingGetInputSource('x', ch)); // set aux-channel 1-8 to aux-inputs 1-8
 
-                        mixingSetRouting('c', ch, mixingGetInputSource('x', ch)); // set card-output 1-8 to xlr-inputs 1-8
-                        mixingSetRouting('c', ch+8, mixingGetInputSource('x', ch+8)); // set card-output 9-16 to xlr-inputs 9-16
-                        mixingSetRouting('c', ch+16, mixingGetInputSource('x', ch+16)); // set card-output 17-24 to xlr-inputs 17-24
-                        mixingSetRouting('c', ch+24, mixingGetInputSource('x', ch+24)); // set card-output 25-32 to xlr-inputs 25-32
+                //         mixingSetRouting('c', ch, mixingGetInputSource('x', ch)); // set card-output 1-8 to xlr-inputs 1-8
+                //         mixingSetRouting('c', ch+8, mixingGetInputSource('x', ch+8)); // set card-output 9-16 to xlr-inputs 9-16
+                //         mixingSetRouting('c', ch+16, mixingGetInputSource('x', ch+16)); // set card-output 17-24 to xlr-inputs 17-24
+                //         mixingSetRouting('c', ch+24, mixingGetInputSource('x', ch+24)); // set card-output 25-32 to xlr-inputs 25-32
 
-                        mixingSetRouting('p', ch, mixingGetInputSource('x', ch)); // set P16-output 1-8 to xlr-inputs 1-8
-                        mixingSetRouting('p', ch+8, mixingGetInputSource('x', ch+8)); // set P16-output 9-16 to xlr-inputs 9-16
-                    }
-                    // transmit routing-configuration to FPGA
-                    mixingTxRoutingConfig();
+                //         mixingSetRouting('p', ch, mixingGetInputSource('x', ch)); // set P16-output 1-8 to xlr-inputs 1-8
+                //         mixingSetRouting('p', ch+8, mixingGetInputSource('x', ch+8)); // set P16-output 9-16 to xlr-inputs 9-16
+                //     }
+                //     // transmit routing-configuration to FPGA
+                //     mixingTxRoutingConfig();
 
-                    break;
+                //     break;
                 case X32_BTN_UP:
                     // set routing to AUX-inputs
                     for (uint8_t ch=1; ch<=8; ch++) {

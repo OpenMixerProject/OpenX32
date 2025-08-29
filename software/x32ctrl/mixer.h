@@ -56,7 +56,8 @@ void mixerChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
 
 void mixerShowPage(X32_PAGE page);
-
+void mixerShowPrevPage(void);
+void mixerShowNextPage(void);
 
 bool mixerIsModelX32Full(void);
 bool mixerIsModelX32CompacrOrProducer(void);

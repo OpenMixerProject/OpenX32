@@ -32,6 +32,7 @@ typedef enum {
 } X32_MODEL;
 
 typedef enum {
+    X32_PAGE_NONE,
     X32_PAGE_HOME,
     X32_PAGE_CONFIG,
     X32_PAGE_METERS,
