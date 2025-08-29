@@ -97,7 +97,8 @@ uint8_t calculateChecksum(const char *data, uint16_t len) {
   return (sum & 0x7F);
 }
 
-int uartOpen(char *ttydev, uint32_t baudrate, int *fd) {
+
+int uartOpen(char *ttydev, uint32_t baudrate, int *fd, bool raw) {
     struct termios tty;
 
     *fd = open(ttydev, O_RDWR | O_NOCTTY | O_NDELAY);
@@ -112,15 +113,25 @@ int uartOpen(char *ttydev, uint32_t baudrate, int *fd) {
         return 1;
     }
 
-    tty.c_iflag &= ~(IGNPAR | ICRNL);
-    tty.c_iflag |= IGNPAR;
-    tty.c_oflag &= ~(OPOST | ONLCR);
-    tty.c_cflag |= (CLOCAL | CREAD);
-    tty.c_cflag &= ~CSIZE;
-    tty.c_cflag |= CS8;
-    tty.c_cflag &= ~PARENB;
-    tty.c_cflag &= ~CSTOPB;
-    tty.c_lflag &= ~(ECHO | ECHOE | ECHOK | ICANON | ISIG);
+    if (raw){
+        // https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_chapter/libc_17.html
+        // from Exmaple: int cfmakeraw (struct termios *termios-p)
+        tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
+        tty.c_oflag &= ~OPOST;
+        tty.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+        tty.c_cflag &= ~(CSIZE|PARENB);
+        tty.c_cflag |= CS8;
+    } else {
+        tty.c_iflag &= ~(IGNPAR | ICRNL);
+        tty.c_iflag |= IGNPAR;
+        tty.c_oflag &= ~(OPOST | ONLCR);
+        tty.c_cflag |= (CLOCAL | CREAD);
+        tty.c_cflag &= ~CSIZE;
+        tty.c_cflag |= CS8;
+        tty.c_cflag &= ~PARENB;
+        tty.c_cflag &= ~CSTOPB;
+        tty.c_lflag &= ~(ECHO | ECHOE | ECHOK | ICANON | ISIG);
+    }
 
     tty.c_cc[VMIN] = 0; // Nicht blockierend lesen
     tty.c_cc[VTIME] = 0;

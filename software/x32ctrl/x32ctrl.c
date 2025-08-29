@@ -889,13 +889,13 @@ int main() {
     //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside
 
     x32log("Connecting to UART2 (Surface)...\n");
-    uartOpen("/dev/ttymxc1", 115200, &fdSurface); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
+    uartOpen("/dev/ttymxc1", 115200, &fdSurface, true); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
 
     x32log("Connecting to UART3 (ADDA-Boards)...\n");
-    uartOpen("/dev/ttymxc2", 38400, &fdAdda); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards and the Expansion Card
+    uartOpen("/dev/ttymxc2", 38400, &fdAdda, false); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards and the Expansion Card
 
     x32log("Connecting to UART4 (FPGA)...\n");
-    uartOpen("/dev/ttymxc3", 115200, &fdFpga); // this UART is connected to the FPGA
+    uartOpen("/dev/ttymxc3", 115200, &fdFpga, false); // this UART is connected to the FPGA
 
     //x32log("Connecting to UART5 (MIDI)...\n");
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); // this UART is connected to the MIDI-connectors but is used by the Linux-console
