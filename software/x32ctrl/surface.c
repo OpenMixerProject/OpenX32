@@ -29,16 +29,62 @@ void setFader(uint8_t boardId, uint8_t index, uint16_t position) {
 }
 
 // set 7-Segment display on X32 Rack
-void setDisplay(uint8_t p_firstDigit, uint8_t p_secondDigit){
+// dot = 128
+void setDisplayRaw(uint8_t p_value2, uint8_t p_value1){
     messageBuilderInit(&message);
     messageBuilderAddRawByte(&message, 0xfe);
     messageBuilderAddRawByte(&message, 0x80);
     messageBuilderAddRawByte(&message, 'D'); // Display
     messageBuilderAddRawByte(&message, 0x80);
-    messageBuilderAddRawByte(&message, p_firstDigit); 
-    messageBuilderAddRawByte(&message, p_secondDigit);
+    messageBuilderAddRawByte(&message, p_value2); 
+    messageBuilderAddRawByte(&message, p_value1);
     messageBuilderAddRawByte(&message, 0xfe);
     uartTx(&fdSurface, &message, true);
+}
+
+// set 7-Segment display on X32 Rack
+// dot = 128 or 256
+void setDisplay(uint8_t p_value){
+    setDisplayRaw(int2segment((uint8_t)(p_value/10)), int2segment(p_value % 10));
+}
+
+uint8_t int2segment(int8_t p_value){
+    switch (p_value){
+        case 0:
+            return 63;
+        case 1:
+            return 6;
+        case 2:
+            return 91;
+        case 3:
+            return 79;
+        case 4:
+            return 102;
+        case 5:
+            return 109;
+        case 6:
+            return 125;
+        case 7:
+            return 7;
+        case 8:
+            return 127;
+        case 9:
+            return 111;
+        case 'a':
+        case 'A':
+            return 119;
+        case 'b':
+        case 'B':
+            return 124;
+        case 'd':
+        case 'D':
+            return 94;
+        case 'm':
+        case 'M':
+            return 55;
+        default:
+            return 0;
+    }
 }
 
 // boardId = 0, 1, 4, 5, 8
@@ -128,8 +174,7 @@ void setLedChannelIndicator(){
         }
 
         // set 7-Segment Display
-
-        //setDisplay();
+        setDisplay(chanIdx);        
     }
 }
 

@@ -7,7 +7,9 @@ extern char uartBufferSurface[256];
 
 
 void setFader(uint8_t boardId, uint8_t index, uint16_t position);
-void setDisplay(uint8_t p_firstDigit, uint8_t p_secondDigit);
+void setDisplay(uint8_t p_value);
+void setDisplayRaw(uint8_t p_value2, uint8_t p_value1);
+uint8_t int2segment(int8_t p_value);
 void setLed(uint8_t boardId, uint8_t ledId, uint8_t state);
 void setLedByNr(uint16_t ledNr, uint8_t state);
 void setLedByEnum(X32_BTN led, uint8_t state);
