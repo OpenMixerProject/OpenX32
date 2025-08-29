@@ -771,7 +771,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
             setLcd(p_board,     i, 0,     0,    0,    0,  0x00,  0,  0,          "",  0x00,  0, 0, "");
 
         } else {
-            s_vChannel *chan = mixerGetSelectedvChannel();
+            s_vChannel *chan = &mixer.vChannel[vChannelIndex];
 
             if (fullSync || mixerHasVChannelAnyChanged(chan)){
                 x32debug("syncronize vChannel%d: %s -", vChannelIndex, chan->name);
@@ -907,34 +907,34 @@ int main() {
     readConfig("/etc/x32.conf", "DATE=", date, 16);
 
     X32_MODEL modelEnum;
-    if (strcmp(model, "X32Core") == 0) {
-        modelEnum = X32_MODEL_CORE;
-    }else if (strcmp(model, "X32Rack") == 0) {
-        modelEnum = X32_MODEL_RACK;
-    }else if (strcmp(model, "X32Producer") == 0) {
-        modelEnum = X32_MODEL_PRODUCER;        
-    }else if (strcmp(model, "X32C") == 0) {
+    // if (strcmp(model, "X32Core") == 0) {
+    //     modelEnum = X32_MODEL_CORE;
+    // }else if (strcmp(model, "X32Rack") == 0) {
+    //     modelEnum = X32_MODEL_RACK;
+    // }else if (strcmp(model, "X32Producer") == 0) {
+    //     modelEnum = X32_MODEL_PRODUCER;        
+    // }else if (strcmp(model, "X32C") == 0) {
+    //     modelEnum =  X32_MODEL_COMPACT;
+    // }else if (strcmp(model, "X32") == 0) {
+    //     modelEnum = X32_MODEL_FULL;
+    // }else{
+    //     #if DEBUG == 0
+    //     x32log("ERROR: No model detected!\n");
+    //     modelEnum = X32_MODEL_NONE;
+    //     #else
+    //     // (for development without inserted sd card)
+    //     //
+    //     //x32debug("ERROR: No model detected - assume X32 Fullsize!\n");
+    //     //modelEnum = X32_MODEL_FULL;
+    //     //
+        x32debug("ERROR: No model detected - assume X32 Compact!\n");
         modelEnum =  X32_MODEL_COMPACT;
-    }else if (strcmp(model, "X32") == 0) {
-        modelEnum = X32_MODEL_FULL;
-    }else{
-        #if DEBUG == 0
-        x32log("ERROR: No model detected!\n");
-        modelEnum = X32_MODEL_NONE;
-        #else
-        // (for development without inserted sd card)
-        //
-        //x32debug("ERROR: No model detected - assume X32 Fullsize!\n");
-        //modelEnum = X32_MODEL_FULL;
-        //
-        //x32debug("ERROR: No model detected - assume X32 Compact!\n");
-        //modelEnum =  X32_MODEL_COMPACT;
-        x32debug("ERROR: No model detected - assume X32 Rack!\n");
-        modelEnum =  X32_MODEL_RACK;
+        //x32debug("ERROR: No model detected - assume X32 Rack!\n");
+        //modelEnum =  X32_MODEL_RACK;
         //x32debug("ERROR: No model detected - assume X32 Core!\n");
         //modelEnum = X32_MODEL_CORE;
-        #endif
-    }
+        // #endif
+    // }
 
     initMixer(modelEnum);
 
