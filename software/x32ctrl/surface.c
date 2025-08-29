@@ -825,164 +825,164 @@ void surfaceKeepalive(void){
 
     // TODO: implement real values
 
-    // X32 Rack Board 0
-    if (mixerIsModelX32Rack()){
+    // // X32 Rack Board 0
+    // if (mixerIsModelX32Rack()){
 
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x80);
-        uartTx(&fdSurface, &message, false);
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     messageBuilderAddRawByte(&message, 0x80);
+    //     uartTx(&fdSurface, &message, false);
 
-        //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
-        //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 'M');  // Meter
-        messageBuilderAddRawByte(&message, 0x00); // Channel Meter + Main Meter, Solo meter still to find
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0xea);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x52);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x48);
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
+    //     //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
+    //     //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 'M');  // Meter
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel Meter + Main Meter, Solo meter still to find
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0xea);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x52);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x48);
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
 
 
         
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 'L');  // Meter
-        messageBuilderAddRawByte(&message, 0x80);
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 'L');  // Meter
+    //     messageBuilderAddRawByte(&message, 0x80);
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
         
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 'L');  // Meter
-        messageBuilderAddRawByte(&message, 0x80);
-        messageBuilderAddRawByte(&message, 0x05);
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 'L');  // Meter
+    //     messageBuilderAddRawByte(&message, 0x80);
+    //     messageBuilderAddRawByte(&message, 0x05);
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
 
 
-    }
+    // }
  
 
-    // Board Main
-    if (mixerIsModelX32Full() || mixerIsModelX32CompacrOrProducer()){
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x81);
-        messageBuilderAddRawByte(&message, 'M'); // Meter
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00); // Config / Preamp
-        messageBuilderAddRawByte(&message, 0x00); // Gate/Dynamics
-        messageBuilderAddRawByte(&message, 0x00); // Left -57 - -36
-        messageBuilderAddRawByte(&message, 0x00); // Left -33 - -12
-        messageBuilderAddRawByte(&message, 0x00); // Left -10 - Clip
-        messageBuilderAddRawByte(&message, 0x32); // 0x32 set every time
-        messageBuilderAddRawByte(&message, 0x00); // Right -57 - -36
-        messageBuilderAddRawByte(&message, 0x00); // Right -33 - -12
-        messageBuilderAddRawByte(&message, 0x00); // Right -10 - Clip
-        messageBuilderAddRawByte(&message, 0x00);
-        messageBuilderAddRawByte(&message, 0x00); // Solo -57 - -36
-        messageBuilderAddRawByte(&message, 0x00); // Solo -33 - -12
-        messageBuilderAddRawByte(&message, 0x00); // Solo -10 - -Clip
-        messageBuilderAddRawByte(&message, 0x85);
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
+    // // Board Main
+    // if (mixerIsModelX32Full() || mixerIsModelX32CompacrOrProducer()){
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     messageBuilderAddRawByte(&message, 0x81);
+    //     messageBuilderAddRawByte(&message, 'M'); // Meter
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00); // Config / Preamp
+    //     messageBuilderAddRawByte(&message, 0x00); // Gate/Dynamics
+    //     messageBuilderAddRawByte(&message, 0x00); // Left -57 - -36
+    //     messageBuilderAddRawByte(&message, 0x00); // Left -33 - -12
+    //     messageBuilderAddRawByte(&message, 0x00); // Left -10 - Clip
+    //     messageBuilderAddRawByte(&message, 0x32); // 0x32 set every time
+    //     messageBuilderAddRawByte(&message, 0x00); // Right -57 - -36
+    //     messageBuilderAddRawByte(&message, 0x00); // Right -33 - -12
+    //     messageBuilderAddRawByte(&message, 0x00); // Right -10 - Clip
+    //     messageBuilderAddRawByte(&message, 0x00);
+    //     messageBuilderAddRawByte(&message, 0x00); // Solo -57 - -36
+    //     messageBuilderAddRawByte(&message, 0x00); // Solo -33 - -12
+    //     messageBuilderAddRawByte(&message, 0x00); // Solo -10 - -Clip
+    //     messageBuilderAddRawByte(&message, 0x85);
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
 
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x81);
-        messageBuilderAddRawByte(&message, 'L'); // Led
-        messageBuilderAddRawByte(&message, 0x80);
-        messageBuilderAddRawByte(&message, 0x26); // USB Access OFF
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
-
-
-        // Board L
-
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x84);
-        messageBuilderAddRawByte(&message, 'M'); // 0x4d == M Meter
-        messageBuilderAddRawByte(&message, 0x00); // Null
-        messageBuilderAddRawByte(&message, 0x00); // Channel 0
-        messageBuilderAddRawByte(&message, 0x00); // Channel 1
-        messageBuilderAddRawByte(&message, 0x00); // Channel 2
-        messageBuilderAddRawByte(&message, 0x00); // Channel 3
-        messageBuilderAddRawByte(&message, 0x00); // Channel 4
-        messageBuilderAddRawByte(&message, 0x00); // Channel 5
-        messageBuilderAddRawByte(&message, 0x00); // Channel 6
-        messageBuilderAddRawByte(&message, 0x00); // Channel 7
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
-
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x84);
-        messageBuilderAddRawByte(&message, 'L'); // Led
-        messageBuilderAddRawByte(&message, 0x80);
-        messageBuilderAddRawByte(&message, 0x40); // off
-        messageBuilderAddRawByte(&message, 0x41); // Mute   = c
-        messageBuilderAddRawByte(&message, 0x42); // Solo   = b
-        messageBuilderAddRawByte(&message, 0x43); // Select = a
-        messageBuilderAddRawByte(&message, 0x44);
-        messageBuilderAddRawByte(&message, 0x45);
-        messageBuilderAddRawByte(&message, 0x46);
-        messageBuilderAddRawByte(&message, 0x47);
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     messageBuilderAddRawByte(&message, 0x81);
+    //     messageBuilderAddRawByte(&message, 'L'); // Led
+    //     messageBuilderAddRawByte(&message, 0x80);
+    //     messageBuilderAddRawByte(&message, 0x26); // USB Access OFF
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
 
 
-        if (mixerIsModelX32Full()) {
-            // there should be messages for Board M
-        }
+    //     // Board L
+
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     messageBuilderAddRawByte(&message, 0x84);
+    //     messageBuilderAddRawByte(&message, 'M'); // 0x4d == M Meter
+    //     messageBuilderAddRawByte(&message, 0x00); // Null
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 0
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 1
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 2
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 3
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 4
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 5
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 6
+    //     messageBuilderAddRawByte(&message, 0x00); // Channel 7
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
+
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     messageBuilderAddRawByte(&message, 0x84);
+    //     messageBuilderAddRawByte(&message, 'L'); // Led
+    //     messageBuilderAddRawByte(&message, 0x80);
+    //     messageBuilderAddRawByte(&message, 0x40); // off
+    //     messageBuilderAddRawByte(&message, 0x41); // Mute   = c
+    //     messageBuilderAddRawByte(&message, 0x42); // Solo   = b
+    //     messageBuilderAddRawByte(&message, 0x43); // Select = a
+    //     messageBuilderAddRawByte(&message, 0x44);
+    //     messageBuilderAddRawByte(&message, 0x45);
+    //     messageBuilderAddRawByte(&message, 0x46);
+    //     messageBuilderAddRawByte(&message, 0x47);
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
 
 
-        // Board R
+    //     if (mixerIsModelX32Full()) {
+    //         // there should be messages for Board M
+    //     }
 
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x88);
-        messageBuilderAddRawByte(&message, 'M'); // Meter
-        messageBuilderAddRawByte(&message, 0x00); // Null
-        messageBuilderAddRawByte(&message, 0x00); // 0
-        messageBuilderAddRawByte(&message, 0x00); // 1
-        messageBuilderAddRawByte(&message, 0x00); // 2
-        messageBuilderAddRawByte(&message, 0x00); // 3
-        messageBuilderAddRawByte(&message, 0x00); // 4
-        messageBuilderAddRawByte(&message, 0x00); // 5
-        messageBuilderAddRawByte(&message, 0x00); // 6
-        messageBuilderAddRawByte(&message, 0x00); // 7
-        messageBuilderAddRawByte(&message, 0x00); // 8 Compressor-LED Main Fader
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
 
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x88);
-        messageBuilderAddRawByte(&message, 'L'); // Led
-        messageBuilderAddRawByte(&message, 0x80);
-        messageBuilderAddRawByte(&message, 0x40);
-        messageBuilderAddRawByte(&message, 0x41);
-        messageBuilderAddRawByte(&message, 0x42); // Mute
-        messageBuilderAddRawByte(&message, 0x43);
-        messageBuilderAddRawByte(&message, 0x44);
-        messageBuilderAddRawByte(&message, 0x45);
-        messageBuilderAddRawByte(&message, 0x46);
-        messageBuilderAddRawByte(&message, 0x47);
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
-    }
+    //     // Board R
+
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     messageBuilderAddRawByte(&message, 0x88);
+    //     messageBuilderAddRawByte(&message, 'M'); // Meter
+    //     messageBuilderAddRawByte(&message, 0x00); // Null
+    //     messageBuilderAddRawByte(&message, 0x00); // 0
+    //     messageBuilderAddRawByte(&message, 0x00); // 1
+    //     messageBuilderAddRawByte(&message, 0x00); // 2
+    //     messageBuilderAddRawByte(&message, 0x00); // 3
+    //     messageBuilderAddRawByte(&message, 0x00); // 4
+    //     messageBuilderAddRawByte(&message, 0x00); // 5
+    //     messageBuilderAddRawByte(&message, 0x00); // 6
+    //     messageBuilderAddRawByte(&message, 0x00); // 7
+    //     messageBuilderAddRawByte(&message, 0x00); // 8 Compressor-LED Main Fader
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
+
+    //     message.current_length = 0;
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     messageBuilderAddRawByte(&message, 0x88);
+    //     messageBuilderAddRawByte(&message, 'L'); // Led
+    //     messageBuilderAddRawByte(&message, 0x80);
+    //     messageBuilderAddRawByte(&message, 0x40);
+    //     messageBuilderAddRawByte(&message, 0x41);
+    //     messageBuilderAddRawByte(&message, 0x42); // Mute
+    //     messageBuilderAddRawByte(&message, 0x43);
+    //     messageBuilderAddRawByte(&message, 0x44);
+    //     messageBuilderAddRawByte(&message, 0x45);
+    //     messageBuilderAddRawByte(&message, 0x46);
+    //     messageBuilderAddRawByte(&message, 0x47);
+    //     messageBuilderAddRawByte(&message, 0xfe);
+    //     uartTx(&fdSurface, &message, true);
+    // }
 }
 
 
