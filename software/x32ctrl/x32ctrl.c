@@ -239,6 +239,30 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
                 case X32_BTN_MUTE_GROUP_3:
                     addaSetGain(3, 1, 15.5, 1);
                     break;
+                // case X32_BTN_CHANNEL_SOLO:
+                //     // LED Bombe ;-)
+                //     x32debug("LED-Bombe");
+                //     for(int x = 0; x<0xFF; x++){
+                //         //for(int y = 0; y<0xFF; y++){
+                //             // setLed(x, y, 1);
+                //             // setEncoderRing(x, y, 0, 50, true);
+                //             usleep(100);
+                    
+                //             messageBuilderInit(&message);
+
+                //             messageBuilderAddRawByte(&message, 0xFE); // startbyte
+                //             messageBuilderAddDataByte(&message, 0x80 + 0); // start message for specific boardId
+                //             messageBuilderAddDataByte(&message, x); // class
+                //             messageBuilderAddDataByte(&message, 0); // index
+                //             messageBuilderAddDataByte(&message, 0x0F);
+                //             messageBuilderAddRawByte(&message, 0xFE); // endbyte
+
+                //             uartTx(&fdSurface, &message, true);
+
+                //         //}
+                //         x32debug("boom%d ", x);
+                //     }
+                //     break;
                 default:
 
                     x32debug("Button  : boardId = 0x%02X | class = 0x%02X | index = 0x%02X | data = 0x%02X | X32_BTN = 0x%04X\n", boardId, class, index, value, button);
@@ -310,6 +334,26 @@ void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t val
             case 1:
                 // LED Test
                 setLed(dbg2, dbg3, dbg4);
+                break;
+            case 2:
+                // Meter Test
+                //setMeterLed(dbg2, dbg3, dbg4);
+                // boardId = 0, 1, 4, 5, 8
+                messageBuilderInit(&message);
+
+                messageBuilderAddRawByte(&message, 0xFE); // startbyte
+                messageBuilderAddDataByte(&message, 0x80 + boardId); // start message for specific boardId
+                messageBuilderAddDataByte(&message, dbg2); // class: M = Meter
+                messageBuilderAddDataByte(&message, dbg3); // index
+                messageBuilderAddDataByte(&message, dbg4);
+                messageBuilderAddRawByte(&message, 0xFE); // endbyte
+
+                uartTx(&fdSurface, &message, true);
+                break;
+            case 3:
+                // Meter Main Test
+                //setMeterLedMain(dbg1, dbg2, ((uint16_t)dbg4 <<8) | dbg5, 0, 0);
+                break;
         }
 
         
@@ -596,11 +640,15 @@ void syncSurface(void) {
     {
         syncSurfaceBoardMain();
         syncSurfaceBoard(X32_BOARD_L);
-        if (mixer.model == X32_MODEL_FULL){
+        if (mixerIsModelX32Full()){
             syncSurfaceBoard(X32_BOARD_M);
         }
         syncSurfaceBoard(X32_BOARD_R);
         syncSurfaceBankIndicator();
+
+        if(mixerIsModelX32Rack()||mixerIsModelX32Core()){
+            setLedChannelIndicator();
+        }
     }
 }
 
