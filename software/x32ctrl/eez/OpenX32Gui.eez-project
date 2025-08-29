@@ -359,6 +359,7 @@
               "hiddenInEditor": false,
               "timeline": [],
               "eventHandlers": [],
+              "identifier": "display_encoders",
               "leftUnit": "px",
               "topUnit": "px",
               "widthUnit": "px",

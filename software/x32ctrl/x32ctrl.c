@@ -473,6 +473,7 @@ void fpgaCallback(char *buf, uint8_t len) {
 void syncAll(void){
     if (mixerHasAnyChanged()){
         if (
+            mixerHasChanged(X32_MIXER_CHANGED_PAGE)   ||
             mixerHasChanged(X32_MIXER_CHANGED_BANKING)   ||
             mixerHasChanged(X32_MIXER_CHANGED_SELECT)    ||
             mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL) 
@@ -494,6 +495,8 @@ void syncGui(void) {
     if (mixerIsModelX32Core()){
         return;
     }
+
+    x32debug("Active Page: %d\n", mixer.activePage);
 
     s_vChannel* selected_vChannel = mixerGetSelectedvChannel();
 
@@ -533,16 +536,34 @@ void syncGui(void) {
     lv_label_set_text_fmt(objects.current_channel_name, "%s", selected_vChannel->name);
     lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 
+
+    // //set Encoders to default state
+    // const char * encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
+    // lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
+
     //####################################
     //#         Page Home
     //####################################
 
-    char inputSourceName[10] = "";
-    mixingGetInputName(&inputSourceName, selected_vChannel->inputSource.group, selected_vChannel->inputSource.hardwareChannel);
-    lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
-    lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)selected_vChannel->inputSource.gain);
-    lv_label_set_text_fmt(objects.current_channel_phantom, "%d", selected_vChannel->inputSource.phantomPower);
-    lv_label_set_text_fmt(objects.current_channel_invert, "%d", selected_vChannel->inputSource.phaseInvert);
+
+
+    //####################################
+    //#         Page Config
+    //####################################
+
+    if (mixer.activePage == X32_PAGE_CONFIG){
+
+        char inputSourceName[10] = "";
+        mixingGetInputName(&inputSourceName, selected_vChannel->inputSource.hardwareGroup, selected_vChannel->inputSource.hardwareChannel);
+        lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
+        lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)selected_vChannel->inputSource.gain);
+        lv_label_set_text_fmt(objects.current_channel_phantom, "%d", selected_vChannel->inputSource.phantomPower);
+        lv_label_set_text_fmt(objects.current_channel_invert, "%d", selected_vChannel->inputSource.phaseInvert);
+
+        char outputDestinationName[10] = "";
+        mixingGetOutputName(&outputDestinationName, mixerGetSelectedvChannel());
+        lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
+    }
 
 
     //####################################

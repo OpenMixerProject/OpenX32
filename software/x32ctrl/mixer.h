@@ -61,6 +61,7 @@ void mixerShowNextPage(void);
 
 bool mixerIsModelX32Full(void);
 bool mixerIsModelX32CompacrOrProducer(void);
+bool mixerIsModelX32FullOrCompacrOrProducerOrRack(void);
 bool mixerIsModelX32Rack(void);
 bool mixerIsModelX32Core(void);
 

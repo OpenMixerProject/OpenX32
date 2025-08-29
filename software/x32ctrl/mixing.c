@@ -2,6 +2,7 @@
 
 sOpenx32 openx32;
 
+
 // set a default configuration for the audio-routing-matrix
 void mixingDefaultRoutingConfig(void) {
     // XLR-input 1-16 to XLR-output
@@ -39,17 +40,37 @@ void mixingDefaultRoutingConfig(void) {
 // "compiles" the current mixer state into mixing routing
 void mixingSyncRoutingConfigFromMixer(void) {
     if (mixerHasChanged(X32_MIXER_CHANGED_ROUTING)){
+
+        // TODO: Clear routing
+
         // loop trough all vChannels
         for (int i = 0; i < MAX_VCHANNELS; i++)
         {
+            x32debug("Mixer sync: vChannel%d - %-30s - ", i, mixer.vChannel[i].name); 
+
+            if((mixer.vChannel[i].outputDestination.hardwareChannel == 0)||
+                (mixer.vChannel[i].inputSource.hardwareChannel == 0))
+                {
+                    x32debug("no routing\n");
+                    continue;
+                } else {
+
             mixingSetRouting(
-                mixer.vChannel[i].outputDestination.group,
+                mixer.vChannel[i].outputDestination.hardwareGroup,
                 mixer.vChannel[i].outputDestination.hardwareChannel,
                 mixingGetInputSource(
-                    mixer.vChannel[i].inputSource.group,
+                    mixer.vChannel[i].inputSource.hardwareGroup,
                     mixer.vChannel[i].inputSource.hardwareChannel
                 )
             );
+
+            x32debug(" input(%c,%d) -> output(%c,%d)\n", 
+                    mixer.vChannel[i].inputSource.hardwareGroup,
+                    mixer.vChannel[i].inputSource.hardwareChannel,
+                        mixer.vChannel[i].outputDestination.hardwareGroup,
+                        mixer.vChannel[i].outputDestination.hardwareChannel
+                    );
+                }
         }
         // transmit routing-configuration to FPGA
         mixingTxRoutingConfig();
@@ -77,6 +98,10 @@ void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource) {
     // 73-112 = DSP-inputs
     // 113-160 = AES50A-outputs
     // 161-208 = AES50B-outputs
+
+    if (channel == 0){
+        return;
+    }
 
     switch (group) {
         case 'x': // XLR-Outputs 1-16
@@ -113,6 +138,10 @@ uint8_t mixingGetInputSource(uint8_t group, uint8_t channel) {
     // 113-160 = AES50A-inputs
     // 161-208 = AES50B-inputs
 
+    if (channel == 0){
+        return 0;
+    }
+
     switch (group) {
         case 'x': // XLR-Inputs 1-32
             return channel;
@@ -148,9 +177,7 @@ void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
     // 113-160 = AES50A-inputs
     // 161-208 = AES50B-inputs
 
-    channel++; //real people dont like zero based counting
-
-    if (group == 0){
+    if (channel == 0){
         sprintf(p_nameBuffer, "Off");
         return;
     }
@@ -172,6 +199,41 @@ void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
             sprintf(p_nameBuffer, "AESA%d", channel);
             break;
         case 1: // AES50B-Inputs 1-48
+            sprintf(p_nameBuffer, "AESB%d", channel);
+            break;
+    }
+}
+
+// get the output destination name name
+void mixingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan) {
+   
+    if (p_chan->outputDestination.hardwareChannel == 0){
+        sprintf(p_nameBuffer, "Off");
+        return;
+    }
+
+    uint8_t channel = p_chan->outputDestination.hardwareChannel;
+
+    switch(p_chan->outputDestination.hardwareGroup){
+        case 'x':
+            sprintf(p_nameBuffer, "XLR%d", channel);
+            break;
+        case 'p':
+            sprintf(p_nameBuffer, "P16-%d", channel);
+            break;
+        case 'c':
+            sprintf(p_nameBuffer, "Card%d", channel);
+            break;
+        case 'a':
+            sprintf(p_nameBuffer, "AUX%d", channel);
+            break;
+        case 'd':
+            sprintf(p_nameBuffer, "DSP%d", channel);
+            break;
+        case 0:
+            sprintf(p_nameBuffer, "AESA%d", channel);
+            break;
+        case 1:
             sprintf(p_nameBuffer, "AESB%d", channel);
             break;
     }

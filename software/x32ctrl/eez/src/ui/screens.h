@@ -12,6 +12,7 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_number;
     lv_obj_t *current_channel_name;
     lv_obj_t *current_channel_color;
+    lv_obj_t *display_encoders;
     lv_obj_t *maintab;
     lv_obj_t *openx32logo;
     lv_obj_t *hometab;

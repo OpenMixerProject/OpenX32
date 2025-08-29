@@ -63,7 +63,9 @@ void create_screen_main() {
             }
         }
         {
+            // display_encoders
             lv_obj_t *obj = lv_buttonmatrix_create(parent_obj);
+            objects.display_encoders = obj;
             lv_obj_set_pos(obj, 2, 443);
             lv_obj_set_size(obj, 796, 35);
             static const char *map[7] = {

@@ -88,7 +88,7 @@ typedef struct{
 
 
 typedef struct{
-    uint8_t group;
+    uint8_t hardwareGroup;
     uint8_t hardwareChannel;
     bool phantomPower; // TODO dont do it localy, use mixing data
     float gain;        // TODO dont do it localy, use mixing data
@@ -96,7 +96,7 @@ typedef struct{
 } s_inputSource;
 
 typedef struct{
-    uint8_t group;
+    uint8_t hardwareGroup;
     uint8_t hardwareChannel;
 } s_outputDestination;
 
