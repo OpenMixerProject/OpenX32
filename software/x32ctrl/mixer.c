@@ -848,6 +848,10 @@ bool mixerIsModelX32Core(void){
     return (mixer.model == X32_MODEL_CORE);
 }
 
+bool mixerIsModelX32Rack(void){
+    return (mixer.model == X32_MODEL_RACK);
+}
+
 // ####################################################################
 // #
 // #

@@ -82,6 +82,40 @@ void setLedByEnum(X32_BTN led, uint8_t state) {
     setLedByNr(enum2button(led), state);
 }
 
+// only X32 Rack and X32 Core
+void setLedChannelIndicator(){
+    if (mixerIsModelX32Core() || mixerIsModelX32Rack()){
+        // Turn off all LEDS
+        setLedByEnum(X32_LED_IN, 0);
+        setLedByEnum(X32_LED_AUX, 0);
+        setLedByEnum(X32_LED_BUS, 0);
+        setLedByEnum(X32_LED_DCA, 0);
+        setLedByEnum(X32_LED_MAIN, 0);
+        setLedByEnum(X32_LED_MATRIX, 0);
+
+        uint8_t chanIdx = mixerGetSelectedvChannelIndex();
+
+        if ((chanIdx >= 0)&&(chanIdx <= 31)){
+            setLedByEnum(X32_LED_IN, 1);
+        }
+        if ((chanIdx >= 32)&&(chanIdx <= 47)){
+            setLedByEnum(X32_LED_AUX, 1);
+        }
+        if ((chanIdx >= 48)&&(chanIdx <= 63)){
+            setLedByEnum(X32_LED_BUS, 1);
+        }
+        if ((chanIdx >= 64)&&(chanIdx <= 69)){
+            setLedByEnum(X32_LED_MATRIX, 1);
+        }
+        if ((chanIdx >= 70)&&(chanIdx <= 71)){
+            setLedByEnum(X32_LED_MAIN, 1);
+        }
+        if ((chanIdx >= 72)&&(chanIdx <= 79)){
+            setLedByEnum(X32_LED_DCA, 1);
+        }
+    }
+}
+
 
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
@@ -729,109 +763,149 @@ void surfaceKeepalive(void){
 
     // TODO: implement real values
 
+    // X32 Rack Board 0
+    if (mixerIsModelX32Rack()){
+        //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x80);
+        messageBuilderAddRawByte(&message, 'M');  // Meter
+        messageBuilderAddRawByte(&message, 0xFF); // Channel Meter + Main Meter, Solo meter still to find
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xea);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xFF);
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
+
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x80);
+        messageBuilderAddRawByte(&message, 'M'); // Meter
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x05);
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
+    }
+ 
+
     // Board Main
+    if (mixerIsModelX32Full() || mixerIsModelX32CompacrOrProducer()){
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x81);
+        messageBuilderAddRawByte(&message, 'M'); // Meter
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00); // Config / Preamp
+        messageBuilderAddRawByte(&message, 0x00); // Gate/Dynamics
+        messageBuilderAddRawByte(&message, 0x00); // Left -57 - -36
+        messageBuilderAddRawByte(&message, 0x00); // Left -33 - -12
+        messageBuilderAddRawByte(&message, 0x00); // Left -10 - Clip
+        messageBuilderAddRawByte(&message, 0x32); // 0x32 set every time
+        messageBuilderAddRawByte(&message, 0x00); // Right -57 - -36
+        messageBuilderAddRawByte(&message, 0x00); // Right -33 - -12
+        messageBuilderAddRawByte(&message, 0x00); // Right -10 - Clip
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00); // Solo -57 - -36
+        messageBuilderAddRawByte(&message, 0x00); // Solo -33 - -12
+        messageBuilderAddRawByte(&message, 0x00); // Solo -10 - -Clip
+        messageBuilderAddRawByte(&message, 0x85);
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
 
-    message.current_length = 0;
-    messageBuilderAddRawByte(&message, 0xfe);
-    messageBuilderAddRawByte(&message, 0x81);
-    messageBuilderAddRawByte(&message, 'M'); // Meter
-    messageBuilderAddRawByte(&message, 0x00);
-    messageBuilderAddRawByte(&message, 0x00); // Config / Preamp
-    messageBuilderAddRawByte(&message, 0x00); // Gate/Dynamics
-    messageBuilderAddRawByte(&message, 0x00); // Left -57 - -36
-    messageBuilderAddRawByte(&message, 0x00); // Left -33 - -12
-    messageBuilderAddRawByte(&message, 0x00); // Left -10 - Clip
-    messageBuilderAddRawByte(&message, 0x32); // 0x32 set every time
-    messageBuilderAddRawByte(&message, 0x00); // Right -57 - -36
-    messageBuilderAddRawByte(&message, 0x00); // Right -33 - -12
-    messageBuilderAddRawByte(&message, 0x00); // Right -10 - Clip
-    messageBuilderAddRawByte(&message, 0x00);
-    messageBuilderAddRawByte(&message, 0x00); // Solo -57 - -36
-    messageBuilderAddRawByte(&message, 0x00); // Solo -33 - -12
-    messageBuilderAddRawByte(&message, 0x00); // Solo -10 - -Clip
-    messageBuilderAddRawByte(&message, 0x85);
-    messageBuilderAddRawByte(&message, 0xfe);
-    uartTx(&fdSurface, &message, true);
-
-    message.current_length = 0;
-    messageBuilderAddRawByte(&message, 0xfe);
-    messageBuilderAddRawByte(&message, 0x81);
-    messageBuilderAddRawByte(&message, 'L'); // Led
-    messageBuilderAddRawByte(&message, 0x80);
-    messageBuilderAddRawByte(&message, 0x26); // USB Access OFF
-    messageBuilderAddRawByte(&message, 0xfe);
-    uartTx(&fdSurface, &message, true);
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x81);
+        messageBuilderAddRawByte(&message, 'L'); // Led
+        messageBuilderAddRawByte(&message, 0x80);
+        messageBuilderAddRawByte(&message, 0x26); // USB Access OFF
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
 
 
-    // Board L
+        // Board L
 
-    message.current_length = 0;
-    messageBuilderAddRawByte(&message, 0xfe);
-    messageBuilderAddRawByte(&message, 0x84);
-    messageBuilderAddRawByte(&message, 'M'); // 0x4d == M Meter
-    messageBuilderAddRawByte(&message, 0x00); // Null
-    messageBuilderAddRawByte(&message, 0x00); // Channel 0
-    messageBuilderAddRawByte(&message, 0x00); // Channel 1
-    messageBuilderAddRawByte(&message, 0x00); // Channel 2
-    messageBuilderAddRawByte(&message, 0x00); // Channel 3
-    messageBuilderAddRawByte(&message, 0x00); // Channel 4
-    messageBuilderAddRawByte(&message, 0x00); // Channel 5
-    messageBuilderAddRawByte(&message, 0x00); // Channel 6
-    messageBuilderAddRawByte(&message, 0x00); // Channel 7
-    messageBuilderAddRawByte(&message, 0xfe);
-    uartTx(&fdSurface, &message, true);
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x84);
+        messageBuilderAddRawByte(&message, 'M'); // 0x4d == M Meter
+        messageBuilderAddRawByte(&message, 0x00); // Null
+        messageBuilderAddRawByte(&message, 0x00); // Channel 0
+        messageBuilderAddRawByte(&message, 0x00); // Channel 1
+        messageBuilderAddRawByte(&message, 0x00); // Channel 2
+        messageBuilderAddRawByte(&message, 0x00); // Channel 3
+        messageBuilderAddRawByte(&message, 0x00); // Channel 4
+        messageBuilderAddRawByte(&message, 0x00); // Channel 5
+        messageBuilderAddRawByte(&message, 0x00); // Channel 6
+        messageBuilderAddRawByte(&message, 0x00); // Channel 7
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
 
-    message.current_length = 0;
-    messageBuilderAddRawByte(&message, 0xfe);
-    messageBuilderAddRawByte(&message, 0x84);
-    messageBuilderAddRawByte(&message, 'L'); // Led
-    messageBuilderAddRawByte(&message, 0x80);
-    messageBuilderAddRawByte(&message, 0x40); // off
-    messageBuilderAddRawByte(&message, 0x41); // Mute   = c
-    messageBuilderAddRawByte(&message, 0x42); // Solo   = b
-    messageBuilderAddRawByte(&message, 0x43); // Select = a
-    messageBuilderAddRawByte(&message, 0x44);
-    messageBuilderAddRawByte(&message, 0x45);
-    messageBuilderAddRawByte(&message, 0x46);
-    messageBuilderAddRawByte(&message, 0x47);
-    messageBuilderAddRawByte(&message, 0xfe);
-    uartTx(&fdSurface, &message, true);
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x84);
+        messageBuilderAddRawByte(&message, 'L'); // Led
+        messageBuilderAddRawByte(&message, 0x80);
+        messageBuilderAddRawByte(&message, 0x40); // off
+        messageBuilderAddRawByte(&message, 0x41); // Mute   = c
+        messageBuilderAddRawByte(&message, 0x42); // Solo   = b
+        messageBuilderAddRawByte(&message, 0x43); // Select = a
+        messageBuilderAddRawByte(&message, 0x44);
+        messageBuilderAddRawByte(&message, 0x45);
+        messageBuilderAddRawByte(&message, 0x46);
+        messageBuilderAddRawByte(&message, 0x47);
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
 
-    // Board R
 
-    message.current_length = 0;
-    messageBuilderAddRawByte(&message, 0xfe);
-    messageBuilderAddRawByte(&message, 0x88);
-    messageBuilderAddRawByte(&message, 'M'); // Meter
-    messageBuilderAddRawByte(&message, 0x00); // Null
-    messageBuilderAddRawByte(&message, 0x00); // 0
-    messageBuilderAddRawByte(&message, 0x00); // 1
-    messageBuilderAddRawByte(&message, 0x00); // 2
-    messageBuilderAddRawByte(&message, 0x00); // 3
-    messageBuilderAddRawByte(&message, 0x00); // 4
-    messageBuilderAddRawByte(&message, 0x00); // 5
-    messageBuilderAddRawByte(&message, 0x00); // 6
-    messageBuilderAddRawByte(&message, 0x00); // 7
-    messageBuilderAddRawByte(&message, 0x00); // 8 Compressor-LED Main Fader
-    messageBuilderAddRawByte(&message, 0xfe);
-    uartTx(&fdSurface, &message, true);
+        if (mixerIsModelX32Full()) {
+            // there should be messages for Board M
+        }
 
-       message.current_length = 0;
-    messageBuilderAddRawByte(&message, 0xfe);
-    messageBuilderAddRawByte(&message, 0x88);
-    messageBuilderAddRawByte(&message, 'L'); // Led
-    messageBuilderAddRawByte(&message, 0x80);
-    messageBuilderAddRawByte(&message, 0x40);
-    messageBuilderAddRawByte(&message, 0x41);
-    messageBuilderAddRawByte(&message, 0x42); // Mute
-    messageBuilderAddRawByte(&message, 0x43);
-    messageBuilderAddRawByte(&message, 0x44);
-    messageBuilderAddRawByte(&message, 0x45);
-    messageBuilderAddRawByte(&message, 0x46);
-    messageBuilderAddRawByte(&message, 0x47);
-    messageBuilderAddRawByte(&message, 0xfe);
-    uartTx(&fdSurface, &message, true);
 
+        // Board R
+
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x88);
+        messageBuilderAddRawByte(&message, 'M'); // Meter
+        messageBuilderAddRawByte(&message, 0x00); // Null
+        messageBuilderAddRawByte(&message, 0x00); // 0
+        messageBuilderAddRawByte(&message, 0x00); // 1
+        messageBuilderAddRawByte(&message, 0x00); // 2
+        messageBuilderAddRawByte(&message, 0x00); // 3
+        messageBuilderAddRawByte(&message, 0x00); // 4
+        messageBuilderAddRawByte(&message, 0x00); // 5
+        messageBuilderAddRawByte(&message, 0x00); // 6
+        messageBuilderAddRawByte(&message, 0x00); // 7
+        messageBuilderAddRawByte(&message, 0x00); // 8 Compressor-LED Main Fader
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
+
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 0xfe);
+        messageBuilderAddRawByte(&message, 0x88);
+        messageBuilderAddRawByte(&message, 'L'); // Led
+        messageBuilderAddRawByte(&message, 0x80);
+        messageBuilderAddRawByte(&message, 0x40);
+        messageBuilderAddRawByte(&message, 0x41);
+        messageBuilderAddRawByte(&message, 0x42); // Mute
+        messageBuilderAddRawByte(&message, 0x43);
+        messageBuilderAddRawByte(&message, 0x44);
+        messageBuilderAddRawByte(&message, 0x45);
+        messageBuilderAddRawByte(&message, 0x46);
+        messageBuilderAddRawByte(&message, 0x47);
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
+    }
 }
 
 
@@ -1327,7 +1401,7 @@ void initDefinitions(void) {
             addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
             addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0017);
 
-            
+
             
             break;
 
