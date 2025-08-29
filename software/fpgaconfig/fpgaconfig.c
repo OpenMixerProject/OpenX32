@@ -193,7 +193,7 @@ int configure_spartan3a_spi(const char *bitstream_path) {
         printf("\r[");
         for (int i = 0; i < progress_bar_width; ++i) {
             if (i < progress) {
-                printf("#");
+                printf("█");
             }else{
                 printf(" ");
             }
