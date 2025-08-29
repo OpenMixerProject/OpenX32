@@ -20,22 +20,24 @@ void timer100msCallback(struct _lv_timer_t *) {
     // surface wants to know the current state of all LED's and Meters
     surfaceKeepalive();  
 
-    mixerTouchControllTick();
-    syncAll();    
+    mixerTouchControllTick();  
 }
 
 void timer10msCallback(struct _lv_timer_t *) {
-  // call EEZ-GUI tick
-  ui_tick();
+    // call EEZ-GUI tick
+    ui_tick();
 
-  // read data from surface and calls surfaceCallback()
-  surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
+    // read data from surface and calls surfaceCallback()
+    surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
 
-  // read data from ADDA-Boards (8ch input/output)
-  addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
+    // read data from ADDA-Boards (8ch input/output)
+    addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
 
-  // read data from FPGA
-  fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
+    // read data from FPGA
+    fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
+
+    // sync Gui, Surface, etc.
+    syncAll();  
 }
 
 void surfaceDemo(void) {
