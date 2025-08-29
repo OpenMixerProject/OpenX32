@@ -563,6 +563,15 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_PHASE_INVERT:
                     mixerTogglePhaseInvert(mixer.selectedVChannel);
                     break;
+                case X32_BTN_CHANNEL_SOLO: // only X32 Rack
+                    mixerToggleSolo(mixerGetSelectedvChannelIndex());
+                    break;
+                case X32_BTN_CHANNEL_MUTE: // only X32 Rack
+                    mixerToggleMute(mixerGetSelectedvChannelIndex());
+                    break;
+                case X32_BTN_CHANNEL_Encoder: // only X32 Rack
+                    mixerTogglePhantom(mixerGetSelectedvChannelIndex());
+                    break;
                 default:
                     // TODO: Callback to x32ctrl if needed
                     x32debug("Unhandled button detected.\n");
@@ -588,8 +597,11 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
             case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core - Channel Select    TODO: Implement on Core
                 mixerChangeSelect(amount);
                 break;
+            case X32_ENC_CHANNEL_LEVEL:
+                mixerChangeVolume(mixerGetSelectedvChannelIndex(), amount);
+                break;
             case X32_ENC_GAIN:
-                mixerChangeGain(mixerGetSelectedvChannel()->index, amount);
+                mixerChangeGain(mixerGetSelectedvChannelIndex(), amount);
                 break;
             default:
                 // TODO: Callback to x32ctrl if needed
@@ -740,8 +752,20 @@ void mixerBanking(X32_BTN p_button){
 
 // volume in dBfs
 void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount){
+    if (p_vChannelIndex == VCHANNEL_NOT_SET) {
+        return;
+    }
     mixer.vChannel[p_vChannelIndex].inputSource.gain += (2.5 * p_amount);
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+}
 
+// volume in dBfs
+void mixerChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount){
+    if (p_vChannelIndex == VCHANNEL_NOT_SET) {
+        return;
+    }
+    mixer.vChannel[p_vChannelIndex].volume += p_amount;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
@@ -752,7 +776,6 @@ void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
         return;
     }
     mixer.vChannel[p_vChannelIndex].volume = p_volume;
-
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
@@ -840,14 +863,15 @@ bool mixerIsSoloActivated(void){
 bool mixerIsModelX32Full(void){
     return (mixer.model == X32_MODEL_FULL);
 }
+bool mixerIsModelX32FullOrCompacrOrProducer(void){
+    return ((mixer.model == X32_MODEL_FULL) || (mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER));
+}
 bool mixerIsModelX32CompacrOrProducer(void){
     return ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER));
 }
-
 bool mixerIsModelX32Core(void){
     return (mixer.model == X32_MODEL_CORE);
 }
-
 bool mixerIsModelX32Rack(void){
     return (mixer.model == X32_MODEL_RACK);
 }

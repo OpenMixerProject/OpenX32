@@ -6,8 +6,11 @@
 extern s_Mixer mixer;
 
 void initMixer(X32_MODEL model);
-bool mixerIsModelX32Full();
-bool mixerIsModelX32CompacrOrProducer();
+bool mixerIsModelX32Full(void);
+bool mixerIsModelX32FullOrCompacrOrProducer(void);
+bool mixerIsModelX32CompacrOrProducer(void);
+bool mixerIsModelX32Core(void);
+bool mixerIsModelX32Rack(void);
 
 void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_vChannelIndex, bool p_disabled);
 
@@ -49,6 +52,7 @@ void mixerToggleMute(uint8_t vChannelIndex);
 void mixerBanking(X32_BTN p_button);
 
 void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
+void mixerChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
 
 void mixerShowPage(X32_PAGE page);

@@ -31,8 +31,7 @@
 #define X32_MIXER_CHANGED_LCD              0b0000000000001000
 // value in vChannel has changed
 #define X32_MIXER_CHANGED_VCHANNEL         0b0000000000010000
-// solo in vChannel has changed
-#define X32_MIXER_CHANGED_SOLO             0b0000000000100000
+
 
 #define SURFACE_COLOR_BLACK 0
 #define SURFACE_COLOR_RED 1

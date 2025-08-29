@@ -641,15 +641,14 @@ void syncSurface(void) {
     if ((mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) || (mixer.activeMode == X32_SURFACE_MODE_BANKING_USER))
     {
         syncSurfaceBoardMain();
-        syncSurfaceBoard(X32_BOARD_L);
-        if (mixerIsModelX32Full()){
-            syncSurfaceBoard(X32_BOARD_M);
-        }
-        syncSurfaceBoard(X32_BOARD_R);
-        syncSurfaceBankIndicator();
 
-        if(mixerIsModelX32Rack()||mixerIsModelX32Core()){
-            setLedChannelIndicator();
+        if (mixerIsModelX32FullOrCompacrOrProducer()){   
+            syncSurfaceBoard(X32_BOARD_L);
+            if (mixerIsModelX32Full()){
+                syncSurfaceBoard(X32_BOARD_M);
+            }
+            syncSurfaceBoard(X32_BOARD_R);
+            syncSurfaceBankIndicator();
         }
     }
 }
@@ -672,22 +671,55 @@ void syncSurfaceBoardMain() {
     }
     
     if (needForSync){
-        if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
-            setLedByEnum(X32_BTN_PHANTOM_48V, chan->inputSource.phantomPower); 
+        if (mixerIsModelX32FullOrCompacrOrProducer()){
+
+            // Channel section
+
+            if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+                setLedByEnum(X32_BTN_PHANTOM_48V, chan->inputSource.phantomPower); 
+            }
+            if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+                setLedByEnum(X32_BTN_PHANTOM_48V, chan->inputSource.phantomPower); 
+            }
+            if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHASE_INVERT)){
+                setLedByEnum(X32_BTN_PHASE_INVERT, chan->inputSource.phaseInvert);
+            }
         }
-        if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
-            setLedByEnum(X32_BTN_PHANTOM_48V, chan->inputSource.phantomPower); 
-        }
-        if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHASE_INVERT)){
-            setLedByEnum(X32_BTN_PHASE_INVERT, chan->inputSource.phaseInvert);
+
+        if (mixerIsModelX32Rack()){
+
+            // Channel section
+        
+            setLedChannelIndicator();
+            s_vChannel *chan = mixerGetSelectedvChannel();
+
+            if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SOLO)){
+                x32debug(" Solo");
+                setLedByEnum(X32_BTN_CHANNEL_SOLO, chan->solo); 
+            }
+            if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)){
+                x32debug(" Mute");
+                setLedByEnum(X32_BTN_CHANNEL_MUTE, chan->mute); 
+            }
+            if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)){
+                
+                // TODO: volume2percent
+
+                // x32debug(" Volume");
+                // u_int16_t faderVolume = dBfs2fader(chan->volume);
+                // uint8_t pct = (faderVolume/VOLUME_MIN
+                // setEncoderRing(X32_BOARD_MAIN, 0, 0, , 1);
+            }       
         }
     }
+
+    // Clear Solo
+    if (mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
 }
 
 void syncSurfaceBoard(X32_BOARD p_board) {
 
     bool fullSync = false;
-    bool needForSync = false;
 
     if (mixerHasChanged(X32_MIXER_CHANGED_BANKING)) {
         fullSync=true;
@@ -718,7 +750,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
             setLcd(p_board,     i, 0,     0,    0,    0,  0x00,  0,  0,          "",  0x00,  0, 0, "");
 
         } else {
-            s_vChannel *chan = &mixer.vChannel[vChannelIndex];
+            s_vChannel *chan = mixerGetSelectedvChannel();
 
             if (fullSync || mixerHasVChannelAnyChanged(chan)){
                 x32debug("syncronize vChannel%d: %s -", vChannelIndex, chan->name);
@@ -767,7 +799,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
 
     if (p_board == X32_BOARD_R){
         // Clear Solo
-        if (mixerHasChanged(X32_MIXER_CHANGED_SOLO)){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
+        if (mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
     }    
 }
 

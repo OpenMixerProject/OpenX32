@@ -1428,6 +1428,7 @@ void initDefinitions(void) {
             addButtonDefinition(X32_BTN_CHANNEL_MUTE, 0x0002);
             addButtonDefinition(X32_BTN_TALK_A, 0x0003);
             addButtonDefinition(X32_BTN_CLEAR_SOLO, 0x0004);
+            addButtonDefinition(X32_BTN_CHANNEL_Encoder, 0x0005);
 
             addButtonDefinition(X32_BTN_HOME, 0x0006);
             addButtonDefinition(X32_BTN_METERS, 0x0007);
