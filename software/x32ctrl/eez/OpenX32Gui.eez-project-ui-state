@@ -958,25 +958,16 @@
     "[OpenX32Gui.eez-project]:/userPages/0[flow-state]": {
       "selection": {
         "0": {
-          "1": {
-            "1": {
-              "0": {
-                "1": {
-                  "0": {
-                    "3": {
-                      "$selected": true
-                    }
-                  }
-                }
-              }
-            }
+          "2": {
+            "3": {},
+            "$selected": true
           }
         }
       },
       "transform": {
         "translate": {
-          "x": -413.0813492063494,
-          "y": -188.10140692640704
+          "x": -405.3599013548643,
+          "y": -217.0293426567211
         },
         "scale": 1
       },
@@ -1003,7 +994,8 @@
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "MISCELLANEOUS"
+    "MISCELLANEOUS",
+    "PADDING"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,

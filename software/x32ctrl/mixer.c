@@ -79,9 +79,6 @@ void initMixer(X32_MODEL p_model) {
 #endif
     }
 
-    mixerDebugPrintvChannels();
-
-
 #if DEBUG
     // set color on first 8 channels for testing
     // set input to Off for channelindex 5
@@ -115,29 +112,31 @@ void initMixer(X32_MODEL p_model) {
     // set inverted color on next 8 channels for testing
     mixer.vChannel[8].color = SURFACE_COLOR_WHITE | SURFACE_COLOR_INVERTED;
     mixer.vChannel[8].volume = -20;
-    sprintf(mixer.vChannel[8].name, "Inverted White");
+    sprintf(mixer.vChannel[8].name, "Inverted");
     mixer.vChannel[9].color = SURFACE_COLOR_YELLOW | SURFACE_COLOR_INVERTED;
     mixer.vChannel[9].volume = -20;
-    sprintf(mixer.vChannel[9].name, "Inverted Yellow");
+    sprintf(mixer.vChannel[9].name, "Inverted");
     mixer.vChannel[10].color = SURFACE_COLOR_BLUE | SURFACE_COLOR_INVERTED;
     mixer.vChannel[10].volume = -20;
-    sprintf(mixer.vChannel[10].name, "Inverted Blue");
+    sprintf(mixer.vChannel[10].name, "Inverted");
     mixer.vChannel[11].color = SURFACE_COLOR_CYAN | SURFACE_COLOR_INVERTED;
     mixer.vChannel[11].volume = -20;
-    sprintf(mixer.vChannel[11].name, "Inverted Cyan");
+    sprintf(mixer.vChannel[11].name, "Inverted");
     mixer.vChannel[12].color = SURFACE_COLOR_GREEN | SURFACE_COLOR_INVERTED;
     mixer.vChannel[12].volume = -20;
-    sprintf(mixer.vChannel[12].name, "Inverted Green");
+    sprintf(mixer.vChannel[12].name, "Inverted");
     mixer.vChannel[13].color = SURFACE_COLOR_PINK | SURFACE_COLOR_INVERTED;
     mixer.vChannel[13].volume = -20;
-    sprintf(mixer.vChannel[13].name, "Inverted Pink");
+    sprintf(mixer.vChannel[13].name, "Inverted");
     mixer.vChannel[14].color = SURFACE_COLOR_RED | SURFACE_COLOR_INVERTED;
     mixer.vChannel[14].volume = -20;
-    sprintf(mixer.vChannel[14].name, "Inverted Red");
+    sprintf(mixer.vChannel[14].name, "Inverted");
     mixer.vChannel[15].color = SURFACE_COLOR_BLACK | SURFACE_COLOR_INVERTED;
     mixer.vChannel[15].volume = -20;
-    sprintf(mixer.vChannel[15].name, "Inverted Black");
+    sprintf(mixer.vChannel[15].name, "Inverted");
 #endif
+
+    mixerDebugPrintvChannels();
 
     // AUX 1-6 / USB
     x32debug("Setting up AUX\n");
@@ -209,7 +208,7 @@ void initMixer(X32_MODEL p_model) {
         for (uint8_t bank=0;bank<4;bank++){
             for (int i = 0; i <=15; i++) {
                 mixer.modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2vChannel[i] = i + (bank * 16);
-                x32debug("Assing bank%d: surfaceChannel%d <-> vChannel%d (inputBankMode=%d)\n", bank, i, i + (bank * 16));
+                x32debug("Assing bank%d: surfaceChannel%d <-> vChannel%d\n", bank, i, i + (bank * 16));
             }
         }
     } 
@@ -219,7 +218,7 @@ void initMixer(X32_MODEL p_model) {
         for (uint8_t bank=0;bank<8;bank++){
             for (int i = 0; i <=7; i++) {
                 mixer.modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2vChannel[i] = i + (bank * 8);
-                x32debug("Assing bank%d: surfaceChannel%d <-> vChannel%d (inputBankMode=%d)\n", bank, i, i + (bank * 8));
+                x32debug("Assing bank%d: surfaceChannel%d <-> vChannel%d\n", bank, i, i + (bank * 8));
             }
         }
     }
