@@ -28,6 +28,19 @@ void setFader(uint8_t boardId, uint8_t index, uint16_t position) {
     uartTx(&fdSurface, &message, true);
 }
 
+// set 7-Segment display on X32 Rack
+void setDisplay(uint8_t p_firstDigit, uint8_t p_secondDigit){
+    messageBuilderInit(&message);
+    messageBuilderAddRawByte(&message, 0xfe);
+    messageBuilderAddRawByte(&message, 0x80);
+    messageBuilderAddRawByte(&message, 'D'); // Display
+    messageBuilderAddRawByte(&message, 0x80);
+    messageBuilderAddRawByte(&message, p_firstDigit); 
+    messageBuilderAddRawByte(&message, p_secondDigit);
+    messageBuilderAddRawByte(&message, 0xfe);
+    uartTx(&fdSurface, &message, true);
+}
+
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
 // ledId = individual index of led
@@ -113,6 +126,10 @@ void setLedChannelIndicator(){
         if ((chanIdx >= 72)&&(chanIdx <= 79)){
             setLedByEnum(X32_LED_DCA, 1);
         }
+
+        // set 7-Segment Display
+
+        //setDisplay();
     }
 }
 
@@ -561,8 +578,8 @@ void surfaceProcessUartData(int bytesToProcess) {
 
     // first init package buffer with 0x00s
     // start at surfacePacketCurrentIndex to not overwrite saved data from last incomplete package
-    x32debug("\nsurfacePacketCurrentIndex=%d\n", surfacePacketCurrentIndex);
-    x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
+    //x32debug("\nsurfacePacketCurrentIndex=%d\n", surfacePacketCurrentIndex);
+    //x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
     for (uint8_t package=0; package<SURFACE_MAX_PACKET_LENGTH;package++){
         for (int i = surfacePacketCurrentIndex; i < 6; i++) {
             surfacePacketBuffer[package][i]=0x00;
@@ -666,19 +683,19 @@ void surfaceProcessUartData(int bytesToProcess) {
     if (lastPackageIncomplete){
         packagesToPrint++;
     }
-    x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
+    //x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
 
     for (int package=0; package < packagesToPrint; package++) {
-        x32debug("surfaceProcessUartData(): Package %d: ", package);
+        //x32debug("surfaceProcessUartData(): Package %d: ", package);
         for (uint8_t i = 0; i<6; i++){
-            x32debug("%02X ", surfacePacketBuffer[package][i]);
+            //x32debug("%02X ", surfacePacketBuffer[package][i]);
         }
         if (surfacePacketBuffer[package][0] == 0xFE){
-            x32debug("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
+            //x32debug("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
         } else if (lastPackageIncomplete){
-            x32debug("  <--- incomplete, saved for next run");
+            //x32debug("  <--- incomplete, saved for next run");
         }
-        x32debug("\n");
+        //x32debug("\n");
     }    
 #endif
 
@@ -724,7 +741,7 @@ void surfaceProcessUartData(int bytesToProcess) {
             }       
 
             if (valid){
-                x32debug("surfaceCallback(%d, %02X, %02X, %04X)\n", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+                //x32debug("surfaceCallback(%d, %02X, %02X, %04X)\n", receivedBoardId, receivedClass, receivedIndex, receivedValue);
                 surfaceCallback(receivedBoardId, receivedClass, receivedIndex, receivedValue);
             } 
         }
@@ -765,35 +782,50 @@ void surfaceKeepalive(void){
 
     // X32 Rack Board 0
     if (mixerIsModelX32Rack()){
-        //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
-        message.current_length = 0;
-        messageBuilderAddRawByte(&message, 0xfe);
-        messageBuilderAddRawByte(&message, 0x80);
-        messageBuilderAddRawByte(&message, 'M');  // Meter
-        messageBuilderAddRawByte(&message, 0xFF); // Channel Meter + Main Meter, Solo meter still to find
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xea);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xFF);
-        messageBuilderAddRawByte(&message, 0xfe);
-        uartTx(&fdSurface, &message, true);
 
         message.current_length = 0;
         messageBuilderAddRawByte(&message, 0xfe);
         messageBuilderAddRawByte(&message, 0x80);
-        messageBuilderAddRawByte(&message, 'M'); // Meter
+        uartTx(&fdSurface, &message, false);
+
+        //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
+        //M 00 00 00 00 00 ea 00 00 00 52 00 00 00 48 fe 20
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 'M');  // Meter
+        messageBuilderAddRawByte(&message, 0x00); // Channel Meter + Main Meter, Solo meter still to find
         messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0xea);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x52);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0x48);
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
+
+
+        
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 'L');  // Meter
+        messageBuilderAddRawByte(&message, 0x80);
+        messageBuilderAddRawByte(&message, 0x00);
+        messageBuilderAddRawByte(&message, 0xfe);
+        uartTx(&fdSurface, &message, true);
+        
+        message.current_length = 0;
+        messageBuilderAddRawByte(&message, 'L');  // Meter
+        messageBuilderAddRawByte(&message, 0x80);
         messageBuilderAddRawByte(&message, 0x05);
         messageBuilderAddRawByte(&message, 0xfe);
         uartTx(&fdSurface, &message, true);
+
+
     }
  
 
