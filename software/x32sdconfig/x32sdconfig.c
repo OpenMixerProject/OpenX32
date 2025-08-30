@@ -34,10 +34,13 @@ int main() {
     ssize_t bytes_read;
     unsigned int *value_ptr;
 
+    printf("x32sdconfig started\n");
+
     // check if sd-card is available
     fd = open(MMC_DEVICE, O_RDONLY);
     if (fd == -1) {
         // no SD-card available -> do nothing
+        printf("ERROR: no sdcard available\n");
         return EXIT_FAILURE;
     }
 
@@ -46,6 +49,7 @@ int main() {
     if (seek_result == -1) {
         // cannot access SD-card
         close(fd);
+        printf("ERROR: cannot access SD-card\n");
         return EXIT_FAILURE;
     }
 
@@ -53,6 +57,7 @@ int main() {
     close(fd); // we do not need the SD-card anymore, so close it
     if ((bytes_read == -1) || (bytes_read != sizeof(buffer))) {
         // error reading data
+        printf("ERROR: error reading data\n");
         return EXIT_FAILURE;
     }
 
@@ -60,6 +65,7 @@ int main() {
     uint32_t magic_number = ((uint32_t)buffer[0x08] << 24) + ((uint32_t)buffer[0x09] << 16) + ((uint32_t)buffer[0x0A] << 8) + ((uint32_t)buffer[0x0B]);
     if (magic_number != 0xFEEDBEEF) {
         // unexpected data
+        printf("ERROR: unexpected data\n");
         return EXIT_FAILURE;
     }
 
@@ -70,6 +76,7 @@ int main() {
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock == -1) {
         // cannot create socket
+        printf("ERROR: cannot create socket\n");
         return EXIT_FAILURE;
     }
     strncpy(ifr.ifr_name, interface_name, IFNAMSIZ - 1);
@@ -79,12 +86,14 @@ int main() {
     ifr.ifr_flags |= IFF_UP;
     if (ioctl(sock, SIOCGIFFLAGS, &ifr) == -1) {
         // error on reading interface-flags
+        printf("ERROR: reading interface-flags\n");
         close(sock);
         return EXIT_FAILURE;
     }
     ifr.ifr_flags &= ~IFF_UP;
     if (ioctl(sock, SIOCSIFFLAGS, &ifr) == -1) {
         // error shutting down interface
+        printf("ERROR: error shutting down interface\n");
         close(sock);
         return EXIT_FAILURE;
     }
@@ -105,6 +114,7 @@ int main() {
     memcpy(ifr.ifr_hwaddr.sa_data, mac_addr, 6);
     if (ioctl(sock, SIOCSIFHWADDR, &ifr) == -1) {
         // error setting the MAC-address
+        printf("ERROR: error setting the MAC-address\n");
         close(sock);
         return EXIT_FAILURE;
     }
@@ -112,6 +122,7 @@ int main() {
     if (ioctl(sock, SIOCSIFFLAGS, &ifr) == -1) {
         // error starting the interface again
         close(sock);
+        printf("ERROR: error starting the interface again\n");
         return EXIT_FAILURE;
     }
     close(sock);
@@ -156,6 +167,7 @@ int main() {
 
         // write all values to config-file
         if (fprintf(file, "%s\n", token) < 0) {
+            printf("Error wrinting values to config-file");
             return EXIT_FAILURE;
         }
         // find next config-entry
