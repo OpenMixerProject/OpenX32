@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/bin/arm-linux-gnueabi-gcc -I . *.c -o ../bin/x32sdconfig
+/usr/bin/arm-linux-gnueabi-gcc -I . *.c -static -o ../bin/x32sdconfig
