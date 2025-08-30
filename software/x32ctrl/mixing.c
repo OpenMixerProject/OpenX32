@@ -41,7 +41,7 @@ void mixingDefaultRoutingConfig(void) {
 void mixingSyncRoutingConfigFromMixer(void) {
     if (mixerHasChanged(X32_MIXER_CHANGED_ROUTING)){
 
-        // TODO: Clear routing
+        mixingResetRouting();
 
         // loop trough all vChannels
         for (int i = 0; i < MAX_VCHANNELS; i++)
@@ -55,13 +55,13 @@ void mixingSyncRoutingConfigFromMixer(void) {
                     continue;
                 } else {
 
-            mixingSetRouting(
-                mixer.vChannel[i].outputDestination.hardwareGroup,
-                mixer.vChannel[i].outputDestination.hardwareChannel,
-                mixingGetInputSource(
-                    mixer.vChannel[i].inputSource.hardwareGroup,
-                    mixer.vChannel[i].inputSource.hardwareChannel
-                )
+                    mixingSetRouting(
+                        mixer.vChannel[i].outputDestination.hardwareGroup,
+                        mixer.vChannel[i].outputDestination.hardwareChannel,
+                        mixingGetInputSource(
+                            mixer.vChannel[i].inputSource.hardwareGroup,
+                            mixer.vChannel[i].inputSource.hardwareChannel
+                        )
             );
 
             x32debug(" input(%c,%d) -> output(%c,%d)\n", 
@@ -79,6 +79,28 @@ void mixingSyncRoutingConfigFromMixer(void) {
     }
 }
 
+void mixingResetRouting(void){
+    
+    //TODO: turn volume/gain down
+
+    for (uint8_t i=0; i<8; i++){
+        openx32.routing.aux[i]=0;
+    }
+    for (uint8_t i=0; i<16; i++){
+        openx32.routing.xlr[i]=0;
+        openx32.routing.p16[i]=0;
+    }
+    for (uint8_t i=0; i<32; i++){
+        openx32.routing.card[i]=0;
+    }
+    for (uint8_t i=0; i<40; i++){
+        openx32.routing.dsp[i]=0;
+    }
+    for (uint8_t i=0; i<48; i++){
+        openx32.routing.aes50a[i]=0;
+        openx32.routing.aes50b[i]=0;
+    }
+}
 
 // set the outputs of the audio-routing-matrix to desired input-sources
 void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource) {
