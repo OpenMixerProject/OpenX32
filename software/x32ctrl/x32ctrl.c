@@ -907,34 +907,20 @@ int main() {
     readConfig("/etc/x32.conf", "DATE=", date, 16);
 
     X32_MODEL modelEnum;
-    // if (strcmp(model, "X32Core") == 0) {
-    //     modelEnum = X32_MODEL_CORE;
-    // }else if (strcmp(model, "X32Rack") == 0) {
-    //     modelEnum = X32_MODEL_RACK;
-    // }else if (strcmp(model, "X32Producer") == 0) {
-    //     modelEnum = X32_MODEL_PRODUCER;        
-    // }else if (strcmp(model, "X32C") == 0) {
-    //     modelEnum =  X32_MODEL_COMPACT;
-    // }else if (strcmp(model, "X32") == 0) {
-    //     modelEnum = X32_MODEL_FULL;
-    // }else{
-    //     #if DEBUG == 0
-    //     x32log("ERROR: No model detected!\n");
-    //     modelEnum = X32_MODEL_NONE;
-    //     #else
-    //     // (for development without inserted sd card)
-    //     //
-    //     //x32debug("ERROR: No model detected - assume X32 Fullsize!\n");
-    //     //modelEnum = X32_MODEL_FULL;
-    //     //
-        x32debug("ERROR: No model detected - assume X32 Compact!\n");
+    if (strcmp(model, "X32Core") == 0) {
+        modelEnum = X32_MODEL_CORE;
+    }else if (strcmp(model, "X32Rack") == 0) {
+        modelEnum = X32_MODEL_RACK;
+    }else if (strcmp(model, "X32Producer") == 0) {
+        modelEnum = X32_MODEL_PRODUCER;        
+    }else if (strcmp(model, "X32C") == 0) {
         modelEnum =  X32_MODEL_COMPACT;
-        //x32debug("ERROR: No model detected - assume X32 Rack!\n");
-        //modelEnum =  X32_MODEL_RACK;
-        //x32debug("ERROR: No model detected - assume X32 Core!\n");
-        //modelEnum = X32_MODEL_CORE;
-        // #endif
-    // }
+    }else if (strcmp(model, "X32") == 0) {
+        modelEnum = X32_MODEL_FULL;
+    }else{
+        x32log("ERROR: No model detected!\n");
+        modelEnum = X32_MODEL_NONE;
+    }
 
     initMixer(modelEnum);
 
