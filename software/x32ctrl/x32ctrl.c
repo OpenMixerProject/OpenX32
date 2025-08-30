@@ -909,7 +909,7 @@ int main() {
     X32_MODEL modelEnum;
     if (strcmp(model, "X32Core") == 0) {
         modelEnum = X32_MODEL_CORE;
-    }else if (strcmp(model, "X32Rack") == 0) {
+    }else if (strcmp(model, "X32RACK") == 0) {
         modelEnum = X32_MODEL_RACK;
     }else if (strcmp(model, "X32Producer") == 0) {
         modelEnum = X32_MODEL_PRODUCER;        
