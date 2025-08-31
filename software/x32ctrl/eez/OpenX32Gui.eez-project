@@ -397,32 +397,33 @@
               "buttons": [
                 {
                   "objID": "ed2556aa-5b39-48c4-88d9-ee85d819a971",
-                  "text": "Btn",
+                  "text": "Turn: Source",
                   "width": 1
                 },
                 {
                   "objID": "0b66d009-4e33-4ae7-fada-3ad2c04019e2",
-                  "text": "Btn",
+                  "newLine": false,
+                  "text": "Turn: Gain\\nPress: 48V",
                   "width": 1
                 },
                 {
                   "objID": "f528982e-e518-4ee0-98a6-151a56373fe5",
-                  "text": "Btn",
+                  "text": "-",
                   "width": 1
                 },
                 {
                   "objID": "0bacf2a2-1def-4362-a017-fdd0a581efec",
-                  "text": "Btn",
+                  "text": "-",
                   "width": 1
                 },
                 {
                   "objID": "0c18a55a-5a89-4534-92fc-0ec5615810b1",
-                  "text": "Btn",
+                  "text": "-",
                   "width": 1
                 },
                 {
                   "objID": "10459155-3689-4989-f1c0-e31401263275",
-                  "text": "Btn",
+                  "text": "Turn: Destination",
                   "width": 1
                 }
               ],

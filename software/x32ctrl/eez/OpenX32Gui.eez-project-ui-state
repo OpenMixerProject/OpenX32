@@ -172,8 +172,7 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
@@ -226,7 +225,8 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ]
+              ],
+              "active": true
             }
           ]
         }
@@ -958,9 +958,12 @@
     "[OpenX32Gui.eez-project]:/userPages/0[flow-state]": {
       "selection": {
         "0": {
-          "2": {
-            "3": {},
+          "1": {
             "$selected": true
+          },
+          "2": {
+            "0": {},
+            "3": {}
           }
         }
       },

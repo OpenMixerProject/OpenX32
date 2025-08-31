@@ -39,19 +39,22 @@ void mixingDefaultRoutingConfig(void) {
 
 // "compiles" the current mixer state into mixing routing
 void mixingSyncRoutingConfigFromMixer(void) {
-    if (mixerHasChanged(X32_MIXER_CHANGED_ROUTING)){
+    if (
+        mixerHasChanged(X32_MIXER_CHANGED_ROUTING) ||
+        mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)
+        ){
 
         mixingResetRouting();
 
         // loop trough all vChannels
         for (int i = 0; i < MAX_VCHANNELS; i++)
         {
-            x32debug("Mixer sync: vChannel%d - %-30s - ", i, mixer.vChannel[i].name); 
+            //x32debug("Mixer sync: vChannel%d - %-30s - ", i, mixer.vChannel[i].name); 
 
             if((mixer.vChannel[i].outputDestination.hardwareChannel == 0)||
                 (mixer.vChannel[i].inputSource.hardwareChannel == 0))
                 {
-                    x32debug("no routing\n");
+                    //x32debug("no routing\n");
                     continue;
                 } else {
 
@@ -62,14 +65,15 @@ void mixingSyncRoutingConfigFromMixer(void) {
                             mixer.vChannel[i].inputSource.hardwareGroup,
                             mixer.vChannel[i].inputSource.hardwareChannel
                         )
-            );
-
-            x32debug(" input(%c,%d) -> output(%c,%d)\n", 
-                    mixer.vChannel[i].inputSource.hardwareGroup,
-                    mixer.vChannel[i].inputSource.hardwareChannel,
-                        mixer.vChannel[i].outputDestination.hardwareGroup,
-                        mixer.vChannel[i].outputDestination.hardwareChannel
                     );
+
+
+            // x32debug(" input(%c,%d) -> output(%c,%d)\n", 
+            //         mixer.vChannel[i].inputSource.hardwareGroup,
+            //         mixer.vChannel[i].inputSource.hardwareChannel,
+            //             mixer.vChannel[i].outputDestination.hardwareGroup,
+            //             mixer.vChannel[i].outputDestination.hardwareChannel
+            //         );
                 }
         }
         // transmit routing-configuration to FPGA
@@ -77,6 +81,31 @@ void mixingSyncRoutingConfigFromMixer(void) {
 
         x32debug("Mixer routing to hardware synced\n");
     }
+}
+
+void mixingSyncVChannelConfigFromMixer(void){
+    // loop trough all vChannels
+    for (int i = 0; i < MAX_VCHANNELS; i++)
+    {
+        if(mixer.vChannel[i].inputSource.hardwareChannel == 0){
+            continue;
+        } else {
+
+            s_vChannel* chan = &mixer.vChannel[i];
+
+            if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
+                mixingSetGain(chan->inputSource.hardwareGroup, chan->inputSource.hardwareChannel, chan->inputSource.gain);
+            }
+
+            if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+                mixingSetPhantomPower(chan->inputSource.hardwareGroup, chan->inputSource.hardwareChannel, chan->inputSource.phantomPower);
+            }
+
+            // TODO: Volume (a bit complicated)
+        }
+    }
+
+    x32debug("Mixer gain to hardware synced\n");
 }
 
 void mixingResetRouting(void){

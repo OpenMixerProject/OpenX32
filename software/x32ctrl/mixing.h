@@ -46,6 +46,7 @@ extern sOpenx32 openx32;
 
 void mixingDefaultRoutingConfig(void);
 void mixingSyncRoutingConfigFromMixer(void);
+void mixingResetRouting(void);
 void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource);
 uint8_t mixingGetInputSource(uint8_t group, uint8_t channel);
 void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel);

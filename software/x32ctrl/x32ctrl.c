@@ -484,6 +484,9 @@ void syncAll(void){
         if (mixerHasChanged(X32_MIXER_CHANGED_ROUTING)){
             mixingSyncRoutingConfigFromMixer();
         }
+        if (mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)){
+            mixingSyncVChannelConfigFromMixer();
+        }
 
         mixerResetChangeFlags();
     }
@@ -950,64 +953,67 @@ int main() {
     addaInit(48000);
     //mixingDefaultRoutingConfig(); // set default routing configuration
 
-    // **************** TESTING ****************
-    // set gain for all local xlr-input-channels to +15.5dB for testing with microphone
-    for (uint8_t ch=1; ch<=32; ch++) {
-        mixingSetGain('x', ch, 15.5);
-    }
+    // // **************** TESTING ****************
+    // if(mixerIsModelX32Full()){
+        
+    //     // set gain for all local xlr-input-channels to +15.5dB for testing with microphone
+    //     for (uint8_t ch=1; ch<=32; ch++) {
+    //         mixingSetGain('x', ch, 15.5);
+    //     }
 
-    // set routing to DSP-channels
-    for (uint8_t ch=1; ch<=8; ch++) {
-        // connect sources to DSP
-        mixingSetRouting('d', ch, mixingGetInputSource('x', ch)); // set DSP-inputs 1-8 to XLR input 1-8
-        mixingSetRouting('d', ch+8, mixingGetInputSource('x', ch+8)); // set DSP-inputs 9-16 to card input 1-8
-        mixingSetRouting('d', ch+16, mixingGetInputSource('x', ch+16)); // set DSP-inputs 17-24 to XLR input 17-24
-        mixingSetRouting('d', ch+24, mixingGetInputSource('x', ch+24)); // set DSP-inputs 25-32 to XLR input 25-32
-        mixingSetRouting('d', ch+32, mixingGetInputSource('c', ch)); // set DSP-inputs 33-40 to card-input 1-8
+    //     // set routing to DSP-channels
+    //     for (uint8_t ch=1; ch<=8; ch++) {
+    //         // connect sources to DSP
+    //         mixingSetRouting('d', ch, mixingGetInputSource('x', ch)); // set DSP-inputs 1-8 to XLR input 1-8
+    //         mixingSetRouting('d', ch+8, mixingGetInputSource('x', ch+8)); // set DSP-inputs 9-16 to card input 1-8
+    //         mixingSetRouting('d', ch+16, mixingGetInputSource('x', ch+16)); // set DSP-inputs 17-24 to XLR input 17-24
+    //         mixingSetRouting('d', ch+24, mixingGetInputSource('x', ch+24)); // set DSP-inputs 25-32 to XLR input 25-32
+    //         mixingSetRouting('d', ch+32, mixingGetInputSource('c', ch)); // set DSP-inputs 33-40 to card-input 1-8
 
-        // distribute DSP Output
-        mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8 to DSP channel 1-8
-        mixingSetRouting('x', ch+8, mixingGetInputSource('d', ch+8)); // set xlr-output 9-16 to DSP channel 9-16
-        mixingSetRouting('a', ch, mixingGetInputSource('d', ch+32)); // set aux-channel 1-8 to DSP channel 33-40
-        mixingSetRouting('c', ch, mixingGetInputSource('d', ch)); // set card-output 1-8 to DSP channel 1-8
-        mixingSetRouting('c', ch+8, mixingGetInputSource('d', ch+8)); // set card-output 9-16 to DSP channel 9-16
-        mixingSetRouting('c', ch+16, mixingGetInputSource('d', ch+16)); // set card-output 17-24 to DSP channel 17-24
-        mixingSetRouting('c', ch+24, mixingGetInputSource('d', ch+24)); // set card-output 25-32 to DSP channel 25-32
-        mixingSetRouting('p', ch, mixingGetInputSource('d', ch)); // set P16-output 1-8 to DSP channel 1-8
-        mixingSetRouting('p', ch+8, mixingGetInputSource('d', ch+8)); // set P16-output 9-16 to DSP channel 9-16
-    }
+    //         // distribute DSP Output
+    //         mixingSetRouting('x', ch, mixingGetInputSource('d', ch)); // set xlr-output 1-8 to DSP channel 1-8
+    //         mixingSetRouting('x', ch+8, mixingGetInputSource('d', ch+8)); // set xlr-output 9-16 to DSP channel 9-16
+    //         mixingSetRouting('a', ch, mixingGetInputSource('d', ch+32)); // set aux-channel 1-8 to DSP channel 33-40
+    //         mixingSetRouting('c', ch, mixingGetInputSource('d', ch)); // set card-output 1-8 to DSP channel 1-8
+    //         mixingSetRouting('c', ch+8, mixingGetInputSource('d', ch+8)); // set card-output 9-16 to DSP channel 9-16
+    //         mixingSetRouting('c', ch+16, mixingGetInputSource('d', ch+16)); // set card-output 17-24 to DSP channel 17-24
+    //         mixingSetRouting('c', ch+24, mixingGetInputSource('d', ch+24)); // set card-output 25-32 to DSP channel 25-32
+    //         mixingSetRouting('p', ch, mixingGetInputSource('d', ch)); // set P16-output 1-8 to DSP channel 1-8
+    //         mixingSetRouting('p', ch+8, mixingGetInputSource('d', ch+8)); // set P16-output 9-16 to DSP channel 9-16
+    //     }
 
-    // set FPGA-mixing to 0dBfs
-    for (uint8_t ch = 1; ch <= 40; ch++) {
-        openx32.dspChannel[ch - 1].volume = 0.0f; // set to 0dBfs without sending
-        mixingSetBalance(ch, 50); // set channel to full left and send volume
-    }
-    mixingSetBalance(1, 0);
-    mixingSetBalance(2, 10);
-    mixingSetBalance(3, 20);
-    mixingSetBalance(4, 30);
-    mixingSetBalance(5, 40);
-    mixingSetBalance(6, 60);
-    mixingSetBalance(7, 80);
-    mixingSetBalance(8, 100);
+    //     // set FPGA-mixing to 0dBfs
+    //     for (uint8_t ch = 1; ch <= 40; ch++) {
+    //         openx32.dspChannel[ch - 1].volume = 0.0f; // set to 0dBfs without sending
+    //         mixingSetBalance(ch, 50); // set channel to full left and send volume
+    //     }
+    //     mixingSetBalance(1, 0);
+    //     mixingSetBalance(2, 10);
+    //     mixingSetBalance(3, 20);
+    //     mixingSetBalance(4, 30);
+    //     mixingSetBalance(5, 40);
+    //     mixingSetBalance(6, 60);
+    //     mixingSetBalance(7, 80);
+    //     mixingSetBalance(8, 100);
 
-    // transmit routing-configuration to FPGA
-    mixingTxRoutingConfig();
+    //     // transmit routing-configuration to FPGA
+    //     mixingTxRoutingConfig();
 
-    // turn on Phantom-Power on channels 1, 10, 19 and 27 for testing (LED identifies board)
-    mixingSetPhantomPower('x', 1+0, true); // first channel on board 1 (1-8)
-    mixingSetPhantomPower('x', 9+1, true); // second channel on board 3 (9-16)
-    mixingSetPhantomPower('x', 17+2, true); // third channel on board 0 (17-24)
-    mixingSetPhantomPower('x', 25+3, true); // fourth channel on board 2 (25-32)
+    //     // turn on Phantom-Power on channels 1, 10, 19 and 27 for testing (LED identifies board)
+    //     mixingSetPhantomPower('x', 1+0, true); // first channel on board 1 (1-8)
+    //     mixingSetPhantomPower('x', 9+1, true); // second channel on board 3 (9-16)
+    //     mixingSetPhantomPower('x', 17+2, true); // third channel on board 0 (17-24)
+    //     mixingSetPhantomPower('x', 25+3, true); // fourth channel on board 2 (25-32)
 
-    // set X-LIVE-Card to USB-Routing
-/*
-    addaSendCmd("*8I#"); // identify card
-    usleep(10000);
-    addaSendCmd("*8R#"); // identify card
-    usleep(10000);
-*/
-    // **************** END OF TESTING ****************
+    //     // set X-LIVE-Card to USB-Routing
+    // /*
+    //     addaSendCmd("*8I#"); // identify card
+    //     usleep(10000);
+    //     addaSendCmd("*8R#"); // identify card
+    //     usleep(10000);
+    // */
+    // }
+    // // **************** END OF TESTING ****************
 
     // unmute the local audio-boards
     addaSetMute(false);

@@ -65,76 +65,74 @@ void initMixer(X32_MODEL p_model) {
         s_inputSource *input = &vChannel->inputSource;
         input->phantomPower = false;
         input->phaseInvert = false;
-        input->hardwareGroup = 'x';
-        input->hardwareChannel = i+1;
+        //input->hardwareGroup = 'x';
+        //input->hardwareChannel = i+1;
 
         // TODO: assign vChannel to "bus vChannel"
-#if DEBUG
-        // route input straight to output - just for testing
-        if (i<=7) {
-            s_outputDestination *output = &vChannel->outputDestination;
-            output->hardwareGroup = 'x';
-            output->hardwareChannel = i+1;       
-        }
-#endif
+// #if DEBUG
+//         // route input straight to output - just for testing
+//         if (i<=7) {
+//             s_outputDestination *output = &vChannel->outputDestination;
+//             output->hardwareGroup = 'x';
+//             output->hardwareChannel = i+1;       
+//         }
+// #endif
     }
 
-#if DEBUG
-    // set color on first 8 channels for testing
-    // set input to Off for channelindex 5
-    mixer.vChannel[0].color = SURFACE_COLOR_WHITE;
-    mixer.vChannel[0].volume = 0;
-    sprintf(mixer.vChannel[0].name, "White");
-    mixer.vChannel[1].color = SURFACE_COLOR_YELLOW;
-    mixer.vChannel[1].volume = 0;
-    sprintf(mixer.vChannel[1].name, "Yellow");
-    mixer.vChannel[2].color = SURFACE_COLOR_BLUE;
-    mixer.vChannel[2].volume = 0;
-    sprintf(mixer.vChannel[2].name, "Blue");
-    mixer.vChannel[3].color = SURFACE_COLOR_CYAN;
-    mixer.vChannel[3].volume = 0;
-    sprintf(mixer.vChannel[3].name, "Cyan has 30 characters - long.");
-    mixer.vChannel[4].color = SURFACE_COLOR_GREEN;
-    mixer.vChannel[4].volume = 0;
-    sprintf(mixer.vChannel[4].name, "Green");
-    mixer.vChannel[5].color = SURFACE_COLOR_PINK;
-    mixer.vChannel[5].volume = 0;
-    mixer.vChannel[5].inputSource.hardwareGroup = 0;
-    mixer.vChannel[5].inputSource.hardwareChannel = 0;
-    sprintf(mixer.vChannel[5].name, "Pink (Off)");
-    mixer.vChannel[6].color = SURFACE_COLOR_RED;
-    mixer.vChannel[6].volume = 0;
-    sprintf(mixer.vChannel[6].name, "Red");
-    mixer.vChannel[7].color = SURFACE_COLOR_BLACK;
-    mixer.vChannel[7].volume = 0;
-    sprintf(mixer.vChannel[7].name, "Black");
+// #if DEBUG
+//     // set color on first 8 channels for testing
+//     // set input to Off for channelindex 5
+//     mixer.vChannel[0].color = SURFACE_COLOR_WHITE;
+//     mixer.vChannel[0].volume = 0;
+//     sprintf(mixer.vChannel[0].name, "White");
+//     mixer.vChannel[1].color = SURFACE_COLOR_YELLOW;
+//     mixer.vChannel[1].volume = 0;
+//     sprintf(mixer.vChannel[1].name, "Yellow");
+//     mixer.vChannel[2].color = SURFACE_COLOR_BLUE;
+//     mixer.vChannel[2].volume = 0;
+//     sprintf(mixer.vChannel[2].name, "Blue");
+//     mixer.vChannel[3].color = SURFACE_COLOR_CYAN;
+//     mixer.vChannel[3].volume = 0;
+//     sprintf(mixer.vChannel[3].name, "Cyan has 30 characters - long.");
+//     mixer.vChannel[4].color = SURFACE_COLOR_GREEN;
+//     mixer.vChannel[4].volume = 0;
+//     sprintf(mixer.vChannel[4].name, "Green");
+//     mixer.vChannel[5].color = SURFACE_COLOR_PINK;
+//     mixer.vChannel[5].volume = 0;
+//     sprintf(mixer.vChannel[5].name, "Pink (Off)");
+//     mixer.vChannel[6].color = SURFACE_COLOR_RED;
+//     mixer.vChannel[6].volume = 0;
+//     sprintf(mixer.vChannel[6].name, "Red");
+//     mixer.vChannel[7].color = SURFACE_COLOR_BLACK;
+//     mixer.vChannel[7].volume = 0;
+//     sprintf(mixer.vChannel[7].name, "Black");
 
-    // set inverted color on next 8 channels for testing
-    mixer.vChannel[8].color = SURFACE_COLOR_WHITE | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[8].volume = -20;
-    sprintf(mixer.vChannel[8].name, "Inverted");
-    mixer.vChannel[9].color = SURFACE_COLOR_YELLOW | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[9].volume = -20;
-    sprintf(mixer.vChannel[9].name, "Inverted");
-    mixer.vChannel[10].color = SURFACE_COLOR_BLUE | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[10].volume = -20;
-    sprintf(mixer.vChannel[10].name, "Inverted");
-    mixer.vChannel[11].color = SURFACE_COLOR_CYAN | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[11].volume = -20;
-    sprintf(mixer.vChannel[11].name, "Inverted");
-    mixer.vChannel[12].color = SURFACE_COLOR_GREEN | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[12].volume = -20;
-    sprintf(mixer.vChannel[12].name, "Inverted");
-    mixer.vChannel[13].color = SURFACE_COLOR_PINK | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[13].volume = -20;
-    sprintf(mixer.vChannel[13].name, "Inverted");
-    mixer.vChannel[14].color = SURFACE_COLOR_RED | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[14].volume = -20;
-    sprintf(mixer.vChannel[14].name, "Inverted");
-    mixer.vChannel[15].color = SURFACE_COLOR_BLACK | SURFACE_COLOR_INVERTED;
-    mixer.vChannel[15].volume = -20;
-    sprintf(mixer.vChannel[15].name, "Inverted");
-#endif
+//     // set inverted color on next 8 channels for testing
+//     mixer.vChannel[8].color = SURFACE_COLOR_WHITE | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[8].volume = -20;
+//     sprintf(mixer.vChannel[8].name, "Inverted");
+//     mixer.vChannel[9].color = SURFACE_COLOR_YELLOW | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[9].volume = -20;
+//     sprintf(mixer.vChannel[9].name, "Inverted");
+//     mixer.vChannel[10].color = SURFACE_COLOR_BLUE | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[10].volume = -20;
+//     sprintf(mixer.vChannel[10].name, "Inverted");
+//     mixer.vChannel[11].color = SURFACE_COLOR_CYAN | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[11].volume = -20;
+//     sprintf(mixer.vChannel[11].name, "Inverted");
+//     mixer.vChannel[12].color = SURFACE_COLOR_GREEN | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[12].volume = -20;
+//     sprintf(mixer.vChannel[12].name, "Inverted");
+//     mixer.vChannel[13].color = SURFACE_COLOR_PINK | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[13].volume = -20;
+//     sprintf(mixer.vChannel[13].name, "Inverted");
+//     mixer.vChannel[14].color = SURFACE_COLOR_RED | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[14].volume = -20;
+//     sprintf(mixer.vChannel[14].name, "Inverted");
+//     mixer.vChannel[15].color = SURFACE_COLOR_BLACK | SURFACE_COLOR_INVERTED;
+//     mixer.vChannel[15].volume = -20;
+//     sprintf(mixer.vChannel[15].name, "Inverted");
+// #endif
 
     mixerDebugPrintvChannels();
 
@@ -144,6 +142,14 @@ void initMixer(X32_MODEL p_model) {
         uint8_t index = 32 + i;
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
+        s_inputSource *input = &vChannel->inputSource;
+        input->phantomPower = false;
+        input->phaseInvert = false;
+        input->hardwareGroup = 'a';
+        input->hardwareChannel = i+1;
+        vChannel->outputDestination.hardwareGroup = 'x';
+        vChannel->outputDestination.hardwareChannel = i+8 + 8;
+
         if(i <=5){
             sprintf(&vChannel->name, "AUX%d", i+1);
         } else {
@@ -298,6 +304,14 @@ void mixerSwitchVChannelToNextInput(){
     // 161-208 = AES50B-inputs
 
     s_vChannel *chan = mixerGetSelectedvChannel();
+    
+    x32debug("mixerSwitchVChannelToNextInput(): hardwareGroup=%d hardwareChannel=%d\n", chan->inputSource.hardwareGroup, chan->inputSource.hardwareChannel);
+
+    // disabled inputs: start with XLR
+    if ((chan->inputSource.hardwareGroup == 0)&&(chan->inputSource.hardwareChannel == 0)){
+        chan->inputSource.hardwareGroup = 'x';  
+        chan->inputSource.hardwareChannel = 1 -1;  // Offset -1, because we increment
+    }
 
     switch(chan->inputSource.hardwareGroup){
         case 'x':
@@ -328,7 +342,7 @@ void mixerSwitchVChannelToNextInput(){
             if (chan->inputSource.hardwareChannel < 40){
                 chan->inputSource.hardwareChannel++;
             } else {
-                chan->inputSource.hardwareGroup = '0';
+                chan->inputSource.hardwareGroup = 0;
                 chan->inputSource.hardwareChannel = 1;
             }
             break;
@@ -336,7 +350,7 @@ void mixerSwitchVChannelToNextInput(){
             if (chan->inputSource.hardwareChannel < 48){
                 chan->inputSource.hardwareChannel++;
             } else {
-                chan->inputSource.hardwareGroup = '1';
+                chan->inputSource.hardwareGroup = 1;
                 chan->inputSource.hardwareChannel = 1;
             }
             break;
@@ -344,8 +358,9 @@ void mixerSwitchVChannelToNextInput(){
              if (chan->inputSource.hardwareChannel < 48){
                 chan->inputSource.hardwareChannel++;
             } else {
-                chan->inputSource.hardwareGroup = 'x';
-                chan->inputSource.hardwareChannel = 1;
+                // disable
+                chan->inputSource.hardwareGroup = 0;
+                chan->inputSource.hardwareChannel = 0;
             }
             break;
         default:
@@ -370,17 +385,25 @@ void mixerSwitchVChannelToPrevInput(){
 
     s_vChannel *chan = mixerGetSelectedvChannel();
 
+    x32debug("mixerSwitchVChannelToPrevInput(): hardwareGroup=%d hardwareChannel=%d\n", chan->inputSource.hardwareGroup, chan->inputSource.hardwareChannel);
+
+    // disabled inputs: start with AES50B
+    if ((chan->inputSource.hardwareGroup == 0)&&(chan->inputSource.hardwareChannel == 0)){
+        chan->inputSource.hardwareGroup= 1;
+        chan->inputSource.hardwareChannel= 48 +1; // offset +1, because we decrement
+    }
+
     switch(chan->inputSource.hardwareGroup){
         case 'x':
-            if (chan->inputSource.hardwareChannel > 0){
+            if (chan->inputSource.hardwareChannel > 1){
                 chan->inputSource.hardwareChannel--;
             } else {
-                chan->inputSource.hardwareGroup = '1';
-                chan->inputSource.hardwareChannel = 48;
+                chan->inputSource.hardwareGroup = 0;
+                chan->inputSource.hardwareChannel = 0;
             }
             break;
         case 'c':
-            if (chan->inputSource.hardwareChannel > 0){
+            if (chan->inputSource.hardwareChannel > 1){
                 chan->inputSource.hardwareChannel--;
             } else {
                 chan->inputSource.hardwareGroup = 'x';
@@ -388,7 +411,7 @@ void mixerSwitchVChannelToPrevInput(){
             }
             break;
         case 'a':
-            if (chan->inputSource.hardwareChannel > 0){
+            if (chan->inputSource.hardwareChannel > 1){
                 chan->inputSource.hardwareChannel--;
             } else {
                 chan->inputSource.hardwareGroup = 'c';
@@ -396,7 +419,7 @@ void mixerSwitchVChannelToPrevInput(){
             }
             break;
         case 'd':
-            if (chan->inputSource.hardwareChannel > 0){
+            if (chan->inputSource.hardwareChannel > 1){
                 chan->inputSource.hardwareChannel--;
             } else {
                 chan->inputSource.hardwareGroup = 'a';
@@ -404,7 +427,7 @@ void mixerSwitchVChannelToPrevInput(){
             }
             break;
         case 0:
-            if (chan->inputSource.hardwareChannel > 0){
+            if (chan->inputSource.hardwareChannel > 1){
                 chan->inputSource.hardwareChannel--;
             } else {
                 chan->inputSource.hardwareGroup = 'd';
@@ -412,14 +435,15 @@ void mixerSwitchVChannelToPrevInput(){
             }
             break;
         case 1:
-             if (chan->inputSource.hardwareChannel > 0){
+             if (chan->inputSource.hardwareChannel > 1){
                 chan->inputSource.hardwareChannel--;
             } else {
-                chan->inputSource.hardwareGroup = '0';
+                chan->inputSource.hardwareGroup = 0;
                 chan->inputSource.hardwareChannel = 48;
             }
             break;
         default:
+            // unknown -> disable
             chan->inputSource.hardwareGroup = 0;
             chan->inputSource.hardwareChannel = 0;
             break;
@@ -441,6 +465,12 @@ void mixerSwitchVChannelToNextOutput(){
     // 161-208 = AES50B-outputs
 
     s_vChannel *chan = mixerGetSelectedvChannel();
+
+    // disabled inputs: start with XLR1
+    if ((chan->outputDestination.hardwareGroup == 0)&&(chan->outputDestination.hardwareChannel == 0)){
+        chan->outputDestination.hardwareGroup= 'x';
+        chan->outputDestination.hardwareChannel= 1 -1; // Offset -1, because we increment
+    }
 
     switch(chan->outputDestination.hardwareGroup){
         case 'x':
@@ -479,7 +509,7 @@ void mixerSwitchVChannelToNextOutput(){
             if (chan->outputDestination.hardwareChannel < 40){
                 chan->outputDestination.hardwareChannel++;
             } else {
-                chan->outputDestination.hardwareGroup = '0';
+                chan->outputDestination.hardwareGroup = 0;
                 chan->outputDestination.hardwareChannel = 1;
             }
             break;
@@ -487,7 +517,7 @@ void mixerSwitchVChannelToNextOutput(){
             if (chan->outputDestination.hardwareChannel < 48){
                 chan->outputDestination.hardwareChannel++;
             } else {
-                chan->outputDestination.hardwareGroup = '1';
+                chan->outputDestination.hardwareGroup = 1;
                 chan->outputDestination.hardwareChannel = 1;
             }
             break;
@@ -495,11 +525,13 @@ void mixerSwitchVChannelToNextOutput(){
             if (chan->outputDestination.hardwareChannel < 48){
                 chan->outputDestination.hardwareChannel++;
             } else {
-                chan->outputDestination.hardwareGroup = 'x';
-                chan->outputDestination.hardwareChannel = 1;
+                // disable
+                chan->outputDestination.hardwareGroup = 0;
+                chan->outputDestination.hardwareChannel = 0;
             }
             break;
         default:
+            // unknown -> disable
             chan->outputDestination.hardwareGroup = 0;
             chan->outputDestination.hardwareChannel = 0;
             break;
@@ -523,17 +555,24 @@ void mixerSwitchVChannelToPrevOutput(){
 
     s_vChannel *chan = mixerGetSelectedvChannel();
 
+    // disabled: start with AES50B
+    if ((chan->outputDestination.hardwareGroup == 0)&&(chan->outputDestination.hardwareChannel == 0)){
+        chan->outputDestination.hardwareGroup= 1;
+        chan->outputDestination.hardwareChannel= 48 + 1; // offset +1, because we decrement
+    }
+
     switch(chan->outputDestination.hardwareGroup){
         case 'x':
-            if (chan->outputDestination.hardwareChannel > 0){
+            if (chan->outputDestination.hardwareChannel > 1){
                 chan->outputDestination.hardwareChannel--;
             } else {
-                chan->outputDestination.hardwareGroup = '2';
-                chan->outputDestination.hardwareChannel = 48;
+                // disable
+                chan->outputDestination.hardwareGroup = 0;
+                chan->outputDestination.hardwareChannel = 0;
             }
             break;
         case 'p':
-            if (chan->outputDestination.hardwareChannel > 0){
+            if (chan->outputDestination.hardwareChannel > 1){
                 chan->outputDestination.hardwareChannel--;
             } else {
                 chan->outputDestination.hardwareGroup = 'x';
@@ -541,7 +580,7 @@ void mixerSwitchVChannelToPrevOutput(){
             }
             break;
         case 'c':
-            if (chan->outputDestination.hardwareChannel > 0){
+            if (chan->outputDestination.hardwareChannel > 1){
                 chan->outputDestination.hardwareChannel--;
             } else {
                 chan->outputDestination.hardwareGroup = 'p';
@@ -549,7 +588,7 @@ void mixerSwitchVChannelToPrevOutput(){
             }
             break;
         case 'a':
-            if (chan->outputDestination.hardwareChannel > 0){
+            if (chan->outputDestination.hardwareChannel > 1){
                 chan->outputDestination.hardwareChannel--;
             } else {
                 chan->outputDestination.hardwareGroup = 'c';
@@ -557,7 +596,7 @@ void mixerSwitchVChannelToPrevOutput(){
             }
             break;
         case 'd':
-            if (chan->outputDestination.hardwareChannel > 0){
+            if (chan->outputDestination.hardwareChannel > 1){
                 chan->outputDestination.hardwareChannel--;
             } else {
                 chan->outputDestination.hardwareGroup = 'a';
@@ -565,7 +604,7 @@ void mixerSwitchVChannelToPrevOutput(){
             }
             break;
         case 0:
-             if (chan->outputDestination.hardwareChannel > 0){
+             if (chan->outputDestination.hardwareChannel > 1){
                 chan->outputDestination.hardwareChannel--;
             } else {
                 chan->outputDestination.hardwareGroup = 'd';
@@ -573,7 +612,7 @@ void mixerSwitchVChannelToPrevOutput(){
             }
             break;
         case 1:
-             if (chan->outputDestination.hardwareChannel > 0){
+             if (chan->outputDestination.hardwareChannel > 1){
                 chan->outputDestination.hardwareChannel--;
             } else {
                 chan->outputDestination.hardwareGroup = 0;
@@ -878,10 +917,10 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                     mixerClearSolo();
                     break;
                 case X32_BTN_PHANTOM_48V:
-                    mixerTogglePhantom(mixer.selectedVChannel);
+                    mixerTogglePhantom(mixerGetSelectedvChannelIndex());
                     break;
                 case X32_BTN_PHASE_INVERT:
-                    mixerTogglePhaseInvert(mixer.selectedVChannel);
+                    mixerTogglePhaseInvert(mixerGetSelectedvChannelIndex());
                     break;
                 case X32_BTN_CHANNEL_SOLO: // only X32 Rack
                     mixerToggleSolo(mixerGetSelectedvChannelIndex());
@@ -889,13 +928,24 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_CHANNEL_MUTE: // only X32 Rack
                     mixerToggleMute(mixerGetSelectedvChannelIndex());
                     break;
-                case X32_BTN_CHANNEL_Encoder: // only X32 Rack
-                    mixerTogglePhantom(mixerGetSelectedvChannelIndex());
-                    break;
                 default:
                     // TODO: Callback to x32ctrl if needed
                     x32debug("Unhandled button detected.\n");
                     break;
+            }
+        }
+    }
+
+    // Display Encoders
+    // - are independent from Surface Modes!
+    if (mixerIsModelX32FullOrCompacrOrProducerOrRack()){
+        if (mixer.activePage == X32_PAGE_CONFIG){
+            if (buttonPressed){
+                switch (button){
+                    case X32_BTN_ENCODER2:
+                        mixerTogglePhantom(mixerGetSelectedvChannelIndex());
+                        break;
+                }
             }
         }
     }
@@ -941,6 +991,9 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                     } else {
                         mixerSwitchVChannelToNextInput();
                     }
+                    break;
+                case X32_ENC_ENCODER2:
+                    mixerChangeGain(mixerGetSelectedvChannelIndex(), amount);
                     break;
                 case X32_ENC_ENCODER6:
                     if (amount < 0){
@@ -1099,7 +1152,7 @@ void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount){
         return;
     }
     mixer.vChannel[p_vChannelIndex].inputSource.gain += (2.5 * p_amount);
-    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_GAIN);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 

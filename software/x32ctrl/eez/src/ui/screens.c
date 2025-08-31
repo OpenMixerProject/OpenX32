@@ -69,12 +69,12 @@ void create_screen_main() {
             lv_obj_set_pos(obj, 2, 443);
             lv_obj_set_size(obj, 796, 35);
             static const char *map[7] = {
-                "Btn",
-                "Btn",
-                "Btn",
-                "Btn",
-                "Btn",
-                "Btn",
+                "Turn: Source",
+                "Turn: Gain\nPress: 48V",
+                "-",
+                "-",
+                "-",
+                "Turn: Destination",
                 NULL,
             };
             lv_buttonmatrix_set_map(obj, map);
