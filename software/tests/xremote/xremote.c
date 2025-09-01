@@ -4,9 +4,6 @@
   The XRemote-protocol is used to communicate with the XEdit software.
   The communication is based on OSC-protocol.
 
-  This file uses some parts of the MackieMCU-struct to keep names and meters in sync. The X32Edit displays
-  all 32 channels at once. At the moment only volume-fader, pan, mute and solo is supported.
-
   Parts of this file are based on the "Unofficial X32/M32 OSC Remote Protocol" v4.02 by Patrick-Gilles Maillot.
   Thank you very much for sharing your work!
 
@@ -18,20 +15,20 @@
 #include "xremote.h"
 
 int8_t xremoteInit() {
-	if ((xremoteUdpHandle = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-		fprintf(stderr, "Error on creating UDP-socket!");
-		return -1;
-	}
+    if ((xremoteUdpHandle = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        fprintf(stderr, "Error on creating UDP-socket!");
+        return -1;
+    }
     xremoteServerAddr.sin_family = AF_INET;
-	xremoteServerAddr.sin_addr.s_addr = INADDR_ANY;
-	xremoteServerAddr.sin_port = htons(10023);
+    xremoteServerAddr.sin_addr.s_addr = INADDR_ANY;
+    xremoteServerAddr.sin_port = htons(10023);
     
-	if (bind(xremoteUdpHandle, (const struct sockaddr *)&xremoteServerAddr, sizeof(xremoteServerAddr)) < 0) {
-		fprintf(stderr, "Error on binding UDP-socket!");
-		close(xremoteUdpHandle);
-		return -1;
-	}
-	
+    if (bind(xremoteUdpHandle, (const struct sockaddr *)&xremoteServerAddr, sizeof(xremoteServerAddr)) < 0) {
+        fprintf(stderr, "Error on binding UDP-socket!");
+        close(xremoteUdpHandle);
+        return -1;
+    }
+    
     return 0;
 }
 
@@ -52,188 +49,186 @@ void xremoteUpdateAll() {
 // receive data from XRemote client
 void xremoteUdpHandleCommunication() {
     char rxData[500];
-	int bytes_available;
+    int bytes_available;
     uint8_t channel;
     data_32b value32bit;
-	
-	// check for bytes in UDP-buffer
-	int result = ioctl(xremoteUdpHandle, FIONREAD, &bytes_available);
-	if (bytes_available > 0) {
-		socklen_t xremoteClientAddrLen = sizeof(xremoteClientAddr);
-	    uint8_t len = recvfrom(xremoteUdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremoteClientAddr, &xremoteClientAddrLen);
+    
+    // check for bytes in UDP-buffer
+    int result = ioctl(xremoteUdpHandle, FIONREAD, &bytes_available);
+    if (bytes_available > 0) {
+        socklen_t xremoteClientAddrLen = sizeof(xremoteClientAddr);
+        uint8_t len = recvfrom(xremoteUdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremoteClientAddr, &xremoteClientAddrLen);
         
         if (len > 0) {
-			//fprintf(stdout, "%c%c%c%c%c%c%c%c", (uint8_t)rxData[0], (uint8_t)rxData[1], (uint8_t)rxData[2], (uint8_t)rxData[3], (uint8_t)rxData[4], (uint8_t)rxData[5], (uint8_t)rxData[6], (uint8_t)rxData[7]);
+            if (String(rxData) != "/renew") {
+                fprintf(stdout, "Received command: %s\n", rxData);
+            }
+			
+			
+            if (memcmp(rxData, "/inf", 4) == 0) {
+                // info
+                xremoteAnswerInfo();
+            }else if (memcmp(rxData, "/xinf", 4) == 0) {
+                // xinfo
+                xremoteAnswerXInfo();
+            }else if (memcmp(rxData, "/sta", 4) == 0) {
+                // status
+                xremoteAnswerStatus();
+            }else if (memcmp(rxData, "/xre", 4) == 0) {
+                // xremote
+                // Optional: read and store IP-Address of client
+                // send routing, names and colors
+                for (uint8_t i=0; i<32; i++) {
+                    xremoteSetName(i+1, String("Ch") + String(i+1)); // TODO: implement own data
+                    xremoteSetColor(i+1, 0); // TODO: implement own data
+                    xremoteSetSource(i+1, i+1);
+                }
+                xremoteSetCard(10); // X-LIVE
+            }else if (memcmp(rxData, "/uns", 4) == 0) {
+                // unsubscribe
+                // Optional: remove xremote client
+            }else if (memcmp(rxData, "/ch/", 4) == 0) {
+                // channel
 
-			if (memcmp(rxData, xremote_cmd_info, 4) == 0) {
-			  // info
-			  xremoteAnswerInfo();
-			}else if (memcmp(rxData, xremote_cmd_xinfo, 4) == 0) {
-			  // xinfo
-			  xremoteAnswerXInfo();
-			}else if (memcmp(rxData, xremote_cmd_status, 4) == 0) {
-			  // status
-			  xremoteAnswerStatus();
-			}else if (memcmp(rxData, xremote_cmd_xremote, 4) == 0) {
-			  // xremote
-			  // Optional: read and store IP-Address of client
-			  // send routing, names and colors
-//			  for (uint8_t i=0; i<32; i++) {
-//				xremoteSetName(i+1, String("Ch") + String(i+1)); // TODO: implement own data
-//				xremoteSetColor(i+1, 0); // TODO: implement own data
-//				xremoteSetSource(i+1, i+1);
-//			  }
-//			  xremoteSetCard(10); // X-LIVE
-			}else if (memcmp(rxData, xremote_cmd_unsubscribe, 4) == 0) {
-			  // unsubscribe
-			  // Optional: remove xremote client
-			}else if (memcmp(rxData, xremote_cmd_channel, 4) == 0) {
-			  // channel
-
-			  // /ch/xx/mix/fader~~~~,f~~[float]
-			  // /ch/xx/mix/pan~~,f~~[float]
-			  // /ch/xx/mix/on~~~,i~~[int]
-			  channel = ((rxData[4]-48)*10 + (rxData[5]-48)) - 1;
-			  if (len > 13) {
-				if ((rxData[7] == 'm') && (rxData[8] == 'i') && (rxData[9] == 'x')) {
-				  if ((rxData[11] == 'f') && (rxData[12] == 'a') && (rxData[13] == 'd')) {
-					// get fader-value
-					value32bit.u8[0] = rxData[27];
-					value32bit.u8[1] = rxData[26];
-					value32bit.u8[2] = rxData[25];
-					value32bit.u8[3] = rxData[24];
-
-					float newVolume = (value32bit.f * 54.0f) - 48.0f;
-					//mixerSetVolume(channel, newVolume);
-					fprintf(stdout, "Ch %u: Volume set to %f\n",  channel+1, newVolume);
-				  }else if ((rxData[11] == 'p') && (rxData[12] == 'a') && (rxData[13] == 'n')) {
-					// get pan-value
-					value32bit.u8[0] = rxData[23];
-					value32bit.u8[1] = rxData[22];
-					value32bit.u8[2] = rxData[21];
-					value32bit.u8[3] = rxData[20];
-
-/*
-					MackieMCU.channel[channel].encoderValue = value32bit.f * 255.0f;
-					mixerSetBalance(channel,  value32bit.f * 100.0f);
-*/
-                    fprintf(stdout, "Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
-				  }else if ((rxData[11] == 'o') && (rxData[12] == 'n')) {
-					// get mute-state (caution: here it is "mixer-on"-state)
-					//mixerSetMute(channel, (rxData[20+3] == 0));
-                    fprintf(stdout, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
-				  }
-				}else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
-				  // config
-				  if  ((rxData[14] == 'c') && (rxData[15] == 'o') && (rxData[16] == 'l')) {
-					// color
-					value32bit.u8[0] = rxData[27];
-					value32bit.u8[1] = rxData[26];
-					value32bit.u8[2] = rxData[25];
-					value32bit.u8[3] = rxData[24];
-
-/*
-					if (value32bit.u32 < 8) {
-					  MackieMCU.channel[channel].color = value32bit.u32;
-					}else{
-					  MackieMCU.channel[channel].color = value32bit.u32 - 8 + 64;
-					}
-*/
-                    fprintf(stdout, "Ch %u: Set color to %u\n",  channel+1, value32bit.u32);
-				  }else if  ((rxData[14] == 'n') && (rxData[15] == 'a') && (rxData[16] == 'm')) {
-					// name
-					String name;
-					xremoteCharToString(&rxData[24], name);
-/*
-					MackieMCU.channel[channel].name = name;
-*/
-                    fprintf(stdout, "Ch %u: Set name to %s\n",  channel+1, name.c_str());
-				  }else if  ((rxData[14] == 'i') && (rxData[15] == 'c') && (rxData[16] == 'o')) {
-					// icon
-					value32bit.u8[0] = rxData[27];
-					value32bit.u8[1] = rxData[26];
-					value32bit.u8[2] = rxData[25];
-					value32bit.u8[3] = rxData[24];
-
-					// do something with channel and value32bit.f
-					//Serial.println("/ch/" + String(channel) + "/config/icon " + String(value32bit.u32));
-                    fprintf(stdout, "Ch %u: Set icon to %u\n",  channel+1, value32bit.u32);
-				  }
-				}
-			  }
-
-			}else if (memcmp(rxData, xremote_cmd_main, 4) == 0) {
-			  // main
-
-			  // /main/st/mix/fader~~,f~~[float]
-			  // /main/st/mix/pan~~~~,f~~[float]
-			  // /main/st/mix/on~,i~~[int]
-			  if (len > 12) {
-				if ((rxData[6] == 's') && (rxData[7] == 't') && (rxData[9] == 'm') && (rxData[10] == 'i') && (rxData[11] == 'x')) {
-				  if ((rxData[13] == 'f') && (rxData[14] == 'a') && (rxData[15] == 'd')) {
-					// get fader-value
-					value32bit.u8[0] = rxData[27];
-					value32bit.u8[1] = rxData[26];
-					value32bit.u8[2] = rxData[25];
-					value32bit.u8[3] = rxData[24];
-
-					float newVolume = (value32bit.f * 54.0f) - 48.0f;
-					//mixerSetMainVolume(newVolume);
-				  }else if ((rxData[13] == 'p') && (rxData[14] == 'a') && (rxData[15] == 'n')) {
-					// get pan-value
-					value32bit.u8[0] = rxData[27];
-					value32bit.u8[1] = rxData[26];
-					value32bit.u8[2] = rxData[25];
-					value32bit.u8[3] = rxData[24];
-
-					//mixerSetMainBalance(value32bit.f * 100);
-				  }else if ((rxData[13] == 'o') && (rxData[14] == 'n')) {
-					// get mute-state
-					// /main/st/mix/on~,i~~~
-					// do something with channel and (rxData[20+3]) // 0 = mute off, 31 = mute on
-				  }
-				}
-			  }
-			}else if (memcmp(rxData, xremote_cmd_stat, 4) == 0) {
-			  // stat
-
-			  if ((rxData[7] == 's') && (rxData[8] == 'o') && (rxData[9] == 'l') && (rxData[10] == 'o') && (rxData[11] == 's') && (rxData[12] == 'w')) {
-				// /-stat/solosw/xx~~~~,i~~[integer]
-				channel = ((rxData[14]-48)*10 + (rxData[15]-48)) - 1;
-				value32bit.u8[0] = rxData[27];
-				value32bit.u8[1] = rxData[26];
-				value32bit.u8[2] = rxData[25];
-				value32bit.u8[3] = rxData[24];
-
-				// we receive solo-values for 80 channels
-				if ((channel>=0) && (channel<32)) {
-				  //mixerSetSolo(channel, (value32bit.u32 == 1));
-				}
-			  }else if ((rxData[7] == 'u') && (rxData[8] == 'r') && (rxData[9] == 'e') && (rxData[10] == 'c')) {
-				value32bit.u8[0] = rxData[27];
-				value32bit.u8[1] = rxData[26];
-				value32bit.u8[2] = rxData[25];
-				value32bit.u8[3] = rxData[24];
-
-				// /-stat/urec/state~~~,i~~[integer]
-				if (value32bit.u32 == 0) {
-				  // stop
-				}else if (value32bit.u32 == 1) {
-				  // pause
-				}else if (value32bit.u32 == 2) {
-				  // play
-				}else if (value32bit.u32 == 3) {
-				  // record
-				}
-			  }
-			}else{
-			  // ignore unused commands for now
-fprintf(stdout, "Received unsupported command: %s\n", rxData);
-			}
+                // /ch/xx/mix/fader~~~~,f~~[float]
+                // /ch/xx/mix/pan~~,f~~[float]
+                // /ch/xx/mix/on~~~,i~~[int]
+                channel = ((rxData[4]-48)*10 + (rxData[5]-48)) - 1;
+                if (len > 13) {
+                    if ((rxData[7] == 'm') && (rxData[8] == 'i') && (rxData[9] == 'x')) {
+                        if ((rxData[11] == 'f') && (rxData[12] == 'a') && (rxData[13] == 'd')) {
+                            // get fader-value
+                            value32bit.u8[0] = rxData[27];
+                            value32bit.u8[1] = rxData[26];
+                            value32bit.u8[2] = rxData[25];
+                            value32bit.u8[3] = rxData[24];
+						    
+                            float newVolume = (value32bit.f * 54.0f) - 48.0f;
+                            //mixerSetVolume(channel, newVolume);
+                            fprintf(stdout, "Ch %u: Volume set to %f\n",  channel+1, newVolume);
+                        }else if ((rxData[11] == 'p') && (rxData[12] == 'a') && (rxData[13] == 'n')) {
+                            // get pan-value
+                            value32bit.u8[0] = rxData[23];
+                            value32bit.u8[1] = rxData[22];
+                            value32bit.u8[2] = rxData[21];
+                            value32bit.u8[3] = rxData[20];
+						    
+                            //encoderValue = value32bit.f * 255.0f;
+                            //mixerSetBalance(channel,  value32bit.f * 100.0f);
+                            fprintf(stdout, "Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
+                        }else if ((rxData[11] == 'o') && (rxData[12] == 'n')) {
+                            // get mute-state (caution: here it is "mixer-on"-state)
+                            //mixerSetMute(channel, (rxData[20+3] == 0));
+                            fprintf(stdout, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
+                        }
+                    }else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
+                        // config
+                        if  ((rxData[14] == 'c') && (rxData[15] == 'o') && (rxData[16] == 'l')) {
+                            // color
+                            value32bit.u8[0] = rxData[27];
+                            value32bit.u8[1] = rxData[26];
+                            value32bit.u8[2] = rxData[25];
+                            value32bit.u8[3] = rxData[24];
+						    
+                            if (value32bit.u32 < 8) {
+                                fprintf(stdout, "Ch %u: Set color to %u\n",  channel+1, value32bit.u32);
+                            }else{
+                                fprintf(stdout, "Ch %u: Set inverted color to %u\n",  channel+1, value32bit.u32 - 8 +64);
+                            }
+                        }else if  ((rxData[14] == 'n') && (rxData[15] == 'a') && (rxData[16] == 'm')) {
+                            // name
+                            String name = String(&rxData[24]);
+                            fprintf(stdout, "Ch %u: Set name to %s\n",  channel+1, name.c_str());
+                        }else if  ((rxData[14] == 'i') && (rxData[15] == 'c') && (rxData[16] == 'o')) {
+                            // icon
+                            value32bit.u8[0] = rxData[27];
+                            value32bit.u8[1] = rxData[26];
+                            value32bit.u8[2] = rxData[25];
+                            value32bit.u8[3] = rxData[24];
+				    	    
+                            // do something with channel and value32bit.f
+                            //Serial.println("/ch/" + String(channel) + "/config/icon " + String(value32bit.u32));
+                            fprintf(stdout, "Ch %u: Set icon to %u\n",  channel+1, value32bit.u32);
+                        }
+                    }
+                }
+            }else if (memcmp(rxData, "/mai", 4) == 0) {
+                // main
+			    
+                // /main/st/mix/fader~~,f~~[float]
+                // /main/st/mix/pan~~~~,f~~[float]
+                // /main/st/mix/on~,i~~[int]
+                if (len > 12) {
+                    if ((rxData[6] == 's') && (rxData[7] == 't') && (rxData[9] == 'm') && (rxData[10] == 'i') && (rxData[11] == 'x')) {
+                        if ((rxData[13] == 'f') && (rxData[14] == 'a') && (rxData[15] == 'd')) {
+                            // get fader-value
+                            value32bit.u8[0] = rxData[27];
+                            value32bit.u8[1] = rxData[26];
+                            value32bit.u8[2] = rxData[25];
+                            value32bit.u8[3] = rxData[24];
+						    
+                            float newVolume = (value32bit.f * 54.0f) - 48.0f;
+                            //mixerSetMainVolume(newVolume);
+                        }else if ((rxData[13] == 'p') && (rxData[14] == 'a') && (rxData[15] == 'n')) {
+                            // get pan-value
+                            value32bit.u8[0] = rxData[27];
+                            value32bit.u8[1] = rxData[26];
+                            value32bit.u8[2] = rxData[25];
+                            value32bit.u8[3] = rxData[24];
+						    
+                            //mixerSetMainBalance(value32bit.f * 100);
+                        }else if ((rxData[13] == 'o') && (rxData[14] == 'n')) {
+                            // get mute-state
+                            // /main/st/mix/on~,i~~~
+                            // do something with channel and (rxData[20+3]) // 0 = mute off, 31 = mute on
+                        }
+                    }
+                }
+            }else if (memcmp(rxData, "/-st", 4) == 0) {
+                // stat
+			    
+                if ((rxData[7] == 's') && (rxData[8] == 'o') && (rxData[9] == 'l') && (rxData[10] == 'o') && (rxData[11] == 's') && (rxData[12] == 'w')) {
+                    // /-stat/solosw/xx~~~~,i~~[integer]
+                    channel = ((rxData[14]-48)*10 + (rxData[15]-48)) - 1;
+                    value32bit.u8[0] = rxData[27];
+                    value32bit.u8[1] = rxData[26];
+                    value32bit.u8[2] = rxData[25];
+                    value32bit.u8[3] = rxData[24];
+				    
+                    // we receive solo-values for 80 channels
+                    if ((channel>=0) && (channel<32)) {
+                        //mixerSetSolo(channel, (value32bit.u32 == 1));
+                    }
+                }else if ((rxData[7] == 'u') && (rxData[8] == 'r') && (rxData[9] == 'e') && (rxData[10] == 'c')) {
+                    value32bit.u8[0] = rxData[27];
+                    value32bit.u8[1] = rxData[26];
+                    value32bit.u8[2] = rxData[25];
+                    value32bit.u8[3] = rxData[24];
+				    
+                    // /-stat/urec/state~~~,i~~[integer]
+                    if (value32bit.u32 == 0) {
+                        // stop
+                    }else if (value32bit.u32 == 1) {
+                        // pause
+                    }else if (value32bit.u32 == 2) {
+                        // play
+                    }else if (value32bit.u32 == 3) {
+                        // record
+                    }
+                }
+				
+				fprintf(stdout, "Received command: %s\n", rxData);
+            }else if (memcmp(rxData, "/bat", 4) == 0) {
+            }else if (memcmp(rxData, "/ren", 4) == 0) {
+            }else if (memcmp(rxData, "/for", 4) == 0) {
+            }else{
+                // ignore unused commands for now
+                fprintf(stdout, "Received unsupported command: %s\n", rxData);
+            }
         }else{
-fprintf(stdout, "Caution: len <= 0");
-		}
-	}
+            fprintf(stdout, "Caution: len <= 0");
+        }
+    }
 }
 
 void xremoteAnswerInfo() {
@@ -269,13 +264,13 @@ void xremoteAnswerStatus() {
 }
 
 void xremoteSetFader(uint8_t ch, float value_pu) {
-    char cmd[32];
+    char cmd[32] = {0};
     sprintf(cmd, "/ch/%02i/mix/fader", ch);
     xremoteSendBasicMessage(cmd, 'f', 'b', (char*)&value_pu);
 }
 
 void xremoteSetPan(uint8_t ch, float value_pu) {
-    char cmd[32];
+    char cmd[32] = {0};
     sprintf(cmd, "/ch/%02i/mix/pan", ch);
     xremoteSendBasicMessage(cmd, 'f', 'b', (char*)&value_pu);
 }
@@ -289,8 +284,8 @@ void xremoteSetMainPan(float value_pu) {
 }
 
 void xremoteSetName(uint8_t ch, String name) {
-    char nameArray[12];
-    char cmd[50];
+    char nameArray[12] = {0};
+    char cmd[50] = {0};
     name.toCharArray(nameArray, 12);
     sprintf(cmd, "/ch/%02i/config/name", ch);
     xremoteSendBasicMessage(cmd, 's', 's', nameArray);
@@ -298,33 +293,33 @@ void xremoteSetName(uint8_t ch, String name) {
 
 // 0=BLACK, 1=RED, 2=GREEN, 3=YELLOW, 4=BLUE, 5=PINK, 6=CYAN, 7=WHITE (add 64 to invert)
 void xremoteSetColor(uint8_t ch, int32_t color) {
-    char cmd[32];
+    char cmd[32] = {0};
     sprintf(cmd, "/ch/%02i/config/color", ch);
     xremoteSendBasicMessage(cmd, 'i', 'b', (char*)&color);
 }
 
 void xremoteSetSource(uint8_t ch, int32_t source) {
-    char cmd[32];
+    char cmd[32] = {0};
     sprintf(cmd, "/ch/%02i/config/source", ch);
     xremoteSendBasicMessage(cmd, 'i', 'b', (char*)&source);
 }
 
 void xremoteSetIcon(uint8_t ch, int32_t icon) {
-    char cmd[32];
+    char cmd[32] = {0};
     sprintf(cmd, "/ch/%02i/config/icon", ch);
     xremoteSendBasicMessage(cmd, 'i', 'b', (char*)&icon);
 }
 
 void xremoteSetCard(uint8_t card) {
-    char cmd[32];
-    String scmd = "-stat/xcardtype " + String(card);
+    char cmd[32] = {0};
+    String scmd = String("-stat/xcardtype ") + String(card);
     scmd.toCharArray(cmd, scmd.length() + 1);
     cmd[scmd.length()] = 0x10; // add linefeed
     xremoteSendBasicMessage("node", 's', 's', cmd);
 }
 
 void xremoteSetMute(uint8_t ch, uint8_t muted) {
-    char cmd[32];
+    char cmd[32] = {0};
     int32_t online;
     if (muted == 0) {
       online = 1;
@@ -336,7 +331,7 @@ void xremoteSetMute(uint8_t ch, uint8_t muted) {
 }
 
 void xremoteSetSolo(uint8_t ch, uint8_t solo) {
-    char cmd[20];
+    char cmd[20] = {0};
     String channel;
     String state;
     if (ch < 10) {
@@ -345,11 +340,11 @@ void xremoteSetSolo(uint8_t ch, uint8_t solo) {
       channel = String(ch);
     }
     if (solo > 0) {
-      state = "ON";
+      state = String("ON");
     }else{
-      state = "OFF";
+      state = String("OFF");
     }
-    String scmd = "-stat/solosw/" + channel + " " + state;
+    String scmd = String("-stat/solosw/") + channel + String(" ") + state;
     scmd.toCharArray(cmd, 20);
     cmd[scmd.length()] = 0x10; // add linefeed
     xremoteSendBasicMessage("node", 's', 's', cmd);
@@ -390,9 +385,10 @@ void xremoteSendUdpPacket(char *buffer, uint16_t size) {
 }
 
 void xremoteSendBasicMessage(char *cmd, char type, char format, char *value) {
-    char tmp[2];
+    char tmp[3];
     tmp[0] = ',';
     tmp[1] = type;
+    tmp[2] = 0;
     
     uint16_t len = xremotesprint(xremote_TxMessage, 0, 's', cmd);
     len = xremotesprint(xremote_TxMessage, len, 's', tmp);
@@ -470,7 +466,7 @@ String xremoteGetIpAddress() {
             tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             char addressBuffer[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-			return addressBuffer;
+            return addressBuffer;
             //printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
 /*
         } else if (ifa->ifa_addr->sa_family == AF_INET6) { // check it is IP6
@@ -483,16 +479,8 @@ String xremoteGetIpAddress() {
         } 
     }
     if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
-	
-	return "";
-}
-
-void xremoteCharToString(char *data, String &s) {
-  uint8_t ptr = 0;
-  s = ""; // init string
-  while (data[ptr]) {
-    s.concat(data[ptr++]);
-  }
+    
+    return "";
 }
 
 int main(int argc, char *argv[]) {
@@ -502,18 +490,20 @@ int main(int argc, char *argv[]) {
     if (xremoteInit() != 0) {
         return -1;
     }
-    fprintf(stdout, "  OK, waiting for incoming data...\n");
+    fprintf(stdout, "  OK, waiting for incoming data from X32-Edit or MixingStation...\n");
 
     while(1) {
         // check for incoming data
         xremoteUdpHandleCommunication();
         
+		// update meters only every 50-100ms
+        counter++;
+        if (counter >= 50) {
+            xremoteUpdateMeter();
+            counter = 0;
+        }
+
         // sleep for 1ms to lower CPU-load
-		counter++;
-		if (counter >= 100) {
-			xremoteUpdateMeter();
-			counter = 0;
-		}
         usleep(1000);
     }
 

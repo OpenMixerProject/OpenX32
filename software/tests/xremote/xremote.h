@@ -40,16 +40,7 @@ typedef union
   float   f;
 }data_32b;
 
-int counter=0;
-
-char xremote_cmd_info[4]   = {'/', 'i', 'n', 'f'};
-char xremote_cmd_xinfo[4]   = {'/', 'x', 'i', 'n'};
-char xremote_cmd_status[4] = {'/', 's', 't', 'a'};
-char xremote_cmd_xremote[4]   = {'/', 'x', 'r', 'e'};
-char xremote_cmd_unsubscribe[4]   = {'/', 'u', 'n', 's'};
-char xremote_cmd_channel[4]   = {'/', 'c', 'h', '/'};
-char xremote_cmd_main[4]   = {'/', 'm', 'a', 'i'};
-char xremote_cmd_stat[4]   = {'/', '-', 's', 't'};
+int counter = 0;
 
 // function prototypes
 int8_t xremoteInit();
