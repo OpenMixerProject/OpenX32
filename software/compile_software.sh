@@ -20,11 +20,6 @@ cd fpgaconfig
 ./compile.sh
 cd ..
 
-echo "Compiling uartterminal..."
-cd uartterminal
-./compile.sh
-cd ..
-
 echo "Compiling openssh-portable..."
 cd openssh-portable
 autoreconf
