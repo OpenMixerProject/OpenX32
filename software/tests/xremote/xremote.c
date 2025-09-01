@@ -63,8 +63,7 @@ void xremoteUdpHandleCommunication() {
 	    uint8_t len = recvfrom(xremoteUdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremoteClientAddr, &xremoteClientAddrLen);
         
         if (len > 0) {
-            // TODO: implement data-interpreter
-			fprintf(stdout, "%c %c %c %c\n", (uint8_t)rxData[0], (uint8_t)rxData[1], (uint8_t)rxData[2], (uint8_t)rxData[3]);
+			//fprintf(stdout, "%c%c%c%c%c%c%c%c", (uint8_t)rxData[0], (uint8_t)rxData[1], (uint8_t)rxData[2], (uint8_t)rxData[3], (uint8_t)rxData[4], (uint8_t)rxData[5], (uint8_t)rxData[6], (uint8_t)rxData[7]);
 
 			if (memcmp(rxData, xremote_cmd_info, 4) == 0) {
 			  // info
@@ -75,18 +74,16 @@ void xremoteUdpHandleCommunication() {
 			}else if (memcmp(rxData, xremote_cmd_status, 4) == 0) {
 			  // status
 			  xremoteAnswerStatus();
-fprintf(stdout, "status");
 			}else if (memcmp(rxData, xremote_cmd_xremote, 4) == 0) {
 			  // xremote
 			  // Optional: read and store IP-Address of client
 			  // send routing, names and colors
-			  for (uint8_t i=0; i<32; i++) {
-				xremoteSetName(i+1, String("Ch") + String(i+1)); // TODO: implement own data
-				xremoteSetColor(i+1, 0); // TODO: implement own data
-				xremoteSetSource(i+1, i+1);
-			  }
-			  xremoteSetCard(10); // X-LIVE
-fprintf(stdout, "xremote");
+//			  for (uint8_t i=0; i<32; i++) {
+//				xremoteSetName(i+1, String("Ch") + String(i+1)); // TODO: implement own data
+//				xremoteSetColor(i+1, 0); // TODO: implement own data
+//				xremoteSetSource(i+1, i+1);
+//			  }
+//			  xremoteSetCard(10); // X-LIVE
 			}else if (memcmp(rxData, xremote_cmd_unsubscribe, 4) == 0) {
 			  // unsubscribe
 			  // Optional: remove xremote client
@@ -108,6 +105,7 @@ fprintf(stdout, "xremote");
 
 					float newVolume = (value32bit.f * 54.0f) - 48.0f;
 					//mixerSetVolume(channel, newVolume);
+					fprintf(stdout, "Ch %u: Volume set to %f\n",  channel+1, newVolume);
 				  }else if ((rxData[11] == 'p') && (rxData[12] == 'a') && (rxData[13] == 'n')) {
 					// get pan-value
 					value32bit.u8[0] = rxData[23];
@@ -119,9 +117,11 @@ fprintf(stdout, "xremote");
 					MackieMCU.channel[channel].encoderValue = value32bit.f * 255.0f;
 					mixerSetBalance(channel,  value32bit.f * 100.0f);
 */
+                    fprintf(stdout, "Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
 				  }else if ((rxData[11] == 'o') && (rxData[12] == 'n')) {
 					// get mute-state (caution: here it is "mixer-on"-state)
 					//mixerSetMute(channel, (rxData[20+3] == 0));
+                    fprintf(stdout, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
 				  }
 				}else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
 				  // config
@@ -139,13 +139,15 @@ fprintf(stdout, "xremote");
 					  MackieMCU.channel[channel].color = value32bit.u32 - 8 + 64;
 					}
 */
+                    fprintf(stdout, "Ch %u: Set color to %u\n",  channel+1, value32bit.u32);
 				  }else if  ((rxData[14] == 'n') && (rxData[15] == 'a') && (rxData[16] == 'm')) {
 					// name
 					String name;
+					xremoteCharToString(&rxData[24], name);
 /*
-					charToString(&rxData[24], name);
 					MackieMCU.channel[channel].name = name;
 */
+                    fprintf(stdout, "Ch %u: Set name to %s\n",  channel+1, name.c_str());
 				  }else if  ((rxData[14] == 'i') && (rxData[15] == 'c') && (rxData[16] == 'o')) {
 					// icon
 					value32bit.u8[0] = rxData[27];
@@ -155,10 +157,11 @@ fprintf(stdout, "xremote");
 
 					// do something with channel and value32bit.f
 					//Serial.println("/ch/" + String(channel) + "/config/icon " + String(value32bit.u32));
+                    fprintf(stdout, "Ch %u: Set icon to %u\n",  channel+1, value32bit.u32);
 				  }
 				}
 			  }
-fprintf(stdout, "channel");
+
 			}else if (memcmp(rxData, xremote_cmd_main, 4) == 0) {
 			  // main
 
@@ -191,7 +194,6 @@ fprintf(stdout, "channel");
 				  }
 				}
 			  }
-fprintf(stdout, "main");
 			}else if (memcmp(rxData, xremote_cmd_stat, 4) == 0) {
 			  // stat
 
@@ -224,13 +226,12 @@ fprintf(stdout, "main");
 				  // record
 				}
 			  }
-fprintf(stdout, "stat");
 			}else{
 			  // ignore unused commands for now
-fprintf(stdout, "unused command");
+fprintf(stdout, "Received unsupported command: %s\n", rxData);
 			}
         }else{
-fprintf(stdout, "len <= 0");
+fprintf(stdout, "Caution: len <= 0");
 		}
 	}
 }
@@ -249,7 +250,7 @@ void xremoteAnswerInfo() {
 void xremoteAnswerXInfo() {
     uint16_t len = xremotesprint(xremote_TxMessage, 0, 's', "/xinfo");
     len = xremotesprint(xremote_TxMessage, len, 's', ",ssss");
-    len = xremotesprint(xremote_TxMessage, len, 's', "141.51.116.133"); // TODO: send our own IP
+    len = xremotesprint(xremote_TxMessage, len, 's', xremoteGetIpAddress().c_str());
     len = xremotesprint(xremote_TxMessage, len, 's', "OpenX32");
     len = xremotesprint(xremote_TxMessage, len, 's', "X32"); // must be a known device by X-Edit
     len = xremotesprint(xremote_TxMessage, len, 's', "4.13"); // must be a supported firmware-version by X-Edit
@@ -261,7 +262,7 @@ void xremoteAnswerStatus() {
     uint16_t len = xremotesprint(xremote_TxMessage, 0, 's', "/status");
     len = xremotesprint(xremote_TxMessage, len, 's', ",sss");
     len = xremotesprint(xremote_TxMessage, len, 's', "active");
-    len = xremotesprint(xremote_TxMessage, len, 's', "141.51.116.133"); // TODO: send our own IP
+    len = xremotesprint(xremote_TxMessage, len, 's', xremoteGetIpAddress().c_str());
     len = xremotesprint(xremote_TxMessage, len, 's', "OpenX32");
 
     xremoteSendUdpPacket(xremote_TxMessage, len);
@@ -366,7 +367,7 @@ void xremoteUpdateMeter() {
 
     float f;
     for (uint16_t i=0; i<70; i++) {
-      f = 128.0f/255.0f; // 32 channels, 8 aux, 8 FX returns, 16 busse, 6 matrix
+      f = (float)rand()/(float)RAND_MAX; // 32 channels, 8 aux, 8 FX returns, 16 busse, 6 matrix
       len = xremotesprint(xremote_TxMessage, len, 'l', (char*)&f); // little endian
     }
 
@@ -455,6 +456,45 @@ uint16_t xremotefprint(char *bd, uint16_t index, char* text, char format, char *
     return xremotesprint(bd, index, format, bs);
 }
 
+String xremoteGetIpAddress() {
+    struct ifaddrs * ifAddrStruct=NULL;
+    struct ifaddrs * ifa=NULL;
+    void * tmpAddrPtr=NULL;
+    getifaddrs(&ifAddrStruct);
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
+        if ((!ifa->ifa_addr) || (String(ifa->ifa_name) == "lo")) {
+            continue;
+        }
+        if (ifa->ifa_addr->sa_family == AF_INET) { // check it is IP4
+            // is a valid IP4 Address
+            tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+            char addressBuffer[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+			return addressBuffer;
+            //printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
+/*
+        } else if (ifa->ifa_addr->sa_family == AF_INET6) { // check it is IP6
+            // is a valid IP6 Address
+            tmpAddrPtr=&((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr;
+            char addressBuffer[INET6_ADDRSTRLEN];
+            inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer, INET6_ADDRSTRLEN);
+            printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
+*/
+        } 
+    }
+    if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
+	
+	return "";
+}
+
+void xremoteCharToString(char *data, String &s) {
+  uint8_t ptr = 0;
+  s = ""; // init string
+  while (data[ptr]) {
+    s.concat(data[ptr++]);
+  }
+}
+
 int main(int argc, char *argv[]) {
     fprintf(stdout, "XRemote server test\n");
 
@@ -471,7 +511,7 @@ int main(int argc, char *argv[]) {
         // sleep for 1ms to lower CPU-load
 		counter++;
 		if (counter >= 100) {
-			//xremoteUpdateMeter();
+			xremoteUpdateMeter();
 			counter = 0;
 		}
         usleep(1000);

@@ -19,6 +19,12 @@
 #include <netinet/in.h>
 #include <sys/ioctl.h>
 
+// includes for reading IP-Address
+#include <ifaddrs.h>
+#include <netinet/in.h> 
+#include <string.h> 
+#include <arpa/inet.h>
+
 int xremoteUdpHandle;
 struct sockaddr_in xremoteServerAddr, xremoteClientAddr;
 char xremote_TxMessage[450]; // the largest binary blob will take up to 20+(70+1))*4 bytes = 408 bytes
@@ -68,5 +74,7 @@ void xremoteSendUdpPacket(char *buffer, uint16_t size);
 void xremoteSendBasicMessage(char *cmd, char type, char format, char *value);
 uint16_t xremotesprint(char *bd, uint16_t index, char format, const char *bs);
 uint16_t xremotefprint(char *bd, uint16_t index, char* text, char format, char *bs);
+String xremoteGetIpAddress();
+void xremoteCharToString(char *data, String &s);
 
 #endif
