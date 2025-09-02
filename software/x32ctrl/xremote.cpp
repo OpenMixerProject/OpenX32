@@ -200,9 +200,11 @@ void xremoteUdpHandleCommunication() {
                     value32bit.u8[3] = rxData[24];
                     
                     // we receive solo-values for 80 channels
-                    if ((channel>=0) && (channel<32)) {
-                        //mixerSetSolo(channel, (value32bit.u32 == 1));
+/*
+                    if (channel < 32) {
+                        mixerSetSolo(channel, (value32bit.u32 == 1));
                     }
+*/
                 }else if ((rxData[7] == 'u') && (rxData[8] == 'r') && (rxData[9] == 'e') && (rxData[10] == 'c')) {
                     value32bit.u8[0] = rxData[27];
                     value32bit.u8[1] = rxData[26];

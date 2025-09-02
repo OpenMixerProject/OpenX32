@@ -806,7 +806,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
                     setLed(p_board, 0x40+i, chan->mute); 
                 }
                 
-                if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME) && mixerTouchcontrolCanSetFader(p_board, i)){
+                if ((fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)) && mixerTouchcontrolCanSetFader(p_board, i)){
                     x32debug(" Fader");
                     u_int16_t faderVolume = dBfs2fader(chan->volume);
                     setFader(p_board, i, faderVolume);
