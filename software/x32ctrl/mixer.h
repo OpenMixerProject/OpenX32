@@ -55,6 +55,7 @@ void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
 
+void mixerInitPages();
 void mixerShowPage(X32_PAGE page);
 void mixerShowPrevPage(void);
 void mixerShowNextPage(void);

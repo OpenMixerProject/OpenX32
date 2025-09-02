@@ -181,15 +181,15 @@ void guiInit(void) {
   driver_backends_register();
   driver_backends_init_backend("FBDEV");
 
-  lv_timer_create(timer10msCallback, 10, NULL);
-  lv_timer_create(timer100msCallback, 100, NULL); // surface/gui sync
+  lv_timer_create(timer10msCallbackLvgl, 10, NULL);
+  lv_timer_create(timer100msCallbackLvgl, 100, NULL); // surface/gui sync
 
   // initialize GUI created by EEZ
   ui_init();
 
   guiInitInput();
 
-  mixerShowPage(-1);   // shows the welcome page
+  mixerShowPage((X32_PAGE)-1);   // shows the welcome page
   mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
   // start endless loop

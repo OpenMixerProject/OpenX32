@@ -83,9 +83,22 @@
 #include <termios.h>
 #include <sys/ioctl.h> // for FIONREAD
 
+// includes for UDP-communication
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+
+// includes for reading IP-Address
+#include <sys/stat.h>
+#include <ifaddrs.h>
+#include <netinet/in.h> 
+#include <arpa/inet.h>
+
 // includes for lvgl
 #include "lv_port_linux/lvgl/lvgl.h"
 #include "lv_port_linux/src/lib/backends.h"
+#include "lv_port_linux/src/lib/driver_backends.h"
 
 // including the GUI built by EEZ-Studio
 #include "eez/src/ui/actions.h"
@@ -110,17 +123,24 @@
 #include "mixer.h"
 #include "fpga.h"
 #include "touchcontrol.h"
+#include "xremote.h"
 
 // function prototypes
-void timer100msCallback(struct _lv_timer_t *);
-void timer10msCallback(struct _lv_timer_t *);
+void timer100msCallbackLvgl(_lv_timer_t* lv_timer);
+void timer100msCallbackLinux(int timer);
+void timer100msCallback();
+void timer10msCallbackLvgl(_lv_timer_t* lv_timer);
+void timer10msCallbackLinux(int timer);
+void timer10msCallback();
 void surfaceDemo(void);
-void surfaceCallback(uint8_t boardId, uint8_t class, uint8_t index, uint16_t value);
+void surfaceCallback(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t value);
 void addaCallback(char *msg);
 void fpgaCallback(char *buf, uint8_t len);
+void syncAll(void);
 void syncGuiAndSurface(void);
 void syncGui(void);
 void syncSurface(void);
+void syncSurfaceBoardMain();
 void syncSurfaceBoard(X32_BOARD board);
 void syncSurfaceBankIndicator(void);
 void showPage(X32_PAGE page);

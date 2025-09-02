@@ -60,7 +60,7 @@ void initMixer(X32_MODEL p_model) {
     for (int i=0; i<=31; i++) {
         s_vChannel *vChannel = &(mixer.vChannel[i]);
         mixerSetVChannelDefaults(vChannel, i, false);
-        sprintf(&(vChannel->name), "Kanal %d", i+1); // german label :-)
+        sprintf(&(vChannel->name[0]), "Kanal %d", i+1); // german label :-)
 
         s_inputSource *input = &vChannel->inputSource;
         input->phantomPower = false;
@@ -151,9 +151,9 @@ void initMixer(X32_MODEL p_model) {
         vChannel->outputDestination.hardwareChannel = i+8 + 8;
 
         if(i <=5){
-            sprintf(&vChannel->name, "AUX%d", i+1);
+            sprintf(&vChannel->name[0], "AUX%d", i+1);
         } else {
-            sprintf(&vChannel->name, "USB");
+            sprintf(&vChannel->name[0], "USB");
         }
     }
 
@@ -163,7 +163,7 @@ void initMixer(X32_MODEL p_model) {
         uint8_t index = 40 + i;
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
-        sprintf(&vChannel->name, "FX Ret%d", i+1);
+        sprintf(&vChannel->name[0], "FX Ret%d", i+1);
     }
 
     // Bus 1-16
@@ -172,7 +172,7 @@ void initMixer(X32_MODEL p_model) {
         uint8_t index = 48 + i;
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
-        sprintf(&vChannel->name, "BUS%d", i+1);
+        sprintf(&vChannel->name[0], "BUS%d", i+1);
     }
 
     // Matrix 1-6 / Special / MAIN
@@ -182,11 +182,11 @@ void initMixer(X32_MODEL p_model) {
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
         if(i <=5){
-            sprintf(&vChannel->name, "MATRIX%d", i+1);
+            sprintf(&vChannel->name[0], "MATRIX%d", i+1);
         } else if (i == 6){
-            sprintf(&vChannel->name, "SPECIAL");
+            sprintf(&vChannel->name[0], "SPECIAL");
         } else if (i == 7){
-            sprintf(&vChannel->name, "Main");
+            sprintf(&vChannel->name[0], "Main");
             vChannel->vChannelType = 1; // main channel
         } 
     }
@@ -197,7 +197,7 @@ void initMixer(X32_MODEL p_model) {
         uint8_t index = 72 + i;
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
-        sprintf(&vChannel->name, "DCA%d", i+1);
+        sprintf(&vChannel->name[0], "DCA%d", i+1);
     }
 
     // vChannel0 selected by default
@@ -1344,7 +1344,7 @@ void mixerDebugPrintvChannels(void){
     {
         s_vChannel* vChannel = &(mixer.vChannel[i]);
         x32debug("vChannel%-3d %-32s color=%d icon=%d selected=%d solo=%d mute=%d volume=%2.1f input=%c%d output=%c%d\n",
-                 i, vChannel->name, vChannel->color, vChannel->icon, vChannel->selected, vChannel->solo, vChannel->mute, (double)vChannel->volume,
+                 i, vChannel->name[0], vChannel->color, vChannel->icon, vChannel->selected, vChannel->solo, vChannel->mute, (double)vChannel->volume,
                  vChannel->inputSource.hardwareGroup, vChannel->inputSource.hardwareChannel,
                  vChannel->outputDestination.hardwareGroup, vChannel->outputDestination.hardwareChannel);
     }

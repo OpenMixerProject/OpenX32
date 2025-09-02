@@ -3,7 +3,7 @@
 
 #include "x32ctrl.h"
 
-void mixerTouchControllTick(void);
+void mixerTouchControlTick(void);
 bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
 
 #endif

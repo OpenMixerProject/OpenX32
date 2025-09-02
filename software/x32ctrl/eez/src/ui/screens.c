@@ -451,13 +451,13 @@ void create_screen_main() {
                                                 NULL,
                                             };
                                             static lv_buttonmatrix_ctrl_t ctrl_map[7] = {
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
+                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
+                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
+                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
+                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
+                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
+                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
                                             };
                                             lv_buttonmatrix_set_map(obj, map);
                                             lv_buttonmatrix_set_ctrl_map(obj, ctrl_map);

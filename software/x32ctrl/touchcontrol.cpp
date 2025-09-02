@@ -8,7 +8,7 @@
 // #
 // ####################################################################
 
-void mixerTouchControllTick(void){
+void mixerTouchControlTick(void){
     if (mixer.touchcontrol.value > 0) {
         mixer.touchcontrol.value--;
         if (mixer.touchcontrol.value == 0)

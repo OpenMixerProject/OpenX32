@@ -14,7 +14,8 @@ uint8_t saturate(uint8_t value, uint8_t min, uint8_t max);
 float saturate_f(float value, float min, float max);
 float fader2dBfs(uint16_t faderValue);
 uint16_t dBfs2fader(float dbfsValue);
+String getIpAddress();
 //int valueToBinaryString(uint8_t value, char *output);
-//int initTimer();
+int initTimer(); // only for Non-GUI systems
 
 #endif

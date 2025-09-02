@@ -46,10 +46,12 @@ extern sOpenx32 openx32;
 
 void mixingDefaultRoutingConfig(void);
 void mixingSyncRoutingConfigFromMixer(void);
+void mixingSyncVChannelConfigFromMixer(void);
 void mixingResetRouting(void);
 void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource);
 uint8_t mixingGetInputSource(uint8_t group, uint8_t channel);
 void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel);
+void mixingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan);
 void mixingSetGain(uint8_t group, uint8_t channel, float gain);
 void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active);
 void mixingSetVolume(uint8_t channel, float volume);
