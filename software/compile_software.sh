@@ -20,6 +20,11 @@ cd fpgaconfig
 ./compile.sh
 cd ..
 
+echo "Compiling dspconfig..."
+cd dspconfig
+./compile.sh
+cd ..
+
 echo "Compiling openssh-portable..."
 cd openssh-portable
 autoreconf
