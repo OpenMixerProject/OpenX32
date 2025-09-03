@@ -27,7 +27,7 @@
 // ----------------------------------------------
 
 struct spi_ioc_transfer tr = {0};
-uint8_t tx_buffer[4095];
+uint8_t tx_buffer[4096];
 uint8_t rx_buffer[sizeof(tx_buffer)]; // not used here, but necessary
 int ret = 0;
 int spi_fd = -1;
@@ -41,8 +41,8 @@ int configure_dsp_spi(const char *bitstream_path) {
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
     fprintf(stdout, "DSP Configuration Tool v0.0.1\n");
-
     fprintf(stdout, "  Connecting to SPI...\n");
+
     spi_fd = open(SPI_DEVICE_A, O_RDWR);
     if (spi_fd < 0) {
         perror("Error: Could not open SPI-device");
@@ -68,27 +68,48 @@ int configure_dsp_spi(const char *bitstream_path) {
     return ret;
 }
 
+// ============== FUNCTIONS CALLED BY SIGMASTUDIO CODE ==============
 int32_t SIGMA_WRITE_REGISTER_BLOCK(uint8_t devAddress, uint16_t address, uint16_t length, ADI_REG_TYPE *pData) {
     printf("SIGMA_WRITE_REGISTER_BLOCK address: %u length: %u pData: %u\n", address, length, pData);
 
     long total_bytes_sent = 0;
     int progress_bar_width = 50;
-    int bytes_to_read = 4;
-    for (uint16_t i = 0; i < length; i+=bytes_to_read) {
+    int bytes_read = 0;
+
+    // write addres
+    tx_buffer[0] = 0x00;
+    tx_buffer[1] = (address >> 8);
+    tx_buffer[2] = (address & 0xFF);
+    tr.len = 3;
+    ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
+        if (ret < 0) {
+            perror("Error: SPI-transmission failed");
+        }
+
+    // write data
+    for (uint16_t i = 0; i < length; i+=sizeof(tx_buffer)) {
         // copy data to buffer
-        memcpy(&tx_buffer[0], &pData[i], bytes_to_read); // dst, src, size
-        tr.len = bytes_to_read;
+        if ((i + 1) * sizeof(tx_buffer) <= length) {
+            // read and transmit full buffer-size
+            bytes_read = sizeof(tx_buffer);
+            memcpy(&tx_buffer[0], &pData[i], bytes_read); // dst, src, size
+            tr.len = bytes_read;
+        }else{
+            // read remaining bytes
+            bytes_read = length - (i * sizeof(tx_buffer));
+            memcpy(&tx_buffer[0], &pData[i], bytes_read); // dst, src, size
+            tr.len = bytes_read;
+        }
 
         // send data via SPI
         ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-
         if (ret < 0) {
             perror("Error: SPI-transmission failed");
             break;
         }
 
         // calculate progress-bar
-        total_bytes_sent += bytes_to_read;
+        total_bytes_sent += bytes_read;
         int progress = (int)((double)total_bytes_sent / length * progress_bar_width);
         printf("\r[");
         for (int i = 0; i < progress_bar_width; ++i) {
@@ -127,11 +148,12 @@ int32_t SIGMA_SAFELOAD_WRITE_TRANSFER_BIT(uint8_t devAddress) {
     return 0;
 }
 
+// ============== MAIN FUNCTION ==============
+
 int main(int argc, char *argv[]) {
     ret = configure_dsp_spi(argv[1]);
     close(spi_fd);
-
-    fprintf(stdout, "\n\nBitstream transmitted.\n");
+    fprintf(stdout, "\nDone.\n");
 
     return ret;
 }

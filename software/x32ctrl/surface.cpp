@@ -17,8 +17,8 @@ void setFader(uint8_t boardId, uint8_t index, uint16_t position) {
     // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
     // 0x46, i, position.w * (1..8(9))
     messageBuilderInit(&message);
-  messageBuilderAddRawByte(&message, 0xFE); // startbyte
-  messageBuilderAddDataByte(&message, 0x80 + boardId); // start message for specific boardId
+    messageBuilderAddRawByte(&message, 0xFE); // startbyte
+    messageBuilderAddDataByte(&message, 0x80 + boardId); // start message for specific boardId
     messageBuilderAddDataByte(&message, 'F'); // class: F = Fader
     messageBuilderAddDataByte(&message, index); // index
     messageBuilderAddDataByte(&message, (position & 0xFF)); // LSB
@@ -1220,13 +1220,26 @@ void initDefinitions(void) {
             addButtonDefinition( X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131 );
             addButtonDefinition( X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132 );
 
-            // TODO: Check and add Encoders
+            // Encoder
 
-            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
-            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
-            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
-            // addEncoderDefinition(X32_ENC_ENCODER1, ??? );
+            addEncoderDefinition(X32_ENC_GAIN, 0x0100);
+            addEncoderDefinition(X32_ENC_LOWCUT, 0x0101);
+            addEncoderDefinition(X32_ENC_GATE, 0x0102);
+            addEncoderDefinition(X32_ENC_DYNAMICS, 0x0103);
 
+            addEncoderDefinition(X32_ENC_EQ_Q, 0x0104);
+            addEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
+            addEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
+
+            addEncoderDefinition(X32_ENC_MAIN, 0x010B);
+            addEncoderDefinition(X32_ENC_PAN, 0x010C);
+
+            addEncoderDefinition(X32_ENC_ENCODER1, 0x010D);
+            addEncoderDefinition(X32_ENC_ENCODER2, 0x010E);
+            addEncoderDefinition(X32_ENC_ENCODER3, 0x010F);
+            addEncoderDefinition(X32_ENC_ENCODER4, 0x0110);
+            addEncoderDefinition(X32_ENC_ENCODER5, 0x0111);
+            addEncoderDefinition(X32_ENC_ENCODER6, 0x0112);
 
             break;
 
