@@ -14,8 +14,8 @@ static void timerIsr(uint32_t iid, void* handlerArg) {
 	assert(iid == ADI_CID_TMZHI || iid == ADI_CID_TMZLI);
 	assert(handlerArg != NULL);
 
-	// increment timer-counter up to 1000 and wrap around
-	if (*timer_counter > 1000) {
+	// increment timer-counter up to 100000 and wrap around
+	if (*timer_counter >= 100000) {
 		*timer_counter = 0;
 	}else{
 		*timer_counter += 1;
@@ -35,7 +35,7 @@ void timerInit() {
 							(void *)&timerCounter,	// handler parameter
 							true					// enable this timer
 	);
-	timer_set(1000, 1000); // set period and counter to 1000
+	timer_set(1000, 1000); // set period to 1000 and counter to 1000 (= 1us)
 	timer_on(); // start timer
 }
 
@@ -49,30 +49,22 @@ int main() {
 	systemSruInit();
 	timerInit();
 	spiInit();
+
+	// install interrupt handler
 	adi_int_InstallHandler(ADI_CID_P6I, (ADI_INT_HANDLER_PTR)audioISR, 0, true);
+	adi_int_InstallHandler (ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiTxISR, 0, true);
+	adi_int_InstallHandler (ADI_CID_P18I, (ADI_INT_HANDLER_PTR)spiRxISR, 0, true);
 	systemSportInit();
 
 	// the main-loop
 	while(1) {
-		/*
 		if (timerCounter == 0) {
-			// turn LED on
-			//sysreg_bit_tgl(sysreg_FLAGS, FLG7);
-			sysreg_bit_clr(sysreg_FLAGS, FLG7);
-			spiRxTx(42); // send meaning of life to i.MX25
-		}else if (timerCounter == 500) {
-			// turn LED off
-			sysreg_bit_set(sysreg_FLAGS, FLG7);
+			// toggle LED
+			sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
 		}
 
 		if (audioReady) {
 			audioProcessData();
 		}
-		*/
-
-		sysreg_bit_set(sysreg_FLAGS, FLG7);
-		delay(100000000);
-		sysreg_bit_clr(sysreg_FLAGS, FLG7);
-		delay(100000000);
 	}
 }

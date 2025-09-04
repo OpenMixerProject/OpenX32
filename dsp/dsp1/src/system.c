@@ -9,22 +9,12 @@ void systemPllInit()
 {
 	int i, pmctlsetting;
 
-	pmctlsetting= *pPMCTL;
+	pmctlsetting = *pPMCTL;
 	pmctlsetting &= ~(0xFF); // clear pmctlsetting
 
 	// Core clock = 16MHz * (16/1) = 256 MHz
-	pmctlsetting= (PLLM16|PLLD1|DIVEN|SDCKR2); // multiplier=16 | divider=1 | divider enabled | SD-Clock-Ratio=2=128MHz
+	pmctlsetting = (PLLM16 | PLLD1 | DIVEN | SDCKR2); // multiplier=16 | divider=1 | divider enabled | SD-Clock-Ratio=2=128MHz
 	*pPMCTL= pmctlsetting;
-	pmctlsetting|= PLLBP;
-	pmctlsetting^= DIVEN;
-	*pPMCTL= pmctlsetting;
-
-	// Wait for around 4096 cycles for the PLL to lock.
-	for (i=0; i<4096; i++)
-		NOP();
-
-	*pPMCTL ^= PLLBP;       // clear Bypass Mode
-	*pPMCTL |= (CLKOUTEN);  // and start clk-out
 }
 
 void systemExternalMemoryInit()
@@ -138,19 +128,18 @@ void systemSruInit(void) {
 
 
 
-	// setup SPI interface to FPGA
+	// setup SPI interface to i.MX25
 	// ========================================
-	// route SPI signals to FPGA
-	SRU(SPI_MOSI_O, DPI_PB01_I)     // Connect MOSI to DPI PB1
-	SRU(DPI_PB02_O, SPI_MISO_I)     // Connect DPI PB2 to MISO
-	SRU(SPI_CLK_O,  DPI_PB03_I)     // Connect SPI CLK to DPI PB3
-	SRU(SPI_FLG3_O, DPI_PB04_I)     // Connect SPI FLAG3 to DPI PB4
+	// route SPI signals to i.MX25
+	SRU(DPI_PB01_O, SPI_MOSI_I);     // Connect DPI PB1 to MOSI
+	SRU(SPI_MISO_O, DPI_PB02_I);     // Connect MISO to DPI PB2
+	SRU(DPI_PB03_O, SPI_CLK_I);     // Connect DPI PB3 to SPI CLK
+	SRU(DPI_PB04_O, SPI_DS_I);     // Connect DPI PB4 to SPI ChipSelect
 
-	// tie pin buffer enable from SPI peripheral to determine whether they are inputs or outputs
-	SRU(SPI_MOSI_PBEN_O, DPI_PBEN01_I);
-	SRU(SPI_MISO_PBEN_O, DPI_PBEN02_I);
-	SRU(SPI_CLK_PBEN_O,  DPI_PBEN03_I);
-	SRU(SPI_FLG3_PBEN_O, DPI_PBEN04_I);
+	SRU (LOW, DPI_PBEN01_I); // set to input
+	SRU (HIGH, DPI_PBEN02_I); // set to output
+	SRU (LOW, DPI_PBEN03_I); // set to input
+	SRU (LOW, DPI_PBEN04_I); // set to input
 }
 
 void systemSportInit() {
