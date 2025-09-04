@@ -98,6 +98,17 @@ int configure_dsp_spi(const char *bitstream_path_a, const char *bitstream_path_b
         fprintf(stdout, "  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).\n", SPI_DEVICE_B, spiMode, spiSpeed);
     }
 
+    // write dummy-data to setup SPI
+    tr.tx_buf = (unsigned long)spiTxData;
+    tr.rx_buf = (unsigned long)spiRxData;
+    tr.bits_per_word = spiBitsPerWord;
+    tr.speed_hz = spiSpeed;
+    ioctl(spi_fd[0], SPI_IOC_MESSAGE(1), &tr);
+    if (numStreams == 2) {
+        ioctl(spi_fd[1], SPI_IOC_MESSAGE(1), &tr);
+    }
+    usleep(10 * 1000);
+
     // resetting DSPs
     fprintf(stdout, "  Resetting DSPs and start upload...\n");
     int fd = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
@@ -123,12 +134,6 @@ int configure_dsp_spi(const char *bitstream_path_a, const char *bitstream_path_b
 
 		// now send the data
 		fprintf(stdout, "Send bitstream to DSP #%u...\n", i+1);
-		tr.tx_buf = (unsigned long)spiTxData;
-		tr.rx_buf = (unsigned long)spiRxData;
-		tr.bits_per_word = spiBitsPerWord;
-		tr.speed_hz = spiSpeed;
-
-		// send data
 		totalBytesSent = 0;
 		progress_bar_width = 50;
 		while ((bytesRead = fread(&spiTxData[0], 1, sizeof(spiTxData), bitstream_file[i])) > 0) {
