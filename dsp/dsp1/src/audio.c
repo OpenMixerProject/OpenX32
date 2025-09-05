@@ -21,17 +21,21 @@ volatile int audioProcessing = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
-int audioTxBuf0[BUFFER_SIZE]; // Ch 1-8
-int audioTxBuf1[BUFFER_SIZE]; // Ch 9-16
-int audioTxBuf2[BUFFER_SIZE]; // P16 Ch 1-8
-int audioTxBuf3[BUFFER_SIZE]; // P16 Ch 9-16
-int audioTxBuf4[BUFFER_SIZE]; // AUX Ch 1-8
+int audioTxBuf0[BUFFER_SIZE] = {0}; // Ch 1-8
+int audioTxBuf1[BUFFER_SIZE] = {0}; // Ch 9-16
+int audioTxBuf2[BUFFER_SIZE] = {0}; // P16 Ch 1-8
+int audioTxBuf3[BUFFER_SIZE] = {0}; // P16 Ch 9-16
+int audioTxBuf4[BUFFER_SIZE] = {0}; // AUX Ch 1-8
 
-int audioRxBuf0[BUFFER_SIZE]; // Ch 1-8
-int audioRxBuf1[BUFFER_SIZE]; // Ch 9-16
-int audioRxBuf2[BUFFER_SIZE]; // Ch 17-24
-int audioRxBuf3[BUFFER_SIZE]; // Ch 25-32
-int audioRxBuf4[BUFFER_SIZE]; // AUX Ch 1-8
+int audioRxBuf0[BUFFER_SIZE] = {0}; // Ch 1-8
+int audioRxBuf1[BUFFER_SIZE] = {0}; // Ch 9-16
+int audioRxBuf2[BUFFER_SIZE] = {0}; // Ch 17-24
+int audioRxBuf3[BUFFER_SIZE] = {0}; // Ch 25-32
+int audioRxBuf4[BUFFER_SIZE] = {0}; // AUX Ch 1-8
+
+// pointers to individual audio-samples for more convenient access
+int* pAudioInputSamples[40][SAMPLES_IN_BUFFER];
+int* pAudioOutputSamples[40][SAMPLES_IN_BUFFER];
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 // TCB-arrays for SPORT {pointer to pointer to buffer, buffer-size, ???, pointer to buffer}
@@ -54,37 +58,47 @@ unsigned int audioRx7a_tcb[4] = {0, 0, 1, 0}; // unused at the moment
 unsigned int audioRx7b_tcb[4] = {0, 0, 1, 0}; // unused at the moment
 
 void audioInit(void) {
-	// init audio-buffers with some sinewave data
-	int i = 0;
-	float t = 0;
+	// init pointer-array
+	for (int ch = 0; ch < 8; ch++) {
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			pAudioInputSamples[ch][s] = &audioRxBuf0[ch + (s * 8)];			// channels 1-8
+			pAudioInputSamples[ch + 8][s] = &audioRxBuf1[ch + (s * 8)];		// channels 9-16
+			pAudioInputSamples[ch + 16][s] = &audioRxBuf2[ch + (s * 8)];	// channels 17-24
+			pAudioInputSamples[ch + 24][s] = &audioRxBuf3[ch + (s * 8)];	// channels 25-32
+			pAudioInputSamples[ch + 32][s] = &audioRxBuf4[ch + (s * 8)];	// channels 33-40
 
-	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
-	float omega = 2.0f * pi * 1000.0f / SAMPLERATE; // w = 2*pi*f between 1kHz and 8kHz
-	for (i = 0; (i < SAMPLES_IN_BUFFER); i++) {
-		t = i; // time
-		audioTxBuf0[i * 8 + 0] = sin(omega * 1.0f * t) * 8388608; // TDM channel 0
-		audioTxBuf0[i * 8 + 1] = sin(omega * 2.0f * t) * 8388608; // TDM channel 1
-		audioTxBuf0[i * 8 + 2] = sin(omega * 3.0f * t) * 8388608; // TDM channel 2
-		audioTxBuf0[i * 8 + 3] = sin(omega * 4.0f * t) * 8388608; // TDM channel 3
-		audioTxBuf0[i * 8 + 4] = sin(omega * 5.0f * t) * 8388608; // TDM channel 4
-		audioTxBuf0[i * 8 + 5] = sin(omega * 6.0f * t) * 8388608; // TDM channel 5
-		audioTxBuf0[i * 8 + 6] = sin(omega * 7.0f * t) * 8388608; // TDM channel 6
-		audioTxBuf0[i * 8 + 7] = sin(omega * 8.01f * t) * 8388608; // TDM channel 7
+			pAudioOutputSamples[ch][s] = &audioTxBuf0[ch + (s * 8)];		// channels 1-8
+			pAudioOutputSamples[ch + 8][s] = &audioTxBuf1[ch + (s * 8)];	// channels 9-16
+			pAudioOutputSamples[ch + 16][s] = &audioTxBuf2[ch + (s * 8)];	// channels 17-24
+			pAudioOutputSamples[ch + 24][s] = &audioTxBuf3[ch + (s * 8)];	// channels 25-32
+			pAudioOutputSamples[ch + 32][s] = &audioTxBuf4[ch + (s * 8)];	// channels 33-40
+		}
 	}
-	// copy to all other tx-buffers
-	memcpy(&audioTxBuf1[0], &audioTxBuf0[0], sizeof(audioTxBuf0));
-	memcpy(&audioTxBuf2[0], &audioTxBuf0[0], sizeof(audioTxBuf0));
-	memcpy(&audioTxBuf3[0], &audioTxBuf0[0], sizeof(audioTxBuf0));
-	memcpy(&audioTxBuf4[0], &audioTxBuf0[0], sizeof(audioTxBuf0));
 
 	// clear receive buffer
-	for (i = 0; i < 2048; i++) {
-		audioRxBuf0[i] = 0;
-		audioRxBuf1[i] = 0;
-		audioRxBuf2[i] = 0;
-		audioRxBuf3[i] = 0;
-		audioRxBuf4[i] = 0;
+	for (int ch = 0; ch < 8; ch++) {
+		for (int s = 0; (s < SAMPLES_IN_BUFFER); s++) {
+			*pAudioInputSamples[ch][s] = 0;
+			*pAudioInputSamples[ch + 8][s] = 0;
+			*pAudioInputSamples[ch + 16][s] = 0;
+			*pAudioInputSamples[ch + 24][s] = 0;
+			*pAudioInputSamples[ch + 32][s] = 0;
+		}
 	}
+
+	// ============== FOR TESTING ONLY ==============
+	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
+	float omega = 2.0f * pi * 1000.0f / SAMPLERATE; // w = 2*pi*f between 1kHz and 8kHz
+	for (int ch = 0; ch < 8; ch++) {
+		for (int s = 0; (s < SAMPLES_IN_BUFFER); s++) {
+			*pAudioOutputSamples[ch][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608 * 1.0f;
+			*pAudioOutputSamples[ch + 8][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608 * 0.8f;
+			*pAudioOutputSamples[ch + 16][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608 * 0.6f;
+			*pAudioOutputSamples[ch + 24][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608 * 0.4f;
+			*pAudioOutputSamples[ch + 32][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608 * 0.2f;
+		}
+	}
+	// ============== FOR TESTING ONLY ==============
 }
 
 void audioProcessData(void) {
@@ -92,15 +106,26 @@ void audioProcessData(void) {
 	audioProcessing = 1; // set global flag that we are processing now
 
 	// do something with the received samples
-	// copy input data to output buffer directly (pass-through)
 	/*
+	// copy input data to output buffer directly (pass-through)
 	memcpy(&audioTxBuf0[0], &audioRxBuf0[0], sizeof(audioRxBuf0));
 	memcpy(&audioTxBuf1[0], &audioRxBuf1[0], sizeof(audioRxBuf1));
 	memcpy(&audioTxBuf2[0], &audioRxBuf2[0], sizeof(audioRxBuf2));
 	memcpy(&audioTxBuf3[0], &audioRxBuf3[0], sizeof(audioRxBuf3));
 	memcpy(&audioTxBuf4[0], &audioRxBuf4[0], sizeof(audioRxBuf4));
 	*/
-
+	/*
+	// copy input samples to output with decreasing volume per 8 channels
+	for (int ch = 0; ch < 8; ch++) {
+		for (int s = 0; (s < SAMPLES_IN_BUFFER); s++) {
+			*pAudioOutputSamples[ch][s] = *pAudioInputSamples[ch][s] * 1.0f;
+			*pAudioOutputSamples[ch + 8][s] = *pAudioInputSamples[ch + 8][s] * 0.8f;
+			*pAudioOutputSamples[ch + 16][s] = *pAudioInputSamples[ch + 16][s] * 0.6f;
+			*pAudioOutputSamples[ch + 24][s] = *pAudioInputSamples[ch + 24][s] * 0.4f;
+			*pAudioOutputSamples[ch + 32][s] = *pAudioInputSamples[ch + 32][s] * 0.5f;
+		}
+	}
+	*/
 	audioProcessing = 0; // clear global flag that processing is done
 }
 
