@@ -23,9 +23,7 @@ entity rs232_decoder is
 		RX_Data			: in std_logic_vector(7 downto 0);
 
 		-- deserialized values
-		routing			: out std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0) := (others => '0'); -- we are using only 7-bit for the selector-signal, but 8-bits are easier to handle with multiplications
-		volume_left		: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0) := (others => '0'); -- audio-volume uses 8-bits
-		volume_right	: out std_logic_vector(NUM_DSP_CHANNELS * 8 - 1 downto 0) := (others => '0') -- audio-volume uses 8-bits
+		routing			: out std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0) := (others => '0') -- we are using only 7-bit for the selector-signal, but 8-bits are easier to handle with multiplications
 	);
 end entity;
 
@@ -99,10 +97,10 @@ begin
 
 				if (selector >= 0 and selector <= 111) then
 					routing((selector * 8) + (8 * 8) - 1 downto (selector * 8)) <= b4 & b5 & b6 & b7 & b8 & b9 & b10 & b11;
-				elsif (selector >= 200 and selector <= 240) then
+				--elsif (selector >= 200 and selector <= 240) then
 					-- volume-information
-					volume_left(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b11; -- volume uses 8-bit
-					volume_right(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b10; -- volume uses 8-bit
+				--	volume_left(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b11; -- volume uses 8-bit
+				--	volume_right(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b10; -- volume uses 8-bit
 				--elsif (selector = 1000) then
 					-- set individual 64-bit value
 					--value6(63 downto 56) <= b4;

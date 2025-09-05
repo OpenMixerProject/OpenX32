@@ -75,10 +75,28 @@ NET "CARD_OUT3" LOC = T6;
 NET "CARD_TX" LOC = N1;
 NET "CARD_RX" LOC = P2;
 
-# PlanAhead Generated physical constraints 
 
 NET "P16_A_TXP" LOC = T13;
 NET "P16_A_TXM" LOC = R13;
 NET "P16_B_TXP" LOC = P12;
 NET "P16_B_TXM" LOC = N12;
 NET "nDA_RESET" LOC = N3;
+
+
+NET "DSP_DIN0" LOC = A4;
+NET "DSP_DIN1" LOC = B4;
+NET "DSP_DIN2" LOC = A3;
+NET "DSP_DIN3" LOC = B3;
+NET "DSP_DINAUX" LOC = E3;
+NET "DSP_DOUT0" LOC = C2;
+NET "DSP_DOUT1" LOC = C1;
+NET "DSP_DOUTAUX" LOC = E2;
+NET "DSP_POUT0" LOC = D3;
+NET "DSP_POUT1" LOC = D1;
+
+# PlanAhead Generated physical constraints 
+
+NET "D_CLK" LOC = F3;
+NET "D_CLK2" LOC = G3;
+NET "D_FS" LOC = E1;
+NET "D_FS2" LOC = F1;
