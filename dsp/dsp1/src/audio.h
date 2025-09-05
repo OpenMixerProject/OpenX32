@@ -4,7 +4,9 @@
 #include "dsp1.h"
 
 // function prototypes
+void audioInit(void);
 void audioProcessData(void);
 void audioISR(uint32_t , void *);
+
 
 #endif

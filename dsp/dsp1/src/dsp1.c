@@ -49,12 +49,13 @@ int main() {
 	systemSruInit();
 	timerInit();
 	spiInit();
+	audioInit();
+	systemSportInit();
 
 	// install interrupt handler
-	adi_int_InstallHandler(ADI_CID_P6I, (ADI_INT_HANDLER_PTR)audioISR, 0, true);
+	adi_int_InstallHandler(ADI_CID_P6I, (ADI_INT_HANDLER_PTR)audioISR, 0, true); // SPORT0 ISR
 	adi_int_InstallHandler (ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiTxISR, 0, true);
 	adi_int_InstallHandler (ADI_CID_P18I, (ADI_INT_HANDLER_PTR)spiRxISR, 0, true);
-	systemSportInit();
 
 	// the main-loop
 	while(1) {
