@@ -16,7 +16,7 @@ void spiInit(void) {
 
 	// configure SPI interface as Slave
 	*pSPIBAUD = 0x02;
-	*pIISPI = &spiSourceData[0]; // Internal memory DMA address
+	*pIISPI = (unsigned int)&spiSourceData[0]; // Internal memory DMA address
 	*pIMSPI = 1; // Internal memory DMA access modifier
 	*pCSPI = 20; // Contains number of DMA transfers remaining data
 
@@ -29,18 +29,16 @@ void spiStop(void) {
 	*pSPICTL = (TXFLSH | RXFLSH);
 }
 
-void spiTxISR(int sig) {
+void spiISR(int sig) {
 	// this interrupt is called when the DMA transfer to SPI Master is completed
 
 	// copy the received register-address and preload data for next read
-	*pIISPI = &spiSourceData[0];
+	*pIISPI = (unsigned int)&spiSourceData[0];
 	*pIMSPI = 1;
 	*pCSPI = 20;
 }
 
-void spiRxISR(int sig) {
-}
-
+/*
 unsigned int spiRxTx(unsigned int data) {
 	*pTXSPI = data;
 
@@ -54,3 +52,4 @@ unsigned int spiRxTx(unsigned int data) {
     }
     return *pRXSPI;
 }
+*/

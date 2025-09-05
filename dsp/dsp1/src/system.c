@@ -52,11 +52,37 @@ void systemExternalMemoryInit()
 }
 
 void systemSruInit(void) {
+	// name-convention: output/input is relative to signals peripheral
+	// _O of pinbuffer is used for internal connections of an external input pin
+	// _I of pinbuffer is used for internal connections of an external output pin
+	//
+	// SPORT0_CLK_O
+	//    |    |  |_______ direction relative to signals peripherals
+	//    |    |__________ signal function
+	//    |_______________ peripheral
+	//
+	//
+	// o--- DAI_PBxx_O ---------------\
+	//                                |
+	//                    ___         |
+	//                   |   ___      |
+	//                   |      ___   |
+	// o--- DAI_PBxx_I --|      ___---o---o External DAI pin buffer
+	//                   |   ___
+	//                   |___ |
+	//                        |
+	// o--- PBENxx_I ---------|
+	//
+
+	// used NOP() after each SRU(...) is suggested in Processor Hardware Reference v2.2 on page 6-21
+
 	// setting up pins for LED-control via Flag-signals
 	// =======================================
 	// flags 4 to 15 are supported for DPI. Flags 0 to 3 not available on the DPI
 	SRU(FLAG7_O, DPI_PB07_I); // connect output of Flag7 to input of DPI-PinBuffer 7 (LED on DPI7)
+	NOP();
 	SRU(HIGH, DPI_PBEN07_I); // set Pin-Buffer to output (HIGH=Output, LOW=Input)
+	NOP();
 	sysreg_bit_set(sysreg_FLAGS, FLG7O); // set flag-pins
 	sysreg_bit_clr(sysreg_FLAGS, FLG7); // clear flag-pins
 
@@ -66,80 +92,141 @@ void systemSruInit(void) {
 	// =======================================
 	// route Framesync to SPORT
 	SRU(DAI_PB01_O, SPORT0_FS_I);  // TDM FS    -> SPORT0 FS
+	NOP();
 	SRU(DAI_PB01_O, SPORT1_FS_I);  // TDM FS    -> SPORT1 FS
+	NOP();
 	SRU(DAI_PB01_O, SPORT2_FS_I);  // TDM FS    -> SPORT2 FS
+	NOP();
 	SRU(DAI_PB01_O, SPORT3_FS_I);  // TDM FS    -> SPORT3 FS
+	NOP();
 	SRU(DAI_PB01_O, SPORT4_FS_I);  // TDM FS    -> SPORT4 FS
+	NOP();
 	SRU(DAI_PB01_O, SPORT5_FS_I);  // TDM FS    -> SPORT5 FS
+	NOP();
 	SRU(DAI_PB01_O, SPORT6_FS_I);  // TDM FS    -> SPORT6 FS
+	NOP();
 	SRU(DAI_PB01_O, SPORT7_FS_I);  // TDM FS    -> SPORT7 FS
+	NOP();
 
 	// route Bitclock to SPORT
 	SRU(DAI_PB02_O, SPORT0_CLK_I); // TDM BCLK  -> SPORT0 CLK
+	NOP();
 	SRU(DAI_PB02_O, SPORT1_CLK_I); // TDM BCLK  -> SPORT1 CLK
+	NOP();
 	SRU(DAI_PB02_O, SPORT2_CLK_I); // TDM BCLK  -> SPORT2 CLK
+	NOP();
 	SRU(DAI_PB02_O, SPORT3_CLK_I); // TDM BCLK  -> SPORT3 CLK
+	NOP();
 	SRU(DAI_PB02_O, SPORT4_CLK_I); // TDM BCLK  -> SPORT4 CLK
+	NOP();
 	SRU(DAI_PB02_O, SPORT5_CLK_I); // TDM BCLK  -> SPORT5 CLK
+	NOP();
 	SRU(DAI_PB02_O, SPORT6_CLK_I); // TDM BCLK  -> SPORT6 CLK
+	NOP();
 	SRU(DAI_PB02_O, SPORT7_CLK_I); // TDM BCLK  -> SPORT7 CLK
+	NOP();
 
 	// route data-inputs to SPORT
 	SRU(DAI_PB11_O, SPORT1_DA_I);  // TDM IN0   -> SPORT1 DATA IN0
+	NOP();
 	SRU(DAI_PB12_O, SPORT1_DB_I);  // TDM IN1   -> SPORT1 DATA IN1
+	NOP();
 	SRU(DAI_PB13_O, SPORT3_DA_I);  // TDM IN2   -> SPORT3 DATA IN0
+	NOP();
 	SRU(DAI_PB14_O, SPORT3_DB_I);  // TDM IN3   -> SPORT3 DATA IN1
+	NOP();
 	SRU(DAI_PB19_O, SPORT5_DA_I);  // TDM INAUX -> SPORT5 DATA IN0
+	NOP();
+	//SRU(..., SPORT5_DB_I);  // unused for now
+	//SRU(..., SPORT7_DA_I);  // unused for now
+	//SRU(..., SPORT7_DB_I);  // unused for now
 
 	// tie the pin buffer inputs LOW as these pins are input-pins and buffer is not used
 	SRU(LOW, DAI_PB01_I); // TDM FS
+	NOP();
 	SRU(LOW, DAI_PB02_I); // TDM BCLK
+	NOP();
 	SRU(LOW, DAI_PB11_I); // TDM IN0
+	NOP();
 	SRU(LOW, DAI_PB12_I); // TDM IN1
+	NOP();
 	SRU(LOW, DAI_PB13_I); // TDM IN2
+	NOP();
 	SRU(LOW, DAI_PB14_I); // TDM IN3
+	NOP();
 	SRU(LOW, DAI_PB19_I); // TDM INAUX
+	NOP();
 
 	// tie the pin buffer enable inputs LOW to make DAI pins 1,2, 11-14 and 19 inputs
 	SRU(LOW, PBEN01_I); // TDM FS
+	NOP();
 	SRU(LOW, PBEN02_I); // TDM BCLK
+	NOP();
 	SRU(LOW, PBEN11_I); // TDM IN0
+	NOP();
 	SRU(LOW, PBEN12_I); // TDM IN1
+	NOP();
 	SRU(LOW, PBEN13_I); // TDM IN2
+	NOP();
 	SRU(LOW, PBEN14_I); // TDM IN3
+	NOP();
 	SRU(LOW, PBEN19_I); // TDM INAUX
+	NOP();
 
 	// route SPORT to data-outputs
 	SRU(SPORT0_DA_O, DAI_PB15_I); // SPORT0 DATA OUT0 -> TDM OUT0
+	NOP();
 	SRU(SPORT0_DB_O, DAI_PB16_I); // SPORT0 DATA OUT1 -> TDM OUT1
+	NOP();
 	SRU(SPORT2_DA_O, DAI_PB17_I); // SPORT2 DATA OUT0 -> TDM OUT2
+	NOP();
 	SRU(SPORT2_DB_O, DAI_PB18_I); // SPORT2 DATA OUT2 -> TDM OUT3
+	NOP();
 	SRU(SPORT4_DA_O, DAI_PB20_I); // SPORT4 DATA OUT0 -> TDM OUTAUX
+	NOP();
+	//SRU(SPORT4_DB_O, ...); // unused for now
+	//SRU(SPORT6_DA_O, ...); // unused for now
+	//SRU(SPORT6_DB_O, ...); // unused for now
 
 	// tie the pin buffer enable inputs HIGH to make DAI pins 15-18 and 20 outputs
 	SRU(HIGH, PBEN15_I); // TDM OUT0
+	NOP();
 	SRU(HIGH, PBEN16_I); // TDM OUT1
+	NOP();
 	SRU(HIGH, PBEN17_I); // TDM OUT2
+	NOP();
 	SRU(HIGH, PBEN18_I); // TDM OUT3
+	NOP();
 	SRU(HIGH, PBEN20_I); // TDM OUTAUX
+	NOP();
 
 
 
 	// setup SPI interface to i.MX25
 	// ========================================
 	// route SPI signals to i.MX25
-	SRU(DPI_PB01_O, SPI_MOSI_I);     // Connect DPI PB1 to MOSI
-	SRU(SPI_MISO_O, DPI_PB02_I);     // Connect MISO to DPI PB2
-	SRU(DPI_PB03_O, SPI_CLK_I);     // Connect DPI PB3 to SPI CLK
-	SRU(DPI_PB04_O, SPI_DS_I);     // Connect DPI PB4 to SPI ChipSelect
+	SRU(DPI_PB01_O, SPI_MOSI_I);	// Connect DPI PB1 to MOSI
+	NOP();
+	SRU(SPI_MISO_O, DPI_PB02_I);	// Connect MISO to DPI PB2
+	NOP();
+	SRU(DPI_PB03_O, SPI_CLK_I); 	// Connect DPI PB3 to SPI CLK
+	NOP();
+	SRU(DPI_PB04_O, SPI_DS_I);  	// Connect DPI PB4 to SPI ChipSelect
+	NOP();
 
-	SRU (LOW, DPI_PBEN01_I); // set to input
-	SRU (HIGH, DPI_PBEN02_I); // set to output
-	SRU (LOW, DPI_PBEN03_I); // set to input
-	SRU (LOW, DPI_PBEN04_I); // set to input
+	SRU (LOW, DPI_PBEN01_I); 		// set to input
+	NOP();
+	SRU (HIGH, DPI_PBEN02_I); 		// set to output
+	NOP();
+	SRU (LOW, DPI_PBEN03_I); 		// set to input
+	NOP();
+	SRU (LOW, DPI_PBEN04_I); 		// set to input
+	NOP();
 }
 
 void systemSportInit() {
+	// see Processor Hardware Reference v2.2 page 7-57
+
 	// clear multi-channel control-registers
 	*pSPCTL0 = 0; // SPORT 0 control register
 	*pSPCTL1 = 0;
@@ -204,6 +291,9 @@ void systemSportInit() {
 	//*pSPCTL6 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B | SPTRAN;
 
 	// configure DMA memory
+	// chained DMA is used to autoinitialize next DMA in line
+	// IOP automatically loadsnew index, modify, and count values from a memory location
+	// chain-pointer is 20-bit while the lower 19-bit are the memory address field (therefore 0x7FFFF)
 	audioTx0a_tcb[4] = *pCPSP0A = (((int)audioTx0a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
 	audioTx0b_tcb[4] = *pCPSP0B = (((int)audioTx0b_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
 	audioTx2a_tcb[4] = *pCPSP2A = (((int)audioTx2a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
@@ -232,7 +322,7 @@ void systemSportInit() {
 	*pSPMCTL6 = NCH7 | MFD1; // set to 8 channels | multichannel mode 1 cycle frame sync delay
 	*pSPMCTL7 = NCH7 | MFD1; // set to 8 channels | multichannel mode 1 cycle frame sync delay
 
-	// enable transmit channels 0-39
+	// enable transmit channels 0-39 (see Processor Hardware Reference v2.2 page 7-38)
 	*pMT0CS0 = 0x0000FFFF; // SPORT 0 multichannel tx select, channels 31 - 0
 	*pMT2CS0 = 0xFFFF0000; // SPORT 2 multichannel tx select, channels 31 - 0
 	*pMT4CS1 = 0x000000FF; // SPORT 4 multichannel tx select, channels 63 - 32
@@ -243,12 +333,12 @@ void systemSportInit() {
 	*pMR5CS1 = 0x000000FF; // SPORT 5 multichannel rx select, channels 63 - 32
 	//*pMR7CS1 = 0x00000000; // SPORT 7 multichannel rx select, channels 63 - 32
 
-	// no companding for the 8 active timeslots for transmitter
+	// no companding for the 8 active timeslots for transmitter (would be available on channel A anyway)
 	*pMT0CCS0 = 0;
 	*pMT2CCS0 = 0;
 	*pMT4CCS0 = 0;
 	*pMT6CCS0 = 0;
-	// no companding for the 8 active timeslots for receiver
+	// no companding for the 8 active timeslots for receiver (would be available on channel A anyway)
 	*pMR1CCS0 = 0;
 	*pMR3CCS0 = 0;
 	*pMR5CCS0 = 0;

@@ -142,6 +142,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system}&quot;"/>
 								</option>
 								<option id="compiler.option.compilerswitch.1415133194" name="Compiler Switch" superClass="compiler.option.compilerswitch" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="compiler.option.additionalattr.1883796802" name="Additional attributes (-file-attr):" superClass="compiler.option.additionalattr" useByScannerDiscovery="false" valueType="definedSymbols"/>
+								<option id="compiler.option.doublesize.1552721249" name="Double size" superClass="compiler.option.doublesize" useByScannerDiscovery="false" value="compiler.option.doublesize.enumerated.64bit" valueType="enumerated"/>
 								<inputType id="compiler.inputType.1421259369" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="sharc.toolchain.linker.279780464" name="CrossCore SHARC Linker" superClass="sharc.toolchain.linker">

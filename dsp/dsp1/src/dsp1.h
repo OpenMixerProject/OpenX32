@@ -5,10 +5,10 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define SAMPLERATE			48000
+#define SAMPLERATE			48000.0f
 #define SAMPLES_IN_BUFFER	16
 #define BUFFER_SIZE			SAMPLES_IN_BUFFER * 8
-#define pi					3.1415926535897932384626433832795
+#define pi					3.1415926535897932384626433832795f
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 
 // general includes

@@ -1,3 +1,38 @@
+/*
+  OpenX32 - The Open Source Operating System for the Behringer X32 Audio Mixing Console
+  ControlSystem for DSP1 (MainDSP) v0.0.1, 05.09.2025
+  https://www.openx32.de
+  https://github.com/OpenMixerProject/OpenX32
+
+
+                               =#%@@@@@###%@@@@%-
+                           =*###+               :#@*
+                        +****.                      :%-
+                      #++++             ############  :%-          @@@@@@@@@@@@
+                    .+===             ###======++==*##  *+       @@@*#%%#****#@@@
+                   -=-+               #+======+=.*===*#         @@#**@.*@******%@
+                  -=-+                ##======*  #====+#.      @@****@  @******@@
+                  +:-                  ##+====#  #***==+#+   =@@**@@@@  @****%@@
+                 =*=*                   -#*===#  ## #===+## @@@***@ @@  @@#*@@@
+      @@@@@@       ..                     ##+*#- ## #***==#= @@@@@@ @@   +@@@   @@@@@@@  @@@@@
+    @@@    @@@                             ##= + ## ## #+==#- @@ @@ @@ = @@@    @@  @@  @@   @@
+    @@      .@@#@@@@@@@  @@@ @@@ @@@@@@@@   .# # ## .= #-#++#= @ @  @@ * @*       @@*        @@
+    @@       @@ @@    @@ @@@@@@@  @@   @@      # =#  = + *::=#   @  @+ *           -@@@   @@@=
+    @@@    @@@  @@:   @@ @@       @@   @@      #  : .- : *::-#   @  +  #             @@ @@    @@
+      @@@@@@    @@@@@@@   @@@@@@  @@   @@@  =# # ## :+ #-#++#+ @ @  @@.* @@     @@@@@@  @@@@@@@@
+                @@                         ##+ * ## ## #+==#+ @@@@@ @@ = @@@
+                @@                        ##+= = ## #***==#+ @@***@ @@   #@@@
+                   :                    :#*==+#: ## #===+## @@@***@ @@  @@#*@@#
+                  .%+                  ##+====#  #***==+#=   +@@**@@@@  @****%@@
+                    %.                ##======*  #====*#  .*-  @@****@  @******@@
+                     %=               #*======+: *===*#   +-=+  @@#**@ -@******@@
+                      -@-             +##+=====+++=*##  ==-=-    @@@#%@@#****%@@@
+                        *@*             =###########  -===*        @@@@@@@@@@@@
+                           @@%.                   .::=++*
+                             .#@@%%*-.    .:=+**##***+.
+                                  .-+%%%%%%#***=-.
+*/
+
 #include "dsp1.h"
 
 // global data
@@ -52,10 +87,9 @@ int main() {
 	audioInit();
 	systemSportInit();
 
-	// install interrupt handler
-	adi_int_InstallHandler(ADI_CID_P6I, (ADI_INT_HANDLER_PTR)audioISR, 0, true); // SPORT0 ISR
-	adi_int_InstallHandler (ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiTxISR, 0, true);
-	adi_int_InstallHandler (ADI_CID_P18I, (ADI_INT_HANDLER_PTR)spiRxISR, 0, true);
+	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
+	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt
+	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioISR, 0, true); // SPORT1 Interrupt (receiving of TDM channels 1-8)
 
 	// the main-loop
 	while(1) {
