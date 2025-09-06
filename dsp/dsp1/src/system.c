@@ -253,64 +253,66 @@ void systemSportInit() {
 	*pDIV6 = 0x00000000;
 	*pDIV7 = 0x00000000;
 
-	// enable TDM8 receiver
-	// SPEN_A 	Channel A enabled
-	// SLEN32 	Serial data lenght is 32
-	// CKRE 	Rising Edge of Clock
-	// FSR 		Frame sync required
-	// LFS 		Active low frame sync
-	// LAFS 	late frame sync
-	// SDEN_A 	Enable serial port channel A DMA
-	// SCHEN_A	Enable serial port channel A DMA chaining
-	*pSPCTL1  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A;
-	*pSPCTL1 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B;
-	*pSPCTL3  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A;
-	*pSPCTL3 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B;
-	*pSPCTL5  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A;
-	//*pSPCTL5 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B;
-	//*pSPCTL7  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A;
-	//*pSPCTL7 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B;
-
 	// enable TDM8 transmitter
 	// SPEN_A	Channel A enabled
-	// SLEN32	Serial data lenght is 32
+	// SLEN32	Serial data length is 32 (only 24 bits are used here)
 	// CKRE		Rising Edge of Clock
 	// FSR		Frame sync required
-	// LFS		Active low frame sync
-	// LAFS		late frame sync
 	// SDEN_A	Enable serial port channel A DMA
 	// SCHEN_A	Enable serial port channel A DMA chaining
-	// SPTRAN	SPORt Channel A as transmitter
-	*pSPCTL0  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A | SPTRAN;
-	*pSPCTL0 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B | SPTRAN;
-	*pSPCTL2  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A | SPTRAN;
-	*pSPCTL2 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B | SPTRAN;
-	*pSPCTL4  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A | SPTRAN;
-	//*pSPCTL4 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B | SPTRAN;
-	//*pSPCTL6  = SPEN_A | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_A | SCHEN_A | SPTRAN;
-	//*pSPCTL6 |= SPEN_B | SLEN32 | CKRE | FSR | LFS | LAFS | SDEN_B | SCHEN_B | SPTRAN;
+	// SPTRAN	SPORT Channel A as transmitter
+	*pSPCTL0  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	*pSPCTL0 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+	*pSPCTL2  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	*pSPCTL2 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+	*pSPCTL4  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	//*pSPCTL4 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+	//*pSPCTL6  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	//*pSPCTL6 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+
+	// enable TDM8 receiver
+	// SPEN_A 	Channel A enabled
+	// SLEN32 	Serial data length is 32 (only 24 bits are used here)
+	// CKRE 	Rising Edge of Clock
+	// FSR 		Frame sync required
+	// SDEN_A 	Enable serial port channel A DMA
+	// SCHEN_A	Enable serial port channel A DMA chaining
+	*pSPCTL1  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	*pSPCTL1 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
+	*pSPCTL3  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	*pSPCTL3 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
+	*pSPCTL5  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	//*pSPCTL5 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
+	//*pSPCTL7  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	//*pSPCTL7 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
 
 	// configure DMA memory
 	// chained DMA is used to autoinitialize next DMA in line
-	// IOP automatically loadsnew index, modify, and count values from a memory location
+	// IOP automatically loads new index, modify, and count values from a memory location
 	// chain-pointer is 20-bit while the lower 19-bit are the memory address field (therefore 0x7FFFF)
-	audioTx0a_tcb[4] = *pCPSP0A = (((int)audioTx0a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioTx0b_tcb[4] = *pCPSP0B = (((int)audioTx0b_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioTx2a_tcb[4] = *pCPSP2A = (((int)audioTx2a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioTx2b_tcb[4] = *pCPSP2B = (((int)audioTx2b_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioTx4a_tcb[4] = *pCPSP4A = (((int)audioTx4a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	//audioTx4b_tcb[4] = *pCPSP4B = (((int)audioTx4b_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	//audioTx6a_tcb[4] = *pCPSP6A = (((int)audioTx6a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	//audioTx6b_tcb[4] = *pCPSP6B = (((int)audioTx6b_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
+	//
+	// *pCPSP0A requires the address of tx0a_buf and settings 19th bit -> enabling the interrupt after the current TCB
+	*pCPSP0A = (((int)&audioTx0a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP0B = (((int)&audioTx0b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP2A = (((int)&audioTx2a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP2B = (((int)&audioTx2b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP4A = (((int)&audioTx4a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP4B = (((int)&audioTx4b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP6A = (((int)&audioTx6a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP6B = (((int)&audioTx6b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 
-	audioRx1a_tcb[4] = *pCPSP1A = (((int)audioRx1a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioRx1b_tcb[4] = *pCPSP1B = (((int)audioRx1a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioRx3a_tcb[4] = *pCPSP3A = (((int)audioRx3a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioRx3b_tcb[4] = *pCPSP3B = (((int)audioRx3a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	audioRx5a_tcb[4] = *pCPSP5A = (((int)audioRx5a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	//audioRx5b_tcb[4] = *pCPSP5B = (((int)audioRx5a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	//audioRx7a_tcb[4] = *pCPSP7A = (((int)audioRx7a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
-	//audioRx7b_tcb[4] = *pCPSP7B = (((int)audioRx7a_tcb + 7) & 0x7FFFF) | (1 << 19); // pointing DMA to desired memory
+	*pCPSP1A = (((int)&audioRx1a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory and enable interrupt
+	*pCPSP1B = (((int)&audioRx1b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP3A = (((int)&audioRx3a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP3B = (((int)&audioRx3b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP5A = (((int)&audioRx5a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP5B = (((int)&audioRx5b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP7A = (((int)&audioRx7a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP7B = (((int)&audioRx7b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+
+
+
+
 
 	// set multichannel mode to 8 channels with 1 clock delay of framesync
 	*pSPMCTL0 = NCH7 | MFD1; // set to 8 channels | multichannel mode 1 cycle frame sync delay
@@ -323,15 +325,15 @@ void systemSportInit() {
 	*pSPMCTL7 = NCH7 | MFD1; // set to 8 channels | multichannel mode 1 cycle frame sync delay
 
 	// enable transmit channels 0-39 (see Processor Hardware Reference v2.2 page 7-38)
-	*pMT0CS0 = 0x0000FFFF; // SPORT 0 multichannel tx select, channels 31 - 0
-	*pMT2CS0 = 0xFFFF0000; // SPORT 2 multichannel tx select, channels 31 - 0
-	*pMT4CS1 = 0x000000FF; // SPORT 4 multichannel tx select, channels 63 - 32
-	//*pMT6CS0 = 0x00000000; // SPORT 6 multichannel tx select, channels 63 - 32
+	*pMT0CS0 = 0x0000FFFF; // SPORT 0 multichannel tx select, select channels 15-0 of 31 - 0
+	*pMT2CS0 = 0x0000FFFF; // SPORT 2 multichannel tx select, channels 15-0 of 31 - 0
+	*pMT4CS0 = 0x000000FF; // SPORT 4 multichannel tx select, channels 7-0 of 31 - 0
+	//*pMT6CS0 = 0x00000000; // SPORT 6 multichannel tx select, channels 31 - 0
 	// enable receive channels 0-39
-	*pMR1CS0 = 0x0000FFFF; // SPORT 1 multichannel rx select, channels 31 - 0
-	*pMR3CS0 = 0xFFFF0000; // SPORT 3 multichannel rx select, channels 31 - 0
-	*pMR5CS1 = 0x000000FF; // SPORT 5 multichannel rx select, channels 63 - 32
-	//*pMR7CS1 = 0x00000000; // SPORT 7 multichannel rx select, channels 63 - 32
+	*pMR1CS0 = 0x0000FFFF; // SPORT 1 multichannel rx select, channels 15-0 of 31 - 0
+	*pMR3CS0 = 0x0000FFFF; // SPORT 3 multichannel rx select, channels 15-0 of 31 - 0
+	*pMR5CS0 = 0x000000FF; // SPORT 5 multichannel rx select, channels 7-0 of 31 - 0
+	//*pMR7CS0 = 0x00000000; // SPORT 7 multichannel rx select, channels 31 - 0
 
 	// no companding for the 8 active timeslots for transmitter (would be available on channel A anyway)
 	*pMT0CCS0 = 0;

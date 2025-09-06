@@ -10,6 +10,8 @@
 #define BUFFER_SIZE			SAMPLES_IN_BUFFER * 8
 #define pi					3.1415926535897932384626433832795f
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
+#define PCI					(1 << 19)	//0x00080000
+#define OFFSET_MASK			0x7FFFF
 
 // general includes
 #include <stdio.h>     				// Get declaration of puts and definition of NULL
@@ -41,22 +43,23 @@ void timerInit(void);
 // global variables
 extern volatile int audioProcessing;
 extern volatile int audioReady;
-extern volatile int intCounter;
-extern unsigned int audioRx1a_tcb[];
-extern unsigned int audioRx1b_tcb[];
-extern unsigned int audioRx3a_tcb[];
-extern unsigned int audioRx3b_tcb[];
-extern unsigned int audioRx5a_tcb[];
-extern unsigned int audioRx5b_tcb[];
-extern unsigned int audioRx7a_tcb[];
-extern unsigned int audioRx7b_tcb[];
-extern unsigned int audioTx0a_tcb[];
-extern unsigned int audioTx0b_tcb[];
-extern unsigned int audioTx2a_tcb[];
-extern unsigned int audioTx2b_tcb[];
-extern unsigned int audioTx4a_tcb[];
-extern unsigned int audioTx4b_tcb[];
-extern unsigned int audioTx6a_tcb[];
-extern unsigned int audioTx6b_tcb[];
+extern volatile int audioIsrCounter;
+
+extern int audioRx1a_tcb[];
+extern int audioRx1b_tcb[];
+extern int audioRx3a_tcb[];
+extern int audioRx3b_tcb[];
+extern int audioRx5a_tcb[];
+extern int audioRx5b_tcb[];
+extern int audioRx7a_tcb[];
+extern int audioRx7b_tcb[];
+extern int audioTx0a_tcb[];
+extern int audioTx0b_tcb[];
+extern int audioTx2a_tcb[];
+extern int audioTx2b_tcb[];
+extern int audioTx4a_tcb[];
+extern int audioTx4b_tcb[];
+extern int audioTx6a_tcb[];
+extern int audioTx6b_tcb[];
 
 #endif /* __DSP1_H__ */

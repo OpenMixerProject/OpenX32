@@ -95,7 +95,14 @@ int main() {
 	while(1) {
 		if (timerCounter == 0) {
 			// toggle LED
-			sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
+			//sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
+		}
+
+		// toggle LED to show that we are receiving audio-data
+		if (audioIsrCounter > (SAMPLERATE / SAMPLES_IN_BUFFER) / 2) {
+			sysreg_bit_set(sysreg_FLAGS, FLG7);
+		}else{
+			sysreg_bit_clr(sysreg_FLAGS, FLG7);
 		}
 
 		if (audioReady) {
