@@ -44,6 +44,7 @@ typedef struct {
 
 extern sOpenx32 openx32;
 
+void mixingInit(void);
 void mixingDefaultRoutingConfig(void);
 void mixingSyncRoutingConfigFromMixer(void);
 void mixingSyncVChannelConfigFromMixer(void);

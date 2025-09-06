@@ -1,7 +1,7 @@
 #ifndef X32CTRL_H_
 #define X32CTRL_H_
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define MAX_VCHANNELS 80
 #define MAX_NAME_LENGTH 30 + 1 // null termination!

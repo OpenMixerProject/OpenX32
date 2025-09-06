@@ -2,36 +2,42 @@
 
 sOpenx32 openx32;
 
+void mixingInit(void) {
+    // reset routing-configuration and dsp-configuration
+    mixingDefaultRoutingConfig();
+}
 
 // set a default configuration for the audio-routing-matrix
 void mixingDefaultRoutingConfig(void) {
-    // XLR-input 1-16 to XLR-output
-    for (uint8_t ch=1; ch<=16; ch++) {
-        mixingSetRouting('x', ch, mixingGetInputSource('x', ch));
+    // XLR-inputs 1-32 to DSP-inputs 1-32
+    for (uint8_t ch=1; ch<=32; ch++) {
+        mixingSetRouting('d', ch, mixingGetInputSource('x', ch));
+    }
+    // AUX-inputs 1-8 to DSP-inputs 33-40
+    for (uint8_t ch=1; ch<=8; ch++) {
+        mixingSetRouting('d', ch + 32, mixingGetInputSource('a', ch));
     }
 
-    // XLR-input 1-16 to P16-output
+
+    // DSP-outputs 1-16 to XLR-outputs 1-16
     for (uint8_t ch=1; ch<=16; ch++) {
-        mixingSetRouting('p', ch, mixingGetInputSource('x', ch));
+        mixingSetRouting('x', ch, mixingGetInputSource('d', ch));
+    }
+    // DSP-outputs 17-32 to P16-output 1-16
+    for (uint8_t ch=1; ch<=16; ch++) {
+        mixingSetRouting('p', ch, mixingGetInputSource('d', ch + 16));
+    }
+    // DSP-outputs 33-40 to AUX-outputs 1-6 + ControlRoom L/R
+    for (uint8_t ch=1; ch<=8; ch++) {
+        mixingSetRouting('a', ch, mixingGetInputSource('d', ch + 32));
     }
 
-    // XLR-input 1-32 to Card-output
+
+    // XLR-inputs 1-32 to Card-outputs 1-32
     for (uint8_t ch=1; ch<=32; ch++) {
         mixingSetRouting('c', ch, mixingGetInputSource('x', ch));
     }
 
-    // XLR-input 1-8 to AUX-output
-    for (uint8_t ch=1; ch<=8; ch++) {
-        mixingSetRouting('a', ch, mixingGetInputSource('x', ch));
-    }
-
-    // XLR-input 1-32 and AUX-Input 1-8 to DSP-input
-    for (uint8_t ch=1; ch<=32; ch++) {
-        mixingSetRouting('d', ch, mixingGetInputSource('x', ch));
-    }
-    for (uint8_t ch=1; ch<=8; ch++) {
-        mixingSetRouting('d', ch+32, mixingGetInputSource('a', ch));
-    }
 
     // transmit routing-configuration to FPGA
     mixingTxRoutingConfig();
@@ -43,8 +49,6 @@ void mixingSyncRoutingConfigFromMixer(void) {
         mixerHasChanged(X32_MIXER_CHANGED_ROUTING) ||
         mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)
         ){
-
-        mixingResetRouting();
 
         // loop trough all vChannels
         for (int i = 0; i < MAX_VCHANNELS; i++)
@@ -58,6 +62,13 @@ void mixingSyncRoutingConfigFromMixer(void) {
                     continue;
                 } else {
 
+                    // TODO: routing within the FPGA is not the same as mixer-channels!
+                    // Each input (XLR, AUX, AES50, DSP) can be routed to each output (XLR, AUX, AES50, DSP)
+                    // but each vChannel belongs to a dedicated DSP-channel. So we should change vChannel to dspChannel
+                    // and separate dspChannel-routing from channel routing
+
+                    // vChannel inputs can only be selected from one of the 40 channels routed to the DSP
+/*
                     mixingSetRouting(
                         mixer.vChannel[i].outputDestination.hardwareGroup,
                         mixer.vChannel[i].outputDestination.hardwareChannel,
@@ -66,7 +77,7 @@ void mixingSyncRoutingConfigFromMixer(void) {
                             mixer.vChannel[i].inputSource.hardwareChannel
                         )
                     );
-
+*/
 
             // x32debug(" input(%c,%d) -> output(%c,%d)\n", 
             //         mixer.vChannel[i].inputSource.hardwareGroup,
@@ -77,7 +88,7 @@ void mixingSyncRoutingConfigFromMixer(void) {
                 }
         }
         // transmit routing-configuration to FPGA
-        mixingTxRoutingConfig();
+//        mixingTxRoutingConfig();
 
         x32debug("Mixer routing to hardware synced\n");
     }
@@ -106,29 +117,6 @@ void mixingSyncVChannelConfigFromMixer(void){
     }
 
     x32debug("Mixer gain to hardware synced\n");
-}
-
-void mixingResetRouting(void){
-    
-    //TODO: turn volume/gain down
-
-    for (uint8_t i=0; i<8; i++){
-        openx32.routing.aux[i]=0;
-    }
-    for (uint8_t i=0; i<16; i++){
-        openx32.routing.xlr[i]=0;
-        openx32.routing.p16[i]=0;
-    }
-    for (uint8_t i=0; i<32; i++){
-        openx32.routing.card[i]=0;
-    }
-    for (uint8_t i=0; i<40; i++){
-        openx32.routing.dsp[i]=0;
-    }
-    for (uint8_t i=0; i<48; i++){
-        openx32.routing.aes50a[i]=0;
-        openx32.routing.aes50b[i]=0;
-    }
 }
 
 // set the outputs of the audio-routing-matrix to desired input-sources
@@ -257,8 +245,7 @@ void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
 
 // get the output destination name name
 void mixingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan) {
-   
-    if (p_chan->outputDestination.hardwareChannel == 0){
+    if (p_chan->outputDestination.hardwareChannel == 0) {
         sprintf(p_nameBuffer, "Off");
         return;
     }
@@ -293,9 +280,9 @@ void mixingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan) {
 
 // set the gain of the local XLR head-amp-control
 void mixingSetGain(uint8_t group, uint8_t channel, float gain) {
-	uint8_t boardId;
-	uint8_t addaChannel;
-	
+    uint8_t boardId;
+    uint8_t addaChannel;
+
     switch (group) {
         case 'x': // local XLR-inputs
             // set value to internal struct
@@ -321,9 +308,9 @@ void mixingSetGain(uint8_t group, uint8_t channel, float gain) {
 
 // enable or disable phatom-power of local XLR-inputs
 void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active) {
-	uint8_t boardId;
-	uint8_t addaChannel;
-	
+    uint8_t boardId;
+    uint8_t addaChannel;
+
     switch (group) {
         case 'x': // local XLR-inputs
             // set value to internal struct
@@ -351,6 +338,7 @@ void mixingSetVolume(uint8_t channel, float volume) {
     // set value to interal struct
     openx32.dspChannel[channel-1].volume = volume;
 
+/*
     // send new volume to FPGA (later the DSP)
     data_64b fpga_data;
     float volume_left = ((float)pow(10, openx32.dspChannel[channel-1].volume/20.0f) * 128.0f) * limitMax((100 - openx32.dspChannel[channel-1].balance) * 2, 100) / 100.0f;
@@ -359,6 +347,8 @@ void mixingSetVolume(uint8_t channel, float volume) {
     fpga_data.u8[0] = trunc(volume_left);
     fpga_data.u8[1] = trunc(volume_right);
     uartTxToFPGA(FPGA_IDX_CH_VOL + (channel-1), &fpga_data);
+*/
+    //TODO: send volume to DSP via SPI
 }
 
 // set the balance of one of the 40 DSP-channels
@@ -367,7 +357,8 @@ void mixingSetBalance(uint8_t channel, uint8_t balance) {
     openx32.dspChannel[channel-1].balance = balance;
 
     // now update the volumes based on this balance
-    mixingSetVolume(channel, openx32.dspChannel[channel-1].volume);
+//    mixingSetVolume(channel, openx32.dspChannel[channel-1].volume);
+    //TODO: send balance to DSP via SPI
 }
 
 // helper-function to send the audio-routing to the fpga
