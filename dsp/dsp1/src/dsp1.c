@@ -89,7 +89,8 @@ int main() {
 
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
 	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt
-	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioISR, 0, true); // SPORT1 Interrupt (receiving of TDM channels 1-8)
+	adi_int_InstallHandler(ADI_CID_P6I, (ADI_INT_HANDLER_PTR)audioTxISR, 0, true); // SPORT0 Interrupt (transmitting of TDM channels 1-8)
+	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (receiving of TDM channels 1-8)
 
 	// the main-loop
 	while(1) {

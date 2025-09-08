@@ -6,7 +6,8 @@
 // function prototypes
 void audioInit(void);
 void audioProcessData(void);
-void audioISR(uint32_t , void *);
+void audioTxISR(uint32_t , void *);
+void audioRxISR(uint32_t , void *);
 
 
 #endif

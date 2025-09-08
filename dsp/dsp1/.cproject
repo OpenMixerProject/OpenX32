@@ -60,6 +60,7 @@
 									<listOptionValue builtIn="false" value="&quot;${OutDir}/system/startup_ldf&quot;"/>
 								</option>
 								<option id="linker.option.misrachecksrcfiles.613720471" name="-misra-no-cross-module" superClass="linker.option.misrachecksrcfiles" value="true" valueType="boolean"/>
+								<option id="linker.option.runtimeinit.1700809886" name="Runtime initialization (-mem)" superClass="linker.option.runtimeinit" value="false" valueType="boolean"/>
 								<inputType id="linker.doj.input.339385596" name="Object Files" superClass="linker.doj.input"/>
 							</tool>
 							<tool id="sharc.toolchain.archiver.327354553" name="CrossCore SHARC Archiver" superClass="sharc.toolchain.archiver">
@@ -161,6 +162,7 @@
 									<listOptionValue builtIn="false" value="&quot;${OutDir}/system/startup_ldf&quot;"/>
 								</option>
 								<option id="linker.option.misrachecksrcfiles.308200581" name="-misra-no-cross-module" superClass="linker.option.misrachecksrcfiles" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="linker.option.runtimeinit.2024926075" name="Runtime initialization (-mem)" superClass="linker.option.runtimeinit" value="false" valueType="boolean"/>
 								<inputType id="linker.doj.input.213605980" name="Object Files" superClass="linker.doj.input"/>
 							</tool>
 							<tool id="sharc.toolchain.archiver.1748186323" name="CrossCore SHARC Archiver" superClass="sharc.toolchain.archiver">

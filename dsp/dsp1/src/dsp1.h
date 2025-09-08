@@ -5,6 +5,7 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
+#define BUFFER_COUNT		2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define SAMPLERATE			48000.0f
 #define SAMPLES_IN_BUFFER	16
 #define BUFFER_SIZE			SAMPLES_IN_BUFFER * 8
@@ -45,21 +46,22 @@ extern volatile int audioProcessing;
 extern volatile int audioReady;
 extern volatile int audioIsrCounter;
 
-extern int audioRx1a_tcb[];
-extern int audioRx1b_tcb[];
-extern int audioRx3a_tcb[];
-extern int audioRx3b_tcb[];
-extern int audioRx5a_tcb[];
-extern int audioRx5b_tcb[];
-extern int audioRx7a_tcb[];
-extern int audioRx7b_tcb[];
-extern int audioTx0a_tcb[];
-extern int audioTx0b_tcb[];
-extern int audioTx2a_tcb[];
-extern int audioTx2b_tcb[];
-extern int audioTx4a_tcb[];
-extern int audioTx4b_tcb[];
-extern int audioTx6a_tcb[];
-extern int audioTx6b_tcb[];
+extern int audioTx0a_tcb[BUFFER_COUNT][4];
+extern int audioTx0b_tcb[BUFFER_COUNT][4];
+extern int audioTx2a_tcb[BUFFER_COUNT][4];
+extern int audioTx2b_tcb[BUFFER_COUNT][4];
+extern int audioTx4a_tcb[BUFFER_COUNT][4];
+extern int audioTx4b_tcb[BUFFER_COUNT][4];
+extern int audioTx6a_tcb[BUFFER_COUNT][4];
+extern int audioTx6b_tcb[BUFFER_COUNT][4];
+
+extern int audioRx1a_tcb[BUFFER_COUNT][4];
+extern int audioRx1b_tcb[BUFFER_COUNT][4];
+extern int audioRx3a_tcb[BUFFER_COUNT][4];
+extern int audioRx3b_tcb[BUFFER_COUNT][4];
+extern int audioRx5a_tcb[BUFFER_COUNT][4];
+extern int audioRx5b_tcb[BUFFER_COUNT][4];
+extern int audioRx7a_tcb[BUFFER_COUNT][4];
+extern int audioRx7b_tcb[BUFFER_COUNT][4];
 
 #endif /* __DSP1_H__ */

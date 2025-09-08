@@ -71,11 +71,11 @@ It provides information needed to link your code. It can be used to configure me
 						</propertygroup>
 						<propertygroup name="running_from_internal_memory" value="true"/>
 						<propertygroup name="libraries" value="true">
-							<property name="use_fileio_libs" value="false"/>
 							<property name="heap_dbg_libs" value="false"/>
 							<property name="no_libdrv" value="false"/>
 							<property name="use_eh_enabled_libs" value="false"/>
 							<property name="use_fixed_point_io_libs" value="false"/>
+							<property name="use_fileio_libs" value="false"/>
 							<property name="use_alt_io_lib" value="false"/>
 						</propertygroup>
 						<property name="use_eh" value="true"/>

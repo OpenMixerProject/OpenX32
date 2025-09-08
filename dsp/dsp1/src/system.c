@@ -292,23 +292,23 @@ void systemSportInit() {
 	// chain-pointer is 20-bit while the lower 19-bit are the memory address field (therefore 0x7FFFF)
 	//
 	// *pCPSP0A requires the address of tx0a_buf and settings 19th bit -> enabling the interrupt after the current TCB
-	*pCPSP0A = (((int)&audioTx0a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP0B = (((int)&audioTx0b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP2A = (((int)&audioTx2a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP2B = (((int)&audioTx2b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP4A = (((int)&audioTx4a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	//*pCPSP4B = (((int)&audioTx4b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	//*pCPSP6A = (((int)&audioTx6a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	//*pCPSP6B = (((int)&audioTx6b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP0A = (((int)&audioTx0a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP0B = (((int)&audioTx0b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP2A = (((int)&audioTx2a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP2B = (((int)&audioTx2b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP4A = (((int)&audioTx4a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP4B = (((int)&audioTx4b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP6A = (((int)&audioTx6a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP6B = (((int)&audioTx6b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 
-	*pCPSP1A = (((int)&audioRx1a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory and enable interrupt
-	*pCPSP1B = (((int)&audioRx1b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP3A = (((int)&audioRx3a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP3B = (((int)&audioRx3b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP5A = (((int)&audioRx5a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	//*pCPSP5B = (((int)&audioRx5b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	//*pCPSP7A = (((int)&audioRx7a_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	//*pCPSP7B = (((int)&audioRx7b_tcb[0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP1A = (((int)&audioRx1a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory and enable interrupt
+	*pCPSP1B = (((int)&audioRx1b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP3A = (((int)&audioRx3a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP3B = (((int)&audioRx3b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP5A = (((int)&audioRx5a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP5B = (((int)&audioRx5b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP7A = (((int)&audioRx7a_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	//*pCPSP7B = (((int)&audioRx7b_tcb[0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 
 
 
