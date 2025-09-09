@@ -34,6 +34,10 @@
 */
 
 #include "dsp1.h"
+#include "system.h"
+#include "audio.h"
+#include "fx.h"
+#include "spi.h"
 
 // global data
 static volatile uint32_t timerCounter;
@@ -74,6 +78,31 @@ void timerInit() {
 	timer_on(); // start timer
 }
 
+void openx32Init(void) {
+	for (int ch = 0; ch < MAX_CHAN; ch++) {
+		openx32.channel[ch].balance = 0; // -100 ... 0 ... 100
+		openx32.channel[ch].volume = 0.0; // dB
+		openx32.channel[ch].peq.Q = 0.3;
+		openx32.channel[ch].peq.fc = 500; // Hz
+		openx32.channel[ch].peq.gain = 0.0; // dB
+		openx32.channel[ch].peq.type = 1; // Peak-Filter
+
+		fxRecalcFilterCoefficients_PEQ(&openx32.channel[ch].peq);
+	}
+}
+
+void openx32Command(unsigned int parameter, unsigned int value) {
+	if (parameter == 0x00000042) {
+		if (value == 0) {
+			sysreg_bit_clr(sysreg_FLAGS, FLG7);
+		}else if (value == 1) {
+			sysreg_bit_set(sysreg_FLAGS, FLG7);
+		}else{
+			sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+		}
+	}
+}
+
 int main() {
 	// init adi components
 	adi_initComponents();
@@ -84,12 +113,12 @@ int main() {
 	systemSruInit();
 	timerInit();
 	spiInit();
+	openx32Init();
 	audioInit();
 	systemSportInit();
 
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
 	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt
-	adi_int_InstallHandler(ADI_CID_P6I, (ADI_INT_HANDLER_PTR)audioTxISR, 0, true); // SPORT0 Interrupt (transmitting of TDM channels 1-8)
 	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (receiving of TDM channels 1-8)
 
 	// the main-loop
@@ -101,13 +130,18 @@ int main() {
 
 		// toggle LED to show that we are receiving audio-data
 		if (audioIsrCounter > (SAMPLERATE / SAMPLES_IN_BUFFER) / 2) {
-			sysreg_bit_set(sysreg_FLAGS, FLG7);
+			//sysreg_bit_set(sysreg_FLAGS, FLG7);
 		}else{
-			sysreg_bit_clr(sysreg_FLAGS, FLG7);
+			//sysreg_bit_clr(sysreg_FLAGS, FLG7);
 		}
 
+		// check for new audio-data to process
 		if (audioReady) {
 			audioProcessData();
+		}
+
+		if (spiNewRxData) {
+			spiProcessRxData();
 		}
 	}
 }

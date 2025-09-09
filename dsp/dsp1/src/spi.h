@@ -6,6 +6,9 @@
 void spiInit(void);
 void spiStop(void);
 void spiISR(int sig);
+void spiDmaBegin(bool receive, int len);
+void spiDmaEnd(void);
+void spiProcessRxData(void);
 //unsigned int spiRxTx(unsigned int data);
 
 #endif
