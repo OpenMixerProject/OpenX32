@@ -20,8 +20,8 @@
 int spi_read(const char *spidev) {
     int spi_fd = -1;
     struct spi_ioc_transfer tr = {0};
-    uint8_t spiTxData[4];
-    uint8_t spiRxData[4];
+    uint8_t spiTxData[16];
+    uint8_t spiRxData[sizeof(spiTxData)];
     int ret = 0;
     size_t bytesRead;
 
@@ -45,11 +45,13 @@ int spi_read(const char *spidev) {
 
     tr.tx_buf = (unsigned long)spiTxData;
     tr.rx_buf = (unsigned long)spiRxData;
-    tr.len = 4;
+    tr.len = sizeof(spiTxData);
     tr.bits_per_word = spiBitsPerWord;
     tr.speed_hz = spiSpeed;
 
-    // now read data from SPI-master
+
+/*
+    // now read data from SPI-slave
     spiTxData[0] = 0;
     while(1) {
         ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
@@ -68,6 +70,24 @@ int spi_read(const char *spidev) {
         }
 
         sleep(1); // wait a second
+    }
+*/
+
+    // send a command via SPI to DSP
+    uint32_t spiData_TX[4];
+    uint32_t spiData_RX[4];
+    spiData_TX[0] = 0x0000002A; // StartMarker = '*'
+    spiData_TX[1] = 0x00000042; // parameter (0x42 = LED)
+    spiData_TX[2] = 0x00000002; // value (0x02 = toggle LED)
+    spiData_TX[3] = 0x00000023; // EndMarker = '#'
+    memcpy(&spiTxData[0], &spiData_TX[0], 16);
+
+    while(1) {
+        ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr); // send 4 values (16 bytes) via SPI
+        memcpy(&spiData_RX[0], &spiRxData[0], 16); // copy received data to uint32_t-array
+
+        fprintf(stdout, "Sent data = 0x%04x%04x%04x%04x. Received %u bytes. Received data = 0x%04x%04x%04x%04x\n", spiData_TX[0], spiData_TX[1], spiData_TX[2], spiData_TX[3], ret, spiData_RX[0], spiData_RX[1], spiData_RX[2], spiData_RX[3]);
+        sleep(1);
     }
 }
 
