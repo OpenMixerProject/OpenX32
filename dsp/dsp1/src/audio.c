@@ -146,9 +146,11 @@ void audioProcessData(void) {
 	audioProcessing = 1; // set global flag that we are processing now
 	audioUpdatePointerArray();
 
-	// do something with the received samples
-
-	// following steps are processed for all channels
+	// process the received samples sample by sample
+	// the ADSP-21371 has support for SIMD. The compile should detect what we are doing here and
+	// hopefully process the data using SingleInstructionMultipleData to optimize our processing
+	//
+	// Following steps are processed for all channels
 	// 1. Noisegate
 	// 2. 5-band EQ
 	// 3. Compressor
@@ -157,7 +159,8 @@ void audioProcessData(void) {
 
 	float audioProcessedSample;
 	// iterate through all channels
-	for (int ch = 0; ch < MAX_CHAN; ch++) {
+	//for (int ch = 0; ch < MAX_CHAN; ch++) {
+	for (int ch = 0; ch < 8; ch++) {
 		// we have to calculate from oldest sample to newest, so we have to start at end of currently received buffer
 		for (int s = (SAMPLES_IN_BUFFER - 1); s >= 0; s--) {
 			// every sample will be processed in the following order:

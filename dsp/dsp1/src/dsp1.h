@@ -114,7 +114,7 @@ typedef struct {
 	float coeff;
 	gateState state;
 	bool closed;
-} sNoisegate;
+} sGate;
 
 typedef enum {
 	COMPRESSOR_IDLE,
@@ -153,7 +153,7 @@ typedef struct {
 	float volume; // in dB
 	float balance; // -100 .. 0 .. +100
 	float sends[16];
-	sNoisegate gate;
+	sGate gate;
 	short peqMax;
 	sPEQ peq[5];
 	sCompressor compressor;

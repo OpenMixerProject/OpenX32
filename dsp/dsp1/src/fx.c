@@ -167,27 +167,28 @@ void fxRecalcFilterCoefficients_LR24(sLR24 *LR24) {
   LR24->b[4] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / norm;
 }
 
-void fxRecalcNoiseGate(sNoisegate *Noisegate) {
-  Noisegate->value_threshold = pow(2, 31 + (Noisegate->threshold/6.0f)) - 1; // 6dB per bit and TDM8 is using 32-bit values
+void fxRecalcGate(sGate *gate) {
+	gate->value_threshold = pow(2, 31 + (gate->threshold/6.0f)) - 1; // 6dB per bit and TDM8 is using 32-bit values
 
   // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
-  Noisegate->value_gainmin = 1.0f / pow(10, Noisegate->range/20);
-  Noisegate->value_coeff_attack = exp(-2197.22457734f/(SAMPLERATE * Noisegate->attackTime_ms));
-  Noisegate->value_hold_ticks = Noisegate->holdTime_ms * (SAMPLERATE / 1000.0f);
-  Noisegate->value_coeff_release = exp(-2197.22457734f/(SAMPLERATE * Noisegate->releaseTime_ms));
+	gate->value_gainmin = 1.0f / pow(10, gate->range/20.0f);
+	gate->value_coeff_attack = exp(-2197.22457734f/(SAMPLERATE * gate->attackTime_ms));
+	gate->value_hold_ticks = gate->holdTime_ms * (SAMPLERATE / 1000.0f);
+	gate->value_coeff_release = exp(-2197.22457734f/(SAMPLERATE * gate->releaseTime_ms));
 }
 
-void fxRecalcCompressor(sCompressor *Compressor) {
-  Compressor->value_threshold = pow(2, 31 + (Compressor->threshold/6.0f)) - 1; // 6dB per bit and TDM8 is using 32-bit values
+void fxRecalcCompressor(sCompressor *compressor) {
+	compressor->value_threshold = pow(2, 31 + (compressor->threshold/6.0f)) - 1; // 6dB per bit and TDM8 is using 32-bit values
 
-  Compressor->value_makeup = Compressor->makeup/6.0f;
-  Compressor->value_coeff_attack = exp(-2197.22457734f/(SAMPLERATE * Compressor->attackTime_ms));
-  Compressor->value_hold_ticks = Compressor->holdTime_ms * (SAMPLERATE / 1000.0f);
-  Compressor->value_coeff_release = exp(-2197.22457734f/(SAMPLERATE * Compressor->releaseTime_ms));
+	compressor->value_ratio = compressor->ratio;
+	compressor->value_makeup = pow(10, compressor->makeup/20.0f);
+	compressor->value_coeff_attack = exp(-2197.22457734f/(SAMPLERATE * compressor->attackTime_ms));
+	compressor->value_hold_ticks = compressor->holdTime_ms * (SAMPLERATE / 1000.0f);
+	compressor->value_coeff_release = exp(-2197.22457734f/(SAMPLERATE * compressor->releaseTime_ms));
 }
 
-float fxProcessGate(float input, sNoisegate *gate) {
-	gate->closed = abs((float)input) < gate->value_threshold;
+float fxProcessGate(float input, sGate *gate) {
+	gate->closed = abs(input) < gate->value_threshold;
 
 	// calculate the gate-logic and online-parameters
 	switch (gate->state) {
@@ -230,7 +231,7 @@ float fxProcessGate(float input, sNoisegate *gate) {
 	// gainCurrent = (gainCurrent * coeff) + (gainSet - gainSet * coeff);
 	gate->gainCurrent = (gate->gainCurrent * gate->coeff) + gate->gainSet - (gate->gainSet * gate->coeff);
 
-	return ((float)input * gate->gainCurrent);
+	return (input * gate->gainCurrent);
 }
 
 float fxProcessEq(float input, sPEQ *peq) {
@@ -247,7 +248,7 @@ float fxProcessEq(float input, sPEQ *peq) {
 }
 
 float fxProcessCompressor(float input, sCompressor *compressor) {
-	compressor->active = abs((float)input) > compressor->value_threshold;
+	compressor->active = (abs(input) > compressor->value_threshold);
 
 	// calculate the gate-logic and online-parameters
 	switch (compressor->state) {
@@ -258,14 +259,14 @@ float fxProcessCompressor(float input, sCompressor *compressor) {
 			}
 			break;
 		case COMPRESSOR_ATTACK:
-			compressor->gainSet = ((((float)input - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / (float)input;
+			compressor->gainSet = (((abs(input) - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input;
 			compressor->coeff = compressor->value_coeff_attack;
 			compressor->state = COMPRESSOR_ACTIVE;
 			break;
 		case COMPRESSOR_ACTIVE:
 			if (compressor->active) {
 				// check if we have to compress even more
-				float newValue = ((((float)input - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / (float)input;
+				float newValue = (((abs(input) - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input;
 				if (newValue < compressor->gainSet) {
 					// compress even more
 					compressor->gainSet = newValue;
@@ -295,8 +296,8 @@ float fxProcessCompressor(float input, sCompressor *compressor) {
 			break;
 	}
 
-	// gainCurrent = (gainCurrent * coeff) + (gainSet - gainSet * coeff);
+	// gainCurrent = (gainCurrent * coeff) + gainSet - (gainSet * coeff);
 	compressor->gainCurrent = (compressor->gainCurrent * compressor->coeff) + compressor->gainSet - (compressor->gainSet * compressor->coeff);
 
-	return ((float)input * compressor->gainCurrent) * compressor->value_makeup;
+	return (input * compressor->gainCurrent) * compressor->value_makeup;
 }

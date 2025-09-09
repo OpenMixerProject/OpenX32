@@ -77,7 +77,7 @@ void openx32Init(void) {
 		openx32.channel[ch].gate.holdTime_ms = 50.0; // ms
 		openx32.channel[ch].gate.releaseTime_ms = 258; // ms
 
-		fxRecalcNoiseGate(&openx32.channel[ch].gate);
+		fxRecalcGate(&openx32.channel[ch].gate);
 
 		// initialize Equalizers
 		openx32.channel[ch].balance = 0; // -100 ... 0 ... 100
@@ -113,14 +113,17 @@ void openx32Init(void) {
 		}
 
 		// initialize compressor
-		openx32.channel[ch].compressor.threshold = -40.0; // dB
-		openx32.channel[ch].compressor.ratio = 3.0; // 1:x
-		openx32.channel[ch].compressor.makeup = 5.0; // dB
+		openx32.channel[ch].compressor.threshold = -50.0; // dB
+		openx32.channel[ch].compressor.ratio = 20.0; // 1:x
+		openx32.channel[ch].compressor.makeup = 10.0; // dB
 		openx32.channel[ch].compressor.attackTime_ms = 10.0; // ms
 		openx32.channel[ch].compressor.holdTime_ms = 10.0; // ms
 		openx32.channel[ch].compressor.releaseTime_ms = 150; // ms
 
 		fxRecalcCompressor(&openx32.channel[ch].compressor);
+
+		// initialize volumes
+		openx32.channel[ch].value_volume = pow(10, openx32.channel[ch].volume/20.0f);
 	}
 }
 

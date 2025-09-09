@@ -7,9 +7,9 @@
 void fxRecalcFilterCoefficients_PEQ(sPEQ *peq);
 void fxRecalcFilterCoefficients_LR12(sLR12 *LR12);
 void fxRecalcFilterCoefficients_LR24(sLR24 *LR24);
-void fxRecalcNoiseGate(sNoisegate *Noisegate);
+void fxRecalcGate(sGate *gate);
 void fxRecalcCompressor(sCompressor *Compressor);
-float fxProcessGate(float input, sNoisegate *gate);
+float fxProcessGate(float input, sGate *gate);
 float fxProcessEq(float input, sPEQ *peq);
 float fxProcessCompressor(float input, sCompressor *compressor);
 
