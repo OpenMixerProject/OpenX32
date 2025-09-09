@@ -6,6 +6,8 @@
 #define FPGA_BUFFER_SIZE 4096
 #define FPGA_FILE_BUFFER_SIZE 1024
 
+int spiDspHandle[2];
+
 // configures a Xilinx Spartan 3A via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
@@ -320,3 +322,63 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
 	return 0;
 }
 
+bool spiOpenDspConnections() {
+    uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
+    uint8_t spiBitsPerWord = 32;
+    uint32_t spiSpeed = SPI_SPEED_HZ;
+
+    for (uint8_t i = 0; i < 2; i++) {
+        if (i == 0) {
+            spiDspHandle[i] = open(SPI_DEVICE_DSP1, O_RDWR);
+        }else if (i == 1) {
+            spiDspHandle[i] = open(SPI_DEVICE_DSP2, O_RDWR);
+        }
+        if (spiDspHandle[i] < 0) {
+            x32debug("Error: Could not open SPI-device");
+            return false;
+        }
+
+        // SPI-Modus 3 (3 = CPOL=1, CPHA=1)
+        ioctl(spiDspHandle[i], SPI_IOC_WR_MODE, &spiMode);
+        ioctl(spiDspHandle[i], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
+        ioctl(spiDspHandle[i], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
+    }
+    return true;
+}
+
+bool spiCloseDspConnections() {
+    for (uint8_t i = 0; i < 2; i++) {
+        if (spiDspHandle[i] >= 0) close(spiDspHandle[i]);
+    }
+    return true;
+}
+
+bool spiSendDspParameter(uint8_t dsp, uint32_t parameter, uint32_t value) {
+    struct spi_ioc_transfer tr = {0};
+    uint32_t spiTxData[4];
+    uint32_t spiRxData[4];
+    uint8_t spiTxDataRaw[16];
+    uint8_t spiRxDataRaw[sizeof(spiTxDataRaw)];
+    int ret = 0;
+    size_t bytesRead;
+
+    tr.tx_buf = (unsigned long)spiTxDataRaw;
+    tr.rx_buf = (unsigned long)spiRxDataRaw;
+    tr.len = sizeof(spiTxDataRaw);
+    tr.bits_per_word = 32;
+    tr.speed_hz = SPI_SPEED_HZ;
+
+    // send a command via SPI to DSP
+    spiTxData[0] = 0x0000002A; // StartMarker = '*'
+    spiTxData[1] = parameter;
+    spiTxData[2] = value;
+    spiTxData[3] = 0x00000023; // EndMarker = '#'
+    memcpy(&spiTxDataRaw[0], &spiTxData[0], 16);
+
+    ret = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send 4 values (16 bytes) via SPI
+
+    //memcpy(&spiRxData[0], &spiRxDataRaw[0], 16); // copy received data to uint32_t-array
+    // do something with data in spiRxData[4]
+
+    return (ret > 0);
+}

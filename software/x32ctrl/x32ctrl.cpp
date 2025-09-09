@@ -49,15 +49,13 @@
 #include "xremote.h"
 #include "spi.h"
 
+// timer-raw-functions to be called either by linux-timer (X32core) or LVGL-timer (all other models)
+void timer100msCallbackLvgl(_lv_timer_t* lv_timer) {timer100msCallback();}
+void timer100msCallbackLinux(int timer) {timer100msCallback();}
+void timer10msCallbackLvgl(_lv_timer_t* lv_timer) {ui_tick(); timer10msCallback(); syncAll();}
+void timer10msCallbackLinux(int timer) {timer10msCallback();}
+
 // called every 100ms
-void timer100msCallbackLvgl(_lv_timer_t* lv_timer) {
-    timer100msCallback();
-}
-
-void timer100msCallbackLinux(int timer) {
-    timer100msCallback();
-}
-
 void timer100msCallback() {
     // surface wants to know the current state of all LED's and Meters
     surfaceKeepalive();
@@ -65,22 +63,12 @@ void timer100msCallback() {
 
     // update meters on XRemote-clients
     xremoteUpdateMeter();
+
+    // toggle the LED on DSP1 to show some activity
+    spiSendDspParameter(0, 0x00000042, 0x00000002);
 }
 
-void timer10msCallbackLvgl(_lv_timer_t* lv_timer) {
-    // call EEZ-GUI tick
-    ui_tick();
-
-    timer10msCallback();
-
-    // sync Gui, Surface, etc.
-    syncAll();
-}
-
-void timer10msCallbackLinux(int timer) {
-    timer10msCallback();
-}
-
+// called every 10ms
 void timer10msCallback() {
     // read data from surface and calls surfaceCallback()
     surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
@@ -813,6 +801,7 @@ int main(int argc, char *argv[]) {
     uartOpen("/dev/ttymxc2", 38400, &fdAdda, false); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards and the Expansion Card
     uartOpen("/dev/ttymxc3", 115200, &fdFpga, true); // this UART is connected to the FPGA
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); // this UART is connected to the MIDI-connectors but is used by the Linux-console
+    spiOpenDspConnections();
 
     x32log("Initializing X32 Surface...\n");
     //surfaceReset(); // resets all microcontrollers on the board (not necessary if no error occured)
