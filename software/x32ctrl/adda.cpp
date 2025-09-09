@@ -1,4 +1,5 @@
 #include "adda.h"
+#include "uart.h"
 
 char uartBufferAdda[256]; // buffer for UART-readings
 int addaPacketBufLen = 0;

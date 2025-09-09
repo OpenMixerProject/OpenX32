@@ -217,10 +217,10 @@ String getIpAddress() {
             inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer, INET6_ADDRSTRLEN);
             printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
 */
-        } 
+        }
     }
     if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
-    
+
     return "";
 }
 
@@ -285,4 +285,30 @@ int initTimer() {
     perror("timer_settime");
     return 1;
   }
+}
+
+long getFileSize(const char *filename) {
+    struct stat st;
+    if (stat(filename, &st) == 0) {
+        return st.st_size;
+    }
+    return -1; // error
+}
+
+uint32_t reverseBitOrder_uint32(uint32_t n) {
+    n = ((n >> 1) & 0x55555555) | ((n & 0x55555555) << 1);
+    n = ((n >> 2) & 0x33333333) | ((n & 0x33333333) << 2);
+    n = ((n >> 4) & 0x0F0F0F0F) | ((n & 0x0F0F0F0F) << 4);
+    n = ((n >> 8) & 0x00FF00FF) | ((n & 0x00FF00FF) << 8);
+    n = (n >> 16) | (n << 16);
+    return n;
+}
+
+void reverseBitOrderArray(uint8_t* data, uint32_t len) {
+    // reverse bits in array
+    uint32_t* pData = (uint32_t*)data;
+    for (uint32_t i = 0; i < (len/4); i++) {
+        *pData = reverseBitOrder_uint32(*pData);
+        pData++;
+    }
 }

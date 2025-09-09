@@ -1,4 +1,6 @@
 #include "surface.h"
+#include "mixer.h"
+#include "uart.h"
 
 char uartBufferSurface[256]; // buffer for UART-readings
 int surfacePacketCurrent = 0;

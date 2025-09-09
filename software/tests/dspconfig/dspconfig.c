@@ -113,10 +113,10 @@ int configure_dsp_spi(const char *bitstream_path_a, const char *bitstream_path_b
     fprintf(stdout, "  Resetting DSPs and start upload...\n");
     int fd = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
     write(fd, "1", 1);
-    usleep(500 * 1000);
+    usleep(10 * 1000);
     write(fd, "0", 1);
     close(fd);
-    usleep(500 * 1000);
+    usleep(10 * 1000);
 
 	// read bitstream-files
 	fprintf(stdout, "  Checking input files...\n");

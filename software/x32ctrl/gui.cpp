@@ -1,4 +1,6 @@
 #include "gui.h"
+#include "mixer.h"
+#include "surface.h"
 
 lv_indev_t *keypad_indev; // will be updated by buttonCallback
 lv_indev_t *mouse_indev; // will be polled by LVGL

@@ -1,4 +1,7 @@
 #include "mixing.h"
+#include "uart.h"
+#include "adda.h"
+#include "mixer.h"
 
 sOpenx32 openx32;
 

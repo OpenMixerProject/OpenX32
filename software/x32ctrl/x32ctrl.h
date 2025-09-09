@@ -62,6 +62,11 @@
 // Langes Paket: 0xFE (1) + BoardID (1) + ID (1) + Value_MSB (1) + Value_LSB (1) + 0xFE (1) + CHECKSUM (1) = 7 Bytes
 #define MAX_MESSAGE_SIZE 200
 
+#define SPI_DEVICE_DSP1 "/dev/spidev0.0"
+#define SPI_DEVICE_DSP2 "/dev/spidev0.1"
+#define SPI_DEVICE_FPGA "/dev/spidev2.0"
+#define SPI_SPEED_HZ 10000000 // 10 MHz, but seems to be ignored by Linux-driver
+
 // standard includes
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,8 +97,11 @@
 // includes for reading IP-Address
 #include <sys/stat.h>
 #include <ifaddrs.h>
-#include <netinet/in.h> 
+#include <netinet/in.h>
 #include <arpa/inet.h>
+
+// includes for spi-communication
+#include <linux/spi/spidev.h>
 
 // includes for lvgl
 #include "lv_port_linux/lvgl/lvgl.h"
@@ -110,20 +118,11 @@
 #include "eez/src/ui/ui.h"
 #include "eez/src/ui/vars.h"
 
-// our own includes
+// our own includes used by all parts
 #include "constants.h"
 #include "x32ctrl_types.h"
 #include "WString.h"
-#include "gui.h"
-#include "uart.h"
-#include "surface.h"
 #include "auxiliary.h"
-#include "adda.h"
-#include "mixing.h"
-#include "mixer.h"
-#include "fpga.h"
-#include "touchcontrol.h"
-#include "xremote.h"
 
 // function prototypes
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer);

@@ -1,5 +1,6 @@
 #include "mixer.h"
-
+#include "demo.h"
+#include "surface.h"
 
 s_Mixer mixer;
 
@@ -12,7 +13,6 @@ s_Mixer mixer;
 // ####################################################################
 
 void initMixer(X32_MODEL p_model) {
-    
     mixerInitPages();
 
     x32debug("############# InitMixer(model_index=%d) #############\n", p_model);
@@ -1254,7 +1254,7 @@ void mixerShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
             setLedByEnum(X32_BTN_LIBRARY, 1);
             break;
         case X32_PAGE_EFFECTS:
-            surfaceDemo();
+            demoSurface();
             lv_tabview_set_active(objects.maintab, 6, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_EFFECTS, 1);
             break;
