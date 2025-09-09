@@ -84,7 +84,15 @@ An overview of the current FPGA-project can be found in the PDF-file of the top-
 
 ### Step 5: Compiling code for the SHARC DSPs
 
-At the moment it seems that the DSPs can only be programmed using a closed-source toolchain with a paid license. Currently I'm searching for a working solution for this problem...
+The X32 uses two AnalogDevices 21371 SHARC DSPs for mixing. These devices are supported by the CrossCore EmbeddedStudio v2.12:
+
+1. Download CrossCore EmbeddedStudio v2.12.x: https://www.analog.com/en/resources/evaluation-hardware-and-software/software/adswt-cces.html#software-overview
+2. Request 90-day Trial-Software from Analog Devices
+3. Open the DSP-project in the folder "dsp".
+
+DSP1 is the main-DSP receiving and sending all 40 audio-channels from and to the FPGA that is routing the audio to and from the individual sources. Within this first DSP the 32 + x main-channels are processed (noise-gate, multi-band-EQs, compressor, general mixing).
+
+DSP2 is used for the more advanced audio-effects in the original system. This DSP is not used at the moment.
 
 ## What is working at the moment and what is planned so far
 * [x] Linux-Kernel in Version 6.12 (LTS) starts to shell using display framebuffer
@@ -97,16 +105,19 @@ At the moment it seems that the DSPs can only be programmed using a closed-sourc
 * [x] Support of internal SD-Card to read MAC-Address and the general configuration
 * [x] Support of internal 8-channel analog input- and output-cards including headamp- and phantom-power-control
 * [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438)
+* [x] Support of both AnalogDevices DSPs (ADSP-21371 SHARC DSPs) via internal SPI-interface
+* [x] Configuration of main-FPGA (Xilinx Spartan 3A, X3CS1400) via internal SPI-interface
+* [x] Support of 1:1-routing for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
-* [x] Configuration of main-FPGA (Xilinx Spartan 3A, X3CS1400) via internal SPI-interface (via fpgaconfig)
-* [x] Routing-function for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
-* [x] Basic audio-mixing of 40 channels within the FPGA controlled by i.MX25
+* [x] Noisegate, 5-band EQ and compressor per channel is already working within the main-DSP
 
 So the most important things (audio in/out, control-surface, display) are working already. The high-level-audio-functions within the DSP need still more investigation...
 
 More things are on the ToDo-list:
-* [ ] Prepared: Support of UltraNet-Output
-* [ ] Planned: Support of both AnalogDevices DSPs via SPI (find toolchain for Analog Devices SHARC DSPs)
+* [ ] In-Progress: Support of UltraNet-Output (Signal is heavily disturbed at the moment)
+* [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years)
+* [ ] Planned: Implement advanced audio-algorithm in DSP2
+* [ ] Planned: Boot from SD-Card (already working) and via original DCP-Bootloader (reverse-engineering is work-in-progress)
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
 * [ ] Planned: Support of AES50 (needs more investigation on AES50-protocol)
