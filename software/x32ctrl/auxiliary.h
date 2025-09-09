@@ -16,7 +16,7 @@ float fader2dBfs(uint16_t faderValue);
 uint16_t dBfs2fader(float dbfsValue);
 String getIpAddress();
 //int valueToBinaryString(uint8_t value, char *output);
-int initTimer(); // only for Non-GUI systems
+int init100msTimer(); // only for Non-GUI systems
 long getFileSize(const char *filename);
 uint32_t reverseBitOrder_uint32(uint32_t n);
 void reverseBitOrderArray(uint8_t* data, uint32_t len);

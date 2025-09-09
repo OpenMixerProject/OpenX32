@@ -1,6 +1,6 @@
 /*
   Control software for Behringer X32 using OpenX32
-  https://github.com/xn--nding-jua/OpenX32
+  https://github.com/OpenMixerProject/OpenX32
   v0.0.7, 09.09.2025
 
                                =#%@@@@@###%@@@@%-
@@ -820,7 +820,7 @@ int main(int argc, char *argv[]) {
     if (mixerIsModelX32Core()){
         // only necessary if LVGL is not used
         x32log("Starting Timer...\n");
-        initTimer(); // only for Non-GUI systems
+        init100msTimer(); // start 100ms-timer only for Non-GUI systems
 
         mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
@@ -828,14 +828,8 @@ int main(int argc, char *argv[]) {
         x32log("Press Ctrl+C to terminate program.\n");
 
         while (1) {
-            // read data from surface and calls surfaceCallback()
-            surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
-
-            // read data from ADDA-Boards (8ch input/output)
-            addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
-
-            // read data from FPGA
-            fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
+            // run service-tasks
+            timer10msCallback();
 
             // sleep for 1ms to lower CPU-load
             usleep(1000);

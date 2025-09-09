@@ -251,8 +251,8 @@ struct sigevent sev;
 struct itimerspec trigger;
 sigset_t mask;
 
-// initialize timer (only for Non-GUI systems)
-int initTimer() {
+// initialize 100ms timer (only for Non-GUI systems)
+int init100msTimer() {
   // Set up the signal handler
   struct sigaction sa;
   sa.sa_handler = timer100msCallbackLinux;
