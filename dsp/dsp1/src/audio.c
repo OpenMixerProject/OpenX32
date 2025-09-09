@@ -7,9 +7,9 @@
 	========================
 	SPORT0A   -> TDM OUT0
 	SPORT0B   -> TDM OUT1
-	SPORT1A   -> TDM OUT2
-	SPORT1B   -> TDM OUT3
-	SPORT3A   -> TDM OUTAUX
+	SPORT2A   -> TDM OUT2
+	SPORT2B   -> TDM OUT3
+	SPORT4A   -> TDM OUTAUX
 
 	TDM IN0   -> SPORT1A
 	TDM IN1   -> SPORT1B
@@ -51,7 +51,7 @@ void audioUpdatePointerArray(void) {
 	int bufferOffset;
 	for (int ch = 0; ch < 8; ch++) {
 		for (int i_buf = 0; i_buf < BUFFER_COUNT; i_buf++) {
-			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) { // TODO: Check if samples are in the correct order. Maybe it is not 0,1,2,..7 but 7,6,5,..,0
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 				// calculate the pointer-address to the subsequent output-buffer
 				bufferOffset = audioBufferCounter + i_buf;
 				// put the bufferOffset within the limits of the pointer-array again
@@ -109,7 +109,7 @@ void audioInit(void) {
 			audioRx_tcb[i_tcb][i_buf][2] = 1;
 		}
 
-		// pointer to the buffer
+		// assign pointer to the buffer to tcb
 		audioTx_tcb[0][i_buf][3] = (int)&audioTxBuf0[i_buf * BUFFER_SIZE];
 		audioTx_tcb[1][i_buf][3] = (int)&audioTxBuf1[i_buf * BUFFER_SIZE];
 		audioTx_tcb[2][i_buf][3] = (int)&audioTxBuf2[i_buf * BUFFER_SIZE];
@@ -123,11 +123,10 @@ void audioInit(void) {
 		audioRx_tcb[4][i_buf][3] = (int)&audioRxBuf4[i_buf * BUFFER_SIZE];
 	}
 
-	audioUpdatePointerArray();
-
 	// ============== FOR TESTING ONLY ==============
 	/*
 	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
+	audioUpdatePointerArray(); // we need initialized pointer-array to access buffer
 	float omega = 2.0f * PI * 1000.0f / SAMPLERATE; // w = 2*pi*f between 1kHz and 8kHz
 	for (int ch = 1; ch < 8; ch++) {
 		for (int s = 0; (s < (BUFFER_COUNT * SAMPLES_IN_BUFFER)); s++) {
@@ -148,51 +147,53 @@ void audioProcessData(void) {
 	audioUpdatePointerArray();
 
 	// do something with the received samples
-/*
-	// TEST1: copy RAW input data to RAW output buffer (pass-through)
-	memcpy(&audioTxBuf0[0], &audioRxBuf0[0], sizeof(audioRxBuf0));
-	memcpy(&audioTxBuf1[0], &audioRxBuf1[0], sizeof(audioRxBuf1));
-	memcpy(&audioTxBuf2[0], &audioRxBuf2[0], sizeof(audioRxBuf2));
-	memcpy(&audioTxBuf3[0], &audioRxBuf3[0], sizeof(audioRxBuf3));
-	memcpy(&audioTxBuf4[0], &audioRxBuf4[0], sizeof(audioRxBuf4));
-*/
 
-	/*
-	// TEST2: copy input samples to output with decreasing volume per 8 channels
-	for (int ch = 0; ch < 8; ch++) {
-		for (int s = 0; (s < SAMPLES_IN_BUFFER); s++) {
-			*pAudioOutputSamples[ch     ][s] = (int)((float)*pAudioInputSamples[ch     ][s] * ((float)(8 - ch) / 8.0f));
-			*pAudioOutputSamples[ch + 8 ][s] = (int)((float)*pAudioInputSamples[ch + 8 ][s] * ((float)(8 - ch) / 8.0f));
-			*pAudioOutputSamples[ch + 16][s] = (int)((float)*pAudioInputSamples[ch + 16][s] * ((float)(8 - ch) / 8.0f));
-			*pAudioOutputSamples[ch + 24][s] = (int)((float)*pAudioInputSamples[ch + 24][s] * ((float)(8 - ch) / 8.0f));
-			*pAudioOutputSamples[ch + 32][s] = (int)((float)*pAudioInputSamples[ch + 32][s] * ((float)(8 - ch) / 8.0f));
+	// following steps are processed for all channels
+	// 1. Noisegate
+	// 2. 5-band EQ
+	// 3. Compressor
+	// 4. Sends to Mix-Busses
+	// 5. Volume-Control to Main L/R
+
+	float audioProcessedSample;
+	// iterate through all channels
+	for (int ch = 0; ch < MAX_CHAN; ch++) {
+		// we have to calculate from oldest sample to newest, so we have to start at end of currently received buffer
+		for (int s = (SAMPLES_IN_BUFFER - 1); s >= 0; s--) {
+			// every sample will be processed in the following order:
+			// input -> Noisegate -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> EQ5 -> Compressor -> output
+
+			audioProcessedSample = (float)*pAudioInputSamples[ch][s];
+
+			// process noisegate
+			audioProcessedSample = fxProcessGate(audioProcessedSample, &openx32.channel[ch].gate);
+
+			// process all EQs subsequently
+			for (int i_peq = 0; i_peq < openx32.channel[ch].peqMax; i_peq++) {
+				audioProcessedSample = fxProcessEq(audioProcessedSample, &openx32.channel[ch].peq[i_peq]);
+			}
+
+			// process compressor
+			audioProcessedSample = fxProcessCompressor(audioProcessedSample, &openx32.channel[ch].compressor);
+
+			// process sends
+			// TODO
+
+			// process channel-volume
+			// convert dB into linear value and then process audio
+			audioProcessedSample *= openx32.channel[ch].value_volume;
+
+			// limit audio to peak-values of 32-bit (TDM8). X32 will process "only" 24-bits and ignores the lower 8-bits
+			if (audioProcessedSample > 2147483648) {
+				audioProcessedSample = 2147483648;
+			}else if (audioProcessedSample < -2147483648) {
+				audioProcessedSample = -2147483648;
+			}
+
+			// write processed audio to output directly as we have no "main-bus" at the moment
+			// DSP-input -> processing DSP-output
+			*pAudioOutputSamples[ch][s] = (int)audioProcessedSample;
 		}
-	}
-	*/
-	/*
-	// TEST3: copy individual samples
-	for (int i = 0; i < (OUTPUT_BUFFER_COUNT * BUFFER_SIZE); i++) {
-		audioTxBuf0[i] = audioRxBuf0[i];
-	}
-	*/
-
-	// TEST4: copy received first 8 channels to all DSP outputs for the next TDM8-transmission
-	/*
-	for (int ch = 1; ch < 8; ch++) {
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			*pAudioOutputSamples[ch   ][s] = *pAudioInputSamples[ch][s];
-			*pAudioOutputSamples[ch+8 ][s] = *pAudioInputSamples[ch][s];
-			*pAudioOutputSamples[ch+16][s] = *pAudioInputSamples[ch][s];
-			*pAudioOutputSamples[ch+24][s] = *pAudioInputSamples[ch][s];
-			*pAudioOutputSamples[ch+32][s] = *pAudioInputSamples[ch][s];
-		}
-	}
-	*/
-
-	// we are receiving "SAMPLES_IN_BUFFER" samples at once
-	// as we have to calculate from oldest sample to newest, we have to start at end of currently received buffer
-	for (int s = (SAMPLES_IN_BUFFER - 1); s >= 0; s--) {
-		fxBiquad(s, pAudioInputSamples[0], pAudioOutputSamples[0], openx32.channel[0].peq.a, openx32.channel[0].peq.b); // only calculate for channel 1
 	}
 
 	// increment buffer-counter for next call

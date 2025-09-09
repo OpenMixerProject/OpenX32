@@ -1,6 +1,6 @@
 /*
   OpenX32 - The Open Source Operating System for the Behringer X32 Audio Mixing Console
-  ControlSystem for DSP1 (MainDSP) v0.0.1, 05.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.0.1, 09.09.2025
   https://www.openx32.de
   https://github.com/OpenMixerProject/OpenX32
 
@@ -68,26 +68,59 @@ void delay(int i) {
     }
 }
 
-void timerInit() {
-	adi_int_InstallHandler(ADI_CID_TMZHI,        	// iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
-							timerIsr,        		// handler
-							(void *)&timerCounter,	// handler parameter
-							true					// enable this timer
-	);
-	timer_set(1000, 1000); // set period to 1000 and counter to 1000 (= 1us)
-	timer_on(); // start timer
-}
-
 void openx32Init(void) {
 	for (int ch = 0; ch < MAX_CHAN; ch++) {
+		// initialize noisegate
+		openx32.channel[ch].gate.threshold = -60.0; // dB
+		openx32.channel[ch].gate.range = 60.0; // dB
+		openx32.channel[ch].gate.attackTime_ms = 10.0; // ms
+		openx32.channel[ch].gate.holdTime_ms = 50.0; // ms
+		openx32.channel[ch].gate.releaseTime_ms = 258; // ms
+
+		fxRecalcNoiseGate(&openx32.channel[ch].gate);
+
+		// initialize Equalizers
 		openx32.channel[ch].balance = 0; // -100 ... 0 ... 100
 		openx32.channel[ch].volume = 0.0; // dB
-		openx32.channel[ch].peq.Q = 0.3;
-		openx32.channel[ch].peq.fc = 500; // Hz
-		openx32.channel[ch].peq.gain = 0.0; // dB
-		openx32.channel[ch].peq.type = 1; // Peak-Filter
 
-		fxRecalcFilterCoefficients_PEQ(&openx32.channel[ch].peq);
+		openx32.channel[ch].peq[0].Q = 2.0;
+		openx32.channel[ch].peq[0].fc = 20; // Hz
+		openx32.channel[ch].peq[0].gain = 0.0; // dB
+		openx32.channel[ch].peq[0].type = 7; // LowCut / HighPass
+
+		openx32.channel[ch].peq[1].Q = 2.0;
+		openx32.channel[ch].peq[1].fc = 125; // Hz
+		openx32.channel[ch].peq[1].gain = 0.0; // dB
+		openx32.channel[ch].peq[1].type = 1; // Peak-Filter
+
+		openx32.channel[ch].peq[2].Q = 2.0;
+		openx32.channel[ch].peq[2].fc = 500; // Hz
+		openx32.channel[ch].peq[2].gain = 0.0; // dB
+		openx32.channel[ch].peq[2].type = 1; // Peak-Filter
+
+		openx32.channel[ch].peq[3].Q = 2.0;
+		openx32.channel[ch].peq[3].fc = 2000; // Hz
+		openx32.channel[ch].peq[3].gain = 0.0; // dB
+		openx32.channel[ch].peq[3].type = 1; // Peak-Filter
+
+		openx32.channel[ch].peq[4].Q = 2.0;
+		openx32.channel[ch].peq[4].fc = 1000; // Hz
+		openx32.channel[ch].peq[4].gain = 0.0; // dB
+		openx32.channel[ch].peq[4].type = 3; // High-Shelf
+
+		for (int i = 0; i < openx32.channel[ch].peqMax; i++) {
+			fxRecalcFilterCoefficients_PEQ(&openx32.channel[ch].peq[i]);
+		}
+
+		// initialize compressor
+		openx32.channel[ch].compressor.threshold = -40.0; // dB
+		openx32.channel[ch].compressor.ratio = 3.0; // 1:x
+		openx32.channel[ch].compressor.makeup = 5.0; // dB
+		openx32.channel[ch].compressor.attackTime_ms = 10.0; // ms
+		openx32.channel[ch].compressor.holdTime_ms = 10.0; // ms
+		openx32.channel[ch].compressor.releaseTime_ms = 150; // ms
+
+		fxRecalcCompressor(&openx32.channel[ch].compressor);
 	}
 }
 
@@ -101,46 +134,54 @@ void openx32Command(unsigned int parameter, unsigned int value) {
 			sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 		}
 	}
+
+	// for later use: enable DMA-transmission via SPI
+	// read data via DMA
+	// spiDmaBegin(true, 20);
+	// send data via DMA
+	// spiDmaBegin(false, 20);
 }
 
 int main() {
-	// init adi components
+	// initialize all components
 	adi_initComponents();
-
-	// init our own things
 	systemPllInit();
 	systemExternalMemoryInit();
 	systemSruInit();
-	timerInit();
 	spiInit();
 	openx32Init();
 	audioInit();
 	systemSportInit();
 
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
-	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt
-	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (receiving of TDM channels 1-8)
+	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
+	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
+	adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
+	timer_set(1000, 1000); // set period to 1000 and counter to 1000
+	timer_on(); // start timer
 
 	// the main-loop
 	while(1) {
 		if (timerCounter == 0) {
-			// toggle LED
+			// toggle LED controlled by timer
 			//sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
 		}
 
+		/*
 		// toggle LED to show that we are receiving audio-data
 		if (audioIsrCounter > (SAMPLERATE / SAMPLES_IN_BUFFER) / 2) {
-			//sysreg_bit_set(sysreg_FLAGS, FLG7);
+			sysreg_bit_set(sysreg_FLAGS, FLG7);
 		}else{
-			//sysreg_bit_clr(sysreg_FLAGS, FLG7);
+			sysreg_bit_clr(sysreg_FLAGS, FLG7);
 		}
+		*/
 
 		// check for new audio-data to process
 		if (audioReady) {
 			audioProcessData();
 		}
 
-		if (spiNewRxData) {
+		if (spiNewRxDataReady) {
 			spiProcessRxData();
 		}
 	}

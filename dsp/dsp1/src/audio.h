@@ -8,5 +8,4 @@ void audioInit(void);
 void audioProcessData(void);
 void audioRxISR(uint32_t , void *);
 
-
 #endif

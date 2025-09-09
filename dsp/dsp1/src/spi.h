@@ -9,6 +9,6 @@ void spiISR(int sig);
 void spiDmaBegin(bool receive, int len);
 void spiDmaEnd(void);
 void spiProcessRxData(void);
-//unsigned int spiRxTx(unsigned int data);
+//unsigned int spiMasterRxTx(unsigned int data);
 
 #endif

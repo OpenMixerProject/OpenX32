@@ -38,7 +38,6 @@
 // function prototypes
 static void timerIsr(uint32_t iid, void* handlerArg);
 void delay(int i);
-void timerInit(void);
 void openx32Init(void);
 void openx32Command(unsigned int parameter, unsigned int value);
 
@@ -46,79 +45,121 @@ void openx32Command(unsigned int parameter, unsigned int value);
 extern volatile int audioProcessing;
 extern volatile int audioReady;
 extern volatile int audioIsrCounter;
-extern volatile bool spiNewRxData;
+extern volatile bool spiNewRxDataReady;
 extern int audioTx_tcb[8][BUFFER_COUNT][4];
 extern int audioRx_tcb[8][BUFFER_COUNT][4];
 
 typedef struct {
-  // user-settings
-  int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
-  float fc; // center-frequency of PEQ
-  float Q; // Quality of PEQ (bandwidth)
-  float gain; // gain of PEQ
+	// user-settings
+	int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
+	float fc; // center-frequency of PEQ
+	float Q; // Quality of PEQ (bandwidth)
+	float gain; // gain of PEQ
 
-  double a[3];
-  double b[3];
+	// filter-coefficients
+	double a[3];
+	double b[3];
+
+	// online parameters
+	float in[2]; // in[0] = z-1, in[1] = z-2
+	float out[2]; // out[0] = z-1, out[1] = z-2
 } sPEQ;
 
 typedef struct {
-  // user-settings
-  float fc; // cutoff-frequency for high- or lowpass
-  bool isHighpass; // choose if Highpass or Lowpass
+	// user-settings
+	float fc; // cutoff-frequency for high- or lowpass
+	bool isHighpass; // choose if Highpass or Lowpass
 
-  // filter-coefficients
-  double a[3];
-  double b[3];
+	// filter-coefficients
+	double a[3];
+	double b[3];
 } sLR12;
 
 typedef struct {
-  // user-settings
-  float fc; // cutoff-frequency for high- or lowpass
-  bool isHighpass; // choose if Highpass or Lowpass
+	// user-settings
+	float fc; // cutoff-frequency for high- or lowpass
+	bool isHighpass; // choose if Highpass or Lowpass
 
-  // filter-coefficients
-  double a[5];
-  double b[5];
+	// filter-coefficients
+	double a[5];
+	double b[5];
 } sLR24;
 
+typedef enum {
+	GATE_CLOSED,
+	GATE_ATTACK,
+	GATE_OPEN,
+	GATE_HOLD,
+	GATE_CLOSING
+} gateState;
 typedef struct {
-  // user-settings
-  float threshold; // value between -80 dBfs (no gate) and 0 dBfs (full gate) -> 2^23..2^13.33
-  float range; // value between 48dB (full range) and 3dB (minimum effect)
-  float attackTime_ms;
-  float holdTime_ms;
-  float releaseTime_ms;
+	// user-settings
+	float threshold; // value between -80 dBfs (no gate) and 0 dBfs (full gate)
+	float range; // value between 48dB (full range) and 3dB (minimum effect)
+	float attackTime_ms;
+	float holdTime_ms;
+	float releaseTime_ms;
 
-  // filter-data
-  float value_threshold;
-  float value_gainmin;
-  float value_coeff_attack;
-  float value_hold_ticks;
-  float value_coeff_release;
+	// filter-data
+	float value_threshold;
+	float value_gainmin;
+	float value_coeff_attack;
+	float value_hold_ticks;
+	float value_coeff_release;
+
+	// online parameters
+	short int holdCounter;
+	float gainSet;
+	float gainCurrent;
+	float coeff;
+	gateState state;
+	bool closed;
 } sNoisegate;
 
+typedef enum {
+	COMPRESSOR_IDLE,
+	COMPRESSOR_ATTACK,
+	COMPRESSOR_ACTIVE,
+	COMPRESSOR_HOLD,
+	COMPRESSOR_RELEASE
+} compressorState;
 typedef struct {
-  // user-settings
-  float threshold; // value between 0 dBfs (no compression) and -80 dBfs (full compression) -> 2^23..2^13.33
-  float ratio; // value between 0=oo:1, 1=1:1, 2=2:1, 4=4:1, 8=8:1, 16=16:1, 32=32:1, 64=64:1
-  float makeup; // value between 0dB, 6dB, 12dB, 18dB, 24dB, 30dB, 36dB, 42dB, 48dB
-  float attackTime_ms;
-  float holdTime_ms;
-  float releaseTime_ms;
+	// user-settings
+	float threshold; // value between 0 dBfs (no compression) and -80 dBfs (full compression)
+	float ratio; // value between 0=oo:1, 1=1:1, 2=2:1, 4=4:1, 8=8:1, 16=16:1, 32=32:1, 64=64:1
+	float makeup; // value between 0dB, 6dB, 12dB, 18dB, 24dB, 30dB, 36dB, 42dB, 48dB
+	float attackTime_ms;
+	float holdTime_ms;
+	float releaseTime_ms;
 
-  // filter-data
-  float value_threshold;
-  float value_ratio;
-  float value_makeup;
-  float value_coeff_attack;
-  float value_hold_ticks;
-  float value_coeff_release;
+	// filter-data
+	float value_threshold;
+	float value_ratio;
+	float value_makeup;
+	float value_coeff_attack;
+	float value_hold_ticks;
+	float value_coeff_release;
+
+	// online parameters
+	short int holdCounter;
+	float gainSet;
+	float gainCurrent;
+	float coeff;
+	bool active;
+	compressorState state;
 } sCompressor;
 
 typedef struct {
-	float volume;
-	float balance;
-	sPEQ peq;
+	float volume; // in dB
+	float balance; // -100 .. 0 .. +100
+	float sends[16];
+	sNoisegate gate;
+	short peqMax;
+	sPEQ peq[5];
+	sCompressor compressor;
+
+	// converted data
+	float value_volume; // pow(10, openx32.channel[ch].volume/20.0f)
 } sChannel;
 
 struct {
@@ -127,6 +168,6 @@ struct {
 	float mainVolumeSub;
 
 	sChannel channel[MAX_CHAN];
-}openx32;
+} openx32;
 
 #endif /* __DSP1_H__ */

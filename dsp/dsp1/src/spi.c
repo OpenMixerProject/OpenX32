@@ -10,7 +10,7 @@ typedef struct {
 	volatile int tail; // read-pointer
 } sSpiRingBuffer;
 volatile sSpiRingBuffer spiRingBuffer;
-volatile bool spiNewRxData = false;
+volatile bool spiNewRxDataReady = false;
 
 typedef enum {
 	LOOKING_FOR_START_MARKER,
@@ -108,7 +108,7 @@ void spiISR(int sig) {
 			spiRingBuffer.buffer[spiRingBuffer.head] = rxData;
 			spiRingBuffer.head = next_head;
 
-			spiNewRxData = (rxData == 0x00000023); // check for '#'
+			spiNewRxDataReady = (rxData == 0x00000023); // check for '#'
 		}else{
 			// buffer-overflow -> reject new data
 		}
@@ -116,7 +116,7 @@ void spiISR(int sig) {
 }
 
 void spiProcessRxData(void) {
-	spiNewRxData = false;
+	spiNewRxDataReady = false;
 
 	// check for new valid data in spiRxBuffer
 	// we expect a message like:
@@ -161,17 +161,11 @@ void spiProcessRxData(void) {
 				break;
 		}
 	}
-
-	// read data via DMA
-	// spiDmaBegin(true, 20);
-
-	// send data via DMA
-	// spiDmaBegin(false, 20);
 }
 
 /*
 // SPI-Master Read/Transmit
-unsigned int spiRxTx(unsigned int data) {
+unsigned int spiMasterRxTx(unsigned int data) {
 	*pTXSPI = data;
 
 	// wait for SPI to finish transmission
