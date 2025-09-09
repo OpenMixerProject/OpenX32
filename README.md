@@ -58,9 +58,13 @@ Compile u-boot, Linux and busbox by calling the script ./compile_all.sh and uplo
 
 Within the software-folder several user-applications are placed. You can call the script "compile_software.sh" to compile all softwares at once or compile them individual:
 * x32ctrl: call "make". The binary is copied to the folder "../bin/"
-* x32sdconfig: run the script ./compile.sh. The binary is copied to the folder "../bin/"
-* fpgaconfig: run the script ./compile.sh. The binary is copied to the folder "../bin/"
-* uarttest: run the script ./compile.sh. The binary is copied to the folder "../bin/"
+* x32sdconfig: call "compile.sh". Program will read the original SD-card on boot and put general information about the board to the folder /etc/
+
+There are some test-softwares in the "test"-folder. Use individual "compile.sh" scripts
+* fpgaconfig: program to configure the Xilinx Spartan 3A FPGA using spidev2.0
+* dspconfig: program to configure the two AnalogDevices 21371 SHARC DSP using spidev0.0 and spidev0.1
+* spiread: program to test the communication to the DSPs
+* uarttest: program to test communication with FPGA
 
 As the X32 has limited RAM available, you might use the script "build_distribution.sh" to copy all important files into the folder "usb". Then take an USB-Thumbdrive, copy all files within this folder to the root of the USB-drive and mount the device on the X32 with the command "mount /dev/sda1 /mnt/usb".
 
@@ -79,6 +83,8 @@ Download ISE 14.7 from the Xilinx (AMD) website: https://www.xilinx.com/support/
 3. Set the Windows-Environmental-Variable "XILINX_VC_CHECK_NOOP" to "1". Otherwise the software will complain about a non-installed VisualStudio Runtime 2008 even if it is installed correctly
 4. On modern Windows 10/11 ISE 14.7 will not start beyond the Splash-Screen due to the use of "SmartHeap" within the file "libPortability.dll". Download a hotfix from https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/files/xilinx_ise_hotfix.zip, extract to C:\Xilinx\ and run the batch-file. The script will replace the 32-bit/64-bit versions of libPortability.dll.
 5. Start ISE 14.7, open the OpenX32 project and compile the logic of the main-schematic.
+6. On the left side of ISE 14.7 create a configuration file (bitstream)
+7. Copy main.bit to an USB-thumbdrive and load it either with "./fpgaconfig fpga.bit" or with the main-control-software "./x32ctrl fpga.bit"
 
 An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: [View Schematic as PDF](https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/Documentation/FPGA.pdf).
 
@@ -88,7 +94,9 @@ The X32 uses two AnalogDevices 21371 SHARC DSPs for mixing. These devices are su
 
 1. Download CrossCore EmbeddedStudio v2.12.x: https://www.analog.com/en/resources/evaluation-hardware-and-software/software/adswt-cces.html#software-overview
 2. Request 90-day Trial-Software from Analog Devices
-3. Open the DSP-project in the folder "dsp".
+3. Open the DSP-project in the folder "dsp"
+4. Use "Project -> Compile all..." to compile current project and "dsp1.ldr" will be generated
+5. copy "dsp1.ldr" to the USB-thumbdrive and load it either with "./dspconfig dsp1.ldr" or with the main-control-software "./x32ctrl fpga.bit dsp1.ldr"
 
 DSP1 is the main-DSP receiving and sending all 40 audio-channels from and to the FPGA that is routing the audio to and from the individual sources. Within this first DSP the 32 + x main-channels are processed (noise-gate, multi-band-EQs, compressor, general mixing).
 
