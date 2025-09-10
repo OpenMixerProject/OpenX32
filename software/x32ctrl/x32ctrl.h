@@ -125,7 +125,7 @@
 #include "x32ctrl_types.h"
 #include "WString.h"
 #include "auxiliary.h"
-#include "mixing.h"
+#include "routing.h"
 
 // function prototypes
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer);

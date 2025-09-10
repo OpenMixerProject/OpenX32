@@ -1,4 +1,4 @@
-#include "mixing.h"
+#include "routing.h"
 #include "uart.h"
 #include "adda.h"
 #include "mixer.h"
@@ -98,7 +98,7 @@ void mixingSyncRoutingConfigFromMixer(void) {
 }
 
 void mixingSyncVChannelConfigFromMixer(void){
-	// TODO: implement trackback of currently selected vChannel-DSP-input back to the real hardware-source and then apply gain and phantom to this real source
+    // TODO: implement trackback of currently selected vChannel-DSP-input back to the real hardware-source and then apply gain and phantom to this real source
 
     // loop trough all vChannels
 	uint8_t group = 0;
@@ -109,16 +109,19 @@ void mixingSyncVChannelConfigFromMixer(void){
             continue;
         } else {
             s_vChannel* chan = &mixer.vChannel[i];
-            mixingGetSourceGroupAndChannelByDspChannel(mixer.vChannel[i].inputSource.dspChannel, &group, &channel);
 
-            if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
-                mixingSetGain(group, channel, chan->inputSource.gain);
+            // only the first 40 channels are able to control gain and phantomPower. DSP-Channels 41..64 do not support this
+            if ((mixer.vChannel[i].inputSource.dspChannel >= 1) && (mixer.vChannel[i].inputSource.dspChannel <= 40)) {
+                mixingGetSourceGroupAndChannelByDspChannel(mixer.vChannel[i].inputSource.dspChannel, &group, &channel);
+
+                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
+                    mixingSetGain(group, channel, chan->inputSource.gain);
+                }
+
+                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+                    mixingSetPhantomPower(group, channel, chan->inputSource.phantomPower);
+                }
             }
-
-            if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
-                mixingSetPhantomPower(group, channel, chan->inputSource.phantomPower);
-            }
-
             // TODO: Volume (a bit complicated)
         }
     }
@@ -129,7 +132,7 @@ void mixingSyncVChannelConfigFromMixer(void){
 // set the outputs of the audio-routing-matrix to desired input-sources
 void mixingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) {
     // input-sources:
-	// 0 = OFF
+    // 0 = OFF
     // 1-32 = XLR-inputs
     // 33-64 = Card-inputs
     // 65-72 = AUX-inputs
@@ -166,10 +169,10 @@ void mixingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) 
         case 'd': // DSP-Inputs 1-40
             openx32.routing.dsp[channel - 1] = inputsource;
             break;
-        case 0: // AES50A-Outputs
+        case 'A': // AES50A-Outputs
             openx32.routing.aes50a[channel - 1] = inputsource;
             break;
-        case 1: // AES50B-Outputs
+        case 'B': // AES50B-Outputs
             openx32.routing.aes50b[channel - 1] = inputsource;
             break;
     }
@@ -177,8 +180,8 @@ void mixingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) 
 
 void mixingSetOutputSourceByIndex(uint8_t index, uint8_t inputsource) {
     uint8_t group = 0;
-	uint8_t channel = 0;
-	mixingGetOutputGroupAndChannelByIndex(index, &group, &channel);
+    uint8_t channel = 0;
+    mixingGetOutputGroupAndChannelByIndex(index, &group, &channel);
     mixingSetOutputSource(group, channel, inputsource);
 }
 
@@ -220,10 +223,10 @@ uint8_t mixingGetOutputSource(uint8_t group, uint8_t channel) {
         case 'd': // DSP-Inputs 1-40
             return openx32.routing.dsp[channel - 1];
             break;
-        case 0: // AES50A-Outputs
+        case 'A': // AES50A-Outputs
             return openx32.routing.aes50a[channel - 1];
             break;
-        case 1: // AES50B-Outputs
+        case 'B': // AES50B-Outputs
             return openx32.routing.aes50b[channel - 1];
             break;
     }
@@ -263,10 +266,10 @@ uint8_t mixingGetSourceIndex(uint8_t group, uint8_t channel) {
         case 'd': // DSP-Outputs 1-40
             return channel + 72;
             break;
-        case 0: // AES50A-Inputs 1-48
+        case 'A': // AES50A-Inputs 1-48
             return channel + 112;
             break;
-        case 1: // AES50B-Inputs 1-48
+        case 'B': // AES50B-Inputs 1-48
             return channel + 160;
             break;
     }
@@ -304,10 +307,10 @@ uint8_t mixingGetOutputIndex(uint8_t group, uint8_t channel) {
         case 'd': // DSP-Outputs 1-40
             return channel + 72;
             break;
-        case 0: // AES50A-Inputs 1-48
+        case 'A': // AES50A-Inputs 1-48
             return channel + 112;
             break;
-        case 1: // AES50B-Inputs 1-48
+        case 'B': // AES50B-Inputs 1-48
             return channel + 160;
             break;
     }
@@ -337,10 +340,10 @@ void mixingGetSourceGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_
 		*group = 'd';
 		*channel = index - 72;
 	}else if ((index >= 113) && ( index <= 160)) {
-		*group = 0;
+		*group = 'A';
 		*channel = index - 112;
 	}else if ((index >= 161) && ( index <= 208)) {
-		*group = 1;
+		*group = 'B';
 		*channel = index - 160;
 	}
 }
@@ -371,18 +374,18 @@ void mixingGetOutputGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_
 		*group = 'd';
 		*channel = index - 72;
 	}else if ((index >= 113) && ( index <= 160)) {
-		*group = 0;
+		*group = 'A';
 		*channel = index - 112;
 	}else if ((index >= 161) && ( index <= 208)) {
-		*group = 1;
+		*group = 'B';
 		*channel = index - 160;
 	}
 }
 
 void mixingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel) {
     // first lets find the connected source to this dspChannel
-    uint8_t index = mixingGetSourceIndex('d', dspChannel);
-	mixingGetSourceGroupAndChannelByIndex(index, group, channel);
+    uint8_t index = mixingGetOutputSource('d', dspChannel);
+    mixingGetSourceGroupAndChannelByIndex(index, group, channel);
 }
 
 // get the input-source name
@@ -413,10 +416,10 @@ void mixingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
         case 'd': // DSP-Outputs 1-40
             sprintf(p_nameBuffer, "DSP%d", channel);
             break;
-        case 0: // AES50A-Inputs 1-48
+        case 'A': // AES50A-Inputs 1-48
             sprintf(p_nameBuffer, "AESA%d", channel);
             break;
-        case 1: // AES50B-Inputs 1-48
+        case 'B': // AES50B-Inputs 1-48
             sprintf(p_nameBuffer, "AESB%d", channel);
             break;
     }
@@ -424,7 +427,7 @@ void mixingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
 
 void mixingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index) {
     uint8_t group = 0;
-	uint8_t channel = 0;
+    uint8_t channel = 0;
     mixingGetSourceGroupAndChannelByIndex(index, &group, &channel);
     mixingGetSourceName(p_nameBuffer, group, channel);
 }
@@ -461,10 +464,10 @@ void mixingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
         case 'd':
             sprintf(p_nameBuffer, "DSP%d", channel);
             break;
-        case 0:
+        case 'A':
             sprintf(p_nameBuffer, "AESA%d", channel);
             break;
-        case 1:
+        case 'B':
             sprintf(p_nameBuffer, "AESB%d", channel);
             break;
     }
@@ -472,9 +475,25 @@ void mixingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
 
 void mixingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
     uint8_t group = 0;
-	uint8_t channel = 0;
+    uint8_t channel = 0;
     mixingGetOutputGroupAndChannelByIndex(index, &group, &channel);
     mixingGetOutputName(p_nameBuffer, group, channel);
+}
+
+void mixingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel) {
+    uint8_t group = 0;
+    uint8_t channel = 0;
+    if (dspChannel == 0) {
+        sprintf(p_nameBuffer, "OFF");
+    }else if ((dspChannel >=1 ) && (dspChannel <= 40)) {
+        // we have one of the regular DSP channels which are regular inputs
+        mixingGetSourceGroupAndChannelByDspChannel(dspChannel, &group, &channel);
+        mixingGetOutputName(p_nameBuffer, group, channel);
+    }else if ((dspChannel >=41 ) && (dspChannel <= 48)) {
+       sprintf(p_nameBuffer, "FX %d", dspChannel - 40);
+    }else if ((dspChannel >=49 ) && (dspChannel <= 64)) {
+       sprintf(p_nameBuffer, "Bus %d", dspChannel - 48);
+    }
 }
 
 // set the gain of the local XLR head-amp-control
@@ -495,10 +514,10 @@ void mixingSetGain(uint8_t group, uint8_t channel, float gain) {
             }
             addaSetGain(boardId, addaChannel, openx32.preamps.gainXlr[channel - 1], openx32.preamps.phantomPowerXlr[channel - 1]);
             break;
-        case 0: // AES50A
+        case 'A': // AES50A
             openx32.preamps.gainAes50a[channel - 1] = gain;
             break;
-        case 1: // AES50B
+        case 'B': // AES50B
             openx32.preamps.gainAes50b[channel - 1] = gain;
             break;
     }
@@ -523,10 +542,10 @@ void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active) {
             }
             addaSetGain(boardId, addaChannel, openx32.preamps.gainXlr[channel - 1], openx32.preamps.phantomPowerXlr[channel - 1]);
             break;
-        case 0: // AES50A
+        case 'A': // AES50A
             openx32.preamps.phantomPowerAes50a[channel - 1] = active;
             break;
-        case 1: // AES50B
+        case 'B': // AES50B
             openx32.preamps.phantomPowerAes50b[channel - 1] = active;
             break;
     }

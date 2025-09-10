@@ -1,5 +1,5 @@
-#ifndef MIXING_H_
-#define MIXING_H_
+#ifndef ROUTING_H_
+#define ROUTING_H_
 
 #include "x32ctrl.h"
 
@@ -7,6 +7,7 @@
 #define FPGA_IDX_CH_VOL    200  // here we need 40 values here
 #define NUM_INPUT_CHANNEL  112  // at the moment we are not using AES50A and AES50B
 #define NUM_OUTPUT_CHANNEL 112  // at the moment we are not using AES50A and AES50B
+#define NUM_DSP_CHANNEL    64   // 32 in + 8 aux + 8 FX return + 16 bus
 
 #pragma pack(push, 1)
 // size of sRouting must be multiplier of 8 to fit into 64-bit-value
@@ -65,6 +66,7 @@ void mixingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel);
 void mixingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index);
 void mixingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan);
 void mixingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
+void mixingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel);
 
 void mixingSetGain(uint8_t group, uint8_t channel, float gain);
 void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active);

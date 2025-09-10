@@ -328,10 +328,11 @@ void fpgaCallback(char *buf, uint8_t len) {
 void syncAll(void) {
     if (mixerHasAnyChanged()){
         if (
-            mixerHasChanged(X32_MIXER_CHANGED_PAGE)   ||
-            mixerHasChanged(X32_MIXER_CHANGED_BANKING)   ||
-            mixerHasChanged(X32_MIXER_CHANGED_SELECT)    ||
-            mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)
+            mixerHasChanged(X32_MIXER_CHANGED_PAGE)     ||
+            mixerHasChanged(X32_MIXER_CHANGED_BANKING)  ||
+            mixerHasChanged(X32_MIXER_CHANGED_SELECT)   ||
+            mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL) ||
+            mixerHasChanged(X32_MIXER_CHANGED_GUI)
            ) {
             syncGui();
             syncSurface();
@@ -408,9 +409,13 @@ void syncGui(void) {
     //#         Page Config
     //####################################
 
+    uint8_t group = 0;
+    uint8_t channel = 0;
     if (mixer.activePage == X32_PAGE_CONFIG){
+        char dspSourceName[10] = "";
         char inputSourceName[10] = "";
-		sprintf(&inputSourceName[0], "DSP%d", selected_vChannel->inputSource.dspChannel); // TODO: here we can use more than the 40 input-channels as the DSP has access to all 16 busses and FX-returns
+        mixingGetDspSourceName(&dspSourceName[0], selected_vChannel->inputSource.dspChannel);
+        sprintf(&inputSourceName[0], "%02d: %s", selected_vChannel->inputSource.dspChannel, dspSourceName);
         lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
         lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)selected_vChannel->inputSource.gain);
         lv_label_set_text_fmt(objects.current_channel_phantom, "%d", selected_vChannel->inputSource.phantomPower);
@@ -422,8 +427,6 @@ void syncGui(void) {
     }else if (mixer.activePage == X32_PAGE_ROUTING) {
         char outputDestinationName[10] = "";
         char inputSourceName[10] = "";
-        uint8_t group = 0;
-        uint8_t channel = 0;
         uint8_t routingIndex = 0;
 
         // read name of selected output-routing channel
@@ -811,7 +814,7 @@ int main(int argc, char *argv[]) {
     x32log(" / __ \\                 \\ \\ / /___ \\__ \\ \n");
     x32log("| |  | |_ __   ___ _ __  \\ V /  __) | ) |\n");
     x32log("| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / / \n");
-    x32log("| |__| | |_) |  __/ | | |/ . \\ ___) / /_ \\n");
+    x32log("| |__| | |_) |  __/ | | |/ . \\ ___) / /_ \n");
     x32log(" \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|\n");
     x32log("       | |                               \n");
     x32log("       |_|                               \n");

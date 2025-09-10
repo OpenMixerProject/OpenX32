@@ -76,7 +76,7 @@ void mixerInit(char model[]) {
         s_inputSource *input = &vChannel->inputSource;
         input->phantomPower = false;
         input->phaseInvert = false;
-		input->dspChannel = i+1;
+        input->dspChannel = i+1;
 
         // TODO: assign vChannel to "bus vChannel"
 // #if DEBUG
@@ -300,20 +300,22 @@ void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_vChannelIndex, b
 // change the input of the selected vChannel
 void mixerChangeVChannel(int8_t amount){
     // each vChannel is routed within the DSP and has access to either the 40 input-channels or one of the 16 busses or FX-returns
-	
+
     s_vChannel *chan = mixerGetSelectedvChannel();
     x32debug("mixerChangeVChannel(): dspChannel=%d\n", chan->inputSource.dspChannel);
 
     int16_t newValue = (int16_t)chan->inputSource.dspChannel + amount;
 
-    if (newValue >= 40) {
-        chan->inputSource.dspChannel = 40;
+    if (newValue > NUM_DSP_CHANNEL) {
+        newValue -= NUM_DSP_CHANNEL;
     }else if (newValue < 0) {
-        chan->inputSource.dspChannel = 0;
-    }else{
-        chan->inputSource.dspChannel = newValue;
+        newValue += NUM_DSP_CHANNEL;
+    }
+    if (newValue == 0) {
+        newValue = 1;
     }
 
+    chan->inputSource.dspChannel = newValue;
     mixerSetVChannelChangeFlags(chan, X32_VCHANNEL_CHANGED_INPUT);
     mixerSetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
@@ -331,27 +333,29 @@ void mixerChangeHardwareOutput(int8_t amount) {
     int16_t newValue = (int16_t)mixer.selectedOutputChannelIndex + amount;
 
     if (newValue > NUM_OUTPUT_CHANNEL) {
-        mixer.selectedOutputChannelIndex = NUM_OUTPUT_CHANNEL;
-    }else if (newValue < 0){
-        mixer.selectedOutputChannelIndex = 0;
-    }else{
-		mixer.selectedOutputChannelIndex = newValue;
+        newValue -= NUM_OUTPUT_CHANNEL;
+    }else if (newValue < 1){
+        newValue += NUM_OUTPUT_CHANNEL;
     }
+    if (newValue == 0) {
+        newValue = 1; // dont allow "OFF" for Output-channel
+    }
+    mixer.selectedOutputChannelIndex = newValue;
+    // no sending to FPGA as we are not changing the hardware-routing here
     mixerSetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
 
 void mixerChangeHardwareInput(int8_t amount) {
     // get current routingIndex
     int16_t newValue = mixingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex) + amount;
-    
+
     if (newValue > NUM_INPUT_CHANNEL) {
-        mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, NUM_INPUT_CHANNEL);
+        newValue -= NUM_INPUT_CHANNEL;
     }else if (newValue < 0){
-        mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, 0);
-    }else{
-		mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, newValue);
+        newValue += NUM_INPUT_CHANNEL;
     }
-	mixingTxRoutingConfig();
+    mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, newValue);
+    mixingTxRoutingConfig();
     mixerSetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
 
@@ -688,8 +692,8 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
         amount = -(256 - (uint8_t)(p_value));
     }
     x32debug("Encoder: %d\n", amount);
-    
-    if (mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) {   
+
+    if (mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) {
         switch (encoder){
             case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core - Channel Select    TODO: Implement on Core
                 mixerChangeSelect(amount);
@@ -709,11 +713,11 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
 
     // Display Encoders
     // - are independent from Surface Modes!
-    if (mixerIsModelX32FullOrCompacrOrProducerOrRack()){
+    if (mixerIsModelX32FullOrCompacrOrProducerOrRack()) {
         if (mixer.activePage == X32_PAGE_CONFIG){
             switch (encoder){
                 case X32_ENC_ENCODER2:
-                    mixerChangeVChannel(amount);    
+                    mixerChangeVChannel(amount);
                     break;
                 case X32_ENC_ENCODER3:
                     mixerChangeGain(mixerGetSelectedvChannelIndex(), amount);
@@ -722,10 +726,10 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
         }else if (mixer.activePage == X32_PAGE_ROUTING) {
             switch (encoder){
                 case X32_ENC_ENCODER1:
-                    mixerChangeHardwareOutput(amount);    
+                    mixerChangeHardwareOutput(amount);
                     break;
                 case X32_ENC_ENCODER2:
-                    mixerChangeHardwareInput(amount);    
+                    mixerChangeHardwareInput(amount);
                     break;
             }
         }
