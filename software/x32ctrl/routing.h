@@ -2,6 +2,7 @@
 #define ROUTING_H_
 
 #include "x32ctrl.h"
+#include "hal.h"
 
 #define FPGA_IDX_ROUTING   0    // reserve 200 slots
 #define FPGA_IDX_CH_VOL    200  // here we need 40 values here

@@ -119,7 +119,7 @@ float fader2dBfs(uint16_t faderValue) {
   //const uint16_t FADER_0DB = (uint16_t)(0.75 * FADER_MAX);  // unused
   const uint16_t FADER_MINUS_10DB = (uint16_t)(0.5 * FADER_MAX);
   const uint16_t FADER_MINUS_30DB = (uint16_t)(0.25 * FADER_MAX);
-  const uint16_t FADER_MINUS_INFDB = 0; // TODO: check with real hardware
+  const uint16_t FADER_MINUS_INFDB = 0;
 
   if (faderValue <= FADER_MINUS_INFDB) {
       return VOLUME_MIN;

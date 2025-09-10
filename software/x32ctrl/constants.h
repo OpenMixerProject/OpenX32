@@ -60,12 +60,12 @@ typedef enum  {
     //###########################################
 
     // Only X32 Core
-    X32_BTN_SCENE_SETUP,  
+    X32_BTN_SCENE_SETUP,
 
     // Only X32 Rack
     X32_BTN_CHANNEL_SOLO,
     X32_BTN_CHANNEL_MUTE,
-    X32_BTN_CHANNEL_Encoder,
+    X32_BTN_CHANNEL_ENCODER,
 
     X32_BTN_TALK_A,
     X32_BTN_TALK_B,
@@ -135,17 +135,17 @@ typedef enum  {
     //###########################################
 
     // X32 Full
-    X32_BTN_CH_1_16,                
+    X32_BTN_CH_1_16,
     X32_BTN_CH_17_32,
     X32_BTN_AUX_IN_EFFECTS,
     X32_BTN_EFFECTS_RETURNS,
-    X32_BTN_BUS_MASTER ,
+    X32_BTN_BUS_MASTER,
     // X32 Compact/Producer
     X32_BTN_CH_1_8,
     X32_BTN_CH_9_16,
     X32_BTN_CH_17_24,
     X32_BTN_CH_25_32,
-    X32_BTN_AUX_IN_1_6_USB_REC, 
+    X32_BTN_AUX_IN_1_6_USB_REC,
     X32_BTN_BUS_1_8_MASTER,
     X32_BTN_BUS_9_16_MASTER,
 
@@ -364,13 +364,13 @@ typedef enum  {
     X32_ENC_ENCODER6,
 
     // only X32 Full and X32 Core
-    X32_ENC_ASSIGN_1,  
+    X32_ENC_ASSIGN_1,
     // only X32 Full and X32 Core
-    X32_ENC_ASSIGN_2,  
+    X32_ENC_ASSIGN_2,
     // only X32 Full
-    X32_ENC_ASSIGN_3,  
+    X32_ENC_ASSIGN_3,
     // only X32 Full
-    X32_ENC_ASSIGN_4,  
+    X32_ENC_ASSIGN_4,
 
     // only X32 Rack
     X32_ENC_CHANNEL_SELECT,
@@ -379,7 +379,6 @@ typedef enum  {
     // only X32 Rack
     X32_ENC_MAIN_LEVEL,
 
-    
 } X32_ENC;
 
 #endif

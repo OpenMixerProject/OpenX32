@@ -203,7 +203,7 @@ uint8_t routingGetOutputSource(uint8_t group, uint8_t channel) {
     // 113-160 = AES50A-outputs
     // 161-208 = AES50B-outputs
 
-    if (channel == 0){
+    if (channel == 0) {
         return 0;
     }
 
@@ -230,6 +230,8 @@ uint8_t routingGetOutputSource(uint8_t group, uint8_t channel) {
             return openx32.routing.aes50b[channel - 1];
             break;
     }
+
+    return 0;
 }
 
 uint8_t routingGetOutputSourceByIndex(uint8_t index) {

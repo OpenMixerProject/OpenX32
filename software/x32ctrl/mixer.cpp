@@ -159,8 +159,10 @@ void mixerInit(char model[]) {
 
         if(i <=5){
             sprintf(&vChannel->name[0], "AUX%d", i+1);
+            vChannel->color = SURFACE_COLOR_GREEN;
         } else {
             sprintf(&vChannel->name[0], "USB");
+            vChannel->color = SURFACE_COLOR_YELLOW;
         }
     }
 
@@ -171,6 +173,7 @@ void mixerInit(char model[]) {
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
         sprintf(&vChannel->name[0], "FX Ret%d", i+1);
+        vChannel->color = SURFACE_COLOR_BLUE;
     }
 
     // Bus 1-16
@@ -180,22 +183,25 @@ void mixerInit(char model[]) {
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
         sprintf(&vChannel->name[0], "BUS%d", i+1);
+        vChannel->color = SURFACE_COLOR_CYAN;
     }
 
-    // Matrix 1-6 / Special / MAIN
-    x32debug("Setting up Matrix / Main\n");
+    // Matrix 1-6 / Special / SUB
+    x32debug("Setting up Matrix / SPECIAL / SUB\n");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = 64 + i;
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
         if(i <=5){
             sprintf(&vChannel->name[0], "MATRIX%d", i+1);
+            vChannel->color = SURFACE_COLOR_PINK;
         } else if (i == 6){
             sprintf(&vChannel->name[0], "SPECIAL");
+            vChannel->color = SURFACE_COLOR_RED;
         } else if (i == 7){
-            sprintf(&vChannel->name[0], "Main");
-            vChannel->vChannelType = 1; // main channel
-        } 
+            sprintf(&vChannel->name[0], "M/C");
+            vChannel->color = SURFACE_COLOR_WHITE;
+        }
     }
 
     // DCA 1-8
@@ -205,6 +211,17 @@ void mixerInit(char model[]) {
         s_vChannel *vChannel = &mixer.vChannel[index];
         mixerSetVChannelDefaults(vChannel, index, false);
         sprintf(&vChannel->name[0], "DCA%d", i+1);
+        vChannel->color = SURFACE_COLOR_PINK;
+    }
+
+
+    // main-channel
+    {
+        s_vChannel *vChannel = &mixer.vChannel[80];
+        mixerSetVChannelDefaults(vChannel, 80, false);
+        sprintf(&vChannel->name[0], "Main");
+        vChannel->color = SURFACE_COLOR_WHITE;
+        vChannel->vChannelType = 1; // main channel
     }
 
     // vChannel0 selected by default
@@ -224,7 +241,7 @@ void mixerInit(char model[]) {
                 x32debug("Assing bank%d: surfaceChannel%d <-> vChannel%d\n", bank, i, i + (bank * 16));
             }
         }
-    } 
+    }
 
     if (mixerIsModelX32CompacrOrProducer()){
         // bank is 8 channels wide
@@ -235,7 +252,7 @@ void mixerInit(char model[]) {
             }
         }
     }
-       
+
     //##################################################################################
     //#
     //#   assign vChannels to bus fader bank - X32 Default Layout
@@ -256,9 +273,9 @@ void mixerInit(char model[]) {
     for (int i = 0; i <=7; i++) {
         mixer.modes[X32_SURFACE_MODE_BANKING_X32].busBanks[2].surfaceChannel2vChannel[i] = i + 56;
     }
-   
-    // Matrix / Main - starts at vChannel 64
-    for (int i = 0; i <=7; i++) {
+
+    // Matrix / SPECIAL / SUB - starts at vChannel 64
+    for (int i = 0; i <=9; i++) {
         mixer.modes[X32_SURFACE_MODE_BANKING_X32].busBanks[3].surfaceChannel2vChannel[i] = i + 64;
     }
 
@@ -310,9 +327,6 @@ void mixerChangeVChannel(int8_t amount){
         newValue -= NUM_DSP_CHANNEL;
     }else if (newValue < 0) {
         newValue += NUM_DSP_CHANNEL;
-    }
-    if (newValue == 0) {
-        newValue = 1;
     }
 
     chan->inputSource.dspChannel = newValue;
@@ -383,7 +397,7 @@ bool mixerHasChanged(uint16_t p_flag){
 void mixerResetChangeFlags(void){
     mixer.changed = X32_MIXER_CHANGED_NONE;
     for (uint8_t i=0;i<MAX_VCHANNELS;i++){
-        mixerResetVChannelChangeFlags(&(mixer.vChannel[i])); 
+        mixerResetVChannelChangeFlags(&(mixer.vChannel[i]));
     }
 }
 
@@ -425,23 +439,29 @@ s_vChannel* mixerGetSelectedvChannel(void){
     return  &(mixer.vChannel[mixerGetSelectedvChannelIndex()]);
 }
 
-uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel)
-{
-    if ((mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) | (mixer.activeMode == X32_SURFACE_MODE_BANKING_USER)){
-
-        // TODO: Special Case: Main Fader
-
+uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel){
+    if ((mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) || (mixer.activeMode == X32_SURFACE_MODE_BANKING_USER)){
         if (mixerIsModelX32Full()){
             if (surfaceChannel <= 15){
+                // input-section
                 return mixer.modes[mixer.activeMode].inputBanks[mixer.activeBank_inputFader].surfaceChannel2vChannel[surfaceChannel];
+            } else if (surfaceChannel == 24) {
+                // main-channel
+                return 80;
             } else {
+                // bus-section and mainfader
                 return mixer.modes[mixer.activeMode].busBanks[mixer.activeBank_busFader].surfaceChannel2vChannel[surfaceChannel-16];
             }
         }
         if (mixerIsModelX32CompacrOrProducer()){
             if (surfaceChannel <= 7){
+                // input-section
                 return mixer.modes[mixer.activeMode].inputBanks[mixer.activeBank_inputFader].surfaceChannel2vChannel[surfaceChannel];
+            } else if (surfaceChannel == 16) {
+                // main-channel
+                return 80;
             } else {
+                // bus-section and mainfader
                 return mixer.modes[mixer.activeMode].busBanks[mixer.activeBank_busFader].surfaceChannel2vChannel[surfaceChannel-8];
             }
             return 0;
@@ -459,7 +479,7 @@ uint8_t mixerGetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t 
     if (p_board == X32_BOARD_M) { offset=8; }
     if (mixerIsModelX32Full()){
         if (p_board == X32_BOARD_R) { offset=16; }
-    } 
+    }
     if (mixerIsModelX32CompacrOrProducer()){
         if (p_board == X32_BOARD_R) { offset=8; }
     }
@@ -482,19 +502,19 @@ void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_
         if (p_board == X32_BOARD_M) { offset=8;}
         if (mixerIsModelX32Full()){
             if (p_board == X32_BOARD_R) { offset=16;}
-        } 
+        }
         if (mixerIsModelX32CompacrOrProducer()){
             if (p_board == X32_BOARD_R) { offset=8;}
         }
         vChannelIndex = mixerSurfaceChannel2vChannel(p_faderIndex + offset);
         mixerSetVolume(vChannelIndex, fader2dBfs(p_faderValue));
-        
+
         mixer.touchcontrol.board = p_board;
         mixer.touchcontrol.faderIndex = p_faderIndex;
         mixer.touchcontrol.value = 5;
 
         x32debug("mixerSurfaceFaderMoved(p_board=%d, p_faderIndex=%d, p_faderValue=0x%02X): vChannel%d TouchControl=%d\n", p_board, p_faderIndex, p_faderValue, vChannelIndex, mixer.touchcontrol.value);
-    }    
+    }
 }
 
 
@@ -502,7 +522,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
     X32_BTN button = button2enum(((uint16_t)p_board << 8) + (uint16_t)(p_value & 0x7F));
     bool buttonPressed = (p_value >> 7) == 1;
 
-    if (mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) {      
+    if (mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) {
         if (buttonPressed){
             switch (button) {
                 case X32_BTN_LEFT:
@@ -538,14 +558,16 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_UTILITY:
                     mixerShowPage(X32_PAGE_UTILITY);
                     break;
+                case X32_BTN_CH_1_16:
+                case X32_BTN_CH_17_32:
+                case X32_BTN_AUX_IN_EFFECTS:
+                case X32_BTN_BUS_MASTER:
+                case X32_BTN_EFFECTS_RETURNS:
                 case X32_BTN_CH_1_8:
                 case X32_BTN_CH_9_16:
                 case X32_BTN_CH_17_24:
                 case X32_BTN_CH_25_32:
-                case X32_BTN_CH_1_16:
-                case X32_BTN_CH_17_32:
                 case X32_BTN_AUX_IN_1_6_USB_REC:
-                case X32_BTN_EFFECTS_RETURNS:
                 case X32_BTN_BUS_1_8_MASTER:
                 case X32_BTN_BUS_9_16_MASTER:
                 case X32_BTN_GROUP_DCA_1_8:
@@ -582,6 +604,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_R_CH_6_SELECT:
                 case X32_BTN_BOARD_R_CH_7_SELECT:
                 case X32_BTN_BOARD_R_CH_8_SELECT:
+                case X32_BTN_MAIN_SELECT:
                     mixerToggleSelect(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_R_CH_1_SELECT));
                     break;
                 case X32_BTN_BOARD_L_CH_1_SOLO:
@@ -612,6 +635,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_R_CH_6_SOLO:
                 case X32_BTN_BOARD_R_CH_7_SOLO:
                 case X32_BTN_BOARD_R_CH_8_SOLO:
+                case X32_BTN_MAIN_SOLO:
                     mixerToggleSolo(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_R_CH_1_SOLO));
                     break;
                 case X32_BTN_BOARD_L_CH_1_MUTE:
@@ -623,7 +647,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_L_CH_7_MUTE:
                 case X32_BTN_BOARD_L_CH_8_MUTE:
                     mixerToggleMute(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_L_CH_1_MUTE));
-                    break;         
+                    break;
                 case X32_BTN_BOARD_M_CH_1_MUTE:
                 case X32_BTN_BOARD_M_CH_2_MUTE:
                 case X32_BTN_BOARD_M_CH_3_MUTE:
@@ -633,7 +657,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_M_CH_7_MUTE:
                 case X32_BTN_BOARD_M_CH_8_MUTE:
                     mixerToggleMute(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_M_CH_1_MUTE));
-                    break; 
+                    break;
                 case X32_BTN_BOARD_R_CH_1_MUTE:
                 case X32_BTN_BOARD_R_CH_2_MUTE:
                 case X32_BTN_BOARD_R_CH_3_MUTE:
@@ -642,8 +666,9 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_BOARD_R_CH_6_MUTE:
                 case X32_BTN_BOARD_R_CH_7_MUTE:
                 case X32_BTN_BOARD_R_CH_8_MUTE:
+                case X32_BTN_MAIN_MUTE:
                     mixerToggleMute(mixerGetvChannelIndexFromButtonOrFaderIndex(p_board, button - X32_BTN_BOARD_R_CH_1_MUTE));
-                    break;    
+                    break;
                 case X32_BTN_CLEAR_SOLO:
                     mixerClearSolo();
                     break;
@@ -708,7 +733,7 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 // TODO: Callback to x32ctrl if needed
                 x32debug("Unhandled encoder detected.\n");
                 break;
-        } 
+        }
     }
 
     // Display Encoders
@@ -756,7 +781,7 @@ void mixerSetSelect(uint8_t vChannelIndex, bool select){
     }
     mixer.vChannel[vChannelIndex].selected = select;
     mixer.vChannel[vChannelIndex].changed |= X32_VCHANNEL_CHANGED_SELECT;
-    
+
     mixer.selectedVChannel = vChannelIndex;
     mixerSetChangeFlags(X32_MIXER_CHANGED_SELECT);
 }
@@ -782,7 +807,7 @@ void mixerClearSolo(void){
     if (mixerIsSoloActivated()){
         for (int i=0; i<MAX_VCHANNELS; i++){
             mixerSetSolo(i, false);
-        } 
+        }
     }
 }
 
@@ -819,14 +844,32 @@ void mixerToggleMute(uint8_t vChannelIndex){
 void mixerBanking(X32_BTN p_button){
     if (mixerIsModelX32Full()){
         switch (p_button){
-            case X32_BTN_CH_9_16:
+            case X32_BTN_CH_1_16:
                 mixer.activeBank_inputFader = 0;
                 break;
             case X32_BTN_CH_17_32:
                 mixer.activeBank_inputFader = 1;
                 break;
+            case X32_BTN_AUX_IN_EFFECTS:
+                mixer.activeBank_inputFader = 2;
+                break;
+            case X32_BTN_BUS_MASTER:
+                mixer.activeBank_inputFader = 3;
+                break;
+            case X32_BTN_GROUP_DCA_1_8:
+                mixer.activeBank_busFader = 0;
+                break;
+            case X32_BTN_BUS_1_8:
+                mixer.activeBank_busFader = 1;
+                break;
+            case X32_BTN_BUS_9_16:
+                mixer.activeBank_busFader = 2;
+                break;
+            case X32_BTN_MATRIX_MAIN_C:
+                mixer.activeBank_busFader = 3;
+                break;
             default:
-                break;    
+                break;
         }
     }
     if (mixerIsModelX32CompacrOrProducer()){
@@ -868,7 +911,7 @@ void mixerBanking(X32_BTN p_button){
                 mixer.activeBank_busFader = 3;
                 break;
             default:
-                break;    
+                break;
         }
     }
 
@@ -938,7 +981,7 @@ void mixerShowPrevPage(void){
 
 
 void mixerShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
-    
+
     // first turn all page LEDs off
     setLedByEnum(X32_BTN_HOME, 0);
     setLedByEnum(X32_BTN_METERS, 0);
@@ -950,9 +993,9 @@ void mixerShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
     setLedByEnum(X32_BTN_UTILITY, 0);
     // turn all view LEDs of
     setLedByEnum(X32_BTN_VIEW_CONFIG, 0);
-    
+
     mixer.activePage = p_page;
-    
+
     switch (mixer.activePage)
     {
         case X32_PAGE_HOME:

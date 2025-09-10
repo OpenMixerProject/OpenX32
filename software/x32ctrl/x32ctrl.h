@@ -3,7 +3,7 @@
 
 #define DEBUG 0
 
-#define MAX_VCHANNELS 80
+#define MAX_VCHANNELS 81
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
 #define VCHANNEL_NOT_SET MAX_VCHANNELS+1
 #define VCHANNEL_IDX_MAIN 32

@@ -567,7 +567,6 @@ void syncSurfaceBoardMain() {
         if (mixerIsModelX32FullOrCompacrOrProducer()){
 
             // Channel section
-
             if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
                 setLedByEnum(X32_BTN_PHANTOM_48V, chan->inputSource.phantomPower); 
             }
@@ -623,7 +622,13 @@ void syncSurfaceBoard(X32_BOARD p_board) {
         if (p_board == X32_BOARD_R){ offset=8; }
     }
 
-    for(int i=0; i<=7; i++){
+    // update main-channel
+
+    uint8_t maxChannel = 7;
+    if ((p_board == X32_BOARD_R) && ((mixer.model == X32_MODEL_FULL) || (mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER))) {
+        maxChannel = 8; // include main-channel
+    }
+    for(int i=0; i<=maxChannel; i++){
         uint8_t vChannelIndex = mixerSurfaceChannel2vChannel(i+offset);
 
         if (vChannelIndex == VCHANNEL_NOT_SET) {
@@ -663,7 +668,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
                 }
 
                 if (
-                    fullSync                                                           || 
+                    fullSync                                                           ||
                     mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHASE_INVERT )  ||
                     mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME )        ||
                     mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)        ||
@@ -791,7 +796,7 @@ void parseParams(int argc, char *argv[]) {
             printf("Unknown parameter: %s\n", argv[i]);
         }
     }
-    
+
     // initializing DSPs and FPGA
     if (fpga > 0) {
         // configure FPGA with bitstream
@@ -838,7 +843,7 @@ int main(int argc, char *argv[]) {
     x32log("Connecting to peripheral hardware...\n");
     //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside
     uartOpen("/dev/ttymxc1", 115200, &fdSurface, true); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
-    uartOpen("/dev/ttymxc2", 38400, &fdAdda, false); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards and the Expansion Card
+    uartOpen("/dev/ttymxc2", 38400, &fdAdda, true); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards and the Expansion Card
     uartOpen("/dev/ttymxc3", 115200, &fdFpga, true); // this UART is connected to the FPGA
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); // this UART is connected to the MIDI-connectors but is used by the Linux-console
     spiOpenDspConnections();

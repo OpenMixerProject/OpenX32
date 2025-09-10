@@ -384,7 +384,7 @@ void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, s_vChannel* p_chan){
     data->icon.icon = 0;
     data->icon.x = 0;
     data->icon.y = 0;
-    
+
     // Gain / Lowcut
     sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan->inputSource.gain);
     data->texts[0].size = 0;
@@ -401,7 +401,11 @@ void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, s_vChannel* p_chan){
     data->texts[1].y = 15;
 
     // Volume / Panorama
-    sprintf(data->texts[2].text, "%.1fdB ---|---", p_chan->volume);
+    if (p_chan->volume>-100) {
+        sprintf(data->texts[2].text, "%.1fdB ---|---", p_chan->volume);
+    }else{
+        sprintf(data->texts[2].text, " -oodB ---|---");
+    }
     data->texts[2].size = 0;
     data->texts[2].x = 8;
     data->texts[2].y = 30;
@@ -1019,7 +1023,7 @@ void addEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
 
 void initDefinitions(void) {
     switch(mixer.model) {
-        case X32_MODEL_FULL:   
+        case X32_MODEL_FULL:
             addButtonDefinition( X32_BTN_TALK_A, 0x012E);
             addButtonDefinition( X32_BTN_TALK_B, 0x012F);
             addButtonDefinition( X32_BTN_VIEW_TALK, 0x0130);
@@ -1251,7 +1255,7 @@ void initDefinitions(void) {
             addButtonDefinition(X32_BTN_TALK_B,         0x0101);
             addButtonDefinition(X32_BTN_MONITOR_DIM,    0x0102);
             addButtonDefinition(X32_BTN_VIEW_MONITOR,   0x0103);
-            
+
             addButtonDefinition(X32_BTN_VIEW_USB,      0x0104);
 
             addButtonDefinition(X32_BTN_PHANTOM_48V, 0x0105);
@@ -1298,7 +1302,7 @@ void initDefinitions(void) {
             addButtonDefinition(X32_BTN_DOWN,           0x0127);
             addButtonDefinition(X32_BTN_LEFT,           0x0128);
             addButtonDefinition(X32_BTN_RIGHT,          0x0129);
-        
+
             // Board L
 
             addButtonDefinition(X32_BTN_CH_1_8, 0x400);
@@ -1443,7 +1447,7 @@ void initDefinitions(void) {
             addButtonDefinition(X32_BTN_CHANNEL_MUTE, 0x0002);
             addButtonDefinition(X32_BTN_TALK_A, 0x0003);
             addButtonDefinition(X32_BTN_CLEAR_SOLO, 0x0004);
-            addButtonDefinition(X32_BTN_CHANNEL_Encoder, 0x0005);
+            addButtonDefinition(X32_BTN_CHANNEL_ENCODER, 0x0005);
 
             addButtonDefinition(X32_BTN_HOME, 0x0006);
             addButtonDefinition(X32_BTN_METERS, 0x0007);
@@ -1494,8 +1498,6 @@ void initDefinitions(void) {
             addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
             addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0017);
 
-
-            
             break;
 
         case X32_MODEL_CORE:
