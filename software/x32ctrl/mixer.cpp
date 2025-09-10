@@ -347,15 +347,15 @@ void mixerChangeHardwareOutput(int8_t amount) {
 
 void mixerChangeHardwareInput(int8_t amount) {
     // get current routingIndex
-    int16_t newValue = mixingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex) + amount;
+    int16_t newValue = routingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex) + amount;
 
     if (newValue > NUM_INPUT_CHANNEL) {
         newValue -= NUM_INPUT_CHANNEL;
     }else if (newValue < 0){
         newValue += NUM_INPUT_CHANNEL;
     }
-    mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, newValue);
-    mixingTxRoutingConfig();
+    routingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, newValue);
+    routingSendConfigToFpga();
     mixerSetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
 

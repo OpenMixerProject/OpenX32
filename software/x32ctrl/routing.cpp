@@ -5,47 +5,47 @@
 
 sOpenx32 openx32;
 
-void mixingInit(void) {
+void routingInit(void) {
     // reset routing-configuration and dsp-configuration
-    mixingDefaultRoutingConfig();
+    routingDefaultConfig();
 }
 
 // set a default configuration for the audio-routing-matrix
-void mixingDefaultRoutingConfig(void) {
+void routingDefaultConfig(void) {
     // XLR-inputs 1-32 to DSP-inputs 1-32
     for (uint8_t ch=1; ch<=32; ch++) {
-        mixingSetOutputSource('d', ch, mixingGetSourceIndex('x', ch));
+        routingSetOutputSource('d', ch, routingGetSourceIndex('x', ch));
     }
     // AUX-inputs 1-8 to DSP-inputs 33-40
     for (uint8_t ch=1; ch<=8; ch++) {
-        mixingSetOutputSource('d', ch + 32, mixingGetSourceIndex('a', ch));
+        routingSetOutputSource('d', ch + 32, routingGetSourceIndex('a', ch));
     }
 
     // DSP-outputs 1-16 to XLR-outputs 1-16
     for (uint8_t ch=1; ch<=16; ch++) {
-        mixingSetOutputSource('x', ch, mixingGetSourceIndex('d', ch));
+        routingSetOutputSource('x', ch, routingGetSourceIndex('d', ch));
     }
     // DSP-outputs 17-32 to P16-output 1-16
     for (uint8_t ch=1; ch<=16; ch++) {
-        mixingSetOutputSource('p', ch, mixingGetSourceIndex('d', ch + 16));
+        routingSetOutputSource('p', ch, routingGetSourceIndex('d', ch + 16));
     }
     // DSP-outputs 33-40 to AUX-outputs 1-6 + ControlRoom L/R
     for (uint8_t ch=1; ch<=8; ch++) {
-        mixingSetOutputSource('a', ch, mixingGetSourceIndex('d', ch + 32));
+        routingSetOutputSource('a', ch, routingGetSourceIndex('d', ch + 32));
     }
 
     // XLR-inputs 1-32 to Card-outputs 1-32
     for (uint8_t ch=1; ch<=32; ch++) {
-        mixingSetOutputSource('c', ch, mixingGetSourceIndex('x', ch));
+        routingSetOutputSource('c', ch, routingGetSourceIndex('x', ch));
     }
 
 
     // transmit routing-configuration to FPGA
-    mixingTxRoutingConfig();
+    routingSendConfigToFpga();
 }
 
 // "compiles" the current mixer state into mixing routing
-void mixingSyncRoutingConfigFromMixer(void) {
+void routingSyncConfigFromMixer(void) {
 	// TODO: this function is not working at the moment as outputchannels are routed independently to the vChannels (DSP-Channels)
 	
 /*
@@ -72,10 +72,10 @@ void mixingSyncRoutingConfigFromMixer(void) {
                     // and separate dspChannel-routing from channel routing
 
                     // vChannel inputs can only be selected from one of the 40 channels routed to the DSP
-                    mixingSetOutputSource(
+                    routingSetOutputSource(
                         mixer.vChannel[i].outputDestination.hardwareGroup,
                         mixer.vChannel[i].outputDestination.hardwareChannel,
-                        mixingGetSourceIndex(
+                        routingGetSourceIndex(
                             mixer.vChannel[i].inputSource.hardwareGroup,
                             mixer.vChannel[i].inputSource.hardwareChannel
                         )
@@ -90,14 +90,14 @@ void mixingSyncRoutingConfigFromMixer(void) {
                 }
         }
         // transmit routing-configuration to FPGA
-//        mixingTxRoutingConfig();
+//        routingSendConfigToFpga();
 
         x32debug("Mixer routing to hardware synced\n");
     }
 */
 }
 
-void mixingSyncVChannelConfigFromMixer(void){
+void routingSyncVChannelConfigFromMixer(void){
     // TODO: implement trackback of currently selected vChannel-DSP-input back to the real hardware-source and then apply gain and phantom to this real source
 
     // loop trough all vChannels
@@ -112,14 +112,14 @@ void mixingSyncVChannelConfigFromMixer(void){
 
             // only the first 40 channels are able to control gain and phantomPower. DSP-Channels 41..64 do not support this
             if ((mixer.vChannel[i].inputSource.dspChannel >= 1) && (mixer.vChannel[i].inputSource.dspChannel <= 40)) {
-                mixingGetSourceGroupAndChannelByDspChannel(mixer.vChannel[i].inputSource.dspChannel, &group, &channel);
+                routingGetSourceGroupAndChannelByDspChannel(mixer.vChannel[i].inputSource.dspChannel, &group, &channel);
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
-                    mixingSetGain(group, channel, chan->inputSource.gain);
+                    halSetGain(group, channel, chan->inputSource.gain);
                 }
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
-                    mixingSetPhantomPower(group, channel, chan->inputSource.phantomPower);
+                    halSetPhantomPower(group, channel, chan->inputSource.phantomPower);
                 }
             }
             // TODO: Volume (a bit complicated)
@@ -130,7 +130,7 @@ void mixingSyncVChannelConfigFromMixer(void){
 }
 
 // set the outputs of the audio-routing-matrix to desired input-sources
-void mixingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) {
+void routingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) {
     // input-sources:
     // 0 = OFF
     // 1-32 = XLR-inputs
@@ -178,14 +178,14 @@ void mixingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) 
     }
 }
 
-void mixingSetOutputSourceByIndex(uint8_t index, uint8_t inputsource) {
+void routingSetOutputSourceByIndex(uint8_t index, uint8_t inputsource) {
     uint8_t group = 0;
     uint8_t channel = 0;
-    mixingGetOutputGroupAndChannelByIndex(index, &group, &channel);
-    mixingSetOutputSource(group, channel, inputsource);
+    routingGetOutputGroupAndChannelByIndex(index, &group, &channel);
+    routingSetOutputSource(group, channel, inputsource);
 }
 
-uint8_t mixingGetOutputSource(uint8_t group, uint8_t channel) {
+uint8_t routingGetOutputSource(uint8_t group, uint8_t channel) {
     // input-sources:
     // 1-32 = XLR-inputs
     // 33-64 = Card-inputs
@@ -232,15 +232,15 @@ uint8_t mixingGetOutputSource(uint8_t group, uint8_t channel) {
     }
 }
 
-uint8_t mixingGetOutputSourceByIndex(uint8_t index) {
+uint8_t routingGetOutputSourceByIndex(uint8_t index) {
     uint8_t group = 0;
     uint8_t channel = 0;
-    mixingGetOutputGroupAndChannelByIndex(index, &group, &channel);
-    return mixingGetOutputSource(group, channel);
+    routingGetOutputGroupAndChannelByIndex(index, &group, &channel);
+    return routingGetOutputSource(group, channel);
 }
 
 // get the absolute input-source (global channel-number)
-uint8_t mixingGetSourceIndex(uint8_t group, uint8_t channel) {
+uint8_t routingGetSourceIndex(uint8_t group, uint8_t channel) {
     // input-sources:
     // 1-32 = XLR-inputs
     // 33-64 = Card-inputs
@@ -277,7 +277,7 @@ uint8_t mixingGetSourceIndex(uint8_t group, uint8_t channel) {
     return 0;
 }
 
-uint8_t mixingGetOutputIndex(uint8_t group, uint8_t channel) {
+uint8_t routingGetOutputIndex(uint8_t group, uint8_t channel) {
     // output-taps
     // 1-16 = XLR-outputs
     // 17-32 = UltraNet/P16-outputs
@@ -318,7 +318,7 @@ uint8_t mixingGetOutputIndex(uint8_t group, uint8_t channel) {
     return 0;
 }
 
-void mixingGetSourceGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel) {
+void routingGetSourceGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel) {
     // input-sources:
     // 1-32 = XLR-inputs
     // 33-64 = Card-inputs
@@ -348,7 +348,7 @@ void mixingGetSourceGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_
 	}
 }
 
-void mixingGetOutputGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel) {
+void routingGetOutputGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel) {
     // output-taps
     // 1-16 = XLR-outputs
     // 17-32 = UltraNet/P16-outputs
@@ -382,14 +382,14 @@ void mixingGetOutputGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_
 	}
 }
 
-void mixingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel) {
+void routingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel) {
     // first lets find the connected source to this dspChannel
-    uint8_t index = mixingGetOutputSource('d', dspChannel);
-    mixingGetSourceGroupAndChannelByIndex(index, group, channel);
+    uint8_t index = routingGetOutputSource('d', dspChannel);
+    routingGetSourceGroupAndChannelByIndex(index, group, channel);
 }
 
 // get the input-source name
-void mixingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
+void routingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
     // input-sources:
     // 1-32 = XLR-inputs
     // 33-64 = Card-inputs
@@ -425,15 +425,15 @@ void mixingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
     }
 }
 
-void mixingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index) {
+void routingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index) {
     uint8_t group = 0;
     uint8_t channel = 0;
-    mixingGetSourceGroupAndChannelByIndex(index, &group, &channel);
-    mixingGetSourceName(p_nameBuffer, group, channel);
+    routingGetSourceGroupAndChannelByIndex(index, &group, &channel);
+    routingGetSourceName(p_nameBuffer, group, channel);
 }
 
 // get the output destination name
-void mixingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
+void routingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
     // output-taps
     // 1-16 = XLR-outputs
     // 17-32 = UltraNet/P16-outputs
@@ -473,22 +473,22 @@ void mixingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
     }
 }
 
-void mixingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
+void routingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
     uint8_t group = 0;
     uint8_t channel = 0;
-    mixingGetOutputGroupAndChannelByIndex(index, &group, &channel);
-    mixingGetOutputName(p_nameBuffer, group, channel);
+    routingGetOutputGroupAndChannelByIndex(index, &group, &channel);
+    routingGetOutputName(p_nameBuffer, group, channel);
 }
 
-void mixingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel) {
+void routingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel) {
     uint8_t group = 0;
     uint8_t channel = 0;
     if (dspChannel == 0) {
         sprintf(p_nameBuffer, "OFF");
     }else if ((dspChannel >=1 ) && (dspChannel <= 40)) {
         // we have one of the regular DSP channels which are regular inputs
-        mixingGetSourceGroupAndChannelByDspChannel(dspChannel, &group, &channel);
-        mixingGetOutputName(p_nameBuffer, group, channel);
+        routingGetSourceGroupAndChannelByDspChannel(dspChannel, &group, &channel);
+        routingGetOutputName(p_nameBuffer, group, channel);
     }else if ((dspChannel >=41 ) && (dspChannel <= 48)) {
        sprintf(p_nameBuffer, "FX %d", dspChannel - 40);
     }else if ((dspChannel >=49 ) && (dspChannel <= 64)) {
@@ -496,91 +496,8 @@ void mixingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel) {
     }
 }
 
-// set the gain of the local XLR head-amp-control
-void mixingSetGain(uint8_t group, uint8_t channel, float gain) {
-    uint8_t boardId;
-    uint8_t addaChannel;
-
-    switch (group) {
-        case 'x': // local XLR-inputs
-            // set value to internal struct
-            openx32.preamps.gainXlr[channel - 1] = gain;
-
-            // now send value to adda-board
-            boardId = addaGetBoardId(channel);
-            addaChannel = channel;
-            while (addaChannel > 8) {
-                addaChannel -= 8;
-            }
-            addaSetGain(boardId, addaChannel, openx32.preamps.gainXlr[channel - 1], openx32.preamps.phantomPowerXlr[channel - 1]);
-            break;
-        case 'A': // AES50A
-            openx32.preamps.gainAes50a[channel - 1] = gain;
-            break;
-        case 'B': // AES50B
-            openx32.preamps.gainAes50b[channel - 1] = gain;
-            break;
-    }
-}
-
-
-// enable or disable phatom-power of local XLR-inputs
-void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active) {
-    uint8_t boardId = 0;
-    uint8_t addaChannel = 0;
-
-    switch (group) {
-        case 'x': // local XLR-inputs
-            // set value to internal struct
-            openx32.preamps.phantomPowerXlr[channel - 1] = active;
-
-            // now send value to adda-board
-            boardId = addaGetBoardId(channel);
-            addaChannel = channel;
-            while (addaChannel > 8) {
-               addaChannel -= 8;
-            }
-            addaSetGain(boardId, addaChannel, openx32.preamps.gainXlr[channel - 1], openx32.preamps.phantomPowerXlr[channel - 1]);
-            break;
-        case 'A': // AES50A
-            openx32.preamps.phantomPowerAes50a[channel - 1] = active;
-            break;
-        case 'B': // AES50B
-            openx32.preamps.phantomPowerAes50b[channel - 1] = active;
-            break;
-    }
-}
-
-// set the general volume of one of the 40 DSP-channels
-void mixingSetVolume(uint8_t channel, float volume) {
-    // set value to interal struct
-    openx32.dspChannel[channel-1].volume = volume;
-
-/*
-    // send new volume to FPGA (later the DSP)
-    data_64b fpga_data;
-    float volume_left = ((float)pow(10, openx32.dspChannel[channel-1].volume/20.0f) * 128.0f) * limitMax((100 - openx32.dspChannel[channel-1].balance) * 2, 100) / 100.0f;
-    float volume_right = ((float)pow(10, openx32.dspChannel[channel-1].volume/20.0f) * 128.0f) * limitMax(openx32.dspChannel[channel-1].balance * 2, 100) / 100.0f;
-
-    fpga_data.u8[0] = trunc(volume_left);
-    fpga_data.u8[1] = trunc(volume_right);
-    uartTxToFPGA(FPGA_IDX_CH_VOL + (channel-1), &fpga_data);
-*/
-    //TODO: send volume to DSP via SPI
-}
-
-// set the balance of one of the 40 DSP-channels
-void mixingSetBalance(uint8_t channel, uint8_t balance) {
-    // set value to interal struct
-    openx32.dspChannel[channel-1].balance = balance;
-
-    // now update the volumes based on this balance
-//    mixingSetVolume(channel, openx32.dspChannel[channel-1].volume);
-    //TODO: send balance to DSP via SPI
-}
-
 // helper-function to send the audio-routing to the fpga
-void mixingTxRoutingConfig(void) {
+void routingSendConfigToFpga(void) {
     data_64b routingData;
 
     // copy routing-struct into array

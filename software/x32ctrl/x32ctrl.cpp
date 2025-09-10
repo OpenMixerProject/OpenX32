@@ -338,10 +338,10 @@ void syncAll(void) {
             syncSurface();
         }
         if (mixerHasChanged(X32_MIXER_CHANGED_ROUTING)) {
-            mixingSyncRoutingConfigFromMixer();
+            routingSyncConfigFromMixer();
         }
         if (mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
-            mixingSyncVChannelConfigFromMixer();
+            routingSyncVChannelConfigFromMixer();
         }
 
         mixerResetChangeFlags();
@@ -414,7 +414,7 @@ void syncGui(void) {
     if (mixer.activePage == X32_PAGE_CONFIG){
         char dspSourceName[10] = "";
         char inputSourceName[10] = "";
-        mixingGetDspSourceName(&dspSourceName[0], selected_vChannel->inputSource.dspChannel);
+        routingGetDspSourceName(&dspSourceName[0], selected_vChannel->inputSource.dspChannel);
         sprintf(&inputSourceName[0], "%02d: %s", selected_vChannel->inputSource.dspChannel, dspSourceName);
         lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
         lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)selected_vChannel->inputSource.gain);
@@ -422,7 +422,7 @@ void syncGui(void) {
         lv_label_set_text_fmt(objects.current_channel_invert, "%d", selected_vChannel->inputSource.phaseInvert);
 
         //char outputDestinationName[10] = "";
-        //mixingGetOutputName(&outputDestinationName[0], mixerGetSelectedvChannel());
+        //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedvChannel());
         //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
     }else if (mixer.activePage == X32_PAGE_ROUTING) {
         char outputDestinationName[10] = "";
@@ -430,12 +430,12 @@ void syncGui(void) {
         uint8_t routingIndex = 0;
 
         // read name of selected output-routing channel
-        mixingGetOutputNameByIndex(&outputDestinationName[0], mixer.selectedOutputChannelIndex);
+        routingGetOutputNameByIndex(&outputDestinationName[0], mixer.selectedOutputChannelIndex);
         lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
 
         // find name of currently set input-source
-		routingIndex = mixingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex);
-		mixingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
+		routingIndex = routingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex);
+		routingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
         lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
     }
 
@@ -849,7 +849,7 @@ int main(int argc, char *argv[]) {
 
     x32log("Initializing X32 Audio...\n");
     addaInit(48000);
-    mixingInit();
+    routingInit();
 
     // init xremote
     xremoteInit();

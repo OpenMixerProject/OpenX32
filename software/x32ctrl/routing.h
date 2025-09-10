@@ -46,32 +46,28 @@ typedef struct {
 
 extern sOpenx32 openx32;
 
-void mixingInit(void);
-void mixingDefaultRoutingConfig(void);
-void mixingSyncRoutingConfigFromMixer(void);
-void mixingSyncVChannelConfigFromMixer(void);
+void routingInit(void);
+void routingDefaultConfig(void);
+void routingSyncConfigFromMixer(void);
+void routingSyncVChannelConfigFromMixer(void);
 
-void mixingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource);
-void mixingSetOutputSourceByIndex(uint8_t index, uint8_t inputsource);
-uint8_t mixingGetOutputSource(uint8_t group, uint8_t channel);
-uint8_t mixingGetOutputSourceByIndex(uint8_t index);
+void routingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource);
+void routingSetOutputSourceByIndex(uint8_t index, uint8_t inputsource);
+uint8_t routingGetOutputSource(uint8_t group, uint8_t channel);
+uint8_t routingGetOutputSourceByIndex(uint8_t index);
 
-uint8_t mixingGetSourceIndex(uint8_t group, uint8_t channel);
-uint8_t mixingGetOutputIndex(uint8_t group, uint8_t channel);
-void mixingGetSourceGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel);
-void mixingGetOutputGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel);
-void mixingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel);
+uint8_t routingGetSourceIndex(uint8_t group, uint8_t channel);
+uint8_t routingGetOutputIndex(uint8_t group, uint8_t channel);
+void routingGetSourceGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel);
+void routingGetOutputGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel);
+void routingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel);
 
-void mixingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel);
-void mixingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index);
-void mixingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan);
-void mixingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
-void mixingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel);
+void routingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel);
+void routingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index);
+void routingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan);
+void routingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
+void routingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel);
 
-void mixingSetGain(uint8_t group, uint8_t channel, float gain);
-void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active);
-void mixingSetVolume(uint8_t channel, float volume);
-void mixingSetBalance(uint8_t channel, uint8_t balance);
-void mixingTxRoutingConfig(void);
+void routingSendConfigToFpga(void);
 
 #endif
