@@ -148,22 +148,19 @@ typedef struct {
 } sCompressor;
 
 typedef struct {
-	float volume; // in dB
+	float volume; // in p.u.
 	float balance; // -100 .. 0 .. +100
 	float sends[16];
 	sGate gate;
 	short peqMax;
 	sPEQ peq[5];
 	sCompressor compressor;
-
-	// converted data (TODO: could be calculated in i.MX25 lateron to save processing power)
-	float value_volume; // pow(10, openx32.channel[ch].volume/20.0f)
 } sChannel;
 
 struct {
-	float mainVolume;
-	float mainBalance;
-	float mainVolumeSub;
+	float mainVolume; // in p.u.
+	float mainBalance; // -100 .. 0 .. +100
+	float mainVolumeSub; // in p.u.
 
 	float samplerate;
 

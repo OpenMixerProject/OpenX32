@@ -160,7 +160,10 @@ void audioProcessData(void) {
 	float audioProcessedSample;
 	// iterate through all channels
 	//for (int ch = 0; ch < MAX_CHAN; ch++) {
-	for (int ch = 0; ch < 8; ch++) {
+
+	// 24 channels are the hard limit at the moment - on some occasions it will not be able to process all data until next buffer
+	// so stay at 16 channels for now
+	for (int ch = 0; ch < 16; ch++) {
 		// we have to calculate from oldest sample to newest, so we have to start at end of currently received buffer
 		for (int s = (SAMPLES_IN_BUFFER - 1); s >= 0; s--) {
 			// every sample will be processed in the following order:
@@ -184,7 +187,7 @@ void audioProcessData(void) {
 
 			// process channel-volume
 			// convert dB into linear value and then process audio
-			audioProcessedSample *= openx32.channel[ch].value_volume;
+			audioProcessedSample *= openx32.channel[ch].volume;
 
 			// limit audio to peak-values of 32-bit (TDM8). X32 will process "only" 24-bits and ignores the lower 8-bits
 			if (audioProcessedSample > 2147483648) {

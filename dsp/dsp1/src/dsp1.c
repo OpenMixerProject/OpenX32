@@ -134,21 +134,28 @@ void openx32Init(void) {
 		fxRecalcCompressor(&openx32.channel[ch].compressor);
 
 		// initialize volumes
-		openx32.channel[ch].value_volume = pow(10, openx32.channel[ch].volume/20.0f);
+		openx32.channel[ch].volume = 1.0f;
 	}
 }
 
 void openx32Command(unsigned int parameter, unsigned int value) {
-	if (parameter == 0x00000042) {
-		if (value == 0) {
-			sysreg_bit_clr(sysreg_FLAGS, FLG7);
-		}else if (value == 1) {
-			sysreg_bit_set(sysreg_FLAGS, FLG7);
-		}else{
-			sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+	if ((parameter >= 10) && (parameter < (10 + 32))) {
+		// volume for channels
+		memcpy(&openx32.channel[parameter - 10].volume, &value, 4);
+	}else if (parameter == 0x00000042) {
+		// LED-control
+		switch(value) {
+			case 0:
+				sysreg_bit_clr(sysreg_FLAGS, FLG7);
+				break;
+			case 1:
+				sysreg_bit_set(sysreg_FLAGS, FLG7);
+				break;
+			default:
+				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+				break;
 		}
 	}
-
 	// for later use: enable DMA-transmission via SPI
 	// read data via DMA
 	// spiDmaBegin(true, 20);
@@ -162,6 +169,10 @@ int main() {
 	systemPllInit();
 	systemExternalMemoryInit();
 	systemSruInit();
+
+	// turn-on LED
+	sysreg_bit_set(sysreg_FLAGS, FLG7);
+
 	spiInit();
 	openx32Init();
 	audioInit();
