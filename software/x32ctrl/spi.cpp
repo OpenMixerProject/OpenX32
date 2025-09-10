@@ -166,9 +166,12 @@ int spiConfigureFpga(const char *bitstream_path) {
     }
     ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
 */
+    fclose(bitstream_file);
+    close(spi_fd);
     free(tx_buffer);
     free(rx_buffer);
     free(file_buffer);
+    usleep(50 * 1000);
 
     return 0;
 }
@@ -317,6 +320,10 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
 			fflush(stdout);
 		}
 		printf("\n");
+
+		fclose(bitstream_file[i]);
+		close(spi_fd[i]);
+	        usleep(50 * 1000);
 	}
 
 	return 0;
