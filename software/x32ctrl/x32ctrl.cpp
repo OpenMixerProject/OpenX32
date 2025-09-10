@@ -341,7 +341,7 @@ void syncAll(void) {
             routingSyncConfigFromMixer();
         }
         if (mixerHasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
-            routingSyncVChannelConfigFromMixer();
+            halSyncVChannelConfigFromMixer();
         }
 
         mixerResetChangeFlags();
@@ -592,10 +592,6 @@ void syncSurfaceBoardMain() {
                 setLedByEnum(X32_BTN_CHANNEL_MUTE, chan->mute); 
             }
             if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)){
-
-                // TODO: volume2percent
-
-                // x32debug(" Volume");
                 // u_int16_t faderVolume = dBfs2fader(chan->volume);
                 // uint8_t pct = (faderVolume/VOLUME_MIN
                 // setEncoderRing(X32_BOARD_MAIN, 0, 0, , 1);

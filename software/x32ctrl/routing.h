@@ -42,7 +42,7 @@ typedef struct {
 typedef struct {
   sRouting routing;
   sPreamps preamps;
-  sDspChannel dspChannel[40]; // DSP-Channels
+  sDspChannel dspChannel[40]; // DSP-Channels with controls
 } sOpenx32;
 
 extern sOpenx32 openx32;
@@ -50,7 +50,6 @@ extern sOpenx32 openx32;
 void routingInit(void);
 void routingDefaultConfig(void);
 void routingSyncConfigFromMixer(void);
-void routingSyncVChannelConfigFromMixer(void);
 
 void routingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource);
 void routingSetOutputSourceByIndex(uint8_t index, uint8_t inputsource);

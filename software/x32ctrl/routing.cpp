@@ -97,38 +97,6 @@ void routingSyncConfigFromMixer(void) {
 */
 }
 
-void routingSyncVChannelConfigFromMixer(void){
-    // TODO: implement trackback of currently selected vChannel-DSP-input back to the real hardware-source and then apply gain and phantom to this real source
-
-    // loop trough all vChannels
-	uint8_t group = 0;
-	uint8_t channel = 0;
-    for (int i = 0; i < MAX_VCHANNELS; i++)
-    {
-        if (mixer.vChannel[i].inputSource.dspChannel == 0){
-            continue;
-        } else {
-            s_vChannel* chan = &mixer.vChannel[i];
-
-            // only the first 40 channels are able to control gain and phantomPower. DSP-Channels 41..64 do not support this
-            if ((mixer.vChannel[i].inputSource.dspChannel >= 1) && (mixer.vChannel[i].inputSource.dspChannel <= 40)) {
-                routingGetSourceGroupAndChannelByDspChannel(mixer.vChannel[i].inputSource.dspChannel, &group, &channel);
-
-                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
-                    halSetGain(group, channel, chan->inputSource.gain);
-                }
-
-                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
-                    halSetPhantomPower(group, channel, chan->inputSource.phantomPower);
-                }
-            }
-            // TODO: Volume (a bit complicated)
-        }
-    }
-
-    x32debug("Mixer gain to hardware synced\n");
-}
-
 // set the outputs of the audio-routing-matrix to desired input-sources
 void routingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) {
     // input-sources:

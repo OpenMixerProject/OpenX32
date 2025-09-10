@@ -2,6 +2,40 @@
 #include "uart.h"
 #include "adda.h"
 #include "mixer.h"
+#include "spi.h"
+
+void halSyncVChannelConfigFromMixer(void){
+    // loop trough all vChannels
+    uint8_t group = 0;
+    uint8_t channel = 0;
+    for (int i = 0; i < MAX_VCHANNELS; i++)
+    {
+        if (mixer.vChannel[i].inputSource.dspChannel == 0){
+            continue;
+        } else {
+            s_vChannel* chan = &mixer.vChannel[i];
+
+            // only the first 40 channels are able to control gain and phantomPower. DSP-Channels 41..64 do not support this
+            if ((mixer.vChannel[i].inputSource.dspChannel >= 1) && (mixer.vChannel[i].inputSource.dspChannel <= 40)) {
+                routingGetSourceGroupAndChannelByDspChannel(mixer.vChannel[i].inputSource.dspChannel, &group, &channel);
+
+                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
+                    halSetGain(group, channel, chan->inputSource.gain);
+                }
+
+                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+                    halSetPhantomPower(group, channel, chan->inputSource.phantomPower);
+                }
+
+                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)){
+                    halSetVolume(chan->inputSource.dspChannel, chan->volume);
+                }
+            }
+        }
+    }
+
+    x32debug("Mixer gain to hardware synced\n");
+}
 
 // set the gain of the local XLR head-amp-control
 void halSetGain(uint8_t group, uint8_t channel, float gain) {
@@ -63,17 +97,11 @@ void halSetVolume(uint8_t channel, float volume) {
     // set value to interal struct
     openx32.dspChannel[channel-1].volume = volume;
 
-/*
-    // send new volume to FPGA (later the DSP)
-    data_64b fpga_data;
-    float volume_left = ((float)pow(10, openx32.dspChannel[channel-1].volume/20.0f) * 128.0f) * limitMax((100 - openx32.dspChannel[channel-1].balance) * 2, 100) / 100.0f;
-    float volume_right = ((float)pow(10, openx32.dspChannel[channel-1].volume/20.0f) * 128.0f) * limitMax(openx32.dspChannel[channel-1].balance * 2, 100) / 100.0f;
-
-    fpga_data.u8[0] = trunc(volume_left);
-    fpga_data.u8[1] = trunc(volume_right);
-    uartTxToFPGA(FPGA_IDX_CH_VOL + (channel-1), &fpga_data);
-*/
-    //TODO: send volume to DSP via SPI
+    // send volume to DSP via SPI
+    float value = pow(10, volume/20.0f);
+    uint32_t valueRaw;
+    memcpy(&valueRaw, &value, 4);
+    spiSendDspParameter(0, 10 + (channel - 1), valueRaw);
 }
 
 // set the balance of one of the 40 DSP-channels
