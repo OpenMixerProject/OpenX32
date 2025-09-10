@@ -37,6 +37,8 @@
 #define X32_MIXER_CHANGED_VCHANNEL         0b0000000000010000
 // displayed page changed
 #define X32_MIXER_CHANGED_PAGE             0b0000000000100000
+// gui parameter has changed (general screen-refresh requested)
+#define X32_MIXER_CHANGED_GUI              0b1000000000000000
 
 
 #define SURFACE_COLOR_BLACK 0
@@ -123,6 +125,7 @@
 #include "x32ctrl_types.h"
 #include "WString.h"
 #include "auxiliary.h"
+#include "mixing.h"
 
 // function prototypes
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer);

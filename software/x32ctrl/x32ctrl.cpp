@@ -42,7 +42,6 @@
 #include "uart.h"
 #include "surface.h"
 #include "adda.h"
-#include "mixing.h"
 #include "mixer.h"
 #include "fpga.h"
 #include "touchcontrol.h"
@@ -410,17 +409,31 @@ void syncGui(void) {
     //####################################
 
     if (mixer.activePage == X32_PAGE_CONFIG){
-
         char inputSourceName[10] = "";
-        mixingGetInputName(&inputSourceName[0], selected_vChannel->inputSource.hardwareGroup, selected_vChannel->inputSource.hardwareChannel);
+		sprintf(&inputSourceName[0], "DSP%d", selected_vChannel->inputSource.dspChannel); // TODO: here we can use more than the 40 input-channels as the DSP has access to all 16 busses and FX-returns
         lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
         lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)selected_vChannel->inputSource.gain);
         lv_label_set_text_fmt(objects.current_channel_phantom, "%d", selected_vChannel->inputSource.phantomPower);
         lv_label_set_text_fmt(objects.current_channel_invert, "%d", selected_vChannel->inputSource.phaseInvert);
 
+        //char outputDestinationName[10] = "";
+        //mixingGetOutputName(&outputDestinationName[0], mixerGetSelectedvChannel());
+        //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
+    }else if (mixer.activePage == X32_PAGE_ROUTING) {
         char outputDestinationName[10] = "";
-        mixingGetOutputName(&outputDestinationName[0], mixerGetSelectedvChannel());
-        lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
+        char inputSourceName[10] = "";
+        uint8_t group = 0;
+        uint8_t channel = 0;
+        uint8_t routingIndex = 0;
+
+        // read name of selected output-routing channel
+        mixingGetOutputNameByIndex(&outputDestinationName[0], mixer.selectedOutputChannelIndex);
+        lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
+
+        // find name of currently set input-source
+		routingIndex = mixingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex);
+		mixingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
+        lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
     }
 
 
@@ -429,7 +442,6 @@ void syncGui(void) {
     //####################################
 
     for(int i=0; i<=15; i++){
-
         s_vChannel *chan = &mixer.vChannel[i];
 
         if (chan->inputSource.phantomPower){
@@ -565,11 +577,9 @@ void syncSurfaceBoardMain() {
         }
 
         if (mixerIsModelX32Rack()){
-
             // Channel section
-
             setLedChannelIndicator();
-            s_vChannel *chan = mixerGetSelectedvChannel();
+            chan = mixerGetSelectedvChannel();
 
             if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SOLO)){
                 x32debug(" Solo");
@@ -744,11 +754,67 @@ void x32debug(const char *format, ...)
 #endif
 }
 
+void parseParams(int argc, char *argv[]) {
+    int fpga = -1;
+    int dsp1 = -1;
+    int dsp2 = -1;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-fpga") == 0) {
+            if (i + 1 < argc) {
+                fpga = i+1;
+                i++;
+            } else {
+                fpga = -1;
+            }
+        }
+        else if (strcmp(argv[i], "-dsp1") == 0) {
+            if (i + 1 < argc) {
+                dsp1 = i+1; // value for dsp1 is in argv[i+1]
+                i++;
+            } else {
+                dsp1 = -1;
+            }
+        }
+        else if (strcmp(argv[i], "-dsp2") == 0) {
+            if (i + 1 < argc) {
+                dsp2 = i+1; // value for dsp2 is in argv[i+1]
+                i++;
+            } else {
+                dsp2 = -1;
+            }
+        }
+        // handle unknown parameters
+        else {
+            printf("Unknown parameter: %s\n", argv[i]);
+        }
+    }
+    
+    // initializing DSPs and FPGA
+    if (fpga > 0) {
+        // configure FPGA with bitstream
+        spiConfigureFpga(argv[fpga]);
+    }
+    if ((dsp1 > 0) && (dsp2 > 0)) {
+        // initialize both DSPs
+        spiConfigureDsp(argv[dsp1], argv[dsp2], 2);
+    }else if (dsp1 > 0) {
+        // initialize main-DSP
+        spiConfigureDsp(argv[dsp1], "", 1);
+    }
+}
 
 // the main-function - of course
 int main(int argc, char *argv[]) {
     srand(time(NULL));
 
+    x32log("  ____                  __   ______ ___  \n");
+    x32log(" / __ \\                 \\ \\ / /___ \\__ \\ \n");
+    x32log("| |  | |_ __   ___ _ __  \\ V /  __) | ) |\n");
+    x32log("| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / / \n");
+    x32log("| |__| | |_) |  __/ | | |/ . \\ ___) / /_ \\n");
+    x32log(" \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|\n");
+    x32log("       | |                               \n");
+    x32log("       |_|                               \n");
     x32log("OpenX32 Main Control\n");
     x32log("v0.0.7, 09.09.2025\n");
     x32log("https://github.com/OpenMixerProject/OpenX32\n");
@@ -761,39 +827,10 @@ int main(int argc, char *argv[]) {
     readConfig("/etc/x32.conf", "MDL=", model, 12);
     readConfig("/etc/x32.conf", "SN=", serial, 12);
     readConfig("/etc/x32.conf", "DATE=", date, 16);
-
-    X32_MODEL modelEnum;
-    if (strcmp(model, "X32Core") == 0) {
-        modelEnum = X32_MODEL_CORE;
-    }else if (strcmp(model, "X32RACK") == 0) {
-        modelEnum = X32_MODEL_RACK;
-    }else if (strcmp(model, "X32Producer") == 0) {
-        modelEnum = X32_MODEL_PRODUCER;
-    }else if (strcmp(model, "X32C") == 0) {
-        modelEnum =  X32_MODEL_COMPACT;
-    }else if (strcmp(model, "X32") == 0) {
-        modelEnum = X32_MODEL_FULL;
-    }else{
-        x32log("ERROR: No model detected!\n");
-        modelEnum = X32_MODEL_NONE;
-    }
     x32log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
-    initMixer(modelEnum);
-
-    // initializing DSPs and FPGA
-    if (argc >= 2) {
-        // load fpga if called like "x32ctrl fpga.bit"
-        if (spiConfigureFpga(argv[1]) < 0) {
-            return -1;
-        };
-        if (argc >= 3) {
-            // load dsp if called like "x32ctrl fpga.bit dsp1.ldr" or "x32ctrl fpga.bit dsp1.ldr dsp2.ldr"
-            if (spiConfigureDsp(argv[2], argv[3], argc-2) < 0) {
-                return -1;
-            };
-        }
-    }
+    mixerInit(model);
+    parseParams(argc, argv);
 
     x32log("Connecting to peripheral hardware...\n");
     //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside

@@ -5,7 +5,7 @@
 
 extern s_Mixer mixer;
 
-void initMixer(X32_MODEL model);
+void mixerInit(char model[]);
 bool mixerIsModelX32Full(void);
 bool mixerIsModelX32FullOrCompacrOrProducer(void);
 bool mixerIsModelX32CompacrOrProducer(void);

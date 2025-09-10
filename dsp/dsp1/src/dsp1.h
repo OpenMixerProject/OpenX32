@@ -6,7 +6,6 @@
 #define __DSP1_H__
 
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
-#define SAMPLERATE				48000.0f
 #define SAMPLES_IN_BUFFER		16
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * 8
 #define PI						3.1415926535897932384626433832795f
@@ -56,7 +55,7 @@ typedef struct {
 	float Q; // Quality of PEQ (bandwidth)
 	float gain; // gain of PEQ
 
-	// filter-coefficients
+	// filter-coefficients (TODO: could be calculated in i.MX25 lateron to save processing power)
 	double a[3];
 	double b[3];
 
@@ -80,7 +79,7 @@ typedef struct {
 	float fc; // cutoff-frequency for high- or lowpass
 	bool isHighpass; // choose if Highpass or Lowpass
 
-	// filter-coefficients
+	// filter-coefficients (TODO: could be calculated in i.MX25 lateron to save processing power)
 	double a[5];
 	double b[5];
 } sLR24;
@@ -100,7 +99,7 @@ typedef struct {
 	float holdTime_ms;
 	float releaseTime_ms;
 
-	// filter-data
+	// filter-data (TODO: could be calculated in i.MX25 lateron to save processing power)
 	float value_threshold;
 	float value_gainmin;
 	float value_coeff_attack;
@@ -132,9 +131,8 @@ typedef struct {
 	float holdTime_ms;
 	float releaseTime_ms;
 
-	// filter-data
+	// filter-data (TODO: could be calculated in i.MX25 lateron to save processing power)
 	float value_threshold;
-	float value_ratio;
 	float value_makeup;
 	float value_coeff_attack;
 	float value_hold_ticks;
@@ -158,7 +156,7 @@ typedef struct {
 	sPEQ peq[5];
 	sCompressor compressor;
 
-	// converted data
+	// converted data (TODO: could be calculated in i.MX25 lateron to save processing power)
 	float value_volume; // pow(10, openx32.channel[ch].volume/20.0f)
 } sChannel;
 
@@ -166,6 +164,8 @@ struct {
 	float mainVolume;
 	float mainBalance;
 	float mainVolumeSub;
+
+	float samplerate;
 
 	sChannel channel[MAX_CHAN];
 } openx32;

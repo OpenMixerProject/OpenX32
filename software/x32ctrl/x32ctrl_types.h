@@ -88,17 +88,11 @@ typedef struct{
 
 
 typedef struct{
-    uint8_t hardwareGroup;
-    uint8_t hardwareChannel;
+    uint8_t dspChannel;
     bool phantomPower; // TODO dont do it localy, use mixing data
     float gain;        // TODO dont do it localy, use mixing data
     bool phaseInvert;  // TODO dont do it localy, use mixing data
 } s_inputSource;
-
-typedef struct{
-    uint8_t hardwareGroup;
-    uint8_t hardwareChannel;
-} s_outputDestination;
 
 // virtual mixer channel
 typedef struct{
@@ -119,7 +113,6 @@ typedef struct{
     // 1 - main channel
     uint8_t vChannelType;
     s_inputSource inputSource;
-    s_outputDestination outputDestination;
 } s_vChannel;
 
 
@@ -160,6 +153,7 @@ typedef struct{
     uint8_t activeBank_inputFader;
     uint8_t activeBank_busFader;
     uint8_t selectedVChannel;
+	uint8_t selectedOutputChannelIndex;
     X32_PAGE activePage;
 
     // solo is (somewhere) activated

@@ -69,12 +69,12 @@ void create_screen_main() {
             lv_obj_set_pos(obj, 2, 443);
             lv_obj_set_size(obj, 796, 35);
             static const char *map[7] = {
+                "Turn: Output",
                 "Turn: Source",
                 "Turn: Gain\nPress: 48V",
                 "-",
                 "-",
                 "-",
-                "Turn: Destination",
                 NULL,
             };
             lv_buttonmatrix_set_map(obj, map);
@@ -451,13 +451,13 @@ void create_screen_main() {
                                                 NULL,
                                             };
                                             static lv_buttonmatrix_ctrl_t ctrl_map[7] = {
-                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
-                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
-                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
-                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
-                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
-                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
-                                                (lv_buttonmatrix_ctrl_t)(1 | LV_BUTTONMATRIX_CTRL_CHECKABLE),
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
                                             };
                                             lv_buttonmatrix_set_map(obj, map);
                                             lv_buttonmatrix_set_ctrl_map(obj, ctrl_map);
@@ -503,9 +503,51 @@ void create_screen_main() {
                             lv_label_set_text(obj, "Routing");
                         }
                         {
+                            lv_obj_t *obj = lv_obj_create(parent_obj);
+                            lv_obj_set_pos(obj, 8, 20);
+                            lv_obj_set_size(obj, 253, 288);
+                            {
+                                lv_obj_t *parent_obj = obj;
+                                {
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    lv_obj_set_pos(obj, -6, 44);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_label_set_text(obj, "Source:");
+                                }
+                                {
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    lv_obj_set_pos(obj, -6, 19);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_label_set_text(obj, "Output:");
+                                }
+                                {
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    lv_obj_set_pos(obj, -6, -13);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_label_set_text(obj, "Hardware Channel-Routing");
+                                }
+                                {
+                                    // hardware_channel_output
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    objects.hardware_channel_output = obj;
+                                    lv_obj_set_pos(obj, 65, 19);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_label_set_text(obj, "X32");
+                                }
+                                {
+                                    // hardware_channel_source
+                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                    objects.hardware_channel_source = obj;
+                                    lv_obj_set_pos(obj, 65, 44);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    lv_label_set_text(obj, "X32");
+                                }
+                            }
+                        }
+                        {
                             lv_obj_t *obj = lv_table_create(parent_obj);
-                            lv_obj_set_pos(obj, 0, 20);
-                            lv_obj_set_size(obj, 758, 304);
+                            lv_obj_set_pos(obj, 554, 20);
+                            lv_obj_set_size(obj, 204, 304);
                         }
                     }
                 }

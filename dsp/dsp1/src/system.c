@@ -10,6 +10,7 @@ void systemPllInit()
 	pmctlsetting &= ~(0xFF); // clear pmctlsetting
 
 	// Core clock = 16MHz * (16/1) = 256 MHz
+	// PLLM=33 and PLLD2 would be another option for 264MHz. Maximum is 266MHz
 	pmctlsetting = (PLLM16 | PLLD1 | DIVEN | SDCKR2); // multiplier=16 | divider=1 | divider enabled | SD-Clock-Ratio=2=128MHz
 	*pPMCTL = pmctlsetting;
 }

@@ -41,6 +41,8 @@ typedef struct _objects_t {
     lv_obj_t *slider16;
     lv_obj_t *phantomindicators;
     lv_obj_t *volumes;
+    lv_obj_t *hardware_channel_output;
+    lv_obj_t *hardware_channel_source;
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;

@@ -12,13 +12,24 @@ s_Mixer mixer;
 // #
 // ####################################################################
 
-void initMixer(X32_MODEL p_model) {
+void mixerInit(char model[]) {
+    if (strcmp(model, "X32Core") == 0) {
+        mixer.model = X32_MODEL_CORE;
+    }else if (strcmp(model, "X32RACK") == 0) {
+        mixer.model = X32_MODEL_RACK;
+    }else if (strcmp(model, "X32Producer") == 0) {
+        mixer.model = X32_MODEL_PRODUCER;
+    }else if (strcmp(model, "X32C") == 0) {
+        mixer.model =  X32_MODEL_COMPACT;
+    }else if (strcmp(model, "X32") == 0) {
+        mixer.model = X32_MODEL_FULL;
+    }else{
+        x32log("ERROR: No model detected!\n");
+        mixer.model = X32_MODEL_NONE;
+    }
+
+    x32debug("############# InitMixer(model_index=%d) #############\n", mixer.model);
     mixerInitPages();
-
-    x32debug("############# InitMixer(model_index=%d) #############\n", p_model);
-
-    mixer.model = p_model;
-
     initDefinitions();
 
     // disable all vChannels
@@ -65,8 +76,7 @@ void initMixer(X32_MODEL p_model) {
         s_inputSource *input = &vChannel->inputSource;
         input->phantomPower = false;
         input->phaseInvert = false;
-        //input->hardwareGroup = 'x';
-        //input->hardwareChannel = i+1;
+		input->dspChannel = i+1;
 
         // TODO: assign vChannel to "bus vChannel"
 // #if DEBUG
@@ -145,10 +155,7 @@ void initMixer(X32_MODEL p_model) {
         s_inputSource *input = &vChannel->inputSource;
         input->phantomPower = false;
         input->phaseInvert = false;
-        input->hardwareGroup = 'a';
-        input->hardwareChannel = i+1;
-        vChannel->outputDestination.hardwareGroup = 'x';
-        vChannel->outputDestination.hardwareChannel = i+8 + 8;
+        input->dspChannel = index + 1;
 
         if(i <=5){
             sprintf(&vChannel->name[0], "AUX%d", i+1);
@@ -278,10 +285,7 @@ void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_vChannelIndex, b
     p_vChannel->vChannelType = 0; // normal channel
 
     // disable all audio
-    p_vChannel->inputSource.hardwareGroup = 0;
-    p_vChannel->inputSource.hardwareChannel = 0;
-    p_vChannel->outputDestination.hardwareGroup = 0;
-    p_vChannel->outputDestination.hardwareChannel = 0;
+    p_vChannel->inputSource.dspChannel = 0;
 }
 
 // ####################################################################
@@ -294,341 +298,62 @@ void mixerSetVChannelDefaults(s_vChannel* p_vChannel, uint8_t p_vChannelIndex, b
 
 
 // change the input of the selected vChannel
-void mixerSwitchVChannelToNextInput(){
-    // input-sources:
-    // 1-32 = XLR-inputs
-    // 33-64 = Card-inputs
-    // 65-72 = AUX-inputs
-    // 73-112 = DSP-outputs
-    // 113-160 = AES50A-inputs
-    // 161-208 = AES50B-inputs
-
+void mixerChangeVChannel(int8_t amount){
+    // each vChannel is routed within the DSP and has access to either the 40 input-channels or one of the 16 busses or FX-returns
+	
     s_vChannel *chan = mixerGetSelectedvChannel();
+    x32debug("mixerChangeVChannel(): dspChannel=%d\n", chan->inputSource.dspChannel);
+
+    int16_t newValue = (int16_t)chan->inputSource.dspChannel + amount;
+
+    if (newValue >= 40) {
+        chan->inputSource.dspChannel = 40;
+    }else if (newValue < 0) {
+        chan->inputSource.dspChannel = 0;
+    }else{
+        chan->inputSource.dspChannel = newValue;
+    }
+
+    mixerSetVChannelChangeFlags(chan, X32_VCHANNEL_CHANGED_INPUT);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_ROUTING);
+}
+
+void mixerChangeHardwareOutput(int8_t amount) {
+    // output-taps
+    // 1-16 = XLR-outputs
+    // 17-32 = UltraNet/P16-outputs
+    // 33-64 = Card-outputs
+    // 65-72 = AUX-outputs
+    // 73-112 = DSP-inputs
+    // 113-160 = AES50A-outputs
+    // 161-208 = AES50B-outputs
+
+    int16_t newValue = (int16_t)mixer.selectedOutputChannelIndex + amount;
+
+    if (newValue > NUM_OUTPUT_CHANNEL) {
+        mixer.selectedOutputChannelIndex = NUM_OUTPUT_CHANNEL;
+    }else if (newValue < 0){
+        mixer.selectedOutputChannelIndex = 0;
+    }else{
+		mixer.selectedOutputChannelIndex = newValue;
+    }
+    mixerSetChangeFlags(X32_MIXER_CHANGED_GUI);
+}
+
+void mixerChangeHardwareInput(int8_t amount) {
+    // get current routingIndex
+    int16_t newValue = mixingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex) + amount;
     
-    x32debug("mixerSwitchVChannelToNextInput(): hardwareGroup=%d hardwareChannel=%d\n", chan->inputSource.hardwareGroup, chan->inputSource.hardwareChannel);
-
-    // disabled inputs: start with XLR
-    if ((chan->inputSource.hardwareGroup == 0)&&(chan->inputSource.hardwareChannel == 0)){
-        chan->inputSource.hardwareGroup = 'x';  
-        chan->inputSource.hardwareChannel = 1 -1;  // Offset -1, because we increment
+    if (newValue > NUM_INPUT_CHANNEL) {
+        mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, NUM_INPUT_CHANNEL);
+    }else if (newValue < 0){
+        mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, 0);
+    }else{
+		mixingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, newValue);
     }
-
-    switch(chan->inputSource.hardwareGroup){
-        case 'x':
-            if (chan->inputSource.hardwareChannel < 32){
-                chan->inputSource.hardwareChannel++;
-            } else {
-                chan->inputSource.hardwareGroup = 'c';
-                chan->inputSource.hardwareChannel = 1;
-            }
-            break;
-        case 'c':
-            if (chan->inputSource.hardwareChannel < 32){
-                chan->inputSource.hardwareChannel++;
-            } else {
-                chan->inputSource.hardwareGroup = 'a';
-                chan->inputSource.hardwareChannel = 1;
-            }
-            break;
-        case 'a':
-            if (chan->inputSource.hardwareChannel < 8){
-                chan->inputSource.hardwareChannel++;
-            } else {
-                chan->inputSource.hardwareGroup = 'd';
-                chan->inputSource.hardwareChannel = 1;
-            }
-            break;
-        case 'd':
-            if (chan->inputSource.hardwareChannel < 40){
-                chan->inputSource.hardwareChannel++;
-            } else {
-                chan->inputSource.hardwareGroup = 0;
-                chan->inputSource.hardwareChannel = 1;
-            }
-            break;
-        case 0:
-            if (chan->inputSource.hardwareChannel < 48){
-                chan->inputSource.hardwareChannel++;
-            } else {
-                chan->inputSource.hardwareGroup = 1;
-                chan->inputSource.hardwareChannel = 1;
-            }
-            break;
-        case 1:
-             if (chan->inputSource.hardwareChannel < 48){
-                chan->inputSource.hardwareChannel++;
-            } else {
-                // disable
-                chan->inputSource.hardwareGroup = 0;
-                chan->inputSource.hardwareChannel = 0;
-            }
-            break;
-        default:
-            chan->inputSource.hardwareGroup = 0;
-            chan->inputSource.hardwareChannel = 0;
-            break;
-    }
-
-    mixerSetVChannelChangeFlags(chan, X32_VCHANNEL_CHANGED_INPUT);
-    mixerSetChangeFlags(X32_MIXER_CHANGED_ROUTING);
+	mixingTxRoutingConfig();
+    mixerSetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
-
-// change the input of the selected vChannel
-void mixerSwitchVChannelToPrevInput(){
-    // input-sources:
-    // 1-32 = XLR-inputs
-    // 33-64 = Card-inputs
-    // 65-72 = AUX-inputs
-    // 73-112 = DSP-outputs
-    // 113-160 = AES50A-inputs
-    // 161-208 = AES50B-inputs
-
-    s_vChannel *chan = mixerGetSelectedvChannel();
-
-    x32debug("mixerSwitchVChannelToPrevInput(): hardwareGroup=%d hardwareChannel=%d\n", chan->inputSource.hardwareGroup, chan->inputSource.hardwareChannel);
-
-    // disabled inputs: start with AES50B
-    if ((chan->inputSource.hardwareGroup == 0)&&(chan->inputSource.hardwareChannel == 0)){
-        chan->inputSource.hardwareGroup= 1;
-        chan->inputSource.hardwareChannel= 48 +1; // offset +1, because we decrement
-    }
-
-    switch(chan->inputSource.hardwareGroup){
-        case 'x':
-            if (chan->inputSource.hardwareChannel > 1){
-                chan->inputSource.hardwareChannel--;
-            } else {
-                chan->inputSource.hardwareGroup = 0;
-                chan->inputSource.hardwareChannel = 0;
-            }
-            break;
-        case 'c':
-            if (chan->inputSource.hardwareChannel > 1){
-                chan->inputSource.hardwareChannel--;
-            } else {
-                chan->inputSource.hardwareGroup = 'x';
-                chan->inputSource.hardwareChannel = 32;
-            }
-            break;
-        case 'a':
-            if (chan->inputSource.hardwareChannel > 1){
-                chan->inputSource.hardwareChannel--;
-            } else {
-                chan->inputSource.hardwareGroup = 'c';
-                chan->inputSource.hardwareChannel = 32;
-            }
-            break;
-        case 'd':
-            if (chan->inputSource.hardwareChannel > 1){
-                chan->inputSource.hardwareChannel--;
-            } else {
-                chan->inputSource.hardwareGroup = 'a';
-                chan->inputSource.hardwareChannel = 8;
-            }
-            break;
-        case 0:
-            if (chan->inputSource.hardwareChannel > 1){
-                chan->inputSource.hardwareChannel--;
-            } else {
-                chan->inputSource.hardwareGroup = 'd';
-                chan->inputSource.hardwareChannel = 40;
-            }
-            break;
-        case 1:
-             if (chan->inputSource.hardwareChannel > 1){
-                chan->inputSource.hardwareChannel--;
-            } else {
-                chan->inputSource.hardwareGroup = 0;
-                chan->inputSource.hardwareChannel = 48;
-            }
-            break;
-        default:
-            // unknown -> disable
-            chan->inputSource.hardwareGroup = 0;
-            chan->inputSource.hardwareChannel = 0;
-            break;
-    }
-
-    mixerSetVChannelChangeFlags(chan, X32_VCHANNEL_CHANGED_INPUT);
-    mixerSetChangeFlags(X32_MIXER_CHANGED_ROUTING);
-}
-
-// change the ouput of the selected vChannel
-void mixerSwitchVChannelToNextOutput(){
-    // output-taps
-    // 1-16 = XLR-outputs
-    // 17-32 = UltraNet/P16-outputs
-    // 33-64 = Card-outputs
-    // 65-72 = AUX-outputs
-    // 73-112 = DSP-inputs
-    // 113-160 = AES50A-outputs
-    // 161-208 = AES50B-outputs
-
-    s_vChannel *chan = mixerGetSelectedvChannel();
-
-    // disabled inputs: start with XLR1
-    if ((chan->outputDestination.hardwareGroup == 0)&&(chan->outputDestination.hardwareChannel == 0)){
-        chan->outputDestination.hardwareGroup= 'x';
-        chan->outputDestination.hardwareChannel= 1 -1; // Offset -1, because we increment
-    }
-
-    switch(chan->outputDestination.hardwareGroup){
-        case 'x':
-            if (chan->outputDestination.hardwareChannel < 16){
-                chan->outputDestination.hardwareChannel++;
-            } else {
-                chan->outputDestination.hardwareGroup = 'p';
-                chan->outputDestination.hardwareChannel = 1;
-            }
-            break;
-        case 'p':
-            if (chan->outputDestination.hardwareChannel < 16){
-                chan->outputDestination.hardwareChannel++;
-            } else {
-                chan->outputDestination.hardwareGroup = 'c';
-                chan->outputDestination.hardwareChannel = 1;
-            }
-            break;
-        case 'c':
-            if (chan->outputDestination.hardwareChannel < 32){
-                chan->outputDestination.hardwareChannel++;
-            } else {
-                chan->outputDestination.hardwareGroup = 'a';
-                chan->outputDestination.hardwareChannel = 1;
-            }
-            break;
-        case 'a':
-            if (chan->outputDestination.hardwareChannel < 8){
-                chan->outputDestination.hardwareChannel++;
-            } else {
-                chan->outputDestination.hardwareGroup = 'd';
-                chan->outputDestination.hardwareChannel = 1;
-            }
-            break;
-        case 'd':
-            if (chan->outputDestination.hardwareChannel < 40){
-                chan->outputDestination.hardwareChannel++;
-            } else {
-                chan->outputDestination.hardwareGroup = 0;
-                chan->outputDestination.hardwareChannel = 1;
-            }
-            break;
-        case 0:
-            if (chan->outputDestination.hardwareChannel < 48){
-                chan->outputDestination.hardwareChannel++;
-            } else {
-                chan->outputDestination.hardwareGroup = 1;
-                chan->outputDestination.hardwareChannel = 1;
-            }
-            break;
-        case 1:
-            if (chan->outputDestination.hardwareChannel < 48){
-                chan->outputDestination.hardwareChannel++;
-            } else {
-                // disable
-                chan->outputDestination.hardwareGroup = 0;
-                chan->outputDestination.hardwareChannel = 0;
-            }
-            break;
-        default:
-            // unknown -> disable
-            chan->outputDestination.hardwareGroup = 0;
-            chan->outputDestination.hardwareChannel = 0;
-            break;
-    }
-
-    mixerSetVChannelChangeFlags(chan, X32_VCHANNEL_CHANGED_OUTPUT);
-    mixerSetChangeFlags(X32_MIXER_CHANGED_ROUTING);
-}
-
-
-// change the output of the selected vChannel
-void mixerSwitchVChannelToPrevOutput(){
-    // output-taps
-    // 1-16 = XLR-outputs
-    // 17-32 = UltraNet/P16-outputs
-    // 33-64 = Card-outputs
-    // 65-72 = AUX-outputs
-    // 73-112 = DSP-inputs
-    // 113-160 = AES50A-outputs
-    // 161-208 = AES50B-outputs
-
-    s_vChannel *chan = mixerGetSelectedvChannel();
-
-    // disabled: start with AES50B
-    if ((chan->outputDestination.hardwareGroup == 0)&&(chan->outputDestination.hardwareChannel == 0)){
-        chan->outputDestination.hardwareGroup= 1;
-        chan->outputDestination.hardwareChannel= 48 + 1; // offset +1, because we decrement
-    }
-
-    switch(chan->outputDestination.hardwareGroup){
-        case 'x':
-            if (chan->outputDestination.hardwareChannel > 1){
-                chan->outputDestination.hardwareChannel--;
-            } else {
-                // disable
-                chan->outputDestination.hardwareGroup = 0;
-                chan->outputDestination.hardwareChannel = 0;
-            }
-            break;
-        case 'p':
-            if (chan->outputDestination.hardwareChannel > 1){
-                chan->outputDestination.hardwareChannel--;
-            } else {
-                chan->outputDestination.hardwareGroup = 'x';
-                chan->outputDestination.hardwareChannel = 16;
-            }
-            break;
-        case 'c':
-            if (chan->outputDestination.hardwareChannel > 1){
-                chan->outputDestination.hardwareChannel--;
-            } else {
-                chan->outputDestination.hardwareGroup = 'p';
-                chan->outputDestination.hardwareChannel = 16;
-            }
-            break;
-        case 'a':
-            if (chan->outputDestination.hardwareChannel > 1){
-                chan->outputDestination.hardwareChannel--;
-            } else {
-                chan->outputDestination.hardwareGroup = 'c';
-                chan->outputDestination.hardwareChannel = 32;
-            }
-            break;
-        case 'd':
-            if (chan->outputDestination.hardwareChannel > 1){
-                chan->outputDestination.hardwareChannel--;
-            } else {
-                chan->outputDestination.hardwareGroup = 'a';
-                chan->outputDestination.hardwareChannel = 8;
-            }
-            break;
-        case 0:
-             if (chan->outputDestination.hardwareChannel > 1){
-                chan->outputDestination.hardwareChannel--;
-            } else {
-                chan->outputDestination.hardwareGroup = 'd';
-                chan->outputDestination.hardwareChannel = 40;
-            }
-            break;
-        case 1:
-             if (chan->outputDestination.hardwareChannel > 1){
-                chan->outputDestination.hardwareChannel--;
-            } else {
-                chan->outputDestination.hardwareGroup = 0;
-                chan->outputDestination.hardwareChannel = 48;
-            }
-            break;
-        default:
-            chan->outputDestination.hardwareGroup = 0;
-            chan->outputDestination.hardwareChannel = 0;
-            break;
-    }
-
-    mixerSetVChannelChangeFlags(chan, X32_VCHANNEL_CHANGED_OUTPUT);
-    mixerSetChangeFlags(X32_MIXER_CHANGED_ROUTING);
-}
-
 
 // ####################################################################
 // #
@@ -715,12 +440,14 @@ uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel)
             } else {
                 return mixer.modes[mixer.activeMode].busBanks[mixer.activeBank_busFader].surfaceChannel2vChannel[surfaceChannel-8];
             }
-            return -1;        
+            return 0;
         }
         if (mixerIsModelX32Core()){
             // TODO
         }
     }
+
+    return 0;
 }
 
 uint8_t mixerGetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex) {
@@ -942,7 +669,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
         if (mixer.activePage == X32_PAGE_CONFIG){
             if (buttonPressed){
                 switch (button){
-                    case X32_BTN_ENCODER2:
+                    case X32_BTN_ENCODER3:
                         mixerTogglePhantom(mixerGetSelectedvChannelIndex());
                         break;
                 }
@@ -985,22 +712,20 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
     if (mixerIsModelX32FullOrCompacrOrProducerOrRack()){
         if (mixer.activePage == X32_PAGE_CONFIG){
             switch (encoder){
-                case X32_ENC_ENCODER1:
-                    if (amount < 0){
-                        mixerSwitchVChannelToPrevInput();    
-                    } else {
-                        mixerSwitchVChannelToNextInput();
-                    }
-                    break;
                 case X32_ENC_ENCODER2:
+                    mixerChangeVChannel(amount);    
+                    break;
+                case X32_ENC_ENCODER3:
                     mixerChangeGain(mixerGetSelectedvChannelIndex(), amount);
                     break;
-                case X32_ENC_ENCODER6:
-                    if (amount < 0){
-                        mixerSwitchVChannelToPrevOutput();    
-                    } else {
-                        mixerSwitchVChannelToNextOutput();
-                    }
+            }
+        }else if (mixer.activePage == X32_PAGE_ROUTING) {
+            switch (encoder){
+                case X32_ENC_ENCODER1:
+                    mixerChangeHardwareOutput(amount);    
+                    break;
+                case X32_ENC_ENCODER2:
+                    mixerChangeHardwareInput(amount);    
                     break;
             }
         }
@@ -1010,7 +735,7 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
 
 // direction - positive or negative integer value
 void mixerChangeSelect(uint8_t direction){
-    uint8_t newSelectedVChannel = mixer.selectedVChannel += direction;
+    int16_t newSelectedVChannel = mixer.selectedVChannel += direction;
     if (newSelectedVChannel < 0) {
         newSelectedVChannel = 0;
     } else if (newSelectedVChannel >= MAX_VCHANNELS){
@@ -1028,7 +753,7 @@ void mixerSetSelect(uint8_t vChannelIndex, bool select){
     mixer.vChannel[vChannelIndex].selected = select;
     mixer.vChannel[vChannelIndex].changed |= X32_VCHANNEL_CHANGED_SELECT;
     
-    mixer.selectedVChannel=vChannelIndex;
+    mixer.selectedVChannel = vChannelIndex;
     mixerSetChangeFlags(X32_MIXER_CHANGED_SELECT);
 }
 
@@ -1343,9 +1068,7 @@ void mixerDebugPrintvChannels(void){
     for (int i = 0; i < MAX_VCHANNELS; i++)
     {
         s_vChannel* vChannel = &(mixer.vChannel[i]);
-        x32debug("vChannel%-3d %-32s color=%d icon=%d selected=%d solo=%d mute=%d volume=%2.1f input=%c%d output=%c%d\n",
-                 i, vChannel->name[0], vChannel->color, vChannel->icon, vChannel->selected, vChannel->solo, vChannel->mute, (double)vChannel->volume,
-                 vChannel->inputSource.hardwareGroup, vChannel->inputSource.hardwareChannel,
-                 vChannel->outputDestination.hardwareGroup, vChannel->outputDestination.hardwareChannel);
+        x32debug("vChannel%-3d %-32s color=%d icon=%d selected=%d solo=%d mute=%d volume=%2.1f input=dspCh%d\n",
+                 i, vChannel->name[0], vChannel->color, vChannel->icon, vChannel->selected, vChannel->solo, vChannel->mute, (double)vChannel->volume, vChannel->inputSource.dspChannel);
     }
 }

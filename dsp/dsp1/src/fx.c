@@ -4,7 +4,7 @@ void fxRecalcFilterCoefficients_PEQ(sPEQ *peq) {
   // Online-Calculator: https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3
   // Source: https://www.earlevel.com/main/2012/11/26/biquad-c-source-code
   double V = pow(10.0, fabs(peq->gain)/20.0);
-  double K = tan(PI * peq->fc / SAMPLERATE);
+  double K = tan(PI * peq->fc / openx32.samplerate);
   double norm;
 
   switch (peq->type) {
@@ -108,7 +108,7 @@ void fxRecalcFilterCoefficients_LR12(sLR12 *LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;
   double wc22 = 2 * wc2;
-  double k = wc / tan(PI * (LR12->fc / SAMPLERATE));
+  double k = wc / tan(PI * (LR12->fc / openx32.samplerate));
   double k2 = k * k;
   double k22 = 2 * k2;
   double wck2 = 2 * wc * k;
@@ -136,7 +136,7 @@ void fxRecalcFilterCoefficients_LR24(sLR24 *LR24) {
   double wc2 = wc * wc;
   double wc3 = wc2 * wc;
   double wc4 = wc2 * wc2;
-  double k = wc / tan(PI * (LR24->fc / SAMPLERATE));
+  double k = wc / tan(PI * (LR24->fc / openx32.samplerate));
   double k2 = k * k;
   double k3 = k2 * k;
   double k4 = k2 * k2;
@@ -172,19 +172,18 @@ void fxRecalcGate(sGate *gate) {
 
   // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
 	gate->value_gainmin = 1.0f / pow(10, gate->range/20.0f);
-	gate->value_coeff_attack = exp(-2197.22457734f/(SAMPLERATE * gate->attackTime_ms));
-	gate->value_hold_ticks = gate->holdTime_ms * (SAMPLERATE / 1000.0f);
-	gate->value_coeff_release = exp(-2197.22457734f/(SAMPLERATE * gate->releaseTime_ms));
+	gate->value_coeff_attack = exp(-2197.22457734f/(openx32.samplerate * gate->attackTime_ms));
+	gate->value_hold_ticks = gate->holdTime_ms * (openx32.samplerate / 1000.0f);
+	gate->value_coeff_release = exp(-2197.22457734f/(openx32.samplerate * gate->releaseTime_ms));
 }
 
 void fxRecalcCompressor(sCompressor *compressor) {
 	compressor->value_threshold = pow(2, 31 + (compressor->threshold/6.0f)) - 1; // 6dB per bit and TDM8 is using 32-bit values
 
-	compressor->value_ratio = compressor->ratio;
 	compressor->value_makeup = pow(10, compressor->makeup/20.0f);
-	compressor->value_coeff_attack = exp(-2197.22457734f/(SAMPLERATE * compressor->attackTime_ms));
-	compressor->value_hold_ticks = compressor->holdTime_ms * (SAMPLERATE / 1000.0f);
-	compressor->value_coeff_release = exp(-2197.22457734f/(SAMPLERATE * compressor->releaseTime_ms));
+	compressor->value_coeff_attack = exp(-2197.22457734f/(openx32.samplerate * compressor->attackTime_ms));
+	compressor->value_hold_ticks = compressor->holdTime_ms * (openx32.samplerate / 1000.0f);
+	compressor->value_coeff_release = exp(-2197.22457734f/(openx32.samplerate * compressor->releaseTime_ms));
 }
 
 float fxProcessGate(float input, sGate *gate) {
@@ -259,14 +258,14 @@ float fxProcessCompressor(float input, sCompressor *compressor) {
 			}
 			break;
 		case COMPRESSOR_ATTACK:
-			compressor->gainSet = (((abs(input) - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input;
+			compressor->gainSet = (((abs(input) - compressor->value_threshold) / compressor->ratio) + compressor->value_threshold) / input;
 			compressor->coeff = compressor->value_coeff_attack;
 			compressor->state = COMPRESSOR_ACTIVE;
 			break;
 		case COMPRESSOR_ACTIVE:
 			if (compressor->active) {
 				// check if we have to compress even more
-				float newValue = (((abs(input) - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input;
+				float newValue = (((abs(input) - compressor->value_threshold) / compressor->ratio) + compressor->value_threshold) / input;
 				if (newValue < compressor->gainSet) {
 					// compress even more
 					compressor->gainSet = newValue;

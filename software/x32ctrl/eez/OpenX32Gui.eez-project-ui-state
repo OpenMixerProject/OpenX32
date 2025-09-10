@@ -22,6 +22,7 @@
           },
           {
             "type": "border",
+            "selected": 5,
             "size": 240,
             "location": "right",
             "children": [
@@ -77,7 +78,7 @@
           },
           {
             "type": "border",
-            "selected": 0,
+            "selected": 1,
             "location": "bottom",
             "children": [
               {
@@ -963,7 +964,18 @@
           },
           "2": {
             "0": {},
-            "3": {}
+            "1": {
+              "0": {
+                "1": {
+                  "0": {}
+                }
+              }
+            },
+            "3": {
+              "1": {
+                "1": {}
+              }
+            }
           }
         }
       },

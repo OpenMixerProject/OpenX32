@@ -1,6 +1,6 @@
 /*
   OpenX32 - The Open Source Operating System for the Behringer X32 Audio Mixing Console
-  ControlSystem for DSP1 (MainDSP) v0.0.1, 09.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.0.2, 09.09.2025
   https://www.openx32.de
   https://github.com/OpenMixerProject/OpenX32
 
@@ -31,6 +31,15 @@
                            @@%.                   .::=++*
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
+
+	TODO:
+	===========================
+	[ ] implement SPI communication in openx32Command() to receive parameters from X32ctrl
+	[ ] implement external SD-RAM
+	[ ] implement routing-functions (sends)
+	[ ] implement bus-masters, solo, mute
+	[ ] implement data-transmission to and from secondary DSP
+	[ ] check implementation of DTS Neo:6 algorithm and surround-mixing
 */
 
 #include "dsp1.h"
@@ -69,6 +78,8 @@ void delay(int i) {
 }
 
 void openx32Init(void) {
+	openx32.samplerate = 48000; // other samplerates up to 192kHz are possible with AD and DA converters
+
 	for (int ch = 0; ch < MAX_CHAN; ch++) {
 		// initialize noisegate
 		openx32.channel[ch].gate.threshold = -60.0; // dB
@@ -104,7 +115,7 @@ void openx32Init(void) {
 		openx32.channel[ch].peq[3].type = 1; // Peak-Filter
 
 		openx32.channel[ch].peq[4].Q = 2.0;
-		openx32.channel[ch].peq[4].fc = 1000; // Hz
+		openx32.channel[ch].peq[4].fc = 10000; // Hz
 		openx32.channel[ch].peq[4].gain = 0.0; // dB
 		openx32.channel[ch].peq[4].type = 3; // High-Shelf
 
@@ -160,7 +171,9 @@ int main() {
 	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
 	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
 	adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
-	timer_set(1000, 1000); // set period to 1000 and counter to 1000
+
+	// t_timer = (t_periode + 1) * t_count / f_clk = (1001 * 1000)/266MHz = 0.0037631579 s
+	timer_set(1000, 1000); // set period to 1000 and counter to 1000 -> count 1000 x 1000 -> 266MHz = 3.7594ns = 3.7594ms
 	timer_on(); // start timer
 
 	// the main-loop
@@ -172,7 +185,7 @@ int main() {
 
 		/*
 		// toggle LED to show that we are receiving audio-data
-		if (audioIsrCounter > (SAMPLERATE / SAMPLES_IN_BUFFER) / 2) {
+		if (audioIsrCounter > (openx32.samplerate / SAMPLES_IN_BUFFER) / 2) {
 			sysreg_bit_set(sysreg_FLAGS, FLG7);
 		}else{
 			sysreg_bit_clr(sysreg_FLAGS, FLG7);

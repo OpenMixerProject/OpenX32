@@ -6,6 +6,7 @@
 #define FPGA_IDX_ROUTING   0    // reserve 200 slots
 #define FPGA_IDX_CH_VOL    200  // here we need 40 values here
 #define NUM_INPUT_CHANNEL  112  // at the moment we are not using AES50A and AES50B
+#define NUM_OUTPUT_CHANNEL 112  // at the moment we are not using AES50A and AES50B
 
 #pragma pack(push, 1)
 // size of sRouting must be multiplier of 8 to fit into 64-bit-value
@@ -48,11 +49,23 @@ void mixingInit(void);
 void mixingDefaultRoutingConfig(void);
 void mixingSyncRoutingConfigFromMixer(void);
 void mixingSyncVChannelConfigFromMixer(void);
-void mixingResetRouting(void);
-void mixingSetRouting(uint8_t group, uint8_t channel, uint8_t inputsource);
-uint8_t mixingGetInputSource(uint8_t group, uint8_t channel);
-void mixingGetInputName(char* p_nameBuffer, uint8_t group, uint8_t channel);
+
+void mixingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource);
+void mixingSetOutputSourceByIndex(uint8_t index, uint8_t inputsource);
+uint8_t mixingGetOutputSource(uint8_t group, uint8_t channel);
+uint8_t mixingGetOutputSourceByIndex(uint8_t index);
+
+uint8_t mixingGetSourceIndex(uint8_t group, uint8_t channel);
+uint8_t mixingGetOutputIndex(uint8_t group, uint8_t channel);
+void mixingGetSourceGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel);
+void mixingGetOutputGroupAndChannelByIndex(uint8_t index, uint8_t* group, uint8_t* channel);
+void mixingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel);
+
+void mixingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel);
+void mixingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index);
 void mixingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan);
+void mixingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
+
 void mixingSetGain(uint8_t group, uint8_t channel, float gain);
 void mixingSetPhantomPower(uint8_t group, uint8_t channel, bool active);
 void mixingSetVolume(uint8_t channel, float volume);

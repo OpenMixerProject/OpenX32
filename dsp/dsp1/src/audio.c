@@ -127,7 +127,7 @@ void audioInit(void) {
 	/*
 	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
 	audioUpdatePointerArray(); // we need initialized pointer-array to access buffer
-	float omega = 2.0f * PI * 1000.0f / SAMPLERATE; // w = 2*pi*f between 1kHz and 8kHz
+	float omega = 2.0f * PI * 1000.0f / openx32.samplerate; // w = 2*pi*f between 1kHz and 8kHz
 	for (int ch = 1; ch < 8; ch++) {
 		for (int s = 0; (s < (BUFFER_COUNT * SAMPLES_IN_BUFFER)); s++) {
 			*pAudioOutputSamples[ch     ][s] = sin(omega * (float)(ch + 1) * (float)s) * 268435456; // TDM8 is using 32-bit values, so lets use 28-bit as peak-value (-18dBfs)
@@ -218,7 +218,7 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
     audioReady = 1; // set flag, that we have new data to process
 
     audioIsrCounter++;
-    if (audioIsrCounter >= (SAMPLERATE / SAMPLES_IN_BUFFER)) {
+    if (audioIsrCounter >= (openx32.samplerate / SAMPLES_IN_BUFFER)) {
     	audioIsrCounter = 0;
     }
 }

@@ -40,7 +40,7 @@ begin
 				if (sync_in = '1') then
 					-- we received new audio-data -> copy all input-signals to Block-RAM
 				
-					o_ram_write_addr <= to_unsigned(0, 7); -- address of first RAM-element
+					o_ram_write_addr <= to_unsigned(1, 7); -- address of first RAM-element (RAM-element 0 is used for "audio unconnected / off")
 					o_ram_data <= input_data(DATA_WIDTH - 1 downto 0); -- first input-channel
 					o_ram_wr_en <= '1';
 
@@ -53,7 +53,7 @@ begin
 				o_write_done <= '0';
 			
 			elsif (r_SM_matrix = s_Write) then
-				o_ram_write_addr <= to_unsigned(pRam, 7);
+				o_ram_write_addr <= to_unsigned(pRam + 1, 7);
 				o_ram_data <= input_data(pInput + DATA_WIDTH - 1 downto pInput);
 
 				if (pRam < NUM_INPUT_PORTS - 1) then
