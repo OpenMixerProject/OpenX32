@@ -73,7 +73,7 @@ void timer10msCallback() {
     surfaceProcessUartData(uartRx(&fdSurface, &surfaceBufferUart[0], sizeof(surfaceBufferUart)));
 
     // read data from ADDA-Boards (8ch input/output)
-    addaProcessUartData(uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart)));
+    addaProcessUartData(uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart)), false);
 
     // read data from FPGA
     fpgaProcessUartData(uartRx(&fdFpga, &fpgaBufferUart[0], sizeof(fpgaBufferUart)));

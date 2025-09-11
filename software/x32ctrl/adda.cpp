@@ -120,17 +120,16 @@ String addaSendReceive(char *cmd, uint16_t timeout) {
   messageBuilderAddString(&message, cmd);
 
   uartTx(&fdAdda, &message, false);
-  
+
   if (timeout > 0) {
     addaWaitForMessageCounter = timeout;
     while (addaWaitForMessageCounter > 0) {
         uint16_t readBytes = uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart));
         if (readBytes > 0) {
             addaWaitForMessageCounter = 0;
-            return addaProcessUartData(readBytes);
+            return addaProcessUartData(readBytes, true);
         }
-		
-		addaWaitForMessageCounter--;
+        addaWaitForMessageCounter--;
         usleep(1000); // wait 1ms
     }
   }else{
@@ -143,7 +142,7 @@ String addaProcessUartData(int bytesToProcess, bool directRead) {
   String answer;
 
   if (bytesToProcess <= 0) {
-    return;
+    return "";
   }
 
   for (int i = 0; i < bytesToProcess; i++) {
@@ -203,6 +202,8 @@ String addaProcessUartData(int bytesToProcess, bool directRead) {
 
   if (directRead) {
     return answer;
+  }else{
+    return "";
   }
 }
 
