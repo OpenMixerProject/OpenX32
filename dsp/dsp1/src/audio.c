@@ -151,6 +151,7 @@ void audioProcessData(void) {
 				// process sends
 				// TODO
 
+/*
 				// process channel-volume
 				// convert dB into linear value and then process audio
 				audioProcessedSample *= dsp.dspChannel[dspCh].volumeLeft;
@@ -164,7 +165,10 @@ void audioProcessData(void) {
 
 				// write processed audio to output directly (1:1 routing)
 				// DSP-input -> processing DSP-output
-				//audioTxBuf[bufferReadIndex] = audioProcessedSample;
+				audioTxBuf[bufferReadIndex] = audioProcessedSample;
+*/
+
+				// main-audio-bus
 				masterLeft  += (audioProcessedSample * dsp.dspChannel[dspCh].volumeLeft);
 				masterRight += (audioProcessedSample * dsp.dspChannel[dspCh].volumeRight);
 				masterSub   += (audioProcessedSample * dsp.dspChannel[dspCh].volumeSub);
