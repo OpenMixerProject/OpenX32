@@ -3,10 +3,6 @@
 
 #include "x32ctrl.h"
 
-
-
-
-
 extern messageBuilder message;
 //extern int fdDebug;
 extern int fdSurface;

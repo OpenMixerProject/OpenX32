@@ -1,6 +1,6 @@
 #include "fpga.h"
 
-char uartBufferFpga[256]; // buffer for UART-readings
+char fpgaBufferUart[256]; // buffer for UART-readings
 int fpgaPacketBufLen = 0;
 char fpgaPacketBuffer[FPGA_MAX_PACKET_LENGTH];
 
@@ -12,7 +12,7 @@ void fpgaProcessUartData(int bytesToProcess) {
   }
 
   for (int i = 0; i < bytesToProcess; i++) {
-    currentByte = (uint8_t)uartBufferFpga[i];
+    currentByte = (uint8_t)fpgaBufferUart[i];
     //printf("%02X ", currentByte); // empfangene Bytes als HEX-Wert ausgeben
 
     // add received byte to buffer

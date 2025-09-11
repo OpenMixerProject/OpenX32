@@ -9,7 +9,7 @@
 // #
 // ####################################################################
 
-void mixerTouchControlTick(void){
+void touchcontrolTick(void){
     if (mixer.touchcontrol.value > 0) {
         mixer.touchcontrol.value--;
         if (mixer.touchcontrol.value == 0)
@@ -24,7 +24,7 @@ void mixerTouchControlTick(void){
     }
 }
 
-bool mixerTouchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
+bool touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
     if ((mixer.touchcontrol.board != p_board) && (mixer.touchcontrol.faderIndex != p_faderIndex)){
         return true;
     } 

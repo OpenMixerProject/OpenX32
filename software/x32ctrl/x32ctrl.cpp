@@ -58,7 +58,7 @@ void timer10msCallbackLinux(int timer) {timer10msCallback();}
 void timer100msCallback() {
     // surface wants to know the current state of all LED's and Meters
     surfaceKeepalive();
-    mixerTouchControlTick();
+    touchcontrolTick();
 
     // update meters on XRemote-clients
     xremoteUpdateMeter();
@@ -70,13 +70,13 @@ void timer100msCallback() {
 // called every 10ms
 void timer10msCallback() {
     // read data from surface and calls surfaceCallback()
-    surfaceProcessUartData(uartRx(&fdSurface, &uartBufferSurface[0], sizeof(uartBufferSurface)));
+    surfaceProcessUartData(uartRx(&fdSurface, &surfaceBufferUart[0], sizeof(surfaceBufferUart)));
 
     // read data from ADDA-Boards (8ch input/output)
-    addaProcessUartData(uartRx(&fdAdda, &uartBufferAdda[0], sizeof(uartBufferAdda)));
+    addaProcessUartData(uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart)));
 
     // read data from FPGA
-    fpgaProcessUartData(uartRx(&fdFpga, &uartBufferFpga[0], sizeof(uartBufferFpga)));
+    fpgaProcessUartData(uartRx(&fdFpga, &fpgaBufferUart[0], sizeof(fpgaBufferUart)));
 
     // communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
     xremoteUdpHandleCommunication();
@@ -657,7 +657,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
                     setLed(p_board, 0x40+i, chan->mute); 
                 }
 
-                if ((fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)) && mixerTouchcontrolCanSetFader(p_board, i)){
+                if ((fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
                     x32debug(" Fader");
                     u_int16_t faderVolume = dBfs2fader(chan->volume);
                     setFader(p_board, i, faderVolume);

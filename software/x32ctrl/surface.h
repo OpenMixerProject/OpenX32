@@ -3,8 +3,7 @@
 
 #include "x32ctrl.h"
 
-extern char uartBufferSurface[256];
-
+extern char surfaceBufferUart[256];
 
 void setFader(uint8_t boardId, uint8_t index, uint16_t position);
 void setDisplay(uint8_t p_value);

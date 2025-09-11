@@ -80,17 +80,17 @@ int spiConfigureFpga(const char *bitstream_path) {
                     free(rx_buffer);
                     free(file_buffer);
                     return -1;
-		}
+        }
             }
 
             // skip the field name and bitstrem length
             offset += 5;
 
             x32debug("Detected bit-file with header...\n");
-	}else{
+    }else{
             x32debug("Detected bin-file without header...\n");
             offset = 0; // start reading at byte 0
-	}
+    }
     }
     fclose(bitstream_file);
 
@@ -106,10 +106,10 @@ int spiConfigureFpga(const char *bitstream_path) {
         free(file_buffer);
         return -1;
     }
-	// read number of header-bytes to buffer (will remain unused and will be overwritten)
-	if (offset > 0) {
-	    fread(tx_buffer, 1, offset, bitstream_file);
-	}
+    // read number of header-bytes to buffer (will remain unused and will be overwritten)
+    if (offset > 0) {
+        fread(tx_buffer, 1, offset, bitstream_file);
+    }
 
     // now send the data
     x32debug("Sending bitstream to FPGA...\n");
@@ -121,9 +121,10 @@ int spiConfigureFpga(const char *bitstream_path) {
     x32debug("Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...\n");
     int fdResetFpga = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fdResetFpga, "1", 1);
-    usleep(5 * 1000);
+    usleep(500); // assert PROG_B at least 500ns (here 500us) to restart configuration process (see page 56 of UG332 v1.7)
     write(fdResetFpga, "0", 1);
     close(fdResetFpga);
+    usleep(500);
 
     // send data
     long total_bytes_sent = 0;
@@ -171,7 +172,7 @@ int spiConfigureFpga(const char *bitstream_path) {
     free(tx_buffer);
     free(rx_buffer);
     free(file_buffer);
-    usleep(50 * 1000);
+    usleep(50000); // wait 50ms
 
     return 0;
 }
@@ -181,6 +182,15 @@ int spiConfigureFpga(const char *bitstream_path) {
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
 // callit like: spiConfigureDsp(argv[1], argv[2], 2)
+//
+// /RESET: 1 -> 0 -> 1 (Linux already inverts the reset for us)
+// wait at least 256 us
+// Load data:
+//   - load Kernel: 1536 8-bit words (equals 256 48-bit Words)
+//   - load application (user dependent)
+//   - load IVT (1536 8-bit words)
+// DMA-Transfer expects a seemless data-transport while the manual says something about handshake and wait-states... strange
+//
 int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, uint8_t numStreams) {
     if ((numStreams < 1) || (numStreams > 2)) {
         return -1;
@@ -202,6 +212,20 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     uint32_t spiSpeed = SPI_SPEED_HZ;
     uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
+    // read size of bitstream-files
+    file_size[0] = getFileSize(bitstream_path_a);
+    if (file_size[0] <= 0) {
+        x32log("Error: Problem with bitstream-file\n");
+              return -1;
+     }
+    if (numStreams == 2) {
+        file_size[1] = getFileSize(bitstream_path_b);
+        if (file_size[1] <= 0) {
+            x32log("Error: Problem with bitstream-file\n");
+                  return -1;
+         }
+    }
+
     x32debug("Connecting to SPI for DSP1...\n");
     spi_fd[0] = open(SPI_DEVICE_DSP1, O_RDWR);
     if (spi_fd[0] < 0) {
@@ -210,8 +234,8 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     }
     if (numStreams == 2) {
         x32debug("Connecting to SPI for DSP2...\n");
-	spi_fd[1] = open(SPI_DEVICE_DSP2, O_RDWR);
-	if (spi_fd[1] < 0) {
+        spi_fd[1] = open(SPI_DEVICE_DSP2, O_RDWR);
+        if (spi_fd[1] < 0) {
             x32log("Error: Could not open SPI-device for DSP2\n");
             return -1;
         }
@@ -220,113 +244,105 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     ioctl(spi_fd[0], SPI_IOC_WR_MODE, &spiMode);
     ioctl(spi_fd[0], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd[0], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-    ioctl(spi_fd[0], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst);
+    ioctl(spi_fd[0], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
     if (numStreams == 2) {
         ioctl(spi_fd[1], SPI_IOC_WR_MODE, &spiMode);
         ioctl(spi_fd[1], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
         ioctl(spi_fd[1], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-        ioctl(spi_fd[1], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst);
+        ioctl(spi_fd[1], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
     }
 
-    // write dummy-data to setup SPI
+    // setup SPI-buffer
     tr.tx_buf = (unsigned long)spiTxData;
     tr.rx_buf = (unsigned long)spiRxData;
     tr.bits_per_word = spiBitsPerWord;
     tr.speed_hz = spiSpeed;
+
+    // resetting DSPs
+    int fdResetDsp = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
+    write(fdResetDsp, "1", 1); // assert reset of both DSPs
+    usleep(500);
+
+    // write some dummy-data to initialize SPI of i.MX25
+    tr.len = 4; // send only 4 bytes
     ioctl(spi_fd[0], SPI_IOC_MESSAGE(1), &tr);
     if (numStreams == 2) {
         ioctl(spi_fd[1], SPI_IOC_MESSAGE(1), &tr);
     }
-    usleep(10 * 1000);
+    usleep(500);
 
-    // resetting DSPs
-    int fdResetDsp = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
-    write(fdResetDsp, "1", 1);
-    usleep(10 * 1000);
+    // release reset
     write(fdResetDsp, "0", 1);
     close(fdResetDsp);
-    usleep(10 * 1000);
+    // wait at least 4096 16MHz clock-cycles (256 us) (see page 16-10 of ADSP-2137x SHARC Processor Hardware Reference v2.2)
+    usleep(500);
 
-	// read bitstream-files
-	file_size[0] = getFileSize(bitstream_path_a);
-	if (file_size[0] <= 0) {
-		x32log("Error: Problem with bitstream-file\n");
-      		return -1;
- 	}
-	if (numStreams == 2) {
-		file_size[1] = getFileSize(bitstream_path_b);
-		if (file_size[1] <= 0) {
-			x32log("Error: Problem with bitstream-file\n");
-      			return -1;
-	 	}
-	}
+    for (uint8_t i = 0; i < numStreams; i++) {
+        bitstream_file[i] = fopen(bitstream_path_a, "rb");
+        if (!bitstream_file[i]) {
+            x32log("Error: Could not open bitstream-file\n");
+            for (uint8_t i_b = 0; i_b < numStreams; i_b++) {
+                if (bitstream_file[i_b]) fclose(bitstream_file[i_b]);
+                if (spi_fd[i_b] >= 0) close(spi_fd[i_b]);
+            }
+            return -1;
+        }
 
-	for (uint8_t i = 0; i < numStreams; i++) {
-		bitstream_file[i] = fopen(bitstream_path_a, "rb");
-		if (!bitstream_file[i]) {
-			x32log("Error: Could not open bitstream-file\n");
-		        for (uint8_t i_b = 0; i_b < numStreams; i_b++) {
-		                if (bitstream_file[i_b]) fclose(bitstream_file[i_b]);
-                		if (spi_fd[i_b] >= 0) close(spi_fd[i_b]);
-		        }
-			return -1;
-		}
+        // now send the data
+        x32debug("Sending bitstream to DSP...\n");
+        totalBytesSent = 0;
+        progress_bar_width = 50;
+        while ((bytesRead = fread(&spiTxData[0], 1, sizeof(spiTxData), bitstream_file[i])) > 0) {
+            tr.len = bytesRead;
+            
+            // reverse bitorder as linux-driver seems to have no support for this
+            reverseBitOrderArray(&spiTxData[0], bytesRead);
 
-		// now send the data
-		x32debug("Sending bitstream to DSP...\n");
-		totalBytesSent = 0;
-		progress_bar_width = 50;
-		while ((bytesRead = fread(&spiTxData[0], 1, sizeof(spiTxData), bitstream_file[i])) > 0) {
-                        tr.len = bytesRead;
-
-                        // reverse bitorder as linux-driver seems to have no support for this
-                        reverseBitOrderArray(&spiTxData[0], bytesRead);
-
-			ret = ioctl(spi_fd[i], SPI_IOC_MESSAGE(1), &tr);
-			if (ret < 0) {
-				x32log("Error: SPI-transmission failed\n");
-			        for (uint8_t i_b = 0; i_b < numStreams; i_b++) {
-		        	        if (bitstream_file[i_b]) fclose(bitstream_file[i_b]);
-                			if (spi_fd[i_b] >= 0) close(spi_fd[i_b]);
-			        }
-				return ret;
-			}
+            ret = ioctl(spi_fd[i], SPI_IOC_MESSAGE(1), &tr);
+            if (ret < 0) {
+                x32log("Error: SPI-transmission failed\n");
+                for (uint8_t i_b = 0; i_b < numStreams; i_b++) {
+                    if (bitstream_file[i_b]) fclose(bitstream_file[i_b]);
+                    if (spi_fd[i_b] >= 0) close(spi_fd[i_b]);
+                }
+                return ret;
+            }
 
 /*
-                        // check handshake
-                        if ((spiRxData[0] != 0xFF) && (spiRxData[1] != 0xFF) && (spiRxData[2] != 0xFF) && (spiRxData[3] != 0xFF)) {
-                            // wait for DSP
-                            while(1) {
-                                ioctl(fd, SPI_IOC_MESSAGE(1), &tr); // read data from DSP
-                                if ((spiRxData[0] == 0xFF) && (spiRxData[1] == 0xFF) && (spiRxData[2] == 0xFF) && (spiRxData[3] == 0xFF)) {
-                                    break; // DSP is ready for new data
-                                }
-                                usleep(100);
-                            }
-                        }
+            // check handshake
+            if ((spiRxData[0] != 0xFF) && (spiRxData[1] != 0xFF) && (spiRxData[2] != 0xFF) && (spiRxData[3] != 0xFF)) {
+                // wait for DSP
+                while(1) {
+                    ioctl(fd, SPI_IOC_MESSAGE(1), &tr); // read data from DSP
+                    if ((spiRxData[0] == 0xFF) && (spiRxData[1] == 0xFF) && (spiRxData[2] == 0xFF) && (spiRxData[3] == 0xFF)) {
+                        break; // DSP is ready for new data
+                    }
+                    usleep(100);
+                }
+            }
 */
-			// calculate progress-bar
-			totalBytesSent += bytesRead;
-			int progress = (int)((double)totalBytesSent / file_size[i] * progress_bar_width);
-			printf("\rDSP1 [");
-			for (int i_progress = 0; i_progress < progress_bar_width; ++i_progress) {
-				if (i_progress < progress) {
-					printf("█");
-				}else{
-					printf(" ");
-				}
-			}
-			printf("] %ld/%ld Bytes (%.2f%%)", totalBytesSent, file_size[i], (double)totalBytesSent / file_size[i] * 100);
-			fflush(stdout);
-		}
-		printf("\n");
+            // calculate progress-bar
+            totalBytesSent += bytesRead;
+            int progress = (int)((double)totalBytesSent / file_size[i] * progress_bar_width);
+            printf("\rDSP1 [");
+            for (int i_progress = 0; i_progress < progress_bar_width; ++i_progress) {
+                if (i_progress < progress) {
+                    printf("█");
+                }else{
+                    printf(" ");
+                }
+            }
+            printf("] %ld/%ld Bytes (%.2f%%)", totalBytesSent, file_size[i], (double)totalBytesSent / file_size[i] * 100);
+            fflush(stdout);
+        }
+        printf("\n");
 
-		fclose(bitstream_file[i]);
-		close(spi_fd[i]);
-	        usleep(50 * 1000);
-	}
+        fclose(bitstream_file[i]);
+        close(spi_fd[i]);
+        usleep(50000); // wait 50ms
+    }
 
-	return 0;
+    return 0;
 }
 
 bool spiOpenDspConnections() {

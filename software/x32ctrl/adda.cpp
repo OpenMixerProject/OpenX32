@@ -1,69 +1,49 @@
 #include "adda.h"
 #include "uart.h"
 
-char uartBufferAdda[256]; // buffer for UART-readings
+char addaBufferUart[256]; // buffer for UART-readings
 int addaPacketBufLen = 0;
 char addaPacketBuffer[ADDA_MAX_PACKET_LENGTH];
+uint16_t addaWaitForMessageCounter = 0;
 
 void addaInit(uint32_t samplerate) {
   // send identification-commands to all possible boards (not sure if this is correct for smaller X32)
-  addaSendCmd("*0I#"); // ADDA-Board
-  usleep(10000);
-  addaSendCmd("*1I#"); // ADDA-Board
-  usleep(10000);
-  addaSendCmd("*2I#"); // ADDA-Board
-  usleep(10000);
-  addaSendCmd("*3I#"); // ADDA-Board
-  usleep(10000);
-  addaSendCmd("*4I#"); // ADDA-Board
-  usleep(10000);
-  addaSendCmd("*5I#");  // ADDA-Board
-  usleep(10000);
-  addaSendCmd("*8I#"); // Expansion-Card
-  usleep(10000);
-  addaSendCmd("*8R#"); // Expansion-Card
-  usleep(10000);
+  addaSendReceive("*0I#", 2000); // ADDA-Board
+  addaSendReceive("*1I#", 2000); // ADDA-Board
+  addaSendReceive("*2I#", 2000); // ADDA-Board
+  addaSendReceive("*3I#", 2000); // ADDA-Board
+  addaSendReceive("*4I#", 2000); // ADDA-Board
+  addaSendReceive("*5I#", 2000);  // ADDA-Board
+  addaSendReceive("*8I#", 2000); // Expansion-Card
+  addaSendReceive("*8R#", 2000); // Expansion-Card
 
   // -1=unknown, 0=X32, 1=X32Compact, 2=X32Producer, 3=X32Rack, 4=X32Core
   // set gains to -2dB and turnoff phantom-power
-  addaSendCmd("*1G00000#*1G00000#*1G10000#*1G10000#*1G20000#*1G20000#*1G30000#*1G30000#*1G40000#*1G40000#*1G50000#*1G50000#*1G60000#*1G60000#*1G70000#*1G70000#");
-  addaSendCmd("*3G00000#*3G00000#*3G10000#*3G10000#*3G20000#*3G20000#*3G30000#*3G30000#*3G40000#*3G40000#*3G50000#*3G50000#*3G60000#*3G60000#*3G70000#*3G70000#");
-  addaSendCmd("*0G00000#*0G00000#*0G10000#*0G10000#*0G20000#*0G20000#*0G30000#*0G30000#*0G40000#*0G40000#*0G50000#*0G50000#*0G60000#*0G60000#*0G70000#*0G70000#");
-  addaSendCmd("*2G00000#*2G00000#*2G10000#*2G10000#*2G20000#*2G20000#*2G30000#*2G30000#*2G40000#*2G40000#*2G50000#*2G50000#*2G60000#*2G60000#*2G70000#*2G70000#");
-  usleep(50000);
+  addaSendReceive("*1G00000#*1G00000#*1G10000#*1G10000#*1G20000#*1G20000#*1G30000#*1G30000#*1G40000#*1G40000#*1G50000#*1G50000#*1G60000#*1G60000#*1G70000#*1G70000#", 2000);
+  addaSendReceive("*3G00000#*3G00000#*3G10000#*3G10000#*3G20000#*3G20000#*3G30000#*3G30000#*3G40000#*3G40000#*3G50000#*3G50000#*3G60000#*3G60000#*3G70000#*3G70000#", 2000);
+  addaSendReceive("*0G00000#*0G00000#*0G10000#*0G10000#*0G20000#*0G20000#*0G30000#*0G30000#*0G40000#*0G40000#*0G50000#*0G50000#*0G60000#*0G60000#*0G70000#*0G70000#", 2000);
+  addaSendReceive("*2G00000#*2G00000#*2G10000#*2G10000#*2G20000#*2G20000#*2G30000#*2G30000#*2G40000#*2G40000#*2G50000#*2G50000#*2G60000#*2G60000#*2G70000#*2G70000#", 2000);
 
   // initialize the 8ch-input-boards
-  addaSendCmd("*0R:W018B#");
-  usleep(20000);
-  addaSendCmd("*1R:W018B#");
-  usleep(20000);
-  addaSendCmd("*2R:W018B#");
-  usleep(20000);
-  addaSendCmd("*3R:W018B#");
-  usleep(20000);
+  addaSendReceive("*0R:W018B#", 2000);
+  addaSendReceive("*1R:W018B#", 2000);
+  addaSendReceive("*2R:W018B#", 2000);
+  addaSendReceive("*3R:W018B#", 2000);
 
   // initialize the 8ch-output-boards
-  addaSendCmd("*4R:W0281C0:W0800:W0280#");
-  usleep(20000);
-  addaSendCmd("*5R:W0281C0:W0800:W0280#");
-  usleep(20000);
+  addaSendReceive("*4R:W0281C0:W0800:W0280#", 2000);
+  addaSendReceive("*5R:W0281C0:W0800:W0280#", 2000);
 
   if (samplerate == 44100) {
     // set all boards to 48kHz
-    addaSendCmd("*8C40U#");
-    usleep(10000);
-    addaSendCmd("*8R8#*8C40U#");
-    usleep(10000);
-    addaSendCmd("*8C40U#");
-    usleep(10000);
+    addaSendReceive("*8C40U#", 2000);
+    addaSendReceive("*8R8#*8C40U#", 2000);
+    addaSendReceive("*8C40U#", 2000);
   } else if (samplerate == 48000) {
     // set all boards to 48kHz
-    addaSendCmd("*8C80U#");
-    usleep(10000);
-    addaSendCmd("*8R8#*8C80U#");
-    usleep(10000);
-    addaSendCmd("*8C80U#");
-    usleep(10000);
+    addaSendReceive("*8C80U#", 2000);
+    addaSendReceive("*8R8#*8C80U#", 2000);
+    addaSendReceive("*8C80U#", 2000);
   } else if (samplerate == 96000) {
     // currently unknown, but the X32 is able to handle 96kHz for sure
   } else {
@@ -71,35 +51,24 @@ void addaInit(uint32_t samplerate) {
   }
 
   // and send some more commands (no information about the usage up to now)
-  addaSendCmd("*9R0#*9G0#");
-  usleep(10000);
-  addaSendCmd("*9AF#");
-  usleep(10000);
-  addaSendCmd("*9N0#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9N0#");
-  usleep(10000);
+  addaSendReceive("*9R0#*9G0#", 2000);
+  addaSendReceive("*9AF#", 2000);
+  addaSendReceive("*9N0#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9N0#", 2000);
+  usleep(20000);
 }
 
 void addaSetSamplerate(uint32_t samplerate) {
   if (samplerate == 44100) {
-    addaSendCmd("*8R#*8C40U#");
-    usleep(10000);
+    addaSendReceive("*8R#*8C40U#", 2000);
   } else if (samplerate == 48000) {
-    addaSendCmd("*8R#*8C80U#");
-    usleep(10000);
+    addaSendReceive("*8R#*8C80U#", 2000);
   } else if (samplerate == 96000) {
     // currently unknown, but the X32 is able to handle 96kHz for sure
   } else {
@@ -107,24 +76,15 @@ void addaSetSamplerate(uint32_t samplerate) {
   }
 
   // send initialization-commands to all boards
-  addaSendCmd("*9R0#");
-  usleep(10000);
-  addaSendCmd("*9AF#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9AN#");
-  usleep(10000);
-  addaSendCmd("*9N0#");
-  usleep(10000);
+  addaSendReceive("*9R0#", 2000);
+  addaSendReceive("*9AF#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9AN#", 2000);
+  addaSendReceive("*9N0#", 2000);
 }
 
 void addaSetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower) {
@@ -154,23 +114,40 @@ void addaSetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower
   uartTx(&fdAdda, &message, false);
 }
 
-void addaSendCmd(char *cmd) {
+String addaSendReceive(char *cmd, uint16_t timeout) {
   messageBuilderInit(&message);
 
   messageBuilderAddString(&message, cmd);
 
   uartTx(&fdAdda, &message, false);
+  
+  if (timeout > 0) {
+    addaWaitForMessageCounter = timeout;
+    while (addaWaitForMessageCounter > 0) {
+        uint16_t readBytes = uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart));
+        if (readBytes > 0) {
+            addaWaitForMessageCounter = 0;
+            return addaProcessUartData(readBytes);
+        }
+		
+		addaWaitForMessageCounter--;
+        usleep(1000); // wait 1ms
+    }
+  }else{
+    return "";
+  }
 };
 
-void addaProcessUartData(int bytesToProcess) {
+String addaProcessUartData(int bytesToProcess, bool directRead) {
   uint8_t currentByte;
+  String answer;
 
   if (bytesToProcess <= 0) {
     return;
   }
 
   for (int i = 0; i < bytesToProcess; i++) {
-    currentByte = (uint8_t)uartBufferAdda[i];
+    currentByte = (uint8_t)addaBufferUart[i];
     //printf("%02X ", currentByte); // empfangene Bytes als HEX-Wert ausgeben
 
     // add received byte to buffer
@@ -213,6 +190,7 @@ void addaProcessUartData(int bytesToProcess) {
 
           // call the callback to do something with the received message
           addaCallback(payload);
+		  answer = payload;
           free(payload);
 
           // shift remaining bytes by processed amount of data
@@ -221,6 +199,10 @@ void addaProcessUartData(int bytesToProcess) {
         }
       }
     }
+  }
+
+  if (directRead) {
+    return answer;
   }
 }
 

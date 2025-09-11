@@ -2,7 +2,7 @@
 #include "mixer.h"
 #include "uart.h"
 
-char uartBufferSurface[256]; // buffer for UART-readings
+char surfaceBufferUart[256]; // buffer for UART-readings
 int surfacePacketCurrent = 0;
 int surfacePacketCurrentIndex = 0;
 char surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
@@ -645,16 +645,16 @@ void surfaceProcessUartData(int bytesToProcess) {
     x32debug("surfaceProcessUartData(): ");
     bool divide_after_next_dbg = false;
     for (int i = 0; i < bytesToProcess; i++) {
-        if (divide_after_next_dbg && ((uint8_t)uartBufferSurface[i] == 0xFE)) {
+        if (divide_after_next_dbg && ((uint8_t)surfaceBufferUart[i] == 0xFE)) {
             x32debug("| ");
             divide_after_next_dbg = false;
         }
-        x32debug("%02X ", (uint8_t)uartBufferSurface[i]); // empfangene Bytes als HEX-Wert ausgeben
+        x32debug("%02X ", (uint8_t)surfaceBufferUart[i]); // empfangene Bytes als HEX-Wert ausgeben
         if (divide_after_next_dbg){
             x32debug("| ");
             divide_after_next_dbg = false;
         } 
-        if ((uint8_t)uartBufferSurface[i] == 0xFE) {
+        if ((uint8_t)surfaceBufferUart[i] == 0xFE) {
             divide_after_next_dbg=true;
         }
     }
@@ -665,14 +665,14 @@ void surfaceProcessUartData(int bytesToProcess) {
     bool divide_after_next = false;
     for (int i = 0; i < bytesToProcess; i++) {
 
-        if (divide_after_next && ((uint8_t)uartBufferSurface[i] == 0xFE)) {
+        if (divide_after_next && ((uint8_t)surfaceBufferUart[i] == 0xFE)) {
             // previous package had no checksum
             surfacePacketCurrent++;
             surfacePacketCurrentIndex=0;
             divide_after_next = false;
         }
 
-        surfacePacketBuffer[surfacePacketCurrent][surfacePacketCurrentIndex++] = (uint8_t)uartBufferSurface[i];
+        surfacePacketBuffer[surfacePacketCurrent][surfacePacketCurrentIndex++] = (uint8_t)surfaceBufferUart[i];
 
         if (divide_after_next) {
             surfacePacketCurrent++;
@@ -681,7 +681,7 @@ void surfaceProcessUartData(int bytesToProcess) {
         }
 
         // use 0xFE as package divider
-        if (((uint8_t)uartBufferSurface[i] == 0xFE))
+        if (((uint8_t)surfaceBufferUart[i] == 0xFE))
         {
             divide_after_next = true;
         }
