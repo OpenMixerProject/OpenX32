@@ -94,6 +94,8 @@ void openx32Init(void) {
 		openx32.channel[ch].balance = 0; // -100 ... 0 ... 100
 		openx32.channel[ch].volume = 0.0; // dB
 
+		openx32.channel[ch].peqMax = 2;
+
 		openx32.channel[ch].peq[0].Q = 2.0;
 		openx32.channel[ch].peq[0].fc = 20; // Hz
 		openx32.channel[ch].peq[0].gain = 0.0; // dB
