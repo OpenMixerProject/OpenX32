@@ -103,46 +103,57 @@ void audioProcessData(void) {
 	// 5. Volume-Control to Main L/R
 
 	float audioProcessedSample;
+	float masterLeft;
+	float masterRight;
+	float masterSub;
+	short dspCh;
 	int bufferTdmIndex;
 	int bufferSampleIndex;
-	int bufferIndex;
+	int bufferReadIndex;
 
 	// now iterate through all channels and all samples
 	// 24 channels are the hard limit at the moment - on some occasions it will not be able to process all data until next buffer
 	// so stay at 8 channels for now
 	//for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-	for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
-		bufferTdmIndex = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + (BUFFER_SIZE * audioBufferCounter);
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
 
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			bufferSampleIndex = bufferTdmIndex + (CHANNELS_PER_TDM * s);
+		masterLeft = 0.0f;
+		masterRight = 0.0f;
+		masterSub = 0.0f;
 
-			for (int ch = 0; ch < 8; ch++) {
+		for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
+			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
+
+			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) { // TODO: this loop could be optimized using SIMD as we are using the same operators on multiple data
+				// calculate dspChannel
+				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+
 				// calculate bufferOffset with wrap-around the end of the buffer
-				bufferIndex = bufferSampleIndex + ch;
+				bufferReadIndex = (bufferTdmIndex + i_ch) % (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
 
 				// every sample will be processed in the following order:
 				// input -> Noisegate -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> EQ5 -> Compressor -> output
 
-				audioProcessedSample = audioRxBuf[bufferIndex];
+				audioProcessedSample = audioRxBuf[bufferReadIndex];
 
 				// process noisegate
-				audioProcessedSample = fxProcessGate(audioProcessedSample, &openx32.channel[ch].gate);
+				audioProcessedSample = fxProcessGate(audioProcessedSample, &dsp.dspChannel[dspCh].gate);
 
 				// process all EQs subsequently
-				for (int i_peq = 0; i_peq < openx32.channel[ch].peqMax; i_peq++) {
-					audioProcessedSample = fxProcessEq(audioProcessedSample, &openx32.channel[ch].peq[i_peq]);
+				for (int i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
+					audioProcessedSample = fxProcessEq(audioProcessedSample, &dsp.dspChannel[dspCh].peq[i_peq]);
 				}
 
 				// process compressor
-				audioProcessedSample = fxProcessCompressor(audioProcessedSample, &openx32.channel[ch].compressor);
+				audioProcessedSample = fxProcessCompressor(audioProcessedSample, &dsp.dspChannel[dspCh].compressor);
 
 				// process sends
 				// TODO
 
 				// process channel-volume
 				// convert dB into linear value and then process audio
-				audioProcessedSample *= openx32.channel[ch].volume;
+				audioProcessedSample *= dsp.dspChannel[dspCh].volumeLeft;
 
 				// limit audio to peak-values of 32-bit (TDM8). X32 will process "only" 24-bits and ignores the lower 8-bits
 				if (audioProcessedSample > 2147483648) {
@@ -151,11 +162,28 @@ void audioProcessData(void) {
 					audioProcessedSample = -2147483648;
 				}
 
-				// write processed audio to output directly as we have no "main-bus" at the moment
+				// write processed audio to output directly (1:1 routing)
 				// DSP-input -> processing DSP-output
-				audioTxBuf[bufferIndex] = audioProcessedSample;
+				//audioTxBuf[bufferReadIndex] = audioProcessedSample;
+				masterLeft  += (audioProcessedSample * dsp.dspChannel[dspCh].volumeLeft);
+				masterRight += (audioProcessedSample * dsp.dspChannel[dspCh].volumeRight);
+				masterSub   += (audioProcessedSample * dsp.dspChannel[dspCh].volumeSub);
 			}
 		}
+
+		// all channels of this sample processed -> write summarized data to outputs
+		// Ch01-08: Output 1-8: We will use Out 1-2 aus MainL/R for now
+		// Ch09-17: Output 9-16
+		// Ch17-24: UltraNet 1-8
+		// Ch25-32: UltraNet 9-16
+		// Ch33-40: AUX 1-6 / MonitorL/R
+
+		// copy masterLeft to TDM0, ch0
+		// copy masterRight to TDM0, ch1
+		// copy masterSub to TDM0, ch2
+		audioTxBuf[bufferSampleIndex] = masterLeft;
+		audioTxBuf[bufferSampleIndex + 1] = masterRight;
+		audioTxBuf[bufferSampleIndex + 2] = masterSub;
 	}
 
 	// increment buffer-counter for next call
@@ -178,7 +206,7 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
     audioReady = 1; // set flag, that we have new data to process
 
     audioIsrCounter++;
-    if (audioIsrCounter >= (openx32.samplerate / SAMPLES_IN_BUFFER)) {
+    if (audioIsrCounter >= (dsp.samplerate / SAMPLES_IN_BUFFER)) {
     	audioIsrCounter = 0;
     }
 }

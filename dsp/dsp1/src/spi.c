@@ -17,8 +17,8 @@ typedef enum {
 	COLLECTING_PAYLOAD,
 	LOOKING_FOR_END_MARKER
 } spiParserState;
-const unsigned int SPI_START_MARKER = 0x0000002A;
-const unsigned int SPI_END_MARKER = 0x00000023;
+const unsigned int SPI_START_MARKER = 0x0000002A; // '*'
+const unsigned int SPI_END_MARKER = 0x00000023; // '#'
 
 void spiInit(void) {
 	// reset all registers
@@ -107,7 +107,6 @@ void spiISR(int sig) {
 			// no overflow -> store data
 			spiRingBuffer.buffer[spiRingBuffer.head] = rxData;
 			spiRingBuffer.head = next_head;
-
 			spiNewRxDataReady = (rxData == 0x00000023); // check for '#'
 		}else{
 			// buffer-overflow -> reject new data
@@ -120,12 +119,13 @@ void spiProcessRxData(void) {
 
 	// check for new valid data in spiRxBuffer
 	// we expect a message like:
-	// *PV#
-	// * PARAMETER VALUE # (each with 32-bit)
+	// *LPV#
+	// * LENGTH PARAMETER VALUE-ARRAY # (each with 32-bit)
 
 	static spiParserState state = LOOKING_FOR_START_MARKER;
 	static unsigned int payload[SPI_PAYLOAD_SIZE];
 	static int payloadIdx = 0;
+	static unsigned short payloadLength;
 
 	while (spiRingBuffer.head != spiRingBuffer.tail) {
 		unsigned int data = spiRingBuffer.buffer[spiRingBuffer.tail];
@@ -135,14 +135,20 @@ void spiProcessRxData(void) {
 			case LOOKING_FOR_START_MARKER:
 				// check for character '*'
 				if (data == SPI_START_MARKER) {
-					state = COLLECTING_PAYLOAD;
 					payloadIdx = 0;
+					state = COLLECTING_PAYLOAD;
 				}
 				break;
 			case COLLECTING_PAYLOAD:
+				if (payloadIdx == 0) {
+					// the current data contains the expected message length
+					payloadLength = ((data & 0xFF000000) >> 24) + 1; // '*'   parameter  values       '#'
+				}
+
 				// read data
 				payload[payloadIdx++] = data;
-				if (payloadIdx == SPI_PAYLOAD_SIZE) {
+
+				if ((payloadIdx == payloadLength) || (payloadIdx == SPI_PAYLOAD_SIZE)) {
 					// payload is complete. Now check the end marker
 					state = LOOKING_FOR_END_MARKER;
 				}
@@ -151,7 +157,11 @@ void spiProcessRxData(void) {
 				// check for character '#'
 				if (data == SPI_END_MARKER) {
 					// we received a valid payload
-					openx32Command(payload[0], payload[1]); // parameter, value
+					unsigned short classId = payload[0] & 0x000000FF;
+					unsigned short channel = ((payload[0] & 0x0000FF00) >> 8);
+					unsigned short index = ((payload[0] & 0x00FF0000) >> 16);
+					unsigned short valueCount = ((payload[0] & 0xFF000000) >> 24);
+					openx32Command(classId, channel, index, valueCount, &payload[1]); // classId, channel, index, valuecount, values[]
 
 					state = LOOKING_FOR_START_MARKER; // reset state
 				}else{

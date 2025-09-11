@@ -77,7 +77,7 @@ void systemSruInit(void) {
 	SRU(HIGH, DPI_PBEN07_I); // set Pin-Buffer to output (HIGH=Output, LOW=Input)
 	NOP();
 	sysreg_bit_set(sysreg_FLAGS, FLG7O); // set flag-pins
-	sysreg_bit_clr(sysreg_FLAGS, FLG7); // clear flag-pins
+	sysreg_bit_clr(sysreg_FLAGS, FLG7); // turn on LED
 
 
 
