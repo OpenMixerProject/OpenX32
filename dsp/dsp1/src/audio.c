@@ -25,7 +25,9 @@ int audioBufferCounter = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
+//section("seg_ext_data")
 int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | P16 Ch 1-8 | P16 Ch 9-16 | AUX Ch 1-8
+//section("seg_ext_data")
 int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
@@ -64,15 +66,22 @@ void audioInit(void) {
 	// ============== FOR TESTING ONLY ==============
 	/*
 	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
-	audioUpdatePointerArray(); // we need initialized pointer-array to access buffer
+	int bufferTdmIndex;
+	int bufferSampleIndex;
+	int bufferIndex;
 	float omega = 2.0f * PI * 1000.0f / openx32.samplerate; // w = 2*pi*f between 1kHz and 8kHz
-	for (int ch = 1; ch < 8; ch++) {
-		for (int s = 0; (s < (BUFFER_COUNT * SAMPLES_IN_BUFFER)); s++) {
-			*pAudioOutputSamples[ch     ][s] = sin(omega * (float)(ch + 1) * (float)s) * 268435456; // TDM8 is using 32-bit values, so lets use 28-bit as peak-value (-18dBfs)
-			*pAudioOutputSamples[ch + 8 ][s] = sin(omega * (float)(ch + 1) * (float)s) * 268435456;
-			*pAudioOutputSamples[ch + 16][s] = sin(omega * (float)(ch + 1) * (float)s) * 268435456;
-			*pAudioOutputSamples[ch + 24][s] = sin(omega * (float)(ch + 1) * (float)s) * 268435456;
-			*pAudioOutputSamples[ch + 32][s] = sin(omega * (float)(ch + 1) * (float)s) * 268435456;
+	for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
+		bufferTdmIndex = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + (BUFFER_SIZE * audioBufferCounter);
+
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			bufferSampleIndex = bufferTdmIndex + (CHANNELS_PER_TDM * s);
+
+			for (int ch = 0; ch < 8; ch++) {
+				// calculate bufferOffset with wrap-around the end of the buffer
+				bufferIndex = bufferSampleIndex + ch;
+
+				audioTxBuf[bufferIndex] = sin(omega * (float)(ch + 1) * (float)(s + (SAMPLES_IN_BUFFER * audioBufferCounter))) * 268435456; // TDM8 is using 32-bit values, so lets use 28-bit as peak-value (-18dBfs)
+			}
 		}
 	}
 	*/
@@ -94,6 +103,8 @@ void audioProcessData(void) {
 	// 5. Volume-Control to Main L/R
 
 	float audioProcessedSample;
+	int bufferTdmIndex;
+	int bufferSampleIndex;
 	int bufferIndex;
 
 	// now iterate through all channels and all samples
@@ -101,10 +112,14 @@ void audioProcessData(void) {
 	// so stay at 8 channels for now
 	//for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
 	for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
+		bufferTdmIndex = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + (BUFFER_SIZE * audioBufferCounter);
+
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			bufferSampleIndex = bufferTdmIndex + (CHANNELS_PER_TDM * s);
+
 			for (int ch = 0; ch < 8; ch++) {
 				// calculate bufferOffset with wrap-around the end of the buffer
-				bufferIndex = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s) + ch;
+				bufferIndex = bufferSampleIndex + ch;
 
 				// every sample will be processed in the following order:
 				// input -> Noisegate -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> EQ5 -> Compressor -> output

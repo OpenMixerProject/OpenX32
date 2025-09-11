@@ -9,47 +9,39 @@ void systemPllInit()
 	pmctlsetting = *pPMCTL;
 	pmctlsetting &= ~(0xFF); // clear pmctlsetting
 
-	// Core clock = 16MHz * (16/1) = 256 MHz
-	// PLLM=33 and PLLD2 would be another option for 264MHz. Maximum is 266MHz
-	pmctlsetting = (PLLM16 | PLLD1 | DIVEN | SDCKR2); // multiplier=16 | divider=1 | divider enabled | SD-Clock-Ratio=2=128MHz
+	// Core clock = 16MHz * (33/2) = 264MHz. Maximum is 266MHz
+	pmctlsetting = (PLLM33 | PLLD2 | DIVEN | SDCKR2); // multiplier=33 | divider=2 | divider enabled | SD-Clock-Ratio=2=132MHz
 	*pPMCTL = pmctlsetting;
 }
 
 void systemExternalMemoryInit()
 {
-	// Programming SDRAM control registers and enabling SDRAM read optimization
-	// RDIV = ((f SDCLK X t REF )/NRA) - (tRAS + tRP )
-	// (131.072*(10^6)*64*(10^-3)/4096) - (6+3) = 2039 = 0x7F7
-	*pSDRRC = (0x7F7) | (SDMODIFY << 17) | SDROPT;
+/*
+	// SDCL3   = set CAS Latency to 3 (from datasheet)
+	// X16DE   = Data-Bits 0..15 are connected to SD-ram
+	// SDCAW10 = set Address Width to 10 bit
+	// SDRAW11 = set Row address Width to 11 bit
+	// SDTRAS  = SDRAM tRAS Specification. Active Command delay = x cycles
+	// SDTRP   = SDRAM tRP Specification. Precharge delay = x cycles.
+	// SDTWR   = SDRAM tWR Specification. tWR = x cycles.
+	// SDTRCD  = SDRAM tRCD Specification. tRCD = x cycles.
+	// SDPSS   = start SDRAM power-up on next cycle
+	*pSDCTL = SDCL3 | X16DE | SDCAW10 | SDRAW11 | SDTRAS8 | SDTRP4 | SDTWR3 | SDTRCD4 | SDPSS;
 
-	/* Configure SDRAM Control Register (SDCTL) for PART MT48LC4M32B2
-	  SDCL3  : SDRAM CAS Latency= 3 cycles
-	  DSDCLK1: Disable SDRAM Clock 1
-	  SDPSS  : Start SDRAM Power up Sequence
-	  SDCAW8 : SDRAM Bank Column Address Width= 8 bits
-	  SDRAW12: SDRAM Row Address Width= 12 bits
-	  SDTRAS7: SDRAM tRAS Specification. Active Command delay = 6 cycles
-	  SDTRP3 : SDRAM tRP Specification. Precharge delay = 3 cycles.
-	  SDTWR2 : SDRAM tWR Specification. tWR = 2 cycles.
-	  SDTRCD3: SDRAM tRCD Specification. tRCD = 3 cycles.
-	 */
+	// Mapping Bank 1 to SDRAM
+	*pEPCTL |= B1SD;
 
-	*pSDCTL = SDCL3 | DSDCLK1 | SDPSS | SDCAW9 | SDRAW12 | SDTRAS6 | SDTRP3 | SDTWR2 | SDTRCD3 | X16DE;
+	// configure the AMI Control Register of Bank1 for the K4S281632E
+	// AMIEN  = enables AMI Controller
+	// BW16   = set DataBusWidth to 16bit
+	// WS32   = 23 WaitStates
+	*pAMICTL1 = AMIEN | BW16 | WS23;
 
-	// Note that MS2 & MS3 pin multiplexed with flag2 & flag3
-	// MSEN bit must be enabled to access SDRAM
+	*pSDRRC = 0x406; // RDIV from datasheet: RDIV = (f_SDCLK * t_REF/NRA) - (t_RAW * t_RP)
+
+	// enable SDRAM
 	*pSYSCTL |= MSEN;
-
-	// Mapping Bank 0 to SDRAM
-	// MS2 is connected to chip select of 16-bit SDRAM device
-	*pEPCTL |= B0SD;
-	*pEPCTL &= ~(B1SD | B2SD | B3SD);
-
-	/*  Configure AMI Control Register (AMICTL) Bank 1 for the AMD AM29LV08
-		WS23 : Wait States= 23 cycles
-		AMIEN: Enable AMI
-		BW8  : External Data Bus Width= 8 bits*/
-	*pAMICTL1 = WS23 | AMIEN | BW8; // Flash Settings
+*/
 }
 
 void systemSruInit(void) {

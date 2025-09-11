@@ -5,6 +5,9 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
+#define SDRAM_START  0x00200000	// start address of SDRAM
+#define SDRAM_SIZE	 0x00400000	// size of SDRAM in 32-bit words (16 MiB)
+
 #define MAX_CHAN				40
 #define CHANNELS_PER_TDM		8
 #define TDM_INPUTS				(MAX_CHAN / CHANNELS_PER_TDM)
