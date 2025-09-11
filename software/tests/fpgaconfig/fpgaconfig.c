@@ -165,9 +165,10 @@ int configure_spartan3a_spi(const char *bitstream_path) {
     fprintf(stdout, "  Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...\n");
     int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fd, "1", 1);
-    usleep(5 * 1000);
+    usleep(500);
     write(fd, "0", 1);
     close(fd);
+    usleep(500);
 
 /*
     gpiod_line_set_value(prog_b_line, 0);

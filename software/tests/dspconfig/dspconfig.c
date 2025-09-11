@@ -70,6 +70,14 @@ int configure_dsp_spi(const char *bitstream_path_a, const char *bitstream_path_b
     uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
     fprintf(stdout, "DSP Configuration Tool v0.0.1\n");
+
+    // read bitstream-files
+    fprintf(stdout, "  Checking input files...\n");
+    file_size[0] = get_file_size(bitstream_path_a);
+    if (numStreams == 2) {
+        file_size[1] = get_file_size(bitstream_path_b);
+    }
+
     fprintf(stdout, "  Connecting to SPI %s...\n", SPI_DEVICE_A);
     spi_fd[0] = open(SPI_DEVICE_A, O_RDWR);
     if (spi_fd[0] < 0) {
@@ -98,32 +106,30 @@ int configure_dsp_spi(const char *bitstream_path_a, const char *bitstream_path_b
         fprintf(stdout, "  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).\n", SPI_DEVICE_B, spiMode, spiSpeed);
     }
 
-    // write dummy-data to setup SPI
+    // setup SPI-buffer
     tr.tx_buf = (unsigned long)spiTxData;
     tr.rx_buf = (unsigned long)spiRxData;
     tr.bits_per_word = spiBitsPerWord;
     tr.speed_hz = spiSpeed;
+
+    // resetting DSPs
+    int fdResetDsp = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
+    write(fdResetDsp, "1", 1); // assert reset of both DSPs
+    usleep(500);
+
+    // write some dummy-data to initialize SPI of i.MX25
+    tr.len = 4; // send only 4 bytes
     ioctl(spi_fd[0], SPI_IOC_MESSAGE(1), &tr);
     if (numStreams == 2) {
         ioctl(spi_fd[1], SPI_IOC_MESSAGE(1), &tr);
     }
-    usleep(10 * 1000);
+    usleep(500);
 
-    // resetting DSPs
-    fprintf(stdout, "  Resetting DSPs and start upload...\n");
-    int fd = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
-    write(fd, "1", 1);
-    usleep(10 * 1000);
-    write(fd, "0", 1);
-    close(fd);
-    usleep(10 * 1000);
-
-	// read bitstream-files
-	fprintf(stdout, "  Checking input files...\n");
-	file_size[0] = get_file_size(bitstream_path_a);
-	if (numStreams == 2) {
-		file_size[1] = get_file_size(bitstream_path_b);
-	}
+    // release reset
+    write(fdResetDsp, "0", 1);
+    close(fdResetDsp);
+    // wait at least 4096 16MHz clock-cycles (256 us) (see page 16-10 of ADSP-2137x SHARC Processor Hardware Reference v2.2)
+    usleep(500);
 
 	for (uint8_t i = 0; i < numStreams; i++) {
 		bitstream_file[i] = fopen(bitstream_path_a, "rb");
