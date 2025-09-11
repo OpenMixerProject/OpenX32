@@ -5,14 +5,16 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
+#define MAX_CHAN				40
+#define CHANNELS_PER_TDM		8
+#define TDM_INPUTS				(MAX_CHAN / CHANNELS_PER_TDM)
 #define SAMPLES_IN_BUFFER		16
-#define BUFFER_SIZE				SAMPLES_IN_BUFFER * 8
+#define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
+#define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
 #define PI						3.1415926535897932384626433832795f
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
-#define MAX_CHAN				40
 #define SPI_BUFFER_SIZE			20
 #define SPI_DMA_BUFFER_SIZE		20
 #define SPI_PAYLOAD_SIZE		2

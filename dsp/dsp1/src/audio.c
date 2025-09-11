@@ -25,81 +25,30 @@ int audioBufferCounter = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
-int audioTxBuf0[BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch 1-8
-int audioTxBuf1[BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch 9-16
-int audioTxBuf2[BUFFER_COUNT * BUFFER_SIZE] = {0}; // P16 Ch 1-8
-int audioTxBuf3[BUFFER_COUNT * BUFFER_SIZE] = {0}; // P16 Ch 9-16
-int audioTxBuf4[BUFFER_COUNT * BUFFER_SIZE] = {0}; // AUX Ch 1-8
-
-int audioRxBuf0[BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch 1-8
-int audioRxBuf1[BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch 9-16
-int audioRxBuf2[BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch 17-24
-int audioRxBuf3[BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch 25-32
-int audioRxBuf4[BUFFER_COUNT * BUFFER_SIZE] = {0}; // AUX Ch 1-8
-
-// pointers to individual audio-samples for more convenient access
-int* pAudioOutputSamples[40][BUFFER_COUNT * SAMPLES_IN_BUFFER]; // sorted pointer-array that points to the value for the next write cycle
-int* pAudioInputSamples[40][BUFFER_COUNT * SAMPLES_IN_BUFFER]; // sorted pointer-array that points to the recently received audio-samples
+int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | P16 Ch 1-8 | P16 Ch 9-16 | AUX Ch 1-8
+int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 // TCB-arrays for SPORT {pointer to pointer to buffer, buffer-size, ???, pointer to buffer}
 int audioTx_tcb[8][BUFFER_COUNT][4];
 int audioRx_tcb[8][BUFFER_COUNT][4];
 
-void audioUpdatePointerArray(void) {
-	// update pointer-array -> the resulting pointer-array is always sorted from the most recent (index 0) to the oldest sample (max index) per channel
-	int bufferOffset;
-	for (int ch = 0; ch < 8; ch++) {
-		for (int i_buf = 0; i_buf < BUFFER_COUNT; i_buf++) {
-			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-				// calculate the pointer-address to the subsequent output-buffer
-				bufferOffset = audioBufferCounter + i_buf;
-				// put the bufferOffset within the limits of the pointer-array again
-				while (bufferOffset >= BUFFER_COUNT) {
-					bufferOffset -= BUFFER_COUNT;
-				}
-				while (bufferOffset < 0) {
-					bufferOffset += BUFFER_COUNT;
-				}
-
-				// pointer-array has most recent samples at position 0, so we have to rearrange the samples for the DMA-buffer back to expected order by DMA
-				pAudioOutputSamples[ch     ][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioTxBuf0[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 1-8
-				pAudioOutputSamples[ch + 8 ][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioTxBuf1[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 9-16
-				pAudioOutputSamples[ch + 16][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioTxBuf2[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 17-24
-				pAudioOutputSamples[ch + 24][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioTxBuf3[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 25-32
-				pAudioOutputSamples[ch + 32][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioTxBuf4[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 33-40
-
-				// pointer-array will have most recent samples at position 0, so we have to rearrange the received samples from DMA-buffer
-				pAudioInputSamples[ch     ][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioRxBuf0[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 1-8
-				pAudioInputSamples[ch + 8 ][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioRxBuf1[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 9-16
-				pAudioInputSamples[ch + 16][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioRxBuf2[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 17-24
-				pAudioInputSamples[ch + 24][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioRxBuf3[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 25-32
-				pAudioInputSamples[ch + 32][(i_buf * SAMPLES_IN_BUFFER) + s] = &audioRxBuf4[(bufferOffset * BUFFER_SIZE) + ch + ((SAMPLES_IN_BUFFER - 1 - s) * 8)];	// channels 33-40
-			}
-		}
-	}
-}
-
 void audioInit(void) {
 	// init TCB-array with multi-buffering
+	int nextBuffer;
 	for (int i_buf = 0; i_buf < BUFFER_COUNT; i_buf++) {
-		// check if we have to direct to first buffer again
-		int nextBuffer;
-		if (i_buf == (BUFFER_COUNT - 1)) {
-			// jump back to first buffer
-			nextBuffer = 0;
-		}else{
-			// direct to subsequent buffer
-			nextBuffer = i_buf + 1;
-		}
+		// calc index of next buffer with wrap around at the end
+		nextBuffer = (i_buf + 1) % BUFFER_COUNT;
 
-		for (int i_tcb = 0; i_tcb < 8; i_tcb++) {
+		for (int i_tcb = 0; i_tcb < TDM_INPUTS; i_tcb++) {
 			// direct DMA-chain-controller to the subsequent buffer
 			audioTx_tcb[i_tcb][i_buf][0] = ((int)&audioTx_tcb[i_tcb][nextBuffer][0] + 3);
 			// tell DMA-controller the size of our buffers
 			audioTx_tcb[i_tcb][i_buf][1] = BUFFER_SIZE;
 			// set modification-value to 1
 			audioTx_tcb[i_tcb][i_buf][2] = 1;
+			// assign pointer to the Tx-Buffer to tcb
+			audioTx_tcb[i_tcb][i_buf][3] = (int)&audioTxBuf[(BUFFER_COUNT * BUFFER_SIZE * i_tcb) + (BUFFER_SIZE * i_buf)];
 
 			// direct DMA-chain-controller to the subsequent buffer
 			audioRx_tcb[i_tcb][i_buf][0] = ((int)&audioRx_tcb[i_tcb][nextBuffer][0] + 3);
@@ -107,20 +56,9 @@ void audioInit(void) {
 			audioRx_tcb[i_tcb][i_buf][1] = BUFFER_SIZE;
 			// set modification-value to 1
 			audioRx_tcb[i_tcb][i_buf][2] = 1;
+			// assign pointer to the Tx-Buffer to tcb
+			audioRx_tcb[i_tcb][i_buf][3] = (int)&audioRxBuf[(BUFFER_COUNT * BUFFER_SIZE * i_tcb) + (BUFFER_SIZE * i_buf)];
 		}
-
-		// assign pointer to the buffer to tcb
-		audioTx_tcb[0][i_buf][3] = (int)&audioTxBuf0[i_buf * BUFFER_SIZE];
-		audioTx_tcb[1][i_buf][3] = (int)&audioTxBuf1[i_buf * BUFFER_SIZE];
-		audioTx_tcb[2][i_buf][3] = (int)&audioTxBuf2[i_buf * BUFFER_SIZE];
-		audioTx_tcb[3][i_buf][3] = (int)&audioTxBuf3[i_buf * BUFFER_SIZE];
-		audioTx_tcb[4][i_buf][3] = (int)&audioTxBuf4[i_buf * BUFFER_SIZE];
-
-		audioRx_tcb[0][i_buf][3] = (int)&audioRxBuf0[i_buf * BUFFER_SIZE];
-		audioRx_tcb[1][i_buf][3] = (int)&audioRxBuf1[i_buf * BUFFER_SIZE];
-		audioRx_tcb[2][i_buf][3] = (int)&audioRxBuf2[i_buf * BUFFER_SIZE];
-		audioRx_tcb[3][i_buf][3] = (int)&audioRxBuf3[i_buf * BUFFER_SIZE];
-		audioRx_tcb[4][i_buf][3] = (int)&audioRxBuf4[i_buf * BUFFER_SIZE];
 	}
 
 	// ============== FOR TESTING ONLY ==============
@@ -143,7 +81,6 @@ void audioInit(void) {
 
 void audioProcessData(void) {
 	audioProcessing = 1; // set global flag that we are processing now
-	audioUpdatePointerArray();
 
 	// process the received samples sample by sample
 	// the ADSP-21371 has support for SIMD. The compile should detect what we are doing here and
@@ -157,47 +94,52 @@ void audioProcessData(void) {
 	// 5. Volume-Control to Main L/R
 
 	float audioProcessedSample;
-	// iterate through all channels
-	//for (int ch = 0; ch < MAX_CHAN; ch++) {
+	int bufferIndex;
 
+	// now iterate through all channels and all samples
 	// 24 channels are the hard limit at the moment - on some occasions it will not be able to process all data until next buffer
 	// so stay at 8 channels for now
-	for (int ch = 0; ch < 8; ch++) {
-		// we have to calculate from oldest sample to newest, so we have to start at end of currently received buffer
-		for (int s = (SAMPLES_IN_BUFFER - 1); s >= 0; s--) {
-			// every sample will be processed in the following order:
-			// input -> Noisegate -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> EQ5 -> Compressor -> output
+	//for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+	for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			for (int ch = 0; ch < 8; ch++) {
+				// calculate bufferOffset with wrap-around the end of the buffer
+				bufferIndex = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s) + ch;
 
-			audioProcessedSample = (float)*pAudioInputSamples[ch][s];
+				// every sample will be processed in the following order:
+				// input -> Noisegate -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> EQ5 -> Compressor -> output
 
-			// process noisegate
-			audioProcessedSample = fxProcessGate(audioProcessedSample, &openx32.channel[ch].gate);
+				audioProcessedSample = audioRxBuf[bufferIndex];
 
-			// process all EQs subsequently
-			for (int i_peq = 0; i_peq < openx32.channel[ch].peqMax; i_peq++) {
-				audioProcessedSample = fxProcessEq(audioProcessedSample, &openx32.channel[ch].peq[i_peq]);
+				// process noisegate
+				audioProcessedSample = fxProcessGate(audioProcessedSample, &openx32.channel[ch].gate);
+
+				// process all EQs subsequently
+				for (int i_peq = 0; i_peq < openx32.channel[ch].peqMax; i_peq++) {
+					audioProcessedSample = fxProcessEq(audioProcessedSample, &openx32.channel[ch].peq[i_peq]);
+				}
+
+				// process compressor
+				audioProcessedSample = fxProcessCompressor(audioProcessedSample, &openx32.channel[ch].compressor);
+
+				// process sends
+				// TODO
+
+				// process channel-volume
+				// convert dB into linear value and then process audio
+				audioProcessedSample *= openx32.channel[ch].volume;
+
+				// limit audio to peak-values of 32-bit (TDM8). X32 will process "only" 24-bits and ignores the lower 8-bits
+				if (audioProcessedSample > 2147483648) {
+					audioProcessedSample = 2147483648;
+				}else if (audioProcessedSample < -2147483648) {
+					audioProcessedSample = -2147483648;
+				}
+
+				// write processed audio to output directly as we have no "main-bus" at the moment
+				// DSP-input -> processing DSP-output
+				audioTxBuf[bufferIndex] = audioProcessedSample;
 			}
-
-			// process compressor
-			audioProcessedSample = fxProcessCompressor(audioProcessedSample, &openx32.channel[ch].compressor);
-
-			// process sends
-			// TODO
-
-			// process channel-volume
-			// convert dB into linear value and then process audio
-			audioProcessedSample *= openx32.channel[ch].volume;
-
-			// limit audio to peak-values of 32-bit (TDM8). X32 will process "only" 24-bits and ignores the lower 8-bits
-			if (audioProcessedSample > 2147483648) {
-				audioProcessedSample = 2147483648;
-			}else if (audioProcessedSample < -2147483648) {
-				audioProcessedSample = -2147483648;
-			}
-
-			// write processed audio to output directly as we have no "main-bus" at the moment
-			// DSP-input -> processing DSP-output
-			*pAudioOutputSamples[ch][s] = (int)audioProcessedSample;
 		}
 	}
 
