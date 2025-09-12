@@ -41,12 +41,6 @@
 #include <sysreg.h>
 #include <signal.h>
 
-// function prototypes
-static void timerIsr(uint32_t iid, void* handlerArg);
-void delay(int i);
-void openx32Init(void);
-void openx32Command(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values);
-
 // global variables
 extern volatile int audioProcessing;
 extern volatile int audioReady;
@@ -145,5 +139,11 @@ struct {
 
 	sChannel dspChannel[MAX_CHAN];
 } dsp;
+
+// function prototypes
+static void timerIsr(uint32_t iid, void* handlerArg);
+void delay(int i);
+void openx32Init(void);
+void openx32Command(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values);
 
 #endif /* __DSP1_H__ */

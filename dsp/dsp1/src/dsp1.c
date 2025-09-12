@@ -36,9 +36,9 @@
 	===========================
 	[ ] implement external SD-RAM
 	[ ] implement routing-functions (sends)
-	[ ] implement bus-masters, solo, mute
+	[ ] implement bus-masters, control-room solo
 	[ ] implement data-transmission to and from secondary DSP
-	[ ] check implementation of DTS Neo:6 algorithm and surround-mixing
+	[ ] check implementation of DTS Neo:6 algorithm, or surround-mixing using either subtractive method (the easy way) or stereo-decomposition (the hard way)
 */
 
 #include "dsp1.h"
@@ -191,7 +191,7 @@ int main() {
 
 		/*
 		// toggle LED to show that we are receiving audio-data
-		if (audioIsrCounter > (openx32.samplerate / SAMPLES_IN_BUFFER) / 2) {
+		if (audioIsrCounter > (dsp.samplerate / SAMPLES_IN_BUFFER) / 2) {
 			sysreg_bit_set(sysreg_FLAGS, FLG7);
 		}else{
 			sysreg_bit_clr(sysreg_FLAGS, FLG7);

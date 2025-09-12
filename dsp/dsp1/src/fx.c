@@ -60,7 +60,7 @@ float fxProcessEq(float input, sPEQ* peq) {
 	return output;
 }
 
-float fxProcessCompressor(float input, sCompressor* Compressor) {
+float fxProcessCompressor(float input, sCompressor* compressor) {
 	compressor->active = (abs(input) > compressor->value_threshold);
 
 	// calculate the gate-logic and online-parameters

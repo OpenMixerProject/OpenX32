@@ -11,6 +11,6 @@ void fxRecalcFilterCoefficients_PEQ(sPEQ* peq);
 void fxRecalcFilterCoefficients_LR12(sLR12* LR12);
 void fxRecalcFilterCoefficients_LR24(sLR24* LR24);
 void fxRecalcGate(sGate* gate);
-void fxRecalcCompressor(sCompressor* Compressor);
+void fxRecalcCompressor(sCompressor* compressor);
 
 #endif

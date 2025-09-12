@@ -178,7 +178,7 @@ void fxRecalcGate(sGate* gate) {
 	gate->value_coeff_release = exp(-2197.22457734f/(dsp.samplerate * gate->releaseTime_ms));
 }
 
-void fxRecalcCompressor(sCompressor* Compressor) {
+void fxRecalcCompressor(sCompressor* compressor) {
 	compressor->value_threshold = (pow(2, 31) - 1) * pow(10.0f, compressor->threshold/20.0f);
 
 	compressor->value_makeup = pow(10.0f, compressor->makeup/20.0f);

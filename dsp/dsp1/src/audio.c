@@ -92,21 +92,25 @@ void audioProcessData(void) {
 	audioProcessing = 1; // set global flag that we are processing now
 
 	// process the received samples sample by sample
-	// the ADSP-21371 has support for SIMD. The compile should detect what we are doing here and
-	// hopefully process the data using SingleInstructionMultipleData to optimize our processing
+	// using a samplerate of 48kHz and knowing the peak-perfomance of the ADSP-21371 at 1.596 GFLOPS
+	// as we are receiving 16 samples per DMA-transfer, we receive new data with 48,000Hz / 16 = 3,000 Hz
+	// we have 1,596,000,000 / 3,000 = 532,000 FLOP available until next samples will arrive via DMA
+	// we are processing 16 samples for 40 channels, which means we have 532,000 / (16 * 40) = 831 FLOP per channel available
 	//
 	// Following steps are processed for all channels
-	// 1. Noisegate
-	// 2. 5-band EQ
-	// 3. Compressor
-	// 4. Sends to Mix-Busses
-	// 5. Volume-Control to Main L/R
+	// 1. Noisegate (3 multiplications, 2 sums -> 5 FLOP)
+	// 2. 5-band EQ (5 multiplications, 4 sums -> 9 FLOP)
+	// 3. Compressor (4 multiplications, 4 sums, 2 divisions -> at least 10 FLOP, maybe more)
+	// 4. Sends to Mix-Busses (not implemented yet)
+	// 5. Volume-Control to Main L/R and Sub (3 multiplications, 3 sums -> 6 FLOP)
+	// =========================================================================================
+	// 30 FLOP per channel * 40 channels = 1,200 FLOP in total
 
 	float audioProcessedSample;
-	float masterLeft;
-	float masterRight;
-	float masterSub;
-	short dspCh;
+	float mainLeft;
+	float mainRight;
+	float mainSub;
+	int dspCh;
 	int bufferTdmIndex;
 	int bufferSampleIndex;
 	int bufferReadIndex;
@@ -118,9 +122,9 @@ void audioProcessData(void) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
 
-		masterLeft = 0.0f;
-		masterRight = 0.0f;
-		masterSub = 0.0f;
+		mainLeft = 0.0f;
+		mainRight = 0.0f;
+		mainSub = 0.0f;
 
 		for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
 			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
@@ -169,14 +173,14 @@ void audioProcessData(void) {
 */
 
 				// main-audio-bus
-				masterLeft  += (audioProcessedSample * dsp.dspChannel[dspCh].volumeLeft);
-				masterRight += (audioProcessedSample * dsp.dspChannel[dspCh].volumeRight);
-				masterSub   += (audioProcessedSample * dsp.dspChannel[dspCh].volumeSub);
+				mainLeft  += (audioProcessedSample * dsp.dspChannel[dspCh].volumeLeft);
+				mainRight += (audioProcessedSample * dsp.dspChannel[dspCh].volumeRight);
+				mainSub   += (audioProcessedSample * dsp.dspChannel[dspCh].volumeSub);
 			}
 		}
 
 		// all channels of this sample processed -> write summarized data to outputs
-		// Ch01-08: Output 1-8: We will use Out 1-2 aus MainL/R for now
+		// Ch01-08: Output 1-8: Out1 = MainL, Out2 = MainR, Out3 = Sub
 		// Ch09-17: Output 9-16
 		// Ch17-24: UltraNet 1-8
 		// Ch25-32: UltraNet 9-16
@@ -185,9 +189,9 @@ void audioProcessData(void) {
 		// copy masterLeft to TDM0, ch0
 		// copy masterRight to TDM0, ch1
 		// copy masterSub to TDM0, ch2
-		audioTxBuf[bufferSampleIndex] = masterLeft;
-		audioTxBuf[bufferSampleIndex + 1] = masterRight;
-		audioTxBuf[bufferSampleIndex + 2] = masterSub;
+		audioTxBuf[bufferSampleIndex] = mainLeft;
+		audioTxBuf[bufferSampleIndex + 1] = mainRight;
+		audioTxBuf[bufferSampleIndex + 2] = mainSub;
 	}
 
 	// increment buffer-counter for next call
@@ -204,6 +208,7 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
 	// we received new audio-data
 	// check if we are still processing the data, which means >100% CPU Load -> Crash System
     if (audioProcessing) {
+    	// this is not nice but without a debugger and profiling tools this is the easiest method to check if the algorithms are within the timing
     	systemCrash();
     }
 
