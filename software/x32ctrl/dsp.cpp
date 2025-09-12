@@ -7,15 +7,15 @@ void dspInit(void) {
     dsp.samplerate = 48000;
 
     for (uint8_t i = 0; i < 40; i++) {
-        dsp.dspChannel[i].gate.threshold = -80;
-        dsp.dspChannel[i].gate.range = 60;
+        dsp.dspChannel[i].gate.threshold = -80; // dB -> no gate
+        dsp.dspChannel[i].gate.range = 60; // full range
         dsp.dspChannel[i].gate.attackTime_ms = 10;
         dsp.dspChannel[i].gate.holdTime_ms = 50;
         dsp.dspChannel[i].gate.releaseTime_ms = 250;
 
-        dsp.dspChannel[i].compressor.threshold = 0;
-        dsp.dspChannel[i].compressor.ratio = 3;
-        dsp.dspChannel[i].compressor.makeup = 0;
+        dsp.dspChannel[i].compressor.threshold = 0; // dB -> no compression
+        dsp.dspChannel[i].compressor.ratio = 3; // 1:3
+        dsp.dspChannel[i].compressor.makeup = 0; // dB
         dsp.dspChannel[i].compressor.attackTime_ms = 10;
         dsp.dspChannel[i].compressor.holdTime_ms = 10;
         dsp.dspChannel[i].compressor.releaseTime_ms = 150;

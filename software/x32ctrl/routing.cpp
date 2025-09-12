@@ -3,6 +3,7 @@
 #include "uart.h"
 #include "adda.h"
 #include "mixer.h"
+#include "fpga.h"
 
 void routingInit(void) {
     // reset routing-configuration and dsp-configuration
