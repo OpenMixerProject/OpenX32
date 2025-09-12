@@ -6,6 +6,7 @@ float fxProcessGate(float input, sGate* gate) {
 	// calculate the gate-logic and online-parameters
 	switch (gate->state) {
 		case GATE_CLOSED:
+			gate->gainSet = gate->value_gainmin;
 			// check if we have to open the gate
 			if (!gate->closed) {
 				gate->state = GATE_ATTACK;
@@ -39,6 +40,9 @@ float fxProcessGate(float input, sGate* gate) {
 			gate->coeff = gate->value_coeff_release;
 			gate->state = GATE_CLOSED;
 			break;
+		default:
+			gate->state = GATE_CLOSED;
+			break;
 	}
 
 	// gainCurrent = (gainCurrent * coeff) + (gainSet - gainSet * coeff);
@@ -61,28 +65,39 @@ float fxProcessEq(float input, sPEQ* peq) {
 }
 
 float fxProcessCompressor(float input, sCompressor* compressor) {
-	compressor->active = (abs(input) > compressor->value_threshold);
+	float input_abs = abs(input);
+
+	compressor->active = (input_abs > compressor->value_threshold);
 
 	// calculate the gate-logic and online-parameters
 	switch (compressor->state) {
 		case COMPRESSOR_IDLE:
+			compressor->gainSet = 1.0f;
 			// check if we have to open the gate
 			if (compressor->active) {
 				compressor->state = COMPRESSOR_ATTACK;
 			}
 			break;
 		case COMPRESSOR_ATTACK:
-			compressor->gainSet = (((abs(input) - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input;
+			// overshoot = abs(sample) - threshold
+			// output = (overshoot / ratio) + threshold
+			// gainSet = output / abs(input)
+			if ((input_abs > 0) && (compressor->value_ratio != 0)) {
+				compressor->gainSet = (((input_abs - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input_abs;
+			}
 			compressor->coeff = compressor->value_coeff_attack;
 			compressor->state = COMPRESSOR_ACTIVE;
 			break;
 		case COMPRESSOR_ACTIVE:
 			if (compressor->active) {
 				// check if we have to compress even more
-				float newValue = (((abs(input) - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input;
-				if (newValue < compressor->gainSet) {
-					// compress even more
-					compressor->gainSet = newValue;
+				float newValue;
+				if ((input_abs > 0) && (compressor->value_ratio != 0)) {
+					newValue = (((input_abs - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input_abs;
+					if (newValue < compressor->gainSet) {
+						// compress even more
+						compressor->gainSet = newValue;
+					}
 				}
 			}else{
 				compressor->holdCounter = compressor->value_hold_ticks;
@@ -107,10 +122,13 @@ float fxProcessCompressor(float input, sCompressor* compressor) {
 			compressor->coeff = compressor->value_coeff_release;
 			compressor->state = COMPRESSOR_IDLE;
 			break;
+		default:
+			compressor->state = COMPRESSOR_IDLE;
+			break;
 	}
 
 	// gainCurrent = (gainCurrent * coeff) + gainSet - (gainSet * coeff);
 	compressor->gainCurrent = (compressor->gainCurrent * compressor->coeff) + compressor->gainSet - (compressor->gainSet * compressor->coeff);
 
-	return (input * compressor->gainCurrent) * compressor->value_makeup;
+	return input * compressor->gainCurrent * compressor->value_makeup;
 }

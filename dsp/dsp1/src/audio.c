@@ -107,6 +107,7 @@ void audioProcessData(void) {
 	// 30 FLOP per channel * 40 channels = 1,200 FLOP in total
 
 	float audioProcessedSample;
+	float mainDebug;
 	float mainLeft;
 	float mainRight;
 	float mainSub;
@@ -118,14 +119,15 @@ void audioProcessData(void) {
 	// now iterate through all channels and all samples
 	// 24 channels are the hard limit at the moment - on some occasions it will not be able to process all data until next buffer
 	// so stay at 8 channels for now
-	//for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
 
 		mainLeft = 0.0f;
 		mainRight = 0.0f;
 		mainSub = 0.0f;
+		mainDebug = 0.0f;
 
+		//for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
 		for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
 			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
 
@@ -140,6 +142,7 @@ void audioProcessData(void) {
 				// input -> Noisegate -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> EQ5 -> Compressor -> output
 
 				audioProcessedSample = audioRxBuf[bufferReadIndex];
+				mainDebug += (audioRxBuf[bufferReadIndex]); // direct-through signal on output 1
 
 				// process noisegate
 				audioProcessedSample = fxProcessGate(audioProcessedSample, &dsp.dspChannel[dspCh].gate);
@@ -186,12 +189,14 @@ void audioProcessData(void) {
 		// Ch25-32: UltraNet 9-16
 		// Ch33-40: AUX 1-6 / MonitorL/R
 
-		// copy masterLeft to TDM0, ch0
-		// copy masterRight to TDM0, ch1
-		// copy masterSub to TDM0, ch2
-		audioTxBuf[bufferSampleIndex] = mainLeft;
-		audioTxBuf[bufferSampleIndex + 1] = mainRight;
-		audioTxBuf[bufferSampleIndex + 2] = mainSub;
+		// copy mainDebug to TDM0, ch0 for direct passthrough-test
+		// copy mainLeft to TDM0, ch1
+		// copy mainRight to TDM0, ch2
+		// copy mainSub to TDM0, ch3
+		audioTxBuf[bufferSampleIndex] = mainDebug;
+		audioTxBuf[bufferSampleIndex + 1] = mainLeft;
+		audioTxBuf[bufferSampleIndex + 2] = mainRight;
+		audioTxBuf[bufferSampleIndex + 3] = mainSub;
 	}
 
 	// increment buffer-counter for next call

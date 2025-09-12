@@ -76,6 +76,18 @@ void delay(int i) {
     }
 }
 
+void openx32Init(void) {
+	// initialize the default samplerate with 48kHz
+	// other samplerates up to 192kHz are possible with AD and DA converters
+	dsp.samplerate = 48000;
+
+	// initialize states of dynamics
+	for (int ch = 0; ch < MAX_CHAN; ch++) {
+		dsp.dspChannel[ch].gate.state = GATE_CLOSED;
+		dsp.dspChannel[ch].compressor.state = COMPRESSOR_IDLE;
+	}
+}
+
 void openx32Command(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
 	  SPI ClassIds:
@@ -165,7 +177,7 @@ int main() {
 	systemExternalMemoryInit();
 	systemSruInit();
 
-	dsp.samplerate = 48000; // other samplerates up to 192kHz are possible with AD and DA converters
+	openx32Init();
 	spiInit();
 	audioInit();
 	systemSportInit();
