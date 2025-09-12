@@ -21,7 +21,7 @@ void guiNewButtonPress(X32_BTN button, bool pressed) {
   lv_indev_read(keypad_indev);
 }
 
-void guiKeypadInputCallback(lv_indev_t * indev, lv_indev_data_t * data){
+void guiKeypadInputCallback(lv_indev_t* indev, lv_indev_data_t* data){
   data->key = lastButton;            // Get the last pressed or released key
 
   if (lastButtonPressed) {
@@ -33,7 +33,7 @@ void guiKeypadInputCallback(lv_indev_t * indev, lv_indev_data_t * data){
   lv_label_set_text_fmt(objects.testbartext, "Button %i pressed!", enum2button(lastButton));
 }
 
-// void guiMouseInputCallback(lv_indev_t * indev, lv_indev_data_t * data) {
+// void guiMouseInputCallback(lv_indev_t* indev, lv_indev_data_t* data) {
 // /*
 //   bool left, middle, right;
 //   int16_t x, y;
@@ -105,14 +105,14 @@ void guiKeypadInputCallback(lv_indev_t * indev, lv_indev_data_t * data){
 // }
 
 
-// void guiButtonsInputCallback(lv_indev_t * indev, lv_indev_data_t * data) {
+// void guiButtonsInputCallback(lv_indev_t* indev, lv_indev_data_t* data) {
 //   data->state = LV_INDEV_STATE_PRESSED;
 //   data->state = LV_INDEV_STATE_RELEASED;
 //   data->btn_id = last_btn;
 // }
 
 /*
-void guiEncoderInputCallback(lv_indev_t * indev, lv_indev_data_t * data) {
+void guiEncoderInputCallback(lv_indev_t* indev, lv_indev_data_t* data) {
   data->enc_diff = enc_get_new_moves();
 
   if(enc_pressed()) data->state = LV_INDEV_STATE_PRESSED;
@@ -157,12 +157,12 @@ void guiInitInput(void) {
 */
 
 /*
-  const char *device = getenv_default("LV_LINUX_FBDEV_DEVICE", "/dev/fb0");
+  const char* device = getenv_default("LV_LINUX_FBDEV_DEVICE", "/dev/fb0");
   lv_display_t *disp = lv_linux_fbdev_create();
 
   lv_linux_fbdev_set_file(disp, device);
 
-  char *mousePath = lv_libinput_find_dev(LV_LIBINPUT_CAPABILITY_POINTER, true);
+  char* mousePath = lv_libinput_find_dev(LV_LIBINPUT_CAPABILITY_POINTER, true);
   lv_indev_t *mouse = lv_libinput_create(LV_INDEV_TYPE_POINTER, mousePath);
 
   lv_indev_set_group(mouse, lv_group_get_default());

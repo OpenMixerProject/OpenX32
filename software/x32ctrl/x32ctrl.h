@@ -143,8 +143,8 @@ void timer10msCallbackLinux(int timer);
 void timer10msCallback();
 void surfaceDemo(void);
 void surfaceCallback(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t value);
-void addaCallback(char *msg);
-void fpgaCallback(char *buf, uint8_t len);
+void addaCallback(char* msg);
+void fpgaCallback(char* buf, uint8_t len);
 void syncAll(void);
 void syncGuiAndSurface(void);
 void syncGui(void);
@@ -153,7 +153,7 @@ void syncSurfaceBoardMain();
 void syncSurfaceBoard(X32_BOARD board);
 void syncSurfaceBankIndicator(void);
 void showPage(X32_PAGE page);
-void x32log(const char *format, ...);
-void x32debug(const char *format, ...);
+void x32log(const char* format, ...);
+void x32debug(const char* format, ...);
 
 #endif

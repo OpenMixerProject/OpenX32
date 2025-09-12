@@ -368,7 +368,7 @@
     #define LV_LOG_PRINTF 1
 
     /** Set callback to print logs.
-     *  E.g `my_print`. The prototype should be `void my_print(lv_log_level_t level, const char * buf)`.
+     *  E.g `my_print`. The prototype should be `void my_print(lv_log_level_t level, const char*  buf)`.
      *  Can be overwritten by `lv_log_register_print_cb`. */
     //#define LV_LOG_PRINT_CB
 

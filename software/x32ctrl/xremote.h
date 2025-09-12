@@ -22,9 +22,9 @@ void xremoteSetCard(uint8_t card);
 void xremoteSetMute(uint8_t ch, uint8_t muted);
 void xremoteSetSolo(uint8_t ch, uint8_t solo);
 void xremoteUpdateMeter();
-void xremoteSendUdpPacket(char *buffer, uint16_t size);
-void xremoteSendBasicMessage(char *cmd, char type, char format, char *value);
-uint16_t xremotesprint(char *bd, uint16_t index, char format, const char *bs);
-uint16_t xremotefprint(char *bd, uint16_t index, char* text, char format, char *bs);
+void xremoteSendUdpPacket(char* buffer, uint16_t size);
+void xremoteSendBasicMessage(char* cmd, char type, char format, char* value);
+uint16_t xremotesprint(char* bd, uint16_t index, char format, const char* bs);
+uint16_t xremotefprint(char* bd, uint16_t index, char* text, char format, char* bs);
 
 #endif

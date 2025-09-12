@@ -379,7 +379,7 @@ void xremoteUpdateMeter() {
 // low-level communication functions
 ////////////////////////////////////
 
-void xremoteSendUdpPacket(char *buffer, uint16_t size) {
+void xremoteSendUdpPacket(char* buffer, uint16_t size) {
     sendto(
         xremoteUdpHandle,
         buffer,
@@ -390,7 +390,7 @@ void xremoteSendUdpPacket(char *buffer, uint16_t size) {
     );
 }
 
-void xremoteSendBasicMessage(char *cmd, char type, char format, char *value) {
+void xremoteSendBasicMessage(char* cmd, char type, char format, char* value) {
     char tmp[3];
     tmp[0] = ',';
     tmp[1] = type;
@@ -402,7 +402,7 @@ void xremoteSendBasicMessage(char *cmd, char type, char format, char *value) {
     xremoteSendUdpPacket(xremote_TxMessage, len);
 }
 
-uint16_t xremotesprint(char *bd, uint16_t index, char format, const char *bs) {
+uint16_t xremotesprint(char* bd, uint16_t index, char format, const char* bs) {
     /*
       Based on the work of Patrick-Gilles Maillot
       https://github.com/pmaillot/X32-Behringer/blob/master/X32.c
@@ -438,7 +438,7 @@ uint16_t xremotesprint(char *bd, uint16_t index, char format, const char *bs) {
     return index;
 }
 
-uint16_t xremotefprint(char *bd, uint16_t index, char* text, char format, char *bs) {
+uint16_t xremotefprint(char* bd, uint16_t index, char* text, char format, char* bs) {
     /*
       Based on the work of Patrick-Gilles Maillot
       https://github.com/pmaillot/X32-Behringer/blob/master/X32.c

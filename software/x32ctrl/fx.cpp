@@ -1,7 +1,7 @@
 #include "fx.h"
 #include "dsp.h"
 
-void fxRecalcFilterCoefficients_PEQ(sPEQ *peq) {
+void fxRecalcFilterCoefficients_PEQ(sPEQ* peq) {
   // Online-Calculator: https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3
   // Source: https://www.earlevel.com/main/2012/11/26/biquad-c-source-code
   double V = pow(10.0, fabs(peq->gain)/20.0);
@@ -105,7 +105,7 @@ void fxRecalcFilterCoefficients_PEQ(sPEQ *peq) {
   }
 }
 
-void fxRecalcFilterCoefficients_LR12(sLR12 *LR12) {
+void fxRecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;
   double wc22 = 2 * wc2;
@@ -132,7 +132,7 @@ void fxRecalcFilterCoefficients_LR12(sLR12 *LR12) {
   LR12->b[2] = (-wck2 + k2 + wc2) / norm;
 }
 
-void fxRecalcFilterCoefficients_LR24(sLR24 *LR24) {
+void fxRecalcFilterCoefficients_LR24(sLR24* LR24) {
   double wc = 2.0 * PI * LR24->fc;
   double wc2 = wc * wc;
   double wc3 = wc2 * wc;
@@ -168,20 +168,20 @@ void fxRecalcFilterCoefficients_LR24(sLR24 *LR24) {
   LR24->b[4] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / norm;
 }
 
-void fxRecalcGate(sGate *gate) {
-	gate->value_threshold = pow(2, 31 + (gate->threshold/6.0f)) - 1; // 6dB per bit and TDM8 is using 32-bit values
+void fxRecalcGate(sGate* gate) {
+	gate->value_threshold = (pow(2.0f, 31.0f) - 1) * pow(10.0f, gate->threshold/20.0f);
 
         // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
-	gate->value_gainmin = 1.0f / pow(10, gate->range/20.0f);
+	gate->value_gainmin = 1.0f / pow(10.0f, gate->range/20.0f);
 	gate->value_coeff_attack = exp(-2197.22457734f/(dsp.samplerate * gate->attackTime_ms));
 	gate->value_hold_ticks = gate->holdTime_ms * (dsp.samplerate / 1000.0f);
 	gate->value_coeff_release = exp(-2197.22457734f/(dsp.samplerate * gate->releaseTime_ms));
 }
 
-void fxRecalcCompressor(sCompressor *compressor) {
-	compressor->value_threshold = pow(2, 31 + (compressor->threshold/6.0f)) - 1; // 6dB per bit and TDM8 is using 32-bit values
+void fxRecalcCompressor(sCompressor* Compressor) {
+	compressor->value_threshold = (pow(2, 31) - 1) * pow(10.0f, compressor->threshold/20.0f);
 
-	compressor->value_makeup = pow(10, compressor->makeup/20.0f);
+	compressor->value_makeup = pow(10.0f, compressor->makeup/20.0f);
 	compressor->value_coeff_attack = exp(-2197.22457734f/(dsp.samplerate * compressor->attackTime_ms));
 	compressor->value_hold_ticks = compressor->holdTime_ms * (dsp.samplerate / 1000.0f);
 	compressor->value_coeff_release = exp(-2197.22457734f/(dsp.samplerate * compressor->releaseTime_ms));

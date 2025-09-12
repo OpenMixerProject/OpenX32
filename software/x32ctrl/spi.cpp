@@ -11,7 +11,7 @@ int spiDspHandle[2];
 // configures a Xilinx Spartan 3A via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
-int spiConfigureFpga(const char *bitstream_path) {
+int spiConfigureFpga(const char* bitstream_path) {
     int spi_fd = -1;
     FILE *bitstream_file = NULL;
     int ret = 0;
@@ -191,7 +191,7 @@ int spiConfigureFpga(const char *bitstream_path) {
 //   - load IVT (1536 8-bit words)
 // DMA-Transfer expects a seemless data-transport while the manual says something about handshake and wait-states... strange
 //
-int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, uint8_t numStreams) {
+int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, uint8_t numStreams) {
     if ((numStreams < 1) || (numStreams > 2)) {
         return -1;
     }

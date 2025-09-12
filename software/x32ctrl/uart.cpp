@@ -58,7 +58,7 @@ int messageBuilderAddString(messageBuilder *message, const char* str) {
 }
 
 // add a multiple bytes to buffer using byte-stuffing
-int messageBuilderAddDataArray(messageBuilder *message, const char *data, uint8_t len) {
+int messageBuilderAddDataArray(messageBuilder *message, const char* data, uint8_t len) {
     // check if we have space left in message-buffer (max. 64 bytes for payload)
     if (message->current_length >= MAX_MESSAGE_SIZE) {
         fprintf(stderr, "Error: Message buffer overflow before adding data!\n");
@@ -85,7 +85,7 @@ int messageBuilderAddDataArray(messageBuilder *message, const char *data, uint8_
 // incoming message has the form: 0xFE 0x8i Class Index Data[] 0xFE
 // Checksum is calculated using the following equation:
 // chksum = ( 0xFE - i - class - index - sumof(data[]) - sizeof(data[]) ) and 0x7F
-uint8_t calculateChecksum(const char *data, uint16_t len) {
+uint8_t calculateChecksum(const char* data, uint16_t len) {
   // a single message can contain up to max. 64 chars
   int32_t sum = 0xFE;
   for (uint8_t i = 0; i < (len-1); i++) {
@@ -98,7 +98,7 @@ uint8_t calculateChecksum(const char *data, uint16_t len) {
 }
 
 
-int uartOpen(char *ttydev, uint32_t baudrate, int *fd, bool raw) {
+int uartOpen(char* ttydev, uint32_t baudrate, int* fd, bool raw) {
     struct termios tty;
 
     *fd = open(ttydev, O_RDWR | O_NOCTTY | O_NDELAY);
@@ -192,7 +192,7 @@ int uartOpen(char *ttydev, uint32_t baudrate, int *fd, bool raw) {
     return 0;
 }
 
-int uartTx(int *fd, messageBuilder *message, bool addChecksum) {
+int uartTx(int* fd, messageBuilder *message, bool addChecksum) {
     if (*fd < 0) {
         fprintf(stderr, "Error: Problem on opening serial port\n");
         return -1;
@@ -212,7 +212,7 @@ int uartTx(int *fd, messageBuilder *message, bool addChecksum) {
     return bytes_written;
 }
 
-int uartRx(int *fd, char *buf, uint16_t bufLen) {
+int uartRx(int* fd, char* buf, uint16_t bufLen) {
     int bytesRead;
     int bytesAvailable;
 
@@ -237,7 +237,7 @@ int uartRx(int *fd, char *buf, uint16_t bufLen) {
 	return 0;
 }
 
-int uartTxToFPGA(uint16_t cmd, data_64b *data) {
+int uartTxToFPGA(uint16_t cmd, data_64b* data) {
   uint8_t serialData[14];
   uint16_t ErrorCheckWord;
 

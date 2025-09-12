@@ -1,6 +1,6 @@
 #include "auxiliary.h"
 
-int readConfig(const char *filename, const char *key, char *value_buffer, size_t buffer_size) {
+int readConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size) {
     FILE *file = NULL;
     char line[64];
     int found = -2;
@@ -20,7 +20,7 @@ int readConfig(const char *filename, const char *key, char *value_buffer, size_t
     // read file line by line
     while (fgets(line, sizeof(line), file) != NULL) {
         if (strncmp(line, search_pattern, strlen(search_pattern)) == 0) {
-            char *value_start = line + strlen(search_pattern);
+            char* value_start = line + strlen(search_pattern);
 
             // remove spaces (if any)
             while (*value_start == ' ' || *value_start == '\t') {
@@ -28,11 +28,11 @@ int readConfig(const char *filename, const char *key, char *value_buffer, size_t
             }
 
             // remove unwanted characters from the end
-            char *newline_pos = strchr(value_start, '\n');
+            char* newline_pos = strchr(value_start, '\n');
             if (newline_pos != NULL) {
                 *newline_pos = '\0';
             }
-            char *cr_pos = strchr(value_start, '\r');
+            char* cr_pos = strchr(value_start, '\r');
             if (cr_pos != NULL) {
                 *cr_pos = '\0';
             }
@@ -225,7 +225,7 @@ String getIpAddress() {
 }
 
 /*
-int valueToBinaryString(uint8_t value, char *output) {
+int valueToBinaryString(uint8_t value, char* output) {
     if (value > 15) {
         return -1;
     }
@@ -287,7 +287,7 @@ int init100msTimer() {
   }
 }
 
-long getFileSize(const char *filename) {
+long getFileSize(const char* filename) {
     struct stat st;
     if (stat(filename, &st) == 0) {
         return st.st_size;

@@ -284,7 +284,7 @@ void surfaceCallback(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t
     }
 }
 
-void addaCallback(char *msg) {
+void addaCallback(char* msg) {
     x32debug("Received message: %s\n", msg);
     if ((strlen(msg) == 4) && (msg[2] == 'Y')) {
         // we received acknowledge-message like *1Y# -> ignore it
@@ -313,7 +313,7 @@ void addaCallback(char *msg) {
     }
 }
 
-void fpgaCallback(char *buf, uint8_t len) {
+void fpgaCallback(char* buf, uint8_t len) {
     // do something with the received data
     // at the moment the FPGA is sending "*X32 #" 5 times per second
     // later it is planned to receive information about audio-levels here
@@ -400,7 +400,7 @@ void syncGui(void) {
 
 
     // //set Encoders to default state
-    // const char * encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
+    // const char*  encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
     // lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
 
     //####################################
@@ -738,7 +738,7 @@ void syncSurfaceBankIndicator(void) {
     }
 }
 
-void x32log(const char *format, ...)
+void x32log(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -749,7 +749,7 @@ void x32log(const char *format, ...)
     va_end(args);
 }
 
-void x32debug(const char *format, ...)
+void x32debug(const char* format, ...)
 {
 #if DEBUG == 1
     va_list args;
@@ -762,7 +762,7 @@ void x32debug(const char *format, ...)
 #endif
 }
 
-void parseParams(int argc, char *argv[]) {
+void parseParams(int argc, char* argv[]) {
     int fpga = -1;
     int dsp1 = -1;
     int dsp2 = -1;
@@ -812,7 +812,7 @@ void parseParams(int argc, char *argv[]) {
 }
 
 // the main-function - of course
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     srand(time(NULL));
 
     x32log("  ____                  __   ______ ___  \n");

@@ -410,20 +410,20 @@ void mixerSetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag){
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
-void mixerSetVChannelChangeFlags(s_vChannel *p_chan, uint16_t p_flag){
+void mixerSetVChannelChangeFlags(s_vChannel* p_chan, uint16_t p_flag){
     p_chan->changed |= p_flag;
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
-bool mixerHasVChannelChanged(s_vChannel *p_chan, uint16_t p_flag){
+bool mixerHasVChannelChanged(s_vChannel* p_chan, uint16_t p_flag){
     return ((p_chan->changed & p_flag) == p_flag);
 }
 
-bool mixerHasVChannelAnyChanged(s_vChannel *p_chan){
+bool mixerHasVChannelAnyChanged(s_vChannel* p_chan){
     return ((p_chan->changed) != X32_VCHANNEL_CHANGED_NONE);
 }
 
-void mixerResetVChannelChangeFlags(s_vChannel *p_chan){
+void mixerResetVChannelChangeFlags(s_vChannel* p_chan){
     p_chan->changed = X32_VCHANNEL_CHANGED_NONE;
 }
 

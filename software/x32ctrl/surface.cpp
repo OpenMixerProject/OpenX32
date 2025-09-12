@@ -818,7 +818,7 @@ void surfaceProcessUartData(int bytesToProcess) {
     }
 }
 
-unsigned int checksum(char *str) {
+unsigned int checksum(char* str) {
    unsigned int sum = 0;
    while (*str) {
       sum += *str;

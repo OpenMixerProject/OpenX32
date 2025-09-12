@@ -1,6 +1,6 @@
 #include "fx.h"
 
-float fxProcessGate(float input, sGate *gate) {
+float fxProcessGate(float input, sGate* gate) {
 	gate->closed = abs(input) < gate->value_threshold;
 
 	// calculate the gate-logic and online-parameters
@@ -47,7 +47,7 @@ float fxProcessGate(float input, sGate *gate) {
 	return (input * gate->gainCurrent);
 }
 
-float fxProcessEq(float input, sPEQ *peq) {
+float fxProcessEq(float input, sPEQ* peq) {
 	float output = (peq->a[0] * input) + (peq->a[1] * peq->in[0]) + (peq->a[2] * peq->in[1]) - ((peq->b[1] * peq->out[0]) + (peq->b[2] * peq->out[1]));
 
 	// store values for next calculation cycle
@@ -60,7 +60,7 @@ float fxProcessEq(float input, sPEQ *peq) {
 	return output;
 }
 
-float fxProcessCompressor(float input, sCompressor *compressor) {
+float fxProcessCompressor(float input, sCompressor* Compressor) {
 	compressor->active = (abs(input) > compressor->value_threshold);
 
 	// calculate the gate-logic and online-parameters

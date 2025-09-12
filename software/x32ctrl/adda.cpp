@@ -114,7 +114,7 @@ void addaSetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower
   uartTx(&fdAdda, &message, false);
 }
 
-String addaSendReceive(char *cmd, uint16_t timeout) {
+String addaSendReceive(char* cmd, uint16_t timeout) {
   messageBuilderInit(&message);
 
   messageBuilderAddString(&message, cmd);
@@ -183,7 +183,7 @@ String addaProcessUartData(int bytesToProcess, bool directRead) {
           // we found a valid answer from the ADDA-boards
 
           // copy the message including * and # into a new buffer and 0-terminate it
-          char *payload = (char*)malloc(sizeof(char) * (receivedPacketLength + 1));
+          char* payload = (char*)malloc(sizeof(char) * (receivedPacketLength + 1));
           memcpy(payload, &addaPacketBuffer[packetBegin], receivedPacketLength);
           payload[receivedPacketLength] = '\0';
 

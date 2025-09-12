@@ -20,7 +20,7 @@ void routingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* gr
 
 void routingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel);
 void routingGetSourceNameByIndex(char* p_nameBuffer, uint8_t index);
-void routingGetOutputName(char* p_nameBuffer, s_vChannel *p_chan);
+void routingGetOutputName(char* p_nameBuffer, s_vChannel* p_chan);
 void routingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
 void routingGetDspSourceName(char* p_nameBuffer, uint8_t dspChannel);
 

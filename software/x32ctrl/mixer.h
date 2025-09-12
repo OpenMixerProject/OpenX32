@@ -19,10 +19,10 @@ bool mixerHasChanged(uint16_t p_flag);
 bool mixerHasAnyChanged(void);
 void mixerResetChangeFlags(void);
 void mixerSetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag);
-void mixerSetVChannelChangeFlags(s_vChannel *p_chan, uint16_t p_flag);
-bool mixerHasVChannelChanged(s_vChannel *p_chan, uint16_t p_flag);
-bool mixerHasVChannelAnyChanged(s_vChannel *p_chan);
-void mixerResetVChannelChangeFlags(s_vChannel *p_chan);
+void mixerSetVChannelChangeFlags(s_vChannel* p_chan, uint16_t p_flag);
+bool mixerHasVChannelChanged(s_vChannel* p_chan, uint16_t p_flag);
+bool mixerHasVChannelAnyChanged(s_vChannel* p_chan);
+void mixerResetVChannelChangeFlags(s_vChannel* p_chan);
 
 uint8_t mixerSurfaceChannel2vChannel(uint8_t surfaceChannel);
 
