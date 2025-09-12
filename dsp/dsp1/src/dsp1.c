@@ -34,7 +34,6 @@
 
 	TODO:
 	===========================
-	[ ] implement SPI communication in openx32Command() to receive parameters from X32ctrl
 	[ ] implement external SD-RAM
 	[ ] implement routing-functions (sends)
 	[ ] implement bus-masters, solo, mute
@@ -77,87 +76,81 @@ void delay(int i) {
     }
 }
 
-void openx32Init(void) {
-	openx32.samplerate = 48000; // other samplerates up to 192kHz are possible with AD and DA converters
+void openx32Command(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
+	/*
+	  SPI ClassIds:
+	  'v' = Volume
+	  'e' = PEQ
+	  'g' = Gate
+	  'c' = Compressor
+	  'a' = Auxiliary
+	*/
 
-	for (int ch = 0; ch < MAX_CHAN; ch++) {
-		// initialize noisegate
-		openx32.channel[ch].gate.threshold = -60.0; // dB
-		openx32.channel[ch].gate.range = 60.0; // dB
-		openx32.channel[ch].gate.attackTime_ms = 10.0; // ms
-		openx32.channel[ch].gate.holdTime_ms = 50.0; // ms
-		openx32.channel[ch].gate.releaseTime_ms = 258; // ms
+	float* floatValues = (float*)values;
+	unsigned int* intValues = (unsigned int*)values;
 
-		fxRecalcGate(&openx32.channel[ch].gate);
-
-		// initialize Equalizers
-		openx32.channel[ch].balance = 0; // -100 ... 0 ... 100
-		openx32.channel[ch].volume = 0.0; // dB
-
-		openx32.channel[ch].peqMax = 2;
-
-		openx32.channel[ch].peq[0].Q = 2.0;
-		openx32.channel[ch].peq[0].fc = 20; // Hz
-		openx32.channel[ch].peq[0].gain = 0.0; // dB
-		openx32.channel[ch].peq[0].type = 7; // LowCut / HighPass
-
-		openx32.channel[ch].peq[1].Q = 2.0;
-		openx32.channel[ch].peq[1].fc = 125; // Hz
-		openx32.channel[ch].peq[1].gain = 0.0; // dB
-		openx32.channel[ch].peq[1].type = 1; // Peak-Filter
-
-		openx32.channel[ch].peq[2].Q = 2.0;
-		openx32.channel[ch].peq[2].fc = 500; // Hz
-		openx32.channel[ch].peq[2].gain = 0.0; // dB
-		openx32.channel[ch].peq[2].type = 1; // Peak-Filter
-
-		openx32.channel[ch].peq[3].Q = 2.0;
-		openx32.channel[ch].peq[3].fc = 2000; // Hz
-		openx32.channel[ch].peq[3].gain = 0.0; // dB
-		openx32.channel[ch].peq[3].type = 1; // Peak-Filter
-
-		openx32.channel[ch].peq[4].Q = 2.0;
-		openx32.channel[ch].peq[4].fc = 10000; // Hz
-		openx32.channel[ch].peq[4].gain = 0.0; // dB
-		openx32.channel[ch].peq[4].type = 3; // High-Shelf
-
-		for (int i = 0; i < openx32.channel[ch].peqMax; i++) {
-			fxRecalcFilterCoefficients_PEQ(&openx32.channel[ch].peq[i]);
-		}
-
-		// initialize compressor
-		openx32.channel[ch].compressor.threshold = -50.0; // dB
-		openx32.channel[ch].compressor.ratio = 20.0; // 1:x
-		openx32.channel[ch].compressor.makeup = 10.0; // dB
-		openx32.channel[ch].compressor.attackTime_ms = 10.0; // ms
-		openx32.channel[ch].compressor.holdTime_ms = 10.0; // ms
-		openx32.channel[ch].compressor.releaseTime_ms = 150; // ms
-
-		fxRecalcCompressor(&openx32.channel[ch].compressor);
-
-		// initialize volumes
-		openx32.channel[ch].volume = 1.0f;
-	}
-}
-
-void openx32Command(unsigned int parameter, unsigned int value) {
-	if ((parameter >= 10) && (parameter < (10 + 32))) {
-		// volume for channels
-		memcpy(&openx32.channel[parameter - 10].volume, &value, 4);
-	}else if (parameter == 0x00000042) {
-		// LED-control
-		switch(value) {
-			case 0:
-				sysreg_bit_clr(sysreg_FLAGS, FLG7);
-				break;
-			case 1:
-				sysreg_bit_set(sysreg_FLAGS, FLG7);
-				break;
-			default:
+	switch (classId) {
+		case 'v':
+			// volume for a single channel
+			if (valueCount == 3) {
+				dsp.dspChannel[channel].volumeLeft = floatValues[0];
+				dsp.dspChannel[channel].volumeRight = floatValues[1];
+				dsp.dspChannel[channel].volumeSub = floatValues[2];
 				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
-				break;
-		}
+			}
+			break;
+		case 'g':
+			if (valueCount == 5) {
+				dsp.dspChannel[channel].gate.value_threshold = floatValues[0];
+				dsp.dspChannel[channel].gate.value_gainmin = floatValues[1];
+				dsp.dspChannel[channel].gate.value_coeff_attack = floatValues[2];
+				dsp.dspChannel[channel].gate.value_hold_ticks = floatValues[3];
+				dsp.dspChannel[channel].gate.value_coeff_release = floatValues[4];
+				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+			}
+			break;
+		case 'e':
+			if (valueCount == 6) {
+				for (int i = 0; i < 3; i++) {
+					dsp.dspChannel[channel].peq[index].a[i] = floatValues[i];
+					dsp.dspChannel[channel].peq[index].b[i] = floatValues[i + 3];
+				}
+				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+			}
+			break;
+		case 'c':
+			if (valueCount == 6) {
+				dsp.dspChannel[channel].compressor.value_threshold = floatValues[0];
+				dsp.dspChannel[channel].compressor.value_ratio = floatValues[1];
+				dsp.dspChannel[channel].compressor.value_makeup = floatValues[2];
+				dsp.dspChannel[channel].compressor.value_coeff_attack = floatValues[3];
+				dsp.dspChannel[channel].compressor.value_hold_ticks = floatValues[4];
+				dsp.dspChannel[channel].compressor.value_coeff_release = floatValues[5];
+				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+			}
+			break;
+		case 'a':
+			if (valueCount == 1) {
+				if (channel == 42) {
+					// LED Control
+					switch(intValues[0]) {
+						case 0:
+							sysreg_bit_clr(sysreg_FLAGS, FLG7);
+							break;
+						case 1:
+							sysreg_bit_set(sysreg_FLAGS, FLG7);
+							break;
+						default:
+							sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+							break;
+					}
+				}
+			}
+			break;
+		default:
+			break;
 	}
+
 	// for later use: enable DMA-transmission via SPI
 	// read data via DMA
 	// spiDmaBegin(true, 20);
@@ -172,11 +165,8 @@ int main() {
 	systemExternalMemoryInit();
 	systemSruInit();
 
-	// turn-on LED
-	sysreg_bit_set(sysreg_FLAGS, FLG7);
-
+	dsp.samplerate = 48000; // other samplerates up to 192kHz are possible with AD and DA converters
 	spiInit();
-	openx32Init();
 	audioInit();
 	systemSportInit();
 
@@ -188,6 +178,9 @@ int main() {
 	// t_timer = (t_periode + 1) * t_count / f_clk = (1001 * 1000)/266MHz = 0.0037631579 s
 	timer_set(1000, 1000); // set period to 1000 and counter to 1000 -> count 1000 x 1000 -> 266MHz = 3.7594ns = 3.7594ms
 	timer_on(); // start timer
+
+	// turn-off LED
+	sysreg_bit_set(sysreg_FLAGS, FLG7);
 
 	// the main-loop
 	while(1) {
