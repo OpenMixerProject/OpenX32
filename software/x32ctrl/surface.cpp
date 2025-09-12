@@ -401,8 +401,8 @@ void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, s_vChannel* p_chan){
     data->texts[1].y = 15;
 
     // Volume / Panorama
-    if (p_chan->volume>-100) {
-        sprintf(data->texts[2].text, "%.1fdB ---|---", p_chan->volume);
+    if (p_chan->volumeLR > -100) {
+        sprintf(data->texts[2].text, "%.1fdB ---|---", p_chan->volumeLR);
     }else{
         sprintf(data->texts[2].text, " -oodB ---|---");
     }

@@ -10,6 +10,11 @@
 #define SURFACE_MAX_PACKET_LENGTH 32
 #define MAX_PAGES 20
 
+#define MAX_CHAN_EQS       2
+#define NUM_INPUT_CHANNEL  112  // at the moment we are not using AES50A and AES50B
+#define NUM_OUTPUT_CHANNEL 112  // at the moment we are not using AES50A and AES50B
+#define NUM_DSP_CHANNEL    64   // 32 in + 8 aux + 8 FX return + 16 bus
+
 #define X32_VCHANNEL_CHANGED_ALL           0b1111111111111111
 #define X32_VCHANNEL_CHANGED_NONE          0b0000000000000000
 #define X32_VCHANNEL_CHANGED_VOLUME        0b0000000000000010
@@ -21,8 +26,11 @@
 #define X32_VCHANNEL_CHANGED_COLOR         0b0000000010000000
 #define X32_VCHANNEL_CHANGED_NAME          0b0000000100000000
 #define X32_VCHANNEL_CHANGED_INPUT         0b0000001000000000
-#define X32_VCHANNEL_CHANGED_OUTPUT        0b0000010000000000
-#define X32_VCHANNEL_CHANGED_GAIN          0b0000100000000000
+#define X32_VCHANNEL_CHANGED_GAIN          0b0000010000000000
+#define X32_VCHANNEL_CHANGED_GATE          0b0000100000000000
+#define X32_VCHANNEL_CHANGED_EQ            0b0001000000000000
+#define X32_VCHANNEL_CHANGED_DYNAMIC       0b0010000000000000
+#define X32_VCHANNEL_CHANGED_SENDS         0b0100000000000000
 
 #define X32_MIXER_CHANGED_ALL              0b1111111111111111
 #define X32_MIXER_CHANGED_NONE             0b0000000000000000
@@ -125,7 +133,6 @@
 #include "x32ctrl_types.h"
 #include "WString.h"
 #include "auxiliary.h"
-#include "routing.h"
 
 // function prototypes
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer);

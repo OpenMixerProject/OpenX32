@@ -201,7 +201,7 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     int ret = 0;
     struct spi_ioc_transfer tr = {0};
     size_t bytesRead;
-    uint8_t spiTxData[64];
+    uint8_t spiTxData[32];
     uint8_t spiRxData[sizeof(spiTxData)];
     long file_size[2];
     long totalBytesSent = 0;
@@ -210,7 +210,7 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32;
     uint32_t spiSpeed = SPI_SPEED_HZ;
-    uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
+//    uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
     // read size of bitstream-files
     file_size[0] = getFileSize(bitstream_path_a);
@@ -244,12 +244,12 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     ioctl(spi_fd[0], SPI_IOC_WR_MODE, &spiMode);
     ioctl(spi_fd[0], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd[0], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-    ioctl(spi_fd[0], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
+//    ioctl(spi_fd[0], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
     if (numStreams == 2) {
         ioctl(spi_fd[1], SPI_IOC_WR_MODE, &spiMode);
         ioctl(spi_fd[1], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
         ioctl(spi_fd[1], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-        ioctl(spi_fd[1], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
+//        ioctl(spi_fd[1], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
     }
 
     // setup SPI-buffer
@@ -261,7 +261,7 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     // resetting DSPs
     int fdResetDsp = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
     write(fdResetDsp, "1", 1); // assert reset of both DSPs
-    usleep(500);
+    usleep(800);
 
     // write some dummy-data to initialize SPI of i.MX25
     tr.len = 4; // send only 4 bytes
@@ -269,13 +269,13 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
     if (numStreams == 2) {
         ioctl(spi_fd[1], SPI_IOC_MESSAGE(1), &tr);
     }
-    usleep(500);
+    usleep(400);
 
     // release reset
     write(fdResetDsp, "0", 1);
     close(fdResetDsp);
     // wait at least 4096 16MHz clock-cycles (256 us) (see page 16-10 of ADSP-2137x SHARC Processor Hardware Reference v2.2)
-    usleep(500);
+    usleep(800);
 
     for (uint8_t i = 0; i < numStreams; i++) {
         bitstream_file[i] = fopen(bitstream_path_a, "rb");
@@ -294,7 +294,7 @@ int spiConfigureDsp(const char *bitstream_path_a, const char *bitstream_path_b, 
         progress_bar_width = 50;
         while ((bytesRead = fread(&spiTxData[0], 1, sizeof(spiTxData), bitstream_file[i])) > 0) {
             tr.len = bytesRead;
-            
+
             // reverse bitorder as linux-driver seems to have no support for this
             reverseBitOrderArray(&spiTxData[0], bytesRead);
 
@@ -376,32 +376,49 @@ bool spiCloseDspConnections() {
     return true;
 }
 
-bool spiSendDspParameter(uint8_t dsp, uint32_t parameter, uint32_t value) {
+bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
     struct spi_ioc_transfer tr = {0};
-    uint32_t spiTxData[4];
-    uint32_t spiRxData[4];
-    uint8_t spiTxDataRaw[16];
+//    uint32_t* spiTxData = (uint32_t*)malloc((valueCount + 3) * sizeof(uint32_t));
+//    uint8_t* spiTxDataRaw = (uint8_t*)malloc((valueCount + 3) * sizeof(uint32_t));
+//    uint8_t* spiRxDataRaw = (uint8_t*)malloc((valueCount + 3) * sizeof(uint32_t));
+    uint32_t spiTxData[valueCount + 3]; // '*' + parameter + values + '#'
+    uint8_t spiTxDataRaw[(valueCount + 3) * sizeof(uint32_t)];
     uint8_t spiRxDataRaw[sizeof(spiTxDataRaw)];
-    int ret = 0;
-    size_t bytesRead;
+    int32_t bytesRead;
 
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = (unsigned long)spiRxDataRaw;
-    tr.len = sizeof(spiTxDataRaw);
     tr.bits_per_word = 32;
     tr.speed_hz = SPI_SPEED_HZ;
+    tr.len = sizeof(spiTxDataRaw);
 
     // send a command via SPI to DSP
+    uint32_t parameter = ((uint32_t)valueCount << 24) + ((uint32_t)index << 16) + ((uint32_t)channel << 8) + (uint32_t)classId;
+
     spiTxData[0] = 0x0000002A; // StartMarker = '*'
     spiTxData[1] = parameter;
-    spiTxData[2] = value;
-    spiTxData[3] = 0x00000023; // EndMarker = '#'
-    memcpy(&spiTxDataRaw[0], &spiTxData[0], 16);
+    memcpy(&spiTxData[2], &values[0], valueCount * sizeof(uint32_t));
+    spiTxData[(valueCount + 3) - 1] = 0x00000023; // EndMarker = '#'
+    memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw));
 
-    ret = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send 4 values (16 bytes) via SPI
+    bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
 
     //memcpy(&spiRxData[0], &spiRxDataRaw[0], 16); // copy received data to uint32_t-array
     // do something with data in spiRxData[4]
 
-    return (ret > 0);
+    //free(spiTxData);
+    //free(spiTxDataRaw);
+    //free(spiRxDataRaw);
+
+    return (bytesRead > 0);
+}
+
+bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value) {
+    return spiSendDspParameterArray(dsp, classId, channel, index, 1, &value);
+}
+
+bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
+    float value_f;
+    memcpy(&value_f, &value, 4);
+    return spiSendDspParameter(dsp, classId, channel, index, value_f);
 }

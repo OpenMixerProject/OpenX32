@@ -47,6 +47,9 @@
 #include "touchcontrol.h"
 #include "xremote.h"
 #include "spi.h"
+#include "routing.h"
+#include "dsp.h"
+#include "hal.h"
 
 // timer-raw-functions to be called either by linux-timer (X32core) or LVGL-timer (all other models)
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer) {timer100msCallback();}
@@ -64,7 +67,7 @@ void timer100msCallback() {
     xremoteUpdateMeter();
 
     // toggle the LED on DSP1 to show some activity
-    spiSendDspParameter(0, 0x00000042, 0x00000002);
+    spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
 }
 
 // called every 10ms
@@ -304,7 +307,8 @@ void addaCallback(char *msg) {
             }
         }
         if (!mixerIsModelX32Core()) {
-            lv_label_set_text_fmt(objects.debugtext, "Received Message: %s\n", msg);
+            // caution: addaCallback() can be called before the GUI is ready!!!
+            //lv_label_set_text_fmt(objects.debugtext, "Received Message: %s\n", msg);
         }
     }
 }
@@ -455,65 +459,65 @@ void syncGui(void) {
 
         switch (i){
                 case 0:
-                    lv_slider_set_value(objects.slider01, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider01, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 1:
-                    lv_slider_set_value(objects.slider02, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider02, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 2:
-                    lv_slider_set_value(objects.slider03, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider03, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 3:
-                    lv_slider_set_value(objects.slider04, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider04, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 4:
-                    lv_slider_set_value(objects.slider05, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider05, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 5:
-                    lv_slider_set_value(objects.slider06, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider06, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 6:
-                    lv_slider_set_value(objects.slider07, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider07, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 7:
-                    lv_slider_set_value(objects.slider08, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider08, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 8:
-                    lv_slider_set_value(objects.slider09, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider09, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 9:
-                    lv_slider_set_value(objects.slider10, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider10, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 10:
-                    lv_slider_set_value(objects.slider11, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider11, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 11:
-                    lv_slider_set_value(objects.slider12, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider12, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 12:
-                    lv_slider_set_value(objects.slider13, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider13, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 13:
-                    lv_slider_set_value(objects.slider14, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider14, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 14:
-                    lv_slider_set_value(objects.slider15, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider15, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
                 case 15:
-                    lv_slider_set_value(objects.slider16, dBfs2fader(chan->volume), LV_ANIM_OFF);
+                    lv_slider_set_value(objects.slider16, dBfs2fader(chan->volumeLR), LV_ANIM_OFF);
                     break;
         }
     }
 
     lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-        (double)mixer.vChannel[0].volume,
-        (double)mixer.vChannel[1].volume,
-        (double)mixer.vChannel[2].volume,
-        (double)mixer.vChannel[3].volume,
-        (double)mixer.vChannel[4].volume,
-        (double)mixer.vChannel[5].volume,
-        (double)mixer.vChannel[6].volume,
-        (double)mixer.vChannel[7].volume
+        (double)mixer.vChannel[0].volumeLR,
+        (double)mixer.vChannel[1].volumeLR,
+        (double)mixer.vChannel[2].volumeLR,
+        (double)mixer.vChannel[3].volumeLR,
+        (double)mixer.vChannel[4].volumeLR,
+        (double)mixer.vChannel[5].volumeLR,
+        (double)mixer.vChannel[6].volumeLR,
+        (double)mixer.vChannel[7].volumeLR
     );
 
     //####################################
@@ -592,7 +596,7 @@ void syncSurfaceBoardMain() {
                 setLedByEnum(X32_BTN_CHANNEL_MUTE, chan->mute); 
             }
             if (fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)){
-                // u_int16_t faderVolume = dBfs2fader(chan->volume);
+                // u_int16_t faderVolume = dBfs2fader(chan->volumeLR);
                 // uint8_t pct = (faderVolume/VOLUME_MIN
                 // setEncoderRing(X32_BOARD_MAIN, 0, 0, , 1);
             }
@@ -659,7 +663,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
 
                 if ((fullSync || mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
                     x32debug(" Fader");
-                    u_int16_t faderVolume = dBfs2fader(chan->volume);
+                    u_int16_t faderVolume = dBfs2fader(chan->volumeLR);
                     setFader(p_board, i, faderVolume);
                 }
 
@@ -676,7 +680,7 @@ void syncSurfaceBoard(X32_BOARD p_board) {
                     setLcdFromVChannel(p_board, i, chan);
 
                     // char lcdText[20];
-                    // sprintf(lcdText, "%2.1FdB %s", (double)chan->volume, (chan->inputSource.phantomPower ? "(48V)" : ""));
+                    // sprintf(lcdText, "%2.1FdB %s", (double)chan->volumeLR, (chan->inputSource.phantomPower ? "(48V)" : ""));
                     // //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
                     // setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  1,  1,          lcdText,  0x00,  1, 47, chan->name);
                 }
@@ -849,7 +853,9 @@ int main(int argc, char *argv[]) {
     surfaceInit(); // initialize whole surface with default values
 
     x32log("Initializing X32 Audio...\n");
-    addaInit(48000);
+    dspInit();
+    dsp.samplerate = 48000;
+    addaInit(dsp.samplerate);
     routingInit();
 
     // init xremote

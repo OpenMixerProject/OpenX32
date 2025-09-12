@@ -54,6 +54,10 @@ void mixerBanking(X32_BTN p_button);
 void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
+void mixerChangePan(uint8_t p_vChannelIndex, int8_t p_amount);
+void mixerChangeGate(uint8_t p_vChannelIndex, int8_t p_amount);
+void mixerChangeDynamics(uint8_t p_vChannelIndex, int8_t p_amount);
+void mixerChangePeq(uint8_t p_vChannelIndex, char option, int8_t p_amount);
 
 void mixerInitPages();
 void mixerShowPage(X32_PAGE page);

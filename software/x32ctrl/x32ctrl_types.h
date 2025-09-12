@@ -94,6 +94,114 @@ typedef struct{
     bool phaseInvert;  // TODO dont do it localy, use mixing data
 } s_inputSource;
 
+typedef struct {
+        // user-settings
+        int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
+        float fc; // center-frequency of PEQ
+        float Q; // Quality of PEQ (bandwidth)
+        float gain; // gain of PEQ
+
+        // filter-coefficients
+        float a[3];
+        float b[3];
+} sPEQ;
+
+typedef struct {
+        // user-settings
+        float fc; // cutoff-frequency for high- or lowpass
+        bool isHighpass; // choose if Highpass or Lowpass
+
+        // filter-coefficients
+        float a[3];
+        float b[3];
+} sLR12;
+
+typedef struct {
+        // user-settings
+        float fc; // cutoff-frequency for high- or lowpass
+        bool isHighpass; // choose if Highpass or Lowpass
+
+        // filter-coefficients
+        float a[5];
+        float b[5];
+} sLR24;
+
+typedef struct {
+        // user-settings
+        float threshold; // value between -80 dBfs (no gate) and 0 dBfs (full gate)
+        float range; // value between 48dB (full range) and 3dB (minimum effect)
+        float attackTime_ms;
+        float holdTime_ms;
+        float releaseTime_ms;
+
+        // filter-data
+        float value_threshold;
+        float value_gainmin;
+        float value_coeff_attack;
+        float value_hold_ticks;
+        float value_coeff_release;
+} sGate;
+
+typedef struct {
+        // user-settings
+        float threshold; // value between 0 dBfs (no compression) and -80 dBfs (full compression)
+        float ratio; // value between 0=oo:1, 1=1:1, 2=2:1, 4=4:1, 8=8:1, 16=16:1, 32=32:1, 64=64:1
+        float makeup; // value between 0dB, 6dB, 12dB, 18dB, 24dB, 30dB, 36dB, 42dB, 48dB
+        float attackTime_ms;
+        float holdTime_ms;
+        float releaseTime_ms;
+
+        // filter-data
+        float value_threshold;
+        float value_ratio;
+        float value_makeup;
+        float value_coeff_attack;
+        float value_hold_ticks;
+        float value_coeff_release;
+} sCompressor;
+
+#include "x32ctrl.h"
+
+typedef struct {
+  sGate gate;
+  sPEQ peq[MAX_CHAN_EQS];
+  sCompressor compressor;
+  float volumeLR; // volume in dBfs
+  float volumeSub; // volume in dBfs
+  float balance;
+  bool muted;
+} sDspChannel;
+
+#pragma pack(push, 1)
+// size of sRouting must be multiplier of 8 to fit into 64-bit-value
+typedef struct __attribute__((packed,aligned(1))) {
+  uint8_t xlr[16];
+  uint8_t p16[16];
+  uint8_t card[32];
+  uint8_t aux[8];
+  uint8_t dsp[40];
+  uint8_t aes50a[48]; // not used in FPGA at the moment
+  uint8_t aes50b[48]; // not used in FPGA at the moment
+} sRouting;
+#pragma pack(pop)
+
+typedef struct {
+  float gainXlr[32];
+  float gainAes50a[48];
+  float gainAes50b[48];
+
+  bool phantomPowerXlr[32];
+  bool phantomPowerAes50a[48];
+  bool phantomPowerAes50b[48];
+} sPreamps;
+
+typedef struct {
+  sRouting routing;
+  sPreamps preamps;
+  sDspChannel dspChannel[40];
+  float samplerate;
+} sDsp;
+
 // virtual mixer channel
 typedef struct{
     uint8_t index;
@@ -106,16 +214,15 @@ typedef struct{
     bool solo;
     bool selected;
 
-    // volume in dBfs
-    float volume;
+    float volumeLR; // volume in dBfs
+    float volumeSub; //volume in dBfs
+    float balance; // balance between -100 .. 0 .. +100
 
     // 0 - normal channel
     // 1 - main channel
     uint8_t vChannelType;
     s_inputSource inputSource;
 } s_vChannel;
-
-
 
 typedef struct{
     char name[MAX_NAME_LENGTH];

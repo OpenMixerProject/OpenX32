@@ -1,9 +1,8 @@
 #include "routing.h"
+#include "dsp.h"
 #include "uart.h"
 #include "adda.h"
 #include "mixer.h"
-
-sOpenx32 openx32;
 
 void routingInit(void) {
     // reset routing-configuration and dsp-configuration
@@ -123,25 +122,25 @@ void routingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource)
 
     switch (group) {
         case 'x': // XLR-Outputs 1-16
-            openx32.routing.xlr[channel - 1] = inputsource;
+            dsp.routing.xlr[channel - 1] = inputsource;
             break;
         case 'p': // P16-Outputs 1-16
-            openx32.routing.p16[channel - 1] = inputsource;
+            dsp.routing.p16[channel - 1] = inputsource;
             break;
         case 'c': // Card-Outputs 1-32
-            openx32.routing.card[channel - 1] = inputsource;
+            dsp.routing.card[channel - 1] = inputsource;
             break;
         case 'a': // Aux-Outputs 1-8
-            openx32.routing.aux[channel - 1] = inputsource;
+            dsp.routing.aux[channel - 1] = inputsource;
             break;
         case 'd': // DSP-Inputs 1-40
-            openx32.routing.dsp[channel - 1] = inputsource;
+            dsp.routing.dsp[channel - 1] = inputsource;
             break;
         case 'A': // AES50A-Outputs
-            openx32.routing.aes50a[channel - 1] = inputsource;
+            dsp.routing.aes50a[channel - 1] = inputsource;
             break;
         case 'B': // AES50B-Outputs
-            openx32.routing.aes50b[channel - 1] = inputsource;
+            dsp.routing.aes50b[channel - 1] = inputsource;
             break;
     }
 }
@@ -177,25 +176,25 @@ uint8_t routingGetOutputSource(uint8_t group, uint8_t channel) {
 
     switch (group) {
         case 'x': // XLR-Outputs 1-16
-            return openx32.routing.xlr[channel - 1];
+            return dsp.routing.xlr[channel - 1];
             break;
         case 'p': // P16-Outputs 1-16
-            return openx32.routing.p16[channel - 1];
+            return dsp.routing.p16[channel - 1];
             break;
         case 'c': // Card-Outputs 1-32
-            return openx32.routing.card[channel - 1];
+            return dsp.routing.card[channel - 1];
             break;
         case 'a': // Aux-Outputs 1-8
-            return openx32.routing.aux[channel - 1];
+            return dsp.routing.aux[channel - 1];
             break;
         case 'd': // DSP-Inputs 1-40
-            return openx32.routing.dsp[channel - 1];
+            return dsp.routing.dsp[channel - 1];
             break;
         case 'A': // AES50A-Outputs
-            return openx32.routing.aes50a[channel - 1];
+            return dsp.routing.aes50a[channel - 1];
             break;
         case 'B': // AES50B-Outputs
-            return openx32.routing.aes50b[channel - 1];
+            return dsp.routing.aes50b[channel - 1];
             break;
     }
 
@@ -471,8 +470,8 @@ void routingSendConfigToFpga(void) {
     data_64b routingData;
 
     // copy routing-struct into array
-    uint8_t buf[sizeof(openx32.routing)];
-    memcpy(buf, &openx32.routing, sizeof(openx32.routing));
+    uint8_t buf[sizeof(dsp.routing)];
+    memcpy(&buf[0], &dsp.routing, sizeof(dsp.routing));
 
     // now copy this array into chunks of 64-bit-data and transmit it to FPGA
     for (uint8_t i = 0; i < (NUM_INPUT_CHANNEL/8); i++) {
