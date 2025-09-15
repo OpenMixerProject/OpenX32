@@ -1,8 +1,4 @@
 /*
-  Control software for Behringer X32 using OpenX32
-  https://github.com/OpenMixerProject/OpenX32
-  v0.0.7, 09.09.2025
-
                                =#%@@@@@###%@@@@%-
                            =*###+               :#@*
                         +****.                      :%-
@@ -30,9 +26,22 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  This software uses LVGL and the LVGL Linux Port to display a nice user-interface
-  To compile the software just call "make" and a 32-bit ARM-binary should be created
-  in the build/bin-folder
+  Control software for Behringer X32 using OpenX32
+  https://github.com/OpenMixerProject/OpenX32
+  v0.0.7, 09.09.2025
+
+  OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
+  Copyright 2025 OpenMixerProject
+  https://github.com/OpenMixerProject/OpenX32
+  
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  version 3 as published by the Free Software Foundation.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
   Parts of this software with kind permission of Music Tribe. Thank you!
 */

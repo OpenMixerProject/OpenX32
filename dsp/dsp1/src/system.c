@@ -1,3 +1,27 @@
+/*
+    ____                  __   ______ ___
+   / __ \                 \ \ / /___ \__ \
+  | |  | |_ __   ___ _ __  \ V /  __) | ) |
+  | |  | | '_ \ / _ \ '_ \  > <  |__ < / /
+  | |__| | |_) |  __/ | | |/ . \ ___) / /_
+   \____/| .__/ \___|_| |_/_/ \_\____/____|
+         | |
+         |_|
+
+  OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
+  Copyright 2025 OpenMixerProject
+  https://github.com/OpenMixerProject/OpenX32
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  version 3 as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+*/
+
 #include "system.h"
 
 #define SDMODIFY 1
@@ -12,6 +36,19 @@ void systemPllInit()
 	// Core clock = 16MHz * (33/2) = 264MHz. Maximum is 266MHz
 	pmctlsetting = (PLLM33 | PLLD2 | DIVEN | SDCKR2); // multiplier=33 | divider=2 | divider enabled | SD-Clock-Ratio=2=132MHz
 	*pPMCTL = pmctlsetting;
+
+    // bypass mode must be used if any runtime VCO clock change is required
+	pmctlsetting |= PLLBP;
+    pmctlsetting ^= DIVEN; // DIVEN can be cleared: DIVEN=1 -> Load PLLD, DIVEN=0 -> Do not load PLLD
+	*pPMCTL = pmctlsetting;
+
+    /*Wait for around 4096 cycles for the pll to lock.*/
+    for (i=0; i<4096; i++) {
+         NOP();
+    }
+
+    // disable bypass mode
+    *pPMCTL ^= PLLBP;
 }
 
 void systemExternalMemoryInit()

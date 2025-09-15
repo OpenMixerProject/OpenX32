@@ -1,10 +1,4 @@
 /*
-  OpenX32 - The Open Source Operating System for the Behringer X32 Audio Mixing Console
-  ControlSystem for DSP1 (MainDSP) v0.0.2, 09.09.2025
-  https://www.openx32.de
-  https://github.com/OpenMixerProject/OpenX32
-
-
                                =#%@@@@@###%@@@@%-
                            =*###+               :#@*
                         +****.                      :%-
@@ -32,13 +26,20 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-	TODO:
-	===========================
-	[ ] implement external SD-RAM
-	[ ] implement routing-functions (sends)
-	[ ] implement bus-masters, control-room solo
-	[ ] implement data-transmission to and from secondary DSP
-	[ ] check implementation of DTS Neo:6 algorithm, or surround-mixing using either subtractive method (the easy way) or stereo-decomposition (the hard way)
+  ControlSystem for DSP1 (MainDSP) v0.0.2, 09.09.2025
+
+  OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
+  Copyright 2025 OpenMixerProject
+  https://github.com/OpenMixerProject/OpenX32
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  version 3 as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 */
 
 #include "dsp1.h"
