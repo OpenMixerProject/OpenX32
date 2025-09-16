@@ -10,10 +10,11 @@
 #define SURFACE_MAX_PACKET_LENGTH 32
 #define MAX_PAGES 20
 
-#define MAX_CHAN_EQS       2
+#define MAX_CHAN_EQS       5
 #define NUM_INPUT_CHANNEL  112  // at the moment we are not using AES50A and AES50B
 #define NUM_OUTPUT_CHANNEL 112  // at the moment we are not using AES50A and AES50B
 #define NUM_DSP_CHANNEL    64   // 32 in + 8 aux + 8 FX return + 16 bus
+#define DSP_SAMPLES_IN_BUFFER              16
 
 #define X32_VCHANNEL_CHANGED_ALL           0b1111111111111111
 #define X32_VCHANNEL_CHANGED_NONE          0b0000000000000000

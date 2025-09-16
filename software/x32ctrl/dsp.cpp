@@ -38,7 +38,7 @@ void dspInit(void) {
         dsp.dspChannel[i].gate.releaseTime_ms = 250;
 
         dsp.dspChannel[i].compressor.threshold = 0; // dB -> no compression
-        dsp.dspChannel[i].compressor.ratio = 3; // 1:3
+        dsp.dspChannel[i].compressor.ratio = 1.0f/3.0f; // 1:3
         dsp.dspChannel[i].compressor.makeup = 0; // dB
         dsp.dspChannel[i].compressor.attackTime_ms = 10;
         dsp.dspChannel[i].compressor.holdTime_ms = 10;
@@ -51,4 +51,17 @@ void dspInit(void) {
             dsp.dspChannel[i].peq[peq].gain = 0;
         }
     }
+
+    dsp.dspChannel[0].gate.threshold = -80; // dB -> no gate
+    dsp.dspChannel[0].gate.range = 60; // full range
+    dsp.dspChannel[0].gate.attackTime_ms = 10;
+    dsp.dspChannel[0].gate.holdTime_ms = 50;
+    dsp.dspChannel[0].gate.releaseTime_ms = 250;
+
+    dsp.dspChannel[0].compressor.threshold = -40; // dB -> full compression
+    dsp.dspChannel[0].compressor.ratio = 1.0f/100.0f; // 1:100 -> limiter
+    dsp.dspChannel[0].compressor.makeup = 10; // dB
+    dsp.dspChannel[0].compressor.attackTime_ms = 10;
+    dsp.dspChannel[0].compressor.holdTime_ms = 10;
+    dsp.dspChannel[0].compressor.releaseTime_ms = 150;
 }
