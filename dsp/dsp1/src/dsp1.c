@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.0.2, 09.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.1.0, 17.09.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -151,7 +151,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			if (valueCount == 6) {
 				dsp.dspChannel[channel].compressor.value_threshold = floatValues[0];
 				dsp.dspChannel[channel].compressor.value_ratio = floatValues[1];
-				dsp.dspChannel[channel].compressor.value_makeup = floatValues[2];
+				dsp.compressorMakeup[channel] = floatValues[2];
 				dsp.dspChannel[channel].compressor.value_coeff_attack = floatValues[3];
 				dsp.dspChannel[channel].compressor.value_hold_ticks = floatValues[4];
 				dsp.dspChannel[channel].compressor.value_coeff_release = floatValues[5];

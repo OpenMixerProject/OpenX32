@@ -9,6 +9,7 @@
 #define SDRAM_SIZE	 0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
 #define MAX_CHAN				40
+#define MAX_CHAN_FULLFEATURED	32
 #define MAX_CHAN_EQS			5
 
 #define CHANNELS_PER_TDM		8
@@ -39,6 +40,7 @@
 #include <string.h>
 #include <matrix.h>
 #include <vector.h>
+#include <stats.h>
 
 // include for fir, iir, biquad, fft, etc.
 #include <filter.h>                 // vectorized version
@@ -98,9 +100,6 @@ typedef struct {
 
 	// online parameters
 	short int holdCounter;
-	float gainSet;
-	float gainCurrent;
-	float coeff;
 	gateState state;
 	bool closed;
 } sGate;
@@ -116,16 +115,12 @@ typedef struct {
 	// filter-data
 	float value_threshold;
 	float value_ratio;
-	float value_makeup;
 	float value_coeff_attack;
 	float value_hold_ticks;
 	float value_coeff_release;
 
 	// online parameters
 	short int holdCounter;
-	float gainSet;
-	float gainCurrent;
-	float coeff;
 	bool active;
 	compressorState state;
 } sCompressor;
@@ -148,6 +143,15 @@ struct {
 	float mainVolumeSub; // in p.u.
 
 	float samplerate;
+
+	float gateGainSet[MAX_CHAN];
+	float gateGain[MAX_CHAN];
+	float gateCoeff[MAX_CHAN];
+
+	float compressorGainSet[MAX_CHAN];
+	float compressorGain[MAX_CHAN];
+	float compressorCoeff[MAX_CHAN];
+	float compressorMakeup[MAX_CHAN];
 
 	float channelVolume[MAX_CHAN];
 	float channelVolumeLeft[MAX_CHAN]; // in p.u.

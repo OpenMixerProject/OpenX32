@@ -24,6 +24,54 @@
 
 #include "fx.h"
 
+void fxProcessGateLogic(int channel, float samples[]) {
+	float input_abs = abs(samples[0]);//meanf(samples, SAMPLES_IN_BUFFER);
+
+	dsp.dspChannel[channel].gate.closed = input_abs < dsp.dspChannel[channel].gate.value_threshold;
+
+	// calculate the gate-logic and online-parameters
+	switch (dsp.dspChannel[channel].gate.state) {
+		case GATE_CLOSED:
+			dsp.gateGainSet[channel] = dsp.dspChannel[channel].gate.value_gainmin;
+			// check if we have to open the gate
+			if (!dsp.dspChannel[channel].gate.closed) {
+				dsp.dspChannel[channel].gate.state = GATE_ATTACK;
+			}
+			break;
+		case GATE_ATTACK:
+			dsp.gateGainSet[channel] = 1.0f;
+			dsp.gateCoeff[channel] = dsp.dspChannel[channel].gate.value_coeff_attack;
+			dsp.dspChannel[channel].gate.state = GATE_OPEN;
+			break;
+		case GATE_OPEN:
+			if (dsp.dspChannel[channel].gate.closed) {
+				dsp.dspChannel[channel].gate.holdCounter = dsp.dspChannel[channel].gate.value_hold_ticks;
+				dsp.dspChannel[channel].gate.state = GATE_HOLD;
+			}
+			break;
+		case GATE_HOLD:
+			if (!dsp.dspChannel[channel].gate.closed) {
+				// re-enter on-state
+				dsp.dspChannel[channel].gate.state = GATE_OPEN;
+			}else{
+				if (dsp.dspChannel[channel].gate.holdCounter == 0) {
+					dsp.dspChannel[channel].gate.state = GATE_CLOSING;
+				}else{
+					dsp.dspChannel[channel].gate.holdCounter--;
+				}
+			}
+			break;
+		case GATE_CLOSING:
+			dsp.gateGainSet[channel] = dsp.dspChannel[channel].gate.value_gainmin;
+			dsp.gateCoeff[channel] = dsp.dspChannel[channel].gate.value_coeff_release;
+			dsp.dspChannel[channel].gate.state = GATE_CLOSED;
+			break;
+		default:
+			dsp.dspChannel[channel].gate.state = GATE_CLOSED;
+			break;
+	}
+}
+
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	// biquad_trans() needs the coeffs in the following order
 	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
@@ -55,170 +103,67 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	}
 }
 
-float fxProcessGate(float input, sGate* gate) {
-	gate->closed = abs(input) < gate->value_threshold;
+void fxProcessCompressorLogic(int channel, float samples[]) {
+	float input_abs = abs(samples[0]); //meanf(samples, SAMPLES_IN_BUFFER);
+
+	dsp.dspChannel[channel].compressor.active = (input_abs > dsp.dspChannel[channel].compressor.value_threshold);
 
 	// calculate the gate-logic and online-parameters
-	switch (gate->state) {
-		case GATE_CLOSED:
-			gate->gainSet = gate->value_gainmin;
-			// check if we have to open the gate
-			if (!gate->closed) {
-				gate->state = GATE_ATTACK;
-			}
-			break;
-		case GATE_ATTACK:
-			gate->gainSet = 1.0f;
-			gate->coeff = gate->value_coeff_attack;
-			gate->state = GATE_OPEN;
-			break;
-		case GATE_OPEN:
-			if (gate->closed) {
-				gate->holdCounter = gate->value_hold_ticks;
-				gate->state = GATE_HOLD;
-			}
-			break;
-		case GATE_HOLD:
-			if (!gate->closed) {
-				// re-enter on-state
-				gate->state = GATE_OPEN;
-			}else{
-				if (gate->holdCounter == 0) {
-					gate->state = GATE_CLOSING;
-				}else{
-					gate->holdCounter--;
-				}
-			}
-			break;
-		case GATE_CLOSING:
-			gate->gainSet = gate->value_gainmin;
-			gate->coeff = gate->value_coeff_release;
-			gate->state = GATE_CLOSED;
-			break;
-		default:
-			gate->state = GATE_CLOSED;
-			break;
-	}
-
-	// gainCurrent = (gainCurrent * coeff) + (gainSet - gainSet * coeff);
-	gate->gainCurrent = (gate->gainCurrent * gate->coeff) + gate->gainSet - (gate->gainSet * gate->coeff);
-
-	return (input * gate->gainCurrent);
-}
-
-float fxProcessEq(float input, sPEQ* peq) {
-	float output = (peq->a[0] * input) + (peq->a[1] * peq->in[0]) + (peq->a[2] * peq->in[1]) - ((peq->b[1] * peq->out[0]) + (peq->b[2] * peq->out[1]));
-
-	// store values for next calculation cycle
-	peq->in[1] = peq->in[0]; // z-2
-	peq->in[0] = input; // z-1
-
-	peq->out[1] = peq->out[0];
-	peq->out[0] = output;
-
-	return output;
-}
-
-float fxProcessCompressor(float input, sCompressor* compressor) {
-	float input_abs = abs(input);
-
-	compressor->active = (input_abs > compressor->value_threshold);
-
-	// calculate the gate-logic and online-parameters
-	switch (compressor->state) {
+	switch (dsp.dspChannel[channel].compressor.state) {
 		case COMPRESSOR_IDLE:
-			compressor->gainSet = 1.0f;
+			dsp.compressorGainSet[channel] = 1.0f;
 			// check if we have to open the gate
-			if (compressor->active) {
-				compressor->state = COMPRESSOR_ATTACK;
+			if (dsp.dspChannel[channel].compressor.active) {
+				dsp.dspChannel[channel].compressor.state = COMPRESSOR_ATTACK;
 			}
 			break;
 		case COMPRESSOR_ATTACK:
 			// overshoot = abs(sample) - threshold
 			// output = (overshoot / ratio) + threshold
 			// gainSet = output / abs(input)
-			if ((input_abs > 0) && (compressor->value_ratio != 0)) {
-				compressor->gainSet = (((input_abs - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input_abs;
+			if ((input_abs > 0) && (dsp.dspChannel[channel].compressor.value_ratio != 0)) {
+				// gainSet = input_abs
+				dsp.compressorGainSet[channel] = (((input_abs - dsp.dspChannel[channel].compressor.value_threshold) * dsp.dspChannel[channel].compressor.value_ratio) + dsp.dspChannel[channel].compressor.value_threshold) / input_abs;
 			}
-			compressor->coeff = compressor->value_coeff_attack;
-			compressor->state = COMPRESSOR_ACTIVE;
+			dsp.compressorCoeff[channel] = dsp.dspChannel[channel].compressor.value_coeff_attack;
+			dsp.dspChannel[channel].compressor.state = COMPRESSOR_ACTIVE;
 			break;
 		case COMPRESSOR_ACTIVE:
-			if (compressor->active) {
+			if (dsp.dspChannel[channel].compressor.active) {
 				// check if we have to compress even more
 				float newValue;
-				if ((input_abs > 0) && (compressor->value_ratio != 0)) {
-					newValue = (((input_abs - compressor->value_threshold) / compressor->value_ratio) + compressor->value_threshold) / input_abs;
-					if (newValue < compressor->gainSet) {
+				if ((input_abs > 0) && (dsp.dspChannel[channel].compressor.value_ratio != 0)) {
+					newValue = (((input_abs - dsp.dspChannel[channel].compressor.value_threshold) * dsp.dspChannel[channel].compressor.value_ratio) + dsp.dspChannel[channel].compressor.value_threshold) / input_abs;
+					if (newValue < dsp.compressorGainSet[channel]) {
 						// compress even more
-						compressor->gainSet = newValue;
+						dsp.compressorGainSet[channel] = newValue;
 					}
 				}
 			}else{
-				compressor->holdCounter = compressor->value_hold_ticks;
-				compressor->state = COMPRESSOR_HOLD;
+				dsp.dspChannel[channel].compressor.holdCounter = dsp.dspChannel[channel].compressor.value_hold_ticks;
+				dsp.dspChannel[channel].compressor.state = COMPRESSOR_HOLD;
 			}
 			break;
 		case COMPRESSOR_HOLD:
-			if (compressor->active) {
+			if (dsp.dspChannel[channel].compressor.active) {
 				// re-enter on-state
-				compressor->state = COMPRESSOR_ACTIVE;
+				dsp.dspChannel[channel].compressor.state = COMPRESSOR_ACTIVE;
 			}else{
 				// we are below threshold
-				if (compressor->holdCounter == 0) {
-					compressor->state = COMPRESSOR_RELEASE;
+				if (dsp.dspChannel[channel].compressor.holdCounter == 0) {
+					dsp.dspChannel[channel].compressor.state = COMPRESSOR_RELEASE;
 				}else{
-					compressor->holdCounter--;
+					dsp.dspChannel[channel].compressor.holdCounter--;
 				}
 			}
 			break;
 		case COMPRESSOR_RELEASE:
-			compressor->gainSet = 1.0f;
-			compressor->coeff = compressor->value_coeff_release;
-			compressor->state = COMPRESSOR_IDLE;
+			dsp.compressorGainSet[channel] = 1.0f;
+			dsp.compressorCoeff[channel] = dsp.dspChannel[channel].compressor.value_coeff_release;
+			dsp.dspChannel[channel].compressor.state = COMPRESSOR_IDLE;
 			break;
 		default:
-			compressor->state = COMPRESSOR_IDLE;
+			dsp.dspChannel[channel].compressor.state = COMPRESSOR_IDLE;
 			break;
 	}
-
-	// gainCurrent = (gainCurrent * coeff) + gainSet - (gainSet * coeff);
-	compressor->gainCurrent = (compressor->gainCurrent * compressor->coeff) + compressor->gainSet - (compressor->gainSet * compressor->coeff);
-
-	return input * compressor->gainCurrent * compressor->value_makeup;
 }
-
-
-/*
-  Use of CCES biquad filter (scalar):
-  ===================================
-  #define NSECTIONS  2
-  #define NSAMPLES  200
-  #define NSTATE    (2*NSECTIONS)
-
-  float input[NSAMPLES];
-  float output[NSAMPLES];
-  float state[NSTATE];
-                                // -a2      -a1        b2       b1        b0
-  float pm coeffs[5*NSECTIONS]={-0.74745, 1.72593,  1.00000,  2.00000,  1.00000,
-                                -0.88703, 1.86380,  1.00000,  2.00000,  1.00000};
-
-  for (i = 0; i < NSTATE; i++) {
-    state[i] = 0;
-  }
-
-  biquad (input, output, coeffs, state, NSAMPLES, NSECTIONS);
-
-
-  Use of CCES biquad filter (vector with SIMD):
-  =============================================
-  biquad(
-  	  const float dm input[]				-> input samples
-  	  float dm output[]						-> output samples
-  	  const float pm coeffs[5 * sections]	-> a2,a1,b2,b1,b0
-  	  float dm state[2 * sections]			->
-  	  int samples							-> number of samples in input[] and output[]
-  	  int sections							-> 5 for a 5-band EQ
-  );
-
-*/
