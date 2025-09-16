@@ -403,8 +403,8 @@ bool spiCloseDspConnections() {
 }
 
 bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[], void* inputValue) {
-	uint8_t valueCountTmp = valueCount;
-	if (inputValue != NULL) {
+    uint8_t valueCountTmp = valueCount;
+    if (inputValue != NULL) {
         valueCountTmp += 1; // we need one additional SPI-element at the end to read the value from DSP
     }
     struct spi_ioc_transfer tr = {0};
@@ -429,12 +429,12 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
     spiTxData[1] = parameter;
     if (values != NULL) {
         // copy output data
-        memcpy(&spiTxData[2], &values[0], valueCountTmp * sizeof(uint32_t));
+        memcpy(&spiTxData[2], &values[0], valueCount * sizeof(uint32_t));
     }
     spiTxData[(valueCount + 3) - 1] = 0x00000023; // EndMarker = '#'
     if (inputValue != NULL) {
         // append dummy-value with zeros at the end to read the 32-bit value from DSP
-	    spiTxData[(valueCountTmp + 3) - 1] = 0x00000000; // dummyvalue for reading value
+        spiTxData[(valueCountTmp + 3) - 1] = 0x00000000; // dummyvalue for reading value
     }
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw));
 
@@ -442,11 +442,11 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
 
     if (inputValue != NULL) {
         // we receive values with one element delay, so the first element is useless
-        memcpy(&inputValue, &spiRxDataRaw[sizeof(spiRxDataRaw) - 4], sizeof(uint32_t)); // copy received data to uint32_t-array
+        memcpy(inputValue, &spiRxDataRaw[sizeof(spiRxDataRaw) - 4], sizeof(uint32_t)); // copy received data to uint32_t-array
     }
-    //free(spiTxData);
-    //free(spiTxDataRaw);
-    //free(spiRxDataRaw);
+//    free(spiTxData);
+//    free(spiTxDataRaw);
+//    free(spiRxDataRaw);
 
     return (bytesRead > 0);
 }
