@@ -77,9 +77,11 @@ void timer100msCallback() {
 
     // toggle the LED on DSP1 to show some activity
     spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
-	
+
     // read the current DSP load
-    lv_label_set_text_fmt(objects.debugtext, "DSP1: %u Cycles", spiReadDspParameter_uint32(0, 1, 0)); // DSP0, channel = 1, index = 0
+    uint32_t dspClockCycles = spiReadDspParameter_uint32(0, 1, 0);
+    float dspLoad = (((float)dspClockCycles/264.0f) / (16.0f/0.048f)) * 100.0f;
+    lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %%", dspLoad); // DSP0, channel = 1, index = 0
 }
 
 // called every 10ms

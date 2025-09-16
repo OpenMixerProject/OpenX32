@@ -141,16 +141,17 @@ void halSendVolume(uint8_t dspChannel, float volumeLR, float volumeSub, float ba
     dsp.dspChannel[dspChannel-1].volumeSub = volumeSub;
     dsp.dspChannel[dspChannel-1].balance = balance;
 
-    float volumeLeft = pow(10.0f, volumeLR/20.0f) * (saturate(100.0f - balance, 0.0f, 100.0f) / 100.0f);
-    float volumeRight = pow(10.0f, volumeLR/20.0f) * (saturate(balance + 100.0f, 0.0f, 100.0f) / 100.0f);
+    float balanceLeft = saturate(100.0f - balance, 0.0f, 100.0f) / 100.0f;
+    float balanceRight = saturate(balance + 100.0f, 0.0f, 100.0f) / 100.0f;
 
     // send volume to DSP via SPI
-    float values[3];
-    values[0] = volumeLeft;
-    values[1] = volumeRight;
-    values[2] = pow(10.0f, volumeSub/20.0f);
+    float values[4];
+    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
+    values[1] = balanceLeft; // 100 .. 100 ..  0
+    values[2] = balanceRight; // 0  .. 100 .. 100
+    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
 
-    spiSendDspParameterArray(0, 'v', dspChannel-1, 0, 3, &values[0]);
+    spiSendDspParameterArray(0, 'v', dspChannel-1, 0, 4, &values[0]);
 }
 
 void halSendGate(uint8_t dspChannel) {
@@ -167,7 +168,7 @@ void halSendGate(uint8_t dspChannel) {
 }
 
 void halSendEQ(uint8_t dspChannel) {
-    float values[6];
+    float values[5];
 
     for (int peq = 0; peq < MAX_CHAN_EQS; peq++) {
         fxRecalcFilterCoefficients_PEQ(&dsp.dspChannel[dspChannel-1].peq[peq]);
@@ -175,11 +176,11 @@ void halSendEQ(uint8_t dspChannel) {
         values[0] = dsp.dspChannel[dspChannel-1].peq[peq].a[0];
         values[1] = dsp.dspChannel[dspChannel-1].peq[peq].a[1];
         values[2] = dsp.dspChannel[dspChannel-1].peq[peq].a[2];
-        values[3] = dsp.dspChannel[dspChannel-1].peq[peq].b[0];
-        values[4] = dsp.dspChannel[dspChannel-1].peq[peq].b[1];
-        values[5] = dsp.dspChannel[dspChannel-1].peq[peq].b[2];
+        // b[0] is constant 1, so we can ignore this value
+        values[3] = dsp.dspChannel[dspChannel-1].peq[peq].b[1];
+        values[4] = dsp.dspChannel[dspChannel-1].peq[peq].b[2];
 
-        spiSendDspParameterArray(0, 'e', dspChannel-1, peq, 6, &values[0]);
+        spiSendDspParameterArray(0, 'e', dspChannel-1, peq, 5, &values[0]);
     }
 }
 
