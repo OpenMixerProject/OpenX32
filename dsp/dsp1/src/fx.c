@@ -24,6 +24,37 @@
 
 #include "fx.h"
 
+void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
+	// biquad_trans() needs the coeffs in the following order
+	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
+	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
+	// a0 a1 a2 b1 b2 (section 4)
+	if (((MAX_CHAN_EQS % 2) == 0) || (index < (MAX_CHAN_EQS - 1))) {
+		// we have even number of PEQ-sections
+		// or we have odd number but we are still below the last section
+
+		// store data with interleaving
+		int sectionIndex = ((index / 2) * 2) * 5;
+		if ((index % 2) != 0) {
+			// odd section index
+			sectionIndex += 1;
+		}
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 0] = coeffs[0]; // a0 (zeros)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 2] = coeffs[1]; // a1 (zeros)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 4] = coeffs[2]; // a2 (zeros)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 6] = -coeffs[3]; // -b1 (poles)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 8] = -coeffs[4]; // -b2 (poles)
+	}else{
+		// last section: store without interleaving
+		int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 0] = coeffs[0]; // a0 (zeros)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 1] = coeffs[1]; // a1 (zeros)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 2] = coeffs[2]; // a2 (zeros)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 3] = -coeffs[3]; // -b1 (poles)
+		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 4] = -coeffs[4]; // -b2 (poles)
+	}
+}
+
 float fxProcessGate(float input, sGate* gate) {
 	gate->closed = abs(input) < gate->value_threshold;
 

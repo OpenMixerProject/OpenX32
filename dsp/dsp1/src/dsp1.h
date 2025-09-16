@@ -9,7 +9,7 @@
 #define SDRAM_SIZE	 0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
 #define MAX_CHAN				40
-#define MAX_CHAN_EQS			2
+#define MAX_CHAN_EQS			5
 
 #define CHANNELS_PER_TDM		8
 #define TDM_INPUTS				(MAX_CHAN / CHANNELS_PER_TDM)
@@ -24,6 +24,8 @@
 #define SPI_BUFFER_SIZE			(SPI_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_DMA_BUFFER_SIZE		1
 
+#define DO_CYCLE_COUNTS				// enable cycle counter
+
 // general includes
 #include <stdio.h>     				// Get declaration of puts and definition of NULL
 #include <stdint.h>    				// Get definition of uint32_t
@@ -35,6 +37,8 @@
 #include "adi_initialize.h"
 #include <math.h>
 #include <string.h>
+#include <matrix.h>
+#include <vector.h>
 
 // include for fir, iir, biquad, fft, etc.
 #include <filter.h>                 // vectorized version
@@ -127,12 +131,14 @@ typedef struct {
 } sCompressor;
 
 typedef struct {
-	float volumeLeft; // in p.u.
-	float volumeRight; // in p.u.
-	float volumeSub; // in p.u.
 	float sends[16];
 	sGate gate;
 	sPEQ peq[MAX_CHAN_EQS];
+
+	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in proram memory
+	//float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
+	float peqStates[2 * MAX_CHAN_EQS]; // store in data memory
+
 	sCompressor compressor;
 } sChannel;
 
@@ -143,6 +149,10 @@ struct {
 
 	float samplerate;
 
+	float channelVolume[MAX_CHAN];
+	float channelVolumeLeft[MAX_CHAN]; // in p.u.
+	float channelVolumeRight[MAX_CHAN]; // in p.u.
+	float channelVolumeSub[MAX_CHAN]; // in p.u.
 	sChannel dspChannel[MAX_CHAN];
 } dsp;
 

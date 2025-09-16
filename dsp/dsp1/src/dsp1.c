@@ -52,6 +52,7 @@
 // global data
 static volatile uint32_t timerCounter;
 static cycle_stats_t systemStats;
+static uint32_t cyclesMain;
 
 #pragma optimize_for_speed // interrupt handlers usually need to be optimized
 #pragma section ("seg_int_code")  // handler functions perform better in internal memory
@@ -112,7 +113,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					*pTXSPI = 0x00000001;
 					break;
 				case 1: // cpu load as "used cycles"
-					*pTXSPI = systemStats._cycles;
+					*pTXSPI = cyclesMain;
 					break;
 				default:
 					// not implemented
@@ -122,10 +123,11 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			break;
 		case 'v':
 			// volume for a single channel
-			if (valueCount == 3) {
-				dsp.dspChannel[channel].volumeLeft = floatValues[0];
-				dsp.dspChannel[channel].volumeRight = floatValues[1];
-				dsp.dspChannel[channel].volumeSub = floatValues[2];
+			if (valueCount == 4) {
+				dsp.channelVolume[channel] = floatValues[0];
+				dsp.channelVolumeLeft[channel] = floatValues[1];
+				dsp.channelVolumeRight[channel] = floatValues[2];
+				dsp.channelVolumeSub[channel] = floatValues[3];
 				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 			}
 			break;
@@ -140,11 +142,8 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'e':
-			if (valueCount == 6) {
-				for (int i = 0; i < 3; i++) {
-					dsp.dspChannel[channel].peq[index].a[i] = floatValues[i];
-					dsp.dspChannel[channel].peq[index].b[i] = floatValues[i + 3];
-				}
+			if (valueCount == 5) {
+				fxSetPeqCoeffs(channel, index, &floatValues[0]);
 				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 			}
 			break;
@@ -216,8 +215,6 @@ int main() {
 
 	// the main-loop
 	while(1) {
-		CYCLES_START(systemStats);
-
 		if (timerCounter == 0) {
 			// toggle LED controlled by timer
 			//sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
@@ -234,13 +231,17 @@ int main() {
 
 		// check for new audio-data to process
 		if (audioReady) {
+			CYCLES_START(systemStats);
+
 			audioProcessData();
+
+			CYCLES_STOP(systemStats);
+			cyclesMain = systemStats._cycles;
+			CYCLES_RESET(systemStats);
 		}
 
 		if (spiNewRxDataReady) {
 			spiProcessRxData();
 		}
-
-		CYCLES_STOP(systemStats);
 	}
 }

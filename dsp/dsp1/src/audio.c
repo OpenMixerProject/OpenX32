@@ -54,9 +54,9 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 //section("seg_ext_data")
 int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8
 
-// pointers to individual audio-samples for more convenient access
-//int* pAudioOutputSamples[40][BUFFER_COUNT * SAMPLES_IN_BUFFER]; // sorted pointer-array that points to the value for the next write cycle
-//int* pAudioInputSamples[40][BUFFER_COUNT * SAMPLES_IN_BUFFER]; // sorted pointer-array that points to the recently received audio-samples
+float audioDspChannelBuffer[MAX_CHAN][SAMPLES_IN_BUFFER] = {0}; // In 1-32, Aux 1-8
+float audioOutputChannelBuffer[MAX_CHAN][SAMPLES_IN_BUFFER] = {0}; // Out 1-16, P1-16, Aux 1-8
+float audioTempBuffer[SAMPLES_IN_BUFFER] = {0};
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 // TCB-arrays for SPORT {pointer to pointer to buffer, buffer-size, ???, pointer to buffer}
@@ -114,9 +114,118 @@ void audioInit(void) {
 	}
 	*/
 	// ============== FOR TESTING ONLY ==============
+
+	int peqInterleaved = 0;
+	//float coeffs[5] = {2.86939942317678, -0.6369199596053572, -1.8013330773336653, -0.6369199596053572, 0.06806634584311462}; // a0, a1, a2, b1, b2: +14dB @ 7kHz with Q=0.46
+	float coeffs[5] = {1, 0, 0, 0, 0}; // a0, a1, a2, b1, b2: direct passthrough
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		for (int s = 0; s < (2 * MAX_CHAN_EQS); s++) {
+			dsp.dspChannel[i_ch].peqStates[s] = 0;
+			dsp.dspChannel[i_ch].peqStates[s] = 0;
+		}
+
+		// initialize PEQs
+		for (int i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
+			fxSetPeqCoeffs(i_ch, i_peq, &coeffs[0]);
+		}
+	}
 }
 
 void audioProcessData(void) {
+	audioProcessing = 1; // set global flag that we are processing now
+
+	int bufferSampleIndex;
+	int bufferTdmIndex;
+	int dspCh;
+	int bufferReadIndex;
+
+	// copy interleaved DMA input-buffer into channel buffers
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
+		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
+			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
+				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+				bufferReadIndex = (bufferTdmIndex + i_ch) % (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
+				audioDspChannelBuffer[dspCh][s] = audioRxBuf[bufferReadIndex];
+			}
+		}
+	}
+
+	// process the audio data per channel
+	// ========================================================
+	// process Noisegate
+	// --------------------------------------------------------
+	// TODO: check how we can optimize the calculation using SIMD-functions
+
+	// calculate EQs
+	// -----------------------------------------------
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		//                 input and output                BiQuad-Coefficients                        Delay-Line                  samples           Sections
+		biquad_trans(&audioDspChannelBuffer[i_ch][0], &dsp.dspChannel[i_ch].peqCoeffs[0], &dsp.dspChannel[i_ch].peqStates[0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
+	}
+
+	// process dynamics
+	// --------------------------------------------------------
+	// TODO: check how we can optimize the calculation using SIMD-functions
+
+	// channel volume
+	// --------------------------------------------------------
+	//             output                                 a                        b             a_rows     a_cols         b_cols
+	//matmmltf(&audioDspChannelBuffer[0][0], &audioDspChannelBuffer[0][0], &dsp.channelVolume[0], MAX_CHAN, SAMPLES_IN_BUFFER, 1); // a[a_rows][a_cols] * b[a_rows][b_cols]
+
+	// create main-signals
+	// --------------------------------------------------------
+	//
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		audioOutputChannelBuffer[0][s] = 0; // left
+		audioOutputChannelBuffer[1][s] = 0; // right
+		audioOutputChannelBuffer[2][s] = 0; // sub
+	}
+	// TODO: check if we can replace these commands with matrix-calculation
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		// calculate channel volume
+		vecsmltf(&audioDspChannelBuffer[i_ch][0], dsp.channelVolume[i_ch], &audioDspChannelBuffer[i_ch][0], SAMPLES_IN_BUFFER); // input, scalar, output, samples
+
+		// calculate main left
+		vecsmltf(&audioDspChannelBuffer[i_ch][0], dsp.channelVolumeLeft[i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER); // input, scalar, output, samples
+		vecvaddf(&audioTempBuffer[0], &audioOutputChannelBuffer[0][0], &audioOutputChannelBuffer[0][0], SAMPLES_IN_BUFFER); // a, b, output, samples
+
+		// calculate main right
+		vecsmltf(&audioDspChannelBuffer[i_ch][0], dsp.channelVolumeRight[i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER); // input, scalar, output, samples
+		vecvaddf(&audioTempBuffer[0], &audioOutputChannelBuffer[1][0], &audioOutputChannelBuffer[1][0], SAMPLES_IN_BUFFER); // a, b, output, samples
+
+		// calculate sub
+		vecsmltf(&audioDspChannelBuffer[i_ch][0], dsp.channelVolumeSub[i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER); // input, scalar, output, samples
+		vecvaddf(&audioTempBuffer[0], &audioOutputChannelBuffer[2][0], &audioOutputChannelBuffer[2][0], SAMPLES_IN_BUFFER); // a, b, output, samples
+	}
+	// ========================================================
+
+	// copy channel buffers to interleaved output-buffer
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
+		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
+			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
+				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+				bufferReadIndex = (bufferTdmIndex + i_ch) % (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
+				audioTxBuf[bufferReadIndex] = audioOutputChannelBuffer[dspCh][s];
+			}
+		}
+	}
+
+	// increment buffer-counter for next call
+    audioBufferCounter++;
+    if (audioBufferCounter >= BUFFER_COUNT) {
+    	audioBufferCounter = 0;
+    }
+
+	audioReady = 0; // clear global flag that audio is not ready anymore
+	audioProcessing = 0; // clear global flag that processing is done
+
+
+
+/*
 	audioProcessing = 1; // set global flag that we are processing now
 
 	// process the received samples sample by sample
@@ -156,7 +265,7 @@ void audioProcessData(void) {
 		mainDebug = 0.0f;
 
 		//for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-		for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
+		for (int i_tdm = 0; i_tdm < 2; i_tdm++) {
 			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
 
 			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) { // TODO: this loop could be optimized using SIMD as we are using the same operators on multiple data
@@ -186,22 +295,13 @@ void audioProcessData(void) {
 				// process sends
 				// TODO
 
-/*
 				// process channel-volume
 				// convert dB into linear value and then process audio
-				audioProcessedSample *= dsp.dspChannel[dspCh].volumeLeft;
-
-				// limit audio to peak-values of 32-bit (TDM8). X32 will process "only" 24-bits and ignores the lower 8-bits
-				if (audioProcessedSample > 2147483648) {
-					audioProcessedSample = 2147483648;
-				}else if (audioProcessedSample < -2147483648) {
-					audioProcessedSample = -2147483648;
-				}
+				//audioProcessedSample *= dsp.dspChannel[dspCh].volumeLeft;
 
 				// write processed audio to output directly (1:1 routing)
 				// DSP-input -> processing DSP-output
-				audioTxBuf[bufferReadIndex] = audioProcessedSample;
-*/
+				//audioTxBuf[bufferReadIndex] = audioProcessedSample;
 
 				// main-audio-bus
 				mainLeft  += (audioProcessedSample * dsp.dspChannel[dspCh].volumeLeft);
@@ -235,6 +335,7 @@ void audioProcessData(void) {
 
 	audioReady = 0; // clear global flag that audio is not ready anymore
 	audioProcessing = 0; // clear global flag that processing is done
+*/
 }
 
 void audioRxISR(uint32_t iid, void *handlerarg) {
