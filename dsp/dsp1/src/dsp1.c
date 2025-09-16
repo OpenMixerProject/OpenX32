@@ -47,9 +47,11 @@
 #include "audio.h"
 #include "fx.h"
 #include "spi.h"
+#include <cycles.h>
 
 // global data
 static volatile uint32_t timerCounter;
+static cycle_stats_t systemStats;
 
 #pragma optimize_for_speed // interrupt handlers usually need to be optimized
 #pragma section ("seg_int_code")  // handler functions perform better in internal memory
@@ -103,6 +105,21 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 	unsigned int* intValues = (unsigned int*)values;
 
 	switch (classId) {
+		case 'r':
+			// read a specific value
+			switch (channel) {
+				case 0: // version number
+					*pTXSPI = 0x00000001;
+					break;
+				case 1: // cpu load as "used cycles"
+					*pTXSPI = systemStats._cycles;
+					break;
+				default:
+					// not implemented
+					*pTXSPI = 0xDEADBEEF;
+					break;
+			}
+			break;
 		case 'v':
 			// volume for a single channel
 			if (valueCount == 3) {
@@ -195,8 +212,12 @@ int main() {
 	// turn-off LED
 	sysreg_bit_set(sysreg_FLAGS, FLG7);
 
+	CYCLES_INIT(systemStats);
+
 	// the main-loop
 	while(1) {
+		CYCLES_START(systemStats);
+
 		if (timerCounter == 0) {
 			// toggle LED controlled by timer
 			//sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
@@ -219,5 +240,7 @@ int main() {
 		if (spiNewRxDataReady) {
 			spiProcessRxData();
 		}
+
+		CYCLES_STOP(systemStats);
 	}
 }

@@ -123,7 +123,7 @@ void spiISR(int sig) {
 		unsigned int rxData = *pRXSPI;
 
 		// TEST: mirror the received byte back to the SPI-Master
-		*pTXSPI = rxData;
+		//*pTXSPI = rxData;
 
 		// check for buffer-overflow
 		int next_head = (spiRingBuffer.head + 1) % SPI_BUFFER_SIZE;

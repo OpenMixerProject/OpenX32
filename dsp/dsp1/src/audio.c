@@ -54,6 +54,10 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 //section("seg_ext_data")
 int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8
 
+// pointers to individual audio-samples for more convenient access
+//int* pAudioOutputSamples[40][BUFFER_COUNT * SAMPLES_IN_BUFFER]; // sorted pointer-array that points to the value for the next write cycle
+//int* pAudioInputSamples[40][BUFFER_COUNT * SAMPLES_IN_BUFFER]; // sorted pointer-array that points to the recently received audio-samples
+
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 // TCB-arrays for SPORT {pointer to pointer to buffer, buffer-size, ???, pointer to buffer}
 int audioTx_tcb[8][BUFFER_COUNT][4];

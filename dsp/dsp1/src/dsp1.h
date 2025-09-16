@@ -36,8 +36,14 @@
 #include <math.h>
 #include <string.h>
 
+// include for fir, iir, biquad, fft, etc.
+#include <filter.h>                 // vectorized version
+//#include <filters.h>              // scalar version for fir, iir, biquad
+//#include <trans.h>                // scalar version for fft
+#include <window.h>
+
 // includes for hardware-pins
-#include <SRU.h>
+#include <sru.h>
 #include <sysreg.h>
 #include <signal.h>
 

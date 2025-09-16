@@ -77,6 +77,9 @@ void timer100msCallback() {
 
     // toggle the LED on DSP1 to show some activity
     spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
+	
+    // read the current DSP load
+    lv_label_set_text_fmt(objects.debugtext, "DSP1: %u Cycles", spiReadDspParameter_uint32(0, 1, 0)); // DSP0, channel = 1, index = 0
 }
 
 // called every 10ms
@@ -425,7 +428,7 @@ void syncGui(void) {
     uint8_t group = 0;
     uint8_t channel = 0;
     if (mixer.activePage == X32_PAGE_CONFIG){
-        char dspSourceName[10] = "";
+        char dspSourceName[5] = "";
         char inputSourceName[10] = "";
         routingGetDspSourceName(&dspSourceName[0], selected_vChannel->inputSource.dspChannel);
         sprintf(&inputSourceName[0], "%02d: %s", selected_vChannel->inputSource.dspChannel, dspSourceName);

@@ -156,3 +156,38 @@ float fxProcessCompressor(float input, sCompressor* compressor) {
 
 	return input * compressor->gainCurrent * compressor->value_makeup;
 }
+
+
+/*
+  Use of CCES biquad filter (scalar):
+  ===================================
+  #define NSECTIONS  2
+  #define NSAMPLES  200
+  #define NSTATE    (2*NSECTIONS)
+
+  float input[NSAMPLES];
+  float output[NSAMPLES];
+  float state[NSTATE];
+                                // -a2      -a1        b2       b1        b0
+  float pm coeffs[5*NSECTIONS]={-0.74745, 1.72593,  1.00000,  2.00000,  1.00000,
+                                -0.88703, 1.86380,  1.00000,  2.00000,  1.00000};
+
+  for (i = 0; i < NSTATE; i++) {
+    state[i] = 0;
+  }
+
+  biquad (input, output, coeffs, state, NSAMPLES, NSECTIONS);
+
+
+  Use of CCES biquad filter (vector with SIMD):
+  =============================================
+  biquad(
+  	  const float dm input[]				-> input samples
+  	  float dm output[]						-> output samples
+  	  const float pm coeffs[5 * sections]	-> a2,a1,b2,b1,b0
+  	  float dm state[2 * sections]			->
+  	  int samples							-> number of samples in input[] and output[]
+  	  int sections							-> 5 for a 5-band EQ
+  );
+
+*/
