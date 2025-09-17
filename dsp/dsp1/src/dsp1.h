@@ -9,7 +9,7 @@
 #define SDRAM_SIZE	 0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
 #define MAX_CHAN				40
-#define MAX_CHAN_FULLFEATURED	32
+#define MAX_CHAN_FULLFEATURED	32 + 8	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 #define MAX_CHAN_EQS			5
 
 #define CHANNELS_PER_TDM		8
@@ -17,7 +17,7 @@
 #define SAMPLES_IN_BUFFER		16
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
-#define PI						3.1415926535897932384626433832795f
+#define M_PI					3.1415926535897932384626433832795f
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
@@ -124,6 +124,12 @@ typedef struct {
 
 struct {
 	float samplerate;
+
+	float lowcutCoeff[MAX_CHAN];
+	float lowcutStatesInput[MAX_CHAN];
+	float lowcutStatesOutput[MAX_CHAN];
+	//float highcutCoeff[MAX_CHAN];
+	//float highcutStates[MAX_CHAN];
 
 	float gateGainSet[MAX_CHAN];
 	float gateGain[MAX_CHAN];

@@ -96,6 +96,15 @@ void audioInit(void) {
 	//float coeffs[5] = {2.86939942317678, -0.6369199596053572, -1.8013330773336653, -0.6369199596053572, 0.06806634584311462}; // a0, a1, a2, b1, b2: +14dB @ 7kHz with Q=0.46
 	float coeffs[5] = {1, 0, 0, 0, 0}; // a0, a1, a2, b1, b2: direct passthrough
 	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		// init single-pole lowcut
+		dsp.lowcutStatesInput[i_ch] = 0.0;
+		dsp.lowcutStatesOutput[i_ch] = 0.0;
+		dsp.lowcutCoeff[i_ch] = 1.0f / (1.0f + 2.0f * M_PI * 20000.0f * (1.0f/dsp.samplerate));
+		// init single-pole highcut
+		//dsp.highcutStates[i_ch] = 0.0;
+		//dsp.highcutCoeff[i_ch] = (2.0f * M_PI * 500.0f) / (dsp.samplerate + 2.0f * M_PI * 500.0f);
+
+		// init PEQ-states
 		for (int s = 0; s < (2 * MAX_CHAN_EQS); s++) {
 			dsp.dspChannel[i_ch].peqStates[s] = 0;
 			dsp.dspChannel[i_ch].peqStates[s] = 0;
@@ -145,7 +154,53 @@ void audioProcessData(void) {
 	// vecvaddf(input_a[], input_b[], output[], sampleCount)
 	// vecvsubf(input_a[], input_b[], output[], sampleCount)
 	// vecsmltf(input_a[], scalar, output[], sampleCount)
+	//  _                            _
+	// | |    _____      _____ _   _| |_
+	// | |   / _ \ \ /\ / / __| | | | __|
+	// | |__| (_) \ V  V / (__| |_| | |_
+	// |_____\___/ \_/\_/ \___|\__,_|\__|
 	//
+	// Single-Pole LOW-CUT
+	// output = coeff * (zoutput + input - zinput)
+	// 1. temp = input - zinput
+	// 2. temp = zoutput + temp
+	// 3. zoutput = coeff * temp
+	// 4. output = zoutput
+	// 5. zinput = input
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+			audioTempBufferChan[i_ch] = audioDspChannelBuffer[i_ch][s];
+		}
+		vecvsubf(&audioTempBufferChan[0], &dsp.lowcutStatesInput[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+		vecvaddf(&audioTempBufferChan[0], &dsp.lowcutStatesOutput[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+		vecvmltf(&dsp.lowcutCoeff[0], &audioTempBufferChan[0], &dsp.lowcutStatesOutput[0], MAX_CHAN_FULLFEATURED);
+
+		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+			dsp.lowcutStatesInput[i_ch] = audioDspChannelBuffer[i_ch][s];
+			audioDspChannelBuffer[i_ch][s] = dsp.lowcutStatesOutput[i_ch];
+		}
+	}
+
+/*
+	// Single-Pole HIGH-CUT
+	// output = zoutput + coeff * (input - zoutput)
+	// 1. temp = input - zoutput
+	// 2. temp = coeff * temp
+	// 3. zoutput = zoutput + temp
+	// 4. output = zoutput
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+			audioTempBufferChan[i_ch] = audioDspChannelBuffer[i_ch][s];
+		}
+		vecvsubf(&audioTempBufferChan[0], &dsp.highcutStates[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+		vecvmltf(&dsp.highcutCoeff[0], &audioTempBufferChan[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+		vecvaddf(&dsp.highcutStates[0], &audioTempBufferChan[0], &dsp.highcutStates[0], MAX_CHAN_FULLFEATURED);
+		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+			audioDspChannelBuffer[i_ch][s] = dsp.highcutStates[i_ch];
+		}
+	}
+*/
+
 	//  _   _       _                      _
 	// | \ | | ___ (_)___  ___  __ _  __ _| |_ ___
 	// |  \| |/ _ \| / __|/ _ \/ _` |/ _` | __/ _ \
