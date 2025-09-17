@@ -109,8 +109,8 @@ typedef struct {
 	float value_coeff_release;
 
 	// online parameters
-	short int holdCounter;
-	bool active;
+	int holdCounter;
+	bool triggered;
 	compressorState state;
 } sCompressor;
 
