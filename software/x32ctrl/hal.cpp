@@ -176,7 +176,9 @@ void halSendEQ(uint8_t dspChannel) {
     float values[MAX_CHAN_EQS * 5];
 
     for (int peq = 0; peq < MAX_CHAN_EQS; peq++) {
-        if (((MAX_CHAN_EQS % 2) == 0) || (peq < (MAX_CHAN_EQS - 1))) {
+        fxRecalcFilterCoefficients_PEQ(&dsp.dspChannel[dspChannel-1].peq[peq]);
+
+       if (((MAX_CHAN_EQS % 2) == 0) || (peq < (MAX_CHAN_EQS - 1))) {
             // we have even number of PEQ-sections
             // or we have odd number but we are still below the last section
             // store data with interleaving
