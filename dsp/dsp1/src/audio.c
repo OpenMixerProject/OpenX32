@@ -123,13 +123,17 @@ void audioProcessData(void) {
 	// |____/ \___|    |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
 	//                                                                    |___/
 	// copy interleaved DMA input-buffer into channel buffers
-	bufferIndex = audioBufferCounter * TDM_INPUTS * CHANNELS_PER_TDM * SAMPLES_IN_BUFFER; // offset-index for current buffer (will be used on interleaving as well)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
 			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				int dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
-				int readIndex = bufferIndex + (s * TDM_INPUTS * CHANNELS_PER_TDM) + (i_tdm * CHANNELS_PER_TDM) + i_ch;
-				audioDspChannelBuffer[dspCh][s] = audioRxBuf[readIndex];
+				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+				bufferIndex = (bufferTdmIndex + i_ch);
+				if (bufferIndex >= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE)) {
+					bufferIndex -= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
+				}
+				audioDspChannelBuffer[dspCh][s] = audioRxBuf[bufferIndex];
 			}
 		}
 	}
@@ -148,6 +152,7 @@ void audioProcessData(void) {
 	// | |\  | (_) | \__ \  __/ (_| | (_| | ||  __/
 	// |_| \_|\___/|_|___/\___|\__, |\__,_|\__\___|
 	//                         |___/
+
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
 		fxProcessGateLogic(i_ch, &audioDspChannelBuffer[i_ch][0]);
 	}
@@ -231,12 +236,16 @@ void audioProcessData(void) {
 	//                                                    |___/
 	// copy channel buffers to interleaved output-buffer
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
 			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				int dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
-
-				int writeIndex = bufferIndex + (s * TDM_INPUTS * CHANNELS_PER_TDM) + (i_tdm * CHANNELS_PER_TDM) + i_ch;
-				audioTxBuf[writeIndex] = audioOutputChannelBuffer[dspCh][s];
+				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+				bufferIndex = (bufferTdmIndex + i_ch);
+				if (bufferIndex >= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE)) {
+					bufferIndex -= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
+				}
+				audioTxBuf[bufferIndex] = audioOutputChannelBuffer[dspCh][s];
 			}
 		}
 	}

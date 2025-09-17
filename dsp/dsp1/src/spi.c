@@ -147,7 +147,7 @@ void spiProcessRxData(void) {
 	// * LENGTH PARAMETER VALUE-ARRAY # (each with 32-bit)
 
 	static spiParserState state = LOOKING_FOR_START_MARKER;
-	static unsigned int payload[SPI_PAYLOAD_SIZE];
+	static unsigned int payload[SPI_MAX_PAYLOAD_SIZE];
 	static int payloadIdx = 0;
 	static unsigned short payloadLength;
 
@@ -172,7 +172,7 @@ void spiProcessRxData(void) {
 				// read data
 				payload[payloadIdx++] = data;
 
-				if ((payloadIdx == payloadLength) || (payloadIdx == SPI_PAYLOAD_SIZE)) {
+				if ((payloadIdx == payloadLength) || (payloadIdx == SPI_MAX_PAYLOAD_SIZE)) {
 					// payload is complete. Now check the end marker
 					state = LOOKING_FOR_END_MARKER;
 				}
