@@ -403,16 +403,12 @@ bool spiCloseDspConnections() {
 }
 
 bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[], void* inputValue) {
-    uint8_t valueCountTmp = valueCount;
-    if (inputValue != NULL) {
-        valueCountTmp += 1; // we need one additional SPI-element at the end to read the value from DSP
-    }
     struct spi_ioc_transfer tr = {0};
-//    uint32_t* spiTxData = (uint32_t*)malloc((valueCountTmp + 3) * sizeof(uint32_t));
-//    uint8_t* spiTxDataRaw = (uint8_t*)malloc((valueCountTmp + 3) * sizeof(uint32_t));
-//    uint8_t* spiRxDataRaw = (uint8_t*)malloc((valueCountTmp + 3) * sizeof(uint32_t));
-    uint32_t spiTxData[valueCountTmp + 3]; // '*' + parameter + values + '#'
-    uint8_t spiTxDataRaw[(valueCountTmp + 3) * sizeof(uint32_t)];
+//    uint32_t* spiTxData = (uint32_t*)malloc((valueCount + 3) * sizeof(uint32_t));
+//    uint8_t* spiTxDataRaw = (uint8_t*)malloc((valueCount + 3) * sizeof(uint32_t));
+//    uint8_t* spiRxDataRaw = (uint8_t*)malloc((valueCount + 3) * sizeof(uint32_t));
+    uint32_t spiTxData[valueCount + 3]; // '*' + parameter + values + '#'
+    uint8_t spiTxDataRaw[(valueCount + 3) * sizeof(uint32_t)];
     uint8_t spiRxDataRaw[sizeof(spiTxDataRaw)];
     int32_t bytesRead;
 
@@ -432,17 +428,23 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
         memcpy(&spiTxData[2], &values[0], valueCount * sizeof(uint32_t));
     }
     spiTxData[(valueCount + 3) - 1] = 0x00000023; // EndMarker = '#'
-    if (inputValue != NULL) {
-        // append dummy-value with zeros at the end to read the 32-bit value from DSP
-        spiTxData[(valueCountTmp + 3) - 1] = 0x00000000; // dummyvalue for reading value
-    }
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw));
 
     bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
 
     if (inputValue != NULL) {
-        // we receive values with one element delay, so the first element is useless
-        memcpy(inputValue, &spiRxDataRaw[sizeof(spiRxDataRaw) - 4], sizeof(uint32_t)); // copy received data to uint32_t-array
+        // DSP needs up to 330µs to set the desired value to output buffer
+        usleep(500);
+        tr.len = 1;
+        spiTxDataRaw[0] = 0;
+        spiTxDataRaw[1] = 0;
+        spiTxDataRaw[2] = 0;
+        spiTxDataRaw[3] = 0;
+
+        // read single value from DSP
+        bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+
+        memcpy(inputValue, &spiRxDataRaw[0], sizeof(uint32_t)); // copy received data to uint32_t-array
     }
 //    free(spiTxData);
 //    free(spiTxDataRaw);

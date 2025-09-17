@@ -199,8 +199,11 @@ void fxRecalcGate(sGate* gate) {
 
         // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
 	gate->value_gainmin = 1.0f / pow(10.0f, gate->range/20.0f);
+
+        // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
+        // ln(10%) - ln(90%) = -2.197224577
 	gate->value_coeff_attack = exp(-2197.22457734f/(samplerate * gate->attackTime_ms));
-	gate->value_hold_ticks = gate->holdTime_ms * (samplerate / 1000.0f);
+	gate->value_hold_ticks = gate->holdTime_ms * samplerate / 1000.0f;
 	gate->value_coeff_release = exp(-2197.22457734f/(samplerate * gate->releaseTime_ms));
 }
 
@@ -208,10 +211,12 @@ void fxRecalcCompressor(sCompressor* compressor) {
 	float samplerate = dsp.samplerate/(float)DSP_SAMPLES_IN_BUFFER;
 
 	compressor->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, compressor->threshold/20.0f);
-
         compressor->value_ratio = compressor->ratio;
 	compressor->value_makeup = pow(10.0f, compressor->makeup/20.0f);
+
+        // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
+        // ln(10%) - ln(90%) = -2.197224577
 	compressor->value_coeff_attack = exp(-2197.22457734f/(samplerate * compressor->attackTime_ms));
-	compressor->value_hold_ticks = compressor->holdTime_ms * (samplerate / 1000.0f);
+	compressor->value_hold_ticks = compressor->holdTime_ms * samplerate / 1000.0f;
 	compressor->value_coeff_release = exp(-2197.22457734f/(samplerate * compressor->releaseTime_ms));
 }
