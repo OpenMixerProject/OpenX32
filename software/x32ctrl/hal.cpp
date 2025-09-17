@@ -168,20 +168,40 @@ void halSendGate(uint8_t dspChannel) {
 }
 
 void halSendEQ(uint8_t dspChannel) {
-    float values[5];
+    // biquad_trans() needs the coeffs in the following order
+    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
+    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
+    // a0 a1 a2 b1 b2 (section 4)
+
+    float values[MAX_CHAN_EQS * 5];
 
     for (int peq = 0; peq < MAX_CHAN_EQS; peq++) {
-        fxRecalcFilterCoefficients_PEQ(&dsp.dspChannel[dspChannel-1].peq[peq]);
-
-        values[0] = dsp.dspChannel[dspChannel-1].peq[peq].a[0];
-        values[1] = dsp.dspChannel[dspChannel-1].peq[peq].a[1];
-        values[2] = dsp.dspChannel[dspChannel-1].peq[peq].a[2];
-        // b[0] is constant 1, so we can ignore this value
-        values[3] = dsp.dspChannel[dspChannel-1].peq[peq].b[1];
-        values[4] = dsp.dspChannel[dspChannel-1].peq[peq].b[2];
-
-        spiSendDspParameterArray(0, 'e', dspChannel-1, peq, 5, &values[0]);
+        if (((MAX_CHAN_EQS % 2) == 0) || (peq < (MAX_CHAN_EQS - 1))) {
+            // we have even number of PEQ-sections
+            // or we have odd number but we are still below the last section
+            // store data with interleaving
+            int sectionIndex = ((peq / 2) * 2) * 5;
+            if ((peq % 2) != 0) {
+                // odd section index
+                sectionIndex += 1;
+            }
+            values[sectionIndex + 0] = dsp.dspChannel[dspChannel-1].peq[peq].a[0]; // a0 (zeros)
+            values[sectionIndex + 2] = dsp.dspChannel[dspChannel-1].peq[peq].a[1]; // a1 (zeros)
+            values[sectionIndex + 4] = dsp.dspChannel[dspChannel-1].peq[peq].a[2]; // a2 (zeros)
+            values[sectionIndex + 6] = -dsp.dspChannel[dspChannel-1].peq[peq].b[1]; // -b1 (poles)
+            values[sectionIndex + 8] = -dsp.dspChannel[dspChannel-1].peq[peq].b[2]; // -b2 (poles)
+        }else{
+            // last section: store without interleaving
+            int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
+            values[sectionIndex + 0] = dsp.dspChannel[dspChannel-1].peq[peq].a[0]; // a0 (zeros)
+            values[sectionIndex + 1] = dsp.dspChannel[dspChannel-1].peq[peq].a[1]; // a1 (zeros)
+            values[sectionIndex + 2] = dsp.dspChannel[dspChannel-1].peq[peq].a[2]; // a2 (zeros)
+            values[sectionIndex + 3] = -dsp.dspChannel[dspChannel-1].peq[peq].b[1]; // -b1 (poles)
+            values[sectionIndex + 4] = -dsp.dspChannel[dspChannel-1].peq[peq].b[2]; // -b2 (poles)
+        }
     }
+
+    spiSendDspParameterArray(0, 'e', dspChannel-1, 0, MAX_CHAN_EQS * 5, &values[0]);
 }
 
 void halSendCompressor(uint8_t dspChannel) {

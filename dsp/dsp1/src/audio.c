@@ -44,7 +44,6 @@
 
 volatile int audioReady = 0;
 volatile int audioProcessing = 0;
-volatile int audioIsrCounter = 0;
 int audioBufferCounter = 0;
 
 // audio-buffers for transmitting and receiving
@@ -94,30 +93,6 @@ void audioInit(void) {
 		}
 	}
 
-	// ============== FOR TESTING ONLY ==============
-	/*
-	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
-	int bufferTdmIndex;
-	int bufferSampleIndex;
-	int bufferIndex;
-	float omega = 2.0f * PI * 1000.0f / openx32.samplerate; // w = 2*pi*f between 1kHz and 8kHz
-	for (int i_tdm = 0; i_tdm < 1; i_tdm++) {
-		bufferTdmIndex = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + (BUFFER_SIZE * audioBufferCounter);
-
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			bufferSampleIndex = bufferTdmIndex + (CHANNELS_PER_TDM * s);
-
-			for (int ch = 0; ch < 8; ch++) {
-				// calculate bufferOffset with wrap-around the end of the buffer
-				bufferIndex = bufferSampleIndex + ch;
-
-				audioTxBuf[bufferIndex] = sin(omega * (float)(ch + 1) * (float)(s + (SAMPLES_IN_BUFFER * audioBufferCounter))) * 268435456; // TDM8 is using 32-bit values, so lets use 28-bit as peak-value (-18dBfs)
-			}
-		}
-	}
-	*/
-	// ============== FOR TESTING ONLY ==============
-
 	//float coeffs[5] = {2.86939942317678, -0.6369199596053572, -1.8013330773336653, -0.6369199596053572, 0.06806634584311462}; // a0, a1, a2, b1, b2: +14dB @ 7kHz with Q=0.46
 	float coeffs[5] = {1, 0, 0, 0, 0}; // a0, a1, a2, b1, b2: direct passthrough
 	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
@@ -139,7 +114,7 @@ void audioProcessData(void) {
 	int bufferSampleIndex;
 	int bufferTdmIndex;
 	int dspCh;
-	int bufferReadIndex;
+	int bufferIndex;
 
 	//  ____            ___       _            _                  _
 	// |  _ \  ___     |_ _|_ __ | |_ ___ _ __| | ___  __ ___   _(_)_ __   __ _
@@ -148,15 +123,13 @@ void audioProcessData(void) {
 	// |____/ \___|    |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
 	//                                                                    |___/
 	// copy interleaved DMA input-buffer into channel buffers
-	// TODO: Check if this is the best method to de-interleave the DMA-buffer
+	bufferIndex = audioBufferCounter * TDM_INPUTS * CHANNELS_PER_TDM * SAMPLES_IN_BUFFER; // offset-index for current buffer (will be used on interleaving as well)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
 			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
-				bufferReadIndex = (bufferTdmIndex + i_ch) % (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
-				audioDspChannelBuffer[dspCh][s] = audioRxBuf[bufferReadIndex];
+				int dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+				int readIndex = bufferIndex + (s * TDM_INPUTS * CHANNELS_PER_TDM) + (i_tdm * CHANNELS_PER_TDM) + i_ch;
+				audioDspChannelBuffer[dspCh][s] = audioRxBuf[readIndex];
 			}
 		}
 	}
@@ -257,15 +230,13 @@ void audioProcessData(void) {
 	// |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
 	//                                                    |___/
 	// copy channel buffers to interleaved output-buffer
-	// TODO: Check if this is the best method for interleaving the channels to the DMA-buffer
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
 			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
-				bufferReadIndex = (bufferTdmIndex + i_ch) % (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
-				audioTxBuf[bufferReadIndex] = audioOutputChannelBuffer[dspCh][s];
+				int dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+
+				int writeIndex = bufferIndex + (s * TDM_INPUTS * CHANNELS_PER_TDM) + (i_tdm * CHANNELS_PER_TDM) + i_ch;
+				audioTxBuf[writeIndex] = audioOutputChannelBuffer[dspCh][s];
 			}
 		}
 	}
@@ -289,9 +260,4 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
     }
 
     audioReady = 1; // set flag, that we have new data to process
-
-    audioIsrCounter++;
-    if (audioIsrCounter >= (dsp.samplerate / SAMPLES_IN_BUFFER)) {
-    	audioIsrCounter = 0;
-    }
 }

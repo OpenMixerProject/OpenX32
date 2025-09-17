@@ -77,6 +77,10 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
 	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
 	// a0 a1 a2 b1 b2 (section 4)
+	if (index >= MAX_CHAN_EQS) {
+		return;
+	}
+
 	if (((MAX_CHAN_EQS % 2) == 0) || (index < (MAX_CHAN_EQS - 1))) {
 		// we have even number of PEQ-sections
 		// or we have odd number but we are still below the last section

@@ -21,7 +21,7 @@
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
-#define SPI_PAYLOAD_SIZE		20  // 17 int-values + * + # + parameter
+#define SPI_PAYLOAD_SIZE		30  // 27 int-values + * + # + parameter
 #define SPI_BUFFER_SIZE			(SPI_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_DMA_BUFFER_SIZE		1
 
@@ -56,20 +56,9 @@
 // global variables
 extern volatile int audioProcessing;
 extern volatile int audioReady;
-extern volatile int audioIsrCounter;
 extern volatile bool spiNewRxDataReady;
 extern int audioTx_tcb[8][BUFFER_COUNT][4];
 extern int audioRx_tcb[8][BUFFER_COUNT][4];
-
-typedef struct {
-	// filter-coefficients
-	double a[3];
-	double b[3];
-
-	// online parameters
-	float in[2]; // in[0] = z-1, in[1] = z-2
-	float out[2]; // out[0] = z-1, out[1] = z-2
-} sPEQ;
 
 typedef struct {
 	// filter-coefficients
@@ -91,7 +80,7 @@ typedef enum {
 	GATE_CLOSING
 } gateState;
 typedef struct {
-	// filter-data
+	// filter-data from i.MX25
 	float value_threshold;
 	float value_gainmin;
 	float value_coeff_attack;
@@ -100,8 +89,8 @@ typedef struct {
 
 	// online parameters
 	short int holdCounter;
-	gateState state;
 	bool closed;
+	gateState state;
 } sGate;
 
 typedef enum {
@@ -112,7 +101,7 @@ typedef enum {
 	COMPRESSOR_RELEASE
 } compressorState;
 typedef struct {
-	// filter-data
+	// filter-data from i.MX25
 	float value_threshold;
 	float value_ratio;
 	float value_coeff_attack;
@@ -126,22 +115,14 @@ typedef struct {
 } sCompressor;
 
 typedef struct {
-	float sends[16];
 	sGate gate;
-	sPEQ peq[MAX_CHAN_EQS];
-
 	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in proram memory
-	//float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
-	float peqStates[2 * MAX_CHAN_EQS]; // store in data memory
+	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
 
 	sCompressor compressor;
 } sChannel;
 
 struct {
-	float mainVolume; // in p.u.
-	float mainBalance; // -100 .. 0 .. +100
-	float mainVolumeSub; // in p.u.
-
 	float samplerate;
 
 	float gateGainSet[MAX_CHAN];
@@ -161,8 +142,10 @@ struct {
 } dsp;
 
 // function prototypes
+/*
 static void timerIsr(uint32_t iid, void* handlerArg);
 void delay(int i);
+*/
 void openx32Init(void);
 void openx32Command(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values);
 

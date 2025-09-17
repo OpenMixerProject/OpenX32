@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.1.0, 17.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.1.1, 17.09.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -50,10 +50,11 @@
 #include <cycles.h>
 
 // global data
-static volatile uint32_t timerCounter;
+//static volatile uint32_t timerCounter;
 static cycle_stats_t systemStats;
 static uint32_t cyclesMain;
 
+/*
 #pragma optimize_for_speed // interrupt handlers usually need to be optimized
 #pragma section ("seg_int_code")  // handler functions perform better in internal memory
 static void timerIsr(uint32_t iid, void* handlerArg) {
@@ -79,6 +80,7 @@ void delay(int i) {
     	NOP();
     }
 }
+*/
 
 void openx32Init(void) {
 	// initialize the default samplerate with 48kHz
@@ -142,8 +144,8 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'e':
-			if (valueCount == 5) {
-				fxSetPeqCoeffs(channel, index, &floatValues[0]);
+			if (valueCount == (MAX_CHAN_EQS * 5)) {
+				memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
 				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 			}
 			break;
@@ -202,11 +204,11 @@ int main() {
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
 	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
 	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
-	adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
+	//adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
 
 	// t_timer = (t_periode + 1) * t_count / f_clk = (1001 * 1000)/266MHz = 0.0037631579 s
-	timer_set(1000, 1000); // set period to 1000 and counter to 1000 -> count 1000 x 1000 -> 266MHz = 3.7594ns = 3.7594ms
-	timer_on(); // start timer
+	//timer_set(1000, 1000); // set period to 1000 and counter to 1000 -> count 1000 x 1000 -> 266MHz = 3.7594ns = 3.7594ms
+	//timer_on(); // start timer
 
 	// turn-off LED
 	sysreg_bit_set(sysreg_FLAGS, FLG7);
@@ -215,17 +217,10 @@ int main() {
 
 	// the main-loop
 	while(1) {
+		/*
 		if (timerCounter == 0) {
 			// toggle LED controlled by timer
-			//sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
-		}
-
-		/*
-		// toggle LED to show that we are receiving audio-data
-		if (audioIsrCounter > (dsp.samplerate / SAMPLES_IN_BUFFER) / 2) {
-			sysreg_bit_set(sysreg_FLAGS, FLG7);
-		}else{
-			sysreg_bit_clr(sysreg_FLAGS, FLG7);
+			sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
 		}
 		*/
 
@@ -240,6 +235,7 @@ int main() {
 			CYCLES_RESET(systemStats);
 		}
 
+		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
 			spiProcessRxData();
 		}
