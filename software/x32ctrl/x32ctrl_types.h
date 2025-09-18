@@ -163,14 +163,38 @@ typedef struct {
 #include "x32ctrl.h"
 
 typedef struct {
+  float lowCutFrequency;
   sGate gate;
   sPEQ peq[MAX_CHAN_EQS];
   sCompressor compressor;
   float volumeLR; // volume in dBfs
   float volumeSub; // volume in dBfs
   float balance;
+  float sendMixbus[16];
+  uint8_t sendMixbusTapPoint[16];
   bool muted;
+  bool solo;
 } sDspChannel;
+
+typedef struct {
+  sPEQ peq[MAX_CHAN_EQS];
+  sCompressor compressor;
+  float volumeLR;
+  float volumeSub;
+  float balance;
+  float sendMatrix[6];
+  uint8_t sendMatrixTapPoint[6];
+  bool muted;
+  bool solo;
+} sMixbusChannel;
+
+typedef struct {
+  sPEQ peq[MAX_CHAN_EQS];
+  sCompressor compressor;
+  float volume;
+  bool muted;
+  bool solo;
+} sMatrixChannel;
 
 #pragma pack(push, 1)
 // size of sRouting must be multiplier of 8 to fit into 64-bit-value
@@ -182,7 +206,7 @@ typedef struct __attribute__((packed,aligned(1))) {
   uint8_t dsp[40];
   uint8_t aes50a[48]; // not used in FPGA at the moment
   uint8_t aes50b[48]; // not used in FPGA at the moment
-} sRouting;
+} sInputRouting;
 #pragma pack(pop)
 
 typedef struct {
@@ -196,9 +220,25 @@ typedef struct {
 } sPreamps;
 
 typedef struct {
-  sRouting routing;
+  sInputRouting routing; // controls the 40 audio-channels into the DSP
   sPreamps preamps;
+
   sDspChannel dspChannel[40];
+  sMixbusChannel mixbusChannel[16];
+  sMatrixChannel matrixChannel[6];
+
+  float mainLRVolume;
+  float mainSubVolume;
+  float mainBalance;
+
+  float mainSendMatrix[6];
+  uint8_t mainSendMatrixTapPoint[6];
+
+  float monitorVolume;
+  uint8_t monitorTapPoint;
+
+  uint8_t outputSource[40]; // controls the 40 audio-channels out of the DSP
+  uint8_t outputTapPoint[40]; // controls the tap-point (pre/post fader/eq)
   float samplerate;
 } sDsp;
 

@@ -26,9 +26,8 @@
 #include "uart.h"
 #include "adda.h"
 #include "mixer.h"
-#include "spi.h"
-#include "fx.h"
 #include "routing.h"
+#include "dsp.h"
 
 void halSyncVChannelConfigFromMixer(void){
     // loop trough all vChannels
@@ -36,8 +35,64 @@ void halSyncVChannelConfigFromMixer(void){
     uint8_t channel = 0;
     for (int i = 0; i < MAX_VCHANNELS; i++)
     {
-        if (mixer.vChannel[i].inputSource.dspChannel == 0){
-            continue;
+        if (i >= 40) {
+            s_vChannel* chan = &mixer.vChannel[i];
+            uint8_t group;
+            if ((i >= 40) && (i <= 47)) {
+                // FX Returns 1-8
+                group = 'f';
+            }else if ((i >= 48) && (i <= 63)) {
+                // Busmaster 1-16
+                group = 'b';
+            }else if ((i >= 64) && (i <= 69)) {
+                // Matrix 1-6
+                group = 'x';
+            }else if (i == 70) {
+                // "VERY SPECIAL CHANNEL"
+                group = 'v';
+            }else if (i == 71) {
+                // Mono/Sub
+                group = 's';
+            }else if ((i >= 72) && (i <= 79)) {
+                // DCA 1-8
+                group = 'd';
+            }else if (i == 80) {
+                // main-LR
+                group = 'm';
+            }
+
+            if ((mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME) || (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)))){
+                switch (group) {
+                    case 'b':
+                        if (!chan->mute) {
+                            dspSendMixbusVolume(i - 48 + 1, chan->volumeLR, dsp.mainSubVolume, chan->balance);
+                        }else{
+                            dspSendMixbusVolume(i - 48 + 1, -100, dsp.mainSubVolume, chan->balance);
+                        }
+                        break;
+                    case 'x':
+                        if (!chan->mute) {
+                            dspSendMatrixVolume(i - 64 + 1, chan->volumeLR);
+                        }else{
+                            dspSendMatrixVolume(i - 64 + 1, -100);
+                        }
+                        break;
+                    case 'm':
+                        if (!chan->mute) {
+                            dspSendMainVolume(chan->volumeLR, dsp.mainSubVolume, chan->balance);
+                        }else{
+                            dspSendMainVolume(-100, dsp.mainSubVolume, chan->balance);
+                        }
+                        break;
+                    case 's':
+                        if (!chan->mute) {
+                            dspSendMainVolume(dsp.mainLRVolume, chan->volumeLR, dsp.mainBalance);
+                        }else{
+                            dspSendMainVolume(dsp.mainLRVolume, -100, dsp.mainBalance);
+                        }
+                        break;
+                }
+            }
         } else {
             s_vChannel* chan = &mixer.vChannel[i];
 
@@ -55,22 +110,22 @@ void halSyncVChannelConfigFromMixer(void){
 
                 if ((mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME) || (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)))){
                     if (!chan->mute) {
-                        halSendVolume(chan->inputSource.dspChannel, chan->volumeLR, chan->volumeSub, chan->balance);
+                        dspSendChannelVolume(chan->inputSource.dspChannel, chan->volumeLR, chan->volumeSub, chan->balance);
                     }else{
-                        halSendVolume(chan->inputSource.dspChannel, -100, -100, chan->balance); // dBfs
+                        dspSendChannelVolume(chan->inputSource.dspChannel, -100, -100, chan->balance); // dBfs
                     }
                 }
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GATE)){
-                    halSendGate(chan->inputSource.dspChannel);
+                    dspSendGate(chan->inputSource.dspChannel);
                 }
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_EQ)){
-                    halSendEQ(chan->inputSource.dspChannel);
+                    dspSendEQ(chan->inputSource.dspChannel);
                 }
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_DYNAMIC)){
-                    halSendCompressor(chan->inputSource.dspChannel);
+                    dspSendCompressor(chan->inputSource.dspChannel);
                 }
             }
         }
@@ -132,90 +187,4 @@ void halSendPhantomPower(uint8_t group, uint8_t channel, bool active) {
             dsp.preamps.phantomPowerAes50b[channel - 1] = active;
             break;
     }
-}
-
-// set the general volume of one of the 40 DSP-channels
-void halSendVolume(uint8_t dspChannel, float volumeLR, float volumeSub, float balance) {
-    // set value to interal struct
-    dsp.dspChannel[dspChannel-1].volumeLR = volumeLR;
-    dsp.dspChannel[dspChannel-1].volumeSub = volumeSub;
-    dsp.dspChannel[dspChannel-1].balance = balance;
-
-    float balanceLeft = saturate(100.0f - balance, 0.0f, 100.0f) / 100.0f;
-    float balanceRight = saturate(balance + 100.0f, 0.0f, 100.0f) / 100.0f;
-
-    // send volume to DSP via SPI
-    float values[4];
-    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
-    values[1] = balanceLeft; // 100 .. 100 ..  0
-    values[2] = balanceRight; // 0  .. 100 .. 100
-    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
-
-    spiSendDspParameterArray(0, 'v', dspChannel-1, 0, 4, &values[0]);
-}
-
-void halSendGate(uint8_t dspChannel) {
-    fxRecalcGate(&dsp.dspChannel[dspChannel-1].gate);
-
-    float values[5];
-    values[0] = dsp.dspChannel[dspChannel-1].gate.value_threshold;
-    values[1] = dsp.dspChannel[dspChannel-1].gate.value_gainmin;
-    values[2] = dsp.dspChannel[dspChannel-1].gate.value_coeff_attack;
-    values[3] = dsp.dspChannel[dspChannel-1].gate.value_hold_ticks;
-    values[4] = dsp.dspChannel[dspChannel-1].gate.value_coeff_release;
-
-    spiSendDspParameterArray(0, 'g', dspChannel-1, 0, 5, &values[0]);
-}
-
-void halSendEQ(uint8_t dspChannel) {
-    // biquad_trans() needs the coeffs in the following order
-    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
-    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
-    // a0 a1 a2 b1 b2 (section 4)
-
-    float values[MAX_CHAN_EQS * 5];
-
-    for (int peq = 0; peq < MAX_CHAN_EQS; peq++) {
-        fxRecalcFilterCoefficients_PEQ(&dsp.dspChannel[dspChannel-1].peq[peq]);
-
-       if (((MAX_CHAN_EQS % 2) == 0) || (peq < (MAX_CHAN_EQS - 1))) {
-            // we have even number of PEQ-sections
-            // or we have odd number but we are still below the last section
-            // store data with interleaving
-            int sectionIndex = ((peq / 2) * 2) * 5;
-            if ((peq % 2) != 0) {
-                // odd section index
-                sectionIndex += 1;
-            }
-            values[sectionIndex + 0] = dsp.dspChannel[dspChannel-1].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 2] = dsp.dspChannel[dspChannel-1].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 4] = dsp.dspChannel[dspChannel-1].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 6] = -dsp.dspChannel[dspChannel-1].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 8] = -dsp.dspChannel[dspChannel-1].peq[peq].b[2]; // -b2 (poles)
-        }else{
-            // last section: store without interleaving
-            int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-            values[sectionIndex + 0] = dsp.dspChannel[dspChannel-1].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 1] = dsp.dspChannel[dspChannel-1].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 2] = dsp.dspChannel[dspChannel-1].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 3] = -dsp.dspChannel[dspChannel-1].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 4] = -dsp.dspChannel[dspChannel-1].peq[peq].b[2]; // -b2 (poles)
-        }
-    }
-
-    spiSendDspParameterArray(0, 'e', dspChannel-1, 0, MAX_CHAN_EQS * 5, &values[0]);
-}
-
-void halSendCompressor(uint8_t dspChannel) {
-    fxRecalcCompressor(&dsp.dspChannel[dspChannel-1].compressor);
-
-    float values[6];
-    values[0] = dsp.dspChannel[dspChannel-1].compressor.value_threshold;
-    values[1] = dsp.dspChannel[dspChannel-1].compressor.value_ratio;
-    values[2] = dsp.dspChannel[dspChannel-1].compressor.value_makeup;
-    values[3] = dsp.dspChannel[dspChannel-1].compressor.value_coeff_attack;
-    values[4] = dsp.dspChannel[dspChannel-1].compressor.value_hold_ticks;
-    values[5] = dsp.dspChannel[dspChannel-1].compressor.value_coeff_release;
-
-    spiSendDspParameterArray(0, 'c', dspChannel-1, 0, 6, &values[0]);
 }

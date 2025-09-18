@@ -469,12 +469,12 @@ bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, u
 
 float spiReadDspParameter(uint8_t dsp, uint8_t channel, uint8_t index) {
     float value;
-    spiSendReceiveDspParameterArray(dsp, 'r', channel, index, 0, NULL, &value);
+    spiSendReceiveDspParameterArray(dsp, '?', channel, index, 0, NULL, &value);
     return value;
 }
 
 uint32_t spiReadDspParameter_uint32(uint8_t dsp, uint8_t channel, uint8_t index) {
     uint32_t value;
-    spiSendReceiveDspParameterArray(dsp, 'r', channel, index, 0, NULL, &value);
+    spiSendReceiveDspParameterArray(dsp, '?', channel, index, 0, NULL, &value);
     return value;
 }

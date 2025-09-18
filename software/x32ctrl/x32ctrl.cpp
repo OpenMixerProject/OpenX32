@@ -776,52 +776,44 @@ void x32debug(const char* format, ...)
 #endif
 }
 
-void parseParams(int argc, char* argv[]) {
-    int fpga = -1;
-    int dsp1 = -1;
-    int dsp2 = -1;
-    for (int i = 1; i < argc; i++) {
+void parseParams(int argc, char* argv[], int8_t* fpga, int8_t* dsp1, int8_t* dsp2, int8_t* noinit) {
+    for (int8_t i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-fpga") == 0) {
             if (i + 1 < argc) {
-                fpga = i+1;
+                *fpga = i+1;
                 i++;
             } else {
-                fpga = -1;
+                *fpga = -1;
             }
         }
         else if (strcmp(argv[i], "-dsp1") == 0) {
             if (i + 1 < argc) {
-                dsp1 = i+1; // value for dsp1 is in argv[i+1]
+                *dsp1 = i+1;
                 i++;
             } else {
-                dsp1 = -1;
+                *dsp1 = -1;
             }
         }
         else if (strcmp(argv[i], "-dsp2") == 0) {
             if (i + 1 < argc) {
-                dsp2 = i+1; // value for dsp2 is in argv[i+1]
+                *dsp2 = i+1;
                 i++;
             } else {
-                dsp2 = -1;
+                *dsp2 = -1;
+            }
+        }
+        else if (strcmp(argv[i], "-noinit") == 0) {
+            if (i + 1 < argc) {
+                *noinit = i+1;
+                i++;
+            } else {
+                *noinit = -1;
             }
         }
         // handle unknown parameters
         else {
             printf("Unknown parameter: %s\n", argv[i]);
         }
-    }
-
-    // initializing DSPs and FPGA
-    if (fpga > 0) {
-        // configure FPGA with bitstream
-        spiConfigureFpga(argv[fpga]);
-    }
-    if ((dsp1 > 0) && (dsp2 > 0)) {
-        // initialize both DSPs
-        spiConfigureDsp(argv[dsp1], argv[dsp2], 2);
-    }else if (dsp1 > 0) {
-        // initialize main-DSP
-        spiConfigureDsp(argv[dsp1], "", 1);
     }
 }
 
@@ -838,7 +830,7 @@ int main(int argc, char* argv[]) {
     x32log("       | |                               \n");
     x32log("       |_|                               \n");
     x32log("OpenX32 Main Control\n");
-    x32log("v0.0.7, 09.09.2025\n");
+    x32log("v0.1.0, 19.09.2025\n");
     x32log("https://github.com/OpenMixerProject/OpenX32\n");
 
     // first try to find what we are: Fullsize, Compact, Producer, Rack or Core
@@ -852,28 +844,41 @@ int main(int argc, char* argv[]) {
     x32log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
     mixerInit(model);
-    parseParams(argc, argv);
 
-    x32log("Connecting to peripheral hardware...\n");
+    // check start-switches
+    int8_t switchFpga = -1;
+    int8_t switchDsp1 = -1;
+    int8_t switchDsp2 = -1;
+    int8_t switchNoinit = -1;
+    parseParams(argc, argv, &switchFpga, &switchDsp1, &switchDsp2, &switchNoinit);
+    // initializing DSPs and FPGA
+    if (switchFpga > 0) { spiConfigureFpga(argv[switchFpga]); }
+    if ((switchDsp1 > 0) && (switchDsp2 == -1)) { spiConfigureDsp(argv[switchDsp1], "", 1); }
+    if ((switchDsp1 > 0) && (switchDsp2 > 0)) { spiConfigureDsp(argv[switchDsp1], argv[switchDsp2], 2); }
+
+    x32log("Initializing communication...\n");
     //uartOpen("/dev/ttymxc0", 115200, &fdDebug); // this UART is not accessible from the outside
     uartOpen("/dev/ttymxc1", 115200, &fdSurface, true); // this UART is connected to the surface (Fader, LEDs, LCDs, Buttons) directly
     uartOpen("/dev/ttymxc2", 38400, &fdAdda, true); // this UART is connected to the FPGA and routed to the 8-channel AD/DA-boards and the Expansion Card
     uartOpen("/dev/ttymxc3", 115200, &fdFpga, true); // this UART is connected to the FPGA
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); // this UART is connected to the MIDI-connectors but is used by the Linux-console
     spiOpenDspConnections();
-
-    x32log("Initializing X32 Surface...\n");
-    //surfaceReset(); // resets all microcontrollers on the board (not necessary if no error occured)
-    surfaceInit(); // initialize whole surface with default values
-
-    x32log("Initializing X32 Audio...\n");
-    dspInit();
-    dsp.samplerate = 48000;
-    addaInit(dsp.samplerate);
-    routingInit();
-
-    // init xremote
     xremoteInit();
+
+    if (switchNoinit == -1) {
+        x32log("Initializing X32 Surface...\n");
+        //surfaceReset(); // resets all microcontrollers on the board (not necessary if no error occured)
+        surfaceInit(); // initialize whole surface with default values
+
+        x32log("Initializing X32 Audio...\n");
+        addaInit(dsp.samplerate);
+    }
+
+
+    x32log("Setting up FPGA and DSPs...\n");
+    routingInit();
+    dspInit();
+    dspSendAll();
 
     // unmute the local audio-boards
     addaSetMute(false);
