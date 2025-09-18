@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.1.3, 18.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.1.5, 18.09.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -108,7 +108,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 	unsigned int* intValues = (unsigned int*)values;
 
 	switch (classId) {
-		case 'r':
+		case '?':
 			// read a specific value
 			switch (channel) {
 				case 0: // version number
@@ -123,14 +123,70 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 			}
 			break;
+		case 'r':
+			// DSP routing
+			if (valueCount == 2) {
+				dsp.outputRouting[channel] = intValues[0];
+				dsp.outputTapPoint[channel] = intValues[1];
+			}
+			break;
+		case 't':
+			// set tapPoints
+			if (valueCount == 2) {
+				switch (index) {
+					case 0: // ChannelSend-TapPoint
+						dsp.channelSendMixbusTapPoint[channel][intValues[0]] = intValues[1];
+						break;
+					case 1: // MixbusSend-TapPoint
+						dsp.mixbusSendMatrixTapPoint[channel][intValues[0]] = intValues[1];
+						break;
+					case 2: // MainSend-TapPoint
+						dsp.mainSendMatrixTapPoint[intValues[0]] = intValues[1];
+						break;
+				}
+			}
+			break;
 		case 'v':
 			// volume for a single channel
-			if (valueCount == 4) {
-				dsp.channelVolume[channel] = floatValues[0];
-				dsp.channelVolumeLeft[channel] = floatValues[1];
-				dsp.channelVolumeRight[channel] = floatValues[2];
-				dsp.channelVolumeSub[channel] = floatValues[3];
-				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+			switch (index) {
+				case 0: // DSP-Channels
+					if (valueCount == 4) {
+						dsp.channelVolume[channel] = floatValues[0];
+						dsp.channelSendMainLeftVolume[channel] = floatValues[1];
+						dsp.channelSendMainRightVolume[channel] = floatValues[2];
+						dsp.channelSendMainSubVolume[channel] = floatValues[3];
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				case 1: // Mixbus-Channels
+					if (valueCount == 4) {
+						dsp.mixbusVolume[channel] = floatValues[0];
+						dsp.mixbusSendMainLeftVolume[channel] = floatValues[1];
+						dsp.mixbusSendMainRightVolume[channel] = floatValues[2];
+						dsp.mixbusSendMainSubVolume[channel] = floatValues[3];
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				case 2: // Matrix-Channels
+					if (valueCount == 1) {
+						dsp.matrixVolume[channel] = floatValues[0];
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				case 3: // Main-Channels
+					if (valueCount == 3) {
+						dsp.mainLeftVolume = floatValues[0];
+						dsp.mainRightVolume = floatValues[1];
+						dsp.mainSubVolume = floatValues[2];
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				case 4: // Monitoring
+					if (valueCount == 1) {
+						dsp.monitorVolume = floatValues[0];
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
 			}
 			break;
 		case 'g':
@@ -144,9 +200,19 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'e':
-			if (valueCount == (MAX_CHAN_EQS * 5)) {
-				memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
-				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+			switch (index) {
+				case 0: // LowCut
+					if (valueCount == 1) {
+						dsp.lowcutCoeff[channel] = floatValues[0];
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				case 1: // PEQ
+					if (valueCount == (MAX_CHAN_EQS * 5)) {
+						memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
 			}
 			break;
 		case 'c':

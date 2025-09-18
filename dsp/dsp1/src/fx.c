@@ -81,6 +81,7 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 		return;
 	}
 
+	// interleave coefficients for biquad_trans()
 	if (((MAX_CHAN_EQS % 2) == 0) || (index < (MAX_CHAN_EQS - 1))) {
 		// we have even number of PEQ-sections
 		// or we have odd number but we are still below the last section

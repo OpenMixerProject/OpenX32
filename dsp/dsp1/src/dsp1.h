@@ -10,7 +10,8 @@
 
 #define MAX_CHAN				40
 #define MAX_CHAN_FULLFEATURED	32 + 8	// depending on the overall load not all channels can be full-featured (gate + dynamics)
-#define MAX_CHAN_EQS			5
+#define MAX_CHAN_EQS			4
+#define MAX_MIXBUS				16
 
 #define CHANNELS_PER_TDM		8
 #define TDM_INPUTS				(MAX_CHAN / CHANNELS_PER_TDM)
@@ -24,6 +25,17 @@
 #define SPI_MAX_PAYLOAD_SIZE	30  // 27 int-values + * + # + parameter
 #define SPI_BUFFER_SIZE			(SPI_MAX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_DMA_BUFFER_SIZE		1
+
+#define BUF_IDX_MAINLEFT		0	// main left
+#define BUF_IDX_MAINRIGHT		1	// main right
+#define BUF_IDX_MAINSUB			2	// main sub
+#define BUF_IDX_MIXBUS			3	// Mixbus 1-16
+#define BUF_IDX_MATRIX			19	// Matrix 1-6
+#define BUF_IDX_DSPCHANNEL		25	// DSP-Channel 1-32
+#define BUF_IDX_AUX				57	// Aux-Channel 1-8
+#define BUF_IDX_MONLEFT			65	// Monitor Left
+#define BUF_IDX_MONRIGHT		66	// Monitor Right
+#define BUF_IDX_TALKBACK		67	// Talkback
 
 #define DO_CYCLE_COUNTS				// enable cycle counter
 
@@ -118,9 +130,10 @@ typedef struct {
 	sGate gate;
 	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in proram memory
 	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
-
 	sCompressor compressor;
-} sChannel;
+
+	bool solo;
+} sDspChannel;
 
 struct {
 	float samplerate;
@@ -140,12 +153,55 @@ struct {
 	float compressorCoeff[MAX_CHAN];
 	float compressorMakeup[MAX_CHAN];
 
-	float channelVolume[MAX_CHAN];
-	float channelVolumeLeft[MAX_CHAN]; // in p.u.
-	float channelVolumeRight[MAX_CHAN]; // in p.u.
-	float channelVolumeSub[MAX_CHAN]; // in p.u.
-	sChannel dspChannel[MAX_CHAN];
+	float channelVolume[MAX_CHAN]; // in p.u.
+	float channelSendMainLeftVolume[MAX_CHAN]; // in p.u.
+	float channelSendMainRightVolume[MAX_CHAN]; // in p.u.
+	float channelSendMainSubVolume[MAX_CHAN]; // in p.u.
+	float channelSendMixbusVolume[MAX_CHAN][MAX_MIXBUS]; // in p.u.
+	int channelSendMixbusTapPoint[MAX_CHAN][MAX_MIXBUS];
+
+	float mixbusVolume[MAX_MIXBUS];
+	float mixbusSendMainLeftVolume[MAX_MIXBUS];
+	float mixbusSendMainRightVolume[MAX_MIXBUS];
+	float mixbusSendMainSubVolume[MAX_MIXBUS];
+	float mixbusSendMatrixVolume[MAX_MIXBUS][6];
+	int mixbusSendMatrixTapPoint[MAX_MIXBUS][6];
+	bool mixbusSolo[MAX_MIXBUS];
+
+	float matrixVolume[6];
+	bool matrixSolo[6];
+
+	float mainLeftVolume;
+	float mainRightVolume;
+	float mainSubVolume;
+	float mainSendMatrixVolume[6];
+	int mainSendMatrixTapPoint[6];
+	bool mainLrSolo;
+	bool mainSubSolo;
+
+	int outputRouting[MAX_CHAN];
+	int outputTapPoint[MAX_CHAN];
+	sDspChannel dspChannel[MAX_CHAN];
+	//sMixbusChannel mixbusChannel[16];
+	//sMatrixChannel matrixChannel[6];
+
+	int monitorChannelTapPoint;
+	int monitorMixbusTapPoint;
+	int monitorMatrixTapPoint;
+	int monitorMainTapPoint;
+	int monitorTapPoint;
+	float monitorVolume;
+	bool soloActive;
 } dsp;
+
+enum eBufferIndex {
+    TAP_INPUT,
+	TAP_PRE_EQ,
+	TAP_POST_EQ,
+	TAP_PRE_FADER,
+	TAP_POST_FADER
+};
+
 
 // function prototypes
 /*
