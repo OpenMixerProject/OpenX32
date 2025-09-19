@@ -308,6 +308,8 @@ void mixerInit(char model[]) {
     mixer.activeMode = X32_SURFACE_MODE_BANKING_X32;
     mixer.activeBank_inputFader = 0;
     mixer.activeBank_busFader = 0;
+    mixer.activeEQ = 0;
+    mixer.activeBusSend = 0;
 
     x32debug("END ############# InitMixer() ############# END \n\n");
 }
@@ -586,6 +588,18 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_UTILITY:
                     mixerShowPage(X32_PAGE_UTILITY);
                     break;
+                case X32_BTN_EQ_LOW:
+                case X32_BTN_EQ_LOW_MID:
+                case X32_BTN_EQ_HIGH_MID:
+                case X32_BTN_EQ_HIGH:
+                    mixerBankingEQ(button);
+                    break;
+                case X32_BTN_BUS_SEND_1_4:
+                case X32_BTN_BUS_SEND_5_8:
+                case X32_BTN_BUS_SEND_9_12:
+                case X32_BTN_BUS_SEND_13_16:
+                    mixerBankingSends(button);
+                    break;
                 case X32_BTN_CH_1_16:
                 case X32_BTN_CH_17_32:
                 case X32_BTN_AUX_IN_EFFECTS:
@@ -775,6 +789,18 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
             case X32_ENC_PAN:
                 mixerChangePan(mixerGetSelectedvChannelIndex(), amount);
                 break;
+            case X32_ENC_BUS_SEND_1:
+                mixerChangeBusSend(mixerGetSelectedvChannelIndex(), 0, amount);
+                break;
+            case X32_ENC_BUS_SEND_2:
+                mixerChangeBusSend(mixerGetSelectedvChannelIndex(), 1, amount);
+                break;
+            case X32_ENC_BUS_SEND_3:
+                mixerChangeBusSend(mixerGetSelectedvChannelIndex(), 2, amount);
+                break;
+            case X32_ENC_BUS_SEND_4:
+                mixerChangeBusSend(mixerGetSelectedvChannelIndex(), 3, amount);
+                break;
             default:
                 // TODO: Callback to x32ctrl if needed
                 x32debug("Unhandled encoder detected.\n");
@@ -884,6 +910,63 @@ void mixerSetMute(uint8_t p_vChannelIndex, bool mute){
 
 void mixerToggleMute(uint8_t vChannelIndex){
     mixerSetMute(vChannelIndex, !mixer.vChannel[vChannelIndex].mute);
+}
+
+void mixerBankingSends(button) {
+    setLedByEnum(X32_BTN_BUS_SEND_1_4, 0);
+    setLedByEnum(X32_BTN_BUS_SEND_5_8, 0);
+    setLedByEnum(X32_BTN_BUS_SEND_9_12, 0);
+    setLedByEnum(X32_BTN_BUS_SEND_13_16, 0);
+
+    switch (p_button){
+        case X32_BTN_BUS_SEND_1_4:
+            mixer.activeBusSend = 0;
+            setLedByEnum(X32_BTN_BUS_SEND_1_4, 1);
+            break;
+        case X32_BTN_BUS_SEND_5_8:
+            mixer.activeBusSend = 1;
+            setLedByEnum(X32_BTN_BUS_SEND_5_8, 1);
+            break;
+        case X32_BTN_BUS_SEND_9_12:
+            mixer.activeBusSend = 2;
+            setLedByEnum(X32_BTN_BUS_SEND_9_12, 1);
+            break;
+        case X32_BTN_BUS_SEND_13_16:
+            mixer.activeBusSend = 3;
+            setLedByEnum(X32_BTN_BUS_SEND_13_16, 1);
+            break;
+    }
+
+    mixerSetChangeFlags(X32_VCHANNEL_CHANGED_SENDS);
+}
+
+void mixerBankingEQ(X32_BTN p_button){
+    setLedByEnum(X32_BTN_EQ_LOW, 0);
+    setLedByEnum(X32_BTN_EQ_LOW_MID, 0);
+    setLedByEnum(X32_BTN_EQ_HIGH_MID, 0);
+    setLedByEnum(X32_BTN_EQ_HIGH, 0);
+
+    switch (p_button){
+        case X32_BTN_EQ_LOW:
+            mixer.activeEQ = 0;
+            setLedByEnum(X32_BTN_EQ_LOW, 1);
+            break;
+        case X32_BTN_EQ_LOW_MID:
+            mixer.activeEQ = 1;
+            setLedByEnum(X32_BTN_EQ_LOW_MID, 1);
+            break;
+        case X32_BTN_EQ_HIGH_MID:
+            mixer.activeEQ = 2;
+            setLedByEnum(X32_BTN_EQ_HIGH_MID, 1);
+            break;
+        case X32_BTN_EQ_HIGH:
+            mixer.activeEQ = 3;
+            setLedByEnum(X32_BTN_EQ_HIGH, 1);
+            break;
+        // TODO: implement LOW2 and HIGH2
+    }
+
+    mixerSetChangeFlags(X32_VCHANNEL_CHANGED_EQ);
 }
 
 void mixerBanking(X32_BTN p_button){
@@ -1002,6 +1085,14 @@ void mixerChangePan(uint8_t p_vChannelIndex, int8_t p_amount){
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
+void mixerChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount){
+    if (p_vChannelIndex == VCHANNEL_NOT_SET) {
+        return;
+    }
+    mixer.vChannel[p_vChannelIndex].sends[(mixer.activeBusSend * 4) + encoderIndex] += p_amount;
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_SENDS);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+}
 void mixerChangeGate(uint8_t p_vChannelIndex, int8_t p_amount){
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
@@ -1029,15 +1120,15 @@ void mixerChangePeq(uint8_t p_vChannelIndex, char option, int8_t p_amount){
     switch (option) {
         case 'Q':
            //mixer.vChannel[p_vChannelIndex].peq[0].Q += p_amount;
-           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[0].Q += p_amount;
+           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].Q += p_amount;
            break;
         case 'F':
            //mixer.vChannel[p_vChannelIndex].peq[0].fc += p_amount;
-           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[0].fc += p_amount;
+           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].fc += p_amount;
            break;
         case 'G':
            //mixer.vChannel[p_vChannelIndex].peq[0].gain += p_amount;
-           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[0].gain += p_amount;
+           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].gain += p_amount;
            break;
     }
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_EQ);

@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "Linux ARM",
+            "includePath": [
+                "${workspaceFolder}",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+            ],
+            "intelliSenseMode": "linux-gcc-arm"
+        }
+    ],
+    "version": 4
+}

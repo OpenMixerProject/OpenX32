@@ -66,22 +66,22 @@ void dspInit(void) {
         dsp.monitorVolume = 1; // dB
         dsp.monitorTapPoint = 0; // TAP_INPUT
 
-	// initialize dsp-routing
-	// route output 1-14 to Mixbus 1-14
-	// route output 15/16 to MainLeft/MainRight
-	// route output 17-32 to DirectOut 1-16
-	// route output 33-37 to AuxIn
-	// route output 38-39 to ???
-	//
-	// audioOutputChannelBuffer contains this data
-	// 0: MainL
-	// 1: MainR
-	// 2: MainSub
-	// 3..18: MixBus 1-16
-	// 19..24: Matrix 1-6
-	// 25..56: Input 1-32
-	// 57..64: AuxIn 1-6, TalkbackA, TalkbackB
-	// 65..67: Monitor L/R/TB
+        // initialize dsp-routing
+        // route output 1-14 to Mixbus 1-14
+        // route output 15/16 to MainLeft/MainRight
+        // route output 17-32 to DirectOut 1-16
+        // route output 33-37 to AuxIn
+        // route output 38-39 to ???
+        //
+        // audioOutputChannelBuffer contains this data
+        // 0: MainL
+        // 1: MainR
+        // 2: MainSub
+        // 3..18: MixBus 1-16
+        // 19..24: Matrix 1-6
+        // 25..56: Input 1-32
+        // 57..64: AuxIn 1-6, TalkbackA, TalkbackB
+        // 65..67: Monitor L/R/TB
         //
         // route MainLeft on even and MainRight on odd channels as PostFader
         dsp.outputSource[i] = i % 2; // 0=MainL, 1=MainR, 2=MainSub, 3..18=Mixbus, 19..24=Matrix, 25..56=DSP-Channel, 57..64=Aux, 65..67=MonL,MonR,Talkback

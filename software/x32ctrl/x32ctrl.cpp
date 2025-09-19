@@ -716,11 +716,11 @@ void syncSurfaceBankIndicator(void) {
         if (mixerIsModelX32Full()){
             setLedByEnum(X32_BTN_CH_1_16, 0);
             setLedByEnum(X32_BTN_CH_17_32, 0);
-            setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 0);
+            setLedByEnum(X32_BTN_AUX_IN_EFFECTS, 0);
             setLedByEnum(X32_BTN_BUS_MASTER, 0);
             if (mixer.activeBank_inputFader == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
             if (mixer.activeBank_inputFader == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
-            if (mixer.activeBank_inputFader == 2) { setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 1); }
+            if (mixer.activeBank_inputFader == 2) { setLedByEnum(X32_BTN_AUX_IN_EFFECTS, 1); }
             if (mixer.activeBank_inputFader == 3) { setLedByEnum(X32_BTN_BUS_MASTER, 1); }
         }
         if (mixerIsModelX32CompacrOrProducer()) {
@@ -873,7 +873,6 @@ int main(int argc, char* argv[]) {
         x32log("Initializing X32 Audio...\n");
         addaInit(dsp.samplerate);
     }
-
 
     x32log("Setting up FPGA and DSPs...\n");
     routingInit();

@@ -253,6 +253,7 @@ typedef struct{
     bool mute;
     bool solo;
     bool selected;
+    float sends[16];
 
     float volumeLR; // volume in dBfs
     float volumeSub; //volume in dBfs
@@ -298,6 +299,8 @@ typedef struct{
     X32_SURFACE_MODE activeMode;
     uint8_t activeBank_inputFader;
     uint8_t activeBank_busFader;
+    uint8_t activeEQ;
+    uint8_t activeBusSend;
     uint8_t selectedVChannel;
     uint8_t selectedOutputChannelIndex;
     X32_PAGE activePage;

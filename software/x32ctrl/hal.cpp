@@ -127,6 +127,10 @@ void halSyncVChannelConfigFromMixer(void){
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_DYNAMIC)){
                     dspSendCompressor(chan->inputSource.dspChannel);
                 }
+
+                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SENDS)) {
+                    // TODO
+                }
             }
         }
     }
