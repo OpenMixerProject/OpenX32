@@ -360,7 +360,19 @@ void mixerChangeVChannel(int8_t amount){
         newValue = NUM_DSP_CHANNEL;
     }
 
-    chan->inputSource.dspChannel = newValue;
+    chan->inputSource.dspChannel = newValue; // 32 in + 8 aux + 8 FX return + 16 bus
+
+    if (chan->inputSource.dspChannel == 0) {
+        // OFF: not supported yet
+    }else if ((chan->inputSource.dspChannel >= 1) && (chan->inputSource.dspChannel <= 40)) {
+        // inputs
+        dsp.inputSource[chan->index] = 25 + chan->inputSource.dspChannel - 1;
+    }else if ((chan->inputSource.dspChannel >= 41) && (chan->inputSource.dspChannel <= 48)) {
+        // FX1-FX8
+    }else if ((chan->inputSource.dspChannel >= 49) && (chan->inputSource.dspChannel <= 64)) {
+        // MixBus 1-16
+        dsp.inputSource[chan->index] = 3 + chan->inputSource.dspChannel - 1;
+    }
     mixerSetVChannelChangeFlags(chan, X32_VCHANNEL_CHANGED_INPUT);
     mixerSetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
@@ -842,7 +854,7 @@ void mixerChangeSelect(uint8_t direction){
     if (newSelectedVChannel < 0) {
         newSelectedVChannel = 0;
     } else if (newSelectedVChannel >= MAX_VCHANNELS){
-        newSelectedVChannel = MAX_VCHANNELS-1;
+        newSelectedVChannel = MAX_VCHANNELS - 1;
     }
 
     mixerSetSelect(newSelectedVChannel, true);

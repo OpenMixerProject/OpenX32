@@ -296,7 +296,8 @@ void dspSendAll() {
         dspSendGate(dspChannel);
         dspSendEQ(dspChannel);
         dspSendCompressor(dspChannel);
-        dspSetRouting(dspChannel);
+        dspSetInputRouting(dspChannel);
+        dspSetOutputRouting(dspChannel);
         dspSendChannelVolume(dspChannel, dsp.dspChannel[dspChannel-1].volumeLR, dsp.dspChannel[dspChannel-1].volumeSub, dsp.dspChannel[dspChannel-1].balance);
         for (uint8_t mixbusChannel = 1; mixbusChannel <= 16; mixbusChannel++) {
             dspSetChannelSendTapPoints(dspChannel, mixbusChannel, dsp.dspChannel[dspChannel-1].sendMixbusTapPoint[mixbusChannel-1]);
@@ -316,13 +317,18 @@ void dspSendAll() {
     dspSendMonitorVolume(dsp.monitorVolume);
 }
 
-void dspSetRouting(uint8_t dspOutputChannel) {
-    uint32_t values[4];
-    values[0] = dsp.inputSource[dspOutputChannel-1];
-    values[1] = dsp.inputTapPoint[dspOutputChannel-1];
-    values[2] = dsp.outputSource[dspOutputChannel-1];
-    values[3] = dsp.outputTapPoint[dspOutputChannel-1];
-    spiSendDspParameterArray(0, 'r', dspOutputChannel-1, 0, 4, (float*)&values[0]);
+void dspSetInputRouting(uint8_t dspChannel) {
+    uint32_t values[2];
+    values[0] = dsp.inputSource[dspChannel-1];
+    values[1] = dsp.inputTapPoint[dspChannel-1];
+    spiSendDspParameterArray(0, 'r', dspChannel-1, 0, 2, (float*)&values[0]);
+}
+
+void dspSetOutputRouting(uint8_t dspOutputChannel) {
+    uint32_t values[2];
+    values[0] = dsp.outputSource[dspOutputChannel-1];
+    values[1] = dsp.outputTapPoint[dspOutputChannel-1];
+    spiSendDspParameterArray(0, 'r', dspOutputChannel-1, 1, 2, (float*)&values[0]);
 }
 
 void dspSetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8_t tapPoint) {

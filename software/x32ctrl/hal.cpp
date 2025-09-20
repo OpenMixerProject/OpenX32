@@ -97,8 +97,12 @@ void halSyncVChannelConfigFromMixer(void){
             s_vChannel* chan = &mixer.vChannel[i];
 
             // only the first 40 channels are able to control gain and phantomPower. DSP-Channels 41..64 do not support this
-            if ((mixer.vChannel[i].inputSource.dspChannel >= 1) && (mixer.vChannel[i].inputSource.dspChannel <= 40)) {
-                routingGetSourceGroupAndChannelByDspChannel(mixer.vChannel[i].inputSource.dspChannel, &group, &channel);
+            if ((chan->inputSource.dspChannel >= 1) && (chan->inputSource.dspChannel <= 40)) {
+                routingGetSourceGroupAndChannelByDspChannel(chan->inputSource.dspChannel, &group, &channel);
+
+                if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_INPUT)) {
+                    dspSetInputRouting(chan->index + 1);
+                }
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
                     halSendGain(group, channel, chan->inputSource.gain);
