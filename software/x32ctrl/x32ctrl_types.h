@@ -237,6 +237,8 @@ typedef struct {
   float monitorVolume;
   uint8_t monitorTapPoint;
 
+  uint8_t inputSource[40]; // controls the 40 audio-channels into the DSP
+  uint8_t inputTapPoint[40]; // controls the tap-point (pre/post fader/eq)
   uint8_t outputSource[40]; // controls the 40 audio-channels out of the DSP
   uint8_t outputTapPoint[40]; // controls the tap-point (pre/post fader/eq)
   float samplerate;

@@ -84,6 +84,8 @@ void dspInit(void) {
         // 65..67: Monitor L/R/TB
         //
         // route MainLeft on even and MainRight on odd channels as PostFader
+        dsp.inputSource[i] = 25 + i; // 0=MainL, 1=MainR, 2=MainSub, 3..18=Mixbus, 19..24=Matrix, 25..56=DSP-Channel, 57..64=Aux, 65..67=MonL,MonR,Talkback
+        dsp.inputTapPoint[i] = 0; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
         dsp.outputSource[i] = i % 2; // 0=MainL, 1=MainR, 2=MainSub, 3..18=Mixbus, 19..24=Matrix, 25..56=DSP-Channel, 57..64=Aux, 65..67=MonL,MonR,Talkback
         dsp.outputTapPoint[i] = 4; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
     }
@@ -315,10 +317,12 @@ void dspSendAll() {
 }
 
 void dspSetRouting(uint8_t dspOutputChannel) {
-    uint32_t values[2];
-    values[0] = dsp.outputSource[dspOutputChannel-1];
-    values[1] = dsp.outputTapPoint[dspOutputChannel-1];
-    spiSendDspParameterArray(0, 'r', dspOutputChannel-1, 0, 2, (float*)&values[0]);
+    uint32_t values[4];
+    values[0] = dsp.inputSource[dspOutputChannel-1];
+    values[1] = dsp.inputTapPoint[dspOutputChannel-1];
+    values[2] = dsp.outputSource[dspOutputChannel-1];
+    values[3] = dsp.outputTapPoint[dspOutputChannel-1];
+    spiSendDspParameterArray(0, 'r', dspOutputChannel-1, 0, 4, (float*)&values[0]);
 }
 
 void dspSetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8_t tapPoint) {
