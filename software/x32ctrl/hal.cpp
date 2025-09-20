@@ -122,6 +122,7 @@ void halSyncVChannelConfigFromMixer(void){
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_EQ)){
                     dspSendEQ(chan->inputSource.dspChannel);
+                    dspSendLowcut(chan->inputSource.dspChannel);
                 }
 
                 if (mixerHasVChannelChanged(chan, X32_VCHANNEL_CHANGED_DYNAMIC)){

@@ -49,13 +49,17 @@ void mixerSetSolo(uint8_t vChannelIndex, bool solo);
 void mixerToggleSolo(uint8_t vChannelIndex);
 void mixerSetMute(uint8_t vChannelIndex, bool solo);
 void mixerToggleMute(uint8_t vChannelIndex);
+void mixerBankingSends(X32_BTN p_button);
+void mixerBankingEQ(X32_BTN p_button);
 void mixerBanking(X32_BTN p_button);
 
 void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume);
 void mixerChangePan(uint8_t p_vChannelIndex, int8_t p_amount);
+void mixerChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount);
 void mixerChangeGate(uint8_t p_vChannelIndex, int8_t p_amount);
+void mixerChangeLowcut(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerChangeDynamics(uint8_t p_vChannelIndex, int8_t p_amount);
 void mixerChangePeq(uint8_t p_vChannelIndex, char option, int8_t p_amount);
 

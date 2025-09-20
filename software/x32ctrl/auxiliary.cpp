@@ -79,7 +79,7 @@ int readConfig(const char* filename, const char* key, char* value_buffer, size_t
 }
 
 // saturates a value to a specific minimum value
-uint8_t limitMin(uint8_t value, uint8_t min) {
+float limitMin(float value, float min) {
   if (value<min) {
     return min;
   }else{
@@ -88,44 +88,16 @@ uint8_t limitMin(uint8_t value, uint8_t min) {
 }
 
 // saturates a value to a specific maximum value
-uint8_t limitMax(uint8_t value, uint8_t max) {
+float limitMax(float value, float max) {
   if (value>max) {
     return max;
-  }else{
-    return value;
-  }
-}
-
-// saturates a float-value to a specific minimum value
-float saturateMin_f(float value, float min) {
-  if (value<min) {
-    return min;
-  }else{
-    return value;
-  }
-}
-// saturates a float-value to a specific maximum value
-float saturateMax_f(float value, float max) {
-  if (value>max) {
-    return max;
-  }else{
-    return value;
-  }
-}
-
-// saturates a value to a specific minimum and maximum value
-uint8_t saturate(uint8_t value, uint8_t min, uint8_t max) {
-  if (value>max) {
-    return max;
-  }else if (value<min) {
-    return min;
   }else{
     return value;
   }
 }
 
 // saturates a float-value to a specific minimum and maximum value
-float saturate_f(float value, float min, float max) {
+float saturate(float value, float min, float max) {
   if (value>max) {
     return max;
   }else if (value<min) {
@@ -335,14 +307,4 @@ void reverseBitOrderArray(uint8_t* data, uint32_t len) {
         *pData = reverseBitOrder_uint32(*pData);
         pData++;
     }
-}
-
-float saturate(float value, float min, float max) {
-  if (value>max) {
-    return max;
-  }else if (value<min) {
-    return min;
-  }else{
-    return value;
-  }
 }

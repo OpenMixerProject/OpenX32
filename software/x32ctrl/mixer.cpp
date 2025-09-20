@@ -354,9 +354,10 @@ void mixerChangeVChannel(int8_t amount){
     int16_t newValue = (int16_t)chan->inputSource.dspChannel + amount;
 
     if (newValue > NUM_DSP_CHANNEL) {
-        newValue -= NUM_DSP_CHANNEL;
-    }else if (newValue < 0) {
-        newValue += NUM_DSP_CHANNEL;
+        newValue = 0;
+    }
+    if (newValue < 0) {
+        newValue = NUM_DSP_CHANNEL;
     }
 
     chan->inputSource.dspChannel = newValue;
@@ -377,12 +378,10 @@ void mixerChangeHardwareOutput(int8_t amount) {
     int16_t newValue = (int16_t)mixer.selectedOutputChannelIndex + amount;
 
     if (newValue > NUM_OUTPUT_CHANNEL) {
-        newValue -= NUM_OUTPUT_CHANNEL;
-    }else if (newValue < 1){
-        newValue += NUM_OUTPUT_CHANNEL;
+        newValue = 1;
     }
-    if (newValue == 0) {
-        newValue = 1; // dont allow "OFF" for Output-channel
+    if (newValue < 1){
+        newValue = NUM_OUTPUT_CHANNEL;
     }
     mixer.selectedOutputChannelIndex = newValue;
     // no sending to FPGA as we are not changing the hardware-routing here
@@ -394,9 +393,10 @@ void mixerChangeHardwareInput(int8_t amount) {
     int16_t newValue = routingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex) + amount;
 
     if (newValue > NUM_INPUT_CHANNEL) {
-        newValue -= NUM_INPUT_CHANNEL;
-    }else if (newValue < 0){
-        newValue += NUM_INPUT_CHANNEL;
+        newValue = 0;
+    }
+    if (newValue < 0){
+        newValue = NUM_INPUT_CHANNEL;
     }
     routingSetOutputSourceByIndex(mixer.selectedOutputChannelIndex, newValue);
     routingSendConfigToFpga();
@@ -774,6 +774,9 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
             case X32_ENC_GATE:
                 mixerChangeGate(mixerGetSelectedvChannelIndex(), amount);
                 break;
+            case X32_ENC_LOWCUT:
+                mixerChangeLowcut(mixerGetSelectedvChannelIndex(), amount);
+                break;
             case X32_ENC_DYNAMICS:
                 mixerChangeDynamics(mixerGetSelectedvChannelIndex(), amount);
                 break;
@@ -912,7 +915,7 @@ void mixerToggleMute(uint8_t vChannelIndex){
     mixerSetMute(vChannelIndex, !mixer.vChannel[vChannelIndex].mute);
 }
 
-void mixerBankingSends(button) {
+void mixerBankingSends(X32_BTN p_button) {
     setLedByEnum(X32_BTN_BUS_SEND_1_4, 0);
     setLedByEnum(X32_BTN_BUS_SEND_5_8, 0);
     setLedByEnum(X32_BTN_BUS_SEND_9_12, 0);
@@ -1048,87 +1051,172 @@ void mixerBanking(X32_BTN p_button){
 
 // volume in dBfs
 void mixerChangeGain(uint8_t p_vChannelIndex, int8_t p_amount){
+    float newValue;
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    mixer.vChannel[p_vChannelIndex].inputSource.gain += (2.5 * p_amount);
+    newValue = mixer.vChannel[p_vChannelIndex].inputSource.gain + (2.5f * p_amount);
+    if (newValue > 60) {
+        newValue = 60;
+    }else if (newValue < -12) {
+        newValue = -12;
+    }
+    mixer.vChannel[p_vChannelIndex].inputSource.gain = newValue;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_GAIN);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 // volume in dBfs
 void mixerChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount){
+    float newValue;
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    mixer.vChannel[p_vChannelIndex].volumeLR += p_amount;
+    newValue = mixer.vChannel[p_vChannelIndex].volumeLR + pow((float)p_amount, 3.0f);
+    if (newValue > 10) {
+        newValue = 10;
+    }else if (newValue < -100) {
+        newValue = -100;
+    }
+    mixer.vChannel[p_vChannelIndex].volumeLR = newValue;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 // volume in dBfs
 void mixerSetVolume(uint8_t p_vChannelIndex, float p_volume){
+    float newValue;
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    mixer.vChannel[p_vChannelIndex].volumeLR = p_volume;
+    newValue = p_volume;
+    if (newValue > 10) {
+        newValue = 10;
+    }else if (newValue < -100) {
+        newValue = -100;
+    }
+    mixer.vChannel[p_vChannelIndex].volumeLR = newValue;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 void mixerChangePan(uint8_t p_vChannelIndex, int8_t p_amount){
+    float newValue;
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    mixer.vChannel[p_vChannelIndex].balance += p_amount;
+    newValue = mixer.vChannel[p_vChannelIndex].balance + pow((float)p_amount, 3.0f);
+    if (newValue > 100) {
+        newValue = 100;
+    }else if (newValue < -100) {
+        newValue = -100;
+    }
+    mixer.vChannel[p_vChannelIndex].balance = newValue;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 void mixerChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount){
+    float newValue;
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    mixer.vChannel[p_vChannelIndex].sends[(mixer.activeBusSend * 4) + encoderIndex] += p_amount;
+    newValue = mixer.vChannel[p_vChannelIndex].sends[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
+    if (newValue > 10) {
+        newValue = 10;
+    }else if (newValue < -100) {
+        newValue = -100;
+    }
+    mixer.vChannel[p_vChannelIndex].sends[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_SENDS);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 void mixerChangeGate(uint8_t p_vChannelIndex, int8_t p_amount){
+    float newValue;
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
+    newValue = dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].gate.threshold + pow((float)p_amount, 3.0f);
+    if (newValue > 0) {
+        newValue = 0;
+    }else if (newValue < -80) {
+        newValue = -80;
+    }
     //mixer.vChannel[p_vChannelIndex].gate.threshold += p_amount;
-    dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].gate.threshold += p_amount;
+    dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].gate.threshold = newValue;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_GATE);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
-void mixerChangeDynamics(uint8_t p_vChannelIndex, int8_t p_amount){
+void mixerChangeLowcut(uint8_t p_vChannelIndex, int8_t p_amount){
+    float newValue;
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
+    newValue = dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].lowCutFrequency * (1 + (float)p_amount/20.0f);
+    if (newValue > 400) {
+        newValue = 400;
+    }else if (newValue < 20) {
+        newValue = 20;
+    }
+    dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].lowCutFrequency = newValue;
+    mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_EQ);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+}
+
+void mixerChangeDynamics(uint8_t p_vChannelIndex, int8_t p_amount){
+    float newValue;
+    if (p_vChannelIndex == VCHANNEL_NOT_SET) {
+        return;
+    }
+    newValue = dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].compressor.threshold + pow((float)p_amount, 3.0f);
+    if (newValue > 0) {
+        newValue = 0;
+    }else if (newValue < -60) {
+        newValue = -60;
+    }
     //mixer.vChannel[p_vChannelIndex].compressor.threshold += p_amount;
-    dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].compressor.threshold += p_amount;
+    dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].compressor.threshold = newValue;
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_DYNAMIC);
     mixerSetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 void mixerChangePeq(uint8_t p_vChannelIndex, char option, int8_t p_amount){
+    float newValue;
+
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
     switch (option) {
         case 'Q':
            //mixer.vChannel[p_vChannelIndex].peq[0].Q += p_amount;
-           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].Q += p_amount;
+           newValue = dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].Q + pow((float)p_amount, 3.0f)/10.0f;
+           if (newValue < 0.3) {
+               newValue = 0.3;
+           }else if (newValue > 10) {
+               newValue = 10;
+           }
+           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].Q = newValue;
            break;
         case 'F':
            //mixer.vChannel[p_vChannelIndex].peq[0].fc += p_amount;
-           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].fc += p_amount;
+           newValue = dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].fc * (1 + (float)p_amount/10.0f);
+           if (newValue < 20) {
+               newValue = 20;
+           }else if (newValue > 20000) {
+               newValue = 20000;
+           }
+           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].fc = newValue;
            break;
         case 'G':
            //mixer.vChannel[p_vChannelIndex].peq[0].gain += p_amount;
-           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].gain += p_amount;
+           newValue = dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].gain + pow((float)p_amount, 3.0f);
+           if (newValue < -15) {
+               newValue = -15;
+           }else if (newValue > 15) {
+               newValue = 15;
+           }
+           dsp.dspChannel[mixer.vChannel[p_vChannelIndex].inputSource.dspChannel-1].peq[mixer.activeEQ].gain = newValue;
            break;
     }
     mixerSetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_EQ);
