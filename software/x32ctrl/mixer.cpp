@@ -925,7 +925,8 @@ void mixerBankingEQ(X32_BTN p_button){
         // TODO: implement LOW2 and HIGH2
     }
 
-    mixerSetChangeFlags(X32_CHANNEL_CHANGED_EQ);
+    mixerSetChannelChangeFlagsFromIndex(mixer.selectedChannel, X32_CHANNEL_CHANGED_EQ);
+    mixerSetChangeFlags(X32_MIXER_CHANGED_CHANNEL);
 }
 
 void mixerBanking(X32_BTN p_button){
