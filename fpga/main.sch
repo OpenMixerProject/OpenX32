@@ -205,16 +205,12 @@
         <signal name="AD1_MCLK" />
         <signal name="AD1_BCLK" />
         <signal name="AD1_FSYNC" />
-        <signal name="XLXN_4109(6:0)" />
-        <signal name="XLXN_4114" />
-        <signal name="XLXN_4123" />
         <signal name="XLXN_54" />
         <signal name="XLXN_55(7:0)" />
         <signal name="XLXN_56(7:0)" />
         <signal name="XLXN_57(7:0)" />
         <signal name="imx25_uart4_rxd" />
         <signal name="XLXN_52(7:0)" />
-        <signal name="XLXN_4130(7:0)" />
         <signal name="XLXN_50" />
         <signal name="imx25_uart4_txd" />
         <signal name="XLXN_62(7:0)" />
@@ -342,8 +338,6 @@
         <signal name="audio_output(2687:0)" />
         <signal name="XLXN_1898" />
         <signal name="XLXN_2328(6:0)" />
-        <signal name="XLXN_4716(6:0)" />
-        <signal name="XLXN_4721" />
         <signal name="XLXN_2357" />
         <signal name="audio_output(1199:1176)" />
         <port polarity="Input" name="FPGACLK" />
@@ -615,28 +609,6 @@
             <rect width="64" x="448" y="-172" height="24" />
             <line x2="512" y1="-160" y2="-160" x1="448" />
         </blockdef>
-        <blockdef name="ultranet_tx">
-            <timestamp>2025-8-5T23:3:15</timestamp>
-            <rect width="256" x="64" y="-576" height="576" />
-            <line x2="0" y1="-544" y2="-544" x1="64" />
-            <rect width="64" x="0" y="-492" height="24" />
-            <line x2="0" y1="-480" y2="-480" x1="64" />
-            <rect width="64" x="0" y="-428" height="24" />
-            <line x2="0" y1="-416" y2="-416" x1="64" />
-            <rect width="64" x="0" y="-364" height="24" />
-            <line x2="0" y1="-352" y2="-352" x1="64" />
-            <rect width="64" x="0" y="-300" height="24" />
-            <line x2="0" y1="-288" y2="-288" x1="64" />
-            <rect width="64" x="0" y="-236" height="24" />
-            <line x2="0" y1="-224" y2="-224" x1="64" />
-            <rect width="64" x="0" y="-172" height="24" />
-            <line x2="0" y1="-160" y2="-160" x1="64" />
-            <rect width="64" x="0" y="-108" height="24" />
-            <line x2="0" y1="-96" y2="-96" x1="64" />
-            <rect width="64" x="0" y="-44" height="24" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="384" y1="-544" y2="-544" x1="320" />
-        </blockdef>
         <blockdef name="inv">
             <timestamp>2000-1-1T10:10:10</timestamp>
             <line x2="64" y1="-32" y2="-32" x1="0" />
@@ -674,8 +646,30 @@
             <rect width="64" x="496" y="-44" height="24" />
             <line x2="560" y1="-32" y2="-32" x1="496" />
         </blockdef>
+        <blockdef name="ultranet_tx">
+            <timestamp>2025-9-20T12:16:47</timestamp>
+            <rect width="256" x="64" y="-576" height="576" />
+            <line x2="0" y1="-544" y2="-544" x1="64" />
+            <rect width="64" x="0" y="-492" height="24" />
+            <line x2="0" y1="-480" y2="-480" x1="64" />
+            <rect width="64" x="0" y="-428" height="24" />
+            <line x2="0" y1="-416" y2="-416" x1="64" />
+            <rect width="64" x="0" y="-364" height="24" />
+            <line x2="0" y1="-352" y2="-352" x1="64" />
+            <rect width="64" x="0" y="-300" height="24" />
+            <line x2="0" y1="-288" y2="-288" x1="64" />
+            <rect width="64" x="0" y="-236" height="24" />
+            <line x2="0" y1="-224" y2="-224" x1="64" />
+            <rect width="64" x="0" y="-172" height="24" />
+            <line x2="0" y1="-160" y2="-160" x1="64" />
+            <rect width="64" x="0" y="-108" height="24" />
+            <line x2="0" y1="-96" y2="-96" x1="64" />
+            <rect width="64" x="0" y="-44" height="24" />
+            <line x2="0" y1="-32" y2="-32" x1="64" />
+            <line x2="384" y1="-544" y2="-544" x1="320" />
+        </blockdef>
         <blockdef name="audiomatrix_ram_read">
-            <timestamp>2025-8-19T12:7:49</timestamp>
+            <timestamp>2025-9-20T12:18:48</timestamp>
             <rect width="432" x="64" y="-256" height="256" />
             <line x2="0" y1="-224" y2="-224" x1="64" />
             <line x2="0" y1="-160" y2="-160" x1="64" />
@@ -768,33 +762,9 @@
             <blockpin signalname="audio_output(1535:1512)" name="ch8_in(23:0)" />
             <blockpin signalname="CARD_OUT3" name="sdata" />
         </block>
-        <block symbolname="ultranet_tx" name="XLXI_471">
-            <blockpin signalname="clk_24_576MHz" name="bit_clock" />
-            <blockpin signalname="audio_output(407:384)" name="ch1(23:0)" />
-            <blockpin signalname="audio_output(431:408)" name="ch2(23:0)" />
-            <blockpin signalname="audio_output(455:432)" name="ch3(23:0)" />
-            <blockpin signalname="audio_output(479:456)" name="ch4(23:0)" />
-            <blockpin signalname="audio_output(503:480)" name="ch5(23:0)" />
-            <blockpin signalname="audio_output(527:504)" name="ch6(23:0)" />
-            <blockpin signalname="audio_output(551:528)" name="ch7(23:0)" />
-            <blockpin signalname="audio_output(575:552)" name="ch8(23:0)" />
-            <blockpin signalname="P16_A_TXP" name="spdif_out" />
-        </block>
         <block symbolname="inv" name="XLXI_473">
             <blockpin signalname="P16_A_TXP" name="I" />
             <blockpin signalname="P16_A_TXM" name="O" />
-        </block>
-        <block symbolname="ultranet_tx" name="XLXI_472">
-            <blockpin signalname="clk_24_576MHz" name="bit_clock" />
-            <blockpin signalname="audio_output(599:576)" name="ch1(23:0)" />
-            <blockpin signalname="audio_output(623:600)" name="ch2(23:0)" />
-            <blockpin signalname="audio_output(647:624)" name="ch3(23:0)" />
-            <blockpin signalname="audio_output(671:648)" name="ch4(23:0)" />
-            <blockpin signalname="audio_output(695:672)" name="ch5(23:0)" />
-            <blockpin signalname="audio_output(719:696)" name="ch6(23:0)" />
-            <blockpin signalname="audio_output(743:720)" name="ch7(23:0)" />
-            <blockpin signalname="audio_output(767:744)" name="ch8(23:0)" />
-            <blockpin signalname="P16_B_TXP" name="spdif_out" />
         </block>
         <block symbolname="inv" name="XLXI_474">
             <blockpin signalname="P16_B_TXP" name="I" />
@@ -1321,7 +1291,31 @@
             <blockpin signalname="XLXN_1974(23:0)" name="i_data(23:0)" />
             <blockpin signalname="XLXN_2309(23:0)" name="o_data(23:0)" />
         </block>
-        <block symbolname="audiomatrix_ram_read" name="XLXI_586">
+        <block symbolname="ultranet_tx" name="XLXI_708">
+            <blockpin signalname="clk_24_576MHz" name="bit_clock" />
+            <blockpin signalname="audio_output(407:384)" name="ch1(23:0)" />
+            <blockpin signalname="audio_output(431:408)" name="ch2(23:0)" />
+            <blockpin signalname="audio_output(455:432)" name="ch3(23:0)" />
+            <blockpin signalname="audio_output(479:456)" name="ch4(23:0)" />
+            <blockpin signalname="audio_output(503:480)" name="ch5(23:0)" />
+            <blockpin signalname="audio_output(527:504)" name="ch6(23:0)" />
+            <blockpin signalname="audio_output(551:528)" name="ch7(23:0)" />
+            <blockpin signalname="audio_output(575:552)" name="ch8(23:0)" />
+            <blockpin signalname="P16_A_TXP" name="ultranet_out" />
+        </block>
+        <block symbolname="ultranet_tx" name="XLXI_709">
+            <blockpin signalname="clk_24_576MHz" name="bit_clock" />
+            <blockpin signalname="audio_output(599:576)" name="ch1(23:0)" />
+            <blockpin signalname="audio_output(623:600)" name="ch2(23:0)" />
+            <blockpin signalname="audio_output(647:624)" name="ch3(23:0)" />
+            <blockpin signalname="audio_output(671:648)" name="ch4(23:0)" />
+            <blockpin signalname="audio_output(695:672)" name="ch5(23:0)" />
+            <blockpin signalname="audio_output(719:696)" name="ch6(23:0)" />
+            <blockpin signalname="audio_output(743:720)" name="ch7(23:0)" />
+            <blockpin signalname="audio_output(767:744)" name="ch8(23:0)" />
+            <blockpin signalname="P16_B_TXP" name="ultranet_out" />
+        </block>
+        <block symbolname="audiomatrix_ram_read" name="XLXI_711">
             <blockpin signalname="clk_24_576MHz" name="clk" />
             <blockpin signalname="XLXN_2357" name="sync_in" />
             <blockpin signalname="routing(895:0)" name="select_lines(895:0)" />
@@ -1584,8 +1578,6 @@
         <iomarker fontsize="28" x="7328" y="3808" name="CARD_OUT2" orien="R0" />
         <iomarker fontsize="28" x="7328" y="4656" name="CARD_OUT3" orien="R0" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1384" x="6196" y="2152" height="1400" />
-        <instance x="6640" y="2848" name="XLXI_471" orien="R0">
-        </instance>
         <branch name="audio_output(407:384)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="6528" y="2368" type="branch" />
             <wire x2="6640" y1="2368" y2="2368" x1="6528" />
@@ -1632,8 +1624,6 @@
         <branch name="P16_A_TXM">
             <wire x2="7344" y1="2192" y2="2192" x1="7280" />
         </branch>
-        <instance x="6640" y="3504" name="XLXI_472" orien="R0">
-        </instance>
         <branch name="clk_24_576MHz">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="6592" y="2960" type="branch" />
             <wire x2="6592" y1="2960" y2="2960" x1="6560" />
@@ -3189,13 +3179,17 @@
             <wire x2="4512" y1="1616" y2="1616" x1="4496" />
             <wire x2="4544" y1="1616" y2="1616" x1="4512" />
         </branch>
-        <instance x="4544" y="1712" name="XLXI_586" orien="R0">
-        </instance>
         <branch name="XLXN_2357">
             <wire x2="3568" y1="1808" y2="1808" x1="3552" />
             <wire x2="4544" y1="1552" y2="1552" x1="3568" />
             <wire x2="3568" y1="1552" y2="1808" x1="3568" />
         </branch>
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="2708" y="1408">Audio Routing Matrix</text>
+        <instance x="6640" y="2848" name="XLXI_708" orien="R0">
+        </instance>
+        <instance x="6640" y="3504" name="XLXI_709" orien="R0">
+        </instance>
+        <instance x="4544" y="1712" name="XLXI_711" orien="R0">
+        </instance>
     </sheet>
 </drawing>

@@ -26,16 +26,17 @@
 #define SPI_BUFFER_SIZE			(SPI_MAX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_DMA_BUFFER_SIZE		1
 
-#define BUF_IDX_MAINLEFT		0	// main left
-#define BUF_IDX_MAINRIGHT		1	// main right
-#define BUF_IDX_MAINSUB			2	// main sub
-#define BUF_IDX_MIXBUS			3	// Mixbus 1-16
-#define BUF_IDX_MATRIX			19	// Matrix 1-6
-#define BUF_IDX_DSPCHANNEL		25	// DSP-Channel 1-32
-#define BUF_IDX_AUX				57	// Aux-Channel 1-8
-#define BUF_IDX_MONLEFT			65	// Monitor Left
-#define BUF_IDX_MONRIGHT		66	// Monitor Right
-#define BUF_IDX_TALKBACK		67	// Talkback
+#define BUF_IDX_OFF				0	// no audio
+#define BUF_IDX_DSPCHANNEL		1	// DSP-Channel 1-32
+#define BUF_IDX_AUX				33	// Aux-Channel 1-8
+#define BUF_IDX_MIXBUS			41	// Mixbus 1-16
+#define BUF_IDX_MATRIX			57	// Matrix 1-6
+#define BUF_IDX_MAINLEFT		63	// main left
+#define BUF_IDX_MAINRIGHT		64	// main right
+#define BUF_IDX_MAINSUB			65	// main sub
+#define BUF_IDX_MONLEFT			66	// Monitor Left
+#define BUF_IDX_MONRIGHT		67	// Monitor Right
+#define BUF_IDX_TALKBACK		68	// Talkback
 
 #define DO_CYCLE_COUNTS				// enable cycle counter
 
@@ -179,6 +180,8 @@ struct {
 	bool mainLrSolo;
 	bool mainSubSolo;
 
+	int inputRouting[MAX_CHAN];
+	int inputTapPoint[MAX_CHAN];
 	int outputRouting[MAX_CHAN];
 	int outputTapPoint[MAX_CHAN];
 	sDspChannel dspChannel[MAX_CHAN];

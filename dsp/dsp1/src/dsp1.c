@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.1.5, 18.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.1.5, 21.09.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -125,9 +125,19 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			break;
 		case 'r':
 			// DSP routing
-			if (valueCount == 2) {
-				dsp.outputRouting[channel] = intValues[0];
-				dsp.outputTapPoint[channel] = intValues[1];
+			switch (index) {
+				case 0:
+					if (valueCount == 2) {
+						dsp.inputRouting[channel] = intValues[0];
+						dsp.inputTapPoint[channel] = intValues[1];
+					}
+					break;
+				case 1:
+					if (valueCount == 2) {
+						dsp.outputRouting[channel] = intValues[0];
+						dsp.outputTapPoint[channel] = intValues[1];
+					}
+					break;
 			}
 			break;
 		case 't':

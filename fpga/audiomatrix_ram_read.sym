@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="audiomatrix_ram_read">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2025-8-19T12:7:49</timestamp>
+    <timestamp>2025-9-20T12:18:48</timestamp>
     <pin polarity="Input" x="0" y="-224" name="clk" />
     <pin polarity="Input" x="0" y="-160" name="sync_in" />
     <pin polarity="Input" x="0" y="-96" name="select_lines(895:0)" />
