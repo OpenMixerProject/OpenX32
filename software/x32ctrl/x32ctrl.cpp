@@ -78,9 +78,11 @@ void timer100msCallback() {
     spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
 
     // read the current DSP load
-    uint32_t dspClockCycles = spiReadDspParameter_uint32(0, 1, 0);
-    float dspLoad = (((float)dspClockCycles/264.0f) / (16.0f/0.048f)) * 100.0f;
-    lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %%", dspLoad); // DSP0, channel = 1, index = 0
+    if (!mixerIsModelX32Core()){
+        uint32_t dspClockCycles = spiReadDspParameter_uint32(0, 1, 0);
+        float dspLoad = (((float)dspClockCycles/264.0f) / (16.0f/0.048f)) * 100.0f;
+        lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %%", dspLoad); // DSP0, channel = 1, index = 0
+    }
 }
 
 // called every 10ms
@@ -446,10 +448,10 @@ int main(int argc, char* argv[]) {
     // first try to find what we are: Fullsize, Compact, Producer, Rack or Core
     x32debug("Reading config...\n");
     char model[12];
-    char serial[12];
+    char serial[14];
     char date[16];
     readConfig("/etc/x32.conf", "MDL=", model, 12);
-    readConfig("/etc/x32.conf", "SN=", serial, 12);
+    readConfig("/etc/x32.conf", "SN=", serial, 14);
     readConfig("/etc/x32.conf", "DATE=", date, 16);
     x32log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
