@@ -212,7 +212,7 @@ String addaProcessUartData(int bytesToProcess, bool directRead) {
           payload[receivedPacketLength] = '\0';
 
           // call the callback to do something with the received message
-          addaCallback(payload);
+          callbackAdda(payload);
 		  answer = payload;
           free(payload);
 

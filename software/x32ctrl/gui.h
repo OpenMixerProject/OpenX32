@@ -5,6 +5,7 @@
 
 extern backend_t *sel_display_backend;
 
+void guiSync(void);
 void guiInitInput(void);
 void guiInit(void);
 void guiNewButtonPress(X32_BTN button, bool pressed);

@@ -5,6 +5,11 @@
 
 extern char surfaceBufferUart[256];
 
+void surfaceSync(void);
+void surfaceSyncBoardMain();
+void surfaceSyncBoard(X32_BOARD board);
+void surfaceSyncBankIndicator(void);
+
 void setFader(uint8_t boardId, uint8_t index, uint16_t position);
 void setDisplay(uint8_t p_value);
 void setDisplayRaw(uint8_t p_value2, uint8_t p_value1);
@@ -20,7 +25,7 @@ void setBrightness(uint8_t boardId, uint8_t brightness);
 void setContrast(uint8_t boardId, uint8_t contrast);
 void setLcd(uint8_t boardId, uint8_t index, uint8_t color, uint8_t xicon, uint8_t yicon, uint8_t icon, uint8_t sizeA, uint8_t xA, uint8_t yA, const char* strA, uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB);
 void setLcdX(sLCDData* p_data, uint8_t p_textCount);
-void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, s_vChannel* p_chan);
+void setLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, sChannel* p_chan);
 #if DEBUG
 void setLcdX2(uint8_t plen, uint8_t textlen);
 #endif

@@ -38,10 +38,10 @@ void touchcontrolTick(void){
         mixer.touchcontrol.value--;
         if (mixer.touchcontrol.value == 0)
         {
-            // trigger sync for this vChannel
-            mixerSetVChannelChangeFlagsFromIndex(
-                mixerGetvChannelIndexFromButtonOrFaderIndex(mixer.touchcontrol.board, mixer.touchcontrol.faderIndex),
-                X32_VCHANNEL_CHANGED_VOLUME
+            // trigger sync for this channel
+            mixerSetChannelChangeFlagsFromIndex(
+                mixerGetChannelIndexFromButtonOrFaderIndex(mixer.touchcontrol.board, mixer.touchcontrol.faderIndex),
+                X32_CHANNEL_CHANGED_VOLUME
             );
         }
         x32debug("TouchControl=%d\n", mixer.touchcontrol.value);

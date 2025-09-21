@@ -3,10 +3,9 @@
 
 #define DEBUG 0
 
-#define MAX_VCHANNELS 81
+#define MAX_CHANNELS 81
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
-#define VCHANNEL_NOT_SET MAX_VCHANNELS+1
-#define VCHANNEL_IDX_MAIN 32
+#define CHANNEL_NOT_SET MAX_CHANNELS+1
 #define SURFACE_MAX_PACKET_LENGTH 32
 #define MAX_PAGES 20
 
@@ -16,34 +15,34 @@
 #define NUM_DSP_CHANNEL    64   // 32 in + 8 aux + 8 FX return + 16 bus
 #define DSP_SAMPLES_IN_BUFFER              16
 
-#define X32_VCHANNEL_CHANGED_ALL           0b1111111111111111
-#define X32_VCHANNEL_CHANGED_NONE          0b0000000000000000
-#define X32_VCHANNEL_CHANGED_VOLUME        0b0000000000000010
-#define X32_VCHANNEL_CHANGED_SELECT        0b0000000000000100
-#define X32_VCHANNEL_CHANGED_SOLO          0b0000000000001000
-#define X32_VCHANNEL_CHANGED_MUTE          0b0000000000010000
-#define X32_VCHANNEL_CHANGED_PHANTOM       0b0000000000100000
-#define X32_VCHANNEL_CHANGED_PHASE_INVERT  0b0000000001000000
-#define X32_VCHANNEL_CHANGED_COLOR         0b0000000010000000
-#define X32_VCHANNEL_CHANGED_NAME          0b0000000100000000
-#define X32_VCHANNEL_CHANGED_INPUT         0b0000001000000000
-#define X32_VCHANNEL_CHANGED_GAIN          0b0000010000000000
-#define X32_VCHANNEL_CHANGED_GATE          0b0000100000000000
-#define X32_VCHANNEL_CHANGED_EQ            0b0001000000000000
-#define X32_VCHANNEL_CHANGED_DYNAMIC       0b0010000000000000
-#define X32_VCHANNEL_CHANGED_SENDS         0b0100000000000000
+#define X32_CHANNEL_CHANGED_ALL           0b1111111111111111
+#define X32_CHANNEL_CHANGED_NONE          0b0000000000000000
+#define X32_CHANNEL_CHANGED_VOLUME        0b0000000000000010
+#define X32_CHANNEL_CHANGED_SELECT        0b0000000000000100
+#define X32_CHANNEL_CHANGED_SOLO          0b0000000000001000
+#define X32_CHANNEL_CHANGED_MUTE          0b0000000000010000
+#define X32_CHANNEL_CHANGED_PHANTOM       0b0000000000100000
+#define X32_CHANNEL_CHANGED_PHASE_INVERT  0b0000000001000000
+#define X32_CHANNEL_CHANGED_COLOR         0b0000000010000000
+#define X32_CHANNEL_CHANGED_NAME          0b0000000100000000
+#define X32_CHANNEL_CHANGED_INPUT         0b0000001000000000
+#define X32_CHANNEL_CHANGED_GAIN          0b0000010000000000
+#define X32_CHANNEL_CHANGED_GATE          0b0000100000000000
+#define X32_CHANNEL_CHANGED_EQ            0b0001000000000000
+#define X32_CHANNEL_CHANGED_DYNAMIC       0b0010000000000000
+#define X32_CHANNEL_CHANGED_SENDS         0b0100000000000000
 
 #define X32_MIXER_CHANGED_ALL              0b1111111111111111
 #define X32_MIXER_CHANGED_NONE             0b0000000000000000
-// vChannel selectiong has changed
+// channel selectiong has changed
 #define X32_MIXER_CHANGED_SELECT           0b0000000000000001
 // routing was changed
 #define X32_MIXER_CHANGED_ROUTING          0b0000000000000010
 // bank was changed
 #define X32_MIXER_CHANGED_BANKING          0b0000000000000100
 #define X32_MIXER_CHANGED_LCD              0b0000000000001000
-// value in vChannel has changed
-#define X32_MIXER_CHANGED_VCHANNEL         0b0000000000010000
+// value in channel has changed
+#define X32_MIXER_CHANGED_CHANNEL         0b0000000000010000
 // displayed page changed
 #define X32_MIXER_CHANGED_PAGE             0b0000000000100000
 // gui parameter has changed (general screen-refresh requested)
@@ -142,15 +141,10 @@ void timer100msCallback();
 void timer10msCallbackLvgl(_lv_timer_t* lv_timer);
 void timer10msCallbackLinux(int timer);
 void timer10msCallback();
-void surfaceCallback(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t value);
-void addaCallback(char* msg);
-void fpgaCallback(char* buf, uint8_t len);
+void callbackSurface(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t value);
+void callbackAdda(char* msg);
+void callbackFpga(char* buf, uint8_t len);
 void syncAll(void);
-void syncGui(void);
-void syncSurface(void);
-void syncSurfaceBoardMain();
-void syncSurfaceBoard(X32_BOARD board);
-void syncSurfaceBankIndicator(void);
 void x32log(const char* format, ...);
 void x32debug(const char* format, ...);
 

@@ -84,15 +84,7 @@ typedef struct{
     uint8_t value;
     X32_BOARD board;
     uint8_t faderIndex;
-} s_TouchControl;
-
-
-typedef struct{
-    uint8_t dspChannel;
-    bool phantomPower; // TODO dont do it localy, use mixing data
-    float gain;        // TODO dont do it localy, use mixing data
-    bool phaseInvert;  // TODO dont do it localy, use mixing data
-} s_inputSource;
+} sTouchControl;
 
 typedef struct {
         // user-settings
@@ -163,6 +155,11 @@ typedef struct {
 #include "x32ctrl.h"
 
 typedef struct {
+  uint8_t inputSource; // controls the 40 audio-channels into the DSP
+  uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
+  uint8_t outputSource; // controls the 40 audio-channels out of the DSP
+  uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
+
   float lowCutFrequency;
   sGate gate;
   sPEQ peq[MAX_CHAN_EQS];
@@ -206,7 +203,7 @@ typedef struct __attribute__((packed,aligned(1))) {
   uint8_t dsp[40];
   uint8_t aes50a[48]; // not used in FPGA at the moment
   uint8_t aes50b[48]; // not used in FPGA at the moment
-} sInputRouting;
+} sFpgaRouting;
 #pragma pack(pop)
 
 typedef struct {
@@ -217,60 +214,53 @@ typedef struct {
   bool phantomPowerXlr[32];
   bool phantomPowerAes50a[48];
   bool phantomPowerAes50b[48];
+
+  bool phaseInvertXlr[32];
+  bool phaseAes50a[32];
+  bool phaseAes50b[32];
 } sPreamps;
 
 typedef struct {
-  sInputRouting routing; // controls the 40 audio-channels into the DSP
-  sPreamps preamps;
+  float samplerate;
 
   sDspChannel dspChannel[40];
   sMixbusChannel mixbusChannel[16];
   sMatrixChannel matrixChannel[6];
+  float volumeFxReturn[8];
+  float volumeDca[8];
+  float volumeSpecial;
 
   float mainLRVolume;
   float mainSubVolume;
   float mainBalance;
+  bool mainLRMute;
+  bool mainSubMute;
 
   float mainSendMatrix[6];
   uint8_t mainSendMatrixTapPoint[6];
 
   float monitorVolume;
   uint8_t monitorTapPoint;
-
-  uint8_t inputSource[40]; // controls the 40 audio-channels into the DSP
-  uint8_t inputTapPoint[40]; // controls the tap-point (pre/post fader/eq)
-  uint8_t outputSource[40]; // controls the 40 audio-channels out of the DSP
-  uint8_t outputTapPoint[40]; // controls the tap-point (pre/post fader/eq)
-  float samplerate;
 } sDsp;
 
 // virtual mixer channel
 typedef struct{
-    uint8_t index;
-    // indicates, which data has changes and need to get synced
-    uint16_t changed;
+    uint8_t index; // fixed index from 0 to 80: 0..31 = DSP-Ch, 32..39 = AUX, 40..47 = FX Ret, 48..63 = Bus 1-16, 64..71 = Matrix1-6/Special/MainSub, 72..79 = DCA, 80 = MainLR
+    uint16_t changed; // indicates, which data has changes and need to get synced
     char name[MAX_NAME_LENGTH];
     uint8_t color;
     uint8_t icon;
-    bool mute;
-    bool solo;
     bool selected;
-    float sends[16];
-
-    float volumeLR; // volume in dBfs
-    float volumeSub; //volume in dBfs
-    float balance; // balance between -100 .. 0 .. +100
 
     // 0 - normal channel
     // 1 - main channel
-    uint8_t vChannelType;
-    s_inputSource inputSource;
-} s_vChannel;
+    uint8_t channelType;
+} sChannel;
 
 typedef struct{
     char name[MAX_NAME_LENGTH];
 
-    // assing surfaceChannel to vChannel
+    // assing surfaceChannel to channel
     //
     // surfaceChannels:
     // 0-7   Board L
@@ -279,47 +269,49 @@ typedef struct{
     // 24    Main Fader
     // 25-28 Assing 1-4 (only X32 Full)
     // 29-34 Display Encoder 1-6
-    uint8_t surfaceChannel2vChannel[35];
-} s_bank;
+    uint8_t surfaceChannel2Channel[35];
+} sBank;
 
 typedef struct{
     char name[MAX_NAME_LENGTH];
 
     // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
-    s_bank inputBanks[8];
-    s_bank busBanks[4];
-} s_bankMode;
+    sBank inputBanks[8];
+    sBank busBanks[4];
+} sBankMode;
 
 typedef struct{
     X32_PAGE pageEnum;
     X32_PAGE nextPage;
     X32_PAGE prevPage;
-} s_mixerPage;
+} sMixerPage;
 
 typedef struct{
+    // general things about this device
     X32_MODEL model;
     X32_SURFACE_MODE activeMode;
+
+    // specific hardware-components
+    sFpgaRouting fpgaRouting;
+    sDsp dsp;
+    sPreamps preamps;
+
+    // mixer-parameters
+    sChannel channel[MAX_CHANNELS];
+    sMixerPage pages[MAX_PAGES];
+
+    // global states for control-surface
     uint8_t activeBank_inputFader;
     uint8_t activeBank_busFader;
     uint8_t activeEQ;
     uint8_t activeBusSend;
-    uint8_t selectedVChannel;
-    uint8_t selectedOutputChannelIndex;
+    uint8_t selectedChannel; // selection in Home->Config dialog
+    uint8_t selectedOutputChannelIndex; // selection on Routing dialog
     X32_PAGE activePage;
-
-    // solo is (somewhere) activated
-    bool solo;
-
-    // something was changed - sync surface/gui to mixer state
-    uint16_t changed;
-
-    s_TouchControl touchcontrol;
-
-    s_bankMode modes[3];
-
-    // all virtual - channels / busses / matrix / etc.
-    s_vChannel vChannel[MAX_VCHANNELS];
-    s_mixerPage pages[MAX_PAGES];
-} s_Mixer;
+    bool solo; // solo is (somewhere) activated
+    uint16_t changed; // something was changed - sync surface/gui to mixer state
+    sTouchControl touchcontrol;
+    sBankMode modes[3];
+} sMixer;
 
 #endif

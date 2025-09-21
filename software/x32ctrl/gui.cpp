@@ -25,6 +25,9 @@
 #include "gui.h"
 #include "mixer.h"
 #include "surface.h"
+#include "hal.h"
+#include "fpga.h"
+#include "dsp.h"
 
 lv_indev_t *keypad_indev; // will be updated by buttonCallback
 lv_indev_t *mouse_indev; // will be polled by LVGL
@@ -36,6 +39,189 @@ lv_indev_t *encoder_indev;
 X32_BTN lastButton = X32_BTN_NONE;
 bool lastButtonPressed;
 
+// sync mixer state to GUI
+void guiSync(void) {
+    if (mixerIsModelX32Core()){
+        return;
+    }
+
+    x32debug("Active Page: %d\n", mixer.activePage);
+
+    sChannel* pChannelSelected = mixerGetSelectedChannel();
+
+    //####################################
+    //#         General
+    //####################################
+
+    lv_color_t color;
+    switch (pChannelSelected->color){
+        case SURFACE_COLOR_BLACK:
+            color = lv_color_make(0, 0, 0);
+            break;
+        case SURFACE_COLOR_RED:
+            color = lv_color_make(255, 0, 0);
+            break;
+        case SURFACE_COLOR_GREEN:
+            color = lv_color_make(0, 255, 0);
+            break;
+        case SURFACE_COLOR_YELLOW:
+            color = lv_color_make(255, 255, 0);
+            break;
+        case SURFACE_COLOR_BLUE:
+            color = lv_color_make(0, 0, 255);
+            break;
+        case SURFACE_COLOR_PINK:
+            color = lv_color_make(255, 0, 255);
+            break;
+        case SURFACE_COLOR_CYAN:
+            color = lv_color_make(0, 255, 255);
+            break;
+        case SURFACE_COLOR_WHITE:
+            color = lv_color_make(255, 255, 255);
+            break;
+    }
+
+    lv_label_set_text_fmt(objects.current_channel_number, "vCh%d", pChannelSelected->index);
+    lv_label_set_text_fmt(objects.current_channel_name, "%s", pChannelSelected->name);
+    lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
+
+    // //set Encoders to default state
+    // const char*  encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
+    // lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
+
+    //####################################
+    //#         Page Home
+    //####################################
+
+
+
+    bool phantomPower = halGetPhantomPower(pChannelSelected->index);
+    
+    if (mixer.activePage == X32_PAGE_CONFIG){
+    //####################################
+    //#         Page Config
+    //####################################
+        char dspSourceName[5] = "";
+        char inputSourceName[10] = "";
+        dspGetSourceName(&dspSourceName[0], pChannelSelected->index);
+        sprintf(&inputSourceName[0], "%02d: %s", (pChannelSelected->index + 1), dspSourceName);
+        lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
+
+        lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)halGetGain(pChannelSelected->index));
+        lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
+        lv_label_set_text_fmt(objects.current_channel_invert, "%d", halGetPhaseInvert(pChannelSelected->index));
+
+        //char outputDestinationName[10] = "";
+        //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
+        //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
+    }else if (mixer.activePage == X32_PAGE_ROUTING) {
+    //####################################
+    //#         Page Routing
+    //####################################
+
+        char outputDestinationName[10] = "";
+        char inputSourceName[10] = "";
+        uint8_t routingIndex = 0;
+
+        // read name of selected output-routing channel
+        fpgaRoutingGetOutputNameByIndex(&outputDestinationName[0], mixer.selectedOutputChannelIndex); // mixer.selectedOutputChannelIndex = 1..112
+        lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
+
+        // find name of currently set input-source
+		routingIndex = fpgaRoutingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex); // mixer.selectedOutputChannelIndex = 1..112
+		fpgaRoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
+        lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
+    }
+
+    //####################################
+    //#         Page Meters
+    //####################################
+
+    for(int i=0; i<=15; i++){
+        sChannel *chan = &mixer.channel[i];
+
+        if (phantomPower){
+            lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+        } else {
+            lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+        }
+
+        switch (i){
+            case 0:
+                lv_slider_set_value(objects.slider01, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 1:
+                lv_slider_set_value(objects.slider02, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 2:
+                lv_slider_set_value(objects.slider03, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 3:
+                lv_slider_set_value(objects.slider04, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 4:
+                lv_slider_set_value(objects.slider05, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 5:
+                lv_slider_set_value(objects.slider06, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 6:
+                lv_slider_set_value(objects.slider07, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 7:
+                lv_slider_set_value(objects.slider08, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 8:
+                lv_slider_set_value(objects.slider09, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 9:
+                lv_slider_set_value(objects.slider10, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 10:
+                lv_slider_set_value(objects.slider11, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 11:
+                lv_slider_set_value(objects.slider12, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 12:
+                lv_slider_set_value(objects.slider13, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 13:
+                lv_slider_set_value(objects.slider14, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 14:
+                lv_slider_set_value(objects.slider15, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+            case 15:
+                lv_slider_set_value(objects.slider16, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                break;
+        }
+    }
+
+    lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
+        (double)mixer.dsp.dspChannel[0].volumeLR,
+        (double)mixer.dsp.dspChannel[1].volumeLR,
+        (double)mixer.dsp.dspChannel[2].volumeLR,
+        (double)mixer.dsp.dspChannel[3].volumeLR,
+        (double)mixer.dsp.dspChannel[4].volumeLR,
+        (double)mixer.dsp.dspChannel[5].volumeLR,
+        (double)mixer.dsp.dspChannel[6].volumeLR,
+        (double)mixer.dsp.dspChannel[7].volumeLR
+    );
+
+    //####################################
+    //#         Page Setup
+    //####################################
+
+    // pChannelSelected->solo ?
+    //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+    //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+
+    // pChannelSelected->mute ?
+    //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+    //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+
+}
 
 void guiNewButtonPress(X32_BTN button, bool pressed) {
   lastButton = button;
