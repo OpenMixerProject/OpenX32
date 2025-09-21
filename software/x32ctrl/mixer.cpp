@@ -103,7 +103,7 @@ void mixerInit(char model[]) {
         mixer.dsp.dspChannel[i].volumeLR = VOLUME_MIN;
         mixer.dsp.dspChannel[i].volumeSub = VOLUME_MIN;
         mixer.dsp.dspChannel[i].balance = 0; // center
-        sprintf(&(channel->name[0]), "Kanal %d", i+1); // german label :-)
+        //sprintf(&(channel->name[0]), "Kanal %d", i+1); // german label :-)
     }
     mixerDebugPrintChannels();
 
@@ -120,10 +120,10 @@ void mixerInit(char model[]) {
         mixer.dsp.dspChannel[index].balance = 0; // center
 
         if(i <=5){
-            sprintf(&channel->name[0], "AUX%d", i+1);
+            //sprintf(&channel->name[0], "AUX%d", i+1);
             channel->color = SURFACE_COLOR_GREEN;
         } else {
-            sprintf(&channel->name[0], "USB");
+            //sprintf(&channel->name[0], "USB");
             channel->color = SURFACE_COLOR_YELLOW;
         }
     }
@@ -135,7 +135,7 @@ void mixerInit(char model[]) {
         sChannel *channel = &mixer.channel[index];
         mixerSetChannelDefaults(channel, index, false);
         mixer.dsp.volumeFxReturn[i] = VOLUME_MIN;
-        sprintf(&channel->name[0], "FX Ret%d", i+1);
+        //sprintf(&channel->name[0], "FX Ret%d", i+1);
         channel->color = SURFACE_COLOR_BLUE;
     }
 
@@ -150,7 +150,7 @@ void mixerInit(char model[]) {
         mixer.dsp.mixbusChannel[i].volumeLR = VOLUME_MIN;
         mixer.dsp.mixbusChannel[i].volumeSub = VOLUME_MIN;
         mixer.dsp.mixbusChannel[i].balance = 0; // center
-        sprintf(&channel->name[0], "BUS%d", i+1);
+        //sprintf(&channel->name[0], "BUS%d", i+1);
         channel->color = SURFACE_COLOR_CYAN;
     }
 
@@ -158,19 +158,19 @@ void mixerInit(char model[]) {
     x32debug("Setting up Matrix / SPECIAL / SUB\n");
     for (uint8_t i = 0; i <= 7;i++){
         uint8_t index = 64 + i;
-        sChannel *channel = &mixer.channel[index];
+        sChannel *channel = &(mixer.channel[index]);
         mixerSetChannelDefaults(channel, index, false);
         mixer.dsp.matrixChannel[i].muted = false;
         mixer.dsp.matrixChannel[i].solo = false;
         mixer.dsp.matrixChannel[i].volume = VOLUME_MIN;
         if(i <= 5){
-            sprintf(&channel->name[0], "MATRIX%d", i+1);
+            //sprintf(&channel->name[0], "MATRIX%d", i+1);
             channel->color = SURFACE_COLOR_PINK;
         } else if (i == 6){
-            sprintf(&channel->name[0], "SPECIAL");
+            //sprintf(&channel->name[0], "SPECIAL");
             channel->color = SURFACE_COLOR_RED;
         } else if (i == 7){
-            sprintf(&channel->name[0], "M/C");
+            //sprintf(&channel->name[0], "M/C");
             channel->color = SURFACE_COLOR_WHITE;
         }
     }
@@ -182,7 +182,7 @@ void mixerInit(char model[]) {
         sChannel *channel = &mixer.channel[index];
         mixerSetChannelDefaults(channel, index, false);
         mixer.dsp.volumeDca[i] = VOLUME_MIN;
-        sprintf(&channel->name[0], "DCA%d", i+1);
+        //sprintf(&channel->name[0], "DCA%d", i+1);
         channel->color = SURFACE_COLOR_PINK;
     }
 
@@ -196,7 +196,7 @@ void mixerInit(char model[]) {
         mixer.dsp.mainBalance = 0; // center
         mixer.dsp.mainLRMute = false;
         mixer.dsp.mainSubMute = false;
-        sprintf(&channel->name[0], "Main");
+        //sprintf(&channel->name[0], "Main");
         channel->color = SURFACE_COLOR_WHITE;
         channel->channelType = 1; // main channel
     }
