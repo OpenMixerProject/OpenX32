@@ -139,26 +139,28 @@ void addaSetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower
 }
 
 String addaSendReceive(char* cmd, uint16_t timeout) {
+  x32debug("addaSendReceive(%s)\n", cmd);
   messageBuilderInit(&message);
 
   messageBuilderAddString(&message, cmd);
 
   uartTx(&fdAdda, &message, false);
 
-  if (timeout > 0) {
-    addaWaitForMessageCounter = timeout;
-    while (addaWaitForMessageCounter > 0) {
-        uint16_t readBytes = uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart));
-        if (readBytes > 0) {
-            addaWaitForMessageCounter = 0;
-            return addaProcessUartData(readBytes, true);
-        }
-        addaWaitForMessageCounter--;
-        usleep(1000); // wait 1ms
-    }
-  }else{
+  // if (timeout > 0) {
+  //   addaWaitForMessageCounter = timeout;
+  //   while (addaWaitForMessageCounter > 0) {
+  //       x32debug("addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
+  //       uint16_t readBytes = uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart));
+  //       if (readBytes > 0) {
+  //           addaWaitForMessageCounter = 0;
+  //           return addaProcessUartData(readBytes, true);
+  //       }
+  //       addaWaitForMessageCounter--;
+  //       usleep(1000); // wait 1ms
+  //   }
+  // }else{
     return "";
-  }
+  // }
 };
 
 String addaProcessUartData(int bytesToProcess, bool directRead) {
@@ -169,9 +171,11 @@ String addaProcessUartData(int bytesToProcess, bool directRead) {
     return "";
   }
 
+  x32debug("addaProcessUartData()\n");
+
   for (int i = 0; i < bytesToProcess; i++) {
     currentByte = (uint8_t)addaBufferUart[i];
-    //printf("%02X ", currentByte); // empfangene Bytes als HEX-Wert ausgeben
+    x32debug("%02X ", currentByte); // empfangene Bytes als HEX-Wert ausgeben
 
     // add received byte to buffer
     if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {
@@ -223,6 +227,7 @@ String addaProcessUartData(int bytesToProcess, bool directRead) {
       }
     }
   }
+  x32debug("\n");
 
   if (directRead) {
     return answer;
