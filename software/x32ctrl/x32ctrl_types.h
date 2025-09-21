@@ -193,6 +193,15 @@ typedef struct {
   bool solo;
 } sMatrixChannel;
 
+typedef struct {
+  float volume;
+  float balance;
+  float sendMatrix[6];
+  uint8_t sendMatrixTapPoint[6];
+  bool muted;
+  bool solo;
+} sMainChannel;
+
 #pragma pack(push, 1)
 // size of sRouting must be multiplier of 8 to fit into 64-bit-value
 typedef struct __attribute__((packed,aligned(1))) {
@@ -226,19 +235,12 @@ typedef struct {
   sDspChannel dspChannel[40];
   sMixbusChannel mixbusChannel[16];
   sMatrixChannel matrixChannel[6];
+  sMainChannel mainChannelLR;
+  sMainChannel mainChannelSub;
   float volumeFxReturn[8];
   float volumeDca[8];
+
   float volumeSpecial;
-
-  float mainLRVolume;
-  float mainSubVolume;
-  float mainBalance;
-  bool mainLRMute;
-  bool mainSubMute;
-
-  float mainSendMatrix[6];
-  uint8_t mainSendMatrixTapPoint[6];
-
   float monitorVolume;
   uint8_t monitorTapPoint;
 } sDsp;

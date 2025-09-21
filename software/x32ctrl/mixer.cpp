@@ -191,11 +191,13 @@ void mixerInit(char model[]) {
     {
         sChannel *channel = &mixer.channel[80];
         mixerSetChannelDefaults(channel, 80, false);
-        mixer.dsp.mainLRVolume = VOLUME_MIN;
-        mixer.dsp.mainSubVolume = VOLUME_MIN;
-        mixer.dsp.mainBalance = 0; // center
-        mixer.dsp.mainLRMute = false;
-        mixer.dsp.mainSubMute = false;
+        mixer.dsp.mainChannelLR.volume = VOLUME_MIN;
+        mixer.dsp.mainChannelLR.balance = 0; // center
+        mixer.dsp.mainChannelLR.muted = false;
+
+        mixer.dsp.mainChannelSub.volume = VOLUME_MIN;
+        mixer.dsp.mainChannelSub.balance = 0; // center
+        mixer.dsp.mainChannelSub.muted = false;
         //sprintf(&channel->name[0], "Main");
         channel->color = SURFACE_COLOR_WHITE;
         channel->channelType = 1; // main channel
@@ -220,7 +222,7 @@ void mixerInit(char model[]) {
         }
     }
 
-    if (mixerIsModelX32CompacrOrProducer()){
+    if (mixerIsModelX32CompactOrProducer()){
         // bank is 8 channels wide
         for (uint8_t bank=0;bank<8;bank++){
             for (int i = 0; i <=7; i++) {
@@ -432,7 +434,7 @@ uint8_t mixerSurfaceChannel2Channel(uint8_t surfaceChannel){
                 return mixer.modes[mixer.activeMode].busBanks[mixer.activeBank_busFader].surfaceChannel2Channel[surfaceChannel-16];
             }
         }
-        if (mixerIsModelX32CompacrOrProducer()){
+        if (mixerIsModelX32CompactOrProducer()){
             if (surfaceChannel <= 7){
                 // input-section
                 return mixer.modes[mixer.activeMode].inputBanks[mixer.activeBank_inputFader].surfaceChannel2Channel[surfaceChannel];
@@ -459,7 +461,7 @@ uint8_t mixerGetChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p
     if (mixerIsModelX32Full()){
         if (p_board == X32_BOARD_R) { offset=16; }
     }
-    if (mixerIsModelX32CompacrOrProducer()){
+    if (mixerIsModelX32CompactOrProducer()){
         if (p_board == X32_BOARD_R) { offset=8; }
     }
     return mixerSurfaceChannel2Channel(p_buttonIndex + offset);
@@ -482,7 +484,7 @@ void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_
         if (mixerIsModelX32Full()){
             if (p_board == X32_BOARD_R) { offset=16;}
         }
-        if (mixerIsModelX32CompacrOrProducer()){
+        if (mixerIsModelX32CompactOrProducer()){
             if (p_board == X32_BOARD_R) { offset=8;}
         }
         channelIndex = mixerSurfaceChannel2Channel(p_faderIndex + offset);
@@ -684,7 +686,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
 
     // Display Encoders
     // - are independent from Surface Modes!
-    if (mixerIsModelX32FullOrCompacrOrProducerOrRack()){
+    if (mixerIsModelX32FullOrCompactOrProducerOrRack()){
         if (mixer.activePage == X32_PAGE_CONFIG){
             if (buttonPressed){
                 switch (button){
@@ -761,7 +763,7 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
 
     // Display Encoders
     // - are independent from Surface Modes!
-    if (mixerIsModelX32FullOrCompacrOrProducerOrRack()) {
+    if (mixerIsModelX32FullOrCompactOrProducerOrRack()) {
         if (mixer.activePage == X32_PAGE_CONFIG){
             switch (encoder){
                 case X32_ENC_ENCODER2:
@@ -951,7 +953,7 @@ void mixerBanking(X32_BTN p_button){
                 break;
         }
     }
-    if (mixerIsModelX32CompacrOrProducer()){
+    if (mixerIsModelX32CompactOrProducer()){
         switch (p_button){
             case X32_BTN_CH_1_8:
                 mixer.activeBank_inputFader = 0;
@@ -1093,16 +1095,27 @@ void mixerChangeBusSend(uint8_t pChannelIndex, uint8_t encoderIndex, int8_t p_am
             }
             mixer.dsp.mixbusChannel[pChannelIndex].sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
         }
-    }else if (pChannelIndex == 80) {
+    }else if (pChannelIndex == 71) {
         // we have only 6 matrices -> check it
         if ((mixer.activeBusSend * 4) + encoderIndex < 6) {
-            newValue = mixer.dsp.mainSendMatrix[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
+            newValue = mixer.dsp.mainChannelSub.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
             if (newValue > 10) {
                 newValue = 10;
             }else if (newValue < -100) {
                 newValue = -100;
             }
-            mixer.dsp.mainSendMatrix[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
+            mixer.dsp.mainChannelSub.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
+        }
+    }else if (pChannelIndex == 80) {
+        // we have only 6 matrices -> check it
+        if ((mixer.activeBusSend * 4) + encoderIndex < 6) {
+            newValue = mixer.dsp.mainChannelLR.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
+            if (newValue > 10) {
+                newValue = 10;
+            }else if (newValue < -100) {
+                newValue = -100;
+            }
+            mixer.dsp.mainChannelLR.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
         }
     }
 
@@ -1352,13 +1365,13 @@ bool mixerIsSoloActivated(void){
 bool mixerIsModelX32Full(void){
     return (mixer.model == X32_MODEL_FULL);
 }
-bool mixerIsModelX32FullOrCompacrOrProducer(void){
+bool mixerIsModelX32FullOrCompactOrProducer(void){
     return ((mixer.model == X32_MODEL_FULL) || (mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER));
 }
-bool mixerIsModelX32FullOrCompacrOrProducerOrRack(void){
-    return (mixerIsModelX32FullOrCompacrOrProducer() || (mixer.model == X32_MODEL_RACK));
+bool mixerIsModelX32FullOrCompactOrProducerOrRack(void){
+    return (mixerIsModelX32FullOrCompactOrProducer() || (mixer.model == X32_MODEL_RACK));
 }
-bool mixerIsModelX32CompacrOrProducer(void){
+bool mixerIsModelX32CompactOrProducer(void){
     return ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER));
 }
 bool mixerIsModelX32Core(void){

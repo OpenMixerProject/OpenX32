@@ -44,7 +44,7 @@ void surfaceSync(void) {
     {
         surfaceSyncBoardMain();
 
-        if (mixerIsModelX32FullOrCompacrOrProducer()){   
+        if (mixerIsModelX32FullOrCompactOrProducer()){   
             surfaceSyncBoard(X32_BOARD_L);
             if (mixerIsModelX32Full()){
                 surfaceSyncBoard(X32_BOARD_M);
@@ -72,7 +72,7 @@ void surfaceSyncBoardMain() {
     }
 
     if (needForSync){
-        if (mixerIsModelX32FullOrCompacrOrProducer()){
+        if (mixerIsModelX32FullOrCompactOrProducer()){
             // Channel section
             if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_PHANTOM)){
                 setLedByEnum(X32_BTN_PHANTOM_48V, halGetPhantomPower(chan->index)); 
@@ -209,7 +209,7 @@ void surfaceSyncBankIndicator(void) {
             if (mixer.activeBank_inputFader == 2) { setLedByEnum(X32_BTN_AUX_IN_EFFECTS, 1); }
             if (mixer.activeBank_inputFader == 3) { setLedByEnum(X32_BTN_BUS_MASTER, 1); }
         }
-        if (mixerIsModelX32CompacrOrProducer()) {
+        if (mixerIsModelX32CompactOrProducer()) {
             setLedByEnum(X32_BTN_CH_1_8, 0);
             setLedByEnum(X32_BTN_CH_9_16, 0);
             setLedByEnum(X32_BTN_CH_17_24, 0);
@@ -1107,7 +1107,7 @@ void surfaceKeepalive(void){
  
 
     // // Board Main
-    // if (mixerIsModelX32Full() || mixerIsModelX32CompacrOrProducer()){
+    // if (mixerIsModelX32Full() || mixerIsModelX32CompactOrProducer()){
     //     message.current_length = 0;
     //     messageBuilderAddRawByte(&message, 0xfe);
     //     messageBuilderAddRawByte(&message, 0x81);

@@ -7,9 +7,9 @@ extern sMixer mixer;
 
 void mixerInit(char model[]);
 bool mixerIsModelX32Full(void);
-bool mixerIsModelX32FullOrCompacrOrProducer(void);
-bool mixerIsModelX32FullOrCompacrOrProducerOrRack(void);
-bool mixerIsModelX32CompacrOrProducer(void);
+bool mixerIsModelX32FullOrCompactOrProducer(void);
+bool mixerIsModelX32FullOrCompactOrProducerOrRack(void);
+bool mixerIsModelX32CompactOrProducer(void);
 bool mixerIsModelX32Core(void);
 bool mixerIsModelX32Rack(void);
 

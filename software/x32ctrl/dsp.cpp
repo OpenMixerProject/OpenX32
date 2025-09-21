@@ -30,9 +30,10 @@
 void dspInit(void) {
     mixer.dsp.samplerate = 48000;
 
-    mixer.dsp.mainLRVolume = -100; // dB
-    mixer.dsp.mainSubVolume = -100; // dB
-    mixer.dsp.mainBalance = -100; // -100 .. 0 .. +100
+    mixer.dsp.mainChannelLR.volume = -100; // dB
+    mixer.dsp.mainChannelLR.balance = 0; // -100 .. 0 .. +100
+    mixer.dsp.mainChannelSub.volume = -100; // dB
+    mixer.dsp.mainChannelSub.balance = 0; // -100 .. 0 .. +100
 
     for (uint8_t i = 0; i < 40; i++) {
         mixer.dsp.dspChannel[i].lowCutFrequency = 100.0f;
@@ -145,15 +146,15 @@ void dspSendMonitorVolume() {
 }
 
 void dspSendMainVolume() {
-    float volumeLeft = (saturate(100.0f - mixer.dsp.mainBalance, 0.0f, 100.0f) / 100.0f) * pow(10.0f, mixer.dsp.mainLRVolume/20.0f);
-    float volumeRight = (saturate(mixer.dsp.mainBalance + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, mixer.dsp.mainLRVolume/20.0f);
-    float volumeSub = pow(10.0f, mixer.dsp.mainSubVolume/20.0f);
+    float volumeLeft = (saturate(100.0f - mixer.dsp.mainChannelLR.balance, 0.0f, 100.0f) / 100.0f) * pow(10.0f, mixer.dsp.mainChannelLR.volume/20.0f);
+    float volumeRight = (saturate(mixer.dsp.mainChannelLR.balance + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, mixer.dsp.mainChannelLR.volume/20.0f);
+    float volumeSub = pow(10.0f, mixer.dsp.mainChannelSub.volume/20.0f);
 
-    if (mixer.dsp.mainLRMute) {
+    if (mixer.dsp.mainChannelLR.muted) {
         volumeLeft = 0; // p.u.
         volumeRight = 0; // p.u.
     }
-    if (mixer.dsp.mainSubMute) {
+    if (mixer.dsp.mainChannelSub.muted) {
         volumeSub = 0; // p.u.
     }
 
@@ -283,7 +284,7 @@ void dspSendAll() {
     }
     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
         dspSendMatrixVolume(matrixChannel);
-        dspSetMainSendTapPoints(matrixChannel, mixer.dsp.mainSendMatrixTapPoint[matrixChannel]);
+        dspSetMainSendTapPoints(matrixChannel, mixer.dsp.mainChannelLR.sendMatrixTapPoint[matrixChannel]);
     }
     dspSendMainVolume();
     dspSendMonitorVolume();
@@ -322,7 +323,7 @@ void dspSetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uin
 }
 
 void dspSetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
-    mixer.dsp.mainSendMatrixTapPoint[matrixChannel] = tapPoint;
+    mixer.dsp.mainChannelLR.sendMatrixTapPoint[matrixChannel] = tapPoint;
 
     uint32_t values[2];
     values[0] = matrixChannel;

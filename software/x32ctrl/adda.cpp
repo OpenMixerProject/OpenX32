@@ -24,6 +24,7 @@
 
 #include "adda.h"
 #include "uart.h"
+#include "mixer.h"
 
 char addaBufferUart[256]; // buffer for UART-readings
 int addaPacketBufLen = 0;
@@ -141,26 +142,26 @@ void addaSetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower
 String addaSendReceive(char* cmd, uint16_t timeout) {
   x32debug("addaSendReceive(%s)\n", cmd);
   messageBuilderInit(&message);
-
   messageBuilderAddString(&message, cmd);
 
   uartTx(&fdAdda, &message, false);
 
-  // if (timeout > 0) {
-  //   addaWaitForMessageCounter = timeout;
-  //   while (addaWaitForMessageCounter > 0) {
-  //       x32debug("addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
-  //       uint16_t readBytes = uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart));
-  //       if (readBytes > 0) {
-  //           addaWaitForMessageCounter = 0;
-  //           return addaProcessUartData(readBytes, true);
-  //       }
-  //       addaWaitForMessageCounter--;
-  //       usleep(1000); // wait 1ms
-  //   }
-  // }else{
+  // check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
+  if ((timeout > 0) && (mixerIsModelX32FullOrCompactOrProducer)) {
+    addaWaitForMessageCounter = timeout;
+    while (addaWaitForMessageCounter > 0) {
+      x32debug("addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
+      uint16_t readBytes = uartRx(&fdAdda, &addaBufferUart[0], sizeof(addaBufferUart));
+      if (readBytes > 0) {
+        addaWaitForMessageCounter = 0;
+        return addaProcessUartData(readBytes, true);
+      }
+      addaWaitForMessageCounter--;
+      usleep(1000); // wait 1ms
+    }
+  }else{
     return "";
-  // }
+  }
 };
 
 String addaProcessUartData(int bytesToProcess, bool directRead) {

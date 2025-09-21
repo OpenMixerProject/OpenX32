@@ -160,12 +160,12 @@ void halSetVolume(uint8_t dspChannel, float volume) {
         mixer.dsp.volumeSpecial = volume;
     }else if (dspChannel == 71) {
         // Main Sub
-        mixer.dsp.mainSubVolume = volume;
+        mixer.dsp.mainChannelSub.volume = volume;
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8
         mixer.dsp.volumeDca[dspChannel - 72] = volume;
     }else if (dspChannel == 80) {
-        mixer.dsp.mainLRVolume = volume;
+        mixer.dsp.mainChannelLR.volume = volume;
     }
 }
 
@@ -181,11 +181,11 @@ void halSetMute(uint8_t dspChannel, bool mute) {
     }else if (dspChannel == 70) {
         // special
     }else if (dspChannel == 71) {
-        mixer.dsp.mainSubMute = mute;
+        mixer.dsp.mainChannelSub.muted = mute;
     }else if ((dspChannel >= 72) && (dspChannel <= 79)) {
         // DCA
     }else if (dspChannel == 80) {
-        mixer.dsp.mainLRMute = mute;
+        mixer.dsp.mainChannelLR.muted = mute;
     }
 }
 
@@ -222,11 +222,11 @@ void halSetBalance(uint8_t dspChannel, float balance) {
     }else if (dspChannel == 70) {
         // Special -> no support for balance
     }else if (dspChannel == 71) {
-        // Main Sub -> no support for balance
+        mixer.dsp.mainChannelSub.balance = balance; // TODO: check if we want to support balance here
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8 -> no support for balance
     }else if (dspChannel == 80) {
-        mixer.dsp.mainBalance = balance;
+        mixer.dsp.mainChannelLR.balance = balance;
     }
 }
 
@@ -396,10 +396,10 @@ float halGetVolume(uint8_t dspChannel) {
             return mixer.dsp.matrixChannel[channelInputSource - 57].volume;
         }else if ((channelInputSource == 63) || (channelInputSource == 64)) {
             // Main LR
-            return mixer.dsp.mainLRVolume;
+            return mixer.dsp.mainChannelLR.volume;
         }else if (channelInputSource == 65) {
             // Main Sub
-            return mixer.dsp.mainSubVolume;
+            return mixer.dsp.mainChannelSub.volume;
         }else{
             // we are connected to an internal DSP-signal
             return -100;
@@ -418,12 +418,12 @@ float halGetVolume(uint8_t dspChannel) {
         return mixer.dsp.volumeSpecial;
     }else if (dspChannel == 71) {
         // Main Sub
-        return mixer.dsp.mainSubVolume;
+        return mixer.dsp.mainChannelSub.volume;
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8
         return mixer.dsp.volumeDca[dspChannel - 72];
     }else if (dspChannel == 80) {
-        return mixer.dsp.mainLRVolume;
+        return mixer.dsp.mainChannelLR.volume;
     }else{
         return -100;
     }
@@ -443,12 +443,12 @@ bool halGetMute(uint8_t dspChannel) {
         // special
         return false;
     }else if (dspChannel == 71) {
-        return mixer.dsp.mainSubMute;
+        return mixer.dsp.mainChannelSub.muted;
     }else if ((dspChannel >= 72) && (dspChannel <= 79)) {
         // DCA
         return false;
     }else if (dspChannel == 80) {
-        return mixer.dsp.mainLRMute;
+        return mixer.dsp.mainChannelLR.muted;
     }
 }
 
@@ -491,13 +491,12 @@ float halGetBalance(uint8_t dspChannel) {
         // Special -> no support for balance
         return 0;
     }else if (dspChannel == 71) {
-        // Main Sub -> no support for balance
-        return 0;
+        return mixer.dsp.mainChannelSub.balance; // TODO: check if we want to support balance here
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8 -> no support for balance
         return 0;
     }else if (dspChannel == 80) {
-        return mixer.dsp.mainBalance;
+        return mixer.dsp.mainChannelLR.balance;
     }else{
         return 0;
     }
