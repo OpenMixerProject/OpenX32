@@ -80,6 +80,55 @@ void surfaceSyncBoardMain() {
             if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_PHASE_INVERT)){
                 setLedByEnum(X32_BTN_PHASE_INVERT, halGetPhaseInvert(chan->index));
             }
+            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_GAIN)){
+                // update gain-encoder
+                setEncoderRing(enum2encoder(X32_ENC_GAIN) >> 8, enum2encoder(X32_ENC_GAIN) & 0xFF, 0, (halGetGain(chan->index) + 12.0f)/0.72f, 1);
+            }
+            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_VOLUME)){
+                // update pan-encoder
+                setEncoderRing(enum2encoder(X32_ENC_PAN) >> 8, enum2encoder(X32_ENC_PAN) & 0xFF, 2, (halGetBalance(chan->index) + 100.0f)/2.0f, 1);
+            }
+            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_SENDS)){
+                // update pan-encoder
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_1) >> 8, enum2encoder(X32_ENC_BUS_SEND_1) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_2) >> 8, enum2encoder(X32_ENC_BUS_SEND_2) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_3) >> 8, enum2encoder(X32_ENC_BUS_SEND_3) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_4) >> 8, enum2encoder(X32_ENC_BUS_SEND_4) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
+            }
+            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_GATE)){
+                setEncoderRing(enum2encoder(X32_ENC_GATE) >> 8, enum2encoder(X32_ENC_GATE) & 0xFF, 4, 100.0f - ((mixer.dsp.dspChannel[chan->index].gate.threshold + 80.0f)/0.8f), 1);
+            }
+            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_DYNAMIC)){
+                setEncoderRing(enum2encoder(X32_ENC_DYNAMICS) >> 8, enum2encoder(X32_ENC_DYNAMICS) & 0xFF, 4, 100.0f - ((mixer.dsp.dspChannel[chan->index].compressor.threshold + 60.0f)/0.6f), 1);
+            }
+            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_EQ)){
+                // update EQ-encoder
+                if (chan->index < 40) {
+                    setEncoderRing(enum2encoder(X32_ENC_LOWCUT) >> 8, enum2encoder(X32_ENC_LOWCUT) & 0xFF, 1, (mixer.dsp.dspChannel[chan->index].lowCutFrequency - 20.0f)/3.8f, 1);
+                    setEncoderRing(enum2encoder(X32_ENC_EQ_FREQ) >> 8, enum2encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].fc - 20.0f)/199.8f, 1);
+                    setEncoderRing(enum2encoder(X32_ENC_EQ_GAIN) >> 8, enum2encoder(X32_ENC_EQ_GAIN) & 0xFF, 2, (mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].gain + 15.0f)/0.3f, 1);
+                    setEncoderRing(enum2encoder(X32_ENC_EQ_Q) >> 8, enum2encoder(X32_ENC_EQ_Q) & 0xFF, 3, ((10.0f - mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].Q) + 0.3f)/0.097f, 1);
+                    switch (mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].type) {
+                        case 0: // Allpass
+                            break;
+                        case 1: // Peak
+                            break;
+                        case 2: // LowShelf
+                            break;
+                        case 3: // HighShelf
+                            break;
+                        case 4: // Bandpass
+                            break;
+                        case 5: // Notch
+                            break;
+                        case 6: // LowPass
+                            break;
+                        case 7: // HighPass
+                            break;
+                    }
+                }
+            }
+            
         }
 
         if (mixerIsModelX32Rack()){
@@ -459,7 +508,7 @@ void setMeterLedMain(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t
 
 // boardId = 0, 1, 4, 5, 8
 // index
-// ledMode = 0=increment, 1=absolute position, 2=balance l/r, 3=width/spread
+// ledMode = 0=increment, 1=absolute position, 2=balance l/r, 3=width/spread, 4=decrement
 // ledPct = percentage 0...100
 // backlight = enable or disable
 void setEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, uint8_t ledPct, bool backlight) {
@@ -486,6 +535,9 @@ void setEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, uint8_t led
 		break;
 	case 3: // spread/width
 		leds = calcEncoderRingLedWidth(ledPct);
+		break;
+	case 4: // decrement-method
+		leds = calcEncoderRingLedDecrement(ledPct);
 		break;
   }
   messageBuilderAddDataByte(&message, leds & 0xFF);
@@ -715,6 +767,41 @@ uint16_t calcEncoderRingLedIncrement(uint8_t pct) {
     uint16_t led_mask = 0;
     if (num_leds_to_light > 0) {
         led_mask = (1U << num_leds_to_light) - 1;
+    }
+
+    return led_mask;
+}
+
+// bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight
+// CCW <- XXXXXX X XXXXXX -> CW
+uint16_t calcEncoderRingLedDecrement(uint8_t pct) {
+    uint8_t num_leds_to_light = 0;
+/*
+    if (pct <= 50) {
+        // Scale 0-50 to 0-6 LEDs
+        num_leds_to_light = (uint8_t)((float)pct / 50.0f * 6.0f);
+    } else {
+        // Scale 51-100 to 7-12 LEDs (6 more LEDs)
+        // From 51 to 100, there are 50 steps.
+        // We need to add (pct - 50) steps mapped to the remaining 6 LEDs.
+        // (pct - 50) / 50.0f * 6.0f
+        num_leds_to_light = 6 + (uint8_t)(((float)(pct - 50) / 50.0f) * 6.0f);
+
+        if (num_leds_to_light > 12) {
+            num_leds_to_light = 12;
+        }
+    }
+*/
+    num_leds_to_light = (uint8_t)((float)pct / 100.0f * 12.5f);
+    if (num_leds_to_light > 13) {
+        num_leds_to_light = 13;
+    }
+
+    uint16_t led_mask = 0;
+    
+    // Bits von rechts nach links setzen
+    for (uint8_t i = 0; i < num_leds_to_light; ++i) {
+        led_mask |= (1U << (12 - i));
     }
 
     return led_mask;
@@ -1776,6 +1863,18 @@ X32_BTN button2enum(uint16_t buttonNr) {
     }
     //x32debug(" NICHT gefunden!\n");
     return X32_BTN_NONE;
+}
+
+uint16_t enum2encoder(X32_ENC encoder) {
+    //x32debug("DEBUG: enum2button: Encoder %d -> ", encoder);
+    for(int i = 0; i < buttonDefinitionIndex; i++) {
+        if (x32_enc_def[i].encoder == encoder) {
+            //x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoderNr);
+            return x32_enc_def[i].encoderNr;
+        }
+    }
+    //x32debug(" NICHT gefunden!\n");
+    return 0;
 }
 
 X32_ENC encoder2enum(uint16_t encoderNr) {

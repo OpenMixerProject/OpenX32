@@ -34,6 +34,7 @@ uint16_t calcEncoderRingLedIncrement(uint8_t pct);
 uint16_t calcEncoderRingLedPosition(uint8_t pct);
 uint16_t calcEncoderRingLedBalance(uint8_t pct);
 uint16_t calcEncoderRingLedWidth(uint8_t pct);
+uint16_t calcEncoderRingLedDecrement(uint8_t pct);
 
 void surfaceKeepalive(void);
 
@@ -47,6 +48,7 @@ void addEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr);
 
 uint16_t enum2button(X32_BTN button);
 X32_BTN button2enum(uint16_t button);
+uint16_t enum2encoder(X32_ENC encoder);
 X32_ENC encoder2enum(uint16_t encoderNr);
 
 #endif

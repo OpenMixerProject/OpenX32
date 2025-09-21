@@ -11,6 +11,7 @@ void halSetBalance(uint8_t dspChannel, float balance);
 void halSetGain(uint8_t dspChannel, float gain);
 void halSetPhantomPower(uint8_t dspChannel, bool phantomPower);
 void halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted);
+void halSetBusSend(uint8_t dspChannel, uint8_t index, float value);
 
 void halSendGain(uint8_t dspChannel);
 void halSendPhantomPower(uint8_t dspChannel);
@@ -23,5 +24,6 @@ float halGetBalance(uint8_t dspChannel);
 float halGetGain(uint8_t dspChannel);
 bool halGetPhantomPower(uint8_t dspChannel);
 bool halGetPhaseInvert(uint8_t dspChannel);
+float halGetBusSend(uint8_t dspChannel, uint8_t index);
 
 #endif

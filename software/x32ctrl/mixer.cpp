@@ -120,28 +120,28 @@ void mixerInit(char model[]) {
         mixer.dsp.dspChannel[index].balance = 0; // center
 
         if(i <=5){
-            //sprintf(&channel->name[0], "AUX%d", i+1);
+            sprintf(&channel->name[0], "AUX%d", i+1);
             channel->color = SURFACE_COLOR_GREEN;
         } else {
-            //sprintf(&channel->name[0], "USB");
+            sprintf(&channel->name[0], "USB");
             channel->color = SURFACE_COLOR_YELLOW;
         }
     }
 
     // FX Returns 1-8
     x32debug("Setting up FX Returns\n");
-    for (uint8_t i = 0; i <= 7;i++){
+    for (uint8_t i = 0; i <= 7; i++){
         uint8_t index = 40 + i;
         sChannel *channel = &mixer.channel[index];
         mixerSetChannelDefaults(channel, index, false);
         mixer.dsp.volumeFxReturn[i] = VOLUME_MIN;
-        //sprintf(&channel->name[0], "FX Ret%d", i+1);
+        sprintf(&channel->name[0], "FX Ret%d", i+1);
         channel->color = SURFACE_COLOR_BLUE;
     }
 
     // Bus 1-16
     x32debug("Setting up Busses\n");
-    for (uint8_t i=0; i<=15;i++){
+    for (uint8_t i=0; i<=15; i++){
         uint8_t index = 48 + i;
         sChannel *channel = &mixer.channel[index];
         mixerSetChannelDefaults(channel, index, false);
@@ -150,39 +150,49 @@ void mixerInit(char model[]) {
         mixer.dsp.mixbusChannel[i].volumeLR = VOLUME_MIN;
         mixer.dsp.mixbusChannel[i].volumeSub = VOLUME_MIN;
         mixer.dsp.mixbusChannel[i].balance = 0; // center
-        //sprintf(&channel->name[0], "BUS%d", i+1);
+        sprintf(&channel->name[0], "BUS%d", i+1);
         channel->color = SURFACE_COLOR_CYAN;
     }
 
     // Matrix 1-6 / Special / SUB
-    x32debug("Setting up Matrix / SPECIAL / SUB\n");
-    for (uint8_t i = 0; i <= 7;i++){
+    x32debug("Setting up Matrix\n");
+    for (uint8_t i = 0; i <= 5; i++){
         uint8_t index = 64 + i;
         sChannel *channel = &(mixer.channel[index]);
         mixerSetChannelDefaults(channel, index, false);
         mixer.dsp.matrixChannel[i].muted = false;
         mixer.dsp.matrixChannel[i].solo = false;
         mixer.dsp.matrixChannel[i].volume = VOLUME_MIN;
-        if(i <= 5){
-            //sprintf(&channel->name[0], "MATRIX%d", i+1);
-            channel->color = SURFACE_COLOR_PINK;
-        } else if (i == 6){
-            //sprintf(&channel->name[0], "SPECIAL");
-            channel->color = SURFACE_COLOR_RED;
-        } else if (i == 7){
-            //sprintf(&channel->name[0], "M/C");
-            channel->color = SURFACE_COLOR_WHITE;
-        }
+        sprintf(&channel->name[0], "MATRIX%d", i+1);
+        channel->color = SURFACE_COLOR_PINK;
+    }
+    // SPECIAL
+    {
+        sChannel *channel = &(mixer.channel[70]);
+        mixerSetChannelDefaults(channel, 70, false);
+        sprintf(&channel->name[0], "SPECIAL");
+        mixer.dsp.volumeSpecial = VOLUME_MIN;
+        channel->color = SURFACE_COLOR_RED;
+    }
+    // MainSub
+    {
+        sChannel *channel = &(mixer.channel[71]);
+        mixerSetChannelDefaults(channel, 71, false);
+        sprintf(&channel->name[0], "M/C");
+        mixer.dsp.mainChannelSub.volume = VOLUME_MIN;
+        mixer.dsp.mainChannelSub.balance = 0; // center
+        mixer.dsp.mainChannelSub.muted = false;
+        channel->color = SURFACE_COLOR_WHITE;
     }
 
     // DCA 1-8
     x32debug("Setting up DCA\n");
-    for (uint8_t i = 0; i <= 7;i++){
+    for (uint8_t i = 0; i <= 7; i++){
         uint8_t index = 72 + i;
         sChannel *channel = &mixer.channel[index];
         mixerSetChannelDefaults(channel, index, false);
         mixer.dsp.volumeDca[i] = VOLUME_MIN;
-        //sprintf(&channel->name[0], "DCA%d", i+1);
+        sprintf(&channel->name[0], "DCA%d", i+1);
         channel->color = SURFACE_COLOR_PINK;
     }
 
@@ -194,11 +204,7 @@ void mixerInit(char model[]) {
         mixer.dsp.mainChannelLR.volume = VOLUME_MIN;
         mixer.dsp.mainChannelLR.balance = 0; // center
         mixer.dsp.mainChannelLR.muted = false;
-
-        mixer.dsp.mainChannelSub.volume = VOLUME_MIN;
-        mixer.dsp.mainChannelSub.balance = 0; // center
-        mixer.dsp.mainChannelSub.muted = false;
-        //sprintf(&channel->name[0], "Main");
+        sprintf(&channel->name[0], "Main");
         channel->color = SURFACE_COLOR_WHITE;
         channel->channelType = 1; // main channel
     }
@@ -1023,7 +1029,7 @@ void mixerChangeVolume(uint8_t pChannelIndex, int8_t p_amount){
         return;
     }
 
-    float newValue = halGetVolume(pChannelIndex) + pow((float)p_amount, 3.0f);
+    float newValue = halGetVolume(pChannelIndex) + ((float)p_amount * abs((float)p_amount));
     if (newValue > 10) {
         newValue = 10;
     }else if (newValue < -100) {
@@ -1058,7 +1064,7 @@ void mixerChangePan(uint8_t pChannelIndex, int8_t p_amount){
         return;
     }
 
-    float newValue = halGetBalance(pChannelIndex) + pow((float)p_amount, 3.0f);
+    float newValue = halGetBalance(pChannelIndex) + ((float)p_amount * abs((float)p_amount));
     if (newValue > 100) {
         newValue = 100;
     }else if (newValue < -100) {
@@ -1076,49 +1082,7 @@ void mixerChangeBusSend(uint8_t pChannelIndex, uint8_t encoderIndex, int8_t p_am
         return;
     }
     
-    if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
-        newValue = mixer.dsp.dspChannel[pChannelIndex].sendMixbus[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
-        if (newValue > 10) {
-            newValue = 10;
-        }else if (newValue < -100) {
-            newValue = -100;
-        }
-        mixer.dsp.dspChannel[pChannelIndex].sendMixbus[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
-    }else if ((pChannelIndex >= 48) && (pChannelIndex < 63)) {
-        // we have only 6 matrices -> check it
-        if ((mixer.activeBusSend * 4) + encoderIndex < 6) {
-            newValue = mixer.dsp.mixbusChannel[pChannelIndex].sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
-            if (newValue > 10) {
-                newValue = 10;
-            }else if (newValue < -100) {
-                newValue = -100;
-            }
-            mixer.dsp.mixbusChannel[pChannelIndex].sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
-        }
-    }else if (pChannelIndex == 71) {
-        // we have only 6 matrices -> check it
-        if ((mixer.activeBusSend * 4) + encoderIndex < 6) {
-            newValue = mixer.dsp.mainChannelSub.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
-            if (newValue > 10) {
-                newValue = 10;
-            }else if (newValue < -100) {
-                newValue = -100;
-            }
-            mixer.dsp.mainChannelSub.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
-        }
-    }else if (pChannelIndex == 80) {
-        // we have only 6 matrices -> check it
-        if ((mixer.activeBusSend * 4) + encoderIndex < 6) {
-            newValue = mixer.dsp.mainChannelLR.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] + pow((float)p_amount, 3.0f);
-            if (newValue > 10) {
-                newValue = 10;
-            }else if (newValue < -100) {
-                newValue = -100;
-            }
-            mixer.dsp.mainChannelLR.sendMatrix[(mixer.activeBusSend * 4) + encoderIndex] = newValue;
-        }
-    }
-
+    halSetBusSend(pChannelIndex, (mixer.activeBusSend * 4) + encoderIndex, halGetBusSend(pChannelIndex, (mixer.activeBusSend * 4) + encoderIndex) + ((float)p_amount * abs((float)p_amount)));
     mixerSetChannelChangeFlagsFromIndex(pChannelIndex, X32_CHANNEL_CHANGED_SENDS);
     mixerSetChangeFlags(X32_MIXER_CHANGED_CHANNEL);
 }
@@ -1129,7 +1093,7 @@ void mixerChangeGate(uint8_t pChannelIndex, int8_t p_amount){
     }
     
     if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
-        newValue = mixer.dsp.dspChannel[pChannelIndex].gate.threshold + pow((float)p_amount, 3.0f);
+        newValue = mixer.dsp.dspChannel[pChannelIndex].gate.threshold + ((float)p_amount * abs((float)p_amount)) * 0.4f;
         if (newValue > 0) {
             newValue = 0;
         }else if (newValue < -80) {
@@ -1171,7 +1135,7 @@ void mixerChangeDynamics(uint8_t pChannelIndex, int8_t p_amount){
         return;
     }
     if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
-        newValue = mixer.dsp.dspChannel[pChannelIndex].compressor.threshold + pow((float)p_amount, 3.0f);
+        newValue = mixer.dsp.dspChannel[pChannelIndex].compressor.threshold + ((float)p_amount * abs((float)p_amount)) * 0.4f;
         if (newValue > 0) {
             newValue = 0;
         }else if (newValue < -60) {
@@ -1205,8 +1169,7 @@ void mixerChangePeq(uint8_t pChannelIndex, char option, int8_t p_amount){
     if (peq != nullptr) {
         switch (option) {
             case 'Q':
-                //mixer.channel[pChannelIndex].peq[0].Q += p_amount;
-                newValue = peq->Q + pow((float)p_amount, 3.0f)/10.0f;
+                newValue = peq->Q + ((float)p_amount * abs((float)p_amount))/10.0f;
                 if (newValue < 0.3) {
                     newValue = 0.3;
                 }else if (newValue > 10) {
@@ -1215,10 +1178,9 @@ void mixerChangePeq(uint8_t pChannelIndex, char option, int8_t p_amount){
                 peq->Q = newValue;
                 break;
             case 'F':
-                //mixer.channel[pChannelIndex].peq[0].fc += p_amount;
                 //newValue = peq->fc * (1.0f + (float)p_amount/10.0f);
                 //fnew = 10^(LOG10(B1)+B2*0,05)-B1
-                newValue = pow(10.0f, log10(peq->fc) + (float)p_amount * 0.05f);
+                newValue = pow(10.0f, log10(peq->fc) + (float)p_amount * 0.01f);
                 if (newValue < 20) {
                     newValue = 20;
                 }else if (newValue > 20000) {
@@ -1227,8 +1189,7 @@ void mixerChangePeq(uint8_t pChannelIndex, char option, int8_t p_amount){
                 peq->fc = newValue;
             break;
             case 'G':
-                //mixer.channel[pChannelIndex].peq[0].gain += p_amount;
-                newValue = peq->gain + pow((float)p_amount, 3.0f);
+                newValue = peq->gain + ((float)p_amount * abs((float)p_amount)) * 0.1f;
                 if (newValue < -15) {
                     newValue = -15;
                 }else if (newValue > 15) {

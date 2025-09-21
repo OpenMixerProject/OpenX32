@@ -305,6 +305,34 @@ void halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted) {
     }
 }
 
+void halSetBusSend(uint8_t dspChannel, uint8_t index, float value) {
+    float newValue;
+    if (value > 10) {
+        newValue = 10;
+    }else if (value < -100) {
+        newValue = -100;
+    }
+
+    if ((dspChannel >= 0) && (dspChannel < 40)) {
+        mixer.dsp.dspChannel[dspChannel].sendMixbus[index] = newValue;
+    }else if ((dspChannel >= 48) && (dspChannel < 63)) {
+        // we have only 6 matrices -> check it
+        if (index < 6) {
+            mixer.dsp.mixbusChannel[dspChannel].sendMatrix[index] = newValue;
+        }
+    }else if (dspChannel == 71) {
+        // we have only 6 matrices -> check it
+        if (index < 6) {
+            mixer.dsp.mainChannelSub.sendMatrix[index] = newValue;
+        }
+    }else if (dspChannel == 80) {
+        // we have only 6 matrices -> check it
+        if (index < 6) {
+            mixer.dsp.mainChannelLR.sendMatrix[index] = newValue;
+        }
+    }
+}
+
 // set the gain of the local XLR head-amp-control
 void halSendGain(uint8_t dspChannel) {
     uint8_t channelInputSource = mixer.dsp.dspChannel[dspChannel].inputSource;
@@ -576,4 +604,27 @@ bool halGetPhaseInvert(uint8_t dspChannel) {
         // we are connected to an internal DSP-signal
         return 0;
     }
+}
+
+float halGetBusSend(uint8_t dspChannel, uint8_t index) {
+    if ((dspChannel >= 0) && (dspChannel < 40)) {
+        return mixer.dsp.dspChannel[dspChannel].sendMixbus[index];
+    }else if ((dspChannel >= 48) && (dspChannel < 63)) {
+        // we have only 6 matrices -> check it
+        if (index < 6) {
+            return mixer.dsp.mixbusChannel[dspChannel].sendMatrix[index];
+        }
+    }else if (dspChannel == 71) {
+        // we have only 6 matrices -> check it
+        if (index < 6) {
+            return mixer.dsp.mainChannelSub.sendMatrix[index];
+        }
+    }else if (dspChannel == 80) {
+        // we have only 6 matrices -> check it
+        if (index < 6) {
+            return mixer.dsp.mainChannelLR.sendMatrix[index];
+        }
+    }
+
+    return 0;
 }
