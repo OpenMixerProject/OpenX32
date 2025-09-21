@@ -8,6 +8,7 @@ extern sMixer mixer;
 void mixerInit(char model[]);
 bool mixerIsModelX32Full(void);
 bool mixerIsModelX32FullOrCompacrOrProducer(void);
+bool mixerIsModelX32FullOrCompacrOrProducerOrRack(void);
 bool mixerIsModelX32CompacrOrProducer(void);
 bool mixerIsModelX32Core(void);
 bool mixerIsModelX32Rack(void);
@@ -67,12 +68,6 @@ void mixerInitPages();
 void mixerShowPage(X32_PAGE page);
 void mixerShowPrevPage(void);
 void mixerShowNextPage(void);
-
-bool mixerIsModelX32Full(void);
-bool mixerIsModelX32CompacrOrProducer(void);
-bool mixerIsModelX32FullOrCompacrOrProducerOrRack(void);
-bool mixerIsModelX32Rack(void);
-bool mixerIsModelX32Core(void);
 
 void mixerDebugPrintBank(uint8_t bank);
 void mixerDebugPrintBusBank(uint8_t bank);

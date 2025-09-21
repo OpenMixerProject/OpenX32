@@ -134,7 +134,7 @@ void callbackSurface(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t
             if (buttonPressed){
                 switch (button) {
                 case X32_BTN_MUTE_GROUP_1:
-                    mixerDebugPrintchannels();
+                    mixerDebugPrintChannels();
                     break;
                 case X32_BTN_MUTE_GROUP_2:
                     mixerDebugPrintBank(0);
@@ -448,10 +448,10 @@ int main(int argc, char* argv[]) {
     // first try to find what we are: Fullsize, Compact, Producer, Rack or Core
     x32debug("Reading config...\n");
     char model[12];
-    char serial[14];
+    char serial[15];
     char date[16];
     readConfig("/etc/x32.conf", "MDL=", model, 12);
-    readConfig("/etc/x32.conf", "SN=", serial, 14);
+    readConfig("/etc/x32.conf", "SN=", serial, 15);
     readConfig("/etc/x32.conf", "DATE=", date, 16);
     x32log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
