@@ -283,7 +283,7 @@ void systemSportInit() {
 	*pDIV6 = 0x00000000;
 	*pDIV7 = 0x00000000;
 
-	// enable TDM8 transmitter
+	// configure TDM8 transmitter
 	// SPEN_A	Channel A enabled
 	// SLEN32	Serial data length is 32 (only 24 bits are used here)
 	// CKRE		Rising Edge of Clock
@@ -291,30 +291,30 @@ void systemSportInit() {
 	// SDEN_A	Enable serial port channel A DMA
 	// SCHEN_A	Enable serial port channel A DMA chaining
 	// SPTRAN	SPORT Channel A as transmitter
-	*pSPCTL0  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
-	*pSPCTL0 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
-	*pSPCTL2  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
-	*pSPCTL2 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
-	*pSPCTL4  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
-	//*pSPCTL4 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
-	//*pSPCTL6  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
-	//*pSPCTL6 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+	*pSPCTL0  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	*pSPCTL0 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+	*pSPCTL2  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	*pSPCTL2 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+	*pSPCTL4  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	//*pSPCTL4 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
+	//*pSPCTL6  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	//*pSPCTL6 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
 
-	// enable TDM8 receiver
+	// configure TDM8 receiver
 	// SPEN_A 	Channel A enabled
 	// SLEN32 	Serial data length is 32 (only 24 bits are used here)
 	// CKRE 	Rising Edge of Clock
 	// FSR 		Frame sync required
 	// SDEN_A 	Enable serial port channel A DMA
 	// SCHEN_A	Enable serial port channel A DMA chaining
-	*pSPCTL1  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
-	*pSPCTL1 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
-	*pSPCTL3  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
-	*pSPCTL3 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
-	*pSPCTL5  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
-	//*pSPCTL5 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
-	//*pSPCTL7  = SPEN_A | SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
-	//*pSPCTL7 |= SPEN_B | SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
+	*pSPCTL1  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	*pSPCTL1 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
+	*pSPCTL3  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	*pSPCTL3 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
+	*pSPCTL5  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	//*pSPCTL5 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
+	//*pSPCTL7  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	//*pSPCTL7 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
 
 	// configure DMA memory
 	// chained DMA is used to autoinitialize next DMA in line
@@ -385,6 +385,16 @@ void systemSportInit() {
 	*pSPMCTL5 |= MCEA | MCEB;
 	*pSPMCTL6 |= MCEA | MCEB;
 	*pSPMCTL7 |= MCEA | MCEB;
+
+	// enable SPORT
+	*pSPCTL0 |= SPEN_A | SPEN_B;
+	*pSPCTL1 |= SPEN_A | SPEN_B;
+	*pSPCTL2 |= SPEN_A | SPEN_B;
+	*pSPCTL3 |= SPEN_A | SPEN_B;
+	*pSPCTL4 |= SPEN_A;// | SPEN_B;
+	*pSPCTL5 |= SPEN_A;// | SPEN_B;
+	//*pSPCTL6 |= SPEN_A | SPEN_B;
+	//*pSPCTL7 |= SPEN_A | SPEN_B;
 }
 
 // endless loop for the case, that CPU-load is above 100% so that

@@ -24,12 +24,33 @@
 
 #include "x32ctrl.h"
 
-// two defines for FPGA-configuration
-#define PROG_B_GPIO_OFFSET 30
-#define DONE_GPIO_OFFSET 2
-#define FPGA_BUFFER_SIZE 4096
-#define FPGA_FILE_BUFFER_SIZE 1024
+// defines for FPGA-configuration via SPI
+#define PROG_B_GPIO_OFFSET      30
+#define DONE_GPIO_OFFSET        2
+#define FPGA_BUFFER_SIZE        4096
+#define FPGA_FILE_BUFFER_SIZE   1024
 
+// defines for SPI-communication with DSPs
+#define SPI_MAX_RX_PAYLOAD_SIZE 200 // 197 int-values + * + # + parameter
+#define SPI_RX_BUFFER_SIZE      (SPI_MAX_RX_PAYLOAD_SIZE * 3) // store up to 3 payload-sets
+typedef enum {
+	LOOKING_FOR_START_MARKER,
+	COLLECTING_PAYLOAD,
+	LOOKING_FOR_END_MARKER
+} spiParserState;
+const unsigned int SPI_START_MARKER = 0x0000002A; // '*'
+const unsigned int SPI_END_MARKER = 0x00000023; // '#'
+typedef struct {
+	uint32_t buffer[SPI_RX_BUFFER_SIZE];
+    int head;
+    int tail;
+
+    spiParserState state = LOOKING_FOR_START_MARKER;
+    uint32_t payload[SPI_MAX_RX_PAYLOAD_SIZE];
+    int payloadIdx;
+    int payloadLength;
+} sSpiRxRingBuffer;
+sSpiRxRingBuffer spiRxRingBuffer[2]; // for both DSPs
 int spiDspHandle[2];
 
 // configures a Xilinx Spartan 3A via SPI
@@ -402,6 +423,83 @@ bool spiCloseDspConnections() {
     return true;
 }
 
+void spiProcessRxData(uint8_t dsp) {
+    while (spiRxRingBuffer[dsp].head != spiRxRingBuffer[dsp].tail) {
+        uint32_t data = spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].tail];
+        spiRxRingBuffer[dsp].tail += 1;
+        if (spiRxRingBuffer[dsp].tail > SPI_RX_BUFFER_SIZE) {
+            spiRxRingBuffer[dsp].tail -= SPI_RX_BUFFER_SIZE;
+        }
+
+        switch (spiRxRingBuffer[dsp].state) {
+            case LOOKING_FOR_START_MARKER:
+                // check for StartMarker
+                if (data == SPI_START_MARKER) {
+                    spiRxRingBuffer[dsp].payloadIdx = 0;
+                    spiRxRingBuffer[dsp].state = COLLECTING_PAYLOAD;
+                }
+                break;
+            case COLLECTING_PAYLOAD:
+                if (spiRxRingBuffer[dsp].payloadIdx == 0) {
+                    // the current data contains the expected message length
+                    spiRxRingBuffer[dsp].payloadLength = ((data & 0xFF000000) >> 24) +1; // '*' parameter values '#'
+                }
+
+                // read data
+                spiRxRingBuffer[dsp].payload[spiRxRingBuffer[dsp].payloadIdx++] = data;
+
+                if ((spiRxRingBuffer[dsp].payloadIdx == spiRxRingBuffer[dsp].payloadLength) || (spiRxRingBuffer[dsp].payloadIdx == SPI_MAX_RX_PAYLOAD_SIZE)) {
+                    // payload is complete. Now check the end marker
+                    spiRxRingBuffer[dsp].state = LOOKING_FOR_END_MARKER;
+                }
+                break;
+            case LOOKING_FOR_END_MARKER:
+                // check for the character '#'
+                if (data == SPI_END_MARKER) {
+                    // we received a valid payload
+                    uint8_t classId = spiRxRingBuffer[dsp].payload[0] & 0x000000FF;
+                    uint8_t channel = (spiRxRingBuffer[dsp].payload[0] & 0x0000FF00 >> 8);
+                    uint8_t index = (spiRxRingBuffer[dsp].payload[0] & 0x00FF0000 >> 16);
+                    uint8_t valueCount = (spiRxRingBuffer[dsp].payload[0] & 0xFFFF0000 >> 24);
+                    if (dsp == 0) {
+                        callbackDsp1(classId, channel, index, valueCount, &spiRxRingBuffer[dsp].payload[1]);
+                    }else{
+                        callbackDsp2(classId, channel, index, valueCount, &spiRxRingBuffer[dsp].payload[1]);
+                    }
+
+                    spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER; // reset state
+                }else{
+                    // error: end-marker not found
+                    spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER; // reset state anyway
+                }
+                break;
+        }
+    }
+}
+
+void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
+    for (int i = 0; i < valueCount; i++) {
+        // check for buffer-overflow
+        int next_head = spiRxRingBuffer[dsp].head + 1;
+        if (next_head > SPI_RX_BUFFER_SIZE) {
+            next_head -= SPI_RX_BUFFER_SIZE;
+        }
+        if (next_head != spiRxRingBuffer[dsp].tail) {
+            // no overlow -> store data
+            spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].head] = values[i];
+            spiRxRingBuffer[dsp].head = next_head;
+
+            // check for EndMarker '#'
+            if (values[i] == SPI_END_MARKER) {
+                spiProcessRxData(dsp);
+            }
+        }else{
+            // buffer-overflow -> reject new data
+            // TODO: check if we should flush the whole buffer at this point?
+        }
+    }
+}
+
 bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[], void* inputValue) {
     struct spi_ioc_transfer tr = {0};
 //    uint32_t* spiTxData = (uint32_t*)malloc((valueCount + 3) * sizeof(uint32_t));
@@ -421,16 +519,17 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
     // send a command via SPI to DSP
     uint32_t parameter = ((uint32_t)valueCount << 24) + ((uint32_t)index << 16) + ((uint32_t)channel << 8) + (uint32_t)classId;
 
-    spiTxData[0] = 0x0000002A; // StartMarker = '*'
+    spiTxData[0] = SPI_START_MARKER; // StartMarker = '*'
     spiTxData[1] = parameter;
     if (values != NULL) {
         // copy output data
         memcpy(&spiTxData[2], &values[0], valueCount * sizeof(uint32_t));
     }
-    spiTxData[(valueCount + 3) - 1] = 0x00000023; // EndMarker = '#'
+    spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // EndMarker = '#'
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw));
 
     bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+    spiPushValuesToRxBuffer(dsp, bytesRead, (uint32_t*)spiRxDataRaw);
 
     if (inputValue != NULL) {
         // DSP needs up to 330µs to set the desired value to output buffer
@@ -443,6 +542,7 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
 
         // read single value from DSP
         bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+        spiPushValuesToRxBuffer(dsp, bytesRead, (uint32_t*)spiRxDataRaw);
 
         memcpy(inputValue, &spiRxDataRaw[0], sizeof(uint32_t)); // copy received data to uint32_t-array
     }
@@ -467,12 +567,14 @@ bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, u
     return spiSendDspParameter(dsp, classId, channel, index, value_f);
 }
 
+// blocking function for reading specific value
 float spiReadDspParameter(uint8_t dsp, uint8_t channel, uint8_t index) {
     float value;
     spiSendReceiveDspParameterArray(dsp, '?', channel, index, 0, NULL, &value);
     return value;
 }
 
+// blocking function for reading specific value
 uint32_t spiReadDspParameter_uint32(uint8_t dsp, uint8_t channel, uint8_t index) {
     uint32_t value;
     spiSendReceiveDspParameterArray(dsp, '?', channel, index, 0, NULL, &value);

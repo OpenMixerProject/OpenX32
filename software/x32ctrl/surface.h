@@ -41,6 +41,7 @@ void surfaceKeepalive(void);
 void surfaceInit(void);
 void surfaceReset(void);
 void surfaceProcessUartData(int bytesToProcess);
+void surfaceUpdateMeter();
 
 void initDefinitions(void);
 void addButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr);

@@ -132,6 +132,9 @@ typedef struct {
         float value_coeff_attack;
         float value_hold_ticks;
         float value_coeff_release;
+
+        // online parameter
+        float gain;
 } sGate;
 
 typedef struct {
@@ -150,6 +153,9 @@ typedef struct {
         float value_coeff_attack;
         float value_hold_ticks;
         float value_coeff_release;
+
+        // online parameter
+        float gain;
 } sCompressor;
 
 #include "x32ctrl.h"
@@ -171,6 +177,8 @@ typedef struct {
   uint8_t sendMixbusTapPoint[16];
   bool muted;
   bool solo;
+  float meterPu; // meter information in p.u.
+  uint8_t meterInfo; // compatible to MeterLED on surface: 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
 } sDspChannel;
 
 typedef struct {
@@ -200,6 +208,8 @@ typedef struct {
   uint8_t sendMatrixTapPoint[6];
   bool muted;
   bool solo;
+  float meterPu[2]; // meter information in p.u.
+  uint32_t meterInfo[2];
 } sMainChannel;
 
 #pragma pack(push, 1)
@@ -243,6 +253,10 @@ typedef struct {
   float volumeSpecial;
   float monitorVolume;
   uint8_t monitorTapPoint;
+
+  // status messages
+  float dspLoad[2];
+  uint32_t dspVersion[2];
 } sDsp;
 
 // virtual mixer channel

@@ -1334,6 +1334,143 @@ void addEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     x32debug("added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
 }
 
+uint8_t surfaceCalcPreampMeter(uint8_t channel) {
+    if (channel >= 40) {
+        return 0; // no preamps outside the 40 dsp-channels
+    }
+
+    float audiodata = mixer.dsp.dspChannel[channel].meterPu*2147483648.0f;
+    uint32_t meterdata = 0;
+    if (audiodata >= vuThresholds[0])  { meterdata |= 0b10000000; } // CLIP
+    if (audiodata >= vuThresholds[3])  { meterdata |= 0b01000000; } // -3dBfs
+    if (audiodata >= vuThresholds[5])  { meterdata |= 0b00100000; } // -6dBfs
+    if (audiodata >= vuThresholds[7])  { meterdata |= 0b00010000; } // -9dBfs
+    if (audiodata >= vuThresholds[8])  { meterdata |= 0b00001000; } // -12dBfs
+    if (audiodata >= vuThresholds[10]) { meterdata |= 0b00000100; } // -18dBfs
+    if (audiodata >= vuThresholds[14]) { meterdata |= 0b00000010; } // -30dBfs
+    if (audiodata >= vuThresholds[24]) { meterdata |= 0b00000001; } // SIG
+
+    return meterdata;
+}
+
+uint8_t surfaceCalcDynamicMeter(uint8_t channel) {
+    // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+    if (channel < 40) {
+        uint32_t meterdata = 0;
+
+        if (mixer.dsp.dspChannel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
+
+        float gateValue = (1.0f - mixer.dsp.dspChannel[channel].gate.gain) * 80.0f;
+        if (gateValue >= 2.0f)  { meterdata |= 0b00100000; }        
+        if (gateValue >= 4.0f)  { meterdata |= 0b00010000; }        
+        if (gateValue >= 6.0f)  { meterdata |= 0b00001000; }        
+        if (gateValue >= 10.0f) { meterdata |= 0b00000100; }        
+        if (gateValue >= 18.0f) { meterdata |= 0b00000010; }        
+        if (gateValue >= 30.0f) { meterdata |= 0b00000001; }        
+
+        if (mixer.dsp.dspChannel[channel].gate.gain < 1.0f) { meterdata |= 0b01000000; };
+
+        return meterdata;
+    }else{
+        return 0; // no dynamic-data for other channels at the moment
+    }
+}
+
+void surfaceUpdateMeter() {
+    if (mixerIsModelX32Core()) {
+        // no led-meters at all
+        return;
+    }
+
+    // update preamp, dynamics, meterL, meterR, meterSolo
+    // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+    // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
+    //setMeterLedMain(0b00000111, 0b11100001, 0x0FFFFF, 0x0FFFFF, 0x000FFF);
+    uint8_t chanIdx = mixerGetSelectedChannelIndex();
+    setMeterLedMain(surfaceCalcPreampMeter(chanIdx), surfaceCalcDynamicMeter(chanIdx), mixer.dsp.mainChannelLR.meterInfo[0], mixer.dsp.mainChannelLR.meterInfo[1], mixer.dsp.mainChannelSub.meterInfo[0]);
+
+
+    if (mixerIsModelX32Rack()) {
+        // no led-meters per channel
+        return;
+    }
+
+    // update channel-meters
+    if (mixerIsModelX32Full()) {
+        // update meters on board L and M
+        switch (mixer.activeBank_inputFader) {
+            case 0: // Input 1-16
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[i].meterInfo);
+                    setMeterLed(X32_BOARD_M, 0, mixer.dsp.dspChannel[i + 8].meterInfo);
+                }
+                break;
+            case 1: // Input 17-32
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[16 + i].meterInfo);
+                    setMeterLed(X32_BOARD_M, 0, mixer.dsp.dspChannel[16 + i + 8].meterInfo);
+                }
+                break;
+            case 2: // Aux 1-8 / FX-Return
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[32 + i].meterInfo);
+                    //setMeterLed(X32_BOARD_M, 0, 0);
+                }
+                break;
+            case 3: // Bus 1-16
+                break;
+        }
+    }else{
+        // update meters on board L
+        switch (mixer.activeBank_inputFader) {
+            case 0: // Input 1-8
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[i].meterInfo);
+                }
+                break;
+            case 1: // Input 9-16
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[8 + i].meterInfo);
+                }
+                break;
+            case 2: // Input 17-24
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[16 + i].meterInfo);
+                }
+                break;
+            case 3: // Input 25-32
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[24 + i].meterInfo);
+                }
+                break;
+            case 4: // Aux 1-8
+                for (uint8_t i = 0; i < 8; i++) {
+                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[32 + i].meterInfo);
+                }
+                break;
+            case 5: // FX-Return
+                break;
+            case 6: // Bus 1-8
+                break;
+            case 7: // Bus 9-16
+                break;
+        }
+    }
+
+    // update meters on board R
+    switch (mixer.activeBank_busFader) {
+        case 0: // DCA1-8
+            // no meter here
+            break;
+        case 1: // BUS 1-8
+            break;
+        case 2: // BUS 1-16
+            break;
+        case 3: // Matrix 1-6, Special, MainSub
+            break;
+    }
+}
+
 void initDefinitions(void) {
     switch(mixer.model) {
         case X32_MODEL_FULL:

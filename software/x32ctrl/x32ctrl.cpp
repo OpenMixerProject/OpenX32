@@ -70,18 +70,28 @@ void timer100msCallback() {
     // surface wants to know the current state of all LED's and Meters
     surfaceKeepalive();
     touchcontrolTick();
+    surfaceUpdateMeter();
 
     // update meters on XRemote-clients
     xremoteUpdateMeter();
 
-    // toggle the LED on DSP1 to show some activity
+    // toggle the LED on DSP1 and DSP2 to show some activity and to continuously read data from SPI
     spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
+    spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
+
+    // read meter-information from DSP
+    spiSendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
 
     // read the current DSP load
     if (!mixerIsModelX32Core()){
-        uint32_t dspClockCycles = spiReadDspParameter_uint32(0, 1, 0);
-        float dspLoad = (((float)dspClockCycles/264.0f) / (16.0f/0.048f)) * 100.0f;
-        lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %%", dspLoad); // DSP0, channel = 1, index = 0
+        spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+        spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+        lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% | DSP2: %.2f %%", mixer.dsp.dspLoad[0], mixer.dsp.dspLoad[1]); // show the received value (could be a bit older than the request)
+
+        // alternative: use blocking read-function
+        //uint32_t dspClockCycles = spiReadDspParameter_uint32(0, 1, 0);
+        //mixer.dsp.dspLoad[0] = (((float)dspClockCycles/264.0f) / (16.0f/0.048f)) * 100.0f;
+        //lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %%", mixer.dsp.dspLoad[0]); // show the received value (could be a bit older than the request)
     }
 }
 
@@ -95,6 +105,10 @@ void timer10msCallback() {
 
     // read data from FPGA
     fpgaProcessUartData(uartRx(&fdFpga, &fpgaBufferUart[0], sizeof(fpgaBufferUart)));
+
+    // continuously read data from both DSPs
+    spiSendDspParameter_uint32(0, '?', 0, 0, 0); // this command will not add new data to DSPs txBuffer, but receives data from the buffer and will call "callbackDsp1()" in case of new data
+    spiSendDspParameter_uint32(1, '?', 0, 0, 0); // this command will not add new data to DSPs txBuffer, but receives data from the buffer and will call "callbackDsp2()" in case of new data
 
     // communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
     xremoteUdpHandleCommunication();
@@ -334,6 +348,101 @@ void callbackFpga(char* buf, uint8_t len) {
     // later it is planned to receive information about audio-levels here
     //printf("Received: %s\n", buf);
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
+}
+
+void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
+    float* floatValues = (float*)values;
+    uint32_t* intValues = (uint32_t*)values;
+
+    switch (classId) {
+        case 's': // status-feedback
+            switch (channel) {
+                case 'v': // DSP-Version
+                    if (valueCount == 1) {
+                        mixer.dsp.dspVersion[0] = intValues[0];
+                    }
+                    break;
+                case 'c': // DSP-Load in dspClockCycles
+                    if (valueCount == 1) {
+                        mixer.dsp.dspLoad[0] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                    }
+                    break;
+            }
+            break;
+        case 'm': // meter information
+            // copy meter-info to individual channels
+            // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+            if (valueCount == 43) {
+                for (int i = 0; i < 40; i++) {
+                    mixer.dsp.dspChannel[i].meterPu = abs(floatValues[i])/2147483648.0f; // convert 32-bit value to p.u.
+                    uint32_t data = (uint32_t)abs(floatValues[i]); // convert received float-value to unsigned integer
+                    // data contains a 32-bit sample-value
+                    // lets check the threshold and set meterInfo
+                    mixer.dsp.dspChannel[i].meterInfo = 0;
+                    if (data >= vuThresholds[0])  { mixer.dsp.dspChannel[i].meterInfo |= 0b00100000; } // CLIP
+                    if (data >= vuThresholds[5])  { mixer.dsp.dspChannel[i].meterInfo |= 0b00010000; } // -6dBfs
+                    if (data >= vuThresholds[8])  { mixer.dsp.dspChannel[i].meterInfo |= 0b00001000; } // -12dBfs
+                    if (data >= vuThresholds[10]) { mixer.dsp.dspChannel[i].meterInfo |= 0b00000100; } // -18dBfs
+                    if (data >= vuThresholds[14]) { mixer.dsp.dspChannel[i].meterInfo |= 0b00000010; } // -30dBfs
+                    if (data >= vuThresholds[24]) { mixer.dsp.dspChannel[i].meterInfo |= 0b00000001; } // -60dBfs
+
+                    // the dynamic-information is received with the 'd' information, but we will store them here
+                    if (mixer.dsp.dspChannel[i].gate.gain < 1.0f) { mixer.dsp.dspChannel[i].meterInfo |= 0b01000000; }
+                    if (mixer.dsp.dspChannel[i].compressor.gain < 1.0f) { mixer.dsp.dspChannel[i].meterInfo |= 0b10000000; }
+                }
+                mixer.dsp.mainChannelLR.meterPu[0] = abs(floatValues[40])/2147483648.0f; // convert 32-bit value to p.u.
+                mixer.dsp.mainChannelLR.meterPu[1] = abs(floatValues[41])/2147483648.0f; // convert 32-bit value to p.u.
+                mixer.dsp.mainChannelSub.meterPu[0] = abs(floatValues[42])/2147483648.0f; // convert 32-bit value to p.u.
+
+                // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+                // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
+                mixer.dsp.mainChannelLR.meterInfo[0] = 0;
+                uint32_t data[3];
+                data[0] = abs(floatValues[40]);
+                data[1] = abs(floatValues[41]);
+                data[2] = abs(floatValues[42]);
+                for (int i = 0; i < 24; i++) {
+                    if (data[0] >= vuThresholds[i]) { mixer.dsp.mainChannelLR.meterInfo[0]  |= (1U << i); }
+                    if (data[1] >= vuThresholds[i]) { mixer.dsp.mainChannelLR.meterInfo[1]  |= (1U << i); }
+                    if (data[2] >= vuThresholds[i]) { mixer.dsp.mainChannelSub.meterInfo[0] |= (1U << i); }
+                }
+            }
+            break;
+        case 'd': // dynamics-information
+            if (valueCount == 80) {
+                // first copy the compression-information
+                for (int i = 0; i < 40; i++) {
+                    mixer.dsp.dspChannel[i].compressor.gain = floatValues[i];
+                    mixer.dsp.dspChannel[i].gate.gain = floatValues[40 + i];
+                }
+            }
+        default:
+            break;
+    }
+}
+
+void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
+    float* floatValues = (float*)values;
+    uint32_t* intValues = (uint32_t*)values;
+
+    switch (classId) {
+        case 's': // status-feedback
+            switch (channel) {
+                case 'v': // DSP-Version
+                    if (valueCount == 1) {
+                        mixer.dsp.dspVersion[1] = intValues[0];
+                    }
+                    break;
+                case 'c': // DSP-Load in dspClockCycles
+                    if (valueCount == 1) {
+                        mixer.dsp.dspLoad[1] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                    }
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 // ####################################################################

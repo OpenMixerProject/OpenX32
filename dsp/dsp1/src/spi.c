@@ -27,13 +27,8 @@
 unsigned int spiDmaBuffer[SPI_DMA_BUFFER_SIZE];
 bool spiDmaMode = false;
 
-// variables and types for SPI-transmitter in Slave-Mode
-typedef struct {
-	unsigned int buffer[SPI_BUFFER_SIZE];
-	volatile int head; // write-pointer
-	volatile int tail; // read-pointer
-} sSpiRingBuffer;
-volatile sSpiRingBuffer spiRingBuffer;
+volatile sSpiRxRingBuffer spiRxRingBuffer;
+volatile sSpiTxRingBuffer spiTxRingBuffer;
 volatile bool spiNewRxDataReady = false;
 
 typedef enum {
@@ -122,15 +117,27 @@ void spiISR(int sig) {
 		// valid data in RXSPI -> add to receive-buffer
 		unsigned int rxData = *pRXSPI;
 
-		// TEST: mirror the received byte back to the SPI-Master
-		//*pTXSPI = rxData;
+		// send tx-buffer
+		if (spiRxRingBuffer.head != spiRxRingBuffer.tail) {
+			*pTXSPI = spiTxRingBuffer.buffer[spiTxRingBuffer.tail];
+			spiTxRingBuffer.tail += 1;
+			if (spiTxRingBuffer.tail > SPI_TX_BUFFER_SIZE) {
+				spiTxRingBuffer.tail -= SPI_TX_BUFFER_SIZE;
+			}
+		}else{
+			// tx-buffer is empty
+			*pTXSPI = 0x00000000;
+		}
 
 		// check for buffer-overflow
-		int next_head = (spiRingBuffer.head + 1) % SPI_BUFFER_SIZE;
-		if (next_head != spiRingBuffer.tail) {
+		int next_head = (spiRxRingBuffer.head + 1);
+		if (next_head > SPI_RX_BUFFER_SIZE) {
+			next_head -= SPI_RX_BUFFER_SIZE;
+		}
+		if (next_head != spiRxRingBuffer.tail) {
 			// no overflow -> store data
-			spiRingBuffer.buffer[spiRingBuffer.head] = rxData;
-			spiRingBuffer.head = next_head;
+			spiRxRingBuffer.buffer[spiRxRingBuffer.head] = rxData;
+			spiRxRingBuffer.head = next_head;
 			spiNewRxDataReady = (rxData == 0x00000023); // check for '#'
 		}else{
 			// buffer-overflow -> reject new data
@@ -147,13 +154,16 @@ void spiProcessRxData(void) {
 	// * LENGTH PARAMETER VALUE-ARRAY # (each with 32-bit)
 
 	static spiParserState state = LOOKING_FOR_START_MARKER;
-	static unsigned int payload[SPI_MAX_PAYLOAD_SIZE];
+	static unsigned int payload[SPI_MAX_RX_PAYLOAD_SIZE];
 	static int payloadIdx = 0;
 	static unsigned short payloadLength;
 
-	while (spiRingBuffer.head != spiRingBuffer.tail) {
-		unsigned int data = spiRingBuffer.buffer[spiRingBuffer.tail];
-		spiRingBuffer.tail = (spiRingBuffer.tail + 1) % SPI_BUFFER_SIZE;
+	while (spiRxRingBuffer.head != spiRxRingBuffer.tail) {
+		unsigned int data = spiRxRingBuffer.buffer[spiRxRingBuffer.tail];
+		spiRxRingBuffer.tail += 1;
+		if (spiRxRingBuffer.tail > SPI_RX_BUFFER_SIZE) {
+			spiRxRingBuffer.tail -= SPI_RX_BUFFER_SIZE;
+		}
 
 		switch (state) {
 			case LOOKING_FOR_START_MARKER:
@@ -172,7 +182,7 @@ void spiProcessRxData(void) {
 				// read data
 				payload[payloadIdx++] = data;
 
-				if ((payloadIdx == payloadLength) || (payloadIdx == SPI_MAX_PAYLOAD_SIZE)) {
+				if ((payloadIdx == payloadLength) || (payloadIdx == SPI_MAX_RX_PAYLOAD_SIZE)) {
 					// payload is complete. Now check the end marker
 					state = LOOKING_FOR_END_MARKER;
 				}
@@ -195,6 +205,36 @@ void spiProcessRxData(void) {
 				break;
 		}
 	}
+}
+
+void spiPushValueToTxBuffer(unsigned int value) {
+	// check for buffer-overflow
+	int next_head = spiTxRingBuffer.head + 1;
+	if (next_head > SPI_TX_BUFFER_SIZE) {
+		next_head -= SPI_TX_BUFFER_SIZE;
+	}
+	if (next_head != spiTxRingBuffer.tail) {
+		// no overlow -> store data
+		spiTxRingBuffer.buffer[spiTxRingBuffer.head] = value;
+		spiTxRingBuffer.head = next_head;
+	}else{
+		// buffer-overflow -> reject new data
+	}
+}
+
+void spiSendArray(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
+	spiPushValueToTxBuffer(0x00000023); // StartMarker = '*'
+	unsigned int parameter = ((unsigned int)valueCount << 24) + ((unsigned int)index << 16) + ((unsigned int)channel << 8) + (unsigned int)classId;
+	spiPushValueToTxBuffer(parameter);
+
+	for (int i = 0; i < valueCount; i++) {
+		spiPushValueToTxBuffer(((unsigned int*)values)[i]);
+	}
+	spiPushValueToTxBuffer(0x00000023); // EndMarker = '#'
+}
+
+void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, unsigned int value) {
+	spiSendArray(classId, channel, index, 1, &value);
 }
 
 /*

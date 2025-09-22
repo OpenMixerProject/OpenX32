@@ -106,20 +106,38 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 
 	float* floatValues = (float*)values;
 	unsigned int* intValues = (unsigned int*)values;
+	float data[80];
 
 	switch (classId) {
 		case '?':
 			// read a specific value
 			switch (channel) {
-				case 0: // version number
-					*pTXSPI = 0x00000001;
+				case 0:
+					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
-				case 1: // cpu load as "used cycles"
-					*pTXSPI = cyclesMain;
+				case 'v': // version number
+					spiSendValue('s', 'v', 0, 0x00000001); // classId='s'=Status, channel='v'=Version, index=0, value
+					break;
+				case 'c': // cpu load as "used cycles"
+					spiSendValue('s', 'c', 0, cyclesMain); // classId='s'=Status, channel='c'=CPULoad, index=0, value
+					break;
+				case 'm': // meter
+					for (int i = 0; i < 40; i++) {
+						data[i] = audioBuffer[TAP_INPUT][BUF_IDX_DSPCHANNEL + i][0];
+					}
+					data[40] = audioBuffer[TAP_POST_FADER][BUF_IDX_MAINLEFT][0];
+					data[41] = audioBuffer[TAP_POST_FADER][BUF_IDX_MAINRIGHT][0];
+					data[42] = audioBuffer[TAP_POST_FADER][BUF_IDX_MAINSUB][0];
+					spiSendArray('m', 0, 0, 43, &data); // classId='m'=Meter, channel=0=InputData, index=0, valueCount=40, value-Array
+					break;
+				case 'd': // dynamics (gate and compression)
+					for (int i = 0; i < 40; i++) {
+						data[i] = dsp.compressorGain[i];
+						data[40 + i] = dsp.gateGain[i];
+					}
+					spiSendArray('d', 0, 0, 80, &data); // classId='d'=Dynamics, channel=0, index=0, valueCount=40, value-Array
 					break;
 				default:
-					// not implemented
-					*pTXSPI = 0xDEADBEEF;
 					break;
 			}
 			break;

@@ -381,4 +381,33 @@ typedef enum  {
 
 } X32_ENC;
 
+// (uint32_t)(pow(2, 31) * pow(10, dBfs / 20.0))
+const uint32_t vuThresholds[] = {
+    2120000000, // index  0 = ~0 dBfs // should be 2147483648, but turn-on CLIP-led on before real clipping
+    1914948731, // index  1 = -1 dBfs
+    1705600109, // index  2 = -2 dBfs
+    1520146747, // index  3 = -3 dBfs
+    1355416719, // index  4 = -4 dBfs
+    1077708304, // index  5 = -6 dBfs
+    856262174,  // index  6 = -8 dBfs
+    680373708,  // index  7 = -10 dBfs
+    539824673,  // index  8 = -12 dBfs
+    382216890,  // index  9 = -15 dBfs
+    270387531,  // index 10 = -18 dBfs
+    191494873,  // index 11 = -21 dBfs
+    135541672,  // index 12 = -24 dBfs
+    96009653,   // index 13 = -27 dBfs
+    68037371,   // index 14 = -30 dBfs
+    48169904,   // index 15 = -33 dBfs
+    34105089,   // index 16 = -36 dBfs
+    24160410,   // index 17 = -39 dBfs
+    17109579,   // index 18 = -42 dBfs
+    12117565,   // index 19 = -45 dBfs
+    8582730,    // index 20 = -48 dBfs
+    6077596,    // index 21 = -51 dBfs
+    4300762,    // index 22 = -54 dBfs
+    3046757,    // index 23 = -57 dBfs
+    2147483     // index 24 = -60 dBfs
+};
+
 #endif

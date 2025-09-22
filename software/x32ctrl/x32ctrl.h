@@ -144,6 +144,8 @@ void timer10msCallback();
 void callbackSurface(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t value);
 void callbackAdda(char* msg);
 void callbackFpga(char* buf, uint8_t len);
+void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
+void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
 void syncAll(void);
 void x32log(const char* format, ...);
 void x32debug(const char* format, ...);
