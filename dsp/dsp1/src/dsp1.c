@@ -135,7 +135,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 						data[i] = dsp.compressorGain[i];
 						data[40 + i] = dsp.gateGain[i];
 					}
-					spiSendArray('d', 0, 0, 80, &data); // classId='d'=Dynamics, channel=0, index=0, valueCount=40, value-Array
+					spiSendArray('d', 0, 0, 80, &data); // classId='d'=Dynamics, channel=0, index=0, valueCount=80, value-Array
 					break;
 				default:
 					break;

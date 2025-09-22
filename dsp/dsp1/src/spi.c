@@ -49,7 +49,8 @@ void spiInit(void) {
 	*pSPIFLG = DS0EN; // Enable SRU2 output for SPI device-select-0
 
 	// Start SPI in CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
-	*pSPICTL = ISSEN | MSBF | WL32 | SPIEN; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | spi enabled
+	*pSPICTL = ISSEN | MSBF | WL32 | CLKPL | CPHASE; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | spi enabled
+	*pSPICTL |= SPIEN;
 }
 
 void spiStop(void) {
@@ -114,33 +115,38 @@ void spiISR(int sig) {
 		// end of last DMA-Transmission
 		spiDmaEnd();
 	}else{
-		// valid data in RXSPI -> add to receive-buffer
-		unsigned int rxData = *pRXSPI;
+		if (RXS & *pSPISTAT) {
+			// valid data in RXSPI -> add to receive-buffer
+			unsigned int rxData = *pRXSPI;
 
-		// send tx-buffer
-		if (spiRxRingBuffer.head != spiRxRingBuffer.tail) {
-			*pTXSPI = spiTxRingBuffer.buffer[spiTxRingBuffer.tail];
-			spiTxRingBuffer.tail += 1;
-			if (spiTxRingBuffer.tail > SPI_TX_BUFFER_SIZE) {
-				spiTxRingBuffer.tail -= SPI_TX_BUFFER_SIZE;
+			// check for buffer-overflow
+			int next_head = (spiRxRingBuffer.head + 1);
+			if (next_head > SPI_RX_BUFFER_SIZE) {
+				next_head -= SPI_RX_BUFFER_SIZE;
 			}
-		}else{
-			// tx-buffer is empty
-			*pTXSPI = 0x00000000;
+			if (next_head != spiRxRingBuffer.tail) {
+				// no overflow -> store data
+				spiRxRingBuffer.buffer[spiRxRingBuffer.head] = rxData;
+				spiRxRingBuffer.head = next_head;
+				spiNewRxDataReady = (rxData == 0x00000023); // check for '#'
+			}else{
+				// buffer-overflow -> reject new data
+			}
 		}
 
-		// check for buffer-overflow
-		int next_head = (spiRxRingBuffer.head + 1);
-		if (next_head > SPI_RX_BUFFER_SIZE) {
-			next_head -= SPI_RX_BUFFER_SIZE;
-		}
-		if (next_head != spiRxRingBuffer.tail) {
-			// no overflow -> store data
-			spiRxRingBuffer.buffer[spiRxRingBuffer.head] = rxData;
-			spiRxRingBuffer.head = next_head;
-			spiNewRxDataReady = (rxData == 0x00000023); // check for '#'
-		}else{
-			// buffer-overflow -> reject new data
+		//if ((!(TXS & *pSPISTAT)) && ()) {
+		if (!(TXS & *pSPISTAT)) {
+			// send tx-buffer
+			if (spiTxRingBuffer.head != spiTxRingBuffer.tail) {
+				*pTXSPI = spiTxRingBuffer.buffer[spiTxRingBuffer.tail];
+				spiTxRingBuffer.tail += 1;
+				if (spiTxRingBuffer.tail > SPI_TX_BUFFER_SIZE) {
+					spiTxRingBuffer.tail -= SPI_TX_BUFFER_SIZE;
+				}
+			}else{
+				// tx-buffer is empty
+				//*pTXSPI = 0x00000000;
+			}
 		}
 	}
 }
@@ -191,9 +197,9 @@ void spiProcessRxData(void) {
 				// check for character '#'
 				if (data == SPI_END_MARKER) {
 					// we received a valid payload
-					unsigned short classId = payload[0] & 0x000000FF;
-					unsigned short channel = ((payload[0] & 0x0000FF00) >> 8);
-					unsigned short index = ((payload[0] & 0x00FF0000) >> 16);
+					unsigned short classId    = payload[0] & 0x000000FF;
+					unsigned short channel    = ((payload[0] & 0x0000FF00) >> 8);
+					unsigned short index      = ((payload[0] & 0x00FF0000) >> 16);
 					unsigned short valueCount = ((payload[0] & 0xFF000000) >> 24);
 					openx32Command(classId, channel, index, valueCount, &payload[1]); // classId, channel, index, valuecount, values[]
 
@@ -223,14 +229,13 @@ void spiPushValueToTxBuffer(unsigned int value) {
 }
 
 void spiSendArray(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
-	spiPushValueToTxBuffer(0x00000023); // StartMarker = '*'
+	spiPushValueToTxBuffer(SPI_START_MARKER); // StartMarker = '*'
 	unsigned int parameter = ((unsigned int)valueCount << 24) + ((unsigned int)index << 16) + ((unsigned int)channel << 8) + (unsigned int)classId;
 	spiPushValueToTxBuffer(parameter);
-
 	for (int i = 0; i < valueCount; i++) {
 		spiPushValueToTxBuffer(((unsigned int*)values)[i]);
 	}
-	spiPushValueToTxBuffer(0x00000023); // EndMarker = '#'
+	spiPushValueToTxBuffer(SPI_END_MARKER); // EndMarker = '#'
 }
 
 void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, unsigned int value) {
