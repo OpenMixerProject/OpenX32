@@ -77,21 +77,19 @@ void timer100msCallback() {
 
     // toggle the LED on DSP1 and DSP2 to show some activity and to continuously read data from SPI
     spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
-    spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
+    //spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
 
-    // read meter-information from DSP
-    spiSendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
+    // read meter- and dynamics-information from DSP
+    if (mixerIsModelX32FullOrCompactOrProducer()) {
+        spiSendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
+        //spiSendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
+    }
 
     // read the current DSP load
     if (!mixerIsModelX32Core()){
         spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-        spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+        //spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
         lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% | DSP2: %.2f %%", mixer.dsp.dspLoad[0], mixer.dsp.dspLoad[1]); // show the received value (could be a bit older than the request)
-
-        // alternative: use blocking read-function
-        //uint32_t dspClockCycles = spiReadDspParameter_uint32(0, 1, 0);
-        //mixer.dsp.dspLoad[0] = (((float)dspClockCycles/264.0f) / (16.0f/0.048f)) * 100.0f;
-        //lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %%", mixer.dsp.dspLoad[0]); // show the received value (could be a bit older than the request)
     }
 }
 
@@ -397,14 +395,16 @@ void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t value
                 // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
                 // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
                 mixer.dsp.mainChannelLR.meterInfo[0] = 0;
+                mixer.dsp.mainChannelLR.meterInfo[1] = 0;
+                mixer.dsp.mainChannelSub.meterInfo[0] = 0;
                 uint32_t data[3];
                 data[0] = abs(floatValues[40]);
                 data[1] = abs(floatValues[41]);
                 data[2] = abs(floatValues[42]);
                 for (int i = 0; i < 24; i++) {
-                    if (data[0] >= vuThresholds[i]) { mixer.dsp.mainChannelLR.meterInfo[0]  |= (1U << i); }
-                    if (data[1] >= vuThresholds[i]) { mixer.dsp.mainChannelLR.meterInfo[1]  |= (1U << i); }
-                    if (data[2] >= vuThresholds[i]) { mixer.dsp.mainChannelSub.meterInfo[0] |= (1U << i); }
+                    if (data[0] >= vuThresholds[i]) { mixer.dsp.mainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
+                    if (data[1] >= vuThresholds[i]) { mixer.dsp.mainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
+                    if (data[2] >= vuThresholds[i]) { mixer.dsp.mainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
                 }
             }
             break;

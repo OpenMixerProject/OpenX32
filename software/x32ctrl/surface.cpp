@@ -1401,20 +1401,20 @@ void surfaceUpdateMeter() {
         switch (mixer.activeBank_inputFader) {
             case 0: // Input 1-16
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[i].meterInfo);
-                    setMeterLed(X32_BOARD_M, 0, mixer.dsp.dspChannel[i + 8].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[i].meterInfo);
+                    setMeterLed(X32_BOARD_M, i, mixer.dsp.dspChannel[i + 8].meterInfo);
                 }
                 break;
             case 1: // Input 17-32
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[16 + i].meterInfo);
-                    setMeterLed(X32_BOARD_M, 0, mixer.dsp.dspChannel[16 + i + 8].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[16 + i].meterInfo);
+                    setMeterLed(X32_BOARD_M, i, mixer.dsp.dspChannel[16 + i + 8].meterInfo);
                 }
                 break;
             case 2: // Aux 1-8 / FX-Return
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[32 + i].meterInfo);
-                    //setMeterLed(X32_BOARD_M, 0, 0);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[32 + i].meterInfo);
+                    //setMeterLed(X32_BOARD_M, i, 0);
                 }
                 break;
             case 3: // Bus 1-16
@@ -1425,27 +1425,27 @@ void surfaceUpdateMeter() {
         switch (mixer.activeBank_inputFader) {
             case 0: // Input 1-8
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[i].meterInfo);
                 }
                 break;
             case 1: // Input 9-16
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[8 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[8 + i].meterInfo);
                 }
                 break;
             case 2: // Input 17-24
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[16 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[16 + i].meterInfo);
                 }
                 break;
             case 3: // Input 25-32
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[24 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[24 + i].meterInfo);
                 }
                 break;
             case 4: // Aux 1-8
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, 0, mixer.dsp.dspChannel[32 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[32 + i].meterInfo);
                 }
                 break;
             case 5: // FX-Return

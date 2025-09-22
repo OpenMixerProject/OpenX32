@@ -19,11 +19,9 @@ bool spiOpenDspConnections();
 bool spiCloseDspConnections();
 void spiProcessRxData(uint8_t dsp);
 void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]);
-bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[], void* inputValue);
+bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
 bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
 bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value);
 bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value);
-float spiReadDspParameter(uint8_t dsp, uint8_t channel, uint8_t index);
-uint32_t spiReadDspParameter_uint32(uint8_t dsp, uint8_t channel, uint8_t index);
 
 #endif

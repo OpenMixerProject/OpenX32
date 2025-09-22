@@ -164,6 +164,7 @@ int spiConfigureFpga(const char* bitstream_path) {
     tr.rx_buf = (unsigned long)rx_buffer;
     tr.bits_per_word = spiBitsPerWord;
     tr.speed_hz = spiSpeed;
+    tr.delay_usecs = 0;
 
     x32debug("Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...\n");
     int fdResetFpga = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
@@ -304,6 +305,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
     tr.rx_buf = (unsigned long)spiRxData;
     tr.bits_per_word = spiBitsPerWord;
     tr.speed_hz = spiSpeed;
+    tr.delay_usecs = 0;
 
     // resetting DSPs
     int fdResetDsp = open("/sys/class/leds/reset_dsp/brightness", O_WRONLY);
@@ -442,7 +444,7 @@ void spiProcessRxData(uint8_t dsp) {
             case COLLECTING_PAYLOAD:
                 if (spiRxRingBuffer[dsp].payloadIdx == 0) {
                     // the current data contains the expected message length
-                    spiRxRingBuffer[dsp].payloadLength = ((data & 0xFF000000) >> 24) +1; // '*' parameter values '#'
+                    spiRxRingBuffer[dsp].payloadLength = ((data & 0xFF000000) >> 24) + 1; // '*' parameter values '#'
                 }
 
                 // read data
@@ -457,10 +459,10 @@ void spiProcessRxData(uint8_t dsp) {
                 // check for the character '#'
                 if (data == SPI_END_MARKER) {
                     // we received a valid payload
-                    uint8_t classId = spiRxRingBuffer[dsp].payload[0] & 0x000000FF;
-                    uint8_t channel = (spiRxRingBuffer[dsp].payload[0] & 0x0000FF00 >> 8);
-                    uint8_t index = (spiRxRingBuffer[dsp].payload[0] & 0x00FF0000 >> 16);
-                    uint8_t valueCount = (spiRxRingBuffer[dsp].payload[0] & 0xFFFF0000 >> 24);
+                    uint8_t classId    =  (spiRxRingBuffer[dsp].payload[0] & 0x000000FF);
+                    uint8_t channel    = ((spiRxRingBuffer[dsp].payload[0] & 0x0000FF00) >> 8);
+                    uint8_t index      = ((spiRxRingBuffer[dsp].payload[0] & 0x00FF0000) >> 16);
+                    uint8_t valueCount = ((spiRxRingBuffer[dsp].payload[0] & 0xFF000000) >> 24);
                     if (dsp == 0) {
                         callbackDsp1(classId, channel, index, valueCount, &spiRxRingBuffer[dsp].payload[1]);
                     }else{
@@ -495,12 +497,15 @@ void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]
             }
         }else{
             // buffer-overflow -> reject new data
-            // TODO: check if we should flush the whole buffer at this point?
+            // clear buffer (we receive 0x000000 if no data is sent)
+            spiRxRingBuffer[dsp].head = 0;
+            spiRxRingBuffer[dsp].tail = 0;
+            spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER;
         }
     }
 }
 
-bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[], void* inputValue) {
+bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
     struct spi_ioc_transfer tr = {0};
 //    uint32_t* spiTxData = (uint32_t*)malloc((valueCount + 3) * sizeof(uint32_t));
 //    uint8_t* spiTxDataRaw = (uint8_t*)malloc((valueCount + 3) * sizeof(uint32_t));
@@ -514,6 +519,7 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
     tr.rx_buf = (unsigned long)spiRxDataRaw;
     tr.bits_per_word = 32;
     tr.speed_hz = SPI_SPEED_HZ;
+    tr.delay_usecs = 0;
     tr.len = sizeof(spiTxDataRaw);
 
     // send a command via SPI to DSP
@@ -527,25 +533,9 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
     }
     spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // EndMarker = '#'
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw));
-
+    
     bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-    spiPushValuesToRxBuffer(dsp, bytesRead, (uint32_t*)spiRxDataRaw);
-
-    if (inputValue != NULL) {
-        // DSP needs up to 330µs to set the desired value to output buffer
-        usleep(500);
-        tr.len = 1;
-        spiTxDataRaw[0] = 0;
-        spiTxDataRaw[1] = 0;
-        spiTxDataRaw[2] = 0;
-        spiTxDataRaw[3] = 0;
-
-        // read single value from DSP
-        bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-        spiPushValuesToRxBuffer(dsp, bytesRead, (uint32_t*)spiRxDataRaw);
-
-        memcpy(inputValue, &spiRxDataRaw[0], sizeof(uint32_t)); // copy received data to uint32_t-array
-    }
+    spiPushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
 //    free(spiTxData);
 //    free(spiTxDataRaw);
 //    free(spiRxDataRaw);
@@ -554,7 +544,7 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
 }
 
 bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
-    return spiSendReceiveDspParameterArray(dsp, classId, channel, index, valueCount, values, NULL);
+    return spiSendReceiveDspParameterArray(dsp, classId, channel, index, valueCount, values);
 }
 
 bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value) {
@@ -562,21 +552,5 @@ bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t 
 }
 
 bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
-    float value_f;
-    memcpy(&value_f, &value, 4);
-    return spiSendDspParameter(dsp, classId, channel, index, value_f);
-}
-
-// blocking function for reading specific value
-float spiReadDspParameter(uint8_t dsp, uint8_t channel, uint8_t index) {
-    float value;
-    spiSendReceiveDspParameterArray(dsp, '?', channel, index, 0, NULL, &value);
-    return value;
-}
-
-// blocking function for reading specific value
-uint32_t spiReadDspParameter_uint32(uint8_t dsp, uint8_t channel, uint8_t index) {
-    uint32_t value;
-    spiSendReceiveDspParameterArray(dsp, '?', channel, index, 0, NULL, &value);
-    return value;
+    return spiSendDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
 }
