@@ -317,6 +317,7 @@ typedef struct{
     sChannel channel[MAX_CHANNELS];
     sMixerPage pages[MAX_PAGES];
     char encoderText[6][10];
+    lv_chart_series_t* chartSeriesEQ;
 
     // global states for control-surface
     uint8_t activeBank_inputFader;

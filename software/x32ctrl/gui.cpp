@@ -135,7 +135,15 @@ void guiSync(void) {
 
         guiSetEncoderText("Output", "Source", "-", "-", "-", "-");
     }else if (mixer.activePage == X32_PAGE_EQ) {
-
+    //####################################
+    //#         Page EQ
+    //####################################
+        // draw EQ-plot
+        int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, mixer.chartSeriesEQ);
+        for (uint16_t i = 0; i < 100; i++) {
+            chartSeriesEqPoints[i] = ((30.0f * (float)i)/100.0f) - 15.0f; // draw diagonal line
+        }
+        lv_chart_refresh(objects.current_channel_eq);
 
         if (pChannelSelected->index < 40) {
             // support EQ-channel
@@ -426,6 +434,13 @@ void guiInit(void) {
 
   mixerShowPage((X32_PAGE)-1);   // shows the welcome page
   mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
+
+  // setup EQ-graph
+  lv_chart_set_type(objects.current_channel_eq, LV_CHART_TYPE_LINE);
+  mixer.chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
+  //lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7);
+  lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15, 15);
+  lv_chart_set_point_count(objects.current_channel_eq, 100);
 
   // start endless loop
   driver_backends_run_loop();
