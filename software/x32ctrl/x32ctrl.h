@@ -75,7 +75,8 @@
 #define SPI_DEVICE_DSP1 "/dev/spidev0.0"
 #define SPI_DEVICE_DSP2 "/dev/spidev0.1"
 #define SPI_DEVICE_FPGA "/dev/spidev2.0"
-#define SPI_SPEED_HZ 250000 // 250kHz
+#define SPI_FPGA_SPEED_HZ 10000000 // 10 MHz for the FPGA, seems to be fine
+#define SPI_DSP_SPEED_HZ 250000 // 250 kHz for the DSP. Higher and we get problems
 
 // standard includes
 #include <stdio.h>

@@ -456,9 +456,9 @@ void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t value
 void syncAll(void) {
     if (mixerHasAnyChanged()){
         if (
-            mixerHasChanged(X32_MIXER_CHANGED_PAGE)     ||
-            mixerHasChanged(X32_MIXER_CHANGED_BANKING)  ||
-            mixerHasChanged(X32_MIXER_CHANGED_SELECT)   ||
+            mixerHasChanged(X32_MIXER_CHANGED_PAGE)    ||
+            mixerHasChanged(X32_MIXER_CHANGED_BANKING) ||
+            mixerHasChanged(X32_MIXER_CHANGED_SELECT)  ||
             mixerHasChanged(X32_MIXER_CHANGED_CHANNEL) ||
             mixerHasChanged(X32_MIXER_CHANGED_GUI)
            ) {

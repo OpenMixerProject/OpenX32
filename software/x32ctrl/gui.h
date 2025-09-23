@@ -11,5 +11,7 @@ void guiInit(void);
 void guiNewButtonPress(X32_BTN button, bool pressed);
 void guiKeypadInputCallback(lv_indev_t* indev, lv_indev_data_t* data);
 void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
+static void guiDisplayEncoderEventHandler(lv_event_t* e);
+void guiDrawEq();
 
 #endif

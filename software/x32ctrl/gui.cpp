@@ -28,6 +28,7 @@
 #include "hal.h"
 #include "fpga.h"
 #include "dsp.h"
+#include "fx.h"
 
 lv_indev_t *keypad_indev; // will be updated by buttonCallback
 lv_indev_t *mouse_indev; // will be polled by LVGL
@@ -38,6 +39,15 @@ lv_indev_t *encoder_indev;
 
 X32_BTN lastButton = X32_BTN_NONE;
 bool lastButtonPressed;
+
+static const char* displayEncoderButtonMap[] = {
+    mixer.displayEncoderText[0],
+    mixer.displayEncoderText[1],
+    mixer.displayEncoderText[2],
+    mixer.displayEncoderText[3],
+    mixer.displayEncoderText[4],
+    mixer.displayEncoderText[5],
+    NULL};
 
 // sync mixer state to GUI
 void guiSync(void) {
@@ -115,7 +125,7 @@ void guiSync(void) {
         //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
         //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
-        guiSetEncoderText("Source", "Turn: Gain\nPress: 48V", "-", "-", "-", "-");
+        guiSetEncoderText("Source", "Gain", "-", "-", "-", "-");
     }else if (mixer.activePage == X32_PAGE_ROUTING) {
     //####################################
     //#         Page Routing
@@ -139,20 +149,16 @@ void guiSync(void) {
     //#         Page EQ
     //####################################
         // draw EQ-plot
-        int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, mixer.chartSeriesEQ);
-        for (uint16_t i = 0; i < 100; i++) {
-            chartSeriesEqPoints[i] = ((30.0f * (float)i)/100.0f) - 15.0f; // draw diagonal line
-        }
-        lv_chart_refresh(objects.current_channel_eq);
+        guiDrawEq();
 
         if (pChannelSelected->index < 40) {
             // support EQ-channel
-            guiSetEncoderText("LowCut\n" + freq2String(mixer.dsp.dspChannel[pChannelSelected->index].lowCutFrequency),
-                "Freq\n " + freq2String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].fc),
-                "Gain\n" + String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].gain, 1) + " dB",
-                "Q\n" + String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].Q, 1),
-                "Mode\n" + eqType2String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].type),
-                "Select\n" + String(mixer.activeEQ)
+            guiSetEncoderText("LC: " + freq2String(mixer.dsp.dspChannel[pChannelSelected->index].lowCutFrequency),
+                "F: " + freq2String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].fc),
+                "G: " + String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].gain, 1) + " dB",
+                "Q: " + String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].Q, 1),
+                "M: " + eqType2String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].type),
+                "PEQ: " + String(mixer.activeEQ + 1)
             );
         }else{
             // unsupported at the moment
@@ -435,34 +441,109 @@ void guiInit(void) {
   mixerShowPage((X32_PAGE)-1);   // shows the welcome page
   mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
+  // install event-handler for buttonmatrix (for mouse-control)
+  lv_obj_add_event_cb(objects.display_encoders, guiDisplayEncoderEventHandler, LV_EVENT_ALL, NULL);
+
   // setup EQ-graph
   lv_chart_set_type(objects.current_channel_eq, LV_CHART_TYPE_LINE);
+  lv_obj_set_style_size(objects.current_channel_eq, 0, 0, LV_PART_INDICATOR);
+  lv_obj_set_style_line_width(objects.current_channel_eq, 5, LV_PART_ITEMS);
   mixer.chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
   //lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7);
-  lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15, 15);
-  lv_chart_set_point_count(objects.current_channel_eq, 100);
+  lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15000, 15000);
+  lv_chart_set_point_count(objects.current_channel_eq, 200);
+  lv_chart_set_series_color(objects.current_channel_eq, mixer.chartSeriesEQ, lv_color_hex(0xef7900));
+  // chart-shadow: 0x7e4000
 
   // start endless loop
   driver_backends_run_loop();
 }
 
 void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
-    const char* encoderTextMap[] = {
-        mixer.encoderText[0],
-        mixer.encoderText[1],
-        mixer.encoderText[2],
-        mixer.encoderText[3],
-        mixer.encoderText[4],
-        mixer.encoderText[5],
-        NULL
-    };
+    sprintf(&mixer.displayEncoderText[0][0], "%s", enc1.c_str());
+    sprintf(&mixer.displayEncoderText[1][0], "%s", enc2.c_str());
+    sprintf(&mixer.displayEncoderText[2][0], "%s", enc3.c_str());
+    sprintf(&mixer.displayEncoderText[3][0], "%s", enc4.c_str());
+    sprintf(&mixer.displayEncoderText[4][0], "%s", enc5.c_str());
+    sprintf(&mixer.displayEncoderText[5][0], "%s", enc6.c_str());
+    lv_btnmatrix_set_map(objects.display_encoders, displayEncoderButtonMap);
+}
 
-    sprintf(&mixer.encoderText[0][0], "%s", enc1.c_str());
-    sprintf(&mixer.encoderText[1][0], "%s", enc2.c_str());
-    sprintf(&mixer.encoderText[2][0], "%s", enc3.c_str());
-    sprintf(&mixer.encoderText[3][0], "%s", enc4.c_str());
-    sprintf(&mixer.encoderText[4][0], "%s", enc5.c_str());
-    sprintf(&mixer.encoderText[5][0], "%s", enc6.c_str());
+static void guiDisplayEncoderEventHandler(lv_event_t* e) {
+/*
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t* obj = (lv_obj_t*)lv_event_get_target(e);
+    uint32_t id = lv_btnmatrix_get_selected_btn(obj);
 
-    lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
+    if (code == LV_EVENT_CLICKED) {
+        const char* txt = lv_btnmatrix_get_btn_text(obj, id);
+        x32debug("Button %s was clicked", txt);
+    }
+
+    if (code == LV_EVENT_PRESSED) {
+        
+    }
+
+    if (code == LV_EVENT_DRAW_POST_END) {
+        lv_draw_label_dsc_t labelDsc;
+        lv_draw_label_dsc_init(&labelDsc);
+
+        labelDsc.color = lv_color_hex(0xFFFFFF);
+        switch (id) {
+            case 0:
+                labelDsc.text = "ENC1";
+                break;
+            case 1:
+                labelDsc.text = "ENC2";
+                break;
+            case 2:
+                labelDsc.text = "ENC3";
+                break;
+            case 3:
+                labelDsc.text = "ENC4";
+                break;
+            case 4:
+                labelDsc.text = "ENC5";
+                break;
+            case 5:
+                labelDsc.text = "ENC6";
+                break;
+        }
+
+        lv_area_t a = {10, 10, 200, 50}; // Draw label here
+        lv_draw_label(lv_event_get_layer(e), &labelDsc, &a);
+    }
+*/
+}
+
+void guiDrawEq() {
+    if (mixer.selectedChannel >= 40) {
+        return;
+    }
+
+    // calculate the filter-response between 20 Hz and 20 kHz for all 4 PEQs
+    sPEQ* peq;
+    float eqValue[200];
+    float freq;
+
+    memset(&eqValue[0], 0, sizeof(eqValue));
+
+    for (uint16_t pixel = 0; pixel < 200; pixel++) {
+        freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
+
+        // LowCut
+        eqValue[pixel] += fxCalcFrequencyResponse_LC(freq, mixer.dsp.dspChannel[mixer.selectedChannel].lowCutFrequency, mixer.dsp.samplerate);
+
+        // PEQ
+        for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
+            peq = &mixer.dsp.dspChannel[mixer.selectedChannel].peq[i_peq];
+            eqValue[pixel] += fxCalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, mixer.dsp.samplerate);
+        }
+    }
+
+    int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, mixer.chartSeriesEQ);
+    for (uint16_t i = 0; i < 200; i++) {
+        chartSeriesEqPoints[i] = eqValue[i] * 1000.0f; // draw diagonal line
+    }
+    lv_chart_refresh(objects.current_channel_eq);
 }

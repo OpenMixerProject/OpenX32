@@ -70,7 +70,7 @@ int spiConfigureFpga(const char* bitstream_path) {
 
     uint8_t spiMode = SPI_MODE_0; // Xilinx Spartan-3A uses MODE 0
     uint8_t spiBitsPerWord = 8;
-    uint32_t spiSpeed = SPI_SPEED_HZ;
+    uint32_t spiSpeed = SPI_FPGA_SPEED_HZ;
 
     x32debug("Connecting to SPI for FPGA...\n");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
@@ -178,6 +178,8 @@ int spiConfigureFpga(const char* bitstream_path) {
     // send data
     long total_bytes_sent = 0;
     int progress_bar_width = 50;
+    int last_progress = -1;
+    int current_progress;
     while ((bytes_read = fread(tx_buffer, 1, FPGA_BUFFER_SIZE, bitstream_file)) > 0) {
         tr.len = bytes_read;
         ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
@@ -193,17 +195,22 @@ int spiConfigureFpga(const char* bitstream_path) {
 
         // calculate progress-bar
         total_bytes_sent += bytes_read;
-        int progress = (int)((double)total_bytes_sent / file_size * progress_bar_width);
-        printf("\rFPGA [");
-        for (int i = 0; i < progress_bar_width; ++i) {
-            if (i < progress) {
-                printf("█");
-            }else{
-                printf(" ");
+        current_progress = (total_bytes_sent * 100) / file_size;
+        if ((current_progress > (last_progress + 5)) || (total_bytes_sent == file_size)) {
+            int progress = (int)((float)total_bytes_sent / file_size * progress_bar_width);
+            printf("\rFPGA [");
+            for (int i = 0; i < progress_bar_width; ++i) {
+                if (i < progress) {
+                    printf("█");
+                }else{
+                    printf(" ");
+                }
             }
+            printf("] %ld/%ld Bytes (%u %%)", total_bytes_sent, file_size, (total_bytes_sent * 100) / file_size);
+            fflush(stdout);
+
+            last_progress = current_progress;
         }
-        printf("] %ld/%ld Bytes (%.2f%%)", total_bytes_sent, file_size, (double)total_bytes_sent / file_size * 100);
-        fflush(stdout);
     }
     printf("\n");
 
@@ -255,10 +262,12 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
     long file_size[2];
     long totalBytesSent = 0;
     int progress_bar_width = 50;
+    int last_progress = -1;
+    int current_progress;
 
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
-    uint32_t spiSpeed = SPI_SPEED_HZ;
+    uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
 //    uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
     // read size of bitstream-files
@@ -373,17 +382,22 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
 */
             // calculate progress-bar
             totalBytesSent += bytesRead;
-            int progress = (int)((double)totalBytesSent / file_size[i] * progress_bar_width);
-            printf("\rDSP1 [");
-            for (int i_progress = 0; i_progress < progress_bar_width; ++i_progress) {
-                if (i_progress < progress) {
-                    printf("█");
-                }else{
-                    printf(" ");
+            current_progress = (totalBytesSent * 100) / file_size[i];
+            if ((current_progress > (last_progress + 5)) || (totalBytesSent == file_size[i])) {
+                int progress = (int)((float)totalBytesSent / file_size[i] * progress_bar_width);
+                printf("\rDSP1 [");
+                for (int i_progress = 0; i_progress < progress_bar_width; ++i_progress) {
+                    if (i_progress < progress) {
+                        printf("█");
+                    }else{
+                        printf(" ");
+                    }
                 }
+                printf("] %ld/%ld Bytes (%u %%)", totalBytesSent, file_size[i], (totalBytesSent * 100) / file_size[i]);
+                fflush(stdout);
+
+                last_progress = current_progress;
             }
-            printf("] %ld/%ld Bytes (%.2f%%)", totalBytesSent, file_size[i], (double)totalBytesSent / file_size[i] * 100);
-            fflush(stdout);
         }
         printf("\n");
 
@@ -398,7 +412,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
 bool spiOpenDspConnections() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
-    uint32_t spiSpeed = SPI_SPEED_HZ;
+    uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
 
     for (uint8_t i = 0; i < 2; i++) {
         if (i == 0) {
@@ -565,7 +579,7 @@ bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uin
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = (unsigned long)spiRxDataRaw;
     tr.bits_per_word = 32; // Linux seems to ignore this and transmits with 8-bit
-    tr.speed_hz = SPI_SPEED_HZ;
+    tr.speed_hz = SPI_DSP_SPEED_HZ;
     tr.delay_usecs = 0;
     tr.len = sizeof(spiTxDataRaw);
 

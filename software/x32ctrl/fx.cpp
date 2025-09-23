@@ -129,6 +129,44 @@ void fxRecalcFilterCoefficients_PEQ(sPEQ* peq) {
   }
 }
 
+float fxCalcFrequencyResponse_LC(float f, float fc, float fs) {
+  float numerator = f / fc;
+  return 10.0f * log10( numerator / sqrt(1 + numerator * numerator) );
+}
+
+float fxCalcFrequencyResponse_HC(float f, float fc, float fs) {
+  return 10.0f * log10( 1.0f/sqrt( 1.0f + pow(f/fc, 2.0f) ) );
+}
+
+float fxCalcFrequencyResponse_PEQ(float a0, float a1, float a2,  float b1, float b2, float f, float fs) {
+  float omega = (2.0f * PI * f) / fs;
+  float phi = (1.0f - cosf(omega)) * 0.5f;
+  float p_phi = phi * phi;
+
+  float num_sum = a0 + a1 + a2;
+  float num_term2 = a0*a1 + 4.0f*a0*a2 + a1*a2;
+  float num_term3 = a0*a2;
+  float numerator = (num_sum * num_sum) - (4.0f * num_term2 * phi) + (16.0f * num_term3 * p_phi);
+
+  float b0 = 1.0f;
+  float den_sum = b0 + b1 + b2;
+  float den_term2 = b0*b1 + 4.0f*b0*b2 + b1*b2;
+  float den_term3 = b0*b2;
+  float denominator = (den_sum * den_sum) - (4.0f * den_term2 * phi) + (16.0f * den_term3 * p_phi);
+
+  return 10.0f * log10f(numerator / denominator);
+
+/*
+  // this is the condensed form of the above code, but not optimized for speed
+	float omega = (2.0f * PI * f)/fs;
+	float phi = pow(sin(omega / 2.0f), 2.0f);
+	float b0 = 1.0f;
+	
+	return ( 10.0f * log10( pow(a0+a1+a2,2.0f) - 4.0f*(a0*a1 + 4.0f*a0*a2 + a1*a2) * phi + 16.0f*a0*a2*pow(phi,2.0f) ) - 10.0f * log10( pow(b0+b1+b2, 2.0f) - 4.0f*(b0*b1 + 4.0f*b0*b2 + b1*b2)*phi + 16.0f*b0*b2*pow(phi, 2.0f) ) );
+	//return 20*Math.log((Math.sqrt(square(a0*square(Math.cos(w))-a0*square(Math.sin(w))+a1*Math.cos(w)+a2)+square(2*a0*Math.cos(w)*Math.sin(w)+a1*(Math.sin(w)))) / Math.sqrt(square(square(Math.cos(w))-   square(Math.sin(w))+b1*Math.cos(w)+b2)+square(2*   Math.cos(w)*Math.sin(w)+b1*(Math.sin(w))))))
+*/
+}
+
 void fxRecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;

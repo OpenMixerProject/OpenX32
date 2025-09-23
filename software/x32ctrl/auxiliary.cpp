@@ -321,7 +321,7 @@ String eqType2String(uint8_t type) {
   // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
   switch (type) {
     case 0:
-      return "Allp";
+      return "Allpass";
       break;
     case 1:
       return "PEQ";
