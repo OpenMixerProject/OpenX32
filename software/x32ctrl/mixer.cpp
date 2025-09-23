@@ -28,6 +28,7 @@
 #include "dsp.h"
 #include "fpga.h"
 #include "hal.h"
+#include "gui.h"
 
 sMixer mixer;
 
@@ -103,7 +104,7 @@ void mixerInit(char model[]) {
         mixer.dsp.dspChannel[i].volumeLR = VOLUME_MIN;
         mixer.dsp.dspChannel[i].volumeSub = VOLUME_MIN;
         mixer.dsp.dspChannel[i].balance = 0; // center
-        //sprintf(&(channel->name[0]), "Kanal %d", i+1); // german label :-)
+        sprintf(&(channel->name[0]), "Kanal %d", i+1); // german label :-)
     }
     mixerDebugPrintChannels();
 
@@ -523,6 +524,9 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 case X32_BTN_VIEW_CONFIG:
                     mixerShowPage(X32_PAGE_CONFIG);
                     break;
+                case X32_BTN_VIEW_EQ:
+                    mixerShowPage(X32_PAGE_EQ);
+                    break;
                 case X32_BTN_METERS:
                     mixerShowPage(X32_PAGE_METERS);
                     break;
@@ -696,8 +700,41 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
         if (mixer.activePage == X32_PAGE_CONFIG){
             if (buttonPressed){
                 switch (button){
-                    case X32_BTN_ENCODER3:
+                    case X32_BTN_ENCODER1:
+                        break;
+                    case X32_BTN_ENCODER2:
                         mixerTogglePhantom(mixerGetSelectedChannelIndex());
+                        break;
+                    case X32_BTN_ENCODER3:
+                        break;
+                    case X32_BTN_ENCODER4:
+                        break;
+                    case X32_BTN_ENCODER5:
+                        break;
+                    case X32_BTN_ENCODER6:
+                        break;
+                }
+            }
+        }else if (mixer.activePage == X32_PAGE_EQ){
+            if (buttonPressed){
+                switch (button){
+                    case X32_BTN_ENCODER1:
+                        mixerSetPeq(mixerGetSelectedChannelIndex(), 0, 'G', 0);
+                        break;
+                    case X32_BTN_ENCODER2:
+                        mixerSetPeq(mixerGetSelectedChannelIndex(), 1, 'G', 0);
+                        break;
+                    case X32_BTN_ENCODER3:
+                        mixerSetPeq(mixerGetSelectedChannelIndex(), 2, 'G', 0);
+                        break;
+                    case X32_BTN_ENCODER4:
+                        mixerSetPeq(mixerGetSelectedChannelIndex(), 3, 'G', 0);
+                        break;
+                    case X32_BTN_ENCODER5:
+                        mixerSetPeq(mixerGetSelectedChannelIndex(), 4, 'G', 0);
+                        break;
+                    case X32_BTN_ENCODER6:
+                        mixerSetPeq(mixerGetSelectedChannelIndex(), 5, 'G', 0);
                         break;
                 }
             }
@@ -737,13 +774,16 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                 mixerChangeDynamics(mixerGetSelectedChannelIndex(), amount);
                 break;
             case X32_ENC_EQ_Q:
-                mixerChangePeq(mixerGetSelectedChannelIndex(), 'Q', amount);
+                mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'Q', amount);
                 break;
             case X32_ENC_EQ_FREQ:
-                mixerChangePeq(mixerGetSelectedChannelIndex(), 'F', amount);
+                mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'F', amount);
                 break;
             case X32_ENC_EQ_GAIN:
-                mixerChangePeq(mixerGetSelectedChannelIndex(), 'G', amount);
+                mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'G', amount);
+                break;
+            case X32_BTN_EQ_MODE:
+                mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'T', amount);
                 break;
             case X32_ENC_PAN:
                 mixerChangePan(mixerGetSelectedChannelIndex(), amount);
@@ -772,11 +812,45 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
     if (mixerIsModelX32FullOrCompactOrProducerOrRack()) {
         if (mixer.activePage == X32_PAGE_CONFIG){
             switch (encoder){
-                case X32_ENC_ENCODER2:
+                case X32_ENC_ENCODER1:
                     mixerChangeDspInput(amount);
                     break;
-                case X32_ENC_ENCODER3:
+                case X32_ENC_ENCODER2:
                     mixerChangeGain(mixerGetSelectedChannelIndex(), amount);
+                    break;
+                case X32_ENC_ENCODER3:
+                    break;
+                case X32_ENC_ENCODER4:
+                    break;
+                case X32_ENC_ENCODER5:
+                    break;
+                case X32_ENC_ENCODER6:
+                    break;
+            }
+        }else if (mixer.activePage == X32_PAGE_EQ) {
+            switch (encoder){
+                case X32_ENC_ENCODER1:
+                    mixerChangeLowcut(mixerGetSelectedChannelIndex(), amount);
+                    break;
+                case X32_ENC_ENCODER2:
+                    mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'F', amount);
+                    break;
+                case X32_ENC_ENCODER3:
+                    mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'G', amount);
+                    break;
+                case X32_ENC_ENCODER4:
+                    mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'Q', amount);
+                    break;
+                case X32_ENC_ENCODER5:
+                    mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'T', amount);
+                    break;
+                case X32_ENC_ENCODER6:
+                    mixer.activeEQ += amount;
+                    if (mixer.activeEQ < 0) {
+                        mixer.activeEQ = 0;
+                    }else if(mixer.activeEQ >= MAX_CHAN_EQS) {
+                        mixer.activeEQ = MAX_CHAN_EQS - 1;
+                    }
                     break;
             }
         }else if (mixer.activePage == X32_PAGE_ROUTING) {
@@ -786,6 +860,14 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                     break;
                 case X32_ENC_ENCODER2:
                     mixerChangeHardwareInput(amount);
+                    break;
+                case X32_ENC_ENCODER3:
+                    break;
+                case X32_ENC_ENCODER4:
+                    break;
+                case X32_ENC_ENCODER5:
+                    break;
+                case X32_ENC_ENCODER6:
                     break;
             }
         }
@@ -1150,53 +1232,97 @@ void mixerChangeDynamics(uint8_t pChannelIndex, int8_t p_amount){
     }
 }
 
-void mixerChangePeq(uint8_t pChannelIndex, char option, int8_t p_amount){
-    float newValue;
-
+void mixerSetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float value){
     if (pChannelIndex == CHANNEL_NOT_SET) {
+        return;
+    }
+    if (eqIndex >= MAX_CHAN_EQS) {
         return;
     }
 
     sPEQ* peq;
 
     if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
-        peq = &mixer.dsp.dspChannel[pChannelIndex].peq[mixer.activeEQ];
+        peq = &mixer.dsp.dspChannel[pChannelIndex].peq[eqIndex];
     }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
-        peq = &mixer.dsp.mixbusChannel[pChannelIndex - 48].peq[mixer.activeEQ];
+        peq = &mixer.dsp.mixbusChannel[pChannelIndex - 48].peq[eqIndex];
     }else if ((pChannelIndex >= 64) && (pChannelIndex <= 69)) {
-        peq = &mixer.dsp.dspChannel[pChannelIndex - 64].peq[mixer.activeEQ];
+        peq = &mixer.dsp.dspChannel[pChannelIndex - 64].peq[eqIndex];
     }
 
     if (peq != nullptr) {
         switch (option) {
             case 'Q':
-                newValue = peq->Q + ((float)p_amount * abs((float)p_amount))/10.0f;
-                if (newValue < 0.3) {
-                    newValue = 0.3;
-                }else if (newValue > 10) {
-                    newValue = 10;
+                if (value < 0.3) {
+                    peq->Q = 0.3;
+                }else if (value > 10) {
+                    peq->Q = 10;
+                }else{
+                    peq->Q = value;
                 }
-                peq->Q = newValue;
                 break;
             case 'F':
-                //newValue = peq->fc * (1.0f + (float)p_amount/10.0f);
-                //fnew = 10^(LOG10(B1)+B2*0,05)-B1
-                newValue = pow(10.0f, log10(peq->fc) + (float)p_amount * 0.01f);
-                if (newValue < 20) {
-                    newValue = 20;
-                }else if (newValue > 20000) {
-                    newValue = 20000;
+                if (value < 20) {
+                    peq->fc = 20;
+                }else if (value > 20000) {
+                    peq->fc = 20000;
+                }else{
+                    peq->fc = value;
                 }
-                peq->fc = newValue;
-            break;
+                break;
             case 'G':
-                newValue = peq->gain + ((float)p_amount * abs((float)p_amount)) * 0.1f;
-                if (newValue < -15) {
-                    newValue = -15;
-                }else if (newValue > 15) {
-                    newValue = 15;
+                if (value < -15) {
+                    peq->gain = -15;
+                }else if (value > 15) {
+                    peq->gain = 15;
+                }else{
+                    peq->gain = value;
                 }
-                peq->gain = newValue;
+                break;
+            case 'T':
+                peq->type += value;
+                if (peq->type > 7) {
+                    peq->type = 7;
+                }else if (peq->type < 0){
+                    peq->type = 0;
+                }
+                break;
+        }
+        mixerSetChannelChangeFlagsFromIndex(pChannelIndex, X32_CHANNEL_CHANGED_EQ);
+        mixerSetChangeFlags(X32_MIXER_CHANGED_CHANNEL);
+    }
+}
+
+void mixerChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_t p_amount){
+    if (pChannelIndex == CHANNEL_NOT_SET) {
+        return;
+    }
+    if (eqIndex >= MAX_CHAN_EQS) {
+        return;
+    }
+
+    sPEQ* peq;
+
+    if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
+        peq = &mixer.dsp.dspChannel[pChannelIndex].peq[eqIndex];
+    }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
+        peq = &mixer.dsp.mixbusChannel[pChannelIndex - 48].peq[eqIndex];
+    }else if ((pChannelIndex >= 64) && (pChannelIndex <= 69)) {
+        peq = &mixer.dsp.dspChannel[pChannelIndex - 64].peq[eqIndex];
+    }
+
+    if (peq != nullptr) {
+        switch (option) {
+            case 'Q':
+                mixerSetPeq(pChannelIndex, eqIndex, option, peq->Q + ((float)p_amount * abs((float)p_amount))/10.0f);
+                break;
+            case 'F':
+                mixerSetPeq(pChannelIndex, eqIndex, option, pow(10.0f, log10(peq->fc) + (float)p_amount * 0.01f));
+                break;
+            case 'G':
+                mixerSetPeq(pChannelIndex, eqIndex, option, peq->gain + ((float)p_amount * abs((float)p_amount)) * 0.1f);
+            case 'T':
+                mixerSetPeq(pChannelIndex, eqIndex, option, peq->type + p_amount);
             break;
         }
         mixerSetChannelChangeFlagsFromIndex(pChannelIndex, X32_CHANNEL_CHANGED_EQ);
@@ -1219,7 +1345,10 @@ void mixerInitPages(){
     mixer.pages[X32_PAGE_HOME].nextPage = X32_PAGE_CONFIG;
 
     mixer.pages[X32_PAGE_CONFIG].prevPage = X32_PAGE_HOME;
-    mixer.pages[X32_PAGE_CONFIG].nextPage = X32_PAGE_NONE;
+    mixer.pages[X32_PAGE_CONFIG].nextPage = X32_PAGE_EQ;
+
+    mixer.pages[X32_PAGE_EQ].prevPage = X32_PAGE_EQ;
+    mixer.pages[X32_PAGE_EQ].nextPage = X32_PAGE_HOME;
 }
 
 void mixerShowNextPage(void){
@@ -1260,8 +1389,14 @@ void mixerShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
             break;
         case X32_PAGE_CONFIG:
             lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-            lv_tabview_set_active(objects.hometab, 1, LV_ANIM_OFF);
+            lv_tabview_set_active(objects.configtab, 1, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_VIEW_CONFIG, 1);
+            break;
+
+        case X32_PAGE_EQ:
+            lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+            lv_tabview_set_active(objects.eqtab, 1, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_VIEW_EQ, 1);
             break;
 
         case X32_PAGE_METERS:

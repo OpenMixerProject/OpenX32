@@ -125,7 +125,7 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 18.66107723577236,
+              "weight": 20.434178410447362,
               "children": [
                 {
                   "type": "tabset",
@@ -173,7 +173,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -196,7 +197,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 50.24136178861789,
+              "weight": 48.46826061394288,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -226,8 +227,7 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ],
-              "active": true
+              ]
             }
           ]
         }
@@ -959,16 +959,17 @@
     "[OpenX32Gui.eez-project]:/userPages/0[flow-state]": {
       "selection": {
         "0": {
-          "1": {
-            "$selected": true
-          },
+          "1": {},
           "2": {
             "0": {},
             "1": {
               "0": {
                 "1": {
-                  "0": {}
-                }
+                  "0": {
+                    "$selected": true
+                  }
+                },
+                "4": {}
               }
             },
             "3": {
@@ -981,10 +982,10 @@
       },
       "transform": {
         "translate": {
-          "x": -405.3599013548643,
-          "y": -217.0293426567211
+          "x": -233.59676836223497,
+          "y": -239.96640839104907
         },
-        "scale": 1
+        "scale": 0.9
       },
       "timeline": {
         "isEditorActive": false,
@@ -1010,10 +1011,12 @@
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
     "MISCELLANEOUS",
-    "PADDING"
+    "PADDING",
+    "POSITION AND SIZE",
+    "TEXT"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 1,
+  "flowZoom": 0.9,
   "implementationLanguage": "C"
 }

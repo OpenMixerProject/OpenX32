@@ -28,7 +28,7 @@
 
   Control software for Behringer X32 using OpenX32
   https://github.com/OpenMixerProject/OpenX32
-  v0.1.3, 21.09.2025
+  v0.1.4, 23.09.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -75,7 +75,7 @@ void timer100msCallback() {
     // update meters on XRemote-clients
     xremoteUpdateMeter();
 
-    // toggle the LED on DSP1 and DSP2 to show some activity and to continuously read data from SPI
+    // toggle the LED on DSP1 and DSP2 to show some activity
     spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
     //spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
 
@@ -86,10 +86,10 @@ void timer100msCallback() {
     }
 
     // read the current DSP load
-    if (!mixerIsModelX32Core()){
+    if (!mixerIsModelX32Core()) {
         spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
         //spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-        lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% | DSP2: %.2f %%", mixer.dsp.dspLoad[0], mixer.dsp.dspLoad[1]); // show the received value (could be a bit older than the request)
+        lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", mixer.dsp.dspLoad[0], mixer.dsp.dspVersion[0], mixer.dsp.dspLoad[1], mixer.dsp.dspVersion[1]); // show the received value (could be a bit older than the request)
     }
 }
 
@@ -104,9 +104,9 @@ void timer10msCallback() {
     // read data from FPGA
     fpgaProcessUartData(uartRx(&fdFpga, &fpgaBufferUart[0], sizeof(fpgaBufferUart)));
 
-    // continuously read data from both DSPs
-    spiSendDspParameter_uint32(0, '?', 0, 0, 0); // this command will not add new data to DSPs txBuffer, but receives data from the buffer and will call "callbackDsp1()" in case of new data
-    spiSendDspParameter_uint32(1, '?', 0, 0, 0); // this command will not add new data to DSPs txBuffer, but receives data from the buffer and will call "callbackDsp2()" in case of new data
+    // continuously read data from both DSPs if we expect data
+    spiSendDspParameterArray(0, '?', 0, 0, mixer.dsp.dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
+    //spiSendDspParameterArray(1, '?', 0, 0, mixer.dsp.dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
 
     // communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
     xremoteUdpHandleCommunication();
@@ -357,7 +357,7 @@ void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t value
             switch (channel) {
                 case 'v': // DSP-Version
                     if (valueCount == 1) {
-                        mixer.dsp.dspVersion[0] = intValues[0];
+                        mixer.dsp.dspVersion[0] = floatValues[0];
                     }
                     break;
                 case 'c': // DSP-Load in dspClockCycles
@@ -430,7 +430,7 @@ void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t value
             switch (channel) {
                 case 'v': // DSP-Version
                     if (valueCount == 1) {
-                        mixer.dsp.dspVersion[1] = intValues[0];
+                        mixer.dsp.dspVersion[1] = floatValues[0];
                     }
                     break;
                 case 'c': // DSP-Load in dspClockCycles
@@ -551,7 +551,7 @@ int main(int argc, char* argv[]) {
     x32log("       | |                               \n");
     x32log("       |_|                               \n");
     x32log("OpenX32 Main Control\n");
-    x32log("v0.1.3, 21.09.2025\n");
+    x32log("v0.1.4, 23.09.2025\n");
     x32log("https://github.com/OpenMixerProject/OpenX32\n");
 
     // first try to find what we are: Fullsize, Compact, Producer, Rack or Core

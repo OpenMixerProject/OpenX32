@@ -308,3 +308,44 @@ void reverseBitOrderArray(uint8_t* data, uint32_t len) {
         pData++;
     }
 }
+
+String freq2String(float freq) {
+  if (freq < 1000) {
+    return String(freq, 1) + " Hz";
+  }else{
+    return String(freq / 1000.0f, 1) + " kHz";
+  };
+}
+
+String eqType2String(uint8_t type) {
+  // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
+  switch (type) {
+    case 0:
+      return "Allp";
+      break;
+    case 1:
+      return "PEQ";
+      break;
+    case 2:
+      return "LShv";
+      break;
+    case 3:
+      return "HShv";
+      break;
+    case 4:
+      return "Bandp";
+      break;
+    case 5:
+      return "Notch";
+      break;
+    case 6:
+      return "HCut";
+      break;
+    case 7:
+      return "LCut";
+      break;
+    default:
+      return "???";
+      break;
+  }
+}

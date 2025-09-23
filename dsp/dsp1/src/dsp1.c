@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.1.5, 21.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.1.5, 23.09.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -109,17 +109,16 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 	float data[80];
 
 	switch (classId) {
-		case '?':
-			// read a specific value
+		case '?': // request-class
 			switch (channel) {
 				case 0:
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
 				case 'v': // version number
-					spiSendValue('s', 'v', 0, 0x00000001); // classId='s'=Status, channel='v'=Version, index=0, value
+					spiSendValue('s', 'v', 0, DSP_VERSION); // classId='s'=Status, channel='v'=Version, index=0, value
 					break;
 				case 'c': // cpu load as "used cycles"
-					spiSendValue('s', 'c', 0, cyclesMain); // classId='s'=Status, channel='c'=CPULoad, index=0, value
+					spiSendValue_uint32('s', 'c', 0, cyclesMain); // classId='s'=Status, channel='c'=CPULoad, index=0, value
 					break;
 				case 'm': // meter
 					for (int i = 0; i < 40; i++) {
@@ -141,8 +140,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 			}
 			break;
-		case 'r':
-			// DSP routing
+		case 'r': // DSP routing
 			switch (index) {
 				case 0:
 					if (valueCount == 2) {
@@ -158,8 +156,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 			}
 			break;
-		case 't':
-			// set tapPoints
+		case 't': // set tapPoints
 			if (valueCount == 2) {
 				switch (index) {
 					case 0: // ChannelSend-TapPoint
@@ -174,8 +171,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 				}
 			}
 			break;
-		case 'v':
-			// volume for a single channel
+		case 'v': // volume
 			switch (index) {
 				case 0: // DSP-Channels
 					if (valueCount == 4) {
@@ -217,7 +213,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 			}
 			break;
-		case 'g':
+		case 'g': // gate
 			if (valueCount == 5) {
 				dsp.dspChannel[channel].gate.value_threshold = floatValues[0];
 				dsp.dspChannel[channel].gate.value_gainmin = floatValues[1];
@@ -227,7 +223,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 			}
 			break;
-		case 'e':
+		case 'e': // Equalizer/Filter
 			switch (index) {
 				case 0: // LowCut
 					if (valueCount == 1) {
@@ -243,7 +239,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 			}
 			break;
-		case 'c':
+		case 'c': // Compressor
 			if (valueCount == 6) {
 				dsp.dspChannel[channel].compressor.value_threshold = floatValues[0];
 				dsp.dspChannel[channel].compressor.value_ratio = floatValues[1];
@@ -254,7 +250,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 			}
 			break;
-		case 'a':
+		case 'a': // Auxiliary
 			if (valueCount == 1) {
 				if (channel == 42) {
 					// LED Control

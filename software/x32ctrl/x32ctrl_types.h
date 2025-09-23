@@ -256,7 +256,8 @@ typedef struct {
 
   // status messages
   float dspLoad[2];
-  uint32_t dspVersion[2];
+  float dspVersion[2];
+  uint32_t dataToRead[2];
 } sDsp;
 
 // virtual mixer channel
@@ -315,6 +316,7 @@ typedef struct{
     // mixer-parameters
     sChannel channel[MAX_CHANNELS];
     sMixerPage pages[MAX_PAGES];
+    char encoderText[6][10];
 
     // global states for control-surface
     uint8_t activeBank_inputFader;

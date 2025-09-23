@@ -5,8 +5,10 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define SDRAM_START  0x00200000	// start address of SDRAM
-#define SDRAM_SIZE	 0x00400000	// size of SDRAM in 32-bit words (16 MiB)
+#define DSP_VERSION				0.02
+
+#define SDRAM_START  			0x00200000	// start address of SDRAM
+#define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
 #define MAX_CHAN				40
 #define MAX_CHAN_FULLFEATURED	32 + 8	// depending on the overall load not all channels can be full-featured (gate + dynamics)

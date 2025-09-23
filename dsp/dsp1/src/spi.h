@@ -25,7 +25,8 @@ void spiDmaEnd(void);
 void spiProcessRxData(void);
 void spiPushValueToTxBuffer(unsigned int value);
 void spiSendArray(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values);
-void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, unsigned int value);
+void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, float value);
+void spiSendValue_uint32(unsigned short classId, unsigned short channel, unsigned short index, unsigned int value);
 //unsigned int spiMasterRxTx(unsigned int data);
 
 #endif

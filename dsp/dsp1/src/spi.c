@@ -238,7 +238,11 @@ void spiSendArray(unsigned short classId, unsigned short channel, unsigned short
 	spiPushValueToTxBuffer(SPI_END_MARKER); // EndMarker = '#'
 }
 
-void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, unsigned int value) {
+void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, float value) {
+	spiSendArray(classId, channel, index, 1, &value);
+}
+
+void spiSendValue_uint32(unsigned short classId, unsigned short channel, unsigned short index, unsigned int value) {
 	spiSendArray(classId, channel, index, 1, &value);
 }
 

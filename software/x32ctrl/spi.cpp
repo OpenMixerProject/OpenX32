@@ -23,6 +23,7 @@
 */
 
 #include "x32ctrl.h"
+#include "mixer.h"
 
 // defines for FPGA-configuration via SPI
 #define PROG_B_GPIO_OFFSET      30
@@ -256,7 +257,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
     int progress_bar_width = 50;
 
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
-    uint8_t spiBitsPerWord = 32;
+    uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
     uint32_t spiSpeed = SPI_SPEED_HZ;
 //    uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
@@ -396,7 +397,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
 
 bool spiOpenDspConnections() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
-    uint8_t spiBitsPerWord = 32;
+    uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
     for (uint8_t i = 0; i < 2; i++) {
@@ -475,11 +476,17 @@ void spiProcessRxData(uint8_t dsp) {
                     spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER; // reset state anyway
                 }
                 break;
+            default:
+                break;
         }
     }
 }
 
 void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
+    if (valueCount == 0) {
+        return;
+    }
+
     for (int i = 0; i < valueCount; i++) {
         // check for buffer-overflow
         int next_head = spiRxRingBuffer[dsp].head + 1;
@@ -503,9 +510,49 @@ void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]
             spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER;
         }
     }
+
+    // reduce or reset dataToRead-counter
+    if (mixer.dsp.dataToRead[dsp] >= valueCount) {
+        mixer.dsp.dataToRead[dsp] -= valueCount;
+    }else{
+        mixer.dsp.dataToRead[dsp] = 0;
+    }
 }
 
-bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
+void spiUpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index) {
+    // we expect only read-class here
+    if (classId != '?') {
+        return;
+    }
+
+    // we want to read data from DSP, so check how many bytes we should receive
+    switch (channel) {
+        case 0:
+            // dummy-channel to read data. Dont change dataToRead-value here
+            break;
+        case 'v': // Version-number
+            mixer.dsp.dataToRead[dsp] += 1;
+            break;
+        case 'c': // DSP-Load
+            mixer.dsp.dataToRead[dsp] += 1;
+            break;
+        case 'm': // Channel-Meter
+            mixer.dsp.dataToRead[dsp] += 43;
+            break;
+        case 'd': // Dynamics (Gate and Compression)
+            mixer.dsp.dataToRead[dsp] += 80;
+            break;
+    }
+    // add some more data for overhead: '*', parameter and '#'
+    mixer.dsp.dataToRead[dsp] += 3;
+}
+
+bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
+    if (valueCount == 0) {
+        // dont allow empty messages
+        return false;
+    }
+
     struct spi_ioc_transfer tr = {0};
 //    uint32_t* spiTxData = (uint32_t*)malloc((valueCount + 3) * sizeof(uint32_t));
 //    uint8_t* spiTxDataRaw = (uint8_t*)malloc((valueCount + 3) * sizeof(uint32_t));
@@ -513,38 +560,36 @@ bool spiSendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t chann
     uint32_t spiTxData[valueCount + 3]; // '*' + parameter + values + '#'
     uint8_t spiTxDataRaw[(valueCount + 3) * sizeof(uint32_t)];
     uint8_t spiRxDataRaw[sizeof(spiTxDataRaw)];
-    int32_t bytesRead;
 
+    // configure SPI-system for this transmission
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = (unsigned long)spiRxDataRaw;
-    tr.bits_per_word = 32;
+    tr.bits_per_word = 32; // Linux seems to ignore this and transmits with 8-bit
     tr.speed_hz = SPI_SPEED_HZ;
     tr.delay_usecs = 0;
     tr.len = sizeof(spiTxDataRaw);
 
-    // send a command via SPI to DSP
-    uint32_t parameter = ((uint32_t)valueCount << 24) + ((uint32_t)index << 16) + ((uint32_t)channel << 8) + (uint32_t)classId;
-
-    spiTxData[0] = SPI_START_MARKER; // StartMarker = '*'
-    spiTxData[1] = parameter;
+    // prepare TxBuffer
+    spiTxData[0] = SPI_START_MARKER; // add StartMarker = '*'
+    spiTxData[1] = ((uint32_t)valueCount << 24) + ((uint32_t)index << 16) + ((uint32_t)channel << 8) + (uint32_t)classId; // some header-information
     if (values != NULL) {
-        // copy output data
+        // copy uint32_t data to uint8_t-buffer
         memcpy(&spiTxData[2], &values[0], valueCount * sizeof(uint32_t));
+    }else{
+        // we are sending zeros, so set the buffer to zero
+        memset(&spiTxData[2], 0, valueCount * sizeof(uint32_t));
     }
-    spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // EndMarker = '#'
-    memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw));
+    spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
+    memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
     
-    bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+    spiUpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
+    int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
     spiPushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
 //    free(spiTxData);
 //    free(spiTxDataRaw);
 //    free(spiRxDataRaw);
 
     return (bytesRead > 0);
-}
-
-bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
-    return spiSendReceiveDspParameterArray(dsp, classId, channel, index, valueCount, values);
 }
 
 bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value) {

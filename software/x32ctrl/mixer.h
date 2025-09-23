@@ -62,7 +62,8 @@ void mixerChangeBusSend(uint8_t pChannelIndex, uint8_t encoderIndex, int8_t p_am
 void mixerChangeGate(uint8_t pChannelIndex, int8_t p_amount);
 void mixerChangeLowcut(uint8_t pChannelIndex, int8_t p_amount);
 void mixerChangeDynamics(uint8_t pChannelIndex, int8_t p_amount);
-void mixerChangePeq(uint8_t pChannelIndex, char option, int8_t p_amount);
+void mixerSetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float value);
+void mixerChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_t p_amount);
 
 void mixerInitPages();
 void mixerShowPage(X32_PAGE page);

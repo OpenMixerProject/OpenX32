@@ -114,11 +114,12 @@ void guiSync(void) {
         //char outputDestinationName[10] = "";
         //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
         //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
+
+        guiSetEncoderText("Source", "Turn: Gain\nPress: 48V", "-", "-", "-", "-");
     }else if (mixer.activePage == X32_PAGE_ROUTING) {
     //####################################
     //#         Page Routing
     //####################################
-
         char outputDestinationName[10] = "";
         char inputSourceName[10] = "";
         uint8_t routingIndex = 0;
@@ -131,96 +132,118 @@ void guiSync(void) {
 		routingIndex = fpgaRoutingGetOutputSourceByIndex(mixer.selectedOutputChannelIndex); // mixer.selectedOutputChannelIndex = 1..112
 		fpgaRoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
         lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
-    }
 
+        guiSetEncoderText("Output", "Source", "-", "-", "-", "-");
+    }else if (mixer.activePage == X32_PAGE_EQ) {
+
+
+        if (pChannelSelected->index < 40) {
+            // support EQ-channel
+            guiSetEncoderText("LowCut\n" + freq2String(mixer.dsp.dspChannel[pChannelSelected->index].lowCutFrequency),
+                "Freq\n " + freq2String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].fc),
+                "Gain\n" + String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].gain, 1) + " dB",
+                "Q\n" + String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].Q, 1),
+                "Mode\n" + eqType2String(mixer.dsp.dspChannel[pChannelSelected->index].peq[mixer.activeEQ].type),
+                "Select\n" + String(mixer.activeEQ)
+            );
+        }else{
+            // unsupported at the moment
+            guiSetEncoderText("-", "-", "-", "-", "-", "-");
+        }
+    }else if (mixer.activePage == X32_PAGE_METERS) {
     //####################################
     //#         Page Meters
     //####################################
 
-    for(int i=0; i<=15; i++){
-        sChannel *chan = &mixer.channel[i];
+        for(int i=0; i<=15; i++){
+            sChannel *chan = &mixer.channel[i];
 
-        if (phantomPower){
-            lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-        } else {
-            lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+            if (phantomPower){
+                lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+            } else {
+                lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+            }
+
+            switch (i){
+                case 0:
+                    lv_slider_set_value(objects.slider01, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 1:
+                    lv_slider_set_value(objects.slider02, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 2:
+                    lv_slider_set_value(objects.slider03, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 3:
+                    lv_slider_set_value(objects.slider04, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 4:
+                    lv_slider_set_value(objects.slider05, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 5:
+                    lv_slider_set_value(objects.slider06, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 6:
+                    lv_slider_set_value(objects.slider07, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 7:
+                    lv_slider_set_value(objects.slider08, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 8:
+                    lv_slider_set_value(objects.slider09, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 9:
+                    lv_slider_set_value(objects.slider10, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 10:
+                    lv_slider_set_value(objects.slider11, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 11:
+                    lv_slider_set_value(objects.slider12, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 12:
+                    lv_slider_set_value(objects.slider13, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 13:
+                    lv_slider_set_value(objects.slider14, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 14:
+                    lv_slider_set_value(objects.slider15, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+                case 15:
+                    lv_slider_set_value(objects.slider16, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
+                    break;
+            }
         }
 
-        switch (i){
-            case 0:
-                lv_slider_set_value(objects.slider01, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 1:
-                lv_slider_set_value(objects.slider02, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 2:
-                lv_slider_set_value(objects.slider03, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 3:
-                lv_slider_set_value(objects.slider04, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 4:
-                lv_slider_set_value(objects.slider05, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 5:
-                lv_slider_set_value(objects.slider06, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 6:
-                lv_slider_set_value(objects.slider07, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 7:
-                lv_slider_set_value(objects.slider08, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 8:
-                lv_slider_set_value(objects.slider09, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 9:
-                lv_slider_set_value(objects.slider10, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 10:
-                lv_slider_set_value(objects.slider11, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 11:
-                lv_slider_set_value(objects.slider12, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 12:
-                lv_slider_set_value(objects.slider13, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 13:
-                lv_slider_set_value(objects.slider14, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 14:
-                lv_slider_set_value(objects.slider15, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-            case 15:
-                lv_slider_set_value(objects.slider16, dBfs2fader(mixer.dsp.dspChannel[chan->index].volumeLR), LV_ANIM_OFF);
-                break;
-        }
-    }
-
-    lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-        (double)mixer.dsp.dspChannel[0].volumeLR,
-        (double)mixer.dsp.dspChannel[1].volumeLR,
-        (double)mixer.dsp.dspChannel[2].volumeLR,
-        (double)mixer.dsp.dspChannel[3].volumeLR,
-        (double)mixer.dsp.dspChannel[4].volumeLR,
-        (double)mixer.dsp.dspChannel[5].volumeLR,
-        (double)mixer.dsp.dspChannel[6].volumeLR,
-        (double)mixer.dsp.dspChannel[7].volumeLR
-    );
-
+        lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
+            (double)mixer.dsp.dspChannel[0].volumeLR,
+            (double)mixer.dsp.dspChannel[1].volumeLR,
+            (double)mixer.dsp.dspChannel[2].volumeLR,
+            (double)mixer.dsp.dspChannel[3].volumeLR,
+            (double)mixer.dsp.dspChannel[4].volumeLR,
+            (double)mixer.dsp.dspChannel[5].volumeLR,
+            (double)mixer.dsp.dspChannel[6].volumeLR,
+            (double)mixer.dsp.dspChannel[7].volumeLR
+        );
+    }else if (mixer.activePage == X32_PAGE_SETUP) {
     //####################################
     //#         Page Setup
     //####################################
 
-    // pChannelSelected->solo ?
-    //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-    //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+        // pChannelSelected->solo ?
+        //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+        //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
 
-    // pChannelSelected->mute ?
-    //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-    //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
-
+        // pChannelSelected->mute ?
+        //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+        //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+    }else{
+    //####################################
+    //#         All other pages
+    //####################################
+        guiSetEncoderText("-", "-", "-", "-", "-", "-");
+    }
 }
 
 void guiNewButtonPress(X32_BTN button, bool pressed) {
@@ -406,4 +429,25 @@ void guiInit(void) {
 
   // start endless loop
   driver_backends_run_loop();
+}
+
+void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
+    const char* encoderTextMap[] = {
+        mixer.encoderText[0],
+        mixer.encoderText[1],
+        mixer.encoderText[2],
+        mixer.encoderText[3],
+        mixer.encoderText[4],
+        mixer.encoderText[5],
+        NULL
+    };
+
+    sprintf(&mixer.encoderText[0][0], "%s", enc1.c_str());
+    sprintf(&mixer.encoderText[1][0], "%s", enc2.c_str());
+    sprintf(&mixer.encoderText[2][0], "%s", enc3.c_str());
+    sprintf(&mixer.encoderText[3][0], "%s", enc4.c_str());
+    sprintf(&mixer.encoderText[4][0], "%s", enc5.c_str());
+    sprintf(&mixer.encoderText[5][0], "%s", enc6.c_str());
+
+    lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
 }

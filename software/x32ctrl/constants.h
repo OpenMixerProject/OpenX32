@@ -34,7 +34,9 @@ typedef enum {
 typedef enum {
     X32_PAGE_NONE,
     X32_PAGE_HOME,
-    X32_PAGE_CONFIG,
+        // sub-pages of home
+        X32_PAGE_CONFIG,
+        X32_PAGE_EQ,
     X32_PAGE_METERS,
     X32_PAGE_ROUTING,
     X32_PAGE_SETUP,
