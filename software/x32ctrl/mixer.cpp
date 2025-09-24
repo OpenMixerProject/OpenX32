@@ -1381,6 +1381,7 @@ void mixerShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
     setLedByEnum(X32_BTN_UTILITY, 0);
     // turn all view LEDs of
     setLedByEnum(X32_BTN_VIEW_CONFIG, 0);
+    setLedByEnum(X32_BTN_VIEW_EQ, 0);
 
     mixer.activePage = p_page;
 
