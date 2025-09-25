@@ -14,9 +14,13 @@
 #define MAX_CHAN_FULLFEATURED	32 + 8	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 #define MAX_CHAN_EQS			4
 #define MAX_MIXBUS				16
+#define MAX_MATRIX				6
+#define MAX_MAIN				3
+#define MAX_MONITOR				3
+#define MAX_DSP2				24
 
 #define CHANNELS_PER_TDM		8
-#define TDM_INPUTS				(MAX_CHAN / CHANNELS_PER_TDM)
+#define TDM_INPUTS				((MAX_CHAN / CHANNELS_PER_TDM) + 3) // 3 channels from DSP2
 #define SAMPLES_IN_BUFFER		16
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
@@ -29,17 +33,19 @@
 #define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values
 #define SPI_DMA_BUFFER_SIZE		1
 
-#define BUF_IDX_OFF				0	// no audio
-#define BUF_IDX_DSPCHANNEL		1	// DSP-Channel 1-32
-#define BUF_IDX_AUX				33	// Aux-Channel 1-8
-#define BUF_IDX_MIXBUS			41	// Mixbus 1-16
-#define BUF_IDX_MATRIX			57	// Matrix 1-6
-#define BUF_IDX_MAINLEFT		63	// main left
-#define BUF_IDX_MAINRIGHT		64	// main right
-#define BUF_IDX_MAINSUB			65	// main sub
-#define BUF_IDX_MONLEFT			66	// Monitor Left
-#define BUF_IDX_MONRIGHT		67	// Monitor Right
-#define BUF_IDX_TALKBACK		68	// Talkback
+#define DSP_BUF_IDX_OFF			0	// no audio
+#define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
+#define DSP_BUF_IDX_AUX			33	// Aux-Channel 1-8
+#define DSP_BUF_IDX_MIXBUS		41	// Mixbus 1-16
+#define DSP_BUF_IDX_MATRIX		57	// Matrix 1-6
+#define DSP_BUF_IDX_MAINLEFT	63	// main left
+#define DSP_BUF_IDX_MAINRIGHT	64	// main right
+#define DSP_BUF_IDX_MAINSUB		65	// main sub
+#define DSP_BUF_IDX_MONLEFT		66	// Monitor Left
+#define DSP_BUF_IDX_MONRIGHT	67	// Monitor Right
+#define DSP_BUF_IDX_TALKBACK	68	// Talkback
+#define DSP_BUF_IDX_DSP2_FX		69  // FXDSP2 FX-Channel 1-16
+#define DSP_BUF_IDX_DSP2_AUX	85	// FXDSP2 AUX-Channel 1-8
 
 #define DO_CYCLE_COUNTS				// enable cycle counter
 
@@ -183,11 +189,11 @@ struct {
 	bool mainLrSolo;
 	bool mainSubSolo;
 
-	int inputRouting[MAX_CHAN];
-	int inputTapPoint[MAX_CHAN];
-	int outputRouting[MAX_CHAN];
-	int outputTapPoint[MAX_CHAN];
-	sDspChannel dspChannel[MAX_CHAN];
+	int inputRouting[MAX_CHAN + MAX_DSP2];
+	int inputTapPoint[MAX_CHAN + MAX_DSP2];
+	int outputRouting[MAX_CHAN + MAX_DSP2];
+	int outputTapPoint[MAX_CHAN + MAX_DSP2];
+	sDspChannel dspChannel[MAX_CHAN + MAX_DSP2];
 	//sMixbusChannel mixbusChannel[16];
 	//sMatrixChannel matrixChannel[6];
 

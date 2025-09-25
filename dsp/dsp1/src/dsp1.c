@@ -124,11 +124,11 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 				case 'm': // meter
 					for (int i = 0; i < 40; i++) {
-						data[i] = audioBuffer[TAP_INPUT][BUF_IDX_DSPCHANNEL + i][0];
+						data[i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
 					}
-					data[40] = audioBuffer[TAP_POST_FADER][BUF_IDX_MAINLEFT][0];
-					data[41] = audioBuffer[TAP_POST_FADER][BUF_IDX_MAINRIGHT][0];
-					data[42] = audioBuffer[TAP_POST_FADER][BUF_IDX_MAINSUB][0];
+					data[40] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
+					data[41] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
+					data[42] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
 					spiSendArray('m', 0, 0, 43, &data); // classId='m'=Meter, channel=0=InputData, index=0, valueCount=40, value-Array
 					break;
 				case 'd': // dynamics (gate and compression)
@@ -213,6 +213,11 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
+			}
+			break;
+		case 's': // sends
+			if (valueCount == 16) {
+				memcpy(&dsp.channelSendMixbusVolume[channel][0], &floatValues[0], 16 * sizeof(float));
 			}
 			break;
 		case 'g': // gate

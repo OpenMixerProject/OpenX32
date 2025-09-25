@@ -202,6 +202,14 @@ typedef struct {
 } sMatrixChannel;
 
 typedef struct {
+  uint8_t inputSource; // controls which channel should be routed to DSP2 (FX)
+} sFxChannel;
+
+typedef struct {
+  uint8_t inputSource; // controls which channel should be routed to DSP2 (FX)
+} sDsp2AuxChannel;
+
+typedef struct {
   float volume;
   float balance;
   float sendMatrix[6];
@@ -245,6 +253,8 @@ typedef struct {
   sDspChannel dspChannel[40];
   sMixbusChannel mixbusChannel[16];
   sMatrixChannel matrixChannel[6];
+  sFxChannel fxChannel[16];
+  sDsp2AuxChannel dsp2AuxChannel[8];
   sMainChannel mainChannelLR;
   sMainChannel mainChannelSub;
   float volumeFxReturn[8];

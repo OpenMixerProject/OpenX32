@@ -58,6 +58,10 @@ void dspInit(void) {
             mixer.dsp.dspChannel[i].peq[peq].gain = 0;
         }
 
+        for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
+            mixer.dsp.dspChannel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
+        }
+
         mixer.dsp.monitorVolume = 0; // dB
         mixer.dsp.monitorTapPoint = 0; // TAP_INPUT
 
@@ -78,15 +82,23 @@ void dspInit(void) {
         // 64: MainR
         // 65: MainSub
         // 66..68: Monitor L/R/TB
+        // 69..84: FX Return 1-16
+        // 85..92: DSP2 Aux-Channel 1-8
         //
-        // route DSP-inputs to all 40 input-sources
-        mixer.dsp.dspChannel[i].inputSource = 1 + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
+        // connect DSP-inputs 1-40 to all 40 input-sources from FPGA
+        mixer.dsp.dspChannel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
         mixer.dsp.dspChannel[i].inputTapPoint = 0; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
-        // route MainLeft on even and MainRight on odd channels as PostFader
-        mixer.dsp.dspChannel[i].outputSource = 63 + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
+        // connect MainLeft on even and MainRight on odd channels as PostFader
+        mixer.dsp.dspChannel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
         mixer.dsp.dspChannel[i].outputTapPoint = 4; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
 
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
+    }
+    for (uint8_t i = 0; i < 15; i++) {
+        mixer.dsp.fxChannel[i].inputSource = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2
+    }
+    for (uint8_t i = 0; i < 8; i++) {
+        mixer.dsp.dsp2AuxChannel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Aux-Channels 1-8
     }
 }
 
@@ -111,6 +123,17 @@ void dspSendChannelVolume(uint8_t dspChannel) {
     values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
 
     spiSendDspParameterArray(0, 'v', dspChannel, 0, 4, &values[0]);
+}
+
+// send BusSends
+void dspSendChannelSend(uint8_t dspChannel) {
+    float values[16];
+
+    for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
+        values[i_mixbus] = pow(10.0f, mixer.dsp.dspChannel[dspChannel].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
+    }
+
+    spiSendDspParameterArray(0, 's', dspChannel, 0, 16, &values[0]);
 }
 
 void dspSendMixbusVolume(uint8_t mixbusChannel) {
@@ -272,6 +295,7 @@ void dspSendAll() {
         dspSetInputRouting(dspChannel);
         dspSetOutputRouting(dspChannel);
         dspSendChannelVolume(dspChannel);
+        dspSendChannelSend(dspChannel);
         for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
             dspSetChannelSendTapPoints(dspChannel, mixbusChannel, mixer.dsp.dspChannel[dspChannel].sendMixbusTapPoint[mixbusChannel]);
         }
@@ -285,6 +309,12 @@ void dspSendAll() {
     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
         dspSendMatrixVolume(matrixChannel);
         dspSetMainSendTapPoints(matrixChannel, mixer.dsp.mainChannelLR.sendMatrixTapPoint[matrixChannel]);
+    }
+    for (uint8_t fxChannel = 0; fxChannel <= 15; fxChannel++) {
+        dspSetInputRouting(fxChannel + 40);
+    }
+    for (uint8_t dsp2AuxChannel = 0; dsp2AuxChannel <= 7; dsp2AuxChannel++) {
+        dspSetInputRouting(dsp2AuxChannel + 56);
     }
     dspSendMainVolume();
     dspSendMonitorVolume();

@@ -312,6 +312,8 @@ void mixerChangeDspInput(int8_t amount){
     57..62  Matrix 1-6
     63..65  Main L/R/S
     66..68  Monitor L/R and Talkback
+    69..84: FX Return 1-16
+    85..92: DSP2 Aux-Channel 1-8
     */
     if (newValue > 68) {
         newValue = 0;

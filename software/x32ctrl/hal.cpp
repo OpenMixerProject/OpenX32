@@ -93,7 +93,7 @@ void halSyncChannelConfigFromMixer(void){
             }
 
             if (mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_SENDS)) {
-                // TODO
+                dspSendChannelSend(chan->index);
             }
         }else{
             // one of the other channels like Mixbus, DCA, Main, etc.

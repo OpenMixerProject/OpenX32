@@ -3,7 +3,7 @@
 
 #include "dsp1.h"
 
-extern float audioBuffer[5][1 + MAX_CHAN + MAX_MIXBUS + 6 + 3 + 3][SAMPLES_IN_BUFFER];
+extern float audioBuffer[5][1 + MAX_CHAN + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR + MAX_DSP2][SAMPLES_IN_BUFFER];
 
 // function prototypes
 void audioInit(void);
