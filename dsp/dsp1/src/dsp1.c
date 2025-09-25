@@ -107,6 +107,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 	float* floatValues = (float*)values;
 	unsigned int* intValues = (unsigned int*)values;
 	float data[80];
+	float tmpValueFloat;
 
 	switch (classId) {
 		case '?': // request-class
@@ -115,7 +116,8 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
 				case 'v': // version number
-					spiSendValue('s', 'v', 0, DSP_VERSION); // classId='s'=Status, channel='v'=Version, index=0, value
+					tmpValueFloat = DSP_VERSION;
+					spiSendValue('s', 'v', 0, tmpValueFloat); // classId='s'=Status, channel='v'=Version, index=0, value
 					break;
 				case 'c': // cpu load as "used cycles"
 					spiSendValue_uint32('s', 'c', 0, cyclesMain); // classId='s'=Status, channel='c'=CPULoad, index=0, value

@@ -196,7 +196,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 48.46826061394288,
+              "weight": 42.77997218592046,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -216,7 +216,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 31.097560975609756,
+              "weight": 36.78584940363218,
               "children": [
                 {
                   "type": "tab",
@@ -959,7 +959,9 @@
     "[OpenX32Gui.eez-project]:/userPages/0[flow-state]": {
       "selection": {
         "0": {
-          "1": {},
+          "1": {
+            "$selected": true
+          },
           "2": {
             "0": {},
             "1": {
@@ -968,9 +970,7 @@
                   "0": {}
                 },
                 "4": {
-                  "0": {
-                    "$selected": true
-                  }
+                  "0": {}
                 }
               }
             },
@@ -984,10 +984,10 @@
       },
       "transform": {
         "translate": {
-          "x": -233.59676836223497,
-          "y": -239.96640839104907
+          "x": -252.29814978077493,
+          "y": -204.23943735778096
         },
-        "scale": 0.9
+        "scale": 0.67
       },
       "timeline": {
         "isEditorActive": false,
@@ -1019,6 +1019,6 @@
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 0.9,
+  "flowZoom": 0.67,
   "implementationLanguage": "C"
 }

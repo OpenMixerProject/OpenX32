@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root>
+	<installedComponents>
+		<component id="com.analog.sourcegen.component.startup_ldf" name="Startup Code/LDF" version="1.0.0" visible="true">
+			<component-description><![CDATA[This component provides the ability to generate Startup Code and LDF source files. Startup code is a procedure that initializes and configures the processor when execution jumps to the "start" address on reset.
+It sets the machine into a known state, initializes selected features, and enables the standard runtime-model.
+A Linker Description File (LDF) defines the target memory map and the placement of program sections within processor memory.
+It provides information needed to link your code. It can be used to configure memory related options, such as the placement of the system heap, system stack, and external memory.]]></component-description>
+			<product name="Startup Code/LDF" version="1.0.0"/>
+		</component>
+	</installedComponents>
+	<configurations>
+		<configuration id="com.analog.sourcegen.component.startup_ldf">
+			<startup_ldf-configuration>
+				<crt_and_ldf>
+					<propertygroup name="mandatory">
+						<property name="si_revision" value="0.0"/>
+						<property name="ivt_output" value="app_IVT.s"/>
+						<property name="processor" value="ADSP-21371"/>
+						<property name="product_name" value="CrossCore(R) Embedded Studio"/>
+						<property name="crt_doj" value="app_startup.doj"/>
+						<property name="crt_output" value="app_startup.s"/>
+						<property name="ldf_output" value="app.ldf"/>
+					</propertygroup>
+					<propertygroup name="template_schemas" value="true">
+						<property name="ldf_schema" value="29.01"/>
+						<property name="startup_code_schema" value="212.01"/>
+					</propertygroup>
+					<crt>
+						<propertygroup name="cplb_init" value="true">
+							<property name="cplb_src_file" value="app_cplbtab.c"/>
+							<property name="cplb_ctrl" value="56"/>
+							<property name="cplb_obj_file" value="app_cplbtab.doj"/>
+							<property name="cplb_src_alt" value="false"/>
+						</propertygroup>
+						<propertygroup name="mem_init" value="false"/>
+						<propertygroup name="use_multicores" value="1">
+							<property name="use_core" value="0"/>
+						</propertygroup>
+						<property name="main_never_returns" value="false"/>
+						<property name="use_mt" value="false"/>
+						<property name="init_regs" value="false"/>
+						<property name="zero_return_regs" value="false"/>
+						<property name="using_cplusplus" value="true"/>
+						<property name="use_argv" value="false"/>
+						<property name="use_profiling" value="false"/>
+						<property name="use_default_handlers" value="false"/>
+						<property name="use_user_mod_crt" value="true"/>
+						<property name="use_custom_vector" value="false"/>
+						<property name="dcache_config" value="disable_dcache_and_enable_cplb"/>
+						<property name="detect_stackoverflow" value="false"/>
+						<property name="device_init" value="true"/>
+						<property name="icache_config" value="disable_icache_and_enable_cplb"/>
+					</crt>
+					<ldf>
+						<propertygroup name="system_heap" value="Internal">
+							<property name="min_size" value="2"/>
+							<property name="size_units" value="kB"/>
+							<property name="customized" value="false"/>
+						</propertygroup>
+						<propertygroup name="system_stack" value="Internal">
+							<property name="size_units" value="kB"/>
+							<property name="customized" value="false"/>
+							<property name="min_size" value="2"/>
+						</propertygroup>
+						<propertygroup name="use_sdram" value="false">
+							<property name="partitioned" value="default"/>
+							<property name="size" value="16"/>
+							<property name="size_units" value="MegaBytes"/>
+							<property name="dmc_size_0" value="16"/>
+						</propertygroup>
+						<propertygroup name="running_from_internal_memory" value="true"/>
+						<propertygroup name="libraries" value="true">
+							<property name="heap_dbg_libs" value="false"/>
+							<property name="no_libdrv" value="false"/>
+							<property name="use_eh_enabled_libs" value="false"/>
+							<property name="use_fixed_point_io_libs" value="false"/>
+							<property name="use_fileio_libs" value="false"/>
+							<property name="use_alt_io_lib" value="false"/>
+						</propertygroup>
+						<property name="use_eh" value="true"/>
+						<property name="user_heap_src_file" value="app_heaptab.c"/>
+						<property name="use_full_cpplib" value="false"/>
+						<property name="use_software_modules" value="false"/>
+						<property name="use_user_mod_ldf" value="true"/>
+						<property name="use_pgo_hw" value="false"/>
+					</ldf>
+				</crt_and_ldf>
+			</startup_ldf-configuration>
+		</configuration>
+	</configurations>
+</root>
