@@ -20,7 +20,7 @@
 #define MAX_DSP2				24
 
 #define CHANNELS_PER_TDM		8
-#define TDM_INPUTS				((MAX_CHAN / CHANNELS_PER_TDM) + 3) // 3 channels from DSP2
+#define TDM_INPUTS				((MAX_CHAN / CHANNELS_PER_TDM) + 3*0) // 3 channels from DSP2 DEBUG: REMOVE DSP2 for now
 #define SAMPLES_IN_BUFFER		16
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM

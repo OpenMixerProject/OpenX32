@@ -232,15 +232,21 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			break;
 		case 'e': // Equalizer/Filter
 			switch (index) {
-				case 0: // LowCut
+				case 'l': // LowCut
 					if (valueCount == 1) {
 						dsp.lowcutCoeff[channel] = floatValues[0];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
-				case 1: // PEQ
+				case 'e': // EQ
 					if (valueCount == (MAX_CHAN_EQS * 5)) {
 						memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				case 'r': // Reset PEQ
+					if (valueCount == 1) {
+						memset(&dsp.dspChannel[channel].peqStates[0], 0, 8 * sizeof(float));
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;

@@ -149,9 +149,9 @@ void systemSruInit(void) {
 	SRU(DAI_PB02_O, SPORT3_CLK_I); // TDM BCLK  -> SPORT3 CLK
 
 	// route data-inputs to SPORT
-	SRU(DAI_PB11_O, SPORT1_DA_I);  // TDM FX IN0 -> SPORT1 DATA IN0
-	SRU(DAI_PB12_O, SPORT1_DB_I);  // TDM FX IN1 -> SPORT1 DATA IN1
-	SRU(DAI_PB13_O, SPORT3_DA_I);  // TDM REC IN -> SPORT3 DATA IN0
+	SRU(DAI_PB05_O, SPORT1_DA_I);  // TDM FX IN0 -> SPORT1 DATA IN0
+	SRU(DAI_PB07_O, SPORT1_DB_I);  // TDM FX IN1 -> SPORT1 DATA IN1
+	SRU(DAI_PB09_O, SPORT3_DA_I);  // TDM REC IN -> SPORT3 DATA IN0
 
 	// tie the pin buffer inputs LOW as these pins are input-pins and buffer is not used
 	SRU(LOW, DAI_PB01_I); // TDM FS
@@ -321,7 +321,7 @@ void systemSpdifTxInit(void) {
 
 	// DIT_EN       = Enables SPDIF transmitter
 	// DIT_SMODEIN0 = Serial Input Format: Left justified (000)
-	*pDITCTL = DIT_EN | DIT_SMODEIN0;//configuration of SPDIF TX
+	*pDITCTL = DIT_EN | DIT_SMODEIN0; //configuration of SPDIF TX
 }
 
 // endless loop for the case, that CPU-load is above 100% so that
