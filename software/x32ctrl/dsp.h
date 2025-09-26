@@ -27,6 +27,7 @@ void dspSendMainVolume();
 void dspSendGate(uint8_t dspChannel);
 void dspSendLowcut(uint8_t dspChannel);
 void dspSendEQ(uint8_t dspChannel);
+void dspResetEq(uint8_t dspChannel);
 void dspSendCompressor(uint8_t dspChannel);
 void dspSendAll();
 void dspSetInputRouting(uint8_t dspChannel);

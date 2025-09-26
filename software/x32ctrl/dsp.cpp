@@ -94,6 +94,7 @@ void dspInit(void) {
 
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
     }
+
     for (uint8_t i = 0; i < 15; i++) {
         mixer.dsp.fxChannel[i].inputSource = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2
     }
@@ -208,7 +209,7 @@ void dspSendLowcut(uint8_t dspChannel) {
 
     values[0] = 1.0f / (1.0f + 2.0f * M_PI * mixer.dsp.dspChannel[dspChannel].lowCutFrequency * (1.0f/mixer.dsp.samplerate));
 
-    spiSendDspParameterArray(0, 'e', dspChannel, 0, 1, &values[0]);
+    spiSendDspParameterArray(0, 'e', dspChannel, 'l', 1, &values[0]);
 }
 
 /*
@@ -217,7 +218,7 @@ void dspSendHighcut(uint8_t dspChannel) {
 
     values[0] = (2.0f * M_PI * mixer.dsp.dspChannel[dspChannel].highCutFrequency) / (mixer.dsp.samplerate + 2.0f * M_PI * 500.0f);
 
-    spiSendDspParameterArray(0, 'e', dspChannel, 2, 1, &values[0]);
+    spiSendDspParameterArray(0, 'e', dspChannel, 'h', 1, &values[0]);
 }
 */
 
@@ -268,9 +269,14 @@ void dspSendEQ(uint8_t dspChannel) {
         }
     }
 
-    spiSendDspParameterArray(0, 'e', dspChannel, 1, MAX_CHAN_EQS * 5, &values[0]);
+    spiSendDspParameterArray(0, 'e', dspChannel, 'e', MAX_CHAN_EQS * 5, &values[0]);
 }
 
+void dspResetEq(uint8_t dspChannel) {
+    float values[1];
+    values[0] = 0;
+    spiSendDspParameterArray(0, 'e', dspChannel, 'r', 1, &values[0]);
+}
 
 void dspSendCompressor(uint8_t dspChannel) {
     fxRecalcCompressor(&mixer.dsp.dspChannel[dspChannel].compressor);

@@ -165,6 +165,7 @@ int spiConfigureFpga(const char* bitstream_path) {
     tr.rx_buf = (unsigned long)rx_buffer;
     tr.bits_per_word = spiBitsPerWord;
     tr.speed_hz = spiSpeed;
+    tr.cs_change = 0;
     tr.delay_usecs = 0;
 
     x32debug("Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...\n");
@@ -315,6 +316,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
     tr.rx_buf = (unsigned long)spiRxData;
     tr.bits_per_word = spiBitsPerWord;
     tr.speed_hz = spiSpeed;
+    tr.cs_change = 0;
     tr.delay_usecs = 0;
 
     // resetting DSPs
@@ -337,7 +339,12 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
     usleep(800);
 
     for (uint8_t i = 0; i < numStreams; i++) {
-        bitstream_file[i] = fopen(bitstream_path_a, "rb");
+        if (i == 0) {
+            bitstream_file[i] = fopen(bitstream_path_a, "rb");
+        }
+        if (i == 1) {
+            bitstream_file[i] = fopen(bitstream_path_b, "rb");
+        }
         if (!bitstream_file[i]) {
             x32log("Error: Could not open bitstream-file\n");
             for (uint8_t i_b = 0; i_b < numStreams; i_b++) {
@@ -350,6 +357,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
         // now send the data
         x32debug("Sending bitstream to DSP...\n");
         totalBytesSent = 0;
+        last_progress = -1;
         progress_bar_width = 50;
         while ((bytesRead = fread(&spiTxData[0], 1, sizeof(spiTxData), bitstream_file[i])) > 0) {
             tr.len = bytesRead;
@@ -385,7 +393,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
             current_progress = (totalBytesSent * 100) / file_size[i];
             if ((current_progress > (last_progress + 5)) || (totalBytesSent == file_size[i])) {
                 int progress = (int)((float)totalBytesSent / file_size[i] * progress_bar_width);
-                printf("\rDSP1 [");
+                printf("\rDSP%u [", i+1);
                 for (int i_progress = 0; i_progress < progress_bar_width; ++i_progress) {
                     if (i_progress < progress) {
                         printf("█");
@@ -579,8 +587,9 @@ bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uin
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = (unsigned long)spiRxDataRaw;
     tr.bits_per_word = 32; // Linux seems to ignore this and transmits with 8-bit
-    tr.speed_hz = SPI_DSP_SPEED_HZ;
-    tr.delay_usecs = 0;
+    tr.speed_hz = SPI_DSP_SPEED_HZ; // Select a speed other than the device default for this transfer. If 0 the default (from spi_device) is used
+    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
+    tr.cs_change = 0; // disable CS between two messages
     tr.len = sizeof(spiTxDataRaw);
 
     // prepare TxBuffer

@@ -737,6 +737,7 @@ void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                         mixerSetPeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'T', 1);
                         break;
                     case X32_BTN_ENCODER6:
+                        dspResetEq(mixerGetSelectedChannelIndex());
                         break;
                 }
             }
