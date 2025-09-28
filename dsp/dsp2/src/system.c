@@ -209,7 +209,7 @@ void systemSruInit(void) {
 	SRU(DPI_PB04_O, SPI_DS_I);  	// Connect DPI PB4 to SPI ChipSelect
 
 	SRU (LOW, DPI_PBEN01_I); 		// set to input
-	SRU (HIGH, DPI_PBEN02_I); 		// set to output
+	SRU (SPI_MISO_PBEN_O, DPI_PBEN02_I); 		// set to output when needed
 	SRU (LOW, DPI_PBEN03_I); 		// set to input
 	SRU (LOW, DPI_PBEN04_I); 		// set to input
 }
@@ -293,16 +293,17 @@ void systemSportInit() {
 	*pMR3CCS0 = 0;
 
 	// enable multichannel operation (SPORT mode and DMA in standby and ready)
-	*pSPMCTL0 |= MCEA | MCEB;
-	*pSPMCTL1 |= MCEA;
-	*pSPMCTL2 |= MCEA | MCEB;
-	*pSPMCTL3 |= MCEA;
+	*pSPMCTL0 |= MCEA | MCEB;	// Sender A/B for FX OUT0/1
+	*pSPMCTL2 |= MCEA;			// Sender A for FX PLAY OUT
+	*pSPMCTL1 |= MCEA | MCEB;	// Receiver A/B for FX IN0/1
+	*pSPMCTL3 |= MCEA;			// Receiver A for FX REC IN
 
 	// enable SPORT
 	*pSPCTL0 |= SPEN_A | SPEN_B;
-	*pSPCTL1 |= SPEN_A;
-	*pSPCTL2 |= SPEN_A | SPEN_B;
+	*pSPCTL2 |= SPEN_A;
+	*pSPCTL1 |= SPEN_A | SPEN_B;
 	*pSPCTL3 |= SPEN_A;
+
 
 
 

@@ -136,7 +136,7 @@ int main() {
 	systemPcgInit();
 	systemSruInit();
 	spiInit();
-//	systemSportInit();
+	systemSportInit();
 	systemSpdifTxInit();
 
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)

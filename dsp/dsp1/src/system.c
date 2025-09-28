@@ -201,7 +201,7 @@ void systemSruInit(void) {
 	SRU(DPI_PB04_O, SPI_DS_I);  	// Connect DPI PB4 to SPI ChipSelect
 
 	SRU (LOW, DPI_PBEN01_I); 		// set to input
-	SRU (HIGH, DPI_PBEN02_I); 		// set to output
+	SRU (SPI_MISO_PBEN_O, DPI_PBEN02_I); 	// set to output when needed
 	SRU (LOW, DPI_PBEN03_I); 		// set to input
 	SRU (LOW, DPI_PBEN04_I); 		// set to input
 }
