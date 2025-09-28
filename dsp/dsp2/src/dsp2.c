@@ -152,20 +152,20 @@ int main() {
 
 	// the main-loop
 	while(1) {
-		CYCLES_START(systemStats);
-
 		// check for new audio-data to process
 		if (audioReady) {
+			CYCLES_START(systemStats);
+
 			audioProcessData();
+
+			CYCLES_STOP(systemStats);
+			cyclesMain = systemStats._cycles;
+			CYCLES_RESET(systemStats);
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
 			spiProcessRxData();
 		}
-
-		CYCLES_STOP(systemStats);
-		cyclesMain = systemStats._cycles;
-		CYCLES_RESET(systemStats);
 	}
 }

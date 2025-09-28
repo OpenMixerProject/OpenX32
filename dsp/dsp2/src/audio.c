@@ -88,18 +88,6 @@ void audioInit(void) {
 
 	// initialize memory
 	memset(audioBuffer, 0, sizeof(audioBuffer));
-
-	// ============== FOR TESTING ONLY ==============
-	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
-	float omega = 2.0f * 3.141f * 1000.0f / 48000.0f; // w = 2*pi*f between 1kHz and 8kHz
-	for (int ch = 0; ch < 8; ch++) {
-		for (int s = 0; (s < (BUFFER_COUNT * SAMPLES_IN_BUFFER)); s++) {
-			audioBuffer[ch     ][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608.0f;
-			audioBuffer[ch + 8 ][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608.0f;
-			audioBuffer[ch + 16][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608.0f;
-		}
-	}
-	// ============== FOR TESTING ONLY ==============
 }
 
 void audioProcessData(void) {
@@ -127,7 +115,7 @@ void audioProcessData(void) {
 				if (bufferIndex >= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE)) {
 					bufferIndex -= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
 				}
-				//audioBuffer[dspCh][s] = audioRxBuf[bufferIndex]; // copy data to dsp channel
+				audioBuffer[dspCh][s] = audioRxBuf[bufferIndex]; // copy data to dsp channel
 			}
 		}
 	}
