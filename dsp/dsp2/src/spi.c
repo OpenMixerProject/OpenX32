@@ -49,7 +49,7 @@ void spiInit(void) {
 	*pSPIFLG = DS0EN; // Enable SRU2 output for SPI device-select-0
 
 	// Start SPI in CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
-	*pSPICTL = ISSEN | MSBF | WL32 | CLKPL | CPHASE; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | spi enabled
+	*pSPICTL = ISSEN | MSBF | WL32 | CLKPL | CPHASE | OPD; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled
 	*pSPICTL |= SPIEN;
 }
 

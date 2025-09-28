@@ -45,8 +45,8 @@ int audioBufferCounter = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
-int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8
-int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | P16 Ch 1-8 | P16 Ch 9-16 | AUX Ch 1-8
+int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX IN 0 1-8 | FX IN 1 1-8 | REC IN 1-8
+int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX OUT 0 1-8 | FX OUT 1 1-8 | PLAY OUT 1-8
 
 // internal buffers for audio-samples
 float audioBuffer[MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[CHANNEL][SAMPLE]
@@ -89,15 +89,14 @@ void audioInit(void) {
 	// initialize memory
 	memset(audioBuffer, 0, sizeof(audioBuffer));
 
-
 	// ============== FOR TESTING ONLY ==============
 	// fill TDM-buffer with sinewave-samples with increasing frequency between 1kHz and 8kHz
 	float omega = 2.0f * 3.141f * 1000.0f / 48000.0f; // w = 2*pi*f between 1kHz and 8kHz
 	for (int ch = 0; ch < 8; ch++) {
 		for (int s = 0; (s < (BUFFER_COUNT * SAMPLES_IN_BUFFER)); s++) {
-			audioBuffer[ch     ][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608;
-			audioBuffer[ch + 8 ][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608;
-			audioBuffer[ch + 16][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608;
+			audioBuffer[ch     ][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608.0f;
+			audioBuffer[ch + 8 ][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608.0f;
+			audioBuffer[ch + 16][s] = sin(omega * (float)(ch + 1) * (float)s) * 8388608.0f;
 		}
 	}
 	// ============== FOR TESTING ONLY ==============

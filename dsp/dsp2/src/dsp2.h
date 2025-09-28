@@ -10,9 +10,9 @@
 #define SDRAM_START  			0x00200000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
-#define MAX_CHAN				24
+#define MAX_CHAN				32 // we are using only 24 channels, but SPORT seems to request correct pointers for both Channels
 #define CHANNELS_PER_TDM		8
-#define TDM_INPUTS				3
+#define TDM_INPUTS				4  // we are using only 3 TDM-inputs, but SPORT seems to request correct pointers for both Channels
 #define SAMPLES_IN_BUFFER		16
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM

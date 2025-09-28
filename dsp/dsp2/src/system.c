@@ -263,11 +263,12 @@ void systemSportInit() {
 	*pCPSP0A = (((unsigned int)&audioTx_tcb[0][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 	*pCPSP0B = (((unsigned int)&audioTx_tcb[1][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 	*pCPSP2A = (((unsigned int)&audioTx_tcb[2][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP2B = (((unsigned int)&audioTx_tcb[3][0][0] + 3) & OFFSET_MASK); // unused channel
 
 	*pCPSP1A = (((unsigned int)&audioRx_tcb[0][0][0] + 3) & OFFSET_MASK) | PCI; // pointing DMA to desired memory and enable interrupt after every processed TCB (set PCI-bit)
 	*pCPSP1B = (((unsigned int)&audioRx_tcb[1][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 	*pCPSP3A = (((unsigned int)&audioRx_tcb[2][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-
+	*pCPSP3B = (((unsigned int)&audioRx_tcb[3][0][0] + 3) & OFFSET_MASK); // unused channel
 
 
 
@@ -303,7 +304,6 @@ void systemSportInit() {
 	*pSPCTL2 |= SPEN_A;
 	*pSPCTL1 |= SPEN_A | SPEN_B;
 	*pSPCTL3 |= SPEN_A;
-
 
 
 
