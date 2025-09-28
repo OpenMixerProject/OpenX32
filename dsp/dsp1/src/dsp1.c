@@ -161,12 +161,14 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 		case 't': // set tapPoints
 			if (valueCount == 2) {
 				switch (index) {
+/*
 					case 0: // ChannelSend-TapPoint
 						dsp.channelSendMixbusTapPoint[channel][intValues[0]] = intValues[1];
 						break;
 					case 1: // MixbusSend-TapPoint
 						dsp.mixbusSendMatrixTapPoint[channel][intValues[0]] = intValues[1];
 						break;
+*/
 					case 2: // MainSend-TapPoint
 						dsp.mainSendMatrixTapPoint[intValues[0]] = intValues[1];
 						break;
@@ -185,6 +187,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 					break;
 				case 1: // Mixbus-Channels
+/*
 					if (valueCount == 4) {
 						dsp.mixbusVolume[channel] = floatValues[0];
 						dsp.mixbusSendMainLeftVolume[channel] = floatValues[1];
@@ -192,12 +195,16 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 						dsp.mixbusSendMainSubVolume[channel] = floatValues[3];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
+*/
 					break;
 				case 2: // Matrix-Channels
+/*
+
 					if (valueCount == 1) {
 						dsp.matrixVolume[channel] = floatValues[0];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
+*/
 					break;
 				case 3: // Main-Channels
 					if (valueCount == 3) {
@@ -216,9 +223,11 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 's': // sends
+/*
 			if (valueCount == 16) {
 				memcpy(&dsp.channelSendMixbusVolume[channel][0], &floatValues[0], 16 * sizeof(float));
 			}
+*/
 			break;
 		case 'g': // gate
 			if (valueCount == 5) {
@@ -234,13 +243,13 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			switch (index) {
 				case 'l': // LowCut
 					if (valueCount == 1) {
-						dsp.lowcutCoeff[channel] = floatValues[0];
+						dsp.lowcutCoeffSet[channel] = floatValues[0];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 'e': // EQ
 					if (valueCount == (MAX_CHAN_EQS * 5)) {
-						memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
+						memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;

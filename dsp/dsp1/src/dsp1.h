@@ -138,7 +138,8 @@ typedef struct {
 
 typedef struct {
 	sGate gate;
-	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in proram memory
+	float pm peqCoeffsSet[5 * MAX_CHAN_EQS]; // store in program memory
+	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in program memory
 	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
 	sCompressor compressor;
 
@@ -148,6 +149,7 @@ typedef struct {
 struct {
 	float samplerate;
 
+	float lowcutCoeffSet[MAX_CHAN];
 	float lowcutCoeff[MAX_CHAN];
 	float lowcutStatesInput[MAX_CHAN];
 	float lowcutStatesOutput[MAX_CHAN];
@@ -167,6 +169,7 @@ struct {
 	float channelSendMainLeftVolume[MAX_CHAN]; // in p.u.
 	float channelSendMainRightVolume[MAX_CHAN]; // in p.u.
 	float channelSendMainSubVolume[MAX_CHAN]; // in p.u.
+/*
 	float channelSendMixbusVolume[MAX_CHAN][MAX_MIXBUS]; // in p.u.
 	int channelSendMixbusTapPoint[MAX_CHAN][MAX_MIXBUS];
 
@@ -180,6 +183,7 @@ struct {
 
 	float matrixVolume[6];
 	bool matrixSolo[6];
+*/
 
 	float mainLeftVolume;
 	float mainRightVolume;
