@@ -108,6 +108,22 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	}
 }
 
+void fxSmoothCoeffs(void) {
+	// this function is called every 333µs
+
+	float value;
+	float coeff = (3.0f / 3000.0f); // 0.3s until value is taken
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		dsp.lowcutCoeff[i_ch] = dsp.lowcutCoeff[i_ch] + coeff * (dsp.lowcutCoeffSet[i_ch] - dsp.lowcutCoeff[i_ch]);
+
+		for (int i = 0; i < (5 * MAX_CHAN_EQS); i++) {
+			// calculate PT1: out = out + 0.1 * (set - out);
+			dsp.dspChannel[i_ch].peqCoeffs[i] = dsp.dspChannel[i_ch].peqCoeffs[i] + coeff * (dsp.dspChannel[i_ch].peqCoeffsSet[i] - dsp.dspChannel[i_ch].peqCoeffs[i]);
+		}
+	}
+}
+
+
 void fxProcessCompressorLogic(int channel, float samples[]) {
 	float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER));
 

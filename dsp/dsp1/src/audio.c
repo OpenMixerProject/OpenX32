@@ -243,6 +243,9 @@ void audioProcessData(void) {
 	//				 | |__| (_| | |_| | (_| | | |/ /  __/ |
 	//				 |_____\__, |\__,_|\__,_|_|_/___\___|_|
 	//				          |_|
+	// use low-pass filter on EQ-Coefficients to smoothly change parameters
+	fxSmoothCoeffs();
+
 	// Hardware-Accelerated Biquad-Filter
 	// Ressource-Demand: ~20%
 	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {

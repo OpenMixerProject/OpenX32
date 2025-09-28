@@ -6,5 +6,6 @@
 // function prototypes
 void fxProcessGateLogic(int channel, float samples[]);
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]);
+void fxSmoothCoeffs(void);
 void fxProcessCompressorLogic(int channel, float samples[]);
 #endif
