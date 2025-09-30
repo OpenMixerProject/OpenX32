@@ -77,7 +77,7 @@ void timer100msCallback() {
 
     // toggle the LED on DSP1 and DSP2 to show some activity
     spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
-    //spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
+    spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
 
     // read meter- and dynamics-information from DSP
     if (mixerIsModelX32FullOrCompactOrProducer()) {
@@ -88,7 +88,7 @@ void timer100msCallback() {
     // read the current DSP load
     if (!mixerIsModelX32Core()) {
         spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-        //spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+        spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
         lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", mixer.dsp.dspLoad[0], mixer.dsp.dspVersion[0], mixer.dsp.dspLoad[1], mixer.dsp.dspVersion[1]); // show the received value (could be a bit older than the request)
     }
 }
@@ -106,7 +106,7 @@ void timer10msCallback() {
 
     // continuously read data from both DSPs if we expect data
     spiSendDspParameterArray(0, '?', 0, 0, mixer.dsp.dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
-    //spiSendDspParameterArray(1, '?', 0, 0, mixer.dsp.dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
+    spiSendDspParameterArray(1, '?', 0, 0, mixer.dsp.dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
 
     // communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
     xremoteUdpHandleCommunication();
@@ -585,6 +585,9 @@ int main(int argc, char* argv[]) {
     //uartOpen("/dev/ttymxc4", 115200, &fdMidi); // this UART is connected to the MIDI-connectors but is used by the Linux-console
     spiOpenDspConnections();
     xremoteInit();
+    // request versions from both DSP
+    spiSendDspParameter_uint32(0, '?', 'v', 0, 0); // non-blocking request of DSP-Load-parameter
+    spiSendDspParameter_uint32(1, '?', 'v', 0, 0); // non-blocking request of DSP-Load-parameter
 
     if (switchNoinit == -1) {
         x32log("Initializing X32 Surface...\n");
