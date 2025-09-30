@@ -44,6 +44,4 @@ cp software/bin/libexec/sshd-auth usb/usr/local/libexec/
 cp software/bin/libexec/sshd-session usb/usr/local/libexec/
 
 # X32 user applications
-cp software/bin/fpgaconfig usb/bin/
-cp software/bin/uartterminal usb/bin/
 cp software/bin/x32ctrl usb/bin/

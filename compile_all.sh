@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "0/8 Copying configuration- and patched files for OpenX32 to U-Boot- and Linux-Sources..."
+echo "0/9 Copying configuration- and patched files for OpenX32 to U-Boot- and Linux-Sources..."
 # configuration-files
 cp files/config_uboot u-boot/.config
 cp files/config_linux linux/.config
@@ -14,16 +14,16 @@ cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
 
 # =================== Loader =======================
 
-echo "1/8 Compiling Miniloader..."
+echo "1/9 Compiling Miniloader..."
 cd miniloader
 make > /dev/null
-echo "2/8 Compiling u-boot..."
+echo "2/9 Compiling u-boot..."
 cd ../u-boot
 ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make > /dev/null
 
 # =================== Linux =======================
 
-echo "3/8 Compiling linux..."
+echo "3/9 Compiling linux..."
 cd ../linux
 ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make zImage > /dev/null
 ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make dtbs
@@ -32,13 +32,13 @@ mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux 
 
 # =================== Programs =======================
 
-echo "5/8 Compiling busybox..."
+echo "5/9 Compiling busybox..."
 cd ../busybox
 ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) > /dev/null
 ARCH=arm make install > /dev/null
 cd ..
 
-echo "6/8 Creating initramfs..."
+echo "6/9 Creating initramfs..."
 cp -rP /tmp/busybox_install/bin initramfs_root/
 cp -rP /tmp/busybox_install/sbin initramfs_root/
 cp -rP /tmp/busybox_install/linuxrc initramfs_root/
@@ -54,12 +54,12 @@ rm /tmp/initramfs.cpio.gz
 rm /tmp/uramdisk.bin
 find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio
 gzip -9 /tmp/initramfs.cpio
-echo "7/8 Creating U-Boot-Image..."
+echo "7/9 Creating U-Boot-Image..."
 mkimage -A ARM -O linux -T ramdisk -C gzip -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.gz /tmp/uramdisk.bin
 
 # =================== Binary-Blob =======================
 
-echo "8/8 Merging Miniloader, U-Boot, Linux kernel and DeviceTreeBlob..."
+echo "8/9 Merging Miniloader, U-Boot, Linux kernel and DeviceTreeBlob..."
 cd ..
 rm /tmp/openx32.bin
 # Miniloader at offset 0x000000: will be started by i.MX Serial Download Program
@@ -79,5 +79,10 @@ echo "    80% Copying initramfs..."
 dd if=/tmp/uramdisk.bin of=/tmp/openx32.bin bs=1 seek=$((0x810000)) conv=notrunc > /dev/null 2>&1
 echo "   100% Add some zeros at the end of the binary-file..."
 dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc > /dev/null 2>&1
+
+# =================== DCP-Loader-File =======================
+
+echo "9/9 Creating DCP-Updater-File..."
+perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.update
 
 echo "Done. System-Image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as /tmp/openx32.bin"

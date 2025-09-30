@@ -33,6 +33,11 @@ dd if=/tmp/uramdisk.bin of=/tmp/openx32.bin bs=1 seek=$((0x810000)) conv=notrunc
 echo "   100% Add some zeros at the end of the binary-file..."
 dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc > /dev/null 2>&1
 
+# =================== DCP-Loader-File =======================
+
+echo "9/9 Creating DCP-Updater-File..."
+perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.update
+
 echo "Done. System-Image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as /tmp/openx32.bin"
 
 

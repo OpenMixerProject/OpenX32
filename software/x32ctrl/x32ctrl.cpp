@@ -28,7 +28,7 @@
 
   Control software for Behringer X32 using OpenX32
   https://github.com/OpenMixerProject/OpenX32
-  v0.1.4, 23.09.2025
+  v0.1.5, 30.09.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -551,7 +551,7 @@ int main(int argc, char* argv[]) {
     x32log("       | |                               \n");
     x32log("       |_|                               \n");
     x32log("OpenX32 Main Control\n");
-    x32log("v0.1.4, 23.09.2025\n");
+    x32log("v0.1.5, 30.09.2025\n");
     x32log("https://github.com/OpenMixerProject/OpenX32\n");
 
     // first try to find what we are: Fullsize, Compact, Producer, Rack or Core
