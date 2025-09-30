@@ -5,7 +5,7 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define DSP_VERSION				0.02
+#define DSP_VERSION				0.20
 
 #define SDRAM_START  			0x00200000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
