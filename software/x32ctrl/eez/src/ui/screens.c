@@ -130,7 +130,7 @@ void create_screen_main() {
                             // hometab
                             lv_obj_t *obj = lv_tabview_create(parent_obj);
                             objects.hometab = obj;
-                            lv_obj_set_pos(obj, -21, -20);
+                            lv_obj_set_pos(obj, -20, -20);
                             lv_obj_set_size(obj, 796, 399);
                             lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
                             lv_tabview_set_tab_bar_size(obj, 20);
@@ -508,59 +508,212 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 349, -10);
-                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_label_set_text(obj, "Routing");
-                        }
-                        {
-                            lv_obj_t *obj = lv_obj_create(parent_obj);
-                            lv_obj_set_pos(obj, -7, 217);
-                            lv_obj_set_size(obj, 261, 107);
+                            lv_obj_t *obj = lv_tabview_create(parent_obj);
+                            lv_obj_set_pos(obj, -20, -20);
+                            lv_obj_set_size(obj, 796, 363);
+                            lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
+                            lv_tabview_set_tab_bar_size(obj, 20);
                             {
                                 lv_obj_t *parent_obj = obj;
                                 {
-                                    lv_obj_t *obj = lv_label_create(parent_obj);
-                                    lv_obj_set_pos(obj, 138, 19);
-                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                    lv_label_set_text(obj, "Source:");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Overview");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // hw_inputs
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.hw_inputs = obj;
+                                            lv_obj_set_pos(obj, 36, 28);
+                                            lv_obj_set_size(obj, 163, 108);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "Hardware Inputs\n- XLR\n- AUX / TB\n- CARD\n- AES50");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffd4ea6b), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // hw_outputs
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.hw_outputs = obj;
+                                            lv_obj_set_pos(obj, 36, 156);
+                                            lv_obj_set_size(obj, 163, 123);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "Hardware Outputs\n- XLR\n- AUX / Mon\n- CARD\n- Ultranet\n- AES50");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffde59), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // fpga
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.fpga = obj;
+                                            lv_obj_set_pos(obj, 230, 27);
+                                            lv_obj_set_size(obj, 148, 249);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "FPGA\n\n\n\n\nSends Inputs to Mixer\n\nSends Output to Hardware");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffbcbcbc), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // mixer
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.mixer = obj;
+                                            lv_obj_set_pos(obj, 418, 28);
+                                            lv_obj_set_size(obj, 118, 249);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "Mixer\n\n\n\n\nvChannels\nBuses\nMain LR\nMonitoring");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xff94beff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_input
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_input = obj;
+                                            lv_obj_set_pos(obj, 316, 63);
+                                            lv_obj_set_size(obj, 90, 48);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "Input ->");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_output
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_output = obj;
+                                            lv_obj_set_pos(obj, 399, 210);
+                                            lv_obj_set_size(obj, 99, 48);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "<- Output");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_hw_output
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_hw_output = obj;
+                                            lv_obj_set_pos(obj, 213, 210);
+                                            lv_obj_set_size(obj, 148, 48);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "<- Hardware Out");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // dsp
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.dsp = obj;
+                                            lv_obj_set_pos(obj, 567, 28);
+                                            lv_obj_set_size(obj, 136, 249);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "DSP\n\n\n\n\nFX Processing\nUSB\nAES/EBU");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffd48d), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_dsp
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_dsp = obj;
+                                            lv_obj_set_pos(obj, 463, 63);
+                                            lv_obj_set_size(obj, 90, 48);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "DSP ->");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_dsp_return
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_dsp_return = obj;
+                                            lv_obj_set_pos(obj, 553, 211);
+                                            lv_obj_set_size(obj, 130, 48);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "<- DSP Return");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                    }
                                 }
                                 {
-                                    lv_obj_t *obj = lv_label_create(parent_obj);
-                                    lv_obj_set_pos(obj, 16, 19);
-                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                    lv_label_set_text(obj, "Output:");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Input 1-40");
                                 }
                                 {
-                                    lv_obj_t *obj = lv_label_create(parent_obj);
-                                    lv_obj_set_pos(obj, -6, -13);
-                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                    lv_label_set_text(obj, "Hardware Channel-Routing");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "DSP 1-40");
                                 }
                                 {
-                                    // hardware_channel_output
-                                    lv_obj_t *obj = lv_label_create(parent_obj);
-                                    objects.hardware_channel_output = obj;
-                                    lv_obj_set_pos(obj, -6, 45);
-                                    lv_obj_set_size(obj, 100, LV_SIZE_CONTENT);
-                                    lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                    lv_label_set_text(obj, "X32");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "DSP Return 1-40");
                                 }
                                 {
-                                    // hardware_channel_source
-                                    lv_obj_t *obj = lv_label_create(parent_obj);
-                                    objects.hardware_channel_source = obj;
-                                    lv_obj_set_pos(obj, 115, 45);
-                                    lv_obj_set_size(obj, 100, LV_SIZE_CONTENT);
-                                    lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                    lv_label_set_text(obj, "X32");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Output 1-40");
+                                }
+                                {
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Hardware Out");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            lv_obj_t *obj = lv_obj_create(parent_obj);
+                                            lv_obj_set_pos(obj, 272, 85);
+                                            lv_obj_set_size(obj, 240, 115);
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -6, 23);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Source:");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -6, 53);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Output:");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, -6, -13);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Hardware Channel-Routing");
+                                                }
+                                                {
+                                                    // hardware_channel_output
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.hardware_channel_output = obj;
+                                                    lv_obj_set_pos(obj, 65, 53);
+                                                    lv_obj_set_size(obj, 88, LV_SIZE_CONTENT);
+                                                    lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                                    lv_label_set_text(obj, "X32");
+                                                }
+                                                {
+                                                    // hardware_channel_source
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.hardware_channel_source = obj;
+                                                    lv_obj_set_pos(obj, 65, 23);
+                                                    lv_obj_set_size(obj, 88, LV_SIZE_CONTENT);
+                                                    lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                                    lv_label_set_text(obj, "X32");
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        {
-                            lv_obj_t *obj = lv_table_create(parent_obj);
-                            lv_obj_set_pos(obj, 377, 217);
-                            lv_obj_set_size(obj, 381, 107);
                         }
                     }
                 }
