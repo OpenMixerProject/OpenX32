@@ -154,7 +154,7 @@
               "locked": true,
               "timeline": [],
               "eventHandlers": [],
-              "identifier": "",
+              "identifier": "channel_box",
               "leftUnit": "px",
               "topUnit": "px",
               "widthUnit": "px",
@@ -341,6 +341,54 @@
               "groupIndex": 0
             },
             {
+              "objID": "ea760926-a4b2-46d1-8dee-b44cdd3f67ce",
+              "type": "LVGLImageWidget",
+              "left": 394,
+              "top": 14,
+              "width": 395,
+              "height": 52,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "fa3958f2-9191-4bfb-9da8-69adcbe04cab",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "locked": false,
+              "hiddenInEditor": false,
+              "timeline": [],
+              "eventHandlers": [],
+              "identifier": "openx32logo_1",
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "ADV_HITTEST|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "flagScrollbarMode": "",
+              "flagScrollDirection": "",
+              "scrollSnapX": "",
+              "scrollSnapY": "",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "abee052a-e6fd-4e23-acef-6f2edb1ac8b4"
+              },
+              "group": "",
+              "groupIndex": 0,
+              "image": "openx32logo",
+              "setPivot": false,
+              "pivotX": 0,
+              "pivotY": 0,
+              "zoom": 100,
+              "angle": 0,
+              "innerAlign": "CENTER"
+            },
+            {
               "objID": "f7ca93de-e21a-45f9-d57d-798ba98a26f6",
               "type": "LVGLButtonMatrixWidget",
               "left": 2,
@@ -355,7 +403,7 @@
                 "conditionalStyles": [],
                 "childStyles": []
               },
-              "locked": false,
+              "locked": true,
               "hiddenInEditor": false,
               "timeline": [],
               "eventHandlers": [],
@@ -477,58 +525,12 @@
                   "heightUnit": "px",
                   "children": [
                     {
-                      "objID": "3ba0829a-64ac-4c83-888d-4ae7fb4dc10c",
-                      "type": "LVGLImageWidget",
-                      "left": -118,
-                      "top": -5,
-                      "width": 998,
-                      "height": 132,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "dfecd4c5-c355-4c0a-9a2f-8d3def52e222",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "openx32logo",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "content",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "ADV_HITTEST|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlagType": "literal",
-                      "flagScrollbarMode": "",
-                      "flagScrollDirection": "",
-                      "scrollSnapX": "",
-                      "scrollSnapY": "",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "b22dda5a-635d-49ef-db88-50c7c850c930"
-                      },
-                      "group": "",
-                      "groupIndex": 0,
-                      "image": "openx32logo",
-                      "setPivot": false,
-                      "pivotX": 0,
-                      "pivotY": 0,
-                      "zoom": 177,
-                      "angle": 0,
-                      "innerAlign": "CENTER"
-                    },
-                    {
                       "objID": "5efc80b9-6b12-451f-c717-cdf886084279",
                       "type": "LVGLTextareaWidget",
-                      "left": 35,
-                      "top": 127,
+                      "left": 24,
+                      "top": 47,
                       "width": 691,
-                      "height": 217,
+                      "height": 234,
                       "customInputs": [],
                       "customOutputs": [],
                       "style": {
@@ -2933,6 +2935,7 @@
                             "conditionalStyles": [],
                             "childStyles": []
                           },
+                          "locked": true,
                           "timeline": [],
                           "eventHandlers": [],
                           "leftUnit": "px",
@@ -2955,6 +2958,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "hw_inputs",
@@ -3010,6 +3014,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "hw_outputs",
@@ -3065,6 +3070,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "fpga",
@@ -3120,6 +3126,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "mixer",
@@ -3175,6 +3182,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "routing_input",
@@ -3230,6 +3238,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "routing_output",
@@ -3285,6 +3294,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "routing_hw_output",
@@ -3340,6 +3350,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "dsp",
@@ -3395,6 +3406,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "routing_dsp",
@@ -3450,6 +3462,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "routing_dsp_return",

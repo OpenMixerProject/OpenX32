@@ -23,7 +23,9 @@ void create_screen_main() {
     {
         lv_obj_t *parent_obj = obj;
         {
+            // channel_box
             lv_obj_t *obj = lv_obj_create(parent_obj);
+            objects.channel_box = obj;
             lv_obj_set_pos(obj, 3, 3);
             lv_obj_set_size(obj, 94, 72);
             lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
@@ -61,6 +63,15 @@ void create_screen_main() {
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0xfffafafa), LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
             }
+        }
+        {
+            // openx32logo_1
+            lv_obj_t *obj = lv_image_create(parent_obj);
+            objects.openx32logo_1 = obj;
+            lv_obj_set_pos(obj, 394, 14);
+            lv_obj_set_size(obj, 395, 52);
+            lv_image_set_src(obj, &img_openx32logo);
+            lv_image_set_scale(obj, 100);
         }
         {
             // display_encoders
@@ -102,18 +113,9 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            // openx32logo
-                            lv_obj_t *obj = lv_image_create(parent_obj);
-                            objects.openx32logo = obj;
-                            lv_obj_set_pos(obj, -118, -5);
-                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_image_set_src(obj, &img_openx32logo);
-                            lv_image_set_scale(obj, 177);
-                        }
-                        {
                             lv_obj_t *obj = lv_textarea_create(parent_obj);
-                            lv_obj_set_pos(obj, 35, 127);
-                            lv_obj_set_size(obj, 691, 217);
+                            lv_obj_set_pos(obj, 24, 47);
+                            lv_obj_set_size(obj, 691, 234);
                             lv_textarea_set_max_length(obj, 255);
                             lv_textarea_set_text(obj, "Currently (rudimentary) implemented pages:\n- HOME\n- METERS\n- SETUP\n- UTILITY (for Development)\n\n\n\n-> Press the EFFECTS button to get a nice demo <-");
                             lv_textarea_set_one_line(obj, false);
