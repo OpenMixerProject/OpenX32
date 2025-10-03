@@ -679,10 +679,28 @@ void setLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, sChannel* p_chan){
     data->texts[1].y = 15;
 
     // Volume / Panorama
+    float balance = halGetBalance(p_chan->index);
+    char balanceText[8] = "-------";
+    if (balance < -70){
+        balanceText[0] = '|';
+    } else if (balance < -40){
+        balanceText[1] = '|';
+    } else if (balance < -10){
+        balanceText[2] = '|';
+    } else if (balance > 70){
+        balanceText[6] = '|';
+    } else if (balance > 40){
+        balanceText[5] = '|';
+    } else if (balance > 10){
+        balanceText[4] = '|';
+    } else {
+        balanceText[3] = '|';
+    }
+
     if (halGetVolume(p_chan->index) > -100) {
-        sprintf(data->texts[2].text, "%.1fdB ---|---", halGetVolume(p_chan->index));
+        sprintf(data->texts[2].text, "%s %.1fdB", balanceText, halGetVolume(p_chan->index));
     }else{
-        sprintf(data->texts[2].text, " -oodB ---|---");
+        sprintf(data->texts[2].text, "%s -oodB", balanceText);
     }
     data->texts[2].size = 0;
     data->texts[2].x = 8;

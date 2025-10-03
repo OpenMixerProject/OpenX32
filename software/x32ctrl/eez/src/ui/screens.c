@@ -152,8 +152,8 @@ void create_screen_main() {
                                             // source_panel
                                             lv_obj_t *obj = lv_obj_create(parent_obj);
                                             objects.source_panel = obj;
-                                            lv_obj_set_pos(obj, -16, 197);
-                                            lv_obj_set_size(obj, 499, 126);
+                                            lv_obj_set_pos(obj, -16, 142);
+                                            lv_obj_set_size(obj, 499, 181);
                                             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             {
                                                 lv_obj_t *parent_obj = obj;
@@ -165,7 +165,7 @@ void create_screen_main() {
                                                 }
                                                 {
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
-                                                    lv_obj_set_pos(obj, 10, 36);
+                                                    lv_obj_set_pos(obj, -11, 25);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "Source: ");
                                                 }
@@ -173,14 +173,13 @@ void create_screen_main() {
                                                     // current_channel_source
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
                                                     objects.current_channel_source = obj;
-                                                    lv_obj_set_pos(obj, -11, 60);
+                                                    lv_obj_set_pos(obj, 59, 25);
                                                     lv_obj_set_size(obj, 100, LV_SIZE_CONTENT);
-                                                    lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                                     lv_label_set_text(obj, "x32");
                                                 }
                                                 {
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
-                                                    lv_obj_set_pos(obj, 124, 10);
+                                                    lv_obj_set_pos(obj, 192, 26);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "Gain:");
                                                 }
@@ -188,13 +187,13 @@ void create_screen_main() {
                                                     // current_channel_gain
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
                                                     objects.current_channel_gain = obj;
-                                                    lv_obj_set_pos(obj, 187, 10);
+                                                    lv_obj_set_pos(obj, 273, 25);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "0 dBfs");
                                                 }
                                                 {
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
-                                                    lv_obj_set_pos(obj, 124, 35);
+                                                    lv_obj_set_pos(obj, 192, 51);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "48V:");
                                                 }
@@ -202,13 +201,13 @@ void create_screen_main() {
                                                     // current_channel_phantom
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
                                                     objects.current_channel_phantom = obj;
-                                                    lv_obj_set_pos(obj, 187, 35);
+                                                    lv_obj_set_pos(obj, 273, 50);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "0");
                                                 }
                                                 {
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
-                                                    lv_obj_set_pos(obj, 124, 60);
+                                                    lv_obj_set_pos(obj, 192, 76);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "Invert:");
                                                 }
@@ -216,7 +215,35 @@ void create_screen_main() {
                                                     // current_channel_invert
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
                                                     objects.current_channel_invert = obj;
-                                                    lv_obj_set_pos(obj, 187, 60);
+                                                    lv_obj_set_pos(obj, 273, 75);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "0");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, 192, 101);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "PAN / BAL:");
+                                                }
+                                                {
+                                                    // current_channel_pan_bal
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.current_channel_pan_bal = obj;
+                                                    lv_obj_set_pos(obj, 273, 101);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "0");
+                                                }
+                                                {
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    lv_obj_set_pos(obj, 192, 124);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Volume:");
+                                                }
+                                                {
+                                                    // current_channel_volume
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.current_channel_volume = obj;
+                                                    lv_obj_set_pos(obj, 273, 124);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text(obj, "0");
                                                 }

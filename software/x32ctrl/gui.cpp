@@ -120,6 +120,9 @@ void guiSync(void) {
         lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)halGetGain(pChannelSelected->index));
         lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
         lv_label_set_text_fmt(objects.current_channel_invert, "%d", halGetPhaseInvert(pChannelSelected->index));
+        lv_label_set_text_fmt(objects.current_channel_pan_bal, "%f", (double)halGetBalance(pChannelSelected->index));
+        lv_label_set_text_fmt(objects.current_channel_volume, "%f", (double)halGetVolume(pChannelSelected->index));
+
 
         //char outputDestinationName[10] = "";
         //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
