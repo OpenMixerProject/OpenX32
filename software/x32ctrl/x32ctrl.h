@@ -1,7 +1,7 @@
 #ifndef X32CTRL_H_
 #define X32CTRL_H_
 
-#define DEBUG 0
+#define DEBUG 1
 
 #define MAX_CHANNELS 81
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
@@ -134,6 +134,10 @@
 #include "x32ctrl_types.h"
 #include "WString.h"
 #include "auxiliary.h"
+#include "mixer.h"
+#include "vchannel.h"
+
+extern Mixer* mixer;
 
 // function prototypes
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer);

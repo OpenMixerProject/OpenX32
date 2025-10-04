@@ -59,6 +59,8 @@
 #include "dsp.h"
 #include "hal.h"
 
+Mixer* mixer = NULL;
+
 // timer-raw-functions to be called either by linux-timer (X32core) or LVGL-timer (all other models)
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer) {timer100msCallback();}
 void timer100msCallbackLinux(int timer) {timer100msCallback();}
@@ -564,7 +566,7 @@ int main(int argc, char* argv[]) {
     readConfig("/etc/x32.conf", "DATE=", date, 16);
     x32log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
-    mixerInit(model);
+    mixer = &Mixer(model);
 
     // check start-switches
     int8_t switchFpga = -1;
@@ -606,12 +608,12 @@ int main(int argc, char* argv[]) {
     // unmute the local audio-boards
     addaSetMute(false);
 
-    if (mixerIsModelX32Core()){
+    if (mixer->IsModelX32Core()){
         // only necessary if LVGL is not used
         x32log("Starting Timer...\n");
         init100msTimer(); // start 100ms-timer only for Non-GUI systems
 
-        mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
+        mixer->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
         x32log("Wait for incoming data on /dev/ttymxc1...\n");
         x32log("Press Ctrl+C to terminate program.\n");

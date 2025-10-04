@@ -420,7 +420,7 @@ void setLedByEnum(X32_BTN led, uint8_t state) {
 
 // only X32 Rack and X32 Core
 void setLedChannelIndicator(){
-    if (mixerIsModelX32Core() || mixerIsModelX32Rack()){
+    if (mixer->IsModelX32Core() || mixer->IsModelX32Rack()){
         // Turn off all LEDS
         setLedByEnum(X32_LED_IN, 0);
         setLedByEnum(X32_LED_AUX, 0);
@@ -429,7 +429,7 @@ void setLedChannelIndicator(){
         setLedByEnum(X32_LED_MAIN, 0);
         setLedByEnum(X32_LED_MATRIX, 0);
 
-        uint8_t chanIdx = mixerGetSelectedChannelIndex();
+        uint8_t chanIdx = mixer->GetSelectedvChannelIndex();
 
         if ((chanIdx >= 0)&&(chanIdx <= 31)){
             setLedByEnum(X32_LED_IN, 1);
@@ -652,27 +652,27 @@ void setLcdX(sLCDData* p_data, uint8_t p_textCount) {
     uartTx(&fdSurface, &message, true);
 }
 
-void setLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, sChannel* p_chan){
+void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel p_chan){
     sLCDData* data;
     data = (sLCDData*)malloc(sizeof(sLCDData));
 
     data->boardId = p_boardId;
-    data->color = p_chan->color;
+    data->color = p_chan.color;
     data->index = p_Index;
     data->icon.icon = 0;
     data->icon.x = 0;
     data->icon.y = 0;
 
     // Gain / Lowcut
-    sprintf(data->texts[0].text, "%.1fdB 300Hz", halGetGain(p_chan->index));
+    sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
     data->texts[0].size = 0;
     data->texts[0].x = 3;
     data->texts[0].y = 0;
 
     // Phanton / Invert / Gate / Dynamics / EQ active
     sprintf(data->texts[1].text, "%s %s G D E",
-        halGetPhantomPower(p_chan->index) ? "48V" : "   ",
-        halGetPhaseInvert(p_chan->index) ? "@" : " "
+        p_chan.inputSource.phantomPower ? "48V" : "   ",
+        p_chan.inputSource.phaseInvert ? "@" : " "
         );
     data->texts[1].size = 0;
     data->texts[1].x = 10;
@@ -706,8 +706,8 @@ void setLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, sChannel* p_chan){
     data->texts[2].x = 8;
     data->texts[2].y = 30;
 
-    // channel Name
-    sprintf(data->texts[3].text, "%s", p_chan->name);
+    // vChannel Name
+    sprintf(data->texts[3].text, "%s", p_chan.name);
     data->texts[3].size = 0;
     data->texts[3].x = 0;
     data->texts[3].y = 48;
@@ -1490,8 +1490,7 @@ void surfaceUpdateMeter() {
 }
 
 void initDefinitions(void) {
-    switch(mixer.model) {
-        case X32_MODEL_FULL:
+    if(mixer->IsModelX32Full()) {
             addButtonDefinition( X32_BTN_TALK_A, 0x012E);
             addButtonDefinition( X32_BTN_TALK_B, 0x012F);
             addButtonDefinition( X32_BTN_VIEW_TALK, 0x0130);
@@ -1715,9 +1714,9 @@ void initDefinitions(void) {
             addEncoderDefinition(X32_ENC_ENCODER5, 0x0111);
             addEncoderDefinition(X32_ENC_ENCODER6, 0x0112);
 
-            break;
+    }
 
-        case X32_MODEL_COMPACT:
+    if (mixer->IsModelX32Compact()){
 
             addButtonDefinition(X32_BTN_TALK_A,         0x0100);
             addButtonDefinition(X32_BTN_TALK_B,         0x0101);
@@ -1906,9 +1905,9 @@ void initDefinitions(void) {
             addEncoderDefinition(X32_ENC_ENCODER4, 0x010C);
             addEncoderDefinition(X32_ENC_ENCODER5, 0x010D);
             addEncoderDefinition(X32_ENC_ENCODER6, 0x010E);
-            break;
+    }
 
-        case X32_MODEL_RACK:
+    if (mixer->IsModelX32Rack()){
 
             addButtonDefinition(X32_BTN_VIEW_USB, 0x0000);
             addButtonDefinition(X32_BTN_CHANNEL_SOLO, 0x0001);
@@ -1966,9 +1965,9 @@ void initDefinitions(void) {
             addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
             addButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0017);
 
-            break;
+    }
 
-        case X32_MODEL_CORE:
+    if (mixer->IsModelX32Core()){
 
             addButtonDefinition(X32_BTN_SCENE_SETUP,    0x0000);
             addButtonDefinition(X32_BTN_TALK_A,         0x0001);
@@ -1991,8 +1990,6 @@ void initDefinitions(void) {
             addButtonDefinition(X32_LED_AESB_GREEN,     0x000E);
             addButtonDefinition(X32_LED_AESB_RED,       0x000F);
 
-        default:
-            break;
     }
 }
 
