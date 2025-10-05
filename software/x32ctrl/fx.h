@@ -1,6 +1,9 @@
 #pragma once
 
-#include "x32ctrl.h"
+//#include "x32ctrl.h"
+#include "external.h"
+#include "x32ctrl_types.h"
+#include "x32config.h"
 
 #define PI 3.14159265358979323846
 

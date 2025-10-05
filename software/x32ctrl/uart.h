@@ -1,6 +1,8 @@
 #pragma once
 
-#include "x32ctrl.h"
+//#include "x32ctrl.h"
+#include "external.h"
+#include "x32ctrl_types.h"
 
 extern messageBuilder message;
 //extern int fdDebug;

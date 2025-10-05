@@ -52,6 +52,7 @@ typedef struct {
 } sSpiRxRingBuffer;
 sSpiRxRingBuffer spiRxRingBuffer[2]; // for both DSPs
 int spiDspHandle[2];
+uint32_t dataToRead[2];
 
 // configures a Xilinx Spartan 3A via SPI
 // accepts path to bitstream-file
@@ -533,10 +534,10 @@ void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]
     }
 
     // reduce or reset dataToRead-counter
-    if (mixer->dsp.dataToRead[dsp] >= valueCount) {
-        mixer->dsp.dataToRead[dsp] -= valueCount;
+    if (dataToRead[dsp] >= valueCount) {
+        dataToRead[dsp] -= valueCount;
     }else{
-        mixer->dsp.dataToRead[dsp] = 0;
+        dataToRead[dsp] = 0;
     }
 }
 
@@ -552,20 +553,20 @@ void spiUpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t ch
             // dummy-channel to read data. Dont change dataToRead-value here
             break;
         case 'v': // Version-number
-            mixer->dsp.dataToRead[dsp] += 1;
+            dataToRead[dsp] += 1;
             break;
         case 'c': // DSP-Load
-            mixer->dsp.dataToRead[dsp] += 1;
+            dataToRead[dsp] += 1;
             break;
         case 'm': // Channel-Meter
-            mixer->dsp.dataToRead[dsp] += 43;
+            dataToRead[dsp] += 43;
             break;
         case 'd': // Dynamics (Gate and Compression)
-            mixer->dsp.dataToRead[dsp] += 80;
+            dataToRead[dsp] += 80;
             break;
     }
     // add some more data for overhead: '*', parameter and '#'
-    mixer->dsp.dataToRead[dsp] += 3;
+    dataToRead[dsp] += 3;
 }
 
 bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {

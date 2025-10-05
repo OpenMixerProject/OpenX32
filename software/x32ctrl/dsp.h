@@ -1,6 +1,7 @@
 #pragma once
 
-#include "x32ctrl.h"
+#include "external.h"
+#include "x32ctrl_types.h"
 #include "spi.h"
 
 #define DSP_BUF_IDX_OFF			0	// no audio
@@ -16,6 +17,9 @@
 #define DSP_BUF_IDX_TALKBACK	68	// Talkback
 #define DSP_BUF_IDX_DSP2_FX		69  // FXDSP2 FX-Channel 1-16
 #define DSP_BUF_IDX_DSP2_AUX	85	// FXDSP2 AUX-Channel 1-8
+
+
+extern sDsp dsp;
 
 void dspInit(void);
 void dspSendChannelVolume(uint8_t dspChannel);
@@ -35,4 +39,6 @@ void dspSetOutputRouting(uint8_t dspChannel);
 void dspSetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8_t tapPoint);
 void dspSetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
 void dspSetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);
-void dspGetSourceName(char* p_nameBuffer, uint8_t dspChannel);
+//void dspGetSourceName(char* p_nameBuffer, uint8_t dspChannel);
+void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
+void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);

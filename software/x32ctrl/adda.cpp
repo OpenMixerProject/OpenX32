@@ -23,8 +23,8 @@
 */
 
 #include "adda.h"
-#include "uart.h"
-#include "mixer.h"
+
+X32Config config;
 
 char addaBufferUart[256]; // buffer for UART-readings
 int addaPacketBufLen = 0;
@@ -147,7 +147,7 @@ String addaSendReceive(char* cmd, uint16_t timeout) {
   uartTx(&fdAdda, &message, false);
 
   // check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
-  if ((timeout > 0) && (mixer->IsModelX32FullOrCompactOrProducer())) {
+  if ((timeout > 0) && (config.IsModelX32FullOrCompactOrProducer())) {
     addaWaitForMessageCounter = timeout;
     while (addaWaitForMessageCounter > 0) {
       x32debug("addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
@@ -262,5 +262,35 @@ int8_t addaGetBoardId(uint8_t channel) {
         return 2;
     }else{
         return -1;
+    }
+}
+
+
+void callbackAdda(char* msg) {
+    x32debug("Received message: %s\n", msg);
+    if ((strlen(msg) == 4) && (msg[2] == 'Y')) {
+        // we received acknowledge-message like *1Y# -> ignore it
+    }else if ((strlen(msg) == 5) && ((msg[2] == 'B') && (msg[3] == 'E'))) {
+        // we received keep-alive-message *8BE# from expansion-card -> ignore it
+    }else{
+        // we received other messages -> print them
+
+        // check for *i8CHIN# or *i8CHOUT#
+        if ((strlen(msg) >= 8) && ((msg[3] == 'C') && (msg[4] == 'H'))) {
+            uint8_t boardId = (uint8_t)msg[1]-0x30;
+            uint8_t chanCount = (uint8_t)msg[2]-0x30;
+
+            if ((msg[5] == 'I') && (msg[6] == 'N')) {
+                x32debug("Board %d is input-card with %d channels\n", boardId, chanCount);
+            }else if ((msg[5] == 'O') && (msg[6] == 'U') && (msg[7] == 'T')) {
+                x32debug("Board %d is output-card with %d channels\n", boardId, chanCount);
+            }else{
+                x32debug("Received message: %s\n", msg);
+            }
+        }
+        if (!config.IsModelX32Core()) {
+            // caution: callbackAdda() can be called before the GUI is ready!!!
+            //lv_label_set_text_fmt(objects.debugtext, "Received Message: %s\n", msg);
+        }
     }
 }

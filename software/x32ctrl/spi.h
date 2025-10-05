@@ -1,6 +1,9 @@
 #pragma once
 
-#include "x32ctrl.h"
+#include "external.h"
+#include "x32ctrl_types.h"
+#include "auxiliary.h"
+#include "dsp.h"
 
 /*
   SPI ClassIds:
@@ -12,6 +15,7 @@
 */
 
 // variables
+extern uint32_t dataToRead[2];
 
 // function prototypes
 int spiConfigureFpga(const char* bitstream_path);

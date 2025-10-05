@@ -27,6 +27,7 @@
 char fpgaBufferUart[256]; // buffer for UART-readings
 int fpgaPacketBufLen = 0;
 char fpgaPacketBuffer[FPGA_MAX_PACKET_LENGTH];
+sFpgaRouting fpgaRouting;
 
 void fpgaRoutingInit(void) {
     // reset routing-configuration and dsp-configuration
@@ -96,25 +97,25 @@ void fpgaRoutingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsou
 
     switch (group) {
         case 'x': // XLR-Outputs 1-16
-            mixer->fpgaRouting.xlr[channel - 1] = inputsource;
+            fpgaRouting.xlr[channel - 1] = inputsource;
             break;
         case 'p': // P16-Outputs 1-16
-            mixer->fpgaRouting.p16[channel - 1] = inputsource;
+            fpgaRouting.p16[channel - 1] = inputsource;
             break;
         case 'c': // Card-Outputs 1-32
-            mixer->fpgaRouting.card[channel - 1] = inputsource;
+            fpgaRouting.card[channel - 1] = inputsource;
             break;
         case 'a': // Aux-Outputs 1-8
-            mixer->fpgaRouting.aux[channel - 1] = inputsource;
+            fpgaRouting.aux[channel - 1] = inputsource;
             break;
         case 'd': // DSP-Inputs 1-40
-            mixer->fpgaRouting.dsp[channel - 1] = inputsource;
+            fpgaRouting.dsp[channel - 1] = inputsource;
             break;
         case 'A': // AES50A-Outputs
-            mixer->fpgaRouting.aes50a[channel - 1] = inputsource;
+            fpgaRouting.aes50a[channel - 1] = inputsource;
             break;
         case 'B': // AES50B-Outputs
-            mixer->fpgaRouting.aes50b[channel - 1] = inputsource;
+            fpgaRouting.aes50b[channel - 1] = inputsource;
             break;
     }
 }
@@ -150,37 +151,37 @@ uint8_t fpgaRoutingGetOutputSource(uint8_t group, uint8_t channel) {
 
     switch (group) {
         case 'x': // XLR-Outputs 1-16
-            return mixer->fpgaRouting.xlr[channel-1];
+            return fpgaRouting.xlr[channel-1];
             break;
         case 'p': // P16-Outputs 1-16
-            return mixer->fpgaRouting.p16[channel-1];
+            return fpgaRouting.p16[channel-1];
             break;
         case 'c': // Card-Outputs 1-32
-            return mixer->fpgaRouting.card[channel-1];
+            return fpgaRouting.card[channel-1];
             break;
         case 'a': // Aux-Outputs 1-8
-            return mixer->fpgaRouting.aux[channel-1];
+            return fpgaRouting.aux[channel-1];
             break;
         case 'd': // DSP-Inputs 1-40
-            return mixer->fpgaRouting.dsp[channel-1];
+            return fpgaRouting.dsp[channel-1];
             break;
         case 'A': // AES50A-Outputs
-            return mixer->fpgaRouting.aes50a[channel-1];
+            return fpgaRouting.aes50a[channel-1];
             break;
         case 'B': // AES50B-Outputs
-            return mixer->fpgaRouting.aes50b[channel-1];
+            return fpgaRouting.aes50b[channel-1];
             break;
     }
 
     return 0;
 }
 
-uint8_t fpgaRoutingGetOutputSourceByIndex(uint8_t outputIndex) {
-    uint8_t group = 0;
-    uint8_t channel = 0;
-    fpgaRoutingGetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // index = 1..112
-    return fpgaRoutingGetOutputSource(group, channel);
-}
+// uint8_t fpgaRoutingGetOutputSourceByIndex(uint8_t outputIndex) {
+//     uint8_t group = 0;
+//     uint8_t channel = 0;
+//     fpgaRoutingGetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // index = 1..112
+//     return fpgaRoutingGetOutputSource(group, channel);
+// }
 
 // get the absolute input-source (global channel-number)
 uint8_t fpgaRoutingGetSourceIndex(uint8_t group, uint8_t channel) {
@@ -335,11 +336,11 @@ void fpgaRoutingGetOutputGroupAndChannelByIndex(uint8_t outputIndex, uint8_t* gr
 	}
 }
 
-void fpgaRoutingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel) {
-    // first lets find the connected source to this dspChannel
-    uint8_t sourceIndex = fpgaRoutingGetOutputSource('d', dspChannel);
-    fpgaRoutingGetSourceGroupAndChannelByIndex(sourceIndex, group, channel);
-}
+// void fpgaRoutingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel) {
+//     // first lets find the connected source to this dspChannel
+//     uint8_t sourceIndex = fpgaRoutingGetOutputSource('d', dspChannel);
+//     fpgaRoutingGetSourceGroupAndChannelByIndex(sourceIndex, group, channel);
+// }
 
 // get the input-source name
 void fpgaRoutingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
@@ -439,8 +440,8 @@ void fpgaRoutingSendConfigToFpga(void) {
     data_64b routingData;
 
     // copy routing-struct into array
-    uint8_t buf[sizeof(mixer->fpgaRouting)];
-    memcpy(&buf[0], &mixer->fpgaRouting, sizeof(mixer->fpgaRouting));
+    uint8_t buf[sizeof(fpgaRouting)];
+    memcpy(&buf[0], &fpgaRouting, sizeof(fpgaRouting));
 
     // now copy this array into chunks of 64-bit-data and transmit it to FPGA
     for (uint8_t i = 0; i < (NUM_INPUT_CHANNEL/8); i++) {

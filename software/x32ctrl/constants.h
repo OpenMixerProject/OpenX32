@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEBUG 1
+#include <cstdint>
 
 #define MAX_VCHANNELS 81
 #define MAX_NAME_LENGTH 30 + 1 // null termination!

@@ -84,7 +84,9 @@ void demoSurface(void) {
       usleep(5000);
     }
 
-    if (!mixer->IsModelX32Core()){
+    X32Config config;
+
+    if (!config.IsModelX32Core()){
         // set display
         printf("  Setting Displays for board 0...\n");
         for (uint8_t i=0; i<4; i++) {

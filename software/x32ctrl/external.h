@@ -36,3 +36,8 @@
 
 // includes for spi-communication
 #include <linux/spi/spidev.h>
+
+// includes for lvgl
+#include "lv_port_linux/lvgl/lvgl.h"
+#include "lv_port_linux/src/lib/backends.h"
+#include "lv_port_linux/src/lib/driver_backends.h"

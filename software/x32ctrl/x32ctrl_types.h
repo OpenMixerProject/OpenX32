@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include "constants.h"
 
 // define own datatypes
@@ -37,6 +38,10 @@ typedef struct {
     char buffer[MAX_MESSAGE_SIZE];
     size_t current_length;
 } messageBuilder;
+
+void messageBuilderInit(messageBuilder *message) {
+    message->current_length = 0;
+}
 
 
 typedef struct{
@@ -247,8 +252,6 @@ typedef struct {
 } sPreamps;
 
 typedef struct {
-  float samplerate;
-
   sDspChannel dspChannel[40];
   sMixbusChannel mixbusChannel[16];
   sMatrixChannel matrixChannel[6];
@@ -266,7 +269,6 @@ typedef struct {
   // status messages
   float dspLoad[2];
   float dspVersion[2];
-  uint32_t dataToRead[2];
 } sDsp;
 
 typedef struct{

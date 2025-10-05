@@ -38,227 +38,15 @@ X32_BTN lastButton = X32_BTN_NONE;
 bool lastButtonPressed;
 
 static const char* displayEncoderButtonMap[] = {
-    mixer->displayEncoderText[0],
-    mixer->displayEncoderText[1],
-    mixer->displayEncoderText[2],
-    mixer->displayEncoderText[3],
-    mixer->displayEncoderText[4],
-    mixer->displayEncoderText[5],
+    displayEncoderText[0],
+    displayEncoderText[1],
+    displayEncoderText[2],
+    displayEncoderText[3],
+    displayEncoderText[4],
+    displayEncoderText[5],
     NULL};
 
-// sync mixer state to GUI
-void guiSync(void) {
-    if (mixer->IsModelX32Core()){
-        return;
-    }
 
-    x32debug("Active Page: %d\n", mixer->activePage);
-
-    VChannel pChannelSelected = mixer-> GetSelectedvChannel();
-
-    //####################################
-    //#         General
-    //####################################
-
-    lv_color_t color;
-    switch (pChannelSelected.color){
-        case SURFACE_COLOR_BLACK:
-            color = lv_color_make(0, 0, 0);
-            break;
-        case SURFACE_COLOR_RED:
-            color = lv_color_make(255, 0, 0);
-            break;
-        case SURFACE_COLOR_GREEN:
-            color = lv_color_make(0, 255, 0);
-            break;
-        case SURFACE_COLOR_YELLOW:
-            color = lv_color_make(255, 255, 0);
-            break;
-        case SURFACE_COLOR_BLUE:
-            color = lv_color_make(0, 0, 255);
-            break;
-        case SURFACE_COLOR_PINK:
-            color = lv_color_make(255, 0, 255);
-            break;
-        case SURFACE_COLOR_CYAN:
-            color = lv_color_make(0, 255, 255);
-            break;
-        case SURFACE_COLOR_WHITE:
-            color = lv_color_make(255, 255, 255);
-            break;
-    }
-
-    lv_label_set_text_fmt(objects.current_channel_number, "vCh%d", pChannelSelected.index);
-    lv_label_set_text_fmt(objects.current_channel_name, "%s", pChannelSelected.name);
-    lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
-
-    // //set Encoders to default state
-    // const char*  encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
-    // lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
-
-    //####################################
-    //#         Page Home
-    //####################################
-
-
-
-    bool phantomPower = halGetPhantomPower(pChannelSelected.index);
-    
-    if (mixer->activePage == X32_PAGE_CONFIG){
-    //####################################
-    //#         Page Config
-    //####################################
-        char dspSourceName[5] = "";
-        char inputSourceName[10] = "";
-        dspGetSourceName(&dspSourceName[0], pChannelSelected.index);
-        sprintf(&inputSourceName[0], "%02d: %s", (pChannelSelected.index + 1), dspSourceName);
-        lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
-
-        lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)halGetGain(pChannelSelected.index));
-        lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
-        lv_label_set_text_fmt(objects.current_channel_invert, "%d", halGetPhaseInvert(pChannelSelected.index));
-        lv_label_set_text_fmt(objects.current_channel_pan_bal, "%f", (double)halGetBalance(pChannelSelected.index));
-        lv_label_set_text_fmt(objects.current_channel_volume, "%f", (double)halGetVolume(pChannelSelected.index));
-
-
-        //char outputDestinationName[10] = "";
-        //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
-        //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
-
-        guiSetEncoderText("Source", "Gain", "-", "-", "-", "-");
-    }else if (mixer->activePage == X32_PAGE_ROUTING) {
-    //####################################
-    //#         Page Routing
-    //####################################
-        // char outputDestinationName[10] = "";
-        // char inputSourceName[10] = "";
-        // uint8_t routingIndex = 0;
-
-        // // read name of selected output-routing channel
-        // fpgaRoutingGetOutputNameByIndex(&outputDestinationName[0], mixer->selectedOutputChannelIndex); // mixer->selectedOutputChannelIndex = 1..112
-        // lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
-
-        // // find name of currently set input-source
-		// routingIndex = fpgaRoutingGetOutputSourceByIndex(mixer->selectedOutputChannelIndex); // mixer->selectedOutputChannelIndex = 1..112
-		// fpgaRoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
-        // lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
-
-        // guiSetEncoderText("Output", "Source", "-", "-", "-", "-");
-    }else if (mixer->activePage == X32_PAGE_EQ) {
-    //####################################
-    //#         Page EQ
-    //####################################
-        // draw EQ-plot
-        guiDrawEq();
-
-        if (pChannelSelected.index < 40) {
-            // support EQ-channel
-            guiSetEncoderText("LC: " + freq2String(mixer->dsp.dspChannel[pChannelSelected.index].lowCutFrequency),
-                "F: " + freq2String(mixer->dsp.dspChannel[pChannelSelected.index].peq[mixer->activeEQ].fc),
-                "G: " + String(mixer->dsp.dspChannel[pChannelSelected.index].peq[mixer->activeEQ].gain, 1) + " dB",
-                "Q: " + String(mixer->dsp.dspChannel[pChannelSelected.index].peq[mixer->activeEQ].Q, 1),
-                "M: " + eqType2String(mixer->dsp.dspChannel[pChannelSelected.index].peq[mixer->activeEQ].type),
-                "PEQ: " + String(mixer->activeEQ + 1)
-            );
-        }else{
-            // unsupported at the moment
-            guiSetEncoderText("-", "-", "-", "-", "-", "-");
-        }
-    }else if (mixer->activePage == X32_PAGE_METERS) {
-    //####################################
-    //#         Page Meters
-    //####################################
-
-        for(int i=0; i<=15; i++){
-            VChannel chan = mixer->GetVChannel(i);
-
-            if (phantomPower){
-                lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-            } else {
-                lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-            }
-
-            switch (i){
-                case 0:
-                    lv_slider_set_value(objects.slider01, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 1:
-                    lv_slider_set_value(objects.slider02, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 2:
-                    lv_slider_set_value(objects.slider03, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 3:
-                    lv_slider_set_value(objects.slider04, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 4:
-                    lv_slider_set_value(objects.slider05, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 5:
-                    lv_slider_set_value(objects.slider06, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 6:
-                    lv_slider_set_value(objects.slider07, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 7:
-                    lv_slider_set_value(objects.slider08, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 8:
-                    lv_slider_set_value(objects.slider09, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 9:
-                    lv_slider_set_value(objects.slider10, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 10:
-                    lv_slider_set_value(objects.slider11, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 11:
-                    lv_slider_set_value(objects.slider12, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 12:
-                    lv_slider_set_value(objects.slider13, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 13:
-                    lv_slider_set_value(objects.slider14, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 14:
-                    lv_slider_set_value(objects.slider15, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-                case 15:
-                    lv_slider_set_value(objects.slider16, dBfs2fader(mixer->dsp.dspChannel[chan.index].volumeLR), LV_ANIM_OFF);
-                    break;
-            }
-        }
-
-        lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-            (double)mixer->dsp.dspChannel[0].volumeLR,
-            (double)mixer->dsp.dspChannel[1].volumeLR,
-            (double)mixer->dsp.dspChannel[2].volumeLR,
-            (double)mixer->dsp.dspChannel[3].volumeLR,
-            (double)mixer->dsp.dspChannel[4].volumeLR,
-            (double)mixer->dsp.dspChannel[5].volumeLR,
-            (double)mixer->dsp.dspChannel[6].volumeLR,
-            (double)mixer->dsp.dspChannel[7].volumeLR
-        );
-    }else if (mixer->activePage == X32_PAGE_SETUP) {
-    //####################################
-    //#         Page Setup
-    //####################################
-
-        // pChannelSelected.solo ?
-        //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-        //     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
-
-        // pChannelSelected.mute ?
-        //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-        //     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
-    }else{
-    //####################################
-    //#         All other pages
-    //####################################
-        guiSetEncoderText("-", "-", "-", "-", "-", "-");
-    }
-}
 
 void guiNewButtonPress(X32_BTN button, bool pressed) {
   lastButton = button;
@@ -438,8 +226,10 @@ void guiInit(void) {
 
   guiInitInput();
 
-  mixer->ShowPage((X32_PAGE)-1);   // shows the welcome page
-  mixer->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
+  // TODO Implement correctly
+  throw;
+  //mixer->ShowPage((X32_PAGE)-1);   // shows the welcome page
+  //mixer->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
   // install event-handler for buttonmatrix (for mouse-control)
   lv_obj_add_event_cb(objects.display_encoders, guiDisplayEncoderEventHandler, LV_EVENT_ALL, NULL);
@@ -448,11 +238,15 @@ void guiInit(void) {
   lv_chart_set_type(objects.current_channel_eq, LV_CHART_TYPE_LINE);
   lv_obj_set_style_size(objects.current_channel_eq, 0, 0, LV_PART_INDICATOR);
   lv_obj_set_style_line_width(objects.current_channel_eq, 5, LV_PART_ITEMS);
-  mixer->chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
+  // TODO Implement correctly
+  throw;
+  //mixer->chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
   //lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7);
   lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15000, 15000);
   lv_chart_set_point_count(objects.current_channel_eq, 200);
-  lv_chart_set_series_color(objects.current_channel_eq, mixer->chartSeriesEQ, lv_color_hex(0xef7900));
+  // TODO Implement correctly
+  throw;
+  //lv_chart_set_series_color(objects.current_channel_eq, mixer->chartSeriesEQ, lv_color_hex(0xef7900));
   // chart-shadow: 0x7e4000
 
   // start endless loop
@@ -460,12 +254,12 @@ void guiInit(void) {
 }
 
 void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
-    sprintf(&mixer->displayEncoderText[0][0], "%s", enc1.c_str());
-    sprintf(&mixer->displayEncoderText[1][0], "%s", enc2.c_str());
-    sprintf(&mixer->displayEncoderText[2][0], "%s", enc3.c_str());
-    sprintf(&mixer->displayEncoderText[3][0], "%s", enc4.c_str());
-    sprintf(&mixer->displayEncoderText[4][0], "%s", enc5.c_str());
-    sprintf(&mixer->displayEncoderText[5][0], "%s", enc6.c_str());
+    sprintf(&displayEncoderText[0][0], "%s", enc1.c_str());
+    sprintf(&displayEncoderText[1][0], "%s", enc2.c_str());
+    sprintf(&displayEncoderText[2][0], "%s", enc3.c_str());
+    sprintf(&displayEncoderText[3][0], "%s", enc4.c_str());
+    sprintf(&displayEncoderText[4][0], "%s", enc5.c_str());
+    sprintf(&displayEncoderText[5][0], "%s", enc6.c_str());
     lv_btnmatrix_set_map(objects.display_encoders, displayEncoderButtonMap);
 }
 
@@ -516,8 +310,8 @@ static void guiDisplayEncoderEventHandler(lv_event_t* e) {
 */
 }
 
-void guiDrawEq() {
-    if (mixer->GetSelectedvChannelIndex() >= 40) {
+void guiDrawEq(uint8_t selectedChannelIndex) {
+    if (selectedChannelIndex >= 40) {
         return;
     }
 
@@ -532,18 +326,24 @@ void guiDrawEq() {
         freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
 
         // LowCut
-        eqValue[pixel] += fxCalcFrequencyResponse_LC(freq, mixer->dsp.dspChannel[mixer->GetSelectedvChannelIndex()].lowCutFrequency, mixer->dsp.samplerate);
+        // TODO Implement correctly
+        throw;
+        //eqValue[pixel] += fxCalcFrequencyResponse_LC(freq, mixer->dsp.dspChannel[selectedChannelIndex].lowCutFrequency, mixer->dsp.samplerate);
 
         // PEQ
         for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
-            peq = &mixer->dsp.dspChannel[mixer->GetSelectedvChannelIndex()].peq[i_peq];
-            eqValue[pixel] += fxCalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, mixer->dsp.samplerate);
+            // TODO Implement correctly
+            throw;
+          //peq = &mixer->dsp.dspChannel[mixer->GetSelectedvChannelIndex()].peq[i_peq];
+          //  eqValue[pixel] += fxCalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, mixer->dsp.samplerate);
         }
     }
 
-    int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, mixer->chartSeriesEQ);
-    for (uint16_t i = 0; i < 200; i++) {
-        chartSeriesEqPoints[i] = eqValue[i] * 1000.0f; // draw diagonal line
-    }
-    lv_chart_refresh(objects.current_channel_eq);
+    // TODO Implement correctly
+    throw;
+    //int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, mixer->chartSeriesEQ);
+    //for (uint16_t i = 0; i < 200; i++) {
+    //    chartSeriesEqPoints[i] = eqValue[i] * 1000.0f; // draw diagonal line
+    //}
+    //lv_chart_refresh(objects.current_channel_eq);
 }

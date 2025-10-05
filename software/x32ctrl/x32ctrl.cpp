@@ -48,21 +48,20 @@
 
 #include "x32ctrl.h"
 
-
-Mixer* mixer;
+X32Config config;
 
 // timer-raw-functions to be called either by linux-timer (X32core) or LVGL-timer (all other models)
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer) {timer100msCallback();}
 void timer100msCallbackLinux(int timer) {timer100msCallback();}
-void timer10msCallbackLvgl(_lv_timer_t* lv_timer) {ui_tick(); timer10msCallback(); syncAll();}
+void timer10msCallbackLvgl(_lv_timer_t* lv_timer) {ui_tick(); timer10msCallback(); mixer->syncAll();}
 void timer10msCallbackLinux(int timer) {timer10msCallback();}
 
 // called every 100ms
 void timer100msCallback() {
     // surface wants to know the current state of all LED's and Meters
     surfaceKeepalive();
-    touchcontrolTick();
-    surfaceUpdateMeter();
+    mixer->touchcontrolTick();
+    mixer->surfaceUpdateMeter();
 
     // update meters on XRemote-clients
     xremoteUpdateMeter();
@@ -72,16 +71,16 @@ void timer100msCallback() {
     spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
 
     // read meter- and dynamics-information from DSP
-    if (mixer->IsModelX32FullOrCompactOrProducer()) {
+    if (config.IsModelX32FullOrCompactOrProducer()) {
         spiSendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
         //spiSendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
     }
 
     // read the current DSP load
-    if (!mixer->IsModelX32Core()) {
+    if (!config.IsModelX32Core()) {
         spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
         spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-        lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", mixer->dsp.dspLoad[0], mixer->dsp.dspVersion[0], mixer->dsp.dspLoad[1], mixer->dsp.dspVersion[1]); // show the received value (could be a bit older than the request)
+        lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", dsp.dspLoad[0], dsp.dspVersion[0], dsp.dspLoad[1], dsp.dspVersion[1]); // show the received value (could be a bit older than the request)
     }
 }
 
@@ -97,8 +96,8 @@ void timer10msCallback() {
     fpgaProcessUartData(uartRx(&fdFpga, &fpgaBufferUart[0], sizeof(fpgaBufferUart)));
 
     // continuously read data from both DSPs if we expect data
-    spiSendDspParameterArray(0, '?', 0, 0, mixer->dsp.dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
-    spiSendDspParameterArray(1, '?', 0, 0, mixer->dsp.dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
+    spiSendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
+    spiSendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
 
     // communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
     xremoteUdpHandleCommunication();
@@ -150,7 +149,7 @@ void callbackSurface(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t
                 default:
                     x32debug("Button  : boardId = 0x%02X | classId = 0x%02X | index = 0x%02X | data = 0x%02X | X32_BTN = 0x%04X\n", boardId, classId, index, value, button);
 
-                    if (!mixer->IsModelX32Core()) {
+                    if (!config.IsModelX32Core()) {
                         (objects.debugtext, "Button  : boardId = 0x%02X | classId = 0x%02X | index = 0x%02X | data = 0x%02X | X32_BTN = 0x%04X\n", boardId, classId, index, value, button);
                     }
 
@@ -202,7 +201,7 @@ void callbackSurface(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t
                 break;
             default:
                 x32debug("Encoder : boardId = 0x%02X | classId = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, classId, index, value);
-                if (!mixer->IsModelX32Core()) {
+                if (!config.IsModelX32Core()) {
                     lv_label_set_text_fmt(objects.debugtext, "Encoder : boardId = 0x%02X | classId = 0x%02X | index = 0x%02X | data = 0x%02X\n", boardId, classId, index, value);
                 }
                 break;
@@ -303,34 +302,7 @@ void callbackSurface(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t
     }
 }
 
-void callbackAdda(char* msg) {
-    x32debug("Received message: %s\n", msg);
-    if ((strlen(msg) == 4) && (msg[2] == 'Y')) {
-        // we received acknowledge-message like *1Y# -> ignore it
-    }else if ((strlen(msg) == 5) && ((msg[2] == 'B') && (msg[3] == 'E'))) {
-        // we received keep-alive-message *8BE# from expansion-card -> ignore it
-    }else{
-        // we received other messages -> print them
 
-        // check for *i8CHIN# or *i8CHOUT#
-        if ((strlen(msg) >= 8) && ((msg[3] == 'C') && (msg[4] == 'H'))) {
-            uint8_t boardId = (uint8_t)msg[1]-0x30;
-            uint8_t chanCount = (uint8_t)msg[2]-0x30;
-
-            if ((msg[5] == 'I') && (msg[6] == 'N')) {
-                x32debug("Board %d is input-card with %d channels\n", boardId, chanCount);
-            }else if ((msg[5] == 'O') && (msg[6] == 'U') && (msg[7] == 'T')) {
-                x32debug("Board %d is output-card with %d channels\n", boardId, chanCount);
-            }else{
-                x32debug("Received message: %s\n", msg);
-            }
-        }
-        if (!mixer->IsModelX32Core()) {
-            // caution: callbackAdda() can be called before the GUI is ready!!!
-            //lv_label_set_text_fmt(objects.debugtext, "Received Message: %s\n", msg);
-        }
-    }
-}
 
 void callbackFpga(char* buf, uint8_t len) {
     // do something with the received data
@@ -338,132 +310,6 @@ void callbackFpga(char* buf, uint8_t len) {
     // later it is planned to receive information about audio-levels here
     //printf("Received: %s\n", buf);
     //lv_label_set_text_fmt(objects.debugtext, "Fpga Message: %s\n", buf);
-}
-
-void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
-    float* floatValues = (float*)values;
-    uint32_t* intValues = (uint32_t*)values;
-
-    switch (classId) {
-        case 's': // status-feedback
-            switch (channel) {
-                case 'v': // DSP-Version
-                    if (valueCount == 1) {
-                        mixer->dsp.dspVersion[0] = floatValues[0];
-                    }
-                    break;
-                case 'c': // DSP-Load in dspClockCycles
-                    if (valueCount == 1) {
-                        mixer->dsp.dspLoad[0] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
-                    }
-                    break;
-            }
-            break;
-        case 'm': // meter information
-            // copy meter-info to individual channels
-            // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-            if (valueCount == 43) {
-                for (int i = 0; i < 40; i++) {
-                    mixer->dsp.dspChannel[i].meterPu = abs(floatValues[i])/2147483648.0f; // convert 32-bit value to p.u.
-                    uint32_t data = (uint32_t)abs(floatValues[i]); // convert received float-value to unsigned integer
-                    // data contains a 32-bit sample-value
-                    // lets check the threshold and set meterInfo
-                    mixer->dsp.dspChannel[i].meterInfo = 0;
-                    if (data >= vuThresholds[0])  { mixer->dsp.dspChannel[i].meterInfo |= 0b00100000; } // CLIP
-                    if (data >= vuThresholds[5])  { mixer->dsp.dspChannel[i].meterInfo |= 0b00010000; } // -6dBfs
-                    if (data >= vuThresholds[8])  { mixer->dsp.dspChannel[i].meterInfo |= 0b00001000; } // -12dBfs
-                    if (data >= vuThresholds[10]) { mixer->dsp.dspChannel[i].meterInfo |= 0b00000100; } // -18dBfs
-                    if (data >= vuThresholds[14]) { mixer->dsp.dspChannel[i].meterInfo |= 0b00000010; } // -30dBfs
-                    if (data >= vuThresholds[24]) { mixer->dsp.dspChannel[i].meterInfo |= 0b00000001; } // -60dBfs
-
-                    // the dynamic-information is received with the 'd' information, but we will store them here
-                    if (mixer->dsp.dspChannel[i].gate.gain < 1.0f) { mixer->dsp.dspChannel[i].meterInfo |= 0b01000000; }
-                    if (mixer->dsp.dspChannel[i].compressor.gain < 1.0f) { mixer->dsp.dspChannel[i].meterInfo |= 0b10000000; }
-                }
-                mixer->dsp.mainChannelLR.meterPu[0] = abs(floatValues[40])/2147483648.0f; // convert 32-bit value to p.u.
-                mixer->dsp.mainChannelLR.meterPu[1] = abs(floatValues[41])/2147483648.0f; // convert 32-bit value to p.u.
-                mixer->dsp.mainChannelSub.meterPu[0] = abs(floatValues[42])/2147483648.0f; // convert 32-bit value to p.u.
-
-                // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-                // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
-                mixer->dsp.mainChannelLR.meterInfo[0] = 0;
-                mixer->dsp.mainChannelLR.meterInfo[1] = 0;
-                mixer->dsp.mainChannelSub.meterInfo[0] = 0;
-                uint32_t data[3];
-                data[0] = abs(floatValues[40]);
-                data[1] = abs(floatValues[41]);
-                data[2] = abs(floatValues[42]);
-                for (int i = 0; i < 24; i++) {
-                    if (data[0] >= vuThresholds[i]) { mixer->dsp.mainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
-                    if (data[1] >= vuThresholds[i]) { mixer->dsp.mainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
-                    if (data[2] >= vuThresholds[i]) { mixer->dsp.mainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
-                }
-            }
-            break;
-        case 'd': // dynamics-information
-            if (valueCount == 80) {
-                // first copy the compression-information
-                for (int i = 0; i < 40; i++) {
-                    mixer->dsp.dspChannel[i].compressor.gain = floatValues[i];
-                    mixer->dsp.dspChannel[i].gate.gain = floatValues[40 + i];
-                }
-            }
-        default:
-            break;
-    }
-}
-
-void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
-    float* floatValues = (float*)values;
-    uint32_t* intValues = (uint32_t*)values;
-
-    switch (classId) {
-        case 's': // status-feedback
-            switch (channel) {
-                case 'v': // DSP-Version
-                    if (valueCount == 1) {
-                        mixer->dsp.dspVersion[1] = floatValues[0];
-                    }
-                    break;
-                case 'c': // DSP-Load in dspClockCycles
-                    if (valueCount == 1) {
-                        mixer->dsp.dspLoad[1] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
-                    }
-                    break;
-            }
-            break;
-        default:
-            break;
-    }
-}
-
-// ####################################################################
-// #
-// #
-// #        Sync
-// #
-// #
-// ####################################################################
-
-void syncAll(void) {
-    if (mixer->HasAnyChanged()){
-        if (
-            mixer->HasChanged(X32_MIXER_CHANGED_PAGE)    ||
-            mixer->HasChanged(X32_MIXER_CHANGED_BANKING) ||
-            mixer->HasChanged(X32_MIXER_CHANGED_SELECT)  ||
-            mixer->HasChanged(X32_MIXER_CHANGED_VCHANNEL) ||
-            mixer->HasChanged(X32_MIXER_CHANGED_GUI)
-           ) {
-            guiSync();
-            surfaceSync();
-        }
-        if (mixer->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
-            // TODO Maybe?: do not sync if just selection has changed
-            halSyncChannelConfigFromMixer();
-        }
-
-        mixer->ResetChangeFlags();
-    }
 }
 
 
@@ -579,7 +425,11 @@ int main(int argc, char* argv[]) {
     readConfig("/etc/x32.conf", "DATE=", date, 16);
     x32log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
-    mixer = new Mixer(model);
+    X32Config config;
+    config.SetModel(model);
+    config.SetSamplerate(48000);
+
+    mixer = new Mixer();
 
     // check start-switches
     int8_t switchFpga = -1;
@@ -610,7 +460,7 @@ int main(int argc, char* argv[]) {
         surfaceInit(); // initialize whole surface with default values
 
         x32log("Initializing X32 Audio...\n");
-        addaInit(mixer->dsp.samplerate);
+        addaInit(config.GetSamplerate());
     }
 
     x32log("Setting up FPGA and DSPs...\n");
@@ -621,7 +471,7 @@ int main(int argc, char* argv[]) {
     // unmute the local audio-boards
     addaSetMute(false);
 
-    if (mixer->IsModelX32Core()){
+    if (config.IsModelX32Core()){
         // only necessary if LVGL is not used
         x32log("Starting Timer...\n");
         init100msTimer(); // start 100ms-timer only for Non-GUI systems

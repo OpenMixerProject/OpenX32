@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include "WString.h"
-#include "constants.h"
 #include "x32ctrl_types.h"
 
 
@@ -34,6 +33,8 @@ class VChannel{
         void Init(int p_vChannelIndex, bool p_disabled);
 
         void SetChanged(uint16_t p_flag);
+ 
+        void ResetVChannelChangeFlags();
 
         bool HasChanged(uint16_t p_flag);
         bool HasAnyChanged(void);

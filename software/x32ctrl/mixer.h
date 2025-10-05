@@ -1,17 +1,22 @@
 #pragma once
 
 #include "external.h"
+#include "x32config.h"
 #include "x32ctrl_types.h"
+#include "x32message.h"
 
 #include "vchannel.h"
+
+#include "surface.h"
 
 
 // The string class
 class Mixer
 {
     private:
-        X32_MODEL model;
-     
+        
+        X32Config config;
+
         uint8_t selectedVChannel;
         uint8_t selectedOutputChannelIndex;
 
@@ -27,13 +32,10 @@ class Mixer
         VChannel vChannel[MAX_VCHANNELS];
         sMixerPage pages[MAX_PAGES];
 
-    public:
-        
-        // specific hardware-components
-        sFpgaRouting fpgaRouting;
-        sDsp dsp;
-        sPreamps preamps;
+        static X32Message* messages[100];
 
+
+    public:
         X32_PAGE activePage;
         uint8_t activeBank_inputFader;
         uint8_t activeBank_busFader;
@@ -42,7 +44,7 @@ class Mixer
 
         sTouchControl touchcontrol;
 
-        Mixer(String model);
+        Mixer(void);
         
         void SetVChannelDefaults(VChannel p_vChannel, uint8_t p_vChannelIndex, bool p_disabled);
         void SetChangeFlags(uint16_t p_flag);
@@ -81,21 +83,12 @@ class Mixer
 
         void ClearSolo(void);
 
-        bool IsModelX32Full(void);
-        bool IsModelX32FullOrCompactOrProducer(void);
-        bool IsModelX32FullOrCompactOrProducerOrRack(void);
-        bool IsModelX32CompactOrProducer(void);
-        bool IsModelX32Core(void);
-        bool IsModelX32Rack(void);
-        bool IsModelX32Compact(void);
         bool IsSoloActivated(void);
         bool IsActiveModeOpenX32(void);
         bool IsActiveModeX32(void);
 
         bool HasChanged(uint16_t p_flag);
         bool HasAnyChanged(void);
-        bool HasVChannelChanged(VChannel p_chan, uint16_t p_flag);
-        bool HasVChannelAnyChanged(VChannel p_chan);
 
         uint8_t GetSelectedvChannelIndex(void);
         VChannel GetSelectedvChannel(void);
@@ -115,6 +108,21 @@ class Mixer
         void ShowPage(X32_PAGE page);
         void ShowPrevPage(void);
         void ShowNextPage(void);
+
+        void syncAll(void);
+        void guiSync(void);
+        void surfaceSync(void);
+        void surfaceSyncBoardMain();
+        void surfaceSyncBoard(X32_BOARD board);
+        void surfaceSyncBankIndicator(void);
+        void surfaceUpdateMeter(void);
+        void setLedChannelIndicator(void);
+        uint8_t surfaceCalcPreampMeter(uint8_t channel);
+        uint8_t surfaceCalcDynamicMeter(uint8_t channel);
+        void halSyncChannelConfigFromMixer(void);
+
+        void touchcontrolTick(void);
+        bool touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
 
         void DebugPrintBank(uint8_t bank);
         void DebugPrintBusBank(uint8_t bank);

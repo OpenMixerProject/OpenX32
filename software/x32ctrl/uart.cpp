@@ -31,9 +31,6 @@ int fdAdda;
 int fdFpga;
 //int fdMidi;
 
-void messageBuilderInit(messageBuilder *message) {
-    message->current_length = 0;
-}
 
 // allows writing a single byte to buffer without using byte-stuffing
 int messageBuilderAddRawByte(messageBuilder *message, char byte) {

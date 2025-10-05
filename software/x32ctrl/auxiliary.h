@@ -19,5 +19,5 @@ String freq2String(float freq);
 String eqType2String(uint8_t type);
 void x32log(const char* format, ...);
 void x32debug(const char* format, ...);
-
+unsigned int checksum(char* str);
 

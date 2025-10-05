@@ -50,6 +50,10 @@ void VChannel::SetChanged(uint16_t p_flag){
     changed |= p_flag;
 }
 
+void VChannel::ResetVChannelChangeFlags(){
+    changed = X32_VCHANNEL_CHANGED_NONE;
+}
+
 bool VChannel::HasChanged(uint16_t p_flag){
     return ((changed & p_flag) == p_flag); 
 }

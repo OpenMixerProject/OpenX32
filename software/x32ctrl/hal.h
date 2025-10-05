@@ -1,6 +1,6 @@
 #pragma once
 
-#include "x32ctrl.h"
+//#include "x32ctrl.h"
 #include "uart.h"
 #include "adda.h"
 #include "mixer.h"

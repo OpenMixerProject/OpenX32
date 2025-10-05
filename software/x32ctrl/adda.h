@@ -1,6 +1,12 @@
 #pragma once
 
-#include "x32ctrl.h"
+//#include "x32ctrl.h"
+#include "external.h"
+#include "x32ctrl_types.h"
+#include "WString.h"
+#include "auxiliary.h"
+#include "uart.h"
+#include "x32config.h"
 
 #define ADDA_MAX_PACKET_LENGTH 32
 
@@ -14,3 +20,4 @@ String addaSendReceive(char* cmd, uint16_t timeout);
 String addaProcessUartData(int bytesToProcess, bool directRead);
 void addaSetMute(bool muted);
 int8_t addaGetBoardId(uint8_t channel);
+void callbackAdda(char* msg);
