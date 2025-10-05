@@ -43,5 +43,17 @@ void VChannel::Init(int p_vChannelIndex, bool p_disabled){
     vChannelType = 0; // normal channel
 
     // disable all audio
-    inputSource.dspChannel = 0;
+    dspChannel.inputSource = 0;
+}
+
+void VChannel::SetChanged(uint16_t p_flag){
+    changed |= p_flag;
+}
+
+bool VChannel::HasChanged(uint16_t p_flag){
+    return ((changed & p_flag) == p_flag); 
+}
+
+bool VChannel::HasAnyChanged(void){
+    return changed != X32_VCHANNEL_CHANGED_NONE;
 }

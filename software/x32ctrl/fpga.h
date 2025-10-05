@@ -1,5 +1,4 @@
-#ifndef FPGA_H_
-#define FPGA_H_
+#pragma once
 
 #include "x32ctrl.h"
 
@@ -26,10 +25,10 @@ void fpgaRoutingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t
 
 void fpgaRoutingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel);
 void fpgaRoutingGetSourceNameByIndex(char* p_nameBuffer, uint8_t sourceIndex);
-void fpgaRoutingGetOutputName(char* p_nameBuffer, sChannel* p_chan);
+void fpgaRoutingGetOutputName(char* p_nameBuffer, uint8_t group, VChannel p_chan);
 void fpgaRoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
 
 void fpgaRoutingSendConfigToFpga(void);
 void fpgaProcessUartData(int bytesToProcess);
 
-#endif
+

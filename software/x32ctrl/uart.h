@@ -1,5 +1,4 @@
-#ifndef UART_H_
-#define UART_H_
+#pragma once
 
 #include "x32ctrl.h"
 
@@ -22,4 +21,3 @@ int uartTx(int* fd, messageBuilder* builder, bool addChecksum);
 int uartRx(int* fd, char* buf, uint16_t bufLen);
 int uartTxToFPGA(uint16_t cmd, data_64b* data);
 
-#endif

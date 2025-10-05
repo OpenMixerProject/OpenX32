@@ -23,8 +23,6 @@
 */
 
 #include "fpga.h"
-#include "mixer.h"
-#include "uart.h"
 
 char fpgaBufferUart[256]; // buffer for UART-readings
 int fpgaPacketBufLen = 0;
@@ -98,25 +96,25 @@ void fpgaRoutingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsou
 
     switch (group) {
         case 'x': // XLR-Outputs 1-16
-            mixer.fpgaRouting.xlr[channel - 1] = inputsource;
+            mixer->fpgaRouting.xlr[channel - 1] = inputsource;
             break;
         case 'p': // P16-Outputs 1-16
-            mixer.fpgaRouting.p16[channel - 1] = inputsource;
+            mixer->fpgaRouting.p16[channel - 1] = inputsource;
             break;
         case 'c': // Card-Outputs 1-32
-            mixer.fpgaRouting.card[channel - 1] = inputsource;
+            mixer->fpgaRouting.card[channel - 1] = inputsource;
             break;
         case 'a': // Aux-Outputs 1-8
-            mixer.fpgaRouting.aux[channel - 1] = inputsource;
+            mixer->fpgaRouting.aux[channel - 1] = inputsource;
             break;
         case 'd': // DSP-Inputs 1-40
-            mixer.fpgaRouting.dsp[channel - 1] = inputsource;
+            mixer->fpgaRouting.dsp[channel - 1] = inputsource;
             break;
         case 'A': // AES50A-Outputs
-            mixer.fpgaRouting.aes50a[channel - 1] = inputsource;
+            mixer->fpgaRouting.aes50a[channel - 1] = inputsource;
             break;
         case 'B': // AES50B-Outputs
-            mixer.fpgaRouting.aes50b[channel - 1] = inputsource;
+            mixer->fpgaRouting.aes50b[channel - 1] = inputsource;
             break;
     }
 }
@@ -152,25 +150,25 @@ uint8_t fpgaRoutingGetOutputSource(uint8_t group, uint8_t channel) {
 
     switch (group) {
         case 'x': // XLR-Outputs 1-16
-            return mixer.fpgaRouting.xlr[channel-1];
+            return mixer->fpgaRouting.xlr[channel-1];
             break;
         case 'p': // P16-Outputs 1-16
-            return mixer.fpgaRouting.p16[channel-1];
+            return mixer->fpgaRouting.p16[channel-1];
             break;
         case 'c': // Card-Outputs 1-32
-            return mixer.fpgaRouting.card[channel-1];
+            return mixer->fpgaRouting.card[channel-1];
             break;
         case 'a': // Aux-Outputs 1-8
-            return mixer.fpgaRouting.aux[channel-1];
+            return mixer->fpgaRouting.aux[channel-1];
             break;
         case 'd': // DSP-Inputs 1-40
-            return mixer.fpgaRouting.dsp[channel-1];
+            return mixer->fpgaRouting.dsp[channel-1];
             break;
         case 'A': // AES50A-Outputs
-            return mixer.fpgaRouting.aes50a[channel-1];
+            return mixer->fpgaRouting.aes50a[channel-1];
             break;
         case 'B': // AES50B-Outputs
-            return mixer.fpgaRouting.aes50b[channel-1];
+            return mixer->fpgaRouting.aes50b[channel-1];
             break;
     }
 
@@ -441,8 +439,8 @@ void fpgaRoutingSendConfigToFpga(void) {
     data_64b routingData;
 
     // copy routing-struct into array
-    uint8_t buf[sizeof(mixer.fpgaRouting)];
-    memcpy(&buf[0], &mixer.fpgaRouting, sizeof(mixer.fpgaRouting));
+    uint8_t buf[sizeof(mixer->fpgaRouting)];
+    memcpy(&buf[0], &mixer->fpgaRouting, sizeof(mixer->fpgaRouting));
 
     // now copy this array into chunks of 64-bit-data and transmit it to FPGA
     for (uint8_t i = 0; i < (NUM_INPUT_CHANNEL/8); i++) {

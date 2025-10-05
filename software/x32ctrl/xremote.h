@@ -1,7 +1,7 @@
-#ifndef XREMOTE_H_
-#define XREMOTE_H_
+#pragma once
 
 #include "x32ctrl.h"
+#include "mixer.h"
 
 // function prototypes
 int8_t xremoteInit();
@@ -26,5 +26,3 @@ void xremoteSendUdpPacket(char* buffer, uint16_t size);
 void xremoteSendBasicMessage(char* cmd, char type, char format, char* value);
 uint16_t xremotesprint(char* bd, uint16_t index, char format, const char* bs);
 uint16_t xremotefprint(char* bd, uint16_t index, char* text, char format, char* bs);
-
-#endif

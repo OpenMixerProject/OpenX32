@@ -1,7 +1,6 @@
-#ifndef X32CTRL_TYPES_H_
-#define X32CTRL_TYPES_H_
+#pragma once
 
-#include "x32ctrl.h"
+#include "constants.h"
 
 // define own datatypes
 typedef union {
@@ -273,7 +272,7 @@ typedef struct {
 typedef struct{
     char name[MAX_NAME_LENGTH];
 
-    // assing surfaceChannel to channel
+    // assing surfaceChannel to VChannel
     //
     // surfaceChannels:
     // 0-7   Board L
@@ -282,7 +281,7 @@ typedef struct{
     // 24    Main Fader
     // 25-28 Assing 1-4 (only X32 Full)
     // 29-34 Display Encoder 1-6
-    uint8_t surfaceChannel2Channel[35];
+    uint8_t surfaceChannel2VChannel[35];
 } sBank;
 
 typedef struct{
@@ -298,6 +297,3 @@ typedef struct{
     X32_PAGE nextPage;
     X32_PAGE prevPage;
 } sMixerPage;
-
-
-#endif

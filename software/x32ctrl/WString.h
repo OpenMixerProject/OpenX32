@@ -21,8 +21,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef String_class_h
-#define String_class_h
+#pragma once
 #ifdef __cplusplus
 
 #include <stdlib.h>
@@ -225,4 +224,4 @@ public:
 };
 
 #endif  // __cplusplus
-#endif  // String_class_h
+

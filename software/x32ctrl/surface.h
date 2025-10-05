@@ -1,10 +1,10 @@
-#ifndef SURFACE_H_
-#define SURFACE_H_
+#pragma once
 
 #include "x32ctrl.h"
 #include "vchannel.h"
 
 extern char surfaceBufferUart[256];
+extern X32_SURFACE_MODE_BANKING activeBankMode;
 
 void surfaceSync(void);
 void surfaceSyncBoardMain();
@@ -53,4 +53,3 @@ X32_BTN button2enum(uint16_t button);
 uint16_t enum2encoder(X32_ENC encoder);
 X32_ENC encoder2enum(uint16_t encoderNr);
 
-#endif

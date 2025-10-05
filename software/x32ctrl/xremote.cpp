@@ -36,7 +36,6 @@
 */
 
 #include "xremote.h"
-#include "mixer.h"
 
 int xremoteUdpHandle;
 struct sockaddr_in xremoteServerAddr, xremoteClientAddr;
@@ -392,7 +391,8 @@ void xremoteUpdateMeter() {
 
     float f;
     for (uint16_t i=0; i<40; i++) {
-      len = xremotesprint(xremote_TxMessage, len, 'l', (char*)&mixer.dsp.dspChannel[i].meterPu); // little endian
+      // TODO use right type
+      //len = xremotesprint(xremote_TxMessage, len, 'l', (char*)(mixer->dsp.dspChannel[i].meterPu)); // little endian
     }
     for (uint16_t i=40; i<70; i++) {
       f = (float)rand()/(float)RAND_MAX; // 32 channels, 8 aux, 8 FX returns, 16 busse, 6 matrix

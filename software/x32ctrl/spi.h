@@ -1,5 +1,6 @@
-#ifndef SPI_H_
-#define SPI_H_
+#pragma once
+
+#include "x32ctrl.h"
 
 /*
   SPI ClassIds:
@@ -24,4 +25,3 @@ bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uin
 bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value);
 bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value);
 
-#endif

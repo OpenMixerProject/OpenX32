@@ -1,6 +1,3 @@
-#ifndef DEMO_H_
-#define DEMO_H_
+#pragma once
 
 void demoSurface(void);
-
-#endif

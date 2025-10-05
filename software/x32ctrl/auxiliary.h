@@ -1,9 +1,8 @@
-#ifndef AUXILIARY_H_
-#define AUXILIARY_H_
+#pragma once
 
-#include "x32ctrl.h"
-
-#define VOLUME_MIN -100.0f
+#include "external.h"
+#include "x32ctrl_types.h"
+#include "WString.h"
 
 int readConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
 float saturateMin(float value, float min);
@@ -13,11 +12,12 @@ float fader2dBfs(uint16_t faderValue);
 uint16_t dBfs2fader(float dbfsValue);
 String getIpAddress();
 //int valueToBinaryString(uint8_t value, char* output);
-int init100msTimer(); // only for Non-GUI systems
 long getFileSize(const char* filename);
 uint32_t reverseBitOrder_uint32(uint32_t n);
 void reverseBitOrderArray(uint8_t* data, uint32_t len);
 String freq2String(float freq);
 String eqType2String(uint8_t type);
+void x32log(const char* format, ...);
+void x32debug(const char* format, ...);
 
-#endif
+

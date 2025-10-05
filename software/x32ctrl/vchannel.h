@@ -1,13 +1,19 @@
-#ifndef VCHANNEL_H_
-#define VCHANNEL_H_
+#pragma once
 
-#include "x32ctrl.h"
+#include <stdint.h>
+#include "WString.h"
+#include "constants.h"
+#include "x32ctrl_types.h"
+
 
 class VChannel{
+    private:
+        // indicates, which data has changed and need to get synced
+        uint16_t changed;
+    
     public:
         uint8_t index;
-        // indicates, which data has changes and need to get synced
-        uint16_t changed;
+
         String name;
         uint8_t color;
         uint8_t icon;
@@ -23,9 +29,12 @@ class VChannel{
         // 0 - normal channel
         // 1 - main channel
         uint8_t vChannelType;
-        sInputSource inputSource;
+        sDspChannel dspChannel;
 
         void Init(int p_vChannelIndex, bool p_disabled);
-};
 
-#endif
+        void SetChanged(uint16_t p_flag);
+
+        bool HasChanged(uint16_t p_flag);
+        bool HasAnyChanged(void);
+};

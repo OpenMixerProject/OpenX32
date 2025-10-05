@@ -147,7 +147,7 @@ String addaSendReceive(char* cmd, uint16_t timeout) {
   uartTx(&fdAdda, &message, false);
 
   // check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
-  if ((timeout > 0) && (mixerIsModelX32FullOrCompactOrProducer)) {
+  if ((timeout > 0) && (mixer->IsModelX32FullOrCompactOrProducer())) {
     addaWaitForMessageCounter = timeout;
     while (addaWaitForMessageCounter > 0) {
       x32debug("addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);

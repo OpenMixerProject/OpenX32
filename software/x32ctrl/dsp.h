@@ -1,7 +1,7 @@
-#ifndef DSP_H_
-#define DSP_H_
+#pragma once
 
 #include "x32ctrl.h"
+#include "spi.h"
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
@@ -36,5 +36,3 @@ void dspSetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8
 void dspSetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
 void dspSetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);
 void dspGetSourceName(char* p_nameBuffer, uint8_t dspChannel);
-
-#endif

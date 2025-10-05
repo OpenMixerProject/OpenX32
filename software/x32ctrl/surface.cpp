@@ -23,15 +23,14 @@
 */
 
 #include "surface.h"
-#include "mixer.h"
-#include "uart.h"
-#include "hal.h"
-#include "touchcontrol.h"
+
 
 char surfaceBufferUart[256]; // buffer for UART-readings
 int surfacePacketCurrent = 0;
 int surfacePacketCurrentIndex = 0;
 char surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
+
+X32_SURFACE_MODE_BANKING activeBankMode = X32_SURFACE_MODE_BANKING_X32;
 
 uint8_t receivedBoardId = 0;
 sButtonInfo x32_btn_def[MAX_BUTTONS];
@@ -40,13 +39,13 @@ sEncoderInfo x32_enc_def[MAX_ENCODERS];
 
 // sync mixer state to Surface
 void surfaceSync(void) {
-    if ((mixer.activeMode == X32_SURFACE_MODE_BANKING_X32) || (mixer.activeMode == X32_SURFACE_MODE_BANKING_USER))
+    if ((activeBankMode == X32_SURFACE_MODE_BANKING_X32) || (activeBankMode == X32_SURFACE_MODE_BANKING_USER))
     {
         surfaceSyncBoardMain();
 
-        if (mixerIsModelX32FullOrCompactOrProducer()){   
+        if (mixer->IsModelX32FullOrCompactOrProducer()){   
             surfaceSyncBoard(X32_BOARD_L);
-            if (mixerIsModelX32Full()){
+            if (mixer->IsModelX32Full()){
                 surfaceSyncBoard(X32_BOARD_M);
             }
             surfaceSyncBoard(X32_BOARD_R);
@@ -58,57 +57,57 @@ void surfaceSync(void) {
 void surfaceSyncBoardMain() {
     bool needForSync = false;
     bool fullSync = false;
-    sChannel* chan = mixerGetSelectedChannel();
+    VChannel chan = mixer->GetSelectedvChannel();
 
-    if (mixerHasChanged(X32_MIXER_CHANGED_SELECT)){ 
+    if (mixer->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
         // channel selection has changed - do a full sync
         needForSync=true;
         fullSync=true; 
     }
 
-    if (mixerHasChanged(X32_MIXER_CHANGED_CHANNEL) && chan->changed != X32_CHANNEL_CHANGED_NONE) {
+    if (mixer->HasChanged(X32_MIXER_CHANGED_VCHANNEL) && mixer->HasVChannelAnyChanged(chan)) {
         // the data in the currently selected channel has changed
         needForSync=true;
     }
 
     if (needForSync){
-        if (mixerIsModelX32FullOrCompactOrProducer()){
+        if (mixer->IsModelX32FullOrCompactOrProducer()){
             // Channel section
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_PHANTOM)){
-                setLedByEnum(X32_BTN_PHANTOM_48V, halGetPhantomPower(chan->index)); 
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)){
+                setLedByEnum(X32_BTN_PHANTOM_48V, halGetPhantomPower(chan.index)); 
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_PHASE_INVERT)){
-                setLedByEnum(X32_BTN_PHASE_INVERT, halGetPhaseInvert(chan->index));
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHASE_INVERT)){
+                setLedByEnum(X32_BTN_PHASE_INVERT, halGetPhaseInvert(chan.index));
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_GAIN)){
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GAIN)){
                 // update gain-encoder
-                setEncoderRing(enum2encoder(X32_ENC_GAIN) >> 8, enum2encoder(X32_ENC_GAIN) & 0xFF, 0, (halGetGain(chan->index) + 12.0f)/0.72f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_GAIN) >> 8, enum2encoder(X32_ENC_GAIN) & 0xFF, 0, (halGetGain(chan.index) + 12.0f)/0.72f, 1);
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_VOLUME)){
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)){
                 // update pan-encoder
-                setEncoderRing(enum2encoder(X32_ENC_PAN) >> 8, enum2encoder(X32_ENC_PAN) & 0xFF, 2, (halGetBalance(chan->index) + 100.0f)/2.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_PAN) >> 8, enum2encoder(X32_ENC_PAN) & 0xFF, 2, (halGetBalance(chan.index) + 100.0f)/2.0f, 1);
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_SENDS)){
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SENDS)){
                 // update pan-encoder
-                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_1) >> 8, enum2encoder(X32_ENC_BUS_SEND_1) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
-                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_2) >> 8, enum2encoder(X32_ENC_BUS_SEND_2) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
-                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_3) >> 8, enum2encoder(X32_ENC_BUS_SEND_3) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
-                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_4) >> 8, enum2encoder(X32_ENC_BUS_SEND_4) & 0xFF, 0, pow(10.0f, halGetBusSend(chan->index, mixer.activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_1) >> 8, enum2encoder(X32_ENC_BUS_SEND_1) & 0xFF, 0, pow(10.0f, halGetBusSend(chan.index, mixer->activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_2) >> 8, enum2encoder(X32_ENC_BUS_SEND_2) & 0xFF, 0, pow(10.0f, halGetBusSend(chan.index, mixer->activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_3) >> 8, enum2encoder(X32_ENC_BUS_SEND_3) & 0xFF, 0, pow(10.0f, halGetBusSend(chan.index, mixer->activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
+                setEncoderRing(enum2encoder(X32_ENC_BUS_SEND_4) >> 8, enum2encoder(X32_ENC_BUS_SEND_4) & 0xFF, 0, pow(10.0f, halGetBusSend(chan.index, mixer->activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_GATE)){
-                setEncoderRing(enum2encoder(X32_ENC_GATE) >> 8, enum2encoder(X32_ENC_GATE) & 0xFF, 4, 100.0f - ((mixer.dsp.dspChannel[chan->index].gate.threshold + 80.0f)/0.8f), 1);
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_GATE)){
+                setEncoderRing(enum2encoder(X32_ENC_GATE) >> 8, enum2encoder(X32_ENC_GATE) & 0xFF, 4, 100.0f - ((mixer->dsp.dspChannel[chan.index].gate.threshold + 80.0f)/0.8f), 1);
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_DYNAMIC)){
-                setEncoderRing(enum2encoder(X32_ENC_DYNAMICS) >> 8, enum2encoder(X32_ENC_DYNAMICS) & 0xFF, 4, 100.0f - ((mixer.dsp.dspChannel[chan->index].compressor.threshold + 60.0f)/0.6f), 1);
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_DYNAMIC)){
+                setEncoderRing(enum2encoder(X32_ENC_DYNAMICS) >> 8, enum2encoder(X32_ENC_DYNAMICS) & 0xFF, 4, 100.0f - ((mixer->dsp.dspChannel[chan.index].compressor.threshold + 60.0f)/0.6f), 1);
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_EQ)){
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_EQ)){
                 // update EQ-encoder
-                if (chan->index < 40) {
-                    setEncoderRing(enum2encoder(X32_ENC_LOWCUT) >> 8, enum2encoder(X32_ENC_LOWCUT) & 0xFF, 1, (mixer.dsp.dspChannel[chan->index].lowCutFrequency - 20.0f)/3.8f, 1);
-                    setEncoderRing(enum2encoder(X32_ENC_EQ_FREQ) >> 8, enum2encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].fc - 20.0f)/199.8f, 1);
-                    setEncoderRing(enum2encoder(X32_ENC_EQ_GAIN) >> 8, enum2encoder(X32_ENC_EQ_GAIN) & 0xFF, 2, (mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].gain + 15.0f)/0.3f, 1);
-                    setEncoderRing(enum2encoder(X32_ENC_EQ_Q) >> 8, enum2encoder(X32_ENC_EQ_Q) & 0xFF, 3, ((10.0f - mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].Q) + 0.3f)/0.097f, 1);
-                    switch (mixer.dsp.dspChannel[chan->index].peq[mixer.activeEQ].type) {
+                if (chan.index < 40) {
+                    setEncoderRing(enum2encoder(X32_ENC_LOWCUT) >> 8, enum2encoder(X32_ENC_LOWCUT) & 0xFF, 1, (mixer->dsp.dspChannel[chan.index].lowCutFrequency - 20.0f)/3.8f, 1);
+                    setEncoderRing(enum2encoder(X32_ENC_EQ_FREQ) >> 8, enum2encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer->dsp.dspChannel[chan.index].peq[mixer->activeEQ].fc - 20.0f)/199.8f, 1);
+                    setEncoderRing(enum2encoder(X32_ENC_EQ_GAIN) >> 8, enum2encoder(X32_ENC_EQ_GAIN) & 0xFF, 2, (mixer->dsp.dspChannel[chan.index].peq[mixer->activeEQ].gain + 15.0f)/0.3f, 1);
+                    setEncoderRing(enum2encoder(X32_ENC_EQ_Q) >> 8, enum2encoder(X32_ENC_EQ_Q) & 0xFF, 3, ((10.0f - mixer->dsp.dspChannel[chan.index].peq[mixer->activeEQ].Q) + 0.3f)/0.097f, 1);
+                    switch (mixer->dsp.dspChannel[chan.index].peq[mixer->activeEQ].type) {
                         case 0: // Allpass
                             break;
                         case 1: // Peak
@@ -131,21 +130,21 @@ void surfaceSyncBoardMain() {
             
         }
 
-        if (mixerIsModelX32Rack()){
+        if (mixer->IsModelX32Rack()){
             // Channel section
             setLedChannelIndicator();
-            chan = mixerGetSelectedChannel();
+            chan = mixer->GetSelectedvChannel();
 
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_SOLO)){
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SOLO)){
                 x32debug(" Solo");
-                setLedByEnum(X32_BTN_CHANNEL_SOLO, halGetSolo(chan->index)); 
+                setLedByEnum(X32_BTN_CHANNEL_SOLO, halGetSolo(chan.index)); 
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_MUTE)){
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)){
                 x32debug(" Mute");
-                setLedByEnum(X32_BTN_CHANNEL_MUTE, halGetMute(chan->index)); 
+                setLedByEnum(X32_BTN_CHANNEL_MUTE, halGetMute(chan.index)); 
             }
-            if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_VOLUME)){
-                // u_int16_t faderVolume = dBfs2fader(halGetVolume(chan->index));
+            if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)){
+                // u_int16_t faderVolume = dBfs2fader(halGetVolume(chan.index));
                 // uint8_t pct = (faderVolume/VOLUME_MIN
                 // setEncoderRing(X32_BOARD_MAIN, 0, 0, , 1);
             }
@@ -153,34 +152,34 @@ void surfaceSyncBoardMain() {
     }
 
     // Clear Solo
-    if (mixerHasChanged(X32_MIXER_CHANGED_CHANNEL)){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
+    if (mixer->HasChanged(X32_MIXER_CHANGED_VCHANNEL)){ setLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated()); }
 }
 
 void surfaceSyncBoard(X32_BOARD p_board) {
     bool fullSync = false;
 
-    if (mixerHasChanged(X32_MIXER_CHANGED_BANKING)) {
+    if (mixer->HasChanged(X32_MIXER_CHANGED_BANKING)) {
         fullSync=true;
     }
 
     uint8_t offset = 0;
-    if (mixer.model == X32_MODEL_FULL){
+    if (mixer->IsModelX32Full()){
         if (p_board == X32_BOARD_M){ offset=8; }
         if (p_board == X32_BOARD_R){ offset=16; }
-    } else if ((mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER)) {
+    } else if (mixer->IsModelX32CompactOrProducer()) {
         if (p_board == X32_BOARD_R){ offset=8; }
     }
 
     // update main-channel
 
     uint8_t maxChannel = 7;
-    if ((p_board == X32_BOARD_R) && ((mixer.model == X32_MODEL_FULL) || (mixer.model == X32_MODEL_COMPACT) || (mixer.model == X32_MODEL_PRODUCER))) {
+    if ((p_board == X32_BOARD_R) && mixer->IsModelX32FullOrCompactOrProducer()) {
         maxChannel = 8; // include main-channel
     }
     for(int i=0; i<=maxChannel; i++){
-        uint8_t channelIndex = mixerSurfaceChannel2Channel(i+offset);
+        uint8_t channelIndex = mixer->SurfaceChannel2vChannel(i+offset);
 
-        if (channelIndex == CHANNEL_NOT_SET) {
+        if (channelIndex == VCHANNEL_NOT_SET) {
 
             // TODO: do only, wenn channel got unassigned
 
@@ -192,44 +191,44 @@ void surfaceSyncBoard(X32_BOARD p_board) {
             setLcd(p_board,     i, 0,     0,    0,    0,  0x00,  0,  0,          "",  0x00,  0, 0, "");
 
         } else {
-            sChannel *chan = &mixer.channel[channelIndex];
+            VChannel chan = mixer->GetVChannel(channelIndex);
 
-            if (fullSync || mixerHasChannelAnyChanged(chan)){
-                x32debug("syncronize channel%d: %s -", channelIndex, chan->name);
+            if (fullSync || mixer->HasVChannelAnyChanged(chan)){
+                x32debug("syncronize channel%d: %s -", channelIndex, chan.name);
 
-                if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_SELECT)){ 
+                if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SELECT)){ 
                     x32debug(" Select");
-                    setLed(p_board, 0x20+i, chan->selected);
+                    setLed(p_board, 0x20+i, chan.selected);
                 }
-                if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_SOLO)){
+                if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_SOLO)){
                     x32debug(" Solo");
-                    setLed(p_board, 0x30+i, halGetSolo(chan->index)); 
+                    setLed(p_board, 0x30+i, halGetSolo(chan.index)); 
                 }
-                if (fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_MUTE)){
+                if (fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_MUTE)){
                     x32debug(" Mute");
-                    setLed(p_board, 0x40+i, halGetMute(chan->index)); 
+                    setLed(p_board, 0x40+i, halGetMute(chan.index)); 
                 }
 
-                if ((fullSync || mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
+                if ((fullSync || mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
                     x32debug(" Fader");
-                    u_int16_t faderVolume = dBfs2fader(halGetVolume(chan->index));
+                    u_int16_t faderVolume = dBfs2fader(halGetVolume(chan.index));
                     setFader(p_board, i, faderVolume);
                 }
 
                 if (
                     fullSync                                                         ||
-                    mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_PHASE_INVERT )  ||
-                    mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_VOLUME )        ||
-                    mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_PHANTOM)        ||
-                    mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_COLOR)          ||
-                    mixerHasChannelChanged(chan, X32_CHANNEL_CHANGED_NAME)
+                    mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHASE_INVERT )  ||
+                    mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_VOLUME )        ||
+                    mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_PHANTOM)        ||
+                    mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_COLOR)          ||
+                    mixer->HasVChannelChanged(chan, X32_VCHANNEL_CHANGED_NAME)
                    )
                 {
                     x32debug(" LCD");
-                    setLcdFromChannel(p_board, i, chan);
+                    setLcdFromVChannel(p_board, i, chan);
 
                     // char lcdText[20];
-                    // sprintf(lcdText, "%2.1FdB %s", (double)halGetVolume(chan->index), (halGetPhantomPower(chan->index) ? "(48V)" : ""));
+                    // sprintf(lcdText, "%2.1FdB %s", (double)halGetVolume(chan.index), (halGetPhantomPower(chan.index) ? "(48V)" : ""));
                     // //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
                     // setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  1,  1,          lcdText,  0x00,  1, 47, chan->name);
                 }
@@ -241,24 +240,24 @@ void surfaceSyncBoard(X32_BOARD p_board) {
 
     if (p_board == X32_BOARD_R){
         // Clear Solo
-        if (mixerHasChanged(X32_MIXER_CHANGED_CHANNEL)) { setLedByEnum(X32_BTN_CLEAR_SOLO, mixerIsSoloActivated()); }
+        if (mixer->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) { setLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated()); }
     }
 }
 
 
 void surfaceSyncBankIndicator(void) {
-    if (mixerHasChanged(X32_MIXER_CHANGED_BANKING)) {
-        if (mixerIsModelX32Full()){
+    if (mixer->HasChanged(X32_MIXER_CHANGED_BANKING)) {
+        if (mixer->IsModelX32Full()){
             setLedByEnum(X32_BTN_CH_1_16, 0);
             setLedByEnum(X32_BTN_CH_17_32, 0);
             setLedByEnum(X32_BTN_AUX_IN_EFFECTS, 0);
             setLedByEnum(X32_BTN_BUS_MASTER, 0);
-            if (mixer.activeBank_inputFader == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
-            if (mixer.activeBank_inputFader == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
-            if (mixer.activeBank_inputFader == 2) { setLedByEnum(X32_BTN_AUX_IN_EFFECTS, 1); }
-            if (mixer.activeBank_inputFader == 3) { setLedByEnum(X32_BTN_BUS_MASTER, 1); }
+            if (mixer->activeBank_inputFader == 0) { setLedByEnum(X32_BTN_CH_1_16, 1); }
+            if (mixer->activeBank_inputFader == 1) { setLedByEnum(X32_BTN_CH_17_32, 1); }
+            if (mixer->activeBank_inputFader == 2) { setLedByEnum(X32_BTN_AUX_IN_EFFECTS, 1); }
+            if (mixer->activeBank_inputFader == 3) { setLedByEnum(X32_BTN_BUS_MASTER, 1); }
         }
-        if (mixerIsModelX32CompactOrProducer()) {
+        if (mixer->IsModelX32CompactOrProducer()) {
             setLedByEnum(X32_BTN_CH_1_8, 0);
             setLedByEnum(X32_BTN_CH_9_16, 0);
             setLedByEnum(X32_BTN_CH_17_24, 0);
@@ -267,23 +266,23 @@ void surfaceSyncBankIndicator(void) {
             setLedByEnum(X32_BTN_EFFECTS_RETURNS, 0);
             setLedByEnum(X32_BTN_BUS_1_8_MASTER, 0);
             setLedByEnum(X32_BTN_BUS_9_16_MASTER, 0);
-            if (mixer.activeBank_inputFader == 0) { setLedByEnum(X32_BTN_CH_1_8, 1); }
-            if (mixer.activeBank_inputFader == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
-            if (mixer.activeBank_inputFader == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
-            if (mixer.activeBank_inputFader == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
-            if (mixer.activeBank_inputFader == 4) { setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 1); }
-            if (mixer.activeBank_inputFader == 5) { setLedByEnum(X32_BTN_EFFECTS_RETURNS, 1); }
-            if (mixer.activeBank_inputFader == 6) { setLedByEnum(X32_BTN_BUS_1_8_MASTER, 1); }
-            if (mixer.activeBank_inputFader == 7) { setLedByEnum(X32_BTN_BUS_9_16_MASTER, 1); }
+            if (mixer->activeBank_inputFader == 0) { setLedByEnum(X32_BTN_CH_1_8, 1); }
+            if (mixer->activeBank_inputFader == 1) { setLedByEnum(X32_BTN_CH_9_16, 1); }
+            if (mixer->activeBank_inputFader == 2) { setLedByEnum(X32_BTN_CH_17_24, 1); }
+            if (mixer->activeBank_inputFader == 3) { setLedByEnum(X32_BTN_CH_25_32, 1); }
+            if (mixer->activeBank_inputFader == 4) { setLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 1); }
+            if (mixer->activeBank_inputFader == 5) { setLedByEnum(X32_BTN_EFFECTS_RETURNS, 1); }
+            if (mixer->activeBank_inputFader == 6) { setLedByEnum(X32_BTN_BUS_1_8_MASTER, 1); }
+            if (mixer->activeBank_inputFader == 7) { setLedByEnum(X32_BTN_BUS_9_16_MASTER, 1); }
         }
         setLedByEnum(X32_BTN_GROUP_DCA_1_8, 0);
         setLedByEnum(X32_BTN_BUS_1_8, 0);
         setLedByEnum(X32_BTN_BUS_9_16, 0);
         setLedByEnum(X32_BTN_MATRIX_MAIN_C, 0);
-        if (mixer.activeBank_busFader == 0) { setLedByEnum(X32_BTN_GROUP_DCA_1_8, 1); }
-        if (mixer.activeBank_busFader == 1) { setLedByEnum(X32_BTN_BUS_1_8, 1); }
-        if (mixer.activeBank_busFader == 2) { setLedByEnum(X32_BTN_BUS_9_16, 1); }
-        if (mixer.activeBank_busFader == 3) { setLedByEnum(X32_BTN_MATRIX_MAIN_C, 1); }
+        if (mixer->activeBank_busFader == 0) { setLedByEnum(X32_BTN_GROUP_DCA_1_8, 1); }
+        if (mixer->activeBank_busFader == 1) { setLedByEnum(X32_BTN_BUS_1_8, 1); }
+        if (mixer->activeBank_busFader == 2) { setLedByEnum(X32_BTN_BUS_9_16, 1); }
+        if (mixer->activeBank_busFader == 3) { setLedByEnum(X32_BTN_MATRIX_MAIN_C, 1); }
     }
 }
 
@@ -664,22 +663,27 @@ void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel p_chan){
     data->icon.y = 0;
 
     // Gain / Lowcut
-    sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
+    // TODO move Gain to VChannel class 
+    // sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
+    sprintf(data->texts[0].text, "0dB 300Hz");
     data->texts[0].size = 0;
     data->texts[0].x = 3;
     data->texts[0].y = 0;
 
     // Phanton / Invert / Gate / Dynamics / EQ active
+    // TODO Phantom Power  and Phase Invert into VChannel Class
     sprintf(data->texts[1].text, "%s %s G D E",
-        p_chan.inputSource.phantomPower ? "48V" : "   ",
-        p_chan.inputSource.phaseInvert ? "@" : " "
+        //p_chan.inputSource.phantomPower ? "48V" : "   ",
+        //p_chan.inputSource.phaseInvert ? "@" : " "
+        "   ",
+        " "
         );
     data->texts[1].size = 0;
     data->texts[1].x = 10;
     data->texts[1].y = 15;
 
     // Volume / Panorama
-    float balance = halGetBalance(p_chan->index);
+    float balance = halGetBalance(p_chan.index);
     char balanceText[8] = "-------";
     if (balance < -70){
         balanceText[0] = '|';
@@ -697,8 +701,8 @@ void setLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel p_chan){
         balanceText[3] = '|';
     }
 
-    if (halGetVolume(p_chan->index) > -100) {
-        sprintf(data->texts[2].text, "%s %.1fdB", balanceText, halGetVolume(p_chan->index));
+    if (halGetVolume(p_chan.index) > -100) {
+        sprintf(data->texts[2].text, "%s %.1fdB", balanceText, halGetVolume(p_chan.index));
     }else{
         sprintf(data->texts[2].text, "%s -oodB", balanceText);
     }
@@ -1357,7 +1361,7 @@ uint8_t surfaceCalcPreampMeter(uint8_t channel) {
         return 0; // no preamps outside the 40 dsp-channels
     }
 
-    float audiodata = mixer.dsp.dspChannel[channel].meterPu*2147483648.0f;
+    float audiodata = mixer->dsp.dspChannel[channel].meterPu*2147483648.0f;
     uint32_t meterdata = 0;
     if (audiodata >= vuThresholds[0])  { meterdata |= 0b10000000; } // CLIP
     if (audiodata >= vuThresholds[3])  { meterdata |= 0b01000000; } // -3dBfs
@@ -1376,9 +1380,9 @@ uint8_t surfaceCalcDynamicMeter(uint8_t channel) {
     if (channel < 40) {
         uint32_t meterdata = 0;
 
-        if (mixer.dsp.dspChannel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
+        if (mixer->dsp.dspChannel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
 
-        float gateValue = (1.0f - mixer.dsp.dspChannel[channel].gate.gain) * 80.0f;
+        float gateValue = (1.0f - mixer->dsp.dspChannel[channel].gate.gain) * 80.0f;
         if (gateValue >= 2.0f)  { meterdata |= 0b00100000; }        
         if (gateValue >= 4.0f)  { meterdata |= 0b00010000; }        
         if (gateValue >= 6.0f)  { meterdata |= 0b00001000; }        
@@ -1386,7 +1390,7 @@ uint8_t surfaceCalcDynamicMeter(uint8_t channel) {
         if (gateValue >= 18.0f) { meterdata |= 0b00000010; }        
         if (gateValue >= 30.0f) { meterdata |= 0b00000001; }        
 
-        if (mixer.dsp.dspChannel[channel].gate.gain < 1.0f) { meterdata |= 0b01000000; };
+        if (mixer->dsp.dspChannel[channel].gate.gain < 1.0f) { meterdata |= 0b01000000; };
 
         return meterdata;
     }else{
@@ -1395,7 +1399,7 @@ uint8_t surfaceCalcDynamicMeter(uint8_t channel) {
 }
 
 void surfaceUpdateMeter() {
-    if (mixerIsModelX32Core()) {
+    if (mixer->IsModelX32Core()) {
         // no led-meters at all
         return;
     }
@@ -1404,34 +1408,34 @@ void surfaceUpdateMeter() {
     // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
     // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
     //setMeterLedMain(0b00000111, 0b11100001, 0x0FFFFF, 0x0FFFFF, 0x000FFF);
-    uint8_t chanIdx = mixerGetSelectedChannelIndex();
-    setMeterLedMain(surfaceCalcPreampMeter(chanIdx), surfaceCalcDynamicMeter(chanIdx), mixer.dsp.mainChannelLR.meterInfo[0], mixer.dsp.mainChannelLR.meterInfo[1], mixer.dsp.mainChannelSub.meterInfo[0]);
+    uint8_t chanIdx = mixer->GetSelectedvChannelIndex();
+    setMeterLedMain(surfaceCalcPreampMeter(chanIdx), surfaceCalcDynamicMeter(chanIdx), mixer->dsp.mainChannelLR.meterInfo[0], mixer->dsp.mainChannelLR.meterInfo[1], mixer->dsp.mainChannelSub.meterInfo[0]);
 
 
-    if (mixerIsModelX32Rack()) {
+    if (mixer->IsModelX32Rack()) {
         // no led-meters per channel
         return;
     }
 
     // update channel-meters
-    if (mixerIsModelX32Full()) {
+    if (mixer->IsModelX32Full()) {
         // update meters on board L and M
-        switch (mixer.activeBank_inputFader) {
+        switch (mixer->activeBank_inputFader) {
             case 0: // Input 1-16
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[i].meterInfo);
-                    setMeterLed(X32_BOARD_M, i, mixer.dsp.dspChannel[i + 8].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[i].meterInfo);
+                    setMeterLed(X32_BOARD_M, i, mixer->dsp.dspChannel[i + 8].meterInfo);
                 }
                 break;
             case 1: // Input 17-32
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[16 + i].meterInfo);
-                    setMeterLed(X32_BOARD_M, i, mixer.dsp.dspChannel[16 + i + 8].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[16 + i].meterInfo);
+                    setMeterLed(X32_BOARD_M, i, mixer->dsp.dspChannel[16 + i + 8].meterInfo);
                 }
                 break;
             case 2: // Aux 1-8 / FX-Return
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[32 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[32 + i].meterInfo);
                     //setMeterLed(X32_BOARD_M, i, 0);
                 }
                 break;
@@ -1440,30 +1444,30 @@ void surfaceUpdateMeter() {
         }
     }else{
         // update meters on board L
-        switch (mixer.activeBank_inputFader) {
+        switch (mixer->activeBank_inputFader) {
             case 0: // Input 1-8
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[i].meterInfo);
                 }
                 break;
             case 1: // Input 9-16
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[8 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[8 + i].meterInfo);
                 }
                 break;
             case 2: // Input 17-24
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[16 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[16 + i].meterInfo);
                 }
                 break;
             case 3: // Input 25-32
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[24 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[24 + i].meterInfo);
                 }
                 break;
             case 4: // Aux 1-8
                 for (uint8_t i = 0; i < 8; i++) {
-                    setMeterLed(X32_BOARD_L, i, mixer.dsp.dspChannel[32 + i].meterInfo);
+                    setMeterLed(X32_BOARD_L, i, mixer->dsp.dspChannel[32 + i].meterInfo);
                 }
                 break;
             case 5: // FX-Return
@@ -1476,7 +1480,7 @@ void surfaceUpdateMeter() {
     }
 
     // update meters on board R
-    switch (mixer.activeBank_busFader) {
+    switch (mixer->activeBank_busFader) {
         case 0: // DCA1-8
             // no meter here
             break;

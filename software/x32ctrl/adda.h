@@ -1,5 +1,4 @@
-#ifndef ADDA_H_
-#define ADDA_H_
+#pragma once
 
 #include "x32ctrl.h"
 
@@ -15,5 +14,3 @@ String addaSendReceive(char* cmd, uint16_t timeout);
 String addaProcessUartData(int bytesToProcess, bool directRead);
 void addaSetMute(bool muted);
 int8_t addaGetBoardId(uint8_t channel);
-
-#endif
