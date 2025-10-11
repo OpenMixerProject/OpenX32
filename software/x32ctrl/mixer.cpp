@@ -859,7 +859,7 @@ void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_va
                     mixerChangePeq(mixerGetSelectedChannelIndex(), mixer.activeEQ, 'T', 0);
                     break;
             }
-        }else if (mixer.activePage == X32_PAGE_ROUTING) {
+        }else if (mixer.activePage == X32_PAGE_ROUTING_HWOUT) {
             switch (encoder){
                 case X32_ENC_ENCODER1:
                     mixerChangeHardwareOutput(amount);
@@ -1356,6 +1356,12 @@ void mixerInitPages(){
 
     mixer.pages[X32_PAGE_EQ].prevPage = X32_PAGE_CONFIG;
     mixer.pages[X32_PAGE_EQ].nextPage = X32_PAGE_NONE;
+
+    mixer.pages[X32_PAGE_ROUTING].prevPage = X32_PAGE_NONE;
+    mixer.pages[X32_PAGE_ROUTING].nextPage = X32_PAGE_ROUTING_HWOUT;
+
+    mixer.pages[X32_PAGE_ROUTING_HWOUT].prevPage = X32_PAGE_ROUTING;
+    mixer.pages[X32_PAGE_ROUTING_HWOUT].nextPage = X32_PAGE_NONE;
 }
 
 void mixerShowNextPage(void){
@@ -1413,6 +1419,12 @@ void mixerShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
             break;
         case X32_PAGE_ROUTING:
             lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
+            lv_tabview_set_active(objects.routingtab, 0, LV_ANIM_OFF);
+            setLedByEnum(X32_BTN_ROUTING, 1);
+            break;
+        case X32_PAGE_ROUTING_HWOUT:
+            lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
+            lv_tabview_set_active(objects.routingtab, 5, LV_ANIM_OFF);
             setLedByEnum(X32_BTN_ROUTING, 1);
             break;
         case X32_PAGE_SETUP:

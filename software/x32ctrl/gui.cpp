@@ -129,7 +129,7 @@ void guiSync(void) {
         //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
         guiSetEncoderText("Source", "Gain", "-", "-", "-", "-");
-    }else if (mixer.activePage == X32_PAGE_ROUTING) {
+    }else if (mixer.activePage == X32_PAGE_ROUTING_HWOUT) {
     //####################################
     //#         Page Routing
     //####################################
