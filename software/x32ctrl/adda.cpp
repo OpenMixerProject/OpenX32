@@ -146,8 +146,11 @@ String addaSendReceive(char* cmd, uint16_t timeout) {
 
   uartTx(&fdAdda, &message, false);
 
+  // TODO: sometime no data is received on all platforms. Check the root of this problem and reactivate this function
+  return "";
+/*
   // check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
-  if ((timeout > 0) && (mixerIsModelX32FullOrCompactOrProducer)) {
+  if (timeout > 0) {
     addaWaitForMessageCounter = timeout;
     while (addaWaitForMessageCounter > 0) {
       x32debug("addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
@@ -162,6 +165,7 @@ String addaSendReceive(char* cmd, uint16_t timeout) {
   }else{
     return "";
   }
+*/
 };
 
 String addaProcessUartData(int bytesToProcess, bool directRead) {
