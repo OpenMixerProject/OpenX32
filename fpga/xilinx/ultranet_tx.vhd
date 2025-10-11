@@ -64,33 +64,29 @@ architecture behavioral of ultranet_tx is
 	-- Setup bits for UltraNet
 	-- valid-bit: 				'0' if audio sample word is suitable for conversion to an analogue audio signal. Set to '1' for UltraNet
 	-- user-status-bit: 		not used in UltraNet
-	-- channel-status-bit:	according to AES/EBU specification for each channel 24 bytes are transmitted. 
+	-- channel-status-bit:		according to AES/EBU specification for each channel 24 bytes are transmitted. 
 	constant valid						: std_logic := '1';
-	constant user_status				: std_logic_vector(383 downto 0) := "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-	type tChannel_status_array is array(1 downto 0) of std_logic_vector(191 downto 0);
-	constant channel_status			: tChannel_status_array  := (
-		 ("00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" &
-		  "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" &
-		  "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00101100" & "00000000" & "10000000"),
-		 
-		 ("00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" &
-		  "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" &
-		  "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00101100" & "00000000" & "10000000")
-		);
+	constant user_status				: std_logic_vector(383 downto 0) := (others => '0');
+	constant channel_status				: std_logic_vector(383 downto 0) :=
+		"00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & 
+		"11000000" & "11110011" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & 
+		"00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & 
+		"00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & 
+		"00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & 
+		"00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000" & "00000000";
 
 	-- counter signals
 	signal bit_counter				: std_logic_vector(5 downto 0) := (others => '0');
-	signal frame_counter				: std_logic_vector(8 downto 0) := (others => '0');
+	signal frame_counter			: std_logic_vector(8 downto 0) := (others => '0');
 	signal channel_counter			: integer range 0 to 7;
 
 	-- temporary signals
-	signal parity						: std_logic;
+	signal parity					: std_logic;
 	signal data_in_buffer			: std_logic_vector(23 downto 0);
 	signal data_out_buffer			: std_logic_vector(7 downto 0);
 	signal data_biphase				: std_logic := '0';
 	signal user_status_shift		: std_logic_vector(383 downto 0);
-	signal channel_status_shift	: tChannel_status_array;
-	signal channel_status_idx		: integer range 0 to 1;
+	signal channel_status_shift		: std_logic_vector(383 downto 0);
 begin
 	
 	bit_clock_counter : process (bit_clock)
@@ -103,27 +99,29 @@ begin
 	data_latch : process (bit_clock)
 	begin
 		if bit_clock'event and bit_clock = '1' then
-			parity <= data_in_buffer(23) xor data_in_buffer(22) xor data_in_buffer(21) xor data_in_buffer(20) xor data_in_buffer(19) xor data_in_buffer(18) xor data_in_buffer(17)  xor data_in_buffer(16) xor data_in_buffer(15) xor data_in_buffer(14) xor data_in_buffer(13) xor data_in_buffer(12) xor data_in_buffer(11) xor data_in_buffer(10) xor data_in_buffer(9) xor data_in_buffer(8) xor data_in_buffer(7) xor data_in_buffer(6) xor data_in_buffer(5) xor data_in_buffer(4) xor data_in_buffer(3) xor data_in_buffer(2) xor data_in_buffer(1) xor data_in_buffer(0) xor valid xor user_status_shift(383) xor channel_status_shift(channel_status_idx)(191);
+			parity <= data_in_buffer(23) xor data_in_buffer(22) xor data_in_buffer(21) xor data_in_buffer(20) xor data_in_buffer(19) xor data_in_buffer(18) xor data_in_buffer(17)  xor data_in_buffer(16) xor data_in_buffer(15) xor data_in_buffer(14) xor data_in_buffer(13) xor data_in_buffer(12) xor data_in_buffer(11) xor data_in_buffer(10) xor data_in_buffer(9) xor data_in_buffer(8) xor data_in_buffer(7) xor data_in_buffer(6) xor data_in_buffer(5) xor data_in_buffer(4) xor data_in_buffer(3) xor data_in_buffer(2) xor data_in_buffer(1) xor data_in_buffer(0) xor valid xor user_status_shift(383) xor channel_status_shift(383);
 
 			if bit_counter = 3 then
 				-- We are near the end of the preamble, load the sound data in the buffer
 
+				-- UltraNet seems to use only 22 bits for audio and the first two LSB for
+				-- identifying channel-pairs
 				if channel_counter = 0 then
-					data_in_buffer <= ch1;
+					data_in_buffer <= ch1(23 downto 2) & "00";
 				elsif channel_counter = 1 then
-					data_in_buffer <= ch2;
+					data_in_buffer <= ch2(23 downto 2) & "00";
 				elsif channel_counter = 2 then
-					data_in_buffer <= ch3;
+					data_in_buffer <= ch3(23 downto 2) & "01";
 				elsif channel_counter = 3 then
-					data_in_buffer <= ch4;
+					data_in_buffer <= ch4(23 downto 2) & "01";
 				elsif channel_counter = 4 then
-					data_in_buffer <= ch5;
+					data_in_buffer <= ch5(23 downto 2) & "10";
 				elsif channel_counter = 5 then
-					data_in_buffer <= ch6;
+					data_in_buffer <= ch6(23 downto 2) & "10";
 				elsif channel_counter = 6 then
-					data_in_buffer <= ch7;
+					data_in_buffer <= ch7(23 downto 2) & "11";
 				else
-					data_in_buffer <= ch8;
+					data_in_buffer <= ch8(23 downto 2) & "11";
 				end if;
 			end if;
 
@@ -154,7 +152,7 @@ begin
 					-- Next frame will be the first of the new audio block, load the Z preamble
 
 					channel_counter <= 0;  -- reset channel-counter
-               user_status_shift <= user_status;
+					user_status_shift <= user_status;
 					channel_status_shift <= channel_status;
 					data_out_buffer <= AES3_PREAMBLE_Z;
 				else
@@ -164,17 +162,14 @@ begin
 					if frame_counter(0) = '1' then 
 						-- Next frame is even, load the X preamble
 						data_out_buffer <= AES3_PREAMBLE_X ;
-						channel_status_idx <= 0;
-						channel_status_shift(0) <= channel_status_shift(0)(190 downto 0) & '0';
 					else 
 						-- Next frame is odd, load the Y preamble
 						data_out_buffer <= AES3_PREAMBLE_Y;
-						channel_status_idx <= 1;
-						channel_status_shift(1) <= channel_status_shift(1)(190 downto 0) & '0';
 					end if;
 
-               -- Shift the channel status and user by one to the left
+					-- Shift the channel status and user by one to the left
 					user_status_shift <= user_status_shift(382 downto 0) & '0';
+					channel_status_shift <= channel_status_shift(382 downto 0) & '0';
 
 					-- increment or reset channel-counter
 					if (channel_counter < 7) then
@@ -199,7 +194,7 @@ begin
 						when "101" =>
 							data_out_buffer <= '1' & data_in_buffer(20) & '1' & data_in_buffer(21) & '1' & data_in_buffer(22) & '1' & data_in_buffer(23);
 						when "110" =>
-							data_out_buffer <= '1' & valid & '1' & user_status_shift(383) & '1' & channel_status_shift(channel_status_idx)(191) & '1' & parity;
+							data_out_buffer <= '1' & valid & '1' & user_status_shift(383) & '1' & channel_status_shift(383) & '1' & parity;
 						when others =>
 					end case;
 				else
