@@ -22,36 +22,16 @@
   GNU General Public License for more details.
 */
 
-#include "mixer.h"
+#include "surface-event.h"
 
-Mixer::Mixer(Config* config){
-  
-  this->config = config;
-  this->helper = new Helper(this->config);
-  this->surface = new Surface(this->config);
-  
-  surface->Init();
-
-  // Tests
-  surface->SetLed(1, 1, 1);
-  surface->SetFader(4, 0, 0x05FF);
+SurfaceEvent::SurfaceEvent(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t value){
+  this->boardId = boardId;
+  this->classId = classId;
+  this->index = index;
+  this->value = value;
 }
 
-void Mixer::Tick10ms(void){
-  surface->ProcessUartData();
-
-  ProcessEvents();
-}
-
-void Mixer::Tick100ms(void){
-
-}
-void Mixer::ProcessEvents(void){
-  while(surface->HasNextEvent()){
-    SurfaceEvent* event = surface->GetNextEvent();
-
-    helper->Log("Event: %s\n", (event->ToString()).c_str());
-
-    delete(event);
-  }
+String SurfaceEvent::ToString(void){
+  String s = String("Board: ") + String(boardId) + " Class: " + String(classId) + " Index: " + String(index) + " Value: " + String(value);
+  return s;
 }

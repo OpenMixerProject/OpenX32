@@ -1,18 +1,27 @@
 #pragma once
 
 #include "external.h"
-#include "x32config.h"
+#include "config.h"
 #include "x32ctrl_types.h"
 
+#include "helper.h"
+
 #include "vchannel.h"
+#include "surface.h"
+
+using namespace std;
+
+#define DEBUG 0
 
 // The string class
 class Mixer
 {
     private:
         
-        X32Config config;
-
+        Config* config;
+        Helper* helper;
+        Surface* surface;
+        
         uint8_t selectedVChannel;
         uint8_t selectedOutputChannelIndex;
 
@@ -25,8 +34,10 @@ class Mixer
         sBankMode modes[3];
 
         // all virtual - channels / busses / matrix / etc.
-        VChannel vChannel[MAX_VCHANNELS];
+        VChannel vchannel[MAX_VCHANNELS];
         sMixerPage pages[MAX_PAGES];
+
+        
 
     public:
         X32_PAGE activePage;
@@ -37,7 +48,9 @@ class Mixer
 
         sTouchControl touchcontrol;
 
-        Mixer(void);
-        
+        Mixer(Config* config);
+        void Tick10ms(void);
+        void Tick100ms(void);
+        void ProcessEvents(void);
 
 };

@@ -1,14 +1,17 @@
-#include "x32config.h"
+#include "config.h"
 
-void X32Config::SetDebug(bool debug){
+
+
+
+void Config::SetDebug(bool debug){
     _debug = debug;
 }
 
-bool X32Config::IsDebug(void){
+bool Config::IsDebug(void){
     return _debug;
 }
 
-void X32Config::SetModel(String model){
+void Config::SetModel(String model){
 
     if (model == "X32Core") {
         _model = X32_MODEL_CORE;
@@ -26,32 +29,32 @@ void X32Config::SetModel(String model){
     }
 };
 
-bool X32Config::IsModelX32Full(void){
+bool Config::IsModelX32Full(void){
     return (_model == X32_MODEL_FULL);
 }
-bool X32Config::IsModelX32FullOrCompactOrProducer(void){
+bool Config::IsModelX32FullOrCompactOrProducer(void){
     return ((_model == X32_MODEL_FULL) || (_model == X32_MODEL_COMPACT) || (_model == X32_MODEL_PRODUCER));
 }
-bool X32Config::IsModelX32FullOrCompactOrProducerOrRack(void){
+bool Config::IsModelX32FullOrCompactOrProducerOrRack(void){
     return (IsModelX32FullOrCompactOrProducer() || (_model == X32_MODEL_RACK));
 }
-bool X32Config::IsModelX32CompactOrProducer(void){
+bool Config::IsModelX32CompactOrProducer(void){
     return ((_model == X32_MODEL_COMPACT) || (_model == X32_MODEL_PRODUCER));
 }
-bool X32Config::IsModelX32Core(void){
+bool Config::IsModelX32Core(void){
     return (_model == X32_MODEL_CORE);
 }
-bool X32Config::IsModelX32Rack(void){
+bool Config::IsModelX32Rack(void){
     return (_model == X32_MODEL_RACK);
 }
-bool X32Config::IsModelX32Compact(void){
+bool Config::IsModelX32Compact(void){
     return (_model == X32_MODEL_COMPACT);
 }
 
-void X32Config::SetSamplerate(float samplerate){
+void Config::SetSamplerate(float samplerate){
     _samplerate = samplerate;
 }
 
-float X32Config::GetSamplerate(void){
+float Config::GetSamplerate(void){
     return _samplerate;
 }

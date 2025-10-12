@@ -26,6 +26,8 @@
     
 Message::Message(){
     current_length = 0;
+
+    AddRawByte(0xFE); // Startbyte
 }
 
 int Message::AddRawByte(char byte){

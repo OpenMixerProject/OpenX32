@@ -3,7 +3,7 @@
 #include "x32ctrl_types.h"
 #include "WString.h"
 
-class X32Config {
+class Config {
 
     private:
         bool _debug;
@@ -11,6 +11,8 @@ class X32Config {
         float _samplerate;
 
     public:
+
+        int ReadConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
 
         void SetDebug(bool debug);
         bool IsDebug(void);

@@ -52,37 +52,98 @@
 // the main-function - of course
 int main(int argc, char* argv[]) {
     srand(time(NULL));
+    Config* config = new Config();
+    Helper helper(config);
 
-    x32log("  ____                  __   ______ ___  \n");
-    x32log(" / __ \\                 \\ \\ / /___ \\__ \\ \n");
-    x32log("| |  | |_ __   ___ _ __  \\ V /  __) | ) |\n");
-    x32log("| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / / \n");
-    x32log("| |__| | |_) |  __/ | | |/ . \\ ___) / /_ \n");
-    x32log(" \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|\n");
-    x32log("       | |                               \n");
-    x32log("       |_|                               \n");
-    x32log("OpenX32 Main Control\n");
-    x32log("v0.1.5, 30.09.2025\n");
-    x32log("https://github.com/OpenMixerProject/OpenX32\n");
+    helper.Log("  ____                  __   ______ ___  \n");
+    helper.Log(" / __ \\                 \\ \\ / /___ \\__ \\ \n");
+    helper.Log("| |  | |_ __   ___ _ __  \\ V /  __) | ) |\n");
+    helper.Log("| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / / \n");
+    helper.Log("| |__| | |_) |  __/ | | |/ . \\ ___) / /_ \n");
+    helper.Log(" \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|\n");
+    helper.Log("       | |                               \n");
+    helper.Log("       |_|                               \n");
+    helper.Log("OpenX32 Main Control\n");
+    helper.Log("v0.2.0, 12.10.2025\n");
+    helper.Log("https://github.com/OpenMixerProject/OpenX32\n");
+
+    config->SetDebug(false);
 
     // first try to find what we are: Fullsize, Compact, Producer, Rack or Core
-    x32debug("Reading config...\n");
+    helper.Debug("Reading config...\n");
     char model[12];
     char serial[15];
     char date[16];
-    readConfig("/etc/x32.conf", "MDL=", model, 12);
-    readConfig("/etc/x32.conf", "SN=", serial, 15);
-    readConfig("/etc/x32.conf", "DATE=", date, 16);
-    x32log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
+    helper.ReadConfig("/etc/x32.conf", "MDL=", model, 12);
+    helper.ReadConfig("/etc/x32.conf", "SN=", serial, 15);
+    helper.ReadConfig("/etc/x32.conf", "DATE=", date, 16);
+    helper.Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
-    X32Config* config = new X32Config();
+    
     config->SetModel(model);
     config->SetSamplerate(48000);
 
-    Mixer* mixer = new Mixer();
+    Mixer* mixer = new Mixer(config);
 
-    cout << "";
-    
+    // check start-switches
+    int8_t switchFpga = -1;
+    int8_t switchDsp1 = -1;
+    int8_t switchDsp2 = -1;
+    int8_t switchNoinit = -1;
+    parseParams(argc, argv, &switchFpga, &switchDsp1, &switchDsp2, &switchNoinit);
+    // // initializing DSPs and FPGA
+    // if (switchFpga > 0) { spiConfigureFpga(argv[switchFpga]); }
+    // if ((switchDsp1 > 0) && (switchDsp2 == -1)) { spiConfigureDsp(argv[switchDsp1], "", 1); }
+    // if ((switchDsp1 > 0) && (switchDsp2 > 0)) { spiConfigureDsp(argv[switchDsp1], argv[switchDsp2], 2); }
+
+
+
+    while(1){
+      usleep(10 * 1000);
+        mixer->Tick10ms();
+    }
 
     return 0;
+}
+
+
+void parseParams(int argc, char* argv[], int8_t* fpga, int8_t* dsp1, int8_t* dsp2, int8_t* noinit) {
+    for (int8_t i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-fpga") == 0) {
+            if (i + 1 < argc) {
+                *fpga = i+1;
+                i++;
+            } else {
+                *fpga = -1;
+            }
+        }
+        else if (strcmp(argv[i], "-dsp1") == 0) {
+            if (i + 1 < argc) {
+                *dsp1 = i+1;
+                i++;
+            } else {
+                *dsp1 = -1;
+            }
+        }
+        else if (strcmp(argv[i], "-dsp2") == 0) {
+            if (i + 1 < argc) {
+                *dsp2 = i+1;
+                i++;
+            } else {
+                *dsp2 = -1;
+            }
+        }
+        else if (strcmp(argv[i], "-noinit") == 0) {
+            if (i + 1 < argc) {
+                *noinit = i+1;
+                i++;
+            } else {
+                *noinit = -1;
+            }
+        }
+        // handle unknown parameters
+        else {
+            printf("Unknown parameter: %s\n", argv[i]);
+        }
+    }
 }

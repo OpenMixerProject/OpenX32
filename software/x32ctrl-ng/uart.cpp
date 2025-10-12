@@ -43,15 +43,15 @@ uint8_t Uart::calculateChecksum(const char* data, uint16_t len) {
 int Uart::Open(char* ttydev, uint32_t baudrate, bool raw) {
     struct termios tty;
 
-    *fd = open(ttydev, O_RDWR | O_NOCTTY | O_NDELAY);
-    if (*fd < 0) {
+    fd = open(ttydev, O_RDWR | O_NOCTTY | O_NDELAY);
+    if (fd < 0) {
         perror("Error opening serial-port!");
         return 1;
     }
 
-    if (tcgetattr(*fd, &tty) != 0) {
+    if (tcgetattr(fd, &tty) != 0) {
         perror("Error reading serial-port-attributes!");
-        close(*fd);
+        close(fd);
         return 1;
     }
 
@@ -125,9 +125,9 @@ int Uart::Open(char* ttydev, uint32_t baudrate, bool raw) {
         return 1;
     }
 
-    if (tcsetattr(*fd, TCSANOW, &tty) != 0) {
+    if (tcsetattr(fd, TCSANOW, &tty) != 0) {
         perror("Error setting serial-port-attributes!");
-        close(*fd);
+        close(fd);
         return 1;
     }
 
@@ -135,10 +135,12 @@ int Uart::Open(char* ttydev, uint32_t baudrate, bool raw) {
 }
 
 int Uart::Tx(Message* message, bool addChecksum) {
-    if (*fd < 0) {
+    if (fd < 0) {
         fprintf(stderr, "Error: Problem on opening serial port\n");
         return -1;
     }
+
+    message->AddRawByte(0xFE); // Endbyte
 
     if (addChecksum) {
         char checksum = 0;
@@ -149,7 +151,7 @@ int Uart::Tx(Message* message, bool addChecksum) {
         // add checksum to message and send data via serial-port
         message->AddRawByte(checksum);
     }
-    int bytes_written = write(*fd, message->buffer, message->current_length);
+    int bytes_written = write(fd, message->buffer, message->current_length);
 
     return bytes_written;
 }
@@ -158,18 +160,18 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
     int bytesRead;
     int bytesAvailable;
 
-	if (ioctl(*fd, FIONREAD, &bytesAvailable) == -1) {
+	if (ioctl(fd, FIONREAD, &bytesAvailable) == -1) {
 		perror("Error on ioctl FIONREAD");
-		close(*fd);
+		close(fd);
 		return 1;
 	}
 
 	if (bytesAvailable > 0) {
-		bytesRead = read(*fd, buf, (bytesAvailable < bufLen) ? bytesAvailable : bufLen);
+		bytesRead = read(fd, buf, (bytesAvailable < bufLen) ? bytesAvailable : bufLen);
 
 		if (bytesRead < 0) {
 			perror("Error reading from serial-port");
-			close(*fd);
+			close(fd);
 			return -1;
 		}
 

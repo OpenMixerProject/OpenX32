@@ -13,7 +13,7 @@
 
 class Uart{
     
-    int* fd;
+    int fd;
     uint8_t calculateChecksum(const char* data, uint16_t len);
 
     public:
