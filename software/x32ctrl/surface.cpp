@@ -2022,7 +2022,7 @@ X32_BTN button2enum(uint16_t buttonNr) {
 
 uint16_t enum2encoder(X32_ENC encoder) {
     //x32debug("DEBUG: enum2button: Encoder %d -> ", encoder);
-    for(int i = 0; i < buttonDefinitionIndex; i++) {
+    for(int i = 0; i < encoderDefinitionIndex; i++) {
         if (x32_enc_def[i].encoder == encoder) {
             //x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoderNr);
             return x32_enc_def[i].encoderNr;
@@ -2034,7 +2034,7 @@ uint16_t enum2encoder(X32_ENC encoder) {
 
 X32_ENC encoder2enum(uint16_t encoderNr) {
     //x32debug("DEBUG: encoder2enum: EncoderNr %d -> ", encoderNr);
-    for(int i = 0; i < buttonDefinitionIndex; i++) {
+    for(int i = 0; i < encoderDefinitionIndex; i++) {
         if (x32_enc_def[i].encoderNr == encoderNr) {
             //x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoder);
             return x32_enc_def[i].encoder;
