@@ -4,6 +4,7 @@
 #include <list>
 #include <math.h>
 
+#include "x32base.h"
 #include "uart.h"
 #include "constants.h"
 #include "x32ctrl_types.h"
@@ -14,25 +15,17 @@ using namespace std;
 
 #define DEBUG 0
 
-class Surface
+class Surface : public X32Base
 {
     private:
-        Helper* helper;
-        Config* config;
-
         Uart uart;
 
         uint8_t int2segment(int8_t p_value);
         
         int buttonDefinitionIndex;
         sButtonInfo x32_btn_def[MAX_BUTTONS];
-        uint16_t Enum2Button(X32_BTN button);
-        X32_BTN Button2Enum(uint16_t buttonNr);
-
         int encoderDefinitionIndex;
         sEncoderInfo x32_enc_def[MAX_ENCODERS];
-        uint16_t Enum2Encoder(X32_ENC encoder);
-        X32_ENC Encoder2Enum(uint16_t encoderNr);
 
         uint16_t CalcEncoderRingLedIncrement(uint8_t pct);
         uint16_t CalcEncoderRingLedDecrement(uint8_t pct);
@@ -69,4 +62,9 @@ class Surface
         void ProcessUartData(void);
         bool HasNextEvent(void);
         SurfaceEvent* GetNextEvent(void);
+
+        uint16_t Enum2Button(X32_BTN button);
+        X32_BTN Button2Enum(uint16_t buttonNr);
+        uint16_t Enum2Encoder(X32_ENC encoder);
+        X32_ENC Encoder2Enum(uint16_t encoderNr);
 };

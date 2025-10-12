@@ -24,6 +24,11 @@
 
 #include "surface.h"
 
+Surface::Surface(Config* config): X32Base(config){
+    int buttonDefinitionIndex = 0;
+    int encoderDefinitionIndex = 0;
+}
+
 uint16_t Surface::Enum2Button(X32_BTN button) {
     //x32debug("DEBUG: enum2button: Button %d -> ", button);
     for(int i = 0; i < buttonDefinitionIndex; i++) {
@@ -288,13 +293,7 @@ void Surface::Reset(void) {
     usleep(2000 * 1000);
 }
 
-Surface::Surface(Config* config){
-    int buttonDefinitionIndex = 0;
-    int encoderDefinitionIndex = 0;
 
-    this->config = config;
-    this->helper = new Helper(this->config);
-}
 
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
