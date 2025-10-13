@@ -134,7 +134,7 @@ int Uart::Open(char* ttydev, uint32_t baudrate, bool raw) {
     return 0;
 }
 
-int Uart::Tx(Message* message, bool addChecksum) {
+int Uart::Tx(SurfaceMessage* message, bool addChecksum) {
     if (fd < 0) {
         fprintf(stderr, "Error: Problem on opening serial port\n");
         return -1;

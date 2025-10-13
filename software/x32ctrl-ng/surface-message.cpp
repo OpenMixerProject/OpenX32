@@ -22,15 +22,15 @@
   GNU General Public License for more details.
 */
 
-#include "message.h"
+#include "surface-message.h"
     
-Message::Message(){
+SurfaceMessage::SurfaceMessage(){
     current_length = 0;
 
     AddRawByte(0xFE); // Startbyte
 }
 
-int Message::AddRawByte(char byte){
+int SurfaceMessage::AddRawByte(char byte){
     if (current_length >= MAX_MESSAGE_SIZE) {
         fprintf(stderr, "Error: Message buffer overflow when adding byte 0x%02X!\n", byte);
         return -1;
@@ -39,7 +39,7 @@ int Message::AddRawByte(char byte){
     return 0;
 }
 
-int Message::AddDataByte(char byte){
+int SurfaceMessage::AddDataByte(char byte){
     // check if we have space left in message-buffer (max. 64 bytes for payload)
     if (current_length >= MAX_MESSAGE_SIZE) {
         fprintf(stderr, "Error: Message buffer overflow before adding data byte 0x%02X!\n", byte);
@@ -60,7 +60,7 @@ int Message::AddDataByte(char byte){
     return 0;
 }
 
-int Message::AddString(const char* str){
+int SurfaceMessage::AddString(const char* str){
     // check if we have space left in message-buffer (max. 64 bytes for payload)
     if (current_length >= MAX_MESSAGE_SIZE) {
         fprintf(stderr, "Error: Message buffer overflow before adding data!\n");
@@ -73,7 +73,7 @@ int Message::AddString(const char* str){
     return 0;
 }
 
-int Message::AddDataArray(const char* data, uint8_t len){
+int SurfaceMessage::AddDataArray(const char* data, uint8_t len){
     // check if we have space left in message-buffer (max. 64 bytes for payload)
     if (current_length >= MAX_MESSAGE_SIZE) {
         fprintf(stderr, "Error: Message buffer overflow before adding data!\n");

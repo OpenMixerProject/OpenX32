@@ -24,44 +24,13 @@
 
 #include "spi.h"
 
-Helper* helper = new Helper();
-
-// defines for FPGA-configuration via SPI
-#define PROG_B_GPIO_OFFSET      30
-#define DONE_GPIO_OFFSET        2
-#define FPGA_BUFFER_SIZE        4096
-#define FPGA_FILE_BUFFER_SIZE   1024
-
-// defines for SPI-communication with DSPs
-#define SPI_MAX_RX_PAYLOAD_SIZE 200 // 197 int-values + * + # + parameter
-#define SPI_RX_BUFFER_SIZE      (SPI_MAX_RX_PAYLOAD_SIZE * 3) // store up to 3 payload-sets
-typedef enum {
-	LOOKING_FOR_START_MARKER,
-	COLLECTING_PAYLOAD,
-	LOOKING_FOR_END_MARKER
-} spiParserState;
-const unsigned int SPI_START_MARKER = 0x0000002A; // '*'
-const unsigned int SPI_END_MARKER = 0x00000023; // '#'
-typedef struct {
-	uint32_t buffer[SPI_RX_BUFFER_SIZE];
-    int head;
-    int tail;
-
-    spiParserState state = LOOKING_FOR_START_MARKER;
-    uint32_t payload[SPI_MAX_RX_PAYLOAD_SIZE];
-    int payloadIdx;
-    int payloadLength;
-} sSpiRxRingBuffer;
-sSpiRxRingBuffer spiRxRingBuffer[2]; // for both DSPs
-int spiDspHandle[2];
-uint32_t dataToRead[2];
-
+SPI::SPI(Config* config) : X32Base(config) {}
 
 
 // configures a Xilinx Spartan 3A via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
-int spiConfigureFpga(const char* bitstream_path) {
+int SPI::ConfigureFpga(const char* bitstream_path) {
     int spi_fd = -1;
     FILE *bitstream_file = NULL;
     int ret = 0;
@@ -252,7 +221,7 @@ int spiConfigureFpga(const char* bitstream_path) {
 //   - load IVT (1536 8-bit words)
 // DMA-Transfer expects a seemless data-transport while the manual says something about handshake and wait-states... strange
 //
-int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, uint8_t numStreams) {
+int SPI::ConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, uint8_t numStreams) {
     if ((numStreams < 1) || (numStreams > 2)) {
         return -1;
     }
@@ -421,7 +390,7 @@ int spiConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, 
     return 0;
 }
 
-bool spiOpenDspConnections() {
+bool SPI::OpenDspConnections() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
     uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
@@ -445,14 +414,14 @@ bool spiOpenDspConnections() {
     return true;
 }
 
-bool spiCloseDspConnections() {
+bool SPI::CloseDspConnections() {
     for (uint8_t i = 0; i < 2; i++) {
         if (spiDspHandle[i] >= 0) close(spiDspHandle[i]);
     }
     return true;
 }
 
-void spiProcessRxData(uint8_t dsp) {
+void SPI::ProcessRxData(uint8_t dsp) {
     while (spiRxRingBuffer[dsp].head != spiRxRingBuffer[dsp].tail) {
         uint32_t data = spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].tail];
         spiRxRingBuffer[dsp].tail += 1;
@@ -490,12 +459,8 @@ void spiProcessRxData(uint8_t dsp) {
                     uint8_t channel    = ((spiRxRingBuffer[dsp].payload[0] & 0x0000FF00) >> 8);
                     uint8_t index      = ((spiRxRingBuffer[dsp].payload[0] & 0x00FF0000) >> 16);
                     uint8_t valueCount = ((spiRxRingBuffer[dsp].payload[0] & 0xFF000000) >> 24);
-                    if (dsp == 0) {
-                        callbackDsp1(classId, channel, index, valueCount, &spiRxRingBuffer[dsp].payload[1]);
-                    }else{
-                        callbackDsp2(classId, channel, index, valueCount, &spiRxRingBuffer[dsp].payload[1]);
-                    }
 
+                    eventBuffer.push_back(new SpiEvent(dsp, classId, channel, index, valueCount, &spiRxRingBuffer[dsp].payload[1]));
                     spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER; // reset state
                 }else{
                     // error: end-marker not found
@@ -508,7 +473,7 @@ void spiProcessRxData(uint8_t dsp) {
     }
 }
 
-void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
+void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
     if (valueCount == 0) {
         return;
     }
@@ -526,7 +491,7 @@ void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]
 
             // check for EndMarker '#'
             if (values[i] == SPI_END_MARKER) {
-                spiProcessRxData(dsp);
+                ProcessRxData(dsp);
             }
         }else{
             // buffer-overflow -> reject new data
@@ -545,7 +510,7 @@ void spiPushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]
     }
 }
 
-void spiUpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index) {
+void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index) {
     // we expect only read-class here
     if (classId != '?') {
         return;
@@ -573,7 +538,7 @@ void spiUpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t ch
     dataToRead[dsp] += 3;
 }
 
-bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
+bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
     if (valueCount == 0) {
         // dont allow empty messages
         return false;
@@ -609,9 +574,9 @@ bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uin
     spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
     
-    spiUpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
+    UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
     int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-    spiPushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
+    PushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
 //    free(spiTxData);
 //    free(spiTxDataRaw);
 //    free(spiRxDataRaw);
@@ -619,10 +584,20 @@ bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uin
     return (bytesRead > 0);
 }
 
-bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value) {
-    return spiSendDspParameterArray(dsp, classId, channel, index, 1, &value);
+bool SPI::SendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value) {
+    return SendDspParameterArray(dsp, classId, channel, index, 1, &value);
 }
 
-bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
-    return spiSendDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
+bool SPI::SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
+    return SendDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
+}
+
+bool SPI::HasNextEvent(void){
+    return eventBuffer.size() > 0;
+}
+
+SpiEvent* SPI::GetNextEvent(void){
+    SpiEvent* event = eventBuffer.back();
+    eventBuffer.pop_back();
+    return event;
 }

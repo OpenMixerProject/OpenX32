@@ -27,7 +27,7 @@
 Mixer::Mixer(Config* config): X32Base(config) { 
 
   this->surface = new Surface(this->config);
-  this->dsp = new DSP(this->config);
+  this->dsp = new DSP1(this->config);
 
   this->activeBankMode = X32_SURFACE_MODE_BANKING_X32;
   

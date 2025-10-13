@@ -9,7 +9,7 @@
 #include <sys/ioctl.h> // for FIONREAD
 #include <unistd.h>
 
-#include "message.h"
+#include "surface-message.h"
 
 class Uart{
     
@@ -18,6 +18,6 @@ class Uart{
 
     public:
         int Open(char* ttydev, uint32_t baudrate, bool raw);
-        int Tx(Message* message, bool addChecksum);
+        int Tx(SurfaceMessage* message, bool addChecksum);
         int Rx(char* buf, uint16_t bufLen);
 };

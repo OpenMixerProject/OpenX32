@@ -5,12 +5,12 @@
 
 #include "constants.h"
 
-class Message{
+class SurfaceMessage{
     public:
         char buffer[MAX_MESSAGE_SIZE];
         size_t current_length;
 
-        Message();
+        SurfaceMessage();
 
         int AddRawByte(char byte);
         int AddDataByte(char byte);

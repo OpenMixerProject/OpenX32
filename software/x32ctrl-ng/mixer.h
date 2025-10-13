@@ -11,7 +11,7 @@
 #include "surface.h"
 #include "surface-event.h"
 
-#include "dsp.h"
+#include "dsp1.h"
 
 using namespace std;
 

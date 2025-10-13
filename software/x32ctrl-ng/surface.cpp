@@ -299,7 +299,7 @@ void Surface::Reset(void) {
 // index = 0 ... 8
 // brightness = 0 ... 255
 void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
-    Message message;
+    SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
     message.AddDataByte('C'); // class: C = Controlmessage
     message.AddDataByte('B'); // index
@@ -311,7 +311,7 @@ void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
 // index = 0 ... 8
 // brightness = 0 ... 255
 void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
-    Message message;
+    SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
     message.AddDataByte('C'); // class: C = Controlmessage
     message.AddDataByte('C'); // index
@@ -320,7 +320,7 @@ void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
 }
 
 void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool state){
-    Message message;
+    SurfaceMessage message;
     message.AddDataByte(0x80 + boardId);
     message.AddDataByte('L'); // class: L = LED
     message.AddDataByte(0x80); // index - fixed at 0x80 for LEDs
@@ -334,7 +334,7 @@ void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool state){
 
 // position = 0x0000 ... 0x0FFF
 void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
-    Message message;
+    SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
     message.AddDataByte('F'); // class: F = Fader
     message.AddDataByte(index); // index
@@ -346,7 +346,7 @@ void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
 // set 7-Segment display on X32 Rack
 // dot = 128
 void Surface::SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1){
-    Message message;
+    SurfaceMessage message;
     message.AddDataByte(0x80);
     message.AddDataByte('D'); // Display
     message.AddDataByte(0x80);
@@ -423,7 +423,7 @@ void Surface::SetLedByEnum(X32_BTN led, bool state) {
 void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds) {
   // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
   // 0x4C, index, leds.b[]
-  Message message;
+  SurfaceMessage message;
   message.AddDataByte(0x80 + boardId); // start message for specific boardId
   message.AddDataByte('M'); // class: M = Meter
   message.AddDataByte(index); // index
@@ -436,7 +436,7 @@ void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds) {
 void Surface::SetMeterLedMain(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo) {
     // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
     // 0x4C, index, leds.b[]
-    Message message;
+    SurfaceMessage message;
     message.AddDataByte(0x80 + 1); // start message for specific boardId
     message.AddDataByte('M'); // class: M = Meter
     message.AddDataByte(0); // index
@@ -465,7 +465,7 @@ void Surface::SetMeterLedMain(uint8_t preamp, uint8_t dynamics, uint32_t meterL,
 void Surface::SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, uint8_t ledPct, bool backlight) {
     // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
     // 0x52, index, leds.w[]
-    Message message;
+    SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
     message.AddDataByte('R'); // class: R = Ring
     message.AddDataByte(index); // index
