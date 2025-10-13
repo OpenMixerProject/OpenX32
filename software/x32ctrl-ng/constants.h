@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#define PI 3.14159265358979323846
+
 #define MAX_VCHANNELS 81
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
 #define VCHANNEL_NOT_SET MAX_VCHANNELS+1
