@@ -9,7 +9,9 @@
 #include "constants.h"
 #include "x32ctrl_types.h"
 #include "surface-event.h"
+#include "surface-message.h"
 #include "helper.h"
+#include "vchannel.h"
 
 using namespace std;
 
@@ -19,22 +21,11 @@ class Surface : public X32Base
 {
     private:
         Uart uart;
-
-        uint8_t int2segment(int8_t p_value);
-        
+       
         int buttonDefinitionIndex;
         sButtonInfo x32_btn_def[MAX_BUTTONS];
         int encoderDefinitionIndex;
         sEncoderInfo x32_enc_def[MAX_ENCODERS];
-
-        uint16_t CalcEncoderRingLedIncrement(uint8_t pct);
-        uint16_t CalcEncoderRingLedDecrement(uint8_t pct);
-        uint16_t CalcEncoderRingLedPosition(uint8_t pct);
-        uint16_t CalcEncoderRingLedBalance(uint8_t pct);
-        uint16_t CalcEncoderRingLedWidth(uint8_t pct);
-
-        void AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr);
-        void AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr);
 
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;
@@ -44,10 +35,24 @@ class Surface : public X32Base
 
         list<SurfaceEvent*> eventBuffer;
 
+        uint8_t int2segment(int8_t p_value);
+
+        uint16_t CalcEncoderRingLedIncrement(uint8_t pct);
+        uint16_t CalcEncoderRingLedDecrement(uint8_t pct);
+        uint16_t CalcEncoderRingLedPosition(uint8_t pct);
+        uint16_t CalcEncoderRingLedBalance(uint8_t pct);
+        uint16_t CalcEncoderRingLedWidth(uint8_t pct);
+
+        void InitDefinitions(void);        
+        void AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr);
+        void AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr); 
+
     public:
-        Surface(Config* config);
+        Surface(Config* config, State* state);
+
         void Init(void);
         void Reset(void);
+
         void SetBrightness(uint8_t boardId, uint8_t brightness);
         void SetContrast(uint8_t boardId, uint8_t contrast);
         void SetFader(uint8_t boardId, uint8_t index, uint16_t position);
@@ -59,6 +64,15 @@ class Surface : public X32Base
         void SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds);
         void SetMeterLedMain(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);
         void SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, uint8_t ledPct, bool backlight);
+        void SetLcd(
+            uint8_t boardId, uint8_t index, uint8_t color,
+            uint8_t xicon, uint8_t yicon, uint8_t icon, 
+            uint8_t sizeA, uint8_t xA, uint8_t yA, const char* strA,
+            uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB
+        );
+        void SetLcdX(sLCDData* p_data, uint8_t p_textCount);
+        void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p_chan);
+
         void ProcessUartData(void);
         bool HasNextEvent(void);
         SurfaceEvent* GetNextEvent(void);

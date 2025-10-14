@@ -9,7 +9,8 @@
 #include <sys/ioctl.h> // for FIONREAD
 #include <unistd.h>
 
-#include "surface-message.h"
+#include "message-base.h"
+#include "x32ctrl_types.h"
 
 class Uart{
     
@@ -18,6 +19,7 @@ class Uart{
 
     public:
         int Open(char* ttydev, uint32_t baudrate, bool raw);
-        int Tx(SurfaceMessage* message, bool addChecksum);
+        int Tx(MessageBase* message, bool addChecksum);
         int Rx(char* buf, uint16_t bufLen);
+        int TxToFPGA(uint16_t cmd, data_64b* data);
 };

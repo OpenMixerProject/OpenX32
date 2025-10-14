@@ -15,6 +15,7 @@ class Helper{
         Helper();
         Helper(Config* config);
         void Log(const char* format, ...);
+        void Error(const char* format, ...);
         void SetDebug(int value);
         void Debug(const char* format, ...);
         unsigned int Checksum(char* str);
@@ -27,4 +28,7 @@ class Helper{
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);
         uint32_t ReverseBitOrder_uint32(uint32_t n);
         float Saturate(float value, float min, float max);
+
+        String freq2String(float freq);
+        String eqType2String(uint8_t type);
 };

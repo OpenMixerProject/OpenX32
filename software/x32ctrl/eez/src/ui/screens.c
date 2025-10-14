@@ -522,10 +522,23 @@ void create_screen_main() {
                                     {
                                         lv_obj_t *parent_obj = obj;
                                         {
+                                            // fpga
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.fpga = obj;
+                                            lv_obj_set_pos(obj, 206, 6);
+                                            lv_obj_set_size(obj, 148, 296);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "FPGA\n\nRouting of Hardware\nInput and Output");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffbcbcbc), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
                                             // hw_inputs
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.hw_inputs = obj;
-                                            lv_obj_set_pos(obj, 36, 28);
+                                            lv_obj_set_pos(obj, 51, 23);
                                             lv_obj_set_size(obj, 163, 108);
                                             lv_textarea_set_max_length(obj, 128);
                                             lv_textarea_set_text(obj, "Hardware Inputs\n- XLR\n- AUX / TB\n- CARD\n- AES50");
@@ -535,39 +548,13 @@ void create_screen_main() {
                                             lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
                                         }
                                         {
-                                            // hw_outputs
+                                            // dsp1
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
-                                            objects.hw_outputs = obj;
-                                            lv_obj_set_pos(obj, 36, 156);
-                                            lv_obj_set_size(obj, 163, 123);
+                                            objects.dsp1 = obj;
+                                            lv_obj_set_pos(obj, 377, 7);
+                                            lv_obj_set_size(obj, 139, 295);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "Hardware Outputs\n- XLR\n- AUX / Mon\n- CARD\n- Ultranet\n- AES50");
-                                            lv_textarea_set_one_line(obj, false);
-                                            lv_textarea_set_password_mode(obj, false);
-                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffde59), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                        }
-                                        {
-                                            // fpga
-                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
-                                            objects.fpga = obj;
-                                            lv_obj_set_pos(obj, 230, 27);
-                                            lv_obj_set_size(obj, 148, 249);
-                                            lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "FPGA\n\n\n\n\nSends Inputs to Mixer\n\nSends Output to Hardware");
-                                            lv_textarea_set_one_line(obj, false);
-                                            lv_textarea_set_password_mode(obj, false);
-                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffbcbcbc), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                        }
-                                        {
-                                            // mixer
-                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
-                                            objects.mixer = obj;
-                                            lv_obj_set_pos(obj, 418, 28);
-                                            lv_obj_set_size(obj, 118, 249);
-                                            lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "Mixer\n\n\n\n\nvChannels\nBuses\nMain LR\nMonitoring");
+                                            lv_textarea_set_text(obj, "DSP 1\n\nvChannels\nBuses\nMain LR\nMonitoring");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -577,8 +564,8 @@ void create_screen_main() {
                                             // routing_input
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.routing_input = obj;
-                                            lv_obj_set_pos(obj, 316, 63);
-                                            lv_obj_set_size(obj, 90, 48);
+                                            lv_obj_set_pos(obj, 320, 133);
+                                            lv_obj_set_size(obj, 83, 45);
                                             lv_textarea_set_max_length(obj, 128);
                                             lv_textarea_set_text(obj, "Input ->");
                                             lv_textarea_set_one_line(obj, false);
@@ -590,36 +577,23 @@ void create_screen_main() {
                                             // routing_output
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.routing_output = obj;
-                                            lv_obj_set_pos(obj, 399, 210);
-                                            lv_obj_set_size(obj, 99, 48);
+                                            lv_obj_set_pos(obj, 310, 208);
+                                            lv_obj_set_size(obj, 101, 58);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "<- Output");
+                                            lv_textarea_set_text(obj, "     Mixing\n<- Output");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
                                         }
                                         {
-                                            // routing_hw_output
+                                            // dsp2
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
-                                            objects.routing_hw_output = obj;
-                                            lv_obj_set_pos(obj, 213, 210);
-                                            lv_obj_set_size(obj, 148, 48);
+                                            objects.dsp2 = obj;
+                                            lv_obj_set_pos(obj, 546, 7);
+                                            lv_obj_set_size(obj, 141, 295);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "<- Hardware Out");
-                                            lv_textarea_set_one_line(obj, false);
-                                            lv_textarea_set_password_mode(obj, false);
-                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                        }
-                                        {
-                                            // dsp
-                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
-                                            objects.dsp = obj;
-                                            lv_obj_set_pos(obj, 567, 28);
-                                            lv_obj_set_size(obj, 136, 249);
-                                            lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "DSP\n\n\n\n\nFX Processing\nUSB\nAES/EBU");
+                                            lv_textarea_set_text(obj, "DSP 2\n\nFX Processing\nUSB\nAES/EBU");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffd48d), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -629,10 +603,10 @@ void create_screen_main() {
                                             // routing_dsp
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.routing_dsp = obj;
-                                            lv_obj_set_pos(obj, 463, 63);
-                                            lv_obj_set_size(obj, 90, 48);
+                                            lv_obj_set_pos(obj, 487, 132);
+                                            lv_obj_set_size(obj, 94, 58);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "DSP ->");
+                                            lv_textarea_set_text(obj, "DSP 2\nInput ->");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -642,10 +616,36 @@ void create_screen_main() {
                                             // routing_dsp_return
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.routing_dsp_return = obj;
-                                            lv_obj_set_pos(obj, 553, 211);
-                                            lv_obj_set_size(obj, 130, 48);
+                                            lv_obj_set_pos(obj, 487, 209);
+                                            lv_obj_set_size(obj, 94, 60);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "<- DSP Return");
+                                            lv_textarea_set_text(obj, "     DSP 2\n<- Return");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // hw_outputs
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.hw_outputs = obj;
+                                            lv_obj_set_pos(obj, 51, 166);
+                                            lv_obj_set_size(obj, 163, 123);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "Hardware Outputs\n- XLR\n- AUX / Mon\n- CARD\n- Ultranet\n- AES50");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffde59), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_hw_output
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_hw_output = obj;
+                                            lv_obj_set_pos(obj, 165, 212);
+                                            lv_obj_set_size(obj, 99, 45);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "<- Output");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -654,19 +654,19 @@ void create_screen_main() {
                                     }
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Input 1-40");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Input");
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "DSP 1-40");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "DSP2 Input");
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "DSP Return 1-40");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "DSP 2 Return");
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Output 1-40");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Mixing Output");
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Hardware Out");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Output");
                                     {
                                         lv_obj_t *parent_obj = obj;
                                         {

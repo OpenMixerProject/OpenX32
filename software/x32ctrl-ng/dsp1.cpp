@@ -24,8 +24,9 @@
 
 #include "dsp1.h"
 
-DSP1::DSP1(Config* config) : X32Base(config) {
-    fx = new FX(this->config);
+DSP1::DSP1(Config* config, State* state) : X32Base(config, state) {
+    spi = new SPI(config, state);
+    fx = new FX(config, state);
 };
 
 void DSP1::dspInit(void) {
@@ -123,7 +124,7 @@ void DSP1::SendChannelVolume(uint8_t chan) {
     values[2] = balanceRight; // 0  .. 100 .. 100
     values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
 
-    spiSendDspParameterArray(0, 'v', chan, 0, 4, &values[0]);
+    spi->SendDspParameterArray(0, 'v', chan, 0, 4, &values[0]);
 }
 
 // send BusSends
@@ -134,7 +135,7 @@ void DSP1::SendChannelSend(uint8_t chan) {
         values[i_mixbus] = pow(10.0f, dspChannel[chan].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
     }
 
-    spiSendDspParameterArray(0, 's', chan, 0, 16, &values[0]);
+    spi->SendDspParameterArray(0, 's', chan, 0, 16, &values[0]);
 }
 
 void DSP1::SendMixbusVolume(uint8_t bus) {
@@ -148,25 +149,25 @@ void DSP1::SendMixbusVolume(uint8_t bus) {
     values[2] = balanceRight; // 0  .. 100 .. 100
     values[3] = pow(10.0f, mixbusChannel[bus].volumeSub/20.0f); // subwoofer
 
-    spiSendDspParameterArray(0, 'v', bus, 1, 4, &values[0]);
+    spi->SendDspParameterArray(0, 'v', bus, 1, 4, &values[0]);
 }
 
 void DSP1::SendMatrixVolume(uint8_t matrix) {
-    // send volume to DSP via SPI
+    // send volume to DSP via spi->
     float values[1];
 
     values[0] = pow(10.0f, matrixChannel[matrix].volume/20.0f); // volume of this specific channel
 
-    spiSendDspParameterArray(0, 'v', matrix, 2, 1, &values[0]);
+    spi->SendDspParameterArray(0, 'v', matrix, 2, 1, &values[0]);
 }
 
 void DSP1::SendMonitorVolume() {
-    // send volume to DSP via SPI
+    // send volume to DSP via spi
     float values[1];
     
     values[0] = pow(10.0f, monitorVolume/20.0f); // volume of this specific channel
 
-    spiSendDspParameterArray(0, 'v', 0, 4, 1, &values[0]);
+    spi->SendDspParameterArray(0, 'v', 0, 4, 1, &values[0]);
 }
 
 void DSP1::SendMainVolume() {
@@ -182,13 +183,13 @@ void DSP1::SendMainVolume() {
         volumeSub = 0; // p.u.
     }
 
-    // send volume to DSP via SPI
+    // send volume to DSP via spi->
     float values[3];
     values[0] = volumeLeft;
     values[1] = volumeRight;
     values[2] = volumeSub;
 
-    spiSendDspParameterArray(0, 'v', 0, 3, 3, &values[0]);
+    spi->SendDspParameterArray(0, 'v', 0, 3, 3, &values[0]);
 }
 
 void DSP1::SendGate(uint8_t chan) {
@@ -201,7 +202,7 @@ void DSP1::SendGate(uint8_t chan) {
     values[3] = dspChannel[chan].gate.value_hold_ticks;
     values[4] = dspChannel[chan].gate.value_coeff_release;
 
-    spiSendDspParameterArray(0, 'g', chan, 0, 5, &values[0]);
+    spi->SendDspParameterArray(0, 'g', chan, 0, 5, &values[0]);
 }
 
 void DSP1::SendLowcut(uint8_t chan) {
@@ -209,7 +210,7 @@ void DSP1::SendLowcut(uint8_t chan) {
 
     values[0] = 1.0f / (1.0f + 2.0f * M_PI * dspChannel[chan].lowCutFrequency * (1.0f/config->GetSamplerate()));
 
-    spiSendDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
 }
 
 /*
@@ -218,7 +219,7 @@ void dspSendHighcut(uint8_t dspChannel) {
 
     values[0] = (2.0f * M_PI * dspChannel[dspChannel].highCutFrequency) / (samplerate + 2.0f * M_PI * 500.0f);
 
-    spiSendDspParameterArray(0, 'e', dspChannel, 'h', 1, &values[0]);
+    spi->SendDspParameterArray(0, 'e', dspChannel, 'h', 1, &values[0]);
 }
 */
 
@@ -269,13 +270,13 @@ void DSP1::SendEQ(uint8_t chan) {
         }
     }
 
-    spiSendDspParameterArray(0, 'e', chan, 'e', MAX_CHAN_EQS * 5, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chan, 'e', MAX_CHAN_EQS * 5, &values[0]);
 }
 
 void DSP1::ResetEq(uint8_t chan) {
     float values[1];
     values[0] = 0;
-    spiSendDspParameterArray(0, 'e', chan, 'r', 1, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chan, 'r', 1, &values[0]);
 }
 
 void DSP1::SendCompressor(uint8_t chan) {
@@ -289,7 +290,7 @@ void DSP1::SendCompressor(uint8_t chan) {
     values[4] = dspChannel[chan].compressor.value_hold_ticks;
     values[5] = dspChannel[chan].compressor.value_coeff_release;
 
-    spiSendDspParameterArray(0, 'c', chan, 0, 6, &values[0]);
+    spi->SendDspParameterArray(0, 'c', chan, 0, 6, &values[0]);
 }
 
 void DSP1::SendAll() {
@@ -330,14 +331,14 @@ void DSP1::SetInputRouting(uint8_t chan) {
     uint32_t values[2];
     values[0] = dspChannel[chan].inputSource;
     values[1] = dspChannel[chan].inputTapPoint;
-    spiSendDspParameterArray(0, 'r', chan, 0, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 'r', chan, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetOutputRouting(uint8_t chan) {
     uint32_t values[2];
     values[0] = dspChannel[chan].outputSource;
     values[1] = dspChannel[chan].outputTapPoint;
-    spiSendDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
@@ -346,7 +347,7 @@ void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t 
     uint32_t values[2];
     values[0] = mixbusChannel;
     values[1] = tapPoint;
-    spiSendDspParameterArray(0, 't', chan, 0, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 't', chan, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint) {
@@ -355,7 +356,7 @@ void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, 
     uint32_t values[2];
     values[0] = matrixChannel;
     values[1] = tapPoint;
-    spiSendDspParameterArray(0, 't', mixbusChannel, 1, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 't', mixbusChannel, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
@@ -364,7 +365,7 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
     uint32_t values[2];
     values[0] = matrixChannel;
     values[1] = tapPoint;
-    spiSendDspParameterArray(0, 't', 0, 2, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 't', 0, 2, 2, (float*)&values[0]);
 }
 
 // void dspGetSourceName(char* p_nameBuffer, uint8_t dspChannel) {

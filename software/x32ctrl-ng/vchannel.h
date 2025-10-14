@@ -3,16 +3,15 @@
 #include <stdint.h>
 #include "WString.h"
 #include "x32ctrl_types.h"
+#include "x32base.h"
 
 
-class VChannel{
+class VChannel : public X32Base {
     private:
         // indicates, which data has changed and need to get synced
         uint16_t changed;
     
     public:
-        uint8_t index;
-
         String name;
         uint8_t color;
         uint8_t icon;
@@ -30,12 +29,12 @@ class VChannel{
         uint8_t vChannelType;
         sDspChannel dspChannel;
 
-        void Init(int p_vChannelIndex, bool p_disabled);
+        VChannel(Config *config, State *state);
 
         void SetChanged(uint16_t p_flag);
- 
         void ResetVChannelChangeFlags();
-
         bool HasChanged(uint16_t p_flag);
         bool HasAnyChanged(void);
+
+        void ChangeInput(int8_t amount);
 };

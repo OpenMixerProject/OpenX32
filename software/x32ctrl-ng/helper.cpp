@@ -43,6 +43,17 @@ void Helper::Log(const char* format, ...)
     va_end(args);
 }
 
+void Helper::Error(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    vprintf(format, args);
+    fflush(stdout); // immediately write to console!
+
+    va_end(args);
+}
+
 void Helper::Debug(const char* format, ...)
 {
     if (config->IsDebug()){
@@ -235,5 +246,46 @@ float Helper::Saturate(float value, float min, float max) {
     return min;
   }else{
     return value;
+  }
+}
+
+String Helper::freq2String(float freq) {
+  if (freq < 1000) {
+    return String(freq, 1) + " Hz";
+  }else{
+    return String(freq / 1000.0f, 1) + " kHz";
+  };
+}
+
+String Helper::eqType2String(uint8_t type) {
+  // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
+  switch (type) {
+    case 0:
+      return "Allpass";
+      break;
+    case 1:
+      return "PEQ";
+      break;
+    case 2:
+      return "LShv";
+      break;
+    case 3:
+      return "HShv";
+      break;
+    case 4:
+      return "Bandp";
+      break;
+    case 5:
+      return "Notch";
+      break;
+    case 6:
+      return "HCut";
+      break;
+    case 7:
+      return "LCut";
+      break;
+    default:
+      return "???";
+      break;
   }
 }

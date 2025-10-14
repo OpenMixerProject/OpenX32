@@ -5,7 +5,6 @@
 #include "x32base.h"
 #include "spi.h"
 #include "fx.h"
-#include "dsp-event.h"
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
@@ -24,7 +23,16 @@
 class DSP1 : X32Base {
 
     private:
-        FX* fx;
+        SPI* spi;
+        
+        
+        uint8_t monitorTapPoint;
+
+        // status messages
+        float dspLoad[2];
+        float dspVersion[2];
+
+    public:
 
         sDspChannel dspChannel[40];
         sMixbusChannel mixbusChannel[16];
@@ -38,15 +46,10 @@ class DSP1 : X32Base {
 
         float volumeSpecial;
         float monitorVolume;
-        uint8_t monitorTapPoint;
 
-        // status messages
-        float dspLoad[2];
-        float dspVersion[2];
+        FX* fx;
 
-    public:
-        DSP1(Config* config);
-
+        DSP1(Config* config, State* state);
         void dspInit(void);
 
         void SendChannelVolume(uint8_t chan);

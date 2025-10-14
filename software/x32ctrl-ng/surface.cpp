@@ -24,9 +24,567 @@
 
 #include "surface.h"
 
-Surface::Surface(Config* config): X32Base(config){
+Surface::Surface(Config* config, State* state): X32Base(config, state){
     int buttonDefinitionIndex = 0;
     int encoderDefinitionIndex = 0;
+}
+
+void Surface::Init(void) {
+    uart.Open("/dev/ttymxc1", 115200, true);
+
+    Reset();
+    InitDefinitions();
+
+    // set brightness and contrast
+    SetBrightness(0, 255); // brightness of LEDs
+    SetBrightness(1, 255);
+    SetBrightness(4, 255);
+    SetBrightness(5, 255);
+    SetBrightness(8, 255);
+    SetContrast(0, 0x24); // contrast of LCDs
+    SetContrast(4, 0x24);
+    SetContrast(5, 0x24);
+    SetContrast(8, 0x24);
+}
+
+void Surface::Reset(void) {
+    int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
+    write(fd, "1", 1);
+    usleep(100 * 1000);
+    write(fd, "0", 1);
+    close(fd);
+    usleep(2000 * 1000);
+}
+
+void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
+    if (buttonDefinitionIndex >= MAX_BUTTONS)
+    {
+        //TODO: Error Message
+        helper->Error("ERROR: MAX_BUTTONS");
+        return;
+    }
+    x32_btn_def[buttonDefinitionIndex].button = p_button;
+    x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
+    buttonDefinitionIndex++;
+    helper->Debug("added button definition: Button %d -> ButtonNr %d\n", p_button, p_buttonNr);
+}
+
+void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
+    if (encoderDefinitionIndex >= MAX_ENCODERS)
+    {
+        //TODO: Error Message
+        helper->Log("ERROR: MAX_ENCODERS");
+        return;
+    }
+    x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
+    x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
+    encoderDefinitionIndex++;
+    helper->Debug("added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
+}
+
+
+void Surface::InitDefinitions(void) {
+    if(config->IsModelX32Full()) {
+            AddButtonDefinition(X32_BTN_TALK_A, 0x012E);
+            AddButtonDefinition(X32_BTN_TALK_B, 0x012F);
+            AddButtonDefinition(X32_BTN_VIEW_TALK, 0x0130);
+            AddButtonDefinition(X32_BTN_MONITOR_DIM, 0x012C);
+            AddButtonDefinition(X32_BTN_VIEW_MONITOR, 0x012D);
+
+            AddButtonDefinition(X32_BTN_VIEW_USB, 0x0131);
+
+            AddButtonDefinition(X32_BTN_PHANTOM_48V, 0x0101);
+            AddButtonDefinition(X32_BTN_PHASE_INVERT, 0x0102);
+            AddButtonDefinition(X32_BTN_LOW_CUT, 0x0103);
+            AddButtonDefinition(X32_BTN_VIEW_CONFIG, 0x0100);
+
+            AddButtonDefinition(X32_BTN_GATE, 0x0106);
+            AddButtonDefinition(X32_BTN_VIEW_GATE, 0x0104);
+
+            AddButtonDefinition(X32_BTN_COMPRESSOR, 0x0107);
+            AddButtonDefinition(X32_BTN_VIEW_COMPRESSOR, 0x0105);
+
+            AddButtonDefinition(X32_BTN_EQ, 0x0109);
+            AddButtonDefinition(X32_BTN_EQ_MODE, 0x0108);
+            AddButtonDefinition(X32_BTN_EQ_HIGH, 0x010B);
+            AddButtonDefinition(X32_BTN_EQ_HIGH_MID, 0x010C);
+            AddButtonDefinition(X32_BTN_EQ_LOW_MID, 0x010D);
+            AddButtonDefinition(X32_BTN_EQ_LOW, 0x010E);
+            AddButtonDefinition(X32_BTN_VIEW_EQ, 0x010A);
+
+            AddButtonDefinition(X32_BTN_VIEW_MIX_BUS_SENDS, 0x010F);
+            AddButtonDefinition(X32_BTN_MONO_BUS, 0x0115);
+            AddButtonDefinition(X32_BTN_MAIN_LR_BUS, 0x0116);
+            AddButtonDefinition(X32_BTN_VIEW_BUS_MIXES, 0x0114);
+            AddButtonDefinition(X32_BTN_BUS_SEND_1_4, 0x0110);
+            AddButtonDefinition(X32_BTN_BUS_SEND_5_8, 0x0111);
+            AddButtonDefinition(X32_BTN_BUS_SEND_9_12, 0x0112);
+            AddButtonDefinition(X32_BTN_BUS_SEND_13_16, 0x0113);
+
+            AddButtonDefinition(X32_BTN_ENCODER1, 0x0117);
+            AddButtonDefinition(X32_BTN_ENCODER2, 0x0118);
+            AddButtonDefinition(X32_BTN_ENCODER3, 0x0119);
+            AddButtonDefinition(X32_BTN_ENCODER4, 0x011A);
+            AddButtonDefinition(X32_BTN_ENCODER5, 0x011B);
+            AddButtonDefinition(X32_BTN_ENCODER6, 0x011C);
+
+            AddButtonDefinition(X32_BTN_HOME, 0x0122);
+            AddButtonDefinition(X32_BTN_METERS, 0x0123);
+            AddButtonDefinition(X32_BTN_ROUTING, 0x0124);
+            AddButtonDefinition(X32_BTN_SETUP, 0x0125);
+            AddButtonDefinition(X32_BTN_LIBRARY, 0x0126);
+            AddButtonDefinition(X32_BTN_EFFECTS, 0x0127);
+            AddButtonDefinition(X32_BTN_MUTE_GRP, 0x0128);
+            AddButtonDefinition(X32_BTN_UTILITY, 0x0129);
+
+            AddButtonDefinition(X32_BTN_UP, 0x011D);
+            AddButtonDefinition(X32_BTN_DOWN, 0x0120);
+            AddButtonDefinition(X32_BTN_LEFT, 0x011E);
+            AddButtonDefinition(X32_BTN_RIGHT, 0x011F);
+
+            // Board, L);
+
+            AddButtonDefinition(X32_BTN_DAW_REMOTE, 0x400);
+            AddButtonDefinition(X32_BTN_CH_1_16, 0x401);
+            AddButtonDefinition(X32_BTN_CH_17_32, 0x402);
+            AddButtonDefinition(X32_BTN_AUX_IN_EFFECTS, 0x403);
+            AddButtonDefinition(X32_BTN_BUS_MASTER, 0x404);
+
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_1_SELECT, 0x420);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_2_SELECT, 0x421);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_3_SELECT, 0x422);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_4_SELECT, 0x423);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_5_SELECT, 0x424);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_6_SELECT, 0x425);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_7_SELECT, 0x426);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_8_SELECT, 0x427);
+
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_1_SOLO, 0x430);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_2_SOLO, 0x431);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_3_SOLO, 0x432);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_4_SOLO, 0x433);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_5_SOLO, 0x434);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_6_SOLO, 0x435);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_7_SOLO, 0x436);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_8_SOLO, 0x437);
+
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_1_MUTE, 0x440);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_2_MUTE, 0x441);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_3_MUTE, 0x442);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_4_MUTE, 0x443);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_5_MUTE, 0x444);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_6_MUTE, 0x445);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_7_MUTE, 0x446);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_8_MUTE, 0x447);
+
+            // Board, M);
+
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_1_SELECT, 0x520);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_2_SELECT, 0x521);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_3_SELECT, 0x522);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_4_SELECT, 0x523);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_5_SELECT, 0x524);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_6_SELECT, 0x525);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_7_SELECT, 0x526);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_8_SELECT, 0x527);
+
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_1_SOLO, 0x530);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_2_SOLO, 0x531);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_3_SOLO, 0x532);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_4_SOLO, 0x533);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_5_SOLO, 0x534);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_6_SOLO, 0x535);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_7_SOLO, 0x536);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_8_SOLO, 0x537);
+
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_1_MUTE, 0x540);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_2_MUTE, 0x541);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_3_MUTE, 0x542);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_4_MUTE, 0x543);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_5_MUTE, 0x544);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_6_MUTE, 0x545);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_7_MUTE, 0x546);
+            AddButtonDefinition(X32_BTN_BOARD_M_CH_8_MUTE, 0x547);
+
+            // Board, R);
+
+            AddButtonDefinition(X32_BTN_SEND_ON_FADERS, 0x800);
+            AddButtonDefinition(X32_BTN_GROUP_DCA_1_8, 0x801);
+            AddButtonDefinition(X32_BTN_BUS_1_8, 0x802);
+            AddButtonDefinition(X32_BTN_BUS_9_16, 0x803);
+            AddButtonDefinition(X32_BTN_MATRIX_MAIN_C, 0x804);
+            AddButtonDefinition(X32_BTN_CLEAR_SOLO, 0x806);
+
+            AddButtonDefinition(X32_BTN_SCENES_UNDO, 0x03);
+            AddButtonDefinition(X32_BTN_SCENES_GO, 0x04);
+            AddButtonDefinition(X32_BTN_SCENES_PREV, 0x01);
+            AddButtonDefinition(X32_BTN_SCENES_NEXT, 0x02);
+            AddButtonDefinition(X32_BTN_VIEW_SCENES, 0x00);
+
+            AddButtonDefinition(X32_BTN_ASSIGN_5, 0x06);
+            AddButtonDefinition(X32_BTN_ASSIGN_6, 0x07);
+            AddButtonDefinition(X32_BTN_ASSIGN_7, 0x08);
+            AddButtonDefinition(X32_BTN_ASSIGN_8, 0x09);
+            AddButtonDefinition(X32_BTN_ASSIGN_9, 0x0A);
+            AddButtonDefinition(X32_BTN_ASSIGN_10, 0x0B);
+            AddButtonDefinition(X32_BTN_ASSIGN_11, 0x0C);
+            AddButtonDefinition(X32_BTN_ASSIGN_12, 0x0D);
+            AddButtonDefinition(X32_BTN_ASSIGN_A, 0x0E);
+            AddButtonDefinition(X32_BTN_ASSIGN_B, 0x0F);
+            AddButtonDefinition(X32_BTN_ASSIGN_C, 0x10);
+            AddButtonDefinition(X32_BTN_VIEW_ASSIGN, 0x05);
+
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_1, 0x11);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_2, 0x12);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_3, 0x13);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_4, 0x14);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_5, 0x15);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_6, 0x16);
+
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_1_SELECT, 0x820);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_2_SELECT, 0x821);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_3_SELECT, 0x822);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_4_SELECT, 0x823);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_5_SELECT, 0x824);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_6_SELECT, 0x825);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_7_SELECT, 0x826);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_8_SELECT, 0x827);
+            AddButtonDefinition(X32_BTN_MAIN_SELECT, 0x828);
+
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_1_SOLO, 0x830);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_2_SOLO, 0x831);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_3_SOLO, 0x832);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_4_SOLO, 0x833);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_5_SOLO, 0x834);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_6_SOLO, 0x835);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_7_SOLO, 0x836);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_8_SOLO, 0x837);
+            AddButtonDefinition(X32_BTN_MAIN_SOLO, 0x838);
+
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_1_MUTE, 0x840);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_2_MUTE, 0x841);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_3_MUTE, 0x842);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_4_MUTE, 0x843);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_5_MUTE, 0x844);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_6_MUTE, 0x845);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_7_MUTE, 0x846);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_8_MUTE, 0x847);
+            AddButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
+
+            // LED, only);
+
+            // TODO: CHECK LEDs
+
+            AddButtonDefinition(X32_LED_USB_ACCESS, 0x0126);
+
+            AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_GAIN, 0x012A);
+            AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_FREQ, 0x012B );
+            AddButtonDefinition(X32_LED_BACKLIGHT_GATE_THRESHOLD, 0x012C );
+            AddButtonDefinition(X32_LED_BACKLIGHT_DYNAMICS_THRESHOLD, 0x012D );
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_Q, 0x012E );
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_FREQ, 0x012F );
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_GAIN, 0x0130 );
+            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131 );
+            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132 );
+
+            // Encoder
+
+            AddEncoderDefinition(X32_ENC_GAIN, 0x0100);
+            AddEncoderDefinition(X32_ENC_LOWCUT, 0x0101);
+            AddEncoderDefinition(X32_ENC_GATE, 0x0102);
+            AddEncoderDefinition(X32_ENC_DYNAMICS, 0x0103);
+
+            AddEncoderDefinition(X32_ENC_EQ_Q, 0x0104);
+            AddEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
+            AddEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
+
+            AddEncoderDefinition(X32_ENC_MAIN, 0x010B);
+            AddEncoderDefinition(X32_ENC_PAN, 0x010C);
+
+            AddEncoderDefinition(X32_ENC_ENCODER1, 0x010D);
+            AddEncoderDefinition(X32_ENC_ENCODER2, 0x010E);
+            AddEncoderDefinition(X32_ENC_ENCODER3, 0x010F);
+            AddEncoderDefinition(X32_ENC_ENCODER4, 0x0110);
+            AddEncoderDefinition(X32_ENC_ENCODER5, 0x0111);
+            AddEncoderDefinition(X32_ENC_ENCODER6, 0x0112);
+
+    }
+
+    if (config->IsModelX32Compact()){
+
+            AddButtonDefinition(X32_BTN_TALK_A,         0x0100);
+            AddButtonDefinition(X32_BTN_TALK_B,         0x0101);
+            AddButtonDefinition(X32_BTN_MONITOR_DIM,    0x0102);
+            AddButtonDefinition(X32_BTN_VIEW_MONITOR,   0x0103);
+
+            AddButtonDefinition(X32_BTN_VIEW_USB,      0x0104);
+
+            AddButtonDefinition(X32_BTN_PHANTOM_48V, 0x0105);
+            AddButtonDefinition(X32_BTN_PHASE_INVERT, 0x0106);
+            AddButtonDefinition(X32_BTN_LOW_CUT, 0x0107);
+            AddButtonDefinition(X32_BTN_VIEW_CONFIG, 0x0108);
+
+            AddButtonDefinition(X32_BTN_GATE, 0x0109);
+            AddButtonDefinition(X32_BTN_VIEW_GATE, 0x010A);
+
+            AddButtonDefinition(X32_BTN_COMPRESSOR, 0x010B);
+            AddButtonDefinition(X32_BTN_VIEW_COMPRESSOR, 0x010C);
+
+            AddButtonDefinition(X32_BTN_EQ, 0x010D);
+            AddButtonDefinition(X32_BTN_EQ_MODE, 0x010E);
+            AddButtonDefinition(X32_BTN_EQ_HIGH, 0x010F);
+            AddButtonDefinition(X32_BTN_EQ_HIGH_MID, 0x0110);
+            AddButtonDefinition(X32_BTN_EQ_LOW_MID, 0x0111);
+            AddButtonDefinition(X32_BTN_EQ_LOW, 0x0112);
+            AddButtonDefinition(X32_BTN_VIEW_EQ, 0x0113);
+
+            AddButtonDefinition(X32_BTN_VIEW_MIX_BUS_SENDS, 0x0114);
+            AddButtonDefinition(X32_BTN_MONO_BUS, 0x0115);
+            AddButtonDefinition(X32_BTN_MAIN_LR_BUS, 0x0116);
+            AddButtonDefinition(X32_BTN_VIEW_BUS_MIXES, 0x0117);
+
+            AddButtonDefinition(X32_BTN_ENCODER1, 0x0118);
+            AddButtonDefinition(X32_BTN_ENCODER2, 0x0119);
+            AddButtonDefinition(X32_BTN_ENCODER3, 0x011A);
+            AddButtonDefinition(X32_BTN_ENCODER4, 0x011B);
+            AddButtonDefinition(X32_BTN_ENCODER5, 0x011C);
+            AddButtonDefinition(X32_BTN_ENCODER6, 0x011D);
+
+            AddButtonDefinition(X32_BTN_HOME,           0x011E);
+            AddButtonDefinition(X32_BTN_METERS,         0x011F);
+            AddButtonDefinition(X32_BTN_ROUTING,        0x0120);
+            AddButtonDefinition(X32_BTN_SETUP,          0x0121);
+            AddButtonDefinition(X32_BTN_LIBRARY,        0x0122);
+            AddButtonDefinition(X32_BTN_EFFECTS,        0x0123);
+            AddButtonDefinition(X32_BTN_MUTE_GRP,       0x0124);
+            AddButtonDefinition(X32_BTN_UTILITY,        0x0125);
+
+            AddButtonDefinition(X32_BTN_UP,             0x0126);
+            AddButtonDefinition(X32_BTN_DOWN,           0x0127);
+            AddButtonDefinition(X32_BTN_LEFT,           0x0128);
+            AddButtonDefinition(X32_BTN_RIGHT,          0x0129);
+
+            // Board L
+
+            AddButtonDefinition(X32_BTN_CH_1_8, 0x400);
+            AddButtonDefinition(X32_BTN_CH_9_16, 0x401);
+            AddButtonDefinition(X32_BTN_CH_17_24, 0x402);
+            AddButtonDefinition(X32_BTN_CH_25_32, 0x403);
+            AddButtonDefinition(X32_BTN_AUX_IN_1_6_USB_REC, 0x404);
+            AddButtonDefinition(X32_BTN_EFFECTS_RETURNS, 0x405);
+            AddButtonDefinition(X32_BTN_BUS_1_8_MASTER, 0x406);
+            AddButtonDefinition(X32_BTN_BUS_9_16_MASTER, 0x407);
+
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_1_SELECT, 0x420);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_2_SELECT, 0x421);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_3_SELECT, 0x422);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_4_SELECT, 0x423);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_5_SELECT, 0x424);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_6_SELECT, 0x425);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_7_SELECT, 0x426);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_8_SELECT, 0x427);
+
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_1_SOLO, 0x430);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_2_SOLO, 0x431);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_3_SOLO, 0x432);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_4_SOLO, 0x433);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_5_SOLO, 0x434);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_6_SOLO, 0x435);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_7_SOLO, 0x436);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_8_SOLO, 0x437);
+
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_1_MUTE, 0x440);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_2_MUTE, 0x441);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_3_MUTE, 0x442);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_4_MUTE, 0x443);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_5_MUTE, 0x444);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_6_MUTE, 0x445);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_7_MUTE, 0x446);
+            AddButtonDefinition(X32_BTN_BOARD_L_CH_8_MUTE, 0x447);
+
+            // Board R);
+
+            AddButtonDefinition(X32_BTN_DAW_REMOTE, 0x800);
+            AddButtonDefinition(X32_BTN_SEND_ON_FADERS, 0x801);
+            AddButtonDefinition(X32_BTN_GROUP_DCA_1_8, 0x802);
+            AddButtonDefinition(X32_BTN_BUS_1_8, 0x803);
+            AddButtonDefinition(X32_BTN_BUS_9_16, 0x804);
+            AddButtonDefinition(X32_BTN_MATRIX_MAIN_C, 0x805);
+            AddButtonDefinition(X32_BTN_CLEAR_SOLO, 0x806);
+
+            AddButtonDefinition(X32_BTN_SCENES_UNDO, 0x807);
+            AddButtonDefinition(X32_BTN_SCENES_GO, 0x808);
+            AddButtonDefinition(X32_BTN_SCENES_PREV, 0x809);
+            AddButtonDefinition(X32_BTN_SCENES_NEXT, 0x80A);
+            AddButtonDefinition(X32_BTN_VIEW_SCENES, 0x80B);
+
+            AddButtonDefinition(X32_BTN_ASSIGN_1, 0x80C);
+            AddButtonDefinition(X32_BTN_ASSIGN_2, 0x80D);
+            AddButtonDefinition(X32_BTN_ASSIGN_3, 0x80E);
+            AddButtonDefinition(X32_BTN_ASSIGN_4, 0x80F);
+            AddButtonDefinition(X32_BTN_ASSIGN_5, 0x810);
+            AddButtonDefinition(X32_BTN_ASSIGN_6, 0x811);
+            AddButtonDefinition(X32_BTN_ASSIGN_7, 0x812);
+            AddButtonDefinition(X32_BTN_ASSIGN_8, 0x813);
+            AddButtonDefinition(X32_BTN_VIEW_ASSIGN, 0x814);
+
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_1, 0x815);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_2, 0x816);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_3, 0x817);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_4, 0x818);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_5, 0x819);
+            AddButtonDefinition(X32_BTN_MUTE_GROUP_6, 0x81A);
+
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_1_SELECT, 0x820);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_2_SELECT, 0x821);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_3_SELECT, 0x822);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_4_SELECT, 0x823);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_5_SELECT, 0x824);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_6_SELECT, 0x825);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_7_SELECT, 0x826);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_8_SELECT, 0x827);
+            AddButtonDefinition(X32_BTN_MAIN_SELECT, 0x828);
+
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_1_SOLO, 0x830);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_2_SOLO, 0x831);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_3_SOLO, 0x832);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_4_SOLO, 0x833);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_5_SOLO, 0x834);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_6_SOLO, 0x835);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_7_SOLO, 0x836);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_8_SOLO, 0x837);
+            AddButtonDefinition(X32_BTN_MAIN_SOLO, 0x838);
+
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_1_MUTE, 0x840);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_2_MUTE, 0x841);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_3_MUTE, 0x842);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_4_MUTE, 0x843);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_5_MUTE, 0x844);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_6_MUTE, 0x845);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_7_MUTE, 0x846);
+            AddButtonDefinition(X32_BTN_BOARD_R_CH_8_MUTE, 0x847);
+            AddButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
+
+            // LED only
+
+            AddButtonDefinition(X32_LED_USB_ACCESS, 0x0126);
+
+            AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_GAIN, 0x012A);
+            AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_FREQ, 0x012B);
+            AddButtonDefinition(X32_LED_BACKLIGHT_GATE_THRESHOLD, 0x012C);
+            AddButtonDefinition(X32_LED_BACKLIGHT_DYNAMICS_THRESHOLD, 0x012D);
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_Q, 0x012E);
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_FREQ, 0x012F);
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_GAIN, 0x0130);
+            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131);
+            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132);
+
+            // Encoder
+
+            AddEncoderDefinition(X32_ENC_GAIN, 0x0100);
+            AddEncoderDefinition(X32_ENC_LOWCUT, 0x0101);
+            AddEncoderDefinition(X32_ENC_GATE, 0x0102);
+            AddEncoderDefinition(X32_ENC_DYNAMICS, 0x0103);
+
+            AddEncoderDefinition(X32_ENC_EQ_Q, 0x0104);
+            AddEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
+            AddEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
+
+            AddEncoderDefinition(X32_ENC_MAIN, 0x0107);
+            AddEncoderDefinition(X32_ENC_PAN, 0x0108);
+
+            AddEncoderDefinition(X32_ENC_ENCODER1, 0x0109);
+            AddEncoderDefinition(X32_ENC_ENCODER2, 0x010A);
+            AddEncoderDefinition(X32_ENC_ENCODER3, 0x010B);
+            AddEncoderDefinition(X32_ENC_ENCODER4, 0x010C);
+            AddEncoderDefinition(X32_ENC_ENCODER5, 0x010D);
+            AddEncoderDefinition(X32_ENC_ENCODER6, 0x010E);
+    }
+
+    if (config->IsModelX32Rack()){
+
+            AddButtonDefinition(X32_BTN_VIEW_USB, 0x0000);
+            AddButtonDefinition(X32_BTN_CHANNEL_SOLO, 0x0001);
+            AddButtonDefinition(X32_BTN_CHANNEL_MUTE, 0x0002);
+            AddButtonDefinition(X32_BTN_TALK_A, 0x0003);
+            AddButtonDefinition(X32_BTN_CLEAR_SOLO, 0x0004);
+            AddButtonDefinition(X32_BTN_CHANNEL_ENCODER, 0x0005);
+
+            AddButtonDefinition(X32_BTN_HOME, 0x0006);
+            AddButtonDefinition(X32_BTN_METERS, 0x0007);
+            AddButtonDefinition(X32_BTN_ROUTING, 0x0008);
+            AddButtonDefinition(X32_BTN_LIBRARY, 0x0009);
+            AddButtonDefinition(X32_BTN_EFFECTS, 0x000A);
+            AddButtonDefinition(X32_BTN_SETUP, 0x000B);
+            AddButtonDefinition(X32_BTN_VIEW_MONITOR, 0x000C);
+            AddButtonDefinition(X32_BTN_VIEW_SCENES, 0x000D);
+            AddButtonDefinition(X32_BTN_MUTE_GRP, 0x000E);
+            AddButtonDefinition(X32_BTN_UTILITY, 0x000F);
+
+            AddButtonDefinition(X32_BTN_ENCODER1, 0x0010);
+            AddButtonDefinition(X32_BTN_ENCODER2, 0x0011);
+            AddButtonDefinition(X32_BTN_ENCODER3, 0x0012);
+            AddButtonDefinition(X32_BTN_ENCODER4, 0x0013);
+            AddButtonDefinition(X32_BTN_ENCODER5, 0x0014);
+            AddButtonDefinition(X32_BTN_ENCODER6, 0x0015);
+
+            AddButtonDefinition(X32_BTN_UP, 0x0016);
+            AddButtonDefinition(X32_BTN_LEFT, 0x0017);
+            AddButtonDefinition(X32_BTN_RIGHT, 0x0018);
+            AddButtonDefinition(X32_BTN_DOWN, 0x0019);
+
+            // Encoder
+
+            AddEncoderDefinition(X32_ENC_CHANNEL_LEVEL, 0x0000);
+            AddEncoderDefinition(X32_ENC_MAIN_LEVEL, 0x0001);
+            AddEncoderDefinition(X32_ENC_CHANNEL_SELECT, 0x0002);
+            AddEncoderDefinition(X32_ENC_ENCODER1, 0x0003);
+            AddEncoderDefinition(X32_ENC_ENCODER2, 0x0004);
+            AddEncoderDefinition(X32_ENC_ENCODER3, 0x0005);
+            AddEncoderDefinition(X32_ENC_ENCODER4, 0x0006);
+            AddEncoderDefinition(X32_ENC_ENCODER5, 0x0007);
+            AddEncoderDefinition(X32_ENC_ENCODER6, 0x0008);
+
+            // LED only
+
+            AddButtonDefinition(X32_LED_VIEW_USB_RED, 0x0005);
+
+            AddButtonDefinition(X32_LED_IN, 0x0010);
+            AddButtonDefinition(X32_LED_AUX, 0x0011);
+            AddButtonDefinition(X32_LED_BUS, 0x0012);
+            AddButtonDefinition(X32_LED_DCA, 0x0013);
+            AddButtonDefinition(X32_LED_MAIN, 0x0014);
+            AddButtonDefinition(X32_LED_MATRIX, 0x0015);
+
+            AddButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
+            AddButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0017);
+
+    }
+
+    if (config->IsModelX32Core()){
+
+            AddButtonDefinition(X32_BTN_SCENE_SETUP,    0x0000);
+            AddButtonDefinition(X32_BTN_TALK_A,         0x0001);
+            AddButtonDefinition(X32_BTN_ASSIGN_3,       0x0002);
+            AddButtonDefinition(X32_BTN_ASSIGN_4,       0x0003);
+            AddButtonDefinition(X32_BTN_ASSIGN_5,       0x0004);
+            AddButtonDefinition(X32_BTN_ASSIGN_6,       0x0005);
+            AddButtonDefinition(X32_BTN_ENCODER1,       0x0006);
+            //AddButtonDefinition(X32_BTN_ENCODER1,       0x0006);
+
+            // LED only
+            AddButtonDefinition(X32_LED_SCENE_SETUP_RED,0x0006);
+            AddButtonDefinition(X32_LED_IN,             0x0007);
+            AddButtonDefinition(X32_LED_AUX,            0x0008);
+            AddButtonDefinition(X32_LED_BUS,            0x0009);
+            AddButtonDefinition(X32_LED_MTX,            0x000A);
+            AddButtonDefinition(X32_LED_DCA,            0x000B);
+            AddButtonDefinition(X32_LED_AESA_GREEN,     0x000C);
+            AddButtonDefinition(X32_LED_AESA_RED,       0x000D);
+            AddButtonDefinition(X32_LED_AESB_GREEN,     0x000E);
+            AddButtonDefinition(X32_LED_AESB_RED,       0x000F);
+
+    }
 }
 
 uint16_t Surface::Enum2Button(X32_BTN button) {
@@ -241,60 +799,6 @@ uint16_t Surface::CalcEncoderRingLedWidth(uint8_t pct) {
     return led_mask;
 }
 
-void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
-    if (buttonDefinitionIndex >= MAX_BUTTONS)
-    {
-        //TODO: Error Message
-        //x32log("ERROR: MAX_BUTTONS");
-        return;
-    }
-    x32_btn_def[buttonDefinitionIndex].button = p_button;
-    x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
-    buttonDefinitionIndex++;
-    //x32debug("added button definition: Button %d -> ButtonNr %d\n", p_button, p_buttonNr);
-}
-
-void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
-    if (encoderDefinitionIndex >= MAX_ENCODERS)
-    {
-        //TODO: Error Message
-        //x32log("ERROR: MAX_ENCODERS");
-        return;
-    }
-    x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
-    x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
-    encoderDefinitionIndex++;
-    //x32debug("added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
-}
-
-void Surface::Init(void) {
-    uart.Open("/dev/ttymxc1", 115200, true);
-
-    Reset();
-
-    // set brightness and contrast
-    SetBrightness(0, 255); // brightness of LEDs
-    SetBrightness(1, 255);
-    SetBrightness(4, 255);
-    SetBrightness(5, 255);
-    SetBrightness(8, 255);
-    SetContrast(0, 0x24); // contrast of LCDs
-    SetContrast(4, 0x24);
-    SetContrast(5, 0x24);
-    SetContrast(8, 0x24);
-}
-
-void Surface::Reset(void) {
-    int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
-    write(fd, "1", 1);
-    usleep(100 * 1000);
-    write(fd, "0", 1);
-    close(fd);
-    usleep(2000 * 1000);
-}
-
-
-
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
 // brightness = 0 ... 255
@@ -495,6 +999,142 @@ void Surface::SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, ui
         message.AddDataByte(((leds & 0x7F00) >> 8)); // turn backlight off
     }
     uart.Tx(&message, true);
+}
+
+// boardId = 0, 4, 5, 8
+// index = 0 ... 8
+// color = 0=BLACK, 1=RED, 2=GREEN, 3=YELLOW, 4=BLUE, 5=PINK, 6=CYAN, 7=WHITE
+// icon = 0xA0 (none), 0xA1 ... 0xE9
+// sizeA/B = 0x00 (small) or 0x20 (large)
+// xA/B = horizontal position in pixel
+// yA/B = vertical position in pixel
+// strA/B = String of Text to be displayed
+void Surface::SetLcd(
+    uint8_t boardId, uint8_t index, uint8_t color,
+    uint8_t xicon, uint8_t yicon, uint8_t icon, 
+    uint8_t sizeA, uint8_t xA, uint8_t yA, const char* strA,
+    uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB
+    ) {
+    // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
+    // 0x44, i, color.b, script[]
+
+    SurfaceMessage message;
+    message.AddDataByte(0x80 + boardId); // start message for specific boardId
+    message.AddDataByte('D'); // class: D = Display
+    message.AddDataByte(index); // index
+    message.AddDataByte(color & 0x0F); // use only 4 bits (bit 0=R, 1=G, 2=B, 3=Inverted)
+
+    // begin of script
+    // transmit icon
+    message.AddDataByte(icon);
+    message.AddDataByte(xicon);
+    message.AddDataByte(yicon);
+
+    // transmit first text
+    message.AddDataByte(sizeA + strlen(strA)); // size + textLength
+    message.AddDataByte(xA);
+    message.AddDataByte(yA);
+    message.AddString(strA); // this is ASCII, so we can omit byte-stuffing
+
+    message.AddDataByte(sizeB + strlen(strB)); // size + textLength
+    message.AddDataByte(xB);
+    message.AddDataByte(yB);
+    message.AddString(strB); // this is ASCII, so we can omit byte-stuffing
+    uart.Tx(&message, true);
+}
+
+void Surface::SetLcdX(sLCDData* p_data, uint8_t p_textCount) {
+    SurfaceMessage message;
+    message.AddDataByte(0x80 + p_data->boardId);
+    message.AddDataByte('D'); // class: D = Display
+    message.AddDataByte(p_data->index); 
+    message.AddDataByte((p_data->color) & 0x0F);
+    message.AddDataByte(p_data->icon.icon);
+    message.AddDataByte(p_data->icon.x);
+    message.AddDataByte(p_data->icon.y);
+    for (int i=0;i<p_textCount;i++){
+        message.AddDataByte(p_data->texts[i].size + strlen(p_data->texts[i].text)); // size + textLength
+        message.AddDataByte(p_data->texts[i].x);
+        message.AddDataByte(p_data->texts[i].y);
+        message.AddString(p_data->texts[i].text); // this is ASCII, so we can omit byte-stuffing  
+    }
+    uart.Tx(&message, true);
+}
+
+void Surface::SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p_chan){
+    sLCDData* data;
+    data = (sLCDData*)malloc(sizeof(sLCDData));
+
+    data->boardId = p_boardId;
+    data->color = p_chan->color;
+    data->index = p_Index;
+    data->icon.icon = 0;
+    data->icon.x = 0;
+    data->icon.y = 0;
+
+    // Gain / Lowcut
+    // TODO move Gain to VChannel class 
+    // sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
+    sprintf(data->texts[0].text, "0dB 300Hz");
+    data->texts[0].size = 0;
+    data->texts[0].x = 3;
+    data->texts[0].y = 0;
+
+    // Phanton / Invert / Gate / Dynamics / EQ active
+    // TODO Phantom Power  and Phase Invert into VChannel Class
+    sprintf(data->texts[1].text, "%s %s G D E",
+        //p_chan.inputSource.phantomPower ? "48V" : "   ",
+        //p_chan.inputSource.phaseInvert ? "@" : " "
+        "   ",
+        " "
+        );
+    data->texts[1].size = 0;
+    data->texts[1].x = 10;
+    data->texts[1].y = 15;
+
+    // Volume / Panorama
+
+    float balance = 0;
+    // TODO: Implement
+    // float balance = halGetBalance(data->index);
+    
+    char balanceText[8] = "-------";
+    if (balance < -70){
+        balanceText[0] = '|';
+    } else if (balance < -40){
+        balanceText[1] = '|';
+    } else if (balance < -10){
+        balanceText[2] = '|';
+    } else if (balance > 70){
+        balanceText[6] = '|';
+    } else if (balance > 40){
+        balanceText[5] = '|';
+    } else if (balance > 10){
+        balanceText[4] = '|';
+    } else {
+        balanceText[3] = '|';
+    }
+
+    // TODO
+    // if (halGetVolume(data->index) > -100) {
+    //     sprintf(data->texts[2].text, "%s %.1fdB", balanceText, halGetVolume(data->index));
+    // }else{
+    //     sprintf(data->texts[2].text, "%s -oodB", balanceText);
+    // }
+    data->texts[2].size = 0;
+    data->texts[2].x = 8;
+    data->texts[2].y = 30;
+
+    // vChannel Name
+    sprintf(data->texts[3].text, "%s", p_chan->name);
+    data->texts[3].size = 0;
+    data->texts[3].x = 0;
+    data->texts[3].y = 48;
+
+    SetLcdX(data, 4);
+
+    free(data);
+    data=NULL;
 }
 
 void Surface::ProcessUartData() {

@@ -8,7 +8,8 @@ class Config {
     private:
         bool _debug;
         X32_MODEL _model;
-        float _samplerate;
+        uint32_t _samplerate;
+        X32_SURFACE_MODE_BANKING _activeBankMode;
 
     public:
 
@@ -26,6 +27,9 @@ class Config {
         bool IsModelX32Rack(void);
         bool IsModelX32Compact(void);
 
-        void SetSamplerate(float samplerate);
-        float GetSamplerate(void);
+        void SetSamplerate(uint32_t samplerate);
+        uint32_t GetSamplerate(void);
+
+        void SetBankMode(X32_SURFACE_MODE_BANKING mode);
+        X32_SURFACE_MODE_BANKING GetBankMode(void);
 };

@@ -24,7 +24,7 @@
 
 #include "spi.h"
 
-SPI::SPI(Config* config) : X32Base(config) {}
+SPI::SPI(Config* config, State* state) : X32Base(config, state) {}
 
 
 // configures a Xilinx Spartan 3A via SPI

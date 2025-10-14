@@ -134,7 +134,7 @@ int Uart::Open(char* ttydev, uint32_t baudrate, bool raw) {
     return 0;
 }
 
-int Uart::Tx(SurfaceMessage* message, bool addChecksum) {
+int Uart::Tx(MessageBase* message, bool addChecksum) {
     if (fd < 0) {
         fprintf(stderr, "Error: Problem on opening serial port\n");
         return -1;
@@ -179,4 +179,36 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 	}
 
 	return 0;
+}
+
+int Uart::TxToFPGA(uint16_t cmd, data_64b* data) {
+  uint8_t serialData[14];
+  uint16_t ErrorCheckWord;
+
+  ErrorCheckWord = 0;
+  for (uint8_t i=0; i<8; i++) {
+    ErrorCheckWord += data->u8[i];
+  }
+
+  serialData[0] = '*';  // * = begin of command
+  serialData[1] = (cmd >> 8);  // MSB of 16-bit cmd
+  serialData[2] = cmd;         // LSB of 16-bit cmd
+  serialData[3] = data->u8[7]; // MSB of 64-bit payload
+  serialData[4] = data->u8[6];
+  serialData[5] = data->u8[5];
+  serialData[6] = data->u8[4];
+  serialData[7] = data->u8[3];
+  serialData[8] = data->u8[2];
+  serialData[9] = data->u8[1];
+  serialData[10] = data->u8[0]; // LSB of payload
+  serialData[11] = (ErrorCheckWord >> 8); // MSB
+  serialData[12] = ErrorCheckWord; // LSB
+  serialData[13] = '#';  // # = end of command
+
+  MessageBase message;
+
+  for (uint8_t i=0; i<14; i++) {
+      message.AddRawByte(serialData[i]);
+  }
+  return Tx(&message, false);
 }

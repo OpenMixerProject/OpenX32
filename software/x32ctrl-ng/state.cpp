@@ -22,10 +22,33 @@
   GNU General Public License for more details.
 */
 
-#include "x32base.h"
+#include "state.h"
 
-X32Base::X32Base(Config* config, State* state){
-    this->config = config;
-    this->state = state;
-    this->helper = new Helper(this->config);
+
+// ####################################################################
+// #
+// #
+// #        Changeflags
+// #
+// #
+// ####################################################################
+
+
+void State::SetChangeFlags(uint16_t p_flag){
+    changed |= p_flag;
+}
+
+bool State::HasAnyChanged(void){
+    return (changed != X32_MIXER_CHANGED_NONE);
+}
+
+bool State::HasChanged(uint16_t p_flag){
+    return ((changed & p_flag) == p_flag);
+}
+
+void State::ResetChangeFlags(void){
+    changed = X32_MIXER_CHANGED_NONE;
+    // for (uint8_t i=0;i<MAX_VCHANNELS;i++){
+    //     ResetVChannelChangeFlags(vchannel[i]);
+    // }
 }

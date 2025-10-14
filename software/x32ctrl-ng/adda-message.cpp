@@ -22,10 +22,4 @@
   GNU General Public License for more details.
 */
 
-#include "x32base.h"
-
-X32Base::X32Base(Config* config, State* state){
-    this->config = config;
-    this->state = state;
-    this->helper = new Helper(this->config);
-}
+#include "adda-message.h"

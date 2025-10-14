@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "x32ctrl_types.h"
 #include "x32base.h"
+#include "state.h"
 #include "spi-event.h"
 
 // defines for FPGA-configuration via SPI
@@ -56,7 +57,7 @@ class SPI : public X32Base {
     std::list<SpiEvent*> eventBuffer;
 
   public:
-    SPI(Config* config);
+    SPI(Config* config, State* state);
     int ConfigureFpga(const char* bitstream_path);
     int ConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, uint8_t numStreams);
     bool OpenDspConnections();

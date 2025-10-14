@@ -51,10 +51,18 @@ bool Config::IsModelX32Compact(void){
     return (_model == X32_MODEL_COMPACT);
 }
 
-void Config::SetSamplerate(float samplerate){
+void Config::SetSamplerate(uint32_t samplerate){
     _samplerate = samplerate;
 }
 
-float Config::GetSamplerate(void){
+uint32_t Config::GetSamplerate(void){
     return _samplerate;
+}
+
+void Config::SetBankMode(X32_SURFACE_MODE_BANKING mode){
+    _activeBankMode = mode;
+}
+
+X32_SURFACE_MODE_BANKING Config::GetBankMode(void){
+    return _activeBankMode;
 }
