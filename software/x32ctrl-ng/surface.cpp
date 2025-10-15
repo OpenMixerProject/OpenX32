@@ -1043,7 +1043,7 @@ void Surface::SetLcd(
     uart.Tx(&message, true);
 }
 
-void Surface::SetLcdX(sLCDData* p_data, uint8_t p_textCount) {
+void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
     SurfaceMessage message;
     message.AddDataByte(0x80 + p_data->boardId);
     message.AddDataByte('D'); // class: D = Display
@@ -1053,17 +1053,16 @@ void Surface::SetLcdX(sLCDData* p_data, uint8_t p_textCount) {
     message.AddDataByte(p_data->icon.x);
     message.AddDataByte(p_data->icon.y);
     for (int i=0;i<p_textCount;i++){
-        message.AddDataByte(p_data->texts[i].size + strlen(p_data->texts[i].text)); // size + textLength
+        message.AddDataByte(p_data->texts[i].size + strlen(p_data->texts[i].text.c_str())); // size + textLength
         message.AddDataByte(p_data->texts[i].x);
         message.AddDataByte(p_data->texts[i].y);
-        message.AddString(p_data->texts[i].text); // this is ASCII, so we can omit byte-stuffing  
+        message.AddString(p_data->texts[i].text.c_str()); // this is ASCII, so we can omit byte-stuffing  
     }
     uart.Tx(&message, true);
 }
 
 void Surface::SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p_chan){
-    sLCDData* data;
-    data = (sLCDData*)malloc(sizeof(sLCDData));
+    LcdData* data = new LcdData();
 
     data->boardId = p_boardId;
     data->color = p_chan->color;
@@ -1075,19 +1074,17 @@ void Surface::SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p
     // Gain / Lowcut
     // TODO move Gain to VChannel class 
     // sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
-    sprintf(data->texts[0].text, "0dB 300Hz");
+    data->texts[0].text = String("0dB 300Hz");
     data->texts[0].size = 0;
     data->texts[0].x = 3;
     data->texts[0].y = 0;
 
     // Phanton / Invert / Gate / Dynamics / EQ active
     // TODO Phantom Power  and Phase Invert into VChannel Class
-    sprintf(data->texts[1].text, "%s %s G D E",
+    data->texts[1].text = String("   G D E");
+        // TODO
         //p_chan.inputSource.phantomPower ? "48V" : "   ",
         //p_chan.inputSource.phaseInvert ? "@" : " "
-        "   ",
-        " "
-        );
     data->texts[1].size = 0;
     data->texts[1].x = 10;
     data->texts[1].y = 15;
@@ -1098,22 +1095,22 @@ void Surface::SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p
     // TODO: Implement
     // float balance = halGetBalance(data->index);
     
-    char balanceText[8] = "-------";
-    if (balance < -70){
-        balanceText[0] = '|';
-    } else if (balance < -40){
-        balanceText[1] = '|';
-    } else if (balance < -10){
-        balanceText[2] = '|';
-    } else if (balance > 70){
-        balanceText[6] = '|';
-    } else if (balance > 40){
-        balanceText[5] = '|';
-    } else if (balance > 10){
-        balanceText[4] = '|';
-    } else {
-        balanceText[3] = '|';
-    }
+    // char balanceText[8] = "-------";
+    // if (balance < -70){
+    //     balanceText[0] = '|';
+    // } else if (balance < -40){
+    //     balanceText[1] = '|';
+    // } else if (balance < -10){
+    //     balanceText[2] = '|';
+    // } else if (balance > 70){
+    //     balanceText[6] = '|';
+    // } else if (balance > 40){
+    //     balanceText[5] = '|';
+    // } else if (balance > 10){
+    //     balanceText[4] = '|';
+    // } else {
+    //     balanceText[3] = '|';
+    // }
 
     // TODO
     // if (halGetVolume(data->index) > -100) {
@@ -1126,7 +1123,7 @@ void Surface::SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p
     data->texts[2].y = 30;
 
     // vChannel Name
-    sprintf(data->texts[3].text, "%s", p_chan->name);
+    data->texts[3].text = String(p_chan->name);
     data->texts[3].size = 0;
     data->texts[3].x = 0;
     data->texts[3].y = 48;

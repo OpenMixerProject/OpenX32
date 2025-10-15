@@ -25,7 +25,7 @@
 #include "vchannel.h"
 
  VChannel::VChannel(Config *config, State *state) : X32Base(config, state) {
-    name = "";
+    name = String();
     color = 0;
     icon = 0;
     selected = false;

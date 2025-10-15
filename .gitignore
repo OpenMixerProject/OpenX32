@@ -88,3 +88,6 @@ webtalk_impact.xml
 *.debug
 planAhead*
 *.schlog
+software/x32ctrl-ng/.vscode/tasks.json
+software/x32ctrl-ng/.vscode/launch.json
+software/x32ctrl-ng/.vscode/settings.json

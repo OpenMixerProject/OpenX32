@@ -59,6 +59,7 @@ class X32Ctrl : public X32Base {
 
     public:
         X32Ctrl(Config* config, State* state);
+        void Init();
         void Run();
         void Tick10ms(void);
         void Tick100ms(void);

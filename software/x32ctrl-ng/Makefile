@@ -16,7 +16,13 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
                    -Wsizeof-pointer-memaccess -Wno-format-nonliteral -Wno-cast-qual -Wunreachable-code -Wno-switch-default -Wreturn-type -Wmultichar -Wformat-security \
                    -Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body \
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value
-CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS)
+
+# normal build
+#CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS)
+
+# debug build
+CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS)
+
 LDFLAGS         ?= -lm -lrt -lpthread -static
 
 BIN             = x32ctrl

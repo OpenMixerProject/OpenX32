@@ -635,11 +635,6 @@ dsp->dspChannel[idx].inputSource
 66..68  Monitor L/R and Talkback
 */
 
-
-sPreamps preamps;
-
-
-
 void Mixer::halSetVolume(uint8_t dspChannel, float volume) {
     if ((dspChannel >= 0) && (dspChannel < 40)) {
         dsp->dspChannel[dspChannel].volumeLR = volume;
@@ -746,9 +741,6 @@ void Mixer::halSetGain(uint8_t dspChannel, float gain) {
             preamps.gainAes50b[dspInputSource - 1] = gain;
             // AES50B input
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return;
     }
 }
 
@@ -771,9 +763,6 @@ void Mixer::halSetPhantomPower(uint8_t dspChannel, bool phantomPower) {
             preamps.phantomPowerAes50b[dspInputSource - 1] = phantomPower;
             // AES50B input
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return;
     }
 }
 
@@ -796,9 +785,6 @@ void Mixer::halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted) {
             // AES50B input
             preamps.phaseAes50b[dspInputSource - 1] = phaseInverted;
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return;
     }
 }
 
@@ -855,9 +841,6 @@ void Mixer::halSendGain(uint8_t dspChannel) {
         }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
             // AES50B input
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return;
     }
 }
 
@@ -887,9 +870,6 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
         }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
             // AES50B input
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return;
     }
 }
 
@@ -975,6 +955,8 @@ bool Mixer::halGetMute(uint8_t dspChannel) {
     }else if (dspChannel == 80) {
         return dsp->mainChannelLR.muted;
     }
+
+    return false;
 }
 
 bool Mixer::halGetSolo(uint8_t dspChannel) {
@@ -997,7 +979,9 @@ bool Mixer::halGetSolo(uint8_t dspChannel) {
         return false;
     }else if (dspChannel == 80) {
         return false;
-    }   
+    }
+
+    return false;
 }
 
 float Mixer::halGetBalance(uint8_t dspChannel) {
@@ -1022,9 +1006,9 @@ float Mixer::halGetBalance(uint8_t dspChannel) {
         return 0;
     }else if (dspChannel == 80) {
         return dsp->mainChannelLR.balance;
-    }else{
-        return 0;
     }
+    
+    return 0;
 }
 
 float Mixer::halGetGain(uint8_t dspChannel) {
@@ -1047,10 +1031,10 @@ float Mixer::halGetGain(uint8_t dspChannel) {
             // AES50B input
             return preamps.gainAes50b[dspInputSource - 161];
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return 0;
     }
+    
+    // we are connected to an internal DSP-signal OR not connected at all
+    return 0;
 }
 
 bool Mixer::halGetPhantomPower(uint8_t dspChannel) {
@@ -1072,10 +1056,10 @@ bool Mixer::halGetPhantomPower(uint8_t dspChannel) {
             // AES50B input
             return preamps.phantomPowerAes50b[dspInputSource - 161];
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return 0;
     }
+
+    // we are connected to an internal DSP-signal OR not connected at all
+    return 0;
 }
 
 bool Mixer::halGetPhaseInvert(uint8_t dspChannel) {
@@ -1097,10 +1081,10 @@ bool Mixer::halGetPhaseInvert(uint8_t dspChannel) {
             // AES50B input
             return preamps.phaseAes50b[dspInputSource - 161];
         }
-    }else{
-        // we are connected to an internal DSP-signal
-        return 0;
     }
+
+    // we are connected to an internal DSP-signal OR not connected at all
+    return 0;
 }
 
 float Mixer::halGetBusSend(uint8_t dspChannel, uint8_t index) {

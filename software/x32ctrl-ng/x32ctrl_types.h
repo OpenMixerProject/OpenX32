@@ -50,36 +50,6 @@ typedef struct{
     uint16_t encoderNr;
 } sEncoderInfo;
 
-typedef struct{
-    // 0-125
-    uint8_t x;
-    // 0-63
-    uint8_t y;
-    // icon = 0xA0 (none), 0xA1 ... 0xE9
-    uint8_t icon;
-} sLCDIcon;
-
-typedef struct{
-    // sizeA/B = 0x00 (small) or 0x20 (large)
-    uint8_t size;
-    // 0-125
-    uint8_t x;
-    // 0-63
-    uint8_t y;
-    char text[255];
-} sLCDText;
-
-typedef struct{
-    uint8_t boardId;
-    uint8_t index;
-    // 4 bits (bit 0=R, 1=G, 2=B, 3=Inverted)
-    // 
-    uint8_t color;
-    sLCDIcon icon;
-    // text(s) to display, max 7
-    sLCDText texts[7];
-} sLCDData;
-
 
 // TouchControl Basic Plus - one fader at a time is touchcontrolled
 typedef struct{

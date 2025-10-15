@@ -39,5 +39,5 @@ class Fpga : public X32Base {
         void RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
 
         void RoutingSendConfigToFpga(void);
-        void ProcessUartData(int bytesToProcess);
+        void ProcessUartData();
 };

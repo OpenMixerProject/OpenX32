@@ -8,6 +8,7 @@
 #include "uart.h"
 #include "constants.h"
 #include "x32ctrl_types.h"
+#include "lcd.h"
 #include "surface-event.h"
 #include "surface-message.h"
 #include "helper.h"
@@ -70,7 +71,7 @@ class Surface : public X32Base
             uint8_t sizeA, uint8_t xA, uint8_t yA, const char* strA,
             uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB
         );
-        void SetLcdX(sLCDData* p_data, uint8_t p_textCount);
+        void SetLcdX(LcdData* p_data, uint8_t p_textCount);
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p_chan);
 
         void ProcessUartData(void);
