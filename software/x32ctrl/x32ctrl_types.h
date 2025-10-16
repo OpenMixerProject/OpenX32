@@ -1,5 +1,7 @@
-#ifndef X32CTRL_TYPES_H_
-#define X32CTRL_TYPES_H_
+#pragma once
+
+#include <cstddef>
+#include "constants.h"
 
 // define own datatypes
 typedef union {
@@ -36,6 +38,10 @@ typedef struct {
     char buffer[MAX_MESSAGE_SIZE];
     size_t current_length;
 } messageBuilder;
+
+void messageBuilderInit(messageBuilder *message) {
+    message->current_length = 0;
+}
 
 
 typedef struct{
@@ -158,8 +164,6 @@ typedef struct {
         float gain;
 } sCompressor;
 
-#include "x32ctrl.h"
-
 typedef struct {
   uint8_t inputSource; // controls the 40 audio-channels into the DSP
   uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
@@ -248,8 +252,6 @@ typedef struct {
 } sPreamps;
 
 typedef struct {
-  float samplerate;
-
   sDspChannel dspChannel[40];
   sMixbusChannel mixbusChannel[16];
   sMatrixChannel matrixChannel[6];
@@ -267,27 +269,12 @@ typedef struct {
   // status messages
   float dspLoad[2];
   float dspVersion[2];
-  uint32_t dataToRead[2];
 } sDsp;
 
-// virtual mixer channel
-typedef struct{
-    uint8_t index; // fixed index from 0 to 80: 0..31 = DSP-Ch, 32..39 = AUX, 40..47 = FX Ret, 48..63 = Bus 1-16, 64..71 = Matrix1-6/Special/MainSub, 72..79 = DCA, 80 = MainLR
-    uint16_t changed; // indicates, which data has changes and need to get synced
-    char name[MAX_NAME_LENGTH];
-    uint8_t color;
-    uint8_t icon;
-    bool selected;
-
-    // 0 - normal channel
-    // 1 - main channel
-    uint8_t channelType;
-} sChannel;
-
 typedef struct{
     char name[MAX_NAME_LENGTH];
 
-    // assing surfaceChannel to channel
+    // assing surfaceChannel to VChannel
     //
     // surfaceChannels:
     // 0-7   Board L
@@ -296,7 +283,7 @@ typedef struct{
     // 24    Main Fader
     // 25-28 Assing 1-4 (only X32 Full)
     // 29-34 Display Encoder 1-6
-    uint8_t surfaceChannel2Channel[35];
+    uint8_t surfaceChannel2VChannel[35];
 } sBank;
 
 typedef struct{
@@ -312,35 +299,3 @@ typedef struct{
     X32_PAGE nextPage;
     X32_PAGE prevPage;
 } sMixerPage;
-
-typedef struct{
-    // general things about this device
-    X32_MODEL model;
-    X32_SURFACE_MODE activeMode;
-
-    // specific hardware-components
-    sFpgaRouting fpgaRouting;
-    sDsp dsp;
-    sPreamps preamps;
-
-    // mixer-parameters
-    sChannel channel[MAX_CHANNELS];
-    sMixerPage pages[MAX_PAGES];
-    char displayEncoderText[6][30];
-    lv_chart_series_t* chartSeriesEQ;
-
-    // global states for control-surface
-    uint8_t activeBank_inputFader;
-    uint8_t activeBank_busFader;
-    uint8_t activeEQ;
-    uint8_t activeBusSend;
-    uint8_t selectedChannel; // selection in Home->Config dialog
-    uint8_t selectedOutputChannelIndex; // selection on Routing dialog
-    X32_PAGE activePage;
-    bool solo; // solo is (somewhere) activated
-    uint16_t changed; // something was changed - sync surface/gui to mixer state
-    sTouchControl touchcontrol;
-    sBankMode modes[3];
-} sMixer;
-
-#endif

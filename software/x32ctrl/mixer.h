@@ -1,77 +1,130 @@
-#ifndef MIXER_H_
-#define MIXER_H_
+#pragma once
 
-#include "x32ctrl.h"
+#include "external.h"
+#include "x32config.h"
+#include "x32ctrl_types.h"
+#include "x32message.h"
 
-extern sMixer mixer;
+#include "vchannel.h"
 
-void mixerInit(char model[]);
-bool mixerIsModelX32Full(void);
-bool mixerIsModelX32FullOrCompactOrProducer(void);
-bool mixerIsModelX32FullOrCompactOrProducerOrRack(void);
-bool mixerIsModelX32CompactOrProducer(void);
-bool mixerIsModelX32Core(void);
-bool mixerIsModelX32Rack(void);
+#include "surface.h"
 
-void mixerSetChannelDefaults(sChannel* pChannel, uint8_t pChannelIndex, bool p_disabled);
 
-void mixerSetChangeFlags(uint16_t p_flag);
-bool mixerHasChanged(uint16_t p_flag);
-bool mixerHasAnyChanged(void);
-void mixerResetChangeFlags(void);
-void mixerSetChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag);
-void mixerSetChannelChangeFlags(sChannel* p_chan, uint16_t p_flag);
-bool mixerHasChannelChanged(sChannel* p_chan, uint16_t p_flag);
-bool mixerHasChannelAnyChanged(sChannel* p_chan);
-void mixerResetChannelChangeFlags(sChannel* p_chan);
+// The string class
+class Mixer
+{
+    private:
+        
+        X32Config config;
 
-uint8_t mixerSurfaceChannel2Channel(uint8_t surfaceChannel);
+        uint8_t selectedVChannel;
+        uint8_t selectedOutputChannelIndex;
 
-void mixerSurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
-uint8_t mixerGetChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
-void mixerSurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue);
-void mixerSurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
 
-void mixerChangeSelect(uint8_t direction);
-void mixerSetSelect(uint8_t channelIndex, bool solo);
-void mixerToggleSelect(uint8_t channelIndex);
-bool mixerIsSoloActivated(void);
-void mixerClearSolo(void);
+        // solo is (somewhere) activated
+        bool solo = false;
 
-void mixerSetPhantom(uint8_t channelIndex, bool p_phantom);
-void mixerTogglePhantom(uint8_t channelIndex);
-void mixerSetPhaseInvert(uint8_t channelIndex, bool p_phaseInvert);
-void mixerTogglePhaseInvert(uint8_t channelIndex);
+        // something was changed - sync surface/gui to mixer state
+        uint16_t changed;
+        sBankMode modes[3];
 
-uint8_t mixerGetSelectedChannelIndex(void);
-sChannel* mixerGetSelectedChannel(void);
+        // all virtual - channels / busses / matrix / etc.
+        VChannel vChannel[MAX_VCHANNELS];
+        sMixerPage pages[MAX_PAGES];
 
-void mixerSetSolo(uint8_t channelIndex, bool solo);
-void mixerToggleSolo(uint8_t channelIndex);
-void mixerSetMute(uint8_t channelIndex, bool solo);
-void mixerToggleMute(uint8_t channelIndex);
-void mixerBankingSends(X32_BTN p_button);
-void mixerBankingEQ(X32_BTN p_button);
-void mixerBanking(X32_BTN p_button);
+        static X32Message* messages[100];
 
-void mixerChangeGain(uint8_t pChannelIndex, int8_t p_amount);
-void mixerChangeVolume(uint8_t pChannelIndex, int8_t p_amount);
-void mixerSetVolume(uint8_t pChannelIndex, float p_volume);
-void mixerChangePan(uint8_t pChannelIndex, int8_t p_amount);
-void mixerChangeBusSend(uint8_t pChannelIndex, uint8_t encoderIndex, int8_t p_amount);
-void mixerChangeGate(uint8_t pChannelIndex, int8_t p_amount);
-void mixerChangeLowcut(uint8_t pChannelIndex, int8_t p_amount);
-void mixerChangeDynamics(uint8_t pChannelIndex, int8_t p_amount);
-void mixerSetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float value);
-void mixerChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_t p_amount);
 
-void mixerInitPages();
-void mixerShowPage(X32_PAGE page);
-void mixerShowPrevPage(void);
-void mixerShowNextPage(void);
+    public:
+        X32_PAGE activePage;
+        uint8_t activeBank_inputFader;
+        uint8_t activeBank_busFader;
+        uint8_t activeEQ;
+        uint8_t activeBusSend;
 
-void mixerDebugPrintBank(uint8_t bank);
-void mixerDebugPrintBusBank(uint8_t bank);
-void mixerDebugPrintChannels(void);
+        sTouchControl touchcontrol;
 
-#endif
+        Mixer(void);
+        
+        void SetVChannelDefaults(VChannel p_vChannel, uint8_t p_vChannelIndex, bool p_disabled);
+        void SetChangeFlags(uint16_t p_flag);
+        void SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag);
+        void SetVChannelChangeFlags(VChannel p_chan, uint16_t p_flag);
+        void SetSelect(uint8_t vChannelIndex, bool solo);
+        void SetPhantom(uint8_t vChannelIndex, bool p_phantom);
+        void SetPhaseInvert(uint8_t vChannelIndex, bool p_phaseInvert);
+        void SetSolo(uint8_t vChannelIndex, bool solo);
+        void SetMute(uint8_t vChannelIndex, bool solo);
+        void SetVolume(uint8_t p_vChannelIndex, float p_volume);
+        void SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float value);
+
+        void ToggleSelect(uint8_t vChannelIndex);
+        void TogglePhantom(uint8_t vChannelIndex);
+        void TogglePhaseInvert(uint8_t vChannelIndex);
+        void ToggleSolo(uint8_t vChannelIndex);
+        void ToggleMute(uint8_t vChannelIndex);
+
+        void ChangeVChannel(int8_t amount);
+        void ChangeHardwareOutput(int8_t amount);
+        void ChangeHardwareInput(int8_t amount);
+        void ChangeSelect(uint8_t direction);
+        void ChangePan(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount);
+        void ChangeGate(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangeLowcut(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangeDynamics(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangePeq(uint8_t p_vChannelIndex, char option, int8_t p_amount);
+        void ChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_t p_amount);
+
+        void ResetChangeFlags(void);
+        void ResetVChannelChangeFlags(VChannel p_chan);
+
+        void ClearSolo(void);
+
+        bool IsSoloActivated(void);
+        bool IsActiveModeOpenX32(void);
+        bool IsActiveModeX32(void);
+
+        bool HasChanged(uint16_t p_flag);
+        bool HasAnyChanged(void);
+
+        uint8_t GetSelectedvChannelIndex(void);
+        VChannel GetSelectedvChannel(void);
+        VChannel GetVChannel(uint8_t VChannelIndex);
+
+        uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);
+        void SurfaceButtonPressed(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
+        uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
+        void SurfaceFaderMoved(X32_BOARD p_board, uint8_t p_faderIndex, uint16_t p_faderValue);
+        void SurfaceEncoderTurned(X32_BOARD p_board, uint8_t p_index, uint16_t p_value);
+        
+        void BankingSends(X32_BTN p_button);
+        void BankingEQ(X32_BTN p_button);
+        void Banking(X32_BTN p_button);
+
+        void InitPages(void);
+        void ShowPage(X32_PAGE page);
+        void ShowPrevPage(void);
+        void ShowNextPage(void);
+
+        void syncAll(void);
+        void guiSync(void);
+        void surfaceSync(void);
+        void surfaceSyncBoardMain();
+        void surfaceSyncBoard(X32_BOARD board);
+        void surfaceSyncBankIndicator(void);
+        void surfaceUpdateMeter(void);
+        void setLedChannelIndicator(void);
+        uint8_t surfaceCalcPreampMeter(uint8_t channel);
+        uint8_t surfaceCalcDynamicMeter(uint8_t channel);
+        void halSyncChannelConfigFromMixer(void);
+
+        void touchcontrolTick(void);
+        bool touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
+
+        void DebugPrintBank(uint8_t bank);
+        void DebugPrintBusBank(uint8_t bank);
+        void DebugPrintvChannels(void);
+};

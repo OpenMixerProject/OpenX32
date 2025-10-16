@@ -22,40 +22,33 @@
   GNU General Public License for more details.
 */
 
-#include "touchcontrol.h"
-#include "mixer.h"
+#include "state.h"
+
 
 // ####################################################################
 // #
 // #
-// #        Touchcontrol
+// #        Changeflags
 // #
 // #
 // ####################################################################
 
-void touchcontrolTick(void){
-    if (mixer.touchcontrol.value > 0) {
-        mixer.touchcontrol.value--;
-        if (mixer.touchcontrol.value == 0)
-        {
-            // trigger sync for this channel
-            mixerSetChannelChangeFlagsFromIndex(
-                mixerGetChannelIndexFromButtonOrFaderIndex(mixer.touchcontrol.board, mixer.touchcontrol.faderIndex),
-                X32_CHANNEL_CHANGED_VOLUME
-            );
-        }
-        x32debug("TouchControl=%d\n", mixer.touchcontrol.value);
-    }
+
+void State::SetChangeFlags(uint16_t p_flag){
+    changed |= p_flag;
 }
 
-bool touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
-    if ((mixer.touchcontrol.board != p_board) && (mixer.touchcontrol.faderIndex != p_faderIndex)){
-        return true;
-    } 
+bool State::HasAnyChanged(void){
+    return (changed != X32_MIXER_CHANGED_NONE);
+}
 
-    if (mixer.touchcontrol.value == 0){
-        return true;
-    }
+bool State::HasChanged(uint16_t p_flag){
+    return ((changed & p_flag) == p_flag);
+}
 
-    return false;
+void State::ResetChangeFlags(void){
+    changed = X32_MIXER_CHANGED_NONE;
+    // for (uint8_t i=0;i<MAX_VCHANNELS;i++){
+    //     ResetVChannelChangeFlags(vchannel[i]);
+    // }
 }

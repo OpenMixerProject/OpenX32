@@ -23,13 +23,14 @@
 */
 
 #include "fx.h"
-#include "mixer.h"
+
+X32Config config;
 
 void fxRecalcFilterCoefficients_PEQ(sPEQ* peq) {
   // Online-Calculator: https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3
   // Source: https://www.earlevel.com/main/2012/11/26/biquad-c-source-code
   double V = pow(10.0, fabs(peq->gain)/20.0);
-  double K = tan(PI * peq->fc / mixer.dsp.samplerate);
+  double K = tan(PI * peq->fc / config.GetSamplerate());
   double norm;
 
   switch (peq->type) {
@@ -171,7 +172,7 @@ void fxRecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;
   double wc22 = 2 * wc2;
-  double k = wc / tan(PI * (LR12->fc / mixer.dsp.samplerate));
+  double k = wc / tan(PI * (LR12->fc / config.GetSamplerate()));
   double k2 = k * k;
   double k22 = 2 * k2;
   double wck2 = 2 * wc * k;
@@ -199,7 +200,7 @@ void fxRecalcFilterCoefficients_LR24(sLR24* LR24) {
   double wc2 = wc * wc;
   double wc3 = wc2 * wc;
   double wc4 = wc2 * wc2;
-  double k = wc / tan(PI * (LR24->fc / mixer.dsp.samplerate));
+  double k = wc / tan(PI * (LR24->fc / config.GetSamplerate()));
   double k2 = k * k;
   double k3 = k2 * k;
   double k4 = k2 * k2;
@@ -231,7 +232,7 @@ void fxRecalcFilterCoefficients_LR24(sLR24* LR24) {
 }
 
 void fxRecalcGate(sGate* gate) {
-	float samplerate = mixer.dsp.samplerate/(float)DSP_SAMPLES_IN_BUFFER;
+	float samplerate = config.GetSamplerate()/(float)DSP_SAMPLES_IN_BUFFER;
 
 	gate->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, gate->threshold/20.0f);
 
@@ -246,7 +247,7 @@ void fxRecalcGate(sGate* gate) {
 }
 
 void fxRecalcCompressor(sCompressor* compressor) {
-	float samplerate = mixer.dsp.samplerate/(float)DSP_SAMPLES_IN_BUFFER;
+	float samplerate = config.GetSamplerate()/(float)DSP_SAMPLES_IN_BUFFER;
 
 	compressor->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, compressor->threshold/20.0f);
         compressor->value_ratio = compressor->ratio;

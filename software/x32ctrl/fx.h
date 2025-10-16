@@ -1,8 +1,9 @@
-#ifndef FX_H_
-#define FX_H_
+#pragma once
 
-#include "x32ctrl.h"
-#include "dsp.h"
+//#include "x32ctrl.h"
+#include "external.h"
+#include "x32ctrl_types.h"
+#include "x32config.h"
 
 #define PI 3.14159265358979323846
 
@@ -15,5 +16,3 @@ void fxRecalcFilterCoefficients_LR12(sLR12* LR12);
 void fxRecalcFilterCoefficients_LR24(sLR24* LR24);
 void fxRecalcGate(sGate* gate);
 void fxRecalcCompressor(sCompressor* compressor);
-
-#endif

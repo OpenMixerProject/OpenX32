@@ -1,7 +1,8 @@
-#ifndef UART_H_
-#define UART_H_
+#pragma once
 
-#include "x32ctrl.h"
+//#include "x32ctrl.h"
+#include "external.h"
+#include "x32ctrl_types.h"
 
 extern messageBuilder message;
 //extern int fdDebug;
@@ -22,4 +23,3 @@ int uartTx(int* fd, messageBuilder* builder, bool addChecksum);
 int uartRx(int* fd, char* buf, uint16_t bufLen);
 int uartTxToFPGA(uint16_t cmd, data_64b* data);
 
-#endif

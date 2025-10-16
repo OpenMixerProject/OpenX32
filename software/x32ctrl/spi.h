@@ -1,5 +1,9 @@
-#ifndef SPI_H_
-#define SPI_H_
+#pragma once
+
+#include "external.h"
+#include "x32ctrl_types.h"
+#include "auxiliary.h"
+#include "dsp.h"
 
 /*
   SPI ClassIds:
@@ -11,6 +15,7 @@
 */
 
 // variables
+extern uint32_t dataToRead[2];
 
 // function prototypes
 int spiConfigureFpga(const char* bitstream_path);
@@ -24,4 +29,3 @@ bool spiSendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uin
 bool spiSendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value);
 bool spiSendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value);
 
-#endif

@@ -1,7 +1,10 @@
-#ifndef HAL_H_
-#define HAL_H_
+#pragma once
 
-#include "x32ctrl.h"
+//#include "x32ctrl.h"
+#include "uart.h"
+#include "adda.h"
+#include "mixer.h"
+#include "dsp.h"
 
 void halSyncChannelConfigFromMixer(void);
 void halSetVolume(uint8_t dspChannel, float volume);
@@ -25,5 +28,3 @@ float halGetGain(uint8_t dspChannel);
 bool halGetPhantomPower(uint8_t dspChannel);
 bool halGetPhaseInvert(uint8_t dspChannel);
 float halGetBusSend(uint8_t dspChannel, uint8_t index);
-
-#endif

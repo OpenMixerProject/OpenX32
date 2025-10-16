@@ -23,12 +23,6 @@
 */
 
 #include "gui.h"
-#include "mixer.h"
-#include "surface.h"
-#include "hal.h"
-#include "fpga.h"
-#include "dsp.h"
-#include "fx.h"
 
 lv_indev_t *keypad_indev; // will be updated by buttonCallback
 lv_indev_t *mouse_indev; // will be polled by LVGL
@@ -37,16 +31,19 @@ lv_indev_t *buttons_indev; // will be updated by buttonCallback
 lv_indev_t *encoder_indev;
 */
 
+char displayEncoderText[6][30];
+lv_chart_series_t* chartSeriesEQ;
+
 X32_BTN lastButton = X32_BTN_NONE;
 bool lastButtonPressed;
 
 static const char* displayEncoderButtonMap[] = {
-    mixer.displayEncoderText[0],
-    mixer.displayEncoderText[1],
-    mixer.displayEncoderText[2],
-    mixer.displayEncoderText[3],
-    mixer.displayEncoderText[4],
-    mixer.displayEncoderText[5],
+    displayEncoderText[0],
+    displayEncoderText[1],
+    displayEncoderText[2],
+    displayEncoderText[3],
+    displayEncoderText[4],
+    displayEncoderText[5],
     NULL};
 
 // sync mixer state to GUI
@@ -441,8 +438,10 @@ void guiInit(void) {
 
   guiInitInput();
 
-  mixerShowPage((X32_PAGE)-1);   // shows the welcome page
-  mixerSetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
+  // TODO Implement correctly
+  throw;
+  //mixer->ShowPage((X32_PAGE)-1);   // shows the welcome page
+  //mixer->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
   // install event-handler for buttonmatrix (for mouse-control)
   lv_obj_add_event_cb(objects.display_encoders, guiDisplayEncoderEventHandler, LV_EVENT_ALL, NULL);
@@ -451,11 +450,15 @@ void guiInit(void) {
   lv_chart_set_type(objects.current_channel_eq, LV_CHART_TYPE_LINE);
   lv_obj_set_style_size(objects.current_channel_eq, 0, 0, LV_PART_INDICATOR);
   lv_obj_set_style_line_width(objects.current_channel_eq, 5, LV_PART_ITEMS);
-  mixer.chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
+  // TODO Implement correctly
+  throw;
+  //mixer->chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
   //lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7);
   lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15000, 15000);
   lv_chart_set_point_count(objects.current_channel_eq, 200);
-  lv_chart_set_series_color(objects.current_channel_eq, mixer.chartSeriesEQ, lv_color_hex(0xef7900));
+  // TODO Implement correctly
+  throw;
+  //lv_chart_set_series_color(objects.current_channel_eq, mixer->chartSeriesEQ, lv_color_hex(0xef7900));
   // chart-shadow: 0x7e4000
 
   // start endless loop
@@ -463,12 +466,12 @@ void guiInit(void) {
 }
 
 void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
-    sprintf(&mixer.displayEncoderText[0][0], "%s", enc1.c_str());
-    sprintf(&mixer.displayEncoderText[1][0], "%s", enc2.c_str());
-    sprintf(&mixer.displayEncoderText[2][0], "%s", enc3.c_str());
-    sprintf(&mixer.displayEncoderText[3][0], "%s", enc4.c_str());
-    sprintf(&mixer.displayEncoderText[4][0], "%s", enc5.c_str());
-    sprintf(&mixer.displayEncoderText[5][0], "%s", enc6.c_str());
+    sprintf(&displayEncoderText[0][0], "%s", enc1.c_str());
+    sprintf(&displayEncoderText[1][0], "%s", enc2.c_str());
+    sprintf(&displayEncoderText[2][0], "%s", enc3.c_str());
+    sprintf(&displayEncoderText[3][0], "%s", enc4.c_str());
+    sprintf(&displayEncoderText[4][0], "%s", enc5.c_str());
+    sprintf(&displayEncoderText[5][0], "%s", enc6.c_str());
     lv_btnmatrix_set_map(objects.display_encoders, displayEncoderButtonMap);
 }
 
@@ -519,8 +522,8 @@ static void guiDisplayEncoderEventHandler(lv_event_t* e) {
 */
 }
 
-void guiDrawEq() {
-    if (mixer.selectedChannel >= 40) {
+void guiDrawEq(uint8_t selectedChannelIndex) {
+    if (selectedChannelIndex >= 40) {
         return;
     }
 
@@ -535,18 +538,24 @@ void guiDrawEq() {
         freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
 
         // LowCut
-        eqValue[pixel] += fxCalcFrequencyResponse_LC(freq, mixer.dsp.dspChannel[mixer.selectedChannel].lowCutFrequency, mixer.dsp.samplerate);
+        // TODO Implement correctly
+        throw;
+        //eqValue[pixel] += fxCalcFrequencyResponse_LC(freq, mixer->dsp.dspChannel[selectedChannelIndex].lowCutFrequency, mixer->dsp.samplerate);
 
         // PEQ
         for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
-            peq = &mixer.dsp.dspChannel[mixer.selectedChannel].peq[i_peq];
-            eqValue[pixel] += fxCalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, mixer.dsp.samplerate);
+            // TODO Implement correctly
+            throw;
+          //peq = &mixer->dsp.dspChannel[mixer->GetSelectedvChannelIndex()].peq[i_peq];
+          //  eqValue[pixel] += fxCalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, mixer->dsp.samplerate);
         }
     }
 
-    int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, mixer.chartSeriesEQ);
-    for (uint16_t i = 0; i < 200; i++) {
-        chartSeriesEqPoints[i] = eqValue[i] * 1000.0f; // draw diagonal line
-    }
-    lv_chart_refresh(objects.current_channel_eq);
+    // TODO Implement correctly
+    throw;
+    //int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, mixer->chartSeriesEQ);
+    //for (uint16_t i = 0; i < 200; i++) {
+    //    chartSeriesEqPoints[i] = eqValue[i] * 1000.0f; // draw diagonal line
+    //}
+    //lv_chart_refresh(objects.current_channel_eq);
 }
