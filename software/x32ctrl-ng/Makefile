@@ -18,10 +18,10 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value
 
 # normal build
-#CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS)
+CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS)
 
 # debug build
-CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS)
+#CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS)
 
 LDFLAGS         ?= -lm -lrt -lpthread -static
 
