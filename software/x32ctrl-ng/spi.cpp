@@ -24,13 +24,23 @@
 
 #include "spi.h"
 
-SPI::SPI(Config* config, State* state) : X32Base(config, state) {}
+SPI::SPI(Config* config, State* state) : X32Base(config, state) {
+    ConfigureFpga();
+    ConfigureDsp();
+}
 
 
 // configures a Xilinx Spartan 3A via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
-int SPI::ConfigureFpga(const char* bitstream_path) {
+int SPI::ConfigureFpga(void) {
+
+    // abort if no file path was given
+    if(state->switchFpgaPath.length() == 0)
+    {
+        return -1;
+    }
+
     int spi_fd = -1;
     FILE *bitstream_file = NULL;
     int ret = 0;
@@ -61,7 +71,7 @@ int SPI::ConfigureFpga(const char* bitstream_path) {
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
 
     // read bitstream-file and search for RAW-data
-    long file_size = helper->GetFileSize(bitstream_path);
+    long file_size = helper->GetFileSize(state->switchFpgaPath.c_str());
     if (file_size <= 0) {
         helper->Log("Error: Problem with bitstream-file\n");
         free(tx_buffer);
@@ -70,7 +80,7 @@ int SPI::ConfigureFpga(const char* bitstream_path) {
         return -1;
     }
 
-    bitstream_file = fopen(bitstream_path, "rb");
+    bitstream_file = fopen(state->switchFpgaPath.c_str(), "rb");
     if (!bitstream_file) {
         helper->Log("Error: Could not open bitstream-file\n");
         if (bitstream_file) fclose(bitstream_file);
@@ -117,7 +127,7 @@ int SPI::ConfigureFpga(const char* bitstream_path) {
 
     // now open the file again and jump of the header (if any)
     helper->Debug("Configuring Xilinx Spartan-3A...\n");
-    bitstream_file = fopen(bitstream_path, "rb");
+    bitstream_file = fopen(state->switchFpgaPath.c_str(), "rb");
     if (!bitstream_file) {
         helper->Log("Error: Could not open bitstream-file\n");
         if (bitstream_file) fclose(bitstream_file);
@@ -221,11 +231,8 @@ int SPI::ConfigureFpga(const char* bitstream_path) {
 //   - load IVT (1536 8-bit words)
 // DMA-Transfer expects a seemless data-transport while the manual says something about handshake and wait-states... strange
 //
-int SPI::ConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, uint8_t numStreams) {
-    if ((numStreams < 1) || (numStreams > 2)) {
-        return -1;
-    }
-
+int SPI::ConfigureDsp(void) {
+    
     int spi_fd[2] = {-1};
     FILE *bitstream_file[2] = {NULL};
     int ret = 0;
@@ -242,16 +249,31 @@ int SPI::ConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
     uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
-//    uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
+    //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
+
+    // abort if no file path was given
+    if(state->switchDsp1Path.length() == 0)
+    {
+        return -1;
+    }
+
+    uint8_t numStreams = 0;
+    if(state->switchDsp1Path.length() > 0)
+    {
+        numStreams = 1;
+    } else if(state->switchDsp2Path.length() > 0) {
+        numStreams = 2;
+    }
+
 
     // read size of bitstream-files
-    file_size[0] = helper->GetFileSize(bitstream_path_a);
+    file_size[0] = helper->GetFileSize(state->switchDsp1Path.c_str());
     if (file_size[0] <= 0) {
         helper->Log("Error: Problem with bitstream-file\n");
               return -1;
      }
     if (numStreams == 2) {
-        file_size[1] = helper->GetFileSize(bitstream_path_b);
+        file_size[1] = helper->GetFileSize(state->switchDsp2Path.c_str());
         if (file_size[1] <= 0) {
             helper->Log("Error: Problem with bitstream-file\n");
                   return -1;
@@ -313,10 +335,10 @@ int SPI::ConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b
 
     for (uint8_t i = 0; i < numStreams; i++) {
         if (i == 0) {
-            bitstream_file[i] = fopen(bitstream_path_a, "rb");
+            bitstream_file[i] = fopen(state->switchDsp1Path.c_str(), "rb");
         }
         if (i == 1) {
-            bitstream_file[i] = fopen(bitstream_path_b, "rb");
+            bitstream_file[i] = fopen(state->switchDsp2Path.c_str(), "rb");
         }
         if (!bitstream_file[i]) {
             helper->Log("Error: Could not open bitstream-file\n");

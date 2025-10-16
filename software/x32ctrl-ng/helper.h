@@ -7,6 +7,12 @@
 
 #include "config.h"
 
+// includes for reading IP-Address
+#include <sys/stat.h>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 class Helper{
 
     Config* config;
@@ -31,4 +37,6 @@ class Helper{
 
         String freq2String(float freq);
         String eqType2String(uint8_t type);
+
+        String getIpAddress();
 };

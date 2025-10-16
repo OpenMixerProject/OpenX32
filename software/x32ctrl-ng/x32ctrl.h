@@ -7,6 +7,7 @@
 #include "helper.h"
 #include "state.h"
 #include "mixer.h"
+#include "xremote.h"
 
 // includes for timer
 #include <time.h>
@@ -37,10 +38,14 @@ static const char* displayEncoderButtonMap[] = {
     displayEncoderText[5],
     NULL};
 
+void parseParams(int argc, char* argv[], State* state);
+
+
 class X32Ctrl : public X32Base {
     private:
         Mixer* mixer;
         Surface* surface;
+        XRemote* xremote;
 
         sBankMode modes[3];
 
@@ -64,6 +69,7 @@ class X32Ctrl : public X32Base {
         void Tick10ms(void);
         void Tick100ms(void);
         void ProcessEvents(void);
+        void UdpHandleCommunication(void);
 
         void guiInit(void);
         void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
@@ -110,6 +116,3 @@ class X32Ctrl : public X32Base {
         void DebugPrintvChannels(void);
 
 };
-
-void parseParams(int argc, char* argv[], int8_t* fpga, int8_t* dsp1, int8_t* dsp2, int8_t* noinit);
-

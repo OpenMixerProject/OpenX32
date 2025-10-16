@@ -58,8 +58,8 @@ class SPI : public X32Base {
 
   public:
     SPI(Config* config, State* state);
-    int ConfigureFpga(const char* bitstream_path);
-    int ConfigureDsp(const char* bitstream_path_a, const char* bitstream_path_b, uint8_t numStreams);
+    int ConfigureFpga();
+    int ConfigureDsp();
     bool OpenDspConnections();
     bool CloseDspConnections();
     void ProcessRxData(uint8_t dsp);

@@ -23,9 +23,6 @@
 class DSP1 : X32Base {
 
     private:
-        SPI* spi;
-        
-        
         uint8_t monitorTapPoint;
 
         // status messages
@@ -48,6 +45,7 @@ class DSP1 : X32Base {
         float monitorVolume;
 
         FX* fx;
+        SPI* spi;
 
         DSP1(Config* config, State* state);
         void dspInit(void);
