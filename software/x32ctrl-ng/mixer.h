@@ -28,16 +28,33 @@ class Mixer : public X32Base
         // solo is (somewhere) activated
         bool solo = false;
 
-    public:
-        DSP1* dsp;
+    //public:
         Fpga* fpga;
         Adda* adda;
+
+        void halSyncChannelsToMixer(void);
+        void halSetVolume(uint8_t dspChannel, float volume);
+        void halSetMute(uint8_t dspChannel, bool mute);
+        void halSetSolo(uint8_t dspChannel, bool solo);
+        void halSetBalance(uint8_t dspChannel, float balance);
+        void halSetGain(uint8_t dspChannel, float gain);
+        void halSetPhantomPower(uint8_t dspChannel, bool phantomPower);
+        void halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted);
+        void halSetBusSend(uint8_t dspChannel, uint8_t index, float value);
+
+        void halSendGain(uint8_t dspChannel);
+        void halSendPhantomPower(uint8_t dspChannel);
+
+    public:
+        DSP1* dsp;
         // all virtual - channels / busses / matrix / etc.
         VChannel* vchannel[MAX_VCHANNELS];
 
         Mixer(Config* config, State* state);
+        void ProcessUartData(void);
 
         void SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag);
+        void SetBalance(uint8_t p_vChannelIndex, float p_balance);
         void SetPhantom(uint8_t vChannelIndex, bool p_phantom);
         void SetPhaseInvert(uint8_t vChannelIndex, bool p_phaseInvert);
         void SetSolo(uint8_t vChannelIndex, bool solo);
@@ -54,7 +71,7 @@ class Mixer : public X32Base
         void ChangeHardwareOutput(int8_t amount);
         void ChangeHardwareInput(int8_t amount);
 
-        void ChangePan(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangeBalance(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend);
         void ChangeGate(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeLowcut(uint8_t p_vChannelIndex, int8_t p_amount);
@@ -71,19 +88,7 @@ class Mixer : public X32Base
         bool IsActiveModeOpenX32(void);
         bool IsActiveModeX32(void);
 
-        void halSyncChannelConfigFromMixer(void);
-        void halSetVolume(uint8_t dspChannel, float volume);
-        void halSetMute(uint8_t dspChannel, bool mute);
-        void halSetSolo(uint8_t dspChannel, bool solo);
-        void halSetBalance(uint8_t dspChannel, float balance);
-        void halSetGain(uint8_t dspChannel, float gain);
-        void halSetPhantomPower(uint8_t dspChannel, bool phantomPower);
-        void halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted);
-        void halSetBusSend(uint8_t dspChannel, uint8_t index, float value);
-
-        void halSendGain(uint8_t dspChannel);
-        void halSendPhantomPower(uint8_t dspChannel);
-
+        void SyncVChannelsToHardware(void);
         uint8_t halGetDspInputSource(uint8_t dspChannel);
         float halGetVolume(uint8_t dspChannel);
         bool halGetMute(uint8_t dspChannel);

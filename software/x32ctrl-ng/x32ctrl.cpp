@@ -325,10 +325,7 @@ void parseParams(int argc, char* argv[], State* state) {
 
 void X32Ctrl::Tick10ms(void){
 	surface->ProcessUartData();
-
-	mixer->adda->ProcessUartData(false);
-
-	mixer->fpga->ProcessUartData();
+	mixer->ProcessUartData();
 
 	ProcessEvents();
 
@@ -602,7 +599,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
                             value32bit.u8[3] = rxData[20];
                             
                             //encoderValue = value32bit.f * 255.0f;
-                            mixer->halSetBalance(channel,  value32bit.f * 100.0f);
+                            mixer->SetBalance(channel,  value32bit.f * 100.0f);
                             helper->Debug("Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
                         }else if ((rxData[11] == 'o') && (rxData[12] == 'n')) {
                             // get mute-state (caution: here it is "mixer-on"-state)
@@ -1141,7 +1138,7 @@ void X32Ctrl::syncAll(void) {
 		}
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
 			// TODO Maybe?: do not sync if just selection has changed
-			mixer->halSyncChannelConfigFromMixer();
+			mixer->SyncVChannelsToHardware();
 		}
 
 		state->ResetChangeFlags();
@@ -1326,7 +1323,7 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 				if ((fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
 					helper->Debug(" Fader");
 					//u_int16_t faderVolume = helper->Dbfs2Fader(mixer->halGetVolume(channelIndex));
-					u_int16_t faderVolume = helper->Dbfs2Fader(mixer->vchannel[channelIndex]->volumeLR);
+					u_int16_t faderVolume = helper->Dbfs2Fader(mixer->vchannel[channelIndex]->dspChannel->volumeLR);
 					surface->SetFader(p_board, i, faderVolume);
 				}
 
@@ -1679,13 +1676,20 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		uint8_t offset = 0;
-		if (event->boardId == X32_BOARD_M) { offset=8;}
+		if (event->boardId == X32_BOARD_M) { 
+			offset=8;
+		}
 		if (config->IsModelX32Full()){
-			if (event->boardId == X32_BOARD_R) { offset=16;}
+			if (event->boardId == X32_BOARD_R) { 
+				offset=16;
+			}
 		}
 		if (config->IsModelX32CompactOrProducer()){
-			if (event->boardId == X32_BOARD_R) { offset=8;}
+			if (event->boardId == X32_BOARD_R) { 
+				offset=8;
+			}
 		}
+
 		vchannelIndex = SurfaceChannel2vChannel(event->index + offset);
 		mixer->SetVolume(vchannelIndex, helper->Fader2dBfs(event->value));
 
@@ -1983,7 +1987,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'G', amount);
 				break;
 			case X32_ENC_PAN:
-				mixer->ChangePan(GetSelectedvChannelIndex(), amount);
+				mixer->ChangeBalance(GetSelectedvChannelIndex(), amount);
 				break;
 			case X32_ENC_BUS_SEND_1:
 				mixer->ChangeBusSend(GetSelectedvChannelIndex(), 0, amount, activeBusSend);
@@ -2292,9 +2296,9 @@ void X32Ctrl::DebugPrintvChannels(void){
 	   mixer->vchannel[i]->color,
 	   mixer->vchannel[i]->icon,
 	   mixer->vchannel[i]->selected,
-	   mixer->vchannel[i]->solo,
-	   mixer->vchannel[i]->mute,
-	   (double)mixer->vchannel[i]->volumeLR,
-	   mixer->vchannel[i]->dspChannel.inputSource);
+	   mixer->vchannel[i]->dspChannel->solo,
+	   mixer->vchannel[i]->dspChannel->muted,
+	   (double)mixer->vchannel[i]->dspChannel->volumeLR,
+	   mixer->vchannel[i]->dspChannel->inputSource);
 	}
 }

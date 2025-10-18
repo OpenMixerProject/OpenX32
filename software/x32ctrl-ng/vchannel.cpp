@@ -24,18 +24,13 @@
 
 #include "vchannel.h"
 
- VChannel::VChannel(Config *config, State *state) : X32Base(config, state) {
+ VChannel::VChannel(Config *conf, State *stat, sDspChannel* dspChan) : X32Base(conf, stat) {
     name = String();
     color = 0;
     icon = 0;
     selected = false;
-    solo = false;
-    mute = false;
-    volumeLR = VOLUME_MIN;
-    volumeSub = VOLUME_MIN;
-    balance = 0; // center
     vChannelType = 0; // normal channel
-    dspChannel.inputSource = 0; // disable all audio
+    dspChannel = dspChan;
 }
 
 void VChannel::SetChanged(uint16_t p_flag){
@@ -74,9 +69,9 @@ void VChannel::ChangeInput(int8_t amount){
     85..92: DSP2 Aux-Channel 1-8
     */
 
-    helper->Debug("mixerChangeVChannel(): dspChannel=%d\n", dspChannel.inputSource);
+    helper->Debug("mixerChangeVChannel(): dspChannel=%d\n", dspChannel->inputSource);
 
-    int16_t newValue = (int16_t)dspChannel.inputSource + amount;
+    int16_t newValue = (int16_t)dspChannel->inputSource + amount;
 
   //  if (newValue > 68) {
     if (newValue > NUM_DSP_CHANNEL) {
@@ -90,7 +85,7 @@ void VChannel::ChangeInput(int8_t amount){
     
 
     //mixer.dsp->dspChannel[chan->index].inputSource = newValue; // OFF / In1-32 / AUX 1-8 / BUS1-16
-    dspChannel.inputSource = newValue; // 32 in + 8 aux + 8 FX return + 16 bus
+    dspChannel->inputSource = newValue; // 32 in + 8 aux + 8 FX return + 16 bus
 
     // if (chan.dspChannel.inputSource == 0) {
     //     // OFF: not supported yet

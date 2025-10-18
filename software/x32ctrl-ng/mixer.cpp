@@ -24,14 +24,14 @@
 
 #include "mixer.h"
 
-Mixer::Mixer(Config* config, State* state): X32Base(config, state) { 
+Mixer::Mixer(Config* c, State* s): X32Base(c, s) { 
     dsp = new DSP1(config, state);
     fpga = new Fpga(config, state);
     adda = new Adda(config, state);
     
     for (int i = 0; i < MAX_VCHANNELS; i++)
     {
-        vchannel[i] = new VChannel(config, state);
+        vchannel[i] = new VChannel(config, state, &dsp->Channel[i]);
     }
 
     //##################################################################################
@@ -61,7 +61,7 @@ Mixer::Mixer(Config* config, State* state): X32Base(config, state) {
 
         VChannel* chan = vchannel[index];
 
-        chan->dspChannel.inputSource = index + 1;
+        chan->dspChannel->inputSource = index + 1;
 
         if(i <=5){
             chan->name = String("AUX") + String(i+1);
@@ -125,6 +125,11 @@ Mixer::Mixer(Config* config, State* state): X32Base(config, state) {
     }
 }
 
+void Mixer::ProcessUartData(void){
+    adda->ProcessUartData(false);
+    fpga->ProcessUartData();
+}
+
 
 // ####################################################################
 // #
@@ -184,7 +189,7 @@ void Mixer::SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag
 
 
 void Mixer::SetSolo(uint8_t p_vChannelIndex, bool solo){
-    vchannel[p_vChannelIndex]->solo = solo;
+    vchannel[p_vChannelIndex]->dspChannel->solo = solo;
     SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_SOLO);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 
@@ -193,7 +198,7 @@ void Mixer::SetSolo(uint8_t p_vChannelIndex, bool solo){
 }
 
 void Mixer::ToggleSolo(uint8_t vChannelIndex){
-    SetSolo(vChannelIndex, !vchannel[vChannelIndex]->solo);
+    SetSolo(vChannelIndex, !vchannel[vChannelIndex]->dspChannel->solo);
 }
 
 void Mixer::ClearSolo(void){
@@ -205,7 +210,8 @@ void Mixer::ClearSolo(void){
 }
 
 void Mixer::SetPhantom(uint8_t p_vChannelIndex, bool p_phantom){
-    // TODO vChannel[p_vChannelIndex].inputSource.phantomPower = p_phantom;
+    // vChannel[p_vChannelIndex].inputSource.phantomPower = p_phantom;
+    
     SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_PHANTOM);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
@@ -225,13 +231,13 @@ void Mixer::TogglePhaseInvert(uint8_t vChannelIndex){
 }
 
 void Mixer::SetMute(uint8_t p_vChannelIndex, bool mute){
-    vchannel[p_vChannelIndex]->mute = mute;
+    vchannel[p_vChannelIndex]->dspChannel->muted = mute;
     SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_MUTE);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
 void Mixer::ToggleMute(uint8_t vChannelIndex){
-    SetMute(vChannelIndex, !vchannel[vChannelIndex]->mute);
+    SetMute(vChannelIndex, !vchannel[vChannelIndex]->dspChannel->muted);
 }
 
 
@@ -259,13 +265,13 @@ void Mixer::ChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount){
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    newValue = vchannel[p_vChannelIndex]->volumeLR + ((float)p_amount * abs((float)p_amount));
+    newValue = vchannel[p_vChannelIndex]->dspChannel->volumeLR + ((float)p_amount * abs((float)p_amount));
     if (newValue > 10) {
         newValue = 10;
     }else if (newValue < -100) {
         newValue = -100;
     }
-    vchannel[p_vChannelIndex]->volumeLR = newValue;
+    vchannel[p_vChannelIndex]->dspChannel->volumeLR = newValue;
     SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
@@ -282,22 +288,37 @@ void Mixer::SetVolume(uint8_t p_vChannelIndex, float p_volume){
     }else if (newValue < -100) {
         newValue = -100;
     }
-    vchannel[p_vChannelIndex]->volumeLR = newValue;
+    vchannel[p_vChannelIndex]->dspChannel->volumeLR = newValue;
     SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
-void Mixer::ChangePan(uint8_t p_vChannelIndex, int8_t p_amount){
+void Mixer::ChangeBalance(uint8_t p_vChannelIndex, int8_t p_amount){
     if (p_vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    float newValue = vchannel[p_vChannelIndex]->balance + pow((float)p_amount, 3.0f);
+    float newValue = vchannel[p_vChannelIndex]->dspChannel->balance + pow((float)p_amount, 3.0f);
     if (newValue > 100) {
         newValue = 100;
     }else if (newValue < -100) {
         newValue = -100;
     }
-    vchannel[p_vChannelIndex]->balance = newValue;
+    vchannel[p_vChannelIndex]->dspChannel->balance = newValue;
+    SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
+    state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+}
+
+void Mixer::SetBalance(uint8_t p_vChannelIndex, float p_balance){
+    if (p_vChannelIndex == VCHANNEL_NOT_SET) {
+        return;
+    }
+    float newValue = p_balance;
+    if (newValue > 100) {
+        newValue = 100;
+    }else if (newValue < -100) {
+        newValue = -100;
+    }
+    vchannel[p_vChannelIndex]->dspChannel->balance = newValue;
     SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
@@ -492,23 +513,33 @@ void Mixer::ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_
 // #
 // ###################################################################
 
-
-
-
 bool Mixer::IsSoloActivated(void){
-    //for (int i=0; i<40; i++) {
-    for (int i=0; i<MAX_VCHANNELS; i++)
-    {
-        if (vchannel[i]->solo){
+    for (int i=0; i<40; i++) {
+        if (vchannel[i]->dspChannel->solo){
             return true;
         }
     } 
+
+    // TODO FX-Return?
+
     for (int i=0; i<16; i++) {
-        if (dsp->Bus[i].solo){ return true; }
+        if (dsp->Bus[i].solo){ 
+            return true; 
+        }
     } 
     for (int i=0; i<8; i++) {
-        if (dsp->Matrix[i].solo){ return true; }
+        if (dsp->Matrix[i].solo){
+            return true;
+        }
     }
+
+    if(dsp->MainChannelLR.solo){
+        return true;
+    }
+    if(dsp->MainChannelSub.solo){
+        return true;
+    }    
+
     return false;
 }
 
@@ -520,8 +551,8 @@ bool Mixer::IsSoloActivated(void){
 // #
 // ####################################################################
 
-void Mixer::halSyncChannelConfigFromMixer(void){
-    // loop trough all channels
+void Mixer::SyncVChannelsToHardware(void){
+    // loop trough all vchannels and sync to hardware
     for (int i = 0; i < MAX_VCHANNELS; i++)
     {
         VChannel* chan = vchannel[i];
@@ -540,7 +571,11 @@ void Mixer::halSyncChannelConfigFromMixer(void){
                 halSendPhantomPower(i);
             }
 
-            if ((chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)))){
+            if ((
+                chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) ||
+                chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) ||
+                chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)
+            )){
                 dsp->SendChannelVolume(i);
             }
 
@@ -586,7 +621,10 @@ void Mixer::halSyncChannelConfigFromMixer(void){
                 group = 'm';
             }
 
-            if ((chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)))){
+            if ((
+                chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) ||
+                chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)
+            )){
                 switch (group) {
                     case 'b':
                         dsp->SendMixbusVolume(i - 48);
@@ -605,8 +643,10 @@ void Mixer::halSyncChannelConfigFromMixer(void){
         }
     }
 
-    helper->Debug("Mixer gain to hardware synced\n");
+    helper->Debug("Mixer to Hardware synced\n");
 }
+
+
 
 /*
 The surface of the X32 has following order:
@@ -1108,4 +1148,8 @@ float Mixer::halGetBusSend(uint8_t dspChannel, uint8_t index) {
     }
 
     return 0;
+}
+
+void Mixer::halSyncChannelsToMixer(void){
+    // TODO really needed?
 }

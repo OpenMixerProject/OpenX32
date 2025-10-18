@@ -62,10 +62,10 @@ int8_t XRemote::Init() {
 void XRemote::UpdateAll(Mixer* mixer) {
     for(uint8_t i=0; i<32; i++) {
         uint8_t chanindex = i+1;
-        SetFader(chanindex, mixer->vchannel[chanindex]->volumeLR);
-        SetPan(chanindex, mixer->vchannel[chanindex]->balance);
-        SetMute(chanindex, mixer->vchannel[chanindex]->mute);
-        SetSolo(chanindex, mixer->vchannel[chanindex]->solo);
+        SetFader(chanindex, mixer->vchannel[chanindex]->dspChannel->volumeLR);
+        SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
+        SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
+        SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
         SetColor(chanindex, mixer->vchannel[chanindex]->color); // TODO: 0=BLACK, 1=RED, 2=GREEN, 3=YELLOW, 4=BLUE, 5=PINK, 6=CYAN, 7=WHITE (add 64 to invert)
         SetName(chanindex, mixer->vchannel[chanindex]->name);
     }

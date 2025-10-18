@@ -15,21 +15,15 @@ class VChannel : public X32Base {
         String name;
         uint8_t color;
         uint8_t icon;
-        bool mute;
-        bool solo;
         bool selected;
         float sends[16];
-
-        float volumeLR; // volume in dBfs
-        float volumeSub; //volume in dBfs
-        float balance; // balance between -100 .. 0 .. +100
 
         // 0 - normal channel
         // 1 - main channel
         uint8_t vChannelType;
-        sDspChannel dspChannel;
+        sDspChannel* dspChannel;
 
-        VChannel(Config *config, State *state);
+        VChannel(Config *config, State *state, sDspChannel* dspChannel);
 
         void SetChanged(uint16_t p_flag);
         void ResetVChannelChangeFlags();
