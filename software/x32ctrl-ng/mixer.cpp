@@ -307,7 +307,31 @@ void Mixer::SetVolume(uint8_t p_vChannelIndex, float p_volume){
     }else if (newValue < -100) {
         newValue = -100;
     }
-    vchannel[p_vChannelIndex]->dspChannel->volumeLR = newValue;
+    
+    if ((p_vChannelIndex >= 0) && (p_vChannelIndex < 40)) {
+        dsp->Channel[p_vChannelIndex].volumeLR = p_volume;
+    }else if ((p_vChannelIndex >= 40) && (p_vChannelIndex <= 47)) {
+        // FX return
+        dsp->volumeFxReturn[p_vChannelIndex - 40] = p_volume;
+    }else if ((p_vChannelIndex >= 48) && (p_vChannelIndex <= 63)) {
+        // Mixbus
+        dsp->Bus[p_vChannelIndex - 48].volumeLR = p_volume;
+    }else if ((p_vChannelIndex >= 64) && (p_vChannelIndex <= 69)) {
+        // Matrix
+        dsp->Matrix[p_vChannelIndex - 64].volume = p_volume;
+    }else if (p_vChannelIndex == 70) {
+        // Special
+        dsp->volumeSpecial = p_volume;
+    }else if (p_vChannelIndex == 71) {
+        // Main Sub
+        dsp->MainChannelSub.volume = p_volume;
+    }else if ((p_vChannelIndex >= 72) && (p_vChannelIndex < 80)) {
+        // DCA 1-8
+        dsp->volumeDca[p_vChannelIndex - 72] = p_volume;
+    }else if (p_vChannelIndex == 80) {
+        dsp->MainChannelLR.volume = p_volume;
+    }
+
     SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_VOLUME);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
@@ -693,32 +717,6 @@ dsp->dspChannel[idx].inputSource
 63..65  Main L/R/S
 66..68  Monitor L/R and Talkback
 */
-
-void Mixer::halSetVolume(uint8_t dspChannel, float volume) {
-    if ((dspChannel >= 0) && (dspChannel < 40)) {
-        dsp->Channel[dspChannel].volumeLR = volume;
-    }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
-        // FX return
-        dsp->volumeFxReturn[dspChannel - 40] = volume;
-    }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
-        // Mixbus
-        dsp->Bus[dspChannel - 48].volumeLR = volume;
-    }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
-        // Matrix
-        dsp->Matrix[dspChannel - 64].volume = volume;
-    }else if (dspChannel == 70) {
-        // Special
-        dsp->volumeSpecial = volume;
-    }else if (dspChannel == 71) {
-        // Main Sub
-        dsp->MainChannelSub.volume = volume;
-    }else if ((dspChannel >= 72) && (dspChannel < 80)) {
-        // DCA 1-8
-        dsp->volumeDca[dspChannel - 72] = volume;
-    }else if (dspChannel == 80) {
-        dsp->MainChannelLR.volume = volume;
-    }
-}
 
 void Mixer::halSetMute(uint8_t dspChannel, bool mute) {
     if ((dspChannel >= 0) && (dspChannel <= 39)) {

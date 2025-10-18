@@ -34,7 +34,6 @@ class Mixer : public X32Base
         Adda* adda;
 
         void halSyncChannelsToMixer(void);
-        void halSetVolume(uint8_t dspChannel, float volume);
         void halSetMute(uint8_t dspChannel, bool mute);
         void halSetSolo(uint8_t dspChannel, bool solo);
         void halSetBalance(uint8_t dspChannel, float balance);
