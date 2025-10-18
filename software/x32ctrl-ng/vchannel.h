@@ -13,6 +13,7 @@ class VChannel : public X32Base {
     
     public:
         String name;
+        String nameIntern;
         uint8_t color;
         uint8_t icon;
 

@@ -161,13 +161,8 @@ void X32Ctrl::Run(){
 	config->SetModel(model);
 	config->SetSamplerate(48000);
 	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
-
-	// mixer = new Mixer(basepar);
 	
-	// surface = new Surface(basepar);
 	surface->Init();
-
-	//xremote = new XRemote(basepar);
 	xremote->Init();
 
 	Init();
@@ -977,8 +972,7 @@ void X32Ctrl::guiSync(void) {
 			break;
 	}
 
-	// TODO
-	// lv_label_set_text_fmt(objects.current_channel_number, "vCh%d", pChannelSelected.index);
+	lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
 	lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
 	lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 
@@ -990,9 +984,7 @@ void X32Ctrl::guiSync(void) {
 	//#         Page Home
 	//####################################
 
-
-	// TODO
-	//bool phantomPower = mixer->halGetPhantomPower(pChannelSelected->index);
+	bool phantomPower = mixer->GetPhantomPower(GetSelectedvChannelIndex());
 	
 	if (activePage == X32_PAGE_CONFIG){
 	//####################################
@@ -1005,8 +997,7 @@ void X32Ctrl::guiSync(void) {
 		lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
 
 		lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)mixer->GetGain(chanIndex));
-		// TODO
-		//lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
+		lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
 		lv_label_set_text_fmt(objects.current_channel_invert, "%d", mixer->GetPhaseInvert(chanIndex));
 		lv_label_set_text_fmt(objects.current_channel_pan_bal, "%f", (double)mixer->GetBalance(chanIndex));
 		lv_label_set_text_fmt(objects.current_channel_volume, "%f", (double)mixer->GetVolumeDbfs(chanIndex));
@@ -1066,12 +1057,11 @@ void X32Ctrl::guiSync(void) {
 			VChannel* chan = GetVChannel(i);
 			uint8_t chanIndex = i;
 
-			// TODO
-			// if (phantomPower){
-			//     lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-			// } else {
-			//     lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-			// }
+			if (phantomPower){
+			    lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+			} else {
+			    lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+			}
 
 			switch (i){
 				case 0:

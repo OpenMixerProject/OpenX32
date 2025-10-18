@@ -29,6 +29,10 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     fpga = new Fpga(basepar);
     adda = new Adda(basepar);
 
+    dsp->dspInit();
+    fpga->RoutingInit();
+    adda->Init();
+
     //##################################################################################
     //#
     //#   create default vchannels (what the user is refering to as "mixer channel")
@@ -49,6 +53,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
         chan->dspChannel =  &dsp->Channel[i];
         chan->dspChannel->inputSource = i + 1;
         chan->name = String("Kanal ") + String(i+1);
+        chan->nameIntern = String("CH") + String(i+1);
         chan->color = SURFACE_COLOR_YELLOW;
         chan->vChannelType = X32_VCHANNELTYPE_NORMAL;
 
@@ -66,10 +71,12 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 
         if(i <=5){
             chan->name = String("AUX") + String(i+1);
+            chan->nameIntern = chan->name;
             chan->color = SURFACE_COLOR_GREEN;
             chan->vChannelType = X32_VCHANNELTYPE_AUX;
         } else {
             chan->name = String("USB");
+            chan->nameIntern = chan->name;
             chan->color = SURFACE_COLOR_YELLOW;
             chan->vChannelType = X32_VCHANNELTYPE_USB;
         }
@@ -82,7 +89,8 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = 40 + i;
         VChannel* chan = new VChannel(basepar);
-        chan->name = String("FX Ret") + String(i+1);
+        chan->name = String("FX RET") + String(i+1);
+        chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_BLUE;
         chan->vChannelType = X32_VCHANNELTYPE_FXRET;
 
@@ -95,6 +103,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
         uint8_t index = 48 + i;
         VChannel* chan = new VChannel(basepar);
         chan->name = String("BUS") + String(i+1);
+        chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_CYAN;
         chan->vChannelType = X32_VCHANNELTYPE_BUS;
 
@@ -108,14 +117,17 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
         VChannel* chan = new VChannel(basepar);
         if(i <=5){
             chan->name = String("MATRIX") + String(i+1);
+            chan->nameIntern = chan->name;
             chan->color =  SURFACE_COLOR_PINK;
             chan->vChannelType = X32_VCHANNELTYPE_MATRIX;
         } else if (i == 6){
             chan->name = String("SPECIAL");
+            chan->nameIntern = chan->name;
             chan->color =  SURFACE_COLOR_RED;
             chan->vChannelType = X32_VCHANNELTYPE_SPECIAL;
         } else if (i == 7){
             chan->name = String("M/C");
+            chan->nameIntern = chan->name;
             chan->color =  SURFACE_COLOR_WHITE;
             chan->vChannelType = X32_VCHANNELTYPE_MAINSUB;
         }
@@ -129,6 +141,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
         uint8_t index = 72 + i;
         VChannel* chan = new VChannel(basepar);
         chan->name = String("DCA") + String(i+1);
+        chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_PINK;
         chan->vChannelType = X32_VCHANNELTYPE_DCA;
 
@@ -138,7 +151,8 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     // Main Channel
     {
         VChannel* chan = new VChannel(basepar);
-        chan->name = String("Main");
+        chan->name = String("MAIN");
+        chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_WHITE;
         chan->vChannelType = X32_VCHANNELTYPE_MAIN;
 
@@ -231,14 +245,37 @@ void Mixer::ClearSolo(void){
 }
 
 void Mixer::SetPhantom(uint8_t p_vChannelIndex, bool p_phantom){
-    // vChannel[p_vChannelIndex].inputSource.phantomPower = p_phantom;
+    VChannel* chan = GetVChannel(p_vChannelIndex);
+
+    switch(chan->vChannelType){
+        case X32_VCHANNELTYPE_NORMAL: {
+            uint8_t channelInputSource = chan->dspChannel->inputSource;
+
+            // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
+            if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
+                // we are connected to one of the DSP-inputs
+
+                // check if we are connected to a channel with gain
+                uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
+                if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
+                    // XLR-input
+                preamps.phantomPowerXlr[dspInputSource - 1] = p_phantom;
+                }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
+                    preamps.phantomPowerAes50a[dspInputSource - 1] = p_phantom;
+                    // AES50A input
+                }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
+                    preamps.phantomPowerAes50b[dspInputSource - 1] = p_phantom;
+                    // AES50B input
+                }
+            }
     
-    SetVChannelChangeFlagsFromIndex(p_vChannelIndex, X32_VCHANNEL_CHANGED_PHANTOM);
-    state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+            chan->SetChanged(X32_VCHANNEL_CHANGED_PHANTOM);
+        }
+    }
 }
 
 void Mixer::TogglePhantom(uint8_t p_vChannelIndex){
-    // TODO SetPhantom(selectedVChannel, !vChannel[p_vChannelIndex].inputSource.phantomPower);
+    SetPhantom(p_vChannelIndex, !GetPhantomPower(p_vChannelIndex));
 }
 
 void Mixer::SetPhaseInvert(uint8_t p_vChannelIndex, bool p_phaseInvert){
@@ -803,28 +840,6 @@ void Mixer::halSetGain(uint8_t dspChannel, float gain) {
     }
 }
 
-void Mixer::halSetPhantomPower(uint8_t dspChannel, bool phantomPower) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
-
-    // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-    if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
-        // we are connected to one of the DSP-inputs
-
-        // check if we are connected to a channel with gain
-        uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
-        if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
-            // XLR-input
-           preamps.phantomPowerXlr[dspInputSource - 1] = phantomPower;
-        }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
-            preamps.phantomPowerAes50a[dspInputSource - 1] = phantomPower;
-            // AES50A input
-        }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
-            preamps.phantomPowerAes50b[dspInputSource - 1] = phantomPower;
-            // AES50B input
-        }
-    }
-}
-
 void Mixer::halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted) {
     uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
@@ -1111,24 +1126,32 @@ float Mixer::GetGain(uint8_t dspChannel) {
     return 0;
 }
 
-bool Mixer::GetPhantomPower(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
+bool Mixer::GetPhantomPower(uint8_t vChannelIndex) {
+    
+    VChannel* chan = GetVChannel(vChannelIndex);
 
-    // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-    if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
-        // we are connected to one of the DSP-inputs
+    switch(chan->vChannelType){
+        case X32_VCHANNELTYPE_NORMAL: {
 
-        // check if we are connected to a channel with gain
-        uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
-        if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
-            // XLR-input
-            return preamps.phantomPowerXlr[dspInputSource - 1];
-        }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
-            // AES50A input
-            return preamps.phantomPowerAes50a[dspInputSource - 113];
-        }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
-            // AES50B input
-            return preamps.phantomPowerAes50b[dspInputSource - 161];
+            uint8_t channelInputSource = dsp->Channel[vChannelIndex].inputSource;
+
+            // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
+            if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
+                // we are connected to one of the DSP-inputs
+
+                // check if we are connected to a channel with gain
+                uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
+                if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
+                    // XLR-input
+                    return preamps.phantomPowerXlr[dspInputSource - 1];
+                }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
+                    // AES50A input
+                    return preamps.phantomPowerAes50a[dspInputSource - 113];
+                }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
+                    // AES50B input
+                    return preamps.phantomPowerAes50b[dspInputSource - 161];
+                }
+            }
         }
     }
 
