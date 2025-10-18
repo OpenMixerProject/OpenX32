@@ -1025,7 +1025,7 @@ void X32Ctrl::guiSync(void) {
 		// fpgaRoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
 		// lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
 
-		// guiSetEncoderText("Output", "Source", "-", "-", "-", "-");
+		guiSetEncoderText("-", "-", "-", "-", "-", "-");
 	}else if (activePage == X32_PAGE_EQ) {
 	//####################################
 	//#         Page EQ
@@ -1057,7 +1057,7 @@ void X32Ctrl::guiSync(void) {
 			VChannel* chan = GetVChannel(i);
 			uint8_t chanIndex = i;
 
-			if (phantomPower){
+			if (mixer->GetPhantomPower(i)){
 			    lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
 			} else {
 			    lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
@@ -1332,12 +1332,7 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 				   )
 				{
 					helper->Debug(" LCD");
-					surface->SetLcdFromVChannel(p_board, i, chan);
-
-					// char lcdText[20];
-					// sprintf(lcdText, "%2.1FdB %s", (double)halGetVolume(chanIndex), (halGetPhantomPower(chanIndex) ? "(48V)" : ""));
-					// //  setLcd(boardId, index, color, xicon, yicon, icon, sizeA, xA, yA, const char* strA, sizeB, xB, yB, const char* strB)
-					// setLcd(p_board,     i, chan->color,     0,    12,    chan->icon,  0x00,  1,  1,          lcdText,  0x00,  1, 47, chan->name);
+					SetLcdFromVChannel(p_board, i, channelIndex);
 				}
 
 				helper->Debug("\n");
@@ -1349,6 +1344,78 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 		// Clear Solo
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) { surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated()); }
 	}
+}
+
+void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex){
+    LcdData* data = new LcdData();
+	VChannel* chan = GetVChannel(channelIndex);
+
+    data->boardId = p_boardId;
+    data->color = chan->color;
+    data->lcdIndex = lcdIndex;
+    data->icon.icon = 0;
+    data->icon.x = 0;
+    data->icon.y = 0;
+
+    // Gain / Lowcut
+    // TODO move Gain to VChannel class 
+    // sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
+    data->texts[0].text = String(mixer->GetGain(channelIndex), 1) + String("dB 300Hz");
+    data->texts[0].size = 0;
+    data->texts[0].x = 3;
+    data->texts[0].y = 0;
+
+    // Phanton / Invert / Gate / Dynamics / EQ active
+    data->texts[1].text = String(mixer->GetPhantomPower(channelIndex) ? "48V" : "   ") + String(" G D E");
+        // TODO
+        //p_chan.inputSource.phaseInvert ? "@" : " "
+    data->texts[1].size = 0;
+    data->texts[1].x = 10;
+    data->texts[1].y = 15;
+
+    // Volume / Panorama
+
+    float balance = 0;
+    // TODO: Implement
+    // float balance = halGetBalance(data->index);
+    
+    // char balanceText[8] = "-------";
+    // if (balance < -70){
+    //     balanceText[0] = '|';
+    // } else if (balance < -40){
+    //     balanceText[1] = '|';
+    // } else if (balance < -10){
+    //     balanceText[2] = '|';
+    // } else if (balance > 70){
+    //     balanceText[6] = '|';
+    // } else if (balance > 40){
+    //     balanceText[5] = '|';
+    // } else if (balance > 10){
+    //     balanceText[4] = '|';
+    // } else {
+    //     balanceText[3] = '|';
+    // }
+
+    // TODO
+    // if (halGetVolume(data->index) > -100) {
+    //     sprintf(data->texts[2].text, "%s %.1fdB", balanceText, halGetVolume(data->index));
+    // }else{
+    //     sprintf(data->texts[2].text, "%s -oodB", balanceText);
+    // }
+    data->texts[2].size = 0;
+    data->texts[2].x = 8;
+    data->texts[2].y = 30;
+
+    // vChannel Name
+    data->texts[3].text = String(chan->name);
+    data->texts[3].size = 0;
+    data->texts[3].x = 0;
+    data->texts[3].y = 48;
+
+    surface->SetLcdX(data, 4);
+
+    free(data);
+    data=NULL;
 }
 
 void X32Ctrl::surfaceUpdateMeter(void) {

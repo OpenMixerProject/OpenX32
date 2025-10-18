@@ -85,6 +85,7 @@ class X32Ctrl : public X32Base {
         void surfaceSync(void);
         void surfaceSyncBoardMain();
         void surfaceSyncBoard(X32_BOARD board);
+        void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void surfaceSyncBankIndicator(void);
         void surfaceUpdateMeter(void);
         void setLedChannelIndicator(void);

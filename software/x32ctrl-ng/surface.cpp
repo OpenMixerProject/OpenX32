@@ -1047,7 +1047,7 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
     SurfaceMessage message;
     message.AddDataByte(0x80 + p_data->boardId);
     message.AddDataByte('D'); // class: D = Display
-    message.AddDataByte(p_data->index); 
+    message.AddDataByte(p_data->lcdIndex); 
     message.AddDataByte((p_data->color) & 0x0F);
     message.AddDataByte(p_data->icon.icon);
     message.AddDataByte(p_data->icon.x);
@@ -1059,79 +1059,6 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
         message.AddString(p_data->texts[i].text.c_str()); // this is ASCII, so we can omit byte-stuffing  
     }
     uart.Tx(&message, true);
-}
-
-void Surface::SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p_chan){
-    LcdData* data = new LcdData();
-
-    data->boardId = p_boardId;
-    data->color = p_chan->color;
-    data->index = p_Index;
-    data->icon.icon = 0;
-    data->icon.x = 0;
-    data->icon.y = 0;
-
-    // Gain / Lowcut
-    // TODO move Gain to VChannel class 
-    // sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
-    data->texts[0].text = String("0dB 300Hz");
-    data->texts[0].size = 0;
-    data->texts[0].x = 3;
-    data->texts[0].y = 0;
-
-    // Phanton / Invert / Gate / Dynamics / EQ active
-    // TODO Phantom Power  and Phase Invert into VChannel Class
-    data->texts[1].text = String("   G D E");
-        // TODO
-        //p_chan.inputSource.phantomPower ? "48V" : "   ",
-        //p_chan.inputSource.phaseInvert ? "@" : " "
-    data->texts[1].size = 0;
-    data->texts[1].x = 10;
-    data->texts[1].y = 15;
-
-    // Volume / Panorama
-
-    float balance = 0;
-    // TODO: Implement
-    // float balance = halGetBalance(data->index);
-    
-    // char balanceText[8] = "-------";
-    // if (balance < -70){
-    //     balanceText[0] = '|';
-    // } else if (balance < -40){
-    //     balanceText[1] = '|';
-    // } else if (balance < -10){
-    //     balanceText[2] = '|';
-    // } else if (balance > 70){
-    //     balanceText[6] = '|';
-    // } else if (balance > 40){
-    //     balanceText[5] = '|';
-    // } else if (balance > 10){
-    //     balanceText[4] = '|';
-    // } else {
-    //     balanceText[3] = '|';
-    // }
-
-    // TODO
-    // if (halGetVolume(data->index) > -100) {
-    //     sprintf(data->texts[2].text, "%s %.1fdB", balanceText, halGetVolume(data->index));
-    // }else{
-    //     sprintf(data->texts[2].text, "%s -oodB", balanceText);
-    // }
-    data->texts[2].size = 0;
-    data->texts[2].x = 8;
-    data->texts[2].y = 30;
-
-    // vChannel Name
-    data->texts[3].text = String(p_chan->name);
-    data->texts[3].size = 0;
-    data->texts[3].x = 0;
-    data->texts[3].y = 48;
-
-    SetLcdX(data, 4);
-
-    free(data);
-    data=NULL;
 }
 
 void Surface::ProcessUartData() {

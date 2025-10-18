@@ -72,7 +72,6 @@ class Surface : public X32Base
             uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB
         );
         void SetLcdX(LcdData* p_data, uint8_t p_textCount);
-        void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, VChannel* p_chan);
 
         void ProcessUartData(void);
         bool HasNextEvent(void);

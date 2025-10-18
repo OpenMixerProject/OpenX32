@@ -27,7 +27,7 @@ class LcdIcon{
 class LcdData {
     public:
         uint8_t boardId;
-        uint8_t index;
+        uint8_t lcdIndex;
         // 4 bits (bit 0=R, 1=G, 2=B, 3=Inverted)
         // 
         uint8_t color;
