@@ -325,7 +325,7 @@ void Mixer::ChangeGate(uint8_t p_vChannelIndex, int8_t p_amount){
     }
     
     if ((p_vChannelIndex >= 0) && (p_vChannelIndex < 40)) {
-        newValue = dsp->dspChannel[p_vChannelIndex].gate.threshold + ((float)p_amount * abs((float)p_amount)) * 0.4f;
+        newValue = dsp->Channel[p_vChannelIndex].gate.threshold + ((float)p_amount * abs((float)p_amount)) * 0.4f;
         if (newValue > 0) {
             newValue = 0;
         }else if (newValue < -80) {
@@ -348,7 +348,7 @@ void Mixer::ChangeLowcut(uint8_t p_vChannelIndex, int8_t p_amount){
     }
 
     if ((p_vChannelIndex >= 0) && (p_vChannelIndex < 40)) {
-        newValue = dsp->dspChannel[p_vChannelIndex].lowCutFrequency * (1 + (float)p_amount/20.0f);
+        newValue = dsp->Channel[p_vChannelIndex].lowCutFrequency * (1 + (float)p_amount/20.0f);
         if (newValue > 400) {
             newValue = 400;
         }else if (newValue < 20) {
@@ -369,13 +369,13 @@ void Mixer::ChangeDynamics(uint8_t pChannelIndex, int8_t p_amount){
         return;
     }
     if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
-        newValue = dsp->dspChannel[pChannelIndex].compressor.threshold + ((float)p_amount * abs((float)p_amount)) * 0.4f;
+        newValue = dsp->Channel[pChannelIndex].compressor.threshold + ((float)p_amount * abs((float)p_amount)) * 0.4f;
         if (newValue > 0) {
             newValue = 0;
         }else if (newValue < -60) {
             newValue = -60;
         }
-        dsp->dspChannel[pChannelIndex].compressor.threshold = newValue;
+        dsp->Channel[pChannelIndex].compressor.threshold = newValue;
         SetVChannelChangeFlagsFromIndex(pChannelIndex, X32_VCHANNEL_CHANGED_DYNAMIC);
         state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
     }else{
@@ -394,11 +394,11 @@ void Mixer::SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float va
     sPEQ* peq;
 
     if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
-        peq = &dsp->dspChannel[pChannelIndex].peq[eqIndex];
+        peq = &dsp->Channel[pChannelIndex].peq[eqIndex];
     }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
-        peq = &dsp->mixbusChannel[pChannelIndex - 48].peq[eqIndex];
+        peq = &dsp->Bus[pChannelIndex - 48].peq[eqIndex];
     }else if ((pChannelIndex >= 64) && (pChannelIndex <= 69)) {
-        peq = &dsp->dspChannel[pChannelIndex - 64].peq[eqIndex];
+        peq = &dsp->Channel[pChannelIndex - 64].peq[eqIndex];
     }
 
     if (peq != nullptr) {
@@ -457,11 +457,11 @@ void Mixer::ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_
     sPEQ* peq;
 
     if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
-        peq = &dsp->dspChannel[pChannelIndex].peq[eqIndex];
+        peq = &dsp->Channel[pChannelIndex].peq[eqIndex];
     }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
-        peq = &dsp->mixbusChannel[pChannelIndex - 48].peq[eqIndex];
+        peq = &dsp->Bus[pChannelIndex - 48].peq[eqIndex];
     }else if ((pChannelIndex >= 64) && (pChannelIndex <= 69)) {
-        peq = &dsp->dspChannel[pChannelIndex - 64].peq[eqIndex];
+        peq = &dsp->Channel[pChannelIndex - 64].peq[eqIndex];
     }
 
     if (peq != nullptr) {
@@ -504,10 +504,10 @@ bool Mixer::IsSoloActivated(void){
         }
     } 
     for (int i=0; i<16; i++) {
-        if (dsp->mixbusChannel[i].solo){ return true; }
+        if (dsp->Bus[i].solo){ return true; }
     } 
     for (int i=0; i<8; i++) {
-        if (dsp->matrixChannel[i].solo){ return true; }
+        if (dsp->Matrix[i].solo){ return true; }
     }
     return false;
 }
@@ -637,59 +637,59 @@ dsp->dspChannel[idx].inputSource
 
 void Mixer::halSetVolume(uint8_t dspChannel, float volume) {
     if ((dspChannel >= 0) && (dspChannel < 40)) {
-        dsp->dspChannel[dspChannel].volumeLR = volume;
+        dsp->Channel[dspChannel].volumeLR = volume;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX return
         dsp->volumeFxReturn[dspChannel - 40] = volume;
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
         // Mixbus
-        dsp->mixbusChannel[dspChannel - 48].volumeLR = volume;
+        dsp->Bus[dspChannel - 48].volumeLR = volume;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
         // Matrix
-        dsp->matrixChannel[dspChannel - 64].volume = volume;
+        dsp->Matrix[dspChannel - 64].volume = volume;
     }else if (dspChannel == 70) {
         // Special
         dsp->volumeSpecial = volume;
     }else if (dspChannel == 71) {
         // Main Sub
-        dsp->mainChannelSub.volume = volume;
+        dsp->MainChannelSub.volume = volume;
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8
         dsp->volumeDca[dspChannel - 72] = volume;
     }else if (dspChannel == 80) {
-        dsp->mainChannelLR.volume = volume;
+        dsp->MainChannelLR.volume = volume;
     }
 }
 
 void Mixer::halSetMute(uint8_t dspChannel, bool mute) {
     if ((dspChannel >= 0) && (dspChannel <= 39)) {
-        dsp->dspChannel[dspChannel].muted = mute;
+        dsp->Channel[dspChannel].muted = mute;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX-Return
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
-        dsp->mixbusChannel[dspChannel - 48].muted = mute;
+        dsp->Bus[dspChannel - 48].muted = mute;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
-        dsp->matrixChannel[dspChannel - 64].muted = mute;
+        dsp->Matrix[dspChannel - 64].muted = mute;
     }else if (dspChannel == 70) {
         // special
     }else if (dspChannel == 71) {
-        dsp->mainChannelSub.muted = mute;
+        dsp->MainChannelSub.muted = mute;
     }else if ((dspChannel >= 72) && (dspChannel <= 79)) {
         // DCA
     }else if (dspChannel == 80) {
-        dsp->mainChannelLR.muted = mute;
+        dsp->MainChannelLR.muted = mute;
     }
 }
 
 void Mixer::halSetSolo(uint8_t dspChannel, bool solo) {
     if ((dspChannel >= 0) && (dspChannel <= 39)) {
-        dsp->dspChannel[dspChannel].solo = solo;
+        dsp->Channel[dspChannel].solo = solo;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX-Return
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
-        dsp->mixbusChannel[dspChannel - 48].solo = solo;
+        dsp->Bus[dspChannel - 48].solo = solo;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
-        dsp->matrixChannel[dspChannel - 64].solo = solo;
+        dsp->Matrix[dspChannel - 64].solo = solo;
     }else if (dspChannel == 70) {
         // special
     }else if (dspChannel == 71) {
@@ -703,27 +703,27 @@ void Mixer::halSetSolo(uint8_t dspChannel, bool solo) {
 
 void Mixer::halSetBalance(uint8_t dspChannel, float balance) {
     if ((dspChannel >= 0) && (dspChannel < 40)) {
-        dsp->dspChannel[dspChannel].balance = balance;
+        dsp->Channel[dspChannel].balance = balance;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX return -> no support for balance
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
         // Mixbus
-        dsp->mixbusChannel[dspChannel - 48].balance = balance;
+        dsp->Bus[dspChannel - 48].balance = balance;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
         // Matrix -> no support for balance
     }else if (dspChannel == 70) {
         // Special -> no support for balance
     }else if (dspChannel == 71) {
-        dsp->mainChannelSub.balance = balance; // TODO: check if we want to support balance here
+        dsp->MainChannelSub.balance = balance; // TODO: check if we want to support balance here
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8 -> no support for balance
     }else if (dspChannel == 80) {
-        dsp->mainChannelLR.balance = balance;
+        dsp->MainChannelLR.balance = balance;
     }
 }
 
 void Mixer::halSetGain(uint8_t dspChannel, float gain) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -745,7 +745,7 @@ void Mixer::halSetGain(uint8_t dspChannel, float gain) {
 }
 
 void Mixer::halSetPhantomPower(uint8_t dspChannel, bool phantomPower) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -767,7 +767,7 @@ void Mixer::halSetPhantomPower(uint8_t dspChannel, bool phantomPower) {
 }
 
 void Mixer::halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -797,28 +797,28 @@ void Mixer::halSetBusSend(uint8_t dspChannel, uint8_t index, float value) {
     }
 
     if ((dspChannel >= 0) && (dspChannel < 40)) {
-        dsp->dspChannel[dspChannel].sendMixbus[index] = newValue;
+        dsp->Channel[dspChannel].sendMixbus[index] = newValue;
     }else if ((dspChannel >= 48) && (dspChannel < 63)) {
         // we have only 6 matrices -> check it
         if (index < 6) {
-            dsp->mixbusChannel[dspChannel].sendMatrix[index] = newValue;
+            dsp->Bus[dspChannel].sendMatrix[index] = newValue;
         }
     }else if (dspChannel == 71) {
         // we have only 6 matrices -> check it
         if (index < 6) {
-            dsp->mainChannelSub.sendMatrix[index] = newValue;
+            dsp->MainChannelSub.sendMatrix[index] = newValue;
         }
     }else if (dspChannel == 80) {
         // we have only 6 matrices -> check it
         if (index < 6) {
-            dsp->mainChannelLR.sendMatrix[index] = newValue;
+            dsp->MainChannelLR.sendMatrix[index] = newValue;
         }
     }
 }
 
 // set the gain of the local XLR head-amp-control
 void Mixer::halSendGain(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -847,7 +847,7 @@ void Mixer::halSendGain(uint8_t dspChannel) {
 
 // enable or disable phatom-power of local XLR-inputs
 void Mixer::halSendPhantomPower(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -874,7 +874,7 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
 }
 
 uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using one of the FPGA-routed channels
     if ((channelInputSource >= 1) && (channelInputSource < 40)) {
@@ -887,24 +887,24 @@ uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
 
 float Mixer::halGetVolume(uint8_t dspChannel) {
     if ((dspChannel >= 0) && (dspChannel <= 39)) {
-        uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+        uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
         // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
         if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
             // we are connected to one of the DSP-inputs
-            return dsp->dspChannel[channelInputSource - 1].volumeLR;
+            return dsp->Channel[channelInputSource - 1].volumeLR;
         }else if ((channelInputSource >= 41) && (channelInputSource <= 56)) {
             // Mixbus
-            return dsp->mixbusChannel[channelInputSource - 41].volumeLR;
+            return dsp->Bus[channelInputSource - 41].volumeLR;
         }else if ((channelInputSource >= 57) && (channelInputSource <= 62)) {
             // Matrix
-            return dsp->matrixChannel[channelInputSource - 57].volume;
+            return dsp->Matrix[channelInputSource - 57].volume;
         }else if ((channelInputSource == 63) || (channelInputSource == 64)) {
             // Main LR
-            return dsp->mainChannelLR.volume;
+            return dsp->MainChannelLR.volume;
         }else if (channelInputSource == 65) {
             // Main Sub
-            return dsp->mainChannelSub.volume;
+            return dsp->MainChannelSub.volume;
         }else{
             // we are connected to an internal DSP-signal
             return -100;
@@ -914,21 +914,21 @@ float Mixer::halGetVolume(uint8_t dspChannel) {
         return dsp->volumeFxReturn[dspChannel - 40];
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
         // Mixbus
-        return dsp->mixbusChannel[dspChannel - 48].volumeLR;
+        return dsp->Bus[dspChannel - 48].volumeLR;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
         // Matrix
-        return dsp->matrixChannel[dspChannel - 64].volume;
+        return dsp->Matrix[dspChannel - 64].volume;
     }else if (dspChannel == 70) {
         // Special
         return dsp->volumeSpecial;
     }else if (dspChannel == 71) {
         // Main Sub
-        return dsp->mainChannelSub.volume;
+        return dsp->MainChannelSub.volume;
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8
         return dsp->volumeDca[dspChannel - 72];
     }else if (dspChannel == 80) {
-        return dsp->mainChannelLR.volume;
+        return dsp->MainChannelLR.volume;
     }else{
         return -100;
     }
@@ -936,24 +936,24 @@ float Mixer::halGetVolume(uint8_t dspChannel) {
 
 bool Mixer::halGetMute(uint8_t dspChannel) {
     if ((dspChannel >= 0) && (dspChannel <= 39)) {
-        return dsp->dspChannel[dspChannel].muted;
+        return dsp->Channel[dspChannel].muted;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX-Return
         return false;
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
-        return dsp->mixbusChannel[dspChannel - 48].muted;
+        return dsp->Bus[dspChannel - 48].muted;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
-        return dsp->matrixChannel[dspChannel - 64].muted;
+        return dsp->Matrix[dspChannel - 64].muted;
     }else if (dspChannel == 70) {
         // special
         return false;
     }else if (dspChannel == 71) {
-        return dsp->mainChannelSub.muted;
+        return dsp->MainChannelSub.muted;
     }else if ((dspChannel >= 72) && (dspChannel <= 79)) {
         // DCA
         return false;
     }else if (dspChannel == 80) {
-        return dsp->mainChannelLR.muted;
+        return dsp->MainChannelLR.muted;
     }
 
     return false;
@@ -961,14 +961,14 @@ bool Mixer::halGetMute(uint8_t dspChannel) {
 
 bool Mixer::halGetSolo(uint8_t dspChannel) {
     if ((dspChannel >= 0) && (dspChannel <= 39)) {
-        return dsp->dspChannel[dspChannel].solo;
+        return dsp->Channel[dspChannel].solo;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX-Return
         return false;
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
-        return dsp->mixbusChannel[dspChannel - 48].solo;
+        return dsp->Bus[dspChannel - 48].solo;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
-        return dsp->matrixChannel[dspChannel - 64].solo;
+        return dsp->Matrix[dspChannel - 64].solo;
     }else if (dspChannel == 70) {
         // special
         return false;
@@ -986,13 +986,13 @@ bool Mixer::halGetSolo(uint8_t dspChannel) {
 
 float Mixer::halGetBalance(uint8_t dspChannel) {
     if ((dspChannel >= 0) && (dspChannel < 40)) {
-        return dsp->dspChannel[dspChannel].balance;
+        return dsp->Channel[dspChannel].balance;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX return -> no support for balance
         return 0;
     }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
         // Mixbus
-        return dsp->mixbusChannel[dspChannel - 48].balance;
+        return dsp->Bus[dspChannel - 48].balance;
     }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
         // Matrix -> no support for balance
         return 0;
@@ -1000,19 +1000,19 @@ float Mixer::halGetBalance(uint8_t dspChannel) {
         // Special -> no support for balance
         return 0;
     }else if (dspChannel == 71) {
-        return dsp->mainChannelSub.balance; // TODO: check if we want to support balance here
+        return dsp->MainChannelSub.balance; // TODO: check if we want to support balance here
     }else if ((dspChannel >= 72) && (dspChannel < 80)) {
         // DCA 1-8 -> no support for balance
         return 0;
     }else if (dspChannel == 80) {
-        return dsp->mainChannelLR.balance;
+        return dsp->MainChannelLR.balance;
     }
     
     return 0;
 }
 
 float Mixer::halGetGain(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1038,7 +1038,7 @@ float Mixer::halGetGain(uint8_t dspChannel) {
 }
 
 bool Mixer::halGetPhantomPower(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1063,7 +1063,7 @@ bool Mixer::halGetPhantomPower(uint8_t dspChannel) {
 }
 
 bool Mixer::halGetPhaseInvert(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->dspChannel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1089,21 +1089,21 @@ bool Mixer::halGetPhaseInvert(uint8_t dspChannel) {
 
 float Mixer::halGetBusSend(uint8_t dspChannel, uint8_t index) {
     if ((dspChannel >= 0) && (dspChannel < 40)) {
-        return dsp->dspChannel[dspChannel].sendMixbus[index];
+        return dsp->Channel[dspChannel].sendMixbus[index];
     }else if ((dspChannel >= 48) && (dspChannel < 63)) {
         // we have only 6 matrices -> check it
         if (index < 6) {
-            return dsp->mixbusChannel[dspChannel].sendMatrix[index];
+            return dsp->Bus[dspChannel].sendMatrix[index];
         }
     }else if (dspChannel == 71) {
         // we have only 6 matrices -> check it
         if (index < 6) {
-            return dsp->mainChannelSub.sendMatrix[index];
+            return dsp->MainChannelSub.sendMatrix[index];
         }
     }else if (dspChannel == 80) {
         // we have only 6 matrices -> check it
         if (index < 6) {
-            return dsp->mainChannelLR.sendMatrix[index];
+            return dsp->MainChannelLR.sendMatrix[index];
         }
     }
 

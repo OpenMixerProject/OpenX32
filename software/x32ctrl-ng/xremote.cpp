@@ -206,7 +206,7 @@ void XRemote::UpdateMeter(Mixer* mixer) {
     float f;
     for (uint16_t i=0; i<40; i++) {
       // TODO use right type
-      len = sprint(TxMessage, len, 'l', String(mixer->dsp->dspChannel[i].meterPu).c_str()); // little endian
+      len = sprint(TxMessage, len, 'l', String(mixer->dsp->Channel[i].meterPu).c_str()); // little endian
     }
     for (uint16_t i=40; i<70; i++) {
       f = (float)rand()/(float)RAND_MAX; // 32 channels, 8 aux, 8 FX returns, 16 busse, 6 matrix

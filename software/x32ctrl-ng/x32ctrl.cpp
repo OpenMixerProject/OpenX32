@@ -785,11 +785,11 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 		freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
 
 		// LowCut
-		eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_LC(freq, mixer->dsp->dspChannel[selectedChannelIndex].lowCutFrequency, config->GetSamplerate());
+		eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_LC(freq, mixer->dsp->Channel[selectedChannelIndex].lowCutFrequency, config->GetSamplerate());
 
 		// PEQ
 		for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
-			peq = &mixer->dsp->dspChannel[GetSelectedvChannelIndex()].peq[i_peq];
+			peq = &mixer->dsp->Channel[GetSelectedvChannelIndex()].peq[i_peq];
 			eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, config->GetSamplerate());
 		}
 	}
@@ -897,6 +897,14 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 
 	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
 }
+
+//#####################################################################################################################
+//#####################################################################################################################
+//
+// 			S Y N C
+//
+//#####################################################################################################################
+//#####################################################################################################################
 
 // sync mixer state to GUI
 void X32Ctrl::guiSync(void) {
@@ -1008,11 +1016,11 @@ void X32Ctrl::guiSync(void) {
 
 		if (chanIndex < 40) {
 			// support EQ-channel
-			guiSetEncoderText("LC: " + helper->freq2String(mixer->dsp->dspChannel[chanIndex].lowCutFrequency),
-				"F: " + helper->freq2String(mixer->dsp->dspChannel[chanIndex].peq[activeEQ].fc),
-				"G: " + String(mixer->dsp->dspChannel[chanIndex].peq[activeEQ].gain, 1) + " dB",
-				"Q: " + String(mixer->dsp->dspChannel[chanIndex].peq[activeEQ].Q, 1),
-				"M: " + helper->eqType2String(mixer->dsp->dspChannel[chanIndex].peq[activeEQ].type),
+			guiSetEncoderText("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
+				"F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].fc),
+				"G: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].gain, 1) + " dB",
+				"Q: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].Q, 1),
+				"M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].type),
 				"PEQ: " + String(activeEQ + 1)
 			);
 		}else{
@@ -1039,65 +1047,65 @@ void X32Ctrl::guiSync(void) {
 
 			switch (i){
 				case 0:
-					lv_slider_set_value(objects.slider01, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider01, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 1:
-					lv_slider_set_value(objects.slider02, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider02, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 2:
-					lv_slider_set_value(objects.slider03, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider03, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 3:
-					lv_slider_set_value(objects.slider04, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider04, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 4:
-					lv_slider_set_value(objects.slider05, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider05, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 5:
-					lv_slider_set_value(objects.slider06, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider06, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 6:
-					lv_slider_set_value(objects.slider07, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider07, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 7:
-					lv_slider_set_value(objects.slider08, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider08, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 8:
-					lv_slider_set_value(objects.slider09, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider09, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 9:
-					lv_slider_set_value(objects.slider10, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider10, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 10:
-					lv_slider_set_value(objects.slider11, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider11, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 11:
-					lv_slider_set_value(objects.slider12, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider12, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 12:
-					lv_slider_set_value(objects.slider13, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider13, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 13:
-					lv_slider_set_value(objects.slider14, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider14, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 14:
-					lv_slider_set_value(objects.slider15, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider15, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 				case 15:
-					lv_slider_set_value(objects.slider16, helper->Dbfs2Fader(mixer->dsp->dspChannel[chanIndex].volumeLR), LV_ANIM_OFF);
+					lv_slider_set_value(objects.slider16, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
 					break;
 			}
 		}
 
 		lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-			(double)mixer->dsp->dspChannel[0].volumeLR,
-			(double)mixer->dsp->dspChannel[1].volumeLR,
-			(double)mixer->dsp->dspChannel[2].volumeLR,
-			(double)mixer->dsp->dspChannel[3].volumeLR,
-			(double)mixer->dsp->dspChannel[4].volumeLR,
-			(double)mixer->dsp->dspChannel[5].volumeLR,
-			(double)mixer->dsp->dspChannel[6].volumeLR,
-			(double)mixer->dsp->dspChannel[7].volumeLR
+			(double)mixer->dsp->Channel[0].volumeLR,
+			(double)mixer->dsp->Channel[1].volumeLR,
+			(double)mixer->dsp->Channel[2].volumeLR,
+			(double)mixer->dsp->Channel[3].volumeLR,
+			(double)mixer->dsp->Channel[4].volumeLR,
+			(double)mixer->dsp->Channel[5].volumeLR,
+			(double)mixer->dsp->Channel[6].volumeLR,
+			(double)mixer->dsp->Channel[7].volumeLR
 		);
 	}else if (activePage == X32_PAGE_SETUP) {
 	//####################################
@@ -1201,19 +1209,19 @@ void X32Ctrl::surfaceSyncBoardMain() {
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_4) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_4) & 0xFF, 0, pow(10.0f, mixer->halGetBusSend(chanIndex, activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
 			}
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_GATE) >> 8, surface->Enum2Encoder(X32_ENC_GATE) & 0xFF, 4, 100.0f - ((mixer->dsp->dspChannel[chanIndex].gate.threshold + 80.0f)/0.8f), 1);
+				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_GATE) >> 8, surface->Enum2Encoder(X32_ENC_GATE) & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].gate.threshold + 80.0f)/0.8f), 1);
 			}
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)){
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_DYNAMICS) >> 8, surface->Enum2Encoder(X32_ENC_DYNAMICS) & 0xFF, 4, 100.0f - ((mixer->dsp->dspChannel[chanIndex].compressor.threshold + 60.0f)/0.6f), 1);
+				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_DYNAMICS) >> 8, surface->Enum2Encoder(X32_ENC_DYNAMICS) & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].compressor.threshold + 60.0f)/0.6f), 1);
 			}
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
 				// update EQ-encoder
 				if (chanIndex < 40) {
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_LOWCUT) >> 8, surface->Enum2Encoder(X32_ENC_LOWCUT) & 0xFF, 1, (mixer->dsp->dspChannel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_FREQ) >> 8, surface->Enum2Encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer->dsp->dspChannel[chanIndex].peq[activeEQ].fc - 20.0f)/199.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_GAIN) >> 8, surface->Enum2Encoder(X32_ENC_EQ_GAIN) & 0xFF, 2, (mixer->dsp->dspChannel[chanIndex].peq[activeEQ].gain + 15.0f)/0.3f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_Q) >> 8, surface->Enum2Encoder(X32_ENC_EQ_Q) & 0xFF, 3, ((10.0f - mixer->dsp->dspChannel[chanIndex].peq[activeEQ].Q) + 0.3f)/0.097f, 1);
-					switch (mixer->dsp->dspChannel[chanIndex].peq[activeEQ].type) {
+					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_LOWCUT) >> 8, surface->Enum2Encoder(X32_ENC_LOWCUT) & 0xFF, 1, (mixer->dsp->Channel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_FREQ) >> 8, surface->Enum2Encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[activeEQ].fc - 20.0f)/199.8f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_GAIN) >> 8, surface->Enum2Encoder(X32_ENC_EQ_GAIN) & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[activeEQ].gain + 15.0f)/0.3f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_Q) >> 8, surface->Enum2Encoder(X32_ENC_EQ_Q) & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[activeEQ].Q) + 0.3f)/0.097f, 1);
+					switch (mixer->dsp->Channel[chanIndex].peq[activeEQ].type) {
 						case 0: // Allpass
 							break;
 						case 1: // Peak
@@ -1365,9 +1373,9 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 	surface->SetMeterLedMain(
 		surfaceCalcPreampMeter(chanIdx),
 		surfaceCalcDynamicMeter(chanIdx),
-		mixer->dsp->mainChannelLR.meterInfo[0],
-		mixer->dsp->mainChannelLR.meterInfo[1],
-		mixer->dsp->mainChannelSub.meterInfo[0]
+		mixer->dsp->MainChannelLR.meterInfo[0],
+		mixer->dsp->MainChannelLR.meterInfo[1],
+		mixer->dsp->MainChannelSub.meterInfo[0]
 	);
 
 	if (config->IsModelX32Rack()) {
@@ -1381,19 +1389,19 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 		switch (activeBank_inputFader) {
 			case 0: // Input 1-16
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[i].meterInfo);
-					surface->SetMeterLed(X32_BOARD_M, i, mixer->dsp->dspChannel[i + 8].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_M, i, mixer->dsp->Channel[i + 8].meterInfo);
 				}
 				break;
 			case 1: // Input 17-32
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[16 + i].meterInfo);
-					surface->SetMeterLed(X32_BOARD_M, i, mixer->dsp->dspChannel[16 + i + 8].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[16 + i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_M, i, mixer->dsp->Channel[16 + i + 8].meterInfo);
 				}
 				break;
 			case 2: // Aux 1-8 / FX-Return
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[32 + i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[32 + i].meterInfo);
 					//setMeterLed(X32_BOARD_M, i, 0);
 				}
 				break;
@@ -1405,27 +1413,27 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 		switch (activeBank_inputFader) {
 			case 0: // Input 1-8
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[i].meterInfo);
 				}
 				break;
 			case 1: // Input 9-16
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[8 + i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[8 + i].meterInfo);
 				}
 				break;
 			case 2: // Input 17-24
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[16 + i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[16 + i].meterInfo);
 				}
 				break;
 			case 3: // Input 25-32
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[24 + i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[24 + i].meterInfo);
 				}
 				break;
 			case 4: // Aux 1-8
 				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->dspChannel[32 + i].meterInfo);
+					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[32 + i].meterInfo);
 				}
 				break;
 			case 5: // FX-Return
@@ -1534,7 +1542,7 @@ uint8_t X32Ctrl::surfaceCalcPreampMeter(uint8_t channel) {
 		return 0; // no preamps outside the 40 dsp-channels
 	}
 
-	float audiodata = mixer->dsp->dspChannel[channel].meterPu*2147483648.0f;
+	float audiodata = mixer->dsp->Channel[channel].meterPu*2147483648.0f;
 	uint32_t meterdata = 0;
 	if (audiodata >= vuThresholds[0])  { meterdata |= 0b10000000; } // CLIP
 	if (audiodata >= vuThresholds[3])  { meterdata |= 0b01000000; } // -3dBfs
@@ -1553,9 +1561,9 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 	if (channel < 40) {
 		uint32_t meterdata = 0;
 
-		if (mixer->dsp->dspChannel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
+		if (mixer->dsp->Channel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
 
-		float gateValue = (1.0f - mixer->dsp->dspChannel[channel].gate.gain) * 80.0f;
+		float gateValue = (1.0f - mixer->dsp->Channel[channel].gate.gain) * 80.0f;
 		if (gateValue >= 2.0f)  { meterdata |= 0b00100000; }        
 		if (gateValue >= 4.0f)  { meterdata |= 0b00010000; }        
 		if (gateValue >= 6.0f)  { meterdata |= 0b00001000; }        
@@ -1563,7 +1571,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 		if (gateValue >= 18.0f) { meterdata |= 0b00000010; }        
 		if (gateValue >= 30.0f) { meterdata |= 0b00000001; }        
 
-		if (mixer->dsp->dspChannel[channel].gate.gain < 1.0f) { meterdata |= 0b01000000; };
+		if (mixer->dsp->Channel[channel].gate.gain < 1.0f) { meterdata |= 0b01000000; };
 
 		return meterdata;
 	}else{

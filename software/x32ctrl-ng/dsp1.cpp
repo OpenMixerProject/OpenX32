@@ -31,36 +31,36 @@ DSP1::DSP1(Config* config, State* state) : X32Base(config, state) {
 
 void DSP1::dspInit(void) {
 
-    mainChannelLR.volume = -100; // dB
-    mainChannelLR.balance = 0; // -100 .. 0 .. +100
-    mainChannelSub.volume = -100; // dB
-    mainChannelSub.balance = 0; // -100 .. 0 .. +100
+    MainChannelLR.volume = -100; // dB
+    MainChannelLR.balance = 0; // -100 .. 0 .. +100
+    MainChannelSub.volume = -100; // dB
+    MainChannelSub.balance = 0; // -100 .. 0 .. +100
 
     for (uint8_t i = 0; i < 40; i++) {
-        dspChannel[i].lowCutFrequency = 100.0f;
+        Channel[i].lowCutFrequency = 100.0f;
 
-        dspChannel[i].gate.threshold = -80; // dB -> no gate
-        dspChannel[i].gate.range = 60; // full range
-        dspChannel[i].gate.attackTime_ms = 10;
-        dspChannel[i].gate.holdTime_ms = 50;
-        dspChannel[i].gate.releaseTime_ms = 250;
+        Channel[i].gate.threshold = -80; // dB -> no gate
+        Channel[i].gate.range = 60; // full range
+        Channel[i].gate.attackTime_ms = 10;
+        Channel[i].gate.holdTime_ms = 50;
+        Channel[i].gate.releaseTime_ms = 250;
 
-        dspChannel[i].compressor.threshold = 0; // dB -> no compression
-        dspChannel[i].compressor.ratio = 1.0f/3.0f; // 1:3
-        dspChannel[i].compressor.makeup = 0; // dB
-        dspChannel[i].compressor.attackTime_ms = 10;
-        dspChannel[i].compressor.holdTime_ms = 10;
-        dspChannel[i].compressor.releaseTime_ms = 150;
+        Channel[i].compressor.threshold = 0; // dB -> no compression
+        Channel[i].compressor.ratio = 1.0f/3.0f; // 1:3
+        Channel[i].compressor.makeup = 0; // dB
+        Channel[i].compressor.attackTime_ms = 10;
+        Channel[i].compressor.holdTime_ms = 10;
+        Channel[i].compressor.releaseTime_ms = 150;
 
         for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++) {
-            dspChannel[i].peq[peq].type = 1;
-            dspChannel[i].peq[peq].fc = 3000;
-            dspChannel[i].peq[peq].Q = 2.0;
-            dspChannel[i].peq[peq].gain = 0;
+            Channel[i].peq[peq].type = 1;
+            Channel[i].peq[peq].fc = 3000;
+            Channel[i].peq[peq].Q = 2.0;
+            Channel[i].peq[peq].gain = 0;
         }
 
         for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-            dspChannel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
+            Channel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
         }
 
         monitorVolume = 0; // dB
@@ -87,32 +87,32 @@ void DSP1::dspInit(void) {
         // 85..92: DSP2 Aux-Channel 1-8
         //
         // connect DSP-inputs 1-40 to all 40 input-sources from FPGA
-        dspChannel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
-        dspChannel[i].inputTapPoint = 0; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
+        Channel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
+        Channel[i].inputTapPoint = 0; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
         // connect MainLeft on even and MainRight on odd channels as PostFader
-        dspChannel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
-        dspChannel[i].outputTapPoint = 4; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
+        Channel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
+        Channel[i].outputTapPoint = 4; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
 
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
     }
 
     for (uint8_t i = 0; i < 15; i++) {
-        fxChannel[i].inputSource = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2
+        Dsp2FxChannel[i].inputSource = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2
     }
     for (uint8_t i = 0; i < 8; i++) {
-        dsp2AuxChannel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Aux-Channels 1-8
+        Dsp2AuxChannel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Aux-Channels 1-8
     }
 }
 
 // set the general volume of one of the 40 DSP-channels
 void DSP1::SendChannelVolume(uint8_t chan) {
     // set value to interal struct
-    float balanceLeft = helper->Saturate(100.0f - dspChannel[chan].balance, 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(dspChannel[chan].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
-    float volumeLR = dspChannel[chan].volumeLR;
-    float volumeSub = dspChannel[chan].volumeSub;
+    float balanceLeft = helper->Saturate(100.0f - Channel[chan].balance, 0.0f, 100.0f) / 100.0f;
+    float balanceRight = helper->Saturate(Channel[chan].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
+    float volumeLR = Channel[chan].volumeLR;
+    float volumeSub = Channel[chan].volumeSub;
 
-    if (dspChannel[chan].muted) {
+    if (Channel[chan].muted) {
         volumeLR = -100; // dB
         volumeSub = -100; // dB
     }
@@ -132,22 +132,22 @@ void DSP1::SendChannelSend(uint8_t chan) {
     float values[16];
 
     for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-        values[i_mixbus] = pow(10.0f, dspChannel[chan].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
+        values[i_mixbus] = pow(10.0f, Channel[chan].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
     }
 
     spi->SendDspParameterArray(0, 's', chan, 0, 16, &values[0]);
 }
 
 void DSP1::SendMixbusVolume(uint8_t bus) {
-    float balanceLeft = helper->Saturate(100.0f - mixbusChannel[bus].balance, 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(mixbusChannel[bus].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
+    float balanceLeft = helper->Saturate(100.0f - Bus[bus].balance, 0.0f, 100.0f) / 100.0f;
+    float balanceRight = helper->Saturate(Bus[bus].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
 
     // send volume to DSP via SPI
     float values[4];
-    values[0] = pow(10.0f, mixbusChannel[bus].volumeLR/20.0f); // volume of this specific channel
+    values[0] = pow(10.0f, Bus[bus].volumeLR/20.0f); // volume of this specific channel
     values[1] = balanceLeft; // 100 .. 100 ..  0
     values[2] = balanceRight; // 0  .. 100 .. 100
-    values[3] = pow(10.0f, mixbusChannel[bus].volumeSub/20.0f); // subwoofer
+    values[3] = pow(10.0f, Bus[bus].volumeSub/20.0f); // subwoofer
 
     spi->SendDspParameterArray(0, 'v', bus, 1, 4, &values[0]);
 }
@@ -156,7 +156,7 @@ void DSP1::SendMatrixVolume(uint8_t matrix) {
     // send volume to DSP via spi->
     float values[1];
 
-    values[0] = pow(10.0f, matrixChannel[matrix].volume/20.0f); // volume of this specific channel
+    values[0] = pow(10.0f, Matrix[matrix].volume/20.0f); // volume of this specific channel
 
     spi->SendDspParameterArray(0, 'v', matrix, 2, 1, &values[0]);
 }
@@ -171,15 +171,15 @@ void DSP1::SendMonitorVolume() {
 }
 
 void DSP1::SendMainVolume() {
-    float volumeLeft = (helper->Saturate(100.0f - mainChannelLR.balance, 0.0f, 100.0f) / 100.0f) * pow(10.0f, mainChannelLR.volume/20.0f);
-    float volumeRight = (helper->Saturate(mainChannelLR.balance + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, mainChannelLR.volume/20.0f);
-    float volumeSub = pow(10.0f, mainChannelSub.volume/20.0f);
+    float volumeLeft = (helper->Saturate(100.0f - MainChannelLR.balance, 0.0f, 100.0f) / 100.0f) * pow(10.0f, MainChannelLR.volume/20.0f);
+    float volumeRight = (helper->Saturate(MainChannelLR.balance + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, MainChannelLR.volume/20.0f);
+    float volumeSub = pow(10.0f, MainChannelSub.volume/20.0f);
 
-    if (mainChannelLR.muted) {
+    if (MainChannelLR.muted) {
         volumeLeft = 0; // p.u.
         volumeRight = 0; // p.u.
     }
-    if (mainChannelSub.muted) {
+    if (MainChannelSub.muted) {
         volumeSub = 0; // p.u.
     }
 
@@ -193,14 +193,14 @@ void DSP1::SendMainVolume() {
 }
 
 void DSP1::SendGate(uint8_t chan) {
-    fx->RecalcGate(&dspChannel[chan].gate);
+    fx->RecalcGate(&Channel[chan].gate);
 
     float values[5];
-    values[0] = dspChannel[chan].gate.value_threshold;
-    values[1] = dspChannel[chan].gate.value_gainmin;
-    values[2] = dspChannel[chan].gate.value_coeff_attack;
-    values[3] = dspChannel[chan].gate.value_hold_ticks;
-    values[4] = dspChannel[chan].gate.value_coeff_release;
+    values[0] = Channel[chan].gate.value_threshold;
+    values[1] = Channel[chan].gate.value_gainmin;
+    values[2] = Channel[chan].gate.value_coeff_attack;
+    values[3] = Channel[chan].gate.value_hold_ticks;
+    values[4] = Channel[chan].gate.value_coeff_release;
 
     spi->SendDspParameterArray(0, 'g', chan, 0, 5, &values[0]);
 }
@@ -208,7 +208,7 @@ void DSP1::SendGate(uint8_t chan) {
 void DSP1::SendLowcut(uint8_t chan) {
     float values[1];
 
-    values[0] = 1.0f / (1.0f + 2.0f * M_PI * dspChannel[chan].lowCutFrequency * (1.0f/config->GetSamplerate()));
+    values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/config->GetSamplerate()));
 
     spi->SendDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
 }
@@ -232,7 +232,7 @@ void DSP1::SendEQ(uint8_t chan) {
     float values[MAX_CHAN_EQS * 5];
 
     for (int peq = 0; peq < MAX_CHAN_EQS; peq++) {
-        fx->RecalcFilterCoefficients_PEQ(&dspChannel[chan].peq[peq]);
+        fx->RecalcFilterCoefficients_PEQ(&Channel[chan].peq[peq]);
 
 /*
         // send coeffiecients without interleaving for biquad() function
@@ -254,19 +254,19 @@ void DSP1::SendEQ(uint8_t chan) {
                 // odd section index
                 sectionIndex += 1;
             }
-            values[sectionIndex + 0] = dspChannel[chan].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 2] = dspChannel[chan].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 4] = dspChannel[chan].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 6] = -dspChannel[chan].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 8] = -dspChannel[chan].peq[peq].b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = Channel[chan].peq[peq].a[0]; // a0 (zeros)
+            values[sectionIndex + 2] = Channel[chan].peq[peq].a[1]; // a1 (zeros)
+            values[sectionIndex + 4] = Channel[chan].peq[peq].a[2]; // a2 (zeros)
+            values[sectionIndex + 6] = -Channel[chan].peq[peq].b[1]; // -b1 (poles)
+            values[sectionIndex + 8] = -Channel[chan].peq[peq].b[2]; // -b2 (poles)
         }else{
             // last section: store without interleaving
             int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-            values[sectionIndex + 0] = dspChannel[chan].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 1] = dspChannel[chan].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 2] = dspChannel[chan].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 3] = -dspChannel[chan].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 4] = -dspChannel[chan].peq[peq].b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = Channel[chan].peq[peq].a[0]; // a0 (zeros)
+            values[sectionIndex + 1] = Channel[chan].peq[peq].a[1]; // a1 (zeros)
+            values[sectionIndex + 2] = Channel[chan].peq[peq].a[2]; // a2 (zeros)
+            values[sectionIndex + 3] = -Channel[chan].peq[peq].b[1]; // -b1 (poles)
+            values[sectionIndex + 4] = -Channel[chan].peq[peq].b[2]; // -b2 (poles)
         }
     }
 
@@ -280,15 +280,15 @@ void DSP1::ResetEq(uint8_t chan) {
 }
 
 void DSP1::SendCompressor(uint8_t chan) {
-    fx->RecalcCompressor(&dspChannel[chan].compressor);
+    fx->RecalcCompressor(&Channel[chan].compressor);
 
     float values[6];
-    values[0] = dspChannel[chan].compressor.value_threshold;
-    values[1] = dspChannel[chan].compressor.value_ratio;
-    values[2] = dspChannel[chan].compressor.value_makeup;
-    values[3] = dspChannel[chan].compressor.value_coeff_attack;
-    values[4] = dspChannel[chan].compressor.value_hold_ticks;
-    values[5] = dspChannel[chan].compressor.value_coeff_release;
+    values[0] = Channel[chan].compressor.value_threshold;
+    values[1] = Channel[chan].compressor.value_ratio;
+    values[2] = Channel[chan].compressor.value_makeup;
+    values[3] = Channel[chan].compressor.value_coeff_attack;
+    values[4] = Channel[chan].compressor.value_hold_ticks;
+    values[5] = Channel[chan].compressor.value_coeff_release;
 
     spi->SendDspParameterArray(0, 'c', chan, 0, 6, &values[0]);
 }
@@ -304,18 +304,18 @@ void DSP1::SendAll() {
         SendChannelVolume(chan);
         SendChannelSend(chan);
         for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
-            SetChannelSendTapPoints(chan, mixbusChannel, dspChannel[chan].sendMixbusTapPoint[mixbusChannel]);
+            SetChannelSendTapPoints(chan, mixbusChannel, Channel[chan].sendMixbusTapPoint[mixbusChannel]);
         }
     }
     for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
         SendMixbusVolume(mixbusChannel);
         for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
-            SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->mixbusChannel[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
+            SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
         }
     }
     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
         SendMatrixVolume(matrixChannel);
-        SetMainSendTapPoints(matrixChannel, mainChannelLR.sendMatrixTapPoint[matrixChannel]);
+        SetMainSendTapPoints(matrixChannel, MainChannelLR.sendMatrixTapPoint[matrixChannel]);
     }
     for (uint8_t fxChannel = 0; fxChannel <= 15; fxChannel++) {
         SetInputRouting(fxChannel + 40);
@@ -329,20 +329,20 @@ void DSP1::SendAll() {
 
 void DSP1::SetInputRouting(uint8_t chan) {
     uint32_t values[2];
-    values[0] = dspChannel[chan].inputSource;
-    values[1] = dspChannel[chan].inputTapPoint;
+    values[0] = Channel[chan].inputSource;
+    values[1] = Channel[chan].inputTapPoint;
     spi->SendDspParameterArray(0, 'r', chan, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetOutputRouting(uint8_t chan) {
     uint32_t values[2];
-    values[0] = dspChannel[chan].outputSource;
-    values[1] = dspChannel[chan].outputTapPoint;
+    values[0] = Channel[chan].outputSource;
+    values[1] = Channel[chan].outputTapPoint;
     spi->SendDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
-    dspChannel[chan].sendMixbusTapPoint[mixbusChannel] = tapPoint;
+    Channel[chan].sendMixbusTapPoint[mixbusChannel] = tapPoint;
 
     uint32_t values[2];
     values[0] = mixbusChannel;
@@ -351,7 +351,7 @@ void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t 
 }
 
 void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint) {
-    this->mixbusChannel[mixbusChannel].sendMatrixTapPoint[matrixChannel] = tapPoint;
+    this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel] = tapPoint;
 
     uint32_t values[2];
     values[0] = matrixChannel;
@@ -360,7 +360,7 @@ void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, 
 }
 
 void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
-    mainChannelLR.sendMatrixTapPoint[matrixChannel] = tapPoint;
+    MainChannelLR.sendMatrixTapPoint[matrixChannel] = tapPoint;
 
     uint32_t values[2];
     values[0] = matrixChannel;

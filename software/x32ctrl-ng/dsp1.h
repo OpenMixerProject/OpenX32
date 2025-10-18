@@ -31,13 +31,13 @@ class DSP1 : X32Base {
 
     public:
 
-        sDspChannel dspChannel[40];
-        sMixbusChannel mixbusChannel[16];
-        sMatrixChannel matrixChannel[6];
-        sFxChannel fxChannel[16];
-        sDsp2AuxChannel dsp2AuxChannel[8];
-        sMainChannel mainChannelLR;
-        sMainChannel mainChannelSub;
+        sDspChannel Channel[40];
+        sMixbusChannel Bus[16];
+        sMatrixChannel Matrix[6];
+        sFxChannel Dsp2FxChannel[16];
+        sDsp2AuxChannel Dsp2AuxChannel[8];
+        sMainChannel MainChannelLR;
+        sMainChannel MainChannelSub;
         float volumeFxReturn[8];
         float volumeDca[8];
 
