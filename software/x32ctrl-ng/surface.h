@@ -49,7 +49,7 @@ class Surface : public X32Base
         void AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr); 
 
     public:
-        Surface(Config* config, State* state);
+        Surface(X32BaseParameter* basepar);
 
         void Init(void);
         void Reset(void);

@@ -19,7 +19,7 @@ class Adda : public X32Base {
         uint16_t addaWaitForMessageCounter;
 
     public:
-        Adda(Config* config, State* state);
+        Adda(X32BaseParameter* basepar);
         void Init();
         void SetSamplerate(uint32_t samplerate);
         void SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower);

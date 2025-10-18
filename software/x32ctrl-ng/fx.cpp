@@ -24,7 +24,7 @@
 
 #include "fx.h"
 
-FX::FX(Config* config, State* state) : X32Base(config, state){}
+FX::FX(X32BaseParameter* basepar) : X32Base(basepar){}
 
 void FX::RecalcFilterCoefficients_PEQ(sPEQ* peq) {
   // Online-Calculator: https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3

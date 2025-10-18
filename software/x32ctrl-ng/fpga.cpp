@@ -24,7 +24,7 @@
 
 #include "fpga.h"
 
-Fpga::Fpga(Config* config, State* state): X32Base(config, state) {}
+Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {}
 
 void Fpga::RoutingInit(void) {
 	// reset routing-configuration and dsp-configuration

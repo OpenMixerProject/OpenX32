@@ -24,9 +24,9 @@
 
 #include "surface.h"
 
-Surface::Surface(Config* config, State* state): X32Base(config, state){
-    int buttonDefinitionIndex = 0;
-    int encoderDefinitionIndex = 0;
+Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
+    buttonDefinitionIndex = 0;
+    encoderDefinitionIndex = 0;
 }
 
 void Surface::Init(void) {
@@ -60,7 +60,7 @@ void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     if (buttonDefinitionIndex >= MAX_BUTTONS)
     {
         //TODO: Error Message
-        helper->Error("ERROR: MAX_BUTTONS");
+        helper->Error("ERROR: MAX_BUTTONS\n");
         return;
     }
     x32_btn_def[buttonDefinitionIndex].button = p_button;

@@ -17,7 +17,7 @@ class Fpga : public X32Base {
         int fpgaPacketBufLen = 0;
         char fpgaPacketBuffer[FPGA_MAX_PACKET_LENGTH];
 
-        Fpga(Config* config, State* state);
+        Fpga(X32BaseParameter* basepar);
 
         void RoutingInit(void);
         void RoutingDefaultConfig(void);

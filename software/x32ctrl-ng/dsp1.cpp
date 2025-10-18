@@ -24,9 +24,9 @@
 
 #include "dsp1.h"
 
-DSP1::DSP1(Config* config, State* state) : X32Base(config, state) {
-    spi = new SPI(config, state);
-    fx = new FX(config, state);
+DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
+    spi = new SPI(basepar);
+    fx = new FX(basepar);
 };
 
 void DSP1::dspInit(void) {

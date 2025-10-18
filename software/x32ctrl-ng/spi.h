@@ -11,6 +11,12 @@
 #include "state.h"
 #include "spi-event.h"
 
+#define SPI_DEVICE_DSP1 "/dev/spidev0.0"
+#define SPI_DEVICE_DSP2 "/dev/spidev0.1"
+#define SPI_DEVICE_FPGA "/dev/spidev2.0"
+#define SPI_FPGA_SPEED_HZ 10000000 // 10 MHz for the FPGA, seems to be fine
+#define SPI_DSP_SPEED_HZ 250000 // 250 kHz for the DSP. Higher and we get problems
+
 // defines for FPGA-configuration via SPI
 #define PROG_B_GPIO_OFFSET      30
 #define DONE_GPIO_OFFSET        2
@@ -57,7 +63,7 @@ class SPI : public X32Base {
     std::list<SpiEvent*> eventBuffer;
 
   public:
-    SPI(Config* config, State* state);
+    SPI(X32BaseParameter* basepar);
     int ConfigureFpga();
     int ConfigureDsp();
     bool OpenDspConnections();

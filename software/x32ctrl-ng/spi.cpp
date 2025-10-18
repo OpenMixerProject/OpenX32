@@ -24,7 +24,7 @@
 
 #include "spi.h"
 
-SPI::SPI(Config* config, State* state) : X32Base(config, state) {
+SPI::SPI(X32BaseParameter* basepar) : X32Base(basepar) {
     ConfigureFpga();
     ConfigureDsp();
 }

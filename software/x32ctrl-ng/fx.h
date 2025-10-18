@@ -7,7 +7,7 @@
 
 class FX : X32Base {
     public:
-        FX(Config* config, State* state);
+        FX(X32BaseParameter* basepar);
         void RecalcFilterCoefficients_PEQ(sPEQ* peq);
         float CalcFrequencyResponse_LC(float f, float fc, float fs);
         float CalcFrequencyResponse_HC(float f, float fc, float fs);

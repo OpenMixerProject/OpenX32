@@ -24,8 +24,8 @@
 
 #include "x32base.h"
 
-X32Base::X32Base(Config* config, State* state){
-    this->config = config;
-    this->state = state;
+X32Base::X32Base(X32BaseParameter* basepar){
+    this->config = basepar->config;
+    this->state = basepar->state;
     this->helper = new Helper(this->config);
 }

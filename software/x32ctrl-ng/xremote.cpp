@@ -37,7 +37,7 @@
 
 #include "xremote.h"
 
-XRemote::XRemote(Config* config, State* state) : X32Base(config, state) {}
+XRemote::XRemote(X32BaseParameter* basepar) : X32Base(basepar) {}
 
 
 int8_t XRemote::Init() {

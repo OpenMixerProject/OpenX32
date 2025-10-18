@@ -1,6 +1,7 @@
 #pragma once
 
 #include "external.h"
+#include "constants.h"
 #include "config.h"
 #include "x32ctrl_types.h"
 #include "x32base.h"
@@ -46,11 +47,11 @@ class Mixer : public X32Base
         void halSendPhantomPower(uint8_t dspChannel);
 
     public:
-        DSP1* dsp;
         // all virtual - channels / busses / matrix / etc.
         VChannel* vchannel[MAX_VCHANNELS];
+        DSP1* dsp;
 
-        Mixer(Config* config, State* state);
+        Mixer(X32BaseParameter* basepar);
         void ProcessUartData(void);
 
         void SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag);
@@ -80,6 +81,17 @@ class Mixer : public X32Base
         void ChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
 
+        VChannel* GetVChannel(uint8_t vCHannelIndex);
+        float GetVolumeDbfs(uint8_t vChannelIndex);
+        u_int16_t GetVolumeFadervalue(uint8_t vChannelIndex);
+        bool GetMute(uint8_t dspChannel);
+        bool GetSolo(uint8_t dspChannel);
+        float GetBalance(uint8_t dspChannel);
+        float GetGain(uint8_t dspChannel);
+        bool GetPhantomPower(uint8_t dspChannel);
+        bool GetPhaseInvert(uint8_t dspChannel);
+        float GetBusSend(uint8_t dspChannel, uint8_t index);
+
         void ResetVChannelChangeFlags(VChannel p_chan);
 
         void ClearSolo(void);
@@ -90,15 +102,6 @@ class Mixer : public X32Base
 
         void SyncVChannelsToHardware(void);
         uint8_t halGetDspInputSource(uint8_t dspChannel);
-        float halGetVolume(uint8_t dspChannel);
-        bool halGetMute(uint8_t dspChannel);
-        bool halGetSolo(uint8_t dspChannel);
-        float halGetBalance(uint8_t dspChannel);
-        float halGetGain(uint8_t dspChannel);
-        bool halGetPhantomPower(uint8_t dspChannel);
-        bool halGetPhaseInvert(uint8_t dspChannel);
-        float halGetBusSend(uint8_t dspChannel, uint8_t index);
-
 
         void DebugPrintBank(uint8_t bank);
         void DebugPrintBusBank(uint8_t bank);

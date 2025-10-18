@@ -3,6 +3,7 @@
 #include "config.h"
 #include "state.h"
 #include "helper.h"
+#include "x32base-parameter.h"
 
 // The string class
 class X32Base
@@ -13,5 +14,5 @@ class X32Base
         Helper* helper;
 
     public:
-        X32Base(Config* config, State* state);
+        X32Base(X32BaseParameter* basepar);
 };

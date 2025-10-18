@@ -15,15 +15,14 @@ class VChannel : public X32Base {
         String name;
         uint8_t color;
         uint8_t icon;
+
         bool selected;
         float sends[16];
 
-        // 0 - normal channel
-        // 1 - main channel
-        uint8_t vChannelType;
+        X32_VCHANNELTYPE vChannelType;
         sDspChannel* dspChannel;
 
-        VChannel(Config *config, State *state, sDspChannel* dspChannel);
+        VChannel(X32BaseParameter* basepar);
 
         void SetChanged(uint16_t p_flag);
         void ResetVChannelChangeFlags();
@@ -31,4 +30,6 @@ class VChannel : public X32Base {
         bool HasAnyChanged(void);
 
         void ChangeInput(int8_t amount);
+
+        String ToString(void);
 };

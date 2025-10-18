@@ -24,13 +24,12 @@
 
 #include "vchannel.h"
 
- VChannel::VChannel(Config *conf, State *stat, sDspChannel* dspChan) : X32Base(conf, stat) {
+ VChannel::VChannel(X32BaseParameter* basepar) : X32Base(basepar) {
     name = String();
     color = 0;
     icon = 0;
     selected = false;
-    vChannelType = 0; // normal channel
-    dspChannel = dspChan;
+    vChannelType = X32_VCHANNELTYPE_NONE;
 }
 
 void VChannel::SetChanged(uint16_t p_flag){
@@ -100,4 +99,14 @@ void VChannel::ChangeInput(int8_t amount){
     // }
     SetChanged(X32_VCHANNEL_CHANGED_INPUT);
     state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
+}
+
+String VChannel::ToString(void){
+    String s = String("Name: ") + name;
+    s += String(" Color: ") + String(color);
+    s += String(" Icon: ") + String(icon);
+    s += String(" Selected: ") + String(selected);
+    s += String(" vChannelType: ") + String(vChannelType);
+    s += "\n";
+    return s;
 }

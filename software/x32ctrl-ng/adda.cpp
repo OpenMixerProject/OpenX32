@@ -25,7 +25,7 @@
 #include "adda.h"
 
 
-Adda::Adda(Config* config, State* state): X32Base(config, state) {
+Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
 	addaPacketBufLen = 0;
 	addaWaitForMessageCounter = 0;
 }

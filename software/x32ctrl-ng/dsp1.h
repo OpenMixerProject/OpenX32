@@ -47,7 +47,7 @@ class DSP1 : X32Base {
         FX* fx;
         SPI* spi;
 
-        DSP1(Config* config, State* state);
+        DSP1(X32BaseParameter* basepar);
         void dspInit(void);
 
         void SendChannelVolume(uint8_t chan);

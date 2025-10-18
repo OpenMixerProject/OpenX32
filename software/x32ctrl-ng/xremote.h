@@ -34,7 +34,7 @@ class XRemote : public X32Base {
         int UdpHandle;
         struct sockaddr_in ClientAddr;
 
-        XRemote(Config* config, State* state);
+        XRemote(X32BaseParameter* basepar);
         int8_t Init();
         void UpdateAll(Mixer* mixer);
         void AnswerInfo();

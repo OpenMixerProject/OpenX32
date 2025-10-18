@@ -76,12 +76,6 @@
 // Langes Paket: 0xFE (1) + BoardID (1) + ID (1) + Value_MSB (1) + Value_LSB (1) + 0xFE (1) + CHECKSUM (1) = 7 Bytes
 #define MAX_MESSAGE_SIZE 200
 
-#define SPI_DEVICE_DSP1 "/dev/spidev0.0"
-#define SPI_DEVICE_DSP2 "/dev/spidev0.1"
-#define SPI_DEVICE_FPGA "/dev/spidev2.0"
-#define SPI_FPGA_SPEED_HZ 10000000 // 10 MHz for the FPGA, seems to be fine
-#define SPI_DSP_SPEED_HZ 250000 // 250 kHz for the DSP. Higher and we get problems
-
 //########################################################
 //
 //               X32 Generic Stuff
@@ -127,6 +121,20 @@ typedef enum {
     X32_PAGE_MUTE_GRP,
     X32_PAGE_UTILITY
 } X32_PAGE;
+
+typedef enum {
+    X32_VCHANNELTYPE_NONE,
+    X32_VCHANNELTYPE_NORMAL,
+    X32_VCHANNELTYPE_AUX,
+    X32_VCHANNELTYPE_USB,
+    X32_VCHANNELTYPE_FXRET,
+    X32_VCHANNELTYPE_BUS,
+    X32_VCHANNELTYPE_MATRIX,
+    X32_VCHANNELTYPE_DCA,
+    X32_VCHANNELTYPE_MAIN,
+    X32_VCHANNELTYPE_MAINSUB,
+    X32_VCHANNELTYPE_SPECIAL,
+} X32_VCHANNELTYPE;
 
 typedef enum  {
     X32_BTN_NONE,

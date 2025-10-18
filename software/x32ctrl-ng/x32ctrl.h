@@ -63,7 +63,7 @@ class X32Ctrl : public X32Base {
         sTouchControl touchcontrol;
 
     public:
-        X32Ctrl(Config* config, State* state);
+        X32Ctrl(X32BaseParameter* basepar);
         void Init();
         void Run();
         void Tick10ms(void);
