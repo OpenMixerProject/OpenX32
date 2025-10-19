@@ -39,4 +39,6 @@ class Helper{
         String eqType2String(uint8_t type);
 
         String getIpAddress();
+
+        bool IsInChannelBlock(uint8_t index, X32_VCHANNEL_BLOCK block);
 };

@@ -33,15 +33,6 @@ class Mixer : public X32Base
         Fpga* fpga;
         Adda* adda;
 
-        void halSyncChannelsToMixer(void);
-        void halSetMute(uint8_t dspChannel, bool mute);
-        void halSetSolo(uint8_t dspChannel, bool solo);
-        void halSetBalance(uint8_t dspChannel, float balance);
-        void halSetGain(uint8_t dspChannel, float gain);
-        void halSetPhantomPower(uint8_t dspChannel, bool phantomPower);
-        void halSetPhaseInversion(uint8_t dspChannel, bool phaseInverted);
-        void halSetBusSend(uint8_t dspChannel, uint8_t index, float value);
-
         void halSendGain(uint8_t dspChannel);
         void halSendPhantomPower(uint8_t dspChannel);
 
@@ -53,14 +44,19 @@ class Mixer : public X32Base
         Mixer(X32BaseParameter* basepar);
         void ProcessUartData(void);
 
-        void SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag);
-        void SetBalance(uint8_t p_vChannelIndex, float p_balance);
+        void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
+        void SetBalance(uint8_t vChannelIndex, float p_balance);
         void SetPhantom(uint8_t vChannelIndex, bool p_phantom);
         void SetPhaseInvert(uint8_t vChannelIndex, bool p_phaseInvert);
         void SetSolo(uint8_t vChannelIndex, bool solo);
         void SetMute(uint8_t vChannelIndex, bool solo);
-        void SetVolume(uint8_t p_vChannelIndex, float p_volume);
-        void SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float value);
+        void SetVolume(uint8_t vChannelIndex, float p_volume);
+        void SetPeq(uint8_t vChannelIndex, uint8_t eqIndex, char option, float value);
+        void SetGain(uint8_t vChannelIndex, float gain);
+        void SetBusSend(uint8_t vChannelIndex, uint8_t index, float value);
+        void SetGate(uint8_t vChannelIndex, float threshold);
+        void SetLowcut(uint8_t vChannelIndex, float lowCutFrequency);
+        void SetDynamics(uint8_t vChannelIndex, float lowCutFrequency);
 
         void TogglePhantom(uint8_t vChannelIndex);
         void TogglePhaseInvert(uint8_t vChannelIndex);
@@ -90,6 +86,9 @@ class Mixer : public X32Base
         bool GetPhantomPower(uint8_t dspChannel);
         bool GetPhaseInvert(uint8_t dspChannel);
         float GetBusSend(uint8_t dspChannel, uint8_t index);
+        float GetGate(uint8_t vChannelIndex);
+        float GetLowcut(uint8_t vChannelIndex);
+        float GetDynamics(uint8_t vChannelIndex);
 
         void ResetVChannelChangeFlags(VChannel p_chan);
 

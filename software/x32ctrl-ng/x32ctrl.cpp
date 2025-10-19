@@ -2128,10 +2128,10 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 		}else if (activePage == X32_PAGE_ROUTING) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
-					mixer->ChangeHardwareOutput(amount);
+					//mixer->ChangeHardwareOutput(amount);
 					break;
 				case X32_ENC_ENCODER2:
-					mixer->ChangeHardwareInput(amount);
+					//mixer->ChangeHardwareInput(amount);
 					break;
 				case X32_ENC_ENCODER3:
 					break;

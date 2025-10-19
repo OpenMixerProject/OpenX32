@@ -320,3 +320,46 @@ String Helper::getIpAddress() {
 
     return "";
 }
+
+bool Helper::IsInChannelBlock(uint8_t index, X32_VCHANNEL_BLOCK block){
+	uint8_t blocksize = 0;
+	switch(block){
+        case X32_VCHANNEL_BLOCK_NORMAL: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_NORMAL;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_AUX: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_AUX;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_FXRET: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_FXRET;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_BUS: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_BUS;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_MATRIX: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_MATRIX;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_SPECIAL: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_SPECIAL;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_MAINSUB: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_MAINSUB;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_DCA: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_DCA;
+            break;
+        }
+		case X32_VCHANNEL_BLOCK_MAIN: {
+			blocksize = X32_VCHANNEL_BLOCKSIZE_MAIN;
+            break;
+        }
+    }
+	return (index >= block) && (index < (block + blocksize));
+}
