@@ -1349,10 +1349,13 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 				}
 
 				if (
-					fullSync                                                         ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_PHASE_INVERT )  ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME )        ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN )        ||
+					fullSync                                              ||
+					chan->HasChanged(X32_VCHANNEL_CHANGED_PHASE_INVERT)   ||
+					chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
+					chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)           ||
+					chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)             ||
+					chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)           ||
+					chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)        ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)        ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
@@ -1385,49 +1388,50 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
     data->icon.y = 0;
 
     // Gain / Lowcut
-    // sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
-    data->texts[0].text = String(mixer->GetGain(channelIndex), 1) + String("dB 300Hz");
+    data->texts[0].text = String(mixer->GetGain(channelIndex), 1) + String("dB ") + String(mixer->GetLowcut(channelIndex), 0) + String("Hz");
     data->texts[0].size = 0;
     data->texts[0].x = 3;
     data->texts[0].y = 0;
 
     // Phanton / Invert / Gate / Dynamics / EQ active
-    data->texts[1].text = String(mixer->GetPhantomPower(channelIndex) ? "48V" : "   ") + String(" G D E");
-        // TODO
-        //p_chan.inputSource.phaseInvert ? "@" : " "
+    data->texts[1].text =
+		String(mixer->GetPhantomPower(channelIndex) ? "48V " : "    ") +
+		String(mixer->GetPhaseInvert(channelIndex) ? "@ " : "  ") +
+		String(mixer->GetGate(channelIndex) > -80 ? "G " : "  ") +
+		String(mixer->GetDynamics(channelIndex) < 0 ? "D " : "  ") +
+		// TODO String(mixer->GetEq(channelIndex) ? "E " : "  ");
+		String(true ? "E" : " ");
     data->texts[1].size = 0;
     data->texts[1].x = 10;
     data->texts[1].y = 15;
 
     // Volume / Panorama
 
-    float balance = 0;
-    // TODO: Implement
-    // float balance = halGetBalance(data->index);
+    float balance = mixer->GetBalance(channelIndex);
     
-    // char balanceText[8] = "-------";
-    // if (balance < -70){
-    //     balanceText[0] = '|';
-    // } else if (balance < -40){
-    //     balanceText[1] = '|';
-    // } else if (balance < -10){
-    //     balanceText[2] = '|';
-    // } else if (balance > 70){
-    //     balanceText[6] = '|';
-    // } else if (balance > 40){
-    //     balanceText[5] = '|';
-    // } else if (balance > 10){
-    //     balanceText[4] = '|';
-    // } else {
-    //     balanceText[3] = '|';
-    // }
+    char balanceText[8] = "-------";
+    if (balance < -70){
+        balanceText[0] = '|';
+    } else if (balance < -40){
+        balanceText[1] = '|';
+    } else if (balance < -10){
+        balanceText[2] = '|';
+    } else if (balance > 70){
+        balanceText[6] = '|';
+    } else if (balance > 40){
+        balanceText[5] = '|';
+    } else if (balance > 10){
+        balanceText[4] = '|';
+    } else {
+        balanceText[3] = '|';
+    }
 
-    // TODO
-    // if (halGetVolume(data->index) > -100) {
-    //     sprintf(data->texts[2].text, "%s %.1fdB", balanceText, halGetVolume(data->index));
-    // }else{
-    //     sprintf(data->texts[2].text, "%s -oodB", balanceText);
-    // }
+	float volume = mixer->GetVolumeDbfs(channelIndex);
+    if (volume > -100) {
+        data->texts[2].text = String(volume, 1) + String("dB ") + String(balanceText);
+    }else{
+		data->texts[2].text = String("-oodB ") + String(balanceText);
+    }
     data->texts[2].size = 0;
     data->texts[2].x = 8;
     data->texts[2].y = 30;

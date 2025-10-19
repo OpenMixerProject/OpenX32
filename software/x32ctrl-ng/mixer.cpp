@@ -692,8 +692,8 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, float lowCutFrequency){
     float newValue = lowCutFrequency;
     if (newValue > 0) {
         newValue = 0;
-    }else if (newValue < -60) {
-        newValue = -60;
+    }else if (newValue < -80) {
+        newValue = -80;
     }
 
     VChannel* chan = GetVChannel(vChannelIndex);
@@ -702,6 +702,7 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, float lowCutFrequency){
         case X32_VCHANNELTYPE_NORMAL:
         case X32_VCHANNELTYPE_AUX: {
             dsp->Channel[vChannelIndex].compressor.threshold = newValue;
+            helper->Debug("Channel %s: Compressor threshold set to %f\n", chan->name.c_str(), newValue);
             chan->SetChanged(X32_VCHANNEL_CHANGED_DYNAMIC);
             break;
         }
@@ -728,7 +729,8 @@ void Mixer::ChangeDynamics(uint8_t vChannelIndex, int8_t amount){
         return;
     }
 
-    float newValue = GetDynamics(vChannelIndex) * (1 + ((float)amount * abs((float)amount)) * 0.4f);
+    //float newValue = GetDynamics(vChannelIndex) * (1 + ((float)amount * abs((float)amount)) * 0.4f);
+    float newValue = GetDynamics(vChannelIndex) + (amount/2.0);
     SetDynamics(vChannelIndex, newValue);
 }
 
@@ -1092,10 +1094,9 @@ VChannel* Mixer::GetVChannel(uint8_t vCHannelIndex){
 float Mixer::GetVolumeDbfs(uint8_t vChannelIndex) {
     VChannel* chan = GetVChannel(vChannelIndex);
 
-    helper->Debug("GetVolumeDbfs() vchannel name: %s type: %d\n", chan->name, chan->vChannelType);
-
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE_NORMAL: {
+        case X32_VCHANNELTYPE_NORMAL:
+        case X32_VCHANNELTYPE_AUX: {
             uint8_t channelInputSource = chan->dspChannel->inputSource;
 
             // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
