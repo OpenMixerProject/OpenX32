@@ -925,7 +925,9 @@ void X32Ctrl::syncAll(void) {
 		}
 
 		state->ResetChangeFlags();
-		// TODO Reset all Change Flags of vchannels
+		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
+			mixer->GetVChannel(index)->ResetVChannelChangeFlags();
+		}
 	}
 }
 
@@ -1350,6 +1352,7 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 					fullSync                                                         ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_PHASE_INVERT )  ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME )        ||
+					chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN )        ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)        ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
@@ -1382,7 +1385,6 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
     data->icon.y = 0;
 
     // Gain / Lowcut
-    // TODO move Gain to VChannel class 
     // sprintf(data->texts[0].text, "%.1fdB 300Hz", p_chan.inputSource.gain);
     data->texts[0].text = String(mixer->GetGain(channelIndex), 1) + String("dB 300Hz");
     data->texts[0].size = 0;

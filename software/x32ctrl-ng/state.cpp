@@ -48,7 +48,4 @@ bool State::HasChanged(uint16_t p_flag){
 
 void State::ResetChangeFlags(void){
     changed = X32_MIXER_CHANGED_NONE;
-    // for (uint8_t i=0;i<MAX_VCHANNELS;i++){
-    //     ResetVChannelChangeFlags(vchannel[i]);
-    // }
 }
