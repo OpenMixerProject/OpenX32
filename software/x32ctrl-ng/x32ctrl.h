@@ -28,6 +28,8 @@
 #include "eez/src/ui/ui.h"
 #include "eez/src/ui/vars.h"
 
+#include "tinyosc.h"
+
 char displayEncoderText[6][30];
 static const char* displayEncoderButtonMap[] = {
     displayEncoderText[0],
@@ -91,6 +93,7 @@ class X32Ctrl : public X32Base {
         void setLedChannelIndicator(void);
         uint8_t surfaceCalcPreampMeter(uint8_t channel);
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
+        void xremoteSync(bool syncAll=false);
 
         void ChangeSelect(uint8_t direction);
         void SetSelect(uint8_t vChannelIndex, bool solo);

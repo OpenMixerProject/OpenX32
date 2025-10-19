@@ -475,6 +475,16 @@ void Mixer::SetVolume(uint8_t vChannelIndex, float volume){
     }    
 }    
 
+// Volume in Fadervalue 0x000...0x0FFF
+void Mixer::SetVolumeFadervalue(uint8_t vChannelIndex, float volume){
+    SetVolume(vChannelIndex, helper->Fadervalue2dBfs(volume));
+}
+
+// Volume in Oscvalue 0.000~...1.0
+void Mixer::SetVolumeOscvalue(uint8_t vChannelIndex, float volume){
+    SetVolumeFadervalue(vChannelIndex, helper->Oscvalue2Fadervalue(volume));
+}
+
 void Mixer::ChangeBalance(uint8_t vChannelIndex, int8_t p_amount){
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
@@ -1150,6 +1160,10 @@ float Mixer::GetVolumeDbfs(uint8_t vChannelIndex) {
 
 u_int16_t Mixer::GetVolumeFadervalue(uint8_t vChannelIndex){
     return helper->Dbfs2Fader(GetVolumeDbfs(vChannelIndex));
+}
+
+float Mixer::GetVolumeOscvalue(uint8_t vChannelIndex){
+    return helper->Dbfs2Oscvalue(GetVolumeDbfs(vChannelIndex));
 }
 
 bool Mixer::GetMute(uint8_t dspChannel) {

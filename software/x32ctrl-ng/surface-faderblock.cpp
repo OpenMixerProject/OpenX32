@@ -22,20 +22,9 @@
   GNU General Public License for more details.
 */
 
-#include "volume.h"
+#include "surface-faderblock.h"
 
-void Volume::SetDbfs(float vol){
-    _volumeDbfs = vol;
-}
-
-void Volume::SetFadervalue(float vol){
-    _volumeDbfs = helper->Fadervalue2dBfs(vol);
-}
-
-float Volume::GetDbfs(void){
-    return _volumeDbfs;
-}
-
-float Volume::GetFadervalue(void){
-    return helper->Dbfs2Fader(_volumeDbfs);
+SurfaceFaderblock::SurfaceFaderblock(uint8_t boardId, uint8_t index){
+    _boardId = boardId;
+    _index = index;
 }

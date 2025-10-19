@@ -11,6 +11,7 @@
 #include "lcd.h"
 #include "surface-event.h"
 #include "surface-message.h"
+#include "surface-faderblock.h"
 #include "helper.h"
 #include "vchannel.h"
 
@@ -35,6 +36,7 @@ class Surface : public X32Base
         uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
 
         list<SurfaceEvent*> eventBuffer;
+        list<SurfaceFaderblock*> faderBlockList;
 
         uint8_t int2segment(int8_t p_value);
 
@@ -81,4 +83,7 @@ class Surface : public X32Base
         X32_BTN Button2Enum(uint16_t buttonNr);
         uint16_t Enum2Encoder(X32_ENC encoder);
         X32_ENC Encoder2Enum(uint16_t encoderNr);
+
+        void BlockFader(uint8_t boardId, uint8_t faderIndex);
+        bool IsFaderBlocked(uint8_t boardId, uint8_t faderIndex);
 };

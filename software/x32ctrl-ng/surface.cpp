@@ -859,6 +859,7 @@ void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
     message.AddDataByte((position & 0xFF)); // LSB
     message.AddDataByte((char)((position & 0x0F00) >> 8)); // MSB
     uart.Tx(&message, true);
+    BlockFader(boardId, index);
 }
 
 // set 7-Segment display on X32 Rack
@@ -1286,4 +1287,19 @@ SurfaceEvent* Surface::GetNextEvent(void){
     SurfaceEvent* event = eventBuffer.back();
     eventBuffer.pop_back();
     return event;
+}
+
+
+void Surface::BlockFader(uint8_t boardId, uint8_t faderIndex){
+    faderBlockList.push_front(new SurfaceFaderblock(boardId, faderIndex));
+}
+
+bool Surface::IsFaderBlocked(uint8_t boardId, uint8_t faderIndex){
+    for (auto const& i : faderBlockList) {
+        if ((i->_boardId == boardId)&&(i->_index == faderIndex))
+        {
+            return true;
+        }
+    }
+    return false;
 }

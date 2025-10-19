@@ -36,11 +36,10 @@ class XRemote : public X32Base {
 
         XRemote(X32BaseParameter* basepar);
         int8_t Init();
-        void UpdateAll(Mixer* mixer);
         void AnswerInfo();
         void AnswerXInfo();
         void AnswerStatus();
-        void SetFader(uint8_t ch, float value_pu);
+        void SetFader(String type, uint8_t ch, float value_pu);
         void SetPan(uint8_t ch, float value_pu);
         void SetMainFader(float value_pu);
         void SetMainPan(float value_pu);
@@ -53,7 +52,7 @@ class XRemote : public X32Base {
         void SetSolo(uint8_t ch, uint8_t solo);
         void UpdateMeter(Mixer* mixer);
         void SendUdpPacket(char* buffer, uint16_t size);
-        void SendBasicMessage(char* cmd, char type, char format, char* value);
+        void SendBasicMessage(const char* cmd, char type, char format, char* value);
         uint16_t sprint(char* bd, uint16_t index, char format, const char* bs);
         uint16_t fprint(char* bd, uint16_t index, char* text, char format, char* bs);
 };

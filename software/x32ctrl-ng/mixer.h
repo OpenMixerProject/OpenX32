@@ -51,6 +51,8 @@ class Mixer : public X32Base
         void SetSolo(uint8_t vChannelIndex, bool solo);
         void SetMute(uint8_t vChannelIndex, bool solo);
         void SetVolume(uint8_t vChannelIndex, float p_volume);
+        void SetVolumeFadervalue(uint8_t vChannelIndex, float volume);
+        void SetVolumeOscvalue(uint8_t vChannelIndex, float volume);
         void SetPeq(uint8_t vChannelIndex, uint8_t eqIndex, char option, float value);
         void SetGain(uint8_t vChannelIndex, float gain);
         void SetBusSend(uint8_t vChannelIndex, uint8_t index, float value);
@@ -79,6 +81,7 @@ class Mixer : public X32Base
         VChannel* GetVChannel(uint8_t vCHannelIndex);
         float GetVolumeDbfs(uint8_t vChannelIndex);
         u_int16_t GetVolumeFadervalue(uint8_t vChannelIndex);
+        float GetVolumeOscvalue(uint8_t vChannelIndex);
         bool GetMute(uint8_t dspChannel);
         bool GetSolo(uint8_t dspChannel);
         float GetBalance(uint8_t dspChannel);

@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#define X32CTRL_VERSION "V2.0"
+
 #define PI 3.14159265358979323846
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
 #define SURFACE_MAX_PACKET_LENGTH 32
@@ -52,14 +54,13 @@
 #define X32_MIXER_CHANGED_ROUTING          0b0000000000000010
 // bank was changed
 #define X32_MIXER_CHANGED_BANKING          0b0000000000000100
-#define X32_MIXER_CHANGED_LCD              0b0000000000001000
+//#define X32_MIXER_CHANGED_LCD              0b0000000000001000
 // value in vChannel has changed
 #define X32_MIXER_CHANGED_VCHANNEL         0b0000000000010000
 // displayed page changed
 #define X32_MIXER_CHANGED_PAGE             0b0000000000100000
 // gui parameter has changed (general screen-refresh requested)
 #define X32_MIXER_CHANGED_GUI              0b1000000000000000
-
 
 #define SURFACE_COLOR_BLACK 0
 #define SURFACE_COLOR_RED 1

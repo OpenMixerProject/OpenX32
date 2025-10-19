@@ -528,16 +528,10 @@ void X32Ctrl::ProcessEvents(void){
 //             break;
 //     }
 // }
-
-  // ############################################
-  // #
-  // #      XRemote-Events
-  // #
-  // ############################################
-
-  UdpHandleCommunication();
-
 }
+
+
+
 
 // receive data from XRemote client
 void X32Ctrl::UdpHandleCommunication(void) {
@@ -552,103 +546,89 @@ void X32Ctrl::UdpHandleCommunication(void) {
         socklen_t xremoteClientAddrLen = sizeof(xremote->ClientAddr);
         uint8_t len = recvfrom(xremote->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremote->ClientAddr, &xremoteClientAddrLen);
 
-		helper->Debug(DEBUG_XREMOTE, "XRemote data received: %s\n", rxData);
-        
-        if (len > 0) {
-            if (String(rxData) != "/renew") {
-                //fprintf(stdout, "Received command: %s\n", rxData);
-            }
-            
-            if (memcmp(rxData, "/inf", 4) == 0) {
-                // info
-                xremote->AnswerInfo();
-            }else if (memcmp(rxData, "/xinf", 4) == 0) {
-                // xinfo
-                xremote->AnswerXInfo();
-            }else if (memcmp(rxData, "/sta", 4) == 0) {
-                // status
-                xremote->AnswerStatus();
-            }else if (memcmp(rxData, "/xre", 4) == 0) {
-                // xremote
-                // Optional: read and store IP-Address of client
-                // send routing, names and colors
-                for (uint8_t i=0; i<32; i++) {
-                    xremote->SetName(i+1, String("Ch") + String(i+1)); // TODO: implement own data
-                    xremote->SetColor(i+1, 0); // TODO: implement own data
-                    xremote->SetSource(i+1, i+1);
-                }
-                xremote->SetCard(10); // X-LIVE
-            }else if (memcmp(rxData, "/uns", 4) == 0) {
-                // unsubscribe
-                // Optional: remove xremote client
-            }else if (memcmp(rxData, "/ch/", 4) == 0) {
-                // channel
+		tosc_message osc;
 
+		if (!tosc_parseMessage(&osc, rxData, len)) {
+			string adrPath = string(tosc_getAddress(&osc));
+    		vector<string> address = helper->split(adrPath, "/");
+			address.erase(address.begin()); // delete empty element
+			string format = string(tosc_getFormat(&osc));
+
+			helper->Debug(DEBUG_XREMOTE, "XRemote data received: ");
+			helper->DebugPrintMessageWithNullBytes(DEBUG_XREMOTE, rxData, len);
+		
+			if (address[0] == "renew") {
+                //fprintf(stdout, "Received command: %s\n", rxData);
+            } else if (address[0] == "info") {
+                xremote->AnswerInfo();
+            } else if (address[0] == "xinfo") {
+                xremote->AnswerXInfo();
+            } else if (address[0] == "status") {
+                xremote->AnswerStatus();
+            } else if (address[0] == "xremote") {
+                // Optional: read and store IP-Address of client
+				//xremoteSync(true);
+            } else if (address[0] == "unsubscribe") {
+                // Optional: remove xremote client
+            } else if (address[0] == "ch") {
                 // /ch/xx/mix/fader~~~~,f~~[float]
                 // /ch/xx/mix/pan~~,f~~[float]
                 // /ch/xx/mix/on~~~,i~~[int]
-                channel = ((rxData[4]-48)*10 + (rxData[5]-48)) - 1;
-                if (len > 13) {
-                    if ((rxData[7] == 'm') && (rxData[8] == 'i') && (rxData[9] == 'x')) {
-                        if ((rxData[11] == 'f') && (rxData[12] == 'a') && (rxData[13] == 'd')) {
-                            // get fader-value
-                            value32bit.u8[0] = rxData[27];
-                            value32bit.u8[1] = rxData[26];
-                            value32bit.u8[2] = rxData[25];
-                            value32bit.u8[3] = rxData[24];
-                            
-                            float newVolume = (value32bit.f * 54.0f) - 48.0f;
-                            mixer->SetVolume(channel, newVolume);
-                            helper->Debug(DEBUG_XREMOTE, "Ch %u: Volume set to %f\n",  channel+1, newVolume);
-                        }else if ((rxData[11] == 'p') && (rxData[12] == 'a') && (rxData[13] == 'n')) {
-                            // get pan-value
-                            value32bit.u8[0] = rxData[23];
-                            value32bit.u8[1] = rxData[22];
-                            value32bit.u8[2] = rxData[21];
-                            value32bit.u8[3] = rxData[20];
-                            
-                            //encoderValue = value32bit.f * 255.0f;
-                            mixer->SetBalance(channel,  value32bit.f * 100.0f);
-                            helper->Debug(DEBUG_XREMOTE, "Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
-                        }else if ((rxData[11] == 'o') && (rxData[12] == 'n')) {
-                            // get mute-state (caution: here it is "mixer-on"-state)
-                            mixer->SetMute(channel, (rxData[20+3] == 0));
-                            helper->Debug(DEBUG_XREMOTE, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
-                        }
-                    }else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
-                        // config
-                        if  ((rxData[14] == 'c') && (rxData[15] == 'o') && (rxData[16] == 'l')) {
-                            // color
-                            value32bit.u8[0] = rxData[27];
-                            value32bit.u8[1] = rxData[26];
-                            value32bit.u8[2] = rxData[25];
-                            value32bit.u8[3] = rxData[24];
-                            
-                            if (value32bit.u32 < 8) {
-                                //fprintf(stdout, "Ch %u: Set color to %u\n",  channel+1, value32bit.u32);
-                            }else{
-                                //fprintf(stdout, "Ch %u: Set inverted color to %u\n",  channel+1, value32bit.u32 - 8 +64);
-                            }
-                        }else if  ((rxData[14] == 'n') && (rxData[15] == 'a') && (rxData[16] == 'm')) {
-                            // name
-                            String name = String(&rxData[24]);
-                            //fprintf(stdout, "Ch %u: Set name to %s\n",  channel+1, name.c_str());
-                        }else if  ((rxData[14] == 'i') && (rxData[15] == 'c') && (rxData[16] == 'o')) {
-                            // icon
-                            value32bit.u8[0] = rxData[27];
-                            value32bit.u8[1] = rxData[26];
-                            value32bit.u8[2] = rxData[25];
-                            value32bit.u8[3] = rxData[24];
-                            
-                            // do something with channel and value32bit.f
-                            //Serial.println("/ch/" + String(channel) + "/config/icon " + String(value32bit.u32));
-                            //fprintf(stdout, "Ch %u: Set icon to %u\n",  channel+1, value32bit.u32);
-                        }
-                    }
-                }
-            }else if (memcmp(rxData, "/mai", 4) == 0) {
-                // main
-                
+
+                //channel = ((rxData[4]-48)*10 + (rxData[5]-48)) - 1;
+				channel = stoi(address[1]);
+
+				if (address[2] == "mix") {
+					if (address[3] == "fader") {
+						float newVolume = tosc_getNextFloat(&osc);
+						mixer->SetVolumeOscvalue(channel-1, newVolume);
+						helper->Debug(DEBUG_XREMOTE, "Ch %u: Volume set to %f\n", channel, newVolume);
+					}else if (address[3] == "pan") {
+						// get pan-value
+						value32bit.u8[0] = rxData[23];
+						value32bit.u8[1] = rxData[22];
+						value32bit.u8[2] = rxData[21];
+						value32bit.u8[3] = rxData[20];
+						
+						//encoderValue = value32bit.f * 255.0f;
+						mixer->SetBalance(channel,  value32bit.f * 100.0f);
+						helper->Debug(DEBUG_XREMOTE, "Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
+					}else if (address[3] == "on") {
+						// get mute-state (caution: here it is "mixer-on"-state)
+						mixer->SetMute(channel, (rxData[20+3] == 0));
+						helper->Debug(DEBUG_XREMOTE, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
+					}
+				}else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
+					// config
+					if  ((rxData[14] == 'c') && (rxData[15] == 'o') && (rxData[16] == 'l')) {
+						// color
+						value32bit.u8[0] = rxData[27];
+						value32bit.u8[1] = rxData[26];
+						value32bit.u8[2] = rxData[25];
+						value32bit.u8[3] = rxData[24];
+						
+						if (value32bit.u32 < 8) {
+							//fprintf(stdout, "Ch %u: Set color to %u\n",  channel+1, value32bit.u32);
+						}else{
+							//fprintf(stdout, "Ch %u: Set inverted color to %u\n",  channel+1, value32bit.u32 - 8 +64);
+						}
+					}else if  ((rxData[14] == 'n') && (rxData[15] == 'a') && (rxData[16] == 'm')) {
+						// name
+						String name = String(&rxData[24]);
+						//fprintf(stdout, "Ch %u: Set name to %s\n",  channel+1, name.c_str());
+					}else if  ((rxData[14] == 'i') && (rxData[15] == 'c') && (rxData[16] == 'o')) {
+						// icon
+						value32bit.u8[0] = rxData[27];
+						value32bit.u8[1] = rxData[26];
+						value32bit.u8[2] = rxData[25];
+						value32bit.u8[3] = rxData[24];
+						
+						// do something with channel and value32bit.f
+						//Serial.println("/ch/" + String(channel) + "/config/icon " + String(value32bit.u32));
+						//fprintf(stdout, "Ch %u: Set icon to %u\n",  channel+1, value32bit.u32);
+					}
+				}
+            } else if (address[0] == "main") {
                 // /main/st/mix/fader~~,f~~[float]
                 // /main/st/mix/pan~~~~,f~~[float]
                 // /main/st/mix/on~,i~~[int]
@@ -724,7 +704,23 @@ void X32Ctrl::UdpHandleCommunication(void) {
         }else{
             //fprintf(stdout, "Caution: len <= 0");
         }
-    }
+
+
+
+			// tosc_getFormat(&osc)); // the OSC format string, e.g. "f"
+			// 	for (int i = 0; osc.format[i] != '\0'; i++) {
+			// 		switch (osc.format[i]) {
+			// 			case 'f': printf("%g ", tosc_getNextFloat(&osc)); break;
+			// 			case 'i': printf("%i ", tosc_getNextInt32(&osc)); break;
+			// 			// returns NULL if the buffer length is exceeded
+			// 			case 's': printf("%s ", tosc_getNextString(&osc)); break;
+			// 			default: continue;
+			// 	}
+		    // }
+			// printf("\n");
+	}
+
+
 }
 
 // ####################################################################
@@ -905,29 +901,23 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 }
 
 //#####################################################################################################################
-//#####################################################################################################################
 //
-// 			##### #   # #   # #####
-// 			#	   # #  ##  # #
-// 			#####   #   # # # # 
-// 			    #   #   #  ## # 
-// 			#####   #   #   # #####
+//  ######  ##    ## ##    ##  ######  
+// ##    ##  ##  ##  ###   ## ##    ## 
+// ##         ####   ####  ## ##       
+//  ######     ##    ## ## ## ##       
+//       ##    ##    ##  #### ##       
+// ##    ##    ##    ##   ### ##    ## 
+//  ######     ##    ##    ##  ######
 //
-//#####################################################################################################################
 //#####################################################################################################################
 
 void X32Ctrl::syncAll(void) {
 	if (state->HasAnyChanged()){
-		if (
-			state->HasChanged(X32_MIXER_CHANGED_PAGE)    ||
-			state->HasChanged(X32_MIXER_CHANGED_BANKING) ||
-			state->HasChanged(X32_MIXER_CHANGED_SELECT)  ||
-			state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) ||
-			state->HasChanged(X32_MIXER_CHANGED_GUI)
-		   ) {
-			guiSync();
-			surfaceSync();
-		}
+		guiSync();
+		surfaceSync();
+		xremoteSync();
+
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
 			// TODO Maybe?: do not sync if just selection has changed
 			mixer->SyncVChannelsToHardware();
@@ -946,218 +936,225 @@ void X32Ctrl::guiSync(void) {
 		return;
 	}
 
-	helper->Debug(DEBUG_GUI, "Active Page: %d\n", activePage);
+	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)    ||
+		state->HasChanged(X32_MIXER_CHANGED_BANKING) ||
+		state->HasChanged(X32_MIXER_CHANGED_SELECT)  ||
+		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)||
+		state->HasChanged(X32_MIXER_CHANGED_GUI)) {
 
-	VChannel* chan = GetSelectedvChannel();
-	uint8_t chanIndex = GetSelectedvChannelIndex();
+		helper->Debug(DEBUG_GUI, "Active Page: %d\n", activePage);
 
-	//####################################
-	//#         General
-	//####################################
+		VChannel* chan = GetSelectedvChannel();
+		uint8_t chanIndex = GetSelectedvChannelIndex();
 
-	lv_color_t color;
-	switch (chan->color){
-		case SURFACE_COLOR_BLACK:
-			color = lv_color_make(0, 0, 0);
-			break;
-		case SURFACE_COLOR_RED:
-			color = lv_color_make(255, 0, 0);
-			break;
-		case SURFACE_COLOR_GREEN:
-			color = lv_color_make(0, 255, 0);
-			break;
-		case SURFACE_COLOR_YELLOW:
-			color = lv_color_make(255, 255, 0);
-			break;
-		case SURFACE_COLOR_BLUE:
-			color = lv_color_make(0, 0, 255);
-			break;
-		case SURFACE_COLOR_PINK:
-			color = lv_color_make(255, 0, 255);
-			break;
-		case SURFACE_COLOR_CYAN:
-			color = lv_color_make(0, 255, 255);
-			break;
-		case SURFACE_COLOR_WHITE:
-			color = lv_color_make(255, 255, 255);
-			break;
-	}
+		//####################################
+		//#         General
+		//####################################
 
-	lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
-	lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
-	lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
+		lv_color_t color;
+		switch (chan->color){
+			case SURFACE_COLOR_BLACK:
+				color = lv_color_make(0, 0, 0);
+				break;
+			case SURFACE_COLOR_RED:
+				color = lv_color_make(255, 0, 0);
+				break;
+			case SURFACE_COLOR_GREEN:
+				color = lv_color_make(0, 255, 0);
+				break;
+			case SURFACE_COLOR_YELLOW:
+				color = lv_color_make(255, 255, 0);
+				break;
+			case SURFACE_COLOR_BLUE:
+				color = lv_color_make(0, 0, 255);
+				break;
+			case SURFACE_COLOR_PINK:
+				color = lv_color_make(255, 0, 255);
+				break;
+			case SURFACE_COLOR_CYAN:
+				color = lv_color_make(0, 255, 255);
+				break;
+			case SURFACE_COLOR_WHITE:
+				color = lv_color_make(255, 255, 255);
+				break;
+		}
 
-	// //set Encoders to default state
-	// const char*  encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
-	// lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
+		lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
+		lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
+		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 
-	//####################################
-	//#         Page Home
-	//####################################
+		// //set Encoders to default state
+		// const char*  encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
+		// lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
 
-	bool phantomPower = mixer->GetPhantomPower(GetSelectedvChannelIndex());
-	
-	if (activePage == X32_PAGE_CONFIG){
-	//####################################
-	//#         Page Config
-	//####################################
-		char dspSourceName[5] = "";
-		char inputSourceName[10] = "";
-		// TODO dspGetSourceName(&dspSourceName[0], pChannelSelected.index);
-		sprintf(&inputSourceName[0], "%02d: %s", (chanIndex + 1), dspSourceName);
-		lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
+		//####################################
+		//#         Page Home
+		//####################################
 
-		lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)mixer->GetGain(chanIndex));
-		lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
-		lv_label_set_text_fmt(objects.current_channel_invert, "%d", mixer->GetPhaseInvert(chanIndex));
-		lv_label_set_text_fmt(objects.current_channel_pan_bal, "%f", (double)mixer->GetBalance(chanIndex));
-		lv_label_set_text_fmt(objects.current_channel_volume, "%f", (double)mixer->GetVolumeDbfs(chanIndex));
+		bool phantomPower = mixer->GetPhantomPower(GetSelectedvChannelIndex());
+		
+		if (activePage == X32_PAGE_CONFIG){
+		//####################################
+		//#         Page Config
+		//####################################
+			char dspSourceName[5] = "";
+			char inputSourceName[10] = "";
+			// TODO dspGetSourceName(&dspSourceName[0], pChannelSelected.index);
+			sprintf(&inputSourceName[0], "%02d: %s", (chanIndex + 1), dspSourceName);
+			lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
+
+			lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)mixer->GetGain(chanIndex));
+			lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
+			lv_label_set_text_fmt(objects.current_channel_invert, "%d", mixer->GetPhaseInvert(chanIndex));
+			lv_label_set_text_fmt(objects.current_channel_pan_bal, "%f", (double)mixer->GetBalance(chanIndex));
+			lv_label_set_text_fmt(objects.current_channel_volume, "%f", (double)mixer->GetVolumeDbfs(chanIndex));
 
 
-		//char outputDestinationName[10] = "";
-		//routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
-		//lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
+			//char outputDestinationName[10] = "";
+			//routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
+			//lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
-		guiSetEncoderText("Source", "Gain", "-", "-", "-", "-");
-	}else if (activePage == X32_PAGE_ROUTING) {
-	//####################################
-	//#         Page Routing
-	//####################################
-		// char outputDestinationName[10] = "";
-		// char inputSourceName[10] = "";
-		// uint8_t routingIndex = 0;
+			guiSetEncoderText("Source", "Gain", "-", "-", "-", "-");
+		}else if (activePage == X32_PAGE_ROUTING) {
+		//####################################
+		//#         Page Routing
+		//####################################
+			// char outputDestinationName[10] = "";
+			// char inputSourceName[10] = "";
+			// uint8_t routingIndex = 0;
 
-		// // read name of selected output-routing channel
-		// fpgaRoutingGetOutputNameByIndex(&outputDestinationName[0], selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
-		// lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
+			// // read name of selected output-routing channel
+			// fpgaRoutingGetOutputNameByIndex(&outputDestinationName[0], selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
+			// lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
 
-		// // find name of currently set input-source
-		// routingIndex = fpgaRoutingGetOutputSourceByIndex(selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
-		// fpgaRoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
-		// lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
+			// // find name of currently set input-source
+			// routingIndex = fpgaRoutingGetOutputSourceByIndex(selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
+			// fpgaRoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
+			// lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
 
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
-	}else if (activePage == X32_PAGE_EQ) {
-	//####################################
-	//#         Page EQ
-	//####################################
-		// draw EQ-plot
-		DrawEq(GetSelectedvChannelIndex());
+			guiSetEncoderText("-", "-", "-", "-", "-", "-");
+		}else if (activePage == X32_PAGE_EQ) {
+		//####################################
+		//#         Page EQ
+		//####################################
+			// draw EQ-plot
+			DrawEq(GetSelectedvChannelIndex());
 
-		if (chanIndex < 40) {
-			// support EQ-channel
-			guiSetEncoderText("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
-				"F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].fc),
-				"G: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].gain, 1) + " dB",
-				"Q: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].Q, 1),
-				"M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].type),
-				"PEQ: " + String(activeEQ + 1)
+			if (chanIndex < 40) {
+				// support EQ-channel
+				guiSetEncoderText("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
+					"F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].fc),
+					"G: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].gain, 1) + " dB",
+					"Q: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].Q, 1),
+					"M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].type),
+					"PEQ: " + String(activeEQ + 1)
+				);
+			}else{
+				// unsupported at the moment
+				guiSetEncoderText("-", "-", "-", "-", "-", "-");
+			}
+		}else if (activePage == X32_PAGE_METERS) {
+		//####################################
+		//#         Page Meters
+		//####################################
+
+			// TODO
+
+			for(int i=0; i<=15; i++){
+				VChannel* chan = GetVChannel(i);
+				uint8_t chanIndex = i;
+
+				if (mixer->GetPhantomPower(i)){
+					lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+				} else {
+					lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+				}
+
+				switch (i){
+					case 0:
+						lv_slider_set_value(objects.slider01, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 1:
+						lv_slider_set_value(objects.slider02, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 2:
+						lv_slider_set_value(objects.slider03, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 3:
+						lv_slider_set_value(objects.slider04, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 4:
+						lv_slider_set_value(objects.slider05, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 5:
+						lv_slider_set_value(objects.slider06, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 6:
+						lv_slider_set_value(objects.slider07, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 7:
+						lv_slider_set_value(objects.slider08, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 8:
+						lv_slider_set_value(objects.slider09, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 9:
+						lv_slider_set_value(objects.slider10, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 10:
+						lv_slider_set_value(objects.slider11, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 11:
+						lv_slider_set_value(objects.slider12, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 12:
+						lv_slider_set_value(objects.slider13, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 13:
+						lv_slider_set_value(objects.slider14, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 14:
+						lv_slider_set_value(objects.slider15, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+					case 15:
+						lv_slider_set_value(objects.slider16, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+						break;
+				}
+			}
+
+			lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
+				(double)mixer->dsp->Channel[0].volumeLR,
+				(double)mixer->dsp->Channel[1].volumeLR,
+				(double)mixer->dsp->Channel[2].volumeLR,
+				(double)mixer->dsp->Channel[3].volumeLR,
+				(double)mixer->dsp->Channel[4].volumeLR,
+				(double)mixer->dsp->Channel[5].volumeLR,
+				(double)mixer->dsp->Channel[6].volumeLR,
+				(double)mixer->dsp->Channel[7].volumeLR
 			);
+		}else if (activePage == X32_PAGE_SETUP) {
+		//####################################
+		//#         Page Setup
+		//####################################
+
+			// pChannelSelected.solo ?
+			//     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+			//     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+
+			// pChannelSelected.mute ?
+			//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
+			//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+		}else if (activePage == X32_PAGE_UTILITY) {
+		//####################################
+		//#         Page Meters
+		//####################################
+			guiSetEncoderText("-", "-", "-", "-", "-", String(state->debugvalue).c_str());
 		}else{
-			// unsupported at the moment
+		//####################################
+		//#         All other pages
+		//####################################
 			guiSetEncoderText("-", "-", "-", "-", "-", "-");
 		}
-	}else if (activePage == X32_PAGE_METERS) {
-	//####################################
-	//#         Page Meters
-	//####################################
-
-		// TODO
-
-		for(int i=0; i<=15; i++){
-			VChannel* chan = GetVChannel(i);
-			uint8_t chanIndex = i;
-
-			if (mixer->GetPhantomPower(i)){
-			    lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-			} else {
-			    lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-			}
-
-			switch (i){
-				case 0:
-					lv_slider_set_value(objects.slider01, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 1:
-					lv_slider_set_value(objects.slider02, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 2:
-					lv_slider_set_value(objects.slider03, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 3:
-					lv_slider_set_value(objects.slider04, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 4:
-					lv_slider_set_value(objects.slider05, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 5:
-					lv_slider_set_value(objects.slider06, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 6:
-					lv_slider_set_value(objects.slider07, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 7:
-					lv_slider_set_value(objects.slider08, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 8:
-					lv_slider_set_value(objects.slider09, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 9:
-					lv_slider_set_value(objects.slider10, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 10:
-					lv_slider_set_value(objects.slider11, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 11:
-					lv_slider_set_value(objects.slider12, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 12:
-					lv_slider_set_value(objects.slider13, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 13:
-					lv_slider_set_value(objects.slider14, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 14:
-					lv_slider_set_value(objects.slider15, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-				case 15:
-					lv_slider_set_value(objects.slider16, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-					break;
-			}
-		}
-
-		lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-			(double)mixer->dsp->Channel[0].volumeLR,
-			(double)mixer->dsp->Channel[1].volumeLR,
-			(double)mixer->dsp->Channel[2].volumeLR,
-			(double)mixer->dsp->Channel[3].volumeLR,
-			(double)mixer->dsp->Channel[4].volumeLR,
-			(double)mixer->dsp->Channel[5].volumeLR,
-			(double)mixer->dsp->Channel[6].volumeLR,
-			(double)mixer->dsp->Channel[7].volumeLR
-		);
-	}else if (activePage == X32_PAGE_SETUP) {
-	//####################################
-	//#         Page Setup
-	//####################################
-
-		// pChannelSelected.solo ?
-		//     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-		//     lv_imagebutton_set_state(objects.setup_solo, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
-
-		// pChannelSelected.mute ?
-		//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
-		//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
-	}else if (activePage == X32_PAGE_UTILITY) {
-	//####################################
-	//#         Page Meters
-	//####################################
-		guiSetEncoderText("-", "-", "-", "-", "-", String(state->debugvalue).c_str());
-	}else{
-	//####################################
-	//#         All other pages
-	//####################################
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
 	}
 }
 
@@ -1208,7 +1205,7 @@ void X32Ctrl::surfaceSyncBoardMain() {
 				// update gain-encoder
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_GAIN) >> 8, surface->Enum2Encoder(X32_ENC_GAIN) & 0xFF, 0, (mixer->GetGain(chanIndex) + 12.0f)/0.72f, 1);
 			}
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
+			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
 				// update pan-encoder
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_PAN) >> 8, surface->Enum2Encoder(X32_ENC_PAN) & 0xFF, 2, (mixer->GetBalance(chanIndex) + 100.0f)/2.0f, 1);
 			}
@@ -1301,9 +1298,12 @@ void X32Ctrl::surfaceSyncBoardMain() {
 
 void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 	bool fullSync = false;
+	VChannel* chan = GetSelectedvChannel();
+	uint8_t chanIndex = GetSelectedvChannelIndex();
 
-	if (state->HasChanged(X32_MIXER_CHANGED_BANKING)) {
-		fullSync=true;
+	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
+		// channel selection has changed - do a full sync
+		fullSync=true; 
 	}
 
 	uint8_t offset = 0;
@@ -1368,7 +1368,7 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 					chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)        ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
 					chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
-				   )
+				)
 				{
 					helper->Debug(DEBUG_SURFACE, " LCD");
 					SetLcdFromVChannel(p_board, i, channelIndex);
@@ -1677,6 +1677,68 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 	}
 }
 
+// sync mixer state to GUI
+void X32Ctrl::xremoteSync(bool syncAll) {
+	bool fullSync = false;
+
+	if (syncAll || state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
+		// channel selection has changed - do a full sync
+		fullSync=true; 
+	}
+	
+	// DEBUG
+	xremote->SetCard(10); // X-LIVE
+
+	for(uint8_t i=0; i<X32_VCHANNEL_BLOCKSIZE_NORMAL; i++) {
+		uint8_t chanindex = i;
+		VChannel* chan = mixer->GetVChannel(i);
+		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
+			xremote->SetFader(String("ch"), chanindex, mixer->GetVolumeOscvalue(chanindex));
+		}
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
+		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
+		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
+		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
+		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
+		// }
+	}
+
+	for(uint8_t i=X32_VCHANNEL_BLOCK_AUX; i<X32_VCHANNEL_BLOCKSIZE_AUX; i++) {
+		uint8_t chanindex = i;
+		VChannel* chan = mixer->GetVChannel(i);
+		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
+			xremote->SetFader(String("auxin"), chanindex, mixer->GetVolumeOscvalue(chanindex));
+		}
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
+		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
+		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
+		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
+		// }
+		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
+		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
+		// }
+	}
+	
+	// update meters everytime
+    xremote->UpdateMeter(mixer);
+}
+
 // ####################################################################
 // #
 // #
@@ -1791,14 +1853,17 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 			}
 		}
 
-		vchannelIndex = SurfaceChannel2vChannel(event->index + offset);
-		mixer->SetVolume(vchannelIndex, helper->Fader2dBfs(event->value));
+		// TODO implement properly
+		//if (!surface->IsFaderBlocked(event->boardId, event->index)){
+			vchannelIndex = SurfaceChannel2vChannel(event->index + offset);
+			mixer->SetVolume(vchannelIndex, helper->Fadervalue2dBfs(event->value));
 
-		touchcontrol.board = event->boardId;
-		touchcontrol.faderIndex = event->index;
-		touchcontrol.value = 5;
+			touchcontrol.board = event->boardId;
+			touchcontrol.faderIndex = event->index;
+			touchcontrol.value = 5;
 
-		helper->Debug(DEBUG_SURFACE, "FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
+			helper->Debug(DEBUG_SURFACE, "FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
+		//}
 	}
 }
 

@@ -58,26 +58,10 @@ int8_t XRemote::Init() {
     return 0;
 }
 
-// send data to XRemote client
-void XRemote::UpdateAll(Mixer* mixer) {
-    for(uint8_t i=0; i<32; i++) {
-        uint8_t chanindex = i+1;
-        SetFader(chanindex, mixer->vchannel[chanindex]->dspChannel->volumeLR);
-        SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
-        SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
-        SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
-        SetColor(chanindex, mixer->vchannel[chanindex]->color); // TODO: 0=BLACK, 1=RED, 2=GREEN, 3=YELLOW, 4=BLUE, 5=PINK, 6=CYAN, 7=WHITE (add 64 to invert)
-        SetName(chanindex, mixer->vchannel[chanindex]->name);
-    }
-    UpdateMeter(mixer);
-}
-
-
-
 void XRemote::AnswerInfo() {
     uint16_t len = sprint(TxMessage, 0, 's', "/info");
     len = sprint(TxMessage, len, 's', ",ssss");
-    len = sprint(TxMessage, len, 's', "V2.07");
+    len = sprint(TxMessage, len, 's', X32CTRL_VERSION);
     len = sprint(TxMessage, len, 's', "OpenX32");
     len = sprint(TxMessage, len, 's', "X32"); // must be a known device by X-Edit
     len = sprint(TxMessage, len, 's', "4.13"); // must be a supported firmware-version by X-Edit
@@ -106,10 +90,12 @@ void XRemote::AnswerStatus() {
     SendUdpPacket(TxMessage, len);
 }
 
-void XRemote::SetFader(uint8_t ch, float value_pu) {
+void XRemote::SetFader(String type, uint8_t ch, float value) {
     char cmd[32] = {0};
-    sprintf(cmd, "/ch/%02i/mix/fader", ch);
-    SendBasicMessage(cmd, 'f', 'b', (char*)&value_pu);
+    sprintf(cmd, "/%s/%02i/mix/fader", type.c_str(), ch+1);
+    
+    //SendBasicMessage((String("/") + type + String("/") + String() + String("/mix/fader")).c_str(), 'f', 'b', (char*)&value_pu);
+    SendBasicMessage(cmd, 'f', 'b', (char*)&value);
 }
 
 void XRemote::SetPan(uint8_t ch, float value_pu) {
@@ -126,11 +112,11 @@ void XRemote::SetMainPan(float value_pu) {
     SendBasicMessage("/main/st/mix/pan", 'f', 'b', (char*)&value_pu);
 }
 
-void XRemote::SetName(uint8_t ch, String name) {
+void XRemote::SetName(uint8_t vchannelIndex, String name) {
     char nameArray[12] = {0};
     char cmd[50] = {0};
     name.toCharArray(nameArray, 12);
-    sprintf(cmd, "/ch/%02i/config/name", ch);
+    sprintf(cmd, "/ch/%02i/config/name", vchannelIndex+1);
     SendBasicMessage(cmd, 's', 's', nameArray);
 }
 
@@ -231,7 +217,7 @@ void XRemote::SendUdpPacket(char* buffer, uint16_t size) {
     );
 }
 
-void XRemote::SendBasicMessage(char* cmd, char type, char format, char* value) {
+void XRemote::SendBasicMessage(const char* cmd, char type, char format, char* value) {
     char tmp[3];
     tmp[0] = ',';
     tmp[1] = type;
@@ -240,6 +226,8 @@ void XRemote::SendBasicMessage(char* cmd, char type, char format, char* value) {
     uint16_t len = sprint(TxMessage, 0, 's', cmd);
     len = sprint(TxMessage, len, 's', tmp);
     len = sprint(TxMessage, len, format, value);
+    //helper->Debug(DEBUG_XREMOTE, (String(TxMessage) + String("\n")).c_str(), );
+    helper->DebugPrintMessageWithNullBytes(DEBUG_XREMOTE, TxMessage, len);
     SendUdpPacket(TxMessage, len);
 }
 
