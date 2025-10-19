@@ -361,7 +361,7 @@ void Mixer::ToggleMute(uint8_t vChannelIndex){
 void Mixer::SetGain(uint8_t p_vChannelIndex, float gain) {
     VChannel* chan = GetVChannel(p_vChannelIndex);
 
-    if(chan->vChannelType = X32_VCHANNELTYPE_NORMAL) {
+    if(chan->vChannelType == X32_VCHANNELTYPE_NORMAL) {
 
         uint8_t channelInputSource = dsp->Channel[p_vChannelIndex].inputSource;
 
@@ -1091,6 +1091,8 @@ VChannel* Mixer::GetVChannel(uint8_t vCHannelIndex){
 
 float Mixer::GetVolumeDbfs(uint8_t vChannelIndex) {
     VChannel* chan = GetVChannel(vChannelIndex);
+
+    helper->Debug("GetVolumeDbfs() vchannel name: %s type: %d\n", chan->name, chan->vChannelType);
 
     switch(chan->vChannelType){
         case X32_VCHANNELTYPE_NORMAL: {
