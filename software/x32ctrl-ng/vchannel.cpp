@@ -68,7 +68,7 @@ void VChannel::ChangeInput(int8_t amount){
     85..92: DSP2 Aux-Channel 1-8
     */
 
-    helper->Debug("mixerChangeVChannel(): dspChannel=%d\n", dspChannel->inputSource);
+    helper->Debug(DEBUG_VCHANNEL, "mixerChangeVChannel(): dspChannel=%d\n", dspChannel->inputSource);
 
     int16_t newValue = (int16_t)dspChannel->inputSource + amount;
 

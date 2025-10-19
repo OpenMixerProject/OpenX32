@@ -66,7 +66,7 @@ void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     x32_btn_def[buttonDefinitionIndex].button = p_button;
     x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
     buttonDefinitionIndex++;
-    helper->Debug("added button definition: Button %d -> ButtonNr %d\n", p_button, p_buttonNr);
+    helper->Debug(DEBUG_SURFACE, "added button definition: Button %d -> ButtonNr %d\n", p_button, p_buttonNr);
 }
 
 void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
@@ -79,7 +79,7 @@ void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
     x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
     encoderDefinitionIndex++;
-    helper->Debug("added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
+    helper->Debug(DEBUG_SURFACE, "added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
 }
 
 
@@ -1183,7 +1183,7 @@ void Surface::ProcessUartData() {
             
         */
 
-        helper->Debug("surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d\n", surfacePacketCurrent, surfacePacketCurrentIndex);
+        helper->Debug(DEBUG_SURFACE, "surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d\n", surfacePacketCurrent, surfacePacketCurrentIndex);
         lastPackageIncomplete = true;
     }
 
@@ -1252,7 +1252,7 @@ void Surface::ProcessUartData() {
             }       
 
             if (valid){
-                helper->Debug("surfaceCallback(%d, %02X, %02X, %04X)\n", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+                helper->Debug(DEBUG_SURFACE, "surfaceCallback(%d, %02X, %02X, %04X)\n", receivedBoardId, receivedClass, receivedIndex, receivedValue);
                 eventBuffer.push_back(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }

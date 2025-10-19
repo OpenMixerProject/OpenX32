@@ -22,8 +22,8 @@ class Helper{
         Helper(Config* config);
         void Log(const char* format, ...);
         void Error(const char* format, ...);
-        void SetDebug(int value);
         void Debug(const char* format, ...);
+        void Debug(uint16_t debugFlag, const char* format, ...);
         unsigned int Checksum(char* str);
         int ReadConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
         

@@ -114,7 +114,7 @@ void Adda::SetSamplerate(uint32_t samplerate) {
 }
 
 void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower) {
-	helper->Debug("addaSetGain(%d, %d, %f, %d)\n", boardId, channel, gain, phantomPower);
+	helper->Debug(DEBUG_ADDA, "addaSetGain(%d, %d, %f, %d)\n", boardId, channel, gain, phantomPower);
 
 	AddaMessage message;
 
@@ -141,7 +141,7 @@ void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPow
 }
 
 String Adda::SendReceive(char* cmd, uint16_t timeout) {
-		helper->Debug("addaSendReceive(%s)\n", cmd);
+		helper->Debug(DEBUG_ADDA, "addaSendReceive(%s)\n", cmd);
 		AddaMessage message;
 		message.AddString(cmd);
 
@@ -151,7 +151,7 @@ String Adda::SendReceive(char* cmd, uint16_t timeout) {
 		if ((timeout > 0) && (config->IsModelX32FullOrCompactOrProducer())) {
 			addaWaitForMessageCounter = timeout;
 			while (addaWaitForMessageCounter > 0) {
-				helper->Debug("addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
+				helper->Debug(DEBUG_ADDA, "addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
 				uint16_t readBytes = uart.Rx(&addaBufferUart[0], sizeof(addaBufferUart));
 				if (readBytes > 0) {
 					addaWaitForMessageCounter = 0;
@@ -178,11 +178,11 @@ String Adda::ProcessUartData(int bytesToProcess, bool directRead) {
 		return "";
 	}
 
-	helper->Debug("addaProcessUartData()\n");
+	helper->Debug(DEBUG_ADDA, "addaProcessUartData()\n");
 
 	for (int i = 0; i < bytesToProcess; i++) {
 		currentByte = (uint8_t)addaBufferUart[i];
-		helper->Debug("%02X ", currentByte); // empfangene Bytes als HEX-Wert ausgeben
+		helper->Debug(DEBUG_ADDA, "%02X ", currentByte); // empfangene Bytes als HEX-Wert ausgeben
 
 		// add received byte to buffer
 		if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {
@@ -235,7 +235,7 @@ String Adda::ProcessUartData(int bytesToProcess, bool directRead) {
 			}
 		}
 	}
-	helper->Debug("\n");
+	helper->Debug(DEBUG_ADDA, "\n");
 
 	if (directRead) {
 		return answer;

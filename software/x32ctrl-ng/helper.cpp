@@ -48,7 +48,7 @@ void Helper::Error(const char* format, ...)
     va_list args;
     va_start(args, format);
 
-    vprintf(format, args);
+    vprintf((String("ERROR: ") + String(format)).c_str(), args);
     fflush(stdout); // immediately write to console!
 
     va_end(args);
@@ -60,7 +60,20 @@ void Helper::Debug(const char* format, ...)
         va_list args;
         va_start(args, format);
 
-        vprintf(format, args);
+        vprintf((String("DEBUG: ") + String(format)).c_str(), args);
+        fflush(stdout); // immediately write to console!
+
+        va_end(args);
+    }
+}
+
+void Helper::Debug(uint16_t debugFlag, const char* format, ...)
+{
+    if (config->IsDebug() && config->HasDebugFlag(debugFlag)){
+        va_list args;
+        va_start(args, format);
+
+        vprintf((String("DEBUG: ") + String(format)).c_str(), args);
         fflush(stdout); // immediately write to console!
 
         va_end(args);

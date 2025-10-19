@@ -55,7 +55,7 @@ int SPI::ConfigureFpga(void) {
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_FPGA_SPEED_HZ;
 
-    helper->Debug("Connecting to SPI for FPGA...\n");
+    helper->Debug(DEBUG_SPI, "Connecting to SPI for FPGA...\n");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spi_fd < 0) {
         helper->Log("Error: Could not open SPI-device\n");
@@ -115,9 +115,9 @@ int SPI::ConfigureFpga(void) {
             // skip the field name and bitstrem length
             offset += 5;
 
-            helper->Debug("Detected bit-file with header...\n");
+            helper->Debug(DEBUG_SPI, "Detected bit-file with header...\n");
         }else{
-                helper->Debug("Detected bin-file without header...\n");
+                helper->Debug(DEBUG_SPI, "Detected bin-file without header...\n");
                 offset = 0; // start reading at byte 0
         }
     }
@@ -126,10 +126,10 @@ int SPI::ConfigureFpga(void) {
     file_size -= offset;
 
     // now open the file again and jump of the header (if any)
-    helper->Debug("Configuring Xilinx Spartan-3A...\n");
+    helper->Debug(DEBUG_SPI, "Configuring Xilinx Spartan-3A...\n");
     bitstream_file = fopen(state->switchFpgaPath.c_str(), "rb");
     if (!bitstream_file) {
-        helper->Log("Error: Could not open bitstream-file\n");
+        helper->Error("Could not open bitstream-file\n");
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
         free(tx_buffer);
@@ -143,7 +143,7 @@ int SPI::ConfigureFpga(void) {
     }
 
     // now send the data
-    helper->Debug("Sending bitstream to FPGA...\n");
+    helper->Debug(DEBUG_SPI, "Sending bitstream to FPGA...\n");
     tr.tx_buf = (unsigned long)tx_buffer;
     tr.rx_buf = (unsigned long)rx_buffer;
     tr.bits_per_word = spiBitsPerWord;
@@ -151,7 +151,7 @@ int SPI::ConfigureFpga(void) {
     tr.cs_change = 0;
     tr.delay_usecs = 0;
 
-    helper->Debug("Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...\n");
+    helper->Debug(DEBUG_SPI, "Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...\n");
     int fdResetFpga = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fdResetFpga, "1", 1);
     usleep(500); // assert PROG_B at least 500ns (here 500us) to restart configuration process (see page 56 of UG332 v1.7)
@@ -168,7 +168,7 @@ int SPI::ConfigureFpga(void) {
         tr.len = bytes_read;
         ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
         if (ret < 0) {
-            helper->Log("Error: SPI-transmission failed\n");
+            helper->Error("SPI-transmission failed\n");
             if (bitstream_file) fclose(bitstream_file);
             if (spi_fd >= 0) close(spi_fd);
             free(tx_buffer);
@@ -182,7 +182,7 @@ int SPI::ConfigureFpga(void) {
         current_progress = (total_bytes_sent * 100) / file_size;
         if ((current_progress > (last_progress + 5)) || (total_bytes_sent == file_size)) {
             int progress = (int)((float)total_bytes_sent / file_size * progress_bar_width);
-            printf("\rFPGA [");
+            printf("\rFPGA [");  //TODO implement with helper->Log()
             for (int i = 0; i < progress_bar_width; ++i) {
                 if (i < progress) {
                     printf("█");
@@ -269,28 +269,28 @@ int SPI::ConfigureDsp(void) {
     // read size of bitstream-files
     file_size[0] = helper->GetFileSize(state->switchDsp1Path.c_str());
     if (file_size[0] <= 0) {
-        helper->Log("Error: Problem with bitstream-file\n");
+        helper->Error("Problem with bitstream-file\n");
               return -1;
      }
     if (numStreams == 2) {
         file_size[1] = helper->GetFileSize(state->switchDsp2Path.c_str());
         if (file_size[1] <= 0) {
-            helper->Log("Error: Problem with bitstream-file\n");
+            helper->Error("Problem with bitstream-file\n");
                   return -1;
          }
     }
 
-    helper->Debug("Connecting to SPI for DSP1...\n");
+    helper->Debug(DEBUG_SPI, "Connecting to SPI for DSP1...\n");
     spi_fd[0] = open(SPI_DEVICE_DSP1, O_RDWR);
     if (spi_fd[0] < 0) {
-        helper->Log("Error: Could not open SPI-device for DSP1\n");
+        helper->Error("Could not open SPI-device for DSP1\n");
         return -1;
     }
     if (numStreams == 2) {
         helper->Debug("Connecting to SPI for DSP2...\n");
         spi_fd[1] = open(SPI_DEVICE_DSP2, O_RDWR);
         if (spi_fd[1] < 0) {
-            helper->Log("Error: Could not open SPI-device for DSP2\n");
+            helper->Error("Could not open SPI-device for DSP2\n");
             return -1;
         }
     }
@@ -341,7 +341,7 @@ int SPI::ConfigureDsp(void) {
             bitstream_file[i] = fopen(state->switchDsp2Path.c_str(), "rb");
         }
         if (!bitstream_file[i]) {
-            helper->Log("Error: Could not open bitstream-file\n");
+            helper->Error("Could not open bitstream-file\n");
             for (uint8_t i_b = 0; i_b < numStreams; i_b++) {
                 if (bitstream_file[i_b]) fclose(bitstream_file[i_b]);
                 if (spi_fd[i_b] >= 0) close(spi_fd[i_b]);
@@ -350,7 +350,7 @@ int SPI::ConfigureDsp(void) {
         }
 
         // now send the data
-        helper->Debug("Sending bitstream to DSP...\n");
+        helper->Debug(DEBUG_SPI, "Sending bitstream to DSP...\n");
         totalBytesSent = 0;
         last_progress = -1;
         progress_bar_width = 50;
@@ -362,7 +362,7 @@ int SPI::ConfigureDsp(void) {
 
             ret = ioctl(spi_fd[i], SPI_IOC_MESSAGE(1), &tr);
             if (ret < 0) {
-                helper->Log("Error: SPI-transmission failed\n");
+                helper->Error("SPI-transmission failed\n");
                 for (uint8_t i_b = 0; i_b < numStreams; i_b++) {
                     if (bitstream_file[i_b]) fclose(bitstream_file[i_b]);
                     if (spi_fd[i_b] >= 0) close(spi_fd[i_b]);
@@ -424,7 +424,7 @@ bool SPI::OpenDspConnections() {
             spiDspHandle[i] = open(SPI_DEVICE_DSP2, O_RDWR);
         }
         if (spiDspHandle[i] < 0) {
-            helper->Debug("Error: Could not open SPI-device");
+            helper->Error("Error: Could not open SPI-device");
             return false;
         }
 

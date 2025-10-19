@@ -60,7 +60,19 @@ int main(int argc, char* argv[]) {
 
 	Config* config = new Config();
 	State* state = new State();
+
+// ###########################################################################
+// #
+// #      #####  ##### ####  #   #  ####
+// #      #   #  #     #   # #   # #          
+// #      #    # ##### ####  #   # # ##       
+// #      #   #  #     #   # #   # #   #      
+// #      ####   ##### ####  #####  ###        
+// #
 	config->SetDebug(true);
+	config->SetDebugFlag(DEBUG_XREMOTE);
+// ###########################################################################
+		
 	parseParams(argc, argv, state);
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
 	ctrl = new X32Ctrl(basepar);
@@ -126,6 +138,55 @@ int init100msTimer(void) {
   }
 }
 
+void X32Ctrl::Tick10ms(void){
+	surface->ProcessUartData();
+	mixer->ProcessUartData();
+
+	ProcessEvents();
+
+	// TODO
+	// // continuously read data from both DSPs if we expect data
+	// spiSendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
+	// spiSendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
+
+	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
+	UdpHandleCommunication();
+
+	syncAll();
+}
+
+void X32Ctrl::Tick100ms(void){
+	// TODO
+	// // surface wants to know the current state of all LED's and Meters
+	// surfaceKeepalive();
+	
+	touchcontrolTick();
+	surfaceUpdateMeter();
+
+	// update meters on XRemote-clients
+	xremote->UpdateMeter(mixer);
+
+	// TODO
+	// // toggle the LED on DSP1 and DSP2 to show some activity
+	// spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
+	// spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
+
+	// read meter- and dynamics-information from DSP
+	if (config->IsModelX32FullOrCompactOrProducer()) {
+		// TODO
+		//spiSendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
+		// //spiSendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
+	}
+
+	// read the current DSP load
+	if (!config->IsModelX32Core()) {
+		// TODO
+		// spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+		// spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+		// lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", dsp.dspLoad[0], dsp.dspVersion[0], dsp.dspLoad[1], dsp.dspVersion[1]); // show the received value (could be a bit older than the request)
+	}
+}
+
 // ###########################################################################
 // #
 // #      X32Ctrl Class
@@ -153,7 +214,7 @@ void X32Ctrl::Run(){
 	helper->Log("https://github.com/OpenMixerProject/OpenX32\n");
 
 	// first try to find what we are: Fullsize, Compact, Producer, Rack or Core
-	helper->Debug("Reading config...\n");
+	helper->Debug(DEBUG_X32CTRL, "Reading config...\n");
 	char model[12];
 	char serial[15];
 	char date[16];
@@ -227,7 +288,7 @@ void X32Ctrl::Init(){
 		for (uint8_t bank=0;bank<4;bank++){
 			for (int i = 0; i <=15; i++) {
 				modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 16);
-				helper->Debug("Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 16));
+				helper->Debug(DEBUG_X32CTRL, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 16));
 			}
 		}
 	}
@@ -237,7 +298,7 @@ void X32Ctrl::Init(){
 		for (uint8_t bank=0;bank<8;bank++){
 			for (int i = 0; i <=7; i++) {
 				modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 8);
-				helper->Debug("Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 8));
+				helper->Debug(DEBUG_X32CTRL, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 8));
 			}
 		}
 	}
@@ -318,64 +379,6 @@ void parseParams(int argc, char* argv[], State* state) {
 	}
 }
 
-//#####################################################################################################################
-//#####################################################################################################################
-//
-// 			T I M E R
-//
-//#####################################################################################################################
-//#####################################################################################################################
-
-
-void X32Ctrl::Tick10ms(void){
-	surface->ProcessUartData();
-	mixer->ProcessUartData();
-
-	ProcessEvents();
-
-	// TODO
-	// // continuously read data from both DSPs if we expect data
-	// spiSendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
-	// spiSendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
-
-	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
-	UdpHandleCommunication();
-
-	syncAll();
-}
-
-void X32Ctrl::Tick100ms(void){
-	// TODO
-	// // surface wants to know the current state of all LED's and Meters
-	// surfaceKeepalive();
-	
-	touchcontrolTick();
-	surfaceUpdateMeter();
-
-	// update meters on XRemote-clients
-	xremote->UpdateMeter(mixer);
-
-	// TODO
-	// // toggle the LED on DSP1 and DSP2 to show some activity
-	// spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
-	// spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
-
-	// read meter- and dynamics-information from DSP
-	if (config->IsModelX32FullOrCompactOrProducer()) {
-		// TODO
-		//spiSendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
-		// //spiSendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
-	}
-
-	// read the current DSP load
-	if (!config->IsModelX32Core()) {
-		// TODO
-		// spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-		// spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-		// lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", dsp.dspLoad[0], dsp.dspVersion[0], dsp.dspLoad[1], dsp.dspVersion[1]); // show the received value (could be a bit older than the request)
-	}
-}
-
 
 //#####################################################################################################################
 //#####################################################################################################################
@@ -395,7 +398,7 @@ void X32Ctrl::ProcessEvents(void){
 
   while(surface->HasNextEvent()){
 	SurfaceEvent* event = surface->GetNextEvent();
-	helper->Debug("Event: %s\n", (event->ToString()).c_str());
+	helper->Debug(DEBUG_X32CTRL, "Event: %s\n", (event->ToString()).c_str());
 
 	switch(event->classId){
 	  case 'f':
@@ -408,7 +411,7 @@ void X32Ctrl::ProcessEvents(void){
 		EncoderTurned(event);
 		break;
 	  default:
-		helper->Debug("unknown message: %s\n", event->ToString().c_str());
+		helper->Debug(DEBUG_X32CTRL, "unknown message: %s\n", event->ToString().c_str());
 	}
 
 	delete(event);
@@ -548,6 +551,8 @@ void X32Ctrl::UdpHandleCommunication(void) {
     if (bytes_available > 0) {
         socklen_t xremoteClientAddrLen = sizeof(xremote->ClientAddr);
         uint8_t len = recvfrom(xremote->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremote->ClientAddr, &xremoteClientAddrLen);
+
+		helper->Debug(DEBUG_XREMOTE, "XRemote data received: %s\n", rxData);
         
         if (len > 0) {
             if (String(rxData) != "/renew") {
@@ -594,7 +599,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
                             
                             float newVolume = (value32bit.f * 54.0f) - 48.0f;
                             mixer->SetVolume(channel, newVolume);
-                            helper->Debug("Ch %u: Volume set to %f\n",  channel+1, newVolume);
+                            helper->Debug(DEBUG_XREMOTE, "Ch %u: Volume set to %f\n",  channel+1, newVolume);
                         }else if ((rxData[11] == 'p') && (rxData[12] == 'a') && (rxData[13] == 'n')) {
                             // get pan-value
                             value32bit.u8[0] = rxData[23];
@@ -604,11 +609,11 @@ void X32Ctrl::UdpHandleCommunication(void) {
                             
                             //encoderValue = value32bit.f * 255.0f;
                             mixer->SetBalance(channel,  value32bit.f * 100.0f);
-                            helper->Debug("Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
+                            helper->Debug(DEBUG_XREMOTE, "Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
                         }else if ((rxData[11] == 'o') && (rxData[12] == 'n')) {
                             // get mute-state (caution: here it is "mixer-on"-state)
                             mixer->SetMute(channel, (rxData[20+3] == 0));
-                            helper->Debug("Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
+                            helper->Debug(DEBUG_XREMOTE, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
                         }
                     }else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
                         // config
@@ -893,7 +898,7 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 			break;
 		default:
 			activePage = X32_PAGE_NONE;
-			helper->Debug("ERROR: Page not found! Show welcome page instead.\n");
+			helper->Error("Page not found! Show welcome page instead.\n");
 	}
 
 	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
@@ -941,7 +946,7 @@ void X32Ctrl::guiSync(void) {
 		return;
 	}
 
-	helper->Debug("Active Page: %d\n", activePage);
+	helper->Debug(DEBUG_GUI, "Active Page: %d\n", activePage);
 
 	VChannel* chan = GetSelectedvChannel();
 	uint8_t chanIndex = GetSelectedvChannelIndex();
@@ -1275,11 +1280,11 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			chan = GetSelectedvChannel();
 
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-				helper->Debug(" Solo");
+				helper->Debug(DEBUG_SURFACE, " Solo");
 				surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, mixer->GetSolo(chanIndex)); 
 			}
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-				helper->Debug(" Mute");
+				helper->Debug(DEBUG_SURFACE, " Mute");
 				surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, mixer->GetMute(chanIndex)); 
 			}
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
@@ -1330,23 +1335,23 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 			VChannel* chan = GetVChannel(channelIndex);
 
 			if (fullSync || chan->HasAnyChanged()){
-				helper->Debug("syncronize vChannel%d: %s -", channelIndex, chan->name.c_str());
+				helper->Debug(DEBUG_SURFACE, "syncronize vChannel%d: %s -", channelIndex, chan->name.c_str());
 
 				if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SELECT)){ 
-					helper->Debug(" Select");
+					helper->Debug(DEBUG_SURFACE, " Select");
 					surface->SetLed(p_board, 0x20+i, chan->selected);
 				}
 				if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-					helper->Debug(" Solo");
+					helper->Debug(DEBUG_SURFACE, " Solo");
 					surface->SetLed(p_board, 0x30+i, mixer->GetSolo(channelIndex)); 
 				}
 				if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-					helper->Debug(" Mute");
+					helper->Debug(DEBUG_SURFACE, " Mute");
 					surface->SetLed(p_board, 0x40+i, mixer->GetMute(channelIndex)); 
 				}
 
 				if ((fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
-					helper->Debug(" Fader");
+					helper->Debug(DEBUG_SURFACE, " Fader");
 					//u_int16_t faderVolume = helper->Dbfs2Fader(mixer->halGetVolume(channelIndex));
 					u_int16_t faderVolume = mixer->GetVolumeFadervalue(channelIndex);
 					surface->SetFader(p_board, i, faderVolume);
@@ -1365,11 +1370,11 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 					chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
 				   )
 				{
-					helper->Debug(" LCD");
+					helper->Debug(DEBUG_SURFACE, " LCD");
 					SetLcdFromVChannel(p_board, i, channelIndex);
 				}
 
-				helper->Debug("\n");
+				helper->Debug(DEBUG_SURFACE, "\n");
 			}
 		}
 	}
@@ -1793,7 +1798,7 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 		touchcontrol.faderIndex = event->index;
 		touchcontrol.value = 5;
 
-		helper->Debug("FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
+		helper->Debug(DEBUG_SURFACE, "FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
 	}
 }
 
@@ -1986,7 +1991,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					break;
 				default:
 					// TODO: Callback to x32ctrl if needed
-					helper->Debug("Unhandled button detected.\n");
+					helper->Debug(DEBUG_SURFACE, "Unhandled button detected.\n");
 					break;
 			}
 		}
@@ -2054,7 +2059,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 	} else if (event->value > 128 && event->value < 256) {
 		amount = -(256 - (uint8_t)(event->value));
 	}
-	helper->Debug("Encoder: %d\n", amount);
+	helper->Debug(DEBUG_SURFACE, "Encoder: %d\n", amount);
 
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		switch (encoder){
@@ -2105,7 +2110,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				break;
 			default:
 				// TODO: Callback to x32ctrl if needed
-				helper->Debug("Unhandled encoder detected.\n");
+				helper->Debug(DEBUG_SURFACE, "Unhandled encoder detected.\n");
 				break;
 		}
 	}
@@ -2370,7 +2375,7 @@ void X32Ctrl::touchcontrolTick(void){
 				X32_VCHANNEL_CHANGED_VOLUME
 			);
 		}
-		helper->Debug("TouchControl=%d\n", touchcontrol.value);
+		helper->Debug(DEBUG_SURFACE, "TouchControl=%d\n", touchcontrol.value);
 	}
 }
 

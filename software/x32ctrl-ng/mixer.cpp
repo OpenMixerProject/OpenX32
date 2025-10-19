@@ -61,7 +61,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // AUX 1-6 / USB
-    helper->Debug("Setting up AUX\n");
+    helper->Debug(DEBUG_MIXER, "Setting up AUX\n");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = 32 + i;
 
@@ -84,7 +84,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // FX Returns 1-8
-    helper->Debug("Setting up FX Returns\n");
+    helper->Debug(DEBUG_MIXER, "Setting up FX Returns\n");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = 40 + i;
         VChannel* chan = new VChannel(basepar);
@@ -97,7 +97,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // Bus 1-16
-    helper->Debug("Setting up Busses\n");
+    helper->Debug(DEBUG_MIXER, "Setting up Busses\n");
     for (uint8_t i=0; i<=15;i++){
         uint8_t index = 48 + i;
         VChannel* chan = new VChannel(basepar);
@@ -110,7 +110,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // Matrix 1-6 / Special / SUB
-    helper->Debug("Setting up Matrix / SPECIAL / SUB\n");
+    helper->Debug(DEBUG_MIXER, "Setting up Matrix / SPECIAL / SUB\n");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = 64 + i;
         VChannel* chan = new VChannel(basepar);
@@ -135,7 +135,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // DCA 1-8
-    helper->Debug("Setting up DCA\n");
+    helper->Debug(DEBUG_MIXER, "Setting up DCA\n");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = 72 + i;
         VChannel* chan = new VChannel(basepar);
@@ -702,7 +702,7 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, float lowCutFrequency){
         case X32_VCHANNELTYPE_NORMAL:
         case X32_VCHANNELTYPE_AUX: {
             dsp->Channel[vChannelIndex].compressor.threshold = newValue;
-            helper->Debug("Channel %s: Compressor threshold set to %f\n", chan->name.c_str(), newValue);
+            helper->Debug(DEBUG_MIXER, "Channel %s: Compressor threshold set to %f\n", chan->name.c_str(), newValue);
             chan->SetChanged(X32_VCHANNEL_CHANGED_DYNAMIC);
             break;
         }
@@ -983,7 +983,7 @@ void Mixer::SyncVChannelsToHardware(void){
         }
     }
 
-    helper->Debug("Mixer to Hardware synced\n");
+    helper->Debug(DEBUG_MIXER, "Mixer to Hardware synced\n");
 }
 
 
