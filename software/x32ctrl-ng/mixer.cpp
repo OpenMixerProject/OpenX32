@@ -740,6 +740,8 @@ void Mixer::SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float va
         return;
     }
 
+    VChannel* chan = GetVChannel(pChannelIndex);
+
     sPEQ* peq;
 
     if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
@@ -790,8 +792,8 @@ void Mixer::SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float va
                 break;
         }
         dsp->fx->RecalcFilterCoefficients_PEQ(peq);
-        SetVChannelChangeFlagsFromIndex(pChannelIndex, X32_VCHANNEL_CHANGED_EQ);
-        state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+
+        chan->SetChanged(X32_VCHANNEL_CHANGED_EQ);
     }
 }
 

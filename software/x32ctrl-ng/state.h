@@ -18,6 +18,9 @@ class State {
         String switchDsp2Path;
         int8_t switchNoinit = -1;
 
+        // DEBUG
+        uint8_t debugvalue = 0;
+
         void SetChangeFlags(uint16_t p_flag);
         bool HasChanged(uint16_t p_flag);
         bool HasAnyChanged(void);

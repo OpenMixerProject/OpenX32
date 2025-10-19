@@ -1137,6 +1137,11 @@ void X32Ctrl::guiSync(void) {
 		// pChannelSelected.mute ?
 		//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
 		//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
+	}else if (activePage == X32_PAGE_UTILITY) {
+	//####################################
+	//#         Page Meters
+	//####################################
+		guiSetEncoderText("-", "-", "-", "-", "-", String(state->debugvalue).c_str());
 	}else{
 	//####################################
 	//#         All other pages
@@ -1216,24 +1221,43 @@ void X32Ctrl::surfaceSyncBoardMain() {
 					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_FREQ) >> 8, surface->Enum2Encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[activeEQ].fc - 20.0f)/199.8f, 1);
 					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_GAIN) >> 8, surface->Enum2Encoder(X32_ENC_EQ_GAIN) & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[activeEQ].gain + 15.0f)/0.3f, 1);
 					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_Q) >> 8, surface->Enum2Encoder(X32_ENC_EQ_Q) & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[activeEQ].Q) + 0.3f)/0.097f, 1);
+					
+					// EQ-LEDS
+					surface->SetLedByEnum(X32_LED_EQ_HCUT, false);
+					surface->SetLedByEnum(X32_LED_EQ_HSHV, false);
+					surface->SetLedByEnum(X32_LED_EQ_LCUT, false);
+					surface->SetLedByEnum(X32_LED_EQ_LSHV, false);
+					surface->SetLedByEnum(X32_LED_EQ_PEQ, false);
+					surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
+
 					switch (mixer->dsp->Channel[chanIndex].peq[activeEQ].type) {
 						case 0: // Allpass
 							break;
 						case 1: // Peak
+							surface->SetLedByEnum(X32_LED_EQ_PEQ, true);
 							break;
 						case 2: // LowShelf
+							surface->SetLedByEnum(X32_LED_EQ_LSHV, true);
 							break;
 						case 3: // HighShelf
+							surface->SetLedByEnum(X32_LED_EQ_HSHV, true);
 							break;
 						case 4: // Bandpass
 							break;
 						case 5: // Notch
 							break;
 						case 6: // LowPass
+							surface->SetLedByEnum(X32_LED_EQ_HCUT, true);
 							break;
 						case 7: // HighPass
+							surface->SetLedByEnum(X32_LED_EQ_LCUT, true);
 							break;
 					}
+
+					surface->SetLedByEnum(X32_BTN_EQ_LOW, activeEQ == 0);
+					surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, activeEQ == 1);
+					surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, activeEQ == 2);
+					surface->SetLedByEnum(X32_BTN_EQ_HIGH, activeEQ == 3);
 				}
 			}
 			
@@ -1776,6 +1800,12 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 				case X32_BTN_RIGHT:
 					ShowNextPage();
 					break;
+				// case X32_BTN_UP: {
+				// 	for (int l =0; l<25; l++){
+				// 		surface->SetLed(1, l, true);
+				// 	}
+				// 	break;
+				// }
 				case X32_BTN_HOME:
 					ShowPage(X32_PAGE_HOME);
 					break;
@@ -2140,6 +2170,29 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				case X32_ENC_ENCODER5:
 					break;
 				case X32_ENC_ENCODER6:
+					break;
+				default:  
+					// just here to avoid compiler warnings                  
+					break;
+			}
+		}
+		else if (activePage == X32_PAGE_UTILITY) {
+			switch (encoder){
+				case X32_ENC_ENCODER1:
+					//mixer->ChangeHardwareOutput(amount);
+					break;
+				case X32_ENC_ENCODER2:
+					//mixer->ChangeHardwareInput(amount);
+					break;
+				case X32_ENC_ENCODER3:
+					break;
+				case X32_ENC_ENCODER4:
+					break;
+				case X32_ENC_ENCODER5:
+					break;
+				case X32_ENC_ENCODER6:
+					surface->SetLed(1,state->debugvalue++, true);
+					state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 					break;
 				default:  
 					// just here to avoid compiler warnings                  

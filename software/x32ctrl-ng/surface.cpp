@@ -275,6 +275,13 @@ void Surface::InitDefinitions(void) {
 
             // TODO: CHECK LEDs
 
+            AddButtonDefinition(X32_LED_EQ_HCUT, 0x0122);
+            AddButtonDefinition(X32_LED_EQ_HSHV, 0x0123);
+            AddButtonDefinition(X32_LED_EQ_VEQ, 0x0124);
+            AddButtonDefinition(X32_LED_EQ_PEQ, 0x0125);
+            AddButtonDefinition(X32_LED_EQ_LSHV, 0x0126);
+            AddButtonDefinition(X32_LED_EQ_LCUT, 0x0127);
+
             AddButtonDefinition(X32_LED_USB_ACCESS, 0x0126);
 
             AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_GAIN, 0x012A);
@@ -466,6 +473,13 @@ void Surface::InitDefinitions(void) {
             AddButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
 
             // LED only
+
+            AddButtonDefinition(X32_LED_EQ_HCUT, 0x0118);
+            AddButtonDefinition(X32_LED_EQ_HSHV, 0x0119);
+            AddButtonDefinition(X32_LED_EQ_VEQ, 0x011A);
+            AddButtonDefinition(X32_LED_EQ_PEQ, 0x011B);
+            AddButtonDefinition(X32_LED_EQ_LSHV, 0x011C);
+            AddButtonDefinition(X32_LED_EQ_LCUT, 0x011D);
 
             AddButtonDefinition(X32_LED_USB_ACCESS, 0x0126);
 
