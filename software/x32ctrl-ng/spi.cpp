@@ -412,6 +412,12 @@ int SPI::ConfigureDsp(void) {
     return 0;
 }
 
+void SPI::Tick(void){
+    // continuously read data from both DSPs if we expect data
+	SendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
+	SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
+}
+
 bool SPI::OpenDspConnections() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit

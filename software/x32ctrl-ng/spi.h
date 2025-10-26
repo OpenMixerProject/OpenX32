@@ -66,6 +66,7 @@ class SPI : public X32Base {
     SPI(X32BaseParameter* basepar);
     int ConfigureFpga();
     int ConfigureDsp();
+    void Tick(void);
     bool OpenDspConnections();
     bool CloseDspConnections();
     void ProcessRxData(uint8_t dsp);

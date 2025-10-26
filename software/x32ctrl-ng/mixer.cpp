@@ -162,6 +162,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 void Mixer::ProcessUartData(void){
     adda->ProcessUartData(false);
     fpga->ProcessUartData();
+    dsp->ProcessData();
 }
 
 

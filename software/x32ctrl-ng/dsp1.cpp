@@ -104,6 +104,11 @@ void DSP1::dspInit(void) {
     }
 }
 
+void DSP1::ProcessData(void){
+    spi->Tick();
+}
+
+
 // set the general volume of one of the 40 DSP-channels
 void DSP1::SendChannelVolume(uint8_t chan) {
     // set value to interal struct

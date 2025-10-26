@@ -144,11 +144,6 @@ void X32Ctrl::Tick10ms(void){
 
 	ProcessEvents();
 
-	// TODO
-	// // continuously read data from both DSPs if we expect data
-	// spiSendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
-	// spiSendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
-
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
 	UdpHandleCommunication();
 
