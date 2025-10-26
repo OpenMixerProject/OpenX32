@@ -27,6 +27,8 @@
 Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {}
 
 void Fpga::RoutingInit(void) {
+	uart.Open("/dev/ttymxc3", 115200, true); 
+
 	// reset routing-configuration and dsp-configuration
 	RoutingDefaultConfig();
 }

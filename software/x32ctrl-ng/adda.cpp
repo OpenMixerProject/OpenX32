@@ -31,6 +31,8 @@ Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Adda::Init() {
+	uart.Open("/dev/ttymxc2", 38400, true);
+
 	// send identification-commands to all possible boards (not sure if this is correct for smaller X32)
 	SendReceive("*0I#", 2000); // ADDA-Board
 	SendReceive("*1I#", 2000); // ADDA-Board
