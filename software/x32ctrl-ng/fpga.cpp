@@ -499,10 +499,12 @@ void Fpga::ProcessUartData() {
 		  }
 
 		  if (sumLocal == sumRemote) {
-			// we received a valid packet. Offer the received data to fpgaCallback
-			uint8_t payloadLen = receivedPacketLength - 4;
 			
-			// TODO: Implement FPGA -> Message
+			// TODO: Implement FPGA EventBuffer
+
+			// we received a valid packet. Offer the received data to fpgaCallback
+			//uint8_t payloadLen = receivedPacketLength - 4;
+			
 			//callbackFpga(&fpgaPacketBuffer[packetBegin + 1], payloadLen);
 
 			// shift remaining bytes by processed amount of data

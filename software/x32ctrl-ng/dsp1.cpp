@@ -391,7 +391,7 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
 }
 
 void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
-    if ((dspChannel >= 0) && (dspChannel < 40)) {
+    if (dspChannel < 40) {
         // we have a DSP-channel
         uint8_t channelInputSource = Channel[dspChannel].inputSource;
 

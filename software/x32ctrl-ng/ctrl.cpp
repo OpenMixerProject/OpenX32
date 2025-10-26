@@ -573,7 +573,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
 					if (address[3] == "fader") {
 						float newVolume = tosc_getNextFloat(&osc);
 						mixer->SetVolumeOscvalue(channel-1, newVolume);
-						helper->Debug(DEBUG_XREMOTE, "Ch %u: Volume set to %f\n", channel, newVolume);
+						helper->Debug(DEBUG_XREMOTE, "Ch %u: Volume set to %f\n", channel, (double)newVolume);
 					}else if (address[3] == "pan") {
 						// get pan-value
 						value32bit.u8[0] = rxData[23];
@@ -583,7 +583,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
 						
 						//encoderValue = value32bit.f * 255.0f;
 						mixer->SetBalance(channel,  value32bit.f * 100.0f);
-						helper->Debug(DEBUG_XREMOTE, "Ch %u: Balance set to %f\n",  channel+1, value32bit.f * 100.0f);
+						helper->Debug(DEBUG_XREMOTE, "Ch %u: Balance set to %f\n",  channel+1, (double)(value32bit.f * 100.0f));
 					}else if (address[3] == "on") {
 						// get mute-state (caution: here it is "mixer-on"-state)
 						mixer->SetMute(channel, (rxData[20+3] == 0));
@@ -632,7 +632,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
                             value32bit.u8[2] = rxData[25];
                             value32bit.u8[3] = rxData[24];
                             
-                            float newVolume = (value32bit.f * 54.0f) - 48.0f;
+                            //float newVolume = (value32bit.f * 54.0f) - 48.0f;
                             //mixerSetMainVolume(newVolume);
                         }else if ((rxData[13] == 'p') && (rxData[14] == 'a') && (rxData[15] == 'n')) {
                             // get pan-value
@@ -726,7 +726,8 @@ void X32Ctrl::guiInit(void) {
   lv_init();
 
   driver_backends_register();
-  driver_backends_init_backend("FBDEV");
+  char dev[] = "FBDEV";
+  driver_backends_init_backend(dev);
 
   lv_timer_create(timer10msCallbackLvgl, 10, NULL);
   lv_timer_create(timer100msCallbackLvgl, 100, NULL); // surface/gui sync
@@ -1001,10 +1002,8 @@ void X32Ctrl::guiSync(void) {
 		//#         Page Config
 		//####################################
 			char dspSourceName[5] = "";
-			char inputSourceName[10] = "";
 			mixer->dsp->GetSourceName(&dspSourceName[0], GetSelectedvChannelIndex(), mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[GetSelectedvChannelIndex()].inputSource - 1]);
-			sprintf(&inputSourceName[0], "%02d: %s", (chanIndex + 1), dspSourceName);
-			lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
+			lv_label_set_text_fmt(objects.current_channel_source, "%02d: %s", (chanIndex + 1), dspSourceName);
 
 			lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)mixer->GetGain(chanIndex));
 			lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
@@ -1028,12 +1027,12 @@ void X32Ctrl::guiSync(void) {
 
 			// read name of selected output-routing channel
 			mixer->fpga->RoutingGetOutputNameByIndex(&outputDestinationName[0], mixer->selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
-			lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
+			lv_label_set_text_fmt(objects.hardware_channel_output, "%s", outputDestinationName);
 
 			// find name of currently set input-source
 			routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(mixer->selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
 			mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
-			lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
+			lv_label_set_text_fmt(objects.hardware_channel_source, "%s", inputSourceName);
 
 			guiSetEncoderText("Output", "Source", "-", "-", "-", "-");
 		}else if (activePage == X32_PAGE_EQ) {
@@ -1064,8 +1063,8 @@ void X32Ctrl::guiSync(void) {
 			// TODO
 
 			for(int i=0; i<=15; i++){
-				VChannel* chan = GetVChannel(i);
-				uint8_t chanIndex = i;
+				chan = GetVChannel(i);
+				chanIndex = i;
 
 				if (mixer->GetPhantomPower(i)){
 					lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
@@ -1301,8 +1300,6 @@ void X32Ctrl::surfaceSyncBoardMain() {
 
 void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 	bool fullSync = false;
-	VChannel* chan = GetSelectedvChannel();
-	uint8_t chanIndex = GetSelectedvChannelIndex();
 
 	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
 		// channel selection has changed - do a full sync
@@ -1355,7 +1352,6 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 
 				if ((fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
 					helper->Debug(DEBUG_SURFACE, " Fader");
-					//u_int16_t faderVolume = helper->Dbfs2Fader(mixer->halGetVolume(channelIndex));
 					u_int16_t faderVolume = mixer->GetVolumeFadervalue(channelIndex);
 					surface->SetFader(p_board, i, faderVolume);
 				}
@@ -1456,8 +1452,7 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
 
     surface->SetLcdX(data, 4);
 
-    free(data);
-    data=NULL;
+	delete data;
 }
 
 void X32Ctrl::surfaceUpdateMeter(void) {
@@ -2092,7 +2087,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 			if (buttonPressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
-						mixer->ChangeLowcut(GetSelectedvChannelIndex(), -10000); // will be limited to 20 Hz
+						mixer->SetLowcut(GetSelectedvChannelIndex(), 20); // set to 20 Hz
 						break;
 					case X32_BTN_ENCODER2:
 						mixer->SetPeq(GetSelectedvChannelIndex(), activeEQ, 'F', 3000);
@@ -2447,7 +2442,11 @@ void X32Ctrl::touchcontrolTick(void){
 }
 
 bool X32Ctrl::touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
-	if ((touchcontrol.board != p_board) && (touchcontrol.faderIndex != p_faderIndex)){
+	if (touchcontrol.board != p_board){
+		return true;
+	} 
+
+	if (touchcontrol.faderIndex != p_faderIndex){
 		return true;
 	} 
 
