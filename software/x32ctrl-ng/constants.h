@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 
 #define X32CTRL_VERSION "V2.0"
 
@@ -557,4 +557,3 @@ const uint32_t vuThresholds[] = {
     3046757,    // index 23 = -57 dBfs
     2147483     // index 24 = -60 dBfs
 };
-
