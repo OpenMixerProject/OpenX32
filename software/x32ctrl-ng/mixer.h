@@ -42,7 +42,8 @@ class Mixer : public X32Base
         DSP1* dsp;
 
         Mixer(X32BaseParameter* basepar);
-        void ProcessUartData(void);
+        void Tick10ms(void);
+        void Tick100ms(void);
 
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);

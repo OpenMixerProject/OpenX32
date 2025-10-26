@@ -104,8 +104,25 @@ void DSP1::dspInit(void) {
     }
 }
 
-void DSP1::ProcessData(void){
-    spi->Tick();
+void DSP1::Tick10ms(void){
+    spi->Tick10ms();
+
+    // provess SPI-Data
+    while (spi->HasNextEvent())
+    {
+        SpiEvent* spiEvent = spi->GetNextEvent();
+
+        if (spiEvent->dsp == 1)
+        {
+            callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+        } else {
+            callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+        }
+    }
+}
+
+void DSP1::Tick100ms(void){
+    spi->Tick100ms();
 }
 
 
@@ -435,3 +452,99 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
 //     }
 // }
 
+void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
+    float* floatValues = (float*)values;
+    uint32_t* intValues = (uint32_t*)values;
+
+    switch (classId) {
+        case 's': // status-feedback
+            switch (channel) {
+                case 'v': // DSP-Version
+                    if (valueCount == 1) {
+                        state->dspVersion[0] = floatValues[0];
+                    }
+                    break;
+                case 'c': // DSP-Load in dspClockCycles
+                    if (valueCount == 1) {
+                        state->dspLoad[0] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                    }
+                    break;
+            }
+            break;
+        case 'm': // meter information
+            // copy meter-info to individual channels
+            // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+            if (valueCount == 43) {
+                for (int i = 0; i < 40; i++) {
+                    Channel[i].meterPu = abs(floatValues[i])/2147483648.0f; // convert 32-bit value to p.u.
+                    uint32_t data = (uint32_t)abs(floatValues[i]); // convert received float-value to unsigned integer
+                    // data contains a 32-bit sample-value
+                    // lets check the threshold and set meterInfo
+                    Channel[i].meterInfo = 0;
+                    if (data >= vuThresholds[0])  { Channel[i].meterInfo |= 0b00100000; } // CLIP
+                    if (data >= vuThresholds[5])  { Channel[i].meterInfo |= 0b00010000; } // -6dBfs
+                    if (data >= vuThresholds[8])  { Channel[i].meterInfo |= 0b00001000; } // -12dBfs
+                    if (data >= vuThresholds[10]) { Channel[i].meterInfo |= 0b00000100; } // -18dBfs
+                    if (data >= vuThresholds[14]) { Channel[i].meterInfo |= 0b00000010; } // -30dBfs
+                    if (data >= vuThresholds[24]) { Channel[i].meterInfo |= 0b00000001; } // -60dBfs
+
+                    // the dynamic-information is received with the 'd' information, but we will store them here
+                    if (Channel[i].gate.gain < 1.0f) { Channel[i].meterInfo |= 0b01000000; }
+                    if (Channel[i].compressor.gain < 1.0f) { Channel[i].meterInfo |= 0b10000000; }
+                }
+                MainChannelLR.meterPu[0] = abs(floatValues[40])/2147483648.0f; // convert 32-bit value to p.u.
+                MainChannelLR.meterPu[1] = abs(floatValues[41])/2147483648.0f; // convert 32-bit value to p.u.
+                MainChannelSub.meterPu[0] = abs(floatValues[42])/2147483648.0f; // convert 32-bit value to p.u.
+
+                // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+                // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
+                MainChannelLR.meterInfo[0] = 0;
+                MainChannelLR.meterInfo[1] = 0;
+                MainChannelSub.meterInfo[0] = 0;
+                uint32_t data[3];
+                data[0] = abs(floatValues[40]);
+                data[1] = abs(floatValues[41]);
+                data[2] = abs(floatValues[42]);
+                for (int i = 0; i < 24; i++) {
+                    if (data[0] >= vuThresholds[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
+                    if (data[1] >= vuThresholds[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
+                    if (data[2] >= vuThresholds[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
+                }
+            }
+            break;
+        case 'd': // dynamics-information
+            if (valueCount == 80) {
+                // first copy the compression-information
+                for (int i = 0; i < 40; i++) {
+                    Channel[i].compressor.gain = floatValues[i];
+                    Channel[i].gate.gain = floatValues[40 + i];
+                }
+            }
+        default:
+            break;
+    }
+}
+
+void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
+    float* floatValues = (float*)values;
+    uint32_t* intValues = (uint32_t*)values;
+
+    switch (classId) {
+        case 's': // status-feedback
+            switch (channel) {
+                case 'v': // DSP-Version
+                    if (valueCount == 1) {
+                        state->dspVersion[1] = floatValues[0];
+                    }
+                    break;
+                case 'c': // DSP-Load in dspClockCycles
+                    if (valueCount == 1) {
+                        state->dspLoad[1] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                    }
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+}

@@ -18,6 +18,9 @@ class State {
         String switchDsp2Path;
         int8_t switchNoinit = -1;
 
+        float dspLoad[2];
+        float dspVersion[2];
+
         // DEBUG
         uint8_t debugvalue = 0;
 

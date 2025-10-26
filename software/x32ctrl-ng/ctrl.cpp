@@ -140,7 +140,7 @@ int init100msTimer(void) {
 
 void X32Ctrl::Tick10ms(void){
 	surface->ProcessUartData();
-	mixer->ProcessUartData();
+	mixer->Tick10ms();
 
 	ProcessEvents();
 
@@ -161,24 +161,11 @@ void X32Ctrl::Tick100ms(void){
 	// update meters on XRemote-clients
 	xremote->UpdateMeter(mixer);
 
-	// TODO
-	// // toggle the LED on DSP1 and DSP2 to show some activity
-	// spiSendDspParameter_uint32(0, 'a', 42, 0, 2);
-	// spiSendDspParameter_uint32(1, 'a', 42, 0, 2);
+	mixer->Tick100ms();
 
-	// read meter- and dynamics-information from DSP
-	if (config->IsModelX32FullOrCompactOrProducer()) {
-		// TODO
-		//spiSendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
-		// //spiSendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
-	}
-
-	// read the current DSP load
 	if (!config->IsModelX32Core()) {
-		// TODO
-		// spiSendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-		// spiSendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-		// lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", dsp.dspLoad[0], dsp.dspVersion[0], dsp.dspLoad[1], dsp.dspVersion[1]); // show the received value (could be a bit older than the request)
+		// read the current DSP load
+		lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", state->dspLoad[0], state->dspVersion[0], state->dspLoad[1], state->dspVersion[1]); // show the received value (could be a bit older than the request)
 	}
 }
 

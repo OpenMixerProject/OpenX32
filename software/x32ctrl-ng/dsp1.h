@@ -25,11 +25,7 @@ class DSP1 : X32Base {
     private:
         uint8_t monitorTapPoint;
 
-        // status messages
-        float dspLoad[2];
-        float dspVersion[2];
-
-    public:
+        public:
 
         sDspChannel Channel[40];
         sMixbusChannel Bus[16];
@@ -49,7 +45,8 @@ class DSP1 : X32Base {
 
         DSP1(X32BaseParameter* basepar);
         void dspInit(void);
-        void ProcessData(void);
+        void Tick10ms(void);
+        void Tick100ms(void);
 
         void SendChannelVolume(uint8_t chan);
         void SendChannelSend(uint8_t chan);
@@ -70,4 +67,6 @@ class DSP1 : X32Base {
         void SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
         void SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);
         //void dspGetSourceName(char* p_nameBuffer, uint8_t dspChannel);
+        void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
+        void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
 };
