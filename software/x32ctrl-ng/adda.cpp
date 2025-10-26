@@ -116,7 +116,7 @@ void Adda::SetSamplerate(uint32_t samplerate) {
 }
 
 void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower) {
-	helper->Debug(DEBUG_ADDA, "addaSetGain(%d, %d, %f, %d)\n", boardId, channel, gain, phantomPower);
+	helper->Debug(DEBUG_ADDA, "addaSetGain(%d, %d, %f, %d)\n", boardId, channel, (double)gain, phantomPower);
 
 	AddaMessage message;
 
@@ -142,29 +142,29 @@ void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPow
 	uart.Tx(&message, false);
 }
 
-String Adda::SendReceive(char* cmd, uint16_t timeout) {
-		helper->Debug(DEBUG_ADDA, "addaSendReceive(%s)\n", cmd);
-		AddaMessage message;
-		message.AddString(cmd);
+String Adda::SendReceive(const char* cmd, uint16_t timeout) {
+	helper->Debug(DEBUG_ADDA, "addaSendReceive(%s)\n", cmd);
+	AddaMessage message;
+	message.AddString(cmd);
 
-		uart.Tx(&message, false);
+	uart.Tx(&message, false);
 
-		// check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
-		if ((timeout > 0) && (config->IsModelX32FullOrCompactOrProducer())) {
-			addaWaitForMessageCounter = timeout;
-			while (addaWaitForMessageCounter > 0) {
-				helper->Debug(DEBUG_ADDA, "addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
-				uint16_t readBytes = uart.Rx(&addaBufferUart[0], sizeof(addaBufferUart));
-				if (readBytes > 0) {
-					addaWaitForMessageCounter = 0;
-					return ProcessUartData(readBytes, true);
-				}
-				addaWaitForMessageCounter--;
-				usleep(1000); // wait 1ms
+	// check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
+	if ((timeout > 0) && (config->IsModelX32FullOrCompactOrProducer())) {
+		addaWaitForMessageCounter = timeout;
+		while (addaWaitForMessageCounter > 0) {
+			helper->Debug(DEBUG_ADDA, "addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
+			uint16_t readBytes = uart.Rx(&addaBufferUart[0], sizeof(addaBufferUart));
+			if (readBytes > 0) {
+				addaWaitForMessageCounter = 0;
+				return ProcessUartData(readBytes, true);
 			}
-		}else{
-			return "";
+			addaWaitForMessageCounter--;
+			usleep(1000); // wait 1ms
 		}
+	}
+	
+	return "";
 };
 
 String Adda::ProcessUartData(bool directRead) {

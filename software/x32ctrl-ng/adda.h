@@ -23,7 +23,7 @@ class Adda : public X32Base {
         void Init();
         void SetSamplerate(uint32_t samplerate);
         void SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower);
-        String SendReceive(char* cmd, uint16_t timeout);
+        String SendReceive(const char* cmd, uint16_t timeout);
         String ProcessUartData(bool directRead);
         String ProcessUartData(int bytesToProcess, bool directRead);
         void SetMute(bool muted);

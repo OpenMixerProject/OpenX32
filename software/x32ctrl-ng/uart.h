@@ -18,7 +18,7 @@ class Uart{
     uint8_t calculateChecksum(const char* data, uint16_t len);
 
     public:
-        int Open(char* ttydev, uint32_t baudrate, bool raw);
+        int Open(const char* ttydev, uint32_t baudrate, bool raw);
         int Tx(MessageBase* message, bool addChecksum);
         int Rx(char* buf, uint16_t bufLen);
         int TxToFPGA(uint16_t cmd, data_64b* data);

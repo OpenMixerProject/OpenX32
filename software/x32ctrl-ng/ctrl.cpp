@@ -104,7 +104,7 @@ struct sigevent sev;
 struct itimerspec trigger;
 
 // initialize 100ms timer (only for Non-GUI systems)
-int init100msTimer(void) {
+void init100msTimer(void) {
   // Set up the signal handler
   struct sigaction sa;
   sa.sa_handler = timer100msCallbackLinux;
@@ -112,7 +112,7 @@ int init100msTimer(void) {
   sa.sa_flags = 0;
   if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
 	perror("sigaction");
-	return 1;
+	//return 1;
   }
 
   // Set up the sigevent structure for the timer
@@ -123,7 +123,7 @@ int init100msTimer(void) {
   // Create the timer
   if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
 	perror("timer_create");
-	return 1;
+	//return 1;
   }
 
   // Set the timer to trigger every 1 second (1,000,000,000 nanoseconds)
@@ -135,7 +135,7 @@ int init100msTimer(void) {
   // Arm the timer
   if (timer_settime(timerid, 0, &trigger, NULL) == -1) {
 	perror("timer_settime");
-	return 1;
+	//return 1;
   }
 }
 
@@ -166,7 +166,7 @@ void X32Ctrl::Tick100ms(void){
 
 	if (!config->IsModelX32Core()) {
 		// read the current DSP load
-		lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", state->dspLoad[0], state->dspVersion[0], state->dspLoad[1], state->dspVersion[1]); // show the received value (could be a bit older than the request)
+		lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
 	}
 }
 
@@ -527,12 +527,12 @@ void X32Ctrl::ProcessEvents(void){
 // receive data from XRemote client
 void X32Ctrl::UdpHandleCommunication(void) {
     char rxData[500];
-    int bytes_available;
+    int bytes_available = 0;
     uint8_t channel;
     data_32b value32bit;
     
     // check for bytes in UDP-buffer
-    int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
+    //int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
     if (bytes_available > 0) {
         socklen_t xremoteClientAddrLen = sizeof(xremote->ClientAddr);
         uint8_t len = recvfrom(xremote->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremote->ClientAddr, &xremoteClientAddrLen);

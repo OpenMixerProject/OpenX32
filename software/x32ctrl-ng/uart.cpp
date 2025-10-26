@@ -40,7 +40,7 @@ uint8_t Uart::calculateChecksum(const char* data, uint16_t len) {
 }
 
 
-int Uart::Open(char* ttydev, uint32_t baudrate, bool raw) {
+int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
     struct termios tty;
 
     fd = open(ttydev, O_RDWR | O_NOCTTY | O_NDELAY);
