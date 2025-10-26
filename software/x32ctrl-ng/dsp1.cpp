@@ -368,65 +368,65 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
     spi->SendDspParameterArray(0, 't', 0, 2, 2, (float*)&values[0]);
 }
 
-// void dspGetSourceName(char* p_nameBuffer, uint8_t dspChannel) {
-//     if ((dspChannel >= 0) && (dspChannel < 40)) {
-//         // we have a DSP-channel
-//         uint8_t channelInputSource = dspChannel[dspChannel].inputSource;
+void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
+    if ((dspChannel >= 0) && (dspChannel < 40)) {
+        // we have a DSP-channel
+        uint8_t channelInputSource = Channel[dspChannel].inputSource;
 
-//         // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-//         if (channelInputSource == 0) {
-//             // OFF
-//             sprintf(p_nameBuffer, "Off");
-//         }else if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
-//             // we are connected to one of the DSP-inputs
-//             uint8_t dspInputSource = mixer->fpgaRouting.dsp[channelInputSource - 1];
-//             if (dspInputSource == 0) {
-//                 sprintf(p_nameBuffer, "Off");
-//             }else if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
-//                 // XLR-input
-//                 sprintf(p_nameBuffer, "XLR%02d", dspInputSource);
-//             }else if ((dspInputSource >= 33) && (dspInputSource <= 64)) {
-//                 // Card input
-//                 sprintf(p_nameBuffer, "C%02d", dspInputSource - 32);
-//             }else if ((dspInputSource >= 65) && (dspInputSource <= 72)) {
-//                 // Aux input
-//                 sprintf(p_nameBuffer, "Aux%02d", dspInputSource - 64);
-//             }else if ((dspInputSource >= 73) && (dspInputSource <= 112)) {
-//                 // DSP input
-//                 sprintf(p_nameBuffer, "In%02d", dspInputSource - 72);
-//             }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
-//                 // AES50A input
-//                 sprintf(p_nameBuffer, "A%02d", dspInputSource - 112);
-//             }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
-//                 // AES50B input
-//                 sprintf(p_nameBuffer, "B%02d", dspInputSource - 160);
-//             }else{
-//                 sprintf(p_nameBuffer, "???");
-//             }
-//         }else if ((channelInputSource >= 41) && (channelInputSource <= 56)) {
-//             // Mixbus 1-16
-//             sprintf(p_nameBuffer, "Bus %02d", channelInputSource - 40);
-//         }else if ((channelInputSource >= 57) && (channelInputSource <= 62)) {
-//             // Matrix 1-6
-//             sprintf(p_nameBuffer, "Mtx %02d", channelInputSource - 56);
-//         }else if (channelInputSource == 63) {
-//             sprintf(p_nameBuffer, "Main L");
-//         }else if (channelInputSource == 64) {
-//             sprintf(p_nameBuffer, "Main R");
-//         }else if (channelInputSource == 65) {
-//             sprintf(p_nameBuffer, "Main C");
-//         }else if (channelInputSource == 66) {
-//             sprintf(p_nameBuffer, "Mon L");
-//         }else if (channelInputSource == 67) {
-//             sprintf(p_nameBuffer, "Mon R");
-//         }else if (channelInputSource == 68) {
-//             sprintf(p_nameBuffer, "Talkback");
-//         }else{
-//             sprintf(p_nameBuffer, "???");
-//         }
-//     }else{
-//         // we have a non-DSP-channel -> no source available
-//         sprintf(p_nameBuffer, "<Intern>");
-//     }
-// }
+        // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
+        if (channelInputSource == 0) {
+            // OFF
+            sprintf(p_nameBuffer, "Off");
+        }else if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
+            // we are connected to one of the DSP-inputs
+            //uint8_t dspInputSource = mixer->fpga->Routing.dsp[channelInputSource - 1];
+            if (dspInputSource == 0) {
+                sprintf(p_nameBuffer, "Off");
+            }else if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
+                // XLR-input
+                sprintf(p_nameBuffer, "XLR%02d", dspInputSource);
+            }else if ((dspInputSource >= 33) && (dspInputSource <= 64)) {
+                // Card input
+                sprintf(p_nameBuffer, "C%02d", dspInputSource - 32);
+            }else if ((dspInputSource >= 65) && (dspInputSource <= 72)) {
+                // Aux input
+                sprintf(p_nameBuffer, "Aux%02d", dspInputSource - 64);
+            }else if ((dspInputSource >= 73) && (dspInputSource <= 112)) {
+                // DSP input
+                sprintf(p_nameBuffer, "In%02d", dspInputSource - 72);
+            }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
+                // AES50A input
+                sprintf(p_nameBuffer, "A%02d", dspInputSource - 112);
+            }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
+                // AES50B input
+                sprintf(p_nameBuffer, "B%02d", dspInputSource - 160);
+            }else{
+                sprintf(p_nameBuffer, "???");
+            }
+        }else if ((channelInputSource >= 41) && (channelInputSource <= 56)) {
+            // Mixbus 1-16
+            sprintf(p_nameBuffer, "Bus %02d", channelInputSource - 40);
+        }else if ((channelInputSource >= 57) && (channelInputSource <= 62)) {
+            // Matrix 1-6
+            sprintf(p_nameBuffer, "Mtx %02d", channelInputSource - 56);
+        }else if (channelInputSource == 63) {
+            sprintf(p_nameBuffer, "Main L");
+        }else if (channelInputSource == 64) {
+            sprintf(p_nameBuffer, "Main R");
+        }else if (channelInputSource == 65) {
+            sprintf(p_nameBuffer, "Main C");
+        }else if (channelInputSource == 66) {
+            sprintf(p_nameBuffer, "Mon L");
+        }else if (channelInputSource == 67) {
+            sprintf(p_nameBuffer, "Mon R");
+        }else if (channelInputSource == 68) {
+            sprintf(p_nameBuffer, "Talkback");
+        }else{
+            sprintf(p_nameBuffer, "???");
+        }
+    }else{
+        // we have a non-DSP-channel -> no source available
+        sprintf(p_nameBuffer, "<Intern>");
+    }
+}
 

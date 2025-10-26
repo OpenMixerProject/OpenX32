@@ -25,12 +25,10 @@ class Mixer : public X32Base
 {
     private:
         sPreamps preamps;
-        uint8_t selectedOutputChannelIndex;
         // solo is (somewhere) activated
         bool solo = false;
 
     //public:
-        Fpga* fpga;
         Adda* adda;
 
         void halSendGain(uint8_t dspChannel);
@@ -39,6 +37,8 @@ class Mixer : public X32Base
     public:
         // all virtual - channels / busses / matrix / etc.
         VChannel* vchannel[MAX_VCHANNELS];
+        uint8_t selectedOutputChannelIndex;
+        Fpga* fpga;
         DSP1* dsp;
 
         Mixer(X32BaseParameter* basepar);
@@ -68,6 +68,7 @@ class Mixer : public X32Base
         void ChangeVChannel(int8_t amount);
         void ChangeHardwareOutput(int8_t amount);
         void ChangeHardwareInput(int8_t amount);
+	void ChangeDspInput(uint8_t vChannelIndex, int8_t amount);
 
         void ChangeBalance(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend);

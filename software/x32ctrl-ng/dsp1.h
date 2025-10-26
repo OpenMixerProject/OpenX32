@@ -68,5 +68,5 @@ class DSP1 : X32Base {
         void SetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8_t tapPoint);
         void SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
         void SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);
-        //void dspGetSourceName(char* p_nameBuffer, uint8_t dspChannel);
+        void GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource);
 };

@@ -61,6 +61,8 @@ int main(int argc, char* argv[]) {
 	Config* config = new Config();
 	State* state = new State();
 
+	parseParams(argc, argv, state);
+
 // ###########################################################################
 // #
 // #      #####  ##### ####  #   #  ####
@@ -69,11 +71,10 @@ int main(int argc, char* argv[]) {
 // #      #   #  #     #   # #   # #   #      
 // #      ####   ##### ####  #####  ###        
 // #
-	config->SetDebug(true);
+	config->SetDebug(state->switchDebug != -1);
 	config->SetDebugFlag(DEBUG_XREMOTE);
 // ###########################################################################
 		
-	parseParams(argc, argv, state);
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
 	ctrl = new X32Ctrl(basepar);
 	ctrl->Run();
@@ -370,6 +371,14 @@ void parseParams(int argc, char* argv[], State* state) {
 				i++;
 			} else {
 				state->switchNoinit = -1;
+			}
+		}
+		else if (strcmp(argv[i], "-debug") == 0) {
+			if (i + 1 < argc) {
+				state->switchDebug = i+1;
+				i++;
+			} else {
+				state->switchDebug = -1;
 			}
 		}
 		// handle unknown parameters
@@ -813,6 +822,12 @@ void X32Ctrl::InitPages(void){
 
 	pages[X32_PAGE_EQ].prevPage = X32_PAGE_CONFIG;
 	pages[X32_PAGE_EQ].nextPage = X32_PAGE_NONE;
+
+	pages[X32_PAGE_ROUTING].prevPage = X32_PAGE_NONE;
+	pages[X32_PAGE_ROUTING].nextPage = X32_PAGE_ROUTING_HWOUT;
+
+	pages[X32_PAGE_ROUTING_HWOUT].prevPage = X32_PAGE_ROUTING;
+	pages[X32_PAGE_ROUTING_HWOUT].nextPage = X32_PAGE_NONE;
 }
 
 void X32Ctrl::ShowNextPage(void){
@@ -870,6 +885,12 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 			break;
 		case X32_PAGE_ROUTING:
 			lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.routingtab, 0, LV_ANIM_OFF);
+			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
+			break;
+		case X32_PAGE_ROUTING_HWOUT:
+			lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.routingtab, 5, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
 			break;
 		case X32_PAGE_SETUP:
@@ -999,7 +1020,7 @@ void X32Ctrl::guiSync(void) {
 		//####################################
 			char dspSourceName[5] = "";
 			char inputSourceName[10] = "";
-			// TODO dspGetSourceName(&dspSourceName[0], pChannelSelected.index);
+			mixer->dsp->GetSourceName(&dspSourceName[0], GetSelectedvChannelIndex(), mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[GetSelectedvChannelIndex()].inputSource - 1]);
 			sprintf(&inputSourceName[0], "%02d: %s", (chanIndex + 1), dspSourceName);
 			lv_label_set_text_fmt(objects.current_channel_source, inputSourceName);
 
@@ -1015,24 +1036,24 @@ void X32Ctrl::guiSync(void) {
 			//lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
 			guiSetEncoderText("Source", "Gain", "-", "-", "-", "-");
-		}else if (activePage == X32_PAGE_ROUTING) {
+		}else if (activePage == X32_PAGE_ROUTING_HWOUT) {
 		//####################################
 		//#         Page Routing
 		//####################################
-			// char outputDestinationName[10] = "";
-			// char inputSourceName[10] = "";
-			// uint8_t routingIndex = 0;
+			char outputDestinationName[10] = "";
+			char inputSourceName[10] = "";
+			uint8_t routingIndex = 0;
 
-			// // read name of selected output-routing channel
-			// fpgaRoutingGetOutputNameByIndex(&outputDestinationName[0], selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
-			// lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
+			// read name of selected output-routing channel
+			mixer->fpga->RoutingGetOutputNameByIndex(&outputDestinationName[0], mixer->selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
+			lv_label_set_text_fmt(objects.hardware_channel_output, outputDestinationName);
 
-			// // find name of currently set input-source
-			// routingIndex = fpgaRoutingGetOutputSourceByIndex(selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
-			// fpgaRoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
-			// lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
+			// find name of currently set input-source
+			routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(mixer->selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
+			mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
+			lv_label_set_text_fmt(objects.hardware_channel_source, inputSourceName);
 
-			guiSetEncoderText("-", "-", "-", "-", "-", "-");
+			guiSetEncoderText("Output", "Source", "-", "-", "-", "-");
 		}else if (activePage == X32_PAGE_EQ) {
 		//####################################
 		//#         Page EQ
@@ -2186,8 +2207,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 		if (activePage == X32_PAGE_CONFIG){
 			switch (encoder){
 				case X32_ENC_ENCODER1:
-					// TODO ?
-					//ChangeDspInput(amount);
+					mixer->ChangeDspInput(GetSelectedvChannelIndex(), amount);
 					break;
 				case X32_ENC_ENCODER2:
 					mixer->ChangeGain(GetSelectedvChannelIndex(), amount);
@@ -2235,13 +2255,13 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				default:
 					break;
 			}
-		}else if (activePage == X32_PAGE_ROUTING) {
+		}else if (activePage == X32_PAGE_ROUTING_HWOUT) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
-					//mixer->ChangeHardwareOutput(amount);
+					mixer->ChangeHardwareOutput(amount);
 					break;
 				case X32_ENC_ENCODER2:
-					//mixer->ChangeHardwareInput(amount);
+					mixer->ChangeHardwareInput(amount);
 					break;
 				case X32_ENC_ENCODER3:
 					break;

@@ -18,6 +18,7 @@ typedef struct _objects_t {
     lv_obj_t *maintab;
     lv_obj_t *hometab;
     lv_obj_t *configtab;
+    lv_obj_t *routingtab;
     lv_obj_t *source_panel;
     lv_obj_t *current_channel_source;
     lv_obj_t *current_channel_gain;

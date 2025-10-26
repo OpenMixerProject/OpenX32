@@ -175,45 +175,58 @@ void Mixer::ProcessUartData(void){
 
 
 
-// void Mixer::ChangeHardwareOutput(int8_t amount) {
-//     // output-taps
-//     // 1-16 = XLR-outputs
-//     // 17-32 = UltraNet/P16-outputs
-//     // 33-64 = Card-outputs
-//     // 65-72 = AUX-outputs
-//     // 73-112 = DSP-inputs
-//     // 113-160 = AES50A-outputs
-//     // 161-208 = AES50B-outputs
+void Mixer::ChangeHardwareOutput(int8_t amount) {
+    // output-taps
+    // 1-16 = XLR-outputs
+    // 17-32 = UltraNet/P16-outputs
+    // 33-64 = Card-outputs
+    // 65-72 = AUX-outputs
+    // 73-112 = DSP-inputs
+    // 113-160 = AES50A-outputs
+    // 161-208 = AES50B-outputs
 
-//     int16_t newValue = (int16_t)selectedOutputChannelIndex + amount;
+    int16_t newValue = (int16_t)selectedOutputChannelIndex + amount;
 
-//     if (newValue > NUM_OUTPUT_CHANNEL) {
-//         newValue = 1;
-//     }
-//     if (newValue < 1) {
-//         newValue = NUM_OUTPUT_CHANNEL;
-//     }
-//     selectedOutputChannelIndex = newValue;
-//     // no sending to FPGA as we are not changing the hardware-routing here
-//     state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-// }
+    if (newValue > NUM_OUTPUT_CHANNEL) {
+       newValue = 1;
+    }
+    if (newValue < 1) {
+        newValue = NUM_OUTPUT_CHANNEL;
+    }
+    selectedOutputChannelIndex = newValue;
+    // no sending to FPGA as we are not changing the hardware-routing here
+    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+}
 
-// void Mixer::ChangeHardwareInput(int8_t amount) {
-//     // get current routingIndex
-//     int16_t newValue = fpga->RoutingGetOutputSourceByIndex(selectedOutputChannelIndex) + amount;
+void Mixer::ChangeHardwareInput(int8_t amount) {
+    // get current routingIndex
+    int16_t newValue = fpga->RoutingGetOutputSourceByIndex(selectedOutputChannelIndex) + amount;
 
-//     if (newValue > NUM_INPUT_CHANNEL) {
-//         newValue = 0;
-//     }
-//     if (newValue < 0) {
-//         newValue = NUM_INPUT_CHANNEL;
-//     }
-//     fpga->RoutingSetOutputSourceByIndex(selectedOutputChannelIndex, newValue);
-//     fpga->RoutingSendConfigToFpga();
-//     state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-// }
+    if (newValue > NUM_INPUT_CHANNEL) {
+        newValue = 0;
+    }
+    if (newValue < 0) {
+        newValue = NUM_INPUT_CHANNEL;
+    }
+    fpga->RoutingSetOutputSourceByIndex(selectedOutputChannelIndex, newValue);
+    fpga->RoutingSendConfigToFpga();
+    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+}
 
+void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
+    int16_t newValue = dsp->Channel[vChannelIndex].inputSource + amount;
 
+    if (newValue > 68) {
+        newValue = 0;
+    }
+    if (newValue < 0) {
+        newValue = 68;
+    }
+
+    dsp->Channel[vChannelIndex].inputSource = newValue;
+    dsp->SetInputRouting(vChannelIndex);
+    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+}
 
 void Mixer::SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag){
     vchannel[p_chanIndex]->SetChanged(p_flag);

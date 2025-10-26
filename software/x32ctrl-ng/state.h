@@ -17,6 +17,7 @@ class State {
         int8_t switchDsp2 = -1;
         String switchDsp2Path;
         int8_t switchNoinit = -1;
+        int8_t switchDebug = -1;
 
         // DEBUG
         uint8_t debugvalue = 0;

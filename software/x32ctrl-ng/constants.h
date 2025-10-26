@@ -124,6 +124,8 @@ typedef enum {
         X32_PAGE_EQ,
     X32_PAGE_METERS,
     X32_PAGE_ROUTING,
+        // sub-pages of routing
+        X32_PAGE_ROUTING_HWOUT,
     X32_PAGE_SETUP,
     X32_PAGE_LIBRARY,
     X32_PAGE_EFFECTS,

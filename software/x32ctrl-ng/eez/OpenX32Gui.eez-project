@@ -2915,6 +2915,7 @@
                       "locked": true,
                       "timeline": [],
                       "eventHandlers": [],
+                      "identifier": "routingtab",
                       "leftUnit": "px",
                       "topUnit": "px",
                       "widthUnit": "px",

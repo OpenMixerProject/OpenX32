@@ -511,6 +511,7 @@ void create_screen_main() {
                         lv_obj_t *parent_obj = obj;
                         {
                             lv_obj_t *obj = lv_tabview_create(parent_obj);
+                            objects.routingtab = obj;
                             lv_obj_set_pos(obj, -20, -20);
                             lv_obj_set_size(obj, 796, 363);
                             lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
