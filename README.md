@@ -146,6 +146,10 @@ The MIDI-Ports are connected to the UART5 of the i.MX25. With a simple resistor 
 ## What's the reason for developing such a thing?
 I want to learn things about embedded systems and how they work. The X32 is a very powerful playground with lots of different controllers, nice faders and displays. So that's the only reason why I'm doing this :-)
 
+## Is there a Community Forum to get in touch and talk about all this nice stuff?
+
+Yes, here: https://discourse.openmixerproject.de
+
 ## Used third-party software
 * U-Boot in Version 2020.10 (https://github.com/u-boot/u-boot/tree/v2020.10)
 * Linux in Version 6.12 (https://github.com/torvalds/linnux/tree/v6.12)
