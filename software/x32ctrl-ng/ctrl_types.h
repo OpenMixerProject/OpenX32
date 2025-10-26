@@ -217,26 +217,6 @@ typedef struct {
   bool phaseAes50b[32];
 } sPreamps;
 
-typedef struct {
-  sDspChannel dspChannel[40];
-  sMixbusChannel mixbusChannel[16];
-  sMatrixChannel matrixChannel[6];
-  sFxChannel fxChannel[16];
-  sDsp2AuxChannel dsp2AuxChannel[8];
-  sMainChannel mainChannelLR;
-  sMainChannel mainChannelSub;
-  float volumeFxReturn[8];
-  float volumeDca[8];
-
-  float volumeSpecial;
-  float monitorVolume;
-  uint8_t monitorTapPoint;
-
-  // status messages
-  float dspLoad[2];
-  float dspVersion[2];
-} sDsp;
-
 typedef struct{
     char name[MAX_NAME_LENGTH];
 

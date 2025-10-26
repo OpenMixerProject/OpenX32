@@ -159,9 +159,14 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 }
 
-void Mixer::ProcessUartData(void){
+void Mixer::Tick10ms(void){
     adda->ProcessUartData(false);
     fpga->ProcessUartData();
+    dsp->Tick10ms();
+}
+
+void Mixer::Tick100ms(void){
+    dsp->Tick100ms();
 }
 
 

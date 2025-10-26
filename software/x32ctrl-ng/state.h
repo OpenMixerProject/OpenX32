@@ -19,6 +19,9 @@ class State {
         int8_t switchNoinit = -1;
         int8_t switchDebug = -1;
 
+        float dspLoad[2];
+        float dspVersion[2];
+
         // DEBUG
         uint8_t debugvalue = 0;
 

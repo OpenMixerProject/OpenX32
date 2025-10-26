@@ -412,6 +412,30 @@ int SPI::ConfigureDsp(void) {
     return 0;
 }
 
+void SPI::Tick10ms(void){
+    // continuously read data from both DSPs if we expect data
+	SendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
+	SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
+}
+
+void SPI::Tick100ms(void){
+   	// toggle the LED on DSP1 and DSP2 to show some activity
+	SendDspParameter_uint32(0, 'a', 42, 0, 2);
+	SendDspParameter_uint32(1, 'a', 42, 0, 2);
+
+	if (config->IsModelX32FullOrCompactOrProducer()) {
+        // read meter- and dynamics-information from DSP
+		SendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
+		SendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
+	}
+
+    if (!config->IsModelX32Core()) {
+        // read the current DSP load
+	    SendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+		SendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+    }
+}
+
 bool SPI::OpenDspConnections() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
