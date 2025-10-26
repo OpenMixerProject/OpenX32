@@ -280,8 +280,8 @@ void Xdump(char *buf, int len, int debug);
 void Xfdump(char *header, char *buf, int len, int debug);
 void Xsdump(char *str_out, char *buf, int len);
 
-Xsprint(char *bd, int index, char format, void *bs);
-Xfprint(char *bd, int index, char* text, char format, void *bs);
+int Xsprint(char *bd, int index, char format, void *bs);
+int Xfprint(char *bd, int index, char* text, char format, void *bs);
 
 
 

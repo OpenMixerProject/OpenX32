@@ -5095,8 +5095,7 @@ void Xsdump(char *str_out, char *buf, int len)
 	*out++ = 0;
 }
 
-int
-Xsprint(char *bd, int index, char format, void *bs)
+int Xsprint(char *bd, int index, char format, void *bs)
 {
 	int i;
 // check format
@@ -5127,8 +5126,7 @@ Xsprint(char *bd, int index, char format, void *bs)
 }
 
 
-int
-Xfprint(char *bd, int index, char* text, char format, void *bs)
+int Xfprint(char *bd, int index, char* text, char format, void *bs)
 {
 // first copy text
 	strcpy (bd+index, text);
