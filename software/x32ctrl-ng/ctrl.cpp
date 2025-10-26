@@ -1609,7 +1609,7 @@ void X32Ctrl::setLedChannelIndicator(void){
 
 		uint8_t chanIdx = GetSelectedvChannelIndex();
 
-		if ((chanIdx >= 0)&&(chanIdx <= 31)){
+		if (chanIdx <= 31){
 			surface->SetLedByEnum(X32_LED_IN, 1);
 		}
 		if ((chanIdx >= 32)&&(chanIdx <= 47)){

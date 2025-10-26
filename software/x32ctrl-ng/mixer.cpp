@@ -772,9 +772,9 @@ void Mixer::SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float va
 
     VChannel* chan = GetVChannel(pChannelIndex);
 
-    sPEQ* peq;
+    sPEQ* peq = nullptr;
 
-    if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
+    if (pChannelIndex < 40) {
         peq = &dsp->Channel[pChannelIndex].peq[eqIndex];
     }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
         peq = &dsp->Bus[pChannelIndex - 48].peq[eqIndex];
@@ -835,9 +835,9 @@ void Mixer::ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_
         return;
     }
 
-    sPEQ* peq;
+    sPEQ* peq = nullptr;
 
-    if ((pChannelIndex >= 0) && (pChannelIndex < 40)) {
+    if (pChannelIndex < 40) {
         peq = &dsp->Channel[pChannelIndex].peq[eqIndex];
     }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
         peq = &dsp->Bus[pChannelIndex - 48].peq[eqIndex];
@@ -965,7 +965,7 @@ void Mixer::SyncVChannelsToHardware(void){
             }
         } else {
             // one of the other channels like Mixbus, DCA, Main, etc.
-            uint8_t group;
+            uint8_t group = ' ';
             if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK_FXRET)) {
                 // FX Returns 1-8
                 group = 'f';
@@ -1185,7 +1185,7 @@ float Mixer::GetVolumeOscvalue(uint8_t vChannelIndex){
 }
 
 bool Mixer::GetMute(uint8_t dspChannel) {
-    if ((dspChannel >= 0) && (dspChannel <= 39)) {
+    if (dspChannel <= 39) {
         return dsp->Channel[dspChannel].muted;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX-Return
@@ -1210,7 +1210,7 @@ bool Mixer::GetMute(uint8_t dspChannel) {
 }
 
 bool Mixer::GetSolo(uint8_t dspChannel) {
-    if ((dspChannel >= 0) && (dspChannel <= 39)) {
+    if (dspChannel <= 39) {
         return dsp->Channel[dspChannel].solo;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX-Return
@@ -1235,7 +1235,7 @@ bool Mixer::GetSolo(uint8_t dspChannel) {
 }
 
 float Mixer::GetBalance(uint8_t dspChannel) {
-    if ((dspChannel >= 0) && (dspChannel < 40)) {
+    if (dspChannel < 40) {
         return dsp->Channel[dspChannel].balance;
     }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
         // FX return -> no support for balance
@@ -1346,7 +1346,7 @@ bool Mixer::GetPhaseInvert(uint8_t dspChannel) {
 }
 
 float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
-    if ((dspChannel >= 0) && (dspChannel < 40)) {
+    if (dspChannel < 40) {
         return dsp->Channel[dspChannel].sendMixbus[index];
     }else if ((dspChannel >= 48) && (dspChannel < 63)) {
         // we have only 6 matrices -> check it

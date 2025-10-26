@@ -837,12 +837,12 @@ void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
     uart.Tx(&message, true);
 }
 
-void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool state){
+void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool ledState){
     SurfaceMessage message;
     message.AddDataByte(0x80 + boardId);
     message.AddDataByte('L'); // class: L = LED
     message.AddDataByte(0x80); // index - fixed at 0x80 for LEDs
-    if (state > 0) {
+    if (ledState > 0) {
         message.AddDataByte(ledId + 0x80); // turn LED on
     }else{
         message.AddDataByte(ledId); // turn LED off
@@ -921,19 +921,19 @@ uint8_t Surface::int2segment(int8_t p_value){
 
 // ledNr = Nr of the LED from constants.h (contains BoardId and LED-Nr)
 // state = 0 / 1
-void Surface::SetLedByNr(uint16_t ledNr, bool state) {
+void Surface::SetLedByNr(uint16_t ledNr, bool ledState) {
   uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
   uint8_t ledId = (uint8_t)(ledNr & 0x7F);
 
   //x32debug("LedNr: 0x%04X -> BoardId: 0x%02X, LED: 0x%02X\n", ledNr, boardId, ledId);
 
-  SetLed(boardId, ledId, state);
+  SetLed(boardId, ledId, ledState);
 }
 
 // ledNr = LED from X32_BTN enum
 // state = 0 / 1
-void Surface::SetLedByEnum(X32_BTN led, bool state) {
-    SetLedByNr(Enum2Button(led), state);
+void Surface::SetLedByEnum(X32_BTN led, bool ledState) {
+    SetLedByNr(Enum2Button(led), ledState);
 }
 
 // boardId = 0, 1, 4, 5, 8
@@ -1077,11 +1077,11 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
 }
 
 void Surface::ProcessUartData() {
-    uint8_t currentByte = 0;
+    //uint8_t currentByte = 0;
     uint8_t receivedClass = 0;
     uint8_t receivedIndex = 0;
     uint16_t receivedValue = 0;
-    uint8_t receivedChecksum = 0;
+    //uint8_t receivedChecksum = 0;
     bool lastPackageIncomplete = false;
 
     int bytesToProcess = uart.Rx(&surfaceBufferUart[0], sizeof(surfaceBufferUart));
@@ -1231,11 +1231,11 @@ void Surface::ProcessUartData() {
             if (surfacePacketBuffer[package][3] == 0xFE){
                 // short package
                 receivedValue = surfacePacketBuffer[package][2];
-                receivedChecksum = surfacePacketBuffer[package][4];
+                //receivedChecksum = surfacePacketBuffer[package][4];
             } else if (surfacePacketBuffer[package][4] == 0xFE){
                 // long package
                 receivedValue = ((uint16_t)surfacePacketBuffer[package][3] << 8) | (uint16_t)surfacePacketBuffer[package][2];
-                receivedChecksum = surfacePacketBuffer[package][5];
+                //receivedChecksum = surfacePacketBuffer[package][5];
             }
         
 

@@ -4856,7 +4856,7 @@ void Xdump(char *buf, int len, int debug)
 		short	si[2];
 		int		i1;
 		float	f1;
-	} endian;
+	} endian5;
 
 	for (i = 0; i < len; i++) {
 		c = (unsigned char)buf[i];
@@ -4893,69 +4893,69 @@ void Xdump(char *buf, int len, int debug)
 //						data += (strlen((char*)(buf+data)) + 4) & ~3;
 					break;
 				case 'i':
-					for (k = 4; k > 0; endian.c1[--k] = buf[data++]);
-					printf("[%6d]", endian.i1);
+					for (k = 4; k > 0; endian5.c1[--k] = buf[data++]);
+					printf("[%6d]", endian5.i1);
 					break;
 				case 'f':
-					for (k = 4; k > 0; endian.c1[--k] = buf[data++]);
-					if (endian.f1 < 10.) printf("[%06.4f]", endian.f1);
-					else if (endian.f1 < 100.) printf("[%06.3f]", endian.f1);
-					else if (endian.f1 < 1000.) printf("[%06.2f]", endian.f1);
-					else if (endian.f1 < 10000.) printf("[%06.1f]", endian.f1);
+					for (k = 4; k > 0; endian5.c1[--k] = buf[data++]);
+					if (endian5.f1 < 10.) printf("[%06.4f]", endian5.f1);
+					else if (endian5.f1 < 100.) printf("[%06.3f]", endian5.f1);
+					else if (endian5.f1 < 1000.) printf("[%06.2f]", endian5.f1);
+					else if (endian5.f1 < 10000.) printf("[%06.1f]", endian5.f1);
 					break;
 				case 'b':
 					// Get the number of bytes
-					for (k = 4; k > 0; endian.c1[--k] = buf[data++]);
-					n = endian.i1;
+					for (k = 4; k > 0; endian5.c1[--k] = buf[data++]);
+					n = endian5.i1;
 					// Get the number of data (floats or ints ???) in little-endian format
-					for (k = 0; k < 4; endian.c1[k++] = buf[data++]);
+					for (k = 0; k < 4; endian5.c1[k++] = buf[data++]);
 					// for (k = 4; k > 0; endian.c1[--k] = buf[data++]);
-					if (n == endian.i1) {
+					if (n == endian5.i1) {
 						// Display blob as string
 						printf("%d chrs: ", n);
 						for (j = 0; j < n; j++) printf("%c ", buf[data++]);
 					} else {
 						// Display blob depending on command (as floats most of the time)
 						if(strncmp(buf, "/meters/15", 10) == 0) {
-							n = endian.i1 * 2;
+							n = endian5.i1 * 2;
 							printf("%d rta: \n", n);
 							for (j = 0; j < n; j++) {
 								//data as short ints, little-endian format
-								for (k = 0; k < 2; endian.c1[k++] = buf[data++]);
-								endian.f1 = (float)endian.si[0] / 256.0;
+								for (k = 0; k < 2; endian5.c1[k++] = buf[data++]);
+								endian5.f1 = (float)endian5.si[0] / 256.0;
 								// for (k = 4; k > 0; endian.c1[--k] = buf[data++]);
-								printf("[%d] %07.2f ", j, endian.f1);
+								printf("[%d] %07.2f ", j, endian5.f1);
 							}
 						} else if(strncmp(buf, "/meters/16", 10) == 0) {
-							n = endian.i1 * 2;
+							n = endian5.i1 * 2;
 							printf("M/16: %d shorts\n", n);
 							for (j = 0; j < n - 8; j++) {
 								//printf("%02x %02x, ", (unsigned char)buf[data], (unsigned char)buf[data+1]);
-								for (k = 0; k < 2; endian.c1[k++] = buf[data++]);
-								endian.f1 = (float)endian.si[0] / 32767.0;
-								if (j < 32) printf("[%d: G %07.2f] ", j, endian.f1);
-								if (j < 64) printf("[%d: C %07.2f] ", j, endian.f1);
-								if (j < 80) printf("[%d: B %07.2f] ", j, endian.f1);
-								if (j < 86) printf("[%d: M %07.2f] ", j, endian.f1);
-								if (j == 86) printf("[%d:LR %07.2f] ", j, endian.f1);
-								if (j == 87) printf("[%d:MC %07.2f] ", j, endian.f1);
+								for (k = 0; k < 2; endian5.c1[k++] = buf[data++]);
+								endian5.f1 = (float)endian5.si[0] / 32767.0;
+								if (j < 32) printf("[%d: G %07.2f] ", j, endian5.f1);
+								if (j < 64) printf("[%d: C %07.2f] ", j, endian5.f1);
+								if (j < 80) printf("[%d: B %07.2f] ", j, endian5.f1);
+								if (j < 86) printf("[%d: M %07.2f] ", j, endian5.f1);
+								if (j == 86) printf("[%d:LR %07.2f] ", j, endian5.f1);
+								if (j == 87) printf("[%d:MC %07.2f] ", j, endian5.f1);
 							}
 							for (; j < n; j++) {
 								//printf("%02x %02x, ", (unsigned char)buf[data], (unsigned char)buf[data+1]);
-								for (k = 0; k < 2; endian.c1[k++] = buf[data++]);
-								endian.f1 = (float)endian.si[0] / 256.0;
-								printf("[%d: A %07.2f] ", j, endian.f1);
+								for (k = 0; k < 2; endian5.c1[k++] = buf[data++]);
+								endian5.f1 = (float)endian5.si[0] / 256.0;
+								printf("[%d: A %07.2f] ", j, endian5.f1);
 							}
 							printf("\n");
 
 						} else {
-							n = endian.i1;
+							n = endian5.i1;
 							printf("%d flts: ", n);
 							for (j = 0; j < n; j++) {
 								//floats are little-endian format
-								for (k = 0; k < 4; endian.c1[k++] = buf[data++]);
+								for (k = 0; k < 4; endian5.c1[k++] = buf[data++]);
 								// for (k = 4; k > 0; endian.c1[--k] = buf[data++]);
-								printf("%06.2f ", endian.f1);
+								printf("%06.2f ", endian5.f1);
 							}
 						}
 					}

@@ -28,8 +28,8 @@ Helper::Helper(){
 	this->config = new Config(); // dummy
 }
 
-Helper::Helper(Config* config){
-	this->config = config;
+Helper::Helper(Config* c){
+	this->config = c;
 }
 
 void Helper::Log(const char* format, ...)

@@ -190,7 +190,7 @@ int SPI::ConfigureFpga(void) {
                     printf(" ");
                 }
             }
-            printf("] %ld/%ld Bytes (%u %%)", total_bytes_sent, file_size, (total_bytes_sent * 100) / file_size);
+            printf("] %ld/%ld Bytes (%u %%)", total_bytes_sent, file_size, (uint)((total_bytes_sent * 100) / file_size));
             fflush(stdout);
 
             last_progress = current_progress;
@@ -396,7 +396,7 @@ int SPI::ConfigureDsp(void) {
                         printf(" ");
                     }
                 }
-                printf("] %ld/%ld Bytes (%u %%)", totalBytesSent, file_size[i], (totalBytesSent * 100) / file_size[i]);
+                printf("] %ld/%ld Bytes (%u %%)", totalBytesSent, file_size[i], (uint)((totalBytesSent * 100) / file_size[i]));
                 fflush(stdout);
 
                 last_progress = current_progress;

@@ -24,11 +24,11 @@
 
 #include "surface-event.h"
 
-SurfaceEvent::SurfaceEvent(X32_BOARD boardId, uint8_t classId, uint8_t index, uint16_t value){
-  this->boardId = boardId;
-  this->classId = classId;
-  this->index = index;
-  this->value = value;
+SurfaceEvent::SurfaceEvent(X32_BOARD _boardId, uint8_t _classId, uint8_t _index, uint16_t _value){
+  this->boardId = _boardId;
+  this->classId = _classId;
+  this->index = _index;
+  this->value = _value;
 }
 
 String SurfaceEvent::ToString(void){

@@ -24,11 +24,11 @@
 
 #include "spi-event.h"
 
-SpiEvent::SpiEvent(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values){
-    this->dsp = dsp;
-    this->classId = classId;
-    this->channel = channel;
-    this->index = index;
-    this->valueCount = valueCount;
-    this->values = values;
+SpiEvent::SpiEvent(uint8_t _dsp, uint8_t _classId, uint8_t _channel, uint8_t _index, uint8_t _valueCount, void* _values){
+    this->dsp = _dsp;
+    this->classId = _classId;
+    this->channel = _channel;
+    this->index = _index;
+    this->valueCount = _valueCount;
+    this->values = _values;
 }
