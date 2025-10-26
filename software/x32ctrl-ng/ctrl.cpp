@@ -1301,7 +1301,7 @@ void X32Ctrl::surfaceSyncBoardMain() {
 void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 	bool fullSync = false;
 
-	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
+	if (state->HasChanged(X32_MIXER_CHANGED_SELECT) || state->HasChanged(X32_MIXER_CHANGED_BANKING)){ 
 		// channel selection has changed - do a full sync
 		fullSync=true; 
 	}
