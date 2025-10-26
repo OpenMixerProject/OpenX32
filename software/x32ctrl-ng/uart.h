@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 #include "message-base.h"
-#include "x32ctrl_types.h"
+#include "ctrl_types.h"
 
 class Uart{
     

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "external.h"
-#include "x32ctrl_types.h"
-#include "x32base.h"
+#include "ctrl_types.h"
+#include "base.h"
 #include "spi.h"
 #include "fx.h"
 

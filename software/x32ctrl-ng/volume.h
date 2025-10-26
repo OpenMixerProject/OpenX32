@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include "constants.h"
-#include "x32base.h"
+#include "base.h"
 
 class Volume : public X32Base {
     private:

@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 #include "WString.h"
-#include "x32ctrl_types.h"
-#include "x32base.h"
+#include "ctrl_types.h"
+#include "base.h"
 
 
 class VChannel : public X32Base {

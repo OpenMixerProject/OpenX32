@@ -22,7 +22,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "x32base.h"
+#include "base.h"
 #include "mixer.h"
 
 class XRemote : public X32Base {

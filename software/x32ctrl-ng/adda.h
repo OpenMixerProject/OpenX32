@@ -1,7 +1,7 @@
 #pragma once
 
-#include "x32base.h"
-#include "x32ctrl_types.h"
+#include "base.h"
+#include "ctrl_types.h"
 #include "WString.h"
 #include "uart.h"
 #include "adda-message.h"

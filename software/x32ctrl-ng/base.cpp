@@ -22,7 +22,7 @@
   GNU General Public License for more details.
 */
 
-#include "x32base.h"
+#include "base.h"
 
 X32Base::X32Base(X32BaseParameter* basepar){
     this->config = basepar->config;

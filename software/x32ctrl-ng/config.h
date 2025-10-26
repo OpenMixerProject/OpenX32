@@ -1,6 +1,6 @@
 #pragma once
 
-#include "x32ctrl_types.h"
+#include "ctrl_types.h"
 #include "WString.h"
 
 class Config {

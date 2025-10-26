@@ -6,8 +6,8 @@
 
 #include "external.h"
 #include "constants.h"
-#include "x32ctrl_types.h"
-#include "x32base.h"
+#include "ctrl_types.h"
+#include "base.h"
 #include "state.h"
 #include "spi-event.h"
 

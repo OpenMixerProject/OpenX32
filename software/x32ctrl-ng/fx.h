@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-#include "x32base.h"
+#include "base.h"
 #include "constants.h"
 
 class FX : X32Base {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "x32base.h"
+#include "base.h"
 #include "uart.h"
 
 #define FPGA_MAX_PACKET_LENGTH 32

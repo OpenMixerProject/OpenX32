@@ -46,7 +46,7 @@
   Parts of this software with kind permission of Music Tribe. Thank you!
 */
 
-#include "x32ctrl.h"
+#include "ctrl.h"
 
 X32Ctrl* ctrl;
 

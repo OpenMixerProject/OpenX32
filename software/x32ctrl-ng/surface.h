@@ -4,10 +4,10 @@
 #include <list>
 #include <math.h>
 
-#include "x32base.h"
+#include "base.h"
 #include "uart.h"
 #include "constants.h"
-#include "x32ctrl_types.h"
+#include "ctrl_types.h"
 #include "lcd.h"
 #include "surface-event.h"
 #include "surface-message.h"

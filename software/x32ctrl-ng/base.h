@@ -3,7 +3,7 @@
 #include "config.h"
 #include "state.h"
 #include "helper.h"
-#include "x32base-parameter.h"
+#include "base-parameter.h"
 
 // The string class
 class X32Base
