@@ -1,21 +1,21 @@
--- Copyright (C) 2025  Altera Corporation. All rights reserved.
--- Your use of Altera Corporation's design tools, logic functions 
+-- Copyright (C) 2024  Intel Corporation. All rights reserved.
+-- Your use of Intel Corporation's design tools, logic functions 
 -- and other software and tools, and any partner logic 
 -- functions, and any output files from any of the foregoing 
 -- (including device programming or simulation files), and any 
 -- associated documentation or information are expressly subject 
--- to the terms and conditions of the Altera Program License 
--- Subscription Agreement, the Altera Quartus Prime License Agreement,
--- the Altera IP License Agreement, or other applicable license
+-- to the terms and conditions of the Intel Program License 
+-- Subscription Agreement, the Intel Quartus Prime License Agreement,
+-- the Intel FPGA IP License Agreement, or other applicable license
 -- agreement, including, without limitation, that your use is for
 -- the sole purpose of programming logic devices manufactured by
--- Altera and sold by Altera or its authorized distributors.  Please
--- refer to the Altera Software License Subscription Agreements 
--- on the Quartus Prime software download page.
+-- Intel and sold by Intel or its authorized distributors.  Please
+-- refer to the applicable agreement for further details, at
+-- https://fpgasoftware.intel.com/eula.
 
 -- PROGRAM		"Quartus Prime"
--- VERSION		"Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition"
--- CREATED		"Mon Oct 27 00:38:06 2025"
+-- VERSION		"Version 23.1std.1 Build 993 05/14/2024 SC Lite Edition"
+-- CREATED		"Mon Oct 27 17:53:23 2025"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -87,7 +87,6 @@ ENTITY main IS
 		AUX_BCLK :  OUT  STD_LOGIC;
 		AUX_FSYNC :  OUT  STD_LOGIC;
 		AUX_DA :  OUT  STD_LOGIC;
-		AUX_nCS :  OUT  STD_LOGIC;
 		AUX_CCLK :  OUT  STD_LOGIC;
 		AUX_CDATA :  OUT  STD_LOGIC;
 		AUX_nRST :  OUT  STD_LOGIC;
@@ -96,7 +95,9 @@ ENTITY main IS
 		CARD_OUT0 :  OUT  STD_LOGIC;
 		CARD_OUT1 :  OUT  STD_LOGIC;
 		CARD_OUT2 :  OUT  STD_LOGIC;
-		CARD_OUT3 :  OUT  STD_LOGIC
+		CARD_OUT3 :  OUT  STD_LOGIC;
+		AUX_AD_nCS :  OUT  STD_LOGIC;
+		AUX_DA_nCS :  OUT  STD_LOGIC
 	);
 END main;
 
