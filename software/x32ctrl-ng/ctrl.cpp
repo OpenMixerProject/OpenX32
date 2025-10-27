@@ -145,8 +145,8 @@ void X32Ctrl::Tick10ms(void){
 
 	ProcessEvents();
 
-	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
-	UdpHandleCommunication();
+	//// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
+	//UdpHandleCommunication();
 
 	syncAll();
 }
@@ -160,7 +160,7 @@ void X32Ctrl::Tick100ms(void){
 	surfaceUpdateMeter();
 
 	// update meters on XRemote-clients
-	xremote->UpdateMeter(mixer);
+	//xremote->UpdateMeter(mixer);
 
 	mixer->Tick100ms();
 
@@ -179,7 +179,8 @@ void X32Ctrl::Tick100ms(void){
 X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
 	mixer = new Mixer(basepar);
 	surface = new Surface(basepar);
-	xremote = new XRemote(basepar);
+	//xremote = new XRemote(basepar);
+	x32 = new X32();
 }
 
 void X32Ctrl::Run(){
@@ -211,7 +212,8 @@ void X32Ctrl::Run(){
 	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
 	
 	surface->Init();
-	xremote->Init();
+	//xremote->Init();
+	x32->Init();
 
 	Init();
 	InitPages();
@@ -525,194 +527,194 @@ void X32Ctrl::ProcessEvents(void){
 
 
 // receive data from XRemote client
-void X32Ctrl::UdpHandleCommunication(void) {
-    char rxData[500];
-    int bytes_available = 0;
-    uint8_t channel;
-    data_32b value32bit;
+// void X32Ctrl::UdpHandleCommunication(void) {
+//     char rxData[500];
+//     int bytes_available = 0;
+//     uint8_t channel;
+//     data_32b value32bit;
     
-    // check for bytes in UDP-buffer
-    //int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
-    if (bytes_available > 0) {
-        socklen_t xremoteClientAddrLen = sizeof(xremote->ClientAddr);
-        uint8_t len = recvfrom(xremote->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremote->ClientAddr, &xremoteClientAddrLen);
+//     // check for bytes in UDP-buffer
+//     //int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
+//     if (bytes_available > 0) {
+//         socklen_t xremoteClientAddrLen = sizeof(xremote->ClientAddr);
+//         uint8_t len = recvfrom(xremote->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremote->ClientAddr, &xremoteClientAddrLen);
 
-		tosc_message osc;
+// 		tosc_message osc;
 
-		if (!tosc_parseMessage(&osc, rxData, len)) {
-			string adrPath = string(tosc_getAddress(&osc));
-    		vector<string> address = helper->split(adrPath, "/");
-			address.erase(address.begin()); // delete empty element
-			string format = string(tosc_getFormat(&osc));
+// 		if (!tosc_parseMessage(&osc, rxData, len)) {
+// 			string adrPath = string(tosc_getAddress(&osc));
+//     		vector<string> address = helper->split(adrPath, "/");
+// 			address.erase(address.begin()); // delete empty element
+// 			string format = string(tosc_getFormat(&osc));
 
-			helper->Debug(DEBUG_XREMOTE, "XRemote data received: ");
-			helper->DebugPrintMessageWithNullBytes(DEBUG_XREMOTE, rxData, len);
+// 			helper->Debug(DEBUG_XREMOTE, "XRemote data received: ");
+// 			helper->DebugPrintMessageWithNullBytes(DEBUG_XREMOTE, rxData, len);
 		
-			if (address[0] == "renew") {
-                //fprintf(stdout, "Received command: %s\n", rxData);
-            } else if (address[0] == "info") {
-                xremote->AnswerInfo();
-            } else if (address[0] == "xinfo") {
-                xremote->AnswerXInfo();
-            } else if (address[0] == "status") {
-                xremote->AnswerStatus();
-            } else if (address[0] == "xremote") {
-                // Optional: read and store IP-Address of client
-				//xremoteSync(true);
-            } else if (address[0] == "unsubscribe") {
-                // Optional: remove xremote client
-            } else if (address[0] == "ch") {
-                // /ch/xx/mix/fader~~~~,f~~[float]
-                // /ch/xx/mix/pan~~,f~~[float]
-                // /ch/xx/mix/on~~~,i~~[int]
+// 			if (address[0] == "renew") {
+//                 //fprintf(stdout, "Received command: %s\n", rxData);
+//             } else if (address[0] == "info") {
+//                 xremote->AnswerInfo();
+//             } else if (address[0] == "xinfo") {
+//                 xremote->AnswerXInfo();
+//             } else if (address[0] == "status") {
+//                 xremote->AnswerStatus();
+//             } else if (address[0] == "xremote") {
+//                 // Optional: read and store IP-Address of client
+// 				//xremoteSync(true);
+//             } else if (address[0] == "unsubscribe") {
+//                 // Optional: remove xremote client
+//             } else if (address[0] == "ch") {
+//                 // /ch/xx/mix/fader~~~~,f~~[float]
+//                 // /ch/xx/mix/pan~~,f~~[float]
+//                 // /ch/xx/mix/on~~~,i~~[int]
 
-                //channel = ((rxData[4]-48)*10 + (rxData[5]-48)) - 1;
-				channel = stoi(address[1]);
+//                 //channel = ((rxData[4]-48)*10 + (rxData[5]-48)) - 1;
+// 				channel = stoi(address[1]);
 
-				if (address[2] == "mix") {
-					if (address[3] == "fader") {
-						float newVolume = tosc_getNextFloat(&osc);
-						mixer->SetVolumeOscvalue(channel-1, newVolume);
-						helper->Debug(DEBUG_XREMOTE, "Ch %u: Volume set to %f\n", channel, (double)newVolume);
-					}else if (address[3] == "pan") {
-						// get pan-value
-						value32bit.u8[0] = rxData[23];
-						value32bit.u8[1] = rxData[22];
-						value32bit.u8[2] = rxData[21];
-						value32bit.u8[3] = rxData[20];
+// 				if (address[2] == "mix") {
+// 					if (address[3] == "fader") {
+// 						float newVolume = tosc_getNextFloat(&osc);
+// 						mixer->SetVolumeOscvalue(channel-1, newVolume);
+// 						helper->Debug(DEBUG_XREMOTE, "Ch %u: Volume set to %f\n", channel, (double)newVolume);
+// 					}else if (address[3] == "pan") {
+// 						// get pan-value
+// 						value32bit.u8[0] = rxData[23];
+// 						value32bit.u8[1] = rxData[22];
+// 						value32bit.u8[2] = rxData[21];
+// 						value32bit.u8[3] = rxData[20];
 						
-						//encoderValue = value32bit.f * 255.0f;
-						mixer->SetBalance(channel,  value32bit.f * 100.0f);
-						helper->Debug(DEBUG_XREMOTE, "Ch %u: Balance set to %f\n",  channel+1, (double)(value32bit.f * 100.0f));
-					}else if (address[3] == "on") {
-						// get mute-state (caution: here it is "mixer-on"-state)
-						mixer->SetMute(channel, (rxData[20+3] == 0));
-						helper->Debug(DEBUG_XREMOTE, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
-					}
-				}else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
-					// config
-					if  ((rxData[14] == 'c') && (rxData[15] == 'o') && (rxData[16] == 'l')) {
-						// color
-						value32bit.u8[0] = rxData[27];
-						value32bit.u8[1] = rxData[26];
-						value32bit.u8[2] = rxData[25];
-						value32bit.u8[3] = rxData[24];
+// 						//encoderValue = value32bit.f * 255.0f;
+// 						mixer->SetBalance(channel,  value32bit.f * 100.0f);
+// 						helper->Debug(DEBUG_XREMOTE, "Ch %u: Balance set to %f\n",  channel+1, (double)(value32bit.f * 100.0f));
+// 					}else if (address[3] == "on") {
+// 						// get mute-state (caution: here it is "mixer-on"-state)
+// 						mixer->SetMute(channel, (rxData[20+3] == 0));
+// 						helper->Debug(DEBUG_XREMOTE, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
+// 					}
+// 				}else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
+// 					// config
+// 					if  ((rxData[14] == 'c') && (rxData[15] == 'o') && (rxData[16] == 'l')) {
+// 						// color
+// 						value32bit.u8[0] = rxData[27];
+// 						value32bit.u8[1] = rxData[26];
+// 						value32bit.u8[2] = rxData[25];
+// 						value32bit.u8[3] = rxData[24];
 						
-						if (value32bit.u32 < 8) {
-							//fprintf(stdout, "Ch %u: Set color to %u\n",  channel+1, value32bit.u32);
-						}else{
-							//fprintf(stdout, "Ch %u: Set inverted color to %u\n",  channel+1, value32bit.u32 - 8 +64);
-						}
-					}else if  ((rxData[14] == 'n') && (rxData[15] == 'a') && (rxData[16] == 'm')) {
-						// name
-						String name = String(&rxData[24]);
-						//fprintf(stdout, "Ch %u: Set name to %s\n",  channel+1, name.c_str());
-					}else if  ((rxData[14] == 'i') && (rxData[15] == 'c') && (rxData[16] == 'o')) {
-						// icon
-						value32bit.u8[0] = rxData[27];
-						value32bit.u8[1] = rxData[26];
-						value32bit.u8[2] = rxData[25];
-						value32bit.u8[3] = rxData[24];
+// 						if (value32bit.u32 < 8) {
+// 							//fprintf(stdout, "Ch %u: Set color to %u\n",  channel+1, value32bit.u32);
+// 						}else{
+// 							//fprintf(stdout, "Ch %u: Set inverted color to %u\n",  channel+1, value32bit.u32 - 8 +64);
+// 						}
+// 					}else if  ((rxData[14] == 'n') && (rxData[15] == 'a') && (rxData[16] == 'm')) {
+// 						// name
+// 						String name = String(&rxData[24]);
+// 						//fprintf(stdout, "Ch %u: Set name to %s\n",  channel+1, name.c_str());
+// 					}else if  ((rxData[14] == 'i') && (rxData[15] == 'c') && (rxData[16] == 'o')) {
+// 						// icon
+// 						value32bit.u8[0] = rxData[27];
+// 						value32bit.u8[1] = rxData[26];
+// 						value32bit.u8[2] = rxData[25];
+// 						value32bit.u8[3] = rxData[24];
 						
-						// do something with channel and value32bit.f
-						//Serial.println("/ch/" + String(channel) + "/config/icon " + String(value32bit.u32));
-						//fprintf(stdout, "Ch %u: Set icon to %u\n",  channel+1, value32bit.u32);
-					}
-				}
-            } else if (address[0] == "main") {
-                // /main/st/mix/fader~~,f~~[float]
-                // /main/st/mix/pan~~~~,f~~[float]
-                // /main/st/mix/on~,i~~[int]
-                if (len > 12) {
-                    if ((rxData[6] == 's') && (rxData[7] == 't') && (rxData[9] == 'm') && (rxData[10] == 'i') && (rxData[11] == 'x')) {
-                        if ((rxData[13] == 'f') && (rxData[14] == 'a') && (rxData[15] == 'd')) {
-                            // get fader-value
-                            value32bit.u8[0] = rxData[27];
-                            value32bit.u8[1] = rxData[26];
-                            value32bit.u8[2] = rxData[25];
-                            value32bit.u8[3] = rxData[24];
+// 						// do something with channel and value32bit.f
+// 						//Serial.println("/ch/" + String(channel) + "/config/icon " + String(value32bit.u32));
+// 						//fprintf(stdout, "Ch %u: Set icon to %u\n",  channel+1, value32bit.u32);
+// 					}
+// 				}
+//             } else if (address[0] == "main") {
+//                 // /main/st/mix/fader~~,f~~[float]
+//                 // /main/st/mix/pan~~~~,f~~[float]
+//                 // /main/st/mix/on~,i~~[int]
+//                 if (len > 12) {
+//                     if ((rxData[6] == 's') && (rxData[7] == 't') && (rxData[9] == 'm') && (rxData[10] == 'i') && (rxData[11] == 'x')) {
+//                         if ((rxData[13] == 'f') && (rxData[14] == 'a') && (rxData[15] == 'd')) {
+//                             // get fader-value
+//                             value32bit.u8[0] = rxData[27];
+//                             value32bit.u8[1] = rxData[26];
+//                             value32bit.u8[2] = rxData[25];
+//                             value32bit.u8[3] = rxData[24];
                             
-                            //float newVolume = (value32bit.f * 54.0f) - 48.0f;
-                            //mixerSetMainVolume(newVolume);
-                        }else if ((rxData[13] == 'p') && (rxData[14] == 'a') && (rxData[15] == 'n')) {
-                            // get pan-value
-                            value32bit.u8[0] = rxData[27];
-                            value32bit.u8[1] = rxData[26];
-                            value32bit.u8[2] = rxData[25];
-                            value32bit.u8[3] = rxData[24];
+//                             //float newVolume = (value32bit.f * 54.0f) - 48.0f;
+//                             //mixerSetMainVolume(newVolume);
+//                         }else if ((rxData[13] == 'p') && (rxData[14] == 'a') && (rxData[15] == 'n')) {
+//                             // get pan-value
+//                             value32bit.u8[0] = rxData[27];
+//                             value32bit.u8[1] = rxData[26];
+//                             value32bit.u8[2] = rxData[25];
+//                             value32bit.u8[3] = rxData[24];
                             
-                            //mixerSetMainBalance(value32bit.f * 100);
-                        }else if ((rxData[13] == 'o') && (rxData[14] == 'n')) {
-                            // get mute-state
-                            // /main/st/mix/on~,i~~~
-                            // do something with channel and (rxData[20+3]) // 0 = mute off, 31 = mute on
-                        }
-                    }
-                }
-            }else if (memcmp(rxData, "/-st", 4) == 0) {
-                // stat
+//                             //mixerSetMainBalance(value32bit.f * 100);
+//                         }else if ((rxData[13] == 'o') && (rxData[14] == 'n')) {
+//                             // get mute-state
+//                             // /main/st/mix/on~,i~~~
+//                             // do something with channel and (rxData[20+3]) // 0 = mute off, 31 = mute on
+//                         }
+//                     }
+//                 }
+//             }else if (memcmp(rxData, "/-st", 4) == 0) {
+//                 // stat
                 
-                if ((rxData[7] == 's') && (rxData[8] == 'o') && (rxData[9] == 'l') && (rxData[10] == 'o') && (rxData[11] == 's') && (rxData[12] == 'w')) {
-                    // /-stat/solosw/xx~~~~,i~~[integer]
-                    channel = ((rxData[14]-48)*10 + (rxData[15]-48)) - 1;
-                    value32bit.u8[0] = rxData[27];
-                    value32bit.u8[1] = rxData[26];
-                    value32bit.u8[2] = rxData[25];
-                    value32bit.u8[3] = rxData[24];
+//                 if ((rxData[7] == 's') && (rxData[8] == 'o') && (rxData[9] == 'l') && (rxData[10] == 'o') && (rxData[11] == 's') && (rxData[12] == 'w')) {
+//                     // /-stat/solosw/xx~~~~,i~~[integer]
+//                     channel = ((rxData[14]-48)*10 + (rxData[15]-48)) - 1;
+//                     value32bit.u8[0] = rxData[27];
+//                     value32bit.u8[1] = rxData[26];
+//                     value32bit.u8[2] = rxData[25];
+//                     value32bit.u8[3] = rxData[24];
                     
-                    // we receive solo-values for 80 channels
-/*
-                    if (channel < 32) {
-                        mixerSetSolo(channel, (value32bit.u32 == 1));
-                    }
-*/
-                }else if ((rxData[7] == 'u') && (rxData[8] == 'r') && (rxData[9] == 'e') && (rxData[10] == 'c')) {
-                    value32bit.u8[0] = rxData[27];
-                    value32bit.u8[1] = rxData[26];
-                    value32bit.u8[2] = rxData[25];
-                    value32bit.u8[3] = rxData[24];
+//                     // we receive solo-values for 80 channels
+// /*
+//                     if (channel < 32) {
+//                         mixerSetSolo(channel, (value32bit.u32 == 1));
+//                     }
+// */
+//                 }else if ((rxData[7] == 'u') && (rxData[8] == 'r') && (rxData[9] == 'e') && (rxData[10] == 'c')) {
+//                     value32bit.u8[0] = rxData[27];
+//                     value32bit.u8[1] = rxData[26];
+//                     value32bit.u8[2] = rxData[25];
+//                     value32bit.u8[3] = rxData[24];
                     
-                    // /-stat/urec/state~~~,i~~[integer]
-                    if (value32bit.u32 == 0) {
-                        // stop
-                    }else if (value32bit.u32 == 1) {
-                        // pause
-                    }else if (value32bit.u32 == 2) {
-                        // play
-                    }else if (value32bit.u32 == 3) {
-                        // record
-                    }
-                }
+//                     // /-stat/urec/state~~~,i~~[integer]
+//                     if (value32bit.u32 == 0) {
+//                         // stop
+//                     }else if (value32bit.u32 == 1) {
+//                         // pause
+//                     }else if (value32bit.u32 == 2) {
+//                         // play
+//                     }else if (value32bit.u32 == 3) {
+//                         // record
+//                     }
+//                 }
                 
-                //fprintf(stdout, "Received command: %s\n", rxData);
-            }else if (memcmp(rxData, "/bat", 4) == 0) {
-            }else if (memcmp(rxData, "/ren", 4) == 0) {
-            }else if (memcmp(rxData, "/for", 4) == 0) {
-            }else{
-                // ignore unused commands for now
-                //fprintf(stdout, "Received unsupported command: %s\n", rxData);
-            }
-        }else{
-            //fprintf(stdout, "Caution: len <= 0");
-        }
+//                 //fprintf(stdout, "Received command: %s\n", rxData);
+//             }else if (memcmp(rxData, "/bat", 4) == 0) {
+//             }else if (memcmp(rxData, "/ren", 4) == 0) {
+//             }else if (memcmp(rxData, "/for", 4) == 0) {
+//             }else{
+//                 // ignore unused commands for now
+//                 //fprintf(stdout, "Received unsupported command: %s\n", rxData);
+//             }
+//         }else{
+//             //fprintf(stdout, "Caution: len <= 0");
+//         }
 
 
 
-			// tosc_getFormat(&osc)); // the OSC format string, e.g. "f"
-			// 	for (int i = 0; osc.format[i] != '\0'; i++) {
-			// 		switch (osc.format[i]) {
-			// 			case 'f': printf("%g ", tosc_getNextFloat(&osc)); break;
-			// 			case 'i': printf("%i ", tosc_getNextInt32(&osc)); break;
-			// 			// returns NULL if the buffer length is exceeded
-			// 			case 's': printf("%s ", tosc_getNextString(&osc)); break;
-			// 			default: continue;
-			// 	}
-		    // }
-			// printf("\n");
-	}
+// 			// tosc_getFormat(&osc)); // the OSC format string, e.g. "f"
+// 			// 	for (int i = 0; osc.format[i] != '\0'; i++) {
+// 			// 		switch (osc.format[i]) {
+// 			// 			case 'f': printf("%g ", tosc_getNextFloat(&osc)); break;
+// 			// 			case 'i': printf("%i ", tosc_getNextInt32(&osc)); break;
+// 			// 			// returns NULL if the buffer length is exceeded
+// 			// 			case 's': printf("%s ", tosc_getNextString(&osc)); break;
+// 			// 			default: continue;
+// 			// 	}
+// 		    // }
+// 			// printf("\n");
+// 	}
 
 
-}
+// }
 
 // ####################################################################
 // #
@@ -920,7 +922,7 @@ void X32Ctrl::syncAll(void) {
 	if (state->HasAnyChanged()){
 		guiSync();
 		surfaceSync();
-		xremoteSync();
+		//xremoteSync();
 
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
 			// TODO Maybe?: do not sync if just selection has changed
@@ -1675,67 +1677,67 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 	}
 }
 
-// sync mixer state to GUI
-void X32Ctrl::xremoteSync(bool syncAll) {
-	bool fullSync = false;
+// // sync mixer state to GUI
+// void X32Ctrl::xremoteSync(bool syncAll) {
+// 	bool fullSync = false;
 
-	if (syncAll || state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
-		// channel selection has changed - do a full sync
-		fullSync=true; 
-	}
+// 	if (syncAll || state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
+// 		// channel selection has changed - do a full sync
+// 		fullSync=true; 
+// 	}
 	
-	// DEBUG
-	xremote->SetCard(10); // X-LIVE
+// 	// DEBUG
+// 	xremote->SetCard(10); // X-LIVE
 
-	for(uint8_t i=0; i<X32_VCHANNEL_BLOCKSIZE_NORMAL; i++) {
-		uint8_t chanindex = i;
-		VChannel* chan = mixer->GetVChannel(i);
-		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
-			xremote->SetFader(String("ch"), chanindex, mixer->GetVolumeOscvalue(chanindex));
-		}
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
-		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
-		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
-		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
-		// }
-	}
+// 	for(uint8_t i=0; i<X32_VCHANNEL_BLOCKSIZE_NORMAL; i++) {
+// 		uint8_t chanindex = i;
+// 		VChannel* chan = mixer->GetVChannel(i);
+// 		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
+// 			xremote->SetFader(String("ch"), chanindex, mixer->GetVolumeOscvalue(chanindex));
+// 		}
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
+// 		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+// 		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
+// 		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
+// 		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
+// 		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
+// 		// }
+// 	}
 
-	for(uint8_t i=X32_VCHANNEL_BLOCK_AUX; i<X32_VCHANNEL_BLOCKSIZE_AUX; i++) {
-		uint8_t chanindex = i;
-		VChannel* chan = mixer->GetVChannel(i);
-		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
-			xremote->SetFader(String("auxin"), chanindex, mixer->GetVolumeOscvalue(chanindex));
-		}
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
-		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
-		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
-		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
-		// }
-	}
+// 	for(uint8_t i=X32_VCHANNEL_BLOCK_AUX; i<X32_VCHANNEL_BLOCKSIZE_AUX; i++) {
+// 		uint8_t chanindex = i;
+// 		VChannel* chan = mixer->GetVChannel(i);
+// 		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
+// 			xremote->SetFader(String("auxin"), chanindex, mixer->GetVolumeOscvalue(chanindex));
+// 		}
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
+// 		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+// 		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
+// 		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
+// 		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
+// 		// }
+// 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
+// 		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
+// 		// }
+// 	}
 	
-	// update meters everytime
-    xremote->UpdateMeter(mixer);
-}
+// 	// update meters everytime
+//     xremote->UpdateMeter(mixer);
+// }
 
 // ####################################################################
 // #

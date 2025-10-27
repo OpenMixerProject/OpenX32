@@ -7,7 +7,8 @@
 #include "helper.h"
 #include "state.h"
 #include "mixer.h"
-#include "xremote.h"
+//#include "xremote.h"
+#include "X32.h"
 
 // includes for timer
 #include <time.h>
@@ -47,7 +48,8 @@ class X32Ctrl : public X32Base {
     private:
         Mixer* mixer;
         Surface* surface;
-        XRemote* xremote;
+        //XRemote* xremote;
+        X32* x32;
 
         sBankMode modes[3];
 
@@ -71,7 +73,7 @@ class X32Ctrl : public X32Base {
         void Tick10ms(void);
         void Tick100ms(void);
         void ProcessEvents(void);
-        void UdpHandleCommunication(void);
+        //void UdpHandleCommunication(void);
 
         void guiInit(void);
         void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
@@ -93,7 +95,7 @@ class X32Ctrl : public X32Base {
         void setLedChannelIndicator(void);
         uint8_t surfaceCalcPreampMeter(uint8_t channel);
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
-        void xremoteSync(bool syncAll=false);
+        //void xremoteSync(bool syncAll=false);
 
         void ChangeSelect(uint8_t direction);
         void SetSelect(uint8_t vChannelIndex, bool solo);

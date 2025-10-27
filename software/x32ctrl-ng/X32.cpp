@@ -75,6 +75,23 @@
 #include "X32.h"
 
 
+int8_t X32::Init() {
+    if ((UdpHandle = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        //fprintf(stderr, "Error on creating UDP-socket!");
+        return -1;
+    }
+    ServerAddr.sin_family = AF_INET;
+    ServerAddr.sin_addr.s_addr = INADDR_ANY;
+    ServerAddr.sin_port = htons(10023);
+    
+    if (bind(UdpHandle, (const struct sockaddr *)&ServerAddr, sizeof(ServerAddr)) < 0) {
+        //fprintf(stderr, "Error on binding UDP-socket!");
+        close(UdpHandle);
+        return -1;
+    }
+    
+    return 0;
+}
 
 
 // int main(int argc, char **argv) {
@@ -5227,7 +5244,7 @@ int X32::Xsprint(char *bd, int index, char format, const void *bs)
 }
 
 
-int X32::Xfprint(char *bd, int index, char* text, char format, void *bs)
+int X32::Xfprint(char *bd, int index, const char* text, char format, void *bs)
 {
 // first copy text
 	strcpy (bd+index, text);
