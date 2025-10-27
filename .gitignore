@@ -5,6 +5,9 @@
 *.o
 *.exe
 
+# temp files
+*.bak
+
 # initramfs
 initramfs_root/bin
 initramfs_root/dev
@@ -91,3 +94,21 @@ planAhead*
 software/x32ctrl-ng/.vscode/tasks.json
 software/x32ctrl-ng/.vscode/launch.json
 software/x32ctrl-ng/.vscode/settings.json
+
+# Lattice Diamond
+fpga/lattice/impl*/
+fpga/lattice/QuartusPrime/db/
+*.dir/
+*.html
+*.xml
+.run_manager.ini
+.spread_sheet.ini
+.spreadsheet_view.ini
+.build_status
+.recovery
+*.log
+*.tcl
+*.ccl
+*.srp
+*.dmp
+._Real_._Math_.vhd

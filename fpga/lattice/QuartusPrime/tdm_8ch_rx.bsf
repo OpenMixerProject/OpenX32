@@ -1,0 +1,114 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 16 16 200 224)
+	(text "tdm_8ch_rx" (rect 5 0 54 12)(font "Arial" ))
+	(text "inst" (rect 8 192 20 204)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "bclk" (rect 0 0 15 12)(font "Arial" ))
+		(text "bclk" (rect 21 27 36 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32)(line_width 1))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "fsync" (rect 0 0 23 12)(font "Arial" ))
+		(text "fsync" (rect 21 43 44 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 1))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "sdata" (rect 0 0 21 12)(font "Arial" ))
+		(text "sdata" (rect 21 59 42 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 1))
+	)
+	(port
+		(pt 184 32)
+		(output)
+		(text "ch1_out[23..0]" (rect 0 0 55 12)(font "Arial" ))
+		(text "ch1_out[23..0]" (rect 108 27 163 39)(font "Arial" ))
+		(line (pt 184 32)(pt 168 32)(line_width 3))
+	)
+	(port
+		(pt 184 48)
+		(output)
+		(text "ch2_out[23..0]" (rect 0 0 56 12)(font "Arial" ))
+		(text "ch2_out[23..0]" (rect 107 43 163 55)(font "Arial" ))
+		(line (pt 184 48)(pt 168 48)(line_width 3))
+	)
+	(port
+		(pt 184 64)
+		(output)
+		(text "ch3_out[23..0]" (rect 0 0 56 12)(font "Arial" ))
+		(text "ch3_out[23..0]" (rect 107 59 163 71)(font "Arial" ))
+		(line (pt 184 64)(pt 168 64)(line_width 3))
+	)
+	(port
+		(pt 184 80)
+		(output)
+		(text "ch4_out[23..0]" (rect 0 0 57 12)(font "Arial" ))
+		(text "ch4_out[23..0]" (rect 106 75 163 87)(font "Arial" ))
+		(line (pt 184 80)(pt 168 80)(line_width 3))
+	)
+	(port
+		(pt 184 96)
+		(output)
+		(text "ch5_out[23..0]" (rect 0 0 56 12)(font "Arial" ))
+		(text "ch5_out[23..0]" (rect 107 91 163 103)(font "Arial" ))
+		(line (pt 184 96)(pt 168 96)(line_width 3))
+	)
+	(port
+		(pt 184 112)
+		(output)
+		(text "ch6_out[23..0]" (rect 0 0 56 12)(font "Arial" ))
+		(text "ch6_out[23..0]" (rect 107 107 163 119)(font "Arial" ))
+		(line (pt 184 112)(pt 168 112)(line_width 3))
+	)
+	(port
+		(pt 184 128)
+		(output)
+		(text "ch7_out[23..0]" (rect 0 0 56 12)(font "Arial" ))
+		(text "ch7_out[23..0]" (rect 107 123 163 135)(font "Arial" ))
+		(line (pt 184 128)(pt 168 128)(line_width 3))
+	)
+	(port
+		(pt 184 144)
+		(output)
+		(text "ch8_out[23..0]" (rect 0 0 56 12)(font "Arial" ))
+		(text "ch8_out[23..0]" (rect 107 139 163 151)(font "Arial" ))
+		(line (pt 184 144)(pt 168 144)(line_width 3))
+	)
+	(port
+		(pt 184 160)
+		(output)
+		(text "sync_out" (rect 0 0 37 12)(font "Arial" ))
+		(text "sync_out" (rect 126 155 163 167)(font "Arial" ))
+		(line (pt 184 160)(pt 168 160)(line_width 1))
+	)
+	(drawing
+		(rectangle (rect 16 16 168 192)(line_width 1))
+	)
+)

@@ -1,0 +1,116 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 16 16 496 160)
+	(text "audiomatrix" (rect 5 0 49 12)(font "Arial" ))
+	(text "inst" (rect 8 128 20 140)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 10 12)(font "Arial" ))
+		(text "clk" (rect 21 27 31 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32)(line_width 1))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "sync_in" (rect 0 0 31 12)(font "Arial" ))
+		(text "sync_in" (rect 21 43 52 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 1))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "input_data[((num_input_ports*data_width)-1)..0]" (rect 0 0 184 12)(font "Arial" ))
+		(text "input_data[((num_input_ports*data_width)-1)..0]" (rect 21 59 205 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "select_lines[((num_output_ports*8)-1)..0]" (rect 0 0 158 12)(font "Arial" ))
+		(text "select_lines[((num_output_ports*8)-1)..0]" (rect 21 75 179 87)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 3))
+	)
+	(port
+		(pt 0 96)
+		(input)
+		(text "i_ram_data[(data_width-1)..0]" (rect 0 0 115 12)(font "Arial" ))
+		(text "i_ram_data[(data_width-1)..0]" (rect 21 91 136 103)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96)(line_width 3))
+	)
+	(port
+		(pt 480 32)
+		(output)
+		(text "o_ram_read_addr[6..0]" (rect 0 0 94 12)(font "Arial" ))
+		(text "o_ram_read_addr[6..0]" (rect 365 27 459 39)(font "Arial" ))
+		(line (pt 480 32)(pt 464 32)(line_width 3))
+	)
+	(port
+		(pt 480 48)
+		(output)
+		(text "o_ram_write_addr[6..0]" (rect 0 0 94 12)(font "Arial" ))
+		(text "o_ram_write_addr[6..0]" (rect 365 43 459 55)(font "Arial" ))
+		(line (pt 480 48)(pt 464 48)(line_width 3))
+	)
+	(port
+		(pt 480 64)
+		(output)
+		(text "o_ram_data[(data_width-1)..0]" (rect 0 0 119 12)(font "Arial" ))
+		(text "o_ram_data[(data_width-1)..0]" (rect 340 59 459 71)(font "Arial" ))
+		(line (pt 480 64)(pt 464 64)(line_width 3))
+	)
+	(port
+		(pt 480 80)
+		(output)
+		(text "o_ram_wr_en" (rect 0 0 57 12)(font "Arial" ))
+		(text "o_ram_wr_en" (rect 402 75 459 87)(font "Arial" ))
+		(line (pt 480 80)(pt 464 80)(line_width 1))
+	)
+	(port
+		(pt 480 96)
+		(output)
+		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 0 0 195 12)(font "Arial" ))
+		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 264 91 459 103)(font "Arial" ))
+		(line (pt 480 96)(pt 464 96)(line_width 3))
+	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"NUM_INPUT_PORTS"
+		"112"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"NUM_OUTPUT_PORTS"
+		"112"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 464 128)(line_width 1))
+	)
+	(annotation_block (parameter)(rect 496 -64 596 16))
+)

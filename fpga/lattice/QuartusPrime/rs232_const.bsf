@@ -1,0 +1,58 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 16 16 168 128)
+	(text "rs232_const" (rect 5 0 54 12)(font "Arial" ))
+	(text "inst" (rect 8 96 20 108)(font "Arial" ))
+	(port
+		(pt 152 32)
+		(output)
+		(text "const1[7..0]" (rect 0 0 44 12)(font "Arial" ))
+		(text "const1[7..0]" (rect 87 27 131 39)(font "Arial" ))
+		(line (pt 152 32)(pt 136 32)(line_width 3))
+	)
+	(port
+		(pt 152 48)
+		(output)
+		(text "const2[7..0]" (rect 0 0 46 12)(font "Arial" ))
+		(text "const2[7..0]" (rect 85 43 131 55)(font "Arial" ))
+		(line (pt 152 48)(pt 136 48)(line_width 3))
+	)
+	(port
+		(pt 152 64)
+		(output)
+		(text "const3[7..0]" (rect 0 0 46 12)(font "Arial" ))
+		(text "const3[7..0]" (rect 85 59 131 71)(font "Arial" ))
+		(line (pt 152 64)(pt 136 64)(line_width 3))
+	)
+	(port
+		(pt 152 80)
+		(output)
+		(text "const4[7..0]" (rect 0 0 47 12)(font "Arial" ))
+		(text "const4[7..0]" (rect 84 75 131 87)(font "Arial" ))
+		(line (pt 152 80)(pt 136 80)(line_width 3))
+	)
+	(drawing
+		(rectangle (rect 16 16 136 96)(line_width 1))
+	)
+)
