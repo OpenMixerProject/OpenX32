@@ -114,18 +114,19 @@ DSP2 is used for the more advanced audio-effects in the original system. This DS
 * [x] Support of internal 8-channel analog input- and output-cards including headamp- and phantom-power-control
 * [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438)
 * [x] Support of both AnalogDevices DSPs (ADSP-21371 SHARC DSPs) via internal SPI-interface
+* [x] Support of UltraNet-Output
+* [x] Support of booting from SD-Card and via original DCP-Bootloader
 * [x] Configuration of main-FPGA (Xilinx Spartan 3A, X3CS1400) via internal SPI-interface
 * [x] Support of 1:1-routing for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
-* [x] Noisegate, 5-band EQ and compressor per channel is already working within the main-DSP
+* [x] Noisegate, 4-band EQ and compressor per channel is already working within the main-DSP
 
 So the most important things (audio in/out, control-surface, display) are working already. The high-level-audio-functions within the DSP need still more investigation...
 
 More things are on the ToDo-list:
-* [ ] In-Progress: Support of UltraNet-Output (Signal is heavily disturbed at the moment)
+* [ ] In-Progress: implement logic for the Lattice FPGA and new AUX ADC/DAC in newer revisions of the X32
 * [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years)
 * [ ] Planned: Implement advanced audio-algorithm in DSP2
-* [ ] Planned: Boot from SD-Card (already working) and via original DCP-Bootloader (reverse-engineering is work-in-progress)
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
 * [ ] Planned: Support of AES50 (needs more investigation on AES50-protocol)
