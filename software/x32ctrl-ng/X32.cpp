@@ -1,3 +1,36 @@
+/*
+    ____                  __   ______ ___  
+   / __ \                 \ \ / /___ \__ \ 
+  | |  | |_ __   ___ _ __  \ V /  __) | ) |
+  | |  | | '_ \ / _ \ '_ \  > <  |__ < / / 
+  | |__| | |_) |  __/ | | |/ . \ ___) / /_ 
+   \____/| .__/ \___|_| |_/_/ \_\____/____|
+         | |                               
+         |_|                               
+  
+  OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
+  Copyright 2025 OpenMixerProject
+  https://github.com/OpenMixerProject/OpenX32
+  
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  version 3 as published by the Free Software Foundation.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+*/
+
+// #########################################################################################################
+//
+// Integration of X32-Emulator Source Code from https://github.com/pmaillot/X32-Behringer/ 
+// with kindly permission of https://github.com/pmaillot
+//
+// Thanks a lot! 
+//
+// #########################################################################################################
+
 //
 // X32.c
 //
@@ -43,13 +76,6 @@
 
 
 
-#ifdef __WIN32__
-WSADATA wsa;
-int Client_ip_len = sizeof(Client_ip);			// length of addresses
-INT WSAAPI getaddrinfo(char *pNodeName, char *pServiceName, struct addrinfo *pHints, struct addrinfo **ppResult);
-#else
-socklen_t Client_ip_len = sizeof(Client_ip);	// length of addresses
-#endif
 
 // int main(int argc, char **argv) {
 // 	int i, whoto, noIP;
@@ -316,7 +342,7 @@ socklen_t Client_ip_len = sizeof(Client_ip);	// length of addresses
 
 //
 //X32Print: a utility print for commands
-void X32Print(struct X32command* command) {
+void X32::X32Print(struct X32command* command) {
 	printf("X32-Command: %s data: ", command->command);
 //
 	if ((command->format.typ == I32) || (command->format.typ == E32) || (command->format.typ == P32)) {
@@ -338,7 +364,7 @@ void X32Print(struct X32command* command) {
 
 //
 // Xsend: X32 sending data (as the result of a command or a change for example)
-void Xsend(int who_to) {
+void X32::Xsend(int who_to) {
 	int i;
 
 
@@ -379,7 +405,7 @@ void Xsend(int who_to) {
 
 //
 // FXc_lookup: find the parameter type of an FX parameter
-int FXc_lookup(X32command* Xfx, int index) {
+int X32::FXc_lookup(X32command* Xfx, int index) {
 	int ipar, ityp;
 	char ctyp;
 // lookup function to find the parameter type of an FX parameter for command at index
@@ -419,7 +445,7 @@ int FXc_lookup(X32command* Xfx, int index) {
 
 //
 // Slevel: returns db level [-oo...10] from float[0..1]
-char* Slevel(float fin) {
+char* X32::Slevel(float fin) {
 	float fl;
 
 	if (fin <= 0.) {
@@ -436,7 +462,7 @@ char* Slevel(float fin) {
 
 //
 // Slinf: returns linear float [min..max] in different formats
-char* Slinf(float fin, float fmin, float fmax, int pre) {
+char* X32::Slinf(float fin, float fmin, float fmax, int pre) {
 	char formt[8] = " %.0f";
 
 	formt[3] = (char) (48 + pre); // results in " %.0f"... " %.3f" for pre = 0..3
@@ -446,7 +472,7 @@ char* Slinf(float fin, float fmin, float fmax, int pre) {
 
 //
 // Slinfs: returns linear float [min..max] in different signed formats
-char* Slinfs(float fin, float fmin, float fmax, int pre) {
+char* X32::Slinfs(float fin, float fmin, float fmax, int pre) {
 	char formt[8] = " %+.0f";
 
 	formt[4] = (char) (48 + pre); // results in " %+.0f"... " %+.3f" for pre = 0..3
@@ -456,7 +482,7 @@ char* Slinfs(float fin, float fmin, float fmax, int pre) {
 
 //
 // Slogf: returns log float [min..max] in different formats
-char* Slogf(float fin, float fmin, float fmax, int pre) {
+char* X32::Slogf(float fin, float fmin, float fmax, int pre) {
 	char formt[8] = " %.0f";
 
 	formt[3] = (char) (48 + pre); // results in " %.0f"... " %.3f" for pre = 0..3
@@ -466,7 +492,7 @@ char* Slogf(float fin, float fmin, float fmax, int pre) {
 
 //
 // Sbitmp: returns bitmap %chain from int
-char* Sbitmp(int iin, int len) {
+char* X32::Sbitmp(int iin, int len) {
 	int i, j;
 
 	j = 0;
@@ -481,14 +507,14 @@ char* Sbitmp(int iin, int len) {
 
 //
 // Sint: returns int as string
-char* Sint(int iin) {
+char* X32::Sint(int iin) {
 	sprintf(snode_str, " %d", iin);
 	return snode_str;
 }
 
 //
 // RLinf: reads linear float [min..max]
-char* RLinf(X32command* command, char* str_pt_in, float xmin, float lmaxmin) {
+char* X32::RLinf(X32command* command, char* str_pt_in, float xmin, float lmaxmin) {
 
 	float fval;
 	int len = 0;
@@ -512,7 +538,7 @@ char* RLinf(X32command* command, char* str_pt_in, float xmin, float lmaxmin) {
 }
 //
 // RLogf: reads logarithm float [min..max]
-char* RLogf(X32command* command, char* str_pt_in, float xmin, float lmaxmin) {
+char* X32::RLogf(X32command* command, char* str_pt_in, float xmin, float lmaxmin) {
 
 	float fval;
 	int len = 0;
@@ -535,7 +561,7 @@ char* RLogf(X32command* command, char* str_pt_in, float xmin, float lmaxmin) {
 }
 //
 // REnum: sets int value from choice in list of strings separated by spaces
-char* REnum(X32command* command, char* str_pt_in, char* str_enum[]) {
+char* X32::REnum(X32command* command, char* str_pt_in, const char* str_enum[]) {
 	int i, l_in;
 	char csave;
 
@@ -562,7 +588,7 @@ char* REnum(X32command* command, char* str_pt_in, char* str_enum[]) {
 }
 //
 // SetFxPar1: set FX data from
-void SetFxPar1(X32command* command, char* str_pt_in, int ipar, int type) {
+void X32::SetFxPar1(X32command* command, char* str_pt_in, int ipar, int type) {
 	switch (type) {
 	case _1_HALL:
 		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
@@ -1310,7 +1336,7 @@ void SetFxPar1(X32command* command, char* str_pt_in, int ipar, int type) {
 }
 //
 // GetFxPar1: concatenates FX data in buf
-void GetFxPar1(X32command* command, char* buf, int ipar, int type) {
+void X32::GetFxPar1(X32command* command, char* buf, int ipar, int type) {
 	int i;
 
 	switch (type) {
@@ -2077,7 +2103,7 @@ void GetFxPar1(X32command* command, char* buf, int ipar, int type) {
 }
 //
 // funct_params: parse commands data
-int funct_params(X32command *command, int i) {
+int X32::funct_params(X32command *command, int i) {
 	int j, c_len, f_len, f_num, c_type, update;
 	char* s_adr;
 	char* s_fmt;
@@ -2137,7 +2163,7 @@ int funct_params(X32command *command, int i) {
 							if (command[i].value.str) update = strcmp(command[i].value.str, loc_str);
 							else                      update = 1;
 							if (command[i].value.str) free(command[i].value.str);
-							command[i].value.str = malloc((j + 8) * sizeof(char));
+							command[i].value.str = (char*)malloc((j + 8) * sizeof(char));
 							strcpy(command[i].value.str, loc_str);
 						} else {
 							if (command[i].value.str) {
@@ -2187,7 +2213,7 @@ int funct_params(X32command *command, int i) {
 				if (command[i].value.str) s_len = Xsprint(s_buf, s_len, 's', command[i].value.str);
 				else s_len = Xsprint(s_buf, s_len, 's', &zero); // return nil chars if no string
 			} else if (c_type == B32) {
-				if ((s_adr = command[i].value.dta) != NULL) {
+				if ((s_adr = (char*)command[i].value.dta) != NULL) {
 					s_len = Xsprint(s_buf, s_len, 's', ",b"); //todo - incorrect
 					s_len = Xsprint(s_buf, s_len, 'b', command[i].value.dta);
 				}
@@ -2224,7 +2250,7 @@ int funct_params(X32command *command, int i) {
 
 //
 // no-op functions
-int function() {
+int X32::function() {
 	printf("dummy function\n");
 	fflush(stdout);
 	return 0;
@@ -2232,7 +2258,7 @@ int function() {
 
 //
 // /info command
-int function_info() {
+int X32::function_info() {
 	s_len = Xsprint(s_buf, 0, 's', "/info");
 	s_len = Xsprint(s_buf, s_len, 's', ",ssss");
 	s_len = Xsprint(s_buf, s_len, 's', "V2.07");
@@ -2245,7 +2271,7 @@ int function_info() {
 
 //
 // /xinfo command
-int function_xinfo() {
+int X32::function_xinfo() {
 	s_len = Xsprint(s_buf, 0, 's', "/xinfo");
 	s_len = Xsprint(s_buf, s_len, 's', ",ssss");
 	s_len = Xsprint(s_buf, s_len, 's', Xip_str);
@@ -2258,7 +2284,7 @@ int function_xinfo() {
 
 //
 // /status command
-int function_status() {
+int X32::function_status() {
 	// TODO getmyIP(); // get my IP in r_buf
 
 	s_len = Xsprint(s_buf, 0, 's', "/status");
@@ -2272,7 +2298,7 @@ int function_status() {
 
 //
 // /unsubscribe command
-int function_unsubscribe() {
+int X32::function_unsubscribe() {
 	int k;
 	//
 	// For now, only simple/single unsubscribe command is recognized to remove
@@ -2290,7 +2316,7 @@ int function_unsubscribe() {
 
 //
 // /xremote command
-int function_xremote() {
+int X32::function_xremote() {
 	int k;
 	//
 	// command is xremote (set remote time for requesting client)
@@ -2322,7 +2348,7 @@ int function_xremote() {
 }
 //
 //
-char* XslashSetInt(X32command* command, char* str_pt_in) {
+char* X32::XslashSetInt(X32command* command, char* str_pt_in) {
 	int i = 0;
 
 	if (*str_pt_in == '\0') return (NULL);
@@ -2338,7 +2364,7 @@ char* XslashSetInt(X32command* command, char* str_pt_in) {
 }
 //
 //
-char* XslashSetPerInt(X32command* command, char* str_pt_in) {
+char* X32::XslashSetPerInt(X32command* command, char* str_pt_in) {
 
 int i, j;
 	// to be set in subroutines: int (int)
@@ -2366,7 +2392,7 @@ int i, j;
 }
 //
 //
-char* XslashSetString(X32command* command, char* str_pt_in) {
+char* X32::XslashSetString(X32command* command, char* str_pt_in) {
 	char* str_pt;
 	char loc_str[64];
 	int j, cmore, update;
@@ -2392,7 +2418,7 @@ char* XslashSetString(X32command* command, char* str_pt_in) {
 		if (command->value.str) update = strcmp(command->value.str, loc_str);
 		else                    update = 1;
 		if (command->value.str) free(command->value.str);
-		command->value.str = malloc((j + 8) * sizeof(char));
+		command->value.str = (char*)malloc((j + 8) * sizeof(char));
 		strcpy(command->value.str, loc_str);
 	} else {
 		if (command->value.str) {
@@ -2411,7 +2437,7 @@ char* XslashSetString(X32command* command, char* str_pt_in) {
 }
 //
 //
-char* XslashSetLevl(X32command* command, char* str_pt_in, int nsteps) {
+char* X32::XslashSetLevl(X32command* command, char* str_pt_in, int nsteps) {
 	float fval;
 	int len = 0;
 	// calculate length of parameter
@@ -2455,7 +2481,7 @@ char* XslashSetLevl(X32command* command, char* str_pt_in, int nsteps) {
 }
 //
 //
-char* XslashSetList(X32command* command, char* str_pt_in) {
+char* X32::XslashSetList(X32command* command, char* str_pt_in) {
 	int j = 0;
 	int len = 0;
 	char csave;
@@ -2485,7 +2511,7 @@ char* XslashSetList(X32command* command, char* str_pt_in) {
 
 //
 //
-float Xr_float(char* Xin, int l) {
+float X32::Xr_float(char* Xin, int l) {
 char llread[16]; // max length for float argument when read as a string
 float fval;
 int i, ival, idec;
@@ -2516,7 +2542,7 @@ int i, ival, idec;
 }
 //
 //
-char* XslashSetLogf(X32command* command, char* str_pt_in, float xmin, float lmaxmin, int nsteps) {
+char* X32::XslashSetLogf(X32command* command, char* str_pt_in, float xmin, float lmaxmin, int nsteps) {
 	int len = 0;
 	float fval;
 	// calculate length of parameter
@@ -2543,7 +2569,7 @@ char* XslashSetLogf(X32command* command, char* str_pt_in, float xmin, float lmax
 }
 //
 //
-char* XslashSetLinf(X32command* command, char* str_pt_in, float xmin, float lmaxmin, float xstep) {
+char* X32::XslashSetLinf(X32command* command, char* str_pt_in, float xmin, float lmaxmin, float xstep) {
 	float fval;
 	int len = 0;
 	// calculate length of parameter
@@ -2570,7 +2596,7 @@ char* XslashSetLinf(X32command* command, char* str_pt_in, float xmin, float lmax
 }
 //
 // reply to '/' commands
-int function_slash() {
+int X32::function_slash() {
 	char w_buf[BSIZE];
 	int  w_len;
 	char* str_pt_in;
@@ -2942,7 +2968,7 @@ int function_slash() {
 							}
 							j = strlen(str_pt_in) - c_len; // remove trailing " if there's one
 							if (j > 0) {
-								command[i].value.str = malloc((j + 8) * sizeof(char));
+								command[i].value.str = (char*)malloc((j + 8) * sizeof(char));
 								strncpy(command[i].value.str, str_pt_in, j);
 								command[i].value.str[j] = 0;
 							} else {
@@ -2964,7 +2990,7 @@ int function_slash() {
 //
 //
 // /node command
-int function_node() {
+int X32::function_node() {
 	char* str_pt_in;
 	int i, j, cmd_max;
 	X32command* command;
@@ -3635,16 +3661,74 @@ int function_node() {
 					memcpy(r_buf + 1, r_buf + 12, r_len - 12);
 				}
 				r_len -= 12;
-				// Parse the command; this will update the Send buffer (and send buffer number of bytes)
-				// and the parsing status in p_status
-				while (i < Xheader_max) {
-					if (Xheader[i].header.icom == (int) *((int*) v_buf)) { // single int test!
-						p_status = Xheader[i].fptr(); // call associated parsing function
-						break; // Done parsing, exit parsing while loop
-					}
-					i += 1;
-				}
-				if (i < Xheader_max) return function_node_single(i);
+
+// ##############################################################
+//
+// ########  #######  ########   #######  
+//    ##    ##     ## ##     ## ##     ## 
+//    ##    ##     ## ##     ## ##     ## 
+//    ##    ##     ## ##     ## ##     ## 
+//    ##    ##     ## ##     ## ##     ## 
+//    ##    ##     ## ##     ## ##     ## 
+//    ##     #######  ########   #######  
+
+
+				// // Parse the command; this will update the Send buffer (and send buffer number of bytes)
+				// // and the parsing status in p_status
+				// while (i < Xheader_max) {
+				// 	if (Xheader[i].header.icom == (int) *((int*) v_buf)) { // single int test!
+				// 		p_status = Xheader[i].fptr(); // call associated parsing function
+				// 		break; // Done parsing, exit parsing while loop
+				// 	}
+				// 	i += 1;
+				// }
+
+// X32header Xheader[] = { // X32 Headers, the data used for testing and the
+// 	{ { "/shu" }, &function_shutdown }, // associated function call
+// 	{ { "/inf" }, &function_info },
+// 	{ { "/xin" }, &function_xinfo },
+// 	{ { "/sta" }, &function_status },
+// 	{ { "/xre" }, &function_xremote },
+// 	{ { "/nod" }, &function_node },
+// 	{ {"/\0\0\0" }, &function_slash },
+// 	{ { "/con" }, &function_config },
+// 	{ { "/mai" }, &function_main },
+// 	{ { "/-pr" }, &function_prefs },
+// 	{ { "/-st" }, &function_stat },
+// 	{ { "/-ur" }, &function_urec },
+// 	{ { "/ch/" }, &function_channel },
+// 	{ { "/aux" }, &function_auxin },
+// 	{ { "/fxr" }, &function_fxrtn },
+// 	{ { "/bus" }, &function_bus },
+// 	{ { "/mtx" }, &function_mtx },
+// 	{ { "/dca" }, &function_dca },
+// 	{ { "/fx/" }, &function_fx },
+// 	{ { "/out" }, &function_output },
+// 	{ { "/hea" }, &function_headamp },
+// 	{ { "/met" }, &function_meters },
+// 	{ { "/-ha" }, &function_misc },
+// 	{ { "/ins" }, &function_misc },
+// 	{ { "/-sh" }, &function_show },
+// 	{ { "/ren" }, &function_renew },
+// 	{ { "/cop" }, &function_copy },
+// 	{ { "/add" }, &function_add },
+// 	{ { "/loa" }, &function_load },
+// 	{ { "/sav" }, &function_save },
+// 	{ { "/del" }, &function_delete },
+// 	{ { "/uns" }, &function_unsubscribe },
+// 	{ { "/-us" }, &function_misc },
+// 	{ { "/und" }, &function },
+// 	{ { "/-ac" }, &function_action },
+// 	{ { "/-li" }, &function_libs },
+// 	{ { "/sho" }, &function_showdump },
+// };
+
+	//int Xmeters_max = sizeof(Xmeters) / sizeof(X32command);
+
+
+
+				//if (i < Xheader_max) return function_node_single(i);
+// ###############################################################
 			}
 		}
 	}
@@ -3652,7 +3736,7 @@ int function_node() {
 }
 //
 // Single node function - reply to /node (single argument) reply with appropriate data
-int function_node_single() {
+int X32::function_node_single() {
 
 X32command	*command = node_single_command;
 int			index = node_single_index;
@@ -3712,7 +3796,7 @@ int			index = node_single_index;
 
 //
 // /config command
-int function_config() {
+int X32::function_config() {
 	int i;
 //
 // check for actual command
@@ -3729,7 +3813,7 @@ int function_config() {
 
 //
 // /main command
-int function_main() {
+int X32::function_main() {
 	int i;
 //
 // check for actual command
@@ -3746,7 +3830,7 @@ int function_main() {
 
 //
 // /-prefs command
-int function_prefs() {
+int X32::function_prefs() {
 	int i;
 //
 // check for actual command
@@ -3763,7 +3847,7 @@ int function_prefs() {
 
 //
 // /-stat command
-int function_stat() {
+int X32::function_stat() {
 	int i;
 //
 // check for lock command
@@ -3785,7 +3869,7 @@ int function_stat() {
 
 //
 // /-urec command
-int function_urec() {
+int X32::function_urec() {
 	int i;
 //
 // check for actual command
@@ -3802,7 +3886,7 @@ int function_urec() {
 
 //
 // /ch command
-int function_channel() {
+int X32::function_channel() {
 	int i;
 	X32command *Xchannel;
 //
@@ -3824,7 +3908,7 @@ int function_channel() {
 
 //
 // /auxin command
-int function_auxin() {
+int X32::function_auxin() {
 	int i;
 	X32command *Xauxin;
 //
@@ -3846,7 +3930,7 @@ int function_auxin() {
 
 //
 // /fxrtn command
-int function_fxrtn() {
+int X32::function_fxrtn() {
 	int i;
 	X32command *Xfxrtn;
 //
@@ -3868,7 +3952,7 @@ int function_fxrtn() {
 
 //
 // /bus command
-int function_bus() {
+int X32::function_bus() {
 	int i;
 	X32command *Xbus;
 //
@@ -3890,7 +3974,7 @@ int function_bus() {
 
 //
 // /mtx command
-int function_mtx() {
+int X32::function_mtx() {
 	int i;
 	X32command *Xmtx;
 //
@@ -3912,7 +3996,7 @@ int function_mtx() {
 
 //
 // /dca command
-int function_dca() {
+int X32::function_dca() {
 	int i;
 //
 // check for actual command
@@ -3929,7 +4013,7 @@ int function_dca() {
 
 //
 // /fx command
-int function_fx() {
+int X32::function_fx() {
 	int i, fx;
 	X32command *Xfx;
 //
@@ -3961,7 +4045,7 @@ int function_fx() {
 
 //
 // /output command
-int function_output() {
+int X32::function_output() {
 	int i;
 //
 // check for actual command
@@ -3978,7 +4062,7 @@ int function_output() {
 
 //
 // /headamp command
-int function_headamp() {
+int X32::function_headamp() {
 	int i;
 	X32command *Xheadmp;
 
@@ -4001,7 +4085,7 @@ int function_headamp() {
 
 //
 //
-void Xprepmeter(int i, int l, char *buf, int n, int k) {
+void X32::Xprepmeter(int i, int l, char *buf, int n, int k) {
 	// prepare (fake) meters/i command reply
 	ZMemory(&Xbuf_meters[i][0], 512);			// Prepare buffer (set to all 0's)
 	memcpy(&Xbuf_meters[i][0], buf, 16);
@@ -4046,7 +4130,7 @@ void Xprepmeter(int i, int l, char *buf, int n, int k) {
 
 //
 // meters command (/meters, ...)
-int function_meters() {
+int X32::function_meters() {
 	int i, n;
 //
 // parse /meters for actual command starts at index 12 or 16 in r_buf, depending on # of parameters
@@ -4119,7 +4203,7 @@ int function_meters() {
 
 //
 // Other functions (/-usb, ...) and commands
-int function_misc() {
+int X32::function_misc() {
 	int i;
 //
 // check for actual command
@@ -4136,14 +4220,14 @@ int function_misc() {
 
 //
 // Other functions (/renew) and commands
-int function_renew() {
+int X32::function_renew() {
 //
 // Ignored for now / Todo
 	return S_SND;
 }
 //
 // /-action command
-int function_action() {
+int X32::function_action() {
 	int i;
 //
 // check for actual command
@@ -4160,7 +4244,7 @@ int function_action() {
 
 //
 // /-show command
-int function_show() {
+int X32::function_show() {
 	int i;
 //
 // check for actual command
@@ -4197,7 +4281,7 @@ int function_show() {
 
 //
 // /copy command
-int function_copy() {
+int X32::function_copy() {
 	int i, j, srce, dest, mask;
 	X32command *ch_src, *ch_dst;
 //
@@ -4283,7 +4367,7 @@ int function_copy() {
 
 //
 // /add command
-int function_add() {
+int X32::function_add() {
 //
 // add function - format is /add~~~~,sis~~~~type number name
 //
@@ -4302,7 +4386,7 @@ int function_add() {
 
 //
 // /load command
-int function_load() {
+int X32::function_load() {
 //
 // load function - format is /load~~~~,siii~~~~type number name
 //
@@ -4318,7 +4402,7 @@ int function_load() {
 
 //
 // /save command
-int function_save() {
+int X32::function_save() {
 	int i, j;
 //
 // save function - format is /save~~~,si[s|i,..]~~~type number name note value
@@ -4337,7 +4421,7 @@ int function_save() {
 				// save name
 				if (Xscene[j].value.str) free(Xscene[j].value.str);
 				if ((s_len = strlen(r_buf + i)) > 0) {
-					Xscene[j].value.str = malloc((s_len + 8) * sizeof(char));
+					Xscene[j].value.str = (char*)malloc((s_len + 8) * sizeof(char));
 					strncpy(Xscene[j].value.str, r_buf + i, s_len);
 					Xscene[j].value.str[s_len] = 0;
 				} else {
@@ -4347,7 +4431,7 @@ int function_save() {
 				i = (i + s_len + 4) & 0xfffffffc;
 				if (Xscene[j + 1].value.str) free(Xscene[j + 1].value.str);
 				if ((s_len = strlen(r_buf + i)) > 0) {
-					Xscene[j + 1].value.str = malloc((s_len + 8) * sizeof(char));
+					Xscene[j + 1].value.str = (char*)malloc((s_len + 8) * sizeof(char));
 					strncpy(Xscene[j + 1].value.str, r_buf + i, s_len);
 					Xscene[j + 1].value.str[s_len] = 0;
 				} else {
@@ -4391,7 +4475,7 @@ int function_save() {
 			if ((strcmp(tmp_str, Xsnippet[j].command)) == 0) {
 				if (Xsnippet[j].value.str) free(Xsnippet[j].value.str);
 				if ((s_len = strlen(r_buf + i)) > 0) {
-					Xsnippet[j].value.str = malloc((s_len + 8) * sizeof(char));
+					Xsnippet[j].value.str = (char*)malloc((s_len + 8) * sizeof(char));
 					strncpy(Xsnippet[j].value.str, r_buf + i, s_len);
 					Xsnippet[j].value.str[s_len] = 0;
 				} else {
@@ -4442,7 +4526,7 @@ int function_save() {
 
 //
 // /delete command
-int function_delete() {
+int X32::function_delete() {
 	int i, j;
 //
 // delete function - format is /delete~,si~~~~type number
@@ -4532,14 +4616,14 @@ int function_delete() {
 }
 //
 // function_libs(): to manage /-libs commands
-int function_libs() {
+int X32::function_libs() {
 	printf("Doing nothing for /-libs\n");
 	fflush(stdout);
 	return 0;
 }
 //
 // function_showdump(): mamging /showdump requests
-int function_showdump() {
+int X32::function_showdump() {
 char shname[32];
 
 	s_len = Xsprint(s_buf, 0, 's', "node");
@@ -4553,7 +4637,7 @@ char shname[32];
 //
 // Shutdown: a function (non Behringer standard) to save all current emulator values and
 // settings. Enables keeping data from one session to the next
-int function_shutdown() {
+int X32::function_shutdown() {
 	char* info = "osc-server\000\000";
 
 	if (Xverbose) {
@@ -4577,7 +4661,7 @@ int function_shutdown() {
 		fprintf(X32File, "%d\n", xx[i].value.ii);										\
 	}
 
-int X32Shutdown() {
+int X32::X32Shutdown() {
 	int i, j;
 	X32command* Xarray;
 	FILE *X32File;
@@ -4720,7 +4804,24 @@ int X32Shutdown() {
 		f_stat = fscanf(X32File, "%d ", &xx[i].value.ii);							\
 	}
 
-int X32Init() {
+#define restore_char(xx)																	\
+	f_stat = fscanf(X32File, "%d ", &type);											\
+	if (type == S32) {																\
+		f_stat = fscanf(X32File, "%d ", &r_len);									\
+		if (r_len > 0) {															\
+			for (k = 0; k < r_len; k++) f_stat = fscanf(X32File, "%c", r_buf + k);	\
+			if (xx[i].value.str) free(xx[i].value.str);								\
+			xx[i].value.str = (char*)malloc(r_len + 8);									\
+			strncpy(xx[i].value.str, r_buf, r_len);									\
+			xx[i].value.str[r_len] = 0;												\
+		} else {																	\
+			xx[i].value.str = NULL;													\
+		}																			\
+	} else {																		\
+		f_stat = fscanf(X32File, "%d ", &xx[i].value.ii);							\
+	}
+
+int X32::X32Init() {
 	int i, j, k, type, f_stat;
 	X32command* Xarray;
 	FILE *X32File;
@@ -4730,113 +4831,113 @@ int X32Init() {
 	fflush(stdout);
 // read file init values for all data
 	for (i = 0; i < Xconfig_max; i++) {
-		restore(Xconfig)
+		restore_char(Xconfig)
 	}
 	for (i = 0; i < Xmain_max; i++) {
-		restore(Xmain);
+		restore_char(Xmain);
 	}
 	for (i = 0; i < Xprefs_max; i++) {
-		restore(Xprefs);
+		restore_char(Xprefs);
 	}
 	for (i = 0; i < Xstat_max; i++) {
-		restore(Xstat);
+		restore_char(Xstat);
 	}
 	Xarray = Xchannelset[0];
 	for (i = 0; i < Xchannel01_max; i++) {
-		restore(Xarray);
+		restore_char(Xarray);
 	}
 	for (j = 1; j < 32; j++) {
 		Xarray = Xchannelset[j];
 		for (i = 0; i < Xchannel02_max; i++) {
-			restore(Xarray);
+			restore_char(Xarray);
 		}
 	}
 	Xarray = Xauxinset[0];
 	for (i = 0; i < Xauxin01_max; i++) {
-		restore(Xarray);
+		restore_char(Xarray);
 	}
 	for (j = 1; j < 8; j++) {
 		Xarray = Xauxinset[j];
 		for (i = 0; i < Xauxin02_max; i++) {
-			restore(Xarray);
+			restore_char(Xarray);
 		}
 	}
 	Xarray = Xfxrtnset[0];
 	for (i = 0; i < Xfxrtn01_max; i++) {
-		restore(Xarray);
+		restore_char(Xarray);
 	}
 	for (j = 1; j < 8; j++) {
 		Xarray = Xfxrtnset[j];
 		for (i = 0; i < Xfxrtn02_max; i++) {
-			restore(Xarray);
+			restore_char(Xarray);
 		}
 	}
 	Xarray = Xbusset[0];
 	for (i = 0; i < Xbus01_max; i++) {
-		restore(Xarray);
+		restore_char(Xarray);
 	}
 	for (j = 1; j < 16; j++) {
 		Xarray = Xbusset[j];
 		for (i = 0; i < Xbus02_max; i++) {
-			restore(Xarray);
+			restore_char(Xarray);
 		}
 	}
 	Xarray = Xmtxset[0];
 	for (i = 0; i < Xmtx01_max; i++) {
-		restore(Xarray);
+		restore_char(Xarray);
 	}
 	for (j = 1; j < 6; j++) {
 		Xarray = Xmtxset[j];
 		for (i = 0; i < Xmtx02_max; i++) {
-			restore(Xarray);
+			restore_char(Xarray);
 		}
 	}
 	for (i = 0; i < Xdca_max; i++) {
-		restore(Xdca);
+		restore_char(Xdca);
 	}
 	Xarray = Xfxset[0];
 	for (i = 0; i < Xfx1_max; i++) {
-		restore(Xarray);
+		restore_char(Xarray);
 	}
 	for (j = 1; j < 8; j++) {
 		Xarray = Xfxset[j];
 		if (j < 4) {
 			for (i = 0; i < Xfx2_max; i++) {
-				restore(Xarray);
+				restore_char(Xarray);
 			}
 		} else {
 			for (i = 0; i < Xfx5_max; i++) {
-				restore(Xarray);
+				restore_char(Xarray);
 			}
 		}
 	}
 	for (i = 0; i < Xoutput_max; i++) {
-		restore(Xoutput);
+		restore_char(Xoutput);
 	}
 	Xarray = Xheadmpset[0];
 	for (i = 0; i < Xheadamp_max; i++) {
-		restore(Xarray);
+		restore_char(Xarray);
 	}
 	for (j = 1; j < 128; j++) {
 		Xarray = Xheadmpset[j];
 		for (i = 0; i < Xheadamp1_max; i++) {
-			restore(Xarray);
+			restore_char(Xarray);
 		}
 	}
 	for (i = 0; i < Xmisc_max; i++) {
-		restore(Xmisc);
+		restore_char(Xmisc);
 	}
 	for (i = 0; i < Xurec_max; i++) {
-		restore(Xurec);
+		restore_char(Xurec);
 	}
 	for (i = 0; i < Xlibsc_max; i++) {
-		restore(Xlibsc);
+		restore_char(Xlibsc);
 	}
 	for (i = 0; i < Xlibsr_max; i++) {
-		restore(Xlibsr);
+		restore_char(Xlibsr);
 	}
 	for (i = 0; i < Xlibsf_max; i++) {
-		restore(Xlibsf);
+		restore_char(Xlibsf);
 	}
 	i = f_stat; // to avoid gcc warning;
 	fclose(X32File);
@@ -4847,7 +4948,7 @@ int X32Init() {
 
 
 
-void Xdump(char *buf, int len, int debug)
+void X32::Xdump(char *buf, int len, int debug)
 {
 	int i, k, n, j, l, comma = 0, data = 0, dtc = 0;
 	unsigned char c;
@@ -4972,7 +5073,7 @@ void Xdump(char *buf, int len, int debug)
 
 
 
-void Xfdump(char *header, char *buf, int len, int debug) {
+void X32::Xfdump(char *header, char *buf, int len, int debug) {
 int i;
 
 if (debug) {
@@ -4987,7 +5088,7 @@ if (debug) {
 	Xdump(buf, len, debug);
 }
 
-void Xsdump(char *str_out, char *buf, int len)
+void X32::Xsdump(char *str_out, char *buf, int len)
 {
 	int i, k, n, j, l, comma = 0, data = 0, dtc = 0;
 	unsigned char c;
@@ -5095,7 +5196,7 @@ void Xsdump(char *str_out, char *buf, int len)
 	*out++ = 0;
 }
 
-int Xsprint(char *bd, int index, char format, void *bs)
+int X32::Xsprint(char *bd, int index, char format, const void *bs)
 {
 	int i;
 // check format
@@ -5103,8 +5204,8 @@ int Xsprint(char *bd, int index, char format, void *bs)
 	case 's':
 	// string : copy characters one at a time until a 0 is found
 		if (bs) {
-			strcpy (bd+index, bs);
-			index += (int)strlen(bs) + 1;
+			strcpy (bd+index, (const  char*)bs);
+			index += (int)strlen((const  char*)bs) + 1;
 		} else {
 			bd[index++] = 0;
 		}
@@ -5126,7 +5227,7 @@ int Xsprint(char *bd, int index, char format, void *bs)
 }
 
 
-int Xfprint(char *bd, int index, char* text, char format, void *bs)
+int X32::Xfprint(char *bd, int index, char* text, char format, void *bs)
 {
 // first copy text
 	strcpy (bd+index, text);

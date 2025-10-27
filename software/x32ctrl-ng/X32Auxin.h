@@ -5,8 +5,9 @@
  *      Author: patrick
  */
 
-#ifndef X32AUXIN_H_
-#define X32AUXIN_H_
+#pragma once
+
+#include "X32const.h"
 
 X32command Xauxin01[] = {
 		{"/auxin",							{CHCO}, F_FND, {0}, NULL},
@@ -963,5 +964,3 @@ X32command	*Xauxinset[8] = {
 		Xauxin01, Xauxin02, Xauxin03, Xauxin04,
 		Xauxin05, Xauxin06, Xauxin07, Xauxin08,
 }; 
-
-#endif /* X32AUXIN_H_ */
