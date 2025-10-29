@@ -18,9 +18,9 @@
         <signal name="PLL_IN" />
         <signal name="clk_24_576MHz" />
         <signal name="XLXN_2487" />
-        <signal name="nDA_RESET" />
-        <signal name="nAD_RESET" />
-        <signal name="nCARD_RESET" />
+        <signal name="DA_nRESET" />
+        <signal name="AD_nRESET" />
+        <signal name="CARD_nRESET" />
         <signal name="nRST" />
         <signal name="audio_output(791:768)" />
         <signal name="audio_output(815:792)" />
@@ -342,9 +342,9 @@
         <signal name="audio_output(1199:1176)" />
         <port polarity="Input" name="FPGACLK" />
         <port polarity="Output" name="PLL_IN" />
-        <port polarity="Output" name="nDA_RESET" />
-        <port polarity="Output" name="nAD_RESET" />
-        <port polarity="Output" name="nCARD_RESET" />
+        <port polarity="Output" name="DA_nRESET" />
+        <port polarity="Output" name="AD_nRESET" />
+        <port polarity="Output" name="CARD_nRESET" />
         <port polarity="Output" name="CARD_OUT0" />
         <port polarity="Output" name="CARD_OUT1" />
         <port polarity="Output" name="CARD_OUT2" />
@@ -700,15 +700,15 @@
         </block>
         <block symbolname="buf" name="XLXI_556">
             <blockpin signalname="nRST" name="I" />
-            <blockpin signalname="nDA_RESET" name="O" />
+            <blockpin signalname="DA_nRESET" name="O" />
         </block>
         <block symbolname="buf" name="XLXI_557">
             <blockpin signalname="nRST" name="I" />
-            <blockpin signalname="nAD_RESET" name="O" />
+            <blockpin signalname="AD_nRESET" name="O" />
         </block>
         <block symbolname="buf" name="XLXI_575">
             <blockpin signalname="nRST" name="I" />
-            <blockpin signalname="nCARD_RESET" name="O" />
+            <blockpin signalname="CARD_nRESET" name="O" />
         </block>
         <block symbolname="tdm_8ch_tx" name="XLXI_415">
             <blockpin signalname="clk_12_288MHz" name="bclk" />
@@ -1361,15 +1361,15 @@
             <wire x2="1344" y1="304" y2="304" x1="1296" />
             <wire x2="1376" y1="304" y2="304" x1="1344" />
         </branch>
-        <branch name="nDA_RESET">
+        <branch name="DA_nRESET">
             <wire x2="1936" y1="208" y2="208" x1="1920" />
             <wire x2="1968" y1="208" y2="208" x1="1936" />
         </branch>
-        <branch name="nAD_RESET">
+        <branch name="AD_nRESET">
             <wire x2="1936" y1="304" y2="304" x1="1920" />
             <wire x2="1968" y1="304" y2="304" x1="1936" />
         </branch>
-        <branch name="nCARD_RESET">
+        <branch name="CARD_nRESET">
             <wire x2="1936" y1="400" y2="400" x1="1920" />
             <wire x2="1968" y1="400" y2="400" x1="1936" />
         </branch>
@@ -1814,9 +1814,9 @@
         <instance x="1696" y="240" name="XLXI_556" orien="R0" />
         <instance x="1696" y="336" name="XLXI_557" orien="R0" />
         <instance x="1696" y="432" name="XLXI_575" orien="R0" />
-        <iomarker fontsize="28" x="1968" y="208" name="nDA_RESET" orien="R0" />
-        <iomarker fontsize="28" x="1968" y="304" name="nAD_RESET" orien="R0" />
-        <iomarker fontsize="28" x="1968" y="400" name="nCARD_RESET" orien="R0" />
+        <iomarker fontsize="28" x="1968" y="208" name="DA_nRESET" orien="R0" />
+        <iomarker fontsize="28" x="1968" y="304" name="AD_nRESET" orien="R0" />
+        <iomarker fontsize="28" x="1968" y="400" name="CARD_nRESET" orien="R0" />
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="2300" y="88">PLL Config</text>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2324" x="2276" y="44" height="588" />
         <branch name="XLXN_222">

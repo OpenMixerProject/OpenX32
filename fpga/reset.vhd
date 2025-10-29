@@ -28,9 +28,10 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity reset is
 	port (
-		clk			: in std_logic; -- expecting 16 MHz clock
-		o_reset 		: out std_logic;
-		o_reset_inv : out std_logic
+		clk			: in std_logic;	-- expecting 16 MHz clock
+		o_reset 		: out std_logic;	-- reset-signal 0 (5ms) -> 1 (250ns) -> 0 (1µs) -> start (inf)
+		o_reset_inv : out std_logic;
+		o_startup	: out std_logic
 	);
 end reset;
 
@@ -40,21 +41,26 @@ begin
 	process (clk)
 	begin
 		if rising_edge(clk) then
-			-- wait 5 ms, then reset circuit and go into online state
 			if (count_clk < (16000000/200)) then
-				-- waiting
+				-- waiting for 5ms
 				o_reset <= '0';
 				o_reset_inv <= '1';
+				o_startup <= '0';
 				count_clk <= count_clk + 1;
-			elsif (count_clk = (16000000/200)) then
-				-- resetting for 1 clock
+			elsif ((count_clk >= (16000000/200)) and (count_clk < ((16000000/200) + 4))) then
+				-- resetting for 4 clock (250ns)
 				o_reset <= '1';
 				o_reset_inv <= '0';
+				o_startup <= '0';
 				count_clk <= count_clk + 1;
-			else
-				-- online state. Do nothing here and keep this forever
+			elsif ((count_clk >= ((16000000/200) + 4)) and (count_clk < ((16000000/200) + 20))) then
+				-- wait another 1000ns
 				o_reset <= '0';
 				o_reset_inv <= '1';
+				o_startup <= '0';
+			else
+				-- online state. Do nothing here and keep this forever
+				o_startup <= '1';
 			end if;
 		end if;
 	end process;
