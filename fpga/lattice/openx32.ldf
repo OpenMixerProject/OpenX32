@@ -1,72 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <BaliProject version="3.2" title="openx32" device="LFE5U-25F-6BG381C" default_implementation="impl1">
-    <Options/>
+    <Options>
+        <Option name="HDL type" value="VHDL"/>
+    </Options>
     <Implementation title="impl1" dir="impl1" description="impl1" synthesis="lse" default_strategy="Strategy1">
         <Options def_top="volumectrl" top="main"/>
-        <Source name="../source/audioclk.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../audioclk.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/audiomatrix.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../audiomatrix.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/audiomatrix_ram.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../audiomatrix_ram.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/audiomatrix_ram_read.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../audiomatrix_ram_read.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/audiomatrix_ram_write.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../audiomatrix_ram_write.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/audiotestclk.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../audiotestclk.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/cs2000cp_config.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../cs2000cp_config.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/cs42438_config.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../ddfs_drom.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/ddfs_drom.vhd" type="VHDL" type_short="VHDL">
-            <Options/>
-        </Source>
-        <Source name="../source/main.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../main.vhd" type="VHDL" type_short="VHDL">
             <Options top_module="main"/>
         </Source>
-        <Source name="../source/or4_gate.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../or4_gate.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/reset.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../reset.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/rs232_const.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../rs232_const.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/rs232_decoder.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../rs232_decoder.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/rs232_encoder.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../rs232_encoder.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/spi_tx.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../spi_tx.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/tdm_8ch_rx.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../tdm_8ch_rx.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/tdm_8ch_tx.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../tdm_8ch_tx.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/uart_rx.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../uart_rx.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/uart_tx.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../uart_tx.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/ultranet_tx.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../ultranet_tx.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../source/volumectrl.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../volumectrl.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../m8000adc_config.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../or2_gate.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../pcm1690dac_config.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../spi_16bit_tx.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="openx32.lpf" type="Logic Preference" type_short="LPF">

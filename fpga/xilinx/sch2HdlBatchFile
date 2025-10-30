@@ -1,1 +1,1 @@
-sch2hdl,-intstyle,ise,-family,spartan3a,-flat,-suppress,-vhdl,C:/GitCheckout/GitHub/OpenX32/fpga/main.vhf,-w,C:/GitCheckout/GitHub/OpenX32/fpga/main.sch
+sch2hdl,-intstyle,ise,-family,spartan3a,-flat,-suppress,-vhdl,C:/GitCheckout/GitHub/OpenX32/fpga/xilinx/main.vhf,-w,C:/GitCheckout/GitHub/OpenX32/fpga/xilinx/main.sch

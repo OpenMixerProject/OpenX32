@@ -28,11 +28,11 @@ usb/sbin
 usb/lib
 
 # Xilinx ISE 14.7
-fpga/_ngo/
-fpga/_xmsgs/
-fpga/iseconfig/
-fpga/xlnx_auto_0_xdb/
-fpga/xst/
+fpga/xilinx/_ngo/
+fpga/xilinx/_xmsgs/
+fpga/xilinx/iseconfig/
+fpga/xilinx/xlnx_auto_0_xdb/
+fpga/xilinx/xst/
 
 *.gise
 par_usage_statistics.html

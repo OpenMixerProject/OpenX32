@@ -26,36 +26,50 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity reset is
-    Port ( clk : in  STD_LOGIC; -- expecting 16 MHz clock
-           i_pll_locked : in  STD_LOGIC;
-           o_reset : out  STD_LOGIC);
-end reset;
+entity reset_wpll is
+	port (
+		clk				: in std_logic;	-- expecting 16 MHz clock
+		i_pll_locked	: in  std_logic;
+		o_reset 			: out std_logic;	-- reset-signal 0 (5ms) -> 1 (250ns) -> 0 (1µs) -> start (inf)
+		o_reset_inv 	: out std_logic;
+		o_startup		: out std_logic
+	);
+end reset_wpll;
 
-architecture Behavioral of reset is
+architecture Behavioral of reset_wpll is
 	signal count_clk	: natural range 0 to 100000 := 0;
 begin
 	process (clk)
 	begin
 		if rising_edge(clk) then
 			if (i_pll_locked = '1') then
-				-- wait 5 ms, then reset circuit and go into online state
 				if (count_clk < (16000000/200)) then
-					-- waiting
+					-- waiting for 5ms
 					o_reset <= '0';
+					o_reset_inv <= '1';
+					o_startup <= '0';
 					count_clk <= count_clk + 1;
-				elsif (count_clk = (16000000/200)) then
-					-- resetting for 1 clock
+				elsif ((count_clk >= (16000000/200)) and (count_clk < ((16000000/200) + 4))) then
+					-- resetting for 4 clock (250ns)
 					o_reset <= '1';
+					o_reset_inv <= '0';
+					o_startup <= '0';
 					count_clk <= count_clk + 1;
+				elsif ((count_clk >= ((16000000/200) + 4)) and (count_clk < ((16000000/200) + 20))) then
+					-- wait another 1000ns
+					o_reset <= '0';
+					o_reset_inv <= '1';
+					o_startup <= '0';
 				else
 					-- online state. Do nothing here and keep this forever
-					o_reset <= '0';
+					o_startup <= '1';
 				end if;
 			else
 				-- still waiting for PLL to lock
 				count_clk <= 0;
 				o_reset <= '0';
+				o_reset_inv <= '1';
+				o_startup <= '0';
 			end if;
 		end if;
 	end process;
