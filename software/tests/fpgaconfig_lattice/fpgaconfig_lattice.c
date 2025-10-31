@@ -30,6 +30,23 @@ long get_file_size(const char *filename) {
     return -1; // Error
 }
 
+// Assumes little endian
+void printBits(size_t const size, void const * const ptr)
+{
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    int i, j;
+    
+    for (i = size-1; i >= 0; i--) {
+        for (j = 7; j >= 0; j--) {
+            byte = (b[i] >> j) & 1;
+            printf("%u", byte);
+        }
+        printf("|");
+    }
+    puts("");
+}
+
 // configures a Lattice ECP5 via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
@@ -167,7 +184,13 @@ int configure_lattice_spi(const char *bitstream_path) {
 	// check if bit 9 (ISC ENABLED) is set
 	// check if bit 26 (EXECUTION ERROR) is not set
 	if ( !((status & (1 << 8)) && (status & (1 << 9))) || (status & (1 << 26)) ) {
-		perror("Error: Unexpected content in status-register");
+		perror("\nError: Unexpected content in status-register");
+        printf("DONE: %d\n", (status & (1 << 8)));
+        printf("ISC: %d\n", (status & (1 << 9)));
+        printf("EXECUTION ERROR: %d\n", (status & (1 << 26)));
+        printf("Status Register [32...0]: ");
+        printBits(sizeof(uint32_t), &status);
+        printf("\n");
 		goto cleanup;
 	}
 	
