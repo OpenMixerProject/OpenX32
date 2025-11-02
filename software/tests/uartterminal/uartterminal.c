@@ -139,7 +139,7 @@ int uartRead() {
                         printf("\n");
                         for (int i = 0; i < bytes_read; i++) {
                                 currentByte = (uint8_t)buffer_uart[i];
-                                printf("%c", currentByte, currentByte); // empfangene Bytes ausgeben
+                                printf("%c", currentByte); // empfangene Bytes ausgeben
                         }
                         printf("\n");
                         fflush(stdout);
