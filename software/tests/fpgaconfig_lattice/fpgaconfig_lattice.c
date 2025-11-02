@@ -1,5 +1,5 @@
 // FPGA Configuration-tool for the Lattice ECP5 FPGAs
-// v0.1.0, 27.10.2025
+// v0.2.0, 02.11.2025
 //
 // This software reads a bitstream from Lattice Diamond and sends it using
 // the SPI-connection /dev/spidev2.0 (CSPI3-connection of i.MX25)
@@ -10,10 +10,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
+#include <linux/types.h>
 #include <linux/spi/spidev.h>
 
 // SPI configuration for i.MX25
@@ -53,19 +54,14 @@ void printBits(size_t const size, void const * const ptr)
 int configure_lattice_spi(const char *bitstream_path) {
     int spi_fd = -1;
     FILE *bitstream_file = NULL;
-    struct spi_ioc_transfer tr = {0};
-    uint8_t tx_buffer[4096];
-    uint8_t rx_buffer[sizeof(tx_buffer)]; // not used here, but necessary
-    int ret = 0;
-    uint8_t buf[1024];
-    uint16_t offset = 0;
-    size_t bytes_read;
+    uint8_t *full_tx_buffer = NULL; // pointer for the whole transmit-buffer
+    int ret = -1;
 
     uint8_t spiMode = SPI_MODE_0; // Lattice ECP5 uses MODE 0
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
-    fprintf(stdout, "FPGA Configuration Tool v0.1.0\n");
+    fprintf(stdout, "FPGA Configuration Tool v0.2.0\n");
 
     fprintf(stdout, "  Connecting to SPI...\n");
     spi_fd = open(SPI_DEVICE, O_RDWR);
@@ -81,8 +77,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).\n", SPI_DEVICE, spiMode, spiSpeed);
 
     // open the file
-    fprintf(stdout, "Configuring Lattice FPGA...\n");
-    long file_size = get_file_size(bitstream_path);
+    long bitstream_size = get_file_size(bitstream_path);
     bitstream_file = fopen(bitstream_path, "rb");
     if (!bitstream_file) {
         perror("Error: Could not open bitstream-file");
@@ -90,12 +85,26 @@ int configure_lattice_spi(const char *bitstream_path) {
     }
 
     // configuration-process
-    fprintf(stdout, "Send bitstream '%s' to FPGA...\n", bitstream_path);
-    tr.tx_buf = (unsigned long)tx_buffer;
-    tr.rx_buf = (unsigned long)rx_buffer;
-    tr.bits_per_word = spiBitsPerWord;
-    tr.speed_hz = spiSpeed;
+    const size_t CMD_OVERHEAD = 4;
+    size_t total_transfer_size = bitstream_size + CMD_OVERHEAD;
 
+    // allocate memory for the whole burst-transfer
+    full_tx_buffer = (uint8_t *)malloc(total_transfer_size);
+    if (!full_tx_buffer) {
+        perror("Error: Failed to allocate memory for bitstream");
+        goto cleanup;
+    }
+    memset(full_tx_buffer, 0x00, total_transfer_size); // initialize memory with zeros
+    full_tx_buffer[0] = 0x7A; // set command to LSC_BITSTREAM_BURST
+
+    // read bitstream to memory right behind the command
+    size_t bytes_read = fread(full_tx_buffer + CMD_OVERHEAD, 1, bitstream_size, bitstream_file);
+    if (bytes_read != bitstream_size) {
+        fprintf(stderr, "Error: Failed to read complete bitstream file (Read %zu of %ld bytes).\n", bytes_read, bitstream_size);
+        goto cleanup;
+    }
+
+    fprintf(stdout, "Configuring Lattice FPGA...\n");
     fprintf(stdout, "  Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...\n");
     int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fd, "1", 1);
@@ -104,108 +113,102 @@ int configure_lattice_spi(const char *bitstream_path) {
     close(fd);
     usleep(50000); // we have to wait 50ms until we can send commands
 	
-	// send READ_ID command [class A command] -> read 32-bit IDCODE and check it
-	tr.len = 8; // 8-bit command + 24-bit dummy-data + 32-bit read-data
-	memset(&tx_buffer[0], 0, 8); // reset tx-buffer to 0x00
-	tx_buffer[0] = 0xE0; // command = READ_ID
-	ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-	if (ret < 0) {
-		perror("Error: SPI-transmission failed");
-		goto cleanup;
-	}
-	uint32_t idcode;
-	memcpy(&idcode, &rx_buffer[4], 4); // copy received IDCODE to variable
+	
+	// prepare struct to send commands
+    uint8_t cmd_buf[8] = {0};
+    uint8_t rx_buf[8] = {0};
+    struct spi_ioc_transfer tr_cmd = {
+        .tx_buf = (unsigned long)cmd_buf,
+        .rx_buf = (unsigned long)rx_buf,
+        .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
+        .bits_per_word = spiBitsPerWord,
+        .speed_hz = spiSpeed,
+    };
+	
+    // read IDCODE
+    cmd_buf[0] = 0xE0; // READ_ID
+    tr_cmd.len = 8; // 8 Byte für READ_ID (Cmd + 3 Dummy + 4 Daten)
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
+        perror("Error: SPI READ_ID failed"); goto cleanup;
+    }
+    uint32_t idcode;
+    memcpy(&idcode, &rx_buf[4], 4);
+    fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
 //	if (idcode != 0x00000000) {
 //		perror("Error: Unexpected IDCODE");
 //		goto cleanup;
 //	}
-	
-	// send ISC_ENABLE command [class C command]
-	tr.len = 4; // 8-bit command + 24-bit dummy-data
-	memset(&tx_buffer[0], 0, 4); // reset tx-buffer to 0x00
-	tx_buffer[0] = 0xC6; // command = ISC_ENABLE
-	ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-	if (ret < 0) {
-		perror("Error: SPI-transmission failed");
-		goto cleanup;
-	}
 
-	// send LSC_BITSTREAM_BURST command [class C command]
-	tr.len = 4; // 8-bit command + 24-bit dummy-data
-	memset(&tx_buffer[0], 0, 4); // reset tx-buffer to 0x00
-	tx_buffer[0] = 0x7A; // command = LSC_BITSTREAM_BURST
-	ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-	if (ret < 0) {
-		perror("Error: SPI-transmission failed");
-		goto cleanup;
-	}
-
-    // send bitstream-data via SPI
-    long total_bytes_sent = 0;
-    int progress_bar_width = 50;
-    while ((bytes_read = fread(tx_buffer, 1, sizeof(tx_buffer), bitstream_file)) > 0) {
-        tr.len = bytes_read;
-        ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-        if (ret < 0) {
-            perror("Error: SPI-transmission failed");
-            goto cleanup;
-        }
-
-        // calculate progress-bar
-        total_bytes_sent += bytes_read;
-        int progress = (int)((double)total_bytes_sent / file_size * progress_bar_width);
-        printf("\r[");
-        for (int i = 0; i < progress_bar_width; ++i) {
-            if (i < progress) {
-                printf("█");
-            }else{
-                printf(" ");
-            }
-        }
-        printf("] %ld/%ld Bytes (%.2f%%)", total_bytes_sent, file_size, (double)total_bytes_sent / file_size * 100);
-        fflush(stdout);
+    // send ISC_ENABLE command [class C command]
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = 0xC6; // ISC_ENABLE
+    tr_cmd.len = 4;
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
+        perror("Error: SPI ISC_ENABLE failed"); goto cleanup;
     }
+    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    usleep(100);
+
+    fprintf(stdout, "  Sending Bitstream Burst (%zu bytes)...\n", total_transfer_size);
+    struct spi_ioc_transfer tr_burst = {
+        .tx_buf = (unsigned long)full_tx_buffer,
+        .rx_buf = 0, // no feedback necessary
+        .len = total_transfer_size,
+        .bits_per_word = spiBitsPerWord,
+        .speed_hz = spiSpeed,
+    };
+    // using bulk-transfer we have no option to get the current status of the transmission
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_burst) < 0) {
+        perror("Error: SPI BITSTREAM BURST failed");
+        ret = -1;
+        goto cleanup;
+    }
+    fprintf(stdout, "\r[██████████████████████████████████████████████████] %ld/%ld Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
 	
 	// wait 10ms
 	usleep(10000);
 	
-	// check status register
-	tr.len = 8; // 8-bit command + 24-bit dummy-data + 32-bit read-data
-	memset(&tx_buffer[0], 0, 8); // reset tx-buffer to 0x00
-	tx_buffer[0] = 0x3C; // command = LSC_READ_STATUS
-	ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-	if (ret < 0) {
-		perror("Error: SPI-transmission failed");
-		goto cleanup;
-	}
-	uint32_t status;
-	memcpy(&status, &rx_buffer[4], 4); // copy received status to variable
-	// check if bit 8 (DONE) is set
-	// check if bit 9 (ISC ENABLED) is set
-	// check if bit 26 (EXECUTION ERROR) is not set
-	if ( !((status & (1 << 8)) && (status & (1 << 9))) || (status & (1 << 26)) ) {
-		perror("\nError: Unexpected content in status-register");
-        printf("DONE: %d\n", (status & (1 << 8)));
-        printf("ISC: %d\n", (status & (1 << 9)));
-        printf("EXECUTION ERROR: %d\n", (status & (1 << 26)));
-        printf("Status Register [32...0]: ");
-        printBits(sizeof(uint32_t), &status);
-        printf("\n");
-		goto cleanup;
-	}
+    // read Statusregister
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = 0x3C; // LSC_READ_STATUS
+    tr_cmd.len = 8; // 8 Byte for Status-Read
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
+        perror("Error: SPI LSC_READ_STATUS failed"); goto cleanup;
+    }
+    uint32_t status;
+    memcpy(&status, &rx_buf[4], 4);
+    
+    // check Status-Bits
+    // Bit 8 (DONE) must be 1, Bit 9 (ISC ENABLED) must be 1 sein, Bit 26 (EXECUTION ERROR) must be 0 sein
+    int done = (status & (1 << 8)) > 0;
+    int isc_enabled = (status & (1 << 9)) > 0;
+    int exec_error = (status & (1 << 26)) > 0;
+
+    fprintf(stdout, "  Status Register Check:\n");
+    fprintf(stdout, "    DONE: %d\n", done);
+    fprintf(stdout, "    ISC Enabled: %d\n", isc_enabled);
+    fprintf(stdout, "    Execution Error: %d\n", exec_error);
+    fprintf(stdout, "    Status Register [31..0]: ");
+    printBits(sizeof(uint32_t), &status);
+    fprintf(stdout, "\n");
+
+    if (!done || exec_error) {
+        fprintf(stderr, "Configuration failed! Status indicates error or not done.\n");
+        ret = -1;
+    } else {
+        fprintf(stdout, "\n✅ **SUCCESS:** Configuration complete and DONE bit set.\n");
+        ret = 0;
+    }
+
+    // send ISC_DISABLE
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = 0x26; // ISC_DISABLE
+    tr_cmd.len = 4;
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
+        perror("Error: SPI ISC_DISABLE failed");
+    }
+    fprintf(stdout, "  ISC_DISABLE sent. FPGA should now be configured.\n");
 	
-	// send ISC_DISABLE command [class C command]
-	tr.len = 4; // 8-bit command + 24-bit dummy-data
-	memset(&tx_buffer[0], 0, 4); // reset tx-buffer to 0x00
-	tx_buffer[0] = 0x26; // command = ISC_DISABLE
-	ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-	if (ret < 0) {
-		perror("Error: SPI-transmission failed");
-		goto cleanup;
-	}
-
-    fprintf(stdout, "\n\nBitstream transmitted.\n");
-
 cleanup:
     if (bitstream_file) fclose(bitstream_file);
     if (spi_fd >= 0) close(spi_fd);
