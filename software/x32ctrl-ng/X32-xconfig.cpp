@@ -1,0 +1,372 @@
+/*
+    ____                  __   ______ ___  
+   / __ \                 \ \ / /___ \__ \ 
+  | |  | |_ __   ___ _ __  \ V /  __) | ) |
+  | |  | | '_ \ / _ \ '_ \  > <  |__ < / / 
+  | |__| | |_) |  __/ | | |/ . \ ___) / /_ 
+   \____/| .__/ \___|_| |_/_/ \_\____/____|
+         | |                               
+         |_|                               
+  
+  OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
+  Copyright 2025 OpenMixerProject
+  https://github.com/OpenMixerProject/OpenX32
+  
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  version 3 as published by the Free Software Foundation.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+*/
+
+#include "X32.h"
+
+
+void X32::construct_xconfig(){
+    uint16_t i=0;
+
+	Xconfig[i++] = new X32command("/config",							{OFFON}, F_FND, {16}, NULL);
+
+    Xconfig[i++] = new X32command("/config/chlink",					{OFFON}, F_FND, {16}, NULL);
+    Xconfig[i++] = new X32command("/config/chlink/1-2",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/3-4",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/5-6",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/7-8",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/9-10",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/11-12",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/13-14",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/15-16",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/17-18",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/19-20",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/21-22",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/23-24",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/25-26",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/27-28",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/29-30",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/chlink/31-32",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/auxlink",					{OFFON}, F_FND, {4}, NULL);
+    Xconfig[i++] = new X32command("/config/auxlink/1-2",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/auxlink/3-4",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/auxlink/5-6",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/auxlink/7-8",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/fxlink",					{OFFON}, F_FND, {4}, NULL);
+    Xconfig[i++] = new X32command("/config/fxlink/1-2",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/fxlink/3-4",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/fxlink/5-6",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/fxlink/7-8",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink",					{OFFON}, F_FND, {8}, NULL);
+    Xconfig[i++] = new X32command("/config/buslink/1-2",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink/3-4",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink/5-6",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink/7-8",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink/9-10",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink/11-12",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink/13-14",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/buslink/15-16",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mtxlink",					{OFFON}, F_FND, {3}, NULL);
+    Xconfig[i++] = new X32command("/config/mtxlink/1-2",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mtxlink/3-4",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mtxlink/5-6",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mute",					{OFFON}, F_FND, {6}, NULL);
+    Xconfig[i++] = new X32command("/config/mute/1",				{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mute/2",				{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mute/3",				{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mute/4",				{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mute/5",				{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mute/6",				{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/linkcfg",					{OFFON}, F_FND, {4}, NULL);
+    Xconfig[i++] = new X32command("/config/linkcfg/hadly",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/linkcfg/eq",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/linkcfg/dyn",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/linkcfg/fdrmute",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/mono",					{CMONO}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/mono/mode",			{E32}, F_XET, {0}, Xmnmode);
+    Xconfig[i++] = new X32command("/config/mono/link",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo",					{CSOLO}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/solo/level",			{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/solo/source",			{I32}, F_XET, {0}, XSsourc);
+    Xconfig[i++] = new X32command("/config/solo/sourcetrim",		{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/solo/chmode",			{E32}, F_XET, {0}, Xchmode);
+    Xconfig[i++] = new X32command("/config/solo/busmode",		{E32}, F_XET, {0}, Xchmode);
+    Xconfig[i++] = new X32command("/config/solo/dcamode",		{E32}, F_XET, {0}, Xchmode);
+    Xconfig[i++] = new X32command("/config/solo/exclusive",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/followsel",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/followsolo",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/dimatt",			{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/solo/dim",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/mono",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/delay",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/delaytime",		{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/solo/masterctrl",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/mute",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/solo/dimpfl",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/talk",					{CTALK}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/talk/enable",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/talk/source",			{E32}, F_XET, {0}, XTsourc);
+    Xconfig[i++] = new X32command("/config/talk/A",					{CTALKAB}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/talk/A/level",		{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/talk/A/dim",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/talk/A/latch",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/talk/A/destmap",		{P32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/talk/B",					{CTALKAB}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/talk/B/level",		{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/talk/B/dim",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/talk/B/latch",		{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/talk/B/destmap",		{P32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/osc",						{COSC}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/osc/level",			{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/osc/f1",				{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/osc/f2",				{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/osc/fsel",			{E32}, F_XET, {0}, XOscsel);
+    Xconfig[i++] = new X32command("/config/osc/type",			{E32}, F_XET, {0}, XOsctyp);
+    Xconfig[i++] = new X32command("/config/osc/dest",			{E32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout",				{UROUO}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out",			{UROUO}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/01",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/02",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/03",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/04",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/05",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/06",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/07",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/08",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/09",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/10",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/11",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/12",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/13",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/14",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/15",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/16",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/17",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/18",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/19",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/20",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/21",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/22",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/23",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/24",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/25",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/26",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/27",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/28",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/29",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/30",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/31",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/32",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/33",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/34",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/35",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/36",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/37",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/38",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/39",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/40",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/41",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/42",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/43",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/44",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/45",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/46",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/47",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/out/48",		{I32}, F_XET, {0}, NULL);
+
+    Xconfig[i++] = new X32command("/config/userrout/in",				{UROUI}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/01",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/02",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/03",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/04",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/05",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/06",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/07",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/08",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/09",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/10",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/11",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/12",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/13",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/14",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/15",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/16",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/17",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/18",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/19",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/20",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/21",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/22",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/23",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/24",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/25",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/26",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/27",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/28",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/29",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/30",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/31",		{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userrout/in/32",		{I32}, F_XET, {0}, NULL);
+
+
+    Xconfig[i++] = new X32command("/config/routing",						{CROUTSW}, F_FND, {1}, NULL);
+    Xconfig[i++] = new X32command("/config/routing/routswitch",		{E32}, F_XET, {0}, XCFrsw);
+    Xconfig[i++] = new X32command("/config/routing/IN",					{CROUTIN}, F_FND, {5}, NULL);
+    Xconfig[i++] = new X32command("/config/routing/IN/1-8",			{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/IN/9-16",			{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/IN/17-24",		{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/IN/25-32",		{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/IN/AUX",			{E32}, F_XET, {0}, XRtina);
+    Xconfig[i++] = new X32command("/config/routing/AES50A",				{CROUTAC}, F_FND, {6}, NULL);
+    Xconfig[i++] = new X32command("/config/routing/AES50A/1-8",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50A/9-16",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50A/17-24",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50A/25-32",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50A/33-40",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50A/41-48",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50B",				{CROUTAC}, F_FND, {6}, NULL);
+    Xconfig[i++] = new X32command("/config/routing/AES50B/1-8",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50B/9-16",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50B/17-24",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50B/25-32",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50B/33-40",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/AES50B/41-48",	{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/CARD",				{CROUTAC}, F_FND, {4}, NULL);
+    Xconfig[i++] = new X32command("/config/routing/CARD/1-8",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/CARD/9-16",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/CARD/17-24",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/CARD/25-32",		{E32}, F_XET, {0}, XRtaea);
+    Xconfig[i++] = new X32command("/config/routing/OUT",					{CROUTOT}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/routing/OUT/1-4",			{E32}, F_XET, {0}, XRout1);
+    Xconfig[i++] = new X32command("/config/routing/OUT/9-12",		{E32}, F_XET, {0}, XRout1);
+    Xconfig[i++] = new X32command("/config/routing/OUT/5-8",			{E32}, F_XET, {0}, XRout5);
+    Xconfig[i++] = new X32command("/config/routing/OUT/13-16",		{E32}, F_XET, {0}, XRout5);
+    Xconfig[i++] = new X32command("/config/routing/PLAY",				{CROUTIN}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/routing/PLAY/1-8",		{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/PLAY/9-16",		{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/PLAY/17-24",		{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/PLAY/25-32",		{E32}, F_XET, {0}, XRtgin);
+    Xconfig[i++] = new X32command("/config/routing/PLAY/AUX",		{E32}, F_XET, {0}, XRtina);
+    Xconfig[i++] = new X32command("/config/userctrl/A",					{CCTRL}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/color",		{E32}, F_XET, {0}, Xcolors);
+    Xconfig[i++] = new X32command("/config/userctrl/A/enc",				{CENC}, F_FND, {4}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/enc/1",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/enc/2",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/enc/3",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/enc/4",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn",				{CENC}, F_FND, {8}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/5",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/6",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/7",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/8",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/9",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/10",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/11",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/A/btn/12",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B",					{CCTRL}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/color",		{E32}, F_XET, {0}, Xcolors);
+    Xconfig[i++] = new X32command("/config/userctrl/B/enc",				{CENC}, F_FND, {4}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/enc/1",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/enc/2",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/enc/3",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/enc/4",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn",				{CENC}, F_FND, {8}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/5",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/6",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/7",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/8",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/9",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/10",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/11",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/B/btn/12",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C",					{CCTRL}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/color",		{E32}, F_XET, {0}, Xcolors);
+    Xconfig[i++] = new X32command("/config/userctrl/C/enc",				{CENC}, F_FND, {4}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/enc/1",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/enc/2",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/enc/3",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/enc/4",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn",				{CENC}, F_FND, {8}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/5",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/6",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/7",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/8",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/9",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/10",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/11",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/userctrl/C/btn/12",		{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/tape",						{CTAPE}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/tape/gainL",				{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/tape/gainR",				{F32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/tape/autoplay",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/amixenable",					{CMIX}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/amixenable/X",			{E32}, F_XET, {0}, OffOn);
+    Xconfig[i++] = new X32command("/config/amixenable/Y",			{E32}, F_XET, {0}, OffOn);
+
+    Xconfig[i++] = new X32command("/config/dp48",						{D48}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/scope",				{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/broadcast",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign",					{D48A}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/01",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/02",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/03",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/04",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/05",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/06",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/07",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/08",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/09",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/10",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/11",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/12",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/13",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/14",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/15",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/16",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/17",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/18",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/19",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/20",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/21",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/22",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/23",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/24",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/25",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/26",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/27",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/28",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/29",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/30",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/31",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/32",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/33",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/34",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/35",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/36",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/37",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/38",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/39",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/40",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/41",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/42",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/43",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/44",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/45",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/46",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/47",			{I32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/assign/48",			{I32}, F_XET, {0}, NULL);
+
+    Xconfig[i++] = new X32command("/config/dp48/grpname",				{D48G}, F_FND, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/01",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/02",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/03",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/04",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/05",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/06",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/07",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/08",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/09",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/10",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/11",			{S32}, F_XET, {0}, NULL);
+    Xconfig[i++] = new X32command("/config/dp48/grpname/12",			{S32}, F_XET, {0}, NULL);
+}

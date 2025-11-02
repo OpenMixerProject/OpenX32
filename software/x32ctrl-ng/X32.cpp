@@ -77,6 +77,10 @@
 
 X32::X32(){
 	construct_xmisc();
+	construct_xshow();
+	construct_xconfig();
+	construct_xmain();
+
 	construct_xnode();
 }
 
@@ -427,7 +431,7 @@ void X32::Xsend(int who_to) {
 
 //
 // FXc_lookup: find the parameter type of an FX parameter
-int X32::FXc_lookup(X32command* Xfx, int index) {
+int X32::FXc_lookup(X32command** Xfx, int index) {
 	int ipar, ityp;
 	char ctyp;
 // lookup function to find the parameter type of an FX parameter for command at index
@@ -435,14 +439,14 @@ int X32::FXc_lookup(X32command* Xfx, int index) {
 //
 // Command at index is like: /fx/<n>/par/<pp>
 // we get the FX type at index -<pp> - 5
-	ipar = (Xfx[index].command[10] - 48) * 10 + Xfx[index].command[11] - 48 - 1;
+	ipar = (Xfx[index]->command[10] - 48) * 10 + Xfx[index]->command[11] - 48 - 1;
 	if ((ipar < 0) || (ipar > 63)) return NIL;
 // 2 cases to consider depending on <n>
-	if (Xfx[index].command[4] < 53) {
-		ityp = Xfx[index - ipar - 5].value.ii;
+	if (Xfx[index]->command[4] < 53) {
+		ityp = Xfx[index - ipar - 5]->value.ii;
 		ctyp = *(Sflookup[ityp] + ipar); // /fx/1/... to /fx/4/
 	} else {
-		ityp = Xfx[index - ipar - 2].value.ii;
+		ityp = Xfx[index - ipar - 2]->value.ii;
 		ctyp = *(Sflookup2[ityp] + ipar); // /fx/5/... to /fx/8/
 	}
 	switch (ctyp) {
@@ -610,390 +614,390 @@ char* X32::REnum(X32command* command, char* str_pt_in, const char* str_enum[]) {
 }
 //
 // SetFxPar1: set FX data from
-void X32::SetFxPar1(X32command* command, char* str_pt_in, int ipar, int type) {
+void X32::SetFxPar1(X32command** command, char* str_pt_in, int ipar, int type) {
 	switch (type) {
 	case _1_HALL:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.2, 3.218875825)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 1.386294361)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 250.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.2, 3.218875825)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 1.386294361)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 250.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_AMBI:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.2, 3.597312261)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 198.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.2, 3.597312261)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 198.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_RPLT:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.3, 4.571268634)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 4., 35.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.25, -6.684611728)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.3, 4.571268634)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 4., 35.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.25, -6.684611728)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
 		break;
 	case _1_ROOM:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.3, 4.571268634)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 4., 72.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.25, -6.684611728)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 250.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.3, 4.571268634)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 4., 72.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.25, -6.684611728)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 250.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 1200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
 		break;
 	case _1_CHAM:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.3, 4.571268634)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 4., 68.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.25, -6.684611728)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 250.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 500.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 500.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.3, 4.571268634)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 4., 68.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.25, -6.684611728)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 250.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 500.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 500.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
 		break;
 	case _1_PLAT:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 1.386294361)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10.,3.912023005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 49.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 1.386294361)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10.,3.912023005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 49.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_VREV:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 120.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0.4, 4.1)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R01)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10000., 9.210340372)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 1.386294361)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.25, 1.386294361)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 120.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0.4, 4.1)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R01)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10000., 9.210340372)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 1.386294361)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.25, 1.386294361)) == NULL) return;
 		break;
 	case _1_VRM:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.1, 5.298317367)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.1, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.1, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.1, 5.298317367)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.1, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.1, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_GATE:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 140., 860.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 30.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 49.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -30., 30.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 140., 860.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 30.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 49.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -30., 30.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
 		break;
 	case _1_RVRS:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 140., 1.966112856)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -30., 30.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 140., 1.966112856)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 29.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -30., 30.)) == NULL) return;
 		break;
 	case _1_DLY:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R24)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R25)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R25)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 99.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 99.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R24)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R25)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R25)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 99.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 99.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
 		break;
 	case _1_3TAP:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R25)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R25)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R25)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R25)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_4TAP:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 6.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R25)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R25)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R25)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 6.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R25)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R25)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R25)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_CRS:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 3.688879454)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 3.688879454)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 3.688879454)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 3.688879454)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_FLNG:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -90., 180.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200.,4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -90., 180.)) == NULL) return;
 		break;
 	case _1_PHAS:
 	case _2_PHAS:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 80.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1., 7.60090246)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 80.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1., 7.60090246)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
 		break;
 	case _1_DIMC:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R24)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R24)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_FILT:
 	case _2_FILT:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 5.991464547)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 20., 6.620073207)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R23)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R22)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.218875825)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R26)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 5.991464547)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 20., 6.620073207)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R23)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R22)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.218875825)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R26)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_ROTA:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.1, 3.688879454)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 2., 1.609437912)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R27)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R28)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.1, 3.688879454)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 2., 1.609437912)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R27)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R28)) == NULL) return;
 		break;
 	case _1_PAN:
 	case _2_PAN:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1., 7.60090246)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1., 7.60090246)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 4.605170186)) == NULL) return;
 		break;
 	case _1_SUB:
 	case _2_SUB:
 		for (int j = 0; j < 2; j++) {
-			if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-			if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R21)) == NULL) return;
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+			if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+			if ((str_pt_in = REnum(command[ipar++], str_pt_in, R21)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		}
 		break;
 	case _1_D_RV:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R20)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.1, 3.912923005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912923005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R20)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.1, 3.912923005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912923005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_CR_R:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.1, 3.912923005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912923005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.1, 3.912923005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912923005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_FL_R:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 3.688879454)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -90., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.1, 3.912923005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912923005)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 3.688879454)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -90., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.1, 3.912923005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 2., 98.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912923005)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_D_CR:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R20)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R20)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_D_FL:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R20)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -90., 180.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R20)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 4.382026635)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.5, 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -90., 180.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_MODD:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R19)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 5.298317367)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R18)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R17)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 9.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 2999.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R19)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 10., 3.912023005)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 200., 4.605170186)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 5.298317367)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R18)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R17)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 9.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	case _1_GEQ2:
 	case _1_TEQ2:
 	case _2_GEQ2:
 	case _2_TEQ2:
 		for (int j = 0; j < 64; j++) {
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -15., 30.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -15., 30.)) == NULL) return;
 		}
 		break;
 	case _1_GEQ:
@@ -1001,751 +1005,751 @@ void X32::SetFxPar1(X32command* command, char* str_pt_in, int ipar, int type) {
 	case _2_GEQ:
 	case _2_TEQ:
 		for (int j = 0; j < 32; j++) {
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -15., 30.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -15., 30.)) == NULL) return;
 		}
 		break;
 	case _1_DES2:
 	case _2_DES2:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R16)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R16)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R16)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R16)) == NULL) return;
 		break;
 	case _1_DES:
 	case _2_DES:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R16)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R29)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R16)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R29)) == NULL) return;
 		break;
 	case _1_P1A2:
 	case _2_P1A2:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R15)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R14)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R13)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R15)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R14)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R13)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 	case _1_P1A:
 	case _2_P1A:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R15)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R14)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R13)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R15)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R14)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R13)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_PQ5S:
 	case _2_PQ5S:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R12)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R11)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R10)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R12)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R11)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R10)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 	case _1_PQ5:
 	case _2_PQ5:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R12)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R11)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R10)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R12)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R11)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R10)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_WAVD:
 	case _2_WAVD:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
 		break;
 	case _1_LIM:
 	case _2_LIM:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 18.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -18., 18.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 0.05, 2.995732274)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 20., 4.605170186)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 18.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -18., 18.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 0.05, 2.995732274)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 20., 4.605170186)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_CMB2:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R07)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 19.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 20., 5.010635294)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R08)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R09)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -40., 40.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R05)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R07)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 19.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 20., 5.010635294)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R08)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R09)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -40., 40.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R05)) == NULL) return;
 	case _1_CMB:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R07)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 19.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 20., 5.010635294)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R08)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R09)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -40., 40.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R06)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R05)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R07)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 19.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 20., 5.010635294)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R08)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R09)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -40., 40.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -10., 20.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R06)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R05)) == NULL) return;
 		break;
 	case _1_FAC2:
 	case _1_FAC1M:
 	case _2_FAC2:
 	case _2_FAC1M:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -20., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 7.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -20., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 7.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -20., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 7.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -20., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 7.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
 		break;
 	case _1_FAC:
 	case _2_FAC:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -20., 20.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 7.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -20., 20.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 7.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
 		break;
 	case _1_LEC2:
 	case _2_LEC2:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R04)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R04)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
 	case _1_LEC:
 	case _2_LEC:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R04)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R04)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -18., 24.)) == NULL) return;
 		break;
 	case _1_ULC2:
 	case _2_ULC2:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R03)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R03)) == NULL) return;
 	case _1_ULC:
 	case _2_ULC:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R03)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -48., 0.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 1., 6.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R03)) == NULL) return;
 		break;
 	case _1_ENH2:
 	case _2_ENH2:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_ENH:
 	case _2_ENH:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_EXC2:
 	case _2_EXC2:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 	case _1_EXC:
 	case _2_EXC:
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_IMG:
 	case _2_IMG:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 12.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 100., 2.302585093)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1., 2.302585093)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 12.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 100., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
 		break;
 	case _1_EDI:
 	case _2_EDI:
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R02)) == NULL) return;
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R02)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R02)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R02)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
 		break;
 	case _1_SON:
 	case _2_SON:
 		for (int j = 0; j < 2; j++) {
-			if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+			if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
 		}
 		break;
 	case _1_AMP2:
 	case _2_AMP2:
 		for (int j = 0; j < 8; j++) {
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
 		}
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 	case _1_AMP:
 	case _2_AMP:
 		for (int j = 0; j < 8; j++) {
-			if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
+			if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 10.)) == NULL) return;
 		}
-		if ((str_pt_in = REnum(&command[ipar++], str_pt_in, R00)) == NULL) return;
+		if ((str_pt_in = REnum(command[ipar++], str_pt_in, R00)) == NULL) return;
 		break;
 	case _1_DRV2:
 	case _2_DRV2:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 20., 2.302585093)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 4000., 1.609437912)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 50., 2.079441542)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 20., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 4000., 1.609437912)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 50., 2.079441542)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
 	case _1_DRV:
 	case _2_DRV:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 20., 2.302585093)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 4000., 1.609437912)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 50., 2.079441542)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 50.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 20., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 4000., 1.609437912)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 50., 2.079441542)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1000., 2.302585093)) == NULL) return;
 		break;
 	case _1_PIT2:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1., 6.214608098)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1., 6.214608098)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 2000., 2.302585093)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1., 6.214608098)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1., 6.214608098)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 2000., 2.302585093)) == NULL) return;
 		break;
 		case _1_PIT:
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
-		if ((str_pt_in = RLogf(&command[ipar++], str_pt_in, 1., 6.214608098)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
-		if ((str_pt_in = RLinf(&command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -12., 24.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -50., 100.)) == NULL) return;
+		if ((str_pt_in = RLogf(command[ipar++], str_pt_in, 1., 6.214608098)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, -100., 200.)) == NULL) return;
+		if ((str_pt_in = RLinf(command[ipar++], str_pt_in, 0., 100.)) == NULL) return;
 		break;
 	}
 }
 //
 // GetFxPar1: concatenates FX data in buf
-void X32::GetFxPar1(X32command* command, char* buf, int ipar, int type) {
+void X32::GetFxPar1(X32command** command, char* buf, int ipar, int type) {
 	int i;
 
 	switch (type) {
 	case _1_HALL:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.2, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 30., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 2., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 250., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.2, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 30., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 2., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 250., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_AMBI:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.2, 7.3, 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 30., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.2, 7.3, 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 30., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_RPLT:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.3, 29., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 4., 39., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.25, 4., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 1200., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 1200., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.3, 29., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 4., 39., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.25, 4., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 1200., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 1200., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
 		break;
 	case _1_ROOM:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.3, 29., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 4., 76., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.25, 4., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 250., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 1200., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 1200., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.3, 29., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 4., 76., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.25, 4., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 250., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 1200., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 1200., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
 		break;
 	case _1_CHAM:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.3, 29., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 4., 72., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.25, 4., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 250., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 500., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 500., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.3, 29., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 4., 72., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.25, 4., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 250., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 500., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 500., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_PLAT:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 10., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 30., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 2., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 10., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 30., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 2., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_VREV:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 120., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0.4, 4.5, 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " REAR" : " FRONT");
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10000., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 2., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.25, 1., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 120., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0.4, 4.5, 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " REAR" : " FRONT");
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10000., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 2., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.25, 1., 0));
 		break;
 	case _1_VRM:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.1, 20., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 30., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.1, 10., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.1, 10., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200, 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 1));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.1, 20., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 30., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.1, 10., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.1, 10., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200, 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 1));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_GATE:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 140, 1000., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 30., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10, 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200, 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -30., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 30., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 140, 1000., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 30., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10, 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200, 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -30., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 30., 0));
 		break;
 	case _1_RVRS:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 140, 1000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 30., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., +12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10, 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200, 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -30., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 140, 1000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 30., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., +12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10, 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200, 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -30., 0., 0));
 		break;
 	case _1_DLY:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 3000., 0));
-		strcat(buf, Smode[command[ipar++].value.ii]);
-		strcat(buf, Sfactor[command[ipar++].value.ii]);
-		strcat(buf, Sfactor[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., +100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10, 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200, 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10, 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200, 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 3000., 0));
+		strcat(buf, Smode[command[ipar++]->value.ii]);
+		strcat(buf, Sfactor[command[ipar++]->value.ii]);
+		strcat(buf, Sfactor[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., +100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10, 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200, 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10, 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200, 20000., 1));
 		break;
 	case _1_3TAP:
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 3000., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10, 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200, 20000., 1));
-		strcat(buf, Sfactor[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Sfactor[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 3000., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10, 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200, 20000., 1));
+		strcat(buf, Sfactor[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Sfactor[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_4TAP:
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 3000., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10, 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200, 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 6., 0));
-		strcat(buf, Sfactor[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Sfactor[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Sfactor[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 3000., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10, 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200, 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 6., 0));
+		strcat(buf, Sfactor[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Sfactor[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Sfactor[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_CRS:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 50., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 50., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 50., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 50., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_FLNG:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 20., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 20., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 200., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -90., 90., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 20., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 20., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 200., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -90., 90., 0));
 		break;
 	case _1_PHAS:
 	case _2_PHAS:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 80., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 1000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1., 2000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 1000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 80., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 1000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1., 2000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 1000., 1));
 		break;
 	case _1_DIMC:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ST" : " M");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ST" : " M");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_FILT:
 	case _2_FILT:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 20., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 20., 15000., 1));
-		strcat(buf, Sfmode[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Sfwave[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 250., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 2POL" : " 4POL");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 20., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 20., 15000., 1));
+		strcat(buf, Sfmode[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Sfwave[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 250., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 2POL" : " 4POL");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_ROTA:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.1, 4., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 2., 10., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " RUN" : " STOP");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " SLOW" : " FAST");
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.1, 4., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 2., 10., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " RUN" : " STOP");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " SLOW" : " FAST");
 		break;
 	case _1_PAN:
 	case _2_PAN:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 1000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1., 2000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 1000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 1000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1., 2000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 1000., 1));
 		break;
 	case _1_SUB:
 	case _2_SUB:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Sfrange[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Sfrange[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Sfrange[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Sfrange[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_D_RV:
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 3000., 0));
-		strcat(buf, Sfpattern[command[ipar++].value.ii]);
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.1, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000, 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10, 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 3000., 0));
+		strcat(buf, Sfpattern[command[ipar++]->value.ii]);
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.1, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000, 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10, 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_CR_R:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 4., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 50., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.1, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 4., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 50., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.1, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_FL_R:
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 4., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 20., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -90., 90., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 200., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.1, 5., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 2., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 4., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 4., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 20., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -90., 90., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 200., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.1, 5., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 2., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 4., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_D_CR:
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 3000., 0));
-		strcat(buf, Sfpattern[command[ipar++].value.ii]);
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 4., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 50., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 3000., 0));
+		strcat(buf, Sfpattern[command[ipar++]->value.ii]);
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 4., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 50., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_D_FL:
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 3000., 0));
-		strcat(buf, Sfpattern[command[ipar++].value.ii]);
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 4., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.5, 20., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 180., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -90., 90., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 3000., 0));
+		strcat(buf, Sfpattern[command[ipar++]->value.ii]);
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 4., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.5, 20., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 180., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -90., 90., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_MODD:
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 3000., 0));
-		strcat(buf, Sfddelay[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 10., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 10., 1));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " SER" : " PAR");
-		strcat(buf, Sfdtype[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 10., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 3000., 0));
+		strcat(buf, Sfddelay[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 10., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 10., 1));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " SER" : " PAR");
+		strcat(buf, Sfdtype[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 10., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	case _1_GEQ2:
 	case _1_TEQ2:
 	case _2_GEQ2:
 	case _2_TEQ2:
 		for (i = 0; i < 64; i++) {
-			strcat(buf, Slinf(command[ipar++].value.ff, -15., 15., 0));
+			strcat(buf, Slinf(command[ipar++]->value.ff, -15., 15., 0));
 		}
 		break;
 	case _1_GEQ:
@@ -1753,370 +1757,370 @@ void X32::GetFxPar1(X32command* command, char* buf, int ipar, int type) {
 	case _2_GEQ:
 	case _2_TEQ:
 		for (i = 0; i < 32; i++) {
-			strcat(buf, Slinf(command[ipar++].value.ff, -15., 15., 0));
+			strcat(buf, Slinf(command[ipar++]->value.ff, -15., 15., 0));
 		}
 		break;
 	case _1_DES2:
 	case _2_DES2:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " MALE" : " FEM");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " MALE" : " FEM");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " MALE" : " FEM");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " MALE" : " FEM");
 		break;
 	case _1_DES:
 	case _2_DES:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " MALE" : " FEM");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " MS" : " ST");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " MALE" : " FEM");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " MS" : " ST");
 		break;
 	case _1_P1A2:
 	case _2_P1A2:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfplfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfpmfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfphfreq[command[ipar++].value.ii]);
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfplfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfpmfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfphfreq[command[ipar++]->value.ii]);
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 	case _1_P1A:
 	case _2_P1A:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfplfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfpmfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfphfreq[command[ipar++].value.ii]);
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfplfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfpmfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfphfreq[command[ipar++]->value.ii]);
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_PQ5S:
 	case _2_PQ5S:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Sfqlfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfqmfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfqhfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Sfqlfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfqmfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfqhfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 	case _1_PQ5:
 	case _2_PQ5:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Sfqlfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfqmfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Sfqhfreq[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Sfqlfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfqmfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Sfqhfreq[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_WAVD:
 	case _2_WAVD:
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -24., 24., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -24., 24., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -24., 24., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -24., 24., 0));
 		break;
 	case _1_LIM:
 	case _2_LIM:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -18., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 0.05, 1., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 20., 2000., 1));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -18., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 0.05, 1., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 20., 2000., 1));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_CMB2:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Sflcmb[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 19., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 20., 3000., 1));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 48" : " 12");
-		strcat(buf, Sfrcmb[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, -40., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Sfmcmb[command[ipar++].value.ii]);
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Sflcmb[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 19., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 20., 3000., 1));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 48" : " 12");
+		strcat(buf, Sfrcmb[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, -40., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Sfmcmb[command[ipar++]->value.ii]);
 	case _1_CMB:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Sflcmb[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 19., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 20., 3000., 1));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 48" : " 12");
-		strcat(buf, Sfrcmb[command[ipar++].value.ii]);
-		strcat(buf, Slinf(command[ipar++].value.ff, -40., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -10., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " 1" : " 0");
-		strcat(buf, Sfmcmb[command[ipar++].value.ii]);
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Sflcmb[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 19., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 20., 3000., 1));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 48" : " 12");
+		strcat(buf, Sfrcmb[command[ipar++]->value.ii]);
+		strcat(buf, Slinf(command[ipar++]->value.ff, -40., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -10., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " 1" : " 0");
+		strcat(buf, Sfmcmb[command[ipar++]->value.ii]);
 		break;
 	case _1_FAC2:
 	case _1_FAC1M:
 	case _2_FAC2:
 	case _2_FAC1M:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -20., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 6., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -18., 6., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -20., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 6., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -18., 6., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -20., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 6., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -18., 6., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -20., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 6., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -18., 6., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
 		break;
 	case _1_FAC:
 	case _2_FAC:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -20., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 6., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -18., 6., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -20., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 6., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -18., 6., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
 		break;
 	case _1_LEC2:
 	case _2_LEC2:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " LIM" : " COMP");
-		strcat(buf, Slinf(command[ipar++].value.ff, -18., 6., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " LIM" : " COMP");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -18., 6., 0));
 	case _1_LEC:
 	case _2_LEC:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " LIM" : " COMP");
-		strcat(buf, Slinf(command[ipar++].value.ff, -18., 6., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " LIM" : " COMP");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -18., 6., 0));
 		break;
 	case _1_ULC2:
 	case _2_ULC2:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -48., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -48., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 7., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 7., 0));
-		strcat(buf, Sfrulc[command[ipar++].value.ii]);
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -48., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -48., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 7., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 7., 0));
+		strcat(buf, Sfrulc[command[ipar++]->value.ii]);
 	case _1_ULC:
 	case _2_ULC:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -48., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -48., 0., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 7., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 7., 0));
-		strcat(buf, Sfrulc[command[ipar++].value.ii]);
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -48., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -48., 0., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 7., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 7., 0));
+		strcat(buf, Sfrulc[command[ipar++]->value.ii]);
 		break;
 	case _1_ENH2:
 	case _2_ENH2:
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_ENH:
 	case _2_ENH:
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 1., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 1., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_EXC2:
 	case _2_EXC2:
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 10000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 10000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 	case _1_EXC:
 	case _2_EXC:
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 10000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 10000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_IMG:
 	case _2_IMG:
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 100., 1000., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1., 10., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 100., 1000., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1., 10., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
 		break;
 	case _1_EDI:
 	case _2_EDI:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " M/S" : " ST");
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " M/S" : " ST");
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " M/S" : " ST");
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " M/S" : " ST");
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
 		break;
 	case _1_SON:
 	case _2_SON:
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
 		break;
 	case _1_AMP2:
 	case _2_AMP2:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 	case _1_AMP:
 	case _2_AMP:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 10., 0));
-		strcat(s_buf + s_len, command[ipar++].value.ii ? " ON" : " OFF");
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 10., 0));
+		strcat(s_buf + s_len, command[ipar++]->value.ii ? " ON" : " OFF");
 		break;
 	case _1_DRV2:
 	case _2_DRV2:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 20., 200., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 4000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 50., 400., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 10000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 20., 200., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 4000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 50., 400., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 10000., 1));
 	case _1_DRV:
 	case _2_DRV:
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 50., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 20., 200., 1));
-		strcat(buf, Slogf(command[ipar++].value.ff, 4000., 20000., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 50., 400., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1000., 10000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 50., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 20., 200., 1));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 4000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 50., 400., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1000., 10000., 1));
 		break;
 	case _1_PIT2:
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 2000., 20000., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 2000., 20000., 1));
 		break;
 	case _1_PIT:
-		strcat(buf, Slinf(command[ipar++].value.ff, -12., 12., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -50., 50., 0));
-		strcat(buf, Slogf(command[ipar++].value.ff, 1., 500., 1));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, -100., 100., 0));
-		strcat(buf, Slinf(command[ipar++].value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -12., 12., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -50., 50., 0));
+		strcat(buf, Slogf(command[ipar++]->value.ff, 1., 500., 1));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, -100., 100., 0));
+		strcat(buf, Slinf(command[ipar++]->value.ff, 0., 100., 0));
 		break;
 	default:
 		break;
@@ -2125,7 +2129,7 @@ void X32::GetFxPar1(X32command* command, char* buf, int ipar, int type) {
 }
 //
 // funct_params: parse commands data
-int X32::funct_params(X32command *command, int i) {
+int X32::funct_params(X32command **command, int i) {
 	int j, c_len, f_len, f_num, c_type, update;
 	char* s_adr;
 	char* s_fmt;
@@ -2141,13 +2145,13 @@ int X32::funct_params(X32command *command, int i) {
 	node_single_index = i;
 	//
 	f_len = f_num = c_type = update =0;
-	c_len = strlen(command[i].command);
+	c_len = strlen(command[i]->command);
 	f_len = (((c_len + 4) & ~3) + 1); // pointing at first format char after ',' if there's a ','
 	if ((r_len - 4 > c_len) && (r_buf[f_len] != 0)) { // there's a ',' and at least one type tag
 		// First of a list command gives the first of next data
-		if (command[i].flags & F_FND) ++i;
+		if (command[i]->flags & F_FND) ++i;
 		// command has parameter(s) (set)
-		if (command[i].flags & F_SET) {
+		if (command[i]->flags & F_SET) {
 			c_len = f_len; // now pointing at first format char after ','
 			f_num = 0;
 			while (r_buf[c_len++]) ++f_num; // count number of type tag characters
@@ -2158,10 +2162,10 @@ int X32::funct_params(X32command *command, int i) {
 					j = 4;
 					while (j) endian.cc[--j] = r_buf[c_len++];
 					//save value to respective field - index i
-					if (command[i].flags & F_SET) {
-						if (command[i].value.ii != endian.ii) {
+					if (command[i]->flags & F_SET) {
+						if (command[i]->value.ii != endian.ii) {
 							update = 1;
-							command[i].value.ii = endian.ii;
+							command[i]->value.ii = endian.ii;
 						}
 					}
 					break;
@@ -2169,10 +2173,10 @@ int X32::funct_params(X32command *command, int i) {
 					j = 4;
 					while (j) endian.cc[--j] = r_buf[c_len++];
 					//save value to respective field - index i
-					if (command[i].flags & F_SET) {
-						if (command[i].value.ff != endian.ff) {
+					if (command[i]->flags & F_SET) {
+						if (command[i]->value.ff != endian.ff) {
 							update = 1;
-							command[i].value.ff = endian.ff;
+							command[i]->value.ff = endian.ff;
 						}
 					}
 					break;
@@ -2180,17 +2184,17 @@ int X32::funct_params(X32command *command, int i) {
 					j = strlen(r_buf + c_len); // actual need can be up to 4 more \0 bytes; add 8 by security
 					strncpy(loc_str, r_buf + c_len, j);
 					loc_str[j] = 0;
-					if (command[i].flags & F_SET) {
+					if (command[i]->flags & F_SET) {
 						if (j > 0) {
-							if (command[i].value.str) update = strcmp(command[i].value.str, loc_str);
+							if (command[i]->value.str) update = strcmp(command[i]->value.str, loc_str);
 							else                      update = 1;
-							if (command[i].value.str) free(command[i].value.str);
-							command[i].value.str = (char*)malloc((j + 8) * sizeof(char));
-							strcpy(command[i].value.str, loc_str);
+							if (command[i]->value.str) free(command[i]->value.str);
+							command[i]->value.str = (char*)malloc((j + 8) * sizeof(char));
+							strcpy(command[i]->value.str, loc_str);
 						} else {
-							if (command[i].value.str) {
-								free(command[i].value.str);
-								command[i].value.str = NULL;
+							if (command[i]->value.str) {
+								free(command[i]->value.str);
+								command[i]->value.str = NULL;
 								update = 1;
 							}
 						}
@@ -2213,11 +2217,11 @@ int X32::funct_params(X32command *command, int i) {
 		} // done parsing
 	} else {
 		// First of a list command gives the first of next data
-		if (command[i].flags & F_FND) ++i;
-		if (command[i].flags & F_GET) { // if the command is part of the GET family
+		if (command[i]->flags & F_FND) ++i;
+		if (command[i]->flags & F_GET) { // if the command is part of the GET family
 			// command without parameters: (get)
-			s_len = Xsprint(s_buf, 0, 's', command[i].command);
-			c_type = command[i].format.typ;
+			s_len = Xsprint(s_buf, 0, 's', command[i]->command);
+			c_type = command[i]->format.typ;
 			if (c_type == FX32) {
 				// special case of FX parameters. Need to validate if the requested parameter
 				// is an int of a float. Decision based on a lookup table. Once found,
@@ -2226,23 +2230,23 @@ int X32::funct_params(X32command *command, int i) {
 			}
 			if (c_type == I32 || c_type == E32 || c_type == P32) {
 				s_len = Xsprint(s_buf, s_len, 's', ",i");
-				s_len = Xsprint(s_buf, s_len, 'i', &command[i].value.ii);
+				s_len = Xsprint(s_buf, s_len, 'i', &command[i]->value.ii);
 			} else if (c_type == F32) {
 				s_len = Xsprint(s_buf, s_len, 's', ",f");
-				s_len = Xsprint(s_buf, s_len, 'i', &command[i].value.ff);
+				s_len = Xsprint(s_buf, s_len, 'i', &command[i]->value.ff);
 			} else if (c_type == S32) {
 				s_len = Xsprint(s_buf, s_len, 's', ",s");
-				if (command[i].value.str) s_len = Xsprint(s_buf, s_len, 's', command[i].value.str);
+				if (command[i]->value.str) s_len = Xsprint(s_buf, s_len, 's', command[i]->value.str);
 				else s_len = Xsprint(s_buf, s_len, 's', &zero); // return nil chars if no string
 			} else if (c_type == B32) {
-				if ((s_adr = (char*)command[i].value.dta) != NULL) {
+				if ((s_adr = (char*)command[i]->value.dta) != NULL) {
 					s_len = Xsprint(s_buf, s_len, 's', ",b"); //todo - incorrect
-					s_len = Xsprint(s_buf, s_len, 'b', command[i].value.dta);
+					s_len = Xsprint(s_buf, s_len, 'b', command[i]->value.dta);
 				}
 			} else {
-				if ((s_adr = command[i].value.str) != NULL) {
-					s_len = Xsprint(s_buf, s_len, 's', command[i].format.str);
-					s_fmt = command[i].format.str + 1;
+				if ((s_adr = command[i]->value.str) != NULL) {
+					s_len = Xsprint(s_buf, s_len, 's', command[i]->format.str);
+					s_fmt = command[i]->format.str + 1;
 					while (*s_fmt) {
 						if (*s_fmt == 'i') {
 							s_len = Xsprint(s_buf, s_len, 'i', (int*) s_adr);
@@ -2623,7 +2627,7 @@ int X32::function_slash() {
 	int  w_len;
 	char* str_pt_in;
 	int i, j, n, cmd_max, c_len, c_type;
-	X32command* command;
+	X32command** command;
 	// received a /~~~,s~~[string] [[data]...]
 	// parse [string]
 	// set internal variable according to [[data]...] contents
@@ -2637,14 +2641,14 @@ int X32::function_slash() {
 		cmd_max = 0;
 		str_pt_in = r_buf + 8;				// data block starts at index 8
 		if (*str_pt_in == '/') str_pt_in++;
-		for (n = 0; n < Xnode_max; n++) {
+		for (n = 0; n < size_Xnode; n++) {
 			if (strncmp(Xnode[n]->command, str_pt_in, Xnode[n]->nchars) == 0) {
 				cmd_max = Xnode[n]->cmd_max;
 				command = Xnode[n]->cmd_ptr;
 				break;
 			}
 		}
-		if (n < Xnode_max) {
+		if (n < size_Xnode) {
 			// search exact command in command node set
 			// command stops at first space found
 			i = str_pt_in - r_buf;
@@ -2655,280 +2659,280 @@ int X32::function_slash() {
 				i += 1;
 			}
 			for (i = 0; i < cmd_max; i++) {
-				if (strncmp(str_pt_in, command[i].command + 1, c_len) == 0) {
-					str_pt_in += strlen(command[i].command +1) + 1; // point at [[data]...]
+				if (strncmp(str_pt_in, command[i]->command + 1, c_len) == 0) {
+					str_pt_in += strlen(command[i]->command +1) + 1; // point at [[data]...]
 					// we now are at the right command, parse the alphanumeric data following the command
 					// to set parameter values one by one
-					if (command[i].flags == F_FND) {
+					if (command[i]->flags == F_FND) {
 						// skip successive F_FND types until i+1 ponts to a non F_FND (such as F_EXT)
-						while (command[i+1].flags == F_FND) i++;
+						while (command[i+1]->flags == F_FND) i++;
 						// treat as variable length /node command. parsing data as needed
-						switch (command[i].format.typ) {
+						switch (command[i]->format.typ) {
 						case CHCO:						// name, icon#, color, chan_input
-							if ((str_pt_in = XslashSetString(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetInt(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetString(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetInt(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+4], str_pt_in)) == NULL) return S_SND;
 							break;
 						case CHDE:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLinf(&command[i+2], str_pt_in, 0.3, 499.7, 0.1)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLinf(command[i+2], str_pt_in, 0.3, 499.7, 0.1)) == NULL) return S_SND;
 							break;
 						case CHPR:
-							if ((str_pt_in = XslashSetLinf(&command[i+1], str_pt_in, -18., 36., 0.25)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+4], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLogf(&command[i+5], str_pt_in, 20., 2.9957322735, 100)) == NULL) return S_SND; // log(400/20) = 2.9957322735
+							if ((str_pt_in = XslashSetLinf(command[i+1], str_pt_in, -18., 36., 0.25)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLogf(command[i+5], str_pt_in, 20., 2.9957322735, 100)) == NULL) return S_SND; // log(400/20) = 2.9957322735
 							break;
 						case CHGA:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+3], str_pt_in, -80., 80., 0.5)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+4], str_pt_in, 3., 57., 1.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+5], str_pt_in, 0., 120., 1.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLogf(&command[i+6], str_pt_in, 0.02, 11.512925465, 100)) == NULL) return S_SND;	// log(2000/0.02) = 11.512925465
-							if ((str_pt_in = XslashSetLogf(&command[i+7], str_pt_in, 5., 6.684611728, 100)) == NULL) return S_SND;		// log (4000/5) = 6.684611728
-							if ((str_pt_in = XslashSetInt(&command[i+8], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+3], str_pt_in, -80., 80., 0.5)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+4], str_pt_in, 3., 57., 1.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+5], str_pt_in, 0., 120., 1.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLogf(command[i+6], str_pt_in, 0.02, 11.512925465, 100)) == NULL) return S_SND;	// log(2000/0.02) = 11.512925465
+							if ((str_pt_in = XslashSetLogf(command[i+7], str_pt_in, 5., 6.684611728, 100)) == NULL) return S_SND;		// log (4000/5) = 6.684611728
+							if ((str_pt_in = XslashSetInt(command[i+8], str_pt_in)) == NULL) return S_SND;
 							break;
 						case CHGF:
 						case CHDF:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLogf(&command[i+3], str_pt_in, 20., 6.907755279, 200)) == NULL) return S_SND;	// log(20000/20) = 6.907755279
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLogf(command[i+3], str_pt_in, 20., 6.907755279, 200)) == NULL) return S_SND;	// log(20000/20) = 6.907755279
 							break;
 						case CHDY:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+4], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+5], str_pt_in, -60., 60., 0.5)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+6], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+7], str_pt_in, 0., 5.0, 1.0)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+8], str_pt_in, 0., 24.0, 0.5)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+9], str_pt_in, 0., 120.0, 1.0)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLogf(&command[i+10], str_pt_in, 0.02, 11.51292546, 100)) == NULL) return S_SND;	// log (2000/0.02) = 11.51292546
-							if ((str_pt_in = XslashSetLogf(&command[i+11], str_pt_in, 5., 6.684611728, 100)) == NULL) return S_SND;		// log (4000/5) = 6.684611728
-							if ((str_pt_in = XslashSetList(&command[i+12], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+13], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+14], str_pt_in, 0., 100.0, 5.0)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+15], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+5], str_pt_in, -60., 60., 0.5)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+6], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+7], str_pt_in, 0., 5.0, 1.0)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+8], str_pt_in, 0., 24.0, 0.5)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+9], str_pt_in, 0., 120.0, 1.0)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLogf(command[i+10], str_pt_in, 0.02, 11.51292546, 100)) == NULL) return S_SND;	// log (2000/0.02) = 11.51292546
+							if ((str_pt_in = XslashSetLogf(command[i+11], str_pt_in, 5., 6.684611728, 100)) == NULL) return S_SND;		// log (4000/5) = 6.684611728
+							if ((str_pt_in = XslashSetList(command[i+12], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+13], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+14], str_pt_in, 0., 100.0, 5.0)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+15], str_pt_in)) == NULL) return S_SND;
 							break;
 						case CHIN:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
 							break;
 						case CHEQ:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLogf(&command[i+2], str_pt_in, 20., 6.907755279, 200)) == NULL) return S_SND;	// log(20000/20) = 6.907755279
-							if ((str_pt_in = XslashSetLinf(&command[i+3], str_pt_in, -15., 30.0, 0.250)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLogf(&command[i+4], str_pt_in, 10., -3.506557897, 71)) == NULL) return S_SND;	// log(0.3/10) = -3.506557897
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLogf(command[i+2], str_pt_in, 20., 6.907755279, 200)) == NULL) return S_SND;	// log(20000/20) = 6.907755279
+							if ((str_pt_in = XslashSetLinf(command[i+3], str_pt_in, -15., 30.0, 0.250)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLogf(command[i+4], str_pt_in, 10., -3.506557897, 71)) == NULL) return S_SND;	// log(0.3/10) = -3.506557897
 							break;
 						case CHMX:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLevl(&command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+4], str_pt_in, -100., 200., 2.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+5], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLevl(&command[i+6], str_pt_in, 160)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLevl(command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+4], str_pt_in, -100., 200., 2.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+5], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLevl(command[i+6], str_pt_in, 160)) == NULL) return S_SND;
 							break;
 						case CHMO:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLevl(&command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+3], str_pt_in, -100., 200., 2.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+4], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+5], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLevl(command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+3], str_pt_in, -100., 200., 2.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+5], str_pt_in)) == NULL) return S_SND;
 							break;
 						case CHME:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLevl(&command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLevl(command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
 							break;
 						case CHGRP:
-							if ((str_pt_in = XslashSetPerInt(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetPerInt(&command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetPerInt(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetPerInt(command[i+2], str_pt_in)) == NULL) return S_SND;
 							break;
 						case CHAMIX:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLinf(&command[i+2], str_pt_in, -12., 24., 0.5)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLinf(command[i+2], str_pt_in, -12., 24., 0.5)) == NULL) return S_SND;
 							break;
 						case AXPR:						// trim, invert
-							if ((str_pt_in = XslashSetLinf(&command[i+1], str_pt_in, -18., 36., 0.25)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+1], str_pt_in, -18., 36., 0.25)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return S_SND;
 							break;
 						case BSCO:						// name, icon#, color
-							if ((str_pt_in = XslashSetString(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetInt(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetString(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetInt(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
 							break;
 						case MXPR:						// invert
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
 							break;
 						case MXDY:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+4], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+5], str_pt_in, -60., 60., 0.5)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+6], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+7], str_pt_in, 0., 5.0, 1.0)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+8], str_pt_in, 0., 24.0, 0.5)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+9], str_pt_in, 0., 120.0, 1.0)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLogf(&command[i+10], str_pt_in, 0.02, 11.51292546, 100)) == NULL) return S_SND;	// log (2000/0.02) = 11.51292546
-							if ((str_pt_in = XslashSetLogf(&command[i+11], str_pt_in, 5., 6.684611728, 100)) == NULL) return S_SND;		// log (4000/5) = 6.684611728
-							if ((str_pt_in = XslashSetList(&command[i+12], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+13], str_pt_in, 0., 100.0, 5.0)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+14], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+5], str_pt_in, -60., 60., 0.5)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+6], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+7], str_pt_in, 0., 5.0, 1.0)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+8], str_pt_in, 0., 24.0, 0.5)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+9], str_pt_in, 0., 120.0, 1.0)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLogf(command[i+10], str_pt_in, 0.02, 11.51292546, 100)) == NULL) return S_SND;	// log (2000/0.02) = 11.51292546
+							if ((str_pt_in = XslashSetLogf(command[i+11], str_pt_in, 5., 6.684611728, 100)) == NULL) return S_SND;		// log (4000/5) = 6.684611728
+							if ((str_pt_in = XslashSetList(command[i+12], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+13], str_pt_in, 0., 100.0, 5.0)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+14], str_pt_in)) == NULL) return S_SND;
 							break;
 						case MSMX:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLevl(&command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+3], str_pt_in, -100., 200., 2.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLevl(command[i+2], str_pt_in, 1023)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+3], str_pt_in, -100., 200., 2.)) == NULL) return S_SND;
 							break;
 						case FXTYP1:
 						case FXTYP2:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
 							break;
 						case FXSRC:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
 							break;
 						case FXPAR1:
-							SetFxPar1(command, str_pt_in, i + 1, command[i - 4].value.ii);
+							SetFxPar1(command, str_pt_in, i + 1, command[i - 4]->value.ii);
 							break;
 						case FXPAR2:
-							SetFxPar1(command, str_pt_in, i + 1, command[i - 2].value.ii + _1_PIT + 2);
+							SetFxPar1(command, str_pt_in, i + 1, command[i - 2]->value.ii + _1_PIT + 2);
 							break;
 						case OMAIN:
-							if ((str_pt_in = XslashSetInt(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
 							break;
 						case OMAIN2:
-							if ((str_pt_in = XslashSetInt(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
 							break;
 						case OP16:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+4], str_pt_in)) == NULL) return S_SND;
 							break;
 						case OMAIND:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLinf(&command[i+2], str_pt_in, 0.3, 499.7, 0.1)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLinf(command[i+2], str_pt_in, 0.3, 499.7, 0.1)) == NULL) return S_SND;
 							break;
 						case HAMP:
-							if ((str_pt_in = XslashSetLinf(&command[i+1], str_pt_in, -12., 72., 0.5)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+1], str_pt_in, -12., 72., 0.5)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
 							break;
 						case PREFS:
-							if ((str_pt_in = XslashSetString(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLinf(&command[i+2], str_pt_in, 10., 90., 5.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+3], str_pt_in, 0., 100., 2.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+4], str_pt_in, 10., 90., 5.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLinf(&command[i+5], str_pt_in, 10., 90., 10.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+6], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+7], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+8], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+9], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+10], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+11], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+12], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+13], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+14], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+15], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetPerInt(&command[i+16], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+17], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+18], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+19], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+20], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+21], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+22], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetString(&command[i+23], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+24], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetString(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLinf(command[i+2], str_pt_in, 10., 90., 5.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+3], str_pt_in, 0., 100., 2.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+4], str_pt_in, 10., 90., 5.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLinf(command[i+5], str_pt_in, 10., 90., 10.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+6], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+7], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+8], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+9], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+10], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+11], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+12], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+13], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+14], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+15], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetPerInt(command[i+16], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+17], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+18], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+19], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+20], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+21], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+22], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetString(command[i+23], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+24], str_pt_in)) == NULL) return S_SND;
 							break;
 						case PIR:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetPerInt(&command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetPerInt(command[i+4], str_pt_in)) == NULL) return S_SND;
 							break;
 						case PIQ:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+4], str_pt_in)) == NULL) return S_SND;
 							break;
 						case PCARD:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+4], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+5], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+6], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+7], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+8], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+9], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+10], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+11], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+12], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+13], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+5], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+6], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+7], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+8], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+9], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+10], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+11], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+12], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+13], str_pt_in)) == NULL) return S_SND;
 							break;
 						case PRTA:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetLinf(&command[i+2], str_pt_in, 0., 60., 6.)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+4], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+5], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+6], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetPerInt(&command[i+7], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+8], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetLogf(&command[i+9], str_pt_in, 0.25, 4.158883083, 19)) == NULL) return S_SND;	// log (16/0.25) = 4.158883083
-							if ((str_pt_in = XslashSetList(&command[i+10], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetLinf(command[i+2], str_pt_in, 0., 60., 6.)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+5], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+6], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetPerInt(command[i+7], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+8], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetLogf(command[i+9], str_pt_in, 0.25, 4.158883083, 19)) == NULL) return S_SND;	// log (16/0.25) = 4.158883083
+							if ((str_pt_in = XslashSetList(command[i+10], str_pt_in)) == NULL) return S_SND;
 							break;
 						case PIP:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
 							break;
 						case PKEY:
-							if ((str_pt_in = XslashSetInt(&command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetInt(command[i+1], str_pt_in)) == NULL) return 0;
 							break;
 						case PADDR:
 						case PMASK:
 						case PGWAY:
-							if ((str_pt_in = XslashSetInt(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetInt(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetInt(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+4], str_pt_in)) == NULL) return S_SND;
 							break;
 						case STAT:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetInt(&command[i+2], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+3], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+4], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+5], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+6], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+7], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+8], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+9], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+10], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+11], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+12], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+13], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+14], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+15], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+16], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+17], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+18], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+19], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+20], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+21], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+22], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetInt(&command[i+23], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetInt(command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+3], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+4], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+5], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+6], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+7], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+8], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+9], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+10], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+11], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+12], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+13], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+14], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+15], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+16], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+17], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+18], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+19], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+20], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+21], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+22], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetInt(command[i+23], str_pt_in)) == NULL) return S_SND;
 							break;
 						case SSCREEN:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return S_SND;
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return S_SND;
 							break;
 						case SCHA:
 						case SMET:
@@ -2940,18 +2944,18 @@ int X32::function_slash() {
 						case SUSB:
 						case SSCE:
 						case SASS:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
 							break;
 						case SSOLOSW:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							for (j = 2; j < 81; j++) if ((str_pt_in = XslashSetList(&command[i+j], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							for (j = 2; j < 81; j++) if ((str_pt_in = XslashSetList(command[i+j], str_pt_in)) == NULL) return S_SND;
 							break;
 						case SOSC:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
 							break;
 						case STALK:
-							if ((str_pt_in = XslashSetList(&command[i+1], str_pt_in)) == NULL) return 0;
-							if ((str_pt_in = XslashSetList(&command[i+2], str_pt_in)) == NULL) return S_SND;
+							if ((str_pt_in = XslashSetList(command[i+1], str_pt_in)) == NULL) return 0;
+							if ((str_pt_in = XslashSetList(command[i+2], str_pt_in)) == NULL) return S_SND;
 							break;
 //SAES,		// 76
 //STAPE,	// 77
@@ -2967,21 +2971,21 @@ int X32::function_slash() {
 						memcpy(s_buf, w_buf, w_len);
 						s_len = w_len;
 						return(S_SND); // send reply only to requesting client
-					} else if (command[i].flags & F_SET) {
+					} else if (command[i]->flags & F_SET) {
 						if (*str_pt_in == '\0') return 0;
 						while (*str_pt_in == ' ') str_pt_in ++;		// skip leading spaces
-						c_type = command[i].format.typ;
+						c_type = command[i]->format.typ;
 						if (c_type == I32 || c_type == P32) {
 							sscanf(str_pt_in, "%d", &endian.ii);
-							command[i].value.ii = endian.ii;
+							command[i]->value.ii = endian.ii;
 						} else if (c_type == E32) {
 							// data given as an alphanumerical enum; n point at the Xnode for the command
-							XslashSetList(&command[i], str_pt_in);
+							XslashSetList(command[i], str_pt_in);
 						} else if (c_type == F32) {
 							sscanf(str_pt_in, "%f", &endian.ff);
-							command[i].value.ff = endian.ff;
+							command[i]->value.ff = endian.ff;
 						} else if (c_type == S32) {
-							if (command[i].value.str) free(command[i].value.str);
+							if (command[i]->value.str) free(command[i]->value.str);
 							while (*str_pt_in == ' ') str_pt_in++;
 							c_len = 0;
 							if (*str_pt_in == '"') {
@@ -2990,11 +2994,11 @@ int X32::function_slash() {
 							}
 							j = strlen(str_pt_in) - c_len; // remove trailing " if there's one
 							if (j > 0) {
-								command[i].value.str = (char*)malloc((j + 8) * sizeof(char));
-								strncpy(command[i].value.str, str_pt_in, j);
-								command[i].value.str[j] = 0;
+								command[i]->value.str = (char*)malloc((j + 8) * sizeof(char));
+								strncpy(command[i]->value.str, str_pt_in, j);
+								command[i]->value.str[j] = 0;
 							} else {
-								command[i].value.str = NULL;
+								command[i]->value.str = NULL;
 							}
 						} else {
 							// Todo?
@@ -3015,373 +3019,373 @@ int X32::function_slash() {
 int X32::function_node() {
 	char* str_pt_in;
 	int i, j, cmd_max;
-	X32command* command;
+	X32command** command;
 	// received a /node~~~,s~~[string] command
 	// parse [string]
 	// reply with node~~~~,s~~/[string] <data>...\n
 	cmd_max = 0;
 	str_pt_in = r_buf + 12;				// data block starts at index 12
-	for (i = 0; i < Xnode_max; i++) {
+	for (i = 0; i < size_Xnode; i++) {
 		if (strncmp(Xnode[i]->command, str_pt_in, Xnode[i]->nchars) == 0) {
 			cmd_max = Xnode[i]->cmd_max;
 			command = Xnode[i]->cmd_ptr;
 			break;
 		}
 	}
-	if (i == Xnode_max)
+	if (i == size_Xnode)
 		return 0;
 	for (i = 0; i < cmd_max; i++) {
-		if (command[i].flags == F_FND) {
-//			printf("%s\n", command[i].command);
-			if (strncmp(str_pt_in, command[i].command + 1, strlen(str_pt_in)) == 0) {
+		if (command[i]->flags == F_FND) {
+//			printf("%s\n", command[i]->command);
+			if (strncmp(str_pt_in, command[i]->command + 1, strlen(str_pt_in)) == 0) {
 				s_len = Xsprint(s_buf, 0, 's', "node");
 				s_len = Xsprint(s_buf, s_len, 's', ",s");
 				s_buf[s_len] = 0;
 				// manage head of nodes (two of more consecutive F_FND types)
-				while (command[i + 1].flags == F_FND)
+				while (command[i + 1]->flags == F_FND)
 					i++;
 				// we're now pointing at the first data command (with parameters) of the node pack
-				strcat(s_buf + s_len, command[i].command);
-				switch (command[i].format.typ) {
+				strcat(s_buf + s_len, command[i]->command);
+				switch (command[i]->format.typ) {
 				case OFFON:
 				case SSOLOSW:
-					for (j = 1; j < command[i].value.ii + 1; j++) {
-						strcat(s_buf + s_len, command[i + j].value.ii ? " ON" : " OFF");
+					for (j = 1; j < command[i]->value.ii + 1; j++) {
+						strcat(s_buf + s_len, command[i + j]->value.ii ? " ON" : " OFF");
 					}
 					break;
 				case CMONO:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " LCR" : " LR+M");
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " LCR" : " LR+M");
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " ON" : " OFF");
 					break;
 				case CSOLO:
-					strcat(s_buf + s_len, Slevel(command[i + 1].value.ff));
-					strcat(s_buf + s_len, Ssource[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 3].value.ff, -18., +18., 1));
-					strcat(s_buf + s_len, command[i + 4].value.ii ? " AFL" : " PFL");
-					strcat(s_buf + s_len, command[i + 5].value.ii ? " AFL" : " PFL");
-					strcat(s_buf + s_len, command[i + 6].value.ii ? " AFL" : " PFL");
-					strcat(s_buf + s_len, command[i + 7].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 8].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 9].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slinf(command[i + 10].value.ff, -40., 0., 0));
-					strcat(s_buf + s_len, command[i + 11].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 12].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 13].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slinf(command[i + 14].value.ff, 0.3, 500., 1));
-					strcat(s_buf + s_len, command[i + 15].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 16].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 17].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slevel(command[i + 1]->value.ff));
+					strcat(s_buf + s_len, Ssource[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 3]->value.ff, -18., +18., 1));
+					strcat(s_buf + s_len, command[i + 4]->value.ii ? " AFL" : " PFL");
+					strcat(s_buf + s_len, command[i + 5]->value.ii ? " AFL" : " PFL");
+					strcat(s_buf + s_len, command[i + 6]->value.ii ? " AFL" : " PFL");
+					strcat(s_buf + s_len, command[i + 7]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 8]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 9]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinf(command[i + 10]->value.ff, -40., 0., 0));
+					strcat(s_buf + s_len, command[i + 11]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 12]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 13]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinf(command[i + 14]->value.ff, 0.3, 500., 1));
+					strcat(s_buf + s_len, command[i + 15]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 16]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 17]->value.ii ? " ON" : " OFF");
 					break;
 				case CTALK:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " EXT" : " INT");
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " EXT" : " INT");
 					break;
 				case CTALKAB:
-					strcat(s_buf + s_len, Slevel(command[i + 1].value.ff));
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 3].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sbitmp(command[i + 4].value.ii, 18));
+					strcat(s_buf + s_len, Slevel(command[i + 1]->value.ff));
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 3]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sbitmp(command[i + 4]->value.ii, 18));
 					break;
 				case COSC:
-					strcat(s_buf + s_len, Slevel(command[i + 1].value.ff));
-					strcat(s_buf + s_len, f121[(int) (120 * command[i + 2].value.ff + 0.5)]);
-					strcat(s_buf + s_len, f121[(int) (120 * command[i + 3].value.ff + 0.5)]);
-					strcat(s_buf + s_len, command[i + 4].value.ii ? " F2" : " F1");
-					strcat(s_buf + s_len, Sosct[command[i + 5].value.ii]);
-					strcat(s_buf + s_len, Sint(command[i + 6].value.ii));
+					strcat(s_buf + s_len, Slevel(command[i + 1]->value.ff));
+					strcat(s_buf + s_len, f121[(int) (120 * command[i + 2]->value.ff + 0.5)]);
+					strcat(s_buf + s_len, f121[(int) (120 * command[i + 3]->value.ff + 0.5)]);
+					strcat(s_buf + s_len, command[i + 4]->value.ii ? " F2" : " F1");
+					strcat(s_buf + s_len, Sosct[command[i + 5]->value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 6]->value.ii));
 					break;
 				case CROUTSW:
-					strcat(s_buf + s_len, Sroutin[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Sroutin[command[i + 1]->value.ii]);
 					break;
 				case CROUTIN:
 				case CROUTPLAY:
-					strcat(s_buf + s_len, Sroutin[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, Sroutin[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Sroutin[command[i + 3].value.ii]);
-					strcat(s_buf + s_len, Sroutin[command[i + 4].value.ii]);
-					strcat(s_buf + s_len, Sroutax[command[i + 5].value.ii]);
+					strcat(s_buf + s_len, Sroutin[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, Sroutin[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Sroutin[command[i + 3]->value.ii]);
+					strcat(s_buf + s_len, Sroutin[command[i + 4]->value.ii]);
+					strcat(s_buf + s_len, Sroutax[command[i + 5]->value.ii]);
 					break;
 				case CROUTAC:
-					for (j = 1; j < command[i].value.ii + 1; j++) {
-						strcat(s_buf + s_len, Sroutac[command[i + j].value.ii]);
+					for (j = 1; j < command[i]->value.ii + 1; j++) {
+						strcat(s_buf + s_len, Sroutac[command[i + j]->value.ii]);
 					}
 					break;
 				case CROUTOT:
-					strcat(s_buf + s_len, Srouto1[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, Srouto1[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Srouto2[command[i + 3].value.ii]);
-					strcat(s_buf + s_len, Srouto2[command[i + 4].value.ii]);
+					strcat(s_buf + s_len, Srouto1[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, Srouto1[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Srouto2[command[i + 3]->value.ii]);
+					strcat(s_buf + s_len, Srouto2[command[i + 4]->value.ii]);
 					break;
 				case CCTRL:
-					strcat(s_buf + s_len, Scolor[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Scolor[command[i + 1]->value.ii]);
 					break;
 				case CENC:
-					for (j = 1; j < command[i].value.ii + 1; j++) {
-						if (command[i + j].value.str) {
+					for (j = 1; j < command[i]->value.ii + 1; j++) {
+						if (command[i + j]->value.str) {
 							strcat(s_buf + s_len, " \"");
-							strcat(s_buf + s_len, command[i + j].value.str);
+							strcat(s_buf + s_len, command[i + j]->value.str);
 							strcat(s_buf + s_len, "\"");
 						} else
 							strcat(s_buf + s_len, " \"-\"");
 					}
 					break;
 				case CTAPE:
-					strcat(s_buf + s_len, Slinf(command[i + 1].value.ff, -6., +24., 1));
-					strcat(s_buf + s_len, Slinf(command[i + 2].value.ff, -6., +24., 1));
-					strcat(s_buf + s_len, command[i + 3].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinf(command[i + 1]->value.ff, -6., +24., 1));
+					strcat(s_buf + s_len, Slinf(command[i + 2]->value.ff, -6., +24., 1));
+					strcat(s_buf + s_len, command[i + 3]->value.ii ? " ON" : " OFF");
 					break;
 				case CMIX:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " ON" : " OFF");
 					break;
 				case CHCO:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Scolor[command[i + 3].value.ii]);
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Scolor[command[i + 3]->value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
 					break;
 				case CHDE:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slinf(command[i + 2].value.ff, 0.3, 500., 1));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinf(command[i + 2]->value.ff, 0.3, 500., 1));
 					break;
 				case CHPR:
-					strcat(s_buf + s_len, Slinfs(command[i + 1].value.ff, -18., +18., 1));
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 3].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sfslope[command[i + 4].value.ii]);
-					strcat(s_buf + s_len, f101[(int) (100 * command[i + 5].value.ff + 0.5)]);
+					strcat(s_buf + s_len, Slinfs(command[i + 1]->value.ff, -18., +18., 1));
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 3]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sfslope[command[i + 4]->value.ii]);
+					strcat(s_buf + s_len, f101[(int) (100 * command[i + 5]->value.ff + 0.5)]);
 					break;
 				case CHGA:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sgmode[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 3].value.ff, -80., 0., 1));
-					strcat(s_buf + s_len, Slinf(command[i + 4].value.ff, 3., 60., 1));
-					strcat(s_buf + s_len, Slinf(command[i + 5].value.ff, 0., 120., 0));
-					strcat(s_buf + s_len, Slogf(command[i + 6].value.ff, 0.02, 2000., 2));
-					strcat(s_buf + s_len, Slogf(command[i + 7].value.ff, 5., 4000., 0));
-					strcat(s_buf + s_len, Sint(command[i + 8].value.ii));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sgmode[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 3]->value.ff, -80., 0., 1));
+					strcat(s_buf + s_len, Slinf(command[i + 4]->value.ff, 3., 60., 1));
+					strcat(s_buf + s_len, Slinf(command[i + 5]->value.ff, 0., 120., 0));
+					strcat(s_buf + s_len, Slogf(command[i + 6]->value.ff, 0.02, 2000., 2));
+					strcat(s_buf + s_len, Slogf(command[i + 7]->value.ff, 5., 4000., 0));
+					strcat(s_buf + s_len, Sint(command[i + 8]->value.ii));
 					break;
 				case CHGF:
 				case CHDF:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sgftype[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, f201[(int) (200 * command[i + 3].value.ff + 0.5)]);
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sgftype[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, f201[(int) (200 * command[i + 3]->value.ff + 0.5)]);
 					break;
 				case CHDY:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sdmode[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Sddet[command[i + 3].value.ii]);
-					strcat(s_buf + s_len, Sdenv[command[i + 4].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 5].value.ff, -60., 0., 1));
-					strcat(s_buf + s_len, Sdratio[command[i + 6].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 7].value.ff, 0., 5., 0));
-					strcat(s_buf + s_len, Slinf(command[i + 8].value.ff, 0., 24., 1));
-					strcat(s_buf + s_len, Slinf(command[i + 9].value.ff, 0., 120., 0));
-					strcat(s_buf + s_len, Slogf(command[i + 10].value.ff, 0.02, 2000., 2));
-					strcat(s_buf + s_len, Slogf(command[i + 11].value.ff, 5., 4000., 0));
-					strcat(s_buf + s_len, Sdpos[command[i + 12].value.ii]);
-					strcat(s_buf + s_len, Sint(command[i + 13].value.ii));
-					strcat(s_buf + s_len, Slinf(command[i + 14].value.ff, 0., 100., 0));
-					strcat(s_buf + s_len, command[i + 15].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sdmode[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Sddet[command[i + 3]->value.ii]);
+					strcat(s_buf + s_len, Sdenv[command[i + 4]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 5]->value.ff, -60., 0., 1));
+					strcat(s_buf + s_len, Sdratio[command[i + 6]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 7]->value.ff, 0., 5., 0));
+					strcat(s_buf + s_len, Slinf(command[i + 8]->value.ff, 0., 24., 1));
+					strcat(s_buf + s_len, Slinf(command[i + 9]->value.ff, 0., 120., 0));
+					strcat(s_buf + s_len, Slogf(command[i + 10]->value.ff, 0.02, 2000., 2));
+					strcat(s_buf + s_len, Slogf(command[i + 11]->value.ff, 5., 4000., 0));
+					strcat(s_buf + s_len, Sdpos[command[i + 12]->value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 13]->value.ii));
+					strcat(s_buf + s_len, Slinf(command[i + 14]->value.ff, 0., 100., 0));
+					strcat(s_buf + s_len, command[i + 15]->value.ii ? " ON" : " OFF");
 					break;
 				case CHIN:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sdpos[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Sinsel[command[i + 3].value.ii]);
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sdpos[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Sinsel[command[i + 3]->value.ii]);
 					break;
 				case CHEQ:
-					strcat(s_buf + s_len, Setype[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, f201[(int) (200 * command[i + 2].value.ff + 0.5)]);
-					strcat(s_buf + s_len, Slinfs(command[i + 3].value.ff, -15., +15., 2));
-					strcat(s_buf + s_len, Slogf(command[i + 4].value.ff, 10., 0.315, 1));
+					strcat(s_buf + s_len, Setype[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, f201[(int) (200 * command[i + 2]->value.ff + 0.5)]);
+					strcat(s_buf + s_len, Slinfs(command[i + 3]->value.ff, -15., +15., 2));
+					strcat(s_buf + s_len, Slogf(command[i + 4]->value.ff, 10., 0.315, 1));
 					break;
 				case CHMX:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slevel(command[i + 2].value.ff));
-					strcat(s_buf + s_len, command[i + 3].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slinfs(command[i + 4].value.ff, -100., +100., 0));
-					strcat(s_buf + s_len, command[i + 5].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slevel(command[i + 6].value.ff));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slevel(command[i + 2]->value.ff));
+					strcat(s_buf + s_len, command[i + 3]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinfs(command[i + 4]->value.ff, -100., +100., 0));
+					strcat(s_buf + s_len, command[i + 5]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slevel(command[i + 6]->value.ff));
 					break;
 				case CHMO:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slevel(command[i + 2].value.ff));
-					strcat(s_buf + s_len, Slinfs(command[i + 3].value.ff, -100., +100., 0));
-					strcat(s_buf + s_len, Sctype[command[i + 4].value.ii]);
-					strcat(s_buf + s_len, Sint(command[i + 5].value.ii));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slevel(command[i + 2]->value.ff));
+					strcat(s_buf + s_len, Slinfs(command[i + 3]->value.ff, -100., +100., 0));
+					strcat(s_buf + s_len, Sctype[command[i + 4]->value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 5]->value.ii));
 					break;
 				case CHME:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slevel(command[i + 2].value.ff));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slevel(command[i + 2]->value.ff));
 					break;
 				case CHGRP:
-					strcat(s_buf + s_len, Sbitmp(command[i + 1].value.ii, 8));
-					strcat(s_buf + s_len, Sbitmp(command[i + 2].value.ii, 6));
+					strcat(s_buf + s_len, Sbitmp(command[i + 1]->value.ii, 8));
+					strcat(s_buf + s_len, Sbitmp(command[i + 2]->value.ii, 6));
 					break;
 				case CHAMIX:
-					strcat(s_buf + s_len, Samix[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, Slinfs(command[i + 2].value.ff, -12., +12., 1));
+					strcat(s_buf + s_len, Samix[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, Slinfs(command[i + 2]->value.ff, -12., +12., 1));
 					break;
 				case AXPR:
-					strcat(s_buf + s_len, Slinf(command[i + 1].value.ff, -18., +18., 1));
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinf(command[i + 1]->value.ff, -18., +18., 1));
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " ON" : " OFF");
 					break;
 				case BSCO:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Scolor[command[i + 3].value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Scolor[command[i + 3]->value.ii]);
 					break;
 				case MXPR:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
 					break;
 				case MXDY:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sdmode[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Sddet[command[i + 3].value.ii]);
-					strcat(s_buf + s_len, Sdenv[command[i + 4].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 5].value.ff, -60., 0., 1));
-					strcat(s_buf + s_len, Sdratio[command[i + 6].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 7].value.ff, 0., 5., 0));
-					strcat(s_buf + s_len, Slinf(command[i + 8].value.ff, 0., 24., 1));
-					strcat(s_buf + s_len, Slinf(command[i + 9].value.ff, 0., 120., 0));
-					strcat(s_buf + s_len, Slogf(command[i + 10].value.ff, 0.02, 2000., 2));
-					strcat(s_buf + s_len, Slogf(command[i + 11].value.ff, 5., 4000., 0));
-					strcat(s_buf + s_len, Sdpos[command[i + 12].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 14].value.ff, 0., 100., 0));
-					strcat(s_buf + s_len, command[i + 15].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sdmode[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Sddet[command[i + 3]->value.ii]);
+					strcat(s_buf + s_len, Sdenv[command[i + 4]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 5]->value.ff, -60., 0., 1));
+					strcat(s_buf + s_len, Sdratio[command[i + 6]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 7]->value.ff, 0., 5., 0));
+					strcat(s_buf + s_len, Slinf(command[i + 8]->value.ff, 0., 24., 1));
+					strcat(s_buf + s_len, Slinf(command[i + 9]->value.ff, 0., 120., 0));
+					strcat(s_buf + s_len, Slogf(command[i + 10]->value.ff, 0.02, 2000., 2));
+					strcat(s_buf + s_len, Slogf(command[i + 11]->value.ff, 5., 4000., 0));
+					strcat(s_buf + s_len, Sdpos[command[i + 12]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 14]->value.ff, 0., 100., 0));
+					strcat(s_buf + s_len, command[i + 15]->value.ii ? " ON" : " OFF");
 					break;
 				case MSMX:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slevel(command[i + 2].value.ff));
-					strcat(s_buf + s_len, Slinfs(command[i + 4].value.ff, -100., +100., 0));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slevel(command[i + 2]->value.ff));
+					strcat(s_buf + s_len, Slinfs(command[i + 4]->value.ff, -100., +100., 0));
 					break;
 				case FXTYP1:
-					strcat(s_buf + s_len, Sfxtyp1[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Sfxtyp1[command[i + 1]->value.ii]);
 					break;
 				case FXSRC:
-					strcat(s_buf + s_len, Sfxsrc[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, Sfxsrc[command[i + 2].value.ii]);
+					strcat(s_buf + s_len, Sfxsrc[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, Sfxsrc[command[i + 2]->value.ii]);
 					break;
 				case FXPAR1:
-					GetFxPar1(command, s_buf + s_len, i + 1, command[i - 4].value.ii);
+					GetFxPar1(command, s_buf + s_len, i + 1, command[i - 4]->value.ii);
 					break;
 				case FXTYP2:
-					strcat(s_buf + s_len, Sfxtyp2[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Sfxtyp2[command[i + 1]->value.ii]);
 					break;
 				case FXPAR2:
-					GetFxPar1(command, s_buf + s_len, i + 1, command[i - 2].value.ii + _1_PIT + 2);
+					GetFxPar1(command, s_buf + s_len, i + 1, command[i - 2]->value.ii + _1_PIT + 2);
 					break;
 				case OMAIN:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
-					strcat(s_buf + s_len, Smpos[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, command[i + 3].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
+					strcat(s_buf + s_len, Smpos[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, command[i + 3]->value.ii ? " ON" : " OFF");
 					break;
 				case OMAIN2:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
-					strcat(s_buf + s_len, Smpos[command[i + 2].value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
+					strcat(s_buf + s_len, Smpos[command[i + 2]->value.ii]);
 					break;
 				case OP16:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
 					break;
 				case OMAIND:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Slinf(command[i + 2].value.ff, 0.3, 500., 1));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinf(command[i + 2]->value.ff, 0.3, 500., 1));
 					break;
 				case HAMP:
-					strcat(s_buf + s_len, Slinf(command[i + 1].value.ff, -12., 60., 1));
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Slinf(command[i + 1]->value.ff, -12., 60., 1));
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " ON" : " OFF");
 					break;
 				case PREFS:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Slinf(command[i + 2].value.ff, 10., 100., 0));
-					strcat(s_buf + s_len, Slinf(command[i + 3].value.ff, 0., 100., 0));
-					strcat(s_buf + s_len, Slinf(command[i + 4].value.ff, 10., 100., 0));
-					strcat(s_buf + s_len, Slinf(command[i + 5].value.ff, 10., 100., 0));
-					strcat(s_buf + s_len, command[i + 6].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 7].value.ii ? " 44k1" : " 48k");
-					strcat(s_buf + s_len, Psource[command[i + 8].value.ii]);
-					strcat(s_buf + s_len, command[i + 9].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 10].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 11].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 12].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 13].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 14].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 15].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sbitmp(command[i + 16].value.ii, 4));
-					strcat(s_buf + s_len, command[i + 17].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, PSCont[command[i + 18].value.ii]);
-					strcat(s_buf + s_len, command[i + 19].value.ii ? " 12h" : " 24h");
-					strcat(s_buf + s_len, command[i + 20].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 21].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 22].value.ii ? " INV" : " NORM");
-					if (command[i + 23].value.str) {
+					strcat(s_buf + s_len, Slinf(command[i + 2]->value.ff, 10., 100., 0));
+					strcat(s_buf + s_len, Slinf(command[i + 3]->value.ff, 0., 100., 0));
+					strcat(s_buf + s_len, Slinf(command[i + 4]->value.ff, 10., 100., 0));
+					strcat(s_buf + s_len, Slinf(command[i + 5]->value.ff, 10., 100., 0));
+					strcat(s_buf + s_len, command[i + 6]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 7]->value.ii ? " 44k1" : " 48k");
+					strcat(s_buf + s_len, Psource[command[i + 8]->value.ii]);
+					strcat(s_buf + s_len, command[i + 9]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 10]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 11]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 12]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 13]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 14]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 15]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sbitmp(command[i + 16]->value.ii, 4));
+					strcat(s_buf + s_len, command[i + 17]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, PSCont[command[i + 18]->value.ii]);
+					strcat(s_buf + s_len, command[i + 19]->value.ii ? " 12h" : " 24h");
+					strcat(s_buf + s_len, command[i + 20]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 21]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 22]->value.ii ? " INV" : " NORM");
+					if (command[i + 23]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 23].value.str);
+						strcat(s_buf + s_len, command[i + 23]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
 					break;
 				case PIR:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, PRpro[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, PRport[command[i + 3].value.ii]);
-					strcat(s_buf + s_len, Sbitmp(command[i + 4].value.ii, 12));
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, PRpro[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, PRport[command[i + 3]->value.ii]);
+					strcat(s_buf + s_len, Sbitmp(command[i + 4]->value.ii, 12));
 					break;
 				case PIQ:
-					strcat(s_buf + s_len, XiQspk[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, XiQeq[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
+					strcat(s_buf + s_len, XiQspk[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, XiQeq[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
 					break;
 				case PCARD:
-					strcat(s_buf + s_len, Pctype[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, Pufmode[command[i + 2].value.ii]);
-					strcat(s_buf + s_len, Pusbmod[command[i + 3].value.ii]);
-					strcat(s_buf + s_len, command[i + 4].value.ii ? " OUT" : " IN");
-					strcat(s_buf + s_len, Pcas[command[i + 5].value.ii]);
-					strcat(s_buf + s_len, command[i + 6].value.ii ? " 64" : " 56");
-					strcat(s_buf + s_len, Pcmadi[command[i + 7].value.ii]);
-					strcat(s_buf + s_len, Pcmado[command[i + 8].value.ii]);
-					strcat(s_buf + s_len, Pmadsrc[command[i + 9].value.ii]);
+					strcat(s_buf + s_len, Pctype[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, Pufmode[command[i + 2]->value.ii]);
+					strcat(s_buf + s_len, Pusbmod[command[i + 3]->value.ii]);
+					strcat(s_buf + s_len, command[i + 4]->value.ii ? " OUT" : " IN");
+					strcat(s_buf + s_len, Pcas[command[i + 5]->value.ii]);
+					strcat(s_buf + s_len, command[i + 6]->value.ii ? " 64" : " 56");
+					strcat(s_buf + s_len, Pcmadi[command[i + 7]->value.ii]);
+					strcat(s_buf + s_len, Pcmado[command[i + 8]->value.ii]);
+					strcat(s_buf + s_len, Pmadsrc[command[i + 9]->value.ii]);
 					break;
 				case PRTA:
-					strcat(s_buf + s_len, Prtavis[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, Slinf(command[i + 2].value.ff, 0., 60., 0));
-					strcat(s_buf + s_len, command[i + 3].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
-					strcat(s_buf + s_len, command[i + 5].value.ii ? "POST" : " PRE");
-					strcat(s_buf + s_len, command[i + 6].value.ii ? " SPEC" : " BAR");
-					strcat(s_buf + s_len, Sbitmp(command[i + 7].value.ii, 6));
-					strcat(s_buf + s_len, command[i + 8].value.ii ? " PEAK" : " RMS");
-					strcat(s_buf + s_len, Slogf(command[i + 9].value.ff, 0.25, 16., 2));
-					strcat(s_buf + s_len, Prtaph[command[i + 10].value.ii]);
+					strcat(s_buf + s_len, Prtavis[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, Slinf(command[i + 2]->value.ff, 0., 60., 0));
+					strcat(s_buf + s_len, command[i + 3]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
+					strcat(s_buf + s_len, command[i + 5]->value.ii ? "POST" : " PRE");
+					strcat(s_buf + s_len, command[i + 6]->value.ii ? " SPEC" : " BAR");
+					strcat(s_buf + s_len, Sbitmp(command[i + 7]->value.ii, 6));
+					strcat(s_buf + s_len, command[i + 8]->value.ii ? " PEAK" : " RMS");
+					strcat(s_buf + s_len, Slogf(command[i + 9]->value.ff, 0.25, 16., 2));
+					strcat(s_buf + s_len, Prtaph[command[i + 10]->value.ii]);
 					break;
 				case PIP:
-					strcat(s_buf + s_len, command[i + 1].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 1]->value.ii ? " ON" : " OFF");
 					break;
 				case PKEY:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
 					for (j = 0; j < 1; j++) {
-						if (command[i + 2 + j].value.str) {
+						if (command[i + 2 + j]->value.str) {
 							strcat(s_buf + s_len, " \"");
-							strcat(s_buf + s_len, command[i + 2 + j].value.str);
+							strcat(s_buf + s_len, command[i + 2 + j]->value.str);
 							strcat(s_buf + s_len, "\"");
 						} else {
 							strcat(s_buf + s_len, " \" \"");
@@ -3391,269 +3395,269 @@ int X32::function_node() {
 				case PADDR:
 				case PMASK:
 				case PGWAY:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
 					break;
 				case STAT:
-					strcat(s_buf + s_len, Sselidx[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, command[i + 4].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sint(command[i + 5].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 6].value.ii));
-					strcat(s_buf + s_len, command[i + 7].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 8].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sint(command[i + 9].value.ii));
-					strcat(s_buf + s_len, command[i + 10].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 11].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 12].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 13].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 14].value.ii ? " SPEC" : " BAR");
-					strcat(s_buf + s_len, command[i + 15].value.ii ? " SPEC" : " BAR");
-					strcat(s_buf + s_len, command[i + 16].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 17].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sint(command[i + 18].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 19].value.ii));
-					strcat(s_buf + s_len, command[i + 20].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 21].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, Sint(command[i + 22].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 23].value.ii));
+					strcat(s_buf + s_len, Sselidx[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, command[i + 4]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sint(command[i + 5]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 6]->value.ii));
+					strcat(s_buf + s_len, command[i + 7]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 8]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sint(command[i + 9]->value.ii));
+					strcat(s_buf + s_len, command[i + 10]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 11]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 12]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 13]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 14]->value.ii ? " SPEC" : " BAR");
+					strcat(s_buf + s_len, command[i + 15]->value.ii ? " SPEC" : " BAR");
+					strcat(s_buf + s_len, command[i + 16]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 17]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sint(command[i + 18]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 19]->value.ii));
+					strcat(s_buf + s_len, command[i + 20]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 21]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sint(command[i + 22]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 23]->value.ii));
 					break;
 				case SSCREEN:
-					strcat(s_buf + s_len, Sscrn[command[i + 1].value.ii]);
-					strcat(s_buf + s_len, command[i + 2].value.ii ? " ON" : " OFF");
-					strcat(s_buf + s_len, command[i + 3].value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, Sscrn[command[i + 1]->value.ii]);
+					strcat(s_buf + s_len, command[i + 2]->value.ii ? " ON" : " OFF");
+					strcat(s_buf + s_len, command[i + 3]->value.ii ? " ON" : " OFF");
 					break;
 				case SCHA:
-					strcat(s_buf + s_len, Schal[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Schal[command[i + 1]->value.ii]);
 					break;
 				case SMET:
-					strcat(s_buf + s_len, Smetl[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Smetl[command[i + 1]->value.ii]);
 					break;
 				case SROU:
-					strcat(s_buf + s_len, Sroul[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Sroul[command[i + 1]->value.ii]);
 					break;
 				case SSET:
-					strcat(s_buf + s_len, Ssetl[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Ssetl[command[i + 1]->value.ii]);
 					break;
 				case SLIB:
-					strcat(s_buf + s_len, Slibl[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Slibl[command[i + 1]->value.ii]);
 					break;
 				case SFX:
-					strcat(s_buf + s_len, Sfxl[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Sfxl[command[i + 1]->value.ii]);
 					break;
 				case SMON:
-					strcat(s_buf + s_len, Smonl[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Smonl[command[i + 1]->value.ii]);
 					break;
 				case SUSB:
-					strcat(s_buf + s_len, Susbl[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Susbl[command[i + 1]->value.ii]);
 					break;
 				case SSCE:
-					strcat(s_buf + s_len, Sscel[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Sscel[command[i + 1]->value.ii]);
 					break;
 				case SASS:
-					strcat(s_buf + s_len, Sassl[command[i + 1].value.ii]);
+					strcat(s_buf + s_len, Sassl[command[i + 1]->value.ii]);
 					break;
 				case SAES:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \" \"");
-					if (command[i + 2].value.str) {
+					if (command[i + 2]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 2].value.str);
+						strcat(s_buf + s_len, command[i + 2]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \" \"");
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
 					break;
 				case STAPE:
-					strcat(s_buf + s_len, Stapl[command[i + 1].value.ii]);
-					if (command[i + 2].value.str) {
+					strcat(s_buf + s_len, Stapl[command[i + 1]->value.ii]);
+					if (command[i + 2]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 2].value.str);
+						strcat(s_buf + s_len, command[i + 2]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
 					break;
 				case SOSC:
 					strcat(s_buf + s_len,
-							command[i + 1].value.ii ? " ON" : " OFF");
+							command[i + 1]->value.ii ? " ON" : " OFF");
 					break;
 				case STALK:
 					strcat(s_buf + s_len,
-							command[i + 1].value.ii ? " ON" : " OFF");
+							command[i + 1]->value.ii ? " ON" : " OFF");
 					strcat(s_buf + s_len,
-							command[i + 2].value.ii ? " ON" : " OFF");
+							command[i + 2]->value.ii ? " ON" : " OFF");
 					break;
 				case USB:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					if (command[i + 2].value.str) {
+					if (command[i + 2]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 2].value.str);
+						strcat(s_buf + s_len, command[i + 2]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
 					break;
 				case SNAM:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 5].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 6].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 7].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 8].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 9].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 10].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 11].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 5]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 6]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 7]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 8]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 9]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 10]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 11]->value.ii));
 					strcat(s_buf + s_len, " \"");
 					strcat(s_buf + s_len, XVERSION);
 					strcat(s_buf + s_len, "\"");
 					break;
 				case SCUE:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
-					if (command[i + 2].value.str) {
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
+					if (command[i + 2]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 2].value.str);
+						strcat(s_buf + s_len, command[i + 2]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 5].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 6].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 7].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 8].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 9].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 5]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 6]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 7]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 8]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 9]->value.ii));
 					break;
 				case SSCN:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					if (command[i + 2].value.str) {
+					if (command[i + 2]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 2].value.str);
+						strcat(s_buf + s_len, command[i + 2]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sbitmp(command[i + 3].value.ii, 9));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
+					strcat(s_buf + s_len, Sbitmp(command[i + 3]->value.ii, 9));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
 					break;
 				case SSNP:
-					if (command[i + 1].value.str) {
+					if (command[i + 1]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 1].value.str);
+						strcat(s_buf + s_len, command[i + 1]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 5].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 6].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 5]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 6]->value.ii));
 					break;
 				case HA:
 					break;
 				case ACTION:
 					break;
 				case UREC:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 4].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 5].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 4]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 5]->value.ii));
 
-					strcat(s_buf + s_len, Ubat[command[i + 6].value.ii]);
+					strcat(s_buf + s_len, Ubat[command[i + 6]->value.ii]);
 
-					strcat(s_buf + s_len, Sint(command[i + 7].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 8].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 9].value.ii));
-					strcat(s_buf + s_len, Sint(command[i + 10].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 7]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 8]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 9]->value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 10]->value.ii));
 
-					strcat(s_buf + s_len, Usdc[command[i + 11].value.ii]);
-					strcat(s_buf + s_len, Usdc[command[i + 12].value.ii]);
+					strcat(s_buf + s_len, Usdc[command[i + 11]->value.ii]);
+					strcat(s_buf + s_len, Usdc[command[i + 12]->value.ii]);
 
-					if (command[i + 13].value.str) {
+					if (command[i + 13]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 13].value.str);
+						strcat(s_buf + s_len, command[i + 13]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
 
-					if (command[i + 14].value.str) {
+					if (command[i + 14]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 14].value.str);
+						strcat(s_buf + s_len, command[i + 14]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
 
-					if (command[i + 15].value.str) {
+					if (command[i + 15]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 15].value.str);
+						strcat(s_buf + s_len, command[i + 15]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
 
-					strcat(s_buf + s_len, Sint(command[i + 16].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 16]->value.ii));
 					break;
 				case SLIBS:
-					strcat(s_buf + s_len, Sint(command[i + 1].value.ii));
-					if (command[i + 2].value.str) {
+					strcat(s_buf + s_len, Sint(command[i + 1]->value.ii));
+					if (command[i + 2]->value.str) {
 						strcat(s_buf + s_len, " \"");
-						strcat(s_buf + s_len, command[i + 2].value.str);
+						strcat(s_buf + s_len, command[i + 2]->value.str);
 						strcat(s_buf + s_len, "\"");
 					} else
 						strcat(s_buf + s_len, " \"\"");
-					strcat(s_buf + s_len, Sint(command[i + 3].value.ii));
-					strcat(s_buf + s_len, Sbitmp(command[i + 4].value.ii, 16));
-					strcat(s_buf + s_len, Sint(command[i + 5].value.ii));
+					strcat(s_buf + s_len, Sint(command[i + 3]->value.ii));
+					strcat(s_buf + s_len, Sbitmp(command[i + 4]->value.ii, 16));
+					strcat(s_buf + s_len, Sint(command[i + 5]->value.ii));
 					break;
 				case D48:
-					strcat(s_buf + s_len, Sbitmp(command[i + 1].value.ii, 4));
-					strcat(s_buf + s_len, Sint(command[i + 2].value.ii));
+					strcat(s_buf + s_len, Sbitmp(command[i + 1]->value.ii, 4));
+					strcat(s_buf + s_len, Sint(command[i + 2]->value.ii));
 					break;
 				case D48A:
 					for (j = 1; j < 49; j++) {
-						strcat(s_buf + s_len, Sint(command[i + j].value.ii));
+						strcat(s_buf + s_len, Sint(command[i + j]->value.ii));
 					}
 					break;
 				case D48G:
 					for (j = 1; j < 13; j++) {
-						if (command[i + j].value.str) {
+						if (command[i + j]->value.str) {
 							strcat(s_buf + s_len, " \"");
-							strcat(s_buf + s_len, command[i + j].value.str);
+							strcat(s_buf + s_len, command[i + j]->value.str);
 							strcat(s_buf + s_len, "\"");
 						} else
 							strcat(s_buf + s_len, " \"\"");					}
 					break;
 				case UROUO:
 					for (j = 1; j < 49; j++) {
-						strcat(s_buf + s_len, Sint(command[i + j].value.ii));
+						strcat(s_buf + s_len, Sint(command[i + j]->value.ii));
 					}
 					break;
 				case UROUI:
 					for (j = 1; j < 33; j++) {
-						strcat(s_buf + s_len, Sint(command[i + j].value.ii));
+						strcat(s_buf + s_len, Sint(command[i + j]->value.ii));
 					}
 					break;
 				default:
@@ -3669,7 +3673,7 @@ int X32::function_node() {
 		} else {
 			// Trying to re-use what's already there.
 			// We have data coming in - Parse!
-			if (strncmp(str_pt_in, command[i].command + 1, strlen(str_pt_in)) == 0) {
+			if (strncmp(str_pt_in, command[i]->command + 1, strlen(str_pt_in)) == 0) {
 				i = s_len = p_status = 0;
 				// change the command as if it were sent as a single command...
 				// for example on the command
@@ -3760,7 +3764,7 @@ int X32::function_node() {
 // Single node function - reply to /node (single argument) reply with appropriate data
 int X32::function_node_single() {
 
-X32command	*command = node_single_command;
+X32command	**command = node_single_command;
 int			index = node_single_index;
 	// Global variable node_single_index represents the function index
 	// s_buf & s_len contain a reply that won't work as the expected output is not in
@@ -3777,30 +3781,30 @@ int			index = node_single_index;
 //			strcpy(s_buf + s_len, " 70%\n");			// test only!
 //			s_len += 5;									// test only!
 
-	if (command[index].node) {
+	if (command[index]->node) {
 		// array of enum strings available
-		strcpy(s_buf + s_len, command[index].node[command[index].value.ii]);
-		s_len += strlen(command[index].node[command[index].value.ii]);
+		strcpy(s_buf + s_len, command[index]->node[command[index]->value.ii]);
+		s_len += strlen(command[index]->node[command[index]->value.ii]);
 	} else {
 		// evaluate string from value/type
-		if (command[index].format.typ == I32) {
-			s_len += sprintf(s_buf + s_len, " %d", command[index].value.ii);
-		} else if (command[index].format.typ == F32) {
-			s_len += sprintf(s_buf + s_len, " %f", command[index].value.ff);
-		} else if (command[index].format.typ == S32) {
-			if (command[index].value.str) {
-				strcpy(s_buf + s_len, command[index].value.str);
-				s_len += strlen(command[index].value.str);
+		if (command[index]->format.typ == I32) {
+			s_len += sprintf(s_buf + s_len, " %d", command[index]->value.ii);
+		} else if (command[index]->format.typ == F32) {
+			s_len += sprintf(s_buf + s_len, " %f", command[index]->value.ff);
+		} else if (command[index]->format.typ == S32) {
+			if (command[index]->value.str) {
+				strcpy(s_buf + s_len, command[index]->value.str);
+				s_len += strlen(command[index]->value.str);
 			}
-		} else if (command[index].format.typ == P32) {
+		} else if (command[index]->format.typ == P32) {
 			s_len += sprintf(s_buf + s_len, " %%");
 			int il = 31;
 			while (il > 0) {
-				if (command[index].value.ii & (1 << il)) break;
+				if (command[index]->value.ii & (1 << il)) break;
 				il--;
 			}
 			for (; il >= 0; il--) {
-				if (command[index].value.ii & (1 << il)) s_len += sprintf(s_buf + s_len, "1");
+				if (command[index]->value.ii & (1 << il)) s_len += sprintf(s_buf + s_len, "1");
 				else                                     s_len += sprintf(s_buf + s_len, "0");
 			}
 		} else {
@@ -3823,8 +3827,8 @@ int X32::function_config() {
 //
 // check for actual command
 	i = 0;
-	while (i < Xconfig_max) {
-		if (strcmp(r_buf, Xconfig[i].command) == 0) {
+	while (i < size_Xconfig) {
+		if (strcmp(r_buf, Xconfig[i]->command) == 0) {
 			// found command at index i
 			return (funct_params(Xconfig, i));
 		}
@@ -3840,8 +3844,8 @@ int X32::function_main() {
 //
 // check for actual command
 	i = 0;
-	while (i < Xmain_max) {
-		if (strcmp(r_buf, Xmain[i].command) == 0) {
+	while (i < size_Xmain) {
+		if (strcmp(r_buf, Xmain[i]->command) == 0) {
 			// found command at index i
 			return (funct_params(Xmain, i));
 		}
