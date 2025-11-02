@@ -152,6 +152,11 @@ int configure_lattice_spi(const char *bitstream_path) {
     close(fd);
     usleep(50000); // we have to wait 50ms until we can send commands
 
+    // Virtual toggle of PROGRAMN: send CMD_LSC_REFRESH command [class D command]
+    sendCommand(&spi_fd, CMD_LSC_REFRESH);
+    fprintf(stdout, "  LSC_REFRESH sent.\n");
+    usleep(50000); // we have to wait 50ms until we can send commands
+
     // read IDCODE
     uint32_t idcode = readData(&spi_fd, CMD_READ_ID);
     fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
@@ -268,7 +273,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 
     // send BYPASS command
     sendCommand(&spi_fd, CMD_ISC_NOOP);
-    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    fprintf(stdout, "  ISC_NOOP sent.\n");
     usleep(10000); // wait 10ms
 
     // Exit Programming Mode: send ISC_DISABLE
@@ -278,7 +283,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 	
     // send BYPASS command
     sendCommand(&spi_fd, CMD_ISC_NOOP);
-    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    fprintf(stdout, "  ISC_NOOP sent.\n");
     usleep(10000); // wait 10ms
 
     // check Status-Bits
