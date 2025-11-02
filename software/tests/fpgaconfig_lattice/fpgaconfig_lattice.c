@@ -19,7 +19,7 @@
 
 // SPI configuration for i.MX25
 #define SPI_DEVICE "/dev/spidev2.0"
-#define SPI_SPEED_HZ 10000000 // 10 MHz (Lattice ECP5 should be able up to 60 MHz)
+#define SPI_SPEED_HZ 100000 // 100kHz (Lattice ECP5 should be able up to 60 MHz)
 
 #define CMD_ISC_NOOP			0xFF
 #define CMD_READ_ID				0xE0
@@ -153,7 +153,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     usleep(50000); // we have to wait 50ms until we can send commands
 
     // read IDCODE
-    uint32_t idcode = readData(&spi_fd, CMD_USERCODE);;
+    uint32_t idcode = readData(&spi_fd, CMD_READ_ID);
     fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
 //	if (idcode != 0x43101141) {
 //		perror("Error: Unexpected IDCODE");
@@ -165,7 +165,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
     sendCommand(&spi_fd, CMD_ISC_ENABLE);
     fprintf(stdout, "  ISC_ENABLE sent.\n");
-    usleep(10000);
+    usleep(10000); // wait 10ms
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
@@ -185,12 +185,12 @@ int configure_lattice_spi(const char *bitstream_path) {
     // Initialize Address-Shift-Register: send LSC_INIT_ADDRESS command [class C command]
     sendCommand(&spi_fd, CMD_LSC_INIT_ADDRESS);
     fprintf(stdout, "  LSC_INIT_ADDRESS sent.\n");
-    usleep(10000);
+    usleep(10000); // wait 10ms
 
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
     sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST);
     fprintf(stdout, "  LSC_BITSTREAM_BURST sent.\n");
-    usleep(10000);
+    usleep(10000); // wait 10ms
 
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
@@ -264,15 +264,23 @@ int configure_lattice_spi(const char *bitstream_path) {
         return ret;
     }
     fprintf(stdout, "\r[██████████████████████████████████████████████████] %ld/%ld Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
+    usleep(10000); // wait 10ms
 
-	// wait 10ms
-	usleep(10000);
-	
+    // send BYPASS command
+    sendCommand(&spi_fd, CMD_ISC_NOOP);
+    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    usleep(10000); // wait 10ms
+
     // Exit Programming Mode: send ISC_DISABLE
 	sendCommand(&spi_fd, CMD_ISC_DISABLE);
     fprintf(stdout, "  ISC_DISABLE sent. FPGA should now be configured.\n");
+    usleep(10000); // wait 10ms
 	
-	
+    // send BYPASS command
+    sendCommand(&spi_fd, CMD_ISC_NOOP);
+    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    usleep(10000); // wait 10ms
+
     // check Status-Bits
     // Bit 8 (DONE) must be 1, Bit 9 (ISC ENABLED) must be 1 sein, Bit 26 (EXECUTION ERROR) must be 0 sein
 	status = readData(&spi_fd, CMD_LSC_READ_STATUS);
