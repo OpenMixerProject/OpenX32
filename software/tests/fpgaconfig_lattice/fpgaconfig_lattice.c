@@ -125,7 +125,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 //        return -1;
 //	}
 
-    // send ISC_ENABLE command [class C command]
+    // Enable SRAM Programming: send ISC_ENABLE command [class C command]
     memset(cmd_buf, 0, sizeof(cmd_buf));
     cmd_buf[0] = 0xC6; // ISC_ENABLE
     tr_cmd.len = 4;
@@ -138,7 +138,33 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "  ISC_ENABLE sent.\n");
     usleep(100);
 
-    // send LSC_BITSTREAM_BURST [class C command]
+    // Erase SRAM: send ISC_ERASE command [class D command]
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = 0x0E; // ISC_ERASE
+    tr_cmd.len = 4;
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
+        perror("Error: SPI ISC_ENABLE failed");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
+    }
+    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    usleep(10000); // wait 10ms
+
+    // Initialize Address-Shift-Register: send LSC_INIT_ADDRESS command [class C command]
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = 0x46; // LSC_INIT_ADDRESS
+    tr_cmd.len = 4;
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
+        perror("Error: SPI ISC_ENABLE failed");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
+    }
+    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    usleep(100);
+
+    // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
     memset(cmd_buf, 0, sizeof(cmd_buf));
     cmd_buf[0] = 0x7A; // LSC_BITSTREAM_BURST
     tr_cmd.len = 4;
@@ -262,7 +288,7 @@ int configure_lattice_spi(const char *bitstream_path) {
         ret = 0;
     }
 
-    // send ISC_DISABLE
+    // Exit Programming Mode: send ISC_DISABLE
     memset(cmd_buf, 0, sizeof(cmd_buf));
     cmd_buf[0] = 0x26; // ISC_DISABLE
     tr_cmd.len = 4;
