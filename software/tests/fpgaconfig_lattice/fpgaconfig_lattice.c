@@ -165,7 +165,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
     sendCommand(&spi_fd, CMD_ISC_ENABLE);
     fprintf(stdout, "  ISC_ENABLE sent.\n");
-    usleep(100);
+    usleep(10000);
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
@@ -175,7 +175,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     // Erase SRAM: send ISC_ERASE command [class D command]
     sendCommand(&spi_fd, CMD_ISC_ERASE);
     fprintf(stdout, "  ISC_ERASE sent.\n");
-    usleep(100000); // wait 100ms as erasing could take longer
+    usleep(200000); // wait 200ms as erasing could take longer
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
@@ -185,12 +185,12 @@ int configure_lattice_spi(const char *bitstream_path) {
     // Initialize Address-Shift-Register: send LSC_INIT_ADDRESS command [class C command]
     sendCommand(&spi_fd, CMD_LSC_INIT_ADDRESS);
     fprintf(stdout, "  LSC_INIT_ADDRESS sent.\n");
-    usleep(100);
+    usleep(10000);
 
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
     sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST);
     fprintf(stdout, "  LSC_BITSTREAM_BURST sent.\n");
-    usleep(100);
+    usleep(10000);
 
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
