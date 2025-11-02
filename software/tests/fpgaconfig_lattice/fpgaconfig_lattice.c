@@ -54,7 +54,6 @@ void printBits(size_t const size, void const * const ptr)
 int configure_lattice_spi(const char *bitstream_path) {
     int spi_fd = -1;
     FILE *bitstream_file = NULL;
-    uint8_t *full_tx_buffer = NULL; // pointer for the whole transmit-buffer
     int ret = -1;
 
     uint8_t spiMode = SPI_MODE_0; // Lattice ECP5 uses MODE 0
@@ -81,29 +80,12 @@ int configure_lattice_spi(const char *bitstream_path) {
     bitstream_file = fopen(bitstream_path, "rb");
     if (!bitstream_file) {
         perror("Error: Could not open bitstream-file");
-        ret = -1; goto cleanup;
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
     }
 
     // configuration-process
-    const size_t CMD_OVERHEAD = 4;
-    size_t total_transfer_size = bitstream_size + CMD_OVERHEAD;
-
-    // allocate memory for the whole burst-transfer
-    full_tx_buffer = (uint8_t *)malloc(total_transfer_size);
-    if (!full_tx_buffer) {
-        perror("Error: Failed to allocate memory for bitstream");
-        goto cleanup;
-    }
-    memset(full_tx_buffer, 0x00, total_transfer_size); // initialize memory with zeros
-    full_tx_buffer[0] = 0x7A; // set command to LSC_BITSTREAM_BURST
-
-    // read bitstream to memory right behind the command
-    size_t bytes_read = fread(full_tx_buffer + CMD_OVERHEAD, 1, bitstream_size, bitstream_file);
-    if (bytes_read != bitstream_size) {
-        fprintf(stderr, "Error: Failed to read complete bitstream file (Read %zu of %ld bytes).\n", bytes_read, bitstream_size);
-        goto cleanup;
-    }
-
     fprintf(stdout, "Configuring Lattice FPGA...\n");
     fprintf(stdout, "  Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...\n");
     int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
@@ -112,8 +94,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     write(fd, "0", 1);
     close(fd);
     usleep(50000); // we have to wait 50ms until we can send commands
-	
-	
+
 	// prepare struct to send commands
     uint8_t cmd_buf[8] = {0};
     uint8_t rx_buf[8] = {0};
@@ -129,14 +110,19 @@ int configure_lattice_spi(const char *bitstream_path) {
     cmd_buf[0] = 0xE0; // READ_ID
     tr_cmd.len = 8; // 8 Byte für READ_ID (Cmd + 3 Dummy + 4 Daten)
     if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI READ_ID failed"); goto cleanup;
+        perror("Error: SPI READ_ID failed");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
     }
     uint32_t idcode;
     memcpy(&idcode, &rx_buf[4], 4);
     fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
 //	if (idcode != 0x00000000) {
 //		perror("Error: Unexpected IDCODE");
-//		goto cleanup;
+//        if (bitstream_file) fclose(bitstream_file);
+//        if (spi_fd >= 0) close(spi_fd);
+//        return -1;
 //	}
 
     // send ISC_ENABLE command [class C command]
@@ -144,27 +130,98 @@ int configure_lattice_spi(const char *bitstream_path) {
     cmd_buf[0] = 0xC6; // ISC_ENABLE
     tr_cmd.len = 4;
     if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI ISC_ENABLE failed"); goto cleanup;
+        perror("Error: SPI ISC_ENABLE failed");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
     }
     fprintf(stdout, "  ISC_ENABLE sent.\n");
     usleep(100);
 
-    fprintf(stdout, "  Sending Bitstream Burst (%zu bytes)...\n", total_transfer_size);
-    struct spi_ioc_transfer tr_burst = {
-        .tx_buf = (unsigned long)full_tx_buffer,
-        .rx_buf = 0, // no feedback necessary
-        .len = total_transfer_size,
-        .bits_per_word = spiBitsPerWord,
-        .speed_hz = spiSpeed,
-    };
-    // using bulk-transfer we have no option to get the current status of the transmission
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_burst) < 0) {
-        perror("Error: SPI BITSTREAM BURST failed");
-        ret = -1;
-        goto cleanup;
+    // send LSC_BITSTREAM_BURST [class C command]
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = 0x7A; // LSC_BITSTREAM_BURST
+    tr_cmd.len = 4;
+    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
+        perror("Error: SPI LSC_BITSTREAM_BURST failed"); 
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
+    }
+
+    // transmit large bitstream in chunks but without deasserting CS
+    fseek(bitstream_file, 0, SEEK_SET); 
+    const size_t CHUNK_SIZE = 4096; // 4 KB als sichere Obergrenze
+    uint8_t tx_chunk[CHUNK_SIZE];
+    const int MAX_TRANSFERS = (int)(bitstream_size / CHUNK_SIZE) + 1;
+	
+	// dynamic allocation of memory for the transfer-array
+    struct spi_ioc_transfer *transfers = calloc(MAX_TRANSFERS, sizeof(struct spi_ioc_transfer));
+    if (!transfers) {
+        perror("Error: Failed to allocate memory for transfer structures");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
+    }
+    // buffer for data-payload
+    uint8_t *bitstream_payload = (uint8_t *)malloc(bitstream_size);
+    if (!bitstream_payload) {
+        perror("Error: Failed to allocate memory for bitstream payload");
+        free(transfers);
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
+    }
+    // read buffer into large payload-buffer
+    size_t total_bytes_read = fread(bitstream_payload, 1, bitstream_size, bitstream_file);
+    if (total_bytes_read != bitstream_size) {
+        fprintf(stderr, "Error: Failed to read complete bitstream file.\n");
+        free(bitstream_payload);
+        free(transfers);
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
+    }
+	
+    // configure transfer
+    int num_transfers = 0;
+    size_t current_offset = 0;
+    while (current_offset < bitstream_size) {
+        size_t len = bitstream_size - current_offset;
+        if (len > CHUNK_SIZE) {
+            len = CHUNK_SIZE;
+        }
+
+        struct spi_ioc_transfer *tr = &transfers[num_transfers];
+        
+        tr->tx_buf = (unsigned long)(bitstream_payload + current_offset);
+        tr->rx_buf = 0; // Kein Rx erforderlich
+        tr->len = len;
+        tr->bits_per_word = spiBitsPerWord;
+        tr->speed_hz = spiSpeed;
+        
+		// we dont set no flags here. The kernel keeps CS asserted within this transmission-chain
+        
+        current_offset += len;
+        num_transfers++;
+    }
+	fprintf(stdout, "  Sending Bitstream in %d chunks (Max %zu B/chunk)...\n", num_transfers, CHUNK_SIZE);
+	
+    // send of the whole data-chain within a single ioctl-call
+    ret = ioctl(spi_fd, SPI_IOC_MESSAGE(num_transfers), transfers);
+
+    // freeing allocated dynamic memory
+    free(bitstream_payload);
+    free(transfers);
+    
+    if (ret < 0) {
+        perror("Error: SPI BITSTREAM CHAIN failed");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return ret;
     }
     fprintf(stdout, "\r[██████████████████████████████████████████████████] %ld/%ld Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
-	
+
 	// wait 10ms
 	usleep(10000);
 	
@@ -173,7 +230,10 @@ int configure_lattice_spi(const char *bitstream_path) {
     cmd_buf[0] = 0x3C; // LSC_READ_STATUS
     tr_cmd.len = 8; // 8 Byte for Status-Read
     if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI LSC_READ_STATUS failed"); goto cleanup;
+        perror("Error: SPI LSC_READ_STATUS failed");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
     }
     uint32_t status;
     memcpy(&status, &rx_buf[4], 4);
@@ -209,11 +269,9 @@ int configure_lattice_spi(const char *bitstream_path) {
     }
     fprintf(stdout, "  ISC_DISABLE sent. FPGA should now be configured.\n");
 	
-cleanup:
-    if (bitstream_file) fclose(bitstream_file);
-    if (spi_fd >= 0) close(spi_fd);
-
-    return ret;
+	if (bitstream_file) fclose(bitstream_file);
+	if (spi_fd >= 0) close(spi_fd);
+	return ret;
 }
 
 
