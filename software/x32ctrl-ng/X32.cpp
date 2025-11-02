@@ -75,6 +75,11 @@
 #include "X32.h"
 
 
+X32::X32(){
+	construct_xmisc();
+	construct_xnode();
+}
+
 int8_t X32::Init() {
     if ((UdpHandle = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         //fprintf(stderr, "Error on creating UDP-socket!");
@@ -2633,9 +2638,9 @@ int X32::function_slash() {
 		str_pt_in = r_buf + 8;				// data block starts at index 8
 		if (*str_pt_in == '/') str_pt_in++;
 		for (n = 0; n < Xnode_max; n++) {
-			if (strncmp(Xnode[n].command, str_pt_in, Xnode[n].nchars) == 0) {
-				cmd_max = Xnode[n].cmd_max;
-				command = Xnode[n].cmd_ptr;
+			if (strncmp(Xnode[n]->command, str_pt_in, Xnode[n]->nchars) == 0) {
+				cmd_max = Xnode[n]->cmd_max;
+				command = Xnode[n]->cmd_ptr;
 				break;
 			}
 		}
@@ -3017,9 +3022,9 @@ int X32::function_node() {
 	cmd_max = 0;
 	str_pt_in = r_buf + 12;				// data block starts at index 12
 	for (i = 0; i < Xnode_max; i++) {
-		if (strncmp(Xnode[i].command, str_pt_in, Xnode[i].nchars) == 0) {
-			cmd_max = Xnode[i].cmd_max;
-			command = Xnode[i].cmd_ptr;
+		if (strncmp(Xnode[i]->command, str_pt_in, Xnode[i]->nchars) == 0) {
+			cmd_max = Xnode[i]->cmd_max;
+			command = Xnode[i]->cmd_ptr;
 			break;
 		}
 	}
@@ -4225,10 +4230,10 @@ int X32::function_misc() {
 //
 // check for actual command
 	i = 0;
-	while (i < Xmisc_max) {
-		if (strcmp(r_buf, Xmisc[i].command) == 0) {
+	while (i < size_Xmisc) {
+		if (strcmp(r_buf, Xmisc[i]->command) == 0) {
 			// found command at index i
-			return (funct_params(Xmisc, i));
+			return (funct_params(*Xmisc, i));
 		}
 		i += 1;
 	}
@@ -4286,8 +4291,8 @@ int X32::function_show() {
 		}
 		return 0;
 	}
-	while (i < Xshow_max) {
-		if (strcmp(r_buf, Xshow[i].command) == 0) {
+	while (i < size_Xshow) {
+		if (strcmp(r_buf, Xshow[i]->command) == 0) {
 			// found command at index i
 			return (funct_params(Xshow, i));
 		}
@@ -4646,7 +4651,7 @@ char shname[32];
 	s_len = Xsprint(s_buf, 0, 's', "node");
 	s_len = Xsprint(s_buf, s_len, 's', ",s");
 	shname[0] = 0;
-	if (Xshow[4].value.str) strcpy(shname, Xshow[4].value.str);		//Xshow[4] holds the current show name
+	if (Xshow[4]->value.str) strcpy(shname, Xshow[4]->value.str);		//Xshow[4] holds the current show name
 	sprintf(r_buf, "/-show/showfile/show \"%s\" 0 0 0 0 0 0 0 0 0 0 \"%s\"", shname, XVERSION);
 	s_len = Xsprint(s_buf, s_len, 's', r_buf);
 	return S_SND;
@@ -4676,6 +4681,18 @@ int X32::function_shutdown() {
 		}																				\
 	} else {																			\
 		fprintf(X32File, "%d\n", xx[i].value.ii);										\
+	}
+
+#define save_p(xx)																		\
+	fprintf(X32File, "%d ", xx[i]->format.typ);											\
+	if (xx[i]->format.typ == S32) {														\
+		if (xx[i]->value.str != NULL) {													\
+			fprintf(X32File, "%d %s\n", (int)strlen(xx[i]->value.str), xx[i]->value.str);	\
+		} else {																		\
+			fprintf(X32File, "%d\n", 0);												\
+		}																				\
+	} else {																			\
+		fprintf(X32File, "%d\n", xx[i]->value.ii);										\
 	}
 
 int X32::X32Shutdown() {
@@ -4782,8 +4799,8 @@ int X32::X32Shutdown() {
 			save(Xarray);
 		}
 	}
-	for (i = 0; i < Xmisc_max; i++) {
-		save(Xmisc);
+	for (i = 0; i < size_Xmisc; i++) {
+		save_p(Xmisc);
 	}
 	for (i = 0; i < Xurec_max; i++) {
 		save(Xurec);
@@ -4804,23 +4821,6 @@ int X32::X32Shutdown() {
 	return 0;
 }
 
-#define restore(xx)																	\
-	f_stat = fscanf(X32File, "%d ", &type);											\
-	if (type == S32) {																\
-		f_stat = fscanf(X32File, "%d ", &r_len);									\
-		if (r_len > 0) {															\
-			for (k = 0; k < r_len; k++) f_stat = fscanf(X32File, "%c", r_buf + k);	\
-			if (xx[i].value.str) free(xx[i].value.str);								\
-			xx[i].value.str = malloc(r_len + 8);									\
-			strncpy(xx[i].value.str, r_buf, r_len);									\
-			xx[i].value.str[r_len] = 0;												\
-		} else {																	\
-			xx[i].value.str = NULL;													\
-		}																			\
-	} else {																		\
-		f_stat = fscanf(X32File, "%d ", &xx[i].value.ii);							\
-	}
-
 #define restore_char(xx)																	\
 	f_stat = fscanf(X32File, "%d ", &type);											\
 	if (type == S32) {																\
@@ -4836,6 +4836,23 @@ int X32::X32Shutdown() {
 		}																			\
 	} else {																		\
 		f_stat = fscanf(X32File, "%d ", &xx[i].value.ii);							\
+	}
+
+#define restore_p(xx)																	\
+	f_stat = fscanf(X32File, "%d ", &type);											\
+	if (type == S32) {																\
+		f_stat = fscanf(X32File, "%d ", &r_len);									\
+		if (r_len > 0) {															\
+			for (k = 0; k < r_len; k++) f_stat = fscanf(X32File, "%c", r_buf + k);	\
+			if (xx[i]->value.str) free(xx[i]->value.str);								\
+			xx[i]->value.str = (char*)malloc(r_len + 8);									\
+			strncpy(xx[i]->value.str, r_buf, r_len);									\
+			xx[i]->value.str[r_len] = 0;												\
+		} else {																	\
+			xx[i]->value.str = NULL;													\
+		}																			\
+	} else {																		\
+		f_stat = fscanf(X32File, "%d ", &xx[i]->value.ii);							\
 	}
 
 int X32::X32Init() {
@@ -4941,8 +4958,8 @@ int X32::X32Init() {
 			restore_char(Xarray);
 		}
 	}
-	for (i = 0; i < Xmisc_max; i++) {
-		restore_char(Xmisc);
+	for (i = 0; i < size_Xmisc; i++) {
+		restore_p(Xmisc);
 	}
 	for (i = 0; i < Xurec_max; i++) {
 		restore_char(Xurec);
