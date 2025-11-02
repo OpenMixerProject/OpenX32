@@ -41,6 +41,8 @@
 #define STATUS_BUSY_FLAG		0x00001000
 #define REGISTER_ALL_BITS_1		0xffffffff
 
+
+
 // ----------------------------------------------
 
 long get_file_size(const char *filename) {
@@ -51,21 +53,54 @@ long get_file_size(const char *filename) {
     return -1; // Error
 }
 
+#define SHOWSTATUSBIT(status, bit, desc) printf("| %2d | %-30s | %1s |\n", bit, desc, ((status) & (1<<(bit))) ? "X" : " ");
+
 // Assumes little endian
-void printBits(size_t const size, void const * const ptr)
+void printBits(uint32_t status)
 {
-    unsigned char *b = (unsigned char*) ptr;
-    unsigned char byte;
-    int i, j;
+    int i;
     
-    for (i = size-1; i >= 0; i--) {
-        for (j = 7; j >= 0; j--) {
-            byte = (b[i] >> j) & 1;
-            printf("%u", byte);
-        }
-        printf("|");
-    }
-    puts("");
+    printf("\n");
+    printf("+-----------------------------------------+\n");
+    printf("|      Lattice FPGA Status Register       |\n");
+    printf("+----+--------------------------------+---+\n");
+    printf("|Bit |Description                     |Set|\n");
+    printf("+----+--------------------------------+---+\n");
+      
+    SHOWSTATUSBIT(status, 0, "JTAG Transparent");
+    SHOWSTATUSBIT(status, 1, "Config Target Selection [0]");
+    SHOWSTATUSBIT(status, 2, "Config Target Selection [1]");
+    SHOWSTATUSBIT(status, 3, "Config Target Selection [2]");
+    SHOWSTATUSBIT(status, 4, "JTAG Active");
+    SHOWSTATUSBIT(status, 5, "PWD Protection");
+    SHOWSTATUSBIT(status, 6, "(Internal use)");
+    SHOWSTATUSBIT(status, 7, "Decrypt Enable");
+    SHOWSTATUSBIT(status, 8, "DONE");
+    SHOWSTATUSBIT(status, 9, "ISC Enable");
+    SHOWSTATUSBIT(status, 10, "Write Enable");
+    SHOWSTATUSBIT(status, 11, "Read Enable");
+    SHOWSTATUSBIT(status, 12, "Busy Flag");
+    SHOWSTATUSBIT(status, 13, "Fail Flag");
+    SHOWSTATUSBIT(status, 14, "FEA OTP");
+    SHOWSTATUSBIT(status, 15, "Decrypt Only");
+    SHOWSTATUSBIT(status, 16, "PWD Enable");
+    SHOWSTATUSBIT(status, 17, "(Internal use)");
+    SHOWSTATUSBIT(status, 18, "(Internal use)");
+    SHOWSTATUSBIT(status, 19, "(Internal use)");
+    SHOWSTATUSBIT(status, 20, "Encrypt Preamble");
+    SHOWSTATUSBIT(status, 21, "Std Preamble");
+    SHOWSTATUSBIT(status, 22, "SPIm Fail 1");
+    SHOWSTATUSBIT(status, 23, "BSE Error Code [0]");
+    SHOWSTATUSBIT(status, 24, "BSE Error Code [1]");
+    SHOWSTATUSBIT(status, 25, "BSE Error Code [2]");
+    SHOWSTATUSBIT(status, 26, "ID Error");
+    SHOWSTATUSBIT(status, 27, "ID Error");
+    SHOWSTATUSBIT(status, 28, "Invalid Command");
+    SHOWSTATUSBIT(status, 29, "SED Error");
+    SHOWSTATUSBIT(status, 30, "Bypass Mode");
+    SHOWSTATUSBIT(status, 31, "Flow Through Mode");
+    
+    printf("+----+--------------------------------+---+\n");
 }
 
 bool sendCommand(int* spi_fd, uint8_t cmd) {
@@ -109,7 +144,7 @@ int readData(int* spi_fd, uint8_t cmd) {
 // returns 0 if sucecssul, -1 on errors
 int configure_lattice_spi(const char *bitstream_path) {
     int spi_fd = -1;
-	int status;
+	uint32_t status;
     FILE *bitstream_file = NULL;
     int ret = -1;
 
@@ -174,7 +209,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
-    printBits(sizeof(uint32_t), &status);
+    printBits(status);
     fprintf(stdout, "\n");
 
     // Erase SRAM: send ISC_ERASE command [class D command]
@@ -184,7 +219,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
-    printBits(sizeof(uint32_t), &status);
+    printBits(status);
     fprintf(stdout, "\n");
 
     // Initialize Address-Shift-Register: send LSC_INIT_ADDRESS command [class C command]
@@ -297,8 +332,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "    DONE: %d\n", done);
     fprintf(stdout, "    ISC Enabled: %d\n", isc_enabled);
     fprintf(stdout, "    Execution Error: %d\n", exec_error);
-    fprintf(stdout, "    Status Register [31..0]: ");
-    printBits(sizeof(uint32_t), &status);
+    printBits(status);
     fprintf(stdout, "\n");
 
     if (!done || exec_error) {
