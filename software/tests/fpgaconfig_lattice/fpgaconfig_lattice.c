@@ -118,7 +118,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     uint32_t idcode;
     memcpy(&idcode, &rx_buf[4], 4);
     fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
-//	if (idcode != 0x00000000) {
+//	if (idcode != 0x43101141) {
 //		perror("Error: Unexpected IDCODE");
 //        if (bitstream_file) fclose(bitstream_file);
 //        if (spi_fd >= 0) close(spi_fd);
@@ -148,10 +148,12 @@ int configure_lattice_spi(const char *bitstream_path) {
         if (spi_fd >= 0) close(spi_fd);
         return -1;
     }
+    fprintf(stdout, "  LSC_BITSTREAM_BURST sent.\n");
+    usleep(100);
 
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
-    const size_t CHUNK_SIZE = 2048; // 2 KB as maximum chunk-size
+    const size_t CHUNK_SIZE = 1024; // 1 KB as maximum chunk-size
     uint8_t tx_chunk[CHUNK_SIZE];
     const int MAX_TRANSFERS = (int)(bitstream_size / CHUNK_SIZE) + 1;
 	
