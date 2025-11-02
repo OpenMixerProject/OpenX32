@@ -151,7 +151,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
-    const size_t CHUNK_SIZE = 4096; // 4 KB als sichere Obergrenze
+    const size_t CHUNK_SIZE = 2048; // 2 KB as maximum chunk-size
     uint8_t tx_chunk[CHUNK_SIZE];
     const int MAX_TRANSFERS = (int)(bitstream_size / CHUNK_SIZE) + 1;
 	
