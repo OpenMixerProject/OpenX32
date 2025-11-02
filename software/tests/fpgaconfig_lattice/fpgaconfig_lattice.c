@@ -21,6 +21,26 @@
 #define SPI_DEVICE "/dev/spidev2.0"
 #define SPI_SPEED_HZ 10000000 // 10 MHz (Lattice ECP5 should be able up to 60 MHz)
 
+#define CMD_ISC_NOOP			0xFF
+#define CMD_READ_ID				0xE0
+#define CMD_USERCODE			0xC0
+#define CMD_LSC_READ_STATUS		0x3C
+#define CMD_LSC_CHECK_BUSY		0xF0
+#define CMD_LSC_REFRESH			0x79
+#define CMD_ISC_ENABLE			0xC6
+#define CMD_ISC_DISABLE			0x26
+#define CMD_ISC_ERASE			0x0E
+#define CMD_ISC_PROGRAM_DONE	0x5E
+#define CMD_LSC_INIT_ADDRESS	0x46
+#define CMD_LSC_BITSTREAM_BURST	0x7A
+
+#define STATUS_DONE_BIT			0x00000100
+#define STATUS_ERROR_BITS		0x00020040
+#define STATUS_FEA_OTP			0x00004000
+#define STATUS_FAIL_FLAG		0x00002000
+#define STATUS_BUSY_FLAG		0x00001000
+#define REGISTER_ALL_BITS_1		0xffffffff
+
 // ----------------------------------------------
 
 long get_file_size(const char *filename) {
@@ -48,11 +68,48 @@ void printBits(size_t const size, void const * const ptr)
     puts("");
 }
 
+bool sendCommand(int* spi_fd, uint8_t cmd) {
+    uint8_t cmd_buf[4] = {0};
+    uint8_t rx_buf[4] = {0};
+    struct spi_ioc_transfer tr_cmd = {
+        .tx_buf = (unsigned long)cmd_buf,
+        .rx_buf = (unsigned long)rx_buf,
+        .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
+        .bits_per_word = 8,
+        .speed_hz = SPI_SPEED_HZ,
+    };
+
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = cmd; // command
+    return (ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) >= 0);
+};
+
+int readData(int* spi_fd, uint8_t cmd) {
+    uint8_t cmd_buf[8] = {0};
+    uint8_t rx_buf[8] = {0};
+    struct spi_ioc_transfer tr_cmd = {
+        .tx_buf = (unsigned long)cmd_buf,
+        .rx_buf = (unsigned long)rx_buf,
+        .len = 8, // 4 byte for command + 4 byte for read
+        .bits_per_word = 8,
+        .speed_hz = SPI_SPEED_HZ,
+    };
+
+    memset(cmd_buf, 0, sizeof(cmd_buf));
+    cmd_buf[0] = cmd; // command
+    ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
+    int rx_data;
+    memcpy(&rx_data, &rx_buf[4], 4);
+	
+	return rx_data;
+}
+
 // configures a Lattice ECP5 via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
 int configure_lattice_spi(const char *bitstream_path) {
     int spi_fd = -1;
+	int status;
     FILE *bitstream_file = NULL;
     int ret = -1;
 
@@ -95,28 +152,8 @@ int configure_lattice_spi(const char *bitstream_path) {
     close(fd);
     usleep(50000); // we have to wait 50ms until we can send commands
 
-	// prepare struct to send commands
-    uint8_t cmd_buf[8] = {0};
-    uint8_t rx_buf[8] = {0};
-    struct spi_ioc_transfer tr_cmd = {
-        .tx_buf = (unsigned long)cmd_buf,
-        .rx_buf = (unsigned long)rx_buf,
-        .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
-        .bits_per_word = spiBitsPerWord,
-        .speed_hz = spiSpeed,
-    };
-	
     // read IDCODE
-    cmd_buf[0] = 0xE0; // READ_ID
-    tr_cmd.len = 8; // 8 Byte für READ_ID (Cmd + 3 Dummy + 4 Daten)
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI READ_ID failed");
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return -1;
-    }
-    uint32_t idcode;
-    memcpy(&idcode, &rx_buf[4], 4);
+    uint32_t idcode = readData(&spi_fd, CMD_USERCODE);;
     fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
 //	if (idcode != 0x43101141) {
 //		perror("Error: Unexpected IDCODE");
@@ -126,54 +163,32 @@ int configure_lattice_spi(const char *bitstream_path) {
 //	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = 0xC6; // ISC_ENABLE
-    tr_cmd.len = 4;
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI ISC_ENABLE failed");
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return -1;
-    }
+    sendCommand(&spi_fd, CMD_ISC_ENABLE);
     fprintf(stdout, "  ISC_ENABLE sent.\n");
     usleep(100);
 
+    status = readData(&spi_fd, CMD_LSC_READ_STATUS);
+    fprintf(stdout, "    Status Register [31..0]: ");
+    printBits(sizeof(uint32_t), &status);
+    fprintf(stdout, "\n");
+
     // Erase SRAM: send ISC_ERASE command [class D command]
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = 0x0E; // ISC_ERASE
-    tr_cmd.len = 4;
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI ISC_ENABLE failed");
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return -1;
-    }
-    fprintf(stdout, "  ISC_ENABLE sent.\n");
-    usleep(10000); // wait 10ms
+    sendCommand(&spi_fd, CMD_ISC_ERASE);
+    fprintf(stdout, "  ISC_ERASE sent.\n");
+    usleep(100000); // wait 100ms as erasing could take longer
+
+    status = readData(&spi_fd, CMD_LSC_READ_STATUS);
+    fprintf(stdout, "    Status Register [31..0]: ");
+    printBits(sizeof(uint32_t), &status);
+    fprintf(stdout, "\n");
 
     // Initialize Address-Shift-Register: send LSC_INIT_ADDRESS command [class C command]
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = 0x46; // LSC_INIT_ADDRESS
-    tr_cmd.len = 4;
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI ISC_ENABLE failed");
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return -1;
-    }
-    fprintf(stdout, "  ISC_ENABLE sent.\n");
+    sendCommand(&spi_fd, CMD_LSC_INIT_ADDRESS);
+    fprintf(stdout, "  LSC_INIT_ADDRESS sent.\n");
     usleep(100);
 
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = 0x7A; // LSC_BITSTREAM_BURST
-    tr_cmd.len = 4;
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI LSC_BITSTREAM_BURST failed"); 
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return -1;
-    }
+    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST);
     fprintf(stdout, "  LSC_BITSTREAM_BURST sent.\n");
     usleep(100);
 
@@ -253,21 +268,14 @@ int configure_lattice_spi(const char *bitstream_path) {
 	// wait 10ms
 	usleep(10000);
 	
-    // read Statusregister
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = 0x3C; // LSC_READ_STATUS
-    tr_cmd.len = 8; // 8 Byte for Status-Read
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI LSC_READ_STATUS failed");
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return -1;
-    }
-    uint32_t status;
-    memcpy(&status, &rx_buf[4], 4);
-    
+    // Exit Programming Mode: send ISC_DISABLE
+	sendCommand(&spi_fd, CMD_ISC_DISABLE);
+    fprintf(stdout, "  ISC_DISABLE sent. FPGA should now be configured.\n");
+	
+	
     // check Status-Bits
     // Bit 8 (DONE) must be 1, Bit 9 (ISC ENABLED) must be 1 sein, Bit 26 (EXECUTION ERROR) must be 0 sein
+	status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     int done = (status & (1 << 8)) > 0;
     int isc_enabled = (status & (1 << 9)) > 0;
     int exec_error = (status & (1 << 26)) > 0;
@@ -288,20 +296,11 @@ int configure_lattice_spi(const char *bitstream_path) {
         ret = 0;
     }
 
-    // Exit Programming Mode: send ISC_DISABLE
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = 0x26; // ISC_DISABLE
-    tr_cmd.len = 4;
-    if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) < 0) {
-        perror("Error: SPI ISC_DISABLE failed");
-    }
-    fprintf(stdout, "  ISC_DISABLE sent. FPGA should now be configured.\n");
-	
+
 	if (bitstream_file) fclose(bitstream_file);
 	if (spi_fd >= 0) close(spi_fd);
 	return ret;
 }
-
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
