@@ -103,7 +103,7 @@ void printBits(uint32_t status)
     printf("+----+--------------------------------+---+\n");
 }
 
-bool sendCommand(int* spi_fd, uint8_t cmd) {
+bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS) {
     uint8_t cmd_buf[4] = {0};
     uint8_t rx_buf[4] = {0};
     struct spi_ioc_transfer tr_cmd = {
@@ -113,6 +113,12 @@ bool sendCommand(int* spi_fd, uint8_t cmd) {
         .bits_per_word = 8,
         .speed_hz = SPI_SPEED_HZ,
     };
+	
+	if (keepCS) {
+		tr_cmd.cs_change = 0;
+	}else{
+		tr_cmd.cs_change = 1;
+	}
 
     memset(cmd_buf, 0, sizeof(cmd_buf));
     cmd_buf[0] = cmd; // command
@@ -188,7 +194,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     usleep(50000); // we have to wait 50ms until we can send commands
 
     // Virtual toggle of PROGRAMN: send CMD_LSC_REFRESH command [class D command]
-    sendCommand(&spi_fd, CMD_LSC_REFRESH);
+    sendCommand(&spi_fd, CMD_LSC_REFRESH, false);
     fprintf(stdout, "  LSC_REFRESH sent.\n");
     usleep(50000); // we have to wait 50ms until we can send commands
 
@@ -203,7 +209,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 //	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
-    sendCommand(&spi_fd, CMD_ISC_ENABLE);
+    sendCommand(&spi_fd, CMD_ISC_ENABLE, false);
     fprintf(stdout, "  ISC_ENABLE sent.\n");
     usleep(10000); // wait 10ms
 
@@ -213,7 +219,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "\n");
 
     // Erase SRAM: send ISC_ERASE command [class D command]
-    sendCommand(&spi_fd, CMD_ISC_ERASE);
+    sendCommand(&spi_fd, CMD_ISC_ERASE, false);
     fprintf(stdout, "  ISC_ERASE sent.\n");
     usleep(200000); // wait 200ms as erasing could take longer
 
@@ -223,14 +229,13 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "\n");
 
     // Initialize Address-Shift-Register: send LSC_INIT_ADDRESS command [class C command]
-    sendCommand(&spi_fd, CMD_LSC_INIT_ADDRESS);
+    sendCommand(&spi_fd, CMD_LSC_INIT_ADDRESS, false);
     fprintf(stdout, "  LSC_INIT_ADDRESS sent.\n");
     usleep(10000); // wait 10ms
 
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
-    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST);
+    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST, true);
     fprintf(stdout, "  LSC_BITSTREAM_BURST sent.\n");
-    usleep(10000); // wait 10ms
 
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
@@ -282,12 +287,20 @@ int configure_lattice_spi(const char *bitstream_path) {
         tr->len = len;
         tr->bits_per_word = spiBitsPerWord;
         tr->speed_hz = spiSpeed;
+        tr->cs_change = 0; // keep Chip-Select asserted
         
 		// we dont set no flags here. The kernel keeps CS asserted within this transmission-chain
         
         current_offset += len;
         num_transfers++;
+		
+		// check if this is the last chunk
+		if (current_offset >= bitstream_size) {
+			// this is the last chunk -> deassert chip-select
+			tr->cs_change = 1; // allow deassertion of CS
+		}
     }
+
 	fprintf(stdout, "  Sending Bitstream in %d chunks (Max %zu B/chunk)...\n", num_transfers, CHUNK_SIZE);
 	
     // send of the whole data-chain within a single ioctl-call
@@ -306,19 +319,15 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "\r[██████████████████████████████████████████████████] %ld/%ld Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
     usleep(10000); // wait 10ms
 
+/*
     // send BYPASS command
-    sendCommand(&spi_fd, CMD_ISC_NOOP);
+    sendCommand(&spi_fd, CMD_ISC_NOOP, false);
     fprintf(stdout, "  ISC_NOOP sent.\n");
     usleep(10000); // wait 10ms
-
+*/
     // Exit Programming Mode: send ISC_DISABLE
-	sendCommand(&spi_fd, CMD_ISC_DISABLE);
+	sendCommand(&spi_fd, CMD_ISC_DISABLE, false);
     fprintf(stdout, "  ISC_DISABLE sent. FPGA should now be configured.\n");
-    usleep(10000); // wait 10ms
-	
-    // send BYPASS command
-    sendCommand(&spi_fd, CMD_ISC_NOOP);
-    fprintf(stdout, "  ISC_NOOP sent.\n");
     usleep(10000); // wait 10ms
 
     // check Status-Bits
