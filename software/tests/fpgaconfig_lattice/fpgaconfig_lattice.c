@@ -1,5 +1,5 @@
 // FPGA Configuration-tool for the Lattice ECP5 FPGAs
-// v0.2.0, 02.11.2025
+// v0.3.0, 04.11.2025
 //
 // This software reads a bitstream from Lattice Diamond and sends it using
 // the SPI-connection /dev/spidev2.0 (CSPI3-connection of i.MX25)
@@ -40,8 +40,6 @@
 #define STATUS_FAIL_FLAG		0x00002000
 #define STATUS_BUSY_FLAG		0x00001000
 #define REGISTER_ALL_BITS_1		0xffffffff
-
-
 
 // ----------------------------------------------
 
@@ -103,11 +101,66 @@ void printBits(uint32_t status)
     printf("+----+--------------------------------+---+\n");
 }
 
-bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS) {
-    uint8_t cmd_buf[4] = {0};
+int readData(int* spi_fd, uint8_t cmd) {
+    uint8_t tx_buf[8] = {0};
+    uint8_t rx_buf[8] = {0};
+    struct spi_ioc_transfer tr_cmd = {
+        .tx_buf = (unsigned long)tx_buf,
+        .rx_buf = (unsigned long)rx_buf,
+        .len = 8, // 4 byte for command + 4 byte for read
+        .bits_per_word = 8,
+        .speed_hz = SPI_SPEED_HZ,
+    };
+
+    tx_buf[0] = cmd; // command
+    ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
+    int rx_data;
+    memcpy(&rx_data, &rx_buf[4], 4);
+	
+	return rx_data;
+}
+
+bool pollBusyFlag(int* spi_fd) {
+	uint32_t busyState;
+	int timeout = 0;
+	
+	do {
+		busyState = readData(spi_fd, CMD_LSC_CHECK_BUSY);
+		
+		timeout++;
+		if (timeout == 100000000) {
+			return false;
+		}
+	} while(busyState != 0);
+		
+	return true;
+}
+
+bool flashErase(int* spi_fd) {
+    uint8_t tx_buf[4] = {CMD_ISC_ERASE, 0x01, 0x00, 0x00};
+    uint8_t rx_buf[4] = {0};
+	
+    struct spi_ioc_transfer tr_cmd = {
+        .tx_buf = (unsigned long)tx_buf,
+        .rx_buf = (unsigned long)rx_buf,
+        .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
+        .bits_per_word = 8,
+        .speed_hz = SPI_SPEED_HZ,
+    };
+	int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
+	
+	if (!pollBusyFlag(spi_fd)) {
+		return false;
+	}
+	
+	return true;
+}
+
+bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus) {
+    uint8_t tx_buf[4] = {0};
     uint8_t rx_buf[4] = {0};
     struct spi_ioc_transfer tr_cmd = {
-        .tx_buf = (unsigned long)cmd_buf,
+        .tx_buf = (unsigned long)tx_buf,
         .rx_buf = (unsigned long)rx_buf,
         .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
         .bits_per_word = 8,
@@ -120,30 +173,17 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS) {
 		tr_cmd.cs_change = 1;
 	}
 
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = cmd; // command
-    return (ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd) >= 0);
-};
-
-int readData(int* spi_fd, uint8_t cmd) {
-    uint8_t cmd_buf[8] = {0};
-    uint8_t rx_buf[8] = {0};
-    struct spi_ioc_transfer tr_cmd = {
-        .tx_buf = (unsigned long)cmd_buf,
-        .rx_buf = (unsigned long)rx_buf,
-        .len = 8, // 4 byte for command + 4 byte for read
-        .bits_per_word = 8,
-        .speed_hz = SPI_SPEED_HZ,
-    };
-
-    memset(cmd_buf, 0, sizeof(cmd_buf));
-    cmd_buf[0] = cmd; // command
-    ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
-    int rx_data;
-    memcpy(&rx_data, &rx_buf[4], 4);
+    tx_buf[0] = cmd; // command
+    int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
 	
-	return rx_data;
-}
+	if (checkBusyAndStatus) {
+		if (!pollBusyFlag(spi_fd)) {
+			return false;
+		}
+	}else{
+		return (ret >= 0);
+	}
+};
 
 // configures a Lattice ECP5 via SPI
 // accepts path to bitstream-file
@@ -158,7 +198,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
-    fprintf(stdout, "FPGA Configuration Tool v0.2.0\n");
+    fprintf(stdout, "FPGA Configuration Tool v0.3.0\n");
 
     fprintf(stdout, "  Connecting to SPI...\n");
     spi_fd = open(SPI_DEVICE, O_RDWR);
@@ -194,8 +234,9 @@ int configure_lattice_spi(const char *bitstream_path) {
     usleep(50000); // we have to wait 50ms until we can send commands
 
     // Virtual toggle of PROGRAMN: send CMD_LSC_REFRESH command [class D command]
-    sendCommand(&spi_fd, CMD_LSC_REFRESH, false);
-    fprintf(stdout, "  LSC_REFRESH sent.\n");
+    fprintf(stdout, "  Sending LSC_REFRESH...");
+    sendCommand(&spi_fd, CMD_LSC_REFRESH, false, false);
+    fprintf(stdout, "OK\n");
     usleep(50000); // we have to wait 50ms until we can send commands
 
     // read IDCODE
@@ -209,9 +250,9 @@ int configure_lattice_spi(const char *bitstream_path) {
 //	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
-    sendCommand(&spi_fd, CMD_ISC_ENABLE, false);
-    fprintf(stdout, "  ISC_ENABLE sent.\n");
-    usleep(10000); // wait 10ms
+    fprintf(stdout, "  Sending ISC_ENABLE...");
+    sendCommand(&spi_fd, CMD_ISC_ENABLE, false, true);
+    fprintf(stdout, "OK\n");
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
@@ -219,9 +260,9 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "\n");
 
     // Erase SRAM: send ISC_ERASE command [class D command]
-    sendCommand(&spi_fd, CMD_ISC_ERASE, false);
-    fprintf(stdout, "  ISC_ERASE sent.\n");
-    usleep(200000); // wait 200ms as erasing could take longer
+    fprintf(stdout, "  Sending ISC_ERASE...");
+    flashErase(&spi_fd); // ISC_ERASE seems to need a 0x01 after the command. See sources of openFPGAloader
+	fprintf(stdout, "OK\n");
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
@@ -229,13 +270,16 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "\n");
 
     // Initialize Address-Shift-Register: send LSC_INIT_ADDRESS command [class C command]
-    sendCommand(&spi_fd, CMD_LSC_INIT_ADDRESS, false);
-    fprintf(stdout, "  LSC_INIT_ADDRESS sent.\n");
-    usleep(10000); // wait 10ms
+    fprintf(stdout, "  Sending LSC_INIT_ADDRESS...");
+    sendCommand(&spi_fd, CMD_LSC_INIT_ADDRESS, false, false);
+    fprintf(stdout, "OK\n");
 
+	// =========== Here starts a long part without deasserting ChipSelect ===========
+	
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
-    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST, true);
-    fprintf(stdout, "  LSC_BITSTREAM_BURST sent.\n");
+    fprintf(stdout, "  Sending LSC_BITSTREAM_BURST...");
+    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST, true, false);
+    fprintf(stdout, "OK\n");
 
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
@@ -301,14 +345,15 @@ int configure_lattice_spi(const char *bitstream_path) {
 		}
     }
 
-	fprintf(stdout, "  Sending Bitstream in %d chunks (Max %zu B/chunk)...\n", num_transfers, CHUNK_SIZE);
-	
     // send of the whole data-chain within a single ioctl-call
+	fprintf(stdout, "  Sending Bitstream in %d chunks (Max %zu B/chunk)...\n", num_transfers, CHUNK_SIZE);
     ret = ioctl(spi_fd, SPI_IOC_MESSAGE(num_transfers), transfers);
 
     // freeing allocated dynamic memory
     free(bitstream_payload);
     free(transfers);
+
+	// =========== End of transmission ===========
     
     if (ret < 0) {
         perror("Error: SPI BITSTREAM CHAIN failed");
@@ -319,16 +364,10 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "\r[██████████████████████████████████████████████████] %ld/%ld Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
     usleep(10000); // wait 10ms
 
-/*
-    // send BYPASS command
-    sendCommand(&spi_fd, CMD_ISC_NOOP, false);
-    fprintf(stdout, "  ISC_NOOP sent.\n");
-    usleep(10000); // wait 10ms
-*/
     // Exit Programming Mode: send ISC_DISABLE
-	sendCommand(&spi_fd, CMD_ISC_DISABLE, false);
-    fprintf(stdout, "  ISC_DISABLE sent. FPGA should now be configured.\n");
-    usleep(10000); // wait 10ms
+    fprintf(stdout, "  Sending ISC_DISABLE...");
+	sendCommand(&spi_fd, CMD_ISC_DISABLE, false, true);
+    fprintf(stdout, "OK\n");
 
     // check Status-Bits
     // Bit 8 (DONE) must be 1, Bit 9 (ISC ENABLED) must be 1 sein, Bit 26 (EXECUTION ERROR) must be 0 sein
