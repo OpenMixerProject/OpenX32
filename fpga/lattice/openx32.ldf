@@ -3,7 +3,7 @@
     <Options>
         <Option name="HDL type" value="VHDL"/>
     </Options>
-    <Implementation title="impl1" dir="impl1" description="impl1" synthesis="lse" default_strategy="Strategy1">
+    <Implementation title="impl1" dir="impl1" description="impl1" synthesis="synplify" default_strategy="Strategy1">
         <Options def_top="volumectrl" top="main"/>
         <Source name="../audioclk.vhd" type="VHDL" type_short="VHDL">
             <Options/>
