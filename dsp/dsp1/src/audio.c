@@ -57,44 +57,83 @@ int audioBufferCounter = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
-int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8
-int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | P16 Ch 1-8 | P16 Ch 9-16 | AUX Ch 1-8
+int audioRxBuf[BUFFER_COUNT][TDM_INPUTS][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER] = {0}; // Ch1-32 | AUX Ch 1-8
+int audioTxBuf[BUFFER_COUNT][TDM_INPUTS][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER] = {0}; // Ch1-16 | P16 Ch 1-16 | AUX Ch 1-8
 
 // internal buffers for audio-samples
 float audioBuffer[5][1 + MAX_CHAN + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR + MAX_DSP2][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
 float audioTempBuffer[SAMPLES_IN_BUFFER] = {0};
 float audioTempBufferLarge[MAX_CHAN][SAMPLES_IN_BUFFER] = {0};
 float audioTempBufferChan[MAX_CHAN] = {0};
+float audioTempBufferChanA[MAX_CHAN] = {0};
+float audioTempBufferChanB[MAX_CHAN] = {0};
 
-// TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
-int audioRx_tcb[8][BUFFER_COUNT][4];
-int audioTx_tcb[8][BUFFER_COUNT][4];
+// TCB-arrays for SPORT {CPSPx Chainpointer (+ 0x0), ICSPx Internal Count (+ 0x1), IMSPx Internal Modifier (+ 0x2), IISPx Internal Index (+ 0x3)}
+int audioRx_tcb[TDM_INPUTS][BUFFER_COUNT][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER][4];
+int audioTx_tcb[TDM_INPUTS][BUFFER_COUNT][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER][4];
 
 void audioInit(void) {
-	// initialize TCB-array with multi-buffering
-	int nextBuffer;
+	// initialize TCB-array with multi-buffering for each channel
+	// in total we are using 2 * 40 * 16 TCB-entries as we are using double-buffering with 40 channels and expecting 16 samples
+	int ch_next;
+	int s_next;
+	int buf_next;
+
 	for (int i_buf = 0; i_buf < BUFFER_COUNT; i_buf++) {
-		// calc index of next buffer with wrap around at the end
-		nextBuffer = (i_buf + 1) % BUFFER_COUNT;
+		// calc index of next buffer
+		// as we receive data interleaved (ch1,ch2,ch3,...ch8,ch1,ch2,ch3,...,ch8,ch1...) we must
+		// set the subsequent TCB-element to next channel instead of next sample
+		
+		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
+					ch_next = i_ch + 1;
+					
+					// direct DMA-chain-controller to the subsequent buffer
+					if (ch_next < CHANNELS_PER_TDM) {
+						// next channel is within the current 8-channel-block -> direct DMA-chain-controller to the subsequent buffer
+						audioRx_tcb[i_tdm][i_buf][i_ch][s][0] = (((int)&audioRx_tcb[i_tdm][i_buf][ch_next][s][0] + 3) & OFFSET_MASK);
+						audioTx_tcb[i_tdm][i_buf][i_ch][s][0] = (((int)&audioTx_tcb[i_tdm][i_buf][ch_next][s][0] + 3) & OFFSET_MASK);
+					}else{
+						// next channel would be beyond the 8-channels, so we will increase the sample-counter instead
+						s_next = s + 1;
 
-		for (int i_tcb = 0; i_tcb < TDM_INPUTS; i_tcb++) {
-			// direct DMA-chain-controller to the subsequent buffer
-			audioRx_tcb[i_tcb][i_buf][0] = ((int)&audioRx_tcb[i_tcb][nextBuffer][0] + 3);
-			// tell DMA-controller the size of our buffers
-			audioRx_tcb[i_tcb][i_buf][1] = BUFFER_SIZE;
-			// set modification-value to 1
-			audioRx_tcb[i_tcb][i_buf][2] = 1;
-			// assign pointer to the Tx-Buffer to tcb
-			audioRx_tcb[i_tcb][i_buf][3] = (int)&audioRxBuf[(BUFFER_COUNT * BUFFER_SIZE * i_tcb) + (BUFFER_SIZE * i_buf)];
+						if (s_next < SAMPLES_IN_BUFFER) {
+							// sample is within the expected sample-count
+							audioRx_tcb[i_tdm][i_buf][i_ch][s][0] = (((int)&audioRx_tcb[i_tdm][i_buf][0][s_next][0] + 3) & OFFSET_MASK);
+							audioTx_tcb[i_tdm][i_buf][i_ch][s][0] = (((int)&audioTx_tcb[i_tdm][i_buf][0][s_next][0] + 3) & OFFSET_MASK);
+						}else{
+							// we reached end of current DMA-chain
+							buf_next = i_buf + 1;
+							if (buf_next < BUFFER_COUNT) {
+								buf_next = 0;
+							}
 
-			// direct DMA-chain-controller to the subsequent buffer
-			audioTx_tcb[i_tcb][i_buf][0] = ((int)&audioTx_tcb[i_tcb][nextBuffer][0] + 3);
-			// tell DMA-controller the size of our buffers
-			audioTx_tcb[i_tcb][i_buf][1] = BUFFER_SIZE;
-			// set modification-value to 1
-			audioTx_tcb[i_tcb][i_buf][2] = 1;
-			// assign pointer to the Tx-Buffer to tcb
-			audioTx_tcb[i_tcb][i_buf][3] = (int)&audioTxBuf[(BUFFER_COUNT * BUFFER_SIZE * i_tcb) + (BUFFER_SIZE * i_buf)];
+							if (i_tdm == 0) {
+								// point to next buffer and enable interrupt for this TCB element
+								// set 19th bit (PCI) as well, to throw interrupt after receiving the last sample for this DMA-chain
+								audioRx_tcb[i_tdm][i_buf][i_ch][s][0] = (((int)&audioRx_tcb[i_tdm][buf_next][0][0][0] + 3) & OFFSET_MASK) | PCI;
+							}else{
+								// point to next buffer
+								audioRx_tcb[i_tdm][i_buf][i_ch][s][0] = (((int)&audioRx_tcb[i_tdm][buf_next][0][0][0] + 3) & OFFSET_MASK);
+							}
+							audioTx_tcb[i_tdm][i_buf][i_ch][s][0] = (((int)&audioTx_tcb[i_tdm][buf_next][0][0][0] + 3) & OFFSET_MASK);
+						}
+					}
+
+					// tell DMA-controller the size of our buffers
+					audioRx_tcb[i_tdm][i_buf][i_ch][s][1] = 1; // buffer is only 32-bit wide as we want to receive only a single sample per DMA-call
+					audioTx_tcb[i_tdm][i_buf][i_ch][s][1] = 1; // buffer is only 32-bit wide as we want to receive only a single sample per DMA-call
+
+					// set modification-value to 1
+					audioRx_tcb[i_tdm][i_buf][i_ch][s][2] = 1;
+					audioTx_tcb[i_tdm][i_buf][i_ch][s][2] = 1;
+
+					// assign pointer to the Rx-Buffer to tcb
+					audioRx_tcb[i_tdm][i_buf][i_ch][s][3] = (int)&audioRxBuf[i_buf][i_tdm][i_ch][s];
+					audioTx_tcb[i_tdm][i_buf][i_ch][s][3] = (int)&audioTxBuf[i_buf][i_tdm][i_ch][s];
+				}
+			}
 		}
 	}
 
@@ -131,36 +170,28 @@ void audioProcessData(void) {
 	int bufferSampleIndex;
 	int bufferTdmIndex;
 	int dspCh;
-	int bufferIndex;
 
-	//  ____            ___       _            _                  _
-	// |  _ \  ___     |_ _|_ __ | |_ ___ _ __| | ___  __ ___   _(_)_ __   __ _
-	// | | | |/ _ \_____| || '_ \| __/ _ \ '__| |/ _ \/ _` \ \ / / | '_ \ / _` |
-	// | |_| |  __/_____| || | | | ||  __/ |  | |  __/ (_| |\ V /| | | | | (_| |
-	// |____/ \___|    |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
-	//                                                                    |___/
-	// copy interleaved DMA input-buffer into channel buffers
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
-		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
-			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
-				bufferIndex = (bufferTdmIndex + i_ch);
-				if (bufferIndex >= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE)) {
-					bufferIndex -= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
+    // copy received integer-data to floating-point array
+	// TODO: check streamline conversion "DMA Data Format Conversion" or "SPORT DMA data packing" to float on-the-fly. Then we could use memcpy or other optimized functions here
+	// or simply store the data into audioBuffer[TAP_INPUT][...][...] instead of audioRxBuf and mitigate the following copy-process completely
+	dspCh = 0;
+	for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+		for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
+			if (dspCh < 40) {
+				// input from FPGA side
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+					audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + dspCh][s] = audioRxBuf[audioBufferCounter][i_tdm][i_ch][s]; // audioRxBuf[BUFFER_COUNT][TDM_INPUTS][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER]
 				}
-				if (dspCh < 40) {
-					// input from FPGA side
-					audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + dspCh][s] = audioRxBuf[bufferIndex]; // copy data to dsp channel
-				}else{
-					// input from DSP2 side
-					audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSP2_FX + dspCh - 40][s] = audioRxBuf[bufferIndex]; // copy data to dsp channel
+			}else{
+				// input from DSP2 side
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+					audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSP2_FX + dspCh - 40][s] = audioRxBuf[audioBufferCounter][i_tdm][i_ch][s];
 				}
 			}
+			
+			dspCh += 1;
 		}
 	}
-
 
 	//   ____ _   _    _    _   _ _   _ _____ _     ____ _____ ____  ___ ____
 	//  / ___| | | |  / \  | \ | | \ | | ____| |   / ___|_   _|  _ \|_ _|  _ \
@@ -246,6 +277,7 @@ void audioProcessData(void) {
 	// use low-pass filter on EQ-Coefficients to smoothly change parameters
 	fxSmoothCoeffs();
 
+/*
 	// Hardware-Accelerated Biquad-Filter
 	// Ressource-Demand: ~20%
 	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
@@ -255,6 +287,60 @@ void audioProcessData(void) {
 
 		// caution: biquad() without "_trans" takes way(!) more cpu-cycles. Dont use it.
 		//biquad(&audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], &dsp.dspChannel[i_ch].peqCoeffs[0], &dsp.dspChannel[i_ch].peqStates[0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
+	}
+*/
+
+	// TODO: optimize the following EQ-calculation using combined MAC-commands (multiply and accumulate)
+	// but to test the logic we will use the given SIMD-commands by CCES
+	// calculate IIR filter in "Direct Form II"
+	// v = input - (b1 * vz) - (b2 * vzz);
+	// output = (a0 * v) + (a1 * vz) + (a2 * vzz);
+	// so we have to calulate v and store v as vz and vzz (two peqStates) per EQ
+	
+	int eqCoeffOffset = 0;
+	int eqStateOffset = 0;
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		// get input-samples from PRE-EQ-tappoint in audioBuffer
+		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+			audioTempBufferChan[i_ch] = audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][s];
+		}
+		
+		// we are cascading the individual IIR-filter (EQs): Input -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> Output
+		for (int i_eq = 0; i_eq < MAX_CHAN_EQS; i_eq++) {
+			eqCoeffOffset = 5 * i_eq;
+			eqStateOffset = 2 * i_eq;
+
+			// Step 1: calculate tmpA = (-b2*vzz)
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 4], &dsp.peqStates[eqStateOffset + 1], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			// Step 2: tmp = tmp + tmpA = input + (-b2*vzz)
+			vecvaddf(&audioTempBufferChan[0], &audioTempBufferChanA[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+			// Step 3: calculate tmpA = (-b1*vz)
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 3], &dsp.peqStates[eqStateOffset + 0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			// Step 4: tmp = tmp + tmpA = input + (-b2*vzz) + (-b1*vz)
+			vecvaddf(&audioTempBufferChan[0], &audioTempBufferChanA[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+			// "tmp" contains "v" now
+			
+			// Step 5: tmpA = (a2*vzz)
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 2], &dsp.peqStates[eqStateOffset + 1], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			// Step 6: tmpB = (a1*vz)
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 1], &dsp.peqStates[eqStateOffset + 0], &audioTempBufferChanB[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			// Step 7: shift the peqStates
+			memcpy(&dsp.peqStates[eqStateOffset + 1], &dsp.peqStates[eqStateOffset + 0], MAX_CHAN_FULLFEATURED * sizeof(float)); // vz -> vzz
+			memcpy(&dsp.peqStates[eqStateOffset + 0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED * sizeof(float)); // v -> vz
+			
+			// Step 8: tmp = tmpA + tmpB = (a2*vzz) + (a1*vz)
+			vecvaddf(&audioTempBufferChanA[0], &audioTempBufferChanB[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+			// Step 9: tmpA = (a0*v)
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 0], &dsp.peqStates[eqStateOffset + 0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			// Step 10: tmp = tmp + tmpA = (a2*vzz) + (a1*vz) + (a0*v)
+			vecvaddf(&audioTempBufferChan[0], &audioTempBufferChanA[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
+			// "tmp" contains "output" now
+		}
+
+		// copy all channels to POST-EQ-tappoint in audioBuffer
+		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+			audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][s] = audioTempBufferChan[i_ch]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
+		}
 	}
 
 	//				  ____                              _
@@ -437,31 +523,24 @@ void audioProcessData(void) {
 */
 	// ========================================================
 
-	//  ___       _            _                  _
-	// |_ _|_ __ | |_ ___ _ __| | ___  __ ___   _(_)_ __   __ _
-	//  | || '_ \| __/ _ \ '__| |/ _ \/ _` \ \ / / | '_ \ / _` |
-	//  | || | | | ||  __/ |  | |  __/ (_| |\ V /| | | | | (_| |
-	// |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
-	//                                                    |___/
-	// copy channel buffers to interleaved output-buffer
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
-		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
-			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
-				bufferIndex = (bufferTdmIndex + i_ch);
-				if (bufferIndex >= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE)) {
-					bufferIndex -= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
+    // copy floating-point data to integer-array for sending via TDM8 (TODO: check streamline conversion "DMA Data Format Conversion" or "SPORT DMA data packing" to float on-the-fly)
+	dspCh = 0;
+	for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+		for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
+			if (dspCh < 40) {
+				// output to FPGA
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+					// memcpy is not working here as we have to convert from float to int32
+					audioTxBuf[audioBufferCounter][i_tdm][i_ch][s] = audioBuffer[dsp.outputTapPoint[dspCh]][dsp.outputRouting[dspCh]][s]; // audioTxBuf[BUFFER_COUNT][TDM_INPUTS][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER]
 				}
-				if (dspCh < 40) {
-					// output to FPGA
-					audioTxBuf[bufferIndex] = audioBuffer[dsp.outputTapPoint[dspCh]][dsp.outputRouting[dspCh]][s];
-				}else{
-					// output to DSP2 (FX)
-					audioTxBuf[bufferIndex] = audioBuffer[dsp.inputTapPoint[dspCh]][dsp.inputRouting[dspCh]][s];
+			}else{
+				// output to DSP2 (FX)
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+					audioTxBuf[audioBufferCounter][i_tdm][i_ch][s] = audioBuffer[dsp.inputTapPoint[dspCh]][dsp.inputRouting[dspCh]][s];
 				}
 			}
+
+			dspCh += 1;
 		}
 	}
 

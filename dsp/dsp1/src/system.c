@@ -274,23 +274,23 @@ void systemSportInit() {
 	// chain-pointer is 20-bit while the lower 19-bit are the memory address field (therefore 0x7FFFF)
 	//
 	// *pCPSP0A requires the address of tx0a_buf and settings 19th bit -> enabling the interrupt after the current TCB
-	*pCPSP0A = (((unsigned int)&audioTx_tcb[0][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP0B = (((unsigned int)&audioTx_tcb[1][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP2A = (((unsigned int)&audioTx_tcb[2][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP2B = (((unsigned int)&audioTx_tcb[3][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP4A = (((unsigned int)&audioTx_tcb[4][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP4B = (((unsigned int)&audioTx_tcb[5][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP6A = (((unsigned int)&audioTx_tcb[6][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP6B = (((unsigned int)&audioTx_tcb[7][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP0A = ((unsigned int)&audioTx_tcb[0][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP0B = ((unsigned int)&audioTx_tcb[1][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP2A = ((unsigned int)&audioTx_tcb[2][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP2B = ((unsigned int)&audioTx_tcb[3][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP4A = ((unsigned int)&audioTx_tcb[4][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP4B = ((unsigned int)&audioTx_tcb[5][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP6A = ((unsigned int)&audioTx_tcb[6][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP6B = ((unsigned int)&audioTx_tcb[7][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 
-	*pCPSP1A = (((unsigned int)&audioRx_tcb[0][0][0] + 3) & OFFSET_MASK) | PCI; // pointing DMA to desired memory and enable interrupt after every processed TCB (set PCI-bit)
-	*pCPSP1B = (((unsigned int)&audioRx_tcb[1][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP3A = (((unsigned int)&audioRx_tcb[2][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP3B = (((unsigned int)&audioRx_tcb[3][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP5A = (((unsigned int)&audioRx_tcb[4][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP5B = (((unsigned int)&audioRx_tcb[5][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP7A = (((unsigned int)&audioRx_tcb[6][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
-	*pCPSP7B = (((unsigned int)&audioRx_tcb[7][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
+	*pCPSP1A = ((unsigned int)&audioRx_tcb[0][0][0] + 3); // pointing DMA to desired memory and enable interrupt after every processed TCB (PCI-bit is set here)
+	*pCPSP1B = ((unsigned int)&audioRx_tcb[1][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP3A = ((unsigned int)&audioRx_tcb[2][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP3B = ((unsigned int)&audioRx_tcb[3][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP5A = ((unsigned int)&audioRx_tcb[4][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP5B = ((unsigned int)&audioRx_tcb[5][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP7A = ((unsigned int)&audioRx_tcb[6][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	*pCPSP7B = ((unsigned int)&audioRx_tcb[7][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 
 
 

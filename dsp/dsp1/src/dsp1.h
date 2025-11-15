@@ -5,7 +5,7 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define DSP_VERSION				0.20
+#define DSP_VERSION				0.30
 
 #define SDRAM_START  			0x00200000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
@@ -19,11 +19,10 @@
 #define MAX_MONITOR				3
 #define MAX_DSP2				24
 
+#define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define CHANNELS_PER_TDM		8
 #define TDM_INPUTS				((MAX_CHAN / CHANNELS_PER_TDM) + 3*0) // 3 channels from DSP2 DEBUG: REMOVE DSP2 for now
 #define SAMPLES_IN_BUFFER		16
-#define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
-#define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
 #define M_PI					3.1415926535897932384626433832795f
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000
@@ -79,8 +78,8 @@
 extern volatile int audioProcessing;
 extern volatile int audioReady;
 extern volatile bool spiNewRxDataReady;
-extern int audioTx_tcb[8][BUFFER_COUNT][4];
-extern int audioRx_tcb[8][BUFFER_COUNT][4];
+extern int audioRx_tcb[TDM_INPUTS][BUFFER_COUNT][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER][4];
+extern int audioTx_tcb[TDM_INPUTS][BUFFER_COUNT][CHANNELS_PER_TDM][SAMPLES_IN_BUFFER][4];
 
 typedef struct {
 	// filter-coefficients
@@ -138,11 +137,7 @@ typedef struct {
 
 typedef struct {
 	sGate gate;
-	float pm peqCoeffsSet[5 * MAX_CHAN_EQS]; // store in program memory
-	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in program memory
-	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
 	sCompressor compressor;
-
 	bool solo;
 } sDspChannel;
 
@@ -155,6 +150,9 @@ struct {
 	float lowcutStatesOutput[MAX_CHAN];
 	//float highcutCoeff[MAX_CHAN];
 	//float highcutStates[MAX_CHAN];
+
+	float pm peqCoeffs[5 * MAX_CHAN_EQS][MAX_CHAN]; // store in program memory
+	float dm peqStates[2 * MAX_CHAN_EQS][MAX_CHAN]; // store in data memory
 
 	float gateGainSet[MAX_CHAN];
 	float gateGain[MAX_CHAN];

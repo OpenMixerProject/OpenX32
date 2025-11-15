@@ -248,14 +248,18 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 					break;
 				case 'e': // EQ
-					if (valueCount == (MAX_CHAN_EQS * 5)) {
-						memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
+					if (valueCount == (5 * MAX_CHAN_EQS)) {
+						for (int i = 0; i < (5 * MAX_CHAN_EQS); i++) {
+							dsp.peqCoeffsSet[i][channel] = floatValues[i];
+						}
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 'r': // Reset PEQ
 					if (valueCount == 1) {
-						memset(&dsp.dspChannel[channel].peqStates[0], 0, 8 * sizeof(float));
+						for (int i = 0; i < (2 * MAX_CHAN_EQS); i++) {
+							memset(&dsp.peqStates[i], 0, MAX_CHAN * sizeof(float));
+						}
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
