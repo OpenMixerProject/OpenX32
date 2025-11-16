@@ -14,12 +14,50 @@ More information in my related Youtube-Video:
 
 [![alt text](https://img.youtube.com/vi/6CfLC5xVy90/0.jpg)](https://www.youtube.com/watch?v=6CfLC5xVy90)
 
-## General idea
-The Behringer X32 has an USB-Type-B-Connector and two hidden switches at its back. The USB-connector is connected to an NXP i.MX253 microcontroller while the two switches are connected to its reset and boot-mode-switch. This allows us to boot the system in a firmware-update-mode.
+## What is working at the moment and what is planned so far
+Next to the underlaying Linux we are working on the audio-processing as well.
 
-Using the pyATK-software we can upload individual files directly to the RAM of the controller. Here a 64MB LPDDR is connected to the controller, so that we can upload a full linux-environment together with a bootloader and a DeviceTreeBlob for the individual hardware of the X32.
+The Linux has control over most parts of the i.M253 main-controller:
+* [x] Linux-Kernel in Version 6.12 (LTS) starts to shell using display framebuffer
+* [x] init-script for setting up the operating system
+* [x] MIDI-Input and -output is used as an additional serial-port-terminal (see pinout down below)
+* [x] Support of 800x480 32-bit framebuffer for applications (/dev/fb0)
+* [x] Support of 100MBit ethernet network-support with DHCP
+* [x] Support of internal Realtime-Clock
+* [x] Support of USB-Host interface (HID-Keyboard, HID-Mouse, Mass-Storage-Devices, Joystick, Soundcard, etc.)
+* [x] Support of internal SD-Card to read MAC-Address and the general configuration
 
-As the linux is started from RAM directly, this project is a temporary replacement of the mixer. After a power-cycle, the original firmware is in place again. But its possible to replace the original SD-card with a new one containing the OpenX32, to boot the linux automatically after a power-cycle.
+Several audio-functions are already supported:
+* [x] Configuration of main-FPGA (Xilinx Spartan 3A, X3CS1400) via internal SPI-interface
+* [x] Support of both AnalogDevices DSPs (ADSP-21371 SHARC DSPs) via internal SPI-interface
+* [x] Support of TDM8-input- and output-streams from AD/DA-boards, Expansion Card, AUX-ICs, UltraNet
+* [x] Support of 1:1-routing for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
+* [x] Support of UltraNet-Output
+* [x] Support of internal 8-channel analog input- and output-cards including headamp- and phantom-power-control
+* [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438 on older revisions, M8000 on newer revisions)
+* [x] Noisegate, 4-band EQ and compressor per channel is already working within the main-DSP
+
+And most of the hardware-surface is working already:
+* [x] Support of booting from SD-Card and via original DCP-Bootloader
+* [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
+
+So the most important things (audio in/out, control-surface, display) are working already and more things are on the ToDo-list:
+* [ ] In-Progress: Support for newer revisions of the X32 using Lattice FPGAs (logic is synthesized, but uploading is not working yet)
+* [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years)
+* [ ] Planned: Implement advanced audio-algorithms in DSP2
+* [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
+* [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
+* [ ] Planned: Support of AES50 (needs more investigation on AES50-protocol)
+
+LVGL v9.3.0 is running on the X32 with a good performance (30 fps). So this will be a basis for this open-source Operating System:
+![alt_text](Documentation/openx32_3.jpg)
+
+## What's the reason for developing such a thing?
+I want to learn things about embedded systems and how they work. The X32 is a very powerful playground with lots of different controllers, nice faders and displays. So that's the only reason why I'm doing this :-)
+
+## Is there a Community Forum to get in touch and talk about all this nice stuff?
+
+Yes, here: https://discourse.openmixerproject.de
 
 ## Steps to compile and load the new operating system
 
@@ -102,38 +140,6 @@ DSP1 is the main-DSP receiving and sending all 40 audio-channels from and to the
 
 DSP2 is used for the more advanced audio-effects in the original system. This DSP is not used at the moment.
 
-## What is working at the moment and what is planned so far
-* [x] Linux-Kernel in Version 6.12 (LTS) starts to shell using display framebuffer
-* [x] init-script for setting up the operating system
-* [x] MIDI-Input and -output is used as an additional serial-port-terminal (see pinout down below)
-* [x] Support of 800x480 32-bit framebuffer for applications (/dev/fb0)
-* [x] Support of 100MBit ethernet network-support with DHCP
-* [x] Support of internal Realtime-Clock
-* [x] Support of USB-Host interface (HID-Keyboard, HID-Mouse, Mass-Storage-Devices, Joystick, Soundcard, etc.)
-* [x] Support of internal SD-Card to read MAC-Address and the general configuration
-* [x] Support of internal 8-channel analog input- and output-cards including headamp- and phantom-power-control
-* [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438)
-* [x] Support of both AnalogDevices DSPs (ADSP-21371 SHARC DSPs) via internal SPI-interface
-* [x] Support of UltraNet-Output
-* [x] Support of booting from SD-Card and via original DCP-Bootloader
-* [x] Configuration of main-FPGA (Xilinx Spartan 3A, X3CS1400) via internal SPI-interface
-* [x] Support of 1:1-routing for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
-* [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
-* [x] Noisegate, 4-band EQ and compressor per channel is already working within the main-DSP
-
-So the most important things (audio in/out, control-surface, display) are working already. The high-level-audio-functions within the DSP need still more investigation...
-
-More things are on the ToDo-list:
-* [ ] In-Progress: implement logic for the Lattice FPGA and new AUX ADC/DAC in newer revisions of the X32
-* [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years)
-* [ ] Planned: Implement advanced audio-algorithm in DSP2
-* [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
-* [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
-* [ ] Planned: Support of AES50 (needs more investigation on AES50-protocol)
-
-LVGL v9.3.0 is running on the X32 with a good performance (30 fps). So this will be a basis for this open-source Operating System:
-![alt_text](Documentation/openx32_3.jpg)
-
 ## Connecting a serial terminal to MIDI In/Out
 The MIDI-Ports are connected to the UART5 of the i.MX25. With a simple resistor and a RS232/USB-converter the MIDI-ports can be used for a serial-terminal with 115200 baud:
 
@@ -143,13 +149,6 @@ The MIDI-Ports are connected to the UART5 of the i.MX25. With a simple resistor 
                      |4k7|
       Pin 5          |___|                                                 Pin 5
     MIDI OUT- o----<---|----->----o Pin 2 (RxD)   Pin 3 (TxD) o-----<----o MIDI In-
-
-## What's the reason for developing such a thing?
-I want to learn things about embedded systems and how they work. The X32 is a very powerful playground with lots of different controllers, nice faders and displays. So that's the only reason why I'm doing this :-)
-
-## Is there a Community Forum to get in touch and talk about all this nice stuff?
-
-Yes, here: https://discourse.openmixerproject.de
 
 ## Used third-party software
 * U-Boot in Version 2020.10 (https://github.com/u-boot/u-boot/tree/v2020.10)

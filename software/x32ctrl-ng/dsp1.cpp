@@ -465,7 +465,10 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                     break;
                 case 'c': // DSP-Load in dspClockCycles
                     if (valueCount == 1) {
-                        state->dspLoad[0] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                        float load = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                        if ((load > 1) && (load < 100)) {
+                            state->dspLoad[0] = load;
+                        }
                     }
                     break;
             }

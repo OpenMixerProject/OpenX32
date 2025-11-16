@@ -283,14 +283,14 @@ void Surface::InitDefinitions(void) {
             AddButtonDefinition(X32_LED_USB_ACCESS, 0x0122);
 
             AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_GAIN, 0x012A);
-            AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_FREQ, 0x012B );
-            AddButtonDefinition(X32_LED_BACKLIGHT_GATE_THRESHOLD, 0x012C );
-            AddButtonDefinition(X32_LED_BACKLIGHT_DYNAMICS_THRESHOLD, 0x012D );
-            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_Q, 0x012E );
-            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_FREQ, 0x012F );
-            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_GAIN, 0x0130 );
-            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131 );
-            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132 );
+            AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_FREQ, 0x012B);
+            AddButtonDefinition(X32_LED_BACKLIGHT_GATE_THRESHOLD, 0x012C);
+            AddButtonDefinition(X32_LED_BACKLIGHT_DYNAMICS_THRESHOLD, 0x012D);
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_Q, 0x012E);
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_FREQ, 0x012F);
+            AddButtonDefinition(X32_LED_BACKLIGHT_EQ_GAIN, 0x0130);
+            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_LEVEL, 0x0131);
+            AddButtonDefinition(X32_LED_BACKLIGHT_BUS_MIXES_PAN, 0x0132);
 
             // Encoder
 
@@ -470,7 +470,7 @@ void Surface::InitDefinitions(void) {
             AddButtonDefinition(X32_BTN_BOARD_R_CH_8_MUTE, 0x847);
             AddButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
 
-            // LED only
+            // LED, only);
 
             AddButtonDefinition(X32_LED_EQ_HCUT, 0x0118);
             AddButtonDefinition(X32_LED_EQ_HSHV, 0x0119);
