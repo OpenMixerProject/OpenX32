@@ -279,18 +279,18 @@ void systemSportInit() {
 	*pCPSP2A = ((unsigned int)&audioTx_tcb[2][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 	*pCPSP2B = ((unsigned int)&audioTx_tcb[3][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 	*pCPSP4A = ((unsigned int)&audioTx_tcb[4][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
-	*pCPSP4B = ((unsigned int)&audioTx_tcb[5][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
-	*pCPSP6A = ((unsigned int)&audioTx_tcb[6][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
-	*pCPSP6B = ((unsigned int)&audioTx_tcb[7][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	//*pCPSP4B = ((unsigned int)&audioTx_tcb[5][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	//*pCPSP6A = ((unsigned int)&audioTx_tcb[6][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	//*pCPSP6B = ((unsigned int)&audioTx_tcb[7][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 
 	*pCPSP1A = ((unsigned int)&audioRx_tcb[0][0][0] + 3); // pointing DMA to desired memory and enable interrupt after every processed TCB (PCI-bit is set here)
 	*pCPSP1B = ((unsigned int)&audioRx_tcb[1][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 	*pCPSP3A = ((unsigned int)&audioRx_tcb[2][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 	*pCPSP3B = ((unsigned int)&audioRx_tcb[3][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 	*pCPSP5A = ((unsigned int)&audioRx_tcb[4][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
-	*pCPSP5B = ((unsigned int)&audioRx_tcb[5][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
-	*pCPSP7A = ((unsigned int)&audioRx_tcb[6][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
-	*pCPSP7B = ((unsigned int)&audioRx_tcb[7][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	//*pCPSP5B = ((unsigned int)&audioRx_tcb[5][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	//*pCPSP7A = ((unsigned int)&audioRx_tcb[6][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
+	//*pCPSP7B = ((unsigned int)&audioRx_tcb[7][0][0] + 3); // pointing DMA to desired DMA-chaining-struct
 
 
 

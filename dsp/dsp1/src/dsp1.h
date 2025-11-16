@@ -151,6 +151,7 @@ struct {
 	//float highcutCoeff[MAX_CHAN];
 	//float highcutStates[MAX_CHAN];
 
+	//float pm peqCoeffsSet[5 * MAX_CHAN_EQS][MAX_CHAN]; // store in program memory
 	float pm peqCoeffs[5 * MAX_CHAN_EQS][MAX_CHAN]; // store in program memory
 	float dm peqStates[2 * MAX_CHAN_EQS][MAX_CHAN]; // store in data memory
 

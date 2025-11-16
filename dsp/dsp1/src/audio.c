@@ -147,8 +147,8 @@ void audioInit(void) {
 
 		// init PEQ-states
 		for (int s = 0; s < (2 * MAX_CHAN_EQS); s++) {
-			dsp.dspChannel[i_ch].peqStates[s] = 0;
-			dsp.dspChannel[i_ch].peqStates[s] = 0;
+			dsp.peqStates[s][i_ch] = 0;
+			dsp.peqStates[s][i_ch] = 0;
 		}
 
 		// initialize PEQs

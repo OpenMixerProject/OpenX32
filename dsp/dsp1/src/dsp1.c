@@ -250,7 +250,8 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 				case 'e': // EQ
 					if (valueCount == (5 * MAX_CHAN_EQS)) {
 						for (int i = 0; i < (5 * MAX_CHAN_EQS); i++) {
-							dsp.peqCoeffsSet[i][channel] = floatValues[i];
+							//dsp.peqCoeffsSet[i][channel] = floatValues[i];
+							dsp.peqCoeffs[i][channel] = floatValues[i];
 						}
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
