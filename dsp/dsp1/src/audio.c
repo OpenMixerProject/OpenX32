@@ -311,27 +311,27 @@ void audioProcessData(void) {
 			eqStateOffset = 2 * i_eq;
 
 			// Step 1: calculate tmpA = (-b2*vzz)
-			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 4], &dsp.peqStates[eqStateOffset + 1], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 4][0], &dsp.peqStates[eqStateOffset + 1][0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
 			// Step 2: tmp = tmp + tmpA = input + (-b2*vzz)
 			vecvaddf(&audioTempBufferChan[0], &audioTempBufferChanA[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
 			// Step 3: calculate tmpA = (-b1*vz)
-			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 3], &dsp.peqStates[eqStateOffset + 0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 3][0], &dsp.peqStates[eqStateOffset + 0][0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
 			// Step 4: tmp = tmp + tmpA = input + (-b2*vzz) + (-b1*vz)
 			vecvaddf(&audioTempBufferChan[0], &audioTempBufferChanA[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
 			// "tmp" contains "v" now
 			
 			// Step 5: tmpA = (a2*vzz)
-			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 2], &dsp.peqStates[eqStateOffset + 1], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 2][0], &dsp.peqStates[eqStateOffset + 1][0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
 			// Step 6: tmpB = (a1*vz)
-			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 1], &dsp.peqStates[eqStateOffset + 0], &audioTempBufferChanB[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 1][0], &dsp.peqStates[eqStateOffset + 0][0], &audioTempBufferChanB[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
 			// Step 7: shift the peqStates
-			memcpy(&dsp.peqStates[eqStateOffset + 1], &dsp.peqStates[eqStateOffset + 0], MAX_CHAN_FULLFEATURED * sizeof(float)); // vz -> vzz
-			memcpy(&dsp.peqStates[eqStateOffset + 0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED * sizeof(float)); // v -> vz
+			memcpy(&dsp.peqStates[eqStateOffset + 1][0], &dsp.peqStates[eqStateOffset + 0][0], MAX_CHAN_FULLFEATURED * sizeof(float)); // vz -> vzz
+			memcpy(&dsp.peqStates[eqStateOffset + 0][0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED * sizeof(float)); // v -> vz
 			
 			// Step 8: tmp = tmpA + tmpB = (a2*vzz) + (a1*vz)
 			vecvaddf(&audioTempBufferChanA[0], &audioTempBufferChanB[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
 			// Step 9: tmpA = (a0*v)
-			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 0], &dsp.peqStates[eqStateOffset + 0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
+			vecvmltf(&dsp.peqCoeffs[eqCoeffOffset + 0][0], &dsp.peqStates[eqStateOffset + 0][0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // peqCoeffs: a0, a1, a2, -b1, -b2, a0, ... | peqStates: vz, vzz, vz, ...
 			// Step 10: tmp = tmp + tmpA = (a2*vzz) + (a1*vz) + (a0*v)
 			vecvaddf(&audioTempBufferChan[0], &audioTempBufferChanA[0], &audioTempBufferChan[0], MAX_CHAN_FULLFEATURED);
 			// "tmp" contains "output" now
