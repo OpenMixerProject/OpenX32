@@ -28,7 +28,7 @@
 
   Control software for Behringer X32 using OpenX32
   https://github.com/OpenMixerProject/OpenX32
-  v0.1.5, 30.09.2025
+  v0.2.4, 16.11.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -125,7 +125,7 @@ void init100msTimer(void) {
 	perror("timer_create");
 	//return 1;
   }
-
+  
   // Set the timer to trigger every 1 second (1,000,000,000 nanoseconds)
   trigger.it_value.tv_sec = 0;
   trigger.it_value.tv_nsec = 50000000; // 50ms = 50000us = 50000000ns
@@ -193,7 +193,7 @@ void X32Ctrl::Run(){
 	helper->Log("       | |                               \n");
 	helper->Log("       |_|                               \n");
 	helper->Log("OpenX32 Main Control\n");
-	helper->Log("v0.2.0, 12.10.2025\n");
+	helper->Log("v0.2.4, 16.11.2025\n");
 	helper->Log("https://github.com/OpenMixerProject/OpenX32\n");
 
 	// first try to find what we are: Fullsize, Compact, Producer, Rack or Core
@@ -407,122 +407,7 @@ void X32Ctrl::ProcessEvents(void){
 
 	delete(event);
   }
-
-  // ############################################
-  // #
-  // #      ADDA-Events
-  // #
-  // ############################################
-
-
-  // ############################################
-  // #
-  // #      DSP-Events
-  // #
-  // ############################################
-
-  // TODO DSP 1 + 2
-
-// void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
-//     float* floatValues = (float*)values;
-//     uint32_t* intValues = (uint32_t*)values;
-
-//     switch (classId) {
-//         case 's': // status-feedback
-//             switch (channel) {
-//                 case 'v': // DSP-Version
-//                     if (valueCount == 1) {
-//                         dsp->dspVersion[0] = floatValues[0];
-//                     }
-//                     break;
-//                 case 'c': // DSP-Load in dspClockCycles
-//                     if (valueCount == 1) {
-//                         dsp->dspLoad[0] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
-//                     }
-//                     break;
-//             }
-//             break;
-//         case 'm': // meter information
-//             // copy meter-info to individual channels
-//             // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-//             if (valueCount == 43) {
-//                 for (int i = 0; i < 40; i++) {
-//                     dsp->dspChannel[i].meterPu = abs(floatValues[i])/2147483648.0f; // convert 32-bit value to p.u.
-//                     uint32_t data = (uint32_t)abs(floatValues[i]); // convert received float-value to unsigned integer
-//                     // data contains a 32-bit sample-value
-//                     // lets check the threshold and set meterInfo
-//                     dsp->dspChannel[i].meterInfo = 0;
-//                     if (data >= vuThresholds[0])  { dsp->dspChannel[i].meterInfo |= 0b00100000; } // CLIP
-//                     if (data >= vuThresholds[5])  { dsp->dspChannel[i].meterInfo |= 0b00010000; } // -6dBfs
-//                     if (data >= vuThresholds[8])  { dsp->dspChannel[i].meterInfo |= 0b00001000; } // -12dBfs
-//                     if (data >= vuThresholds[10]) { dsp->dspChannel[i].meterInfo |= 0b00000100; } // -18dBfs
-//                     if (data >= vuThresholds[14]) { dsp->dspChannel[i].meterInfo |= 0b00000010; } // -30dBfs
-//                     if (data >= vuThresholds[24]) { dsp->dspChannel[i].meterInfo |= 0b00000001; } // -60dBfs
-
-//                     // the dynamic-information is received with the 'd' information, but we will store them here
-//                     if (dsp->dspChannel[i].gate.gain < 1.0f) { dsp->dspChannel[i].meterInfo |= 0b01000000; }
-//                     if (dsp->dspChannel[i].compressor.gain < 1.0f) { dsp->dspChannel[i].meterInfo |= 0b10000000; }
-//                 }
-//                 dsp->mainChannelLR.meterPu[0] = abs(floatValues[40])/2147483648.0f; // convert 32-bit value to p.u.
-//                 dsp->mainChannelLR.meterPu[1] = abs(floatValues[41])/2147483648.0f; // convert 32-bit value to p.u.
-//                 dsp->mainChannelSub.meterPu[0] = abs(floatValues[42])/2147483648.0f; // convert 32-bit value to p.u.
-
-//                 // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-//                 // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
-//                 dsp->mainChannelLR.meterInfo[0] = 0;
-//                 dsp->mainChannelLR.meterInfo[1] = 0;
-//                 dsp->mainChannelSub.meterInfo[0] = 0;
-//                 uint32_t data[3];
-//                 data[0] = abs(floatValues[40]);
-//                 data[1] = abs(floatValues[41]);
-//                 data[2] = abs(floatValues[42]);
-//                 for (int i = 0; i < 24; i++) {
-//                     if (data[0] >= vuThresholds[i]) { dsp->mainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
-//                     if (data[1] >= vuThresholds[i]) { dsp->mainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
-//                     if (data[2] >= vuThresholds[i]) { dsp->mainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
-//                 }
-//             }
-//             break;
-//         case 'd': // dynamics-information
-//             if (valueCount == 80) {
-//                 // first copy the compression-information
-//                 for (int i = 0; i < 40; i++) {
-//                     dsp->dspChannel[i].compressor.gain = floatValues[i];
-//                     dsp->dspChannel[i].gate.gain = floatValues[40 + i];
-//                 }
-//             }
-//         default:
-//             break;
-//     }
-// }
-
-// void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
-//     float* floatValues = (float*)values;
-//     uint32_t* intValues = (uint32_t*)values;
-
-//     switch (classId) {
-//         case 's': // status-feedback
-//             switch (channel) {
-//                 case 'v': // DSP-Version
-//                     if (valueCount == 1) {
-//                         dsp->dspVersion[1] = floatValues[0];
-//                     }
-//                     break;
-//                 case 'c': // DSP-Load in dspClockCycles
-//                     if (valueCount == 1) {
-//                         dsp->dspLoad[1] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
-//                     }
-//                     break;
-//             }
-//             break;
-//         default:
-//             break;
-//     }
-// }
 }
-
-
-
 
 // receive data from XRemote client
 void X32Ctrl::UdpHandleCommunication(void) {
@@ -824,7 +709,6 @@ void X32Ctrl::ShowPrevPage(void){
 		ShowPage(pages[activePage].prevPage);
 	}
 }
-
 
 void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 
@@ -1150,7 +1034,7 @@ void X32Ctrl::guiSync(void) {
 		//####################################
 		//#         Page Meters
 		//####################################
-			guiSetEncoderText("-", "-", "-", "-", "-", String(state->debugvalue).c_str());
+			guiSetEncoderText("Reload DSP1", "-", "-", "-", "-", String(state->debugvalue).c_str());
 		}else{
 		//####################################
 		//#         All other pages
@@ -2108,6 +1992,31 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 						break;
 				}
 			}
+		}else if (activePage == X32_PAGE_UTILITY){
+			if (buttonPressed){
+				switch (button){
+					case X32_BTN_ENCODER1:
+						// Reload DSP1
+						mixer->dsp->spi->CloseDspConnections();
+						mixer->dsp->spi->ConfigureDsp();
+						mixer->dsp->spi->OpenDspConnections();
+						mixer->dsp->dspInit();
+						mixer->dsp->SendAll();
+						break;
+					case X32_BTN_ENCODER2:
+						break;
+					case X32_BTN_ENCODER3:
+						break;
+					case X32_BTN_ENCODER4:
+						break;
+					case X32_BTN_ENCODER5:
+						break;
+					case X32_BTN_ENCODER6:
+						break;
+					default:
+						break;
+				}
+			}
 		}
 	}
 }
@@ -2256,10 +2165,9 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 		else if (activePage == X32_PAGE_UTILITY) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
-					//mixer->ChangeHardwareOutput(amount);
+					// reload DSP1 on button-click
 					break;
 				case X32_ENC_ENCODER2:
-					//mixer->ChangeHardwareInput(amount);
 					break;
 				case X32_ENC_ENCODER3:
 					break;

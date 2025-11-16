@@ -31,40 +31,40 @@ DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
 
 void DSP1::dspInit(void) {
 
-    MainChannelLR.volume = -100; // dB
+    MainChannelLR.volume = VOLUME_MIN; // dB
     MainChannelLR.balance = 0; // -100 .. 0 .. +100
-    MainChannelSub.volume = -100; // dB
+    MainChannelSub.volume = VOLUME_MIN; // dB
     MainChannelSub.balance = 0; // -100 .. 0 .. +100
 
     for (uint8_t i = 0; i < 40; i++) {
-        Channel[i].lowCutFrequency = 100.0f;
+        Channel[i].lowCutFrequency = 100.0f; // Hz
 
         Channel[i].gate.threshold = -80; // dB -> no gate
-        Channel[i].gate.range = 60; // full range
+        Channel[i].gate.range = 60; // dB -> full range
         Channel[i].gate.attackTime_ms = 10;
         Channel[i].gate.holdTime_ms = 50;
         Channel[i].gate.releaseTime_ms = 250;
 
         Channel[i].compressor.threshold = 0; // dB -> no compression
         Channel[i].compressor.ratio = 1.0f/3.0f; // 1:3
-        Channel[i].compressor.makeup = 0; // dB
+        Channel[i].compressor.makeup = 0; // dB -> no makeup
         Channel[i].compressor.attackTime_ms = 10;
         Channel[i].compressor.holdTime_ms = 10;
         Channel[i].compressor.releaseTime_ms = 150;
 
         for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++) {
-            Channel[i].peq[peq].type = 1;
-            Channel[i].peq[peq].fc = 3000;
+            Channel[i].peq[peq].type = 1; // PEQ
+            Channel[i].peq[peq].fc = 3000; // Hz
             Channel[i].peq[peq].Q = 2.0;
-            Channel[i].peq[peq].gain = 0;
+            Channel[i].peq[peq].gain = 0; // dB
         }
 
         for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
             Channel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
         }
 
-        monitorVolume = 0; // dB
-        monitorTapPoint = 0; // TAP_INPUT
+        monitorVolume = 0; // dBfs
+        monitorTapPoint = DSP_TAP_INPUT;
 
         // initialize dsp-routing
         // route output 1-14 to Mixbus 1-14
@@ -88,10 +88,11 @@ void DSP1::dspInit(void) {
         //
         // connect DSP-inputs 1-40 to all 40 input-sources from FPGA
         Channel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
-        Channel[i].inputTapPoint = 0; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
+        Channel[i].inputTapPoint = DSP_TAP_INPUT;
         // connect MainLeft on even and MainRight on odd channels as PostFader
         Channel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
-        Channel[i].outputTapPoint = 4; // 0=INPUT, 1=PreEQ, 2=PostEQ, 3=PreFader, 4=PostFader
+        Channel[i].outputTapPoint = DSP_TAP_POST_FADER;
+
 
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
     }
@@ -104,16 +105,14 @@ void DSP1::dspInit(void) {
     }
 }
 
-void DSP1::Tick10ms(void){
+void DSP1::Tick10ms(void) {
     spi->Tick10ms();
 
-    // provess SPI-Data
-    while (spi->HasNextEvent())
-    {
+    // process SPI-Data
+    while (spi->HasNextEvent()) {
         SpiEvent* spiEvent = spi->GetNextEvent();
 
-        if (spiEvent->dsp == 1)
-        {
+        if (spiEvent->dsp == 0) {
             callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
         } else {
             callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
@@ -121,7 +120,7 @@ void DSP1::Tick10ms(void){
     }
 }
 
-void DSP1::Tick100ms(void){
+void DSP1::Tick100ms(void) {
     spi->Tick100ms();
 }
 
@@ -142,8 +141,8 @@ void DSP1::SendChannelVolume(uint8_t chan) {
     // send volume to DSP via SPI
     float values[4];
     values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
-    values[1] = balanceLeft; // 100 .. 100 ..  0
-    values[2] = balanceRight; // 0  .. 100 .. 100
+    values[1] = balanceLeft; // 1 .. 1 ..  0
+    values[2] = balanceRight; // 0  .. 1 .. 1
     values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
 
     spi->SendDspParameterArray(0, 'v', chan, 0, 4, &values[0]);

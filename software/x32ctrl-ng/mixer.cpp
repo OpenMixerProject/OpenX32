@@ -30,6 +30,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     adda = new Adda(basepar);
 
     dsp->dspInit();
+    dsp->SendAll();
     fpga->RoutingInit();
     adda->Init();
 
@@ -535,6 +536,7 @@ void Mixer::SetBalance(uint8_t vChannelIndex, float p_balance){
         case X32_VCHANNELTYPE_AUX: {
             dsp->Channel[vChannelIndex].balance = newValue;
             chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
+            chan->SetChanged(X32_VCHANNEL_CHANGED_BALANCE); // TODO: check if this is necessary
             break;
         }
         case X32_VCHANNELTYPE_BUS: {

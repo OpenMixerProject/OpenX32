@@ -27,6 +27,8 @@
 SPI::SPI(X32BaseParameter* basepar) : X32Base(basepar) {
     ConfigureFpga();
     ConfigureDsp();
+
+    OpenDspConnections();
 }
 
 
@@ -251,27 +253,25 @@ int SPI::ConfigureDsp(void) {
     uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
     //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
-    // abort if no file path was given
-    if(state->switchDsp1Path.length() == 0)
-    {
+    // abort if no file path was given for dsp1
+    if (state->switchDsp1Path.length() == 0) {
         return -1;
     }
 
     uint8_t numStreams = 0;
-    if(state->switchDsp1Path.length() > 0)
-    {
+    if (state->switchDsp1Path.length() > 0) {
         numStreams = 1;
-    } else if(state->switchDsp2Path.length() > 0) {
+    }
+    if (state->switchDsp2Path.length() > 0) {
         numStreams = 2;
     }
-
 
     // read size of bitstream-files
     file_size[0] = helper->GetFileSize(state->switchDsp1Path.c_str());
     if (file_size[0] <= 0) {
         helper->Error("Problem with bitstream-file\n");
               return -1;
-     }
+    }
     if (numStreams == 2) {
         file_size[1] = helper->GetFileSize(state->switchDsp2Path.c_str());
         if (file_size[1] <= 0) {
@@ -426,7 +426,7 @@ void SPI::Tick100ms(void){
 	if (config->IsModelX32FullOrCompactOrProducer()) {
         // read meter- and dynamics-information from DSP
 		SendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
-		SendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
+		//SendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
 	}
 
     if (!config->IsModelX32Core()) {
