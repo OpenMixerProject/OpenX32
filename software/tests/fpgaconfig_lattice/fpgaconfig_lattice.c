@@ -168,9 +168,9 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus)
     };
 	
 	if (keepCS) {
-		tr_cmd.cs_change = 0;
+		tr_cmd.cs_change = 1; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
 	}else{
-		tr_cmd.cs_change = 1;
+		tr_cmd.cs_change = 0; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
 	}
 
     tx_buf[0] = cmd; // command
@@ -227,9 +227,9 @@ int configure_lattice_spi(const char *bitstream_path) {
     fprintf(stdout, "Configuring Lattice FPGA...\n");
     fprintf(stdout, "  Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...\n");
     int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
-    write(fd, "1", 1);
+    write(fd, "1", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
     usleep(500); // we have to keep at least 25ns. So 500us is more than enough
-    write(fd, "0", 1);
+    write(fd, "0", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to HIGH again
     close(fd);
     usleep(50000); // we have to wait 50ms until we can send commands
 
@@ -278,7 +278,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 	
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
     fprintf(stdout, "  Sending LSC_BITSTREAM_BURST...");
-    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST, true, false);
+    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST, true, false); // keep CS asserted after this command
     fprintf(stdout, "OK\n");
 
     // transmit large bitstream in chunks but without deasserting CS
@@ -331,18 +331,12 @@ int configure_lattice_spi(const char *bitstream_path) {
         tr->len = len;
         tr->bits_per_word = spiBitsPerWord;
         tr->speed_hz = spiSpeed;
-        tr->cs_change = 0; // keep Chip-Select asserted
+        tr->cs_change = 0; // keep CS asserted between individual chunks, but deassert after last chunk. Behavior tested on RaspberryPi 4.
         
 		// we dont set no flags here. The kernel keeps CS asserted within this transmission-chain
         
         current_offset += len;
         num_transfers++;
-		
-		// check if this is the last chunk
-		if (current_offset >= bitstream_size) {
-			// this is the last chunk -> deassert chip-select
-			tr->cs_change = 1; // allow deassertion of CS
-		}
     }
 
     // send of the whole data-chain within a single ioctl-call
