@@ -60,6 +60,7 @@ begin
 					o_reset <= '0';
 					o_reset_inv <= '1';
 					o_startup <= '0';
+					count_clk <= count_clk + 1;
 				else
 					-- online state. Do nothing here and keep this forever
 					o_startup <= '1';
