@@ -332,7 +332,6 @@
         <signal name="XLXN_2328(6:0)" />
         <signal name="XLXN_2357" />
         <signal name="audio_output(1199:1176)" />
-        <signal name="XLXN_2507" />
         <signal name="DA_nRESET" />
         <signal name="AD_nRESET" />
         <signal name="CARD_nRESET" />
@@ -988,7 +987,7 @@
             <blockpin signalname="AD1_FSYNC" name="O" />
         </block>
         <block symbolname="rs232_encoder" name="XLXI_23">
-            <blockpin signalname="clk_124MHz" name="clk" />
+            <blockpin signalname="clk_24_576MHz" name="clk" />
             <blockpin signalname="XLXN_54" name="TX_rdy" />
             <blockpin signalname="XLXN_55(7:0)" name="byte1(7:0)" />
             <blockpin signalname="XLXN_56(7:0)" name="byte2(7:0)" />
@@ -998,7 +997,7 @@
             <blockpin signalname="XLXN_52(7:0)" name="TX_data(7:0)" />
         </block>
         <block symbolname="uart_tx" name="XLXI_21">
-            <blockpin signalname="clk_124MHz" name="i_Clk" />
+            <blockpin signalname="clk_24_576MHz" name="i_Clk" />
             <blockpin signalname="XLXN_50" name="i_TX_DV" />
             <blockpin signalname="XLXN_52(7:0)" name="i_TX_Byte(7:0)" />
             <blockpin name="o_TX_Active" />
@@ -1030,13 +1029,13 @@
             <blockpin signalname="XLXN_57(7:0)" name="O" />
         </block>
         <block symbolname="uart_rx" name="XLXI_28">
-            <blockpin signalname="clk_124MHz" name="i_Clk" />
+            <blockpin signalname="clk_24_576MHz" name="i_Clk" />
             <blockpin signalname="imx25_uart4_txd" name="i_RX_Serial" />
             <blockpin signalname="XLXN_63" name="o_RX_DV" />
             <blockpin signalname="XLXN_62(7:0)" name="o_RX_Byte(7:0)" />
         </block>
         <block symbolname="rs232_decoder" name="XLXI_456">
-            <blockpin signalname="clk_124MHz" name="clk" />
+            <blockpin signalname="clk_24_576MHz" name="clk" />
             <blockpin signalname="XLXN_63" name="RX_DataReady" />
             <blockpin signalname="XLXN_62(7:0)" name="RX_Data(7:0)" />
             <blockpin signalname="routing(895:0)" name="routing(895:0)" />
@@ -2344,11 +2343,6 @@
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="1092" y="712">UART to i.MX25 (Configuration-Data)</text>
         <instance x="1520" y="1216" name="XLXI_23" orien="R0">
         </instance>
-        <branch name="clk_124MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1296" y="864" type="branch" />
-            <wire x2="1296" y1="864" y2="864" x1="1232" />
-            <wire x2="1520" y1="864" y2="864" x1="1296" />
-        </branch>
         <branch name="XLXN_54">
             <wire x2="1520" y1="928" y2="928" x1="1472" />
             <wire x2="1472" y1="928" y2="1248" x1="1472" />
@@ -2376,11 +2370,6 @@
         <branch name="XLXN_50">
             <wire x2="2016" y1="864" y2="864" x1="1904" />
         </branch>
-        <branch name="clk_124MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1984" y="800" type="branch" />
-            <wire x2="1984" y1="800" y2="800" x1="1904" />
-            <wire x2="2016" y1="800" y2="800" x1="1984" />
-        </branch>
         <instance x="2016" y="960" name="XLXI_21" orien="R0">
         </instance>
         <instance x="1216" y="1024" name="XLXI_25" orien="R0">
@@ -2392,10 +2381,6 @@
         <text x="1248" y="948">Character 'X'</text>
         <text x="1356" y="1036">Character '3'</text>
         <text x="1228" y="1136">Character '2'</text>
-        <branch name="clk_124MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="2752" y="976" type="branch" />
-            <wire x2="2784" y1="976" y2="976" x1="2752" />
-        </branch>
         <branch name="imx25_uart4_txd">
             <wire x2="2784" y1="1040" y2="1040" x1="2752" />
         </branch>
@@ -2404,11 +2389,6 @@
         </branch>
         <branch name="XLXN_63">
             <wire x2="3312" y1="976" y2="976" x1="3216" />
-        </branch>
-        <branch name="clk_124MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="3264" y="912" type="branch" />
-            <wire x2="3264" y1="912" y2="912" x1="3184" />
-            <wire x2="3312" y1="912" y2="912" x1="3264" />
         </branch>
         <branch name="routing(895:0)">
             <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="3872" y="912" type="branch" />
@@ -3159,6 +3139,26 @@
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="4832" y="304" type="branch" />
             <wire x2="4832" y1="304" y2="304" x1="4736" />
             <wire x2="4864" y1="304" y2="304" x1="4832" />
+        </branch>
+        <branch name="clk_24_576MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1456" y="864" type="branch" />
+            <wire x2="1456" y1="864" y2="864" x1="1296" />
+            <wire x2="1520" y1="864" y2="864" x1="1456" />
+        </branch>
+        <branch name="clk_24_576MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1968" y="800" type="branch" />
+            <wire x2="1968" y1="800" y2="800" x1="1920" />
+            <wire x2="2016" y1="800" y2="800" x1="1968" />
+        </branch>
+        <branch name="clk_24_576MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2704" y="976" type="branch" />
+            <wire x2="2704" y1="976" y2="976" x1="2576" />
+            <wire x2="2784" y1="976" y2="976" x1="2704" />
+        </branch>
+        <branch name="clk_24_576MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="3264" y="912" type="branch" />
+            <wire x2="3264" y1="912" y2="912" x1="3152" />
+            <wire x2="3312" y1="912" y2="912" x1="3264" />
         </branch>
     </sheet>
 </drawing>

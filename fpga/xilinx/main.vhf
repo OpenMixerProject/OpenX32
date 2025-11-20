@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 10/30/2025 19:28:38
+-- /___/   /\     Timestamp : 11/20/2025 17:35:18
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -338,7 +338,7 @@ begin
                 LOCKED_OUT=>XLXN_2487);
    
    XLXI_21 : uart_tx
-      port map (i_Clk=>clk_124MHz,
+      port map (i_Clk=>clk_24_576MHz,
                 i_TX_Byte(7 downto 0)=>XLXN_52(7 downto 0),
                 i_TX_DV=>XLXN_50,
                 o_TX_Active=>open,
@@ -350,13 +350,13 @@ begin
                 byte2(7 downto 0)=>XLXN_56(7 downto 0),
                 byte3(7 downto 0)=>XLXN_57(7 downto 0),
                 byte4(7 downto 0)=>XLXI_23_byte4_openSignal(7 downto 0),
-                clk=>clk_124MHz,
+                clk=>clk_24_576MHz,
                 TX_rdy=>XLXN_54,
                 TX_data(7 downto 0)=>XLXN_52(7 downto 0),
                 TX_send=>XLXN_50);
    
    XLXI_28 : uart_rx
-      port map (i_Clk=>clk_124MHz,
+      port map (i_Clk=>clk_24_576MHz,
                 i_RX_Serial=>imx25_uart4_txd,
                 o_RX_Byte(7 downto 0)=>XLXN_62(7 downto 0),
                 o_RX_DV=>XLXN_63);
@@ -708,7 +708,7 @@ begin
                 O=>imx25_uart3_rxd);
    
    XLXI_456 : rs232_decoder
-      port map (clk=>clk_124MHz,
+      port map (clk=>clk_24_576MHz,
                 RX_Data(7 downto 0)=>XLXN_62(7 downto 0),
                 RX_DataReady=>XLXN_63,
                 routing(895 downto 0)=>routing(895 downto 0));
