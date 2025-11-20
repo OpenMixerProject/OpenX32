@@ -7,17 +7,12 @@
     </attr>
     <netlist>
         <signal name="clk_16MHz" />
-        <signal name="clk_124MHz" />
         <signal name="rst" />
         <signal name="clk_12_288MHz" />
         <signal name="tdm_fs" />
         <signal name="audiosync" />
         <signal name="routing(895:0)" />
-        <signal name="FPGACLK" />
-        <signal name="XLXN_330" />
-        <signal name="PLL_IN" />
         <signal name="clk_24_576MHz" />
-        <signal name="XLXN_2487" />
         <signal name="audio_output(791:768)" />
         <signal name="audio_output(815:792)" />
         <signal name="audio_output(839:816)" />
@@ -341,8 +336,8 @@
         <signal name="P16_B_TXP" />
         <signal name="P16_B_TXM" />
         <signal name="start" />
-        <port polarity="Input" name="FPGACLK" />
-        <port polarity="Output" name="PLL_IN" />
+        <signal name="PLL_IN" />
+        <signal name="FPGACLK" />
         <port polarity="Output" name="CARD_OUT0" />
         <port polarity="Output" name="CARD_OUT1" />
         <port polarity="Output" name="CARD_OUT2" />
@@ -414,16 +409,8 @@
         <port polarity="Output" name="P16_A_TXM" />
         <port polarity="Output" name="P16_B_TXP" />
         <port polarity="Output" name="P16_B_TXM" />
-        <blockdef name="dcm1">
-            <timestamp>2025-7-22T19:46:16</timestamp>
-            <rect width="336" x="64" y="-256" height="256" />
-            <line x2="0" y1="-224" y2="-224" x1="64" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="464" y1="-224" y2="-224" x1="400" />
-            <line x2="464" y1="-160" y2="-160" x1="400" />
-            <line x2="464" y1="-96" y2="-96" x1="400" />
-            <line x2="464" y1="-32" y2="-32" x1="400" />
-        </blockdef>
+        <port polarity="Output" name="PLL_IN" />
+        <port polarity="Input" name="FPGACLK" />
         <blockdef name="uart_tx">
             <timestamp>2025-7-23T18:43:51</timestamp>
             <rect width="304" x="64" y="-192" height="192" />
@@ -645,15 +632,6 @@
             <rect width="64" x="496" y="-44" height="24" />
             <line x2="560" y1="-32" y2="-32" x1="496" />
         </blockdef>
-        <blockdef name="reset_wpll">
-            <timestamp>2025-10-30T18:12:58</timestamp>
-            <rect width="256" x="64" y="-192" height="192" />
-            <line x2="0" y1="-160" y2="-160" x1="64" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="384" y1="-160" y2="-160" x1="320" />
-            <line x2="384" y1="-96" y2="-96" x1="320" />
-            <line x2="384" y1="-32" y2="-32" x1="320" />
-        </blockdef>
         <blockdef name="ultranet_tx">
             <timestamp>2025-10-30T18:16:59</timestamp>
             <rect width="256" x="64" y="-576" height="576" />
@@ -677,18 +655,14 @@
             <line x2="384" y1="-544" y2="-544" x1="320" />
             <line x2="384" y1="-480" y2="-480" x1="320" />
         </blockdef>
-        <block symbolname="dcm1" name="XLXI_20">
-            <blockpin name="RST_IN" />
-            <blockpin signalname="FPGACLK" name="CLKIN_IN" />
-            <blockpin signalname="XLXN_2487" name="LOCKED_OUT" />
-            <blockpin signalname="clk_124MHz" name="CLKFX_OUT" />
-            <blockpin signalname="PLL_IN" name="CLKIN_IBUFG_OUT" />
-            <blockpin signalname="XLXN_330" name="CLK0_OUT" />
-        </block>
-        <block symbolname="bufg" name="XLXI_83">
-            <blockpin signalname="XLXN_330" name="I" />
-            <blockpin signalname="clk_16MHz" name="O" />
-        </block>
+        <blockdef name="reset">
+            <timestamp>2025-10-30T18:10:0</timestamp>
+            <rect width="256" x="64" y="-192" height="192" />
+            <line x2="0" y1="-160" y2="-160" x1="64" />
+            <line x2="384" y1="-160" y2="-160" x1="320" />
+            <line x2="384" y1="-96" y2="-96" x1="320" />
+            <line x2="384" y1="-32" y2="-32" x1="320" />
+        </blockdef>
         <block symbolname="tdm_8ch_tx" name="XLXI_415">
             <blockpin signalname="clk_12_288MHz" name="bclk" />
             <blockpin signalname="tdm_fs" name="fsync" />
@@ -1265,13 +1239,6 @@
             <blockpin signalname="XLXN_2328(6:0)" name="o_ram_read_addr(6:0)" />
             <blockpin signalname="audio_output(2687:0)" name="output_data(2687:0)" />
         </block>
-        <block symbolname="reset_wpll" name="XLXI_715">
-            <blockpin signalname="clk_16MHz" name="clk" />
-            <blockpin signalname="XLXN_2487" name="i_pll_locked" />
-            <blockpin signalname="rst" name="o_reset" />
-            <blockpin signalname="nRST" name="o_reset_inv" />
-            <blockpin signalname="start" name="o_startup" />
-        </block>
         <block symbolname="buf" name="XLXI_556">
             <blockpin signalname="nRST" name="I" />
             <blockpin signalname="DA_nRESET" name="O" />
@@ -1310,40 +1277,28 @@
             <blockpin signalname="P16_B_TXP" name="ultranet_out_p" />
             <blockpin signalname="P16_B_TXM" name="ultranet_out_m" />
         </block>
+        <block symbolname="reset" name="XLXI_740">
+            <blockpin signalname="clk_16MHz" name="clk" />
+            <blockpin signalname="rst" name="o_reset" />
+            <blockpin signalname="nRST" name="o_reset_inv" />
+            <blockpin signalname="start" name="o_startup" />
+        </block>
+        <block symbolname="buf" name="XLXI_745">
+            <blockpin signalname="FPGACLK" name="I" />
+            <blockpin signalname="clk_16MHz" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_746">
+            <blockpin signalname="FPGACLK" name="I" />
+            <blockpin signalname="PLL_IN" name="O" />
+        </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
         <attr value="CM" name="LengthUnitName" />
         <attr value="4" name="GridsPerUnit" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="2168" x="80" y="40" height="588" />
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="104" y="84">Clock and Reset</text>
-        <branch name="clk_124MHz">
-            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="832" y="432" type="branch" />
-            <wire x2="832" y1="432" y2="432" x1="752" />
-        </branch>
-        <branch name="FPGACLK">
-            <wire x2="288" y1="560" y2="560" x1="272" />
-        </branch>
-        <branch name="XLXN_330">
-            <wire x2="832" y1="560" y2="560" x1="752" />
-        </branch>
-        <branch name="PLL_IN">
-            <wire x2="880" y1="496" y2="496" x1="752" />
-        </branch>
-        <instance x="288" y="592" name="XLXI_20" orien="R0">
-        </instance>
         <iomarker fontsize="28" x="272" y="560" name="FPGACLK" orien="R180" />
-        <instance x="832" y="592" name="XLXI_83" orien="R0" />
-        <branch name="clk_16MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="560" type="branch" />
-            <wire x2="1088" y1="560" y2="560" x1="1056" />
-            <wire x2="1184" y1="560" y2="560" x1="1088" />
-        </branch>
-        <iomarker fontsize="28" x="880" y="496" name="PLL_IN" orien="R0" />
         <text style="fontsize:24;fontname:Arial" x="100" y="512">FPGACLK is 16MHz</text>
-        <branch name="XLXN_2487">
-            <wire x2="768" y1="368" y2="368" x1="752" />
-            <wire x2="880" y1="368" y2="368" x1="768" />
-        </branch>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1964" x="5596" y="3616" height="1744" />
         <instance x="6000" y="4480" name="XLXI_415" orien="R0">
         </instance>
@@ -3072,13 +3027,6 @@
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="2708" y="1408">Audio Routing Matrix</text>
         <instance x="4544" y="1712" name="XLXI_711" orien="R0">
         </instance>
-        <branch name="clk_16MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="832" y="240" type="branch" />
-            <wire x2="832" y1="240" y2="240" x1="768" />
-            <wire x2="880" y1="240" y2="240" x1="832" />
-        </branch>
-        <instance x="880" y="400" name="XLXI_715" orien="R0">
-        </instance>
         <branch name="rst">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1280" y="240" type="branch" />
             <wire x2="1280" y1="240" y2="240" x1="1264" />
@@ -3160,5 +3108,30 @@
             <wire x2="3264" y1="912" y2="912" x1="3152" />
             <wire x2="3312" y1="912" y2="912" x1="3264" />
         </branch>
+        <branch name="PLL_IN">
+            <wire x2="720" y1="560" y2="560" x1="688" />
+        </branch>
+        <iomarker fontsize="28" x="720" y="560" name="PLL_IN" orien="R0" />
+        <instance x="880" y="400" name="XLXI_740" orien="R0">
+        </instance>
+        <branch name="FPGACLK">
+            <wire x2="288" y1="560" y2="560" x1="272" />
+            <wire x2="384" y1="560" y2="560" x1="288" />
+            <wire x2="464" y1="560" y2="560" x1="384" />
+            <wire x2="384" y1="432" y2="560" x1="384" />
+            <wire x2="464" y1="432" y2="432" x1="384" />
+        </branch>
+        <branch name="clk_16MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="720" y="432" type="branch" />
+            <wire x2="720" y1="432" y2="432" x1="688" />
+            <wire x2="816" y1="432" y2="432" x1="720" />
+        </branch>
+        <branch name="clk_16MHz">
+            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="752" y="240" type="branch" />
+            <wire x2="752" y1="240" y2="240" x1="672" />
+            <wire x2="880" y1="240" y2="240" x1="752" />
+        </branch>
+        <instance x="464" y="464" name="XLXI_745" orien="R0" />
+        <instance x="464" y="592" name="XLXI_746" orien="R0" />
     </sheet>
 </drawing>

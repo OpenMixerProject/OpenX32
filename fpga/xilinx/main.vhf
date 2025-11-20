@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 11/20/2025 17:35:18
+-- /___/   /\     Timestamp : 11/20/2025 18:04:53
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -103,55 +103,42 @@ end main;
 
 architecture BEHAVIORAL of main is
    attribute BOX_TYPE   : string ;
-   signal audiosync                 : std_logic;
-   signal audio_input               : std_logic_vector (2687 downto 0);
-   signal audio_output              : std_logic_vector (2687 downto 0);
-   signal clk_12_288MHz             : std_logic;
-   signal clk_16MHz                 : std_logic;
-   signal clk_24_576MHz             : std_logic;
-   signal clk_124MHz                : std_logic;
-   signal nRST                      : std_logic;
-   signal routing                   : std_logic_vector (895 downto 0);
-   signal rst                       : std_logic;
-   signal start                     : std_logic;
-   signal tdm_fs                    : std_logic;
-   signal XLXN_50                   : std_logic;
-   signal XLXN_52                   : std_logic_vector (7 downto 0);
-   signal XLXN_54                   : std_logic;
-   signal XLXN_55                   : std_logic_vector (7 downto 0);
-   signal XLXN_56                   : std_logic_vector (7 downto 0);
-   signal XLXN_57                   : std_logic_vector (7 downto 0);
-   signal XLXN_62                   : std_logic_vector (7 downto 0);
-   signal XLXN_63                   : std_logic;
-   signal XLXN_67                   : std_logic_vector (7 downto 0);
-   signal XLXN_68                   : std_logic_vector (7 downto 0);
-   signal XLXN_69                   : std_logic_vector (7 downto 0);
-   signal XLXN_70                   : std_logic;
-   signal XLXN_222                  : std_logic;
-   signal XLXN_223                  : std_logic_vector (7 downto 0);
-   signal XLXN_224                  : std_logic_vector (7 downto 0);
-   signal XLXN_225                  : std_logic_vector (7 downto 0);
-   signal XLXN_226                  : std_logic;
-   signal XLXN_330                  : std_logic;
-   signal XLXN_346                  : std_logic;
-   signal XLXN_1898                 : std_logic;
-   signal XLXN_1973                 : std_logic_vector (6 downto 0);
-   signal XLXN_1974                 : std_logic_vector (23 downto 0);
-   signal XLXN_2309                 : std_logic_vector (23 downto 0);
-   signal XLXN_2328                 : std_logic_vector (6 downto 0);
-   signal XLXN_2357                 : std_logic;
-   signal XLXN_2487                 : std_logic;
-   signal XLXI_20_RST_IN_openSignal : std_logic;
-   signal XLXI_23_byte4_openSignal  : std_logic_vector (7 downto 0);
-   component dcm1
-      port ( RST_IN          : in    std_logic; 
-             CLKIN_IN        : in    std_logic; 
-             LOCKED_OUT      : out   std_logic; 
-             CLKFX_OUT       : out   std_logic; 
-             CLKIN_IBUFG_OUT : out   std_logic; 
-             CLK0_OUT        : out   std_logic);
-   end component;
-   
+   signal audiosync                : std_logic;
+   signal audio_input              : std_logic_vector (2687 downto 0);
+   signal audio_output             : std_logic_vector (2687 downto 0);
+   signal clk_12_288MHz            : std_logic;
+   signal clk_16MHz                : std_logic;
+   signal clk_24_576MHz            : std_logic;
+   signal nRST                     : std_logic;
+   signal routing                  : std_logic_vector (895 downto 0);
+   signal rst                      : std_logic;
+   signal start                    : std_logic;
+   signal tdm_fs                   : std_logic;
+   signal XLXN_50                  : std_logic;
+   signal XLXN_52                  : std_logic_vector (7 downto 0);
+   signal XLXN_54                  : std_logic;
+   signal XLXN_55                  : std_logic_vector (7 downto 0);
+   signal XLXN_56                  : std_logic_vector (7 downto 0);
+   signal XLXN_57                  : std_logic_vector (7 downto 0);
+   signal XLXN_62                  : std_logic_vector (7 downto 0);
+   signal XLXN_63                  : std_logic;
+   signal XLXN_67                  : std_logic_vector (7 downto 0);
+   signal XLXN_68                  : std_logic_vector (7 downto 0);
+   signal XLXN_69                  : std_logic_vector (7 downto 0);
+   signal XLXN_70                  : std_logic;
+   signal XLXN_222                 : std_logic;
+   signal XLXN_223                 : std_logic_vector (7 downto 0);
+   signal XLXN_224                 : std_logic_vector (7 downto 0);
+   signal XLXN_225                 : std_logic_vector (7 downto 0);
+   signal XLXN_226                 : std_logic;
+   signal XLXN_346                 : std_logic;
+   signal XLXN_1898                : std_logic;
+   signal XLXN_1973                : std_logic_vector (6 downto 0);
+   signal XLXN_1974                : std_logic_vector (23 downto 0);
+   signal XLXN_2309                : std_logic_vector (23 downto 0);
+   signal XLXN_2328                : std_logic_vector (6 downto 0);
+   signal XLXN_2357                : std_logic;
+   signal XLXI_23_byte4_openSignal : std_logic_vector (7 downto 0);
    component uart_tx
       port ( i_Clk       : in    std_logic; 
              i_TX_DV     : in    std_logic; 
@@ -214,12 +201,6 @@ architecture BEHAVIORAL of main is
              o_fs  : out   std_logic);
    end component;
    
-   component BUFG
-      port ( I : in    std_logic; 
-             O : out   std_logic);
-   end component;
-   attribute BOX_TYPE of BUFG : component is "BLACK_BOX";
-   
    component BUF
       port ( I : in    std_logic; 
              O : out   std_logic);
@@ -275,6 +256,12 @@ architecture BEHAVIORAL of main is
              routing      : out   std_logic_vector (895 downto 0));
    end component;
    
+   component BUFG
+      port ( I : in    std_logic; 
+             O : out   std_logic);
+   end component;
+   attribute BOX_TYPE of BUFG : component is "BLACK_BOX";
+   
    component audiomatrix_ram
       port ( clk        : in    std_logic; 
              wr_en      : in    std_logic; 
@@ -303,14 +290,6 @@ architecture BEHAVIORAL of main is
              output_data     : out   std_logic_vector (2687 downto 0));
    end component;
    
-   component reset_wpll
-      port ( clk          : in    std_logic; 
-             i_pll_locked : in    std_logic; 
-             o_reset      : out   std_logic; 
-             o_reset_inv  : out   std_logic; 
-             o_startup    : out   std_logic);
-   end component;
-   
    component ultranet_tx
       port ( bit_clock      : in    std_logic; 
              ch1            : in    std_logic_vector (23 downto 0); 
@@ -325,18 +304,17 @@ architecture BEHAVIORAL of main is
              ultranet_out_m : out   std_logic);
    end component;
    
+   component reset
+      port ( clk         : in    std_logic; 
+             o_reset     : out   std_logic; 
+             o_reset_inv : out   std_logic; 
+             o_startup   : out   std_logic);
+   end component;
+   
 begin
    XLXN_55(7 downto 0) <= x"58";
    XLXN_56(7 downto 0) <= x"33";
    XLXN_57(7 downto 0) <= x"32";
-   XLXI_20 : dcm1
-      port map (CLKIN_IN=>FPGACLK,
-                RST_IN=>XLXI_20_RST_IN_openSignal,
-                CLKFX_OUT=>clk_124MHz,
-                CLKIN_IBUFG_OUT=>PLL_IN,
-                CLK0_OUT=>XLXN_330,
-                LOCKED_OUT=>XLXN_2487);
-   
    XLXI_21 : uart_tx
       port map (i_Clk=>clk_24_576MHz,
                 i_TX_Byte(7 downto 0)=>XLXN_52(7 downto 0),
@@ -392,10 +370,6 @@ begin
       port map (i_clk=>clk_24_576MHz,
                 o_clk=>clk_12_288MHz,
                 o_fs=>tdm_fs);
-   
-   XLXI_83 : BUFG
-      port map (I=>XLXN_330,
-                O=>clk_16MHz);
    
    XLXI_87 : BUF
       port map (I=>clk_12_288MHz,
@@ -905,13 +879,6 @@ begin
                 output_data(2687 downto 0)=>audio_output(2687 downto 0),
                 o_ram_read_addr(6 downto 0)=>XLXN_2328(6 downto 0));
    
-   XLXI_715 : reset_wpll
-      port map (clk=>clk_16MHz,
-                i_pll_locked=>XLXN_2487,
-                o_reset=>rst,
-                o_reset_inv=>nRST,
-                o_startup=>start);
-   
    XLXI_733 : ultranet_tx
       port map (bit_clock=>clk_24_576MHz,
                 ch1(23 downto 0)=>audio_output(407 downto 384),
@@ -937,6 +904,20 @@ begin
                 ch8(23 downto 0)=>audio_output(767 downto 744),
                 ultranet_out_m=>P16_B_TXM,
                 ultranet_out_p=>P16_B_TXP);
+   
+   XLXI_740 : reset
+      port map (clk=>clk_16MHz,
+                o_reset=>rst,
+                o_reset_inv=>nRST,
+                o_startup=>start);
+   
+   XLXI_745 : BUF
+      port map (I=>FPGACLK,
+                O=>clk_16MHz);
+   
+   XLXI_746 : BUF
+      port map (I=>FPGACLK,
+                O=>PLL_IN);
    
 end BEHAVIORAL;
 
