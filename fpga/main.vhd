@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Thu Nov 20 12:47:20 2025"
+-- CREATED		"Thu Nov 20 17:36:25 2025"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -162,7 +162,7 @@ COMPONENT or2_gate
 	);
 END COMPONENT;
 
-COMPONENT or4_gate
+COMPONENT and4_gate
 	PORT(in1 : IN STD_LOGIC;
 		 in2 : IN STD_LOGIC;
 		 in3 : IN STD_LOGIC;
@@ -455,7 +455,7 @@ PORT MAP(in1 => SYNTHESIZED_WIRE_7,
 		 output => AUX_CDATA);
 
 
-b2v_inst18 : or4_gate
+b2v_inst14 : and4_gate
 PORT MAP(in1 => DA_RX,
 		 in2 => AD0_RX,
 		 in3 => AD1_RX,
