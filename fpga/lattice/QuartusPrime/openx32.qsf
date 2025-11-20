@@ -44,6 +44,11 @@ set_global_assignment -name ORIGINAL_QUARTUS_VERSION 24.1STD.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:44:46  OCTOBER 26, 2025"
 set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VHDL_FILE ../../reset_wpll.vhd
+set_global_assignment -name VHDL_FILE ../../or2_gate.vhd
 set_global_assignment -name VHDL_FILE ../../volumectrl.vhd
 set_global_assignment -name VHDL_FILE ../../ultranet_tx.vhd
 set_global_assignment -name VHDL_FILE ../../uart_tx.vhd
@@ -58,7 +63,6 @@ set_global_assignment -name VHDL_FILE ../../rs232_const.vhd
 set_global_assignment -name VHDL_FILE ../../reset.vhd
 set_global_assignment -name VHDL_FILE ../../pcm1690dac_config.vhd
 set_global_assignment -name VHDL_FILE ../../or4_gate.vhd
-set_global_assignment -name VHDL_FILE ../../main.vhd
 set_global_assignment -name VHDL_FILE ../../m8000adc_config.vhd
 set_global_assignment -name VHDL_FILE ../../ddfs_drom.vhd
 set_global_assignment -name VHDL_FILE ../../cs42438_config.vhd
@@ -70,7 +74,4 @@ set_global_assignment -name VHDL_FILE ../../audiomatrix_ram.vhd
 set_global_assignment -name VHDL_FILE ../../audiomatrix.vhd
 set_global_assignment -name VHDL_FILE ../../audioclk.vhd
 set_global_assignment -name BDF_FILE main.bdf
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

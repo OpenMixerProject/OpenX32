@@ -35,7 +35,7 @@ entity pcm1690dac_config is
 	port (
 		clk			: in std_logic; -- expecting 16 MHz
 		i_start		: in std_logic;
-		i_txbusy	: in std_logic;
+		i_txbusy		: in std_logic;
 		
 		o_address	: out std_logic_vector(7 downto 0);
 		o_data		: out std_logic_vector(7 downto 0);
@@ -47,7 +47,7 @@ end entity;
 architecture behavioral of pcm1690dac_config is
 	type t_SM is (s_Startup, s_Config, s_Wait, s_Done);
 	signal s_SM				: t_SM := s_Startup;
-	signal count_state		: natural range 0 to 50 := 0; -- allow up to 3us
+	signal count_state	: natural range 0 to 50 := 0; -- allow up to 3us
 	
 	signal address			: std_logic_vector(7 downto 0);
 	signal data				: std_logic_vector(7 downto 0);
