@@ -243,13 +243,15 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			switch (index) {
 				case 'l': // LowCut
 					if (valueCount == 1) {
-						dsp.lowcutCoeffSet[channel] = floatValues[0];
+						//dsp.lowcutCoeffSet[channel] = floatValues[0];
+						dsp.lowcutCoeff[channel] = floatValues[0];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 'e': // EQ
 					if (valueCount == (MAX_CHAN_EQS * 5)) {
-						memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
+						//memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
+						memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;

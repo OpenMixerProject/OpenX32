@@ -244,7 +244,7 @@ void audioProcessData(void) {
 	//				 |_____\__, |\__,_|\__,_|_|_/___\___|_|
 	//				          |_|
 	// use low-pass filter on EQ-Coefficients to smoothly change parameters
-	fxSmoothCoeffs();
+	//fxSmoothCoeffs();
 
 	// Hardware-Accelerated Biquad-Filter
 	// Ressource-Demand: ~20%

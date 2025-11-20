@@ -110,7 +110,6 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 
 void fxSmoothCoeffs(void) {
 	// this function is called every 333µs
-
 	float value;
 	float coeff = (3.0f / 3000.0f); // 0.3s until value is taken
 	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {

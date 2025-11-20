@@ -32,9 +32,6 @@
         <Source name="../main.vhd" type="VHDL" type_short="VHDL">
             <Options top_module="main"/>
         </Source>
-        <Source name="../or4_gate.vhd" type="VHDL" type_short="VHDL">
-            <Options/>
-        </Source>
         <Source name="../reset.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
@@ -78,6 +75,9 @@
             <Options/>
         </Source>
         <Source name="../spi_16bit_tx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../and4_gate.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="openx32.lpf" type="Logic Preference" type_short="LPF">
