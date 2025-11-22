@@ -738,13 +738,17 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 		case X32_PAGE_CONFIG:
 			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 1, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, 1);
+			if (config->IsModelX32FullOrCompactOrProducer()) {
+				surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, 1);
+			}
 			break;
 
 		case X32_PAGE_EQ:
 			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 4, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_VIEW_EQ, 1);
+			if (config->IsModelX32FullOrCompactOrProducer()) {
+				surface->SetLedByEnum(X32_BTN_VIEW_EQ, 1);
+			}
 			break;
 
 		case X32_PAGE_METERS:
