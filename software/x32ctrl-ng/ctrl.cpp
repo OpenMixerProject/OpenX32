@@ -900,7 +900,7 @@ void X32Ctrl::guiSync(void) {
 			//routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
 			//lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
-			guiSetEncoderText("Source", "Gain", "-", "-", "-", "-");
+			guiSetEncoderText("Source\n[Invert]", "Gain\n[48V]", "PAN/BAL\n[Center]", "Volume\n[Mute]", "-", "-");
 		}else if (activePage == X32_PAGE_ROUTING_HWOUT) {
 		//####################################
 		//#         Page Routing
@@ -1951,13 +1951,16 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 			if (buttonPressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
+						mixer->TogglePhaseInvert(GetSelectedvChannelIndex());
 						break;
 					case X32_BTN_ENCODER2:
 						mixer->TogglePhantom(GetSelectedvChannelIndex());
 						break;
 					case X32_BTN_ENCODER3:
+						mixer->SetBalance(GetSelectedvChannelIndex(), 0.0);
 						break;
 					case X32_BTN_ENCODER4:
+						mixer->ToggleMute(GetSelectedvChannelIndex());
 						break;
 					case X32_BTN_ENCODER5:
 						break;
@@ -2098,9 +2101,11 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				case X32_ENC_ENCODER2:
 					mixer->ChangeGain(GetSelectedvChannelIndex(), amount);
 					break;
-				case X32_ENC_ENCODER3:                   
+				case X32_ENC_ENCODER3:
+					mixer->ChangeBalance(GetSelectedvChannelIndex(), amount);
 					break;
 				case X32_ENC_ENCODER4:
+					mixer->ChangeVolume(GetSelectedvChannelIndex(), amount);
 					break;
 				case X32_ENC_ENCODER5:
 					break;

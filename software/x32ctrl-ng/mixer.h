@@ -50,7 +50,7 @@ class Mixer : public X32Base
         void SetPhantom(uint8_t vChannelIndex, bool p_phantom);
         void SetPhaseInvert(uint8_t vChannelIndex, bool p_phaseInvert);
         void SetSolo(uint8_t vChannelIndex, bool solo);
-        void SetMute(uint8_t vChannelIndex, bool solo);
+        void SetMute(uint8_t vChannelIndex, bool mute);
         void SetVolume(uint8_t vChannelIndex, float p_volume);
         void SetVolumeFadervalue(uint8_t vChannelIndex, float volume);
         void SetVolumeOscvalue(uint8_t vChannelIndex, float volume);
