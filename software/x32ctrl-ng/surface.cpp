@@ -932,8 +932,22 @@ void Surface::SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1){
 
 // set 7-Segment display on X32 Rack
 // dot = 128 or 256
-void Surface::SetX32RackDisplay(uint8_t p_value){
-    SetX32RackDisplayRaw(int2segment((uint8_t)(p_value/10)), int2segment(p_value % 10));
+void Surface::SetX32RackDisplay(uint8_t vChannelIndex){
+    uint8_t vChannelNumber = vChannelIndex + 1;
+    if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK_NORMAL)) {
+        SetX32RackDisplayRaw(int2segment((uint8_t)(vChannelNumber/10)), int2segment(vChannelNumber % 10));
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK_AUX)) {
+        SetX32RackDisplayRaw(int2segment('A'), int2segment(vChannelNumber - X32_VCHANNEL_BLOCK_AUX));
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK_FXRET)) {
+        SetX32RackDisplayRaw(int2segment('F'), int2segment(vChannelNumber - X32_VCHANNEL_BLOCK_FXRET));
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK_BUS)) {
+        uint8_t number = vChannelNumber - X32_VCHANNEL_BLOCK_BUS;
+        SetX32RackDisplayRaw(int2segment((uint8_t)(number/10)), int2segment(number % 10)+128);
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK_MATRIX)) {
+        SetX32RackDisplayRaw(int2segment('M'), int2segment(vChannelNumber - X32_VCHANNEL_BLOCK_MATRIX));
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK_DCA)) {
+        SetX32RackDisplayRaw(int2segment('D'), int2segment(vChannelNumber - X32_VCHANNEL_BLOCK_DCA));
+    }
 }
 
 uint8_t Surface::int2segment(int8_t p_value){
@@ -967,6 +981,9 @@ uint8_t Surface::int2segment(int8_t p_value){
         case 'd':
         case 'D':
             return 94;
+        case 'f':
+        case 'F':
+            return 1 + 32 + 64 + 16;
         case 'm':
         case 'M':
             return 55;
