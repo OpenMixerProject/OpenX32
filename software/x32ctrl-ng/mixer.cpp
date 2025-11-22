@@ -250,22 +250,22 @@ void Mixer::SetSolo(uint8_t channelIndex, bool solo){
         }
         case X32_VCHANNELTYPE_BUS: {
             dsp->Bus[channelIndex - X32_VCHANNEL_BLOCK_BUS].solo = solo;
-            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            chan->SetChanged(X32_VCHANNEL_CHANGED_SOLO);
             break;
         }
         case X32_VCHANNELTYPE_MATRIX: {
             dsp->Matrix[channelIndex - X32_VCHANNEL_BLOCK_MATRIX].solo = solo;
-            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            chan->SetChanged(X32_VCHANNEL_CHANGED_SOLO);
             break;
         }
         case X32_VCHANNELTYPE_MAINSUB: {
             dsp->MainChannelSub.solo = solo;
-            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            chan->SetChanged(X32_VCHANNEL_CHANGED_SOLO);
             break;
         }
         case X32_VCHANNELTYPE_MAIN: {
             dsp->MainChannelLR.solo = solo;
-            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            chan->SetChanged(X32_VCHANNEL_CHANGED_SOLO);
             break;
         }
     }
