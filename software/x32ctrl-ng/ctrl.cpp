@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 // #      ####   ##### ####  #####  ###        
 // #
 	config->SetDebug(state->switchDebug != -1);
-	config->SetDebugFlag(DEBUG_XREMOTE);
+	config->SetDebugFlag(DEBUG_ALL);
 // ###########################################################################
 		
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
@@ -1630,12 +1630,13 @@ void X32Ctrl::xremoteSync(bool syncAll) {
 // ####################################################################
 
 // direction - positive or negative integer value
-void X32Ctrl::ChangeSelect(uint8_t direction){
-	int16_t newSelectedVChannel = selectedVChannel += direction;
+void X32Ctrl::ChangeSelect(int8_t direction){
+	int16_t newSelectedVChannel = GetSelectedvChannelIndex() + direction;
+	helper->Debug(DEBUG_X32CTRL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d\n", GetSelectedvChannelIndex(), direction, newSelectedVChannel);
 	if (newSelectedVChannel < 0) {
-		newSelectedVChannel = 0;
+		newSelectedVChannel = MAX_VCHANNELS -1;
 	} else if (newSelectedVChannel >= MAX_VCHANNELS){
-		newSelectedVChannel = MAX_VCHANNELS - 1;
+		newSelectedVChannel = 0;
 	}
 
 	SetSelect(newSelectedVChannel, true);

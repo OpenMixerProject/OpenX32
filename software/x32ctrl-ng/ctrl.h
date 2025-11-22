@@ -95,7 +95,7 @@ class X32Ctrl : public X32Base {
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
         void xremoteSync(bool syncAll=false);
 
-        void ChangeSelect(uint8_t direction);
+        void ChangeSelect(int8_t direction);
         void SetSelect(uint8_t vChannelIndex, bool solo);
         void ToggleSelect(uint8_t vChannelIndex);
         uint8_t GetSelectedvChannelIndex(void);
