@@ -239,17 +239,39 @@ void Mixer::SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag
 
 
 
-void Mixer::SetSolo(uint8_t p_vChannelIndex, bool solo){
-    VChannel* chan = GetVChannel(p_vChannelIndex);
+void Mixer::SetSolo(uint8_t channelIndex, bool solo){
+    VChannel* chan = GetVChannel(channelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE_NORMAL: 
-        case X32_VCHANNELTYPE_BUS:
-        case X32_VCHANNELTYPE_MATRIX: {
+        case X32_VCHANNELTYPE_NORMAL: {
             chan->dspChannel->solo = solo;
-            
+            chan->SetChanged(X32_VCHANNEL_CHANGED_SOLO);
+            break;
         }
-        chan->SetChanged(X32_VCHANNEL_CHANGED_SOLO);
+        case X32_VCHANNELTYPE_BUS: {
+            dsp->Bus[channelIndex - X32_VCHANNEL_BLOCK_BUS].solo = solo;
+            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            break;
+        }
+        case X32_VCHANNELTYPE_MATRIX: {
+            dsp->Matrix[channelIndex - X32_VCHANNEL_BLOCK_MATRIX].solo = solo;
+            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            break;
+        }
+        case X32_VCHANNELTYPE_MAINSUB: {
+            dsp->MainChannelSub.solo = solo;
+            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            break;
+        }
+        case X32_VCHANNELTYPE_MAIN: {
+            dsp->MainChannelLR.solo = solo;
+            chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
+            break;
+        }
+    }
+
+    if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
+        helper->Debug("Solo of channel %s \"%s\" changed to %s\n", chan->nameIntern.c_str(), chan->name.c_str(), solo ? "ON" : "OFF"); 
     }
 
     //TODOs
