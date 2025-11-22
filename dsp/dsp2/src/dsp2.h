@@ -5,7 +5,7 @@
 #ifndef __DSP2_H__
 #define __DSP2_H__
 
-#define DSP_VERSION				0.01
+#define DSP_VERSION				0.02
 
 #define SDRAM_START  			0x00200000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
@@ -23,7 +23,6 @@
 #define SPI_MAX_RX_PAYLOAD_SIZE	30  // 27 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values
-#define SPI_DMA_BUFFER_SIZE		1
 
 // SPDIF configuration
 #define CLKA_DIVIDER			8	// provides SCLK serial clock to S/PDIF TX and SPORT0

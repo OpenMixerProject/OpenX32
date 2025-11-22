@@ -5,7 +5,9 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define DSP_VERSION				0.20
+#define DSP_VERSION				0.30
+
+#define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
 #define SDRAM_START  			0x00200000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
@@ -30,8 +32,7 @@
 #define OFFSET_MASK				0x7FFFF
 #define SPI_MAX_RX_PAYLOAD_SIZE	30  // 27 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
-#define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values
-#define SPI_DMA_BUFFER_SIZE		1
+#define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values - must be dividable by 2!
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32

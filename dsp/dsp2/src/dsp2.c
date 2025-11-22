@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP2 (FX DSP) v0.0.1, 30.09.2025
+  ControlSystem for DSP2 (FX DSP) v0.0.2, 22.11.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -82,12 +82,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 				case 0:
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
-				case 'v': // version number
-					tmpValueFloat = DSP_VERSION;
-					spiSendValue('s', 'v', 0, tmpValueFloat); // classId='s'=Status, channel='v'=Version, index=0, value
-					break;
-				case 'c': // cpu load as "used cycles"
-					spiSendValue_uint32('s', 'c', 0, cyclesMain); // classId='s'=Status, channel='c'=CPULoad, index=0, value
+				case 'u': // update-packet
+					data[0] = DSP_VERSION;
+					memcpy(&data[1], &cyclesMain, sizeof(float));
+					spiSendArray('s', 'u', 0, 2, &data);
 					break;
 				default:
 					break;

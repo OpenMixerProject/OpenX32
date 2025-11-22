@@ -24,12 +24,10 @@
 
 #include "spi.h"
 
-unsigned int spiDmaBuffer[SPI_DMA_BUFFER_SIZE];
-bool spiDmaMode = false;
-
 volatile sSpiRxRingBuffer spiRxRingBuffer;
 volatile sSpiTxRingBuffer spiTxRingBuffer;
 volatile bool spiNewRxDataReady = false;
+bool spiDmaMode = false;
 
 typedef enum {
 	LOOKING_FOR_START_MARKER,
@@ -49,8 +47,15 @@ void spiInit(void) {
 	*pSPIFLG = DS0EN; // Enable SRU2 output for SPI device-select-0
 
 	// Start SPI in CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
-	*pSPICTL = ISSEN | MSBF | WL32 | CLKPL | CPHASE | OPD; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled
-	*pSPICTL |= SPIEN;
+	// TIMOD0 (no set TIMODx) = The SPI interrupt is latched in every core clock cycle in which the RXSPI buffer has a word in it
+	// TIMOD1 = The SPI interrupt is latched in every core clock cycle in which the TXSPI buffer is empty
+	*pSPICTL = ISSEN | MSBF | WL32 | OPD; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled
+	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
+
+	spiTxRingBuffer.head = 0;
+	spiTxRingBuffer.tail = 0;
+	spiRxRingBuffer.head = 0;
+	spiRxRingBuffer.tail = 0;
 }
 
 void spiStop(void) {
@@ -68,6 +73,7 @@ void spiStop(void) {
 void spiDmaBegin(bool receive, int len) {
 	// stop and flush SPI
 	*pSPICTL &= ~SPIEN;
+	/*
 	*pSPICTL |= (TXFLSH | RXFLSH);
     while (!(SPIF & *pSPISTAT)) {
        NOP();
@@ -75,36 +81,50 @@ void spiDmaBegin(bool receive, int len) {
     while (!(SPIFE & *pSPISTAT)) {
        NOP();
     }
+    */
 
-	// reconfigure for DMA-TransferMode
-	*pIISPI = (unsigned int)&spiDmaBuffer[0]; // Internal memory DMA address
+	// reconfigure SPI for DMA-TransferMode
+    if (receive) {
+    	*pIISPI = (unsigned int)&spiRxRingBuffer.buffer[0]; // Internal memory DMA address
+    	*pCSPI = len; // words to be read via SPI and DMA to buffer
+    }else{
+    	*pIISPI = (unsigned int)&spiTxRingBuffer.buffer[0]; // Internal memory DMA address
+    	*pCSPI = spiTxRingBuffer.head; // Contains number of 32-bit words in DMA transfers remaining data
+    }
 	*pIMSPI = 1; // Internal memory DMA access modifier
-	*pCSPI = len; // Contains number of DMA transfers remaining data
-	*pSPICTL = ISSEN | MSBF | WL32 | TIMOD2 | SPIEN; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | DMA-TransferMode | spi enabled
-	*pSPIDMAC = SPIDEN | INTEN; // DMA enabled | Interrupts enabled
+	//*pSPIBAUD = 0; // only for SPI-Master: SPICLK baud rate = PCLK /(4 x BAUDR) = 264MHz / (4 x 5MHz) = 13.2 = 13
+
 	if (receive) {
-		*pSPIDMAC |= SPIRCV;
+		*pSPIDMAC = SPIRCV | INTEN | SPIDEN; // Receiver enabled | Interrupts enabled | DMA enabled
+	}else{
+		*pSPIDMAC = INTEN | SPIDEN; // Interrupts enabled | DMA enabled
 	}
 
-	spiDmaMode = true;
+	*pSPICTL = ISSEN | MSBF | WL32 | OPD | TIMOD2; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled | DMA-TransferMode
+	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
+
+	spiDmaMode = true; // switch our processing to DMA-mode
 }
 
 void spiDmaEnd(void) {
-	// stop and flush SPI
-	*pSPICTL &= ~SPIEN;
-	*pSPICTL |= (TXFLSH | RXFLSH);
-    while (!(SPIF & *pSPISTAT)) {
+	// stop SPI and flush remaining data
+	*pSPICTL &= ~SPIEN; // disable SPI
+	/*
+	*pSPICTL |= (TXFLSH | RXFLSH); // flush Rx and Tx
+    while (!(SPIF & *pSPISTAT)) { // wait for SPI Transmit Transfer Complere
        NOP();
     }
-    while (!(SPIFE & *pSPISTAT)) {
+    while (!(SPIFE & *pSPISTAT)) { // wait for SPI Transaction Complete
        NOP();
     }
+	*/
 
 	// reconfigure for CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
-	*pSPIDMAC = 0;
-	*pSPICTL = ISSEN | MSBF | WL32 | SPIEN; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | spi enabled
+	*pSPIDMAC = 0; // clear SPI DMA control register
+	*pSPICTL = ISSEN | MSBF | WL32 | OPD; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled
+	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
 
-	spiDmaMode = false;
+	spiDmaMode = false; // switch internal processing to SPI-core-mode
 }
 
 void spiISR(int sig) {
@@ -135,7 +155,7 @@ void spiISR(int sig) {
 		}
 
 		//if ((!(TXS & *pSPISTAT)) && ()) {
-		if (!(TXS & *pSPISTAT)) {
+		//if (!(TXS & *pSPISTAT)) {
 			// send tx-buffer
 			if (spiTxRingBuffer.head != spiTxRingBuffer.tail) {
 				*pTXSPI = spiTxRingBuffer.buffer[spiTxRingBuffer.tail];
@@ -145,9 +165,9 @@ void spiISR(int sig) {
 				}
 			}else{
 				// tx-buffer is empty
-				//*pTXSPI = 0x00000000;
+				*pTXSPI = 0x00000000;
 			}
-		}
+		//}
 	}
 }
 
@@ -247,6 +267,7 @@ void spiSendValue_uint32(unsigned short classId, unsigned short channel, unsigne
 }
 
 /*
+// this code can be used to act as SPI-master
 // SPI-Master Read/Transmit
 unsigned int spiMasterRxTx(unsigned int data) {
 	*pTXSPI = data;

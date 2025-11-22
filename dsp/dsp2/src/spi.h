@@ -15,13 +15,11 @@ typedef struct {
 	volatile int tail; // read-pointer
 } sSpiTxRingBuffer;
 
-extern volatile sSpiTxRingBuffer spiTxRingBuffer;
-
 void spiInit(void);
 void spiStop(void);
-void spiISR(int sig);
 void spiDmaBegin(bool receive, int len);
 void spiDmaEnd(void);
+void spiISR(int sig);
 void spiProcessRxData(void);
 void spiPushValueToTxBuffer(unsigned int value);
 void spiSendArray(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values);

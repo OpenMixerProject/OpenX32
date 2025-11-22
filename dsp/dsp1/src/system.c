@@ -200,10 +200,10 @@ void systemSruInit(void) {
 	SRU(DPI_PB03_O, SPI_CLK_I); 	// Connect DPI PB3 to SPI CLK
 	SRU(DPI_PB04_O, SPI_DS_I);  	// Connect DPI PB4 to SPI ChipSelect
 
-	SRU (LOW, DPI_PBEN01_I); 		// set to input
-	SRU (SPI_MISO_PBEN_O, DPI_PBEN02_I); 	// set to output when needed
-	SRU (LOW, DPI_PBEN03_I); 		// set to input
-	SRU (LOW, DPI_PBEN04_I); 		// set to input
+	SRU(LOW, DPI_PBEN01_I); 		// set to input
+	SRU(SPI_MISO_PBEN_O, DPI_PBEN02_I); 	// set to output when needed
+	SRU(LOW, DPI_PBEN03_I); 		// set to input
+	SRU(LOW, DPI_PBEN04_I); 		// set to input
 }
 
 void systemSportInit() {

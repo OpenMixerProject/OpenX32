@@ -106,7 +106,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 
 	float* floatValues = (float*)values;
 	unsigned int* intValues = (unsigned int*)values;
-	float data[80];
+	float data[150];
 	float tmpValueFloat;
 
 	switch (classId) {
@@ -115,28 +115,23 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 				case 0:
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
-				case 'v': // version number
-					tmpValueFloat = DSP_VERSION;
-					spiSendValue('s', 'v', 0, tmpValueFloat); // classId='s'=Status, channel='v'=Version, index=0, value
-					break;
-				case 'c': // cpu load as "used cycles"
-					spiSendValue_uint32('s', 'c', 0, cyclesMain); // classId='s'=Status, channel='c'=CPULoad, index=0, value
-					break;
-				case 'm': // meter
+				case 'u': // update-packet
+					data[0] = DSP_VERSION;
+					memcpy(&data[1], &cyclesMain, sizeof(float));
+
+					// VU-meters of main-channels
+					data[2] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
+					data[3] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
+					data[4] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
+					// VU-meters of all DSP input-channels and dynamics
 					for (int i = 0; i < 40; i++) {
-						data[i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
+						data[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
+						//data[45 + i] = dsp.compressorGain[i];
+						//data[85 + i] = dsp.gateGain[i];
 					}
-					data[40] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
-					data[41] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
-					data[42] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
-					spiSendArray('m', 0, 0, 43, &data); // classId='m'=Meter, channel=0=InputData, index=0, valueCount=40, value-Array
-					break;
-				case 'd': // dynamics (gate and compression)
-					for (int i = 0; i < 40; i++) {
-						data[i] = dsp.compressorGain[i];
-						data[40 + i] = dsp.gateGain[i];
-					}
-					spiSendArray('d', 0, 0, 80, &data); // classId='d'=Dynamics, channel=0, index=0, valueCount=80, value-Array
+
+					spiSendArray('s', 'u', 0, 45, &data);
+					//spiSendArray('s', 'u', 0, 125, &data);
 					break;
 				default:
 					break;
@@ -295,12 +290,6 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 		default:
 			break;
 	}
-
-	// for later use: enable DMA-transmission via SPI
-	// read data via DMA
-	// spiDmaBegin(true, 20);
-	// send data via DMA
-	// spiDmaBegin(false, 20);
 }
 
 int main() {
