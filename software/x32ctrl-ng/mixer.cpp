@@ -63,7 +63,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     // AUX 1-6 / USB
     helper->Debug(DEBUG_MIXER, "Setting up AUX\n");
     for (uint8_t i=0; i<=7;i++){
-        uint8_t index = 32 + i;
+        uint8_t index = X32_VCHANNEL_BLOCK_AUX + i;
 
         VChannel* chan = new VChannel(basepar);
         chan->dspChannel = &dsp->Channel[index];
@@ -85,7 +85,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     // FX Returns 1-8
     helper->Debug(DEBUG_MIXER, "Setting up FX Returns\n");
     for (uint8_t i=0; i<=7;i++){
-        uint8_t index = 40 + i;
+        uint8_t index = X32_VCHANNEL_BLOCK_FXRET + i;
         VChannel* chan = new VChannel(basepar);
         chan->name = String("FX RET") + String(i+1);
         chan->nameIntern = chan->name;
@@ -98,7 +98,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     // Bus 1-16
     helper->Debug(DEBUG_MIXER, "Setting up Busses\n");
     for (uint8_t i=0; i<=15;i++){
-        uint8_t index = 48 + i;
+        uint8_t index = X32_VCHANNEL_BLOCK_BUS + i;
         VChannel* chan = new VChannel(basepar);
         chan->name = String("BUS") + String(i+1);
         chan->nameIntern = chan->name;
@@ -111,7 +111,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     // Matrix 1-6 / Special / SUB
     helper->Debug(DEBUG_MIXER, "Setting up Matrix / SPECIAL / SUB\n");
     for (uint8_t i=0; i<=7;i++){
-        uint8_t index = 64 + i;
+        uint8_t index = X32_VCHANNEL_BLOCK_MATRIX + i;
         VChannel* chan = new VChannel(basepar);
         if(i <=5){
             chan->name = String("MATRIX") + String(i+1);
@@ -136,7 +136,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     // DCA 1-8
     helper->Debug(DEBUG_MIXER, "Setting up DCA\n");
     for (uint8_t i=0; i<=7;i++){
-        uint8_t index = 72 + i;
+        uint8_t index = X32_VCHANNEL_BLOCK_DCA + i;
         VChannel* chan = new VChannel(basepar);
         chan->name = String("DCA") + String(i+1);
         chan->nameIntern = chan->name;

@@ -43,6 +43,7 @@ class Surface : public X32Base
         uint16_t CalcEncoderRingLedIncrement(uint8_t pct);
         uint16_t CalcEncoderRingLedDecrement(uint8_t pct);
         uint16_t CalcEncoderRingLedPosition(uint8_t pct);
+        uint16_t CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition);
         uint16_t CalcEncoderRingLedBalance(uint8_t pct);
         uint16_t CalcEncoderRingLedWidth(uint8_t pct);
 
@@ -67,6 +68,7 @@ class Surface : public X32Base
         void SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds);
         void SetMeterLedMain(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);
         void SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, uint8_t ledPct, bool backlight);
+        void SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, bool muted, bool backlight);
         void SetLcd(
             uint8_t boardId, uint8_t index, uint8_t color,
             uint8_t xicon, uint8_t yicon, uint8_t icon, 

@@ -727,6 +727,64 @@ uint16_t Surface::CalcEncoderRingLedPosition(uint8_t pct) {
     return (1U << led_index);
 }
 
+uint16_t Surface::CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition) {
+    
+    uint16_t led_mask = 0;
+
+    if (config->IsModelX32Rack()){
+        // X32Rack: Channel Level, Mail LR Level
+
+        // LEDs dBfs
+        // 1 -50
+        // 2 -40
+        // 3 -30
+        // 4 -24
+        // 5 -18
+        // 6 -12
+        // 7 -9
+        // 8 -6
+        // 9 -3
+        // 10 0
+        // 11 3
+        // 12 6
+        // 13 10
+
+        uint8_t led_index = 0;
+
+        if (dbfs >= 10) led_index = 12;
+        else if (dbfs >= 6) led_index = 11;
+        else if (dbfs >= 3) led_index = 10;
+        else if (dbfs >= 0) led_index = 9;
+        else if (dbfs >= -3) led_index = 8;
+        else if (dbfs >= -6) led_index = 7;
+        else if (dbfs >= -9) led_index = 6;
+        else if (dbfs >= -12) led_index = 5;
+        else if (dbfs >= -18) led_index = 4;
+        else if (dbfs >= -24) led_index = 3;
+        else if (dbfs >= -30) led_index = 2;
+        else if (dbfs >= -40) led_index = 1;
+        else if (dbfs > -50) led_index = 0;
+
+        if (onlyPosition){
+            led_mask = (1U << led_index);
+        } else {
+            led_mask = (1U << (led_index + 1)) -1;
+        }
+
+        
+
+    } else {
+    
+        // led_index = (uint8_t)(((float)pct / 100.0f) * 12.0f + 0.5f); // +0.5f für Rundung
+
+        // if (led_index > 12) {
+        //     led_index = 12;
+        // }
+    }
+
+    return led_mask;
+}
+
 // bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight
 // CCW <- XXXXXX X XXXXXX -> CW
 uint16_t Surface::CalcEncoderRingLedBalance(uint8_t pct) {
@@ -1005,6 +1063,27 @@ void Surface::SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, ui
             leds = CalcEncoderRingLedDecrement(ledPct);
             break;
     }
+    message.AddDataByte(leds & 0xFF);
+    if (backlight) {
+        message.AddDataByte(((leds & 0x7F00) >> 8) + 0x80); // turn backlight on
+    }else{
+        message.AddDataByte(((leds & 0x7F00) >> 8)); // turn backlight off
+    }
+    uart.Tx(&message, true);
+}
+
+void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, bool muted, bool backlight) {
+    // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
+    // 0x52, index, leds.w[]
+    SurfaceMessage message;
+    message.AddDataByte(0x80 + boardId); // start message for specific boardId
+    message.AddDataByte('R'); // class: R = Ring
+    message.AddDataByte(index); // index
+
+    uint16_t leds = CalcEncoderRingLedDbfs(dbfs, muted);
+
+    helper->Debug(DEBUG_SURFACE, "leds: %d\n", leds);
+
     message.AddDataByte(leds & 0xFF);
     if (backlight) {
         message.AddDataByte(((leds & 0x7F00) >> 8) + 0x80); // turn backlight on

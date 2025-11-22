@@ -72,7 +72,8 @@ int main(int argc, char* argv[]) {
 // #      ####   ##### ####  #####  ###        
 // #
 	config->SetDebug(state->switchDebug != -1);
-	config->SetDebugFlag(DEBUG_ALL);
+	//config->SetDebug(1);
+	config->SetDebugFlag(DEBUG_SURFACE);
 // ###########################################################################
 		
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
@@ -1163,23 +1164,27 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			chan = GetSelectedvChannel();
 
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-				helper->Debug(DEBUG_SURFACE, " Solo");
 				surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, mixer->GetSolo(chanIndex)); 
 			}
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-				helper->Debug(DEBUG_SURFACE, " Mute");
 				surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, mixer->GetMute(chanIndex)); 
 			}
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
-				// u_int16_t faderVolume = helper->Dbfs2Fader(halGetVolume(chanIndex));
-				// uint8_t pct = (faderVolume/VOLUME_MIN
-				// setEncoderRing(X32_BOARD_MAIN, 0, 0, , 1);
+			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+				surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, mixer->GetVolumeDbfs(chanIndex),  mixer->GetMute(chanIndex), 0);
 			}
 		}
 	}
 
 	// Clear Solo
 	if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)){ surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated()); }
+
+	if (config->IsModelX32Rack()){
+		// Main Channel
+		VChannel* mainchan = GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
+		if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, mixer->GetVolumeDbfs(X32_VCHANNEL_BLOCK_MAIN),  mixer->GetMute(X32_VCHANNEL_BLOCK_MAIN), 0);
+		}
+	}
 }
 
 void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
@@ -2041,6 +2046,9 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 		switch (encoder){
 			case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core - Channel Select    TODO: Implement on Core
 				ChangeSelect(amount);
+				break;
+			case X32_ENC_MAIN_LEVEL:  // only X32 Rack
+				mixer->ChangeVolume(X32_VCHANNEL_BLOCK_MAIN, amount);
 				break;
 			case X32_ENC_CHANNEL_LEVEL:
 				mixer->ChangeVolume(GetSelectedvChannelIndex(), amount);
