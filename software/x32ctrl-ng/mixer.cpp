@@ -243,7 +243,8 @@ void Mixer::SetSolo(uint8_t channelIndex, bool solo){
     VChannel* chan = GetVChannel(channelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE_NORMAL: {
+        case X32_VCHANNELTYPE_NORMAL:
+        case X32_VCHANNELTYPE_AUX: {
             chan->dspChannel->solo = solo;
             chan->SetChanged(X32_VCHANNEL_CHANGED_SOLO);
             break;
@@ -279,7 +280,7 @@ void Mixer::SetSolo(uint8_t channelIndex, bool solo){
 }
 
 void Mixer::ToggleSolo(uint8_t vChannelIndex){
-    SetSolo(vChannelIndex, !vchannel[vChannelIndex]->dspChannel->solo);
+    SetSolo(vChannelIndex, !GetSolo(vChannelIndex));
 }
 
 void Mixer::ClearSolo(void){
@@ -400,7 +401,7 @@ void Mixer::ToggleMute(uint8_t vChannelIndex){
 void Mixer::SetGain(uint8_t p_vChannelIndex, float gain) {
     VChannel* chan = GetVChannel(p_vChannelIndex);
 
-    if(chan->vChannelType == X32_VCHANNELTYPE_NORMAL) {
+    if(chan->vChannelType == X32_VCHANNELTYPE_NORMAL || chan->vChannelType == X32_VCHANNELTYPE_AUX) {
 
         uint8_t channelInputSource = dsp->Channel[p_vChannelIndex].inputSource;
 
@@ -885,8 +886,6 @@ void Mixer::ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_
     }
 }
 
-
-
 // ####################################################################
 // #
 // #
@@ -896,38 +895,12 @@ void Mixer::ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_
 // ###################################################################
 
 bool Mixer::IsSoloActivated(void){
-    for (int i=X32_VCHANNEL_BLOCK_NORMAL; i<X32_VCHANNEL_BLOCKSIZE_NORMAL; i++) {
-        if (dsp->Channel[X32_VCHANNEL_BLOCK_NORMAL + i].solo){
-            return true;
-        }
-    } 
-
-    for (int i=X32_VCHANNEL_BLOCK_AUX; i<X32_VCHANNEL_BLOCKSIZE_AUX; i++) {
-        if (dsp->Channel[X32_VCHANNEL_BLOCKSIZE_AUX + i].solo){
-            return true;
-        }
-    } 
-
-    // TODO FX-Return?
-
-    for (int i=0; i<X32_VCHANNEL_BLOCKSIZE_BUS; i++) {
-        if (dsp->Bus[i].solo){ 
-            return true; 
-        }
-    } 
-    for (int i=0; i<X32_VCHANNEL_BLOCKSIZE_MATRIX; i++) {
-        if (dsp->Matrix[i].solo){
+    for (uint8_t i=0; i < MAX_VCHANNELS; i++)
+    {
+        if (GetSolo(i)){
             return true;
         }
     }
-
-    if(dsp->MainChannelLR.solo){
-        return true;
-    }
-    if(dsp->MainChannelSub.solo){
-        return true;
-    }    
-
     return false;
 }
 
@@ -1232,76 +1205,75 @@ bool Mixer::GetMute(uint8_t dspChannel) {
 }
 
 bool Mixer::GetSolo(uint8_t dspChannel) {
-    if (dspChannel <= 39) {
-        return dsp->Channel[dspChannel].solo;
-    }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
-        // FX-Return
-        return false;
-    }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
-        return dsp->Bus[dspChannel - 48].solo;
-    }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
-        return dsp->Matrix[dspChannel - 64].solo;
-    }else if (dspChannel == 70) {
-        // special
-        return false;
-    }else if (dspChannel == 71) {
-        return false;
-    }else if ((dspChannel >= 72) && (dspChannel <= 79)) {
-        // DCA
-        return false;
-    }else if (dspChannel == 80) {
-        return false;
+    VChannel* chan = GetVChannel(dspChannel);
+
+    switch(chan->vChannelType){
+        case X32_VCHANNELTYPE_NORMAL:
+        case X32_VCHANNELTYPE_AUX: {
+            return chan->dspChannel->solo;
+        }
+        case X32_VCHANNELTYPE_BUS: {
+            return dsp->Bus[dspChannel - X32_VCHANNEL_BLOCK_BUS].solo;
+        }
+        case X32_VCHANNELTYPE_MATRIX: {
+            return dsp->Matrix[dspChannel - X32_VCHANNEL_BLOCK_MATRIX].solo;
+        }
+        case X32_VCHANNELTYPE_MAINSUB: {
+            return dsp->MainChannelSub.solo;
+        }
+        case X32_VCHANNELTYPE_MAIN: {
+            return dsp->MainChannelLR.solo;
+        }
     }
 
     return false;
 }
 
-float Mixer::GetBalance(uint8_t dspChannel) {
-    if (dspChannel < 40) {
-        return dsp->Channel[dspChannel].balance;
-    }else if ((dspChannel >= 40) && (dspChannel <= 47)) {
-        // FX return -> no support for balance
-        return 0;
-    }else if ((dspChannel >= 48) && (dspChannel <= 63)) {
-        // Mixbus
-        return dsp->Bus[dspChannel - 48].balance;
-    }else if ((dspChannel >= 64) && (dspChannel <= 69)) {
-        // Matrix -> no support for balance
-        return 0;
-    }else if (dspChannel == 70) {
-        // Special -> no support for balance
-        return 0;
-    }else if (dspChannel == 71) {
-        return dsp->MainChannelSub.balance; // TODO: check if we want to support balance here
-    }else if ((dspChannel >= 72) && (dspChannel < 80)) {
-        // DCA 1-8 -> no support for balance
-        return 0;
-    }else if (dspChannel == 80) {
-        return dsp->MainChannelLR.balance;
+float Mixer::GetBalance(uint8_t vChannelIndex) {
+    VChannel* chan = GetVChannel(vChannelIndex);
+
+    switch(chan->vChannelType){
+        case X32_VCHANNELTYPE_NORMAL:
+        case X32_VCHANNELTYPE_AUX: {
+            return dsp->Channel[vChannelIndex].balance;
+        }
+        case X32_VCHANNELTYPE_BUS: {
+            return dsp->Bus[vChannelIndex - X32_VCHANNEL_BLOCK_BUS].balance;
+        }
+        case X32_VCHANNELTYPE_MAINSUB: {
+            return dsp->MainChannelSub.balance;
+        }
+        case X32_VCHANNELTYPE_MAIN: {
+            return dsp->MainChannelLR.balance;
+        }
     }
     
     return 0;
 }
 
-float Mixer::GetGain(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
+float Mixer::GetGain(uint8_t vChannelIndex) {
+    VChannel* chan = GetVChannel(vChannelIndex);
 
-    // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-    if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
-        // we are connected to one of the DSP-inputs
+    if(chan->vChannelType == X32_VCHANNELTYPE_NORMAL || chan->vChannelType == X32_VCHANNELTYPE_AUX) {
 
-        // check if we are connected to a channel with gain
-        uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
-        if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
-            // XLR-input
+        uint8_t channelInputSource = dsp->Channel[vChannelIndex].inputSource;
 
-            return preamps.gainXlr[dspInputSource - 1];
-        }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
-            // AES50A input
-            return preamps.gainAes50a[dspInputSource - 113];
-        }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
-            // AES50B input
-            return preamps.gainAes50b[dspInputSource - 161];
+        // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
+        if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
+            // we are connected to one of the DSP-inputs
+
+            // check if we are connected to a channel with gain
+            uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
+            if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
+                // XLR-input
+                return preamps.gainXlr[dspInputSource - 1];
+            }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
+                // AES50A input
+                return preamps.gainAes50a[dspInputSource - 113];
+            }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
+                // AES50B input
+                return preamps.gainAes50b[dspInputSource - 161];
+            }
         }
     }
     
