@@ -258,11 +258,11 @@ void DSP1::SendEQ(uint8_t chan) {
 /*
         // send coeffiecients without interleaving for biquad() function
         int sectionIndex = peq * 5;
-        values[sectionIndex + 0] = -dspChannel[dspChannel].peq[peq].b[2]; // -b2 (poles)
-        values[sectionIndex + 1] = -dspChannel[dspChannel].peq[peq].b[1]; // -b1 (poles)
-        values[sectionIndex + 2] = dspChannel[dspChannel].peq[peq].a[2]; // a2 (zeros)
-        values[sectionIndex + 3] = dspChannel[dspChannel].peq[peq].a[1]; // a1 (zeros)
-        values[sectionIndex + 4] = dspChannel[dspChannel].peq[peq].a[0]; // a0 (zeros)
+        values[sectionIndex + 0] = -dspChannel[chan].peq[peq].b[2]; // -b2 (poles)
+        values[sectionIndex + 1] = -dspChannel[chan].peq[peq].b[1]; // -b1 (poles)
+        values[sectionIndex + 2] = dspChannel[chan].peq[peq].a[2]; // a2 (zeros)
+        values[sectionIndex + 3] = dspChannel[chan].peq[peq].a[1]; // a1 (zeros)
+        values[sectionIndex + 4] = dspChannel[chan].peq[peq].a[0]; // a0 (zeros)
 */
 
         // interleave coefficients for biquad_trans()
@@ -458,70 +458,54 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     switch (classId) {
         case 's': // status-feedback
             switch (channel) {
-                case 'v': // DSP-Version
-                    if (valueCount == 1) {
-                        state->dspVersion[0] = floatValues[0];
-                    }
-                    break;
-                case 'c': // DSP-Load in dspClockCycles
-                    if (valueCount == 1) {
-                        float load = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
-                        if ((load > 1) && (load < 100)) {
-                            state->dspLoad[0] = load;
-                        }
-                    }
-                    break;
+		case 'u': // Update pack
+		    if (valueCount == 45) {
+			state->dspVersion[0] = floatValues[0];
+			state->dspLoad[0] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
+
+	                MainChannelLR.meterPu[0] = abs(floatValues[2])/2147483648.0f; // convert 32-bit value to p.u.
+	                MainChannelLR.meterPu[1] = abs(floatValues[3])/2147483648.0f; // convert 32-bit value to p.u.
+	                MainChannelSub.meterPu[0] = abs(floatValues[4])/2147483648.0f; // convert 32-bit value to p.u.
+
+	                // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+	                // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
+	                MainChannelLR.meterInfo[0] = 0;
+	                MainChannelLR.meterInfo[1] = 0;
+	                MainChannelSub.meterInfo[0] = 0;
+	                uint32_t data[3];
+	                data[0] = abs(floatValues[2]);
+	                data[1] = abs(floatValues[3]);
+	                data[2] = abs(floatValues[4]);
+	                for (int i = 0; i < 24; i++) {
+	                    if (data[0] >= vuThresholds[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
+	                    if (data[1] >= vuThresholds[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
+	                    if (data[2] >= vuThresholds[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
+	                }
+
+	                for (int i = 0; i < 40; i++) {
+	                    Channel[i].meterPu = abs(floatValues[5 + i])/2147483648.0f; // convert 32-bit value to p.u.
+	                    uint32_t data = (uint32_t)abs(floatValues[5 + i]); // convert received float-value to unsigned integer
+	                    // data contains a 32-bit sample-value
+	                    // lets check the threshold and set meterInfo
+	                    Channel[i].meterInfo = 0;
+	                    if (data >= vuThresholds[0])  { Channel[i].meterInfo |= 0b00100000; } // CLIP
+	                    if (data >= vuThresholds[5])  { Channel[i].meterInfo |= 0b00010000; } // -6dBfs
+	                    if (data >= vuThresholds[8])  { Channel[i].meterInfo |= 0b00001000; } // -12dBfs
+	                    if (data >= vuThresholds[10]) { Channel[i].meterInfo |= 0b00000100; } // -18dBfs
+	                    if (data >= vuThresholds[14]) { Channel[i].meterInfo |= 0b00000010; } // -30dBfs
+	                    if (data >= vuThresholds[24]) { Channel[i].meterInfo |= 0b00000001; } // -60dBfs
+
+	                    // the dynamic-information is received with the 'd' information, but we will store them here
+	                    if (Channel[i].gate.gain < 1.0f) { Channel[i].meterInfo |= 0b01000000; }
+	                    if (Channel[i].compressor.gain < 1.0f) { Channel[i].meterInfo |= 0b10000000; }
+
+	                    //Channel[i].compressor.gain = floatValues[45 + i];
+	                    //Channel[i].gate.gain = floatValues[85 + i];
+	                }
+		    }
+		    break;
             }
             break;
-        case 'm': // meter information
-            // copy meter-info to individual channels
-            // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-            if (valueCount == 43) {
-                for (int i = 0; i < 40; i++) {
-                    Channel[i].meterPu = abs(floatValues[i])/2147483648.0f; // convert 32-bit value to p.u.
-                    uint32_t data = (uint32_t)abs(floatValues[i]); // convert received float-value to unsigned integer
-                    // data contains a 32-bit sample-value
-                    // lets check the threshold and set meterInfo
-                    Channel[i].meterInfo = 0;
-                    if (data >= vuThresholds[0])  { Channel[i].meterInfo |= 0b00100000; } // CLIP
-                    if (data >= vuThresholds[5])  { Channel[i].meterInfo |= 0b00010000; } // -6dBfs
-                    if (data >= vuThresholds[8])  { Channel[i].meterInfo |= 0b00001000; } // -12dBfs
-                    if (data >= vuThresholds[10]) { Channel[i].meterInfo |= 0b00000100; } // -18dBfs
-                    if (data >= vuThresholds[14]) { Channel[i].meterInfo |= 0b00000010; } // -30dBfs
-                    if (data >= vuThresholds[24]) { Channel[i].meterInfo |= 0b00000001; } // -60dBfs
-
-                    // the dynamic-information is received with the 'd' information, but we will store them here
-                    if (Channel[i].gate.gain < 1.0f) { Channel[i].meterInfo |= 0b01000000; }
-                    if (Channel[i].compressor.gain < 1.0f) { Channel[i].meterInfo |= 0b10000000; }
-                }
-                MainChannelLR.meterPu[0] = abs(floatValues[40])/2147483648.0f; // convert 32-bit value to p.u.
-                MainChannelLR.meterPu[1] = abs(floatValues[41])/2147483648.0f; // convert 32-bit value to p.u.
-                MainChannelSub.meterPu[0] = abs(floatValues[42])/2147483648.0f; // convert 32-bit value to p.u.
-
-                // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-                // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
-                MainChannelLR.meterInfo[0] = 0;
-                MainChannelLR.meterInfo[1] = 0;
-                MainChannelSub.meterInfo[0] = 0;
-                uint32_t data[3];
-                data[0] = abs(floatValues[40]);
-                data[1] = abs(floatValues[41]);
-                data[2] = abs(floatValues[42]);
-                for (int i = 0; i < 24; i++) {
-                    if (data[0] >= vuThresholds[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
-                    if (data[1] >= vuThresholds[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
-                    if (data[2] >= vuThresholds[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
-                }
-            }
-            break;
-        case 'd': // dynamics-information
-            if (valueCount == 80) {
-                // first copy the compression-information
-                for (int i = 0; i < 40; i++) {
-                    Channel[i].compressor.gain = floatValues[i];
-                    Channel[i].gate.gain = floatValues[40 + i];
-                }
-            }
         default:
             break;
     }
@@ -534,14 +518,10 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     switch (classId) {
         case 's': // status-feedback
             switch (channel) {
-                case 'v': // DSP-Version
-                    if (valueCount == 1) {
-                        state->dspVersion[1] = floatValues[0];
-                    }
-                    break;
-                case 'c': // DSP-Load in dspClockCycles
-                    if (valueCount == 1) {
-                        state->dspLoad[1] = (((float)intValues[0]/264.0f) / (16.0f/0.048f)) * 100.0f;
+		case 'u': // Update pack
+		    if (valueCount == 2) {
+			state->dspVersion[1] = floatValues[0];
+			state->dspLoad[1] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
                     }
                     break;
             }

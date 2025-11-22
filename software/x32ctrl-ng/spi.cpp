@@ -250,7 +250,7 @@ int SPI::ConfigureDsp(void) {
 
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
-    uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
+    uint32_t spiSpeed = SPI_DSP_CONFIG_SPEED_HZ;
     //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
     // abort if no file path was given for dsp1
@@ -414,8 +414,8 @@ int SPI::ConfigureDsp(void) {
 
 void SPI::Tick10ms(void){
     // continuously read data from both DSPs if we expect data
-	SendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
-	SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
+//	SendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
+//	SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
 }
 
 void SPI::Tick100ms(void){
@@ -423,16 +423,14 @@ void SPI::Tick100ms(void){
 	SendDspParameter_uint32(0, 'a', 42, 0, 2);
 	SendDspParameter_uint32(1, 'a', 42, 0, 2);
 
-	if (config->IsModelX32FullOrCompactOrProducer()) {
-        // read meter- and dynamics-information from DSP
-		SendDspParameter_uint32(0, '?', 'm', 0, 0); // non-blocking request of meter-data
-		//SendDspParameter_uint32(0, '?', 'd', 0, 0); // non-blocking request of gate- and compression
-	}
-
     if (!config->IsModelX32Core()) {
-        // read the current DSP load
-	    SendDspParameter_uint32(0, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
-		SendDspParameter_uint32(1, '?', 'c', 0, 0); // non-blocking request of DSP-Load-parameter
+        // read update-packet from DSP1
+        SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
+        SendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
+
+        // read update-packet from DSP2
+        SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
+        SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP1
     }
 }
 
@@ -567,17 +565,12 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
         case 0:
             // dummy-channel to read data. Dont change dataToRead-value here
             break;
-        case 'v': // Version-number
-            dataToRead[dsp] += 1;
-            break;
-        case 'c': // DSP-Load
-            dataToRead[dsp] += 1;
-            break;
-        case 'm': // Channel-Meter
-            dataToRead[dsp] += 43;
-            break;
-        case 'd': // Dynamics (Gate and Compression)
-            dataToRead[dsp] += 80;
+        case 'u': // update-packet
+            if (dsp == 0) {
+                dataToRead[dsp] += 45; // DSP1
+            }else{
+                dataToRead[dsp] += 2; // DSP2
+            }
             break;
     }
     // add some more data for overhead: '*', parameter and '#'
