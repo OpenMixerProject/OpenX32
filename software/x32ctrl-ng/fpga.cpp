@@ -359,22 +359,22 @@ void Fpga::RoutingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t chann
 
 	switch (group) {
 		case 'x': // XLR-Inputs 1-32
-			sprintf(p_nameBuffer, "XLR%d", channel);
+			sprintf(p_nameBuffer, "XLR In %d", channel);
 			break;
 		case 'c': // Card-Inputs 1-32
-			sprintf(p_nameBuffer, "Card%d", channel);
+			sprintf(p_nameBuffer, "Card Out %d", channel);
 			break;
 		case 'a': // Aux-Inputs 1-8
-			sprintf(p_nameBuffer, "AUX%d", channel);
+			sprintf(p_nameBuffer, "AUX In %d", channel);
 			break;
 		case 'd': // DSP-Outputs 1-40
-			sprintf(p_nameBuffer, "DSP%d", channel);
+			sprintf(p_nameBuffer, "DSP Out %d", channel);
 			break;
 		case 'A': // AES50A-Inputs 1-48
-			sprintf(p_nameBuffer, "AESA%d", channel);
+			sprintf(p_nameBuffer, "AESA In %d", channel);
 			break;
 		case 'B': // AES50B-Inputs 1-48
-			sprintf(p_nameBuffer, "AESB%d", channel);
+			sprintf(p_nameBuffer, "AESB In %d", channel);
 			break;
 	}
 }
@@ -404,25 +404,25 @@ void Fpga::RoutingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t chann
 
 	switch(group){
 		case 'x':
-			sprintf(p_nameBuffer, "XLR%d", channel);
+			sprintf(p_nameBuffer, "XLR Out %d", channel);
 			break;
 		case 'p':
 			sprintf(p_nameBuffer, "P16-%d", channel);
 			break;
 		case 'c':
-			sprintf(p_nameBuffer, "Card%d", channel);
+			sprintf(p_nameBuffer, "Card In %d", channel);
 			break;
 		case 'a':
-			sprintf(p_nameBuffer, "AUX%d", channel);
+			sprintf(p_nameBuffer, "AUX Out %d", channel);
 			break;
 		case 'd':
-			sprintf(p_nameBuffer, "DSP%d", channel);
+			sprintf(p_nameBuffer, "DSP In %d", channel);
 			break;
 		case 'A':
-			sprintf(p_nameBuffer, "AESA%d", channel);
+			sprintf(p_nameBuffer, "AESA Out %d", channel);
 			break;
 		case 'B':
-			sprintf(p_nameBuffer, "AESB%d", channel);
+			sprintf(p_nameBuffer, "AESB Out %d", channel);
 			break;
 	}
 }

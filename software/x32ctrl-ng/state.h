@@ -22,6 +22,10 @@ class State {
         float dspLoad[2];
         float dspVersion[2];
 
+        bool page_routing_fpga_table_drawn = false;
+        uint16_t gui_old_selected_item = 0;
+        uint16_t gui_selected_item = 0;
+
         // DEBUG
         uint8_t debugvalue = 0;
 

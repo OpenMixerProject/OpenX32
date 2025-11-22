@@ -179,32 +179,16 @@ void Mixer::Tick100ms(void){
 
 
 
-void Mixer::ChangeHardwareOutput(int8_t amount) {
-    // output-taps
-    // 1-16 = XLR-outputs
-    // 17-32 = UltraNet/P16-outputs
-    // 33-64 = Card-outputs
-    // 65-72 = AUX-outputs
-    // 73-112 = DSP-inputs
-    // 113-160 = AES50A-outputs
-    // 161-208 = AES50B-outputs
-
-    int16_t newValue = (int16_t)selectedOutputChannelIndex + amount;
-
-    if (newValue > NUM_OUTPUT_CHANNEL) {
-       newValue = 1;
-    }
-    if (newValue < 1) {
-        newValue = NUM_OUTPUT_CHANNEL;
-    }
-    selectedOutputChannelIndex = newValue;
-    // no sending to FPGA as we are not changing the hardware-routing here
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+void Mixer::ChangeGuiSelection(int8_t amount) {
+    int16_t newValue = (int16_t)state->gui_old_selected_item + amount;
+    
+    state->gui_selected_item = newValue;
+	state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
 }
 
 void Mixer::ChangeHardwareInput(int8_t amount) {
     // get current routingIndex
-    int16_t newValue = fpga->RoutingGetOutputSourceByIndex(selectedOutputChannelIndex) + amount;
+    int16_t newValue = fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1) + amount;
 
     if (newValue > NUM_INPUT_CHANNEL) {
         newValue = 0;
@@ -212,9 +196,12 @@ void Mixer::ChangeHardwareInput(int8_t amount) {
     if (newValue < 0) {
         newValue = NUM_INPUT_CHANNEL;
     }
-    fpga->RoutingSetOutputSourceByIndex(selectedOutputChannelIndex, newValue);
+
+    helper->Debug(DEBUG_ALL, "Change! %d -> %d\n", fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1), newValue);
+
+    fpga->RoutingSetOutputSourceByIndex(state->gui_selected_item+1, newValue);
     fpga->RoutingSendConfigToFpga();
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {

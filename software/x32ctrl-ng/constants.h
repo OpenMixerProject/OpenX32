@@ -48,19 +48,14 @@
 
 #define X32_MIXER_CHANGED_ALL              0b1111111111111111
 #define X32_MIXER_CHANGED_NONE             0b0000000000000000
-// channel selectiong has changed
 #define X32_MIXER_CHANGED_SELECT           0b0000000000000001
-// routing was changed
 #define X32_MIXER_CHANGED_ROUTING          0b0000000000000010
-// bank was changed
 #define X32_MIXER_CHANGED_BANKING          0b0000000000000100
-//#define X32_MIXER_CHANGED_LCD              0b0000000000001000
-// value in vChannel has changed
+//#define X32_MIXER_CHANGED_LCD            0b0000000000001000
 #define X32_MIXER_CHANGED_VCHANNEL         0b0000000000010000
-// displayed page changed
 #define X32_MIXER_CHANGED_PAGE             0b0000000000100000
-// gui parameter has changed (general screen-refresh requested)
-#define X32_MIXER_CHANGED_GUI              0b1000000000000000
+#define X32_MIXER_CHANGED_GUI              0b0000000001000000
+#define X32_MIXER_CHANGED_GUI_SELECT       0b0000000010000000
 
 #define SURFACE_COLOR_BLACK 0
 #define SURFACE_COLOR_RED 1
@@ -125,7 +120,9 @@ typedef enum {
     X32_PAGE_METERS,
     X32_PAGE_ROUTING,
         // sub-pages of routing
-        X32_PAGE_ROUTING_HWOUT,
+        X32_PAGE_ROUTING_FPGA,
+        X32_PAGE_ROUTING_DSP1,
+        X32_PAGE_ROUTING_DSP2,
     X32_PAGE_SETUP,
     X32_PAGE_LIBRARY,
     X32_PAGE_EFFECTS,

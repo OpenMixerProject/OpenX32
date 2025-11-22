@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 // #
 	config->SetDebug(state->switchDebug != -1);
 	//config->SetDebug(1);
-	config->SetDebugFlag(DEBUG_SURFACE);
+	config->SetDebugFlag(DEBUG_ALL);
 // ###########################################################################
 		
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
@@ -621,7 +621,7 @@ void X32Ctrl::guiInit(void) {
   // initialize GUI created by EEZ
   ui_init();
 
-  ShowPage((X32_PAGE)-1);   // shows the welcome page
+  ShowPage(X32_PAGE_HOME);   // shows the HOME Page
   state->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 
   // setup EQ-graph
@@ -682,7 +682,7 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 }
 
 void X32Ctrl::InitPages(void){
-	// Init Pages
+	// Home
 	pages[X32_PAGE_HOME].prevPage = X32_PAGE_NONE;
 	pages[X32_PAGE_HOME].nextPage = X32_PAGE_CONFIG;
 
@@ -692,11 +692,18 @@ void X32Ctrl::InitPages(void){
 	pages[X32_PAGE_EQ].prevPage = X32_PAGE_CONFIG;
 	pages[X32_PAGE_EQ].nextPage = X32_PAGE_NONE;
 
+	// Routing
 	pages[X32_PAGE_ROUTING].prevPage = X32_PAGE_NONE;
-	pages[X32_PAGE_ROUTING].nextPage = X32_PAGE_ROUTING_HWOUT;
+	pages[X32_PAGE_ROUTING].nextPage = X32_PAGE_ROUTING_FPGA;
 
-	pages[X32_PAGE_ROUTING_HWOUT].prevPage = X32_PAGE_ROUTING;
-	pages[X32_PAGE_ROUTING_HWOUT].nextPage = X32_PAGE_NONE;
+	pages[X32_PAGE_ROUTING_FPGA].prevPage = X32_PAGE_ROUTING;
+	pages[X32_PAGE_ROUTING_FPGA].nextPage = X32_PAGE_ROUTING_DSP1;
+
+	pages[X32_PAGE_ROUTING_DSP1].prevPage = X32_PAGE_ROUTING_FPGA;
+	pages[X32_PAGE_ROUTING_DSP1].nextPage = X32_PAGE_ROUTING_DSP2;
+
+	pages[X32_PAGE_ROUTING_DSP2].prevPage = X32_PAGE_ROUTING_DSP1;
+	pages[X32_PAGE_ROUTING_DSP2].nextPage = X32_PAGE_NONE;
 }
 
 void X32Ctrl::ShowNextPage(void){
@@ -731,12 +738,12 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 	switch (activePage)
 	{
 		case X32_PAGE_HOME:
-			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 0, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_HOME, 1);
 			break;
 		case X32_PAGE_CONFIG:
-			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 1, LV_ANIM_OFF);
 			if (config->IsModelX32FullOrCompactOrProducer()) {
 				surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, 1);
@@ -744,7 +751,7 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 			break;
 
 		case X32_PAGE_EQ:
-			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 4, LV_ANIM_OFF);
 			if (config->IsModelX32FullOrCompactOrProducer()) {
 				surface->SetLedByEnum(X32_BTN_VIEW_EQ, 1);
@@ -752,42 +759,52 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 			break;
 
 		case X32_PAGE_METERS:
-			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_METERS, 1);
 			break;
 		case X32_PAGE_ROUTING:
-			lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.routingtab, 0, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
 			break;
-		case X32_PAGE_ROUTING_HWOUT:
-			lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.routingtab, 5, LV_ANIM_OFF);
+		case X32_PAGE_ROUTING_FPGA:
+			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.routingtab, 1, LV_ANIM_OFF);
+			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
+			break;
+		case X32_PAGE_ROUTING_DSP1:
+			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.routingtab, 2, LV_ANIM_OFF);
+			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
+			break;
+		case X32_PAGE_ROUTING_DSP2:
+			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.routingtab, 3, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
 			break;
 		case X32_PAGE_SETUP:
-			lv_tabview_set_active(objects.maintab, 4, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_SETUP, 1);
 			break;
 		case X32_PAGE_LIBRARY:
-			lv_tabview_set_active(objects.maintab, 5, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 4, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_LIBRARY, 1);
 			break;
 		case X32_PAGE_EFFECTS:
-			lv_tabview_set_active(objects.maintab, 6, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 5, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_EFFECTS, 1);
 			break;
 		case X32_PAGE_MUTE_GRP:
-			lv_tabview_set_active(objects.maintab, 7, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 6, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_MUTE_GRP, 1);
 			break;
 		case X32_PAGE_UTILITY:
-			lv_tabview_set_active(objects.maintab, 8, LV_ANIM_OFF);
+			lv_tabview_set_active(objects.maintab, 7, LV_ANIM_OFF);
 			surface->SetLedByEnum(X32_BTN_UTILITY, 1);
 			break;
 		default:
 			activePage = X32_PAGE_NONE;
-			helper->Error("Page not found! Show welcome page instead.\n");
+			helper->Error("Page not found!\n");
 	}
 
 	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
@@ -833,9 +850,13 @@ void X32Ctrl::guiSync(void) {
 		state->HasChanged(X32_MIXER_CHANGED_BANKING) ||
 		state->HasChanged(X32_MIXER_CHANGED_SELECT)  ||
 		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)||
+		state->HasChanged(X32_MIXER_CHANGED_ROUTING)||
+		state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)||
 		state->HasChanged(X32_MIXER_CHANGED_GUI)) {
 
-		helper->Debug(DEBUG_GUI, "Active Page: %d\n", activePage);
+		if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
+			helper->Debug(DEBUG_GUI, "Page changed to: %d\n", activePage);
+		}
 
 		VChannel* chan = GetSelectedvChannel();
 		uint8_t chanIndex = GetSelectedvChannelIndex();
@@ -906,24 +927,72 @@ void X32Ctrl::guiSync(void) {
 			//lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
 			guiSetEncoderText("Source\n[Invert]", "Gain\n[48V]", "PAN/BAL\n[Center]", "Volume\n[Mute]", "-", "-");
-		}else if (activePage == X32_PAGE_ROUTING_HWOUT) {
+		}else if (activePage == X32_PAGE_ROUTING_FPGA) {
 		//####################################
-		//#         Page Routing
+		//#         Page Routing (FPGA)
 		//####################################
 			char outputDestinationName[10] = "";
 			char inputSourceName[10] = "";
 			uint8_t routingIndex = 0;
 
-			// read name of selected output-routing channel
-			mixer->fpga->RoutingGetOutputNameByIndex(&outputDestinationName[0], mixer->selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
-			lv_label_set_text_fmt(objects.hardware_channel_output, "%s", outputDestinationName);
+			// Table
 
-			// find name of currently set input-source
-			routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(mixer->selectedOutputChannelIndex); // selectedOutputChannelIndex = 1..112
-			mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex); // routingIndex = 0..112
-			lv_label_set_text_fmt(objects.hardware_channel_source, "%s", inputSourceName);
+			// output-taps
+			// 1-16 = XLR-outputs
+			// 17-32 = UltraNet/P16-outputs
+			// 33-64 = Card-outputs
+			// 65-72 = AUX-outputs
+			// 73-112 = DSP-inputs
+			// 113-160 = AES50A-outputs
+			// 161-208 = AES50B-outputs
 
-			guiSetEncoderText("Output", "Source", "-", "-", "-", "-");
+			// Inital Table Draw
+			if (!state->page_routing_fpga_table_drawn){
+				lv_table_set_row_count(objects.table_routing_fpga, NUM_OUTPUT_CHANNEL); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+				lv_table_set_column_count(objects.table_routing_fpga, 4);
+				for (uint8_t i=0; i < NUM_OUTPUT_CHANNEL; i++){
+					mixer->fpga->RoutingGetOutputNameByIndex(&outputDestinationName[0], i+1);
+					routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(i+1);
+					mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
+					lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 0, "%s", outputDestinationName);
+					lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 2, "%s", inputSourceName);
+				}
+				lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 1, "#");
+				lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 3, "#");
+				state->page_routing_fpga_table_drawn = true;
+			}
+
+			// Update Table
+
+			if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
+
+				if (state->gui_selected_item >= NUM_OUTPUT_CHANNEL) {
+					state->gui_selected_item = NUM_OUTPUT_CHANNEL-1;
+				}
+
+				if (state->gui_selected_item != state->gui_old_selected_item ) {
+					// remove old indicator
+					lv_table_set_cell_value(objects.table_routing_fpga, state->gui_old_selected_item, 1, " ");
+					lv_table_set_cell_value(objects.table_routing_fpga, state->gui_old_selected_item, 3, " ");
+					
+					// display new indicator
+					lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 1, "#");
+					lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 3, "#");
+					
+					// set select to scroll table
+					lv_table_set_selected_cell(objects.table_routing_fpga, state->gui_selected_item, 2);
+					
+					state->gui_old_selected_item = state->gui_selected_item;
+				}
+			} 
+			
+			if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
+				routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1);
+				mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
+				lv_table_set_cell_value_fmt(objects.table_routing_fpga, state->gui_selected_item, 2, "%s", inputSourceName);
+			}
+
+			guiSetEncoderText("Select", "Change", "-", "-", String(routingIndex), String(state->gui_selected_item));
 		}else if (activePage == X32_PAGE_EQ) {
 		//####################################
 		//#         Page EQ
@@ -2097,8 +2166,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangeBusSend(GetSelectedvChannelIndex(), 3, amount, activeBusSend);
 				break;
 			default:
-				// TODO: Callback to x32ctrl if needed
-				helper->Debug(DEBUG_SURFACE, "Unhandled encoder detected.\n");
+				// just here to avoid compiler warnings                  
 				break;
 		}
 	}
@@ -2159,10 +2227,10 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				default:
 					break;
 			}
-		}else if (activePage == X32_PAGE_ROUTING_HWOUT) {
+		}else if (activePage == X32_PAGE_ROUTING_FPGA) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
-					mixer->ChangeHardwareOutput(amount);
+					mixer->ChangeGuiSelection(amount);
 					break;
 				case X32_ENC_ENCODER2:
 					mixer->ChangeHardwareInput(amount);

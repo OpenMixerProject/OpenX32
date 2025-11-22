@@ -37,7 +37,7 @@ class Mixer : public X32Base
     public:
         // all virtual - channels / busses / matrix / etc.
         VChannel* vchannel[MAX_VCHANNELS];
-        uint8_t selectedOutputChannelIndex;
+        //uint8_t selectedOutputChannelIndex = 1;
         Fpga* fpga;
         DSP1* dsp;
 
@@ -67,7 +67,7 @@ class Mixer : public X32Base
         void ToggleMute(uint8_t vChannelIndex);
 
         void ChangeVChannel(int8_t amount);
-        void ChangeHardwareOutput(int8_t amount);
+        void ChangeGuiSelection(int8_t amount);
         void ChangeHardwareInput(int8_t amount);
 	void ChangeDspInput(uint8_t vChannelIndex, int8_t amount);
 
