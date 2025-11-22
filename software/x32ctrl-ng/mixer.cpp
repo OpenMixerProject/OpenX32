@@ -52,7 +52,6 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     for (int i=0; i<=31; i++) {
         VChannel* chan = new VChannel(basepar);
         chan->dspChannel =  &dsp->Channel[i];
-        chan->dspChannel->inputSource = i + 1;
         chan->name = String("Kanal ") + String(i+1);
         chan->nameIntern = String("CH") + String(i+1);
         chan->color = SURFACE_COLOR_YELLOW;
@@ -68,7 +67,6 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 
         VChannel* chan = new VChannel(basepar);
         chan->dspChannel = &dsp->Channel[index];
-        chan->dspChannel->inputSource = index + 1;
 
         if(i <=5){
             chan->name = String("AUX") + String(i+1);
