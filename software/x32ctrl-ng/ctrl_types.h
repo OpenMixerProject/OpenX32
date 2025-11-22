@@ -133,8 +133,6 @@ typedef struct {
 typedef struct {
   uint8_t inputSource; // controls the 40 audio-channels into the DSP
   uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
-  uint8_t outputSource; // controls the 40 audio-channels out of the DSP
-  uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
 
   float lowCutFrequency;
   sGate gate;
@@ -150,6 +148,11 @@ typedef struct {
   float meterPu; // meter information in p.u.
   uint8_t meterInfo; // compatible to MeterLED on surface: 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
 } sDspChannel;
+
+typedef struct {
+  uint8_t outputSource; // controls the 40 audio-channels out of the DSP
+  uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
+} sDspOutchannel;
 
 typedef struct {
   sPEQ peq[MAX_CHAN_EQS];

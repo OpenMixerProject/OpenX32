@@ -39,6 +39,7 @@ class DSP1 : X32Base {
         sDsp2AuxChannel Dsp2AuxChannel[8];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
+        sDspOutchannel Dsp2FpgaChannel[40];
         float volumeFxReturn[8];
         float volumeDca[8];
 

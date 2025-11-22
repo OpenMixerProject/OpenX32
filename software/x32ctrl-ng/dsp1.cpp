@@ -89,9 +89,7 @@ void DSP1::dspInit(void) {
         // connect DSP-inputs 1-40 to all 40 input-sources from FPGA
         Channel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
         Channel[i].inputTapPoint = DSP_TAP_INPUT;
-        // connect MainLeft on even and MainRight on odd channels as PostFader
-        Channel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
-        Channel[i].outputTapPoint = DSP_TAP_POST_FADER;
+
 
 
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
@@ -102,6 +100,12 @@ void DSP1::dspInit(void) {
     }
     for (uint8_t i = 0; i < 8; i++) {
         Dsp2AuxChannel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Aux-Channels 1-8
+    }
+
+    for (uint8_t i = 0; i < 40; i++) {
+        // connect MainLeft on even and MainRight on odd channels as PostFader
+        Dsp2FpgaChannel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
+        Dsp2FpgaChannel[i].outputTapPoint = DSP_TAP_POST_FADER;
     }
 }
 
@@ -357,8 +361,8 @@ void DSP1::SetInputRouting(uint8_t chan) {
 
 void DSP1::SetOutputRouting(uint8_t chan) {
     uint32_t values[2];
-    values[0] = Channel[chan].outputSource;
-    values[1] = Channel[chan].outputTapPoint;
+    values[0] = Dsp2FpgaChannel[chan].outputSource;
+    values[1] = Dsp2FpgaChannel[chan].outputTapPoint;
     spi->SendDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
 }
 
