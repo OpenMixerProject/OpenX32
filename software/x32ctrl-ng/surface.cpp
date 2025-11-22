@@ -728,7 +728,6 @@ uint16_t Surface::CalcEncoderRingLedPosition(uint8_t pct) {
 }
 
 uint16_t Surface::CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition) {
-    
     uint16_t led_mask = 0;
 
     if (config->IsModelX32Rack()){
@@ -749,29 +748,30 @@ uint16_t Surface::CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition) {
         // 12 6
         // 13 10
 
-        uint8_t led_index = 0;
 
-        if (dbfs >= 10) led_index = 12;
-        else if (dbfs >= 6) led_index = 11;
-        else if (dbfs >= 3) led_index = 10;
-        else if (dbfs >= 0) led_index = 9;
-        else if (dbfs >= -3) led_index = 8;
-        else if (dbfs >= -6) led_index = 7;
-        else if (dbfs >= -9) led_index = 6;
-        else if (dbfs >= -12) led_index = 5;
-        else if (dbfs >= -18) led_index = 4;
-        else if (dbfs >= -24) led_index = 3;
-        else if (dbfs >= -30) led_index = 2;
-        else if (dbfs >= -40) led_index = 1;
-        else if (dbfs > -50) led_index = 0;
+        if (dbfs > -60) { 
+            uint8_t led_index = 0;
 
-        if (onlyPosition){
-            led_mask = (1U << led_index);
-        } else {
-            led_mask = (1U << (led_index + 1)) -1;
-        }
+            if (dbfs >= 10) led_index = 12;
+            else if (dbfs >= 6) led_index = 11;
+            else if (dbfs >= 3) led_index = 10;
+            else if (dbfs >= 0) led_index = 9;
+            else if (dbfs >= -3) led_index = 8;
+            else if (dbfs >= -6) led_index = 7;
+            else if (dbfs >= -9) led_index = 6;
+            else if (dbfs >= -12) led_index = 5;
+            else if (dbfs >= -18) led_index = 4;
+            else if (dbfs >= -24) led_index = 3;
+            else if (dbfs >= -30) led_index = 2;
+            else if (dbfs >= -40) led_index = 1;
+            else if (dbfs > -50) led_index = 0;
 
-        
+            if (onlyPosition){
+                led_mask = (1U << led_index);
+            } else {
+                led_mask = (1U << (led_index + 1)) -1;
+            }
+        } 
 
     } else {
     
