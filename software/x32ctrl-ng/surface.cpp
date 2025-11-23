@@ -1022,10 +1022,38 @@ void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds) {
   message.AddDataByte(leds);
   uart.Tx(&message, true);
 }
+// preamp = 8-bit bitwise (bit 0=Sig, 1=-30dB ... 6=-3dB, 7=Clip)
+// meter = 32-bit bitwise (bit 0=-45dB ... 15=-4, 16=-2, 19=Clip, 20+=unused)
+void Surface::SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t meterR, uint32_t meterSolo) {
+    SurfaceMessage message;
+    message.AddDataByte(0x80); // start message for specific boardId
+    message.AddDataByte('M'); // class: M = Meter
+    message.AddDataByte(0); // index
+    message.AddDataByte(preamp);
+
+    // Example for Big Meters on X32Rack (!different scale to X32Full/Compact/Producer!)
+    //message.AddDataByte(0b11110000);  // first nibble shifted 4 to left
+    //message.AddDataByte(0b11111111);  // bit 4..12 shifted 4 to right
+    //message.AddDataByte(0b10110111);  // last bits are crazy splitted :-/
+
+    message.AddDataByte((uint8_t)(meterL<<4));
+    message.AddDataByte((uint8_t)(meterL>>4));
+    message.AddDataByte((((uint8_t)(meterL>>12))&0b10000111) | (((uint8_t)(meterL>>11))&0b00110000));
+    message.AddDataByte(0);
+    message.AddDataByte((uint8_t)(meterR<<4));
+    message.AddDataByte((uint8_t)(meterR>>4));
+    message.AddDataByte((((uint8_t)(meterR>>12))&0b10000111) | (((uint8_t)(meterR>>11))&0b00110000));
+    message.AddDataByte(0x00);
+    message.AddDataByte((uint8_t)(meterSolo<<4));
+    message.AddDataByte((uint8_t)(meterSolo>>4));
+    message.AddDataByte((((uint8_t)(meterSolo>>12))&0b10000111) | (((uint8_t)(meterSolo>>11))&0b00110000));
+    message.AddDataByte(0x00);
+    uart.Tx(&message, true);
+}
 
 // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
 // leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
-void Surface::SetMeterLedMain(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo) {
+void Surface::SetMeterLedMain_FullCompactProducer(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo) {
     // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
     // 0x4C, index, leds.b[]
     SurfaceMessage message;

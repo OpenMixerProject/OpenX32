@@ -459,6 +459,8 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
+    helper->Debug(DEBUG_DSP1_CALLBACK, "DSP1 - Callback - classid=%d channel=%d, index=%d, valueCount=%d\n", classId, channel, index, valueCount);
+
     switch (classId) {
         case 's': // status-feedback
             switch (channel) {

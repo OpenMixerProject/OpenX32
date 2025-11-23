@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
 // #      ####   ##### ####  #####  ###        
 // #
 	config->SetDebug(state->switchDebug != -1);
-	//config->SetDebug(1);
-	config->SetDebugFlag(DEBUG_ALL);
+	config->SetDebug(1);
+	config->SetDebugFlag(DEBUG_DSP1);
 // ###########################################################################
 		
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
@@ -1423,26 +1423,32 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 		return;
 	}
 
-	// update preamp, dynamics, meterL, meterR, meterSolo
-	// leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-	// leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
-	//setMeterLedMain(0b00000111, 0b11100001, 0x0FFFFF, 0x0FFFFF, 0x000FFF);
 	uint8_t chanIdx = GetSelectedvChannelIndex();
-	surface->SetMeterLedMain(
-		surfaceCalcPreampMeter(chanIdx),
-		surfaceCalcDynamicMeter(chanIdx),
-		mixer->dsp->MainChannelLR.meterInfo[0],
-		mixer->dsp->MainChannelLR.meterInfo[1],
-		mixer->dsp->MainChannelSub.meterInfo[0]
-	);
 
 	if (config->IsModelX32Rack()) {
-		// no led-meters per channel
-		return;
+		surface->SetMeterLedMain_Rack(
+			surfaceCalcPreampMeter(chanIdx), // selected channel
+			mixer->dsp->MainChannelLR.meterInfo[0],
+		 	mixer->dsp->MainChannelLR.meterInfo[1],
+		 	mixer->dsp->MainChannelSub.meterInfo[0]
+		);
 	}
 
 	// update channel-meters
 	if (config->IsModelX32Full()) {
+
+		// update preamp, dynamics, meterL, meterR, meterSolo
+		// leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+		// leds = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
+		//setMeterLedMain(0b00000111, 0b11100001, 0x0FFFFF, 0x0FFFFF, 0x000FFF);
+		surface->SetMeterLedMain_FullCompactProducer(
+			surfaceCalcPreampMeter(chanIdx),
+			surfaceCalcDynamicMeter(chanIdx),
+			mixer->dsp->MainChannelLR.meterInfo[0],
+			mixer->dsp->MainChannelLR.meterInfo[1],
+			mixer->dsp->MainChannelSub.meterInfo[0]
+		);
+
 		// update meters on board L and M
 		switch (activeBank_inputFader) {
 			case 0: // Input 1-16
@@ -1466,55 +1472,58 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 			case 3: // Bus 1-16
 				break;
 		}
-	}else{
-		// update meters on board L
-		switch (activeBank_inputFader) {
-			case 0: // Input 1-8
-				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[i].meterInfo);
-				}
-				break;
-			case 1: // Input 9-16
-				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[8 + i].meterInfo);
-				}
-				break;
-			case 2: // Input 17-24
-				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[16 + i].meterInfo);
-				}
-				break;
-			case 3: // Input 25-32
-				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[24 + i].meterInfo);
-				}
-				break;
-			case 4: // Aux 1-8
-				for (uint8_t i = 0; i < 8; i++) {
-					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[32 + i].meterInfo);
-				}
-				break;
-			case 5: // FX-Return
-				break;
-			case 6: // Bus 1-8
-				break;
-			case 7: // Bus 9-16
-				break;
-		}
 	}
+	
+	
+	// else{
+	// 	// update meters on board L
+	// 	switch (activeBank_inputFader) {
+	// 		case 0: // Input 1-8
+	// 			for (uint8_t i = 0; i < 8; i++) {
+	// 				surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[i].meterInfo);
+	// 			}
+	// 			break;
+	// 		case 1: // Input 9-16
+	// 			for (uint8_t i = 0; i < 8; i++) {
+	// 				surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[8 + i].meterInfo);
+	// 			}
+	// 			break;
+	// 		case 2: // Input 17-24
+	// 			for (uint8_t i = 0; i < 8; i++) {
+	// 				surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[16 + i].meterInfo);
+	// 			}
+	// 			break;
+	// 		case 3: // Input 25-32
+	// 			for (uint8_t i = 0; i < 8; i++) {
+	// 				surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[24 + i].meterInfo);
+	// 			}
+	// 			break;
+	// 		case 4: // Aux 1-8
+	// 			for (uint8_t i = 0; i < 8; i++) {
+	// 				surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->Channel[32 + i].meterInfo);
+	// 			}
+	// 			break;
+	// 		case 5: // FX-Return
+	// 			break;
+	// 		case 6: // Bus 1-8
+	// 			break;
+	// 		case 7: // Bus 9-16
+	// 			break;
+	// 	}
+	// }
 
-	// update meters on board R
-	switch (activeBank_busFader) {
-		case 0: // DCA1-8
-			// no meter here
-			break;
-		case 1: // BUS 1-8
-			break;
-		case 2: // BUS 1-16
-			break;
-		case 3: // Matrix 1-6, Special, MainSub
-			break;
-	}
+	// // update meters on board R
+	// switch (activeBank_busFader) {
+	// 	case 0: // DCA1-8
+	// 		// no meter here
+	// 		break;
+	// 	case 1: // BUS 1-8
+	// 		break;
+	// 	case 2: // BUS 1-16
+	// 		break;
+	// 	case 3: // Matrix 1-6, Special, MainSub
+	// 		break;
+	// }
 }
 
 void X32Ctrl::surfaceSyncBankIndicator(void) {
@@ -1601,7 +1610,7 @@ uint8_t X32Ctrl::surfaceCalcPreampMeter(uint8_t channel) {
 	}
 
 	float audiodata = mixer->dsp->Channel[channel].meterPu*2147483648.0f;
-	uint32_t meterdata = 0;
+	uint8_t meterdata = 0;
 	if (audiodata >= vuThresholds[0])  { meterdata |= 0b10000000; } // CLIP
 	if (audiodata >= vuThresholds[3])  { meterdata |= 0b01000000; } // -3dBfs
 	if (audiodata >= vuThresholds[5])  { meterdata |= 0b00100000; } // -6dBfs
