@@ -491,7 +491,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                     }
                 }
                 // MainLeft
-                if (currentMeterPeakIndexMain[0] > MainChannelLR.meterPeakIndex[0]) { 
+                if (currentMeterPeakIndexMain[0] >= MainChannelLR.meterPeakIndex[0]) { 
                     MainChannelLR.meterPeakIndex[0] = currentMeterPeakIndexMain[0];
                     MainChannelLR.meterPeakHoldTimer[0] = 100; // preload to 1000ms
                 }else{
@@ -513,7 +513,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                     }
                 }
                 // MainRight
-                if (currentMeterPeakIndexMain[1] > MainChannelLR.meterPeakIndex[1]) { 
+                if (currentMeterPeakIndexMain[1] >= MainChannelLR.meterPeakIndex[1]) { 
                     MainChannelLR.meterPeakIndex[1] = currentMeterPeakIndexMain[1];
                     MainChannelLR.meterPeakHoldTimer[1] = 100; // preload to 1000ms
                 }else{
@@ -535,7 +535,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                     }
                 }
                 // Sub
-                if (currentMeterPeakIndexMain[2] > MainChannelSub.meterPeakIndex[0]) { 
+                if (currentMeterPeakIndexMain[2] >= MainChannelSub.meterPeakIndex[0]) { 
                     MainChannelSub.meterPeakIndex[0] = currentMeterPeakIndexMain[2];
                     MainChannelSub.meterPeakHoldTimer[0] = 100; // preload to 1000ms
                 }else{
@@ -619,7 +619,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                     else if (data >= vuThresholds[24]) {currentMeterPeakIndex = 1;}  // -60dBfs
                     else {currentMeterPeakIndex = 0;} // below -60dBfs
 
-                    if (currentMeterPeakIndex > Channel[i].meterPeakIndex) {
+                    if (currentMeterPeakIndex >= Channel[i].meterPeakIndex) {
                         // currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
                         Channel[i].meterPeakIndex = currentMeterPeakIndex;
                         Channel[i].meterPeakHoldTimer = 100; // preload to 1000ms
