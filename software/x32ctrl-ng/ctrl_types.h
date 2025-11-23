@@ -145,7 +145,12 @@ typedef struct {
   uint8_t sendMixbusTapPoint[16];
   bool muted;
   bool solo;
+
   float meterPu; // meter information in p.u.
+  uint32_t meterDecay; // meter information with decay
+  uint8_t meterPeakIndex;
+  uint8_t meterPeakHoldTimer; // will be updated every 100ms. On 0 the current value will be used
+  uint8_t meterPeakDecayTimer;
   uint8_t meterInfo; // compatible to MeterLED on surface: 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
 } sDspChannel;
 
@@ -189,7 +194,12 @@ typedef struct {
   uint8_t sendMatrixTapPoint[6];
   bool muted;
   bool solo;
+
   float meterPu[2]; // meter information in p.u.
+  uint32_t meterDecay[2]; // meter information with decay
+  uint8_t meterPeakIndex[2];
+  uint8_t meterPeakHoldTimer[2]; // will be updated every 100ms. On 0 the current value will be used
+  uint8_t meterPeakDecayTimer[2];
   uint32_t meterInfo[2];
 } sMainChannel;
 

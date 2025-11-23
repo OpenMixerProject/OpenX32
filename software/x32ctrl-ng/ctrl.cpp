@@ -2103,6 +2103,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					case X32_BTN_ENCODER5:
 						break;
 					case X32_BTN_ENCODER6:
+
 						break;
 					default:
 						break;

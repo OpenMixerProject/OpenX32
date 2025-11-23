@@ -413,16 +413,7 @@ int SPI::ConfigureDsp(void) {
 }
 
 void SPI::Tick10ms(void){
-    // continuously read data from both DSPs if we expect data
-//	SendDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // dummy-command just for reading without adding data to TxBuffer
-//	SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // dummy-command just for reading without adding data to TxBuffer
-}
-
-void SPI::Tick100ms(void){
-   	// toggle the LED on DSP1 and DSP2 to show some activity
-	SendDspParameter_uint32(0, 'a', 42, 0, 2);
-	SendDspParameter_uint32(1, 'a', 42, 0, 2);
-
+    // continuously read data from both DSPs
     if (!config->IsModelX32Core()) {
         // read update-packet from DSP1
         SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
@@ -430,8 +421,14 @@ void SPI::Tick100ms(void){
 
         // read update-packet from DSP2
         SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-        SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP1
+        SendDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
     }
+}
+
+void SPI::Tick100ms(void){
+   	// toggle the LED on DSP1 and DSP2 to show some activity
+	SendDspParameter_uint32(0, 'a', 42, 0, 2);
+	SendDspParameter_uint32(1, 'a', 42, 0, 2);
 }
 
 bool SPI::OpenDspConnections() {
