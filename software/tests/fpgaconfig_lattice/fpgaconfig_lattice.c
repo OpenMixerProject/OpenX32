@@ -67,6 +67,14 @@ uint8_t ReverseBitOrder_uint8(uint8_t b) {
    return b;
 }
 
+uint32_t ReverseByteOrder_uint32(uint32_t x) { 
+  return 
+      ((x >> 24) & 0x000000FFul) | 
+      ((x >>  8) & 0x0000FF00ul) | 
+      ((x <<  8) & 0x00FF0000ul) | 
+      ((x << 24) & 0xFF000000ul); 
+} 
+
 void ReverseBitOrderArray(uint8_t* data, uint32_t len) {
 	// reverse bits in array
 	uint8_t* pData = (uint8_t*)data;
@@ -149,8 +157,13 @@ int readData(int* spi_fd, uint8_t cmd) {
     tx_buf[0] = cmd; // command
     ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
     int rx_data;
+
+	// copy desired data to 32-bit word
     memcpy(&rx_data, &rx_buf[4], 4);
 	
+	// reverse the byte-order
+	rx_data = ReverseByteOrder_uint32(rx_data);
+
 	return rx_data;
 }
 
