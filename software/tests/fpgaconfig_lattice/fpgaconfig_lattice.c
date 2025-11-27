@@ -93,6 +93,15 @@ void ReverseBitAndByteOrderArray(uint8_t* data, uint32_t len) {
 	}
 }
 
+void ReverseByteOrderArray(uint8_t* data, uint32_t len) {
+	// reverse bits in array
+	uint32_t* pData = (uint32_t*)data;
+	for (uint32_t i = 0; i < (len/4); i++) {
+		*pData = ReverseByteOrder_uint32(*pData);
+		pData++;
+	}
+}
+
 #define SHOWSTATUSBIT(status, bit, desc) printf("| %2d | %-30s | %1s |\n", bit, desc, ((status) & (1<<(bit))) ? "X" : " ");
 
 // Assumes little endian
@@ -289,12 +298,13 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     // read IDCODE
     uint32_t idcode = readData(&spi_fd, CMD_READ_ID);
     fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
-//	if (idcode != 0x43101141) {
-//		perror("Error: Unexpected IDCODE");
-//        if (bitstream_file) fclose(bitstream_file);
-//        if (spi_fd >= 0) close(spi_fd);
-//        return -1;
-//	}
+	// check if we've found the ID for the Lattice LFE5U-25 FPGA
+	if (idcode != 0x41111043) {
+		perror("Error: Unexpected IDCODE");
+        if (bitstream_file) fclose(bitstream_file);
+        if (spi_fd >= 0) close(spi_fd);
+        return -1;
+	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
     fprintf(stdout, "  Sending ISC_ENABLE...");
@@ -369,6 +379,10 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
 	// reverse bit- and byte-order
 	if (strcmp(parameter, "2") == 0) {
 		ReverseBitAndByteOrderArray(&bitstream_payload[0], total_bytes_read);
+	}
+	// reverse byte-order
+	if (strcmp(parameter, "3") == 0) {
+		ReverseByteOrderArray(&bitstream_payload[0], total_bytes_read);
 	}
 	
     // configure transfer
@@ -453,6 +467,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "  <option> == 0: regular Bitstream\n");
         fprintf(stderr, "  <option> == 1: reverse Bits per Byte in Bitstream\n");
         fprintf(stderr, "  <option> == 2: reverse Bits per Byte and reverse Byteorder per 32-bit Word in Bitstream\n");
+        fprintf(stderr, "  <option> == 3: reverse Byteorder per 32-bit Word in Bitstream\n");
         return 1;
     }
 
