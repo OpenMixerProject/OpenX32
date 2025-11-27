@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Thu Nov 20 17:36:25 2025"
+-- CREATED		"Thu Nov 27 08:59:42 2025"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -97,7 +97,8 @@ ENTITY main IS
 		AUX_DA_nCS :  OUT  STD_LOGIC;
 		DA_nRESET :  OUT  STD_LOGIC;
 		AD_nRESET :  OUT  STD_LOGIC;
-		CARD_nRESET :  OUT  STD_LOGIC
+		CARD_nRESET :  OUT  STD_LOGIC;
+		PLL_IN :  OUT  STD_LOGIC
 	);
 END main;
 
@@ -1010,5 +1011,6 @@ AUX_nRST <= rst_inv;
 DA_nRESET <= rst_inv;
 AD_nRESET <= rst_inv;
 CARD_nRESET <= rst_inv;
+PLL_IN <= clk_16MHz;
 
 END bdf_type;

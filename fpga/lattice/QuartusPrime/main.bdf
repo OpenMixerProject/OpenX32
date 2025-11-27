@@ -22,7 +22,7 @@ on the Quartus Prime software download page.
 (header "graphic" (version "1.4"))
 (pin
 	(input)
-	(rect 48 200 216 216)
+	(rect 48 160 216 176)
 	(text "INPUT" (rect 125 0 153 9)(font "Arial" (font_size 6)))
 	(text "fpgaclk" (rect 5 0 41 10)(font "Arial" ))
 	(pt 168 8)
@@ -1177,6 +1177,22 @@ on the Quartus Prime software download page.
 	(rect 592 232 768 248)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "CARD_nRESET" (rect 90 0 169 11)(font "Intel Clear" ))
+	(pt 0 8)
+	(drawing
+		(line (pt 0 8)(pt 52 8))
+		(line (pt 52 4)(pt 78 4))
+		(line (pt 52 12)(pt 78 12))
+		(line (pt 52 12)(pt 52 4))
+		(line (pt 78 4)(pt 82 8))
+		(line (pt 82 8)(pt 78 12))
+		(line (pt 78 12)(pt 82 8))
+	)
+)
+(pin
+	(output)
+	(rect 296 288 472 304)
+	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
+	(text "PLL_IN" (rect 90 0 121 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
 	(drawing
 		(line (pt 0 8)(pt 52 8))
@@ -4579,7 +4595,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 280 176 440 288)
+	(rect 280 136 440 248)
 	(text "reset" (rect 5 0 29 10)(font "Arial" ))
 	(text "inst0" (rect 8 96 31 106)(font "Arial" ))
 	(port
@@ -6810,21 +6826,6 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "rst" (rect 450 192 461 203)(font "Intel Clear" ))
-	(pt 440 208)
-	(pt 480 208)
-)
-(connector
-	(text "rst_inv" (rect 450 208 483 219)(font "Intel Clear" ))
-	(pt 440 224)
-	(pt 480 224)
-)
-(connector
-	(text "clk_16MHz" (rect 226 192 279 203)(font "Intel Clear" ))
-	(pt 216 208)
-	(pt 280 208)
-)
-(connector
 	(text "rst_inv" (rect 530 208 563 219)(font "Intel Clear" ))
 	(pt 584 224)
 	(pt 520 224)
@@ -6836,11 +6837,6 @@ on the Quartus Prime software download page.
 (connector
 	(pt 584 240)
 	(pt 592 240)
-)
-(connector
-	(text "start" (rect 450 224 471 235)(font "Intel Clear" ))
-	(pt 440 240)
-	(pt 480 240)
 )
 (connector
 	(pt 1904 312)
@@ -7116,6 +7112,31 @@ on the Quartus Prime software download page.
 	(text "audiosync" (rect 410 504 457 514)(font "DejaVu Sans Condensed" ))
 	(pt 400 512)
 	(pt 488 512)
+)
+(connector
+	(text "rst" (rect 450 152 461 163)(font "Intel Clear" ))
+	(pt 440 168)
+	(pt 480 168)
+)
+(connector
+	(text "rst_inv" (rect 450 168 483 179)(font "Intel Clear" ))
+	(pt 440 184)
+	(pt 480 184)
+)
+(connector
+	(text "clk_16MHz" (rect 226 152 279 163)(font "Intel Clear" ))
+	(pt 216 168)
+	(pt 280 168)
+)
+(connector
+	(text "start" (rect 450 184 471 195)(font "Intel Clear" ))
+	(pt 440 200)
+	(pt 480 200)
+)
+(connector
+	(text "clk_16MHz" (rect 242 280 295 291)(font "Intel Clear" ))
+	(pt 232 296)
+	(pt 296 296)
 )
 (junction (pt 2520 568))
 (junction (pt 2520 560))

@@ -270,21 +270,29 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'a': // Auxiliary
-			if (valueCount == 1) {
-				if (channel == 42) {
-					// LED Control
-					switch(intValues[0]) {
-						case 0:
-							sysreg_bit_clr(sysreg_FLAGS, FLG7);
-							break;
-						case 1:
-							sysreg_bit_set(sysreg_FLAGS, FLG7);
-							break;
-						default:
-							sysreg_bit_tgl(sysreg_FLAGS, FLG7);
-							break;
+			switch (index) {
+				case 0:
+					if (valueCount == 1) {
+						if (channel == 42) {
+							// LED Control
+							switch(intValues[0]) {
+								case 0:
+									sysreg_bit_clr(sysreg_FLAGS, FLG7);
+									break;
+								case 1:
+									sysreg_bit_set(sysreg_FLAGS, FLG7);
+									break;
+								default:
+									sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+									break;
+							}
+						}
 					}
-				}
+					break;
+				case 'r':
+					// reset whole DSP to standard parameters
+					systemSportInit();
+					break;
 			}
 			break;
 		default:
