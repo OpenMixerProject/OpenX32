@@ -1,5 +1,5 @@
 // FPGA Configuration-tool for the Lattice ECP5 FPGAs
-// v0.3.0, 04.11.2025
+// v0.4.0, 27.11.2025
 //
 // This software reads a bitstream from Lattice Diamond and sends it using
 // the SPI-connection /dev/spidev2.0 (CSPI3-connection of i.MX25)
@@ -49,6 +49,40 @@ long get_file_size(const char *filename) {
         return st.st_size;
     }
     return -1; // Error
+}
+
+uint32_t ReverseBitOrder_uint32(uint32_t n) {
+	n = ((n >> 1) & 0x55555555) | ((n & 0x55555555) << 1);
+	n = ((n >> 2) & 0x33333333) | ((n & 0x33333333) << 2);
+	n = ((n >> 4) & 0x0F0F0F0F) | ((n & 0x0F0F0F0F) << 4);
+	n = ((n >> 8) & 0x00FF00FF) | ((n & 0x00FF00FF) << 8);
+	n = (n >> 16) | (n << 16);
+	return n;
+}
+
+uint8_t ReverseBitOrder_uint8(uint8_t b) {
+   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+   return b;
+}
+
+void ReverseBitOrderArray(uint8_t* data, uint32_t len) {
+	// reverse bits in array
+	uint8_t* pData = (uint8_t*)data;
+	for (uint32_t i = 0; i < len; i++) {
+		*pData = ReverseBitOrder_uint8(*pData);
+		pData++;
+	}
+}
+
+void ReverseBitAndByteOrderArray(uint8_t* data, uint32_t len) {
+	// reverse bits in array
+	uint32_t* pData = (uint32_t*)data;
+	for (uint32_t i = 0; i < (len/4); i++) {
+		*pData = ReverseBitOrder_uint32(*pData);
+		pData++;
+	}
 }
 
 #define SHOWSTATUSBIT(status, bit, desc) printf("| %2d | %-30s | %1s |\n", bit, desc, ((status) & (1<<(bit))) ? "X" : " ");
@@ -188,7 +222,7 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus)
 // configures a Lattice ECP5 via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
-int configure_lattice_spi(const char *bitstream_path) {
+int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     int spi_fd = -1;
 	uint32_t status;
     FILE *bitstream_file = NULL;
@@ -198,7 +232,7 @@ int configure_lattice_spi(const char *bitstream_path) {
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
-    fprintf(stdout, "FPGA Configuration Tool v0.3.0\n");
+    fprintf(stdout, "FPGA Configuration Tool v0.4.0\n");
 
     fprintf(stdout, "  Connecting to SPI...\n");
     spi_fd = open(SPI_DEVICE, O_RDWR);
@@ -315,6 +349,15 @@ int configure_lattice_spi(const char *bitstream_path) {
         return -1;
     }
 	
+	// reverse bit-order
+	if (strcmp(parameter, "1") == 0) {
+		ReverseBitOrderArray(&bitstream_payload[0], total_bytes_read);
+	}	
+	// reverse bit- and byte-order
+	if (strcmp(parameter, "2") == 0) {
+		ReverseBitAndByteOrderArray(&bitstream_payload[0], total_bytes_read);
+	}
+	
     // configure transfer
     int num_transfers = 0;
     size_t current_offset = 0;
@@ -326,7 +369,7 @@ int configure_lattice_spi(const char *bitstream_path) {
 
         struct spi_ioc_transfer *tr = &transfers[num_transfers];
         
-        tr->tx_buf = (unsigned long)(bitstream_payload + current_offset);
+		tr->tx_buf = (unsigned long)(&bitstream_payload[0] + current_offset);
         tr->rx_buf = 0; // Kein Rx erforderlich
         tr->len = len;
         tr->bits_per_word = spiBitsPerWord;
@@ -393,9 +436,12 @@ int configure_lattice_spi(const char *bitstream_path) {
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <bitstream.bit>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <bitstream.bit> <option>\n", argv[0]);
+        fprintf(stderr, "  <option> == 0: regular Bitstream\n");
+        fprintf(stderr, "  <option> == 1: reverse Bits per Byte in Bitstream\n");
+        fprintf(stderr, "  <option> == 2: reverse Bits per Byte and reverse Byteorder per 32-bit Word in Bitstream\n");
         return 1;
     }
 
-    return configure_lattice_spi(argv[1]);
+    return configure_lattice_spi(argv[1], argv[2]);
 }
