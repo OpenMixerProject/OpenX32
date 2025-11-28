@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        
+        {
+            "type": "gdb",
+            "request": "attach",
+            "name": "Attach to gdbserver",
+            "executable": "../bin/x32ctrl",
+            "target": "192.168.188.104:10001",
+            "remote": true,
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText",
+            "gdbpath": "/usr/bin/gdb-multiarch", 
+        },
+    ],
+    "version": "2.0.0"
+}

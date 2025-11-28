@@ -180,11 +180,13 @@ String Adda::ProcessUartData(int bytesToProcess, bool directRead) {
 		return "";
 	}
 
-	helper->Debug(DEBUG_ADDA, "addaProcessUartData()\n");
+	helper->Debug(DEBUG_ADDA, "------ addaProcessUartData() ------\n");
 
 	for (int i = 0; i < bytesToProcess; i++) {
 		currentByte = (uint8_t)addaBufferUart[i];
-		helper->Debug(DEBUG_ADDA, "%02X ", currentByte); // empfangene Bytes als HEX-Wert ausgeben
+
+		// empfangene Bytes als HEX-Wert ausgeben
+		helper->Debug(DEBUG_ADDA, "%02X ", currentByte); 
 
 		// add received byte to buffer
 		if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {

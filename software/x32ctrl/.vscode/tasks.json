@@ -1,0 +1,39 @@
+{
+    "tasks": [
+        {
+            "label": "openx32-build",
+            "type": "shell",
+            "command": "rm ../bin/obj/*.o && make -j20 && dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl\"",
+            "options": {
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+         {
+            "label": "openx32-launch",
+            "type": "shell",
+            "command": "dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl  && /root/gdbserver 129.168.188.104:10001 /root/x32ctrl \"; sleep 1",
+            "options": {                
+            },
+            "group": {
+                "kind": "none",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "openx32-kill",
+            "type": "shell",
+            "command": "ssh root@192.168.188.104 \"killall gdbserver\"",
+            "options": {
+            },
+            "group": {
+                "kind": "none",
+                "isDefault": false
+            }
+        }
+    ],
+    "version": "2.0.0"
+}

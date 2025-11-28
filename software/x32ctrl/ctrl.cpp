@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 // #
 	config->SetDebug(state->switchDebug != -1);
 	config->SetDebug(1);
-	config->SetDebugFlag(DEBUG_DSP1);
+	config->SetDebugFlag(DEBUG_ALL);
 // ###########################################################################
 		
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
