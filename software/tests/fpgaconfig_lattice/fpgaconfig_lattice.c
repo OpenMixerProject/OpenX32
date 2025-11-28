@@ -288,10 +288,9 @@ bool flashErase(int* spi_fd) {
 bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus) {
 	// prepare ioc-message
     uint8_t tx_buf[4] = {0x00, 0x00, 0x00, 0x00};
-    uint8_t rx_buf[4] = {0};
     struct spi_ioc_transfer tr_cmd = {
         .tx_buf = (unsigned long)tx_buf,
-        .rx_buf = (unsigned long)rx_buf,
+        .rx_buf = 0,
         .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
         .bits_per_word = 8,
         .speed_hz = SPI_SPEED_HZ,
@@ -377,7 +376,7 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     // SPI-Mode 0 (CPOL=0, CPHA=0 -> CLK idle state = low  -> data sampled on rising edge and shifted on falling edge)
     // SPI-Mode 3 (CPOL=1, CPHA=1 -> CLK idle state = high -> data sampled on the rising edge and shifted on the falling edge)
     //uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
-    uint8_t spiMode; // = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
+    uint8_t spiMode = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
@@ -392,9 +391,9 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         return -1;
     }
 
-    ioctl(spi_fd, SPI_IOC_RD_MODE, &spiMode);
-    spiMode |= SPI_MODE_3;
-    ioctl(spi_fd, SPI_IOC_WR_MODE, &spiMode);
+    // ioctl(spi_fd, SPI_IOC_RD_MODE, &spiMode);
+    // spiMode |= SPI_MODE_3;
+    // ioctl(spi_fd, SPI_IOC_WR_MODE, &spiMode);
     ioctl(spi_fd, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
     fprintf(stdout, "  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).\n", SPI_DEVICE, spiMode, spiSpeed);
@@ -428,12 +427,12 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     uint32_t idcode = readData(&spi_fd, CMD_READ_ID);
     fprintf(stdout, "  Read IDCODE: 0x%08X\n", idcode);
 	// check if we've found the ID for the Lattice LFE5U-25 FPGA
-	if (idcode != 0x41111043) {
-		perror("Error: Unexpected IDCODE");
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return -1;
-	}
+	// if (idcode != 0x41111043) {
+	// 	perror("Error: Unexpected IDCODE");
+    //     if (bitstream_file) fclose(bitstream_file);
+    //     if (spi_fd >= 0) close(spi_fd);
+    //     return -1;
+	// }
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
     fprintf(stdout, "  Sending ISC_ENABLE...");
@@ -514,6 +513,12 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
 	}
 	// ------------- END of optional ajustment of bitstream -------------
 	
+    // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
+    fpgaChipSelectPin(true); // deassert ChipSelect
+    fprintf(stdout, "  Sending LSC_BITSTREAM_BURST...");
+    transferCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST); // keep CS asserted after this command
+    fprintf(stdout, "OK\n");
+
     // configure transfer
     int num_transfers = 0;
     size_t current_offset = 0;
@@ -524,33 +529,33 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         }
 
 		// get a temporary struct for the current transfer-element for configuration
-        struct spi_ioc_transfer *tr = &transfers[num_transfers];
+        struct spi_ioc_transfer tr;
 
-        tr->tx_buf = (unsigned long)(&bitstream_payload[current_offset]);
-        tr->rx_buf = 0; // Kein Rx erforderlich
-        tr->len = len;
-        tr->bits_per_word = spiBitsPerWord;
-        tr->speed_hz = spiSpeed;
-        tr->cs_change = 0; // keep CS asserted between individual chunks, but deassert after last chunk. Behavior tested on RaspberryPi 4.
+        tr.tx_buf = (unsigned long)(&bitstream_payload[current_offset]);
+        tr.rx_buf = 0; // Kein Rx erforderlich
+        tr.len = len;
+        tr.bits_per_word = spiBitsPerWord;
+        tr.speed_hz = spiSpeed;
+        tr.cs_change = 0; // keep CS asserted between individual chunks, but deassert after last chunk. Behavior tested on RaspberryPi 4.
         
+        int ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
+        // if (ret < 0) {
+        //     perror("Error: SPI-transmission failed");
+        //     break;
+        // }
+
 		// we dont set no flags here. The kernel keeps CS asserted within this transmission-chain
         
-        //fprintf(stdout, "offset=%d len=%d num_transfers=%d tx_buf=0x%X\n", current_offset, len, num_transfers, bitstream_payload[current_offset]);
-        //fflush(stdout); // immediately write to console!
+        fprintf(stdout, "offset=%d len=%d num_transfers=%d tx_buf=0x%X\n", current_offset, len, num_transfers, bitstream_payload[current_offset]);
+        fflush(stdout); // immediately write to console!
 
         current_offset += len;
         num_transfers++;
     }
 
-    // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
-    fprintf(stdout, "  Sending LSC_BITSTREAM_BURST...");
-    transferCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST); // keep CS asserted after this command
-    fprintf(stdout, "OK\n");
+  
 
-    // send of the whole data-chain within a single ioctl-call
-	fprintf(stdout, "  Sending Bitstream in %d chunks (Max %zu B/chunk)...\n", num_transfers, CHUNK_SIZE);
-    ret = ioctl(spi_fd, SPI_IOC_MESSAGE(num_transfers), transfers);
-    fprintf(stdout, " ret=%d ", ret);
+
 
     // freeing allocated dynamic memory
     free(bitstream_payload);
@@ -563,13 +568,13 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
 	// =========== END of bitstream-transmitting without deasserting ChipSelect ===========
   
 	
-    if (ret < 0) {
-        perror("Error: SPI BITSTREAM CHAIN failed");
-        if (bitstream_file) fclose(bitstream_file);
-        if (spi_fd >= 0) close(spi_fd);
-        return ret;
-    }
-    fprintf(stdout, "\r[██████████████████████████████████████████████████] %d/%d Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
+    // if (ret < 0) {
+    //     perror("Error: SPI BITSTREAM CHAIN failed");
+    //     if (bitstream_file) fclose(bitstream_file);
+    //     if (spi_fd >= 0) close(spi_fd);
+    //     return ret;
+    // }
+    // fprintf(stdout, "\r[██████████████████████████████████████████████████] %d/%d Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
     
     // for (int i=0; i < 1000; i++){
     //     sendNOP(&spi_fd, true);
