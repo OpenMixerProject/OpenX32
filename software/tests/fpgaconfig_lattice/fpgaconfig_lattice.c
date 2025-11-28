@@ -1,9 +1,22 @@
-// FPGA Configuration-tool for the Lattice ECP5 FPGAs
-// v0.4.0, 27.11.2025
-//
-// This software reads a bitstream from Lattice Diamond and sends it using
-// the SPI-connection /dev/spidev2.0 (CSPI3-connection of i.MX25)
-//
+/*
+	FPGA Configuration-tool for the Lattice ECP5 FPGAs
+	v0.5.0, 28.11.2025
+
+	This software reads a bitstream from Lattice Diamond and sends it using
+	the SPI-connection /dev/spidev2.0 (CSPI3-connection of i.MX25)
+	
+	According to the sysCONFIG User-Guide the following steps for SPI-Slave-Configuration have to be used:
+	
+	SPI MODE0 seems to be fine for READ_ID and other commands, but SPI MODE3 should be used
+	
+	Send READ_ID				0xE0 0x00 0x00 0x00
+		Read 4 bytes and check for ID 0x41111043 (reorder bytes of 32-bit Word on Linux)
+	Send ISC_ENABLE				0xC6 0x00 0x00 0x00
+	Send LSC_BITSTREAM_BURST	0x7A 0x00 0x00 0x00 + Bitstream with Header
+	Send LSC_READ_STATUS		0x3C 0x00 0x00 0x00
+		Read 4 bytes and check
+	Send ISC_DISABLE			0x26 0x00 0x00 0x00
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,8 +31,9 @@
 #include <linux/spi/spidev.h>
 
 // SPI configuration for i.MX25
-#define SPI_DEVICE "/dev/spidev2.0"
-#define SPI_SPEED_HZ 3000*1024 // ~3MHz
+#define SPI_DEVICE				"/dev/spidev2.0"
+#define SPI_SPEED_HZ			(3000 * 1024) // ~3MHz
+#define USE_MANUAL_CS			1
 
 #define CMD_ISC_NOOP			0xFF
 #define CMD_READ_ID				0xE0
@@ -39,9 +53,11 @@
 #define STATUS_FEA_OTP			0x00004000
 #define STATUS_FAIL_FLAG		0x00002000
 #define STATUS_BUSY_FLAG		0x00001000
-#define REGISTER_ALL_BITS_1		0xffffffff
+#define REGISTER_ALL_BITS_1		0xFFFFFFFF
 
-// ----------------------------------------------
+// ===============================================
+// Helper-Functions
+// ===============================================
 
 long get_file_size(const char *filename) {
     struct stat st;
@@ -152,6 +168,50 @@ void printBits(uint32_t status)
     printf("+----+--------------------------------+---+\n");
 }
 
+// ===============================================
+// Functions for GPIO-pins
+// ===============================================
+
+void fpgaToggleProgramnPin() {
+    int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
+    write(fd, "1", 1); // assert PROGRAMN-pin (this sets the real GPIO to LOW)
+
+	// we have to keep at least 25ns. So keep it 4ms asserted
+    usleep(4000);
+
+    write(fd, "0", 1); // deassert PROGRAMN-pin (this sets the real GPIO to HIGH)
+    close(fd);
+	
+	// wait 50ms until FPGA is ready
+    usleep(50000);
+}
+
+void fpgaChipSelectPin(bool state) {
+	#if USE_MANUAL_CS == 1
+		int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
+		if (state) {
+			write(fd, "1", 1); // assert ChipSelect (sets the real pin to LOW)
+		}else{
+			write(fd, "0", 1); // deassert ChipSelect (sets the real pin to HIGH)
+		}
+		close(fd);
+	#endif
+}
+
+void fpgaDonePin(bool state) {
+	int fd = open("/sys/class/leds/done_fpga/brightness", O_WRONLY);
+	if (state) {
+		write(fd, "1", 1); // assert FPGA_DONE (sets the real pin to HIGH)
+	}else{
+		write(fd, "0", 1); // deassert FPGA_DONE (sets the real pin to LOW)
+	}
+	close(fd);
+}
+
+// ===============================================
+// Functions for communication
+// ===============================================
+
 int readData(int* spi_fd, uint8_t cmd) {
     uint8_t tx_buf[8] = {0};
     uint8_t rx_buf[8] = {0};
@@ -162,15 +222,14 @@ int readData(int* spi_fd, uint8_t cmd) {
         .bits_per_word = 8,
         .speed_hz = SPI_SPEED_HZ,
     };
-
     tx_buf[0] = cmd; // command
-    int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
-    write(fd, "1", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
+
+	fpgaChipSelectPin(true); // assert ChipSelect
     ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);    
-    write(fd, "0", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
-    int rx_data;
+	fpgaChipSelectPin(false); // deassert ChipSelect
 
 	// copy desired data to 32-bit word
+    int rx_data;
     memcpy(&rx_data, &rx_buf[4], 4);
 	
 	// reverse the byte-order
@@ -189,9 +248,11 @@ bool pollBusyFlag(int* spi_fd) {
         fflush(stdout); // immediately write to console!
 		
 		timeout++;
-		if (timeout == 100) {
+		if (timeout == 100) { // wait maximum 100 ms
 			return false;
 		}
+		
+		usleep(1000); // wait 1 ms until next read of status
 	} while(busyState != 0);
 		
 	return true;
@@ -208,7 +269,9 @@ bool flashErase(int* spi_fd) {
         .bits_per_word = 8,
         .speed_hz = SPI_SPEED_HZ,
     };
+	fpgaChipSelectPin(true); // assert ChipSelect
 	int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
+	fpgaChipSelectPin(false); // deassert ChipSelect
 	
 	if (!pollBusyFlag(spi_fd)) {
 		return false;
@@ -235,12 +298,12 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus)
 	}
 
     tx_buf[0] = cmd; // command
-    int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
-    write(fd, "1", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
+
+	fpgaChipSelectPin(true); // assert ChipSelect
     int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
-    if(!keepCS){
-        write(fd, "0", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
-    }
+	if(!keepCS){
+		fpgaChipSelectPin(false); // deassert ChipSelect
+	}
 	
 	if (checkBusyAndStatus) {
 		if (!pollBusyFlag(spi_fd)) {
@@ -252,7 +315,7 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus)
 	}
 };
 
-bool sendNOP(int* spi_fd, bool keepCS, bool checkBusyAndStatus) {
+bool sendNOP(int* spi_fd, bool keepCS) {
     uint8_t tx_buf[4] = {0xFF, 0xFF, 0xFF, 0xFF};
     uint8_t rx_buf[4] = {0};
     struct spi_ioc_transfer tr_cmd = {
@@ -263,28 +326,24 @@ bool sendNOP(int* spi_fd, bool keepCS, bool checkBusyAndStatus) {
         .speed_hz = SPI_SPEED_HZ,
     };
 	
-	// if (keepCS) {
-	// 	tr_cmd.cs_change = 1; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
-	// }else{
-	// 	tr_cmd.cs_change = 0; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
-	// }
-
-    // int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
-    // write(fd, "1", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
-    int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
-	// if(!keepCS){
-    //     write(fd, "0", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
-    // }
-
-	if (checkBusyAndStatus) {
-		if (!pollBusyFlag(spi_fd)) {
-			return false;
-		}
-        return true;
+	if (keepCS) {
+		tr_cmd.cs_change = 1; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
 	}else{
-		return (ret >= 0);
+		tr_cmd.cs_change = 0; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
 	}
+
+	fpgaChipSelectPin(true); // assert ChipSelect
+    int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
+	if(!keepCS){
+		fpgaChipSelectPin(false); // deassert ChipSelect
+	}
+
+	return (ret >= 0);
 };
+
+// ===============================================
+// Main configuration function
+// ===============================================
 
 // configures a Lattice ECP5 via SPI
 // accepts path to bitstream-file
@@ -295,16 +354,16 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     FILE *bitstream_file = NULL;
     int ret = -1;
 
-    uint8_t spiMode = SPI_MODE_0; // Lattice ECP5 uses MODE 0
+    // SPI-Mode 0 (CPOL=0, CPHA=0 -> CLK idle state = low  -> data sampled on rising edge and shifted on falling edge)
+    // SPI-Mode 3 (CPOL=1, CPHA=1 -> CLK idle state = high -> data sampled on the rising edge and shifted on the falling edge)
+    uint8_t spiMode = SPI_MODE_3;
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
-    fprintf(stdout, "FPGA Configuration Tool v0.4.0\n");
+    fprintf(stdout, "FPGA Configuration Tool v0.5.0\n");
 
-    int fd3 = open("/sys/class/leds/done_fpga/brightness", O_WRONLY);
-    write(fd3, "1", 1); // done_fpga (Invertiert)
-
-
+	fpgaDonePin(false); // deassert DONE-pin
+	
     fprintf(stdout, "  Connecting to SPI...\n");
     spi_fd = open(SPI_DEVICE, O_RDWR);
     if (spi_fd < 0) {
@@ -312,7 +371,6 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         return -1;
     }
 
-    // SPI-Modus (0 = CPOL=0, CPHA=0)
     ioctl(spi_fd, SPI_IOC_WR_MODE, &spiMode);
     ioctl(spi_fd, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
@@ -328,31 +386,14 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         return -1;
     }
 
-    // configuration-process
+    // perform configuration-process
     fprintf(stdout, "Configuring Lattice FPGA...\n");
 
-    status = readData(&spi_fd, CMD_LSC_READ_STATUS);
-    fprintf(stdout, "    Status Register [31..0]: ");
-    fflush(stdout); // immediately write to console!
-    printBits(status);
-    fprintf(stdout, "\n");
-    fflush(stdout); // immediately write to console!
-
+	// first activate the configuration-mode by toggle the PROGRAMN-pin
     fprintf(stdout, "  Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...\n");
-    int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
-    write(fd, "1", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to LOW
-    usleep(500); // we have to keep at least 25ns. So 500us is more than enough
-    write(fd, "0", 1); // inverted logic in DeviceTree -> this sets the PROGRAMN to HIGH again
-    close(fd);
-    usleep(50000); // we have to wait 50ms until we can send commands
+	fpgaToggleProgramnPin();
 
-        status = readData(&spi_fd, CMD_LSC_READ_STATUS);
-    fprintf(stdout, "    Status Register [31..0]: ");
-    fflush(stdout); // immediately write to console!
-    printBits(status);
-    fprintf(stdout, "\n");
-    fflush(stdout); // immediately write to console!
-
+/*
     // Virtual toggle of PROGRAMN: send CMD_LSC_REFRESH command [class D command]
     fprintf(stdout, "  Sending LSC_REFRESH...");
     sendCommand(&spi_fd, CMD_LSC_REFRESH, false, true);
@@ -365,6 +406,7 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     printBits(status);
     fprintf(stdout, "\n");
     fflush(stdout); // immediately write to console!
+*/
 
     // read IDCODE
     uint32_t idcode = readData(&spi_fd, CMD_READ_ID);
@@ -376,13 +418,6 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         if (spi_fd >= 0) close(spi_fd);
         return -1;
 	}
-
-    status = readData(&spi_fd, CMD_LSC_READ_STATUS);
-    fprintf(stdout, "    Status Register [31..0]: ");
-    fflush(stdout); // immediately write to console!
-    printBits(status);
-    fprintf(stdout, "\n");
-    fflush(stdout); // immediately write to console!
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
     fprintf(stdout, "  Sending ISC_ENABLE...");
@@ -398,9 +433,7 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     fprintf(stdout, "\n");
     fflush(stdout); // immediately write to console!
 
-	// =========== Here starts a long part without deasserting ChipSelect ===========
-	
-
+	// =========== BEGIN of bitstream-transmitting without deasserting ChipSelect ===========
 
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
@@ -436,6 +469,7 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         return -1;
     }
 	
+	// ------------- BEGIN of optional ajustment of bitstream -------------
 	// reverse bit-order
 	if (strcmp(parameter, "1") == 0) {
 		ReverseBitOrderArray(&bitstream_payload[0], total_bytes_read);
@@ -448,6 +482,7 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
 	if (strcmp(parameter, "3") == 0) {
 		ReverseByteOrderArray(&bitstream_payload[0], total_bytes_read);
 	}
+	// ------------- END of optional ajustment of bitstream -------------
 	
     // configure transfer
     int num_transfers = 0;
@@ -458,11 +493,9 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
             len = CHUNK_SIZE;
         }
 
+		// get a temporary struct for the current transfer-element for configuration
         struct spi_ioc_transfer *tr = &transfers[num_transfers];
-        
-        
 
-		//tr->tx_buf = (unsigned long)(&bitstream_payload[0] + current_offset);
         tr->tx_buf = (unsigned long)(&bitstream_payload[current_offset]);
         tr->rx_buf = 0; // Kein Rx erforderlich
         tr->len = len;
@@ -474,15 +507,12 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         
         current_offset += len;
         num_transfers++;
-
-        //fprintf(stdout, "current_offset=%d, len=%d\n", current_offset, len);
     }
 
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
     fprintf(stdout, "  Sending LSC_BITSTREAM_BURST...");
     sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST, true, false); // keep CS asserted after this command
     fprintf(stdout, "OK\n");
-
 
     // send of the whole data-chain within a single ioctl-call
 	fprintf(stdout, "  Sending Bitstream in %d chunks (Max %zu B/chunk)...\n", num_transfers, CHUNK_SIZE);
@@ -496,8 +526,9 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     fflush(stdout); // immediately write to console!
 
 
-	// =========== End of transmission ===========
-    
+	// =========== END of bitstream-transmitting without deasserting ChipSelect ===========
+  
+	
     if (ret < 0) {
         perror("Error: SPI BITSTREAM CHAIN failed");
         if (bitstream_file) fclose(bitstream_file);
@@ -506,41 +537,20 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     }
     fprintf(stdout, "\r[██████████████████████████████████████████████████] %ld/%ld Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
     
-    //usleep(100000); // wait 100ms
-
+/*
     fprintf(stdout, "Sending NOPs.....");
     fflush(stdout); // immediately write to console!
     for (uint32_t i=0; i < 1; i++){
-        sendNOP(&spi_fd, true, false);
+        sendNOP(&spi_fd, true);
         //sendCommand(&spi_fd, CMD_ISC_NOOP, false, false);
         if (i % 100 == 0){
             fprintf(stdout, "Count=%d\n", i);
             fflush(stdout); // immediately write to console!
         }
     }
+*/
 
-    //usleep(100000); // wait 100ms
-
-    // "Fehlerfrei"
-
-    int fd2 = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
-    write(fd2, "0", 1); // CS
-
-    // fprintf(stdout, "Sending additional NOP.....");
-    // fflush(stdout); // immediately write to console!
-    // for (uint32_t i=0; i < 1; i++){
-    //     //sendNOP(&spi_fd, true, true);
-    //     sendCommand(&spi_fd, CMD_ISC_NOOP, false, false);
-    //     if (i % 100 == 0){
-    //         fprintf(stdout, "Count=%d\n", i);
-    //         fflush(stdout); // immediately write to console!
-    //     }
-    // }
-    
-    
-
-
-    //usleep(100000); // wait 100ms
+	fpgaChipSelectPin(false); // deassert ChipSelect
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
@@ -549,27 +559,21 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     fprintf(stdout, "\n");
     fflush(stdout); // immediately write to console!
 
-
-    // erst setzen, wenn DONE bit gesetzt ist
-    //write(fd3, "0", 1); // done_fpga  (Invertiert)
-
-
     // Exit Programming Mode: send ISC_DISABLE
     fprintf(stdout, "  Sending ISC_DISABLE...");
 	sendCommand(&spi_fd, CMD_ISC_DISABLE, false, true);
     fprintf(stdout, "OK\n");
 
+	usleep(100000); // wait 100 ms
 
     // check Status-Bits
-    // Bit 8 (DONE) must be 1, Bit 9 (ISC ENABLED) must be 1 sein, Bit 26 (EXECUTION ERROR) must be 0 sein
+    // Bit 8 (DONE) must be 1, Bit 26 (EXECUTION ERROR) must be 0 sein
 	status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     int done = (status & (1 << 8)) > 0;
-    int isc_enabled = (status & (1 << 9)) > 0;
     int exec_error = (status & (1 << 26)) > 0;
 
     fprintf(stdout, "  Status Register Check:\n");
     fprintf(stdout, "    DONE: %d\n", done);
-    fprintf(stdout, "    ISC Enabled: %d\n", isc_enabled);
     fprintf(stdout, "    Execution Error: %d\n", exec_error);
     printBits(status);
     fprintf(stdout, "\n");
@@ -578,10 +582,10 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         fprintf(stderr, "Configuration failed! Status indicates error or not done.\n");
         ret = -1;
     } else {
+		fpgaDonePin(true); // assert external DONE-pin to finish configuration
         fprintf(stdout, "\n✅ **SUCCESS:** Configuration complete and DONE bit set.\n");
         ret = 0;
     }
-
 
 	if (bitstream_file) fclose(bitstream_file);
 	if (spi_fd >= 0) close(spi_fd);
