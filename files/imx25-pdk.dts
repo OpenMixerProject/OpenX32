@@ -96,6 +96,18 @@
 			default-state = "off";
 		};
 
+		cs_fpga {
+			label = "cs_fpga";
+			gpios = <&gpio1 31 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		done_fpga {
+			label = "done_fpga";
+			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+
 		reset_dsp {
 			label = "reset_dsp";
 			gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
@@ -293,7 +305,7 @@
 				MX25_PAD_CSI_D2__CSPI3_MOSI	0x80000000	// FPGA SPI MOSI
 				MX25_PAD_CSI_D4__CSPI3_SCLK	0x80000000	// FPGA SPI SCLK
 				MX25_PAD_CSI_D3__CSPI3_MISO	0xc0		// FPGA SPI MISO
-				MX25_PAD_CSI_D6__GPIO_1_31	0x80000000	// FPGA nCS0
+				//MX25_PAD_CSI_D6__GPIO_1_31	0x80000000	// FPGA nCS0
 				MX25_PAD_CSI_D7__GPIO_1_6	0x80000000	// FPGA nCS1
 			>;
 		};
@@ -303,6 +315,7 @@
 				MX25_PAD_UART1_RTS__GPIO_4_24	0x80000000	// MCU_LED
 				MX25_PAD_PWM__GPIO_1_26		0x80000000	// Desk-LAMP
 				MX25_PAD_CSI_D5__GPIO_1_30	0x80000000	// FPGA nPROG
+				MX25_PAD_GPIO_C__GPIO_1_2	0x80000000	// FPGA DONE
 				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x80000000      // DSP nRESET
 				MX25_PAD_UART2_RTS__GPIO_4_28	0x80000000	// Surface nRESET
 				MX25_PAD_GPIO_D__GPIO_1_3	0x80000000	// MUTEOFF
@@ -310,10 +323,10 @@
 		};
 
 		pinctrl_gpio1: gpio1grp {
-			fsl,pins = <
-				//MX25_PAD_CSI_D5__GPIO_1_30	0x80000000	// FPGA nPROG
-				MX25_PAD_GPIO_C__GPIO_1_2	0xc0		// FPGA DONE
-			>;
+		//	fsl,pins = <
+		//		//MX25_PAD_CSI_D5__GPIO_1_30	0x80000000	// FPGA nPROG
+		//		MX25_PAD_GPIO_C__GPIO_1_2	0xc0		// FPGA DONE
+		//	>;
 		};
 
 		pinctrl_gpio2: gpio2grp {
@@ -468,8 +481,10 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_spi3>;
 	status = "okay";
-	cs-gpios = <&gpio1 31 GPIO_ACTIVE_LOW>, <&gpio1 6 GPIO_ACTIVE_LOW>;
-	num-cs = <2>;
+	//cs-gpios = <&gpio1 31 GPIO_ACTIVE_LOW>, <&gpio1 6 GPIO_ACTIVE_LOW>;
+	cs-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;
+	//num-cs = <2>;
+	num-cs = <1>;
 
         spidev@0 {
                 compatible = "rohm,dh2228fv"; // actually spidev
@@ -477,11 +492,11 @@
                 spi-max-frequency = <50000000>;
         };
 
-        spidev@1 {
-                compatible = "rohm,dh2228fv"; // actually spidev
-                reg = <1>;
-                spi-max-frequency = <50000000>;
-        };
+        //spidev@1 {
+        //        compatible = "rohm,dh2228fv"; // actually spidev
+        //        reg = <1>;
+        //        spi-max-frequency = <50000000>;
+        //};
 };
 
 &usbhost1 {
