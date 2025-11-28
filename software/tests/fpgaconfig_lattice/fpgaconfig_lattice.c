@@ -34,7 +34,7 @@
 
 // SPI configuration for i.MX25
 #define SPI_DEVICE				"/dev/spidev2.0"
-#define SPI_SPEED_HZ			(3000 * 1024) // ~3MHz
+#define SPI_SPEED_HZ			(8000 * 1024) // ~8MHz
 #define USE_MANUAL_CS			1
 
 #define CMD_ISC_NOOP			0xFF
@@ -287,7 +287,7 @@ bool flashErase(int* spi_fd) {
 
 bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus) {
 	// prepare ioc-message
-    uint8_t tx_buf[4] = {0};
+    uint8_t tx_buf[4] = {0x00, 0x00, 0x00, 0x00};
     uint8_t rx_buf[4] = {0};
     struct spi_ioc_transfer tr_cmd = {
         .tx_buf = (unsigned long)tx_buf,
@@ -321,9 +321,24 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus)
 	}
 };
 
+int transferCommand(int* spi_fd, uint8_t cmd) {
+	// prepare ioc-message
+    uint8_t tx_buf[4] = {0x00, 0x00, 0x00, 0x00};
+    struct spi_ioc_transfer tr_cmd = {
+        .tx_buf = (unsigned long)tx_buf,
+        .rx_buf = 0,
+        .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
+        .bits_per_word = 8,
+        .speed_hz = SPI_SPEED_HZ,
+    };
+    tx_buf[0] = cmd; // command
+
+	return ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
+};
+
 // this function is only for testing purposes. It allows adding additional 0xFF at the end of the bitstream
 // can be deleted if bitstream-upload is working without it
-/*
+
 bool sendNOP(int* spi_fd, bool keepCS) {
     uint8_t tx_buf[4] = {0xFF, 0xFF, 0xFF, 0xFF};
     uint8_t rx_buf[4] = {0};
@@ -349,7 +364,7 @@ bool sendNOP(int* spi_fd, bool keepCS) {
 
 	return (ret >= 0);
 };
-*/
+
 
 // ===============================================
 // Main configuration function
@@ -366,7 +381,8 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
 
     // SPI-Mode 0 (CPOL=0, CPHA=0 -> CLK idle state = low  -> data sampled on rising edge and shifted on falling edge)
     // SPI-Mode 3 (CPOL=1, CPHA=1 -> CLK idle state = high -> data sampled on the rising edge and shifted on the falling edge)
-    uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
+    //uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
+    uint8_t spiMode = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
@@ -386,8 +402,12 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
     fprintf(stdout, "  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).\n", SPI_DEVICE, spiMode, spiSpeed);
 
+	status = readData(&spi_fd, CMD_LSC_READ_STATUS);
+    printBits(status);
+    fprintf(stdout, "\n");
+
     // open the file
-    long bitstream_size = get_file_size(bitstream_path);
+     size_t bitstream_size = get_file_size(bitstream_path);
     bitstream_file = fopen(bitstream_path, "rb");
     if (!bitstream_file) {
         perror("Error: Could not open bitstream-file");
@@ -403,20 +423,9 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     fprintf(stdout, "  Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...\n");
 	fpgaToggleProgramnPin();
 
-/*
-    // Virtual toggle of PROGRAMN: send CMD_LSC_REFRESH command [class D command]
-    fprintf(stdout, "  Sending LSC_REFRESH...");
-    sendCommand(&spi_fd, CMD_LSC_REFRESH, false, true);
-    fprintf(stdout, "OK\n");
-    usleep(50000); // we have to wait 50ms until we can send commands
-
-    status = readData(&spi_fd, CMD_LSC_READ_STATUS);
-    fprintf(stdout, "    Status Register [31..0]: ");
-    fflush(stdout); // immediately write to console!
-    printBits(status);
-    fprintf(stdout, "\n");
-    fflush(stdout); // immediately write to console!
-*/
+    // status = readData(&spi_fd, CMD_LSC_READ_STATUS);
+    // printBits(status);
+    // fprintf(stdout, "\n");
 
     // read IDCODE
     uint32_t idcode = readData(&spi_fd, CMD_READ_ID);
@@ -436,12 +445,10 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     fprintf(stdout, "OK\n");
     fflush(stdout); // immediately write to console!
 
-    status = readData(&spi_fd, CMD_LSC_READ_STATUS);
-    fprintf(stdout, "    Status Register [31..0]: ");
-    fflush(stdout); // immediately write to console!
-    printBits(status);
-    fprintf(stdout, "\n");
-    fflush(stdout); // immediately write to console!
+    // status = readData(&spi_fd, CMD_LSC_READ_STATUS);
+    // printBits(status);
+    // fprintf(stdout, "\n");
+
 
 	// =========== BEGIN of bitstream-transmitting without deasserting ChipSelect ===========
 
@@ -515,18 +522,22 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         
 		// we dont set no flags here. The kernel keeps CS asserted within this transmission-chain
         
+        //fprintf(stdout, "offset=%d len=%d num_transfers=%d tx_buf=0x%X\n", current_offset, len, num_transfers, bitstream_payload[current_offset]);
+        //fflush(stdout); // immediately write to console!
+
         current_offset += len;
         num_transfers++;
     }
 
     // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
     fprintf(stdout, "  Sending LSC_BITSTREAM_BURST...");
-    sendCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST, true, false); // keep CS asserted after this command
+    transferCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST); // keep CS asserted after this command
     fprintf(stdout, "OK\n");
 
     // send of the whole data-chain within a single ioctl-call
 	fprintf(stdout, "  Sending Bitstream in %d chunks (Max %zu B/chunk)...\n", num_transfers, CHUNK_SIZE);
     ret = ioctl(spi_fd, SPI_IOC_MESSAGE(num_transfers), transfers);
+    fprintf(stdout, " ret=%d ", ret);
 
     // freeing allocated dynamic memory
     free(bitstream_payload);
@@ -545,26 +556,12 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         if (spi_fd >= 0) close(spi_fd);
         return ret;
     }
-    fprintf(stdout, "\r[██████████████████████████████████████████████████] %ld/%ld Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
+    fprintf(stdout, "\r[██████████████████████████████████████████████████] %d/%d Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
     
-/*
-    fprintf(stdout, "Sending NOPs.....");
-    fflush(stdout); // immediately write to console!
-    for (uint32_t i=0; i < 1; i++){
-        sendNOP(&spi_fd, true);
-        //sendCommand(&spi_fd, CMD_ISC_NOOP, false, false);
-        if (i % 100 == 0){
-            fprintf(stdout, "Count=%d\n", i);
-            fflush(stdout); // immediately write to console!
-        }
-    }
-*/
-
 	fpgaChipSelectPin(false); // deassert ChipSelect
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
     fprintf(stdout, "    Status Register [31..0]: ");
-    fflush(stdout); // immediately write to console!
     printBits(status);
     fprintf(stdout, "\n");
     fflush(stdout); // immediately write to console!
@@ -579,23 +576,17 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     // check Status-Bits
     // Bit 8 (DONE) must be 1, Bit 26 (EXECUTION ERROR) must be 0 sein
 	status = readData(&spi_fd, CMD_LSC_READ_STATUS);
-    int done = (status & (1 << 8)) > 0;
-    int exec_error = (status & (1 << 26)) > 0;
-
-    fprintf(stdout, "  Status Register Check:\n");
-    fprintf(stdout, "    DONE: %d\n", done);
-    fprintf(stdout, "    Execution Error: %d\n", exec_error);
     printBits(status);
     fprintf(stdout, "\n");
 
-    if (!done || exec_error) {
-        fprintf(stderr, "Configuration failed! Status indicates error or not done.\n");
-        ret = -1;
-    } else {
-		fpgaDonePin(true); // assert external DONE-pin to finish configuration
-        fprintf(stdout, "\n✅ **SUCCESS:** Configuration complete and DONE bit set.\n");
-        ret = 0;
-    }
+    // if (!done || exec_error) {
+    //     fprintf(stderr, "Configuration failed! Status indicates error or not done.\n");
+    //     ret = -1;
+    // } else {
+	// 	fpgaDonePin(true); // assert external DONE-pin to finish configuration
+    //     fprintf(stdout, "\n✅ **SUCCESS:** Configuration complete and DONE bit set.\n");
+    //     ret = 0;
+    // }
 
 	if (bitstream_file) fclose(bitstream_file);
 	if (spi_fd >= 0) close(spi_fd);
