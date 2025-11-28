@@ -7,14 +7,16 @@
 	
 	According to the sysCONFIG User-Guide the following steps for SPI-Slave-Configuration have to be used:
 	
-	SPI MODE0 seems to be fine for READ_ID and other commands, but SPI MODE3 should be used
+	SPI MODE0 seems to be fine for READ_ID and other commands, but SPI MODE3 should be used with MSB
 	
+	Minimum sequence for configuration:
+	Set PROGRAMN: HIGH -> LOW -> HIGH -> Wait 50ms
 	Send READ_ID				0xE0 0x00 0x00 0x00
-		Read 4 bytes and check for ID 0x41111043 (reorder bytes of 32-bit Word on Linux)
+		Read 4 bytes and check for ID 0x41111043 (reorder received bytes of 32-bit Word on Linux)
 	Send ISC_ENABLE				0xC6 0x00 0x00 0x00
 	Send LSC_BITSTREAM_BURST	0x7A 0x00 0x00 0x00 + Bitstream with Header
 	Send LSC_READ_STATUS		0x3C 0x00 0x00 0x00
-		Read 4 bytes and check
+		Read 4 bytes and check individual bits (reorder received bytes of 32-bit Word on Linux)
 	Send ISC_DISABLE			0x26 0x00 0x00 0x00
 */
 
@@ -213,6 +215,7 @@ void fpgaDonePin(bool state) {
 // ===============================================
 
 int readData(int* spi_fd, uint8_t cmd) {
+	// prepare ioc-message
     uint8_t tx_buf[8] = {0};
     uint8_t rx_buf[8] = {0};
     struct spi_ioc_transfer tr_cmd = {
@@ -224,6 +227,7 @@ int readData(int* spi_fd, uint8_t cmd) {
     };
     tx_buf[0] = cmd; // command
 
+	// transmit and read message (8 bytes in total)
 	fpgaChipSelectPin(true); // assert ChipSelect
     ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);    
 	fpgaChipSelectPin(false); // deassert ChipSelect
@@ -231,9 +235,7 @@ int readData(int* spi_fd, uint8_t cmd) {
 	// copy desired data to 32-bit word
     int rx_data;
     memcpy(&rx_data, &rx_buf[4], 4);
-	
-	// reverse the byte-order
-	rx_data = ReverseByteOrder_uint32(rx_data);
+	rx_data = ReverseByteOrder_uint32(rx_data); // reverse byte-order
 
 	return rx_data;
 }
@@ -245,7 +247,7 @@ bool pollBusyFlag(int* spi_fd) {
 	do {
 		busyState = readData(spi_fd, CMD_LSC_CHECK_BUSY);
         //printf("busystate: %d\n", busyState);
-        fflush(stdout); // immediately write to console!
+        //fflush(stdout); // immediately write to console!
 		
 		timeout++;
 		if (timeout == 100) { // wait maximum 100 ms
@@ -259,9 +261,9 @@ bool pollBusyFlag(int* spi_fd) {
 }
 
 bool flashErase(int* spi_fd) {
+	// prepare ioc-message
     uint8_t tx_buf[4] = {CMD_ISC_ERASE, 0x01, 0x00, 0x00};
     uint8_t rx_buf[4] = {0};
-	
     struct spi_ioc_transfer tr_cmd = {
         .tx_buf = (unsigned long)tx_buf,
         .rx_buf = (unsigned long)rx_buf,
@@ -269,10 +271,13 @@ bool flashErase(int* spi_fd) {
         .bits_per_word = 8,
         .speed_hz = SPI_SPEED_HZ,
     };
+	
+	// transmit message (4 bytes)
 	fpgaChipSelectPin(true); // assert ChipSelect
 	int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
 	fpgaChipSelectPin(false); // deassert ChipSelect
 	
+	// wait until busy-flag is reset
 	if (!pollBusyFlag(spi_fd)) {
 		return false;
 	}
@@ -281,6 +286,7 @@ bool flashErase(int* spi_fd) {
 }
 
 bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus) {
+	// prepare ioc-message
     uint8_t tx_buf[4] = {0};
     uint8_t rx_buf[4] = {0};
     struct spi_ioc_transfer tr_cmd = {
@@ -290,21 +296,21 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus)
         .bits_per_word = 8,
         .speed_hz = SPI_SPEED_HZ,
     };
-	
 	if (keepCS) {
 		tr_cmd.cs_change = 1; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
 	}else{
 		tr_cmd.cs_change = 0; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
 	}
-
     tx_buf[0] = cmd; // command
 
+	// transmit message (4 bytes)
 	fpgaChipSelectPin(true); // assert ChipSelect
     int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
 	if(!keepCS){
 		fpgaChipSelectPin(false); // deassert ChipSelect
 	}
 	
+	// optional: wait until busy-flag is reset
 	if (checkBusyAndStatus) {
 		if (!pollBusyFlag(spi_fd)) {
 			return false;
@@ -315,6 +321,9 @@ bool sendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus)
 	}
 };
 
+// this function is only for testing purposes. It allows adding additional 0xFF at the end of the bitstream
+// can be deleted if bitstream-upload is working without it
+/*
 bool sendNOP(int* spi_fd, bool keepCS) {
     uint8_t tx_buf[4] = {0xFF, 0xFF, 0xFF, 0xFF};
     uint8_t rx_buf[4] = {0};
@@ -340,6 +349,7 @@ bool sendNOP(int* spi_fd, bool keepCS) {
 
 	return (ret >= 0);
 };
+*/
 
 // ===============================================
 // Main configuration function
@@ -347,7 +357,7 @@ bool sendNOP(int* spi_fd, bool keepCS) {
 
 // configures a Lattice ECP5 via SPI
 // accepts path to bitstream-file
-// returns 0 if sucecssul, -1 on errors
+// returns 0 if successul, -1 on errors
 int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     int spi_fd = -1;
 	uint32_t status;
@@ -356,7 +366,7 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
 
     // SPI-Mode 0 (CPOL=0, CPHA=0 -> CLK idle state = low  -> data sampled on rising edge and shifted on falling edge)
     // SPI-Mode 3 (CPOL=1, CPHA=1 -> CLK idle state = high -> data sampled on the rising edge and shifted on the falling edge)
-    uint8_t spiMode = SPI_MODE_3;
+    uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
