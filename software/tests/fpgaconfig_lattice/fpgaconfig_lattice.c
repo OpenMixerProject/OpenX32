@@ -341,26 +341,21 @@ int transferCommand(int* spi_fd, uint8_t cmd) {
 
 bool sendNOP(int* spi_fd, bool keepCS) {
     uint8_t tx_buf[4] = {0xFF, 0xFF, 0xFF, 0xFF};
-    uint8_t rx_buf[4] = {0};
     struct spi_ioc_transfer tr_cmd = {
         .tx_buf = (unsigned long)tx_buf,
-        .rx_buf = (unsigned long)rx_buf,
+        .rx_buf = 0,
         .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
         .bits_per_word = 8,
         .speed_hz = SPI_SPEED_HZ,
     };
-	
-	if (keepCS) {
-		tr_cmd.cs_change = 1; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
-	}else{
-		tr_cmd.cs_change = 0; // inverted logic here: 1 = no change=keep CS asserted, 0 = deassert CS after command
-	}
 
 	fpgaChipSelectPin(true); // assert ChipSelect
     int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
 	if(!keepCS){
 		fpgaChipSelectPin(false); // deassert ChipSelect
 	}
+
+    printf("NOP send\n");
 
 	return (ret >= 0);
 };
@@ -382,7 +377,7 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     // SPI-Mode 0 (CPOL=0, CPHA=0 -> CLK idle state = low  -> data sampled on rising edge and shifted on falling edge)
     // SPI-Mode 3 (CPOL=1, CPHA=1 -> CLK idle state = high -> data sampled on the rising edge and shifted on the falling edge)
     //uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
-    uint8_t spiMode = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
+    uint8_t spiMode; // = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_SPEED_HZ;
 
@@ -397,6 +392,8 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         return -1;
     }
 
+    ioctl(spi_fd, SPI_IOC_RD_MODE, &spiMode);
+    spiMode |= SPI_MODE_3;
     ioctl(spi_fd, SPI_IOC_WR_MODE, &spiMode);
     ioctl(spi_fd, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
@@ -485,6 +482,22 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
         if (spi_fd >= 0) close(spi_fd);
         return -1;
     }
+
+    int p = 20;
+    printf("\n\n-----------------------------------------\n");
+      printf("first and last %d bytes of bitstream:\n\n", p);
+  
+    for (int i=0; i < p; i++){
+        printf("0x%.2X ", bitstream_payload[i]);
+    }
+    printf("\n...");
+    printf("\n...");
+    printf("\n...\n");
+    for (int i=p; i > 0; i--){
+        printf("0x%.2X ", bitstream_payload[bitstream_size - i]);
+    }
+    printf("\n-----------------------------------------\n\n");
+    
 	
 	// ------------- BEGIN of optional ajustment of bitstream -------------
 	// reverse bit-order
@@ -558,6 +571,10 @@ int configure_lattice_spi(const char *bitstream_path, const char *parameter) {
     }
     fprintf(stdout, "\r[██████████████████████████████████████████████████] %d/%d Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
     
+    // for (int i=0; i < 1000; i++){
+    //     sendNOP(&spi_fd, true);
+    // }
+
 	fpgaChipSelectPin(false); // deassert ChipSelect
 
     status = readData(&spi_fd, CMD_LSC_READ_STATUS);
