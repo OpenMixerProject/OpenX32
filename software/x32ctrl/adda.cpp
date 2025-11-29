@@ -31,7 +31,10 @@ Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Adda::Init() {
-	uart.Open("/dev/ttymxc2", 38400, true);
+	const char serial[] = "/dev/ttymxc2";
+	const uint16_t speed = 38400;
+	DEBUG_MESSAGE(DEBUG_ADDA, "opening %s with %d baud", serial, speed)
+	uart.Open(serial, speed, true);
 
 	// send identification-commands to all possible boards (not sure if this is correct for smaller X32)
 	SendReceive("*0I#", 2000); // ADDA-Board
@@ -116,7 +119,7 @@ void Adda::SetSamplerate(uint32_t samplerate) {
 }
 
 void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower) {
-	helper->Debug(DEBUG_ADDA, "addaSetGain(%d, %d, %f, %d)\n", boardId, channel, (double)gain, phantomPower);
+	DEBUG_MESSAGE(DEBUG_ADDA, "addaSetGain(%d, %d, %f, %d)\n", boardId, channel, (double)gain, phantomPower);
 
 	AddaMessage message;
 
@@ -143,7 +146,7 @@ void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPow
 }
 
 String Adda::SendReceive(const char* cmd, uint16_t timeout) {
-	helper->Debug(DEBUG_ADDA, "addaSendReceive(%s)\n", cmd);
+	DEBUG_MESSAGE(DEBUG_ADDA, "addaSendReceive(%s)", cmd);
 	AddaMessage message;
 	message.AddString(cmd);
 
@@ -153,7 +156,7 @@ String Adda::SendReceive(const char* cmd, uint16_t timeout) {
 	if ((timeout > 0) && (config->IsModelX32FullOrCompactOrProducer())) {
 		addaWaitForMessageCounter = timeout;
 		while (addaWaitForMessageCounter > 0) {
-			helper->Debug(DEBUG_ADDA, "addaWaitForMessageCounter: %d\n", addaWaitForMessageCounter);
+			DEBUG_MESSAGE(DEBUG_ADDA, "addaWaitForMessageCounter: %d", addaWaitForMessageCounter);
 			uint16_t readBytes = uart.Rx(&addaBufferUart[0], sizeof(addaBufferUart));
 			if (readBytes > 0) {
 				addaWaitForMessageCounter = 0;
@@ -180,13 +183,13 @@ String Adda::ProcessUartData(int bytesToProcess, bool directRead) {
 		return "";
 	}
 
-	helper->Debug(DEBUG_ADDA, "------ addaProcessUartData() ------\n");
+	DEBUG_MESSAGE(DEBUG_ADDA, "------ ProcessUartData() ------");
 
 	for (int i = 0; i < bytesToProcess; i++) {
 		currentByte = (uint8_t)addaBufferUart[i];
 
 		// empfangene Bytes als HEX-Wert ausgeben
-		helper->Debug(DEBUG_ADDA, "%02X ", currentByte); 
+		DEBUG_MESSAGE(DEBUG_ADDA, "%02X ", currentByte); 
 
 		// add received byte to buffer
 		if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {
@@ -239,7 +242,7 @@ String Adda::ProcessUartData(int bytesToProcess, bool directRead) {
 			}
 		}
 	}
-	helper->Debug(DEBUG_ADDA, "\n");
+	DEBUG_MESSAGE(DEBUG_ADDA, "");
 
 	if (directRead) {
 		return answer;

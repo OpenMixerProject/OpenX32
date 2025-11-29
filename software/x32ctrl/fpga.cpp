@@ -27,10 +27,10 @@
 Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {}
 
 void Fpga::RoutingInit(void) {
-	
-	DEBUG_MESSAGE(DEBUG_FPGA, "opening /dev/ttymxc3")
-	uart.Open("/dev/ttymxc3", 115200, true); 
-	
+	const char serial[] = "/dev/ttymxc3";
+	const uint32_t speed = 115200;
+	DEBUG_MESSAGE(DEBUG_FPGA, "opening %s with %d baud", serial, speed)
+	uart.Open(serial, speed, true);
 
 	// reset routing-configuration and dsp-configuration
 	RoutingDefaultConfig();
@@ -38,6 +38,8 @@ void Fpga::RoutingInit(void) {
 
 // set a default configuration for the audio-routing-matrix
 void Fpga::RoutingDefaultConfig(void) {
+	DEBUG_MESSAGE(DEBUG_FPGA, "RoutingDefaultConfig()")
+
 	// DSP-inputs 1-32 <- XLR-inputs 1-32
 	for (uint8_t ch = 1; ch <= 32; ch++) {
 		RoutingSetOutputSource('d', ch, RoutingGetSourceIndex('x', ch));
