@@ -66,7 +66,7 @@ void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     x32_btn_def[buttonDefinitionIndex].button = p_button;
     x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
     buttonDefinitionIndex++;
-    DEBUG_MESSAGE((DEBUG_SURFACE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
+    DEBUG_MESSAGE(DEBUG_SURFACE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
 }
 
 void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
@@ -79,7 +79,7 @@ void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
     x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
     encoderDefinitionIndex++;
-    DEBUG_MESSAGE((DEBUG_SURFACE, "added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
+    DEBUG_MESSAGE(DEBUG_SURFACE, "added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
 }
 
 

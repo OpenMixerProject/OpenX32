@@ -128,7 +128,7 @@ int SPI::ConfigureFpga(void) {
     file_size -= offset;
 
     // now open the file again and jump of the header (if any)
-    hDEBUG_MESSAGE(DEBUG_SPI, "Configuring Xilinx Spartan-3A...");
+    DEBUG_MESSAGE(DEBUG_SPI, "Configuring Xilinx Spartan-3A...");
     bitstream_file = fopen(state->switchFpgaPath.c_str(), "rb");
     if (!bitstream_file) {
         helper->Error("Could not open bitstream-file\n");
