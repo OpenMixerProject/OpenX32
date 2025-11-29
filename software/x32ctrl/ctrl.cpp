@@ -72,8 +72,7 @@ int main(int argc, char* argv[]) {
 // #      ####   ##### ####  #####  ###        
 // #
 	config->SetDebug(state->switchDebug != -1);
-	config->SetDebug(1);
-	config->SetDebugFlag(DEBUG_ALL);
+	config->SetDebugFlag(DEBUG_ADDA | DEBUG_FPGA);
 // ###########################################################################
 		
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);
@@ -330,6 +329,15 @@ void parseParams(int argc, char* argv[], State* state) {
 				state->switchFpga = -1;
 			}
 		}
+		else if (strcmp(argv[i], "-fpgaLattice") == 0) {
+			if (i + 1 < argc) {
+				state->switchFpgaLattice = i+1;
+				state->switchFpgaPath = String(argv[state->switchFpgaLattice]);
+				i++;
+			} else {
+				state->switchFpgaLattice = -1;
+			}
+		}
 		else if (strcmp(argv[i], "-dsp1") == 0) {
 			if (i + 1 < argc) {
 				state->switchDsp1 = i+1;
@@ -363,7 +371,7 @@ void parseParams(int argc, char* argv[], State* state) {
 			} else {
 				state->switchDebug = -1;
 			}
-		}
+		} 
 		// handle unknown parameters
 		else {
 			printf("Unknown parameter: %s\n", argv[i]);

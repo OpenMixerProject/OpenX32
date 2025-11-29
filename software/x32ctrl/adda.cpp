@@ -142,13 +142,28 @@ void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPow
 	}
 	message.AddRawByte('#');
 
+	if (config->IsDebug() & config->HasDebugFlag(DEBUG_ADDA)){
+		printf("DEBUG_ADDA: SetGain() Transmit: ");
+    	for (int i =0; i < message.current_length; i++){
+        	printf("%c", message.buffer[i]);
+    	}
+    	printf("\n");
+	}
+
 	uart.Tx(&message, false);
 }
 
 String Adda::SendReceive(const char* cmd, uint16_t timeout) {
-	DEBUG_MESSAGE(DEBUG_ADDA, "addaSendReceive(%s)", cmd);
 	AddaMessage message;
 	message.AddString(cmd);
+
+	if (config->IsDebug() & config->HasDebugFlag(DEBUG_ADDA)){
+		printf("DEBUG_ADDA: SendReceive() Transmit: ");
+    	for (int i =0; i < message.current_length; i++){
+        	printf("%c", message.buffer[i]);
+    	}
+    	printf("\n");
+	}
 
 	uart.Tx(&message, false);
 
@@ -183,13 +198,11 @@ String Adda::ProcessUartData(int bytesToProcess, bool directRead) {
 		return "";
 	}
 
-	DEBUG_MESSAGE(DEBUG_ADDA, "------ ProcessUartData() ------");
-
 	for (int i = 0; i < bytesToProcess; i++) {
 		currentByte = (uint8_t)addaBufferUart[i];
 
 		// empfangene Bytes als HEX-Wert ausgeben
-		DEBUG_MESSAGE(DEBUG_ADDA, "%02X ", currentByte); 
+		DEBUG_MESSAGE(DEBUG_ADDA, "Received: %02X ", currentByte); 
 
 		// add received byte to buffer
 		if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {

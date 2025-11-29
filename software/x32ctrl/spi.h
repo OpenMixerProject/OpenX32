@@ -14,7 +14,8 @@
 #define SPI_DEVICE_DSP1 "/dev/spidev0.0"
 #define SPI_DEVICE_DSP2 "/dev/spidev0.1"
 #define SPI_DEVICE_FPGA "/dev/spidev2.0"
-#define SPI_FPGA_SPEED_HZ 10000000 // 10 MHz for the FPGA, seems to be fine
+#define SPI_FPGA_XILINX_SPEED_HZ 10000000 // 10 MHz for the FPGA, seems to be fine
+#define SPI_FPGA_LATTICE_SPEED_HZ (8000 * 1024) // ~8MHz
 #define SPI_DSP_CONFIG_SPEED_HZ 250000 // 250 kHz for the DSP. Higher and we get problems
 #define SPI_DSP_SPEED_HZ 2000000 // 16 MHz is the regular SPI-clock on the original X32
 
@@ -23,6 +24,21 @@
 #define DONE_GPIO_OFFSET        2
 #define FPGA_BUFFER_SIZE        4096
 #define FPGA_FILE_BUFFER_SIZE   1024
+
+// Lattice Commands
+#define CMD_ISC_NOOP			0xFF
+#define CMD_READ_ID				0xE0
+#define CMD_USERCODE			0xC0
+#define CMD_LSC_READ_STATUS		0x3C
+#define CMD_LSC_CHECK_BUSY		0xF0
+#define CMD_LSC_REFRESH			0x79
+#define CMD_ISC_ENABLE			0xC6
+#define CMD_ISC_DISABLE			0x26
+#define CMD_ISC_ERASE			0x0E
+#define CMD_ISC_PROGRAM_DONE	0x5E
+#define CMD_LSC_INIT_ADDRESS	0x46
+#define CMD_LSC_BITSTREAM_BURST	0x7A
+
 
 // defines for SPI-communication with DSPs
 #define SPI_MAX_RX_PAYLOAD_SIZE 200 // 197 int-values + * + # + parameter
@@ -63,9 +79,20 @@ class SPI : public X32Base {
     int spiDspHandle[2];
     std::list<SpiEvent*> eventBuffer;
 
+    void fpgaLatticeToggleProgramnPin();
+    void fpgaLatticeChipSelectPin(bool state);
+    void fpgaLatticeDonePin(bool state);
+    int fpgaLatticeReadData(int* spi_fd, uint8_t cmd);
+    uint32_t fpgaLatticeReverseByteOrder_uint32(uint32_t x);
+    void fpgaLatticePrintBits(uint32_t status);
+    bool fpgaLatticePollBusyFlag(int* spi_fd);
+    bool fpgaLatticeSendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus);
+    int fpgaLatticeTransferCommand(int* spi_fd, uint8_t cmd);
+
   public:
     SPI(X32BaseParameter* basepar);
-    int ConfigureFpga();
+    int ConfigureFpgaXilinx();
+    int ConfigureFpgaLattice();
     int ConfigureDsp();
     void Tick10ms(void);
     void Tick100ms(void);

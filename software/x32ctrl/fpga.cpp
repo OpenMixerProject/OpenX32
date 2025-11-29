@@ -504,8 +504,8 @@ void Fpga::ProcessUartData() {
 
 				if (sumLocal == sumRemote) {
 
-					// empfangene Bytes als HEX-Wert ausgeben
-					DEBUG_MESSAGE(DEBUG_FPGA_CALLBACK, "%s", &fpgaPacketBuffer[packetBegin + 1]);
+					// empfangene Bytes als String-Wert ausgeben
+					DEBUG_MESSAGE(DEBUG_FPGA, "Received: %s", &fpgaPacketBuffer[packetBegin + 1]);
 					
 					
 					// TODO: Implement FPGA EventBuffer

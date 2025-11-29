@@ -12,6 +12,7 @@ class State {
     public:
         int8_t switchFpga = -1;
         String switchFpgaPath;
+        int8_t switchFpgaLattice = -1;
         int8_t switchDsp1 = -1;
         String switchDsp1Path;
         int8_t switchDsp2 = -1;
