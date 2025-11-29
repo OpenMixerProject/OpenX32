@@ -24,7 +24,7 @@
 -- VHDL File to control Midas M8000 ADC IC
 -- v0.0.1, 29.10.2025
 -- OpenX32 Project
--- https://github.com/xn--nding-jua/OpenX32
+-- https://github.com/OpenMixerProject/OpenX32
 -- 
 
 

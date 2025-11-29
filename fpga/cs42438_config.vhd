@@ -24,7 +24,7 @@
 -- VHDL File to configure Cirrus Logic CS42438 AD/DA IC
 -- v0.0.1, 24.07.2025
 -- OpenX32 Project
--- https://github.com/xn--nding-jua/OpenX32
+-- https://github.com/OpenMixerProject/OpenX32
 -- 
 -- 
 -- Recommended process for reset and power-up in Software Mode

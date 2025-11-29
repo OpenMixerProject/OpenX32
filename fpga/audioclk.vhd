@@ -25,7 +25,7 @@
 -- VHDL File to control Cirrus Logic CS42438 IC
 -- v0.0.1, 24.07.2025
 -- OpenX32 Project
--- https://github.com/xn--nding-jua/OpenX32
+-- https://github.com/OpenMixerProject/OpenX32
 -- 
 
 library ieee;

@@ -24,7 +24,7 @@
 -- VHDL File to write to a SPI-device
 -- v0.0.1, 29.10.2025
 -- OpenX32 Project
--- https://github.com/xn--nding-jua/OpenX32
+-- https://github.com/OpenMixerProject/OpenX32
 -- 
 
 library ieee;

@@ -24,7 +24,7 @@
 -- VHDL File to route multiple audio-inputs to multiple audio-outputs
 -- v0.1.0, 08.08.2025
 -- OpenX32 Project
--- https://github.com/xn--nding-jua/OpenX32
+-- https://github.com/OpenMixerProject/OpenX32
 
 library ieee;
 use ieee.std_logic_1164.all;
