@@ -259,7 +259,7 @@ void Mixer::SetSolo(uint8_t channelIndex, bool solo){
     }
 
     if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-        helper->Debug("Solo of channel %s \"%s\" changed to %s\n", chan->nameIntern.c_str(), chan->name.c_str(), solo ? "ON" : "OFF"); 
+        DEBUG_MESSAGE(DEBUG_MIXER, "Solo of channel %s \"%s\" changed to %s\n", chan->nameIntern.c_str(), chan->name.c_str(), solo ? "ON" : "OFF"); 
     }
 
     //TODOs
