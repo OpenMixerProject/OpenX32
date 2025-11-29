@@ -42,10 +42,15 @@ entity rs232_encoder is
 	port
 	(
 		clk		: in std_logic;
-		byte1		: in std_logic_vector(7 downto 0); -- Version
-		byte2		: in std_logic_vector(7 downto 0); -- info about noisegates
-		byte3		: in std_logic_vector(7 downto 0); -- info about dynamic compressors
-		byte4		: in std_logic_vector(7 downto 0); -- info about clipping
+		byte1		: in std_logic_vector(7 downto 0); -- o
+		byte2		: in std_logic_vector(7 downto 0); -- X
+		byte3		: in std_logic_vector(7 downto 0); -- 3
+		byte4		: in std_logic_vector(7 downto 0); -- 2
+		byte5		: in std_logic_vector(7 downto 0); -- v
+		byte6		: in std_logic_vector(7 downto 0); -- x
+		byte7		: in std_logic_vector(7 downto 0); -- .
+		byte8		: in std_logic_vector(7 downto 0); -- x
+		byte9		: in std_logic_vector(7 downto 0); -- x
 		TX_rdy		: in std_logic := '0'; -- transmitter is ready for next byte
 		
 		TX_data	:	out std_logic_vector(7 downto 0); -- databyte to transmit
@@ -54,7 +59,7 @@ entity rs232_encoder is
 end entity;
 
 architecture Behavioral of rs232_encoder is
-	constant PAYLOAD_TO_TX : integer := 4;
+	constant PAYLOAD_TO_TX : integer := 9;
 	
 	type t_SM_Encoder is (s_Idle, s_Send, s_Prepare, s_Wait);
 	signal s_SM_Encoder	: t_SM_Encoder := s_Idle;
@@ -92,6 +97,11 @@ begin
 					bytearray(1) <= unsigned(byte2);
 					bytearray(2) <= unsigned(byte3);
 					bytearray(3) <= unsigned(byte4);
+					bytearray(4) <= unsigned(byte5);
+					bytearray(5) <= unsigned(byte6);
+					bytearray(6) <= unsigned(byte7);
+					bytearray(7) <= unsigned(byte8);
+					bytearray(8) <= unsigned(byte9);
 
 					-- calculate the checksum
 					PayloadSum <= to_unsigned(0, 16);

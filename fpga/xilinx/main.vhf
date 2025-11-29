@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 11/20/2025 18:04:53
+-- /___/   /\     Timestamp : 11/29/2025 23:32:53
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -103,42 +103,47 @@ end main;
 
 architecture BEHAVIORAL of main is
    attribute BOX_TYPE   : string ;
-   signal audiosync                : std_logic;
-   signal audio_input              : std_logic_vector (2687 downto 0);
-   signal audio_output             : std_logic_vector (2687 downto 0);
-   signal clk_12_288MHz            : std_logic;
-   signal clk_16MHz                : std_logic;
-   signal clk_24_576MHz            : std_logic;
-   signal nRST                     : std_logic;
-   signal routing                  : std_logic_vector (895 downto 0);
-   signal rst                      : std_logic;
-   signal start                    : std_logic;
-   signal tdm_fs                   : std_logic;
-   signal XLXN_50                  : std_logic;
-   signal XLXN_52                  : std_logic_vector (7 downto 0);
-   signal XLXN_54                  : std_logic;
-   signal XLXN_55                  : std_logic_vector (7 downto 0);
-   signal XLXN_56                  : std_logic_vector (7 downto 0);
-   signal XLXN_57                  : std_logic_vector (7 downto 0);
-   signal XLXN_62                  : std_logic_vector (7 downto 0);
-   signal XLXN_63                  : std_logic;
-   signal XLXN_67                  : std_logic_vector (7 downto 0);
-   signal XLXN_68                  : std_logic_vector (7 downto 0);
-   signal XLXN_69                  : std_logic_vector (7 downto 0);
-   signal XLXN_70                  : std_logic;
-   signal XLXN_222                 : std_logic;
-   signal XLXN_223                 : std_logic_vector (7 downto 0);
-   signal XLXN_224                 : std_logic_vector (7 downto 0);
-   signal XLXN_225                 : std_logic_vector (7 downto 0);
-   signal XLXN_226                 : std_logic;
-   signal XLXN_346                 : std_logic;
-   signal XLXN_1898                : std_logic;
-   signal XLXN_1973                : std_logic_vector (6 downto 0);
-   signal XLXN_1974                : std_logic_vector (23 downto 0);
-   signal XLXN_2309                : std_logic_vector (23 downto 0);
-   signal XLXN_2328                : std_logic_vector (6 downto 0);
-   signal XLXN_2357                : std_logic;
-   signal XLXI_23_byte4_openSignal : std_logic_vector (7 downto 0);
+   signal audiosync       : std_logic;
+   signal audio_input     : std_logic_vector (2687 downto 0);
+   signal audio_output    : std_logic_vector (2687 downto 0);
+   signal clk_12_288MHz   : std_logic;
+   signal clk_16MHz       : std_logic;
+   signal clk_24_576MHz   : std_logic;
+   signal nRST            : std_logic;
+   signal routing         : std_logic_vector (895 downto 0);
+   signal rst             : std_logic;
+   signal start           : std_logic;
+   signal tdm_fs          : std_logic;
+   signal XLXN_50         : std_logic;
+   signal XLXN_52         : std_logic_vector (7 downto 0);
+   signal XLXN_62         : std_logic_vector (7 downto 0);
+   signal XLXN_63         : std_logic;
+   signal XLXN_67         : std_logic_vector (7 downto 0);
+   signal XLXN_68         : std_logic_vector (7 downto 0);
+   signal XLXN_69         : std_logic_vector (7 downto 0);
+   signal XLXN_70         : std_logic;
+   signal XLXN_222        : std_logic;
+   signal XLXN_223        : std_logic_vector (7 downto 0);
+   signal XLXN_224        : std_logic_vector (7 downto 0);
+   signal XLXN_225        : std_logic_vector (7 downto 0);
+   signal XLXN_226        : std_logic;
+   signal XLXN_346        : std_logic;
+   signal XLXN_1898       : std_logic;
+   signal XLXN_1973       : std_logic_vector (6 downto 0);
+   signal XLXN_1974       : std_logic_vector (23 downto 0);
+   signal XLXN_2309       : std_logic_vector (23 downto 0);
+   signal XLXN_2328       : std_logic_vector (6 downto 0);
+   signal XLXN_2357       : std_logic;
+   signal XLXN_2358       : std_logic;
+   signal XLXN_2359       : std_logic_vector (7 downto 0);
+   signal XLXN_2360       : std_logic_vector (7 downto 0);
+   signal XLXN_2361       : std_logic_vector (7 downto 0);
+   signal XLXN_2362       : std_logic_vector (7 downto 0);
+   signal XLXN_2363       : std_logic_vector (7 downto 0);
+   signal XLXN_2364       : std_logic_vector (7 downto 0);
+   signal XLXN_2365       : std_logic_vector (7 downto 0);
+   signal XLXN_2366       : std_logic_vector (7 downto 0);
+   signal XLXN_2367       : std_logic_vector (7 downto 0);
    component uart_tx
       port ( i_Clk       : in    std_logic; 
              i_TX_DV     : in    std_logic; 
@@ -155,6 +160,11 @@ architecture BEHAVIORAL of main is
              byte2   : in    std_logic_vector (7 downto 0); 
              byte3   : in    std_logic_vector (7 downto 0); 
              byte4   : in    std_logic_vector (7 downto 0); 
+             byte5   : in    std_logic_vector (7 downto 0); 
+             byte6   : in    std_logic_vector (7 downto 0); 
+             byte7   : in    std_logic_vector (7 downto 0); 
+             byte8   : in    std_logic_vector (7 downto 0); 
+             byte9   : in    std_logic_vector (7 downto 0); 
              TX_send : out   std_logic; 
              TX_data : out   std_logic_vector (7 downto 0));
    end component;
@@ -312,24 +322,35 @@ architecture BEHAVIORAL of main is
    end component;
    
 begin
-   XLXN_55(7 downto 0) <= x"58";
-   XLXN_56(7 downto 0) <= x"33";
-   XLXN_57(7 downto 0) <= x"32";
+   XLXN_2359(7 downto 0) <= x"58";
+   XLXN_2360(7 downto 0) <= x"33";
+   XLXN_2361(7 downto 0) <= x"32";
+   XLXN_2362(7 downto 0) <= x"6F";
+   XLXN_2363(7 downto 0) <= x"76";
+   XLXN_2364(7 downto 0) <= x"30";
+   XLXN_2365(7 downto 0) <= x"2E";
+   XLXN_2366(7 downto 0) <= x"30";
+   XLXN_2367(7 downto 0) <= x"31";
    XLXI_21 : uart_tx
       port map (i_Clk=>clk_24_576MHz,
                 i_TX_Byte(7 downto 0)=>XLXN_52(7 downto 0),
                 i_TX_DV=>XLXN_50,
                 o_TX_Active=>open,
-                o_TX_Done=>XLXN_54,
+                o_TX_Done=>XLXN_2358,
                 o_TX_Serial=>imx25_uart4_rxd);
    
    XLXI_23 : rs232_encoder
-      port map (byte1(7 downto 0)=>XLXN_55(7 downto 0),
-                byte2(7 downto 0)=>XLXN_56(7 downto 0),
-                byte3(7 downto 0)=>XLXN_57(7 downto 0),
-                byte4(7 downto 0)=>XLXI_23_byte4_openSignal(7 downto 0),
+      port map (byte1(7 downto 0)=>XLXN_2362(7 downto 0),
+                byte2(7 downto 0)=>XLXN_2359(7 downto 0),
+                byte3(7 downto 0)=>XLXN_2360(7 downto 0),
+                byte4(7 downto 0)=>XLXN_2361(7 downto 0),
+                byte5(7 downto 0)=>XLXN_2363(7 downto 0),
+                byte6(7 downto 0)=>XLXN_2364(7 downto 0),
+                byte7(7 downto 0)=>XLXN_2365(7 downto 0),
+                byte8(7 downto 0)=>XLXN_2366(7 downto 0),
+                byte9(7 downto 0)=>XLXN_2367(7 downto 0),
                 clk=>clk_24_576MHz,
-                TX_rdy=>XLXN_54,
+                TX_rdy=>XLXN_2358,
                 TX_data(7 downto 0)=>XLXN_52(7 downto 0),
                 TX_send=>XLXN_50);
    
