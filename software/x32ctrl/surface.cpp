@@ -66,20 +66,20 @@ void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     x32_btn_def[buttonDefinitionIndex].button = p_button;
     x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
     buttonDefinitionIndex++;
-    helper->Debug(DEBUG_SURFACE, "added button definition: Button %d -> ButtonNr %d\n", p_button, p_buttonNr);
+    DEBUG_MESSAGE((DEBUG_SURFACE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
 }
 
 void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     if (encoderDefinitionIndex >= MAX_ENCODERS)
     {
         //TODO: Error Message
-        helper->Log("ERROR: MAX_ENCODERS");
+        helper->Error("MAX_ENCODERS");
         return;
     }
     x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
     x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
     encoderDefinitionIndex++;
-    helper->Debug(DEBUG_SURFACE, "added encoder definition: Encoder %d -> EncoderNr %d\n", p_encoder, p_encoderNr);
+    DEBUG_MESSAGE((DEBUG_SURFACE, "added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
 }
 
 
@@ -1127,7 +1127,7 @@ void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, boo
 
     uint16_t leds = CalcEncoderRingLedDbfs(dbfs, muted);
 
-    helper->Debug(DEBUG_SURFACE, "leds: %d\n", leds);
+    helper->Debug(DEBUG_SURFACE, "leds: %d", leds);
 
     message.AddDataByte(leds & 0xFF);
     if (backlight) {
@@ -1306,7 +1306,7 @@ void Surface::ProcessUartData() {
             
         */
 
-        helper->Debug(DEBUG_SURFACE, "surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d\n", surfacePacketCurrent, surfacePacketCurrentIndex);
+        DEBUG_MESSAGE(DEBUG_SURFACE, "surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d", surfacePacketCurrent, surfacePacketCurrentIndex);
         lastPackageIncomplete = true;
     }
 
@@ -1375,7 +1375,7 @@ void Surface::ProcessUartData() {
             }       
 
             if (valid){
-                helper->Debug(DEBUG_SURFACE, "surfaceCallback(%d, %02X, %02X, %04X)\n", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+                DEBUG_MESSAGE(DEBUG_SURFACE, "surfaceCallback(%d, %02X, %02X, %04X)", receivedBoardId, receivedClass, receivedIndex, receivedValue);
                 eventBuffer.push_back(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }

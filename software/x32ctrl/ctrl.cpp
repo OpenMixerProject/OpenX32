@@ -2471,26 +2471,26 @@ bool X32Ctrl::touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
 
 void X32Ctrl::DebugPrintBank(uint8_t bank)
 {
-	helper->Debug("################# BANK%d ###################\n", bank);
+	DEBUG_MESSAGE(DEBUG_X32CTRL, "################# BANK%d ###################\n", bank);
 	for (uint8_t i=0;i<35;i++){
-		helper->Debug("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i]);
+		DEBUG_MESSAGE(DEBUG_X32CTRL,"surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i]);
 	}
-	helper->Debug("END ############# BANK%d ############### END\n", bank);
+	DEBUG_MESSAGE(DEBUG_X32CTRL,"END ############# BANK%d ############### END\n", bank);
 }
 
 void X32Ctrl::DebugPrintBusBank(uint8_t bank)
 {
-	helper->Debug("################# BUS BANK%d ###################\n", bank);
+	DEBUG_MESSAGE(DEBUG_X32CTRL,"################# BUS BANK%d ###################\n", bank);
 	for (uint8_t i=0;i<35;i++){
-		helper->Debug("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].busBanks[bank].surfaceChannel2VChannel[i]);
+		DEBUG_MESSAGE(DEBUG_X32CTRL,"surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].busBanks[bank].surfaceChannel2VChannel[i]);
 	}
-	helper->Debug("END ############# BUS BANK%d ############### END\n", bank);
+	DEBUG_MESSAGE(DEBUG_X32CTRL,"END ############# BUS BANK%d ############### END\n", bank);
 }
 
 void X32Ctrl::DebugPrintvChannels(void){
 	for (int i = 0; i < MAX_VCHANNELS; i++)
 	{
-	   helper->Debug(mixer->GetVChannel(i)->ToString().c_str());
+	   DEBUG_MESSAGE(DEBUG_X32CTRL,mixer->GetVChannel(i)->ToString().c_str());
 
 	}
 }

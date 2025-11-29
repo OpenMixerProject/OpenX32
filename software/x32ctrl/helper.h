@@ -45,7 +45,6 @@ class Helper{
         Helper(Config* config);
         void Log(const char* format, ...);
         void Error(const char* format, ...);
-        void Debug(const char* format, ...);
         bool Debug(uint16_t debugFlag, const char* format, ...);
         void DebugPrintMessageWithNullBytes(uint16_t debugFlag, char* message, uint16_t len);
         unsigned int Checksum(char* str);

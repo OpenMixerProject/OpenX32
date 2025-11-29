@@ -54,19 +54,6 @@ void Helper::Error(const char* format, ...)
 	va_end(args);
 }
 
-void Helper::Debug(const char* format, ...)
-{
-	if (config->IsDebug()){
-		va_list args;
-		va_start(args, format);
-
-		vprintf((String("DEBUG: ") + String(format) + String("\n")).c_str(), args);
-		fflush(stdout); // immediately write to console!
-
-		va_end(args);
-	}
-}
-
 #define DEBUG_DEF(name) case name: dbgFlagName = #name; break;
 
 bool Helper::Debug(uint16_t debugFlag, const char* format, ...)
