@@ -5536,12 +5536,6 @@ on the Quartus Prime software download page.
 	(pt 1640 904)
 )
 (connector
-	(text "audio_input[1559..1536]" (rect 410 368 526 379)(font "Intel Clear" ))
-	(pt 400 384)
-	(pt 488 384)
-	(bus)
-)
-(connector
 	(text "audio_input[1583..1560]" (rect 410 384 526 395)(font "Intel Clear" ))
 	(pt 400 400)
 	(pt 488 400)
@@ -5671,12 +5665,6 @@ on the Quartus Prime software download page.
 	(text "audio_input[383..360]" (rect 418 1016 523 1027)(font "Intel Clear" ))
 	(pt 408 1032)
 	(pt 496 1032)
-	(bus)
-)
-(connector
-	(text "audio_input[407..384]" (rect 882 688 987 699)(font "Intel Clear" ))
-	(pt 872 704)
-	(pt 960 704)
 	(bus)
 )
 (connector
@@ -6977,18 +6965,6 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "audio_output[1703..1680]" (rect 3186 264 3309 275)(font "Intel Clear" ))
-	(pt 3176 280)
-	(pt 3264 280)
-	(bus)
-)
-(connector
-	(text "audio_output[1727..1704]" (rect 3186 280 3309 291)(font "Intel Clear" ))
-	(pt 3176 296)
-	(pt 3264 296)
-	(bus)
-)
-(connector
 	(text "clk_16MHz" (rect 2170 192 2223 203)(font "Intel Clear" ))
 	(pt 2160 208)
 	(pt 2248 208)
@@ -7109,11 +7085,6 @@ on the Quartus Prime software download page.
 	(pt 584 224)
 )
 (connector
-	(text "audiosync" (rect 410 504 457 514)(font "DejaVu Sans Condensed" ))
-	(pt 400 512)
-	(pt 488 512)
-)
-(connector
 	(text "rst" (rect 450 152 461 163)(font "Intel Clear" ))
 	(pt 440 168)
 	(pt 480 168)
@@ -7137,6 +7108,35 @@ on the Quartus Prime software download page.
 	(text "clk_16MHz" (rect 242 280 295 291)(font "Intel Clear" ))
 	(pt 232 296)
 	(pt 296 296)
+)
+(connector
+	(text "audiosync" (rect 410 504 457 514)(font "DejaVu Sans Condensed" ))
+	(pt 400 512)
+	(pt 488 512)
+)
+(connector
+	(text "audio_output[1703..1680]" (rect 3186 264 3309 275)(font "Intel Clear" ))
+	(pt 3176 280)
+	(pt 3264 280)
+	(bus)
+)
+(connector
+	(text "audio_output[1727..1704]" (rect 3186 280 3309 291)(font "Intel Clear" ))
+	(pt 3176 296)
+	(pt 3264 296)
+	(bus)
+)
+(connector
+	(text "audio_input[1559..1536]" (rect 410 368 526 379)(font "Intel Clear" ))
+	(pt 400 384)
+	(pt 488 384)
+	(bus)
+)
+(connector
+	(text "audio_input[407..384]" (rect 882 688 987 699)(font "Intel Clear" ))
+	(pt 872 704)
+	(pt 960 704)
+	(bus)
 )
 (junction (pt 2520 568))
 (junction (pt 2520 560))

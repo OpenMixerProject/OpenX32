@@ -56,12 +56,13 @@ architecture behavioral of m8000adc_config is
 	signal start			: std_logic;
 	signal done				: std_logic;
 	
-	signal count_cfg		: natural range 0 to 2 := 0;
-	constant chipaddress	: std_logic_vector(7 downto 0) := "01001111"; -- 7-bit address followed by R/nW
-	type m8000adc_cfg_lut_t is array(0 to 1, 0 to 1) of std_logic_vector(7 downto 0);
+	signal count_cfg		: natural range 0 to 3 := 0;
+	constant chipaddress	: std_logic_vector(7 downto 0) := "10011110"; -- 7-bit address followed by R/nW
+	type m8000adc_cfg_lut_t is array(0 to 2, 0 to 1) of std_logic_vector(7 downto 0);
 	constant m8000adc_cfg_lut: m8000adc_cfg_lut_t := (
-		(x"01", "10001000"), -- ControlPortMode | CLKMODE && MDIV [1:0] = Divide by 1 | DIF[1:0] = 10 = TDM | MODE[1:0] = 00 = SingleSpeed
-		(x"0A", "00001110")  -- Disable SDOUT2, 3, 4
+		(x"01", "00001011"), -- CLKMODE && MDIV [1:0] = Divide by 1 | DIF[1:0] = 10 = TDM | MODE[1:0] = 11 = SlaveMode
+		(x"0A", "00001110"), -- Disable SDOUT2, 3, 4
+		(x"01", "10001011") -- ControlPortMode | CLKMODE && MDIV [1:0] = Divide by 1 | DIF[1:0] = 10 = TDM | MODE[1:0] = 11 = SlaveMode
 	);
 begin
 	process (clk)
@@ -98,7 +99,7 @@ begin
 					if (count_state = (16000000/650000)) then
 
 						-- check if we have reached end of configuration
-						if (count_cfg = 1) then
+						if (count_cfg = 2) then
 							-- yes -> end configuration
 							s_SM <= s_Done;
 						else
@@ -110,7 +111,7 @@ begin
 						count_state <= count_state + 1;
 					end if;
 				end if;
-									
+
 			elsif (s_SM = s_Done) then
 				-- stay here until next start-request
 				mapaddress <= x"00";
