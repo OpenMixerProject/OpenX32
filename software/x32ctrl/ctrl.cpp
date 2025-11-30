@@ -72,7 +72,6 @@ int main(int argc, char* argv[]) {
 // #      ####   ##### ####  #####  ###        
 // #
 	config->SetDebug(state->switchDebug != -1);
-	config->SetDebug(1);
 	config->SetDebugFlag(DEBUG_ADDA | DEBUG_FPGA | DEBUG_UART);
 // ###########################################################################
 		
@@ -366,12 +365,8 @@ void parseParams(int argc, char* argv[], State* state) {
 			}
 		}
 		else if (strcmp(argv[i], "-debug") == 0) {
-			if (i + 1 < argc) {
-				state->switchDebug = i+1;
-				i++;
-			} else {
-				state->switchDebug = -1;
-			}
+			state->switchDebug = true;
+			i++;
 		} 
 		// handle unknown parameters
 		else {
