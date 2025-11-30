@@ -54,7 +54,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 1344 528 1520 544)
+	(rect 1008 1088 1184 1104)
 	(text "INPUT" (rect 133 0 161 9)(font "Arial" (font_size 6)))
 	(text "imx25_uart4_txd" (rect 5 0 86 10)(font "Arial" ))
 	(pt 176 8)
@@ -1423,7 +1423,7 @@ on the Quartus Prime software download page.
 	(annotation_block (parameter)(rect 1088 472 1284 514))
 )
 (symbol
-	(rect 1528 488 1744 568)
+	(rect 1192 1048 1408 1128)
 	(text "uart_rx" (rect 5 0 39 10)(font "Arial" ))
 	(text "inst" (rect 8 64 25 74)(font "Arial" ))
 	(port
@@ -1467,54 +1467,7 @@ on the Quartus Prime software download page.
 	(drawing
 		(rectangle (rect 16 16 200 64))
 	)
-	(annotation_block (parameter)(rect 1536 432 1732 474))
-)
-(symbol
-	(rect 1840 472 2152 584)
-	(text "rs232_decoder" (rect 5 0 78 10)(font "Arial" ))
-	(text "inst10" (rect 8 96 36 107)(font "Intel Clear" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "clk" (rect 0 0 14 10)(font "Arial" ))
-		(text "clk" (rect 21 27 35 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "RX_DataReady" (rect 0 0 76 10)(font "Arial" ))
-		(text "RX_DataReady" (rect 21 43 97 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "RX_Data[7..0]" (rect 0 0 69 10)(font "Arial" ))
-		(text "RX_Data[7..0]" (rect 21 59 90 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 312 32)
-		(output)
-		(text "routing[((num_output_ports*8)-1)..0]" (rect 0 0 175 10)(font "Arial" ))
-		(text "routing[((num_output_ports*8)-1)..0]" (rect 143 27 318 37)(font "Arial" ))
-		(line (pt 312 32)(pt 296 32)(line_width 3))
-	)
-	(parameter
-		"NUM_OUTPUT_PORTS"
-		"112"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"NUM_DSP_CHANNELS"
-		"40"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 296 96))
-	)
-	(annotation_block (parameter)(rect 1872 416 2112 464))
+	(annotation_block (parameter)(rect 1200 992 1396 1034))
 )
 (symbol
 	(rect 224 672 408 880)
@@ -4037,7 +3990,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1192 784 1600 896)
+	(rect 1112 768 1520 880)
 	(text "audiomatrix_ram_write" (rect 5 0 114 10)(font "Arial" ))
 	(text "inst52" (rect 8 96 36 107)(font "Intel Clear" ))
 	(port
@@ -4102,129 +4055,7 @@ on the Quartus Prime software download page.
 	(drawing
 		(rectangle (rect 16 16 392 96))
 	)
-	(annotation_block (parameter)(rect 1264 728 1488 776))
-)
-(symbol
-	(rect 1704 752 1992 896)
-	(text "audiomatrix_ram" (rect 5 0 86 10)(font "Arial" ))
-	(text "inst53" (rect 8 128 36 139)(font "Intel Clear" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "clk" (rect 0 0 14 10)(font "Arial" ))
-		(text "clk" (rect 21 27 35 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "read_addr[6..0]" (rect 0 0 74 10)(font "Arial" ))
-		(text "read_addr[6..0]" (rect 21 43 95 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48)(line_width 3))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "write_addr[6..0]" (rect 0 0 75 10)(font "Arial" ))
-		(text "write_addr[6..0]" (rect 21 59 96 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "i_data[(data_width-1)..0]" (rect 0 0 118 10)(font "Arial" ))
-		(text "i_data[(data_width-1)..0]" (rect 21 75 139 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80)(line_width 3))
-	)
-	(port
-		(pt 0 96)
-		(input)
-		(text "wr_en" (rect 0 0 28 10)(font "Arial" ))
-		(text "wr_en" (rect 21 91 49 101)(font "Arial" ))
-		(line (pt 0 96)(pt 16 96))
-	)
-	(port
-		(pt 288 32)
-		(output)
-		(text "o_data[(data_width-1)..0]" (rect 0 0 121 10)(font "Arial" ))
-		(text "o_data[(data_width-1)..0]" (rect 165 27 286 37)(font "Arial" ))
-		(line (pt 288 32)(pt 272 32)(line_width 3))
-	)
-	(parameter
-		"DATA_WIDTH"
-		"24"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"NUM_INPUT_PORTS"
-		"112"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 272 128))
-	)
-	(annotation_block (parameter)(rect 1728 696 1952 744))
-)
-(symbol
-	(rect 2112 704 2568 816)
-	(text "audiomatrix_ram_read" (rect 5 0 113 10)(font "Arial" ))
-	(text "inst54" (rect 8 96 36 107)(font "Intel Clear" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "clk" (rect 0 0 14 10)(font "Arial" ))
-		(text "clk" (rect 21 27 35 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "sync_in" (rect 0 0 38 10)(font "Arial" ))
-		(text "sync_in" (rect 21 43 59 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "select_lines[((num_output_ports*8)-1)..0]" (rect 0 0 200 10)(font "Arial" ))
-		(text "select_lines[((num_output_ports*8)-1)..0]" (rect 21 59 221 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "i_ram_data[(data_width-1)..0]" (rect 0 0 142 10)(font "Arial" ))
-		(text "i_ram_data[(data_width-1)..0]" (rect 21 75 163 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80)(line_width 3))
-	)
-	(port
-		(pt 456 32)
-		(output)
-		(text "o_ram_read_addr[6..0]" (rect 0 0 110 10)(font "Arial" ))
-		(text "o_ram_read_addr[6..0]" (rect 342 27 452 37)(font "Arial" ))
-		(line (pt 456 32)(pt 440 32)(line_width 3))
-	)
-	(port
-		(pt 456 48)
-		(output)
-		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 0 0 246 10)(font "Arial" ))
-		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 227 43 473 53)(font "Arial" ))
-		(line (pt 456 48)(pt 440 48)(line_width 3))
-	)
-	(parameter
-		"DATA_WIDTH"
-		"24"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"NUM_OUTPUT_PORTS"
-		"112"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 440 96))
-	)
-	(annotation_block (parameter)(rect 2208 648 2448 696))
+	(annotation_block (parameter)(rect 1184 712 1408 760))
 )
 (symbol
 	(rect 2248 176 2440 288)
@@ -4584,63 +4415,63 @@ on the Quartus Prime software download page.
 		(pt 152 32)
 		(output)
 		(text "const1[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const1[7..0]" (rect 82 27 131 37)(font "Arial" ))
+		(text "const1[7..0]" (rect 82 27 141 37)(font "Arial" ))
 		(line (pt 152 32)(pt 136 32)(line_width 3))
 	)
 	(port
 		(pt 152 48)
 		(output)
 		(text "const2[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const2[7..0]" (rect 82 43 131 53)(font "Arial" ))
+		(text "const2[7..0]" (rect 82 43 141 53)(font "Arial" ))
 		(line (pt 152 48)(pt 136 48)(line_width 3))
 	)
 	(port
 		(pt 152 64)
 		(output)
 		(text "const3[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const3[7..0]" (rect 82 59 131 69)(font "Arial" ))
+		(text "const3[7..0]" (rect 82 59 141 69)(font "Arial" ))
 		(line (pt 152 64)(pt 136 64)(line_width 3))
 	)
 	(port
 		(pt 152 80)
 		(output)
 		(text "const4[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const4[7..0]" (rect 82 75 131 85)(font "Arial" ))
+		(text "const4[7..0]" (rect 82 75 141 85)(font "Arial" ))
 		(line (pt 152 80)(pt 136 80)(line_width 3))
 	)
 	(port
 		(pt 152 96)
 		(output)
 		(text "const5[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const5[7..0]" (rect 82 91 131 101)(font "Arial" ))
+		(text "const5[7..0]" (rect 82 91 141 101)(font "Arial" ))
 		(line (pt 152 96)(pt 136 96)(line_width 3))
 	)
 	(port
 		(pt 152 112)
 		(output)
 		(text "const6[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const6[7..0]" (rect 82 107 131 117)(font "Arial" ))
+		(text "const6[7..0]" (rect 82 107 141 117)(font "Arial" ))
 		(line (pt 152 112)(pt 136 112)(line_width 3))
 	)
 	(port
 		(pt 152 128)
 		(output)
 		(text "const7[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const7[7..0]" (rect 82 123 131 133)(font "Arial" ))
+		(text "const7[7..0]" (rect 82 123 141 133)(font "Arial" ))
 		(line (pt 152 128)(pt 136 128)(line_width 3))
 	)
 	(port
 		(pt 152 144)
 		(output)
 		(text "const8[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const8[7..0]" (rect 82 139 131 149)(font "Arial" ))
+		(text "const8[7..0]" (rect 82 139 141 149)(font "Arial" ))
 		(line (pt 152 144)(pt 136 144)(line_width 3))
 	)
 	(port
 		(pt 152 160)
 		(output)
 		(text "const9[7..0]" (rect 0 0 59 10)(font "Arial" ))
-		(text "const9[7..0]" (rect 82 155 131 165)(font "Arial" ))
+		(text "const9[7..0]" (rect 82 155 141 165)(font "Arial" ))
 		(line (pt 152 160)(pt 136 160)(line_width 3))
 	)
 	(drawing
@@ -4732,14 +4563,14 @@ on the Quartus Prime software download page.
 		(pt 200 32)
 		(output)
 		(text "TX_data[7..0]" (rect 0 0 64 10)(font "Arial" ))
-		(text "TX_data[7..0]" (rect 125 27 179 37)(font "Arial" ))
+		(text "TX_data[7..0]" (rect 125 27 189 37)(font "Arial" ))
 		(line (pt 200 32)(pt 184 32)(line_width 3))
 	)
 	(port
 		(pt 200 48)
 		(output)
 		(text "TX_send" (rect 0 0 41 10)(font "Arial" ))
-		(text "TX_send" (rect 145 43 179 53)(font "Arial" ))
+		(text "TX_send" (rect 145 43 186 53)(font "Arial" ))
 		(line (pt 200 48)(pt 184 48))
 	)
 	(parameter
@@ -4800,34 +4631,257 @@ on the Quartus Prime software download page.
 		(rectangle (rect 16 16 120 96))
 	)
 )
-(connector
-	(text "clk_24_576MHz" (rect 1450 504 1526 515)(font "Intel Clear" ))
-	(pt 1440 520)
-	(pt 1528 520)
+(symbol
+	(rect 1504 1032 1808 1144)
+	(text "rs232_decoder" (rect 5 0 78 10)(font "Arial" ))
+	(text "inst10" (rect 8 96 37 106)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "RX_DataReady" (rect 0 0 76 10)(font "Arial" ))
+		(text "RX_DataReady" (rect 21 43 97 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "RX_Data[7..0]" (rect 0 0 69 10)(font "Arial" ))
+		(text "RX_Data[7..0]" (rect 21 59 90 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 304 32)
+		(output)
+		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 0 0 148 10)(font "Arial" ))
+		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 158 27 283 37)(font "Arial" ))
+		(line (pt 304 32)(pt 288 32)(line_width 3))
+	)
+	(port
+		(pt 304 48)
+		(output)
+		(text "cfg_wr_data[((addr_width*8)-1)..0]" (rect 0 0 166 10)(font "Arial" ))
+		(text "cfg_wr_data[((addr_width*8)-1)..0]" (rect 143 43 283 53)(font "Arial" ))
+		(line (pt 304 48)(pt 288 48)(line_width 3))
+	)
+	(port
+		(pt 304 64)
+		(output)
+		(text "cfg_wr_en" (rect 0 0 50 10)(font "Arial" ))
+		(text "cfg_wr_en" (rect 241 59 283 69)(font "Arial" ))
+		(line (pt 304 64)(pt 288 64))
+	)
+	(parameter
+		"NUM_OUTPUT_PORTS"
+		"112"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"NUM_DSP_CHANNELS"
+		"40"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"ADDR_WIDTH"
+		"7"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 288 96))
+	)
+	(annotation_block (parameter)(rect 1536 968 1776 1024))
 )
-(connector
-	(pt 1528 536)
-	(pt 1520 536)
+(symbol
+	(rect 2024 720 2440 832)
+	(text "audiomatrix_ram_read" (rect 5 0 113 10)(font "Arial" ))
+	(text "inst54" (rect 8 96 37 106)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "sync_in" (rect 0 0 38 10)(font "Arial" ))
+		(text "sync_in" (rect 21 43 59 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "i_ram_data[(data_width-1)..0]" (rect 0 0 142 10)(font "Arial" ))
+		(text "i_ram_data[(data_width-1)..0]" (rect 21 59 163 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 416 32)
+		(output)
+		(text "output_channel_idx[6..0]" (rect 0 0 120 10)(font "Arial" ))
+		(text "output_channel_idx[6..0]" (rect 294 27 395 37)(font "Arial" ))
+		(line (pt 416 32)(pt 400 32)(line_width 3))
+	)
+	(port
+		(pt 416 48)
+		(output)
+		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 0 0 246 10)(font "Arial" ))
+		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 187 43 395 53)(font "Arial" ))
+		(line (pt 416 48)(pt 400 48)(line_width 3))
+	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"NUM_OUTPUT_PORTS"
+		"112"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 400 96))
+	)
+	(annotation_block (parameter)(rect 2120 664 2360 712))
 )
-(connector
-	(pt 1744 520)
-	(pt 1840 520)
+(symbol
+	(rect 1904 1016 2264 1160)
+	(text "audiomatrix_routing_ram" (rect 5 0 125 10)(font "Arial" ))
+	(text "inst15" (rect 8 128 37 138)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 0 0 148 10)(font "Arial" ))
+		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 21 43 169 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 3))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "cfg_wr_data[((addr_width*8)-1)..0]" (rect 0 0 166 10)(font "Arial" ))
+		(text "cfg_wr_data[((addr_width*8)-1)..0]" (rect 21 59 187 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "cfg_wr_en" (rect 0 0 50 10)(font "Arial" ))
+		(text "cfg_wr_en" (rect 21 75 71 85)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80))
+	)
+	(port
+		(pt 0 96)
+		(input)
+		(text "output_channel_idx[(addr_width-1)..0]" (rect 0 0 182 10)(font "Arial" ))
+		(text "output_channel_idx[(addr_width-1)..0]" (rect 21 91 203 101)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96)(line_width 3))
+	)
+	(port
+		(pt 360 32)
+		(output)
+		(text "read_addr[(addr_width-1)..0]" (rect 0 0 136 10)(font "Arial" ))
+		(text "read_addr[(addr_width-1)..0]" (rect 224 27 339 37)(font "Arial" ))
+		(line (pt 360 32)(pt 344 32)(line_width 3))
+	)
+	(parameter
+		"RAM_DEPTH"
+		"128"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"ADDR_WIDTH"
+		"7"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 344 128))
+	)
+	(annotation_block (parameter)(rect 1984 968 2192 1008))
 )
-(connector
-	(pt 1744 536)
-	(pt 1840 536)
-	(bus)
-)
-(connector
-	(text "clk_24_576MHz" (rect 1762 488 1838 499)(font "Intel Clear" ))
-	(pt 1752 504)
-	(pt 1840 504)
-)
-(connector
-	(text "routing[895..0]" (rect 2162 488 2232 499)(font "Intel Clear" ))
-	(pt 2152 504)
-	(pt 2240 504)
-	(bus)
+(symbol
+	(rect 1616 752 1928 896)
+	(text "audiomatrix_ram" (rect 5 0 86 10)(font "Arial" ))
+	(text "inst53" (rect 8 128 37 138)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "write_addr[(addr_width-1)..0]" (rect 0 0 138 10)(font "Arial" ))
+		(text "write_addr[(addr_width-1)..0]" (rect 21 43 159 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 3))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "i_data[(data_width-1)..0]" (rect 0 0 118 10)(font "Arial" ))
+		(text "i_data[(data_width-1)..0]" (rect 21 59 139 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "wr_en" (rect 0 0 28 10)(font "Arial" ))
+		(text "wr_en" (rect 21 75 49 85)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80))
+	)
+	(port
+		(pt 0 96)
+		(input)
+		(text "read_addr[(addr_width-1)..0]" (rect 0 0 136 10)(font "Arial" ))
+		(text "read_addr[(addr_width-1)..0]" (rect 21 91 157 101)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96)(line_width 3))
+	)
+	(port
+		(pt 312 32)
+		(output)
+		(text "o_data[(data_width-1)..0]" (rect 0 0 121 10)(font "Arial" ))
+		(text "o_data[(data_width-1)..0]" (rect 189 27 291 37)(font "Arial" ))
+		(line (pt 312 32)(pt 296 32)(line_width 3))
+	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"NUM_INPUT_PORTS"
+		"112"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"RAM_DEPTH"
+		"128"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"ADDR_WIDTH"
+		"7"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 296 128))
+	)
+	(annotation_block (parameter)(rect 1640 696 1864 744))
 )
 (connector
 	(pt 2520 544)
@@ -5435,93 +5489,6 @@ on the Quartus Prime software download page.
 	(text "tdm_fs" (rect 3906 1520 3939 1531)(font "Intel Clear" ))
 	(pt 3896 1536)
 	(pt 3976 1536)
-)
-(connector
-	(text "audiosync" (rect 1114 816 1162 827)(font "Intel Clear" ))
-	(pt 1104 832)
-	(pt 1192 832)
-)
-(connector
-	(text "audio_input[2687..0]" (rect 1114 832 1213 843)(font "Intel Clear" ))
-	(pt 1104 848)
-	(pt 1192 848)
-	(bus)
-)
-(connector
-	(pt 2720 928)
-	(pt 2720 736)
-	(bus)
-)
-(connector
-	(text "routing[895..0]" (rect 2050 752 2120 763)(font "Intel Clear" ))
-	(pt 2040 768)
-	(pt 2112 768)
-	(bus)
-)
-(connector
-	(pt 2568 736)
-	(pt 2720 736)
-	(bus)
-)
-(connector
-	(text "audio_output[2687..0]" (rect 2578 736 2684 747)(font "Intel Clear" ))
-	(pt 2568 752)
-	(pt 2680 752)
-	(bus)
-)
-(connector
-	(pt 2016 904)
-	(pt 2016 752)
-)
-(connector
-	(pt 2112 752)
-	(pt 2016 752)
-)
-(connector
-	(pt 1600 816)
-	(pt 1704 816)
-	(bus)
-)
-(connector
-	(pt 1600 832)
-	(pt 1704 832)
-	(bus)
-)
-(connector
-	(pt 1600 848)
-	(pt 1704 848)
-)
-(connector
-	(pt 1992 784)
-	(pt 2112 784)
-	(bus)
-)
-(connector
-	(pt 2720 928)
-	(pt 1672 928)
-	(bus)
-)
-(connector
-	(pt 1672 928)
-	(pt 1672 800)
-	(bus)
-)
-(connector
-	(pt 1704 800)
-	(pt 1672 800)
-	(bus)
-)
-(connector
-	(pt 1600 864)
-	(pt 1640 864)
-)
-(connector
-	(pt 1640 904)
-	(pt 1640 864)
-)
-(connector
-	(pt 2016 904)
-	(pt 1640 904)
 )
 (connector
 	(text "audio_input[1583..1560]" (rect 410 384 526 395)(font "Intel Clear" ))
@@ -7235,19 +7202,167 @@ on the Quartus Prime software download page.
 	(pt 2616 408)
 )
 (connector
-	(text "clk_24_576MHz" (rect 2034 720 2110 731)(font "Intel Clear" ))
-	(pt 2024 736)
-	(pt 2112 736)
+	(pt 2320 936)
+	(pt 1584 936)
+	(bus)
 )
 (connector
-	(text "clk_24_576MHz" (rect 1626 768 1702 779)(font "Intel Clear" ))
+	(pt 1552 904)
+	(pt 1952 904)
+)
+(connector
+	(pt 1552 904)
+	(pt 1552 848)
+)
+(connector
+	(pt 1584 936)
+	(pt 1584 848)
+	(bus)
+)
+(connector
+	(text "clk_24_576MHz" (rect 1034 784 1110 795)(font "Intel Clear" ))
+	(pt 1024 800)
+	(pt 1112 800)
+)
+(connector
+	(text "audiosync" (rect 1034 800 1082 811)(font "Intel Clear" ))
+	(pt 1024 816)
+	(pt 1112 816)
+)
+(connector
+	(text "audio_input[2687..0]" (rect 1034 816 1133 827)(font "Intel Clear" ))
+	(pt 1024 832)
+	(pt 1112 832)
+	(bus)
+)
+(connector
+	(text "clk_24_576MHz" (rect 1538 768 1614 779)(font "Intel Clear" ))
+	(pt 1528 784)
 	(pt 1616 784)
-	(pt 1704 784)
 )
 (connector
-	(text "clk_24_576MHz" (rect 1114 800 1190 811)(font "Intel Clear" ))
-	(pt 1104 816)
-	(pt 1192 816)
+	(pt 1520 800)
+	(pt 1616 800)
+	(bus)
+)
+(connector
+	(pt 1520 816)
+	(pt 1616 816)
+	(bus)
+)
+(connector
+	(pt 1520 832)
+	(pt 1616 832)
+)
+(connector
+	(pt 1520 848)
+	(pt 1552 848)
+)
+(connector
+	(pt 1584 848)
+	(pt 1616 848)
+	(bus)
+)
+(connector
+	(pt 1192 1096)
+	(pt 1184 1096)
+)
+(connector
+	(text "clk_24_576MHz" (rect 1114 1064 1190 1075)(font "Intel Clear" ))
+	(pt 1104 1080)
+	(pt 1192 1080)
+)
+(connector
+	(text "clk_24_576MHz" (rect 1426 1048 1502 1059)(font "Intel Clear" ))
+	(pt 1416 1064)
+	(pt 1504 1064)
+)
+(connector
+	(pt 1408 1080)
+	(pt 1504 1080)
+)
+(connector
+	(pt 1408 1096)
+	(pt 1504 1096)
+	(bus)
+)
+(connector
+	(pt 2320 936)
+	(pt 2320 1048)
+	(bus)
+)
+(connector
+	(pt 1856 1184)
+	(pt 1856 1112)
+	(bus)
+)
+(connector
+	(text "clk_24_576MHz" (rect 1826 1032 1902 1043)(font "Intel Clear" ))
+	(pt 1816 1048)
+	(pt 1904 1048)
+)
+(connector
+	(pt 1808 1064)
+	(pt 1904 1064)
+	(bus)
+)
+(connector
+	(pt 1808 1080)
+	(pt 1904 1080)
+	(bus)
+)
+(connector
+	(pt 1808 1096)
+	(pt 1904 1096)
+)
+(connector
+	(pt 1856 1112)
+	(pt 1904 1112)
+	(bus)
+)
+(connector
+	(pt 2264 1048)
+	(pt 2320 1048)
+	(bus)
+)
+(connector
+	(pt 1952 904)
+	(pt 1952 768)
+)
+(connector
+	(text "clk_24_576MHz" (rect 1946 736 2022 747)(font "Intel Clear" ))
+	(pt 1936 752)
+	(pt 2024 752)
+)
+(connector
+	(pt 1952 768)
+	(pt 2024 768)
+)
+(connector
+	(pt 1928 784)
+	(pt 2024 784)
+	(bus)
+)
+(connector
+	(text "audio_output[2687..0]" (rect 2450 752 2556 763)(font "Intel Clear" ))
+	(pt 2440 768)
+	(pt 2552 768)
+	(bus)
+)
+(connector
+	(pt 1856 1184)
+	(pt 2576 1184)
+	(bus)
+)
+(connector
+	(pt 2576 1184)
+	(pt 2576 752)
+	(bus)
+)
+(connector
+	(pt 2440 752)
+	(pt 2576 752)
+	(bus)
 )
 (junction (pt 2520 568))
 (junction (pt 2520 560))
@@ -7277,7 +7392,7 @@ on the Quartus Prime software download page.
 (text "Newer Revisions of the X32 are using two separate ICs for AUX_DA (TI PCM1690) and AUX_AD (Midas M8000)" (rect 1824 -24 2450 -11)(font "Intel Clear" (font_size 8)))
 (rectangle (rect 40 104 792 328)(color 0 0 255)(line_width 3))
 (rectangle (rect 808 104 1816 328)(color 0 0 255)(line_width 3))
-(rectangle (rect 512 344 2248 616)(color 0 0 255)(line_width 3))
+(rectangle (rect 512 344 1504 616)(color 0 0 255)(line_width 3))
 (rectangle (rect 2264 344 2800 616)(color 0 0 255)(line_width 3))
 (rectangle (rect 40 632 984 1208)(color 0 0 255)(line_width 3))
 (rectangle (rect 40 1224 984 1800)(color 0 0 255)(line_width 3))
@@ -7289,4 +7404,4 @@ on the Quartus Prime software download page.
 (rectangle (rect 3112 104 3632 328)(color 0 0 255)(line_width 3))
 (rectangle (rect 1832 8 3096 328)(color 0 0 255)(line_width 3))
 (rectangle (rect 40 344 504 616)(color 0 0 255)(line_width 3))
-(rectangle (rect 1000 632 2800 960)(color 0 0 255)(line_width 3))
+(rectangle (rect 1000 632 2800 1208)(color 0 0 255)(line_width 3))

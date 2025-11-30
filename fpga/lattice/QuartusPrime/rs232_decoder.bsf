@@ -21,7 +21,7 @@ on the Quartus Prime software download page.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 328 128)
+	(rect 16 16 320 128)
 	(text "rs232_decoder" (rect 5 0 65 12)(font "Arial" ))
 	(text "inst" (rect 8 96 20 108)(font "Arial" ))
 	(port
@@ -46,11 +46,25 @@ on the Quartus Prime software download page.
 		(line (pt 0 64)(pt 16 64)(line_width 3))
 	)
 	(port
-		(pt 312 32)
+		(pt 304 32)
 		(output)
-		(text "routing[((num_output_ports*8)-1)..0]" (rect 0 0 139 12)(font "Arial" ))
-		(text "routing[((num_output_ports*8)-1)..0]" (rect 152 27 291 39)(font "Arial" ))
-		(line (pt 312 32)(pt 296 32)(line_width 3))
+		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 0 0 122 12)(font "Arial" ))
+		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 161 27 283 39)(font "Arial" ))
+		(line (pt 304 32)(pt 288 32)(line_width 3))
+	)
+	(port
+		(pt 304 48)
+		(output)
+		(text "cfg_wr_data[((addr_width*8)-1)..0]" (rect 0 0 133 12)(font "Arial" ))
+		(text "cfg_wr_data[((addr_width*8)-1)..0]" (rect 150 43 283 55)(font "Arial" ))
+		(line (pt 304 48)(pt 288 48)(line_width 3))
+	)
+	(port
+		(pt 304 64)
+		(output)
+		(text "cfg_wr_en" (rect 0 0 43 12)(font "Arial" ))
+		(text "cfg_wr_en" (rect 240 59 283 71)(font "Arial" ))
+		(line (pt 304 64)(pt 288 64)(line_width 1))
 	)
 	(parameter
 		"NUM_OUTPUT_PORTS"
@@ -62,8 +76,13 @@ on the Quartus Prime software download page.
 		"40"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"ADDR_WIDTH"
+		"7"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
-		(rectangle (rect 16 16 296 96)(line_width 1))
+		(rectangle (rect 16 16 288 96)(line_width 1))
 	)
-	(annotation_block (parameter)(rect 328 -64 428 16))
+	(annotation_block (parameter)(rect 320 -64 420 16))
 )

@@ -32,27 +32,26 @@ use ieee.numeric_std.all;
 
 entity audiomatrix_ram_read is
 	generic (
-		DATA_WIDTH			: integer := 24;	-- 24-bit audio-samples
-		NUM_OUTPUT_PORTS	: integer := 112	-- 16x Analog-Ouput, 32x Card-Output, 8x AUX-Output, 16x UltraNet-Output, 40x DSP-Input
+		DATA_WIDTH				: integer := 24;	-- 24-bit audio-samples
+		NUM_OUTPUT_PORTS		: integer := 112	-- 16x Analog-Ouput, 32x Card-Output, 8x AUX-Output, 16x UltraNet-Output, 40x DSP-Input
 	);
 	port (
-		clk					: in std_logic;
-		sync_in				: in std_logic;
-		select_lines		: in std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0); -- log2(NUM_OUTPUT_PORTS) = 8, log2(72) = 7, log2(112) = 7 bit
-		i_ram_data			: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+		clk						: in std_logic;
+		sync_in					: in std_logic;
+		i_ram_data				: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 		
-		o_ram_read_addr	: out std_logic_vector(6 downto 0); -- log2(112) = 7 bit
-		output_data			: out std_logic_vector(NUM_OUTPUT_PORTS * DATA_WIDTH - 1 downto 0)
+		output_channel_idx	: out std_logic_vector(6 downto 0); -- log2(112) = 7 bit
+		output_data				: out std_logic_vector(NUM_OUTPUT_PORTS * DATA_WIDTH - 1 downto 0)
 	);
 end entity audiomatrix_ram_read;
 
 architecture behavioral of audiomatrix_ram_read is
 	type t_SM_matrix is (s_Idle, s_Read, s_ReadLast);
-	signal r_SM_matrix : t_SM_matrix := s_Idle;
+	signal r_SM_matrix					: t_SM_matrix := s_Idle;
 
-	signal pSelect			: integer range 0 to NUM_OUTPUT_PORTS * 8;
-	signal pOutput			: integer range 0 to NUM_OUTPUT_PORTS * DATA_WIDTH;
-	signal readDelay		: std_logic := '1';
+	signal output_channel_idx_next	: integer range 0 to NUM_OUTPUT_PORTS;
+	signal pOutput							: integer range 0 to NUM_OUTPUT_PORTS * DATA_WIDTH;
+	signal readDelayCounter				: integer range 0 to 2;
 begin
 	-- as the routing allows routing of input-channel 112 to output-channel 1, we have to write all audio-data
 	-- to block-ram, before we start the read-process
@@ -62,25 +61,36 @@ begin
 			if (r_SM_matrix = s_Idle) then
 				if (sync_in = '1') then
 					-- set read-address for first read-operation
-					o_ram_read_addr <= std_logic_vector(unsigned(select_lines(6 downto 0))); -- we are taking only 7-bit out of this 8-bit value
+					output_channel_idx <= "0000000"; -- start at output-channel 1 of 112
+					output_channel_idx_next <= 1; -- preload to next address
 
-					pSelect <= 8; -- preload to next address address
 					pOutput <= 0; -- preload to first output-data
-					readDelay <= '1';
+					readDelayCounter <= 0; -- reset readDelayCounter
 				
 					r_SM_matrix <= s_Read;
 				end if;
 			
 			elsif (r_SM_matrix = s_Read) then
-				-- read data from RAM
-				output_data(pOutput + DATA_WIDTH - 1 downto pOutput) <= i_ram_data;
-				
 				-- set read-address for next read-operation
-				o_ram_read_addr <= std_logic_vector(unsigned(select_lines(pSelect + 6 downto pSelect))); -- we are taking only 7-bit out of this 8-bit value
-				
-				if (readDelay = '1') then
-					readDelay <= '0';
-				else
+				output_channel_idx <= std_logic_vector(to_unsigned(output_channel_idx_next, 7));
+
+				-- increase read-pointer until end
+				if (output_channel_idx_next < (NUM_OUTPUT_PORTS - 1)) then
+					output_channel_idx_next <= output_channel_idx_next + 1;
+				end if;
+
+
+				if (readDelayCounter = 0) then
+					-- cfg-RAM is set
+					readDelayCounter <= readDelayCounter + 1;
+				elsif (readDelayCounter = 1) then
+					-- audio-RAM is set
+					readDelayCounter <= readDelayCounter + 1;
+				elsif (readDelayCounter = 2) then
+					-- read data from RAM
+					output_data(pOutput + DATA_WIDTH - 1 downto pOutput) <= i_ram_data;
+
+					-- check if we are close to the last channel
 					if (pOutput < ((NUM_OUTPUT_PORTS - 1) * DATA_WIDTH)) then
 						pOutput <= pOutput + DATA_WIDTH;
 
@@ -91,19 +101,12 @@ begin
 						r_SM_matrix <= s_ReadLast;
 					end if;
 				end if;
-
-				-- increase read-pointer
-				if (pSelect < (NUM_OUTPUT_PORTS - 1) * 8) then
-					pSelect <= pSelect + 8;
-				end if;
-
 			elsif (r_SM_matrix = s_ReadLast) then
 				-- read last data from RAM
 				output_data(output_data'left downto output_data'left - DATA_WIDTH + 1) <= i_ram_data;
 				
 				-- go into idle-state
 				r_SM_matrix <= s_Idle;
-				
 			end if;
 		end if;
 	end process;

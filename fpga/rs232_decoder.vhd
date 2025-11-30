@@ -37,7 +37,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity rs232_decoder is 
 	generic (
 		NUM_OUTPUT_PORTS	: integer := 112;	-- 16x Analog-Output, 32x Card-Output, 8x AUX-Output, 16x UltraNet-Output, 40 DSP-Input
-		NUM_DSP_CHANNELS	: integer := 40
+		NUM_DSP_CHANNELS	: integer := 40;
+		ADDR_WIDTH        : integer := 7    -- log2(112) = 7
 	);
 	port
 	(
@@ -46,7 +47,9 @@ entity rs232_decoder is
 		RX_Data			: in std_logic_vector(7 downto 0);
 
 		-- deserialized values
-		routing			: out std_logic_vector(NUM_OUTPUT_PORTS * 8 - 1 downto 0) := (others => '0') -- we are using only 7-bit for the selector-signal, but 8-bits are easier to handle with multiplications
+		cfg_wr_addr				: out std_logic_vector(ADDR_WIDTH - 1 downto 0);    -- output-channel to be configured
+		cfg_wr_data				: out std_logic_vector((ADDR_WIDTH * 8) - 1 downto 0);    -- source for the current output-channel
+		cfg_wr_en				: out std_logic
 	);
 end entity;
 
@@ -78,6 +81,8 @@ begin
 		if (rising_edge(clk)) then
 			if (RX_DataReady = '1' and s_SM_Decoder = s_Idle) then
 				-- state 0 -> collect data
+				
+				cfg_wr_en <= '0';
 			
 				-- move all bytes forward by one byte and put recent byte at b14
 				b1 := b2;
@@ -119,7 +124,10 @@ begin
 				selector := to_integer(unsigned(b2 & b3));
 
 				if (selector >= 0 and selector <= 111) then
-					routing((selector * 8) + (8 * 8) - 1 downto (selector * 8)) <= b4 & b5 & b6 & b7 & b8 & b9 & b10 & b11;
+					cfg_wr_addr <= b3(ADDR_WIDTH - 1 downto 0);
+					cfg_wr_data <= b4(6 downto 0) & b5(6 downto 0) & b6(6 downto 0) & b7(6 downto 0) & b8(6 downto 0) & b9(6 downto 0) & b10(6 downto 0) & b11(6 downto 0);
+					cfg_wr_en <= '1';
+					
 				--elsif (selector >= 200 and selector <= 240) then
 					-- volume-information
 				--	volume_left(((selector - 200) * 8) + 7 downto ((selector - 200) * 8)) <= b11; -- volume uses 8-bit

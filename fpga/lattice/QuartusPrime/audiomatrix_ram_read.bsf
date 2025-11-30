@@ -21,7 +21,7 @@ on the Quartus Prime software download page.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 472 128)
+	(rect 16 16 432 128)
 	(text "audiomatrix_ram_read" (rect 5 0 95 12)(font "Arial" ))
 	(text "inst" (rect 8 96 20 108)(font "Arial" ))
 	(port
@@ -41,30 +41,23 @@ on the Quartus Prime software download page.
 	(port
 		(pt 0 64)
 		(input)
-		(text "select_lines[((num_output_ports*8)-1)..0]" (rect 0 0 158 12)(font "Arial" ))
-		(text "select_lines[((num_output_ports*8)-1)..0]" (rect 21 59 179 71)(font "Arial" ))
+		(text "i_ram_data[(data_width-1)..0]" (rect 0 0 115 12)(font "Arial" ))
+		(text "i_ram_data[(data_width-1)..0]" (rect 21 59 136 71)(font "Arial" ))
 		(line (pt 0 64)(pt 16 64)(line_width 3))
 	)
 	(port
-		(pt 0 80)
-		(input)
-		(text "i_ram_data[(data_width-1)..0]" (rect 0 0 115 12)(font "Arial" ))
-		(text "i_ram_data[(data_width-1)..0]" (rect 21 75 136 87)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80)(line_width 3))
-	)
-	(port
-		(pt 456 32)
+		(pt 416 32)
 		(output)
-		(text "o_ram_read_addr[6..0]" (rect 0 0 94 12)(font "Arial" ))
-		(text "o_ram_read_addr[6..0]" (rect 341 27 435 39)(font "Arial" ))
-		(line (pt 456 32)(pt 440 32)(line_width 3))
+		(text "output_channel_idx[6..0]" (rect 0 0 95 12)(font "Arial" ))
+		(text "output_channel_idx[6..0]" (rect 300 27 395 39)(font "Arial" ))
+		(line (pt 416 32)(pt 400 32)(line_width 3))
 	)
 	(port
-		(pt 456 48)
+		(pt 416 48)
 		(output)
 		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 0 0 195 12)(font "Arial" ))
-		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 240 43 435 55)(font "Arial" ))
-		(line (pt 456 48)(pt 440 48)(line_width 3))
+		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 200 43 395 55)(font "Arial" ))
+		(line (pt 416 48)(pt 400 48)(line_width 3))
 	)
 	(parameter
 		"DATA_WIDTH"
@@ -77,7 +70,7 @@ on the Quartus Prime software download page.
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
-		(rectangle (rect 16 16 440 96)(line_width 1))
+		(rectangle (rect 16 16 400 96)(line_width 1))
 	)
-	(annotation_block (parameter)(rect 472 -64 572 16))
+	(annotation_block (parameter)(rect 432 -64 532 16))
 )

@@ -80,6 +80,9 @@
         <Source name="../and4_gate.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
+        <Source name="../audiomatrix_routing_ram.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
         <Source name="impl1/impl1.xcf" type="Programming Project File" type_short="Programming">
             <Options/>
         </Source>

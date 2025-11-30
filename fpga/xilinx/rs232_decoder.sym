@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="rs232_decoder">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2025-9-5T7:4:9</timestamp>
+    <timestamp>2025-11-30T0:37:38</timestamp>
     <pin polarity="Input" x="0" y="-160" name="clk" />
     <pin polarity="Input" x="0" y="-96" name="RX_DataReady" />
     <pin polarity="Input" x="0" y="-32" name="RX_Data(7:0)" />
-    <pin polarity="Output" x="512" y="-160" name="routing(895:0)" />
+    <pin polarity="Output" x="512" y="-160" name="cfg_wr_en" />
+    <pin polarity="Output" x="512" y="-96" name="cfg_wr_addr(6:0)" />
+    <pin polarity="Output" x="512" y="-32" name="cfg_wr_data(55:0)" />
     <graph>
         <attrtext style="alignment:BCENTER;fontsize:56;fontname:Arial" attrname="SymbolName" x="256" y="-200" type="symbol" />
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-160" type="pin clk" />
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-96" type="pin RX_DataReady" />
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin RX_Data(7:0)" />
-        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="440" y="-160" type="pin routing(895:0)" />
-        <rect width="384" x="64" y="-192" height="192" />
         <line x2="0" y1="-160" y2="-160" x1="64" />
         <line x2="0" y1="-96" y2="-96" x1="64" />
         <rect width="64" x="0" y="-44" height="24" />
         <line x2="0" y1="-32" y2="-32" x1="64" />
-        <rect width="64" x="448" y="-172" height="24" />
+        <rect width="384" x="64" y="-192" height="192" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="440" y="-160" type="pin cfg_wr_en" />
         <line x2="512" y1="-160" y2="-160" x1="448" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="440" y="-96" type="pin cfg_wr_addr(6:0)" />
+        <rect width="64" x="448" y="-108" height="24" />
+        <line x2="512" y1="-96" y2="-96" x1="448" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="440" y="-32" type="pin cfg_wr_data(55:0)" />
+        <rect width="64" x="448" y="-44" height="24" />
+        <line x2="512" y1="-32" y2="-32" x1="448" />
     </graph>
 </symbol>

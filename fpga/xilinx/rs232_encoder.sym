@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="rs232_encoder">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2025-11-29T22:18:24</timestamp>
+    <timestamp>2025-11-30T15:54:32</timestamp>
     <pin polarity="Input" x="0" y="-352" name="clk" />
     <pin polarity="Input" x="0" y="-288" name="TX_rdy" />
     <pin polarity="Input" x="0" y="-224" name="byte1(7:0)" />
@@ -14,7 +14,7 @@
     <pin polarity="Input" x="0" y="224" name="byte8(7:0)" />
     <pin polarity="Input" x="0" y="288" name="byte9(7:0)" />
     <pin polarity="Output" x="384" y="-352" name="TX_send" />
-    <pin polarity="Output" x="384" y="-32" name="TX_data(7:0)" />
+    <pin polarity="Output" x="384" y="-288" name="TX_data(7:0)" />
     <graph>
         <attrtext style="alignment:BCENTER;fontsize:56;fontname:Arial" attrname="SymbolName" x="192" y="-392" type="symbol" />
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-352" type="pin clk" />
@@ -29,7 +29,6 @@
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="224" type="pin byte8(7:0)" />
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="288" type="pin byte9(7:0)" />
         <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="312" y="-352" type="pin TX_send" />
-        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="312" y="-32" type="pin TX_data(7:0)" />
         <rect width="64" x="0" y="20" height="24" />
         <line x2="0" y1="32" y2="32" x1="64" />
         <rect width="64" x="0" y="84" height="24" />
@@ -51,8 +50,9 @@
         <rect width="64" x="0" y="-44" height="24" />
         <line x2="0" y1="-32" y2="-32" x1="64" />
         <line x2="384" y1="-352" y2="-352" x1="320" />
-        <rect width="64" x="320" y="-44" height="24" />
-        <line x2="384" y1="-32" y2="-32" x1="320" />
         <rect width="256" x="64" y="-384" height="704" />
+        <rect width="64" x="320" y="-300" height="24" />
+        <line x2="384" y1="-288" y2="-288" x1="320" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="312" y="-288" type="pin TX_data(7:0)" />
     </graph>
 </symbol>
