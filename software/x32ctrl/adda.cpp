@@ -39,44 +39,44 @@ void Adda::Init() {
 	uart->Open(serial, speed, true);
 
 	// send identification-commands to all possible boards (not sure if this is correct for smaller X32)
-	SendReceive("*0I#", 2000); // ADDA-Board
-	SendReceive("*1I#", 2000); // ADDA-Board
-	SendReceive("*2I#", 2000); // ADDA-Board
-	SendReceive("*3I#", 2000); // ADDA-Board
-	SendReceive("*4I#", 2000); // ADDA-Board
-	SendReceive("*5I#", 2000);  // ADDA-Board
-	SendReceive("*8I#", 2000); // Expansion-Card
-	SendReceive("*8R#", 2000); // Expansion-Card
+	SendReceive("*0I#", 20); // ADDA-Board
+	SendReceive("*1I#", 20); // ADDA-Board
+	SendReceive("*2I#", 20); // ADDA-Board
+	SendReceive("*3I#", 20); // ADDA-Board
+	SendReceive("*4I#", 20); // ADDA-Board
+	SendReceive("*5I#", 20);  // ADDA-Board
+	SendReceive("*8I#", 20); // Expansion-Card
+	SendReceive("*8R#", 20); // Expansion-Card
 
 	// -1=unknown, 0=X32, 1=X32Compact, 2=X32Producer, 3=X32Rack, 4=X32Core
 	// set gains to -2dB and turnoff phantom-power
-	SendReceive("*1G00000#*1G00000#*1G10000#*1G10000#*1G20000#*1G20000#*1G30000#*1G30000#*1G40000#*1G40000#*1G50000#*1G50000#*1G60000#*1G60000#*1G70000#*1G70000#", 2000);
-	SendReceive("*3G00000#*3G00000#*3G10000#*3G10000#*3G20000#*3G20000#*3G30000#*3G30000#*3G40000#*3G40000#*3G50000#*3G50000#*3G60000#*3G60000#*3G70000#*3G70000#", 2000);
-	SendReceive("*0G00000#*0G00000#*0G10000#*0G10000#*0G20000#*0G20000#*0G30000#*0G30000#*0G40000#*0G40000#*0G50000#*0G50000#*0G60000#*0G60000#*0G70000#*0G70000#", 2000);
-	SendReceive("*2G00000#*2G00000#*2G10000#*2G10000#*2G20000#*2G20000#*2G30000#*2G30000#*2G40000#*2G40000#*2G50000#*2G50000#*2G60000#*2G60000#*2G70000#*2G70000#", 2000);
+	SendReceive("*1G00000#*1G00000#*1G10000#*1G10000#*1G20000#*1G20000#*1G30000#*1G30000#*1G40000#*1G40000#*1G50000#*1G50000#*1G60000#*1G60000#*1G70000#*1G70000#", 20);
+	SendReceive("*3G00000#*3G00000#*3G10000#*3G10000#*3G20000#*3G20000#*3G30000#*3G30000#*3G40000#*3G40000#*3G50000#*3G50000#*3G60000#*3G60000#*3G70000#*3G70000#", 20);
+	SendReceive("*0G00000#*0G00000#*0G10000#*0G10000#*0G20000#*0G20000#*0G30000#*0G30000#*0G40000#*0G40000#*0G50000#*0G50000#*0G60000#*0G60000#*0G70000#*0G70000#", 20);
+	SendReceive("*2G00000#*2G00000#*2G10000#*2G10000#*2G20000#*2G20000#*2G30000#*2G30000#*2G40000#*2G40000#*2G50000#*2G50000#*2G60000#*2G60000#*2G70000#*2G70000#", 20);
 
 	// initialize the 8ch-input-boards
-	SendReceive("*0R:W018B#", 2000);
-	SendReceive("*1R:W018B#", 2000);
-	SendReceive("*2R:W018B#", 2000);
-	SendReceive("*3R:W018B#", 2000);
+	SendReceive("*0R:W018B#", 20);
+	SendReceive("*1R:W018B#", 20);
+	SendReceive("*2R:W018B#", 20);
+	SendReceive("*3R:W018B#", 20);
 
 	// initialize the 8ch-output-boards
-	SendReceive("*4R:W0281C0:W0800:W0280#", 2000);
-	SendReceive("*5R:W0281C0:W0800:W0280#", 2000);
+	SendReceive("*4R:W0281C0:W0800:W0280#", 20);
+	SendReceive("*5R:W0281C0:W0800:W0280#", 20);
 
 
 	uint32_t samplerate = config->GetSamplerate();
 	if (samplerate == 44100) {
 		// set all boards to 48kHz
-		SendReceive("*8C40U#", 2000);
-		SendReceive("*8R8#*8C40U#", 2000);
-		SendReceive("*8C40U#", 2000);
+		SendReceive("*8C40U#", 20);
+		SendReceive("*8R8#*8C40U#", 20);
+		SendReceive("*8C40U#", 20);
 	} else if (samplerate == 48000) {
 		// set all boards to 48kHz
-		SendReceive("*8C80U#", 2000);
-		SendReceive("*8R8#*8C80U#", 2000);
-		SendReceive("*8C80U#", 2000);
+		SendReceive("*8C80U#", 20);
+		SendReceive("*8R8#*8C80U#", 2);
+		SendReceive("*8C80U#", 20);
 	} else if (samplerate == 96000) {
 		// currently unknown, but the X32 is able to handle 96kHz for sure
 	} else {
@@ -84,24 +84,24 @@ void Adda::Init() {
 	}
 
 	// and send some more commands (no information about the usage up to now)
-	SendReceive("*9R0#*9G0#", 2000);
-	SendReceive("*9AF#", 2000);
-	SendReceive("*9N0#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9N0#", 2000);
+	SendReceive("*9R0#*9G0#", 20);
+	SendReceive("*9AF#", 20);
+	SendReceive("*9N0#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9N0#", 20);
 	usleep(20000);
 }
 
 void Adda::SetSamplerate(uint32_t samplerate) {
 	if (samplerate == 44100) {
-		SendReceive("*8R#*8C40U#", 2000);
+		SendReceive("*8R#*8C40U#", 20);
 	} else if (samplerate == 48000) {
-		SendReceive("*8R#*8C80U#", 2000);
+		SendReceive("*8R#*8C80U#", 20);
 	} else if (samplerate == 96000) {
 		// currently unknown, but the X32 is able to handle 96kHz for sure
 	} else {
@@ -109,15 +109,15 @@ void Adda::SetSamplerate(uint32_t samplerate) {
 	}
 
 	// send initialization-commands to all boards
-	SendReceive("*9R0#", 2000);
-	SendReceive("*9AF#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9AN#", 2000);
-	SendReceive("*9N0#", 2000);
+	SendReceive("*9R0#", 20);
+	SendReceive("*9AF#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9AN#", 20);
+	SendReceive("*9N0#", 20);
 }
 
 void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower) {
@@ -170,10 +170,10 @@ String Adda::SendReceive(const char* cmd, uint16_t timeout) {
 	uart->TxRaw(&message);
 
 	// check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
-	if ((timeout > 0) && (config->IsModelX32FullOrCompactOrProducer())) {
+	if (timeout > 0) {
 		addaWaitForMessageCounter = timeout;
 		while (addaWaitForMessageCounter > 0) {
-			DEBUG_MESSAGE(DEBUG_ADDA, "addaWaitForMessageCounter: %d", addaWaitForMessageCounter);
+			DEBUG_MESSAGE(DEBUG_ADDA, "Waiting for Message from ADDA-Boards, Counter: %d", addaWaitForMessageCounter);
 			uint16_t readBytes = uart->Rx(&addaBufferUart[0], sizeof(addaBufferUart));
 			if (readBytes > 0) {
 				addaWaitForMessageCounter = 0;
@@ -203,8 +203,7 @@ String Adda::ProcessUartData(int bytesToProcess, bool directRead) {
 	for (int i = 0; i < bytesToProcess; i++) {
 		currentByte = (uint8_t)addaBufferUart[i];
 
-		// empfangene Bytes als HEX-Wert ausgeben
-		DEBUG_MESSAGE(DEBUG_ADDA, "Received: %02X ", currentByte); 
+		DEBUG_MESSAGE(DEBUG_ADDA, "Received: %c", currentByte); 
 
 		// add received byte to buffer
 		if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {
