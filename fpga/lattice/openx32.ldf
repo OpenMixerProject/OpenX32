@@ -86,6 +86,9 @@
         <Source name="openx32.lpf" type="Logic Preference" type_short="LPF">
             <Options/>
         </Source>
+        <Source name="openx32.sdc" type="Synplify Design Constraints File" type_short="SDC">
+            <Options/>
+        </Source>
     </Implementation>
     <Strategy name="Strategy1" file="openx321.sty"/>
 </BaliProject>
