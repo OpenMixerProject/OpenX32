@@ -9,17 +9,22 @@
 #include <sys/ioctl.h> // for FIONREAD
 #include <unistd.h>
 
+#include "base.h"
 #include "message-base.h"
 #include "ctrl_types.h"
 
-class Uart{
+class Uart : public X32Base
+ {
     
-    int fd;
-    uint8_t calculateChecksum(const char* data, uint16_t len);
+    private:
+        int fd;
+        uint8_t calculateChecksum(const char* data, uint16_t len);
 
     public:
+        Uart(X32BaseParameter* basepar);
         int Open(const char* ttydev, uint32_t baudrate, bool raw);
         int Tx(MessageBase* message, bool addChecksum);
+        int TxRaw(MessageBase* message);
         int Rx(char* buf, uint16_t bufLen);
         int TxToFPGA(uint16_t cmd, data_64b* data);
 };

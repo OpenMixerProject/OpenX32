@@ -25,12 +25,14 @@
 #include "surface.h"
 
 Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
+    uart = new Uart(basepar);
+
     buttonDefinitionIndex = 0;
     encoderDefinitionIndex = 0;
 }
 
 void Surface::Init(void) {
-    uart.Open("/dev/ttymxc1", 115200, true);
+    uart->Open("/dev/ttymxc1", 115200, true);
 
     Reset();
     InitDefinitions();
@@ -878,7 +880,7 @@ void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
     message.AddDataByte('C'); // class: C = Controlmessage
     message.AddDataByte('B'); // index
     message.AddDataByte(brightness);
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 // boardId = 0, 1, 4, 5, 8
@@ -890,7 +892,7 @@ void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
     message.AddDataByte('C'); // class: C = Controlmessage
     message.AddDataByte('C'); // index
     message.AddDataByte(contrast & 0x3F);
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool ledState){
@@ -903,7 +905,7 @@ void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool ledState){
     }else{
         message.AddDataByte(ledId); // turn LED off
     }
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 // position = 0x0000 ... 0x0FFF
@@ -914,7 +916,7 @@ void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
     message.AddDataByte(index); // index
     message.AddDataByte((position & 0xFF)); // LSB
     message.AddDataByte((char)((position & 0x0F00) >> 8)); // MSB
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
     BlockFader(boardId, index);
 }
 
@@ -927,7 +929,7 @@ void Surface::SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1){
     message.AddDataByte(0x80);
     message.AddDataByte(p_value2); 
     message.AddDataByte(p_value1);
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 // set 7-Segment display on X32 Rack
@@ -1020,7 +1022,7 @@ void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds) {
   message.AddDataByte('M'); // class: M = Meter
   message.AddDataByte(index); // index
   message.AddDataByte(leds);
-  uart.Tx(&message, true);
+  uart->Tx(&message, true);
 }
 // preamp = 8-bit bitwise (bit 0=Sig, 1=-30dB ... 6=-3dB, 7=Clip)
 // meter = 32-bit bitwise (bit 0=-45dB ... 15=-4, 16=-2, 19=Clip, 20+=unused)
@@ -1048,7 +1050,7 @@ void Surface::SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t met
     message.AddDataByte((uint8_t)(meterSolo>>4));
     message.AddDataByte((((uint8_t)(meterSolo>>12))&0b10000111) | (((uint8_t)(meterSolo>>11))&0b00110000));
     message.AddDataByte(0x00);
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
@@ -1074,7 +1076,7 @@ void Surface::SetMeterLedMain_FullCompactProducer(uint8_t preamp, uint8_t dynami
     message.AddDataByte((uint8_t)(meterSolo>>8));
     message.AddDataByte((uint8_t)(meterSolo>>16));
     message.AddDataByte(0x00);
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 // boardId = 0, 1, 4, 5, 8
@@ -1114,7 +1116,7 @@ void Surface::SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, ui
     }else{
         message.AddDataByte(((leds & 0x7F00) >> 8)); // turn backlight off
     }
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, bool muted, bool backlight) {
@@ -1135,7 +1137,7 @@ void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, boo
     }else{
         message.AddDataByte(((leds & 0x7F00) >> 8)); // turn backlight off
     }
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 // boardId = 0, 4, 5, 8
@@ -1177,7 +1179,7 @@ void Surface::SetLcd(
     message.AddDataByte(xB);
     message.AddDataByte(yB);
     message.AddString(strB); // this is ASCII, so we can omit byte-stuffing
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
@@ -1195,7 +1197,7 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
         message.AddDataByte(p_data->texts[i].y);
         message.AddString(p_data->texts[i].text.c_str()); // this is ASCII, so we can omit byte-stuffing  
     }
-    uart.Tx(&message, true);
+    uart->Tx(&message, true);
 }
 
 void Surface::ProcessUartData() {
@@ -1206,7 +1208,7 @@ void Surface::ProcessUartData() {
     //uint8_t receivedChecksum = 0;
     bool lastPackageIncomplete = false;
 
-    int bytesToProcess = uart.Rx(&surfaceBufferUart[0], sizeof(surfaceBufferUart));
+    int bytesToProcess = uart->Rx(&surfaceBufferUart[0], sizeof(surfaceBufferUart));
 
     if (bytesToProcess <= 0) {
         return;

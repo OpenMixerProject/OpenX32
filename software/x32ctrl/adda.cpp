@@ -26,6 +26,8 @@
 
 
 Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
+	uart = new Uart(basepar);
+
 	addaPacketBufLen = 0;
 	addaWaitForMessageCounter = 0;
 }
@@ -34,7 +36,7 @@ void Adda::Init() {
 	const char serial[] = "/dev/ttymxc2";
 	const uint16_t speed = 38400;
 	DEBUG_MESSAGE(DEBUG_ADDA, "opening %s with %d baud", serial, speed)
-	uart.Open(serial, speed, true);
+	uart->Open(serial, speed, true);
 
 	// send identification-commands to all possible boards (not sure if this is correct for smaller X32)
 	SendReceive("*0I#", 2000); // ADDA-Board
@@ -150,7 +152,7 @@ void Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPow
     	printf("\n");
 	}
 
-	uart.Tx(&message, false);
+	uart->TxRaw(&message);
 }
 
 String Adda::SendReceive(const char* cmd, uint16_t timeout) {
@@ -165,14 +167,14 @@ String Adda::SendReceive(const char* cmd, uint16_t timeout) {
     	printf("\n");
 	}
 
-	uart.Tx(&message, false);
+	uart->TxRaw(&message);
 
 	// check if we have to wait for the answer (Workaround: the rack seems to have different behaviour here)
 	if ((timeout > 0) && (config->IsModelX32FullOrCompactOrProducer())) {
 		addaWaitForMessageCounter = timeout;
 		while (addaWaitForMessageCounter > 0) {
 			DEBUG_MESSAGE(DEBUG_ADDA, "addaWaitForMessageCounter: %d", addaWaitForMessageCounter);
-			uint16_t readBytes = uart.Rx(&addaBufferUart[0], sizeof(addaBufferUart));
+			uint16_t readBytes = uart->Rx(&addaBufferUart[0], sizeof(addaBufferUart));
 			if (readBytes > 0) {
 				addaWaitForMessageCounter = 0;
 				return ProcessUartData(readBytes, true);
@@ -186,7 +188,7 @@ String Adda::SendReceive(const char* cmd, uint16_t timeout) {
 };
 
 String Adda::ProcessUartData(bool directRead) {
-	int bytesToProcess = uart.Rx(&addaBufferUart[0], sizeof(addaBufferUart));
+	int bytesToProcess = uart->Rx(&addaBufferUart[0], sizeof(addaBufferUart));
 	return ProcessUartData(bytesToProcess, directRead);
 }
 

@@ -24,6 +24,11 @@
 
 #include "uart.h"
 
+
+Uart::Uart(X32BaseParameter* basepar): X32Base(basepar) {}
+
+
+
 // incoming message has the form: 0xFE 0x8i Class Index Data[] 0xFE
 // Checksum is calculated using the following equation:
 // chksum = ( 0xFE - i - class - index - sumof(data[]) - sizeof(data[]) ) and 0x7F
@@ -134,6 +139,31 @@ int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
     return 0;
 }
 
+int Uart::TxRaw(MessageBase* message) {
+    if (fd < 0) {
+        fprintf(stderr, "Error: Problem on opening serial port\n");
+        return -1;
+    }
+
+	if (config->IsDebug() & config->HasDebugFlag(DEBUG_UART)){
+		printf("DEBUG_UART: fd=%d Transmit: ", fd);
+    	printf("hex: ");
+        for (uint8_t i=0; i < message->current_length; i++){
+        	printf("%.2X ", message->buffer[i]);
+    	}
+        printf("| char: ");
+        for (uint8_t i=0; i < message->current_length; i++){
+        	printf("%c", message->buffer[i]);
+    	}
+    	
+        printf("\n");
+	}
+
+    int bytes_written = write(fd, message->buffer, message->current_length);
+
+    return bytes_written;
+}
+
 int Uart::Tx(MessageBase* message, bool addChecksum) {
     if (fd < 0) {
         fprintf(stderr, "Error: Problem on opening serial port\n");
@@ -153,8 +183,10 @@ int Uart::Tx(MessageBase* message, bool addChecksum) {
     }
     int bytes_written = write(fd, message->buffer, message->current_length);
 
-    return bytes_written;
+    return TxRaw(message);
 }
+
+
 
 int Uart::Rx(char* buf, uint16_t bufLen) {
     int bytesRead;
@@ -175,9 +207,21 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 			return -1;
 		}
 
+        if (config->IsDebug() & config->HasDebugFlag(DEBUG_UART)){
+            printf("DEBUG_UART: fd=%d Receive: ", fd);
+            printf("hex: ");
+            for (uint8_t i=0; i < bytesRead; i++){
+                printf("%.2X ", buf[i]);
+            }
+            printf("| char: ");
+            for (uint8_t i=0; i < bytesRead; i++){
+                printf("%c", buf[i]);
+            }
+            
+            printf("\n");      
+	    }
 		return bytesRead;
 	}
-
 	return 0;
 }
 
@@ -210,5 +254,6 @@ int Uart::TxToFPGA(uint16_t cmd, data_64b* data) {
   for (uint8_t i=0; i<14; i++) {
       message.AddRawByte(serialData[i]);
   }
-  return Tx(&message, false);
+
+  return TxRaw(&message);
 }

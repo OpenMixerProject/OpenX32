@@ -10,7 +10,7 @@
 #define FPGA_IDX_CH_VOL    200  // here we need 40 values here
 
 class Fpga : public X32Base {
-        Uart uart;
+        Uart* uart;
     public:
         char fpgaBufferUart[256];
         sFpgaRouting fpgaRouting;

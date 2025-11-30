@@ -72,7 +72,8 @@ int main(int argc, char* argv[]) {
 // #      ####   ##### ####  #####  ###        
 // #
 	config->SetDebug(state->switchDebug != -1);
-	config->SetDebugFlag(DEBUG_ADDA | DEBUG_FPGA);
+	config->SetDebug(1);
+	config->SetDebugFlag(DEBUG_ADDA | DEBUG_FPGA | DEBUG_UART);
 // ###########################################################################
 		
 	X32BaseParameter* basepar = new X32BaseParameter(config, state);

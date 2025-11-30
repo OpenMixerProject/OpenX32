@@ -24,13 +24,15 @@
 
 #include "fpga.h"
 
-Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {}
+Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
+	uart = new Uart(basepar);
+}
 
 void Fpga::RoutingInit(void) {
 	const char serial[] = "/dev/ttymxc3";
 	const uint32_t speed = 115200;
 	DEBUG_MESSAGE(DEBUG_FPGA, "opening %s with %d baud", serial, speed)
-	uart.Open(serial, speed, true);
+	uart->Open(serial, speed, true);
 
 	// reset routing-configuration and dsp-configuration
 	RoutingDefaultConfig();
@@ -448,19 +450,21 @@ void Fpga::RoutingSendConfigToFpga(void) {
 	memcpy(&buf[0], &fpgaRouting, sizeof(fpgaRouting));
 
 	// now copy this array into chunks of 64-bit-data and transmit it to FPGA
-	for (uint8_t i = 0; i < (NUM_INPUT_CHANNEL/8); i++) {
+	uint8_t chunkCount = (NUM_INPUT_CHANNEL/8);
+	for (uint8_t i = 0; i < chunkCount; i++) {
 		// copy 8 bytes from routing-data
 		memcpy(&routingData.u8[0], &buf[i * 8], 8);
 
+		DEBUG_MESSAGE(DEBUG_FPGA, "send routing data as chunk %d of %d", i, chunkCount-1)
 		// now send data to FPGA
-		uart.TxToFPGA(FPGA_IDX_ROUTING + (i * 8), &routingData);
+		uart->TxToFPGA(FPGA_IDX_ROUTING + (i * 8), &routingData);
 	}
 }
 
 void Fpga::ProcessUartData() {
 	uint8_t currentByte;
 
-	int bytesToProcess = uart.Rx(&fpgaBufferUart[0], sizeof(fpgaBufferUart));
+	int bytesToProcess = uart->Rx(&fpgaBufferUart[0], sizeof(fpgaBufferUart));
 
 	if (bytesToProcess <= 0) {
 		return;
@@ -471,11 +475,11 @@ void Fpga::ProcessUartData() {
 	
 		// add received byte to buffer
 		if (fpgaPacketBufLen < FPGA_MAX_PACKET_LENGTH) {
-		fpgaPacketBuffer[fpgaPacketBufLen++] = currentByte;
+			fpgaPacketBuffer[fpgaPacketBufLen++] = currentByte;
 		} else {
-		// buffer full -> remove oldest byte
-		memmove(fpgaPacketBuffer, fpgaPacketBuffer + 1, FPGA_MAX_PACKET_LENGTH - 1);
-		fpgaPacketBuffer[FPGA_MAX_PACKET_LENGTH - 1] = currentByte;
+			// buffer full -> remove oldest byte
+			memmove(fpgaPacketBuffer, fpgaPacketBuffer + 1, FPGA_MAX_PACKET_LENGTH - 1);
+			fpgaPacketBuffer[FPGA_MAX_PACKET_LENGTH - 1] = currentByte;
 		}
 
 		int packetBegin = -1;
@@ -491,36 +495,36 @@ void Fpga::ProcessUartData() {
 
 				// now check begin of message ('*')
 				if (fpgaPacketBuffer[fpgaPacketBufLen - FPGA_PACKET_LENGTH] == '*') {
-				packetBegin = fpgaPacketBufLen - FPGA_PACKET_LENGTH;
+					packetBegin = fpgaPacketBufLen - FPGA_PACKET_LENGTH;
 
-				receivedPacketLength = packetEnd - packetBegin + 1;
+					receivedPacketLength = packetEnd - packetBegin + 1;
 
-				// now calc sum over payload and check against transmitted sum
-				uint16_t sumRemote = ((uint16_t)fpgaPacketBuffer[packetEnd - 2] << 8) + (uint16_t)fpgaPacketBuffer[packetEnd - 1];
-				uint16_t sumLocal = 0;
-				for (uint8_t j = 0; j < (receivedPacketLength - 4); j++) {
-					sumLocal += fpgaPacketBuffer[packetBegin + 1 + j];
-				}
+					// now calc sum over payload and check against transmitted sum
+					uint16_t sumRemote = ((uint16_t)fpgaPacketBuffer[packetEnd - 2] << 8) + (uint16_t)fpgaPacketBuffer[packetEnd - 1];
+					uint16_t sumLocal = 0;
+					for (uint8_t j = 0; j < (receivedPacketLength - 4); j++) {
+						sumLocal += fpgaPacketBuffer[packetBegin + 1 + j];
+					}
 
-				if (sumLocal == sumRemote) {
+					if (sumLocal == sumRemote) {
 
-					// empfangene Bytes als String-Wert ausgeben
-					DEBUG_MESSAGE(DEBUG_FPGA, "Received: %s", &fpgaPacketBuffer[packetBegin + 1]);
-					
-					
-					// TODO: Implement FPGA EventBuffer
+						// empfangene Bytes als String-Wert ausgeben
+						DEBUG_MESSAGE(DEBUG_FPGA, "Received: %s", &fpgaPacketBuffer[packetBegin + 1]);
+						
+						
+						// TODO: Implement FPGA EventBuffer
 
-					// we received a valid packet. Offer the received data to fpgaCallback
-					//uint8_t payloadLen = receivedPacketLength - 4;
-					
-					//callbackFpga(&fpgaPacketBuffer[packetBegin + 1], payloadLen);
+						// we received a valid packet. Offer the received data to fpgaCallback
+						//uint8_t payloadLen = receivedPacketLength - 4;
+						
+						//callbackFpga(&fpgaPacketBuffer[packetBegin + 1], payloadLen);
 
-					// shift remaining bytes by processed amount of data
-					memmove(fpgaPacketBuffer, fpgaPacketBuffer + receivedPacketLength, fpgaPacketBufLen - receivedPacketLength);
-					fpgaPacketBufLen -= receivedPacketLength;
+						// shift remaining bytes by processed amount of data
+						memmove(fpgaPacketBuffer, fpgaPacketBuffer + receivedPacketLength, fpgaPacketBufLen - receivedPacketLength);
+						fpgaPacketBufLen -= receivedPacketLength;
+					}
 				}
 			}
 		}
-	}
-  }
+  	}
 }

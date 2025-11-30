@@ -22,7 +22,7 @@ using namespace std;
 class Surface : public X32Base
 {
     private:
-        Uart uart;
+        Uart* uart;
        
         int buttonDefinitionIndex;
         sButtonInfo x32_btn_def[MAX_BUTTONS];
