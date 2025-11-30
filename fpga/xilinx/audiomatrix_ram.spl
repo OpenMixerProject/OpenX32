@@ -1,0 +1,9 @@
+[Inputs]
+clk
+wr_en
+=read_addr[6:0]=
+=write_addr[6:0]=
+=i_data[23:0]=
+[Outputs]
+=o_data[23:0]=
+[BiDir]

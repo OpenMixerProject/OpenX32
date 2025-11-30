@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 11/30/2025 16:56:14
+-- /___/   /\     Timestamp : 11/30/2025 20:57:48
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -253,15 +253,6 @@ architecture BEHAVIORAL of main is
              o_data    : out   std_logic_vector (7 downto 0));
    end component;
    
-   component AND4
-      port ( I0 : in    std_logic; 
-             I1 : in    std_logic; 
-             I2 : in    std_logic; 
-             I3 : in    std_logic; 
-             O  : out   std_logic);
-   end component;
-   attribute BOX_TYPE of AND4 : component is "BLACK_BOX";
-   
    component rs232_decoder
       port ( clk          : in    std_logic; 
              RX_DataReady : in    std_logic; 
@@ -332,6 +323,16 @@ architecture BEHAVIORAL of main is
              cfg_wr_data        : in    std_logic_vector (55 downto 0); 
              output_channel_idx : in    std_logic_vector (6 downto 0); 
              read_addr          : out   std_logic_vector (6 downto 0));
+   end component;
+   
+   component uart_collector
+      port ( clk_in   : in    std_logic; 
+             rst_in   : in    std_logic; 
+             uart1_in : in    std_logic; 
+             uart2_in : in    std_logic; 
+             uart3_in : in    std_logic; 
+             uart4_in : in    std_logic; 
+             uart_out : out   std_logic);
    end component;
    
 begin
@@ -708,13 +709,6 @@ begin
       port map (I=>imx25_uart3_txd,
                 O=>CARD_TX);
    
-   XLXI_453 : AND4
-      port map (I0=>CARD_RX,
-                I1=>AD1_RX,
-                I2=>AD0_RX,
-                I3=>DA_RX,
-                O=>imx25_uart3_rxd);
-   
    XLXI_456 : rs232_decoder
       port map (clk=>clk_24_576MHz,
                 RX_Data(7 downto 0)=>XLXN_62(7 downto 0),
@@ -961,6 +955,15 @@ begin
                 clk=>clk_24_576MHz,
                 output_channel_idx(6 downto 0)=>XLXN_2449(6 downto 0),
                 read_addr(6 downto 0)=>XLXN_2448(6 downto 0));
+   
+   XLXI_763 : uart_collector
+      port map (clk_in=>clk_16MHz,
+                rst_in=>rst,
+                uart1_in=>DA_RX,
+                uart2_in=>AD0_RX,
+                uart3_in=>AD1_RX,
+                uart4_in=>CARD_RX,
+                uart_out=>imx25_uart3_rxd);
    
 end BEHAVIORAL;
 

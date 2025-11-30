@@ -83,3 +83,5 @@ MODULE main
 		INSTANCE XLXI_740
 	SUBMODULE audiomatrix_routing_ram
 		INSTANCE XLXI_761
+	SUBMODULE uart_collector
+		INSTANCE XLXI_763

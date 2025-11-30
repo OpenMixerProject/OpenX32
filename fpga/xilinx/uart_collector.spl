@@ -1,0 +1,10 @@
+[Inputs]
+clk_in
+rst_in
+uart1_in
+uart2_in
+uart3_in
+uart4_in
+[Outputs]
+uart_out
+[BiDir]

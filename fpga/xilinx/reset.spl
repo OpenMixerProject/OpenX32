@@ -1,0 +1,7 @@
+[Inputs]
+clk
+[Outputs]
+o_reset
+o_reset_inv
+o_startup
+[BiDir]

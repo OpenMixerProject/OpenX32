@@ -1,0 +1,16 @@
+[Inputs]
+clk
+TX_rdy
+=byte1[7:0]=
+=byte2[7:0]=
+=byte3[7:0]=
+=byte4[7:0]=
+=byte5[7:0]=
+=byte6[7:0]=
+=byte7[7:0]=
+=byte8[7:0]=
+=byte9[7:0]=
+[Outputs]
+TX_send
+=TX_data[7:0]=
+[BiDir]

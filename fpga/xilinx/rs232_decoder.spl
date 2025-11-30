@@ -1,0 +1,9 @@
+[Inputs]
+clk
+RX_DataReady
+=RX_Data[7:0]=
+[Outputs]
+cfg_wr_en
+=cfg_wr_addr[6:0]=
+=cfg_wr_data[55:0]=
+[BiDir]

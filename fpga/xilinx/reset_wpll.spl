@@ -1,0 +1,8 @@
+[Inputs]
+clk
+i_pll_locked
+[Outputs]
+o_reset
+o_reset_inv
+o_startup
+[BiDir]

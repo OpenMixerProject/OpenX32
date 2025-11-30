@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Sun Nov 30 16:56:01 2025"
+-- CREATED		"Sun Nov 30 21:22:37 2025"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -166,12 +166,14 @@ COMPONENT or2_gate
 	);
 END COMPONENT;
 
-COMPONENT and4_gate
-	PORT(in1 : IN STD_LOGIC;
-		 in2 : IN STD_LOGIC;
-		 in3 : IN STD_LOGIC;
-		 in4 : IN STD_LOGIC;
-		 output : OUT STD_LOGIC
+COMPONENT uart_collector
+	PORT(clk_in : IN STD_LOGIC;
+		 rst_in : IN STD_LOGIC;
+		 uart1_in : IN STD_LOGIC;
+		 uart2_in : IN STD_LOGIC;
+		 uart3_in : IN STD_LOGIC;
+		 uart4_in : IN STD_LOGIC;
+		 uart_out : OUT STD_LOGIC
 	);
 END COMPONENT;
 
@@ -474,12 +476,14 @@ PORT MAP(in1 => SYNTHESIZED_WIRE_7,
 		 output => AUX_CDATA);
 
 
-b2v_inst14 : and4_gate
-PORT MAP(in1 => DA_RX,
-		 in2 => AD0_RX,
-		 in3 => AD1_RX,
-		 in4 => CARD_RX,
-		 output => imx25_uart3_rxd);
+b2v_inst14 : uart_collector
+PORT MAP(clk_in => clk_16MHz,
+		 rst_in => rst,
+		 uart1_in => DA_RX,
+		 uart2_in => AD0_RX,
+		 uart3_in => AD1_RX,
+		 uart4_in => CARD_RX,
+		 uart_out => imx25_uart3_rxd);
 
 
 b2v_inst15 : audiomatrix_routing_ram
@@ -534,6 +538,32 @@ PORT MAP(bclk => clk_12_288MHz,
 		 ch8_out => audio_input(575 DOWNTO 552));
 
 
+b2v_inst23 : tdm_8ch_rx
+PORT MAP(bclk => clk_12_288MHz,
+		 fsync => tdm_fs,
+		 sdata => AD1_DATA1,
+		 ch1_out => audio_input(215 DOWNTO 192),
+		 ch2_out => audio_input(239 DOWNTO 216),
+		 ch3_out => audio_input(263 DOWNTO 240),
+		 ch4_out => audio_input(287 DOWNTO 264),
+		 ch5_out => audio_input(311 DOWNTO 288),
+		 ch6_out => audio_input(335 DOWNTO 312),
+		 ch7_out => audio_input(359 DOWNTO 336),
+		 ch8_out => audio_input(383 DOWNTO 360));
+
+
+b2v_inst24 : tdm_8ch_rx
+PORT MAP(bclk => clk_12_288MHz,
+		 fsync => tdm_fs,
+		 sdata => AD1_DATA0,
+		 ch1_out => audio_input(599 DOWNTO 576),
+		 ch2_out => audio_input(623 DOWNTO 600),
+		 ch3_out => audio_input(647 DOWNTO 624),
+		 ch4_out => audio_input(671 DOWNTO 648),
+		 ch5_out => audio_input(695 DOWNTO 672),
+		 ch6_out => audio_input(719 DOWNTO 696),
+		 ch7_out => audio_input(743 DOWNTO 720),
+		 ch8_out => audio_input(767 DOWNTO 744));
 
 
 b2v_inst29 : tdm_8ch_rx
@@ -687,7 +717,6 @@ PORT MAP(bclk => clk_12_288MHz,
 		 sdata => DSP_DINAUX);
 
 
-
 b2v_inst4 : spi_tx
 PORT MAP(clk => clk_16MHz,
 		 i_start => SYNTHESIZED_WIRE_20,
@@ -698,63 +727,6 @@ PORT MAP(clk => clk_16MHz,
 		 o_cclk => SYNTHESIZED_WIRE_5,
 		 o_cdata => SYNTHESIZED_WIRE_7,
 		 o_busy => SYNTHESIZED_WIRE_24);
-
-
-
-b2v_inst41 : tdm_8ch_tx
-PORT MAP(bclk => clk_12_288MHz,
-		 fsync => tdm_fs,
-		 ch1_in => audio_output(791 DOWNTO 768),
-		 ch2_in => audio_output(815 DOWNTO 792),
-		 ch3_in => audio_output(839 DOWNTO 816),
-		 ch4_in => audio_output(863 DOWNTO 840),
-		 ch5_in => audio_output(887 DOWNTO 864),
-		 ch6_in => audio_output(911 DOWNTO 888),
-		 ch7_in => audio_output(935 DOWNTO 912),
-		 ch8_in => audio_output(959 DOWNTO 936),
-		 sdata => CARD_OUT0);
-
-
-b2v_inst42 : tdm_8ch_tx
-PORT MAP(bclk => clk_12_288MHz,
-		 fsync => tdm_fs,
-		 ch1_in => audio_output(1175 DOWNTO 1152),
-		 ch2_in => audio_output(1199 DOWNTO 1176),
-		 ch3_in => audio_output(1223 DOWNTO 1200),
-		 ch4_in => audio_output(1247 DOWNTO 1224),
-		 ch5_in => audio_output(1271 DOWNTO 1248),
-		 ch6_in => audio_output(1295 DOWNTO 1272),
-		 ch7_in => audio_output(1319 DOWNTO 1296),
-		 ch8_in => audio_output(1343 DOWNTO 1320),
-		 sdata => CARD_OUT2);
-
-
-b2v_inst43 : tdm_8ch_tx
-PORT MAP(bclk => clk_12_288MHz,
-		 fsync => tdm_fs,
-		 ch1_in => audio_output(983 DOWNTO 960),
-		 ch2_in => audio_output(1007 DOWNTO 984),
-		 ch3_in => audio_output(1031 DOWNTO 1008),
-		 ch4_in => audio_output(1055 DOWNTO 1032),
-		 ch5_in => audio_output(1079 DOWNTO 1056),
-		 ch6_in => audio_output(1103 DOWNTO 1080),
-		 ch7_in => audio_output(1127 DOWNTO 1104),
-		 ch8_in => audio_output(1151 DOWNTO 1128),
-		 sdata => CARD_OUT1);
-
-
-b2v_inst44 : tdm_8ch_tx
-PORT MAP(bclk => clk_12_288MHz,
-		 fsync => tdm_fs,
-		 ch1_in => audio_output(1367 DOWNTO 1344),
-		 ch2_in => audio_output(1391 DOWNTO 1368),
-		 ch3_in => audio_output(1415 DOWNTO 1392),
-		 ch4_in => audio_output(1439 DOWNTO 1416),
-		 ch5_in => audio_output(1463 DOWNTO 1440),
-		 ch6_in => audio_output(1487 DOWNTO 1464),
-		 ch7_in => audio_output(1511 DOWNTO 1488),
-		 ch8_in => audio_output(1535 DOWNTO 1512),
-		 sdata => CARD_OUT3);
 
 
 b2v_inst45 : tdm_8ch_tx

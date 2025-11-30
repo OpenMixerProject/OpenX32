@@ -194,11 +194,6 @@
         <signal name="imx25_uart4_rxd" />
         <signal name="XLXN_52(7:0)" />
         <signal name="XLXN_50" />
-        <signal name="DA_RX" />
-        <signal name="AD0_RX" />
-        <signal name="AD1_RX" />
-        <signal name="imx25_uart3_rxd" />
-        <signal name="CARD_RX" />
         <signal name="imx25_uart3_txd" />
         <signal name="DA_TX" />
         <signal name="AD0_TX" />
@@ -347,6 +342,11 @@
         <signal name="XLXN_2427" />
         <signal name="XLXN_2428(6:0)" />
         <signal name="XLXN_2429(55:0)" />
+        <signal name="imx25_uart3_rxd" />
+        <signal name="DA_RX" />
+        <signal name="AD0_RX" />
+        <signal name="AD1_RX" />
+        <signal name="CARD_RX" />
         <port polarity="Output" name="CARD_OUT0" />
         <port polarity="Output" name="CARD_OUT1" />
         <port polarity="Output" name="CARD_OUT2" />
@@ -382,11 +382,6 @@
         <port polarity="Output" name="AD1_BCLK" />
         <port polarity="Output" name="AD1_FSYNC" />
         <port polarity="Output" name="imx25_uart4_rxd" />
-        <port polarity="Input" name="DA_RX" />
-        <port polarity="Input" name="AD0_RX" />
-        <port polarity="Input" name="AD1_RX" />
-        <port polarity="Output" name="imx25_uart3_rxd" />
-        <port polarity="Input" name="CARD_RX" />
         <port polarity="Input" name="imx25_uart3_txd" />
         <port polarity="Output" name="DA_TX" />
         <port polarity="Output" name="AD0_TX" />
@@ -420,6 +415,11 @@
         <port polarity="Output" name="PLL_IN" />
         <port polarity="Input" name="FPGACLK" />
         <port polarity="Input" name="imx25_uart4_txd" />
+        <port polarity="Output" name="imx25_uart3_rxd" />
+        <port polarity="Input" name="DA_RX" />
+        <port polarity="Input" name="AD0_RX" />
+        <port polarity="Input" name="AD1_RX" />
+        <port polarity="Input" name="CARD_RX" />
         <blockdef name="uart_tx">
             <timestamp>2025-7-23T18:43:51</timestamp>
             <rect width="304" x="64" y="-192" height="192" />
@@ -587,18 +587,6 @@
             <line x2="64" y1="-32" y2="-64" x1="128" />
             <line x2="64" y1="-64" y2="0" x1="64" />
         </blockdef>
-        <blockdef name="and4">
-            <timestamp>2000-1-1T10:10:10</timestamp>
-            <line x2="64" y1="-112" y2="-112" x1="144" />
-            <arc ex="144" ey="-208" sx="144" sy="-112" r="48" cx="144" cy="-160" />
-            <line x2="144" y1="-208" y2="-208" x1="64" />
-            <line x2="64" y1="-64" y2="-256" x1="64" />
-            <line x2="192" y1="-160" y2="-160" x1="256" />
-            <line x2="64" y1="-256" y2="-256" x1="0" />
-            <line x2="64" y1="-192" y2="-192" x1="0" />
-            <line x2="64" y1="-128" y2="-128" x1="0" />
-            <line x2="64" y1="-64" y2="-64" x1="0" />
-        </blockdef>
         <blockdef name="rs232_decoder">
             <timestamp>2025-11-30T0:37:38</timestamp>
             <line x2="0" y1="-160" y2="-160" x1="64" />
@@ -696,6 +684,17 @@
             <rect width="432" x="64" y="-320" height="320" />
             <rect width="64" x="496" y="-300" height="24" />
             <line x2="560" y1="-288" y2="-288" x1="496" />
+        </blockdef>
+        <blockdef name="uart_collector">
+            <timestamp>2025-11-30T19:55:8</timestamp>
+            <rect width="256" x="64" y="-384" height="384" />
+            <line x2="0" y1="-352" y2="-352" x1="64" />
+            <line x2="0" y1="-288" y2="-288" x1="64" />
+            <line x2="0" y1="-224" y2="-224" x1="64" />
+            <line x2="0" y1="-160" y2="-160" x1="64" />
+            <line x2="0" y1="-96" y2="-96" x1="64" />
+            <line x2="0" y1="-32" y2="-32" x1="64" />
+            <line x2="384" y1="-352" y2="-352" x1="320" />
         </blockdef>
         <block symbolname="tdm_8ch_tx" name="XLXI_415">
             <blockpin signalname="clk_12_288MHz" name="bclk" />
@@ -1016,13 +1015,6 @@
             <blockpin name="o_TX_Active" />
             <blockpin signalname="imx25_uart4_rxd" name="o_TX_Serial" />
             <blockpin signalname="XLXN_2377" name="o_TX_Done" />
-        </block>
-        <block symbolname="and4" name="XLXI_453">
-            <blockpin signalname="CARD_RX" name="I0" />
-            <blockpin signalname="AD1_RX" name="I1" />
-            <blockpin signalname="AD0_RX" name="I2" />
-            <blockpin signalname="DA_RX" name="I3" />
-            <blockpin signalname="imx25_uart3_rxd" name="O" />
         </block>
         <block symbolname="buf" name="XLXI_130">
             <blockpin signalname="imx25_uart3_txd" name="I" />
@@ -1386,6 +1378,15 @@
             <blockpin signalname="XLXN_2427" name="cfg_wr_en" />
             <blockpin signalname="XLXN_2428(6:0)" name="cfg_wr_addr(6:0)" />
             <blockpin signalname="XLXN_2429(55:0)" name="cfg_wr_data(55:0)" />
+        </block>
+        <block symbolname="uart_collector" name="XLXI_763">
+            <blockpin signalname="clk_16MHz" name="clk_in" />
+            <blockpin signalname="rst" name="rst_in" />
+            <blockpin signalname="DA_RX" name="uart1_in" />
+            <blockpin signalname="AD0_RX" name="uart2_in" />
+            <blockpin signalname="AD1_RX" name="uart3_in" />
+            <blockpin signalname="CARD_RX" name="uart4_in" />
+            <blockpin signalname="imx25_uart3_rxd" name="uart_out" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
@@ -2404,24 +2405,7 @@
         </branch>
         <instance x="2016" y="960" name="XLXI_21" orien="R0">
         </instance>
-        <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="4228" y="712">UART to i.MX25 (UART-Communication to Boards)</text>
-        <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1384" x="4188" y="664" height="636" />
-        <branch name="DA_RX">
-            <wire x2="4448" y1="800" y2="800" x1="4384" />
-        </branch>
-        <branch name="AD0_RX">
-            <wire x2="4448" y1="864" y2="864" x1="4400" />
-        </branch>
-        <branch name="AD1_RX">
-            <wire x2="4448" y1="928" y2="928" x1="4400" />
-        </branch>
-        <branch name="imx25_uart3_rxd">
-            <wire x2="4720" y1="896" y2="896" x1="4704" />
-        </branch>
-        <instance x="4448" y="1056" name="XLXI_453" orien="R0" />
-        <branch name="CARD_RX">
-            <wire x2="4448" y1="992" y2="992" x1="4416" />
-        </branch>
+        <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1716" x="3856" y="664" height="636" />
         <instance x="5072" y="1024" name="XLXI_130" orien="R0" />
         <instance x="5072" y="1104" name="XLXI_131" orien="R0" />
         <instance x="5072" y="944" name="XLXI_109" orien="R0" />
@@ -2449,11 +2433,6 @@
             <wire x2="5328" y1="1152" y2="1152" x1="5296" />
         </branch>
         <iomarker fontsize="28" x="2480" y="864" name="imx25_uart4_rxd" orien="R0" />
-        <iomarker fontsize="28" x="4400" y="864" name="AD0_RX" orien="R180" />
-        <iomarker fontsize="28" x="4400" y="928" name="AD1_RX" orien="R180" />
-        <iomarker fontsize="28" x="4384" y="800" name="DA_RX" orien="R180" />
-        <iomarker fontsize="28" x="4720" y="896" name="imx25_uart3_rxd" orien="R0" />
-        <iomarker fontsize="28" x="4416" y="992" name="CARD_RX" orien="R180" />
         <iomarker fontsize="28" x="5328" y="912" name="DA_TX" orien="R0" />
         <iomarker fontsize="28" x="5328" y="992" name="AD0_TX" orien="R0" />
         <iomarker fontsize="28" x="5328" y="1072" name="AD1_TX" orien="R0" />
@@ -3276,5 +3255,40 @@
         <instance x="2864" y="2400" name="XLXI_456" orien="R0">
         </instance>
         <iomarker fontsize="28" x="2304" y="2368" name="imx25_uart4_txd" orien="R180" />
+        <branch name="imx25_uart3_rxd">
+            <wire x2="4576" y1="896" y2="896" x1="4544" />
+        </branch>
+        <branch name="DA_RX">
+            <wire x2="4128" y1="1024" y2="1024" x1="4064" />
+            <wire x2="4160" y1="1024" y2="1024" x1="4128" />
+        </branch>
+        <branch name="AD0_RX">
+            <wire x2="4128" y1="1088" y2="1088" x1="4080" />
+            <wire x2="4160" y1="1088" y2="1088" x1="4128" />
+        </branch>
+        <branch name="AD1_RX">
+            <wire x2="4128" y1="1152" y2="1152" x1="4080" />
+            <wire x2="4160" y1="1152" y2="1152" x1="4128" />
+        </branch>
+        <branch name="CARD_RX">
+            <wire x2="4128" y1="1216" y2="1216" x1="4096" />
+            <wire x2="4160" y1="1216" y2="1216" x1="4128" />
+        </branch>
+        <branch name="clk_16MHz">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4080" y="896" type="branch" />
+            <wire x2="4160" y1="896" y2="896" x1="4080" />
+        </branch>
+        <branch name="rst">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4080" y="960" type="branch" />
+            <wire x2="4160" y1="960" y2="960" x1="4080" />
+        </branch>
+        <instance x="4160" y="1248" name="XLXI_763" orien="R0">
+        </instance>
+        <iomarker fontsize="28" x="4080" y="1088" name="AD0_RX" orien="R180" />
+        <iomarker fontsize="28" x="4080" y="1152" name="AD1_RX" orien="R180" />
+        <iomarker fontsize="28" x="4064" y="1024" name="DA_RX" orien="R180" />
+        <iomarker fontsize="28" x="4096" y="1216" name="CARD_RX" orien="R180" />
+        <iomarker fontsize="28" x="4576" y="896" name="imx25_uart3_rxd" orien="R0" />
+        <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="3896" y="716">UART to i.MX25 (UART-Communication to Boards)</text>
     </sheet>
 </drawing>

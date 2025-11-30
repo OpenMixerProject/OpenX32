@@ -1,0 +1,14 @@
+[Inputs]
+bit_clock
+=ch1[23:0]=
+=ch2[23:0]=
+=ch3[23:0]=
+=ch4[23:0]=
+=ch5[23:0]=
+=ch6[23:0]=
+=ch7[23:0]=
+=ch8[23:0]=
+[Outputs]
+ultranet_out_p
+ultranet_out_m
+[BiDir]
