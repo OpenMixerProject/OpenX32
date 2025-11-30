@@ -1029,6 +1029,7 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
     
     UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
     int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+    DEBUG_MESSAGE(DEBUG_SPI, "DSP%d, %d Bytes received", dsp+1, bytesRead);
     PushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
 //    free(spiTxData);
 //    free(spiTxDataRaw);
