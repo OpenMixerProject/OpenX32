@@ -132,8 +132,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_esdhc1>;
 	bus-width = <4>;
-        max-frequency = <10000000>;
-        non-removable;
+    max-frequency = <50000000>;
+    non-removable;
 	status = "okay";
 };
 
@@ -152,7 +152,7 @@
 		ethphy0: ethernet-phy@0 {
 			compatible = "microchip,lan87xx", "ethernet-phy-ieee802.3-c22";
 			reg = <0>;
-//			max-speed = <100>;
+			//max-speed = <100>;
 			phy-type = "microchip,lan87xx";
 			phy-address = <0>;
 			mdio_bus_num = <0>;
@@ -178,28 +178,36 @@
 	imx25-pdk {
 		pinctrl_esdhc1: esdhc1grp {
 			fsl,pins = <
-				MX25_PAD_SD1_CMD__ESDHC1_CMD		0x00010000
-				MX25_PAD_SD1_CLK__ESDHC1_CLK		0x00010000
-				MX25_PAD_SD1_DATA0__ESDHC1_DAT0		0x00010000
-				MX25_PAD_SD1_DATA1__ESDHC1_DAT1		0x00010000
-				MX25_PAD_SD1_DATA2__ESDHC1_DAT2		0x00010000
-				MX25_PAD_SD1_DATA3__ESDHC1_DAT3		0x00010000
+
+				// values from DCP-Loader
+				MX25_PAD_SD1_CMD__ESDHC1_CMD		0x000000D1
+				MX25_PAD_SD1_CLK__ESDHC1_CLK		0x000000D1
+				MX25_PAD_SD1_DATA0__ESDHC1_DAT0		0x000000D1
+				MX25_PAD_SD1_DATA1__ESDHC1_DAT1		0x000000D1
+				MX25_PAD_SD1_DATA2__ESDHC1_DAT2		0x000000D1
+				MX25_PAD_SD1_DATA3__ESDHC1_DAT3		0x000000D1
+
 			>;
 		};
 
 		pinctrl_fec: fecgrp {
 			fsl,pins = <
-				MX25_PAD_FEC_MDC__FEC_MDC		0x00000060
-				MX25_PAD_FEC_MDIO__FEC_MDIO		0x000001F0
-				MX25_PAD_FEC_TDATA0__FEC_TDATA0		0x00000060
-				MX25_PAD_FEC_TDATA1__FEC_TDATA1		0x00000060
-				MX25_PAD_FEC_TX_EN__FEC_TX_EN		0x00000060
+
+				// values from DCP-Loader
+				MX25_PAD_GPIO_B__GPIO_1_1			0x00000000
+				MX25_PAD_FEC_TX_CLK__FEC_TX_CLK		0x000001C1
+				MX25_PAD_FEC_RX_DV__FEC_RX_DV		0x000000C1
 				MX25_PAD_FEC_RDATA0__FEC_RDATA0		0x000000C1
-				MX25_PAD_FEC_RDATA1__FEC_RDATA1		0x000000C0
-				MX25_PAD_FEC_RX_DV__FEC_RX_DV		0x000000C0
-				MX25_PAD_FEC_TX_CLK__FEC_TX_CLK		0x000000C0
-				MX25_PAD_UART2_CTS__FEC_RX_ERR		0x000000C0
-				MX25_PAD_GPIO_B__GPIO_1_1		0x0
+				MX25_PAD_FEC_RDATA1__FEC_RDATA1		0x000000C1
+				MX25_PAD_FEC_TDATA0__FEC_TDATA0		0x00000001
+				MX25_PAD_FEC_TDATA1__FEC_TDATA1		0x00000001
+				MX25_PAD_FEC_TX_EN__FEC_TX_EN		0x00000001
+				MX25_PAD_FEC_MDC__FEC_MDC			0x00000001
+				MX25_PAD_FEC_MDIO__FEC_MDIO			0x000001F1
+
+				// 
+				MX25_PAD_UART2_CTS__FEC_RX_ERR		0x000000C0 // 100 kOhm Pull Down
+				
 			>;
 		};
 
@@ -212,81 +220,86 @@
 
 		pinctrl_lcd: lcdgrp {
 			fsl,pins = <
-				MX25_PAD_LD0__LD0		0x10
-				MX25_PAD_LD1__LD1		0x10
-				MX25_PAD_LD2__LD2		0x10
-				MX25_PAD_LD3__LD3		0x10
-				MX25_PAD_LD4__LD4		0x10
-				MX25_PAD_LD5__LD5		0x10
-				MX25_PAD_LD6__LD6		0x10
-				MX25_PAD_LD7__LD7		0x10
-				MX25_PAD_LD8__LD8		0x10
-				MX25_PAD_LD9__LD9		0x10
-				MX25_PAD_LD10__LD10		0x10
-				MX25_PAD_LD11__LD11		0x10
-				MX25_PAD_LD12__LD12		0x10
-				MX25_PAD_LD13__LD13		0x10
-				MX25_PAD_LD14__LD14		0x10
-				MX25_PAD_LD15__LD15		0x10
-				MX25_PAD_D15__LD16		0x1
-				MX25_PAD_D14__LD17		0x1
-				MX25_PAD_HSYNC__HSYNC		0x10
-				MX25_PAD_VSYNC__VSYNC		0x10
-				MX25_PAD_LSCLK__LSCLK		0x10
-				MX25_PAD_OE_ACD__OE_ACD		0x10
-				MX25_PAD_CONTRAST__CONTRAST	0x10
-				//MX25_PAD_CONTRAST__PWM4_PWMO
+				// values from DCP-Loader
+				MX25_PAD_LD0__LD0		0x0	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
+				MX25_PAD_LD1__LD1		0x0
+				MX25_PAD_LD2__LD2		0x0
+				MX25_PAD_LD3__LD3		0x0
+				MX25_PAD_LD4__LD4		0x0
+				MX25_PAD_LD5__LD5		0x0
+				MX25_PAD_LD6__LD6		0x0
+				MX25_PAD_LD7__LD7		0x0
+				MX25_PAD_LD8__LD8		0x0
+				MX25_PAD_LD9__LD9		0x0
+				MX25_PAD_LD10__LD10		0x0
+				MX25_PAD_LD11__LD11		0x0
+				MX25_PAD_LD12__LD12		0x0
+				MX25_PAD_LD13__LD13		0x0
+				MX25_PAD_LD14__LD14		0x0
+				MX25_PAD_LD15__LD15		0x0
+				MX25_PAD_D15__LD16		0x0
+				MX25_PAD_D14__LD17		0x0
+				MX25_PAD_HSYNC__HSYNC		0x0
+				MX25_PAD_VSYNC__VSYNC		0x0
+				MX25_PAD_LSCLK__LSCLK		0x0
+				MX25_PAD_OE_ACD__OE_ACD		0x0
+				MX25_PAD_CONTRAST__CONTRAST	0x0
 			>;
 		};
 
 		pinctrl_uart1: uart1grp {
 			fsl,pins = <
+				// values from DCP-Loader
 				MX25_PAD_UART1_TXD__UART1_TXD	0x0
-				MX25_PAD_UART1_RXD__UART1_RXD	0xc0
+				MX25_PAD_UART1_RXD__UART1_RXD	0xc0 // 100 KOhm pull down
 			>;
 		};
 
 		pinctrl_uart2: uart2grp {
 			fsl,pins = <
+				// values from DCP-Loader
 				MX25_PAD_UART2_TXD__UART2_TXD   0x0
-				MX25_PAD_UART2_RXD__UART2_RXD   0xc0
+				MX25_PAD_UART2_RXD__UART2_RXD   0xc0 // 100 KOhm pull down
 			>;
 		};
 		
 		pinctrl_uart3: uart3grp {
 			fsl,pins = <
 				MX25_PAD_KPP_ROW1__UART3_TXD    0x0
-				MX25_PAD_KPP_ROW0__UART3_RXD    0xc0
+				MX25_PAD_KPP_ROW0__UART3_RXD    0xc0 // 100 KOhm pull down
 			>;
 		};
 		
 		pinctrl_uart4: uart4grp {
 			fsl,pins = <
 				MX25_PAD_KPP_COL1__UART4_TXD    0x0
-				MX25_PAD_KPP_COL0__UART4_RXD    0xc0
+				MX25_PAD_KPP_COL0__UART4_RXD    0xc0 // 100 KOhm pull down
 			>;
 		};
 		
 		pinctrl_uart5: uart5grp {
 			fsl,pins = <
 				MX25_PAD_ECB__UART5_TXD		0x0
-				MX25_PAD_LBA__UART5_RXD		0xc0
+				MX25_PAD_LBA__UART5_RXD		0xc0 // 100 KOhm pull down
 			>;
 		};
 		
 		pinctrl_usbh1_pwr: usbh1_pwr_pins {
 			fsl,pins = <
-				MX25_PAD_D9__GPIO_4_11		0x0
-				MX25_PAD_D8__GPIO_4_12		0xc0
+
+				// values from DCP-Loader
+				MX25_PAD_D9__GPIO_4_11		0x80 // Keeper enabled
+				MX25_PAD_D8__GPIO_4_12		0xE0 // Pull up 100KOhm
+
 			>;
 		};
 
 		pinctrl_audmux: audmuxgrp {
 			fsl,pins = <
-				MX25_PAD_CSI_VSYNC__AUD6_RXD	0xc0		// I2S RxD
-				MX25_PAD_CSI_MCLK__AUD6_TXD	0x0	// I2S TxD
-				MX25_PAD_CSI_HSYNC__AUD6_TXC	0x0	// I2S BitClock
-				MX25_PAD_CSI_PIXCLK__AUD6_TXFS	0x0	// I2S FrameSync
+				MX25_PAD_CSI_VSYNC__AUD6_RXD	0xc0	// I2S RxD
+				MX25_PAD_CSI_MCLK__AUD6_TXD		0x0		// I2S TxD
+				MX25_PAD_CSI_HSYNC__AUD6_TXC	0x0		// I2S BitClock
+				MX25_PAD_CSI_PIXCLK__AUD6_TXFS	0x0		// I2S FrameSync
 			>;
 		};
 
@@ -294,31 +307,31 @@
 			fsl,pins = <
 				MX25_PAD_CSPI1_MOSI__CSPI1_MOSI	0x0      // DSP SPI MOSI
 				MX25_PAD_CSPI1_SCLK__CSPI1_SCLK	0x0      // DSP SPI SCLK
-				MX25_PAD_CSPI1_MISO__CSPI1_MISO	0xc0		// DSP SPI MISO
-				MX25_PAD_CSPI1_SS0__GPIO_1_16	0xE0      // DSP SPI nCS DSP1
+				MX25_PAD_CSPI1_MISO__CSPI1_MISO	0xc0	 // DSP SPI MISO
+				MX25_PAD_CSPI1_SS0__GPIO_1_16	0xE0     // DSP SPI nCS DSP1
 				MX25_PAD_CSPI1_SS1__GPIO_1_17	0xE0     // DSP SPI nCS DSP2
 			>;
 		};
 
 		pinctrl_spi3: spi3grp {
 			fsl,pins = <
-				MX25_PAD_CSI_D2__CSPI3_MOSI	0x0	// FPGA SPI MOSI
-				MX25_PAD_CSI_D4__CSPI3_SCLK	0x0	// FPGA SPI SCLK
+				MX25_PAD_CSI_D2__CSPI3_MOSI	0x0			// FPGA SPI MOSI
+				MX25_PAD_CSI_D4__CSPI3_SCLK	0x0			// FPGA SPI SCLK
 				MX25_PAD_CSI_D3__CSPI3_MISO	0xc0		// FPGA SPI MISO
-				//MX25_PAD_CSI_D6__GPIO_1_31	0x0	// FPGA nCS0
-				MX25_PAD_CSI_D7__GPIO_1_6	0x0	// FPGA nCS1
+				//MX25_PAD_CSI_D6__GPIO_1_31	0x0		// FPGA nCS0
+				MX25_PAD_CSI_D7__GPIO_1_6	0x0			// FPGA nCS1
 			>;
 		};
 
 		pinctrl_gpioleds: gpioledgrp {
 			fsl,pins = <
-				MX25_PAD_UART1_RTS__GPIO_4_24	0x0	// MCU_LED
-				MX25_PAD_PWM__GPIO_1_26		0x0	// Desk-LAMP
-				MX25_PAD_CSI_D5__GPIO_1_30	0x0	// FPGA nPROG
-				//MX25_PAD_GPIO_C__GPIO_1_2	0x0C	// FPGA DONE
-				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x0      // DSP nRESET
-				MX25_PAD_UART2_RTS__GPIO_4_28	0x0	// Surface nRESET
-				MX25_PAD_GPIO_D__GPIO_1_3	0x0	// MUTEOFF
+				MX25_PAD_UART1_RTS__GPIO_4_24	0x0		// MCU_LED
+				MX25_PAD_PWM__GPIO_1_26		0x0			// Desk-LAMP
+				MX25_PAD_CSI_D5__GPIO_1_30	0x0			// FPGA nPROG
+				//MX25_PAD_GPIO_C__GPIO_1_2	0x0C		// FPGA DONE
+				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x0     // DSP nRESET
+				MX25_PAD_UART2_RTS__GPIO_4_28	0x0		// Surface nRESET
+				MX25_PAD_GPIO_D__GPIO_1_3	0x0			// MUTEOFF
 			>;
 		};
 
@@ -329,24 +342,24 @@
 			>;
 		};
 
-		pinctrl_gpio2: gpio2grp {
+//		pinctrl_gpio2: gpio2grp {
 //                        fsl,pins = <
 //				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x0      // DSP nRESET
 //				MX25_PAD_KPP_ROW0__GPIO_2_29	0xc0		// FPGA nINIT_B
 //			>;
-		};
-
-		pinctrl_gpio3: gpio3grp {
+//		};
+//
+//		pinctrl_gpio3: gpio3grp {
 //			fsl,pins = <
 //			>;
-		};
-
-		pinctrl_gpio4: gpio4grp {
+//		};
+//
+//		pinctrl_gpio4: gpio4grp {
 //			fsl,pins = <
 //				MX25_PAD_UART1_RTS__GPIO_4_24	0x0	// MCU_LED
 //				MX25_PAD_UART2_RTS__GPIO_4_28	0x0	// Surface nRESET
 //			>;
-		};
+//		};
 	};
 };
 
@@ -410,21 +423,21 @@
 };
 
 &uart2 {
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_uart2>;
-        status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart2>;
+	status = "okay";
 };
 
 &uart3 {
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_uart3>;
-        status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart3>;
+	status = "okay";
 };
 
 &uart4 {
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_uart4>;
-        status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart4>;
+	status = "okay";
 };
 
 &uart5 {
@@ -439,23 +452,23 @@
 	status = "okay";
 };
 
-&gpio2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_gpio2>;
-	status = "okay";
-};
-
-&gpio3 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_gpio3>;
-	status = "okay";
-};
-
-&gpio4 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_gpio4>;
-	status = "okay";
-};
+//&gpio2 {
+//	pinctrl-names = "default";
+//	pinctrl-0 = <&pinctrl_gpio2>;
+//	status = "okay";
+//};
+//
+//&gpio3 {
+//	pinctrl-names = "default";
+//	pinctrl-0 = <&pinctrl_gpio3>;
+//	status = "okay";
+//};
+//
+//&gpio4 {
+//	pinctrl-names = "default";
+//	pinctrl-0 = <&pinctrl_gpio4>;
+//	status = "okay";
+//};
 
 &spi1 {
 	pinctrl-names = "default";
