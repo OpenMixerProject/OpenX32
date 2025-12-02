@@ -25,7 +25,8 @@
 #include "base.h"
 
 X32Base::X32Base(X32BaseParameter* basepar){
+    this->app = basepar->app;
     this->config = basepar->config;
     this->state = basepar->state;
-    this->helper = new Helper(this->config);
+    this->helper = basepar->helper;
 }

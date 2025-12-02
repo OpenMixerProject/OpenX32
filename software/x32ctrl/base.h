@@ -9,6 +9,7 @@
 class X32Base
 {
     protected:
+        CLI::App* app;
         Config* config;
         State* state;
         Helper* helper;

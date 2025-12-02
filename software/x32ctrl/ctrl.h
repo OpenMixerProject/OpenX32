@@ -9,6 +9,9 @@
 #include "mixer.h"
 #include "xremote.h"
 
+// Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
+#include "CLI11.hpp"
+
 // includes for timer
 #include <time.h>
 #include <signal.h>
@@ -29,6 +32,8 @@
 #include "eez/src/ui/vars.h"
 
 #include "tinyosc.h"
+
+using namespace std;
 
 char displayEncoderText[6][30];
 static const char* displayEncoderButtonMap[] = {

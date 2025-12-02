@@ -92,7 +92,7 @@ class SPI : public X32Base {
   public:
     SPI(X32BaseParameter* basepar);
     int ConfigureFpgaXilinx();
-    int ConfigureFpgaLattice();
+    bool ConfigureFpgaLattice();
     int ConfigureDsp();
     void Tick10ms(void);
     void Tick100ms(void);

@@ -6,20 +6,12 @@
 class Config {
 
     private:
-        bool _debug;
-        uint16_t _debugFlags;
         X32_MODEL _model;
         uint32_t _samplerate;
         X32_SURFACE_MODE_BANKING _activeBankMode;
 
     public:
-
         int ReadConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
-
-        void SetDebug(bool debug);
-        void SetDebugFlag(uint16_t debugFlag);
-        bool IsDebug(void);
-        bool HasDebugFlag(uint16_t flag);
 
         void SetModel(String model);
         bool IsModelX32Full(void);

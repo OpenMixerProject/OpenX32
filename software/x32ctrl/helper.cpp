@@ -24,14 +24,6 @@
 
 #include "helper.h"
 
-Helper::Helper(){
-	this->config = new Config(); // dummy
-}
-
-Helper::Helper(Config* c){
-	this->config = c;
-}
-
 void Helper::Log(const char* format, ...)
 {
 	va_list args;
@@ -52,55 +44,6 @@ void Helper::Error(const char* format, ...)
 	fflush(stdout); // immediately write to console!
 
 	va_end(args);
-}
-
-#define DEBUG_DEF(name) case name: dbgFlagName = #name; break;
-
-bool Helper::Debug(uint16_t debugFlag, const char* format, ...)
-{
-	if (config->IsDebug() && config->HasDebugFlag(debugFlag)){
-
-		String dbgFlagName = "DEBUG";
-		switch(debugFlag){
-			DEBUG_DEF(DEBUG_ALL)
-			DEBUG_DEF(DEBUG_NONE)
-			DEBUG_DEF(DEBUG_XREMOTE)
-			DEBUG_DEF(DEBUG_SURFACE)
-			DEBUG_DEF(DEBUG_VCHANNEL)
-			DEBUG_DEF(DEBUG_X32CTRL)
-			DEBUG_DEF(DEBUG_ADDA)
-			DEBUG_DEF(DEBUG_MIXER)
-			DEBUG_DEF(DEBUG_GUI)
-			DEBUG_DEF(DEBUG_SPI)
-			DEBUG_DEF(DEBUG_DSP1)
-			DEBUG_DEF(DEBUG_DSP2)
-			DEBUG_DEF(DEBUG_FPGA)
-			DEBUG_DEF(DEBUG_UART)
-		}
-
-		va_list args;
-		va_start(args, format);
-
-		vprintf((dbgFlagName + String(": ") + String(format) + String("\n")).c_str(), args);
-		fflush(stdout); // immediately write to console!
-
-		va_end(args);
-	}
-
-	return false; // dummy
-}
-
-void Helper::DebugPrintMessageWithNullBytes(uint16_t debugFlag, char* message, uint16_t len){
-	if (config->IsDebug() && config->HasDebugFlag(debugFlag)){
-		for (uint8_t i=0; i < len;i++){
-			if (message[i] == 0){
-				printf("~");
-			} else {
-				printf("%c", message[i]);
-			}
-		}
-		printf("\n");
-	}
 }
 
 unsigned int Helper::Checksum(char* str) {

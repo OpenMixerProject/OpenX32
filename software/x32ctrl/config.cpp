@@ -1,24 +1,5 @@
 #include "config.h"
 
-
-
-
-void Config::SetDebug(bool debug){
-    _debug = debug;
-}
-
-void Config::SetDebugFlag(uint16_t flag){
-    _debugFlags |= flag;
-}
-
-bool Config::IsDebug(void){
-    return _debug;
-}
-
-bool Config::HasDebugFlag(uint16_t flag){
-    return ((_debugFlags & flag) == flag);
-}
-
 void Config::SetModel(String model){
 
     if (model == "X32Core") {

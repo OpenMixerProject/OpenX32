@@ -18,8 +18,6 @@
 
 using namespace std;
 
-#define DEBUG 0
-
 // The string class
 class Mixer : public X32Base
 {

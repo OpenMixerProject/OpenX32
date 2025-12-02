@@ -68,7 +68,7 @@ void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     x32_btn_def[buttonDefinitionIndex].button = p_button;
     x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
     buttonDefinitionIndex++;
-    DEBUG_MESSAGE(DEBUG_SURFACE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
+    helper->DEBUG_SURFACE("added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
 }
 
 void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
@@ -81,7 +81,7 @@ void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
     x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
     encoderDefinitionIndex++;
-    DEBUG_MESSAGE(DEBUG_SURFACE, "added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
+    helper->DEBUG_SURFACE("added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
 }
 
 
@@ -1129,7 +1129,7 @@ void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, boo
 
     uint16_t leds = CalcEncoderRingLedDbfs(dbfs, muted);
 
-    helper->Debug(DEBUG_SURFACE, "leds: %d", leds);
+    helper->DEBUG_SURFACE("leds: %d", leds);
 
     message.AddDataByte(leds & 0xFF);
     if (backlight) {
@@ -1308,32 +1308,32 @@ void Surface::ProcessUartData() {
             
         */
 
-        DEBUG_MESSAGE(DEBUG_SURFACE, "surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d", surfacePacketCurrent, surfacePacketCurrentIndex);
+        helper->DEBUG_SURFACE("surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d", surfacePacketCurrent, surfacePacketCurrentIndex);
         lastPackageIncomplete = true;
     }
 
 
-#if DEBUG
-    // print packages, one in a row    
-    uint8_t packagesToPrint = surfacePacketCurrent;
-    if (lastPackageIncomplete){
-        packagesToPrint++;
-    }
-    //x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
+// #if DEBUG
+//     // print packages, one in a row    
+//     uint8_t packagesToPrint = surfacePacketCurrent;
+//     if (lastPackageIncomplete){
+//         packagesToPrint++;
+//     }
+//     //x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
 
-    for (int package=0; package < packagesToPrint; package++) {
-        //x32debug("surfaceProcessUartData(): Package %d: ", package);
-        for (uint8_t i = 0; i<6; i++){
-            //x32debug("%02X ", surfacePacketBuffer[package][i]);
-        }
-        if (surfacePacketBuffer[package][0] == 0xFE){
-            //x32debug("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
-        } else if (lastPackageIncomplete){
-            //x32debug("  <--- incomplete, saved for next run");
-        }
-        //x32debug("\n");
-    }    
-#endif
+//     for (int package=0; package < packagesToPrint; package++) {
+//         //x32debug("surfaceProcessUartData(): Package %d: ", package);
+//         for (uint8_t i = 0; i<6; i++){
+//             //x32debug("%02X ", surfacePacketBuffer[package][i]);
+//         }
+//         if (surfacePacketBuffer[package][0] == 0xFE){
+//             //x32debug("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
+//         } else if (lastPackageIncomplete){
+//             //x32debug("  <--- incomplete, saved for next run");
+//         }
+//         //x32debug("\n");
+//     }    
+// #endif
 
     for (int8_t package=0; package < surfacePacketCurrent;package++){
 
@@ -1377,7 +1377,7 @@ void Surface::ProcessUartData() {
             }       
 
             if (valid){
-                DEBUG_MESSAGE(DEBUG_SURFACE, "surfaceCallback(%d, %02X, %02X, %04X)", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+                helper->DEBUG_SURFACE("surfaceCallback(%d, %02X, %02X, %04X)", receivedBoardId, receivedClass, receivedIndex, receivedValue);
                 eventBuffer.push_back(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }

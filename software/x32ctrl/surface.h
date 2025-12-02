@@ -17,8 +17,6 @@
 
 using namespace std;
 
-#define DEBUG 0
-
 class Surface : public X32Base
 {
     private:

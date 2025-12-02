@@ -226,8 +226,18 @@ void XRemote::SendBasicMessage(const char* cmd, char type, char format, char* va
     uint16_t len = sprint(TxMessage, 0, 's', cmd);
     len = sprint(TxMessage, len, 's', tmp);
     len = sprint(TxMessage, len, format, value);
-    //helper->Debug(DEBUG_XREMOTE, (String(TxMessage) + String("\n")).c_str(), );
-    helper->DebugPrintMessageWithNullBytes(DEBUG_XREMOTE, TxMessage, len);
+
+    if (helper->DEBUG_XREMOTE()) {
+		for (uint8_t i=0; i < len;i++){
+			if (TxMessage[i] == 0){
+				printf("~");
+			} else {
+				printf("%c", TxMessage[i]);
+			}
+	    }
+    	printf("\n");
+    }
+
     SendUdpPacket(TxMessage, len);
 }
 

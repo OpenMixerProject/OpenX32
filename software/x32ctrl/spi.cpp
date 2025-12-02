@@ -25,12 +25,10 @@
 #include "spi.h"
 
 SPI::SPI(X32BaseParameter* basepar) : X32Base(basepar) {
-    if (state->switchFpga > 0) {
-        ConfigureFpgaXilinx();
-    } else if (state->switchFpgaLattice) {
-        ConfigureFpgaLattice();
-    }
     
+    if (!ConfigureFpgaLattice()) {
+        ConfigureFpgaXilinx();
+    }     
     ConfigureDsp();
 
     OpenDspConnections();
@@ -42,8 +40,10 @@ SPI::SPI(X32BaseParameter* basepar) : X32Base(basepar) {
 // returns 0 if sucecssul, -1 on errors
 int SPI::ConfigureFpgaXilinx(void) {
 
+    string filename_xilinx = app->get_option("--X")->as<string>();
+
     // abort if no file path was given
-    if(state->switchFpgaPath.length() == 0)
+    if(filename_xilinx.length() == 0)
     {
         return -1;
     }
@@ -62,7 +62,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_FPGA_XILINX_SPEED_HZ;
 
-    DEBUG_MESSAGE(DEBUG_SPI, "Connecting to SPI for FPGA...");
+    helper->DEBUG_SPI("Connecting to SPI for FPGA...");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spi_fd < 0) {
         helper->Error("Could not open SPI-device\n");
@@ -78,7 +78,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
 
     // read bitstream-file and search for RAW-data
-    long file_size = helper->GetFileSize(state->switchFpgaPath.c_str());
+    long file_size = helper->GetFileSize(filename_xilinx.c_str());
     if (file_size <= 0) {
         helper->Error("Problem with bitstream-file\n");
         free(tx_buffer);
@@ -87,7 +87,7 @@ int SPI::ConfigureFpgaXilinx(void) {
         return -1;
     }
 
-    bitstream_file = fopen(state->switchFpgaPath.c_str(), "rb");
+    bitstream_file = fopen(filename_xilinx.c_str(), "rb");
     if (!bitstream_file) {
         helper->Error("Could not open bitstream-file\n");
         if (bitstream_file) fclose(bitstream_file);
@@ -122,9 +122,9 @@ int SPI::ConfigureFpgaXilinx(void) {
             // skip the field name and bitstrem length
             offset += 5;
 
-            DEBUG_MESSAGE(DEBUG_SPI, "Detected bit-file with header...");
+            helper->DEBUG_SPI("Detected bit-file with header...");
         }else{
-                DEBUG_MESSAGE(DEBUG_SPI, "Detected bin-file without header...");
+                helper->DEBUG_SPI("Detected bin-file without header...");
                 offset = 0; // start reading at byte 0
         }
     }
@@ -133,8 +133,8 @@ int SPI::ConfigureFpgaXilinx(void) {
     file_size -= offset;
 
     // now open the file again and jump of the header (if any)
-    DEBUG_MESSAGE(DEBUG_SPI, "Configuring Xilinx Spartan-3A...");
-    bitstream_file = fopen(state->switchFpgaPath.c_str(), "rb");
+    helper->DEBUG_SPI("Configuring Xilinx Spartan-3A...");
+    bitstream_file = fopen(filename_xilinx.c_str(), "rb");
     if (!bitstream_file) {
         helper->Error("Could not open bitstream-file\n");
         if (bitstream_file) fclose(bitstream_file);
@@ -150,7 +150,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     }
 
     // now send the data
-    DEBUG_MESSAGE(DEBUG_SPI, "Sending bitstream to FPGA...");
+    helper->DEBUG_SPI("Sending bitstream to FPGA...");
     tr.tx_buf = (unsigned long)tx_buffer;
     tr.rx_buf = (unsigned long)rx_buffer;
     tr.bits_per_word = spiBitsPerWord;
@@ -158,7 +158,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     tr.cs_change = 0;
     tr.delay_usecs = 0;
 
-    DEBUG_MESSAGE(DEBUG_SPI, "Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...");
+    helper->DEBUG_SPI("Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...");
     int fdResetFpga = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fdResetFpga, "1", 1);
     usleep(500); // assert PROG_B at least 500ns (here 500us) to restart configuration process (see page 56 of UG332 v1.7)
@@ -226,11 +226,19 @@ int SPI::ConfigureFpgaXilinx(void) {
 
 // configures a Lattice ECP5 via SPI
 // returns 0 if successul, -1 on errors
-int SPI::ConfigureFpgaLattice(void) {
+bool SPI::ConfigureFpgaLattice(void) {
+
+    string filename_lattice = app->get_option("--L")->as<string>();
+
+    // abort if no file path was given
+    if(filename_lattice.length() == 0)
+    {
+        return false;
+    }
+
     int spi_fd = -1;
 	uint32_t status;
     FILE *bitstream_file = NULL;
-    int ret = -1;
 
     uint8_t spiMode = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
@@ -238,56 +246,57 @@ int SPI::ConfigureFpgaLattice(void) {
 
 	fpgaLatticeDonePin(false); // deassert DONE-pin
 	
-    DEBUG_MESSAGE(DEBUG_SPI, "  Connecting to SPI...");
+    helper->DEBUG_SPI("  Connecting to SPI...");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spi_fd < 0) {
         perror("Error: Could not open SPI-device");
-        return -1;
+        return false;
     }
 
     ioctl(spi_fd, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-    DEBUG_MESSAGE(DEBUG_SPI, "  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).", SPI_DEVICE_FPGA, spiMode, spiSpeed);
+    helper->DEBUG_SPI("  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).", SPI_DEVICE_FPGA, spiMode, spiSpeed);
 
-    if (config->IsDebug() & config->HasDebugFlag(DEBUG_SPI)){
+    if (helper->DEBUG_SPI()){
 	    status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
         fpgaLatticePrintBits(status);
     }
 
     // open the file
+
     struct stat st;
     size_t bitstream_size;
-    if (stat(state->switchFpgaPath.c_str(), &st) == 0) {
+    if (stat(filename_lattice.c_str(), &st) == 0) {
         bitstream_size = st.st_size;
     }
-    bitstream_file = fopen(state->switchFpgaPath.c_str(), "rb");
+    bitstream_file = fopen(filename_lattice.c_str(), "rb");
     if (!bitstream_file) {
         perror("Error: Could not open bitstream-file");
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return -1;
+        return false;
     }
 
     // perform configuration-process
-    DEBUG_MESSAGE(DEBUG_SPI, "Configuring Lattice FPGA...");
+    helper->DEBUG_SPI("Configuring Lattice FPGA...");
 
 	// first activate the configuration-mode by toggle the PROGRAMN-pin
-    DEBUG_MESSAGE(DEBUG_SPI, "Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...");
+    helper->DEBUG_SPI("Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...");
 	fpgaLatticeToggleProgramnPin();
 
     // read IDCODE
     uint32_t idcode = fpgaLatticeReadData(&spi_fd, CMD_READ_ID);
-    DEBUG_MESSAGE(DEBUG_SPI, "Read IDCODE: 0x%08X", idcode);
+    helper->DEBUG_SPI("Read IDCODE: 0x%08X", idcode);
 	// check if we've found the ID for the Lattice LFE5U-25 FPGA
 	if (idcode != 0x41111043) {
 		perror("Error: Unexpected IDCODE");
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return -1;
+        return false;
 	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
-    DEBUG_MESSAGE(DEBUG_SPI, "Sending ISC_ENABLE...");
+    helper->DEBUG_SPI("Sending ISC_ENABLE...");
     fpgaLatticeSendCommand(&spi_fd, CMD_ISC_ENABLE, false, false);
     
 	// =========== BEGIN of bitstream-transmitting without deasserting ChipSelect ===========
@@ -304,7 +313,7 @@ int SPI::ConfigureFpgaLattice(void) {
         perror("Error: Failed to allocate memory for transfer structures");
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return -1;
+        return false;
     }
     // buffer for data-payload
     uint8_t *bitstream_payload = (uint8_t *)malloc(bitstream_size);
@@ -313,7 +322,7 @@ int SPI::ConfigureFpgaLattice(void) {
         free(transfers);
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return -1;
+        return false;
     }
     // read buffer into large payload-buffer
     size_t total_bytes_read = fread(bitstream_payload, sizeof(char), bitstream_size, bitstream_file);
@@ -323,7 +332,7 @@ int SPI::ConfigureFpgaLattice(void) {
         free(transfers);
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return -1;
+        return false;
     }
 
     int p = 20;
@@ -440,7 +449,7 @@ int SPI::ConfigureFpgaLattice(void) {
 
 	if (bitstream_file) fclose(bitstream_file);
 	if (spi_fd >= 0) close(spi_fd);
-	return ret;
+	return true;
 }
 
 
@@ -670,41 +679,44 @@ int SPI::ConfigureDsp(void) {
     uint32_t spiSpeed = SPI_DSP_CONFIG_SPEED_HZ;
     //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
+    string filename_dsp1 = app->get_option("--D1")->as<string>();
+    string filename_dsp2 = app->get_option("--D2")->as<string>();
+
     // abort if no file path was given for dsp1
-    if (state->switchDsp1Path.length() == 0) {
+    if (filename_dsp1.length() == 0) {
         return -1;
     }
 
     uint8_t numStreams = 0;
-    if (state->switchDsp1Path.length() > 0) {
+    if (filename_dsp1.length() > 0) {
         numStreams = 1;
     }
-    if (state->switchDsp2Path.length() > 0) {
+    if (filename_dsp2.length() > 0) {
         numStreams = 2;
     }
 
     // read size of bitstream-files
-    file_size[0] = helper->GetFileSize(state->switchDsp1Path.c_str());
+    file_size[0] = helper->GetFileSize(filename_dsp1.c_str());
     if (file_size[0] <= 0) {
         helper->Error("Problem with bitstream-file\n");
               return -1;
     }
     if (numStreams == 2) {
-        file_size[1] = helper->GetFileSize(state->switchDsp2Path.c_str());
+        file_size[1] = helper->GetFileSize(filename_dsp2.c_str());
         if (file_size[1] <= 0) {
             helper->Error("Problem with bitstream-file\n");
                   return -1;
          }
     }
 
-    DEBUG_MESSAGE(DEBUG_SPI, "Connecting to SPI for DSP1...\n");
+    helper->DEBUG_SPI("Connecting to SPI for DSP1...\n");
     spi_fd[0] = open(SPI_DEVICE_DSP1, O_RDWR);
     if (spi_fd[0] < 0) {
         helper->Error("Could not open SPI-device for DSP1\n");
         return -1;
     }
     if (numStreams == 2) {
-        DEBUG_MESSAGE(DEBUG_SPI, "Connecting to SPI for DSP2...\n");
+        helper->DEBUG_SPI("Connecting to SPI for DSP2...\n");
         spi_fd[1] = open(SPI_DEVICE_DSP2, O_RDWR);
         if (spi_fd[1] < 0) {
             helper->Error("Could not open SPI-device for DSP2\n");
@@ -752,10 +764,10 @@ int SPI::ConfigureDsp(void) {
 
     for (uint8_t i = 0; i < numStreams; i++) {
         if (i == 0) {
-            bitstream_file[i] = fopen(state->switchDsp1Path.c_str(), "rb");
+            bitstream_file[i] = fopen(filename_dsp1.c_str(), "rb");
         }
         if (i == 1) {
-            bitstream_file[i] = fopen(state->switchDsp2Path.c_str(), "rb");
+            bitstream_file[i] = fopen(filename_dsp2.c_str(), "rb");
         }
         if (!bitstream_file[i]) {
             helper->Error("Could not open bitstream-file\n");
@@ -767,7 +779,7 @@ int SPI::ConfigureDsp(void) {
         }
 
         // now send the data
-        DEBUG_MESSAGE(DEBUG_SPI, "Sending bitstream to DSP...\n");
+        helper->DEBUG_SPI("Sending bitstream to DSP...\n");
         totalBytesSent = 0;
         last_progress = -1;
         progress_bar_width = 50;
@@ -1029,7 +1041,7 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
     
     UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
     int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-    DEBUG_MESSAGE(DEBUG_SPI, "DSP%d, %d Bytes received", dsp+1, bytesRead);
+    helper->DEBUG_SPI("DSP%d, %d Bytes received", dsp+1, bytesRead);
     PushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
 //    free(spiTxData);
 //    free(spiTxDataRaw);
