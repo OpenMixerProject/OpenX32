@@ -11,6 +11,8 @@ cp files/imximage.cfg u-boot/board/freescale/mx25pdk/imximage.cfg
 cp files/mx25pdk.c u-boot/board/freescale/mx25pdk/mx25pdk.c
 cp files/mx25pdk.h u-boot/include/configs/mx25pdk.h
 cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
+# custom boot logo - fullscreen -> console has only 1 line!
+# cp files/linux-boot-logo_final.ppm linux/drivers/video/logo/logo_linux_clut224.ppm
 
 # =================== Loader =======================
 
@@ -19,14 +21,14 @@ cd miniloader
 make > /dev/null
 echo "2/9 Compiling u-boot..."
 cd ../u-boot
-ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make > /dev/null
+ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make -j$(nproc) > /dev/null
 
 # =================== Linux =======================
 
 echo "3/9 Compiling linux..."
 cd ../linux
-ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make zImage > /dev/null
-ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make dtbs
+ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) zImage > /dev/null
+ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) dtbs
 echo "4/8 Creating U-Boot-Image..."
 mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
 
@@ -85,4 +87,4 @@ dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc > /
 echo "9/9 Creating DCP-Updater-File..."
 perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.run
 
-echo "Done. System-Image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as /tmp/openx32.bin"
+echo "Done. Image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as /tmp/dcp_corefs_openx32.run"
