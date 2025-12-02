@@ -87,28 +87,36 @@ int main(int argc, char* argv[]) {
 
 	// Command line options
 
-	app->set_config("--config", X32_CTRL_CONFIGFILE)->configurable(false);
+	app->set_config("--config", X32_CTRL_CONFIGFILE)->configurable(false)->description("Load and Store configuration from/to alternate file");;
 	app->add_flag("--version", "Get the version number, builddate and a nice logo")->configurable(false);
 	app->add_flag("-p,--print", "Print configuration and exit")->configurable(false);
 
 	app->add_option("--L", "Bitstream file for the Lattice FPGA")
+		->option_text("FILE")
 		//->default_str("lattice.bit")
 		->configurable(false);
 	app->add_option("--X", "Bitstream file for the Xilinx FPGA")
+		->option_text("FILE")
 		//->default_str("xilinx.bit")
 		->configurable(false);
 	app->add_option("--D1", "Bitstream file for the DSP1")
+		->option_text("FILE")
 		//->default_str("dsp1.ldr")
 		->configurable(false);
 	app->add_option("--D2", "Bitstream file for the DSP2")
+		->option_text("FILE")
 		//->default_str("dsp2.ldr")
 		->configurable(false);
 
+	app->add_option("--samplerate", "Set Samplerate to 44100 or 48000 kHz")
+		->default_val<uint32_t>(48000)
+		->check(CLI::IsMember(new set<uint32_t>{41000, 48000}));
+
 	// DEBUG
-	app->add_option("-d,--debug", debug_parameters, "Print debug to stdout. You can specify one or multipilte FLAGS: ADDA DSP1 DSP2 FPGA GUI MIXER SPI SURFACE UART VCHANNEL X32CTRL XREMOTE")
+	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following Flags: ADDA DSP1 DSP2 FPGA GUI MIXER SPI SURFACE UART VCHANNEL X32CTRL XREMOTE")
 			->configurable(false)
 			->expected(1,-1)
-			->option_text("FLAGS");
+			->option_text("FLAG FLAG ...");
 	
 	app->get_config_formatter_base()->quoteCharacter('"', '"');
 
@@ -132,6 +140,8 @@ int main(int argc, char* argv[]) {
 		printf("%s build on %s %s\n\n%s\n", X32_CTRL_VERSION, __DATE__, __TIME__, X32_CTRL_URL);
 		return 0;
 	}
+
+	config->SetSamplerate(app->get_option("--samplerate")->as<uint32_t>());
 
 	for(uint8_t i=0; i<debug_parameters.size(); i++) {
 		if (debug_parameters[i] == "ADDA") { helper->DEBUG_ADDA(true); }
@@ -269,7 +279,6 @@ void X32Ctrl::Run(){
 	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
 	config->SetModel(model);
-	config->SetSamplerate(48000);
 	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
 	
 	surface->Init();
