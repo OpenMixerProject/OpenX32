@@ -22,6 +22,8 @@
 #include <sys/types.h>
 #include <time.h>
 
+#include <map>
+
 #define EPSILON 0.0001	// epsilon for float comparisons
 #define XVERSION "4.06"	// FW version
 #define BSIZE 512		// Buffer sizes
@@ -157,14 +159,6 @@ enum types {
 	PKEY,		// 95
 };
 
-typedef struct X32header {	// The Header structure is used to quickly scan through
-	union {					// blocks of commands (/config, /ch/xxx, etc) with
-		char ccom[4];		// a single test on the first four characters.
-		int icom;			//
-	} header;				// A union enables doing this on a single int test
-	int (*fptr)();			// The result points to a parsing function, via a
-} X32header;				// dedicated function pointer call
-
 typedef struct X32command {	// The Command structure describes ALL X32 commands
 	char* command;			// - Their syntax (/ch/01/config/icon (for example))
 	union {					// - Their format type (no data, int, float, string, blob, special type...)
@@ -241,6 +235,9 @@ X32command Xmeters[] = {
 };
 
 int Xmeters_max = sizeof(Xmeters) / sizeof(X32command);
+
+
+
 
 X32command Xdummy[] = { };
 		int Xdummy_max = sizeof(Xdummy) / sizeof(X32command);
@@ -481,6 +478,7 @@ X32command Xdummy[] = { };
 		};
 		int Xnode_max = sizeof(Xnode) / sizeof(X32node);
 
+		
 
 // ###########################################################
 // 
@@ -497,6 +495,8 @@ X32command Xdummy[] = { };
 class X32 {
 
 	private:
+		std::map<X32header, > Xheader;
+		int Xheader_max = 37;
 
 		socklen_t Client_ip_len = sizeof(Client_ip);	// length of addresses
 
@@ -506,6 +506,50 @@ class X32 {
 		int X32Init();
 		int FXc_lookup(X32command* command, int i);
 		int funct_params(X32command* command, int i);
+		
+
+		char* Slevel(float fin);
+		char* Slinf(float fin, float fmin, float fmax, int pre);
+		char* Slinfs(float fin, float fmin, float fmax, int pre);
+		char* Slogf(float fin, float fmin, float fmax, int pre);	
+		char* Sbitmp(int iin, int len);
+		char* Sint(int iin);
+
+	public:
+
+		int x32_startup();
+		void getmyIP();
+
+		float Xr_float(char* Xin, int l);
+
+		char* XslashSetInt(X32command* command, char* str_pt_in);
+		char* XslashSetPerInt(X32command* command, char* str_pt_in);
+		char* XslashSetString(X32command* command, char* str_pt_in);
+		char* XslashSetList(X32command* command, char* str_pt_in);
+		char* XslashSetLinf(X32command* command, char* str_pt_in, float f1, float f2, float step);
+		char* XslashSetLogf(X32command* command, char* str_pt_in, float f1, float f2, int steps);
+		char* XslashSetLevl(X32command* command, char* str_pt_in, int steps);
+
+		char* RLinf(X32command* command, char* str_pt_in, float xmin, float lmaxmin);
+		char* RLogf(X32command* command, char* str_pt_in, float xmin, float lmaxmin);
+		char* REnum(X32command* command, char* str_pt_in, const char* str_enum[]);
+
+		int function_node_single(int i_value);
+		void GetFxPar1(X32command* command, char* buf, int ipar, int type);
+		void SetFxPar1(X32command* command, char* str_pt_in, int ipar, int type);
+		void Xprepmeter(int i, int l, char *buf, int n, int k);
+
+
+
+		void Xdump(char *buf, int len, int debug);
+		void Xfdump(char *header, char *buf, int len, int debug);
+		void Xsdump(char *str_out, char *buf, int len);
+
+		int Xsprint(char *bd, int index, char format, const void *bs);
+		int Xfprint(char *bd, int index, char* text, char format, void *bs);
+
+
+
 		int function_shutdown();
 		int function_info();
 		int function_xinfo();
@@ -541,47 +585,6 @@ class X32 {
 		int function_libs();
 		int function_showdump();
 		int function();
-
-		char* Slevel(float fin);
-		char* Slinf(float fin, float fmin, float fmax, int pre);
-		char* Slinfs(float fin, float fmin, float fmax, int pre);
-		char* Slogf(float fin, float fmin, float fmax, int pre);	
-		char* Sbitmp(int iin, int len);
-		char* Sint(int iin);
-
-	public:
-
-		float Xr_float(char* Xin, int l);
-
-		char* XslashSetInt(X32command* command, char* str_pt_in);
-		char* XslashSetPerInt(X32command* command, char* str_pt_in);
-		char* XslashSetString(X32command* command, char* str_pt_in);
-		char* XslashSetList(X32command* command, char* str_pt_in);
-		char* XslashSetLinf(X32command* command, char* str_pt_in, float f1, float f2, float step);
-		char* XslashSetLogf(X32command* command, char* str_pt_in, float f1, float f2, int steps);
-		char* XslashSetLevl(X32command* command, char* str_pt_in, int steps);
-
-		char* RLinf(X32command* command, char* str_pt_in, float xmin, float lmaxmin);
-		char* RLogf(X32command* command, char* str_pt_in, float xmin, float lmaxmin);
-		char* REnum(X32command* command, char* str_pt_in, const char* str_enum[]);
-
-		int function_node_single();
-		void GetFxPar1(X32command* command, char* buf, int ipar, int type);
-		void SetFxPar1(X32command* command, char* str_pt_in, int ipar, int type);
-		void Xprepmeter(int i, int l, char *buf, int n, int k);
-
-
-
-		void Xdump(char *buf, int len, int debug);
-		void Xfdump(char *header, char *buf, int len, int debug);
-		void Xsdump(char *str_out, char *buf, int len);
-
-		int Xsprint(char *bd, int index, char format, const void *bs);
-		int Xfprint(char *bd, int index, char* text, char format, void *bs);
-
-
-
-		
 
 		
 
@@ -660,4 +663,15 @@ class X32 {
 		fd_set ufds;
 		socklen_t Xip_len = sizeof(Xip);	// length of addresses
 
+
+
 };
+
+// TODO find a better solution for C++
+typedef struct X32header {	// The Header structure is used to quickly scan through
+	union {					// blocks of commands (/config, /ch/xxx, etc) with
+		char ccom[5];		// a single test on the first four characters.
+		int icom;			//
+	} header;				// A union enables doing this on a single int test
+	int (X32::*fptr)();			// The result points to a parsing function, via a
+} X32header;				// dedicated function pointer call

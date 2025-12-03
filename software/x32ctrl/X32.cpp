@@ -75,270 +75,314 @@
 #include "X32.h"
 
 
+// TODO Umbau zu Array!
+
+X32header* X32::Xheader = { // X32 Headers, the data used for testing and the
+					{ { "/shu" }, &X32::function_shutdown }, // associated function call
+					{ { "/inf" }, &X32::function_info },
+					{ { "/xin" }, &X32::function_xinfo },
+					{ { "/sta" }, &X32::function_status },
+					{ { "/xre" }, &X32::function_xremote },
+					{ { "/nod" }, &X32::function_node },
+					{ {"/\0\0\0" }, &X32::function_slash },
+					{ { "/con" }, &X32::function_config },
+					{ { "/mai" }, &X32::function_main },
+					{ { "/-pr" }, &X32::function_prefs },
+					{ { "/-st" }, &X32::function_stat },
+					{ { "/-ur" }, &X32::function_urec },
+					{ { "/ch/" }, &X32::function_channel },
+					{ { "/aux" }, &X32::function_auxin },
+					{ { "/fxr" }, &X32::function_fxrtn },
+					{ { "/bus" }, &X32::function_bus },
+					{ { "/mtx" }, &X32::function_mtx },
+					{ { "/dca" }, &X32::function_dca },
+					{ { "/fx/" }, &X32::function_fx },
+					{ { "/out" }, &X32::function_output },
+					{ { "/hea" }, &X32::function_headamp },
+					{ { "/met" }, &X32::function_meters },
+					{ { "/-ha" }, &X32::function_misc },
+					{ { "/ins" }, &X32::function_misc },
+					{ { "/-sh" }, &X32::function_show },
+					{ { "/ren" }, &X32::function_renew },
+					{ { "/cop" }, &X32::function_copy },
+					{ { "/add" }, &X32::function_add },
+					{ { "/loa" }, &X32::function_load },
+					{ { "/sav" }, &X32::function_save },
+					{ { "/del" }, &X32::function_delete },
+					{ { "/uns" }, &X32::function_unsubscribe },
+					{ { "/-us" }, &X32::function_misc },
+					{ { "/und" }, &X32::function },
+					{ { "/-ac" }, &X32::function_action },
+					{ { "/-li" }, &X32::function_libs },
+					{ { "/sho" }, &X32::function_showdump },
+				};
 
 
-// int main(int argc, char **argv) {
-// 	int i, whoto, noIP;
-// 	int input_intch;
-// 	struct addrinfo hints;
-// 	struct addrinfo *result, *rp;
-// //
-// // Manage arguments
-// 	fflush(stdout);
-// 	noIP = 1;
-// 	while ((input_intch = getopt(argc, argv, "i:d:v:x:b:f:r:m:h")) != -1) {
-// 		switch ((char)input_intch) {
-// 		case 'i':
-// 			strcpy(Xip_str, optarg );
-// 			noIP = 0;
-// 			break;
-// 		case 'd':
-// 			sscanf(optarg, "%d", &Xdebug);
-// 			break;
-// 		case 'v':
-// 			sscanf(optarg, "%d", &Xverbose);
-// 			break;
-// 		case 'x':
-// 			sscanf(optarg, "%d", &X_remote);
-// 			break;
-// 		case 'b':
-// 			sscanf(optarg, "%d", &X_batch);
-// 			break;
-// 		case 'f':
-// 			sscanf(optarg, "%d", &X_format);
-// 			break;
-// 		case 'r':
-// 			sscanf(optarg, "%d", &X_renew);
-// 			break;
-// 		case 'm':
-// 			sscanf(optarg, "%d", &X_meter);
-// 			break;
-// 		default:
-// 		case 'h':
-// 			printf("usage: X32 [-i <IP address>] - default: first IP available on system\n");
-// 			printf(" [-d 0/1, debug option] - default: 0\n");
-// 			printf(" [-v 0/1, verbose option] - default: 1\n");
-// 			printf(" The options below apply in conjunction with -v 1\n");
-// 			printf("     [-x 0/1, echoes incoming verbose for /xremote] - default: 0\n");
-// 			printf("     [-b 0/1, echoes incoming verbose for /batchsubscribe] - default: 0\n");
-// 			printf("     [-f 0/1, echoes incoming verbose for /formatsubscribe] - default: 0\n");
-// 			printf("     [-r 0/1, echoes incoming verbose for /renew] - default: 0\n");
-// 			printf("     [-m 0/1, echoes incoming verbose for /meters] - default: 0\n\n");
-// 			printf(" The (non-Behringer) command \"/shutdown\" will save data and quit\n");
-// 			return (0);
-// 			break;
-// 		}
-// 	}
-// // Initiate timers
-// 	xremote_time = time(NULL);
-// 	for (i = 0; i < MAX_METERS; i++) {
-// 		gettimeofday(&XTimerMeters[i], NULL);
-// 		XInterMeters[i] = XTimerMeters[i];
-// 		XDeltaMeters[i] = 50000;
-// 		XActiveMeters = 0;
-// 	}
-// // port[] = "10023" // 10023: X32 desk, 10024: XAir18
-// 	strcpy(Xport_str, "10023");
-// //
-// 	for (i = 0; i < MAX_CLIENTS; i++) {
-// 		X32Client[i].vlid = 0;
-// 		X32Client[i].xrem = 0;
-// 	}
-// //
-// #ifdef __WIN32__
-// //Initialize winsock
-// 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-// 		perror("WSA Startup Error");
-// 		exit(EXIT_FAILURE);
-// 	}
-// #endif
-// //
-// 	r_len = 0;
-// 	printf("X32 - v0.88 - An X32 Emulator - (c)2014-2019 Patrick-Gilles Maillot\n");
-// 	//
-// 	// Get or use IP address
-// 	if (noIP) {
-// 		// Try to get an IP on this system (the first one is OK...otherwise, use -i option!)
-// 		getmyIP();
-// 	}
-// 	// We now have an IP address in Xip_str; test it, create a sock and bind to it if OK
-// 	memset(&hints, 0, sizeof(struct addrinfo));
-// 	hints.ai_socktype = SOCK_DGRAM;
-// 	hints.ai_family = AF_INET;
-// 	hints.ai_protocol = IPPROTO_UDP;
-// 	if ((i = getaddrinfo(Xip_str, Xport_str, &hints, &result)) != 0) {
-// 		printf("Error getaddrinfo: %s\n", gai_strerror(i));
-// 		exit(0);
-// 	}
-// 	noIP = 1;	/* set error state flag */
-// 	for (rp = result; rp != NULL; rp = rp->ai_next) {
-// 		if ((Xfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) >= 0) {
-// 			if (bind(Xfd, rp->ai_addr, rp->ai_addrlen) == 0) {
-// 				noIP = 0;			/* Success !*/
-// 				break;
-// 			}
-// 			close(Xfd);
-// 		}
-// 	}
-// 	if (noIP) {
-// 		printf("Error on IP address: %s - cannot run\n", Xip_str);
-// 		exit(1);
-// 	} else {
-// 		printf("Listening to port: %s, X32 IP = %s\n", Xport_str, Xip_str);
-// 	}
-// 	// read initial data (if exists)
-// 	if (X32Init()) {
-// 		printf("X32 resource file does not exist, create one with '/shutdown' command\n");
-// 		// set IP address in local structure
-// 		// search for /-prefs/ip/addr dataset and set IP address in 4 consecutine ints
-// 		for (i = 0; i < Xprefs_max; i++) {
-// 			if (strcmp("/-prefs/ip/addr/0", Xprefs[i].command) == 0) {
-// 				sscanf(Xip_str, "%d.%d.%d.%d",	&Xprefs[i].value.ii,
-// 												&Xprefs[i+1].value.ii,
-// 												&Xprefs[i+2].value.ii,
-// 												&Xprefs[i+3].value.ii);
-// 				break;
-// 			}
-// 		}
-// 	}
-// 	// Wait for messages from client, with non blocking socket
-// 	timeout.tv_sec = 0;
-// 	timeout.tv_usec = 10000; //Set timeout for non blocking recvfrom(): 10ms
-// 	while (keep_on) { // Main, receiving loop (active as long as keep_on is 1)
-// 		whoto = 0;
-// 		FD_ZERO(&readfds);
-// 		FD_SET(Xfd, &readfds);
-// 		p_status = select(Xfd + 1, &readfds, NULL, NULL, &timeout);
-// 		if ((p_status = FD_ISSET(Xfd, &readfds)) < 0) {
-// 			printf("Error while receiving\n");
-// 			exit(1);
-// 		}
-// 		if (p_status > 0) {
-// 			// We have received data - process it!
-// 			// and if appropriate, reply to the address received into Client addr (ip_pt)
-// 			r_len = recvfrom(Xfd, r_buf, BSIZE, 0, Client_ip_pt, &Client_ip_len);
-// 			r_buf[r_len] = 0;
-// 			if (Xverbose) {
-// 				if (strncmp(r_buf, "/xre", 4) == 0) {
-// 					if (X_remote) {
-// 						Xfdump("->X", r_buf, r_len, Xdebug);
-// 						fflush(stdout);
-// 					}
-// 				} else if (strncmp(r_buf, "/bat", 4) == 0) {
-// 					if (X_batch) {
-// 						Xfdump("->X", r_buf, r_len, Xdebug);
-// 						fflush(stdout);
-// 					}
-// 				} else if (strncmp(r_buf, "/for", 4) == 0) {
-// 					if (X_format) {
-// 						Xfdump("->X", r_buf, r_len, Xdebug);
-// 						fflush(stdout);
-// 					}
-// 				} else if (strncmp(r_buf, "/ren", 4) == 0) {
-// 					if (X_renew) {
-// 						Xfdump("->X", r_buf, r_len, Xdebug);
-// 						fflush(stdout);
-// 					}
-// 				} else if (strncmp(r_buf, "/met", 4) == 0) {
-// 					if (X_meter) {
-// 						Xfdump("->X", r_buf, r_len, Xdebug);
-// 						fflush(stdout);
-// 					}
-// 				} else {
-// 					Xfdump("->X", r_buf, r_len, Xdebug);
-// 					fflush(stdout);
-// 				}
-// 			}
-// 			// We have data coming in - Parse!
-// 			i = s_len = p_status = 0;
-// 			// Parse the command; this will update the Send buffer (and send buffer number of bytes)
-// 			// and the parsing status in p_status
-// 			while (i < Xheader_max) {
-// 				if (Xheader[i].header.icom == (int) *((int*) v_buf)) { // single int test!
-// 					whoto = Xheader[i].fptr(); // call associated parsing function
-// 					break; // Done parsing, exit parsing while loop
-// 				}
-// 				i += 1;
-// 			}
-// 			// Done receiving/managing command parameters;
-// 			Xsend(whoto);
-// 		}
-// #ifdef __linux__
-// 		else
-// 		{
-// 			usleep( 10 );
-// 		}
-// #endif
-// 		//
-// 		// Update current client with data to be sent, or meters & subscribes?
-// //		if (whoto == 0) {  // Meters or other data to send?
-// 			gettimeofday (&xmeter_time, NULL);
-// 			if (XActiveMeters) {
-// 				for (i = 0; i < MAX_METERS; i++) {
-// 					if (XActiveMeters & (1 << i)) {
-// 						if(timercmp(&XTimerMeters[i], &xmeter_time, > )) {
-// 							if(timercmp(&xmeter_time, &XInterMeters[i], > )) {
-// 								if (sendto(Xfd, &Xbuf_meters[i][0], Lbuf_meters[i], 0, &XClientMeters[i], Client_ip_len) < 0) {
-// 									perror("Error while sending data");
-// 									return(0);
-// 								}
-// 								timerincrement(&XInterMeters[i], XDeltaMeters[i]);
-// 							}
-// 						} else {
-// 							XActiveMeters &= ~(1 << i);			// set meters inactive
-// 						}
-// 					}
-// 				}
-// 			}
-// //		}
-// 	}
-// 	return 0;
-// }
 
-// #ifdef __WIN32__
-// void getmyIP() {
-// 	char **pp = NULL;
-// 	struct hostent *host = NULL;
+int X32::x32_startup() {
+	int i, whoto, noIP;
+	int input_intch;
+	struct addrinfo hints;
+	struct addrinfo *result, *rp;
 
-// 	if (!gethostname(r_buf, 256) && (host = gethostbyname(r_buf)) != NULL) {
-// 		for (pp = host->h_addr_list; *pp != NULL; pp++) {
-// 			strcpy(Xip_str, (inet_ntoa(*(struct in_addr *) *pp))); // copy IP (string) address to r_buf
-// 			return;
-// 		}
-// 	}
-// 	return;
-// }
-// #else
-// void getmyIP() {
 
-// 	struct ifaddrs *ifaddr, *ifa;
-// 	int s;
+//
+// Manage arguments
+	fflush(stdout);
+	noIP = 1;
+	// while ((input_intch = getopt(argc, argv, "i:d:v:x:b:f:r:m:h")) != -1) {
+	// 	switch ((char)input_intch) {
+	// 	case 'i':
+	// 		strcpy(Xip_str, optarg );
+	// 		noIP = 0;
+	// 		break;
+	// 	case 'd':
+	// 		sscanf(optarg, "%d", &Xdebug);
+	// 		break;
+	// 	case 'v':
+	// 		sscanf(optarg, "%d", &Xverbose);
+	// 		break;
+	// 	case 'x':
+	// 		sscanf(optarg, "%d", &X_remote);
+	// 		break;
+	// 	case 'b':
+	// 		sscanf(optarg, "%d", &X_batch);
+	// 		break;
+	// 	case 'f':
+	// 		sscanf(optarg, "%d", &X_format);
+	// 		break;
+	// 	case 'r':
+	// 		sscanf(optarg, "%d", &X_renew);
+	// 		break;
+	// 	case 'm':
+	// 		sscanf(optarg, "%d", &X_meter);
+	// 		break;
+	// 	default:
+	// 	case 'h':
+	// 		printf("usage: X32 [-i <IP address>] - default: first IP available on system\n");
+	// 		printf(" [-d 0/1, debug option] - default: 0\n");
+	// 		printf(" [-v 0/1, verbose option] - default: 1\n");
+	// 		printf(" The options below apply in conjunction with -v 1\n");
+	// 		printf("     [-x 0/1, echoes incoming verbose for /xremote] - default: 0\n");
+	// 		printf("     [-b 0/1, echoes incoming verbose for /batchsubscribe] - default: 0\n");
+	// 		printf("     [-f 0/1, echoes incoming verbose for /formatsubscribe] - default: 0\n");
+	// 		printf("     [-r 0/1, echoes incoming verbose for /renew] - default: 0\n");
+	// 		printf("     [-m 0/1, echoes incoming verbose for /meters] - default: 0\n\n");
+	// 		printf(" The (non-Behringer) command \"/shutdown\" will save data and quit\n");
+	// 		return (0);
+	// 		break;
+	// 	}
+	// }
+// Initiate timers
+	xremote_time = time(NULL);
+	for (i = 0; i < MAX_METERS; i++) {
+		gettimeofday(&XTimerMeters[i], NULL);
+		XInterMeters[i] = XTimerMeters[i];
+		XDeltaMeters[i] = 50000;
+		XActiveMeters = 0;
+	}
+// port[] = "10023" // 10023: X32 desk, 10024: XAir18
+	strcpy(Xport_str, "10023");
+//
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		X32Client[i].vlid = 0;
+		X32Client[i].xrem = 0;
+	}
+//
+#ifdef __WIN32__
+//Initialize winsock
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+		perror("WSA Startup Error");
+		exit(EXIT_FAILURE);
+	}
+#endif
+//
+	r_len = 0;
+	printf("X32 - v0.88 - An X32 Emulator - (c)2014-2019 Patrick-Gilles Maillot\n");
+	//
+	// Get or use IP address
+	if (noIP) {
+		// Try to get an IP on this system (the first one is OK...otherwise, use -i option!)
+		getmyIP();
+	}
+	// We now have an IP address in Xip_str; test it, create a sock and bind to it if OK
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_family = AF_INET;
+	hints.ai_protocol = IPPROTO_UDP;
+	if ((i = getaddrinfo(Xip_str, Xport_str, &hints, &result)) != 0) {
+		printf("Error getaddrinfo: %s\n", gai_strerror(i));
+		exit(0);
+	}
+	noIP = 1;	/* set error state flag */
+	for (rp = result; rp != NULL; rp = rp->ai_next) {
+		if ((Xfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) >= 0) {
+			if (bind(Xfd, rp->ai_addr, rp->ai_addrlen) == 0) {
+				noIP = 0;			/* Success !*/
+				break;
+			}
+			close(Xfd);
+		}
+	}
+	if (noIP) {
+		printf("Error on IP address: %s - cannot run\n", Xip_str);
+		exit(1);
+	} else {
+		printf("Listening to port: %s, X32 IP = %s\n", Xport_str, Xip_str);
+	}
+	// read initial data (if exists)
+	if (X32Init()) {
+		printf("X32 resource file does not exist, create one with '/shutdown' command\n");
+		// set IP address in local structure
+		// search for /-prefs/ip/addr dataset and set IP address in 4 consecutine ints
+		for (i = 0; i < Xprefs_max; i++) {
+			if (strcmp("/-prefs/ip/addr/0", Xprefs[i].command) == 0) {
+				sscanf(Xip_str, "%d.%d.%d.%d",	&Xprefs[i].value.ii,
+												&Xprefs[i+1].value.ii,
+												&Xprefs[i+2].value.ii,
+												&Xprefs[i+3].value.ii);
+				break;
+			}
+		}
+	}
+	// Wait for messages from client, with non blocking socket
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 10000; //Set timeout for non blocking recvfrom(): 10ms
+	while (keep_on) { // Main, receiving loop (active as long as keep_on is 1)
+		whoto = 0;
+		FD_ZERO(&readfds);
+		FD_SET(Xfd, &readfds);
+		p_status = select(Xfd + 1, &readfds, NULL, NULL, &timeout);
+		if ((p_status = FD_ISSET(Xfd, &readfds)) < 0) {
+			printf("Error while receiving\n");
+			exit(1);
+		}
+		if (p_status > 0) {
+			// We have received data - process it!
+			// and if appropriate, reply to the address received into Client addr (ip_pt)
+			r_len = recvfrom(Xfd, r_buf, BSIZE, 0, Client_ip_pt, &Client_ip_len);
+			r_buf[r_len] = 0;
+			if (Xverbose) {
+				if (strncmp(r_buf, "/xre", 4) == 0) {
+					if (X_remote) {
+						Xfdump("->X", r_buf, r_len, Xdebug);
+						fflush(stdout);
+					}
+				} else if (strncmp(r_buf, "/bat", 4) == 0) {
+					if (X_batch) {
+						Xfdump("->X", r_buf, r_len, Xdebug);
+						fflush(stdout);
+					}
+				} else if (strncmp(r_buf, "/for", 4) == 0) {
+					if (X_format) {
+						Xfdump("->X", r_buf, r_len, Xdebug);
+						fflush(stdout);
+					}
+				} else if (strncmp(r_buf, "/ren", 4) == 0) {
+					if (X_renew) {
+						Xfdump("->X", r_buf, r_len, Xdebug);
+						fflush(stdout);
+					}
+				} else if (strncmp(r_buf, "/met", 4) == 0) {
+					if (X_meter) {
+						Xfdump("->X", r_buf, r_len, Xdebug);
+						fflush(stdout);
+					}
+				} else {
+					Xfdump("->X", r_buf, r_len, Xdebug);
+					fflush(stdout);
+				}
+			}
+			// We have data coming in - Parse!
+			i = s_len = p_status = 0;
+			// Parse the command; this will update the Send buffer (and send buffer number of bytes)
+			// and the parsing status in p_status
+			while (i < Xheader_max) {
+				if (Xheader[i].header.icom == (int) *((int*) v_buf)) { // single int test!
+					whoto = (this->*Xheader[i].fptr)(); // call associated parsing function
+					break; // Done parsing, exit parsing while loop
+				}
+				i += 1;
+			}
+			// Done receiving/managing command parameters;
+			Xsend(whoto);
+		}
+#ifdef __linux__
+		else
+		{
+			usleep( 10 );
+		}
+#endif
+		//
+		// Update current client with data to be sent, or meters & subscribes?
+//		if (whoto == 0) {  // Meters or other data to send?
+			gettimeofday (&xmeter_time, NULL);
+			if (XActiveMeters) {
+				for (i = 0; i < MAX_METERS; i++) {
+					if (XActiveMeters & (1 << i)) {
+						if(timercmp(&XTimerMeters[i], &xmeter_time, > )) {
+							if(timercmp(&xmeter_time, &XInterMeters[i], > )) {
+								if (sendto(Xfd, &Xbuf_meters[i][0], Lbuf_meters[i], 0, &XClientMeters[i], Client_ip_len) < 0) {
+									perror("Error while sending data");
+									return(0);
+								}
+								timerincrement(&XInterMeters[i], XDeltaMeters[i]);
+							}
+						} else {
+							XActiveMeters &= ~(1 << i);			// set meters inactive
+						}
+					}
+				}
+			}
+//		}
+	}
+	return 0;
+}
 
-// 	r_buf[0] = 0;
+#ifdef __WIN32__
+void getmyIP() {
+	char **pp = NULL;
+	struct hostent *host = NULL;
 
-// 	if (getifaddrs(&ifaddr) == -1) {
-// 		perror("getifaddrs");
-// 		return;
-// 	}
-// 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-// 		if (ifa->ifa_addr != NULL) {
-// 			// use r_buf as we may need a large string
-// 			if ((s = getnameinfo(ifa->ifa_addr,sizeof(struct sockaddr_in), r_buf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST)) == 0) {
-// // you typically have to replace "en0" by "wlan0", "eth0",... depending on your physical interface support
-// 				if ((strcmp(ifa->ifa_name,"en0") == 0) && (ifa->ifa_addr->sa_family == AF_INET)) {
-//  //printf("\tInterface : <%s>\n",ifa->ifa_name );
-//  //printf("\t Address : <%s>\n", r_buf);
-// 					strcpy(Xip_str, r_buf); // update Xip_str
-// 					freeifaddrs(ifaddr);
-// 					return;
-// 				}
-// 			}
-// 		}
-// 	}
-// 	freeifaddrs(ifaddr);
-// 	return;
-// }
-// #endif
+	if (!gethostname(r_buf, 256) && (host = gethostbyname(r_buf)) != NULL) {
+		for (pp = host->h_addr_list; *pp != NULL; pp++) {
+			strcpy(Xip_str, (inet_ntoa(*(struct in_addr *) *pp))); // copy IP (string) address to r_buf
+			return;
+		}
+	}
+	return;
+}
+#else
+void X32::getmyIP() {
+
+	struct ifaddrs *ifaddr, *ifa;
+	int s;
+
+	r_buf[0] = 0;
+
+	if (getifaddrs(&ifaddr) == -1) {
+		perror("getifaddrs");
+		return;
+	}
+	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr != NULL) {
+			// use r_buf as we may need a large string
+			if ((s = getnameinfo(ifa->ifa_addr,sizeof(struct sockaddr_in), r_buf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST)) == 0) {
+// you typically have to replace "en0" by "wlan0", "eth0",... depending on your physical interface support
+				if ((strcmp(ifa->ifa_name,"en0") == 0) && (ifa->ifa_addr->sa_family == AF_INET)) {
+ //printf("\tInterface : <%s>\n",ifa->ifa_name );
+ //printf("\t Address : <%s>\n", r_buf);
+					strcpy(Xip_str, r_buf); // update Xip_str
+					freeifaddrs(ifaddr);
+					return;
+				}
+			}
+		}
+	}
+	freeifaddrs(ifaddr);
+	return;
+}
+#endif
 
 //
 //X32Print: a utility print for commands
@@ -2991,6 +3035,10 @@ int X32::function_slash() {
 //
 // /node command
 int X32::function_node() {
+
+	
+
+
 	char* str_pt_in;
 	int i, j, cmd_max;
 	X32command* command;
@@ -3662,73 +3710,24 @@ int X32::function_node() {
 				}
 				r_len -= 12;
 
-// ##############################################################
-//
-// ########  #######  ########   #######  
-//    ##    ##     ## ##     ## ##     ## 
-//    ##    ##     ## ##     ## ##     ## 
-//    ##    ##     ## ##     ## ##     ## 
-//    ##    ##     ## ##     ## ##     ## 
-//    ##    ##     ## ##     ## ##     ## 
-//    ##     #######  ########   #######  
 
+				// Parse the command; this will update the Send buffer (and send buffer number of bytes)
+				// and the parsing status in p_status
+				while (i < Xheader_max) {
+					if (Xheader[i].header.icom == (int) *((int*) v_buf)) { // single int test!
+						p_status = (this->*Xheader[i].fptr)(); // call associated parsing function
+						break; // Done parsing, exit parsing while loop
+					}
+					i += 1;
+				}
 
-				// // Parse the command; this will update the Send buffer (and send buffer number of bytes)
-				// // and the parsing status in p_status
-				// while (i < Xheader_max) {
-				// 	if (Xheader[i].header.icom == (int) *((int*) v_buf)) { // single int test!
-				// 		p_status = Xheader[i].fptr(); // call associated parsing function
-				// 		break; // Done parsing, exit parsing while loop
-				// 	}
-				// 	i += 1;
-				// }
-
-// X32header Xheader[] = { // X32 Headers, the data used for testing and the
-// 	{ { "/shu" }, &function_shutdown }, // associated function call
-// 	{ { "/inf" }, &function_info },
-// 	{ { "/xin" }, &function_xinfo },
-// 	{ { "/sta" }, &function_status },
-// 	{ { "/xre" }, &function_xremote },
-// 	{ { "/nod" }, &function_node },
-// 	{ {"/\0\0\0" }, &function_slash },
-// 	{ { "/con" }, &function_config },
-// 	{ { "/mai" }, &function_main },
-// 	{ { "/-pr" }, &function_prefs },
-// 	{ { "/-st" }, &function_stat },
-// 	{ { "/-ur" }, &function_urec },
-// 	{ { "/ch/" }, &function_channel },
-// 	{ { "/aux" }, &function_auxin },
-// 	{ { "/fxr" }, &function_fxrtn },
-// 	{ { "/bus" }, &function_bus },
-// 	{ { "/mtx" }, &function_mtx },
-// 	{ { "/dca" }, &function_dca },
-// 	{ { "/fx/" }, &function_fx },
-// 	{ { "/out" }, &function_output },
-// 	{ { "/hea" }, &function_headamp },
-// 	{ { "/met" }, &function_meters },
-// 	{ { "/-ha" }, &function_misc },
-// 	{ { "/ins" }, &function_misc },
-// 	{ { "/-sh" }, &function_show },
-// 	{ { "/ren" }, &function_renew },
-// 	{ { "/cop" }, &function_copy },
-// 	{ { "/add" }, &function_add },
-// 	{ { "/loa" }, &function_load },
-// 	{ { "/sav" }, &function_save },
-// 	{ { "/del" }, &function_delete },
-// 	{ { "/uns" }, &function_unsubscribe },
-// 	{ { "/-us" }, &function_misc },
-// 	{ { "/und" }, &function },
-// 	{ { "/-ac" }, &function_action },
-// 	{ { "/-li" }, &function_libs },
-// 	{ { "/sho" }, &function_showdump },
-// };
-
-	//int Xmeters_max = sizeof(Xmeters) / sizeof(X32command);
+				
 
 
 
-				//if (i < Xheader_max) return function_node_single(i);
-// ###############################################################
+
+
+				if (i < Xheader_max) return function_node_single(i);
 			}
 		}
 	}
@@ -3736,7 +3735,7 @@ int X32::function_node() {
 }
 //
 // Single node function - reply to /node (single argument) reply with appropriate data
-int X32::function_node_single() {
+int X32::function_node_single(int i_value) {
 
 X32command	*command = node_single_command;
 int			index = node_single_index;
