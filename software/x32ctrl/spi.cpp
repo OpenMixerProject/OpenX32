@@ -676,7 +676,7 @@ int SPI::ConfigureDsp(void) {
 
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
-    uint32_t spiSpeed = SPI_DSP_CONFIG_SPEED_HZ;
+    uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
     //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
 
     string filename_dsp1 = app->get_option("--D1")->as<string>();

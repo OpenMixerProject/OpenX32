@@ -16,7 +16,6 @@
 #define SPI_DEVICE_FPGA "/dev/spidev2.0"
 #define SPI_FPGA_XILINX_SPEED_HZ 10000000 // 10 MHz for the FPGA, seems to be fine
 #define SPI_FPGA_LATTICE_SPEED_HZ (8000 * 1024) // ~8MHz
-#define SPI_DSP_CONFIG_SPEED_HZ 250000 // 250 kHz for the DSP. Higher and we get problems
 #define SPI_DSP_SPEED_HZ 1000000 // 16 MHz is the regular SPI-clock on the original X32
 
 // defines for FPGA-configuration via SPI
