@@ -4,6 +4,9 @@
  * Created on: 26 Dec 2015
  *     Author: Fabian Meyer
  *    License: MIT
+ * 
+ * https://github.com/Rookfighter/inifile-cpp
+ * 
  */
 
 #ifndef INICPP_H_

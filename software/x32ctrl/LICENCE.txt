@@ -66,6 +66,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------------------------
 
 inicpp.h
+https://github.com/Rookfighter/inifile-cpp
 
 The MIT License (MIT)
 
