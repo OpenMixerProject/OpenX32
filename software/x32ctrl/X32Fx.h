@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32FX_H_
-#define X32FX_H_
+#pragma once
+#include "X32const.h"
 
 
 char*    	Ssource[] = {" OFF", " LR", " LR+C", " LRPFL", " LRAFL", " AUX56", " AUX78"};
@@ -856,5 +856,3 @@ X32command	*Xfxset[8] = {
 		Xfx1, Xfx2, Xfx3, Xfx4, Xfx5, Xfx6, Xfx7, Xfx8,
 }; 
 
-
-#endif /* X32FX_H_ */

@@ -6,7 +6,6 @@
  */
 
 #pragma once
-
 #include "X32const.h"
 
 X32command Xauxin01[] = {

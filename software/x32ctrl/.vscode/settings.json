@@ -52,6 +52,14 @@
         "cinttypes": "cpp",
         "iostream": "cpp",
         "constants.h": "c",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "condition_variable": "cpp",
+        "map": "cpp",
+        "fstream": "cpp",
+        "mutex": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "set": "cpp"
     }
 }

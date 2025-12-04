@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32SHOW_H_
-#define X32SHOW_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xshow[] = {
 
@@ -7319,4 +7319,3 @@ X32command Xsnippet[] = {
 }; 
 int Xsnippet_max = sizeof(Xsnippet) / sizeof(X32command);
 
-#endif /* X32SHOW_H_ */

@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32MTX_H_
-#define X32MTX_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xmtx01[] = {
 		{"/mtx",								{BSCO}, F_FND, {0}, NULL},
@@ -455,5 +455,3 @@ X32command	*Xmtxset[6] = {
 		Xmtx01, Xmtx02, Xmtx03,
 		Xmtx04, Xmtx05, Xmtx06,
 };
-
-#endif /* X32MTX_H_ */

@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32MISC_H_
-#define X32MISC_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xmisc[] = {
 
@@ -329,5 +329,3 @@ X32command Xmisc[] = {
 
 }; 
 int Xmisc_max = sizeof(Xmisc) / sizeof(X32command);
-
-#endif /* X32MISC_H_ */

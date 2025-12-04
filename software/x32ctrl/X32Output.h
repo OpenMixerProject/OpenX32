@@ -5,10 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32OUTPUT_H_
-#define X32OUTPUT_H_
-
-
+#pragma once
+#include "X32const.h"
 
 
 X32command Xoutput[] = {
@@ -321,6 +319,3 @@ X32command Xoutput[] = {
 
 }; 
 int Xoutput_max = sizeof(Xoutput) / sizeof(X32command);
-
-
-#endif /* X32OUTPUT_H_ */

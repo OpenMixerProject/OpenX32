@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32LIBS_H_
-#define X32LIBS_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xlibsc[] = {
 			{"/-libs",								{SLIBS}, F_FND, {0}, NULL},
@@ -1849,7 +1849,4 @@ X32command Xlibsf[] = {
 			{"/-libs/fx/100/flags",				{P32}, F_XET, {0}, NULL},
 			{"/-libs/fx/100/hasdata",			{I32}, F_XET, {0}, NULL},
 }; 
-int Xlibsf_max = sizeof(Xlibsf) / sizeof(X32command);
-
-#endif /* X32LIBS_H_ */
 

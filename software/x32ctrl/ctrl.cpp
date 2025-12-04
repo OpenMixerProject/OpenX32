@@ -155,7 +155,13 @@ int main(int argc, char* argv[]) {
 		if (debug_parameters[i] == "UART") { helper->DEBUG_UART(true); }
 		if (debug_parameters[i] == "VCHANNEL") { helper->DEBUG_VCHANNEL(true); }
 		if (debug_parameters[i] == "X32CTRL") { helper->DEBUG_X32CTRL(true); }
-		if (debug_parameters[i] == "XREMOTE") { helper->DEBUG_XREMOTE(true); }
+		if (debug_parameters[i] == "XREMOTE") { helper->DEBUG_XREMOTE(true); }	
+		
+		if (debug_parameters[i] == "X32SERVER") {  
+			X32 x;
+			x.x32_startup();
+			exit(0);
+		}
 	}
 
 	X32BaseParameter* basepar = new X32BaseParameter(app, config, state, helper);

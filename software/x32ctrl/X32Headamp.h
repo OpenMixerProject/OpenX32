@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32HEADAMP_H_
-#define X32HEADAMP_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xheadamp[] = {
 		{"/headamp",							{HAMP}, F_FND, {0}, NULL},
@@ -668,4 +668,3 @@ X32command	*Xheadmpset[128] = {
 		Xheadamp120, Xheadamp121, Xheadamp122, Xheadamp123, Xheadamp124, Xheadamp125, Xheadamp126, Xheadamp127,
 }; 
 
-#endif /* X32HEADAMP_H_ */

@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32CHANNEL_H_
-#define X32CHANNEL_H_
+#pragma once
+#include "X32const.h"
 
 
 X32command Xchannel01[] = {
@@ -5299,5 +5299,3 @@ X32command	*Xchannelset[32] = {
 		Xchannel25, Xchannel26, Xchannel27, Xchannel28,
 		Xchannel29, Xchannel30, Xchannel31, Xchannel32,
 }; 
-
-#endif /* X32CHANNEL_H_ */

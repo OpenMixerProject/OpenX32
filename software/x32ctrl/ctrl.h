@@ -8,6 +8,7 @@
 #include "state.h"
 #include "mixer.h"
 #include "xremote.h"
+#include "X32.h"
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"

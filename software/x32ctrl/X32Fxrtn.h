@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32FXRTN_H_
-#define X32FXRTN_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xfxrtn01[] = {
 		{"/fxrtn",							{BSCO}, F_FND, {0}, NULL},
@@ -938,5 +938,3 @@ X32command	*Xfxrtnset[8] = {
 		Xfxrtn01, Xfxrtn02, Xfxrtn03, Xfxrtn04,
 		Xfxrtn05, Xfxrtn06, Xfxrtn07, Xfxrtn08,
 }; 
-
-#endif /* X32FXRTN_H_ */

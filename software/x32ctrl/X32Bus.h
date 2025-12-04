@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32BUS_H_
-#define X32BUS_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xbus01[] = {
 		{"/bus",						{BSCO}, F_FND, {0}, NULL},
@@ -1694,4 +1694,3 @@ X32command	*Xbusset[16] = {
 		Xbus09, Xbus10, Xbus11, Xbus12,
 		Xbus13, Xbus14, Xbus15, Xbus16,
 }; 
-#endif /* X32BUS_H_ */

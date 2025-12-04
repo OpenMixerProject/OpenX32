@@ -5,9 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32CFGMAIN_H_
-#define X32CFGMAIN_H_
-
+#pragma once
+#include "X32const.h"
 
 
 X32command Xconfig[] = {
@@ -542,7 +541,3 @@ X32command Xmain[] = {
 		{"/main/m/grp/mute",			{P32}, F_XET, {0}, NULL},
 };
 int Xmain_max = sizeof(Xmain) / sizeof(X32command);
-
-
-
-#endif /* X32CFGMAIN_H_ */

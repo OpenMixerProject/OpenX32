@@ -159,3 +159,155 @@ const char* R26[] = {"2POL", "4POL",""};
 const char* R27[] = {"RUN", "STOP",""};
 const char* R28[] = {"SLOW", "FAST",""};
 const char* R29[] = {"ST", "MS",""};
+
+
+union littlebig {	//
+	int ii;			// A small union to manage
+	float ff;		// Endian type conversions
+	char cc[4];		//
+} endian;
+
+enum types {
+	NIL,		// 0
+	I32,		// 1
+	F32,		// 2
+	S32,		// 3
+	B32,		// 4
+	E32,		// 5
+	P32,		// 6
+	RES2,		// 7
+	RES3,		// 8
+	RES4,		// 9
+	FX32,		// 10
+	OFFON,		// 11
+	CMONO,		// 12
+	CSOLO,		// 13
+	CTALK,		// 14
+	CTALKAB,	// 15
+	COSC,		// 16
+	CROUTSW,	// 17
+	CROUTIN,	// 18
+	CROUTAC,	// 19
+	CROUTOT,	// 20
+	CROUTPLAY,	// 21
+	CCTRL,		// 22
+	CENC,		// 23
+	CTAPE,		// 24
+	CMIX,		// 25
+	CHCO,		// 26
+	CHDE,		// 27
+	CHPR,		// 28
+	CHGA,		// 29
+	CHGF,		// 30
+	CHDY,		// 31
+	CHDF,		// 32
+	CHIN,		// 33
+	CHEQ,		// 34
+	CHMX,		// 35
+	CHMO,		// 36
+	CHME,		// 37
+	CHGRP,		// 38
+	CHAMIX,		// 39
+	AXPR,		// 40
+	BSCO,		// 41
+	MXPR,		// 42
+	MXDY,		// 43
+	MSMX,		// 44
+	FXTYP1,		// 45
+	FXSRC,		// 46
+	FXPAR1,		// 47
+	FXTYP2,		// 48
+	FXPAR2,		// 49
+	OMAIN,		// 50
+	OMAIN2,		// 51
+	OP16,		// 52
+	OMAIND,		// 53
+	HAMP,		// 54
+	PREFS,		// 55
+	PIR,		// 56
+	PIQ,		// 57
+	PCARD,		// 58
+	PRTA,		// 59
+	PIP,		// 60
+	PADDR,		// 61
+	PMASK,		// 62
+	PGWAY,		// 63
+	STAT,		// 64
+	SSCREEN,	// 65
+	SCHA,		// 66
+	SMET,		// 67
+	SROU,		// 68
+	SSET,		// 69
+	SLIB,		// 70
+	SFX,		// 71
+	SMON,		// 72
+	SUSB,		// 73
+	SSCE,		// 74
+	SASS,		// 75
+	SSOLOSW,	// 76
+	SAES,		// 77
+	STAPE,		// 78
+	SOSC,		// 79
+	STALK,		// 80
+	USB,		// 81
+	SNAM,		// 82
+	SCUE,		// 83
+	SSCN,		// 84
+	SSNP,		// 85
+	HA,			// 86
+	ACTION,		// 87
+	UREC,		// 88
+	SLIBS,		// 89
+	D48,		// 90
+	D48A,		// 91
+	D48G,		// 92
+	UROUO,		// 93
+	UROUI,		// 94
+	PKEY,		// 95
+};
+
+typedef struct X32command {	// The Command structure describes ALL X32 commands
+	char* command;			// - Their syntax (/ch/01/config/icon (for example))
+	union {					// - Their format type (no data, int, float, string, blob, special type...)
+		int typ;			// see enum types above
+		char* str;			// address of a string if applicable
+	} format;				//
+	int flags;				// - a command flag: (simple command, get/set, node entry, etc.)
+	union {					// - The value associated to the format type above
+		int ii;				// can be int, float, string address or general data address
+		float ff;			//
+		char* str;			//
+		void* dta;			//
+	} value;				//
+	const char* *node;			// when applicable, the array of node strings associated with the command
+							// the actual node value is node[value.ii]. This pointer is NULL if the data
+							// should be directly obtained from value.type and printed as a string.
+} X32command;				//
+
+typedef struct X32enum {	// X32 enum structure
+	char*	str;			// X32 enum name
+	int		ival;			// X32 corresponding int value
+} X32enum;
+
+typedef struct X32node {	// The Node header structure is used to directly
+	char* command;			// parse a node command on a limited number of characters and
+	int nchars;				// "jump" to the associated node entry function to manage
+	X32command* cmd_ptr;	// the appropriate "node ,s ..." answer
+	int cmd_max;			//
+} X32node;
+
+struct {					// The Client structure
+	int vlid;				// - Valid entry
+	struct sockaddr sock;	// - Client identification data (based on IP/Port)
+	time_t xrem;			// - /xremote time when initiated
+} X32Client[MAX_CLIENTS];
+
+char snode_str[32]; // used to temporarily save a string in node and FX commands
+
+typedef struct X32header {	// The Header structure is used to quickly scan through
+	union {					// blocks of commands (/config, /ch/xxx, etc) with
+		char ccom[5];		// a single test on the first four characters.
+		int icom;			//
+	} header;				// A union enables doing this on a single int test
+	int (*fptr)();			// The result points to a parsing function, via a
+} X32header;

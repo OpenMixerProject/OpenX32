@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32DCA_H_
-#define X32DCA_H_
+#pragma once
+#include "X32const.h"
 
 X32command Xdca[] = {
 		{"/dca",						{CHME}, F_FND, {0}, NULL},
@@ -69,4 +69,3 @@ X32command Xdca[] = {
 };
 int Xdca_max = sizeof(Xdca) / sizeof(X32command); 
 
-#endif /* X32DCA_H_ */

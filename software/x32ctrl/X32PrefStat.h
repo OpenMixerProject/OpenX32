@@ -5,8 +5,8 @@
  *      Author: patrick
  */
 
-#ifndef X32PREFSTAT_H_
-#define X32PREFSTAT_H_
+#pragma once
+#include "X32const.h"
 
 #define X32NAME 23			// the position/index of /-prefs/name
 
@@ -722,5 +722,3 @@ X32command Xurec[] = {
 }; 
 int 	Xurec_max = sizeof(Xurec) / sizeof(X32command);
 
-
-#endif /* X32PREFSTAT_H_ */
