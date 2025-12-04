@@ -33,13 +33,6 @@ typedef union {
     int8_t s8[2];
 } data_16b;
 
-
-typedef struct {
-    char buffer[MAX_MESSAGE_SIZE];
-    size_t current_length;
-} messageBuilder;
-
-
 typedef struct{
     X32_BTN button;
     uint16_t buttonNr;
@@ -130,6 +123,7 @@ typedef struct {
         float gain;
 } sCompressor;
 
+// values stored in config
 typedef struct {
   uint8_t inputSource; // controls the 40 audio-channels into the DSP
   uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
@@ -145,13 +139,6 @@ typedef struct {
   uint8_t sendMixbusTapPoint[16];
   bool muted;
   bool solo;
-
-  float meterPu; // meter information in p.u.
-  float meterDecay; // meter information with decay
-  uint8_t meterPeakIndex;
-  uint8_t meterPeakHoldTimer; // will be updated every 100ms. On 0 the current value will be used
-  uint8_t meterPeakDecayTimer;
-  uint8_t meterInfo; // compatible to MeterLED on surface: 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
 } sDspChannel;
 
 typedef struct {
@@ -258,3 +245,13 @@ typedef struct{
     X32_PAGE nextPage;
     X32_PAGE prevPage;
 } sMixerPage;
+
+// values only for runtime use
+typedef struct {
+  float meterPu; // meter information in p.u.
+  float meterDecay; // meter information with decay
+  uint8_t meterPeakIndex;
+  uint8_t meterPeakHoldTimer; // will be updated every 100ms. On 0 the current value will be used
+  uint8_t meterPeakDecayTimer;
+  uint8_t meterInfo; // compatible to MeterLED on surface: 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+} srDspChannel;

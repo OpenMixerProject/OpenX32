@@ -21,7 +21,9 @@ class VChannel : public X32Base {
         float sends[16];
 
         X32_VCHANNELTYPE vChannelType;
-        sDspChannel* dspChannel;
+        srDspChannel* rChannel; // runtime values
+        sDspChannel* dspChannel; // values saved to/from config
+        
 
         VChannel(X32BaseParameter* basepar);
 

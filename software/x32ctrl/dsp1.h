@@ -30,9 +30,9 @@ class DSP1 : X32Base {
     private:
         uint8_t monitorTapPoint;
 
-        public:
-
-        sDspChannel Channel[40];
+    public:
+        srDspChannel rChannel[40];  // values used only during runtime
+        sDspChannel Channel[40]; // values stored in config
         sMixbusChannel Bus[16];
         sMatrixChannel Matrix[6];
         sFxChannel Dsp2FxChannel[16];

@@ -12,6 +12,9 @@
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"
 
+// ini parser
+#include "inicpp.h"
+
 // includes for timer
 #include <time.h>
 #include <signal.h>
@@ -35,6 +38,15 @@
 
 using namespace std;
 
+
+#define X32_CTRL_VERSION "v0.2.5"
+#define X32_CTRL_URL "https://github.com/OpenMixerProject/OpenX32"
+#define X32_CTRL_CONFIGFILE "x32ctrl.cfg"
+#define X32_MIXER_CONFIGFILE "mixer.ini"
+
+
+
+
 char displayEncoderText[6][30];
 static const char* displayEncoderButtonMap[] = {
     displayEncoderText[0],
@@ -50,6 +62,9 @@ void parseParams(int argc, char* argv[], State* state);
 
 class X32Ctrl : public X32Base {
     private:
+        
+        ini::IniFile mixer_ini;
+
         Mixer* mixer;
         Surface* surface;
         XRemote* xremote;
@@ -72,6 +87,8 @@ class X32Ctrl : public X32Base {
     public:
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
+        void LoadConfig();
+        void SaveConfig();
         void Run();
         void Tick10ms(void);
         void Tick100ms(void);

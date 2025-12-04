@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "WString.h"
 
+// Class for holding only "temporary" state data during runtime
 class State {
     private:
         // something was changed - sync surface/gui to mixer state

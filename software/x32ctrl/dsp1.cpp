@@ -602,60 +602,60 @@ void DSP1::UpdateVuMeter() {
 
 		// Step 1: Perform Peak Hold Logic
 		uint8_t currentMeterPeakIndex;
-		if (Channel[i].meterPu >= vuThresholdsPu[0]) {currentMeterPeakIndex = 6;}        // CLIP
-		else if (Channel[i].meterPu >= vuThresholdsPu[5]) {currentMeterPeakIndex = 5;}   // -6dBfs
-		else if (Channel[i].meterPu >= vuThresholdsPu[8]) {currentMeterPeakIndex = 4;}   // -12dBfs
-		else if (Channel[i].meterPu >= vuThresholdsPu[10]) {currentMeterPeakIndex = 3;}  // -18dBfs
-		else if (Channel[i].meterPu >= vuThresholdsPu[14]) {currentMeterPeakIndex = 2;}  // -30dBfs
-		else if (Channel[i].meterPu >= vuThresholdsPu[24]) {currentMeterPeakIndex = 1;}  // -60dBfs
+		if (rChannel[i].meterPu >= vuThresholdsPu[0]) {currentMeterPeakIndex = 6;}        // CLIP
+		else if (rChannel[i].meterPu >= vuThresholdsPu[5]) {currentMeterPeakIndex = 5;}   // -6dBfs
+		else if (rChannel[i].meterPu >= vuThresholdsPu[8]) {currentMeterPeakIndex = 4;}   // -12dBfs
+		else if (rChannel[i].meterPu >= vuThresholdsPu[10]) {currentMeterPeakIndex = 3;}  // -18dBfs
+		else if (rChannel[i].meterPu >= vuThresholdsPu[14]) {currentMeterPeakIndex = 2;}  // -30dBfs
+		else if (rChannel[i].meterPu >= vuThresholdsPu[24]) {currentMeterPeakIndex = 1;}  // -60dBfs
 		else {currentMeterPeakIndex = 0;} // below -60dBfs
 
-		if (currentMeterPeakIndex >= Channel[i].meterPeakIndex) {
+		if (currentMeterPeakIndex >= rChannel[i].meterPeakIndex) {
 			// currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
-			Channel[i].meterPeakIndex = currentMeterPeakIndex;
-			Channel[i].meterPeakHoldTimer = 100; // preload to 1000ms
+			rChannel[i].meterPeakIndex = currentMeterPeakIndex;
+			rChannel[i].meterPeakHoldTimer = 100; // preload to 1000ms
 		}else{
 			// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
-			if (Channel[i].meterPeakHoldTimer > 0) {
+			if (rChannel[i].meterPeakHoldTimer > 0) {
 				// hold current LED
-				Channel[i].meterPeakHoldTimer--;
-				Channel[i].meterPeakDecayTimer = 10; // preload
+				rChannel[i].meterPeakHoldTimer--;
+				rChannel[i].meterPeakDecayTimer = 10; // preload
 			}else{
 				// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
-				if (Channel[i].meterPeakIndex > currentMeterPeakIndex) {
-					if (Channel[i].meterPeakDecayTimer > 0) {
-						Channel[i].meterPeakDecayTimer--;
+				if (rChannel[i].meterPeakIndex > currentMeterPeakIndex) {
+					if (rChannel[i].meterPeakDecayTimer > 0) {
+						rChannel[i].meterPeakDecayTimer--;
 					}else{
-						Channel[i].meterPeakIndex--;
-						Channel[i].meterPeakDecayTimer = 10; // preload for next iteration
+						rChannel[i].meterPeakIndex--;
+						rChannel[i].meterPeakDecayTimer = 10; // preload for next iteration
 					}
 				}
 			}
 		}
 
 		// Step 2: Calculate decayed value
-		if (Channel[i].meterPu > Channel[i].meterDecay) {
+		if (rChannel[i].meterPu > rChannel[i].meterDecay) {
 			// current value is above stored decay-value -> copy value immediatly
-			Channel[i].meterDecay = Channel[i].meterPu;
+			rChannel[i].meterDecay = rChannel[i].meterPu;
 		}else{
 			// current value is below -> afterglow
 			// this function is called every 10ms. A Decay-Rate of 6dB/second would be ideal, but we do a rought estimation here
-			Channel[i].meterDecay -= (Channel[i].meterDecay / 20.0f);
+			rChannel[i].meterDecay -= (rChannel[i].meterDecay / 20.0f);
 		}
 
 		// Step 3: Calculate real LEDs to switch on
 		// data contains a 32-bit sample-value
 		// lets check the threshold and set meterInfo
-		Channel[i].meterInfo = 0;
-		if (Channel[i].meterDecay >= vuThresholdsPu[0])  { Channel[i].meterInfo |= 0b00100000; } // CLIP
-		if (Channel[i].meterDecay >= vuThresholdsPu[5])  { Channel[i].meterInfo |= 0b00010000; } // -6dBfs
-		if (Channel[i].meterDecay >= vuThresholdsPu[8])  { Channel[i].meterInfo |= 0b00001000; } // -12dBfs
-		if (Channel[i].meterDecay >= vuThresholdsPu[10]) { Channel[i].meterInfo |= 0b00000100; } // -18dBfs
-		if (Channel[i].meterDecay >= vuThresholdsPu[14]) { Channel[i].meterInfo |= 0b00000010; } // -30dBfs
-		if (Channel[i].meterDecay >= vuThresholdsPu[24]) { Channel[i].meterInfo |= 0b00000001; } // -60dBfs
+		rChannel[i].meterInfo = 0;
+		if (rChannel[i].meterDecay >= vuThresholdsPu[0])  { rChannel[i].meterInfo |= 0b00100000; } // CLIP
+		if (rChannel[i].meterDecay >= vuThresholdsPu[5])  { rChannel[i].meterInfo |= 0b00010000; } // -6dBfs
+		if (rChannel[i].meterDecay >= vuThresholdsPu[8])  { rChannel[i].meterInfo |= 0b00001000; } // -12dBfs
+		if (rChannel[i].meterDecay >= vuThresholdsPu[10]) { rChannel[i].meterInfo |= 0b00000100; } // -18dBfs
+		if (rChannel[i].meterDecay >= vuThresholdsPu[14]) { rChannel[i].meterInfo |= 0b00000010; } // -30dBfs
+		if (rChannel[i].meterDecay >= vuThresholdsPu[24]) { rChannel[i].meterInfo |= 0b00000001; } // -60dBfs
 
 		uint8_t peakBit = 0;
-		switch (Channel[i].meterPeakIndex) {
+		switch (rChannel[i].meterPeakIndex) {
 			case 6: peakBit = 0b00100000; break; // CLIP
 			case 5: peakBit = 0b00010000; break; // -6dBfs
 			case 4: peakBit = 0b00001000; break; // -12dBfs
@@ -664,11 +664,11 @@ void DSP1::UpdateVuMeter() {
 			case 1: peakBit = 0b00000001; break; // -60dBfs
 			default: peakBit = 0; break;
 		}
-		Channel[i].meterInfo |= peakBit;
+		rChannel[i].meterInfo |= peakBit;
 
 		// the dynamic-information is received with the 'd' information, but we will store them here
-		if (Channel[i].gate.gain < 1.0f) { Channel[i].meterInfo |= 0b01000000; }
-		if (Channel[i].compressor.gain < 1.0f) { Channel[i].meterInfo |= 0b10000000; }
+		if (Channel[i].gate.gain < 1.0f) { rChannel[i].meterInfo |= 0b01000000; }
+		if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meterInfo |= 0b10000000; }
 
 		//Channel[i].compressor.gain = floatValues[45 + i];
 		//Channel[i].gate.gain = floatValues[85 + i];
@@ -694,7 +694,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                         MainChannelLR.meterPu[1] = abs(floatValues[3])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         MainChannelSub.meterPu[0] = abs(floatValues[4])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         for (int i = 0; i < 40; i++) {
-                            Channel[i].meterPu = abs(floatValues[5 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                            rChannel[i].meterPu = abs(floatValues[5 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         }
                     }
                     break;
