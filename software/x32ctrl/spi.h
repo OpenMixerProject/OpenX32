@@ -14,9 +14,10 @@
 #define SPI_DEVICE_DSP1 "/dev/spidev0.0"
 #define SPI_DEVICE_DSP2 "/dev/spidev0.1"
 #define SPI_DEVICE_FPGA "/dev/spidev2.0"
-#define SPI_FPGA_XILINX_SPEED_HZ 10000000 // 10 MHz for the FPGA, seems to be fine
+#define MHz * 1000000
+#define SPI_FPGA_XILINX_SPEED_HZ 10 MHz // 10 MHz for the FPGA, seems to be fine
 #define SPI_FPGA_LATTICE_SPEED_HZ (8000 * 1024) // ~8MHz
-#define SPI_DSP_SPEED_HZ 1000000 // 16 MHz is the regular SPI-clock on the original X32
+#define SPI_DSP_SPEED_HZ 2 MHz // -> 16 MHz is the regular SPI-clock on the original X32
 
 // defines for FPGA-configuration via SPI
 #define PROG_B_GPIO_OFFSET      30
