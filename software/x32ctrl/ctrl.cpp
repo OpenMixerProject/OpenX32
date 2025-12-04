@@ -1127,7 +1127,7 @@ void X32Ctrl::guiSync(void) {
 		//####################################
 		//#         Page Meters
 		//####################################
-			guiSetEncoderText("Reload DSP1", "-", "-", "-", "-", String(state->debugvalue).c_str());
+			guiSetEncoderText("Reload DSP1", "Reset DSP1", "-", "-", "-", String(state->debugvalue).c_str());
 		}else{
 		//####################################
 		//#         All other pages
@@ -2114,6 +2114,8 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 						mixer->dsp->SendAll();
 						break;
 					case X32_BTN_ENCODER2:
+						// reset SPORT in DSP1
+						mixer->dsp->Reset();
 						break;
 					case X32_BTN_ENCODER3:
 						break;

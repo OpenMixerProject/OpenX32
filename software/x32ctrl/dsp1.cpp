@@ -304,6 +304,12 @@ void DSP1::ResetEq(uint8_t chan) {
     spi->SendDspParameterArray(0, 'e', chan, 'r', 1, &values[0]);
 }
 
+void DSP1::Reset() {
+    float values[1];
+    values[0] = 0;
+    spi->SendDspParameterArray(0, 'a', 0, 'r', 1, &values[0]);
+}
+
 void DSP1::SendCompressor(uint8_t chan) {
     fx->RecalcCompressor(&Channel[chan].compressor);
 
