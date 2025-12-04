@@ -147,7 +147,7 @@ typedef struct {
   bool solo;
 
   float meterPu; // meter information in p.u.
-  uint32_t meterDecay; // meter information with decay
+  float meterDecay; // meter information with decay
   uint8_t meterPeakIndex;
   uint8_t meterPeakHoldTimer; // will be updated every 100ms. On 0 the current value will be used
   uint8_t meterPeakDecayTimer;
@@ -196,7 +196,7 @@ typedef struct {
   bool solo;
 
   float meterPu[2]; // meter information in p.u.
-  uint32_t meterDecay[2]; // meter information with decay
+  float meterDecay[2]; // meter information with decay
   uint8_t meterPeakIndex[2];
   uint8_t meterPeakHoldTimer[2]; // will be updated every 100ms. On 0 the current value will be used
   uint8_t meterPeakDecayTimer[2];

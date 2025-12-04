@@ -122,6 +122,9 @@ void DSP1::Tick10ms(void) {
             callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
         }
     }
+
+    // recalculate peak-hold and VU with decay
+    UpdateVuMeter();
 }
 
 void DSP1::Tick100ms(void) {
@@ -461,6 +464,217 @@ void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInpu
     }
 }
 
+void DSP1::UpdateVuMeter() {
+	// leds Main   = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
+
+	float data[3];
+	data[0] = MainChannelLR.meterPu[0];
+	data[1] = MainChannelLR.meterPu[1];
+	data[2] = MainChannelSub.meterPu[0];
+
+	// Step 1: Perform Peak Hold Logic for MainL/R and Sub
+	uint8_t currentMeterPeakIndexMain[3]; // L, R, Sub
+	for (int k = 0; k < 3; k++) {
+		currentMeterPeakIndexMain[k] = 0;
+		for (int i = 0; i < 24; i++) {
+			if (data[k] >= vuThresholdsPu[i]) {
+				currentMeterPeakIndexMain[k] = (23 - i) + 1;
+				break;
+			}
+		}
+	}
+	// MainLeft
+	if (currentMeterPeakIndexMain[0] >= MainChannelLR.meterPeakIndex[0]) {
+		MainChannelLR.meterPeakIndex[0] = currentMeterPeakIndexMain[0];
+		MainChannelLR.meterPeakHoldTimer[0] = 100; // preload to 1000ms
+	}else{
+		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
+		if (MainChannelLR.meterPeakHoldTimer[0] > 0) {
+			// hold current LED
+			MainChannelLR.meterPeakHoldTimer[0]--;
+			MainChannelLR.meterPeakDecayTimer[0] = 10; // preload to 100ms
+		}else{
+			// let peak LED fall down every 100ms. It takes a maximum of 2400ms to let the peak fall down over all 24 LEDs
+			if (MainChannelLR.meterPeakIndex[0] > currentMeterPeakIndexMain[0]) {
+				if (MainChannelLR.meterPeakDecayTimer[0] > 0) {
+					MainChannelLR.meterPeakDecayTimer[0]--;
+				}else{
+					MainChannelLR.meterPeakIndex[0]--;
+					MainChannelLR.meterPeakDecayTimer[0] = 10; // preload for next iteration
+				}
+			}
+		}
+	}
+	// MainRight
+	if (currentMeterPeakIndexMain[1] >= MainChannelLR.meterPeakIndex[1]) {
+		MainChannelLR.meterPeakIndex[1] = currentMeterPeakIndexMain[1];
+		MainChannelLR.meterPeakHoldTimer[1] = 100; // preload to 1000ms
+	}else{
+		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
+		if (MainChannelLR.meterPeakHoldTimer[1] > 0) {
+			// hold current LED
+			MainChannelLR.meterPeakHoldTimer[1]--;
+			MainChannelLR.meterPeakDecayTimer[1] = 10; // preload to 100ms
+		}else{
+			// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
+			if (MainChannelLR.meterPeakIndex[1] > currentMeterPeakIndexMain[1]) {
+				if (MainChannelLR.meterPeakDecayTimer[1] > 0) {
+					MainChannelLR.meterPeakDecayTimer[1]--;
+				}else{
+					MainChannelLR.meterPeakIndex[1]--;
+					MainChannelLR.meterPeakDecayTimer[1] = 10; // preload for next iteration
+				}
+			}
+		}
+	}
+	// Sub
+	if (currentMeterPeakIndexMain[2] >= MainChannelSub.meterPeakIndex[0]) {
+		MainChannelSub.meterPeakIndex[0] = currentMeterPeakIndexMain[2];
+		MainChannelSub.meterPeakHoldTimer[0] = 100; // preload to 1000ms
+	}else{
+		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
+		if (MainChannelSub.meterPeakHoldTimer[0] > 0) {
+			// hold current LED
+			MainChannelSub.meterPeakHoldTimer[0]--;
+			MainChannelSub.meterPeakDecayTimer[0] = 10; // preload to 100ms
+		}else{
+			// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
+			if (MainChannelSub.meterPeakIndex[0] > currentMeterPeakIndexMain[2]) {
+				if (MainChannelSub.meterPeakDecayTimer[0] > 0) {
+					MainChannelSub.meterPeakDecayTimer[0]--;
+				}else{
+					MainChannelSub.meterPeakIndex[0]--;
+					MainChannelSub.meterPeakDecayTimer[0] = 10; // preload for next iteration
+				}
+			}
+		}
+	}
+
+	// Step 2: Calculate decayed value
+	// MainLeft
+	if (MainChannelLR.meterPu[0] > MainChannelLR.meterDecay[0]) {
+		// current value is above stored decay-value -> copy value immediatly
+		MainChannelLR.meterDecay[0] = MainChannelLR.meterPu[0];
+	}else{
+		// current value is below -> afterglow
+		MainChannelLR.meterDecay[0] -= (MainChannelLR.meterDecay[0] / 20.0f);
+	}
+	// MainRight
+	if (MainChannelLR.meterPu[1] > MainChannelLR.meterDecay[1]) {
+		// current value is above stored decay-value -> copy value immediatly
+		MainChannelLR.meterDecay[1] = MainChannelLR.meterPu[1];
+	}else{
+		// current value is below -> afterglow
+		MainChannelLR.meterDecay[1] -= (MainChannelLR.meterDecay[1] / 20.0f);
+	}
+	// MainSub
+	if (MainChannelSub.meterPu[0] > MainChannelSub.meterDecay[0]) {
+		// current value is above stored decay-value -> copy value immediatly
+		MainChannelSub.meterDecay[0] = MainChannelSub.meterPu[0];
+	}else{
+		// current value is below -> afterglow
+		MainChannelSub.meterDecay[0] -= (MainChannelSub.meterDecay[0] / 20.0f);
+	}
+
+	// Step 3: Calculate real LEDs to switch on
+	MainChannelLR.meterInfo[0] = 0;
+	MainChannelLR.meterInfo[1] = 0;
+	MainChannelSub.meterInfo[0] = 0;
+	for (int i = 0; i < 24; i++) {
+		if (MainChannelLR.meterDecay[0] >= vuThresholdsPu[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
+		if (MainChannelLR.meterDecay[1] >= vuThresholdsPu[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
+		if (MainChannelSub.meterDecay[0] >= vuThresholdsPu[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
+	}
+	if (MainChannelLR.meterPeakIndex[0] > 0) {
+		MainChannelLR.meterInfo[0]  |= (1U << (MainChannelLR.meterPeakIndex[0] - 1));
+	}
+	if (MainChannelLR.meterPeakIndex[1] > 0) {
+		MainChannelLR.meterInfo[1]  |= (1U << (MainChannelLR.meterPeakIndex[1] - 1));
+	}
+	if (MainChannelSub.meterPeakIndex[0] > 0) {
+		MainChannelSub.meterInfo[0]  |= (1U << (MainChannelSub.meterPeakIndex[0] - 1));
+	}
+
+	// Now calculate the VU Meter LEDs for each channel
+	// leds Channel = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+	for (int i = 0; i < 40; i++) {
+		// check if current data is above stored peak-index
+
+		// Step 1: Perform Peak Hold Logic
+		uint8_t currentMeterPeakIndex;
+		if (Channel[i].meterPu >= vuThresholdsPu[0]) {currentMeterPeakIndex = 6;}        // CLIP
+		else if (Channel[i].meterPu >= vuThresholdsPu[5]) {currentMeterPeakIndex = 5;}   // -6dBfs
+		else if (Channel[i].meterPu >= vuThresholdsPu[8]) {currentMeterPeakIndex = 4;}   // -12dBfs
+		else if (Channel[i].meterPu >= vuThresholdsPu[10]) {currentMeterPeakIndex = 3;}  // -18dBfs
+		else if (Channel[i].meterPu >= vuThresholdsPu[14]) {currentMeterPeakIndex = 2;}  // -30dBfs
+		else if (Channel[i].meterPu >= vuThresholdsPu[24]) {currentMeterPeakIndex = 1;}  // -60dBfs
+		else {currentMeterPeakIndex = 0;} // below -60dBfs
+
+		if (currentMeterPeakIndex >= Channel[i].meterPeakIndex) {
+			// currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
+			Channel[i].meterPeakIndex = currentMeterPeakIndex;
+			Channel[i].meterPeakHoldTimer = 100; // preload to 1000ms
+		}else{
+			// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
+			if (Channel[i].meterPeakHoldTimer > 0) {
+				// hold current LED
+				Channel[i].meterPeakHoldTimer--;
+				Channel[i].meterPeakDecayTimer = 10; // preload
+			}else{
+				// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
+				if (Channel[i].meterPeakIndex > currentMeterPeakIndex) {
+					if (Channel[i].meterPeakDecayTimer > 0) {
+						Channel[i].meterPeakDecayTimer--;
+					}else{
+						Channel[i].meterPeakIndex--;
+						Channel[i].meterPeakDecayTimer = 10; // preload for next iteration
+					}
+				}
+			}
+		}
+
+		// Step 2: Calculate decayed value
+		if (Channel[i].meterPu > Channel[i].meterDecay) {
+			// current value is above stored decay-value -> copy value immediatly
+			Channel[i].meterDecay = Channel[i].meterPu;
+		}else{
+			// current value is below -> afterglow
+			// this function is called every 10ms. A Decay-Rate of 6dB/second would be ideal, but we do a rought estimation here
+			Channel[i].meterDecay -= (Channel[i].meterDecay / 20.0f);
+		}
+
+		// Step 3: Calculate real LEDs to switch on
+		// data contains a 32-bit sample-value
+		// lets check the threshold and set meterInfo
+		Channel[i].meterInfo = 0;
+		if (Channel[i].meterDecay >= vuThresholdsPu[0])  { Channel[i].meterInfo |= 0b00100000; } // CLIP
+		if (Channel[i].meterDecay >= vuThresholdsPu[5])  { Channel[i].meterInfo |= 0b00010000; } // -6dBfs
+		if (Channel[i].meterDecay >= vuThresholdsPu[8])  { Channel[i].meterInfo |= 0b00001000; } // -12dBfs
+		if (Channel[i].meterDecay >= vuThresholdsPu[10]) { Channel[i].meterInfo |= 0b00000100; } // -18dBfs
+		if (Channel[i].meterDecay >= vuThresholdsPu[14]) { Channel[i].meterInfo |= 0b00000010; } // -30dBfs
+		if (Channel[i].meterDecay >= vuThresholdsPu[24]) { Channel[i].meterInfo |= 0b00000001; } // -60dBfs
+
+		uint8_t peakBit = 0;
+		switch (Channel[i].meterPeakIndex) {
+			case 6: peakBit = 0b00100000; break; // CLIP
+			case 5: peakBit = 0b00010000; break; // -6dBfs
+			case 4: peakBit = 0b00001000; break; // -12dBfs
+			case 3: peakBit = 0b00000100; break; // -18dBfs
+			case 2: peakBit = 0b00000010; break; // -30dBfs
+			case 1: peakBit = 0b00000001; break; // -60dBfs
+			default: peakBit = 0; break;
+		}
+		Channel[i].meterInfo |= peakBit;
+
+		// the dynamic-information is received with the 'd' information, but we will store them here
+		if (Channel[i].gate.gain < 1.0f) { Channel[i].meterInfo |= 0b01000000; }
+		if (Channel[i].compressor.gain < 1.0f) { Channel[i].meterInfo |= 0b10000000; }
+
+		//Channel[i].compressor.gain = floatValues[45 + i];
+		//Channel[i].gate.gain = floatValues[85 + i];
+	}
+}
+
 void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
@@ -475,218 +689,12 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                         state->dspVersion[0] = floatValues[0];
                         state->dspLoad[0] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
 
-                        MainChannelLR.meterPu[0] = abs(floatValues[2])/2147483648.0f; // convert 32-bit value to p.u.
-                        MainChannelLR.meterPu[1] = abs(floatValues[3])/2147483648.0f; // convert 32-bit value to p.u.
-                        MainChannelSub.meterPu[0] = abs(floatValues[4])/2147483648.0f; // convert 32-bit value to p.u.
-
-                        // leds Main   = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
-                        uint32_t data[3];
-                        data[0] = abs(floatValues[2]);
-                        data[1] = abs(floatValues[3]);
-                        data[2] = abs(floatValues[4]);
-                        
-                        // Step 1: Perform Peak Hold Logic for MainL/R and Sub
-                        uint8_t currentMeterPeakIndexMain[3];
-                        for (int k = 0; k < 3; k++) {
-                            currentMeterPeakIndexMain[k] = 0;
-                            for (int i = 0; i < 24; i++) {
-                                if (data[k] >= vuThresholds[i]) {
-                                    currentMeterPeakIndexMain[k] = (23 - i) + 1;
-                                    break;
-                                }
-                            }
-                        }
-                        // MainLeft
-                        if (currentMeterPeakIndexMain[0] >= MainChannelLR.meterPeakIndex[0]) { 
-                            MainChannelLR.meterPeakIndex[0] = currentMeterPeakIndexMain[0];
-                            MainChannelLR.meterPeakHoldTimer[0] = 100; // preload to 1000ms
-                        }else{
-                            // currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
-                            if (MainChannelLR.meterPeakHoldTimer[0] > 0) {
-                                // hold current LED
-                                MainChannelLR.meterPeakHoldTimer[0]--;
-                                MainChannelLR.meterPeakDecayTimer[0] = 10; // preload
-                            }else{
-                                // let peak LED fall down every 100ms. It takes a maximum of 2400ms to let the peak fall down over all 24 LEDs
-                                if (MainChannelLR.meterPeakIndex[0] > currentMeterPeakIndexMain[0]) {
-                                    if (MainChannelLR.meterPeakDecayTimer[0] > 0) {
-                                        MainChannelLR.meterPeakDecayTimer[0]--;
-                                    }else{
-                                        MainChannelLR.meterPeakIndex[0]--;
-                                        MainChannelLR.meterPeakDecayTimer[0] = 10; // preload for next iteration
-                                    }
-                                }
-                            }
-                        }
-                        // MainRight
-                        if (currentMeterPeakIndexMain[1] >= MainChannelLR.meterPeakIndex[1]) { 
-                            MainChannelLR.meterPeakIndex[1] = currentMeterPeakIndexMain[1];
-                            MainChannelLR.meterPeakHoldTimer[1] = 100; // preload to 1000ms
-                        }else{
-                            // currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
-                            if (MainChannelLR.meterPeakHoldTimer[1] > 0) {
-                                // hold current LED
-                                MainChannelLR.meterPeakHoldTimer[1]--;
-                                MainChannelLR.meterPeakDecayTimer[1] = 10; // preload
-                            }else{
-                                // let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
-                                if (MainChannelLR.meterPeakIndex[1] > currentMeterPeakIndexMain[1]) {
-                                    if (MainChannelLR.meterPeakDecayTimer[1] > 0) {
-                                        MainChannelLR.meterPeakDecayTimer[1]--;
-                                    }else{
-                                        MainChannelLR.meterPeakIndex[1]--;
-                                        MainChannelLR.meterPeakDecayTimer[1] = 10; // preload for next iteration
-                                    }
-                                }
-                            }
-                        }
-                        // Sub
-                        if (currentMeterPeakIndexMain[2] >= MainChannelSub.meterPeakIndex[0]) { 
-                            MainChannelSub.meterPeakIndex[0] = currentMeterPeakIndexMain[2];
-                            MainChannelSub.meterPeakHoldTimer[0] = 100; // preload to 1000ms
-                        }else{
-                            // currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
-                            if (MainChannelSub.meterPeakHoldTimer[0] > 0) {
-                                // hold current LED
-                                MainChannelSub.meterPeakHoldTimer[0]--;
-                                MainChannelSub.meterPeakDecayTimer[0] = 10; // preload
-                            }else{
-                                // let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
-                                if (MainChannelSub.meterPeakIndex[0] > currentMeterPeakIndexMain[2]) {
-                                    if (MainChannelSub.meterPeakDecayTimer[0] > 0) {
-                                        MainChannelSub.meterPeakDecayTimer[0]--;
-                                    }else{
-                                        MainChannelSub.meterPeakIndex[0]--;
-                                        MainChannelSub.meterPeakDecayTimer[0] = 10; // preload for next iteration
-                                    }
-                                }
-                            }
-                        }
-
-                        // Step 2: Calculate decayed value
-                        // MainLeft
-                        if (data[0] > MainChannelLR.meterDecay[0]) {
-                            // current value is above stored decay-value -> copy value immediatly
-                            MainChannelLR.meterDecay[0] = data[0];
-                        }else{
-                            // current value is below -> afterglow
-                            MainChannelLR.meterDecay[0] -= (MainChannelLR.meterDecay[0] / 20);
-                        }
-                        // MainRight
-                        if (data[1] > MainChannelLR.meterDecay[1]) {
-                            // current value is above stored decay-value -> copy value immediatly
-                            MainChannelLR.meterDecay[1] = data[1];
-                        }else{
-                            // current value is below -> afterglow
-                            MainChannelLR.meterDecay[1] -= (MainChannelLR.meterDecay[1] / 20);
-                        }
-                        // MainLeft
-                        if (data[2] > MainChannelSub.meterDecay[0]) {
-                            // current value is above stored decay-value -> copy value immediatly
-                            MainChannelSub.meterDecay[0] = data[2];
-                        }else{
-                            // current value is below -> afterglow
-                            MainChannelSub.meterDecay[0] -= (MainChannelSub.meterDecay[0] / 20);
-                        }
-
-                        // Step 3: Calculate real LEDs to switch on
-                        MainChannelLR.meterInfo[0] = 0;
-                        MainChannelLR.meterInfo[1] = 0;
-                        MainChannelSub.meterInfo[0] = 0;
-                        for (int i = 0; i < 24; i++) {
-                            if (MainChannelLR.meterDecay[0] >= vuThresholds[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
-                            if (MainChannelLR.meterDecay[1] >= vuThresholds[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
-                            if (MainChannelSub.meterDecay[0] >= vuThresholds[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
-                        }
-                        if (MainChannelLR.meterPeakIndex[0] > 0) {
-                            MainChannelLR.meterInfo[0]  |= (1U << (MainChannelLR.meterPeakIndex[0] - 1));
-                        }
-                        if (MainChannelLR.meterPeakIndex[1] > 0) {
-                            MainChannelLR.meterInfo[1]  |= (1U << (MainChannelLR.meterPeakIndex[1] - 1));
-                        }
-                        if (MainChannelSub.meterPeakIndex[0] > 0) {
-                            MainChannelSub.meterInfo[0]  |= (1U << (MainChannelSub.meterPeakIndex[0] - 1));
-                        }
-
-                        // Now calculate the VU Meter LEDs for each channel
-                        // leds Channel = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
+                        // copy meter-info to channel-struct
+                        MainChannelLR.meterPu[0] = abs(floatValues[2])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        MainChannelLR.meterPu[1] = abs(floatValues[3])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        MainChannelSub.meterPu[0] = abs(floatValues[4])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         for (int i = 0; i < 40; i++) {
-                            Channel[i].meterPu = abs(floatValues[5 + i])/2147483648.0f; // convert 32-bit value to p.u.
-                            // check if current data is above stored peak-index
-                            uint32_t data = (uint32_t)abs(floatValues[5 + i]); // convert received float-value to unsigned integer
-
-                            // Step 1: Perform Peak Hold Logic
-                            uint8_t currentMeterPeakIndex;
-                            if (data >= vuThresholds[0]) {currentMeterPeakIndex = 6;}        // CLIP
-                            else if (data >= vuThresholds[5]) {currentMeterPeakIndex = 5;}   // -6dBfs
-                            else if (data >= vuThresholds[8]) {currentMeterPeakIndex = 4;}   // -12dBfs
-                            else if (data >= vuThresholds[10]) {currentMeterPeakIndex = 3;}  // -18dBfs
-                            else if (data >= vuThresholds[14]) {currentMeterPeakIndex = 2;}  // -30dBfs
-                            else if (data >= vuThresholds[24]) {currentMeterPeakIndex = 1;}  // -60dBfs
-                            else {currentMeterPeakIndex = 0;} // below -60dBfs
-
-                            if (currentMeterPeakIndex >= Channel[i].meterPeakIndex) {
-                                // currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
-                                Channel[i].meterPeakIndex = currentMeterPeakIndex;
-                                Channel[i].meterPeakHoldTimer = 100; // preload to 1000ms
-                            }else{
-                                // currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
-                                if (Channel[i].meterPeakHoldTimer > 0) {
-                                    // hold current LED
-                                    Channel[i].meterPeakHoldTimer--;
-                                    Channel[i].meterPeakDecayTimer = 10; // preload
-                                }else{
-                                    // let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
-                                    if (Channel[i].meterPeakIndex > currentMeterPeakIndex) {
-                                    if (Channel[i].meterPeakDecayTimer > 0) {
-                                        Channel[i].meterPeakDecayTimer--;
-                                    }else{
-                                        Channel[i].meterPeakIndex--;
-                                        Channel[i].meterPeakDecayTimer = 10; // preload for next iteration
-                                    }
-                                    }
-                                }
-                            }
-
-                            // Step 2: Calculate decayed value
-                            if (data > Channel[i].meterDecay) {
-                                // current value is above stored decay-value -> copy value immediatly
-                                Channel[i].meterDecay = data;
-                            }else{
-                                // current value is below -> afterglow
-                                // this function is called every 10ms. A Decay-Rate of 6dB/second would be ideal, but we do a rought estimation here
-                                Channel[i].meterDecay -= (Channel[i].meterDecay / 20);
-                            }
-
-                            // Step 3: Calculate real LEDs to switch on
-                            // data contains a 32-bit sample-value
-                            // lets check the threshold and set meterInfo
-                            Channel[i].meterInfo = 0;
-                            if (Channel[i].meterDecay >= vuThresholds[0])  { Channel[i].meterInfo |= 0b00100000; } // CLIP
-                            if (Channel[i].meterDecay >= vuThresholds[5])  { Channel[i].meterInfo |= 0b00010000; } // -6dBfs
-                            if (Channel[i].meterDecay >= vuThresholds[8])  { Channel[i].meterInfo |= 0b00001000; } // -12dBfs
-                            if (Channel[i].meterDecay >= vuThresholds[10]) { Channel[i].meterInfo |= 0b00000100; } // -18dBfs
-                            if (Channel[i].meterDecay >= vuThresholds[14]) { Channel[i].meterInfo |= 0b00000010; } // -30dBfs
-                            if (Channel[i].meterDecay >= vuThresholds[24]) { Channel[i].meterInfo |= 0b00000001; } // -60dBfs
-
-                            uint8_t peakBit = 0;
-                            switch (Channel[i].meterPeakIndex) {
-                                case 6: peakBit = 0b00100000; break; // CLIP
-                                case 5: peakBit = 0b00010000; break; // -6dBfs
-                                case 4: peakBit = 0b00001000; break; // -12dBfs
-                                case 3: peakBit = 0b00000100; break; // -18dBfs
-                                case 2: peakBit = 0b00000010; break; // -30dBfs
-                                case 1: peakBit = 0b00000001; break; // -60dBfs
-                                default: peakBit = 0; break;
-                            }
-                            Channel[i].meterInfo |= peakBit;
-
-                            // the dynamic-information is received with the 'd' information, but we will store them here
-                            if (Channel[i].gate.gain < 1.0f) { Channel[i].meterInfo |= 0b01000000; }
-                            if (Channel[i].compressor.gain < 1.0f) { Channel[i].meterInfo |= 0b10000000; }
-
-                            //Channel[i].compressor.gain = floatValues[45 + i];
-                            //Channel[i].gate.gain = floatValues[85 + i];
+                            Channel[i].meterPu = abs(floatValues[5 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         }
                     }
                     break;
