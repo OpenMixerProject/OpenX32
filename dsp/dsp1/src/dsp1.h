@@ -139,7 +139,7 @@ typedef struct {
 
 typedef struct {
 	sGate gate;
-	float pm peqCoeffsSet[5 * MAX_CHAN_EQS]; // store in program memory
+	//float pm peqCoeffsSet[5 * MAX_CHAN_EQS]; // store in program memory
 	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in program memory
 	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
 	sCompressor compressor;

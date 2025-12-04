@@ -238,23 +238,61 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			switch (index) {
 				case 'l': // LowCut
 					if (valueCount == 1) {
+						// copy coefficient
 						//dsp.lowcutCoeffSet[channel] = floatValues[0];
 						dsp.lowcutCoeff[channel] = floatValues[0];
+
+						// reset integrators
+						dsp.lowcutStatesInput[channel] = 0;
+						dsp.lowcutStatesOutput[channel] = 0;
+
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 'e': // EQ
 					if (valueCount == (MAX_CHAN_EQS * 5)) {
+						// copy biquad-coefficients
 						//memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
 						memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
+
+						// reset biquad-integrators
+						memset(&dsp.dspChannel[channel].peqStates[0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
+
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
-				case 'r': // Reset PEQ
-					if (valueCount == 1) {
-						memset(&dsp.dspChannel[channel].peqStates[0], 0, 8 * sizeof(float));
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+				case 'r': // reset channel-parameters
+					// init single-pole lowcut
+					dsp.lowcutCoeff[channel] = 0.993497573586; // 50Hz: equation = 1.0f / (1.0f + 2.0f * M_PI * desiredLowCutFrequency * (1.0f/samplerate));
+					dsp.lowcutStatesInput[channel] = 0.0;
+					dsp.lowcutStatesOutput[channel] = 0.0;
+
+					// initialize PEQs
+					float coeffs[5] = {1, 0, 0, 0, 0}; // a0, a1, a2, b1, b2: direct passthrough
+					for (int i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
+						fxSetPeqCoeffs(channel, i_peq, &coeffs[0]);
 					}
+					// init PEQ-states
+					for (int s = 0; s < (2 * MAX_CHAN_EQS); s++) {
+						dsp.dspChannel[channel].peqStates[s] = 0;
+						dsp.dspChannel[channel].peqStates[s] = 0;
+					}
+
+					// reset biquad-integrators
+					dsp.lowcutStatesInput[channel] = 0;
+					dsp.lowcutStatesOutput[channel] = 0;
+					memset(&dsp.dspChannel[channel].peqStates[0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
+
+					/*
+					// reset the channel-configuration to have a working channel
+					dsp.channelVolume[channel] = 1.0f;
+					dsp.channelSendMainLeftVolume[channel] = 1.0f;
+					dsp.channelSendMainRightVolume[channel] = 1.0f;
+					dsp.channelSendMainSubVolume[channel] = 1.0f;
+					dsp.outputTapPoint[channel] = TAP_POST_FADER;
+					dsp.outputRouting[channel] = DSP_BUF_IDX_MAINLEFT;
+					*/
+
 					break;
 			}
 			break;
@@ -290,7 +328,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 					break;
 				case 'r':
-					// reset whole DSP to standard parameters
+					// reset SPORT-system
 					systemSportInit();
 					break;
 			}

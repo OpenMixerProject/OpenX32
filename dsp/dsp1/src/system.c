@@ -39,7 +39,7 @@ void systemPllInit()
 
     // bypass mode must be used if any runtime VCO clock change is required
 	pmctlsetting |= PLLBP;
-    pmctlsetting ^= DIVEN; // DIVEN can be cleared: DIVEN=1 -> Load PLLD, DIVEN=0 -> Do not load PLLD
+    pmctlsetting &= ~DIVEN; // DIVEN can be cleared: DIVEN=1 -> Load PLLD, DIVEN=0 -> Do not load PLLD
 	*pPMCTL = pmctlsetting;
 
     /*Wait for around 4096 cycles for the pll to lock.*/
@@ -48,7 +48,7 @@ void systemPllInit()
     }
 
     // disable bypass mode
-    *pPMCTL ^= PLLBP;
+    *pPMCTL &= ~PLLBP;
 }
 
 void systemExternalMemoryInit()

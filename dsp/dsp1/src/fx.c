@@ -108,6 +108,7 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	}
 }
 
+/*
 void fxSmoothCoeffs(void) {
 	// this function is called every 333µs
 	float value;
@@ -121,7 +122,7 @@ void fxSmoothCoeffs(void) {
 		}
 	}
 }
-
+*/
 
 void fxProcessCompressorLogic(int channel, float samples[]) {
 	float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER));
@@ -138,7 +139,7 @@ void fxProcessCompressorLogic(int channel, float samples[]) {
 			}
 
 			dsp.dspChannel[channel].compressor.state = COMPRESSOR_ATTACK;
-			// fall-through to ATTACK
+			// no break by intention: fall-through to ATTACK
 		case COMPRESSOR_ATTACK:
 			// overshoot = abs(sample) - threshold
 			// output = (overshoot / ratio) + threshold
@@ -150,7 +151,7 @@ void fxProcessCompressorLogic(int channel, float samples[]) {
 
 			dsp.compressorCoeff[channel] = dsp.dspChannel[channel].compressor.value_coeff_attack;
 			dsp.dspChannel[channel].compressor.state = COMPRESSOR_ACTIVE;
-			// fall-through to ACTIVE
+			// no break by intention: fall-through to ACTIVE
 		case COMPRESSOR_ACTIVE:
 			// check if we are still triggered
 			if (dsp.dspChannel[channel].compressor.triggered) {
@@ -171,7 +172,7 @@ void fxProcessCompressorLogic(int channel, float samples[]) {
 
 			dsp.dspChannel[channel].compressor.holdCounter = dsp.dspChannel[channel].compressor.value_hold_ticks;
 			dsp.dspChannel[channel].compressor.state = COMPRESSOR_HOLD;
-			// fall-through to hold
+			// no break by intention: fall-through to hold
 		case COMPRESSOR_HOLD:
 			if (dsp.dspChannel[channel].compressor.triggered) {
 				// re-enter active-state
@@ -195,7 +196,7 @@ void fxProcessCompressorLogic(int channel, float samples[]) {
 			}
 
 			dsp.dspChannel[channel].compressor.state = COMPRESSOR_RELEASE;
-			// fall-through to RELEASE
+			// no break by intention: fall-through to RELEASE
 		case COMPRESSOR_RELEASE:
 			dsp.compressorGainSet[channel] = 1.0f;
 			dsp.compressorCoeff[channel] = dsp.dspChannel[channel].compressor.value_coeff_release;
