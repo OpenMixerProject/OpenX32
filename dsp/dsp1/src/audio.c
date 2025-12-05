@@ -371,7 +371,7 @@ void audioProcessData(void) {
 	vecsmltf(&audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_DSPCHANNEL][0], dsp.channelSendMainLeftVolume[0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINLEFT][0], SAMPLES_IN_BUFFER);
 	vecsmltf(&audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_DSPCHANNEL][0], dsp.channelSendMainRightVolume[0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINRIGHT][0], SAMPLES_IN_BUFFER);
 	vecsmltf(&audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_DSPCHANNEL][0], dsp.channelSendMainSubVolume[0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][0], SAMPLES_IN_BUFFER);
-	// now add individual dsp-channels 2-40 to main
+	// add internal DSP-Channels 2-40 to main
 	for (int i_ch = 1; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
 		// calculate main left
 		vecsmltf(&audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], dsp.channelSendMainLeftVolume[i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER);
@@ -383,6 +383,20 @@ void audioProcessData(void) {
 
 		// calculate main sub
 		vecsmltf(&audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], dsp.channelSendMainSubVolume[i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER);
+		vecvaddf(&audioTempBuffer[0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][0], SAMPLES_IN_BUFFER);
+	}
+	// add FX- and AUX-Return to main-channels
+	for (int i_ch = 0; i_ch < MAX_DSP2; i_ch++) {
+		// calculate main left
+		vecsmltf(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSP2_FX + i_ch][0], dsp.channelSendMainLeftVolume[MAX_CHAN + i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER);
+		vecvaddf(&audioTempBuffer[0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINLEFT][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINLEFT][0], SAMPLES_IN_BUFFER);
+
+		// calculate main right
+		vecsmltf(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSP2_FX + i_ch][0], dsp.channelSendMainRightVolume[MAX_CHAN + i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER);
+		vecvaddf(&audioTempBuffer[0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINRIGHT][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINRIGHT][0], SAMPLES_IN_BUFFER);
+
+		// calculate main sub
+		vecsmltf(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSP2_FX + i_ch][0], dsp.channelSendMainSubVolume[MAX_CHAN + i_ch], &audioTempBuffer[0], SAMPLES_IN_BUFFER);
 		vecvaddf(&audioTempBuffer[0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][0], SAMPLES_IN_BUFFER);
 	}
 

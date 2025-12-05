@@ -169,9 +169,9 @@ struct {
 	float compressorMakeup[MAX_CHAN];
 
 	float channelVolume[MAX_CHAN]; // in p.u.
-	float channelSendMainLeftVolume[MAX_CHAN]; // in p.u.
-	float channelSendMainRightVolume[MAX_CHAN]; // in p.u.
-	float channelSendMainSubVolume[MAX_CHAN]; // in p.u.
+	float channelSendMainLeftVolume[MAX_CHAN + MAX_DSP2]; // in p.u.
+	float channelSendMainRightVolume[MAX_CHAN + MAX_DSP2]; // in p.u.
+	float channelSendMainSubVolume[MAX_CHAN + MAX_DSP2]; // in p.u.
 	float channelSendFxVolume[16][MAX_CHAN]; // in p.u.
 /*
 	float channelSendMixbusVolume[MAX_CHAN][MAX_MIXBUS]; // in p.u.
