@@ -359,6 +359,10 @@ bool SPI::ConfigureFpgaLattice(void) {
     // configure transfer
     int num_transfers = 0;
     size_t current_offset = 0;
+    long total_bytes_sent = 0;
+    int progress_bar_width = 50;
+    int last_progress = -1;
+    int current_progress;
     while (current_offset < bitstream_size) {
         size_t len = bitstream_size - current_offset;
         if (len > CHUNK_SIZE) {
@@ -376,47 +380,50 @@ bool SPI::ConfigureFpgaLattice(void) {
         tr.cs_change = 0; // keep CS asserted between individual chunks, but deassert after last chunk. Behavior tested on RaspberryPi 4.
         
         int ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-        // if (ret < 0) {
-        //     perror("Error: SPI-transmission failed");
-        //     break;
-        // }
+        if (ret < 0) {
+            helper->Error("SPI-transmission failed\n");
+			free(bitstream_payload);
+			free(transfers);
+            if (spi_fd >= 0) close(spi_fd);
+            return false;
+        }
+
+        // calculate progress-bar
+        total_bytes_sent += len;
+        current_progress = (total_bytes_sent * 100) / bitstream_size;
+        if ((current_progress > (last_progress + 5)) || (total_bytes_sent == bitstream_size)) {
+            int progress = (int)((float)total_bytes_sent / bitstream_size * progress_bar_width);
+            printf("\rFPGA [");  //TODO implement with helper->Log()
+            for (int i = 0; i < progress_bar_width; ++i) {
+                if (i < progress) {
+                    printf("█");
+                }else{
+                    printf(" ");
+                }
+            }
+            printf("] %ld/%ld Bytes (%u %%)", total_bytes_sent, bitstream_size, (uint)((total_bytes_sent * 100) / bitstream_size));
+            fflush(stdout);
+
+            last_progress = current_progress;
+        }
 
 		// we dont set no flags here. The kernel keeps CS asserted within this transmission-chain
-        
-        fprintf(stdout, "offset=%d len=%d num_transfers=%d tx_buf=0x%X\n", current_offset, len, num_transfers, bitstream_payload[current_offset]);
-        fflush(stdout); // immediately write to console!
+        //fprintf(stdout, "offset=%d len=%d num_transfers=%d tx_buf=0x%X\n", current_offset, len, num_transfers, bitstream_payload[current_offset]);
+        //fflush(stdout); // immediately write to console!
 
         current_offset += len;
         num_transfers++;
     }
 
-  
-
-
-
     // freeing allocated dynamic memory
     free(bitstream_payload);
     free(transfers);
 
-    fprintf(stdout, "...OK\n");
+    fprintf(stdout, "\n");
     fflush(stdout); // immediately write to console!
-
 
 	// =========== END of bitstream-transmitting without deasserting ChipSelect ===========
   
-	
-    // if (ret < 0) {
-    //     perror("Error: SPI BITSTREAM CHAIN failed");
-    //     if (bitstream_file) fclose(bitstream_file);
-    //     if (spi_fd >= 0) close(spi_fd);
-    //     return ret;
-    // }
-    // fprintf(stdout, "\r[██████████████████████████████████████████████████] %d/%d Bytes (100.00%%) - **COMPLETE**\n", bitstream_size, bitstream_size);
-    
-    // for (int i=0; i < 1000; i++){
-    //     sendNOP(&spi_fd, true);
-    // }
-
 	fpgaLatticeChipSelectPin(false); // deassert ChipSelect
 
     status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
