@@ -5,14 +5,17 @@
 #ifndef __DSP2_H__
 #define __DSP2_H__
 
-#define DSP_VERSION				0.02
+#define DSP_VERSION				0.03
+
+#define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
 #define SDRAM_START  			0x00200000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
-#define MAX_CHAN				32 // we are using only 24 channels, but SPORT seems to request correct pointers for both Channels
+#define MAX_CHAN				24
+#define MAX_CHAN_EQS			4
 #define CHANNELS_PER_TDM		8
-#define TDM_INPUTS				4  // we are using only 3 TDM-inputs, but SPORT seems to request correct pointers for both Channels
+#define TDM_INPUTS				3
 #define SAMPLES_IN_BUFFER		16
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
@@ -61,13 +64,28 @@
 extern volatile int audioProcessing;
 extern volatile int audioReady;
 extern volatile bool spiNewRxDataReady;
-extern int audioTx_tcb[TDM_INPUTS][BUFFER_COUNT][4];
-extern int audioRx_tcb[TDM_INPUTS][BUFFER_COUNT][4];
+extern int audioTx_tcb[4][BUFFER_COUNT][4];
+extern int audioRx_tcb[4][BUFFER_COUNT][4];
+
+typedef struct {
+	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in program memory
+	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
+} sDspChannel;
 
 struct {
 	float samplerate;
+
+	float channelFxReturnVolume[16];
+	sDspChannel dspChannel[MAX_CHAN];
 } dsp;
 
+
+enum eBufferIndex {
+    TAP_INPUT,
+	TAP_POST_EQ,
+	TAP_PRE_FADER,
+	TAP_POST_FADER
+};
 
 void openx32Init(void);
 void openx32Command(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values);

@@ -5,7 +5,7 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define DSP_VERSION				0.30
+#define DSP_VERSION				0.31
 
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
@@ -13,7 +13,7 @@
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
 #define MAX_CHAN				40
-#define MAX_CHAN_FULLFEATURED	32 + 8	// depending on the overall load not all channels can be full-featured (gate + dynamics)
+#define MAX_CHAN_FULLFEATURED	32	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 #define MAX_CHAN_EQS			4
 #define MAX_MIXBUS				16
 #define MAX_MATRIX				6
@@ -22,7 +22,9 @@
 #define MAX_DSP2				24
 
 #define CHANNELS_PER_TDM		8
-#define TDM_INPUTS				((MAX_CHAN / CHANNELS_PER_TDM) + 3*0) // 3 channels from DSP2 DEBUG: REMOVE DSP2 for now
+#define TDM_INPUTS_FPGA			(MAX_CHAN / CHANNELS_PER_TDM)
+#define TDM_INPUTS_DSP2			3
+#define TDM_INPUTS				(TDM_INPUTS_FPGA + TDM_INPUTS_DSP2)
 #define SAMPLES_IN_BUFFER		16
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
@@ -170,6 +172,7 @@ struct {
 	float channelSendMainLeftVolume[MAX_CHAN]; // in p.u.
 	float channelSendMainRightVolume[MAX_CHAN]; // in p.u.
 	float channelSendMainSubVolume[MAX_CHAN]; // in p.u.
+	float channelSendFxVolume[16][MAX_CHAN]; // in p.u.
 /*
 	float channelSendMixbusVolume[MAX_CHAN][MAX_MIXBUS]; // in p.u.
 	int channelSendMixbusTapPoint[MAX_CHAN][MAX_MIXBUS];

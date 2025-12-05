@@ -3,7 +3,7 @@
 
 #include "dsp2.h"
 
-extern float audioBuffer[MAX_CHAN][SAMPLES_IN_BUFFER];
+extern float audioBuffer[5][MAX_CHAN][SAMPLES_IN_BUFFER];
 
 // function prototypes
 void audioInit(void);

@@ -41,7 +41,7 @@
 
 volatile int audioReady = 0;
 volatile int audioProcessing = 0;
-int audioBufferCounter = 0;
+int audioBufferOffset = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
@@ -49,14 +49,16 @@ int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX IN 0 1-8 | 
 int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX OUT 0 1-8 | FX OUT 1 1-8 | PLAY OUT 1-8
 
 // internal buffers for audio-samples
-float audioBuffer[MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[CHANNEL][SAMPLE]
+float audioBuffer[5][MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
 float audioTempBuffer[SAMPLES_IN_BUFFER] = {0};
 float audioTempBufferLarge[MAX_CHAN][SAMPLES_IN_BUFFER] = {0};
 float audioTempBufferChan[MAX_CHAN] = {0};
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
-int audioRx_tcb[TDM_INPUTS][BUFFER_COUNT][4];
-int audioTx_tcb[TDM_INPUTS][BUFFER_COUNT][4];
+int audioRx_tcb[4][BUFFER_COUNT][4];
+int audioTx_tcb[4][BUFFER_COUNT][4];
+
+float time = 0;
 
 void audioInit(void) {
 	// initialize TCB-array with multi-buffering
@@ -88,6 +90,11 @@ void audioInit(void) {
 
 	// initialize memory
 	memset(audioBuffer, 0, sizeof(audioBuffer));
+
+	// initialize channel-parameters
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		dsp.channelFxReturnVolume[i_ch] = 1.0f;
+	}
 }
 
 void audioProcessData(void) {
@@ -97,6 +104,9 @@ void audioProcessData(void) {
 	int bufferTdmIndex;
 	int dspCh;
 	int bufferIndex;
+	int sOffset;
+	int tdmOffset;
+	int tdmBufferOffset;
 
 	//  ____            ___       _            _                  _
 	// |  _ \  ___     |_ _|_ __ | |_ ___ _ __| | ___  __ ___   _(_)_ __   __ _
@@ -105,19 +115,29 @@ void audioProcessData(void) {
 	// |____/ \___|    |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
 	//                                                                    |___/
 	// copy interleaved DMA input-buffer into channel buffers
+	sOffset = 0;
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
+		bufferSampleIndex = audioBufferOffset + sOffset;
+
+		// copy channels from FPGA
+		tdmOffset = 0;
+		tdmBufferOffset = 0;
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
+			bufferTdmIndex = bufferSampleIndex + tdmBufferOffset;
+
 			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+				dspCh = tdmOffset + i_ch;
 				bufferIndex = (bufferTdmIndex + i_ch);
-				if (bufferIndex >= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE)) {
-					bufferIndex -= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
-				}
-				audioBuffer[dspCh][s] = audioRxBuf[bufferIndex]; // copy data to dsp channel
+
+				// input from FPGA side (we are receiving float data here)
+				memcpy(&audioBuffer[TAP_INPUT][dspCh][s], &audioRxBuf[bufferIndex], sizeof(float));
 			}
+
+			tdmOffset += CHANNELS_PER_TDM;
+			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
+
+		sOffset += CHANNELS_PER_TDM;
 	}
 
 	// ========================================================
@@ -125,7 +145,47 @@ void audioProcessData(void) {
 	// PROCESS AUDIO
 	// dspCh   0..7 = FX0
 	// dspCh  8..15 = FX1
-	// dspCh 16..23 = REC/PLAY
+	// dspCh 16..23 = AUX 1-6 + AES/EBU | AUX 1-6 + USB Play
+
+	//				  _____                  _ _
+	//				 | ____|__ _ _   _  __ _| (_)_______ _ __
+	//				 |  _| / _` | | | |/ _` | | |_  / _ \ '__|
+	//				 | |__| (_| | |_| | (_| | | |/ /  __/ |
+	//				 |_____\__, |\__,_|\__,_|_|_/___\___|_|
+	//				          |_|
+	// use low-pass filter on EQ-Coefficients to smoothly change parameters
+
+	// Hardware-Accelerated Biquad-Filter
+	// Ressource-Demand: ~20%
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		memcpy(&audioBuffer[TAP_POST_EQ][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+		//                 input and output                BiQuad-Coefficients                        Delay-Line                  samples           Sections
+		biquad_trans(&audioBuffer[TAP_POST_EQ][i_ch][0], &dsp.dspChannel[i_ch].peqCoeffs[0], &dsp.dspChannel[i_ch].peqStates[0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
+	}
+
+
+	// copy TAP_POST_EQ to TAP_PRE_FADER (passthrough)
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		memcpy(&audioBuffer[TAP_PRE_FADER][i_ch][0], &audioBuffer[TAP_POST_EQ][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+	}
+
+
+	// calculate FX Return Volume
+	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+		vecsmltf(&audioBuffer[TAP_PRE_FADER][i_ch][0], dsp.channelFxReturnVolume[i_ch], &audioBuffer[TAP_POST_FADER][i_ch][0], SAMPLES_IN_BUFFER);
+	}
+
+	/*
+		// insert 1kHz test-audio to all channels
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			time += (1.0f/48000.0f); // add 20.83us
+			float signal = sin(2.0f * M_PI * 1000.0f * time) * 268435456.0f;
+
+			for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+				audioBuffer[TAP_POST_FADER][i_ch][s] = signal;
+			}
+		}
+	*/
 
 	// ========================================================
 
@@ -136,25 +196,35 @@ void audioProcessData(void) {
 	// |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
 	//                                                    |___/
 	// copy channel buffers to interleaved output-buffer
+	sOffset = 0;
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = (BUFFER_SIZE * audioBufferCounter) + (CHANNELS_PER_TDM * s); // (select correct buffer 0 or 1) + (sample-offset)
+		bufferSampleIndex = audioBufferOffset + sOffset;
+
+		// copy data for FPGA
+		tdmOffset = 0;
+		tdmBufferOffset = 0;
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + (BUFFER_COUNT * BUFFER_SIZE * i_tdm);
+			bufferTdmIndex = bufferSampleIndex + tdmBufferOffset;
+
 			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = (CHANNELS_PER_TDM * i_tdm) + i_ch;
+				dspCh = tdmOffset + i_ch;
 				bufferIndex = (bufferTdmIndex + i_ch);
-				if (bufferIndex >= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE)) {
-					bufferIndex -= (TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE);
-				}
-				audioTxBuf[bufferIndex] = audioBuffer[dspCh][s];
+
+				// output to FPGA as float
+				memcpy(&audioTxBuf[bufferIndex], &audioBuffer[TAP_POST_FADER][dspCh][s], sizeof(float));
 			}
+
+			tdmOffset += CHANNELS_PER_TDM;
+			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
+
+		sOffset += CHANNELS_PER_TDM;
 	}
 
 	// increment buffer-counter for next call
-    audioBufferCounter++;
-    if (audioBufferCounter >= BUFFER_COUNT) {
-    	audioBufferCounter = 0;
+	audioBufferOffset += BUFFER_SIZE;
+    if (audioBufferOffset >= (BUFFER_SIZE * BUFFER_COUNT)) {
+    	audioBufferOffset = 0;
     }
 
 	audioReady = 0; // clear global flag that audio is not ready anymore

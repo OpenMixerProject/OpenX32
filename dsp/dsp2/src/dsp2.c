@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP2 (FX DSP) v0.0.2, 22.11.2025
+  ControlSystem for DSP2 (FX DSP) v0.0.3, 04.12.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -89,6 +89,34 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 				default:
 					break;
+			}
+			break;
+		case 'v':
+			switch(index) {
+				case 0: // FxReturnVolume
+					if (valueCount == 1) {
+						dsp.channelFxReturnVolume[channel] = floatValues[0];
+						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				default:
+					break;
+			}
+			break;
+		case 'e': // Equalizer/Filter
+			switch (index) {
+			case 'e': // EQ
+				if (valueCount == (MAX_CHAN_EQS * 5)) {
+					// copy biquad-coefficients
+					//memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
+					memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
+
+					// reset biquad-integrators
+					memset(&dsp.dspChannel[channel].peqStates[0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
+
+					sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+				}
+				break;
 			}
 			break;
 		case 'a': // Auxiliary

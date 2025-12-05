@@ -39,7 +39,7 @@ void systemPllInit()
 
     // bypass mode must be used if any runtime VCO clock change is required
 	pmctlsetting |= PLLBP;
-    pmctlsetting ^= DIVEN; // DIVEN can be cleared: DIVEN=1 -> Load PLLD, DIVEN=0 -> Do not load PLLD
+    pmctlsetting &= ~DIVEN; // DIVEN can be cleared: DIVEN=1 -> Load PLLD, DIVEN=0 -> Do not load PLLD
 	*pPMCTL = pmctlsetting;
 
     /*Wait for around 4096 cycles for the pll to lock.*/
@@ -48,7 +48,7 @@ void systemPllInit()
     }
 
     // disable bypass mode
-    *pPMCTL ^= PLLBP;
+    *pPMCTL &= ~PLLBP;
 }
 
 void systemExternalMemoryInit()
@@ -242,6 +242,7 @@ void systemSportInit() {
 	*pSPCTL0  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
 	*pSPCTL0 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
 	*pSPCTL2  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A | SPTRAN;
+	*pSPCTL2 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B | SPTRAN;
 
 	// configure TDM8 receiver
 	// SPEN_A 	Channel A enabled
@@ -253,6 +254,7 @@ void systemSportInit() {
 	*pSPCTL1  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
 	*pSPCTL1 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
 	*pSPCTL3  = SLEN32 | CKRE | FSR | SDEN_A | SCHEN_A;
+	*pSPCTL3 |= SLEN32 | CKRE | FSR | SDEN_B | SCHEN_B;
 
 	// configure DMA memory
 	// chained DMA is used to autoinitialize next DMA in line
@@ -281,10 +283,10 @@ void systemSportInit() {
 
 	// enable transmit channels 0-39 (see Processor Hardware Reference v2.2 page 7-38)
 	*pMT0CS0 = 0x0000FFFF; // SPORT 0 multichannel tx select, select channels 15-0 of 31 - 0
-	*pMT2CS0 = 0x000000FF; // SPORT 2 multichannel tx select, channels 15-0 of 31 - 0
+	*pMT2CS0 = 0x0000FFFF; // SPORT 2 multichannel tx select, channels 15-0 of 31 - 0
 	// enable receive channels 0-39
 	*pMR1CS0 = 0x0000FFFF; // SPORT 1 multichannel rx select, channels 15-0 of 31 - 0
-	*pMR3CS0 = 0x000000FF; // SPORT 3 multichannel rx select, channels 15-0 of 31 - 0
+	*pMR3CS0 = 0x0000FFFF; // SPORT 3 multichannel rx select, channels 15-0 of 31 - 0
 
 	// no companding for the 8 active timeslots for transmitter (would be available on channel A anyway)
 	*pMT0CCS0 = 0;

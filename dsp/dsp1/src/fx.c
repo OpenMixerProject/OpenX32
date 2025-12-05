@@ -25,7 +25,8 @@
 #include "fx.h"
 
 void fxProcessGateLogic(int channel, float samples[]) {
-	float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER));
+	//float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
+	float input_abs = abs(samples[0]);
 
 	dsp.dspChannel[channel].gate.closed = input_abs < dsp.dspChannel[channel].gate.value_threshold;
 
@@ -125,7 +126,8 @@ void fxSmoothCoeffs(void) {
 */
 
 void fxProcessCompressorLogic(int channel, float samples[]) {
-	float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER));
+	//float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
+	float input_abs = abs(samples[0]);
 
 	dsp.dspChannel[channel].compressor.triggered = (input_abs > dsp.dspChannel[channel].compressor.value_threshold);
 

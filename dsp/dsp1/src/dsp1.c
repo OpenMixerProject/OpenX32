@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.2.0, 30.09.2025
+  ControlSystem for DSP1 (MainDSP) v0.3.1, 04.12.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -125,7 +125,8 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					data[4] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
 					// VU-meters of all DSP input-channels and dynamics
 					for (int i = 0; i < 40; i++) {
-						data[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
+						//data[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
+						data[5 + i] = audioBuffer[TAP_INPUT][dsp.inputRouting[i]][0];
 						//data[45 + i] = dsp.compressorGain[i];
 						//data[85 + i] = dsp.gateGain[i];
 					}
@@ -138,6 +139,27 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'r': // DSP routing
+/*
+			// DEBUG: Fixed input/output-routing for DSP1
+			for (int i = 0; i < MAX_CHAN; i++) {
+				dsp.inputRouting[i] = DSP_BUF_IDX_DSPCHANNEL + i; // DSP-Input-Channel 1..40
+				dsp.inputTapPoint[i] = TAP_INPUT; // Input-Tap
+
+				dsp.outputRouting[i] = DSP_BUF_IDX_MAINLEFT; // Fixed routing of all 40 outputs to MainLeft
+				dsp.outputTapPoint[i] = TAP_POST_FADER; // Post-Fader-Tap
+			}
+			// DEBUG: Fixed Routing to/from DSP2
+			for (int i = MAX_CHAN; i < (MAX_CHAN + MAX_DSP2); i++) {
+				// route DSP-Input 1 to all DSP2 channels
+				dsp.outputRouting[i] = DSP_BUF_IDX_DSPCHANNEL;
+				dsp.outputTapPoint[i] = TAP_INPUT;
+			}
+
+			// DSP output 39 and 40 are headphones left/right on Aux Output 7/8
+			dsp.outputRouting[38] = DSP_BUF_IDX_MAINLEFT; // main-output of DSP1 to headphone left
+			dsp.outputRouting[39] = DSP_BUF_IDX_DSP2_FX; // first channel from DSP2 to headphone right
+			dsp.outputTapPoint[39] = TAP_INPUT;
+*/
 			switch (index) {
 				case 0:
 					if (valueCount == 2) {
@@ -213,6 +235,14 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					if (valueCount == 1) {
 						dsp.monitorVolume = floatValues[0];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+					}
+					break;
+				case 5: // FX-Send-Volume
+					// Valid for DSP-Channels 1-40
+					if (valueCount == 16) {
+						for (int i = 0; i < 16; i++) {
+							dsp.channelSendFxVolume[i][channel] = floatValues[i];
+						}
 					}
 					break;
 			}

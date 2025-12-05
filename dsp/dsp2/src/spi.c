@@ -129,13 +129,20 @@ void spiDmaEnd(void) {
 
 void spiISR(int sig) {
 	// this interrupt is called either when the DMA transfer to SPI Master is completed
-	// or when data is available via CoreWrite-Mode
+	// or when data is available via Core-Mode (SPIRX is full). In this case this interrupt is active 1 PCLK after RXS is set
 
 	if (spiDmaMode) {
-		// end of last DMA-Transmission
+		// interrupt because last DMA-Transmission has completed
+
+		spiTxRingBuffer.head = 0; // reset tx-buffer-pointer to first element again
 		spiDmaEnd();
 	}else{
-		if (RXS & *pSPISTAT) {
+		// a new word has been received -> put it in the Rx Ring-Buffer
+
+		// check state of RXS in SPI Status Register
+		// RXS == 0 -> Empty
+		// RXS == 1 -> Full
+		if (RXS & *pSPISTAT) { // for a slave device, SPIF is set at the same time as RXS
 			// valid data in RXSPI -> add to receive-buffer
 			unsigned int rxData = *pRXSPI;
 
@@ -154,8 +161,8 @@ void spiISR(int sig) {
 			}
 		}
 
-		//if ((!(TXS & *pSPISTAT)) && ()) {
-		//if (!(TXS & *pSPISTAT)) {
+		#if USE_SPI_TXD_MODE == 0
+			// use SPI-Core-Mode to transmit our TxBuffer
 			// send tx-buffer
 			if (spiTxRingBuffer.head != spiTxRingBuffer.tail) {
 				*pTXSPI = spiTxRingBuffer.buffer[spiTxRingBuffer.tail];
@@ -167,7 +174,12 @@ void spiISR(int sig) {
 				// tx-buffer is empty
 				*pTXSPI = 0x00000000;
 			}
-		//}
+		#else
+			// we are using SPI-DMA-Mode to transmit data
+			// in this mode we are using spiTxRingBuffer[] as DmaBuffer always starting at index 0
+			// set 0x00 as dummy output
+			*pTXSPI = 0x00000000;
+		#endif
 	}
 }
 
@@ -248,6 +260,7 @@ void spiPushValueToTxBuffer(unsigned int value) {
 	}
 }
 
+// following code can be used to send data in SPI-Core-Mode
 void spiSendArray(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	spiPushValueToTxBuffer(SPI_START_MARKER); // StartMarker = '*'
 	unsigned int parameter = ((unsigned int)valueCount << 24) + ((unsigned int)index << 16) + ((unsigned int)channel << 8) + (unsigned int)classId;
@@ -256,6 +269,11 @@ void spiSendArray(unsigned short classId, unsigned short channel, unsigned short
 		spiPushValueToTxBuffer(((unsigned int*)values)[i]);
 	}
 	spiPushValueToTxBuffer(SPI_END_MARKER); // EndMarker = '#'
+
+	#if USE_SPI_TXD_MODE == 1
+		// enable SPI-DMA-Mode to transmit data to i.MX253
+		spiDmaBegin(false, 0);
+	#endif
 }
 
 void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, float value) {
