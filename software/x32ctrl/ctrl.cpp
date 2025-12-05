@@ -272,7 +272,31 @@ X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
 
 
 void X32Ctrl::Init(){
-	// empty all banks
+	//##################################################################################
+	//#
+	//# Read system configuration
+	//#
+	//##################################################################################
+
+	// first try to find what we are: Fullsize, Compact, Producer, Rack or Core
+	helper->DEBUG_X32CTRL("Reading config...");
+	char model[12];
+	char serial[15];
+	char date[16];
+	helper->ReadConfig("/etc/x32.conf", "MDL=", model, 12);
+	helper->ReadConfig("/etc/x32.conf", "SN=", serial, 15);
+	helper->ReadConfig("/etc/x32.conf", "DATE=", date, 16);
+	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
+	config->SetModel(model);
+	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
+
+	//##################################################################################
+	//#
+	//# Configure the channel-system
+	//#
+	//##################################################################################
+
+	// Step 1: empty all banks
 	// "Input Channels"
 	for (uint8_t b = 0; b < 8; b++){
 		for (uint8_t sCh = 0; sCh < 16; sCh++){
@@ -288,12 +312,7 @@ void X32Ctrl::Init(){
 		}
 	}
 
-	//##################################################################################
-	//#
-	//#   assign channels to input fader bank - X32 Default Layout
-	//#
-	//##################################################################################
-
+	// Step 2: assign channels to input fader bank - X32 Default Layout
 	if (config->IsModelX32Full()){
 		// bank is 16 channels wide
 		for (uint8_t bank=0;bank<4;bank++){
@@ -303,7 +322,6 @@ void X32Ctrl::Init(){
 			}
 		}
 	}
-
 	if (config->IsModelX32CompactOrProducer()){
 		// bank is 8 channels wide
 		for (uint8_t bank=0;bank<8;bank++){
@@ -314,52 +332,35 @@ void X32Ctrl::Init(){
 		}
 	}
 
-	//##################################################################################
-	//#
-	//#   assign channels to bus fader bank - X32 Default Layout
-	//#
-	//##################################################################################
+	// Step 3: assign channels to bus fader bank - X32 Default Layout
 
 	// DCA - starts at channel 72
 	for (int i = 0; i <=7; i++) {
 		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[0].surfaceChannel2VChannel[i] = i + 72;
 	}
-
 	// Bus 1-8 - starts at channel 48
 	for (int i = 0; i <=7; i++) {
 		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[1].surfaceChannel2VChannel[i] = i + 48;
 	}
-
 	// Bus 9-16 - starts at channel 56
 	for (int i = 0; i <=7; i++) {
 		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[2].surfaceChannel2VChannel[i] = i + 56;
 	}
-
 	// Matrix / SPECIAL / SUB - starts at channel 64
 	for (int i = 0; i <=9; i++) {
 		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[3].surfaceChannel2VChannel[i] = i + 64;
 	}
-
 	activeBank_inputFader = 0;
 	activeBank_busFader = 0;
 	activeEQ = 0;
 	activeBusSend = 0;
 
+	//##################################################################################
+	//#
+	//# Initialize system
+	//#
+	//##################################################################################
 
-	// first try to find what we are: Fullsize, Compact, Producer, Rack or Core
-	helper->DEBUG_X32CTRL("Reading config...");
-
-	char model[12];
-	char serial[15];
-	char date[16];
-	helper->ReadConfig("/etc/x32.conf", "MDL=", model, 12);
-	helper->ReadConfig("/etc/x32.conf", "SN=", serial, 15);
-	helper->ReadConfig("/etc/x32.conf", "DATE=", date, 16);
-	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
-
-	config->SetModel(model);
-	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
-	
 	surface->Init();
 	xremote->Init();
 
