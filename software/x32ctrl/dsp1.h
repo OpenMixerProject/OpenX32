@@ -31,15 +31,15 @@ class DSP1 : X32Base {
         uint8_t monitorTapPoint;
 
     public:
-        srDspChannel rChannel[40];  // values used only during runtime
-        sDspChannel Channel[40]; // values stored in config
+        srDspChannel rChannel[MAX_DSP_INPUTCHANNELS];  // values used only during runtime
+        sDspChannel Channel[MAX_DSP_INPUTCHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
         sMatrixChannel Matrix[6];
-        sFxChannel Dsp2FxChannel[16];
-        sDsp2AuxChannel Dsp2AuxChannel[8];
+        sFxChannel Dsp2FxChannel[MAX_DSP_FXCHANNELS];
+        sDsp2AuxChannel Dsp2AuxChannel[MAX_DSP_AUXCHANNELS];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
-        sDspOutchannel Dsp2FpgaChannel[40];
+        sDspOutchannel Dsp2FpgaChannel[MAX_DSP_OUTPUTCHANNELS];
         float volumeFxReturn[8];
         float volumeDca[8];
 
@@ -70,6 +70,8 @@ class DSP1 : X32Base {
 
         void SetInputRouting(uint8_t dspChannel);
         void SetOutputRouting(uint8_t dspChannel);
+        void SetFxOutputRouting(uint8_t fxChannel);
+        void SetAuxOutputRouting(uint8_t auxChannel);
         void SetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8_t tapPoint);
         void SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
         void SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);

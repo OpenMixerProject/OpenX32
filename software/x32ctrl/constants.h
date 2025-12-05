@@ -172,6 +172,9 @@ typedef enum {
 #define VCHANNEL_NOT_SET MAX_VCHANNELS+1
 
 #define MAX_DSP_INPUTCHANNELS 40
+#define MAX_DSP_OUTPUTCHANNELS 40
+#define MAX_DSP_FXCHANNELS 16
+#define MAX_DSP_AUXCHANNELS 8
 
 typedef enum  {
     X32_BTN_NONE,

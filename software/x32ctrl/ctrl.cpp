@@ -377,7 +377,6 @@ void X32Ctrl::Init(){
 		outfile.close();
 
 		SaveConfig();		
-
 	} else {
 		LoadConfig();
 	}
@@ -399,7 +398,6 @@ void X32Ctrl::LoadConfig(){
 		chan->color = mixer_ini[section]["color"].as<int>();
 	}
 	
-
 	//DspChannels
 	for (uint8_t i = 0; i < MAX_DSP_INPUTCHANNELS; i++)
 	{
@@ -407,6 +405,30 @@ void X32Ctrl::LoadConfig(){
 
 		mixer->dsp->Channel[i].inputSource = mixer_ini[section]["inputSource"].as<int>();
 		mixer->dsp->Channel[i].inputTapPoint = mixer_ini[section]["inputTapPoint"].as<int>();
+	}
+	//DspOutChannels
+	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++)
+	{
+		string section = string("dspoutchannel") + to_string(i);
+
+		mixer->dsp->Dsp2FpgaChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	//Dsp2FxChannels
+	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++)
+	{
+		string section = string("dspfxchannel") + to_string(i);
+
+		mixer->dsp->Dsp2FxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2FxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	//Dsp2AuxChannels
+	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++)
+	{
+		string section = string("dspauxchannel") + to_string(i);
+
+		mixer->dsp->Dsp2AuxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2AuxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
 	}
 	mixer->dsp->SendAll();
 
@@ -460,6 +482,33 @@ void X32Ctrl::SaveConfig(){
 
 		mixer_ini[section]["inputSource"] = (int)mixer->dsp->Channel[i].inputSource;
 		mixer_ini[section]["inputTapPoint"] = (int)mixer->dsp->Channel[i].inputTapPoint;
+	}
+
+	//DspOutChannels
+	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++)
+	{
+		string section = string("dspoutchannel") + to_string(i);
+
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputSource;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint;
+	}
+
+	//Dsp2FxChannels
+	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++)
+	{
+		string section = string("dspfxchannel") + to_string(i);
+
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FxChannel[i].outputSource;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FxChannel[i].outputTapPoint;
+	}
+
+	//Dsp2AuxChannels
+	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++)
+	{
+		string section = string("dspauxchannel") + to_string(i);
+
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2AuxChannel[i].outputSource;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2AuxChannel[i].outputTapPoint;
 	}
 
 	// FPGA Routing
@@ -520,8 +569,8 @@ void X32Ctrl::Run(){
 			// run service-tasks
 			Tick10ms();
 
-			// sleep for 1ms to lower CPU-load
-			usleep(1000);
+			// sleep for 10ms to call Tick10ms every 10ms
+			usleep(10000);
 		}
 
 	} else {

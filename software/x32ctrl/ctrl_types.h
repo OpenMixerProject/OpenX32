@@ -147,6 +147,16 @@ typedef struct {
 } sDspOutchannel;
 
 typedef struct {
+  uint8_t outputSource; // controls which channel should be routed to DSP2 (FX)
+  uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
+} sFxChannel;
+
+typedef struct {
+  uint8_t outputSource; // controls which channel should be routed to DSP2 (FX)
+  uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
+} sDsp2AuxChannel;
+
+typedef struct {
   sPEQ peq[MAX_CHAN_EQS];
   sCompressor compressor;
   float volumeLR;
@@ -165,14 +175,6 @@ typedef struct {
   bool muted;
   bool solo;
 } sMatrixChannel;
-
-typedef struct {
-  uint8_t inputSource; // controls which channel should be routed to DSP2 (FX)
-} sFxChannel;
-
-typedef struct {
-  uint8_t inputSource; // controls which channel should be routed to DSP2 (FX)
-} sDsp2AuxChannel;
 
 typedef struct {
   float volume;

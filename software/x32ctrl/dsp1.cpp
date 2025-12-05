@@ -90,18 +90,17 @@ void DSP1::dspInit(void) {
         Channel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
         Channel[i].inputTapPoint = DSP_TAP_INPUT;
 
-
-
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
     }
 
-    for (uint8_t i = 0; i < 15; i++) {
-        Dsp2FxChannel[i].inputSource = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2
+    for (uint8_t i = 0; i < 16; i++) {
+        Dsp2FxChannel[i].outputSource = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2
+        Dsp2FxChannel[i].outputTapPoint = DSP_TAP_POST_FADER;
     }
     for (uint8_t i = 0; i < 8; i++) {
-        Dsp2AuxChannel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Aux-Channels 1-8
+        Dsp2AuxChannel[i].outputSource = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Aux-Channels 1-8
+        Dsp2AuxChannel[i].outputTapPoint = DSP_TAP_POST_FADER;
     }
-
     for (uint8_t i = 0; i < 40; i++) {
         // connect MainLeft on even and MainRight on odd channels as PostFader
         Dsp2FpgaChannel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
@@ -328,19 +327,32 @@ void DSP1::SendCompressor(uint8_t chan) {
 }
 
 void DSP1::SendAll() {
+    // configuration for 40 DSP-main-channel-inputs
     for (uint8_t chan = 0; chan <= 39; chan++) {
         SendLowcut(chan);
         SendGate(chan);
         SendEQ(chan);
         SendCompressor(chan);
         SetInputRouting(chan);
-        SetOutputRouting(chan);
         SendChannelVolume(chan);
         SendChannelSend(chan);
         for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
             SetChannelSendTapPoints(chan, mixbusChannel, Channel[chan].sendMixbusTapPoint[mixbusChannel]);
         }
     }
+    // configuration for 40 DSP-outputs to FPGA (16x output, 16x UltraNet, 8x Aux)
+    for (uint8_t chan = 0; chan <= 39; chan++) {
+        SetOutputRouting(chan);
+    }
+    // configuration for 16 FX sends to DSP2
+    for (uint8_t fxchan = 0; fxchan <= 15; fxchan++) {
+        SetFxOutputRouting(fxchan);
+    }
+    // configuration for 8 AUX-sends to DSP2
+    for (uint8_t auxchan = 0; auxchan <= 7; auxchan++) {
+        SetAuxOutputRouting(auxchan);
+    }
+
     for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
         SendMixbusVolume(mixbusChannel);
         for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
@@ -350,12 +362,6 @@ void DSP1::SendAll() {
     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
         SendMatrixVolume(matrixChannel);
         SetMainSendTapPoints(matrixChannel, MainChannelLR.sendMatrixTapPoint[matrixChannel]);
-    }
-    for (uint8_t fxChannel = 0; fxChannel <= 15; fxChannel++) {
-        SetInputRouting(fxChannel + 40);
-    }
-    for (uint8_t dsp2AuxChannel = 0; dsp2AuxChannel <= 7; dsp2AuxChannel++) {
-        SetInputRouting(dsp2AuxChannel + 56);
     }
     SendMainVolume();
     SendMonitorVolume();
@@ -373,6 +379,20 @@ void DSP1::SetOutputRouting(uint8_t chan) {
     values[0] = Dsp2FpgaChannel[chan].outputSource;
     values[1] = Dsp2FpgaChannel[chan].outputTapPoint;
     spi->SendDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
+}
+
+void DSP1::SetFxOutputRouting(uint8_t fxchan) {
+    uint32_t values[2];
+    values[0] = Dsp2FxChannel[fxchan].outputSource;
+    values[1] = Dsp2FxChannel[fxchan].outputTapPoint;
+    spi->SendDspParameterArray(0, 'r', (MAX_DSP_OUTPUTCHANNELS + fxchan), 1, 2, (float*)&values[0]);
+}
+
+void DSP1::SetAuxOutputRouting(uint8_t auxchan) {
+    uint32_t values[2];
+    values[0] = Dsp2AuxChannel[auxchan].outputSource;
+    values[1] = Dsp2AuxChannel[auxchan].outputTapPoint;
+    spi->SendDspParameterArray(0, 'r', (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + auxchan), 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
