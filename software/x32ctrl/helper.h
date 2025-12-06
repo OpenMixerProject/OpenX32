@@ -15,10 +15,10 @@
 
 #include "config.h"
 
-#define DEBUGLEVEL_OFF -1
-#define DEBUGLEVEL_NORMAL 0
-#define DEBUGLEVEL_VERBOSE 1
-#define DEBUGLEVEL_TRACE 2
+#define DEBUGLEVEL_OFF -1 // No Debug
+#define DEBUGLEVEL_NORMAL 0 // General highlevel debug messages
+#define DEBUGLEVEL_VERBOSE 1 // Function calls, Elements, ...
+#define DEBUGLEVEL_TRACE 2 // Very verbose down to the last bit
 
 using namespace std;
 
