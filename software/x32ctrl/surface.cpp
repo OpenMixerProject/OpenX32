@@ -68,7 +68,7 @@ void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     x32_btn_def[buttonDefinitionIndex].button = p_button;
     x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
     buttonDefinitionIndex++;
-    helper->DEBUG_SURFACE("added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
+    helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
 }
 
 void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
@@ -81,7 +81,7 @@ void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
     x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
     x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
     encoderDefinitionIndex++;
-    helper->DEBUG_SURFACE("added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
+    helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
 }
 
 
@@ -1129,8 +1129,6 @@ void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, boo
 
     uint16_t leds = CalcEncoderRingLedDbfs(dbfs, muted);
 
-    helper->DEBUG_SURFACE("leds: %d", leds);
-
     message.AddDataByte(leds & 0xFF);
     if (backlight) {
         message.AddDataByte(((leds & 0x7F00) >> 8) + 0x80); // turn backlight on
@@ -1225,26 +1223,27 @@ void Surface::ProcessUartData() {
 
 
 
-#if DEBUG
-    // print received values on one row
-    helper->Debug("surfaceProcessUartData(): ");
-    bool divide_after_next_dbg = false;
-    for (int i = 0; i < bytesToProcess; i++) {
-        if (divide_after_next_dbg && ((uint8_t)surfaceBufferUart[i] == 0xFE)) {
-            helper->Debug("| ");
-            divide_after_next_dbg = false;
+    if (helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE)) {
+        printf("DEBUG_SURFACE: ");
+
+        // print received values on one row
+        bool divide_after_next_dbg = false;
+        for (int i = 0; i < bytesToProcess; i++) {
+            if (divide_after_next_dbg && ((uint8_t)surfaceBufferUart[i] == 0xFE)) {
+                printf("| ");
+                divide_after_next_dbg = false;
+            }
+            printf("%02X ", (uint8_t)surfaceBufferUart[i]); // empfangene Bytes als HEX-Wert ausgeben
+            if (divide_after_next_dbg){
+                printf("| ");
+                divide_after_next_dbg = false;
+            } 
+            if ((uint8_t)surfaceBufferUart[i] == 0xFE) {
+                divide_after_next_dbg=true;
+            }
         }
-        helper->Debug("%02X ", (uint8_t)surfaceBufferUart[i]); // empfangene Bytes als HEX-Wert ausgeben
-        if (divide_after_next_dbg){
-            helper->Debug("| ");
-            divide_after_next_dbg = false;
-        } 
-        if ((uint8_t)surfaceBufferUart[i] == 0xFE) {
-            divide_after_next_dbg=true;
-        }
+        printf("\n");
     }
-    helper->Debug("\n");
-#endif
 
     // break up received data into packages
     bool divide_after_next = false;
@@ -1308,32 +1307,35 @@ void Surface::ProcessUartData() {
             
         */
 
-        helper->DEBUG_SURFACE("surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d", surfacePacketCurrent, surfacePacketCurrentIndex);
+        helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d", surfacePacketCurrent, surfacePacketCurrentIndex);
         lastPackageIncomplete = true;
     }
 
 
-// #if DEBUG
-//     // print packages, one in a row    
-//     uint8_t packagesToPrint = surfacePacketCurrent;
-//     if (lastPackageIncomplete){
-//         packagesToPrint++;
-//     }
-//     //x32debug("surfacePacketCurrent=%d\n", surfacePacketCurrent);
+    if (helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE)) {
+        printf("DEBUG_SURFACE: ");
+        
+        // print packages, one in a row    
+        uint8_t packagesToPrint = surfacePacketCurrent;
+        if (lastPackageIncomplete){
+            packagesToPrint++;
+        }
+        printf("surfacePacketCurrent=%d\n", surfacePacketCurrent);
 
-//     for (int package=0; package < packagesToPrint; package++) {
-//         //x32debug("surfaceProcessUartData(): Package %d: ", package);
-//         for (uint8_t i = 0; i<6; i++){
-//             //x32debug("%02X ", surfacePacketBuffer[package][i]);
-//         }
-//         if (surfacePacketBuffer[package][0] == 0xFE){
-//             //x32debug("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
-//         } else if (lastPackageIncomplete){
-//             //x32debug("  <--- incomplete, saved for next run");
-//         }
-//         //x32debug("\n");
-//     }    
-// #endif
+        for (int package=0; package < packagesToPrint; package++) {
+            printf("surfaceProcessUartData(): Package %d: ", package);
+            for (uint8_t i = 0; i<6; i++){
+                printf("%02X ", surfacePacketBuffer[package][i]);
+            }
+            if (surfacePacketBuffer[package][0] == 0xFE){
+                printf("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
+            } else if (lastPackageIncomplete){
+                printf("  <--- incomplete, saved for next run");
+            }
+            printf("\n");
+        } 
+    }   
+
 
     for (int8_t package=0; package < surfacePacketCurrent;package++){
 
@@ -1377,7 +1379,7 @@ void Surface::ProcessUartData() {
             }       
 
             if (valid){
-                helper->DEBUG_SURFACE("surfaceCallback(%d, %02X, %02X, %04X)", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+                helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback(%d, %02X, %02X, %04X)", receivedBoardId, receivedClass, receivedIndex, receivedValue);
                 eventBuffer.push_back(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }

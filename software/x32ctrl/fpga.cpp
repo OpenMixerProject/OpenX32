@@ -31,7 +31,7 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 void Fpga::RoutingInit(void) {
 	const char serial[] = "/dev/ttymxc3";
 	const uint32_t speed = 115200;
-	helper->DEBUG_FPGA("opening %s with %d baud", serial, speed);
+	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial, speed);
 	uart->Open(serial, speed, true);
 
 	// reset routing-configuration and dsp-configuration
@@ -40,7 +40,7 @@ void Fpga::RoutingInit(void) {
 
 // set a default configuration for the audio-routing-matrix
 void Fpga::RoutingDefaultConfig(void) {
-	helper->DEBUG_FPGA("RoutingDefaultConfig()");
+	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "RoutingDefaultConfig()");
 
 	// DSP-inputs 1-32 <- XLR-inputs 1-32
 	for (uint8_t ch = 1; ch <= 32; ch++) {
@@ -455,7 +455,7 @@ void Fpga::RoutingSendConfigToFpga(void) {
 		// copy 8 bytes from routing-data
 		memcpy(&routingData.u8[0], &buf[i * 8], 8);
 
-		helper->DEBUG_FPGA("send routing data as chunk %d of %d", i, chunkCount-1);
+		helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "send routing data as chunk %d of %d", i, chunkCount-1);
 		// now send data to FPGA
 		uart->TxToFPGA(FPGA_IDX_ROUTING + (i * 8), &routingData);
 	}
@@ -509,7 +509,7 @@ void Fpga::ProcessUartData() {
 					if (sumLocal == sumRemote) {
 
 						// empfangene Bytes als String-Wert ausgeben
-						helper->DEBUG_FPGA("Received: %s", &fpgaPacketBuffer[packetBegin + 1]);
+						helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "Received: %s", &fpgaPacketBuffer[packetBegin + 1]);
 						
 						
 						// TODO: Implement FPGA EventBuffer

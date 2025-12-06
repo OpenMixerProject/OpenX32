@@ -62,7 +62,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_FPGA_XILINX_SPEED_HZ;
 
-    helper->DEBUG_SPI("Connecting to SPI for FPGA...");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI for FPGA...");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spi_fd < 0) {
         helper->Error("Could not open SPI-device\n");
@@ -76,6 +76,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     ioctl(spi_fd, SPI_IOC_WR_MODE, &spiMode);
     ioctl(spi_fd, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).", SPI_DEVICE_FPGA, spiMode, spiSpeed);
 
     // read bitstream-file and search for RAW-data
     long file_size = helper->GetFileSize(filename_xilinx.c_str());
@@ -122,9 +123,9 @@ int SPI::ConfigureFpgaXilinx(void) {
             // skip the field name and bitstrem length
             offset += 5;
 
-            helper->DEBUG_SPI("Detected bit-file with header...");
+            helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Detected bit-file with header...");
         }else{
-                helper->DEBUG_SPI("Detected bin-file without header...");
+                helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Detected bin-file without header...");
                 offset = 0; // start reading at byte 0
         }
     }
@@ -133,7 +134,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     file_size -= offset;
 
     // now open the file again and jump of the header (if any)
-    helper->DEBUG_SPI("Configuring Xilinx Spartan-3A...");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Configuring Xilinx Spartan-3A...");
     bitstream_file = fopen(filename_xilinx.c_str(), "rb");
     if (!bitstream_file) {
         helper->Error("Could not open bitstream-file\n");
@@ -150,7 +151,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     }
 
     // now send the data
-    helper->DEBUG_SPI("Sending bitstream to FPGA...");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Sending bitstream to FPGA...");
     tr.tx_buf = (unsigned long)tx_buffer;
     tr.rx_buf = (unsigned long)rx_buffer;
     tr.bits_per_word = spiBitsPerWord;
@@ -158,7 +159,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     tr.cs_change = 0;
     tr.delay_usecs = 0;
 
-    helper->DEBUG_SPI("Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...");
+    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...");
     int fdResetFpga = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fdResetFpga, "1", 1);
     usleep(500); // assert PROG_B at least 500ns (here 500us) to restart configuration process (see page 56 of UG332 v1.7)
@@ -246,7 +247,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 
 	fpgaLatticeDonePin(false); // deassert DONE-pin
 	
-    helper->DEBUG_SPI("  Connecting to SPI...");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI...");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spi_fd < 0) {
         perror("Error: Could not open SPI-device");
@@ -255,7 +256,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 
     ioctl(spi_fd, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-    helper->DEBUG_SPI("  SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).", SPI_DEVICE_FPGA, spiMode, spiSpeed);
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).", SPI_DEVICE_FPGA, spiMode, spiSpeed);
 
     if (helper->DEBUG_SPI()){
 	    status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
@@ -278,15 +279,15 @@ bool SPI::ConfigureFpgaLattice(void) {
     }
 
     // perform configuration-process
-    helper->DEBUG_SPI("Configuring Lattice FPGA...");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Configuring Lattice FPGA...");
 
 	// first activate the configuration-mode by toggle the PROGRAMN-pin
-    helper->DEBUG_SPI("Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...");
+    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...");
 	fpgaLatticeToggleProgramnPin();
 
     // read IDCODE
     uint32_t idcode = fpgaLatticeReadData(&spi_fd, CMD_READ_ID);
-    helper->DEBUG_SPI("Read IDCODE: 0x%08X", idcode);
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Read IDCODE: 0x%08X", idcode);
 	// check if we've found the ID for the Lattice LFE5U-25 FPGA
 	if (idcode != 0x41111043) {
 		perror("Error: Unexpected IDCODE");
@@ -296,7 +297,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
-    helper->DEBUG_SPI("Sending ISC_ENABLE...");
+    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "Sending ISC_ENABLE...");
     fpgaLatticeSendCommand(&spi_fd, CMD_ISC_ENABLE, false, false);
     
 	// =========== BEGIN of bitstream-transmitting without deasserting ChipSelect ===========
@@ -350,11 +351,10 @@ bool SPI::ConfigureFpgaLattice(void) {
     }
     printf("\n-----------------------------------------\n\n");
     
-    // Program Config MAP: send LSC_BITSTREAM_BURST [class C command]
-    fpgaLatticeChipSelectPin(true); // deassert ChipSelect
-    fprintf(stdout, "  Sending LSC_BITSTREAM_BURST...");
+    fpgaLatticeChipSelectPin(true);
+
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending LSC_BITSTREAM_BURST");
     fpgaLatticeTransferCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST); // keep CS asserted after this command
-    fprintf(stdout, "OK\n");
 
     // configure transfer
     int num_transfers = 0;
@@ -407,10 +407,6 @@ bool SPI::ConfigureFpgaLattice(void) {
             last_progress = current_progress;
         }
 
-		// we dont set no flags here. The kernel keeps CS asserted within this transmission-chain
-        //fprintf(stdout, "offset=%d len=%d num_transfers=%d tx_buf=0x%X\n", current_offset, len, num_transfers, bitstream_payload[current_offset]);
-        //fflush(stdout); // immediately write to console!
-
         current_offset += len;
         num_transfers++;
     }
@@ -419,44 +415,43 @@ bool SPI::ConfigureFpgaLattice(void) {
     free(bitstream_payload);
     free(transfers);
 
-    fprintf(stdout, "\n");
+    printf("\n");
     fflush(stdout); // immediately write to console!
 
 	// =========== END of bitstream-transmitting without deasserting ChipSelect ===========
   
-	fpgaLatticeChipSelectPin(false); // deassert ChipSelect
+    fpgaLatticeChipSelectPin(false);
 
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending CMD_LSC_READ_STATUS");
     status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
-    fprintf(stdout, "    Status Register [31..0]: ");
-    fpgaLatticePrintBits(status);
+    if(helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE)) {
+        fpgaLatticePrintBits(status);
+    }
     fprintf(stdout, "\n");
     fflush(stdout); // immediately write to console!
 
     // Exit Programming Mode: send ISC_DISABLE
-    fprintf(stdout, "  Sending ISC_DISABLE...");
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending CMD_ISC_DISABLE");
 	fpgaLatticeSendCommand(&spi_fd, CMD_ISC_DISABLE, false, true);
     fprintf(stdout, "OK\n");
 
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "wait 100 ms");
 	usleep(100000); // wait 100 ms
 
     // check Status-Bits
-    // Bit 8 (DONE) must be 1, Bit 26 (EXECUTION ERROR) must be 0 sein
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending CMD_LSC_READ_STATUS");
 	status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
-    fpgaLatticePrintBits(status);
-    fprintf(stdout, "\n");
-
-    // if (!done || exec_error) {
-    //     fprintf(stderr, "Configuration failed! Status indicates error or not done.\n");
-    //     ret = -1;
-    // } else {
-	// 	fpgaDonePin(true); // assert external DONE-pin to finish configuration
-    //     fprintf(stdout, "\n✅ **SUCCESS:** Configuration complete and DONE bit set.\n");
-    //     ret = 0;
-    // }
+    if(helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE)) {
+        fpgaLatticePrintBits(status);
+    }
+    bool ret =
+        ((status) & (1<<(8))) &&  // Bit 8 (DONE) must be 1
+        !((status) & (1<<(26)));  // Bit 26 (EXECUTION ERROR) must be 0
 
 	if (bitstream_file) fclose(bitstream_file);
 	if (spi_fd >= 0) close(spi_fd);
-	return true;
+    
+	return ret;
 }
 
 
@@ -467,14 +462,17 @@ bool SPI::ConfigureFpgaLattice(void) {
 void SPI::fpgaLatticeToggleProgramnPin() {
     int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fd, "1", 1); // assert PROGRAMN-pin (this sets the real GPIO to LOW)
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to LOW");
 
 	// we have to keep at least 25ns. So keep it 4ms asserted
     usleep(4000);
 
     write(fd, "0", 1); // deassert PROGRAMN-pin (this sets the real GPIO to HIGH)
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to HIGH");
     close(fd);
 	
 	// wait 50ms until FPGA is ready
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "wait 50ms");
     usleep(50000);
 }
 
@@ -482,8 +480,10 @@ void SPI::fpgaLatticeChipSelectPin(bool state) {
     int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
     if (state) {
         write(fd, "1", 1); // assert ChipSelect (sets the real pin to LOW)
+        helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "asserted ChipSelect");
     }else{
         write(fd, "0", 1); // deassert ChipSelect (sets the real pin to HIGH)
+        helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "deasserted ChipSelect");
     }
     close(fd);
 }
@@ -588,8 +588,6 @@ bool SPI::fpgaLatticePollBusyFlag(int* spi_fd) {
 	
 	do {
 		busyState = fpgaLatticeReadData(spi_fd, CMD_LSC_CHECK_BUSY);
-        //printf("busystate: %d\n", busyState);
-        //fflush(stdout); // immediately write to console!
 		
 		timeout++;
 		if (timeout == 100) { // wait maximum 100 ms
@@ -716,14 +714,14 @@ int SPI::ConfigureDsp(void) {
          }
     }
 
-    helper->DEBUG_SPI("Connecting to SPI for DSP1...\n");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI for DSP1...\n");
     spi_fd[0] = open(SPI_DEVICE_DSP1, O_RDWR);
     if (spi_fd[0] < 0) {
         helper->Error("Could not open SPI-device for DSP1\n");
         return -1;
     }
     if (numStreams == 2) {
-        helper->DEBUG_SPI("Connecting to SPI for DSP2...\n");
+        helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI for DSP2...\n");
         spi_fd[1] = open(SPI_DEVICE_DSP2, O_RDWR);
         if (spi_fd[1] < 0) {
             helper->Error("Could not open SPI-device for DSP2\n");
@@ -786,7 +784,7 @@ int SPI::ConfigureDsp(void) {
         }
 
         // now send the data
-        helper->DEBUG_SPI("Sending bitstream to DSP...\n");
+        helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Sending bitstream to DSP...\n");
         totalBytesSent = 0;
         last_progress = -1;
         progress_bar_width = 50;
@@ -1048,7 +1046,7 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
     
     UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
     int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-    helper->DEBUG_SPI("DSP%d, %d Bytes received", dsp+1, bytesRead);
+    helper->DEBUG_SPI(DEBUGLEVEL_TRACE, "DSP%d, %d Bytes received", dsp+1, bytesRead);
     PushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
 //    free(spiTxData);
 //    free(spiTxDataRaw);

@@ -15,11 +15,17 @@
 
 #include "config.h"
 
+#define DEBUGLEVEL_OFF -1
+#define DEBUGLEVEL_NORMAL 0
+#define DEBUGLEVEL_VERBOSE 1
+#define DEBUGLEVEL_TRACE 2
+
 using namespace std;
 
 class Helper {
     private:
         uint32_t debug_;
+        uint8_t debuglevel_;
 
     public:
         void Log(const char* format, ...);
@@ -48,9 +54,15 @@ class Helper {
 
         vector<string> split(string s, string delimiter);
 
+        // Only show debug messages up to DEBUGLEVEL_..., e.g. DEBUGLEVEL_NORMAL
+        void SetDebugLevel(uint8_t debuglevel)
+        {
+            debuglevel_ = debuglevel;
+        }
+
         #define DEBUG_DEF(name, bitvalue) \
-            void name(const char* format, ...) { \
-                if ((debug_ & bitvalue) == bitvalue) { \
+            void name(int debuglevel, const char* format, ...) { \
+                if (debuglevel <= debuglevel_ && ((debug_ & bitvalue) == bitvalue)) { \
                     va_list args; \
                     va_start(args, format); \
                     vprintf((String(#name) + String(": ") + String(format) + String("\n")).c_str(), args); \
@@ -60,8 +72,8 @@ class Helper {
             } \
             \
             /* Check if this Debugflag is enabled */ \
-            bool name() { \
-                return ((debug_ & bitvalue) == bitvalue);   \
+            bool name(int debuglevel=0) { \
+                return (debuglevel <= debuglevel_ && ((debug_ & bitvalue) == bitvalue));   \
             } \
             \
             /* Enable or Disable Debugflag */ \

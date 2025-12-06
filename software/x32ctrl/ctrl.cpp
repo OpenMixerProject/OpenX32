@@ -115,10 +115,16 @@ int main(int argc, char* argv[]) {
 
 	// DEBUG
 	vector<string> debug_parameters;
-	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following Flags: ADDA DSP1 DSP2 FPGA GUI INI MIXER SPI SURFACE UART VCHANNEL X32CTRL XREMOTE")
+	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA GUI INI MIXER SPI SURFACE UART VCHANNEL X32CTRL XREMOTE")
 			->configurable(false)
+			->group("Debug")
 			->expected(1,-1)
 			->option_text("FLAG FLAG ...");
+
+	bool verbose;
+	bool trace;
+	app->add_flag("--verbose", verbose, "Print more debug messages")->configurable(false)->group("Debug")->expected(0,1);
+	app->add_flag("--trace", trace, "Print all possible debug messages")->configurable(false)->group("Debug")->expected(0,1);
 	
 	app->get_config_formatter_base()->quoteCharacter('"', '"');
 
@@ -145,20 +151,32 @@ int main(int argc, char* argv[]) {
 
 	config->SetSamplerate(app->get_option("--samplerate")->as<uint32_t>());
 
-	for(uint8_t i=0; i<debug_parameters.size(); i++) {
-		if (debug_parameters[i] == "ADDA") { helper->DEBUG_ADDA(true); }
-		if (debug_parameters[i] == "DSP1") { helper->DEBUG_DSP1(true); }
-		if (debug_parameters[i] == "DSP2") { helper->DEBUG_DSP2(true); }
-		if (debug_parameters[i] == "FPGA") { helper->DEBUG_FPGA(true); }
-		if (debug_parameters[i] == "GUI") { helper->DEBUG_GUI(true); }
-		if (debug_parameters[i] == "MIXER") { helper->DEBUG_MIXER(true); }
-		if (debug_parameters[i] == "SPI") { helper->DEBUG_SPI(true); }
-		if (debug_parameters[i] == "SURFACE") { helper->DEBUG_SURFACE(true); }
-		if (debug_parameters[i] == "UART") { helper->DEBUG_UART(true); }
-		if (debug_parameters[i] == "VCHANNEL") { helper->DEBUG_VCHANNEL(true); }
-		if (debug_parameters[i] == "X32CTRL") { helper->DEBUG_X32CTRL(true); }
-		if (debug_parameters[i] == "XREMOTE") { helper->DEBUG_XREMOTE(true); }
-		if (debug_parameters[i] == "INI") { helper->DEBUG_INI(true); }
+	if (debug_parameters.size() > 0) {
+		for(uint8_t i=0; i<debug_parameters.size(); i++) {
+			if (debug_parameters[i] == "ADDA") { helper->DEBUG_ADDA(true); }
+			if (debug_parameters[i] == "DSP1") { helper->DEBUG_DSP1(true); }
+			if (debug_parameters[i] == "DSP2") { helper->DEBUG_DSP2(true); }
+			if (debug_parameters[i] == "FPGA") { helper->DEBUG_FPGA(true); }
+			if (debug_parameters[i] == "GUI") { helper->DEBUG_GUI(true); }
+			if (debug_parameters[i] == "MIXER") { helper->DEBUG_MIXER(true); }
+			if (debug_parameters[i] == "SPI") { helper->DEBUG_SPI(true); }
+			if (debug_parameters[i] == "SURFACE") { helper->DEBUG_SURFACE(true); }
+			if (debug_parameters[i] == "UART") { helper->DEBUG_UART(true); }
+			if (debug_parameters[i] == "VCHANNEL") { helper->DEBUG_VCHANNEL(true); }
+			if (debug_parameters[i] == "X32CTRL") { helper->DEBUG_X32CTRL(true); }
+			if (debug_parameters[i] == "XREMOTE") { helper->DEBUG_XREMOTE(true); }
+			if (debug_parameters[i] == "INI") { helper->DEBUG_INI(true); }
+		}
+
+		if (trace) {
+			helper->SetDebugLevel(DEBUGLEVEL_TRACE);
+		} else if (verbose) {
+			helper->SetDebugLevel(DEBUGLEVEL_VERBOSE);
+		} else {
+			helper->SetDebugLevel(DEBUGLEVEL_NORMAL);
+		}
+	} else {
+		helper->SetDebugLevel(DEBUGLEVEL_OFF);
 	}
 
 	X32BaseParameter* basepar = new X32BaseParameter(app, config, state, helper);
@@ -279,7 +297,7 @@ void X32Ctrl::Init(){
 	//##################################################################################
 
 	// first try to find what we are: Fullsize, Compact, Producer, Rack or Core
-	helper->DEBUG_X32CTRL("Reading config...");
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reading config...");
 	char model[12];
 	char serial[15];
 	char date[16];
@@ -318,7 +336,7 @@ void X32Ctrl::Init(){
 		for (uint8_t bank=0;bank<4;bank++){
 			for (int i = 0; i <=15; i++) {
 				modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 16);
-				helper->DEBUG_X32CTRL("Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 16));
+				helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 16));
 			}
 		}
 	}
@@ -327,7 +345,7 @@ void X32Ctrl::Init(){
 		for (uint8_t bank=0;bank<8;bank++){
 			for (int i = 0; i <=7; i++) {
 				modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 8);
-				helper->DEBUG_X32CTRL("Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 8));
+				helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 8));
 			}
 		}
 	}
@@ -367,12 +385,14 @@ void X32Ctrl::Init(){
 	InitPages();
 
 	SetSelect(0, true);
-	DebugPrintvChannels();
+	if(helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE)) {
+		DebugPrintvChannels();
+	}
 
 	if(helper->GetFileSize(X32_MIXER_CONFIGFILE) == -1)
 	{
 		// create new ini file
-		helper->DEBUG_INI("no %s found, creating one", X32_MIXER_CONFIGFILE);
+		helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "no %s found, creating one", X32_MIXER_CONFIGFILE);
 		ofstream outfile (X32_MIXER_CONFIGFILE);
 		outfile << endl;
 		outfile.close();
@@ -386,7 +406,7 @@ void X32Ctrl::Init(){
 
 void X32Ctrl::LoadConfig(){
 
-	helper->DEBUG_INI("Load config from %s", X32_MIXER_CONFIGFILE);
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
 	mixer_ini.load(X32_MIXER_CONFIGFILE);
 
 	// VChannels
@@ -550,7 +570,7 @@ void X32Ctrl::SaveConfig(){
 		}
 	}
 
-	helper->DEBUG_INI("Save config to %s", X32_MIXER_CONFIGFILE);
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", X32_MIXER_CONFIGFILE);
 	mixer_ini.save(X32_MIXER_CONFIGFILE);
 }
 
@@ -600,7 +620,7 @@ void X32Ctrl::ProcessEvents(void){
 
   while(surface->HasNextEvent()){
 	SurfaceEvent* event = surface->GetNextEvent();
-	helper->DEBUG_X32CTRL("Event: %s\n", (event->ToString()).c_str());
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_TRACE, "Event: %s\n", (event->ToString()).c_str());
 
 	switch(event->classId){
 	  case 'f':
@@ -613,7 +633,7 @@ void X32Ctrl::ProcessEvents(void){
 		EncoderTurned(event);
 		break;
 	  default:
-		helper->DEBUG_X32CTRL("unknown message: %s\n", event->ToString().c_str());
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_TRACE, "unknown message: %s\n", event->ToString().c_str());
 	}
 
 	delete(event);
@@ -670,7 +690,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
 					if (address[3] == "fader") {
 						float newVolume = tosc_getNextFloat(&osc);
 						mixer->SetVolumeOscvalue(channel-1, newVolume);
-						helper->DEBUG_XREMOTE( "Ch %u: Volume set to %f\n", channel, (double)newVolume);
+						helper->DEBUG_XREMOTE(DEBUGLEVEL_VERBOSE, "Ch %u: Volume set to %f\n", channel, (double)newVolume);
 					}else if (address[3] == "pan") {
 						// get pan-value
 						value32bit.u8[0] = rxData[23];
@@ -680,11 +700,11 @@ void X32Ctrl::UdpHandleCommunication(void) {
 						
 						//encoderValue = value32bit.f * 255.0f;
 						mixer->SetBalance(channel,  value32bit.f * 100.0f);
-						helper->DEBUG_XREMOTE( "Ch %u: Balance set to %f\n",  channel+1, (double)(value32bit.f * 100.0f));
+						helper->DEBUG_XREMOTE(DEBUGLEVEL_VERBOSE, "Ch %u: Balance set to %f\n",  channel+1, (double)(value32bit.f * 100.0f));
 					}else if (address[3] == "on") {
 						// get mute-state (caution: here it is "mixer-on"-state)
 						mixer->SetMute(channel, (rxData[20+3] == 0));
-						helper->DEBUG_XREMOTE( "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
+						helper->DEBUG_XREMOTE(DEBUGLEVEL_VERBOSE, "Ch %u: Mute set to %u\n",  channel+1, (rxData[20+3] == 0));
 					}
 				}else if ((rxData[7] == 'c') && (rxData[8] == 'o') && (rxData[9] == 'n')) {
 					// config
@@ -1066,7 +1086,7 @@ void X32Ctrl::guiSync(void) {
 		state->HasChanged(X32_MIXER_CHANGED_GUI)) {
 
 		if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
-			helper->DEBUG_GUI("Page changed to: %d\n", activePage);
+			helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", activePage);
 		}
 
 		VChannel* chan = GetSelectedvChannel();
@@ -1508,23 +1528,23 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 			VChannel* chan = GetVChannel(channelIndex);
 
 			if (fullSync || chan->HasAnyChanged()){
-				helper->DEBUG_SURFACE("syncronize vChannel%d: %s -", channelIndex, chan->name.c_str());
+				helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "syncronize vChannel%d: %s -", channelIndex, chan->name.c_str());
 
 				if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SELECT)){ 
-					helper->DEBUG_SURFACE(" Select");
+					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Select");
 					surface->SetLed(p_board, 0x20+i, chan->selected);
 				}
 				if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-					helper->DEBUG_SURFACE(" Solo");
+					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Solo");
 					surface->SetLed(p_board, 0x30+i, mixer->GetSolo(channelIndex)); 
 				}
 				if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-					helper->DEBUG_SURFACE(" Mute");
+					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Mute");
 					surface->SetLed(p_board, 0x40+i, mixer->GetMute(channelIndex)); 
 				}
 
 				if ((fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
-					helper->DEBUG_SURFACE(" Fader");
+					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Fader");
 					u_int16_t faderVolume = mixer->GetVolumeFadervalue(channelIndex);
 					surface->SetFader(p_board, i, faderVolume);
 				}
@@ -1542,11 +1562,9 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 					chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
 				)
 				{
-					helper->DEBUG_SURFACE(" LCD");
+					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "LCD");
 					SetLcdFromVChannel(p_board, i, channelIndex);
 				}
-
-				helper->DEBUG_SURFACE("\n");
 			}
 		}
 	}
@@ -1930,7 +1948,7 @@ void X32Ctrl::xremoteSync(bool syncAll) {
 // direction - positive or negative integer value
 void X32Ctrl::ChangeSelect(int8_t direction){
 	int16_t newSelectedVChannel = GetSelectedvChannelIndex() + direction;
-	helper->DEBUG_X32CTRL("ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d\n", GetSelectedvChannelIndex(), direction, newSelectedVChannel);
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d\n", GetSelectedvChannelIndex(), direction, newSelectedVChannel);
 	if (newSelectedVChannel < 0) {
 		newSelectedVChannel = MAX_VCHANNELS -1;
 	} else if (newSelectedVChannel >= MAX_VCHANNELS){
@@ -2043,7 +2061,7 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 			touchcontrol.faderIndex = event->index;
 			touchcontrol.value = 5;
 
-			helper->DEBUG_SURFACE("FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
+			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
 		//}
 	}
 }
@@ -2237,7 +2255,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					break;
 				default:
 					// TODO: Callback to x32ctrl if needed
-					helper->DEBUG_SURFACE("Unhandled button detected.\n");
+					helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Unhandled button detected.\n");
 					break;
 			}
 		}
@@ -2336,7 +2354,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 	} else if (event->value > 128 && event->value < 256) {
 		amount = -(256 - (uint8_t)(event->value));
 	}
-	helper->DEBUG_SURFACE("Encoder: %d\n", amount);
+	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Encoder: %d\n", amount);
 
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		switch (encoder){
@@ -2654,7 +2672,7 @@ void X32Ctrl::touchcontrolTick(void){
 				X32_VCHANNEL_CHANGED_VOLUME
 			);
 		}
-		helper->DEBUG_SURFACE("TouchControl=%d\n", touchcontrol.value);
+		helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "TouchControl=%d\n", touchcontrol.value);
 	}
 }
 
@@ -2684,26 +2702,25 @@ bool X32Ctrl::touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
 
 void X32Ctrl::DebugPrintBank(uint8_t bank)
 {
-	helper->DEBUG_X32CTRL("################# BANK%d ###################\n", bank);
+	printf("################# BANK%d ###################\n", bank);
 	for (uint8_t i=0;i<35;i++){
-		helper->DEBUG_X32CTRL("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i]);
+		printf("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i]);
 	}
-	helper->DEBUG_X32CTRL("END ############# BANK%d ############### END\n", bank);
+	printf("END ############# BANK%d ############### END\n", bank);
 }
 
 void X32Ctrl::DebugPrintBusBank(uint8_t bank)
 {
-	helper->DEBUG_X32CTRL("################# BUS BANK%d ###################\n", bank);
+	printf("################# BUS BANK%d ###################\n", bank);
 	for (uint8_t i=0;i<35;i++){
-		helper->DEBUG_X32CTRL("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].busBanks[bank].surfaceChannel2VChannel[i]);
+		printf("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].busBanks[bank].surfaceChannel2VChannel[i]);
 	}
-	helper->DEBUG_X32CTRL("END ############# BUS BANK%d ############### END\n", bank);
+	printf("END ############# BUS BANK%d ############### END\n", bank);
 }
 
 void X32Ctrl::DebugPrintvChannels(void){
 	for (int i = 0; i < MAX_VCHANNELS; i++)
 	{
-	   helper->DEBUG_X32CTRL(mixer->GetVChannel(i)->ToString().c_str());
-
+	   printf(mixer->GetVChannel(i)->ToString().c_str());
 	}
 }

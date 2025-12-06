@@ -61,7 +61,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // AUX 1-6 / USB
-    helper->DEBUG_MIXER("Setting up AUX");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up AUX");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_AUX + i;
 
@@ -83,7 +83,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // FX Returns 1-8
-    helper->DEBUG_MIXER("Setting up FX Returns");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up FX Returns");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_FXRET + i;
         VChannel* chan = new VChannel(basepar);
@@ -96,7 +96,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // Bus 1-16
-    helper->DEBUG_MIXER("Setting up Busses");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Busses");
     for (uint8_t i=0; i<=15;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_BUS + i;
         VChannel* chan = new VChannel(basepar);
@@ -109,7 +109,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // Matrix 1-6 / Special / SUB
-    helper->DEBUG_MIXER("Setting up Matrix / SPECIAL / SUB");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Matrix / SPECIAL / SUB");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_MATRIX + i;
         VChannel* chan = new VChannel(basepar);
@@ -134,7 +134,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     }
 
     // DCA 1-8
-    helper->DEBUG_MIXER("Setting up DCA");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up DCA");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_DCA + i;
         VChannel* chan = new VChannel(basepar);
@@ -159,7 +159,6 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Mixer::Tick10ms(void){
-    adda->ProcessUartData(false);
     fpga->ProcessUartData();
     dsp->Tick10ms();
 }
@@ -197,7 +196,7 @@ void Mixer::ChangeHardwareInput(int8_t amount) {
         newValue = NUM_INPUT_CHANNEL;
     }
 
-    helper->DEBUG_MIXER("Change! %d -> %d", fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1), newValue);
+    helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Change! %d -> %d", fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1), newValue);
 
     fpga->RoutingSetOutputSourceByIndex(state->gui_selected_item+1, newValue);
     fpga->RoutingSendConfigToFpga();
@@ -259,7 +258,7 @@ void Mixer::SetSolo(uint8_t channelIndex, bool solo){
     }
 
     if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-        helper->DEBUG_MIXER("Solo of channel %s \"%s\" changed to %s\n", chan->nameIntern.c_str(), chan->name.c_str(), solo ? "ON" : "OFF"); 
+        helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Solo of channel %s \"%s\" changed to %s\n", chan->nameIntern.c_str(), chan->name.c_str(), solo ? "ON" : "OFF"); 
     }
 
     //TODOs
@@ -740,7 +739,7 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, float lowCutFrequency){
         case X32_VCHANNELTYPE_NORMAL:
         case X32_VCHANNELTYPE_AUX: {
             dsp->Channel[vChannelIndex].compressor.threshold = newValue;
-            helper->DEBUG_MIXER("Channel %s: Compressor threshold set to %f", chan->name.c_str(), newValue);
+            helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor threshold set to %f", chan->name.c_str(), newValue);
             chan->SetChanged(X32_VCHANNEL_CHANGED_DYNAMIC);
             break;
         }
@@ -993,7 +992,7 @@ void Mixer::SyncVChannelsToHardware(void){
         }
     }
 
-    helper->DEBUG_MIXER("Mixer to Hardware synced");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Mixer to Hardware synced");
 }
 
 
