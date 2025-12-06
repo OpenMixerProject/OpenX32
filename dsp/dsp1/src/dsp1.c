@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.3.1, 04.12.2025
+  ControlSystem for DSP1 (MainDSP) v0.3.2, 06.12.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -88,7 +88,7 @@ void openx32Init(void) {
 	dsp.samplerate = 48000;
 
 	// initialize states of dynamics
-	for (int ch = 0; ch < MAX_CHAN; ch++) {
+	for (int ch = 0; ch < MAX_CHAN_FULLFEATURED; ch++) {
 		dsp.dspChannel[ch].gate.state = GATE_CLOSED;
 		dsp.dspChannel[ch].compressor.state = COMPRESSOR_IDLE;
 	}
@@ -120,13 +120,13 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					memcpy(&data[1], &cyclesMain, sizeof(float));
 
 					// VU-meters of main-channels
-					data[2] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
-					data[3] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
-					data[4] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
+					data[2] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
+					data[3] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
+					data[4] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
 					// VU-meters of all DSP input-channels and dynamics
 					for (int i = 0; i < 40; i++) {
 						//data[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
-						data[5 + i] = audioBuffer[TAP_INPUT][dsp.inputRouting[i]][0];
+						data[5 + i] = audioBuffer[TAP_INPUT][0][dsp.inputRouting[i]];
 						//data[45 + i] = dsp.compressorGain[i];
 						//data[85 + i] = dsp.gateGain[i];
 					}
@@ -139,27 +139,6 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'r': // DSP routing
-/*
-			// DEBUG: Fixed input/output-routing for DSP1
-			for (int i = 0; i < MAX_CHAN; i++) {
-				dsp.inputRouting[i] = DSP_BUF_IDX_DSPCHANNEL + i; // DSP-Input-Channel 1..40
-				dsp.inputTapPoint[i] = TAP_INPUT; // Input-Tap
-
-				dsp.outputRouting[i] = DSP_BUF_IDX_MAINLEFT; // Fixed routing of all 40 outputs to MainLeft
-				dsp.outputTapPoint[i] = TAP_POST_FADER; // Post-Fader-Tap
-			}
-			// DEBUG: Fixed Routing to/from DSP2
-			for (int i = MAX_CHAN; i < (MAX_CHAN + MAX_DSP2); i++) {
-				// route DSP-Input 1 to all DSP2 channels
-				dsp.outputRouting[i] = DSP_BUF_IDX_DSPCHANNEL;
-				dsp.outputTapPoint[i] = TAP_INPUT;
-			}
-
-			// DSP output 39 and 40 are headphones left/right on Aux Output 7/8
-			dsp.outputRouting[38] = DSP_BUF_IDX_MAINLEFT; // main-output of DSP1 to headphone left
-			dsp.outputRouting[39] = DSP_BUF_IDX_DSP2_FX; // first channel from DSP2 to headphone right
-			dsp.outputTapPoint[39] = TAP_INPUT;
-*/
 			switch (index) {
 				case 0:
 					if (valueCount == 2) {
@@ -178,17 +157,17 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 		case 't': // set tapPoints
 			if (valueCount == 2) {
 				switch (index) {
-/*
 					case 0: // ChannelSend-TapPoint
-						dsp.channelSendMixbusTapPoint[channel][intValues[0]] = intValues[1];
+						dsp.channelSendMixbusTapPoint[intValues[0]][channel] = intValues[1];
 						break;
+/*
 					case 1: // MixbusSend-TapPoint
-						dsp.mixbusSendMatrixTapPoint[channel][intValues[0]] = intValues[1];
+						dsp.sendMatrixTapPoint[intValues[0]][channel] = intValues[1];
 						break;
-*/
 					case 2: // MainSend-TapPoint
 						dsp.mainSendMatrixTapPoint[intValues[0]] = intValues[1];
 						break;
+*/
 				}
 			}
 			break;
@@ -204,7 +183,6 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 					break;
 				case 1: // Mixbus-Channels
-/*
 					if (valueCount == 4) {
 						dsp.mixbusVolume[channel] = floatValues[0];
 						dsp.mixbusSendMainLeftVolume[channel] = floatValues[1];
@@ -212,7 +190,6 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 						dsp.mixbusSendMainSubVolume[channel] = floatValues[3];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
-*/
 					break;
 				case 2: // Matrix-Channels
 /*
@@ -225,9 +202,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 				case 3: // Main-Channels
 					if (valueCount == 3) {
-						dsp.mainLeftVolume = floatValues[0];
-						dsp.mainRightVolume = floatValues[1];
-						dsp.mainSubVolume = floatValues[2];
+						memcpy(&dsp.mainVolume[0], &floatValues[0], 3 * sizeof(float));
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
@@ -247,12 +222,12 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 			}
 			break;
-		case 's': // sends
-/*
+		case 's': // sends to Mixbus
 			if (valueCount == 16) {
-				memcpy(&dsp.channelSendMixbusVolume[channel][0], &floatValues[0], 16 * sizeof(float));
+				for (int i = 0; i < 16; i++) {
+					dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
+				}
 			}
-*/
 			break;
 		case 'g': // gate
 			if (valueCount == 5) {
@@ -270,23 +245,21 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					if (valueCount == 1) {
 						// copy coefficient
 						//dsp.lowcutCoeffSet[channel] = floatValues[0];
-						dsp.lowcutCoeff[channel] = floatValues[0];
-
-						// reset integrators
-						dsp.lowcutStatesInput[channel] = 0;
-						dsp.lowcutStatesOutput[channel] = 0;
+						dsp.lowcutCoeff[channel] = floatValues[0]; // equation = 1.0f / (1.0f + 2.0f * M_PI * desiredLowCutFrequency * (1.0f/samplerate));
+						dsp.lowcutStatesInput[channel] = 0; // reset integrator
+						dsp.lowcutStatesOutput[channel] = 0; // reset integrator
 
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 'e': // EQ
-					if (valueCount == (MAX_CHAN_EQS * 5)) {
+					if ((valueCount == (MAX_CHAN_EQS * 5)) && (channel < CHANNELS_WITH_4BD_EQ)) {
 						// copy biquad-coefficients
 						//memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
-						memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
+						memcpy(&dsp.peqCoeffs[channel][0], &floatValues[0], valueCount * sizeof(float));
 
 						// reset biquad-integrators
-						memset(&dsp.dspChannel[channel].peqStates[0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
+						memset(&dsp.peqStates[channel][0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
 
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
@@ -294,8 +267,8 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 				case 'r': // reset channel-parameters
 					// init single-pole lowcut
 					dsp.lowcutCoeff[channel] = 0.993497573586; // 50Hz: equation = 1.0f / (1.0f + 2.0f * M_PI * desiredLowCutFrequency * (1.0f/samplerate));
-					dsp.lowcutStatesInput[channel] = 0.0;
-					dsp.lowcutStatesOutput[channel] = 0.0;
+					dsp.lowcutStatesInput[channel] = 0.0; // reset integrator
+					dsp.lowcutStatesOutput[channel] = 0.0; // reset integrator
 
 					// initialize PEQs
 					float coeffs[5] = {1, 0, 0, 0, 0}; // a0, a1, a2, b1, b2: direct passthrough
@@ -304,14 +277,14 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 					// init PEQ-states
 					for (int s = 0; s < (2 * MAX_CHAN_EQS); s++) {
-						dsp.dspChannel[channel].peqStates[s] = 0;
-						dsp.dspChannel[channel].peqStates[s] = 0;
+						dsp.peqStates[channel][s] = 0;
+						dsp.peqStates[channel][s] = 0;
 					}
 
 					// reset biquad-integrators
 					dsp.lowcutStatesInput[channel] = 0;
 					dsp.lowcutStatesOutput[channel] = 0;
-					memset(&dsp.dspChannel[channel].peqStates[0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
+					memset(&dsp.peqStates[channel][0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
 
 					/*
 					// reset the channel-configuration to have a working channel

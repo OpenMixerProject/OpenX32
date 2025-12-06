@@ -5,24 +5,29 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define DSP_VERSION				0.31
+#define DSP_VERSION				0.32
 
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
 #define SDRAM_START  			0x00200000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
-#define MAX_CHAN				40
-#define MAX_CHAN_FULLFEATURED	32	// depending on the overall load not all channels can be full-featured (gate + dynamics)
+#define MAX_CHAN_FPGA			40	// total channels that are received from FPGA
+#define MAX_CHAN_DSP2			24	// total channels that are received from DSP2
+#define MAX_DSP2_FXRETURN		16	// FX Return-Channels from DSP2
+#define MAX_DSP2_AUX			8	// AUX-Return-Channels from DSP2
+#define MAX_MIXBUS				16	// internal Mixbus-Channels
+#define MAX_MATRIX				6	// internal Matrix-Channels
+#define MAX_MAIN				3	// internal Mainbus-Channels
+#define MAX_MONITOR				3	// internal Monitor-Channels
+
 #define MAX_CHAN_EQS			4
-#define MAX_MIXBUS				16
-#define MAX_MATRIX				6
-#define MAX_MAIN				3
-#define MAX_MONITOR				3
-#define MAX_DSP2				24
+#define CHANNELS_WITH_4BD_EQ	(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)	// consecutive channels that are using a 4-band PEQ
+#define CHANNELS_WITH_6BD_EQ	(MAX_MIXBUS)	// consecutive channels that are using a 6-band PEQ
+#define MAX_CHAN_FULLFEATURED	32	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 
 #define CHANNELS_PER_TDM		8
-#define TDM_INPUTS_FPGA			(MAX_CHAN / CHANNELS_PER_TDM)
+#define TDM_INPUTS_FPGA			(MAX_CHAN_FPGA / CHANNELS_PER_TDM)
 #define TDM_INPUTS_DSP2			3
 #define TDM_INPUTS				(TDM_INPUTS_FPGA + TDM_INPUTS_DSP2)
 #define SAMPLES_IN_BUFFER		16
@@ -39,16 +44,16 @@
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
 #define DSP_BUF_IDX_AUX			33	// Aux-Channel 1-8
-#define DSP_BUF_IDX_MIXBUS		41	// Mixbus 1-16
-#define DSP_BUF_IDX_MATRIX		57	// Matrix 1-6
-#define DSP_BUF_IDX_MAINLEFT	63	// main left
-#define DSP_BUF_IDX_MAINRIGHT	64	// main right
-#define DSP_BUF_IDX_MAINSUB		65	// main sub
-#define DSP_BUF_IDX_MONLEFT		66	// Monitor Left
-#define DSP_BUF_IDX_MONRIGHT	67	// Monitor Right
-#define DSP_BUF_IDX_TALKBACK	68	// Talkback
-#define DSP_BUF_IDX_DSP2_FX		69  // FXDSP2 FX-Channel 1-16
-#define DSP_BUF_IDX_DSP2_AUX	85	// FXDSP2 AUX-Channel 1-8
+#define DSP_BUF_IDX_DSP2_FX		41  // FXDSP2 FX-Channel 1-16
+#define DSP_BUF_IDX_MIXBUS		57	// Mixbus 1-16
+#define DSP_BUF_IDX_MAINLEFT	73	// main left
+#define DSP_BUF_IDX_MAINRIGHT	74	// main right
+#define DSP_BUF_IDX_MAINSUB		75	// main sub
+#define DSP_BUF_IDX_MATRIX		76	// Matrix 1-6
+#define DSP_BUF_IDX_DSP2_AUX	82	// FXDSP2 AUX-Channel 1-8
+#define DSP_BUF_IDX_MONLEFT		90	// Monitor Left
+#define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
+#define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
 #define DO_CYCLE_COUNTS				// enable cycle counter
 
@@ -141,75 +146,81 @@ typedef struct {
 
 typedef struct {
 	sGate gate;
-	//float pm peqCoeffsSet[5 * MAX_CHAN_EQS]; // store in program memory
-	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in program memory
-	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
 	sCompressor compressor;
-
 	bool solo;
 } sDspChannel;
+
+typedef struct {
+	sCompressor compressor;
+	bool solo;
+} sMixbusChannel;
 
 struct {
 	float samplerate;
 
-	float lowcutCoeffSet[MAX_CHAN];
-	float lowcutCoeff[MAX_CHAN];
-	float lowcutStatesInput[MAX_CHAN];
-	float lowcutStatesOutput[MAX_CHAN];
-	//float highcutCoeff[MAX_CHAN];
-	//float highcutStates[MAX_CHAN];
+	float lowcutCoeffSet[MAX_CHAN_FULLFEATURED];
+	float lowcutCoeff[MAX_CHAN_FULLFEATURED];
+	float lowcutStatesInput[MAX_CHAN_FULLFEATURED];
+	float lowcutStatesOutput[MAX_CHAN_FULLFEATURED];
+	//float highcutCoeff[MAX_CHAN_FULLFEATURED];
+	//float highcutStates[MAX_CHAN_FULLFEATURED];
 
-	float gateGainSet[MAX_CHAN];
-	float gateGain[MAX_CHAN];
-	float gateCoeff[MAX_CHAN];
+	float gateGainSet[MAX_CHAN_FULLFEATURED];
+	float gateGain[MAX_CHAN_FULLFEATURED];
+	float gateCoeff[MAX_CHAN_FULLFEATURED];
 
-	float compressorGainSet[MAX_CHAN];
-	float compressorGain[MAX_CHAN];
-	float compressorCoeff[MAX_CHAN];
-	float compressorMakeup[MAX_CHAN];
+	float compressorGainSet[MAX_CHAN_FULLFEATURED];
+	float compressorGain[MAX_CHAN_FULLFEATURED];
+	float compressorCoeff[MAX_CHAN_FULLFEATURED];
+	float compressorMakeup[MAX_CHAN_FULLFEATURED];
 
-	float channelVolume[MAX_CHAN]; // in p.u.
-	float channelSendMainLeftVolume[MAX_CHAN + MAX_DSP2]; // in p.u.
-	float channelSendMainRightVolume[MAX_CHAN + MAX_DSP2]; // in p.u.
-	float channelSendMainSubVolume[MAX_CHAN + MAX_DSP2]; // in p.u.
-	float channelSendFxVolume[16][MAX_CHAN]; // in p.u.
-/*
-	float channelSendMixbusVolume[MAX_CHAN][MAX_MIXBUS]; // in p.u.
-	int channelSendMixbusTapPoint[MAX_CHAN][MAX_MIXBUS];
+	//float pm peqCoeffsSet[5 * MAX_CHAN_EQS]; // store in program memory
+	float pm peqCoeffs[CHANNELS_WITH_4BD_EQ][5 * MAX_CHAN_EQS]; // store in program memory
+	float dm peqStates[CHANNELS_WITH_4BD_EQ][2 * MAX_CHAN_EQS]; // store in data memory
+
+	// volume-settings
+	float channelVolume[MAX_CHAN_FPGA]; // in p.u.
+	float channelSendMixbusVolume[MAX_MIXBUS][MAX_CHAN_FPGA + MAX_DSP2_FXRETURN]; // in p.u.
+	short channelSendMixbusTapPoint[MAX_MIXBUS][MAX_CHAN_FPGA + MAX_DSP2_FXRETURN];
+
+	float channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	float channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	float channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	float channelSendFxVolume[16][MAX_CHAN_FPGA]; // in p.u.
 
 	float mixbusVolume[MAX_MIXBUS];
 	float mixbusSendMainLeftVolume[MAX_MIXBUS];
 	float mixbusSendMainRightVolume[MAX_MIXBUS];
 	float mixbusSendMainSubVolume[MAX_MIXBUS];
-	float mixbusSendMatrixVolume[MAX_MIXBUS][6];
-	int mixbusSendMatrixTapPoint[MAX_MIXBUS][6];
+
+/*
+	float sendMatrixVolume[MAX_MATRIX][MAX_MIXBUS + 3]; // Mixbus and MainLRS can be sent to matrix
+	int sendMatrixTapPoint[MAX_MATRIX][MAX_MIXBUS + 3]; // Mixbus and MainLRS can be sent to matrix
 	bool mixbusSolo[MAX_MIXBUS];
 
-	float matrixVolume[6];
-	bool matrixSolo[6];
+	float matrixVolume[MAX_MATRIX];
+	bool matrixSolo[MAX_MATRIX];
 */
 
-	float mainLeftVolume;
-	float mainRightVolume;
-	float mainSubVolume;
-	float mainSendMatrixVolume[6];
-	int mainSendMatrixTapPoint[6];
+	float mainVolume[3]; // left, right, sub
+	float mainSendMatrixVolume[MAX_MATRIX];
+	short mainSendMatrixTapPoint[MAX_MATRIX];
 	bool mainLrSolo;
 	bool mainSubSolo;
 
-	int inputRouting[MAX_CHAN + MAX_DSP2];
-	int inputTapPoint[MAX_CHAN + MAX_DSP2];
-	int outputRouting[MAX_CHAN + MAX_DSP2];
-	int outputTapPoint[MAX_CHAN + MAX_DSP2];
-	sDspChannel dspChannel[MAX_CHAN + MAX_DSP2];
-	//sMixbusChannel mixbusChannel[16];
-	//sMatrixChannel matrixChannel[6];
+	short inputRouting[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
+	short inputTapPoint[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
+	short outputRouting[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
+	short outputTapPoint[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
+	sDspChannel dspChannel[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
+	//sMixbusChannel mixbusChannel[MAX_MIXBUS];
+	//sMatrixChannel matrixChannel[MAX_MATRIX];
 
-	int monitorChannelTapPoint;
-	int monitorMixbusTapPoint;
-	int monitorMatrixTapPoint;
-	int monitorMainTapPoint;
-	int monitorTapPoint;
+	short monitorChannelTapPoint;
+	short monitorMixbusTapPoint;
+	short monitorMatrixTapPoint;
+	short monitorMainTapPoint;
+	short monitorTapPoint;
 	float monitorVolume;
 	bool soloActive;
 } dsp;

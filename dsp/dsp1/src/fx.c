@@ -24,9 +24,10 @@
 
 #include "fx.h"
 
-void fxProcessGateLogic(int channel, float samples[]) {
+//void fxProcessGateLogic(int channel, float samples[]) {
+void fxProcessGateLogic(int channel, float sample) {
 	//float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
-	float input_abs = abs(samples[0]);
+	float input_abs = abs(sample);
 
 	dsp.dspChannel[channel].gate.closed = input_abs < dsp.dspChannel[channel].gate.value_threshold;
 
@@ -93,19 +94,19 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 			// odd section index
 			sectionIndex += 1;
 		}
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 0] = coeffs[0]; // a0 (zeros)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 2] = coeffs[1]; // a1 (zeros)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 4] = coeffs[2]; // a2 (zeros)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 6] = -coeffs[3]; // -b1 (poles)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 8] = -coeffs[4]; // -b2 (poles)
+		dsp.peqCoeffs[channel][sectionIndex + 0] = coeffs[0]; // a0 (zeros)
+		dsp.peqCoeffs[channel][sectionIndex + 2] = coeffs[1]; // a1 (zeros)
+		dsp.peqCoeffs[channel][sectionIndex + 4] = coeffs[2]; // a2 (zeros)
+		dsp.peqCoeffs[channel][sectionIndex + 6] = -coeffs[3]; // -b1 (poles)
+		dsp.peqCoeffs[channel][sectionIndex + 8] = -coeffs[4]; // -b2 (poles)
 	}else{
 		// last section: store without interleaving
 		int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 0] = coeffs[0]; // a0 (zeros)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 1] = coeffs[1]; // a1 (zeros)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 2] = coeffs[2]; // a2 (zeros)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 3] = -coeffs[3]; // -b1 (poles)
-		dsp.dspChannel[channel].peqCoeffs[sectionIndex + 4] = -coeffs[4]; // -b2 (poles)
+		dsp.peqCoeffs[channel][sectionIndex + 0] = coeffs[0]; // a0 (zeros)
+		dsp.peqCoeffs[channel][sectionIndex + 1] = coeffs[1]; // a1 (zeros)
+		dsp.peqCoeffs[channel][sectionIndex + 2] = coeffs[2]; // a2 (zeros)
+		dsp.peqCoeffs[channel][sectionIndex + 3] = -coeffs[3]; // -b1 (poles)
+		dsp.peqCoeffs[channel][sectionIndex + 4] = -coeffs[4]; // -b2 (poles)
 	}
 }
 
@@ -125,9 +126,10 @@ void fxSmoothCoeffs(void) {
 }
 */
 
-void fxProcessCompressorLogic(int channel, float samples[]) {
+//void fxProcessCompressorLogic(int channel, float samples[]) {
+void fxProcessCompressorLogic(int channel, float sample) {
 	//float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
-	float input_abs = abs(samples[0]);
+	float input_abs = abs(sample);
 
 	dsp.dspChannel[channel].compressor.triggered = (input_abs > dsp.dspChannel[channel].compressor.value_threshold);
 

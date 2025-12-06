@@ -9,16 +9,17 @@
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
 #define DSP_BUF_IDX_AUX			33	// Aux-Channel 1-8
-#define DSP_BUF_IDX_MIXBUS		41	// Mixbus 1-16
-#define DSP_BUF_IDX_MATRIX		57	// Matrix 1-6
-#define DSP_BUF_IDX_MAINLEFT	63	// main left
-#define DSP_BUF_IDX_MAINRIGHT	64	// main right
-#define DSP_BUF_IDX_MAINSUB		65	// main sub
-#define DSP_BUF_IDX_MONLEFT		66	// Monitor Left
-#define DSP_BUF_IDX_MONRIGHT	67	// Monitor Right
-#define DSP_BUF_IDX_TALKBACK	68	// Talkback
-#define DSP_BUF_IDX_DSP2_FX		69  // FXDSP2 FX-Channel 1-16
-#define DSP_BUF_IDX_DSP2_AUX	85	// FXDSP2 AUX-Channel 1-8
+#define DSP_BUF_IDX_DSP2_FX		41  // FXDSP2 FX-Channel 1-16
+#define DSP_BUF_IDX_MIXBUS		57	// Mixbus 1-16
+#define DSP_BUF_IDX_MAINLEFT	73	// main left
+#define DSP_BUF_IDX_MAINRIGHT	74	// main right
+#define DSP_BUF_IDX_MAINSUB		75	// main sub
+#define DSP_BUF_IDX_MATRIX		76	// Matrix 1-6
+#define DSP_BUF_IDX_DSP2_AUX	82	// FXDSP2 AUX-Channel 1-8
+#define DSP_BUF_IDX_MONLEFT		90	// Monitor Left
+#define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
+#define DSP_BUF_IDX_TALKBACK	92	// Talkback
+
 #define DSP_TAP_INPUT           0
 #define DSP_TAP_PRE_EQ          1
 #define DSP_TAP_POST_EQ         2
