@@ -50,12 +50,14 @@ void Surface::Init(void) {
 }
 
 void Surface::Reset(void) {
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Reset surface ...");
     int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
     write(fd, "1", 1);
     usleep(100 * 1000);
     write(fd, "0", 1);
     close(fd);
     usleep(2000 * 1000);
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "... Done");
 }
 
 void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
