@@ -1,5 +1,14 @@
 #include "ctrl.h"
 
+char displayEncoderText[6][30];
+static const char* displayEncoderButtonMap[] = {
+    displayEncoderText[0],
+    displayEncoderText[1],
+    displayEncoderText[2],
+    displayEncoderText[3],
+    displayEncoderText[4],
+    displayEncoderText[5],
+    NULL};
 
 X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
 	mixer = new Mixer(basepar);
@@ -586,15 +595,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
 
 void X32Ctrl::guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
 
-	char displayEncoderText[6][30];
-static const char* displayEncoderButtonMap[] = {
-    displayEncoderText[0],
-    displayEncoderText[1],
-    displayEncoderText[2],
-    displayEncoderText[3],
-    displayEncoderText[4],
-    displayEncoderText[5],
-    NULL};
+	
 
 	sprintf(&displayEncoderText[0][0], "%s", enc1.c_str());
 	sprintf(&displayEncoderText[1][0], "%s", enc2.c_str());
