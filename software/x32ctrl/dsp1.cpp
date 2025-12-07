@@ -30,7 +30,6 @@ DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
 };
 
 void DSP1::dspInit(void) {
-
     MainChannelLR.volume = VOLUME_MIN; // dB
     MainChannelLR.balance = 0; // -100 .. 0 .. +100
     MainChannelSub.volume = VOLUME_MIN; // dB
@@ -431,8 +430,9 @@ void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInpu
         if (channelInputSource == 0) {
             // OFF
             sprintf(p_nameBuffer, "Off");
-        }else if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
-            // we are connected to one of the DSP-inputs
+        }else if ((channelInputSource >= DSP_BUF_IDX_DSPCHANNEL) && (channelInputSource < (DSP_BUF_IDX_DSPCHANNEL + 40))) {
+            // we are connected to one of the FPGA-DSP-inputs
+            // dspInputSource is set by FPGA
             //uint8_t dspInputSource = mixer->fpga->Routing.dsp[channelInputSource - 1];
             if (dspInputSource == 0) {
                 sprintf(p_nameBuffer, "Off");
@@ -457,23 +457,32 @@ void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInpu
             }else{
                 sprintf(p_nameBuffer, "???");
             }
-        }else if ((channelInputSource >= 41) && (channelInputSource <= 56)) {
+        }else if ((channelInputSource >= DSP_BUF_IDX_DSP2_FX) && (channelInputSource < (DSP_BUF_IDX_DSP2_FX + 8))) {
+            // FX Return 1-8 from DSP2
+            sprintf(p_nameBuffer, "FX %02d", channelInputSource - DSP_BUF_IDX_DSP2_FX + 1);
+        }else if ((channelInputSource >= (DSP_BUF_IDX_DSP2_FX + 8)) && (channelInputSource < (DSP_BUF_IDX_DSP2_FX + 16))) {
+            // FX Return 9-16 from DSP2
+            sprintf(p_nameBuffer, "FX %02d", channelInputSource - DSP_BUF_IDX_DSP2_FX + 1);
+        }else if ((channelInputSource >= DSP_BUF_IDX_MIXBUS) && (channelInputSource < (DSP_BUF_IDX_MIXBUS + 16))) {
             // Mixbus 1-16
-            sprintf(p_nameBuffer, "Bus %02d", channelInputSource - 40);
-        }else if ((channelInputSource >= 57) && (channelInputSource <= 62)) {
-            // Matrix 1-6
-            sprintf(p_nameBuffer, "Mtx %02d", channelInputSource - 56);
-        }else if (channelInputSource == 63) {
+            sprintf(p_nameBuffer, "Bus %02d", channelInputSource - DSP_BUF_IDX_MIXBUS + 1);
+        }else if (channelInputSource == DSP_BUF_IDX_MAINLEFT) {
             sprintf(p_nameBuffer, "Main L");
-        }else if (channelInputSource == 64) {
+        }else if (channelInputSource == DSP_BUF_IDX_MAINRIGHT) {
             sprintf(p_nameBuffer, "Main R");
-        }else if (channelInputSource == 65) {
+        }else if (channelInputSource == DSP_BUF_IDX_MAINSUB) {
             sprintf(p_nameBuffer, "Main C");
-        }else if (channelInputSource == 66) {
+        }else if ((channelInputSource >= DSP_BUF_IDX_MATRIX) && (channelInputSource < (DSP_BUF_IDX_MATRIX + 6))) {
+            // Matrix 1-6
+            sprintf(p_nameBuffer, "Mtx %02d", channelInputSource - DSP_BUF_IDX_MATRIX + 1);
+        }else if ((channelInputSource >= DSP_BUF_IDX_DSP2_AUX) && (channelInputSource < (DSP_BUF_IDX_DSP2_AUX + 8))) {
+            // DSP2 Aux Return 1-8
+            sprintf(p_nameBuffer, "DSP2 Aux %02d", channelInputSource - DSP_BUF_IDX_DSP2_AUX + 1);
+        }else if (channelInputSource == DSP_BUF_IDX_MONLEFT) {
             sprintf(p_nameBuffer, "Mon L");
-        }else if (channelInputSource == 67) {
+        }else if (channelInputSource == DSP_BUF_IDX_MONRIGHT) {
             sprintf(p_nameBuffer, "Mon R");
-        }else if (channelInputSource == 68) {
+        }else if (channelInputSource == DSP_BUF_IDX_TALKBACK) {
             sprintf(p_nameBuffer, "Talkback");
         }else{
             sprintf(p_nameBuffer, "???");
@@ -699,7 +708,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    //helper->DEBUG_DSP1("Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback
@@ -729,7 +738,7 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP2(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    //helper->DEBUG_DSP2("Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback

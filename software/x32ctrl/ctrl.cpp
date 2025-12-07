@@ -2320,8 +2320,9 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 						mixer->dsp->spi->CloseDspConnections();
 						mixer->dsp->spi->ConfigureDsp();
 						mixer->dsp->spi->OpenDspConnections();
-						mixer->dsp->dspInit();
+						usleep(50000); // wait 50ms
 						mixer->dsp->SendAll();
+						mixer->dsp->SendAll(); // currently we need to send the data twice. Maybe a bug in the SPI-connection or a timing-issue?
 						break;
 					case X32_BTN_ENCODER2:
 						// reset SPORT in DSP1

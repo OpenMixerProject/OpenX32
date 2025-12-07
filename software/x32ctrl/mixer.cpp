@@ -206,11 +206,11 @@ void Mixer::ChangeHardwareInput(int8_t amount) {
 void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
     int16_t newValue = dsp->Channel[vChannelIndex].inputSource + amount;
 
-    if (newValue > 68) {
+    if (newValue > DSP_MAX_INTERNAL_CHANNELS) {
         newValue = 0;
     }
     if (newValue < 0) {
-        newValue = 68;
+        newValue = DSP_MAX_INTERNAL_CHANNELS;
     }
 
     dsp->Channel[vChannelIndex].inputSource = newValue;

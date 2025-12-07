@@ -72,12 +72,11 @@ void VChannel::ChangeInput(int8_t amount){
 
     int16_t newValue = (int16_t)dspChannel->inputSource + amount;
 
-  //  if (newValue > 68) {
-    if (newValue > NUM_DSP_CHANNEL) {
+    if (newValue > DSP_MAX_INTERNAL_CHANNELS) {
         newValue = 0;
     }
     if (newValue < 0) {
-        newValue = 68;
+        newValue = DSP_MAX_INTERNAL_CHANNELS;
     }
     
    // dspSetInputRouting(chan->index);
