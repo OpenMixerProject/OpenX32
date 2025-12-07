@@ -234,18 +234,18 @@ void DSP1::SendGate(uint8_t chan) {
 void DSP1::SendLowcut(uint8_t chan) {
     float values[1];
 
-    values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/config->GetSamplerate()));
+    values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/(float)config->GetSamplerate()));
 
     spi->SendDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
 }
 
 /*
-void dspSendHighcut(uint8_t dspChannel) {
+void DSP1::SendHighcut(uint8_t chan) {
     float values[1];
 
-    values[0] = (2.0f * M_PI * dspChannel[dspChannel].highCutFrequency) / (samplerate + 2.0f * M_PI * 500.0f);
+    values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetSamplerate() + 2.0f * M_PI * 500.0f);
 
-    spi->SendDspParameterArray(0, 'e', dspChannel, 'h', 1, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chan, 'h', 1, &values[0]);
 }
 */
 
