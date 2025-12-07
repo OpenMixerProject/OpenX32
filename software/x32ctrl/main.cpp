@@ -204,6 +204,8 @@ int main(int argc, char* argv[]) {
 	bool trace;
 	app->add_flag("--verbose", verbose, "Print more debug messages")->configurable(false)->group("Debug")->expected(0,1);
 	app->add_flag("--trace", trace, "Print all possible debug messages")->configurable(false)->group("Debug")->expected(0,1);
+	app->add_flag("--dsps-disable-activity-light", state->dsp_disable_activity_light, "Disable DSPs activity light via SPI switching command")->configurable(false)->group("Debug")->expected(0,1);
+	app->add_flag("--dsps-disable-readout", state->dsp_disable_readout, "Disable DSPs readout")->configurable(false)->group("Debug")->expected(0,1);
 	
 	app->get_config_formatter_base()->quoteCharacter('"', '"');
 

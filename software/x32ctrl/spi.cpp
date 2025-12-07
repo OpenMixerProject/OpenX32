@@ -241,7 +241,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 	uint32_t status;
     FILE *bitstream_file = NULL;
 
-    uint8_t spiMode = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
+    uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = SPI_FPGA_LATTICE_SPEED_HZ;
 
@@ -290,7 +290,7 @@ bool SPI::ConfigureFpgaLattice(void) {
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Read IDCODE: 0x%08X", idcode);
 	// check if we've found the ID for the Lattice LFE5U-25 FPGA
 	if (idcode != 0x41111043) {
-		perror("Error: Unexpected IDCODE");
+		helper->Error("Error: Unexpected IDCODE: 0x%08X\n", idcode);
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
         return false;
@@ -847,6 +847,9 @@ int SPI::ConfigureDsp(void) {
 }
 
 void SPI::Tick10ms(void){
+#if X32_CTRL_DEBUG
+    if (!(state->dsp_disable_readout)) {
+#endif
     // continuously read data from both DSPs
     if (!config->IsModelX32Core()) {
         // read update-packet from DSP1
@@ -857,12 +860,21 @@ void SPI::Tick10ms(void){
         SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
         SendReceiveDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
     }
+#if X32_CTRL_DEBUG
+    }
+#endif
 }
 
 void SPI::Tick100ms(void){
-   	// toggle the LED on DSP1 and DSP2 to show some activity
-	SendDspParameter_uint32(0, 'a', 42, 0, 2);
-	SendDspParameter_uint32(1, 'a', 42, 0, 2);
+#if X32_CTRL_DEBUG
+    if (!(state->dsp_disable_activity_light)) {
+#endif
+   	    // toggle the LED on DSP1 and DSP2 to show some activity
+	    SendDspParameter_uint32(0, 'a', 42, 0, 2);
+	    SendDspParameter_uint32(1, 'a', 42, 0, 2);
+#if X32_CTRL_DEBUG
+    }
+#endif
 }
 
 bool SPI::OpenDspConnections() {
@@ -1043,8 +1055,11 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
 #if X32_CTRL_DEBUG
     if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
         printf("SendDspParameterArray: ");
-        for(int v = 0; v < valueCount; v++) {
-            printf("%f ", (double)values[v]);
+        for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
+            printf("0x%.2X ", spiTxDataRaw[v]);
+            if (!((v+1) % 4)) {
+                printf("| ");
+            }
         }
         printf("\n");
     }
@@ -1087,6 +1102,19 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
     spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
     
+#if X32_CTRL_DEBUG
+    if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
+        printf("SendDspParameterArray: ");
+        for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
+            printf("0x%.2X ", spiTxDataRaw[v]);
+            if (!((v+1) % 4)) {
+                printf("| ");
+            }
+        }
+        printf("\n");
+    }
+#endif
+
     UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
 
     int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI

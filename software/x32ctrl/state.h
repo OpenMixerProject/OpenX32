@@ -24,6 +24,8 @@ class State {
 
         // DEBUG
         uint8_t debugvalue = 0;
+        bool dsp_disable_activity_light = false;
+        bool dsp_disable_readout = false;
 
         void SetChangeFlags(uint16_t p_flag);
         bool HasChanged(uint16_t p_flag);
