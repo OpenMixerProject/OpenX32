@@ -11,7 +11,7 @@
 
 #include "base.h"
 #include "message-base.h"
-#include "ctrl_types.h"
+#include "types.h"
 
 class Uart : public X32Base
  {

@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "base.h"
-#include "constants.h"
+#include "defines.h"
 
 class FX : X32Base {
     public:

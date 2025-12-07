@@ -1,192 +1,303 @@
-/*
-							   =#%@@@@@###%@@@@%-
-						   =*###+               :#@*
-						+****.                      :%-
-					  #++++             ############  :%-          @@@@@@@@@@@@
-					.+===             ###======++==*##  *+       @@@*#%%#****#@@@
-				   -=-+               #+======+=.*===*#         @@#**@.*@******%@
-				  -=-+                ##======*  #====+#.      @@****@  @******@@
-				  +:-                  ##+====#  #***==+#+   =@@**@@@@  @****%@@
-				 =*=*                   -#*===#  ## #===+## @@@***@ @@  @@#*@@@
-	  @@@@@@       ..                     ##+*#- ## #***==#= @@@@@@ @@   +@@@   @@@@@@@  @@@@@
-	@@@    @@@                             ##= + ## ## #+==#- @@ @@ @@ = @@@    @@  @@  @@   @@
-	@@      .@@#@@@@@@@  @@@ @@@ @@@@@@@@   .# # ## .= #-#++#= @ @  @@ * @*       @@*        @@
-	@@       @@ @@    @@ @@@@@@@  @@   @@      # =#  = + *::=#   @  @+ *           -@@@   @@@=
-	@@@    @@@  @@:   @@ @@       @@   @@      #  : .- : *::-#   @  +  #             @@ @@    @@
-	  @@@@@@    @@@@@@@   @@@@@@  @@   @@@  =# # ## :+ #-#++#+ @ @  @@.* @@     @@@@@@  @@@@@@@@
-				@@                         ##+ * ## ## #+==#+ @@@@@ @@ = @@@
-				@@                        ##+= = ## #***==#+ @@***@ @@   #@@@
-				   :                    :#*==+#: ## #===+## @@@***@ @@  @@#*@@#
-				  .%+                  ##+====#  #***==+#=   +@@**@@@@  @****%@@
-					%.                ##======*  #====*#  .*-  @@****@  @******@@
-					 %=               #*======+: *===*#   +-=+  @@#**@ -@******@@
-					  -@-             +##+=====+++=*##  ==-=-    @@@#%@@#****%@@@
-						*@*             =###########  -===*        @@@@@@@@@@@@
-						   @@%.                   .::=++*
-							 .#@@%%*-.    .:=+**##***+.
-								  .-+%%%%%%#***=-.
-
-  OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
-  Copyright 2025 OpenMixerProject
-  https://github.com/OpenMixerProject/OpenX32
-  
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  version 3 as published by the Free Software Foundation.
-  
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  Parts of this software with kind permission of Music Tribe. Thank you!
-*/
-
 #include "ctrl.h"
 
 
-// these need to be globaly defined here, to be used by various functions
-X32Ctrl* ctrl;
-Config* config = new Config();
-State* state = new State();
-CLI::App* app = new CLI::App();
-
-// handle STRG-C and write config file
-void my_handler(int s){
-    printf("Caught signal %d\n",s);
-
-	// write config to file
-	if (app){
-		ofstream myfile;
-		myfile.open(X32_CTRL_CONFIGFILE);
-		myfile << app->config_to_str(true,true);
-		myfile.close();
-	}
-
-	// write mixer settings to ini
-	if(ctrl) {
-		ctrl->SaveConfig();
-	}
-
-    exit(0); 
+X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
+	mixer = new Mixer(basepar);
+	surface = new Surface(basepar);
+	xremote = new XRemote(basepar);
 }
 
-int main(int argc, char* argv[]) {
-	srand(time(NULL));
+// ###########################################################################
+// #
+// #      #### ##    ## #### ######## 
+// #       ##  ###   ##  ##     ##    
+// #       ##  ####  ##  ##     ##    
+// #       ##  ## ## ##  ##     ##    
+// #       ##  ##  ####  ##     ##    
+// #       ##  ##   ###  ##     ##    
+// #      #### ##    ## ####    ## 
+// #
+// ###########################################################################
 
-	struct sigaction sigIntHandler;
-	sigIntHandler.sa_handler = my_handler;
-	sigemptyset(&sigIntHandler.sa_mask);
-	sigIntHandler.sa_flags = 0;
-	sigaction(SIGINT, &sigIntHandler, NULL);
+void X32Ctrl::Init(){
+	//##################################################################################
+	//#
+	//# 	Read x32ctrl configuration
+	//#
+	//##################################################################################
 
-	Helper* helper = new Helper();
+	// first try to find what we are: Fullsize, Compact, Producer, Rack or Core
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reading config...");
+	char model[12];
+	char serial[15];
+	char date[16];
+	helper->ReadConfig("/etc/x32.conf", "MDL=", model, 12);
+	helper->ReadConfig("/etc/x32.conf", "SN=", serial, 15);
+	helper->ReadConfig("/etc/x32.conf", "DATE=", date, 16);
+	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
+	config->SetModel(model);
+	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
 
-	app->description("OpenX32 Main Control");
-	argv = app->ensure_utf8(argv);
+	//##################################################################################
+	//#
+	//# 	Initialize system
+	//#
+	//##################################################################################
 
+	mixer->Init();
+	surface->Init();
+	xremote->Init();
 
-	// Command line options
+	//##################################################################################
+	//#
+	//# 	Configure the fader bank layout (only X32 Full/Compact/Producer)
+	//#
+	//##################################################################################
 
-	app->set_config("--config", X32_CTRL_CONFIGFILE)->configurable(false)->description("Load and Store configuration from/to alternate file");;
-	app->add_flag("--version", "Get the version number, builddate and a nice logo")->configurable(false);
-	app->add_flag("-p,--print", "Print configuration and exit")->configurable(false);
+	if(config->IsModelX32FullOrCompactOrProducer()) {
 
-	app->add_option("--L", "Bitstream file for the Lattice FPGA")
-		->option_text("FILE")
-		//->default_str("lattice.bit")
-		->configurable(false);
-	app->add_option("--X", "Bitstream file for the Xilinx FPGA")
-		->option_text("FILE")
-		//->default_str("xilinx.bit")
-		->configurable(false);
-	app->add_option("--D1", "Bitstream file for the DSP1")
-		->option_text("FILE")
-		//->default_str("dsp1.ldr")
-		->configurable(false);
-	app->add_option("--D2", "Bitstream file for the DSP2")
-		->option_text("FILE")
-		//->default_str("dsp2.ldr")
-		->configurable(false);
+		ResetFaderBankLayout();
+		LoadFaderBankLayout(FADER_BANK_LAYOUT_X32);
 
-	app->add_option("--samplerate", "Set Samplerate to 44100 or 48000 kHz")
-		->default_val<uint32_t>(48000)
-		->check(CLI::IsMember(new set<uint32_t>{41000, 48000}));
+		activeBank_inputFader = 0;
+		activeBank_busFader = 0;
+		activeEQ = 0;
+		activeBusSend = 0;
+	}
 
-	// DEBUG
-	vector<string> debug_parameters;
-	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA GUI INI MIXER SPI SURFACE UART VCHANNEL X32CTRL XREMOTE")
-			->configurable(false)
-			->group("Debug")
-			->expected(1,-1)
-			->option_text("FLAG FLAG ...");
+	//##################################################################################
+	//#
+	//# 	Connect pages together
+	//#
+	//##################################################################################
 
-	bool verbose;
-	bool trace;
-	app->add_flag("--verbose", verbose, "Print more debug messages")->configurable(false)->group("Debug")->expected(0,1);
-	app->add_flag("--trace", trace, "Print all possible debug messages")->configurable(false)->group("Debug")->expected(0,1);
+	// Home
+	pages[X32_PAGE_HOME].prevPage = X32_PAGE_NONE;
+	pages[X32_PAGE_HOME].nextPage = X32_PAGE_CONFIG;
+
+	pages[X32_PAGE_CONFIG].prevPage = X32_PAGE_HOME;
+	pages[X32_PAGE_CONFIG].nextPage = X32_PAGE_EQ;
+
+	pages[X32_PAGE_EQ].prevPage = X32_PAGE_CONFIG;
+	pages[X32_PAGE_EQ].nextPage = X32_PAGE_NONE;
+
+	// Routing
+	pages[X32_PAGE_ROUTING].prevPage = X32_PAGE_NONE;
+	pages[X32_PAGE_ROUTING].nextPage = X32_PAGE_ROUTING_FPGA;
+
+	pages[X32_PAGE_ROUTING_FPGA].prevPage = X32_PAGE_ROUTING;
+	pages[X32_PAGE_ROUTING_FPGA].nextPage = X32_PAGE_ROUTING_DSP1;
+
+	pages[X32_PAGE_ROUTING_DSP1].prevPage = X32_PAGE_ROUTING_FPGA;
+	pages[X32_PAGE_ROUTING_DSP1].nextPage = X32_PAGE_ROUTING_DSP2;
+
+	pages[X32_PAGE_ROUTING_DSP2].prevPage = X32_PAGE_ROUTING_DSP1;
+	pages[X32_PAGE_ROUTING_DSP2].nextPage = X32_PAGE_NONE;
+
+	SetSelect(0, true);
 	
-	app->get_config_formatter_base()->quoteCharacter('"', '"');
+	if(helper->GetFileSize(X32_MIXER_CONFIGFILE) == -1)	{
+		// create new ini file
+		helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "no %s found, creating one", X32_MIXER_CONFIGFILE);
+		ofstream outfile (X32_MIXER_CONFIGFILE);
+		outfile << endl;
+		outfile.close();
 
-	CLI11_PARSE(*app, argc, argv);
-
-	if(app->get_option("--print")->as<bool>()) {
-        std::cout << app->config_to_str(true, false);
-        return 0;
-    }
-
-	if (app->count("--version") > 0) {
-		printf("  ____                  __   ______ ___ \n");
-		printf(" / __ \\                 \\ \\ / /___ \\__ \\ \n");
-		printf("| |  | |_ __   ___ _ __  \\ V /  __) | ) |\n");
-		printf("| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / / \n");
-		printf("| |__| | |_) |  __/ | | |/ . \\ ___) / /_ \n");
-		printf(" \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|\n");
-		printf("       | |                               \n");
-		printf("       |_|                               \n");
-		printf("\n");
-		printf("%s build on %s %s\n\n%s\n", X32_CTRL_VERSION, __DATE__, __TIME__, X32_CTRL_URL);
-		return 0;
-	}
-
-	config->SetSamplerate(app->get_option("--samplerate")->as<uint32_t>());
-
-	if (debug_parameters.size() > 0) {
-		for(uint8_t i=0; i<debug_parameters.size(); i++) {
-			if (debug_parameters[i] == "ADDA") { helper->DEBUG_ADDA(true); }
-			if (debug_parameters[i] == "DSP1") { helper->DEBUG_DSP1(true); }
-			if (debug_parameters[i] == "DSP2") { helper->DEBUG_DSP2(true); }
-			if (debug_parameters[i] == "FPGA") { helper->DEBUG_FPGA(true); }
-			if (debug_parameters[i] == "GUI") { helper->DEBUG_GUI(true); }
-			if (debug_parameters[i] == "MIXER") { helper->DEBUG_MIXER(true); }
-			if (debug_parameters[i] == "SPI") { helper->DEBUG_SPI(true); }
-			if (debug_parameters[i] == "SURFACE") { helper->DEBUG_SURFACE(true); }
-			if (debug_parameters[i] == "UART") { helper->DEBUG_UART(true); }
-			if (debug_parameters[i] == "VCHANNEL") { helper->DEBUG_VCHANNEL(true); }
-			if (debug_parameters[i] == "X32CTRL") { helper->DEBUG_X32CTRL(true); }
-			if (debug_parameters[i] == "XREMOTE") { helper->DEBUG_XREMOTE(true); }
-			if (debug_parameters[i] == "INI") { helper->DEBUG_INI(true); }
-		}
-
-		if (trace) {
-			helper->SetDebugLevel(DEBUGLEVEL_TRACE);
-		} else if (verbose) {
-			helper->SetDebugLevel(DEBUGLEVEL_VERBOSE);
-		} else {
-			helper->SetDebugLevel(DEBUGLEVEL_NORMAL);
-		}
+		SaveConfig();		
 	} else {
-		helper->SetDebugLevel(DEBUGLEVEL_OFF);
+		LoadConfig();
 	}
 
-	X32BaseParameter* basepar = new X32BaseParameter(app, config, state, helper);
-	ctrl = new X32Ctrl(basepar);
-	ctrl->Init();
-	ctrl->Run();
-
-    exit(0);
+	state->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 }
 
+void X32Ctrl::LoadConfig() {
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
+	mixer_ini.load(X32_MIXER_CONFIGFILE);
+
+	// VChannels
+	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)	{
+		VChannel* chan = GetVChannel(i);
+		string section = (String("vchannel") + String(i)).c_str();
+
+		chan->name = mixer_ini[section]["name"].as<string>().c_str();
+		chan->color = mixer_ini[section]["color"].as<int>();
+	}
+
+	//DspChannels
+	for (uint8_t i = 0; i < MAX_DSP_INPUTCHANNELS; i++)	{
+		string section = string("dspchannel") + to_string(i);
+		mixer->dsp->Channel[i].inputSource = mixer_ini[section]["inputSource"].as<int>();
+		mixer->dsp->Channel[i].inputTapPoint = mixer_ini[section]["inputTapPoint"].as<int>();
+	}
+	//DspOutChannels
+	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++) {
+		string section = string("dspoutchannel") + to_string(i);
+		mixer->dsp->Dsp2FpgaChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	//Dsp2FxChannels
+	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++) {
+		string section = string("dspfxchannel") + to_string(i);
+		mixer->dsp->Dsp2FxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2FxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	//Dsp2AuxChannels
+	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++) {
+		string section = string("dspauxchannel") + to_string(i);
+		mixer->dsp->Dsp2AuxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2AuxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	mixer->dsp->SendAll();
+
+	// FPGA Routing
+	{
+		string section = "fpga";
+		for (uint8_t i = 0; i < 8; i++)	{
+			mixer->fpga->fpgaRouting.aux[i] = mixer_ini[section][(String("aux") + i).c_str()].as<int>();
+		}
+		for (uint8_t i = 0; i < 16; i++) {
+			mixer->fpga->fpgaRouting.xlr[i] = mixer_ini[section][(String("xlr") + i).c_str()].as<int>();
+			mixer->fpga->fpgaRouting.p16[i] = mixer_ini[section][(String("p16") + i).c_str()].as<int>();
+		}
+		for (uint8_t i = 0; i < 32; i++) {
+			mixer->fpga->fpgaRouting.card[i] = mixer_ini[section][(String("card") + i).c_str()].as<int>();
+		}
+		for (uint8_t i = 0; i < 40; i++) {
+			mixer->fpga->fpgaRouting.dsp[i] = mixer_ini[section][(String("dsp") + i).c_str()].as<int>();
+		}
+		mixer->fpga->RoutingSendConfigToFpga();
+	}
+
+}
+
+void X32Ctrl::ResetFaderBankLayout() {
+	// reset channel section
+	for (uint8_t b = 0; b < 8; b++){
+		for (uint8_t sCh = 0; sCh < 16; sCh++){
+			modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+			modes[X32_SURFACE_MODE_BANKING_USER].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+		}
+	}
+	// reset bus section
+	for (uint8_t b = 0; b < 4; b++){
+		for (uint8_t sCh = 0; sCh < 8; sCh++){
+			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+			modes[X32_SURFACE_MODE_BANKING_USER].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+		}
+	}
+}
+
+// Load a Fader bank layout, e.g. LAYOUT_X32 or LAYOUT_USER
+void X32Ctrl::LoadFaderBankLayout(int layout) {
+
+	if (layout == FADER_BANK_LAYOUT_X32) {
+
+		// ##################################################
+		// #
+		// #   	Fader bank layout like X32
+		// #
+		// #	Channel section		|	Bus section
+		// #	--------------------|--------------------
+		// #	32 Channels			|   DCA 1-8
+		// #	8 Aux				|	Bus 1-8
+		// #	Fx Return			|	Bus 9-16
+		// #	Busses 				|	Matrix + Sub
+		// #
+		// ##################################################
+
+
+		if (config->IsModelX32Full()){
+			// bank is 16 channels wide
+			for (uint8_t bank=0;bank<4;bank++){
+				for (int i = 0; i <=15; i++) {
+					modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 16);
+					helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 16));
+				}
+			}
+		}
+		if (config->IsModelX32CompactOrProducer()){
+			// bank is 8 channels wide
+			for (uint8_t bank=0;bank<8;bank++){
+				for (int i = 0; i <=7; i++) {
+					modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 8);
+					helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 8));
+				}
+			}
+		}
+
+		// assign channels to bus fader bank
+
+		// DCA - starts at channel 72
+		for (int i = 0; i <=7; i++) {
+			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[0].surfaceChannel2VChannel[i] = i + 72;
+		}
+		// Bus 1-8 - starts at channel 48
+		for (int i = 0; i <=7; i++) {
+			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[1].surfaceChannel2VChannel[i] = i + 48;
+		}
+		// Bus 9-16 - starts at channel 56
+		for (int i = 0; i <=7; i++) {
+			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[2].surfaceChannel2VChannel[i] = i + 56;
+		}
+		// Matrix / SPECIAL / SUB - starts at channel 64
+		for (int i = 0; i <=9; i++) {
+			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[3].surfaceChannel2VChannel[i] = i + 64;
+		}
+	}	
+}
+
+void X32Ctrl::SaveConfig() {
+	// VChannels
+	for (uint8_t i = 0; i < MAX_VCHANNELS; i++) {
+		VChannel* chan = GetVChannel(i);
+		string section = string("vchannel") + to_string(i);
+		mixer_ini[section]["name"] = chan->name.c_str();
+		mixer_ini[section]["color"] = (int)chan->color;
+	}
+	//DspChannels
+	for (uint8_t i = 0; i < MAX_DSP_INPUTCHANNELS; i++)	{
+		string section = string("dspchannel") + to_string(i);
+		mixer_ini[section]["inputSource"] = (int)mixer->dsp->Channel[i].inputSource;
+		mixer_ini[section]["inputTapPoint"] = (int)mixer->dsp->Channel[i].inputTapPoint;
+	}
+	//DspOutChannels
+	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++) {
+		string section = string("dspoutchannel") + to_string(i);
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputSource;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint;
+	}
+	//Dsp2FxChannels
+	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++) {
+		string section = string("dspfxchannel") + to_string(i);
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FxChannel[i].outputSource;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FxChannel[i].outputTapPoint;
+	}
+	//Dsp2AuxChannels
+	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++) {
+		string section = string("dspauxchannel") + to_string(i);
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2AuxChannel[i].outputSource;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2AuxChannel[i].outputTapPoint;
+	}
+	{
+		string section = "fpga";
+		for (uint8_t i = 0; i < 8; i++)	{
+			mixer_ini[section][(String("aux") + i).c_str()] = (int)mixer->fpga->fpgaRouting.aux[i];
+		}
+		for (uint8_t i = 0; i < 16; i++) {
+			mixer_ini[section][(String("xlr") + i).c_str()] = (int)mixer->fpga->fpgaRouting.xlr[i];
+			mixer_ini[section][(String("p16") + i).c_str()] = (int)mixer->fpga->fpgaRouting.p16[i];
+		}
+		for (uint8_t i = 0; i < 32; i++) {
+			mixer_ini[section][(String("card") + i).c_str()] = (int)mixer->fpga->fpgaRouting.card[i];
+		}
+		for (uint8_t i = 0; i < 40; i++) {
+			mixer_ini[section][(String("dsp") + i).c_str()] = (int)mixer->fpga->fpgaRouting.dsp[i];
+		}
+	}
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", X32_MIXER_CONFIGFILE);
+	mixer_ini.save(X32_MIXER_CONFIGFILE);
+}
 
 // ###########################################################################
 // #
@@ -198,51 +309,8 @@ int main(int argc, char* argv[]) {
 // #
 // ###########################################################################
 
-// timer-raw-functions to be called either by linux-timer (X32core) or LVGL-timer (all other models)
-void timer100msCallbackLvgl(_lv_timer_t* lv_timer) {ctrl->Tick100ms();}
-void timer100msCallbackLinux(int timer) {ctrl->Tick100ms();}
-void timer10msCallbackLvgl(_lv_timer_t* lv_timer) {ui_tick(); ctrl->Tick10ms();}
-void timer10msCallbackLinux(int timer) {ctrl->Tick10ms();}
 
-timer_t timerid;
-struct sigevent sev;
-struct itimerspec trigger;
 
-// initialize 100ms timer (only for Non-GUI systems)
-void init100msTimer(void) {
-  // Set up the signal handler
-  struct sigaction sa;
-  sa.sa_handler = timer100msCallbackLinux;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
-  if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
-	perror("sigaction");
-	//return 1;
-  }
-
-  // Set up the sigevent structure for the timer
-  sev.sigev_notify = SIGEV_SIGNAL;
-  sev.sigev_signo = SIGRTMIN;
-  sev.sigev_value.sival_ptr = &timerid;
-
-  // Create the timer
-  if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
-	perror("timer_create");
-	//return 1;
-  }
-  
-  // Set the timer to trigger every 1 second (1,000,000,000 nanoseconds)
-  trigger.it_value.tv_sec = 0;
-  trigger.it_value.tv_nsec = 50000000; // 50ms = 50000us = 50000000ns
-  trigger.it_interval.tv_sec = 0;
-  trigger.it_interval.tv_nsec = 50000000;
-
-  // Arm the timer
-  if (timer_settime(timerid, 0, &trigger, NULL) == -1) {
-	perror("timer_settime");
-	//return 1;
-  }
-}
 
 void X32Ctrl::Tick10ms(void){
 	surface->ProcessUartData();
@@ -272,331 +340,6 @@ void X32Ctrl::Tick100ms(void){
 	if (!config->IsModelX32Core()) {
 		// read the current DSP load
 		lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
-	}
-}
-
-// ###########################################################################
-// #
-// #      X32Ctrl Class
-// #
-// ###########################################################################
-
-X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
-	mixer = new Mixer(basepar);
-	surface = new Surface(basepar);
-	xremote = new XRemote(basepar);
-}
-
-
-
-void X32Ctrl::Init(){
-	//##################################################################################
-	//#
-	//# Read system configuration
-	//#
-	//##################################################################################
-
-	// first try to find what we are: Fullsize, Compact, Producer, Rack or Core
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reading config...");
-	char model[12];
-	char serial[15];
-	char date[16];
-	helper->ReadConfig("/etc/x32.conf", "MDL=", model, 12);
-	helper->ReadConfig("/etc/x32.conf", "SN=", serial, 15);
-	helper->ReadConfig("/etc/x32.conf", "DATE=", date, 16);
-	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
-	config->SetModel(model);
-	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
-
-	//##################################################################################
-	//#
-	//# Configure the channel-system
-	//#
-	//##################################################################################
-
-	// Step 1: empty all banks
-	// "Input Channels"
-	for (uint8_t b = 0; b < 8; b++){
-		for (uint8_t sCh = 0; sCh < 16; sCh++){
-			modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-			modes[X32_SURFACE_MODE_BANKING_USER].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-		}
-	}
-	// "Busses"
-	for (uint8_t b = 0; b < 4; b++){
-		for (uint8_t sCh = 0; sCh < 8; sCh++){
-			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-			modes[X32_SURFACE_MODE_BANKING_USER].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-		}
-	}
-
-	// Step 2: assign channels to input fader bank - X32 Default Layout
-	if (config->IsModelX32Full()){
-		// bank is 16 channels wide
-		for (uint8_t bank=0;bank<4;bank++){
-			for (int i = 0; i <=15; i++) {
-				modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 16);
-				helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 16));
-			}
-		}
-	}
-	if (config->IsModelX32CompactOrProducer()){
-		// bank is 8 channels wide
-		for (uint8_t bank=0;bank<8;bank++){
-			for (int i = 0; i <=7; i++) {
-				modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 8);
-				helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 8));
-			}
-		}
-	}
-
-	// Step 3: assign channels to bus fader bank - X32 Default Layout
-
-	// DCA - starts at channel 72
-	for (int i = 0; i <=7; i++) {
-		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[0].surfaceChannel2VChannel[i] = i + 72;
-	}
-	// Bus 1-8 - starts at channel 48
-	for (int i = 0; i <=7; i++) {
-		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[1].surfaceChannel2VChannel[i] = i + 48;
-	}
-	// Bus 9-16 - starts at channel 56
-	for (int i = 0; i <=7; i++) {
-		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[2].surfaceChannel2VChannel[i] = i + 56;
-	}
-	// Matrix / SPECIAL / SUB - starts at channel 64
-	for (int i = 0; i <=9; i++) {
-		modes[X32_SURFACE_MODE_BANKING_X32].busBanks[3].surfaceChannel2VChannel[i] = i + 64;
-	}
-	activeBank_inputFader = 0;
-	activeBank_busFader = 0;
-	activeEQ = 0;
-	activeBusSend = 0;
-
-	//##################################################################################
-	//#
-	//# Initialize system
-	//#
-	//##################################################################################
-
-	surface->Init();
-	xremote->Init();
-
-	InitPages();
-
-	SetSelect(0, true);
-	if(helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE)) {
-		DebugPrintvChannels();
-	}
-
-	if(helper->GetFileSize(X32_MIXER_CONFIGFILE) == -1)
-	{
-		// create new ini file
-		helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "no %s found, creating one", X32_MIXER_CONFIGFILE);
-		ofstream outfile (X32_MIXER_CONFIGFILE);
-		outfile << endl;
-		outfile.close();
-
-		SaveConfig();		
-	} else {
-		LoadConfig();
-	}
-}
-
-
-void X32Ctrl::LoadConfig(){
-
-	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
-	mixer_ini.load(X32_MIXER_CONFIGFILE);
-
-	// VChannels
-	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)
-	{
-		VChannel* chan = GetVChannel(i);
-		string section = (String("vchannel") + String(i)).c_str();
-
-		chan->name = mixer_ini[section]["name"].as<string>().c_str();
-		chan->color = mixer_ini[section]["color"].as<int>();
-	}
-	
-	//DspChannels
-	for (uint8_t i = 0; i < MAX_DSP_INPUTCHANNELS; i++)
-	{
-		string section = string("dspchannel") + to_string(i);
-
-		mixer->dsp->Channel[i].inputSource = mixer_ini[section]["inputSource"].as<int>();
-		mixer->dsp->Channel[i].inputTapPoint = mixer_ini[section]["inputTapPoint"].as<int>();
-	}
-	//DspOutChannels
-	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++)
-	{
-		string section = string("dspoutchannel") + to_string(i);
-
-		mixer->dsp->Dsp2FpgaChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	//Dsp2FxChannels
-	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++)
-	{
-		string section = string("dspfxchannel") + to_string(i);
-
-		mixer->dsp->Dsp2FxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2FxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	//Dsp2AuxChannels
-	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++)
-	{
-		string section = string("dspauxchannel") + to_string(i);
-
-		mixer->dsp->Dsp2AuxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2AuxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	mixer->dsp->SendAll();
-
-	// FPGA Routing
-	{
-		string section = "fpga";
-
-		for (uint8_t i = 0; i < 8; i++)
-		{
-			mixer->fpga->fpgaRouting.aux[i] = mixer_ini[section][(String("aux") + i).c_str()].as<int>();
-		}
-
-		for (uint8_t i = 0; i < 16; i++)
-		{
-			mixer->fpga->fpgaRouting.xlr[i] = mixer_ini[section][(String("xlr") + i).c_str()].as<int>();
-			mixer->fpga->fpgaRouting.p16[i] = mixer_ini[section][(String("p16") + i).c_str()].as<int>();
-		}
-
-		for (uint8_t i = 0; i < 32; i++)
-		{
-			mixer->fpga->fpgaRouting.card[i] = mixer_ini[section][(String("card") + i).c_str()].as<int>();
-		}
-
-		for (uint8_t i = 0; i < 40; i++)
-		{
-			mixer->fpga->fpgaRouting.dsp[i] = mixer_ini[section][(String("dsp") + i).c_str()].as<int>();
-		}
-
-		mixer->fpga->RoutingSendConfigToFpga();
-	}
-
-}
-
-void X32Ctrl::SaveConfig(){
-
-	// VChannels
-	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)
-	{
-		VChannel* chan = GetVChannel(i);
-
-		string section = string("vchannel") + to_string(i);
-		mixer_ini[section]["name"] = chan->name.c_str();
-		mixer_ini[section]["color"] = (int)chan->color;
-		
-	}
-
-	//DspChannels
-	for (uint8_t i = 0; i < MAX_DSP_INPUTCHANNELS; i++)
-	{
-		string section = string("dspchannel") + to_string(i);
-
-		mixer_ini[section]["inputSource"] = (int)mixer->dsp->Channel[i].inputSource;
-		mixer_ini[section]["inputTapPoint"] = (int)mixer->dsp->Channel[i].inputTapPoint;
-	}
-
-	//DspOutChannels
-	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++)
-	{
-		string section = string("dspoutchannel") + to_string(i);
-
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputSource;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint;
-	}
-
-	//Dsp2FxChannels
-	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++)
-	{
-		string section = string("dspfxchannel") + to_string(i);
-
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FxChannel[i].outputSource;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FxChannel[i].outputTapPoint;
-	}
-
-	//Dsp2AuxChannels
-	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++)
-	{
-		string section = string("dspauxchannel") + to_string(i);
-
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2AuxChannel[i].outputSource;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2AuxChannel[i].outputTapPoint;
-	}
-
-	// FPGA Routing
-	/*
-	typedef struct __attribute__((packed,aligned(1))) {
-	uint8_t xlr[16];
-	uint8_t p16[16];
-	uint8_t card[32];
-	uint8_t aux[8];
-	uint8_t dsp[40];
-	uint8_t aes50a[48]; // not used in FPGA at the moment
-	uint8_t aes50b[48]; // not used in FPGA at the moment
-	} sFpgaRouting;
-	*/
-	
-	{
-		string section = "fpga";
-
-		for (uint8_t i = 0; i < 8; i++)
-		{
-			mixer_ini[section][(String("aux") + i).c_str()] = (int)mixer->fpga->fpgaRouting.aux[i];
-		}
-
-		for (uint8_t i = 0; i < 16; i++)
-		{
-			mixer_ini[section][(String("xlr") + i).c_str()] = (int)mixer->fpga->fpgaRouting.xlr[i];
-			mixer_ini[section][(String("p16") + i).c_str()] = (int)mixer->fpga->fpgaRouting.p16[i];
-		}
-
-		for (uint8_t i = 0; i < 32; i++)
-		{
-			mixer_ini[section][(String("card") + i).c_str()] = (int)mixer->fpga->fpgaRouting.card[i];
-		}
-
-		for (uint8_t i = 0; i < 40; i++)
-		{
-			mixer_ini[section][(String("dsp") + i).c_str()] = (int)mixer->fpga->fpgaRouting.dsp[i];
-		}
-	}
-
-	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", X32_MIXER_CONFIGFILE);
-	mixer_ini.save(X32_MIXER_CONFIGFILE);
-}
-
-void X32Ctrl::Run(){
-
-	if (config->IsModelX32Core()){
-		// only necessary if LVGL is not used
-		helper->Log("Starting Timer...\n");
-		init100msTimer(); // start 100ms-timer only for Non-GUI systems
-
-		state->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
-
-		helper->Log("Wait for incoming data on /dev/ttymxc1...\n");
-		helper->Log("Press Ctrl+C to terminate program.\n");
-
-		while (1) {
-			// run service-tasks
-			Tick10ms();
-
-			// sleep for 10ms to call Tick10ms every 10ms
-			usleep(10000);
-		}
-
-	} else {
-		helper->Log("Initializing GUI...\n");
-		guiInit(); // initializes LVGL, FBDEV and starts endless loop
 	}
 }
 
@@ -839,38 +582,20 @@ void X32Ctrl::UdpHandleCommunication(void) {
 // #
 // ###################################################################
 
-void X32Ctrl::guiInit(void) {
-  lv_init();
 
-  driver_backends_register();
-  char dev[] = "FBDEV";
-  driver_backends_init_backend(dev);
-
-  lv_timer_create(timer10msCallbackLvgl, 10, NULL);
-  lv_timer_create(timer100msCallbackLvgl, 100, NULL); // surface/gui sync
-
-  // initialize GUI created by EEZ
-  ui_init();
-
-  ShowPage(X32_PAGE_HOME);   // shows the HOME Page
-  state->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
-
-  // setup EQ-graph
-  lv_chart_set_type(objects.current_channel_eq, LV_CHART_TYPE_LINE);
-  lv_obj_set_style_size(objects.current_channel_eq, 0, 0, LV_PART_INDICATOR);
-  lv_obj_set_style_line_width(objects.current_channel_eq, 5, LV_PART_ITEMS);
-  chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
-  lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7);
-  lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15000, 15000);
-  lv_chart_set_point_count(objects.current_channel_eq, 200);
-  lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQ, lv_color_hex(0xef7900));
-  //chart-shadow: 0x7e4000
-
-  // start endless loop
-  driver_backends_run_loop();
-}
 
 void X32Ctrl::guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
+
+	char displayEncoderText[6][30];
+static const char* displayEncoderButtonMap[] = {
+    displayEncoderText[0],
+    displayEncoderText[1],
+    displayEncoderText[2],
+    displayEncoderText[3],
+    displayEncoderText[4],
+    displayEncoderText[5],
+    NULL};
+
 	sprintf(&displayEncoderText[0][0], "%s", enc1.c_str());
 	sprintf(&displayEncoderText[1][0], "%s", enc2.c_str());
 	sprintf(&displayEncoderText[2][0], "%s", enc3.c_str());
@@ -912,30 +637,7 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 	lv_chart_refresh(objects.current_channel_eq);
 }
 
-void X32Ctrl::InitPages(void){
-	// Home
-	pages[X32_PAGE_HOME].prevPage = X32_PAGE_NONE;
-	pages[X32_PAGE_HOME].nextPage = X32_PAGE_CONFIG;
 
-	pages[X32_PAGE_CONFIG].prevPage = X32_PAGE_HOME;
-	pages[X32_PAGE_CONFIG].nextPage = X32_PAGE_EQ;
-
-	pages[X32_PAGE_EQ].prevPage = X32_PAGE_CONFIG;
-	pages[X32_PAGE_EQ].nextPage = X32_PAGE_NONE;
-
-	// Routing
-	pages[X32_PAGE_ROUTING].prevPage = X32_PAGE_NONE;
-	pages[X32_PAGE_ROUTING].nextPage = X32_PAGE_ROUTING_FPGA;
-
-	pages[X32_PAGE_ROUTING_FPGA].prevPage = X32_PAGE_ROUTING;
-	pages[X32_PAGE_ROUTING_FPGA].nextPage = X32_PAGE_ROUTING_DSP1;
-
-	pages[X32_PAGE_ROUTING_DSP1].prevPage = X32_PAGE_ROUTING_FPGA;
-	pages[X32_PAGE_ROUTING_DSP1].nextPage = X32_PAGE_ROUTING_DSP2;
-
-	pages[X32_PAGE_ROUTING_DSP2].prevPage = X32_PAGE_ROUTING_DSP1;
-	pages[X32_PAGE_ROUTING_DSP2].nextPage = X32_PAGE_NONE;
-}
 
 void X32Ctrl::ShowNextPage(void){
 	if (pages[activePage].nextPage != X32_PAGE_NONE){
@@ -1055,13 +757,15 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 
 void X32Ctrl::syncAll(void) {
 	if (state->HasAnyChanged()){
+
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "SyncAll ");
+
 		guiSync();
 		surfaceSync();
 		xremoteSync();
 
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
-			// TODO Maybe?: do not sync if just selection has changed
-			mixer->SyncVChannelsToHardware();
+			mixer->Sync();
 		}
 
 		state->ResetChangeFlags();
@@ -2717,11 +2421,4 @@ void X32Ctrl::DebugPrintBusBank(uint8_t bank)
 		printf("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].busBanks[bank].surfaceChannel2VChannel[i]);
 	}
 	printf("END ############# BUS BANK%d ############### END\n", bank);
-}
-
-void X32Ctrl::DebugPrintvChannels(void){
-	for (int i = 0; i < MAX_VCHANNELS; i++)
-	{
-	   printf(mixer->GetVChannel(i)->ToString().c_str());
-	}
 }

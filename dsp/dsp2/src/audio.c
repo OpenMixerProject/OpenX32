@@ -146,46 +146,28 @@ void audioProcessData(void) {
 	// dspCh   0..7 = FX0
 	// dspCh  8..15 = FX1
 	// dspCh 16..23 = AUX 1-6 + AES/EBU | AUX 1-6 + USB Play
-
-	//				  _____                  _ _
-	//				 | ____|__ _ _   _  __ _| (_)_______ _ __
-	//				 |  _| / _` | | | |/ _` | | |_  / _ \ '__|
-	//				 | |__| (_| | |_| | (_| | | |/ /  __/ |
-	//				 |_____\__, |\__,_|\__,_|_|_/___\___|_|
-	//				          |_|
-	// use low-pass filter on EQ-Coefficients to smoothly change parameters
-
-	// Hardware-Accelerated Biquad-Filter
-	// Ressource-Demand: ~20%
-	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-		memcpy(&audioBuffer[TAP_POST_EQ][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-		//                 input and output                BiQuad-Coefficients                        Delay-Line                  samples           Sections
-		biquad_trans(&audioBuffer[TAP_POST_EQ][i_ch][0], &dsp.dspChannel[i_ch].peqCoeffs[0], &dsp.dspChannel[i_ch].peqStates[0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
-	}
-
-
+/*
 	// copy TAP_POST_EQ to TAP_PRE_FADER (passthrough)
 	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-		memcpy(&audioBuffer[TAP_PRE_FADER][i_ch][0], &audioBuffer[TAP_POST_EQ][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+		memcpy(&audioBuffer[TAP_PRE_FADER][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
 	}
-
 
 	// calculate FX Return Volume
 	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
 		vecsmltf(&audioBuffer[TAP_PRE_FADER][i_ch][0], dsp.channelFxReturnVolume[i_ch], &audioBuffer[TAP_POST_FADER][i_ch][0], SAMPLES_IN_BUFFER);
 	}
+*/
 
-	/*
-		// insert 1kHz test-audio to all channels
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			time += (1.0f/48000.0f); // add 20.83us
-			float signal = sin(2.0f * M_PI * 1000.0f * time) * 268435456.0f;
+	// insert 1kHz test-audio to all channels
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		time += (1.0f/48000.0f); // add 20.83us
 
-			for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-				audioBuffer[TAP_POST_FADER][i_ch][s] = signal;
-			}
+		for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+			// create sinewave between 200 Hz and 2500 Hz
+			audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 268435456.0f;
 		}
-	*/
+	}
+
 
 	// ========================================================
 

@@ -47,60 +47,28 @@ void Adda::Init() {
 	addaBoards[ADDA_BOARD_EXPANSION] = SendReceive("*8I#"); // Expansion-Card
 	addaBoards[ADDA_BOARD_EXPANSION_RETURN] = SendReceive("*8R#"); // Check if Expansion-Card has return
 	
-
-	// -1=unknown, 0=X32, 1=X32Compact, 2=X32Producer, 3=X32Rack, 4=X32Core
 	// set gains to -2dB and turnoff phantom-power
+	// do always send to all possible boards, like the original firmware
 	for(uint8_t board=0;board<4;board++) {
 		for(uint8_t channel=0;channel<8;channel++) {
-			SendReceive((String("*") + board + "G" + channel + "0000#").c_str());
+			Send((String("*") + board + "G" + channel + "0000#").c_str());
 		}
 	}
-
-	// SendReceive("*1G00000#*1G00000#*1G10000#*1G10000#*1G20000#*1G20000#*1G30000#*1G30000#*1G40000#*1G40000#*1G50000#*1G50000#*1G60000#*1G60000#*1G70000#*1G70000#");
-	// SendReceive("*3G00000#*3G00000#*3G10000#*3G10000#*3G20000#*3G20000#*3G30000#*3G30000#*3G40000#*3G40000#*3G50000#*3G50000#*3G60000#*3G60000#*3G70000#*3G70000#");
-	// SendReceive("*0G00000#*0G00000#*0G10000#*0G10000#*0G20000#*0G20000#*0G30000#*0G30000#*0G40000#*0G40000#*0G50000#*0G50000#*0G60000#*0G60000#*0G70000#*0G70000#");
-	// SendReceive("*2G00000#*2G00000#*2G10000#*2G10000#*2G20000#*2G20000#*2G30000#*2G30000#*2G40000#*2G40000#*2G50000#*2G50000#*2G60000#*2G60000#*2G70000#*2G70000#");
-
+	
 	// initialize the 8ch-input-boards
-	SendReceive("*0R:W018B#");
-	SendReceive("*1R:W018B#");
-	SendReceive("*2R:W018B#");
-	SendReceive("*3R:W018B#");
+	if (HasXlrIn0()) SendReceive("*0R:W018B#");
+	if (HasXlrIn1()) SendReceive("*1R:W018B#");
+	if (HasXlrIn2()) SendReceive("*2R:W018B#");
+	if (HasXlrIn3()) SendReceive("*3R:W018B#");
 
 	// initialize the 8ch-output-boards
-	SendReceive("*4R:W0281C0:W0800:W0280#");
-	SendReceive("*5R:W0281C0:W0800:W0280#");
+	if (HasXlrOut0()) SendReceive("*4R:W0281C0:W0800:W0280#");
+	if (HasXlrOut1()) SendReceive("*5R:W0281C0:W0800:W0280#");
 
 
-	uint32_t samplerate = config->GetSamplerate();
-	if (samplerate == 44100) {
-		// set all boards to 48kHz
-		SendReceive("*8C40U#");
-		SendReceive("*8R8#*8C40U#");
-		SendReceive("*8C40U#");
-	} else if (samplerate == 48000) {
-		// set all boards to 48kHz
-		SendReceive("*8C80U#");
-		SendReceive("*8R8#*8C80U#");
-		SendReceive("*8C80U#");
-	} else if (samplerate == 96000) {
-		// currently unknown, but the X32 is able to handle 96kHz for sure
-	} else {
-		// unsupported sample-rate
-	}
-
-	// and send some more commands (no information about the usage up to now)
-	SendReceive("*9R0#*9G0#");
-	SendReceive("*9AF#");
-	SendReceive("*9N0#");
-	SendReceive("*9AN#");
-	SendReceive("*9AN#");
-	SendReceive("*9AN#");
-	SendReceive("*9AN#");
-	SendReceive("*9AN#");
-	SendReceive("*9AN#");
-	SendReceive("*9N0#");
-	usleep(20000);
+	SetSamplerate(config->GetSamplerate());
+	
+	usleep(20000); // wait 20ms
 }
 
 bool Adda::HasXlrIn0(){
@@ -183,9 +151,8 @@ String Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomP
 	return SendReceive(message);
 }
 
-String Adda::SendReceive(String cmd) {
+void Adda::Send(String cmd) {
 	AddaMessage message;
-	uint8_t currentByte;
 	String answer;
 
 	message.AddString(cmd.c_str());
@@ -199,6 +166,13 @@ String Adda::SendReceive(String cmd) {
 	}
 
 	uart->TxRaw(&message);
+}
+
+String Adda::SendReceive(String cmd) {
+	uint8_t currentByte;
+	String answer;
+
+	Send(cmd);
 
 	uint8_t waitForMessage = 10; // wait ~10 ms
 	uint16_t readBytes = 0;
@@ -281,7 +255,8 @@ String Adda::SendReceive(String cmd) {
 	return "";
 }
 
-void Adda::SetMute(bool muted) {
+// Mute all ADDA boards
+void Adda::SetMuteAll(bool muted) {
 		int fd = open("/sys/class/leds/audio_mute/brightness", O_WRONLY);
 
 		if (muted) {
@@ -292,10 +267,10 @@ void Adda::SetMute(bool muted) {
 		close(fd);
 }
 
-int8_t Adda::GetBoardId(uint8_t channel) {
-		// we have up to 4 boards. Now we have to find the right BoardId for the desired channel
+int8_t Adda::GetXlrInBoardId(uint8_t channel) {
+	// we have up to 4 boards. Now we have to find the right BoardId for the desired channel
 
-		// TODO: check why the order is 1->3->0->2 and if it could change between X32-types and even startups
+	if (config->IsModelX32Full()) {
 		if ((channel >= 1) && (channel <= 8)) {
 				return 1;
 		}else if ((channel >= 9) && (channel <= 16)) {
@@ -304,7 +279,16 @@ int8_t Adda::GetBoardId(uint8_t channel) {
 				return 0;
 		}else if ((channel >= 25) && (channel <= 32)) {
 				return 2;
-		}else{
-				return -1;
 		}
+	}
+
+	if(config->IsModelX32Rack()) {
+		if ((channel >= 1) && (channel <= 8)) {
+			return ADDA_BOARD_XLR_IN_1;
+		}else if ((channel >= 9) && (channel <= 16)) {
+			return ADDA_BOARD_XLR_IN_0;
+		}				
+	}
+
+	return -1;
 }

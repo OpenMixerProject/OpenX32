@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "constants.h"
+#include "defines.h"
 #include "base.h"
 
 class Volume : public X32Base {

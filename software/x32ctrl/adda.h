@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base.h"
-#include "ctrl_types.h"
+#include "types.h"
 #include "WString.h"
 #include "uart.h"
 #include "adda-message.h"
@@ -29,6 +29,7 @@ class Adda : public X32Base {
 
         String addaBoards[10];
 
+        void Send(String cmd);
         String SendReceive(String cmd);
 
     public:
@@ -46,8 +47,8 @@ class Adda : public X32Base {
         void SetSamplerate(uint32_t samplerate);
         String SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower);
 
-        void SetMute(bool muted);
-        int8_t GetBoardId(uint8_t channel);
+        void SetMuteAll(bool muted);
+        int8_t GetXlrInBoardId(uint8_t channel);
 };
 
 
