@@ -139,6 +139,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'r': // DSP routing
+			if (channel >= (MAX_CHAN_FPGA + MAX_CHAN_DSP2)) {
+				return;
+			}
+
 			switch (index) {
 				case 0:
 					if (valueCount == 2) {
@@ -156,6 +160,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			break;
 		case 't': // set tapPoints
 			if (valueCount == 2) {
+				if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+					return;
+				}
+
 				switch (index) {
 					case 0: // ChannelSend-TapPoint
 						dsp.channelSendMixbusTapPoint[intValues[0]][channel] = intValues[1];
@@ -174,6 +182,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 		case 'v': // volume
 			switch (index) {
 				case 0: // DSP-Channels
+					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+						return;
+					}
+
 					if (valueCount == 4) {
 						dsp.channelVolume[channel] = floatValues[0];
 						dsp.channelSendMainLeftVolume[channel] = floatValues[1];
@@ -183,6 +195,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 					break;
 				case 1: // Mixbus-Channels
+					if (channel >= MAX_MIXBUS) {
+						return;
+					}
+
 					if (valueCount == 4) {
 						dsp.mixbusVolume[channel] = floatValues[0];
 						dsp.mixbusSendMainLeftVolume[channel] = floatValues[1];
@@ -214,6 +230,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 				case 5: // FX-Send-Volume
 					// Valid for DSP-Channels 1-40
+					if (channel >= (MAX_CHAN_FPGA)) {
+						return;
+					}
+
 					if (valueCount == 16) {
 						for (int i = 0; i < 16; i++) {
 							dsp.channelSendFxVolume[i][channel] = floatValues[i];
@@ -224,12 +244,20 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			break;
 		case 's': // sends to Mixbus
 			if (valueCount == 16) {
+				if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+					return;
+				}
+
 				for (int i = 0; i < 16; i++) {
 					dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
 				}
 			}
 			break;
 		case 'g': // gate
+			if (channel >= (MAX_CHAN_FULLFEATURED)) {
+				return;
+			}
+
 			if (valueCount == 5) {
 				dsp.dspChannel[channel].gate.value_threshold = floatValues[0];
 				dsp.dspChannel[channel].gate.value_gainmin = floatValues[1];
@@ -242,6 +270,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 		case 'e': // Equalizer/Filter
 			switch (index) {
 				case 'l': // LowCut
+					if (channel >= (MAX_CHAN_FULLFEATURED)) {
+						return;
+					}
+
 					if (valueCount == 1) {
 						// copy coefficient
 						//dsp.lowcutCoeffSet[channel] = floatValues[0];
@@ -253,6 +285,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 					break;
 				case 'e': // EQ
+					if (channel >= (CHANNELS_WITH_4BD_EQ)) {
+						return;
+					}
+
 					if ((valueCount == (MAX_CHAN_EQS * 5)) && (channel < CHANNELS_WITH_4BD_EQ)) {
 						// copy biquad-coefficients
 						//memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
@@ -300,6 +336,10 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 			}
 			break;
 		case 'c': // Compressor
+			if (channel >= (MAX_CHAN_FULLFEATURED)) {
+				return;
+			}
+
 			if (valueCount == 6) {
 				dsp.dspChannel[channel].compressor.value_threshold = floatValues[0];
 				dsp.dspChannel[channel].compressor.value_ratio = floatValues[1];
