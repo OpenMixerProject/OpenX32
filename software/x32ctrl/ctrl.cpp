@@ -334,10 +334,6 @@ void X32Ctrl::Tick10ms(void){
 }
 
 void X32Ctrl::Tick100ms(void){
-	// TODO
-	// // surface wants to know the current state of all LED's and Meters
-	// surfaceKeepalive();
-	
 	touchcontrolTick();
 	surfaceUpdateMeter();
 
@@ -763,7 +759,7 @@ void X32Ctrl::syncAll(void) {
 
 		guiSync();
 		surfaceSync();
-		xremoteSync();
+		xremoteSync(false);
 
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
 			mixer->Sync();
@@ -1167,11 +1163,10 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			
 		}
 
-		if (config->IsModelX32Rack()){
-			// Channel section
-			setLedChannelIndicator();
-			chan = GetSelectedvChannel();
-
+		if (config->IsModelX32Rack()){			
+			if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){
+				setLedChannelIndicator();
+			}
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
 				surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, mixer->GetSolo(chanIndex)); 
 			}
@@ -1504,34 +1499,13 @@ void X32Ctrl::surfaceSyncBankIndicator(void) {
 // only X32 Rack and X32 Core
 void X32Ctrl::setLedChannelIndicator(void){
 	if (config->IsModelX32Core() || config->IsModelX32Rack()){
-		// Turn off all LEDS
-		surface->SetLedByEnum(X32_LED_IN, 0);
-		surface->SetLedByEnum(X32_LED_AUX, 0);
-		surface->SetLedByEnum(X32_LED_BUS, 0);
-		surface->SetLedByEnum(X32_LED_DCA, 0);
-		surface->SetLedByEnum(X32_LED_MAIN, 0);
-		surface->SetLedByEnum(X32_LED_MATRIX, 0);
-
 		uint8_t chanIdx = GetSelectedvChannelIndex();
-
-		if (chanIdx <= 31){
-			surface->SetLedByEnum(X32_LED_IN, 1);
-		}
-		if ((chanIdx >= 32)&&(chanIdx <= 47)){
-			surface->SetLedByEnum(X32_LED_AUX, 1);
-		}
-		if ((chanIdx >= 48)&&(chanIdx <= 63)){
-			surface->SetLedByEnum(X32_LED_BUS, 1);
-		}
-		if ((chanIdx >= 64)&&(chanIdx <= 69)){
-			surface->SetLedByEnum(X32_LED_MATRIX, 1);
-		}
-		if ((chanIdx >= 70)&&(chanIdx <= 71)){
-			surface->SetLedByEnum(X32_LED_MAIN, 1);
-		}
-		if ((chanIdx >= 72)&&(chanIdx <= 79)){
-			surface->SetLedByEnum(X32_LED_DCA, 1);
-		}
+		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
+		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
+		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
+		surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
+		surface->SetLedByEnum(X32_LED_MAIN, (chanIdx >= 70)&&(chanIdx <= 71));
+		surface->SetLedByEnum(X32_LED_MATRIX, (chanIdx >= 72)&&(chanIdx <= 79));
 
 		// set 7-Segment Display
 		surface->SetX32RackDisplay(chanIdx);        

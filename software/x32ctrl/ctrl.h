@@ -95,7 +95,7 @@ class X32Ctrl : public X32Base {
         void setLedChannelIndicator(void);
         uint8_t surfaceCalcPreampMeter(uint8_t channel);
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
-        void xremoteSync(bool syncAll=false);
+        void xremoteSync(bool syncAll);
 
         void ChangeSelect(int8_t direction);
         void SetSelect(uint8_t vChannelIndex, bool solo);
