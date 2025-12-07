@@ -199,7 +199,7 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 	}
 
 	if (bytesAvailable > 0) {
-		bytesRead = read(fd, buf, (bytesAvailable < bufLen) ? bytesAvailable : bufLen);
+        bytesRead = read(fd, buf, (bytesAvailable < bufLen) ? bytesAvailable : bufLen);
 
 		if (bytesRead < 0) {
 			perror("Error reading from serial-port");
@@ -207,6 +207,7 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 			return -1;
 		}
 
+        // DEBUG: print received bytes as hex and string
         if (helper->DEBUG_UART()){
             printf("DEBUG_UART: fd=%d Receive: ", fd);
             printf("hex: ");
@@ -220,6 +221,7 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
             
             printf("\n");      
 	    }
+
 		return bytesRead;
 	}
 	return 0;

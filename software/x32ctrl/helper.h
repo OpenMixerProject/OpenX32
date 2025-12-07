@@ -15,11 +15,17 @@
 
 #include "config.h"
 
+#define DEBUGLEVEL_OFF -1 // No Debug
+#define DEBUGLEVEL_NORMAL 0 // General highlevel debug messages
+#define DEBUGLEVEL_VERBOSE 1 // Function calls, Elements, ...
+#define DEBUGLEVEL_TRACE 2 // Very verbose down to the last bit
+
 using namespace std;
 
 class Helper {
     private:
         uint32_t debug_;
+        uint8_t debuglevel_;
 
     public:
         void Log(const char* format, ...);
@@ -48,9 +54,15 @@ class Helper {
 
         vector<string> split(string s, string delimiter);
 
+        // Only show debug messages up to DEBUGLEVEL_..., e.g. DEBUGLEVEL_NORMAL
+        void SetDebugLevel(uint8_t debuglevel)
+        {
+            debuglevel_ = debuglevel;
+        }
+
         #define DEBUG_DEF(name, bitvalue) \
-            void name(const char* format, ...) { \
-                if ((debug_ & bitvalue) == bitvalue) { \
+            void name(int debuglevel, const char* format, ...) { \
+                if (debuglevel <= debuglevel_ && ((debug_ & bitvalue) == bitvalue)) { \
                     va_list args; \
                     va_start(args, format); \
                     vprintf((String(#name) + String(": ") + String(format) + String("\n")).c_str(), args); \
@@ -60,8 +72,8 @@ class Helper {
             } \
             \
             /* Check if this Debugflag is enabled */ \
-            bool name() { \
-                return ((debug_ & bitvalue) == bitvalue);   \
+            bool name(int debuglevel=0) { \
+                return (debuglevel <= debuglevel_ && ((debug_ & bitvalue) == bitvalue));   \
             } \
             \
             /* Enable or Disable Debugflag */ \
@@ -86,5 +98,6 @@ class Helper {
         DEBUG_DEF(DEBUG_FPGA,     0b0000010000000000);
         DEBUG_DEF(DEBUG_UART,     0b0000100000000000);
         DEBUG_DEF(DEBUG_INI,      0b0001000000000000);
+        DEBUG_DEF(DEBUG_STATE,    0b0010000000000000);
 
 };

@@ -29,11 +29,35 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     fpga = new Fpga(basepar);
     adda = new Adda(basepar);
 
+    for(int v=0;v<MAX_VCHANNELS;v++) {
+        vchannel[v] = new VChannel(basepar);
+    }    
+}
+
+void Mixer::Init() {
     dsp->dspInit();
     dsp->SendAll();
-    fpga->RoutingInit();
+    fpga->Init();
     adda->Init();
 
+    LoadVChannelLayout();
+
+    if(helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE)) {
+		DebugPrintvChannels();
+	}
+}
+
+void Mixer::Tick10ms(void){
+    fpga->ProcessUartData();
+    dsp->Tick10ms();
+}
+
+void Mixer::Tick100ms(void){
+    dsp->Tick100ms();
+}
+
+
+void Mixer::LoadVChannelLayout() {
     //##################################################################################
     //#
     //#   create default vchannels (what the user is refering to as "mixer channel")
@@ -50,22 +74,20 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     //##################################################################################
     
     for (int i=0; i<=31; i++) {
-        VChannel* chan = new VChannel(basepar);
+        VChannel* chan = vchannel[i];
         chan->dspChannel =  &dsp->Channel[i];
         chan->name = String("Kanal ") + String(i+1);
         chan->nameIntern = String("CH") + String(i+1);
         chan->color = SURFACE_COLOR_YELLOW;
         chan->vChannelType = X32_VCHANNELTYPE_NORMAL;
-
-        vchannel[i] = chan;
     }
 
     // AUX 1-6 / USB
-    helper->DEBUG_MIXER("Setting up AUX");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up AUX");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_AUX + i;
 
-        VChannel* chan = new VChannel(basepar);
+        VChannel* chan = vchannel[index];
         chan->dspChannel = &dsp->Channel[index];
 
         if(i <=5){
@@ -78,41 +100,35 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
             chan->color = SURFACE_COLOR_YELLOW;
         }
         chan->vChannelType = X32_VCHANNELTYPE_AUX;
-
-        vchannel[index] = chan;
     }
 
     // FX Returns 1-8
-    helper->DEBUG_MIXER("Setting up FX Returns");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up FX Returns");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_FXRET + i;
-        VChannel* chan = new VChannel(basepar);
+        VChannel* chan = vchannel[index];
         chan->name = String("FX RET") + String(i+1);
         chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_BLUE;
         chan->vChannelType = X32_VCHANNELTYPE_FXRET;
-
-        vchannel[index] = chan;
     }
 
     // Bus 1-16
-    helper->DEBUG_MIXER("Setting up Busses");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Busses");
     for (uint8_t i=0; i<=15;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_BUS + i;
-        VChannel* chan = new VChannel(basepar);
+        VChannel* chan = vchannel[index];
         chan->name = String("BUS") + String(i+1);
         chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_CYAN;
         chan->vChannelType = X32_VCHANNELTYPE_BUS;
-
-        vchannel[index] = chan;
     }
 
     // Matrix 1-6 / Special / SUB
-    helper->DEBUG_MIXER("Setting up Matrix / SPECIAL / SUB");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Matrix / SPECIAL / SUB");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_MATRIX + i;
-        VChannel* chan = new VChannel(basepar);
+        VChannel* chan = vchannel[index];
         if(i <=5){
             chan->name = String("MATRIX") + String(i+1);
             chan->nameIntern = chan->name;
@@ -128,44 +144,28 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
             chan->nameIntern = chan->name;
             chan->color =  SURFACE_COLOR_WHITE;
             chan->vChannelType = X32_VCHANNELTYPE_MAINSUB;
-        }
-
-        vchannel[index] = chan;
+        };
     }
 
     // DCA 1-8
-    helper->DEBUG_MIXER("Setting up DCA");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up DCA");
     for (uint8_t i=0; i<=7;i++){
         uint8_t index = X32_VCHANNEL_BLOCK_DCA + i;
-        VChannel* chan = new VChannel(basepar);
+        VChannel* chan = vchannel[index];
         chan->name = String("DCA") + String(i+1);
         chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_PINK;
-        chan->vChannelType = X32_VCHANNELTYPE_DCA;
-
-        vchannel[index] = chan;
+        chan->vChannelType = X32_VCHANNELTYPE_DCA;;
     }
 
     // Main Channel
     {
-        VChannel* chan = new VChannel(basepar);
+        VChannel* chan = vchannel[80];
         chan->name = String("MAIN");
         chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_WHITE;
         chan->vChannelType = X32_VCHANNELTYPE_MAIN;
-
-        vchannel[80] = chan;
     }
-}
-
-void Mixer::Tick10ms(void){
-    adda->ProcessUartData(false);
-    fpga->ProcessUartData();
-    dsp->Tick10ms();
-}
-
-void Mixer::Tick100ms(void){
-    dsp->Tick100ms();
 }
 
 
@@ -197,7 +197,7 @@ void Mixer::ChangeHardwareInput(int8_t amount) {
         newValue = NUM_INPUT_CHANNEL;
     }
 
-    helper->DEBUG_MIXER("Change! %d -> %d", fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1), newValue);
+    helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Change! %d -> %d", fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1), newValue);
 
     fpga->RoutingSetOutputSourceByIndex(state->gui_selected_item+1, newValue);
     fpga->RoutingSendConfigToFpga();
@@ -259,7 +259,7 @@ void Mixer::SetSolo(uint8_t channelIndex, bool solo){
     }
 
     if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-        helper->DEBUG_MIXER("Solo of channel %s \"%s\" changed to %s\n", chan->nameIntern.c_str(), chan->name.c_str(), solo ? "ON" : "OFF"); 
+        helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Solo of channel %s \"%s\" changed to %s\n", chan->nameIntern.c_str(), chan->name.c_str(), solo ? "ON" : "OFF"); 
     }
 
     //TODOs
@@ -740,7 +740,7 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, float lowCutFrequency){
         case X32_VCHANNELTYPE_NORMAL:
         case X32_VCHANNELTYPE_AUX: {
             dsp->Channel[vChannelIndex].compressor.threshold = newValue;
-            helper->DEBUG_MIXER("Channel %s: Compressor threshold set to %f", chan->name.c_str(), newValue);
+            helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor threshold set to %f", chan->name.c_str(), newValue);
             chan->SetChanged(X32_VCHANNEL_CHANGED_DYNAMIC);
             break;
         }
@@ -873,14 +873,6 @@ void Mixer::ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_
     }
 }
 
-// ####################################################################
-// #
-// #
-// #        Current state
-// #
-// #
-// ###################################################################
-
 bool Mixer::IsSoloActivated(void){
     for (uint8_t i=0; i < MAX_VCHANNELS; i++)
     {
@@ -891,15 +883,7 @@ bool Mixer::IsSoloActivated(void){
     return false;
 }
 
-// ####################################################################
-// #
-// #
-// #        Hardware Abstraction
-// #
-// #
-// ####################################################################
-
-void Mixer::SyncVChannelsToHardware(void){
+void Mixer::Sync(void){
     // loop trough all vchannels and sync to hardware
     for (int i = 0; i < MAX_VCHANNELS; i++)
     {
@@ -993,40 +977,8 @@ void Mixer::SyncVChannelsToHardware(void){
         }
     }
 
-    helper->DEBUG_MIXER("Mixer to Hardware synced");
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Mixer to Hardware synced");
 }
-
-
-/*
-The surface of the X32 has following order:
-===========================================
-
-X32_VCHANNEL_BLOCK:
- 0..31  Channel Input
-32..39  AUX-Input
-40..47  FX Returns
-48..63  Mixbus 1-16
-64..69  Matrix 1-6
-    70  Special
-    71  Mono/Sub
-72..79  DCA 1-8
-    80  MainLR
-
-The DSP is using the following order in the internal buffer:
-============================================================
-dsp->dspChannel[idx].inputSource
-
-X32_DSP_CHANNEL_BLOCK:
-     0  OFF
- 1..32  Input 1-32
-33..40  AUX 1-8
-41..56  Mixbus 1-16
--------- allow above this line as channel input -------
-57..62  Matrix 1-6
-63..65  Main L/R/S
-66..68  Monitor L/R and Talkback
-*/
-
 
 // set the gain of the local XLR head-amp-control
 void Mixer::halSendGain(uint8_t dspChannel) {
@@ -1042,12 +994,14 @@ void Mixer::halSendGain(uint8_t dspChannel) {
             // XLR-input
 
             // send value to adda-board
-            uint8_t boardId = adda->GetBoardId(dspInputSource);
-            uint8_t addaChannel = dspInputSource;
-            while (addaChannel > 8) {
-               addaChannel -= 8;
+            uint8_t boardId = adda->GetXlrInBoardId(dspInputSource);
+            if (boardId >= 0 && boardId < 4) {
+                uint8_t addaChannel = dspInputSource;
+                while (addaChannel > 8) {
+                    addaChannel -= 8;
+                }
+                adda->SetGain(boardId, addaChannel, preamps.gainXlr[dspInputSource - 1], preamps.phantomPowerXlr[dspInputSource - 1]);
             }
-            adda->SetGain(boardId, addaChannel, preamps.gainXlr[dspInputSource - 1], preamps.phantomPowerXlr[dspInputSource - 1]);
         }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
             // AES50A input
         }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
@@ -1071,12 +1025,14 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
             // XLR-input
 
             // send value to adda-board
-            uint8_t boardId = adda->GetBoardId(dspInputSource);
-            uint8_t addaChannel = dspInputSource;
-            while (addaChannel > 8) {
-               addaChannel -= 8;
+            uint8_t boardId = adda->GetXlrInBoardId(dspInputSource);
+            if (boardId >= 0 && boardId < 4) {
+                uint8_t addaChannel = dspInputSource;
+                while (addaChannel > 8) {
+                    addaChannel -= 8;
+                }
+                adda->SetGain(boardId, addaChannel, preamps.gainXlr[dspInputSource - 1], preamps.phantomPowerXlr[dspInputSource - 1]);
             }
-            adda->SetGain(boardId, addaChannel, preamps.gainXlr[dspInputSource - 1], preamps.phantomPowerXlr[dspInputSource - 1]);
         }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
             // AES50A input
         }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
@@ -1347,4 +1303,11 @@ float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
     }
 
     return 0;
+}
+
+void Mixer::DebugPrintvChannels(void){
+	for (int i = 0; i < MAX_VCHANNELS; i++)
+	{
+	   printf(GetVChannel(i)->ToString().c_str());
+	}
 }

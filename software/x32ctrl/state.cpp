@@ -33,13 +33,21 @@
 // #
 // ####################################################################
 
+State::State(Helper* h){
+    helper = h;
+}
 
 void State::SetChangeFlags(uint16_t p_flag){
+    helper->DEBUG_STATE(DEBUGLEVEL_TRACE, "SetChangeFlags(0x%.4X)", p_flag);
     changed |= p_flag;
 }
 
 bool State::HasAnyChanged(void){
-    return (changed != X32_MIXER_CHANGED_NONE);
+    if (changed != X32_MIXER_CHANGED_NONE) {
+        helper->DEBUG_STATE(DEBUGLEVEL_TRACE, "HasAnyChanged() -> 0x%.4X", changed);
+        return (changed != X32_MIXER_CHANGED_NONE);
+    }
+    return false;
 }
 
 bool State::HasChanged(uint16_t p_flag){
@@ -47,5 +55,6 @@ bool State::HasChanged(uint16_t p_flag){
 }
 
 void State::ResetChangeFlags(void){
+    helper->DEBUG_STATE(DEBUGLEVEL_TRACE, "ResetChangeFlags()");
     changed = X32_MIXER_CHANGED_NONE;
 }

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "constants.h"
+#include "defines.h"
+#include "types.h"
 #include "WString.h"
 
 class SurfaceEvent{

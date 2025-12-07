@@ -1,9 +1,9 @@
 #pragma once
 
 #include "external.h"
-#include "constants.h"
+#include "defines.h"
 #include "config.h"
-#include "ctrl_types.h"
+#include "types.h"
 #include "base.h"
 
 #include "helper.h"
@@ -26,22 +26,22 @@ class Mixer : public X32Base
         // solo is (somewhere) activated
         bool solo = false;
 
-    //public:
         Adda* adda;
 
         void halSendGain(uint8_t dspChannel);
         void halSendPhantomPower(uint8_t dspChannel);
+        void LoadVChannelLayout();
 
     public:
         // all virtual - channels / busses / matrix / etc.
-        VChannel* vchannel[MAX_VCHANNELS];
-        //uint8_t selectedOutputChannelIndex = 1;
+        VChannel* vchannel[MAX_VCHANNELS];        
         Fpga* fpga;
         DSP1* dsp;
 
         Mixer(X32BaseParameter* basepar);
-        void Tick10ms(void);
-        void Tick100ms(void);
+        void Init();
+        void Tick10ms();
+        void Tick100ms();
 
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);
@@ -67,8 +67,7 @@ class Mixer : public X32Base
         void ChangeVChannel(int8_t amount);
         void ChangeGuiSelection(int8_t amount);
         void ChangeHardwareInput(int8_t amount);
-	void ChangeDspInput(uint8_t vChannelIndex, int8_t amount);
-
+	    void ChangeDspInput(uint8_t vChannelIndex, int8_t amount);
         void ChangeBalance(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend);
         void ChangeGate(uint8_t p_vChannelIndex, int8_t p_amount);
@@ -101,10 +100,8 @@ class Mixer : public X32Base
         bool IsActiveModeOpenX32(void);
         bool IsActiveModeX32(void);
 
-        void SyncVChannelsToHardware(void);
+        void Sync(void);
         uint8_t halGetDspInputSource(uint8_t dspChannel);
 
-        void DebugPrintBank(uint8_t bank);
-        void DebugPrintBusBank(uint8_t bank);
         void DebugPrintvChannels(void);
 };

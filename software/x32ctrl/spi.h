@@ -5,8 +5,8 @@
 #include <list>
 
 #include "external.h"
-#include "constants.h"
-#include "ctrl_types.h"
+#include "defines.h"
+#include "types.h"
 #include "base.h"
 #include "state.h"
 #include "spi-event.h"

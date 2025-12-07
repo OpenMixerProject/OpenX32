@@ -15,10 +15,6 @@
 // ini parser
 #include "inicpp.h"
 
-// includes for timer
-#include <time.h>
-#include <signal.h>
-
 // includes for lvgl
 #include "lv_port_linux/lvgl/lvgl.h"
 #include "lv_port_linux/src/lib/backends.h"
@@ -38,31 +34,11 @@
 
 using namespace std;
 
-
-#define X32_CTRL_VERSION "v0.2.5"
-#define X32_CTRL_URL "https://github.com/OpenMixerProject/OpenX32"
-#define X32_CTRL_CONFIGFILE "x32ctrl.cfg"
-#define X32_MIXER_CONFIGFILE "mixer.ini"
-
-
-
-
-char displayEncoderText[6][30];
-static const char* displayEncoderButtonMap[] = {
-    displayEncoderText[0],
-    displayEncoderText[1],
-    displayEncoderText[2],
-    displayEncoderText[3],
-    displayEncoderText[4],
-    displayEncoderText[5],
-    NULL};
-
-void parseParams(int argc, char* argv[], State* state);
-
+#define FADER_BANK_LAYOUT_X32 0 // fader bank layout like X32 (Channels, Busses, etc.)
+#define FADER_BANK_LAYOUT_USER 1
 
 class X32Ctrl : public X32Base {
     private:
-        
         ini::IniFile mixer_ini;
 
         Mixer* mixer;
@@ -80,16 +56,20 @@ class X32Ctrl : public X32Base {
 
         uint8_t selectedVChannel;
 
-        lv_chart_series_t* chartSeriesEQ;
-
         sTouchControl touchcontrol;
 
+        void my_handler(int s);
+
+        void ResetFaderBankLayout();
+        void LoadFaderBankLayout(int layout);
+        void LoadConfig();
+
     public:
+        lv_chart_series_t* chartSeriesEQ;
+
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
-        void LoadConfig();
         void SaveConfig();
-        void Run();
         void Tick10ms(void);
         void Tick100ms(void);
         void ProcessEvents(void);
@@ -139,6 +119,4 @@ class X32Ctrl : public X32Base {
 
         void DebugPrintBank(uint8_t bank);
         void DebugPrintBusBank(uint8_t bank);
-        void DebugPrintvChannels(void);
-
 };

@@ -6,8 +6,8 @@
 
 #include "base.h"
 #include "uart.h"
-#include "constants.h"
-#include "ctrl_types.h"
+#include "defines.h"
+#include "types.h"
 #include "lcd.h"
 #include "surface-event.h"
 #include "surface-message.h"

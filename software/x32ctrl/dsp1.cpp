@@ -699,7 +699,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP1("Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback
@@ -729,7 +729,7 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP2("Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    helper->DEBUG_DSP2(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback

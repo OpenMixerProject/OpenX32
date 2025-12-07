@@ -61,7 +61,7 @@ int8_t XRemote::Init() {
 void XRemote::AnswerInfo() {
     uint16_t len = sprint(TxMessage, 0, 's', "/info");
     len = sprint(TxMessage, len, 's', ",ssss");
-    len = sprint(TxMessage, len, 's', X32CTRL_VERSION);
+    len = sprint(TxMessage, len, 's', X32_CTRL_VERSION);
     len = sprint(TxMessage, len, 's', "OpenX32");
     len = sprint(TxMessage, len, 's', "X32"); // must be a known device by X-Edit
     len = sprint(TxMessage, len, 's', "4.13"); // must be a supported firmware-version by X-Edit

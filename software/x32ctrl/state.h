@@ -1,16 +1,20 @@
 #pragma once
 
 #include <stdint.h>
-#include "constants.h"
+#include "defines.h"
 #include "WString.h"
+#include "helper.h"
 
 // Class for holding only "temporary" state data during runtime
 class State {
     private:
         // something was changed - sync surface/gui to mixer state
         uint16_t changed;
+        Helper* helper;
 
     public:
+        State(Helper* h);
+
         float dspLoad[2];
         float dspVersion[2];
 
