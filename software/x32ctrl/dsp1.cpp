@@ -150,6 +150,8 @@ void DSP1::SendChannelVolume(uint8_t chan) {
     values[2] = balanceRight; // 0  .. 1 .. 1
     values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
 
+    helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "SendChannelVolume: %f, %f, %f, %f", (double)values[0], (double)values[1], (double)values[2], (double)values[3]);
+
     spi->SendDspParameterArray(0, 'v', chan, 0, 4, &values[0]);
 }
 

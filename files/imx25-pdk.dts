@@ -305,8 +305,8 @@
 				MX25_PAD_CSPI1_MOSI__CSPI1_MOSI	0x0      // DSP SPI MOSI
 				MX25_PAD_CSPI1_SCLK__CSPI1_SCLK	0x0      // DSP SPI SCLK
 				MX25_PAD_CSPI1_MISO__CSPI1_MISO	0xc0	 // DSP SPI MISO
-				MX25_PAD_CSPI1_SS0__GPIO_1_16	0xE0     // DSP SPI nCS DSP1
-				MX25_PAD_CSPI1_SS1__GPIO_1_17	0xE0     // DSP SPI nCS DSP2
+				MX25_PAD_CSPI1_SS0__GPIO_1_16	0x0     // DSP SPI nCS DSP1 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
+				MX25_PAD_CSPI1_SS1__GPIO_1_17	0x0     // DSP SPI nCS DSP2 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
 			>;
 		};
 

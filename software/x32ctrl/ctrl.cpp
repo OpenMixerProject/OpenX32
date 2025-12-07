@@ -2036,7 +2036,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 	} else if (event->value > 128 && event->value < 256) {
 		amount = -(256 - (uint8_t)(event->value));
 	}
-	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Encoder: %d\n", amount);
+	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Encoder amount: %d", amount);
 
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		switch (encoder){

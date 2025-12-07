@@ -419,7 +419,7 @@ void Mixer::ChangeGain(uint8_t vChannelIndex, int8_t p_amount){
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    float newValue = GetGain(vChannelIndex) + (2.5f * p_amount);
+    float newValue = GetGain(vChannelIndex) + (((float)p_amount) * 0.3 );
     if (newValue > 60) {
         newValue = 60;
     }else if (newValue < -12) {
@@ -433,7 +433,7 @@ void Mixer::ChangeVolume(uint8_t vChannelIndex, int8_t p_amount){
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    float newValue = GetVolumeDbfs(vChannelIndex) + ((float)p_amount * abs((float)p_amount));
+    float newValue = GetVolumeDbfs(vChannelIndex) + (((float)p_amount) * 0.3 );
     if (newValue > 10) {
         newValue = 10;
     }else if (newValue < -100) {
@@ -454,6 +454,8 @@ void Mixer::SetVolume(uint8_t vChannelIndex, float volume){
     }else if (newValue < -100) {
         newValue = -100;
     }
+
+    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "SetVolume -> %f dbFS", newValue);
 
     VChannel* chan = GetVChannel(vChannelIndex);
 
