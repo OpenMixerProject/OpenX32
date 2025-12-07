@@ -28,7 +28,7 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	uart = new Uart(basepar);
 }
 
-void Fpga::RoutingInit(void) {
+void Fpga::Init(void) {
 	const char serial[] = "/dev/ttymxc3";
 	const uint32_t speed = 115200;
 	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial, speed);
@@ -512,7 +512,7 @@ void Fpga::ProcessUartData() {
 						helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "Received: %s", &fpgaPacketBuffer[packetBegin + 1]);
 						
 						
-						// TODO: Implement FPGA EventBuffer
+						// TODO: Implement FPGA EventBuffer (really needed?)
 
 						// we received a valid packet. Offer the received data to fpgaCallback
 						//uint8_t payloadLen = receivedPacketLength - 4;

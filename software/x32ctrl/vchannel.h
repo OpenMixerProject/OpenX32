@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include "WString.h"
-#include "ctrl_types.h"
+#include "types.h"
 #include "base.h"
 
 

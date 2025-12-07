@@ -1,7 +1,9 @@
 #pragma once
 
 #include "external.h"
-#include "ctrl_types.h"
+#include "types.h"
+#include "const.h"
+
 #include "base.h"
 #include "spi.h"
 #include "fx.h"

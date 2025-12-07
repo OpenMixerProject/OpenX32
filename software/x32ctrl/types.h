@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cstddef>
-#include "constants.h"
+#include <stdint.h>
+#include "defines.h"
+#include "enum.h"
 
 // define own datatypes
 typedef union {
