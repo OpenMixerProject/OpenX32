@@ -679,7 +679,7 @@ int SPI::ConfigureDsp(void) {
     int last_progress = -1;
     int current_progress;
 
-    uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
+    uint8_t spiMode = SPI_MODE_0; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
     uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
     //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
@@ -879,7 +879,7 @@ void SPI::Tick100ms(void){
 
 bool SPI::OpenDspConnections() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
-    uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
+    //uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
     uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
 
     for (uint8_t i = 0; i < 2; i++) {
@@ -893,9 +893,8 @@ bool SPI::OpenDspConnections() {
             return false;
         }
 
-        // SPI-Modus 3 (3 = CPOL=1, CPHA=1)
         ioctl(spiDspHandle[i], SPI_IOC_WR_MODE, &spiMode);
-        ioctl(spiDspHandle[i], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
+        //ioctl(spiDspHandle[i], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
         ioctl(spiDspHandle[i], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
     }
     return true;
@@ -1104,7 +1103,7 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
     
 #if X32_CTRL_DEBUG
     if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
-        printf("SendDspParameterArray: ");
+        printf("SendReceiveDspParameterArray: ");
         for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
             printf("0x%.2X ", spiTxDataRaw[v]);
             if (!((v+1) % 4)) {
