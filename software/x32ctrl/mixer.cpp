@@ -1065,28 +1065,9 @@ float Mixer::GetVolumeDbfs(uint8_t vChannelIndex) {
     switch(chan->vChannelType){
         case X32_VCHANNELTYPE_NORMAL:
         case X32_VCHANNELTYPE_AUX: {
-            uint8_t channelInputSource = chan->dspChannel->inputSource;
-
-            // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-            if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
-                // we are connected to one of the DSP-inputs
-                return dsp->Channel[channelInputSource - 1].volumeLR;
-            }else if ((channelInputSource >= 41) && (channelInputSource <= 56)) {
-                // Mixbus
-                return dsp->Bus[channelInputSource - 41].volumeLR;
-            }else if ((channelInputSource >= 57) && (channelInputSource <= 62)) {
-                // Matrix
-                return dsp->Matrix[channelInputSource - 57].volume;
-            }else if ((channelInputSource == 63) || (channelInputSource == 64)) {
-                // Main LR
-                return dsp->MainChannelLR.volume;
-            }else if (channelInputSource == 65) {
-                // Main Sub
-                return dsp->MainChannelSub.volume;
-            }else{
-                // we are connected to an internal DSP-signal
-                return -100;
-            }
+            // Normal- and AUX-Channel must always return the volume-level of the
+            // current DSP-Channel regardless of the internal source of the DSP
+            return dsp->Channel[vChannelIndex].volumeLR;
         }
         case X32_VCHANNELTYPE_FXRET: {
             // FX return
