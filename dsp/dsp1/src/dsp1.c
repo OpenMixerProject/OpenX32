@@ -381,10 +381,11 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 	}
 }
 
-// ISR is called on rising edge of FrameSync
+// ISR is called once on first falling edge of FrameSync
 void misc0ISR(int sig) {
 	systemSportInit();
 
+	// make sure, that this ISR is called only once
 	adi_int_UninstallHandler(ADI_CID_P0I);
 }
 

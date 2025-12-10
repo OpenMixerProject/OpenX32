@@ -158,9 +158,13 @@ void audioProcessData(void) {
 	}
 */
 
-	// insert 1kHz test-audio to all channels
+	// insert sinewave-audio to all channels with increasing frequency starting at 200Hz and ending at 2.5kHz
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		time += (1.0f/48000.0f); // add 20.83us
+		if (time > 10) {
+			// make sure that the float-value is not losing resolution by overflowing
+			time = 0;
+		}
 
 		for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
 			// create sinewave between 200 Hz and 2500 Hz
