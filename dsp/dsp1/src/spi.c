@@ -50,6 +50,7 @@ void spiInit(void) {
 	// TIMOD0 (no set TIMODx) = The SPI interrupt is latched in every core clock cycle in which the RXSPI buffer has a word in it
 	// TIMOD1 = The SPI interrupt is latched in every core clock cycle in which the TXSPI buffer is empty
 	*pSPICTL = ISSEN | MSBF | WL32 | OPD; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled
+	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
 	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
 
 	spiTxRingBuffer.head = 0;

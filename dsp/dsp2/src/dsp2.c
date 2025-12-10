@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP2 (FX DSP) v0.0.3, 04.12.2025
+  ControlSystem for DSP2 (FX DSP) v0.0.4, 11.12.2025
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject
@@ -148,28 +148,42 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 	// spiDmaBegin(false, 20);
 }
 
+// ISR is called on rising edge of FrameSync
+void misc0ISR(int sig) {
+	systemSportInit();
+
+	adi_int_UninstallHandler(ADI_CID_P0I);
+}
+
 int main() {
 	// initialize all components
 	adi_initComponents();
 	systemPllInit();
 	systemExternalMemoryInit();
+	systemSruInit();
+
+	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
+	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
+	//adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
+	adi_int_InstallHandler(ADI_CID_P4I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT3 Interrupt (called on new audio-data)
+	adi_int_InstallHandler(ADI_CID_P16I, (ADI_INT_HANDLER_PTR)audioSpdifTxISR, 0, true); // SPORT6 Interrupt (called when new data for SPDIF is requested)
+	//adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
+	adi_int_InstallHandler(ADI_CID_P0I, (ADI_INT_HANDLER_PTR)misc0ISR, 0, true); // MISCA0 Interrupt on P0I or P12I
 
 	// initialize software-parts
 	openx32Init();
+	spiInit();
 	audioInit();
 
 	// initialize hardware-peripherals
 	systemPcgInit();
-	systemSruInit();
-	spiInit();
-	systemSportInit();
+
 	systemSpdifTxInit();
 
-	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
-	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
-	adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
-	adi_int_InstallHandler(ADI_CID_P16I, (ADI_INT_HANDLER_PTR)audioSpdifTxISR, 0, true); // SPORT6 Interrupt (called when new data for SPDIF is requested)
-	//adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
+	// enable interrupts
+	*pDAI_IRPTL_PRI |= DAI_INT_28; // DAI Interrupt Priority Register
+	*pDAI_IRPTL_FE |= DAI_INT_28; // DAI Rising Edge Interrupt Latch Register
+	*pDAI_IMASK_FE |= DAI_INT_28; // DAI Rising Edge Interrupt Latch Register
 
 	// turn-off LED
 	sysreg_bit_set(sysreg_FLAGS, FLG7);

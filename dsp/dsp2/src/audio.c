@@ -164,7 +164,9 @@ void audioProcessData(void) {
 
 		for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
 			// create sinewave between 200 Hz and 2500 Hz
-			audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 268435456.0f;
+			//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 2147483648.0f; // scaled as 2^31 (results in 0dBfs)
+			audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
+			//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 268435456.0f; // scaled as 2^28 (results in -18dBfs)
 		}
 	}
 

@@ -125,6 +125,7 @@ void systemSruInit(void) {
 	SRU(DAI_PB01_O, SPORT5_FS_I);  // TDM FS    -> SPORT5 FS
 	SRU(DAI_PB01_O, SPORT6_FS_I);  // TDM FS    -> SPORT6 FS
 	SRU(DAI_PB01_O, SPORT7_FS_I);  // TDM FS    -> SPORT7 FS
+	SRU(DAI_PB01_O, DAI_INT_28_I); // TDM FS    -> DAI_INT_28 (MISCA0_INT)
 
 	// route Bitclock to SPORT
 	SRU(DAI_PB02_O, SPORT0_CLK_I); // TDM BCLK  -> SPORT0 CLK
@@ -283,7 +284,7 @@ void systemSportInit() {
 	*pCPSP6A = (((unsigned int)&audioTx_tcb[6][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 	*pCPSP6B = (((unsigned int)&audioTx_tcb[7][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 
-	*pCPSP1A = (((unsigned int)&audioRx_tcb[0][0][0] + 3) & OFFSET_MASK) | PCI; // pointing DMA to desired memory and enable interrupt after every processed TCB (set PCI-bit)
+	*pCPSP1A = (((unsigned int)&audioRx_tcb[0][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 	*pCPSP1B = (((unsigned int)&audioRx_tcb[1][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 	*pCPSP3A = (((unsigned int)&audioRx_tcb[2][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
 	*pCPSP3B = (((unsigned int)&audioRx_tcb[3][0][0] + 3) & OFFSET_MASK); // pointing DMA to desired memory
