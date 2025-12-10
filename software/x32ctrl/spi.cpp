@@ -679,10 +679,10 @@ int SPI::ConfigureDsp(void) {
     int last_progress = -1;
     int current_progress;
 
-    uint8_t spiMode = SPI_MODE_0; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
-    uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
+    uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
+    uint8_t spiBitsPerWord = 32; // we are transmitting in 32-bit-mode during configuration
     uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
-    //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to have problems with this option
+    //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to ignore this option, so we flip bitorder manually
 
     string filename_dsp1 = app->get_option("--D1")->as<string>();
     string filename_dsp2 = app->get_option("--D2")->as<string>();
@@ -732,12 +732,12 @@ int SPI::ConfigureDsp(void) {
     ioctl(spi_fd[0], SPI_IOC_WR_MODE, &spiMode);
     ioctl(spi_fd[0], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
     ioctl(spi_fd[0], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-//    ioctl(spi_fd[0], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
+    //ioctl(spi_fd[0], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); //  // Linux-driver for i.MX25 seems to ignore this option, so we flip bitorder manually
     if (numStreams == 2) {
         ioctl(spi_fd[1], SPI_IOC_WR_MODE, &spiMode);
         ioctl(spi_fd[1], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
         ioctl(spi_fd[1], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
-//        ioctl(spi_fd[1], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); // this seems to be ignored by i.MX25 linux-driver
+        //ioctl(spi_fd[1], SPI_IOC_WR_LSB_FIRST, &spiLsbFirst); //  // Linux-driver for i.MX25 seems to ignore this option, so we flip bitorder manually
     }
 
     // setup SPI-buffer
@@ -878,8 +878,8 @@ void SPI::Tick100ms(void){
 }
 
 bool SPI::OpenDspConnections() {
-    uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
-    //uint8_t spiBitsPerWord = 32; // Linux seems to ignore this and transmits with 8-bit
+    uint8_t spiMode = SPI_MODE_3; // user-program uses SPI MODE 0
+    uint8_t spiBitsPerWord = 32; // we are using 32-bit-mode here for communication
     uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
 
     for (uint8_t i = 0; i < 2; i++) {
@@ -894,7 +894,7 @@ bool SPI::OpenDspConnections() {
         }
 
         ioctl(spiDspHandle[i], SPI_IOC_WR_MODE, &spiMode);
-        //ioctl(spiDspHandle[i], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
+        ioctl(spiDspHandle[i], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
         ioctl(spiDspHandle[i], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
     }
     return true;
