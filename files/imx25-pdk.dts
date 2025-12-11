@@ -14,7 +14,7 @@
 
 	memory@80000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x4000000>;
+		reg = <0x80000000 0x04000000>;
 	};
 
 	sound {
@@ -73,7 +73,7 @@
 		};
 	};
 
-        leds {
+leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_gpioleds>;
@@ -125,7 +125,7 @@
 			gpios = <&gpio1 3 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
-        };
+    };
 };
 
 &esdhc1 {
@@ -302,47 +302,47 @@
 
 		pinctrl_spi1: spi1grp {
 			fsl,pins = <
-				MX25_PAD_CSPI1_MOSI__CSPI1_MOSI	0x0      // DSP SPI MOSI
-				MX25_PAD_CSPI1_SCLK__CSPI1_SCLK	0x0      // DSP SPI SCLK
-				MX25_PAD_CSPI1_MISO__CSPI1_MISO	0xc0	 // DSP SPI MISO
-				MX25_PAD_CSPI1_SS0__GPIO_1_16	0x0     // DSP SPI nCS DSP1 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
-				MX25_PAD_CSPI1_SS1__GPIO_1_17	0x0     // DSP SPI nCS DSP2 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
+				MX25_PAD_CSPI1_MOSI__CSPI1_MOSI	0x1     // DSP SPI MOSI
+				MX25_PAD_CSPI1_SCLK__CSPI1_SCLK	0x1      // DSP SPI SCLK
+				MX25_PAD_CSPI1_MISO__CSPI1_MISO	0x81	 // DSP SPI MISO
+				MX25_PAD_CSPI1_SS0__GPIO_1_16	0x80000000     // DSP SPI nCS DSP1 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
+				MX25_PAD_CSPI1_SS1__GPIO_1_17	0x80000000     // DSP SPI nCS DSP2 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
 			>;
 		};
 
 		pinctrl_spi3: spi3grp {
 			fsl,pins = <
-				MX25_PAD_CSI_D2__CSPI3_MOSI	0x0			// FPGA SPI MOSI
-				MX25_PAD_CSI_D4__CSPI3_SCLK	0x0			// FPGA SPI SCLK
-				MX25_PAD_CSI_D3__CSPI3_MISO	0xc0		// FPGA SPI MISO
-				//MX25_PAD_CSI_D6__GPIO_1_31	0x0		// FPGA nCS0
-				MX25_PAD_CSI_D7__GPIO_1_6	0x0			// FPGA nCS1
+				MX25_PAD_CSI_D2__CSPI3_MOSI	0x1			// FPGA SPI MOSI
+				MX25_PAD_CSI_D4__CSPI3_SCLK	0x1		// FPGA SPI SCLK
+				MX25_PAD_CSI_D3__CSPI3_MISO	0x81		// FPGA SPI MISO
+				//MX25_PAD_CSI_D6__GPIO_1_31	0x80000000		// FPGA nCS0
+				MX25_PAD_CSI_D7__GPIO_1_6	0x80000000			// FPGA nCS1
 			>;
 		};
 
 		pinctrl_gpioleds: gpioledgrp {
 			fsl,pins = <
-				MX25_PAD_UART1_RTS__GPIO_4_24	0x0		// MCU_LED
-				MX25_PAD_PWM__GPIO_1_26		0x0			// Desk-LAMP
-				MX25_PAD_CSI_D5__GPIO_1_30	0x0			// FPGA nPROG
-				//MX25_PAD_GPIO_C__GPIO_1_2	0x0C		// FPGA DONE
-				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x0     // DSP nRESET
-				MX25_PAD_UART2_RTS__GPIO_4_28	0x0		// Surface nRESET
-				MX25_PAD_GPIO_D__GPIO_1_3	0x0			// MUTEOFF
+				MX25_PAD_UART1_RTS__GPIO_4_24	0x80000000		// MCU_LED
+				MX25_PAD_PWM__GPIO_1_26		0x80000000			// Desk-LAMP
+				MX25_PAD_CSI_D5__GPIO_1_30	0x80000000			// FPGA nPROG
+				//MX25_PAD_GPIO_C__GPIO_1_2	0x80000000		// FPGA DONE
+				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x80000000     // DSP nRESET
+				MX25_PAD_UART2_RTS__GPIO_4_28	0x80000000		// Surface nRESET
+				MX25_PAD_GPIO_D__GPIO_1_3	0x80000000			// MUTEOFF
 			>;
 		};
 
 		pinctrl_gpio1: gpio1grp {
 			fsl,pins = <
 				//MX25_PAD_CSI_D5__GPIO_1_30	0x0	// FPGA nPROG
-				MX25_PAD_GPIO_C__GPIO_1_2	0xc0		// FPGA DONE
+				MX25_PAD_GPIO_C__GPIO_1_2	0x80000000		// FPGA DONE
 			>;
 		};
 
 //		pinctrl_gpio2: gpio2grp {
 //                        fsl,pins = <
-//				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x0      // DSP nRESET
-//				MX25_PAD_KPP_ROW0__GPIO_2_29	0xc0		// FPGA nINIT_B
+//				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x80000000      // DSP nRESET
+//				MX25_PAD_KPP_ROW0__GPIO_2_29	0x80000000		// FPGA nINIT_B
 //			>;
 //		};
 //
@@ -420,21 +420,21 @@
 };
 
 &uart2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart2>;
-	status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_uart2>;
+        status = "okay";
 };
 
 &uart3 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart3>;
-	status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_uart3>;
+        status = "okay";
 };
 
 &uart4 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart4>;
-	status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_uart4>;
+        status = "okay";
 };
 
 &uart5 {
@@ -493,7 +493,6 @@
 	status = "okay";
 	//cs-gpios = <&gpio1 31 GPIO_ACTIVE_LOW>, <&gpio1 6 GPIO_ACTIVE_LOW>;
 	cs-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;
-	//num-cs = <2>;
 	num-cs = <1>;
 
         spidev@0 {
