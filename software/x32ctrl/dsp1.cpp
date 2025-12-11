@@ -427,70 +427,145 @@ void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInpu
         // we have a DSP-channel
         uint8_t channelInputSource = Channel[dspChannel].inputSource;
 
-        // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-        if (channelInputSource == 0) {
-            // OFF
-            sprintf(p_nameBuffer, "Off");
-        }else if ((channelInputSource >= DSP_BUF_IDX_DSPCHANNEL) && (channelInputSource < (DSP_BUF_IDX_DSPCHANNEL + 40))) {
-            // we are connected to one of the FPGA-DSP-inputs
-            // dspInputSource is set by FPGA
-            //uint8_t dspInputSource = mixer->fpga->Routing.dsp[channelInputSource - 1];
-            if (dspInputSource == 0) {
-                sprintf(p_nameBuffer, "Off");
-            }else if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
-                // XLR-input
-                sprintf(p_nameBuffer, "XLR%02d", dspInputSource);
-            }else if ((dspInputSource >= 33) && (dspInputSource <= 64)) {
-                // Card input
-                sprintf(p_nameBuffer, "C%02d", dspInputSource - 32);
-            }else if ((dspInputSource >= 65) && (dspInputSource <= 72)) {
-                // Aux input
-                sprintf(p_nameBuffer, "Aux%02d", dspInputSource - 64);
-            }else if ((dspInputSource >= 73) && (dspInputSource <= 112)) {
-                // DSP input
-                sprintf(p_nameBuffer, "In%02d", dspInputSource - 72);
-            }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
-                // AES50A input
-                sprintf(p_nameBuffer, "A%02d", dspInputSource - 112);
-            }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
-                // AES50B input
-                sprintf(p_nameBuffer, "B%02d", dspInputSource - 160);
-            }else{
-                sprintf(p_nameBuffer, "???");
-            }
-        }else if ((channelInputSource >= DSP_BUF_IDX_DSP2_FX) && (channelInputSource < (DSP_BUF_IDX_DSP2_FX + 8))) {
-            // FX Return 1-8 from DSP2
-            sprintf(p_nameBuffer, "FX %02d", channelInputSource - DSP_BUF_IDX_DSP2_FX + 1);
-        }else if ((channelInputSource >= (DSP_BUF_IDX_DSP2_FX + 8)) && (channelInputSource < (DSP_BUF_IDX_DSP2_FX + 16))) {
-            // FX Return 9-16 from DSP2
-            sprintf(p_nameBuffer, "FX %02d", channelInputSource - DSP_BUF_IDX_DSP2_FX + 1);
-        }else if ((channelInputSource >= DSP_BUF_IDX_MIXBUS) && (channelInputSource < (DSP_BUF_IDX_MIXBUS + 16))) {
-            // Mixbus 1-16
-            sprintf(p_nameBuffer, "Bus %02d", channelInputSource - DSP_BUF_IDX_MIXBUS + 1);
-        }else if (channelInputSource == DSP_BUF_IDX_MAINLEFT) {
-            sprintf(p_nameBuffer, "Main L");
-        }else if (channelInputSource == DSP_BUF_IDX_MAINRIGHT) {
-            sprintf(p_nameBuffer, "Main R");
-        }else if (channelInputSource == DSP_BUF_IDX_MAINSUB) {
-            sprintf(p_nameBuffer, "Main C");
-        }else if ((channelInputSource >= DSP_BUF_IDX_MATRIX) && (channelInputSource < (DSP_BUF_IDX_MATRIX + 6))) {
-            // Matrix 1-6
-            sprintf(p_nameBuffer, "Mtx %02d", channelInputSource - DSP_BUF_IDX_MATRIX + 1);
-        }else if ((channelInputSource >= DSP_BUF_IDX_DSP2_AUX) && (channelInputSource < (DSP_BUF_IDX_DSP2_AUX + 8))) {
-            // DSP2 Aux Return 1-8
-            sprintf(p_nameBuffer, "DSP2 Aux %02d", channelInputSource - DSP_BUF_IDX_DSP2_AUX + 1);
-        }else if (channelInputSource == DSP_BUF_IDX_MONLEFT) {
-            sprintf(p_nameBuffer, "Mon L");
-        }else if (channelInputSource == DSP_BUF_IDX_MONRIGHT) {
-            sprintf(p_nameBuffer, "Mon R");
-        }else if (channelInputSource == DSP_BUF_IDX_TALKBACK) {
-            sprintf(p_nameBuffer, "Talkback");
-        }else{
-            sprintf(p_nameBuffer, "???");
-        }
+        RoutingGetTapNameByIndex(p_nameBuffer, channelInputSource, dspInputSource);
     }else{
         // we have a non-DSP-channel -> no source available
         sprintf(p_nameBuffer, "<Intern>");
+    }
+}
+
+void DSP1::RoutingGetInputNameByIndex(char* p_nameBuffer, uint8_t index) {
+/*
+    // DSP-input-channels:
+    // 0-31		Full-Featured DSP-Channels
+    // 32-39	Aux-Channel
+*/
+    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
+        sprintf(p_nameBuffer, "DSP-Ch %02d", index);
+    }else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
+        sprintf(p_nameBuffer, "DSP-Aux %02d", index - 32);
+    }else{
+        sprintf(p_nameBuffer, "???");
+    }
+}
+
+void DSP1::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
+/*
+    // DSP-output-channels:
+    // 0-31		Main-Output to FPGA
+    // 32-39	Aux-Output to FPGA
+    // 40-56	FX-Sends 1-16 to DSP2
+    // 57-64	FX-Aux to DSP2
+*/
+    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
+        sprintf(p_nameBuffer, "DSP-Out %02d", index);
+    }else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
+        sprintf(p_nameBuffer, "DSP-AuxOut %02d", index - 32);
+    }else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 24))) {
+        sprintf(p_nameBuffer, "FX-SendOut %02d", index - 40);
+    }else if ((index >= (DSP_BUF_IDX_DSP2_FX + 24)) && (index < (DSP_BUF_IDX_DSP2_FX + 32))) {
+        sprintf(p_nameBuffer, "FX-AuxOut %02d", index - 48);
+    }else{
+        sprintf(p_nameBuffer, "???");
+    }
+}
+
+void DSP1::RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source) {
+/*
+    // DSP-Taps
+    // 0		DSP_BUF_IDX_OFF
+    // 1-33		DSP-Input 1-32 from FPGA
+    // 33-40	AUX-Input 1-8 from FPGA
+    // 41-56	FX-Return 1-8 from DSP2
+    // 57-72	Mixbus 1-16 (internal)
+    // 73-75	Main Left, Right, Sub (internal)
+    // 76-81	Matrix 1-6 (internal)
+    // 82-89	FX-Aux-Channel 1-8 from DSP2
+    // 90-92	Monitor Left, Right, Talkback (internal)
+*/
+    // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
+    if (index == 0) {
+        // OFF
+        sprintf(p_nameBuffer, "Off");
+    }else if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 40))) {
+        // we are connected to one of the FPGA-DSP-inputs
+        // source is set by FPGA
+        //uint8_t source = mixer->fpga->Routing.dsp[index - 1];
+        if (source == 0) {
+            sprintf(p_nameBuffer, "DSP-Ch %02d (Off)", index);
+        }else if ((source >= 1) && (source <= 32)) {
+            // XLR-input
+            sprintf(p_nameBuffer, "DSP-Ch %02d (XLR%02d)", index, source);
+        }else if ((source >= 33) && (source <= 64)) {
+            // Card input
+            sprintf(p_nameBuffer, "DSP-Ch %02d (C%02d)", index, source - 32);
+        }else if ((source >= 65) && (source <= 72)) {
+            // Aux input
+            sprintf(p_nameBuffer, "DSP-Ch %02d (Aux%02d)", index, source - 64);
+        }else if ((source >= 73) && (source <= 112)) {
+            // DSP input
+            sprintf(p_nameBuffer, "DSP-Ch %02d (In%02d)", index, source - 72);
+        }else if ((source >= 113) && (source <= 160)) {
+            // AES50A input
+            sprintf(p_nameBuffer, "DSP-Ch %02d (A%02d)", index, source - 112);
+        }else if ((source >= 161) && (source <= 208)) {
+            // AES50B input
+            sprintf(p_nameBuffer, "DSP-Ch %02d (B%02d)", index, source - 160);
+        }else{
+            sprintf(p_nameBuffer, "???");
+        }
+    }else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 8))) {
+        // FX Return 1-8 from DSP2
+        sprintf(p_nameBuffer, "FX %02d", index - DSP_BUF_IDX_DSP2_FX + 1);
+    }else if ((index >= (DSP_BUF_IDX_DSP2_FX + 8)) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
+        // FX Return 9-16 from DSP2
+        sprintf(p_nameBuffer, "FX %02d", index - DSP_BUF_IDX_DSP2_FX + 1);
+    }else if ((index >= DSP_BUF_IDX_MIXBUS) && (index < (DSP_BUF_IDX_MIXBUS + 16))) {
+        // Mixbus 1-16
+        sprintf(p_nameBuffer, "Bus %02d", index - DSP_BUF_IDX_MIXBUS + 1);
+    }else if (index == DSP_BUF_IDX_MAINLEFT) {
+        sprintf(p_nameBuffer, "Main L");
+    }else if (index == DSP_BUF_IDX_MAINRIGHT) {
+        sprintf(p_nameBuffer, "Main R");
+    }else if (index == DSP_BUF_IDX_MAINSUB) {
+        sprintf(p_nameBuffer, "Main C");
+    }else if ((index >= DSP_BUF_IDX_MATRIX) && (index < (DSP_BUF_IDX_MATRIX + 6))) {
+        // Matrix 1-6
+        sprintf(p_nameBuffer, "Mtx %02d", index - DSP_BUF_IDX_MATRIX + 1);
+    }else if ((index >= DSP_BUF_IDX_DSP2_AUX) && (index < (DSP_BUF_IDX_DSP2_AUX + 8))) {
+        // DSP2 Aux Return 1-8
+        sprintf(p_nameBuffer, "DSP2 Aux %02d", index - DSP_BUF_IDX_DSP2_AUX + 1);
+    }else if (index == DSP_BUF_IDX_MONLEFT) {
+        sprintf(p_nameBuffer, "Mon L");
+    }else if (index == DSP_BUF_IDX_MONRIGHT) {
+        sprintf(p_nameBuffer, "Mon R");
+    }else if (index == DSP_BUF_IDX_TALKBACK) {
+        sprintf(p_nameBuffer, "Talkback");
+    }else{
+        sprintf(p_nameBuffer, "???");
+    }
+}
+
+void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
+    switch(position) {
+        case DSP_TAP_INPUT:
+            sprintf(p_nameBuffer, "Input");
+            break;
+        case DSP_TAP_PRE_EQ:
+            sprintf(p_nameBuffer, "Pre-EQ");
+            break;
+        case DSP_TAP_POST_EQ:
+            sprintf(p_nameBuffer, "Post-EQ");
+            break;
+        case DSP_TAP_PRE_FADER:
+            sprintf(p_nameBuffer, "Pre-Fader");
+            break;
+        case DSP_TAP_POST_FADER:
+            sprintf(p_nameBuffer, "Post-Fader");
+            break;
+        default:
+            sprintf(p_nameBuffer, "???");
+            break;
     }
 }
 

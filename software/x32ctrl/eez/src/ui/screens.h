@@ -56,6 +56,8 @@ typedef struct _objects_t {
     lv_obj_t *routing_input_1;
     lv_obj_t *dsp;
     lv_obj_t *table_routing_fpga;
+    lv_obj_t *table_routing_dsp_input;
+    lv_obj_t *table_routing_dsp_output;
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;

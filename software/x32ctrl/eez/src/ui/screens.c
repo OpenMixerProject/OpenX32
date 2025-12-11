@@ -614,7 +614,7 @@ void create_screen_main() {
                                             lv_obj_set_pos(obj, 532, 115);
                                             lv_obj_set_size(obj, 94, 56);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "40 Ch\n<---------->");
+                                            lv_textarea_set_text(obj, "24 Ch\n<---------->");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
@@ -638,7 +638,7 @@ void create_screen_main() {
                                     }
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Input/Output (FPGA)");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Signal-Routing (FPGA)");
                                     lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
                                     {
                                         lv_obj_t *parent_obj = obj;
@@ -659,10 +659,44 @@ void create_screen_main() {
                                     }
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Mixer (DSP1)");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Input-Routing (DSP)");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // table_routing_dsp_input
+                                            lv_obj_t *obj = lv_table_create(parent_obj);
+                                            objects.table_routing_dsp_input = obj;
+                                            lv_obj_set_pos(obj, -19, -20);
+                                            lv_obj_set_size(obj, 795, 343);
+                                            lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+                                            lv_obj_set_style_pad_top(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_bottom(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_left(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_right(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_row(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_column(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                        }
+                                    }
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "FX (DSP2)");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Output-Routing (DSP)");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // table_routing_dsp_output
+                                            lv_obj_t *obj = lv_table_create(parent_obj);
+                                            objects.table_routing_dsp_output = obj;
+                                            lv_obj_set_pos(obj, -19, -20);
+                                            lv_obj_set_size(obj, 795, 343);
+                                            lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+                                            lv_obj_set_style_pad_top(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_bottom(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_left(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_right(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_row(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_column(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
+                                        }
+                                    }
                                 }
                             }
                         }

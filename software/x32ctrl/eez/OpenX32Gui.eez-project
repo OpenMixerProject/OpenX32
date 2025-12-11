@@ -3318,7 +3318,7 @@
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "40 Ch\n<---------->",
+                              "text": "24 Ch\n<---------->",
                               "textType": "literal",
                               "placeholder": "",
                               "oneLineMode": false,
@@ -3493,7 +3493,7 @@
                           },
                           "group": "",
                           "groupIndex": 0,
-                          "tabName": "Input/Output (FPGA)",
+                          "tabName": "Signal-Routing (FPGA)",
                           "tabNameType": "literal"
                         },
                         {
@@ -3517,7 +3517,60 @@
                           "topUnit": "px",
                           "widthUnit": "px",
                           "heightUnit": "px",
-                          "children": [],
+                          "children": [
+                            {
+                              "objID": "23c70335-a0c4-4a1f-a831-4d7562f1fffc",
+                              "type": "LVGLTableWidget",
+                              "left": -19,
+                              "top": -20,
+                              "width": 795,
+                              "height": 343,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "d2abef38-1ef4-4946-c40b-fa0b5e48ad1f",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_input",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "1bcac413-f115-4f9e-e9b0-17b29f092bd1",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 2,
+                                      "pad_bottom": 2,
+                                      "pad_left": 2,
+                                      "pad_right": 2,
+                                      "pad_row": 2,
+                                      "pad_column": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            }
+                          ],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
                           "hiddenFlagType": "literal",
                           "clickableFlag": true,
@@ -3534,7 +3587,7 @@
                           },
                           "group": "",
                           "groupIndex": 0,
-                          "tabName": "Mixer (DSP1)",
+                          "tabName": "Input-Routing (DSP)",
                           "tabNameType": "literal"
                         },
                         {
@@ -3558,7 +3611,60 @@
                           "topUnit": "px",
                           "widthUnit": "px",
                           "heightUnit": "px",
-                          "children": [],
+                          "children": [
+                            {
+                              "objID": "3d67e1eb-8b1c-455e-e422-180b44717bce",
+                              "type": "LVGLTableWidget",
+                              "left": -19,
+                              "top": -20,
+                              "width": 795,
+                              "height": 343,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "ec1edf64-47f6-4eeb-aac2-e7621dd91336",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_output",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "1be270b2-e4c7-43f4-8f7d-15cee0194418",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 2,
+                                      "pad_bottom": 2,
+                                      "pad_left": 2,
+                                      "pad_right": 2,
+                                      "pad_row": 2,
+                                      "pad_column": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            }
+                          ],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
                           "hiddenFlagType": "literal",
                           "clickableFlag": true,
@@ -3575,7 +3681,7 @@
                           },
                           "group": "",
                           "groupIndex": 0,
-                          "tabName": "FX (DSP2)",
+                          "tabName": "Output-Routing (DSP)",
                           "tabNameType": "literal"
                         }
                       ],

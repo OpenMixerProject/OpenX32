@@ -186,7 +186,7 @@ void audioProcessData(void) {
 		// copy channels from DSP2
 		// keep value of tdmBufferOffset from last loop
 		dspCh = 0;
-		for (int i_tdm = TDM_INPUTS_FPGA; i_tdm < TDM_INPUTS; i_tdm++) {
+		for (int i_tdm = TDM_INPUTS_FPGA; i_tdm < TDM_INPUTS-1; i_tdm++) {
 			bufferIndex = bufferSampleIndex + tdmBufferOffset;
 
 			// input from DSP2 side (we are receving float data here)
@@ -195,6 +195,13 @@ void audioProcessData(void) {
 
 			dspCh += CHANNELS_PER_TDM;
 			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
+		}
+		{
+			bufferIndex = bufferSampleIndex + tdmBufferOffset;
+
+			// input from DSP2 side (we are receving float data here)
+			// TODO: use DMA to store data in the destination as we already receive float-values
+			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_AUX], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
 		}
 
 		sampleOffset += CHANNELS_PER_TDM;

@@ -17,7 +17,11 @@
 #define MAX_CHAN_EQS                       4
 #define NUM_INPUT_CHANNEL                  112  // at the moment we are not using AES50A and AES50B
 #define NUM_OUTPUT_CHANNEL                 112  // at the moment we are not using AES50A and AES50B
-#define DSP_MAX_INTERNAL_CHANNELS          92
+#define MAX_DSP_INPUTCHANNELS              40
+#define MAX_DSP_OUTPUTCHANNELS             40
+#define MAX_DSP_FXCHANNELS                 16
+#define MAX_DSP_AUXCHANNELS                8
+#define DSP_MAX_INTERNAL_CHANNELS          93
 #define DSP_SAMPLES_IN_BUFFER              16
 
 #define X32_VCHANNEL_CHANGED_ALL           0b1111111111111111
@@ -84,8 +88,3 @@
     X32_VCHANNEL_BLOCKSIZE_SPECIAL
 
 #define VCHANNEL_NOT_SET MAX_VCHANNELS+1
-
-#define MAX_DSP_INPUTCHANNELS 40
-#define MAX_DSP_OUTPUTCHANNELS 40
-#define MAX_DSP_FXCHANNELS 16
-#define MAX_DSP_AUXCHANNELS 8
