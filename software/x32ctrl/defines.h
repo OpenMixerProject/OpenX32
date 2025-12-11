@@ -6,6 +6,13 @@
 #define X32_CTRL_CONFIGFILE "x32ctrl.cfg"
 #define X32_MIXER_CONFIGFILE "mixer.ini"
 
+#define SPI_DEVICE_DSP1 "/dev/spidev0.0"
+#define SPI_DEVICE_DSP2 "/dev/spidev0.1"
+#define SPI_DEVICE_FPGA "/dev/spidev2.0"
+#define MHz * 1000000
+#define SPI_FPGA_SPEED_HZ 8 MHz
+#define SPI_DSP_CONF_SPEED_HZ 1 MHz
+#define SPI_DSP_SPEED_HZ 16 MHz // 16 MHz is the regular SPI-clock on the original X32
 
 #define PI 3.14159265358979323846
 #define MAX_NAME_LENGTH 30 + 1 // null termination!

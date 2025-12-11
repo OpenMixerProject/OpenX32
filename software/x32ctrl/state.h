@@ -29,6 +29,10 @@ class State {
         bool dsp_disable_activity_light = false;
         bool dsp_disable_readout = false;
 
+        uint32_t fpga_spi_speed = 0;
+        uint32_t dsp_spi_config_speed = 0;
+        uint32_t dsp_spi_speed = 0;
+
         void SetChangeFlags(uint16_t p_flag);
         bool HasChanged(uint16_t p_flag);
         bool HasAnyChanged(void);

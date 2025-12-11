@@ -60,7 +60,7 @@ int SPI::ConfigureFpgaXilinx(void) {
 
     uint8_t spiMode = SPI_MODE_0; // Xilinx Spartan-3A uses MODE 0
     uint8_t spiBitsPerWord = 8;
-    uint32_t spiSpeed = SPI_FPGA_XILINX_SPEED_HZ;
+    uint32_t spiSpeed = state->fpga_spi_speed;
 
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI for FPGA...");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
@@ -243,7 +243,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 
     uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
-    uint32_t spiSpeed = SPI_FPGA_LATTICE_SPEED_HZ;
+    uint32_t spiSpeed = state->fpga_spi_speed;
 
 	fpgaLatticeDonePin(false); // deassert DONE-pin
 	
@@ -506,7 +506,7 @@ int SPI::fpgaLatticeReadData(int* spi_fd, uint8_t cmd) {
         .tx_buf = (unsigned long)tx_buf,
         .rx_buf = (unsigned long)rx_buf,
         .len = 8, // 4 byte for command + 4 byte for read
-        .speed_hz = SPI_FPGA_LATTICE_SPEED_HZ,
+        .speed_hz = state->fpga_spi_speed,
         .bits_per_word = 8
     };
     tx_buf[0] = cmd; // command
@@ -607,7 +607,7 @@ bool SPI::fpgaLatticeSendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool che
         .tx_buf = (unsigned long)tx_buf,
         .rx_buf = 0,
         .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
-        .speed_hz = SPI_FPGA_LATTICE_SPEED_HZ,
+        .speed_hz = state->fpga_spi_speed,
         .bits_per_word = 8
     };
 	if (keepCS) {
@@ -642,7 +642,7 @@ int SPI::fpgaLatticeTransferCommand(int* spi_fd, uint8_t cmd) {
         .tx_buf = (unsigned long)tx_buf,
         .rx_buf = 0,
         .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
-        .speed_hz = SPI_FPGA_LATTICE_SPEED_HZ,
+        .speed_hz = state->fpga_spi_speed,
         .bits_per_word = 8
     };
     tx_buf[0] = cmd; // command
@@ -681,7 +681,7 @@ int SPI::ConfigureDsp(void) {
 
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32; // we are transmitting in 32-bit-mode during configuration
-    uint32_t spiSpeed = SPI_DSP_CONF_SPEED_HZ;
+    uint32_t spiSpeed = state->dsp_spi_config_speed;
     //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to ignore this option, so we flip bitorder manually
 
     string filename_dsp1 = app->get_option("--D1")->as<string>();
@@ -880,7 +880,7 @@ void SPI::Tick100ms(void){
 bool SPI::OpenDspConnections() {
     uint8_t spiMode = SPI_MODE_3; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 32; // we are using 32-bit-mode here for communication
-    uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
+    uint32_t spiSpeed = state->dsp_spi_speed;
 
     for (uint8_t i = 0; i < 2; i++) {
         if (i == 0) {
@@ -1033,7 +1033,7 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = 0; // we dont want to receive
     tr.bits_per_word = 32; // Linux seems to ignore this and transmits with 8-bit
-    tr.speed_hz = SPI_DSP_SPEED_HZ; // Select a speed other than the device default for this transfer. If 0 the default (from spi_device) is used
+    tr.speed_hz = state->dsp_spi_speed; // Select a speed other than the device default for this transfer. If 0 the default (from spi_device) is used
     tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
     tr.cs_change = 0; // disable CS between two messages
     tr.len = sizeof(spiTxDataRaw);
@@ -1083,7 +1083,7 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = (unsigned long)spiRxDataRaw;
     tr.bits_per_word = 32; // Linux seems to ignore this and transmits with 8-bit
-    tr.speed_hz = SPI_DSP_SPEED_HZ; // Select a speed other than the device default for this transfer. If 0 the default (from spi_device) is used
+    tr.speed_hz = state->dsp_spi_speed; // Select a speed other than the device default for this transfer. If 0 the default (from spi_device) is used
     tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
     tr.cs_change = 0; // disable CS between two messages
     tr.len = sizeof(spiTxDataRaw);
