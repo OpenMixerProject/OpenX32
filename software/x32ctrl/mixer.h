@@ -90,7 +90,7 @@ class Mixer : public X32Base
         float GetBusSend(uint8_t dspChannel, uint8_t index);
         float GetGate(uint8_t vChannelIndex, char option);
         float GetLowcut(uint8_t vChannelIndex);
-        void GetDyamics(uint8_t vChannelIndex, char option, float* value);
+        float GetDynamics(uint8_t vChannelIndex, char option);
 
         void ResetVChannelChangeFlags(VChannel p_chan);
 

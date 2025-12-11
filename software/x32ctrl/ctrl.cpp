@@ -88,13 +88,13 @@ void X32Ctrl::Init(){
 	pages[X32_PAGE_CONFIG].nextPage = X32_PAGE_GATE;
 
 	pages[X32_PAGE_GATE].prevPage = X32_PAGE_CONFIG;
-	pages[X32_PAGE_GATE].nextPage = X32_PAGE_EQ;
+	pages[X32_PAGE_GATE].nextPage = X32_PAGE_COMPRESSOR;
 
-	pages[X32_PAGE_EQ].prevPage = X32_PAGE_GATE;
-	pages[X32_PAGE_EQ].nextPage = X32_PAGE_COMPRESSOR;
+	pages[X32_PAGE_COMPRESSOR].prevPage = X32_PAGE_GATE;
+	pages[X32_PAGE_COMPRESSOR].nextPage = X32_PAGE_EQ;
 
-	pages[X32_PAGE_COMPRESSOR].prevPage = X32_PAGE_EQ;
-	pages[X32_PAGE_COMPRESSOR].nextPage = X32_PAGE_NONE;
+	pages[X32_PAGE_EQ].prevPage = X32_PAGE_COMPRESSOR;
+	pages[X32_PAGE_EQ].nextPage = X32_PAGE_NONE;
 
 	// Routing
 	pages[X32_PAGE_ROUTING].prevPage = X32_PAGE_NONE;
@@ -616,36 +616,35 @@ void X32Ctrl::DrawGate(uint8_t selectedChannelIndex) {
 	// calculate the gate curve
 	float gateValue[200];
 	float inputLevel;
+	float outputLevel;
 
 	memset(&gateValue[0], 0, sizeof(gateValue));
 
 	sGate* gate = &mixer->dsp->Channel[GetSelectedvChannelIndex()].gate;
 
-	float outputLevel;
 	for (uint16_t pixel = 0; pixel < 200; pixel++) {
-		inputLevel = -60.0f + ((float)pixel * (60.0f / 199.0f)); // from -60 dB to 0 dB
+		inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
 
-		if (intputLevel >= gate->threshold) {
+		if (inputLevel >= gate->threshold) {
 			// above threshold
 			outputLevel = inputLevel;
-			continue;
 		}else{
 			// below threshold -> apply reduction
 			outputLevel = inputLevel - gate->range;
 		}
 
-		// move and scale gateValue to p.u. between 0..1
-		gateValue[pixel] = ((outputLevel + 60.0f) / 60.0f); 
+		// scale outputLevel to -6000 .. 0
+		gateValue[pixel] = outputLevel * 100.0f;
 	}
 
 	int32_t* chartSeriesGatePoints = lv_chart_get_series_y_array(objects.current_channel_gate, chartSeriesGate);
 	for (uint16_t i = 0; i < 200; i++) {
-	   chartSeriesGatePoints[i] = gateValue[i] * 1000.0f;
+	   chartSeriesGatePoints[i] = gateValue[i];
 	}
 	lv_chart_refresh(objects.current_channel_gate);
 }
 
-void X32CTRL::DrawDynamics(uint8_t selectedChannelIndex) {
+void X32Ctrl::DrawDynamics(uint8_t selectedChannelIndex) {
 	if (selectedChannelIndex >= 40) {
 		return;
 	}
@@ -653,33 +652,32 @@ void X32CTRL::DrawDynamics(uint8_t selectedChannelIndex) {
 	// calculate the compressor curve
 	float compValue[200];
 	float inputLevel;
+	float outputLevel;
 
 	memset(&compValue[0], 0, sizeof(compValue));
 
 	sCompressor* comp = &mixer->dsp->Channel[GetSelectedvChannelIndex()].compressor;
 
-	float outputLevel;
 	for (uint16_t pixel = 0; pixel < 200; pixel++) {
-		inputLevel = -60.0f + ((float)pixel * (60.0f / 199.0f)); // from -60 dB to 0 dB
+		inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
 
 		if (inputLevel < comp->threshold) {
 			// below threshold
 			outputLevel = inputLevel;
-			continue;
 		}else{
 			// above threshold -> calculate overshoot (inputLevel - comp->threshold) and take ratio into account
 			outputLevel = comp->threshold + ((inputLevel - comp->threshold) / comp->ratio);
 		}
 
-		// move and scale compValue to p.u. between 0..1
-		compValue[pixel] = ((outputLevel + 60.0f) / 60.0f);
+		// scale outputLevel to -6000 .. 0
+		compValue[pixel] = outputLevel * 100.0f;
 	}
 
-	int32_t* chartSeriesCompPoints = lv_chart_get_series_y_array(objects.current_channel_compressor, chartSeriesCompressor);
+	int32_t* chartSeriesCompPoints = lv_chart_get_series_y_array(objects.current_channel_comp, chartSeriesCompressor);
 	for (uint16_t i = 0; i < 200; i++) {
-	   chartSeriesCompPoints[i] = compValue[i] * 1000.0f;
+	   chartSeriesCompPoints[i] = compValue[i];
 	}
-	lv_chart_refresh(objects.current_channel_compressor);
+	lv_chart_refresh(objects.current_channel_comp);
 }
 
 void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
@@ -739,6 +737,8 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 	surface->SetLedByEnum(X32_BTN_UTILITY, 0);
 	// turn all view LEDs of
 	surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, 0);
+	surface->SetLedByEnum(X32_BTN_VIEW_GATE, 0);
+	surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, 0);
 	surface->SetLedByEnum(X32_BTN_VIEW_EQ, 0);
 
 	activePage = p_page;
@@ -1030,9 +1030,9 @@ void X32Ctrl::guiSync(void) {
 				// support Gate
 				guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
 					"Range: " + String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
-					"Attack: " + String(mixer->dsp->Channel[chanIndex].gate.attack, 1) + " ms",
-					"Hold: " + String(mixer->dsp->Channel[chanIndex].gate.hold, 1) + " ms",
-					"Release: " + String(mixer->dsp->Channel[chanIndex].gate.release, 1) + " ms",
+					"Attack: " + String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
+					"Hold: " + String(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 0) + " ms",
+					"Release: " + String(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 0) + " ms",
 					"-"
 				);
 			}else{
@@ -1045,16 +1045,16 @@ void X32Ctrl::guiSync(void) {
 		//#         Page COMPRESSOR
 		//####################################
 
-			DrawCompressor(GetSelectedvChannelIndex());
+			DrawDynamics(GetSelectedvChannelIndex());
 
 			if (chanIndex < 40) {
 				// support Compressor
 				guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].compressor.threshold, 1) + " dB",
 					"Ratio: " + String(mixer->dsp->Channel[chanIndex].compressor.ratio, 1) + ":1",
-					"Makeup: " + String(mixer->dsp->Channel[chanIndex].compressor.makeupGain, 1) + " dB",
-					"Attack: " + String(mixer->dsp->Channel[chanIndex].compressor.attack, 1) + " ms",
-					"Hold: " + String(mixer->dsp->Channel[chanIndex].compressor.hold, 1) + " ms",
-					"Release: " + String(mixer->dsp->Channel[chanIndex].compressor.release, 1) + " ms"
+					"Makeup: " + String(mixer->dsp->Channel[chanIndex].compressor.makeup, 1) + " dB",
+					"Attack: " + String(mixer->dsp->Channel[chanIndex].compressor.attackTime_ms, 0) + " ms",
+					"Hold: " + String(mixer->dsp->Channel[chanIndex].compressor.holdTime_ms, 0) + " ms",
+					"Release: " + String(mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms, 0) + " ms"
 				);
 			}else{
 				// unsupported at the moment
@@ -2336,7 +2336,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'R', amount);
 					break;
 				case X32_ENC_ENCODER3:
-					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'N', amount);
+					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'M', amount);
 					break;
 				case X32_ENC_ENCODER4:
 					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'A', amount);

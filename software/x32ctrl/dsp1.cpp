@@ -45,7 +45,7 @@ void DSP1::dspInit(void) {
         Channel[i].gate.releaseTime_ms = 250;
 
         Channel[i].compressor.threshold = 0; // dB -> no compression
-        Channel[i].compressor.ratio = 1.0f/3.0f; // 1:3
+        Channel[i].compressor.ratio = 3.0f; // 1:3
         Channel[i].compressor.makeup = 0; // dB -> no makeup
         Channel[i].compressor.attackTime_ms = 10;
         Channel[i].compressor.holdTime_ms = 10;

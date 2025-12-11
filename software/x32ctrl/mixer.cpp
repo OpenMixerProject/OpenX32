@@ -653,17 +653,17 @@ void Mixer::SetGate(uint8_t vChannelIndex, char option, float value) {
                     break;
                 case 'A': // Attack
                     if ((value >= 0) && (value <= 120)) {
-                        gate->attack = value;
+                        gate->attackTime_ms = value;
                     }
                     break;
                 case 'H': // Hold
                     if ((value >= 0.02) && (value <= 2000)) {
-                        gate->hold = value;
+                        gate->holdTime_ms = value;
                     }
                     break;
                 case 'r': // Release
                     if ((value >= 5) && (value <= 4000)) {
-                        gate->release = value;
+                        gate->releaseTime_ms = value;
                     }
                     break;
             }
@@ -688,11 +688,11 @@ float Mixer::GetGate(uint8_t vChannelIndex, char option) {
             case 'R': // Range
                 return gate->range;
             case 'A': // Attack
-                return gate->attack;
+                return gate->attackTime_ms;
             case 'H': // Hold
-                return gate->hold;
+                return gate->holdTime_ms;
             case 'r': // Release
-                return gate->release;
+                return gate->releaseTime_ms;
         }
     }
     
@@ -708,19 +708,19 @@ void Mixer::ChangeGate(uint8_t vChannelIndex, char option, int8_t p_amount) {
 
     switch (option) {
         case 'T': // Threshold
-            newValue += ((float)p_amount * abs((float)p_amount)) * 0.4f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
             break;
         case 'R': // Range
-            newValue += ((float)p_amount * abs((float)p_amount)) * 0.4f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.5f;
             break;
         case 'A': // Attack
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
             break;
         case 'H': // Hold
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
             break;
         case 'r': // Release
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
             break;
     }
 
@@ -793,10 +793,14 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, char option, float value) {
                     }
                     break;
                 case 'R': // Ratio
-                    if ((value >= 1.1) && (value <= 100)) {
+                    if (value < 1.1) {
+                        comp->ratio = 1.1;
+                    }else if (value > 100) {
+                        comp->ratio = 100.0f;
+                    }else{
                         comp->ratio = value;
-                        helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor ratio set to %f", chan->name.c_str(), value);
                     }
+                    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor ratio set to %f", chan->name.c_str(), value);
                     break;
                 case 'M': // Makeup
                     if ((value >= 0) && (value <= 24)) {
@@ -806,19 +810,19 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, char option, float value) {
                     break;
                 case 'A': // Attack
                     if ((value >= 0) && (value <= 120)) {
-                        comp->attack = value;
+                        comp->attackTime_ms = value;
                         helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor attack set to %f", chan->name.c_str(), value);
                     }
                     break;
                 case 'H': // Hold
                     if ((value >= 0.02) && (value <= 2000)) {
-                        comp->hold = value;
+                        comp->holdTime_ms = value;
                         helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor hold set to %f", chan->name.c_str(), value);
                     }
                     break;
                 case 'r': // Release
                     if ((value >= 5) && (value <= 4000)) {
-                        comp->release = value;
+                        comp->releaseTime_ms = value;
                         helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor release set to %f", chan->name.c_str(), value);
                     }
                     break;
@@ -829,9 +833,9 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, char option, float value) {
     }    
 }
 
-void Mixer::GetDynamics(uint8_t vChannelIndex, char option, float* value) {
+float Mixer::GetDynamics(uint8_t vChannelIndex, char option) {
     if (vChannelIndex == VCHANNEL_NOT_SET) {
-        return;
+        return 0;
     }
 
     VChannel* chan = GetVChannel(vChannelIndex);
@@ -840,25 +844,27 @@ void Mixer::GetDynamics(uint8_t vChannelIndex, char option, float* value) {
         sCompressor* comp = &dsp->Channel[vChannelIndex].compressor;
         switch (option) {
             case 'T': // Threshold
-                *value = comp->threshold;
+                return comp->threshold;
                 break;
             case 'R': // Ratio
-                *value = comp->ratio;
+                return comp->ratio;
                 break;
             case 'M': // Makeup
-                *value = comp->makeup;
+                return comp->makeup;
                 break;
             case 'A': // Attack
-                *value = comp->attack;
+                return comp->attackTime_ms;
                 break;
             case 'H': // Hold
-                *value = comp->hold;
+                return comp->holdTime_ms;
                 break;
             case 'r': // Release
-                *value = comp->release;
+                return comp->releaseTime_ms;
                 break;
         }
     }
+
+    return 0;
 }
 
 void Mixer::ChangeDynamics(uint8_t vChannelIndex, char option, int8_t p_amount) {
@@ -873,19 +879,19 @@ void Mixer::ChangeDynamics(uint8_t vChannelIndex, char option, int8_t p_amount) 
             newValue += (float)p_amount/2.0f;
             break;
         case 'R': // Ratio
-            newValue += (float)p_amount/2.0f;
+            newValue = newValue + (newValue * (float)p_amount)/10.0f; // take into account that we have to set small ratios and very large values
             break;
         case 'M': // Makeup
             newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
             break;
         case 'A': // Attack
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
             break;
         case 'H': // Hold
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
             break;
         case 'r': // Release
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
             break;
     }
 

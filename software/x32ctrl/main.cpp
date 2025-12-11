@@ -120,6 +120,28 @@ void guiInit(void) {
 
 	ctrl->ShowPage(X32_PAGE_HOME);   // shows the HOME Page
 
+	// setup Gate-graph
+	lv_chart_set_type(objects.current_channel_gate, LV_CHART_TYPE_LINE);
+	lv_obj_set_style_size(objects.current_channel_gate, 0, 0, LV_PART_INDICATOR);
+	lv_obj_set_style_line_width(objects.current_channel_gate, 5, LV_PART_ITEMS);
+	ctrl->chartSeriesGate = lv_chart_add_series(objects.current_channel_gate, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
+	lv_chart_set_div_line_count(objects.current_channel_gate, 5, 7);
+	lv_chart_set_range(objects.current_channel_gate, LV_CHART_AXIS_PRIMARY_Y, -6000, 0);
+	lv_chart_set_point_count(objects.current_channel_gate, 200);
+	lv_chart_set_series_color(objects.current_channel_gate, ctrl->chartSeriesGate, lv_color_hex(0xef7900));
+	//chart-shadow: 0x7e4000
+
+	// setup Dynamics-graph
+	lv_chart_set_type(objects.current_channel_comp, LV_CHART_TYPE_LINE);
+	lv_obj_set_style_size(objects.current_channel_comp, 0, 0, LV_PART_INDICATOR);
+	lv_obj_set_style_line_width(objects.current_channel_comp, 5, LV_PART_ITEMS);
+	ctrl->chartSeriesCompressor = lv_chart_add_series(objects.current_channel_comp, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
+	lv_chart_set_div_line_count(objects.current_channel_comp, 5, 7);
+	lv_chart_set_range(objects.current_channel_comp, LV_CHART_AXIS_PRIMARY_Y, -6000, 0);
+	lv_chart_set_point_count(objects.current_channel_comp, 200);
+	lv_chart_set_series_color(objects.current_channel_comp, ctrl->chartSeriesCompressor, lv_color_hex(0xef7900));
+	//chart-shadow: 0x7e4000
+
 	// setup EQ-graph
 	lv_chart_set_type(objects.current_channel_eq, LV_CHART_TYPE_LINE);
 	lv_obj_set_style_size(objects.current_channel_eq, 0, 0, LV_PART_INDICATOR);
