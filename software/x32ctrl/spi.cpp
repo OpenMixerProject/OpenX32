@@ -681,7 +681,7 @@ int SPI::ConfigureDsp(void) {
 
     uint8_t spiMode = SPI_MODE_3; // AnalogDevices uses MODE 3 (CPOL=1, CPHA=1)
     uint8_t spiBitsPerWord = 32; // we are transmitting in 32-bit-mode during configuration
-    uint32_t spiSpeed = SPI_DSP_SPEED_HZ;
+    uint32_t spiSpeed = SPI_DSP_CONF_SPEED_HZ;
     //uint8_t spiLsbFirst = 0; // Linux-driver for i.MX25 seems to ignore this option, so we flip bitorder manually
 
     string filename_dsp1 = app->get_option("--D1")->as<string>();
