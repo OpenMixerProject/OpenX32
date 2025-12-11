@@ -252,9 +252,29 @@ void create_screen_main() {
                                 }
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Gate");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // current_channel_gate
+                                            lv_obj_t *obj = lv_chart_create(parent_obj);
+                                            objects.current_channel_gate = obj;
+                                            lv_obj_set_pos(obj, -18, -20);
+                                            lv_obj_set_size(obj, 794, 343);
+                                        }
+                                    }
                                 }
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Dyn");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // current_channel_comp
+                                            lv_obj_t *obj = lv_chart_create(parent_obj);
+                                            objects.current_channel_comp = obj;
+                                            lv_obj_set_pos(obj, -18, -20);
+                                            lv_obj_set_size(obj, 794, 343);
+                                        }
+                                    }
                                 }
                                 {
                                     // eqtab

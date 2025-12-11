@@ -630,32 +630,50 @@ void Mixer::ChangeBusSend(uint8_t vChannelIndex, uint8_t encoderIndex, int8_t p_
     SetBusSend(vChannelIndex, encoderIndex, newValue);
 }
 
-// threshold: value between -80 dBfs (no gate) and 0 dBfs (full gate)
-void Mixer::SetGate(uint8_t vChannelIndex, float threshold){
+void Mixer::SetGate(uint8_t vChannelIndex, char option, float value) {
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
-    }
-
-    float newValue = threshold;
-    if (newValue > 0) {
-        newValue = 0;
-    }else if (newValue < -80) {
-        newValue = -80;
     }
 
     VChannel* chan = GetVChannel(vChannelIndex);
 
     switch(chan->vChannelType){
         case X32_VCHANNELTYPE_NORMAL: {
-            dsp->Channel[vChannelIndex].gate.threshold = newValue;
+            sGate* gate = &dsp->Channel[vChannelIndex].gate;
+            switch (option) {
+                case 'T': // Threshold
+                    if ((value >= -80) && (value <= 0)) {
+                        gate->threshold = value;
+                    }
+                    break;
+                case 'R': // Range
+                    if ((value >= 3) && (value <= 60)) {
+                        gate->range = value;
+                    }
+                    break;
+                case 'A': // Attack
+                    if ((value >= 0) && (value <= 120)) {
+                        gate->attack = value;
+                    }
+                    break;
+                case 'H': // Hold
+                    if ((value >= 0.02) && (value <= 2000)) {
+                        gate->hold = value;
+                    }
+                    break;
+                case 'r': // Release
+                    if ((value >= 5) && (value <= 4000)) {
+                        gate->release = value;
+                    }
+                    break;
+            }
             chan->SetChanged(X32_VCHANNEL_CHANGED_GATE);
             break;
         }
     }    
 }
 
-// value between -80 dBfs (no gate) and 0 dBfs (full gate)
-float Mixer::GetGate(uint8_t vChannelIndex){
+float Mixer::GetGate(uint8_t vChannelIndex, char option) {
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return -80;
     }
@@ -663,18 +681,50 @@ float Mixer::GetGate(uint8_t vChannelIndex){
     VChannel* chan = GetVChannel(vChannelIndex);
 
     if (chan->vChannelType == X32_VCHANNELTYPE_NORMAL){
-        return dsp->Channel[vChannelIndex].gate.threshold;
+        sGate* gate = &dsp->Channel[vChannelIndex].gate;
+        switch (option) {
+            case 'T': // Threshold
+                return gate->threshold;
+            case 'R': // Range
+                return gate->range;
+            case 'A': // Attack
+                return gate->attack;
+            case 'H': // Hold
+                return gate->hold;
+            case 'r': // Release
+                return gate->release;
+        }
     }
     
-    return -80;
-} 
+    return 0;
+}
 
-void Mixer::ChangeGate(uint8_t vChannelIndex, int8_t p_amount){
+void Mixer::ChangeGate(uint8_t vChannelIndex, char option, int8_t p_amount) {
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
-    float newValue = GetGate(vChannelIndex) + ((float)p_amount * abs((float)p_amount)) * 0.4f;
-    SetGate(vChannelIndex, newValue);
+
+    float newValue = GetGate(vChannelIndex, option);
+
+    switch (option) {
+        case 'T': // Threshold
+            newValue += ((float)p_amount * abs((float)p_amount)) * 0.4f;
+            break;
+        case 'R': // Range
+            newValue += ((float)p_amount * abs((float)p_amount)) * 0.4f;
+            break;
+        case 'A': // Attack
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            break;
+        case 'H': // Hold
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            break;
+        case 'r': // Release
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            break;
+    }
+
+    SetGate(vChannelIndex, option, newValue);
 }
 
 void Mixer::SetLowcut(uint8_t vChannelIndex, float lowCutFrequency){
@@ -683,8 +733,8 @@ void Mixer::SetLowcut(uint8_t vChannelIndex, float lowCutFrequency){
     }
 
     float newValue = lowCutFrequency;
-    if (newValue > 400) {
-        newValue = 400;
+    if (newValue > 24000) {
+        newValue = 24000;
     } else if (newValue < 20) {
         newValue = 20;
     }
@@ -724,16 +774,9 @@ void Mixer::ChangeLowcut(uint8_t vChannelIndex, int8_t amount){
     SetLowcut(vChannelIndex, newValue);
 }
 
-void Mixer::SetDynamics(uint8_t vChannelIndex, float lowCutFrequency){
+void Mixer::SetDynamics(uint8_t vChannelIndex, char option, float value) {
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
-    }
-
-    float newValue = lowCutFrequency;
-    if (newValue > 0) {
-        newValue = 0;
-    }else if (newValue < -80) {
-        newValue = -80;
     }
 
     VChannel* chan = GetVChannel(vChannelIndex);
@@ -741,37 +784,112 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, float lowCutFrequency){
     switch(chan->vChannelType){
         case X32_VCHANNELTYPE_NORMAL:
         case X32_VCHANNELTYPE_AUX: {
-            dsp->Channel[vChannelIndex].compressor.threshold = newValue;
-            helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor threshold set to %f", chan->name.c_str(), newValue);
+            sCompressor* comp = &dsp->Channel[vChannelIndex].compressor;
+            switch (option) {
+                case 'T': // Threshold
+                    if ((value >= -60) && (value <= 0)) {
+                        comp->threshold = value;
+                        helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor threshold set to %f", chan->name.c_str(), value);
+                    }
+                    break;
+                case 'R': // Ratio
+                    if ((value >= 1.1) && (value <= 100)) {
+                        comp->ratio = value;
+                        helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor ratio set to %f", chan->name.c_str(), value);
+                    }
+                    break;
+                case 'M': // Makeup
+                    if ((value >= 0) && (value <= 24)) {
+                        comp->makeup = value;
+                        helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor makeup-gain set to %f", chan->name.c_str(), value);
+                    }
+                    break;
+                case 'A': // Attack
+                    if ((value >= 0) && (value <= 120)) {
+                        comp->attack = value;
+                        helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor attack set to %f", chan->name.c_str(), value);
+                    }
+                    break;
+                case 'H': // Hold
+                    if ((value >= 0.02) && (value <= 2000)) {
+                        comp->hold = value;
+                        helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor hold set to %f", chan->name.c_str(), value);
+                    }
+                    break;
+                case 'r': // Release
+                    if ((value >= 5) && (value <= 4000)) {
+                        comp->release = value;
+                        helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Channel %s: Compressor release set to %f", chan->name.c_str(), value);
+                    }
+                    break;
+            }
             chan->SetChanged(X32_VCHANNEL_CHANGED_DYNAMIC);
             break;
         }
-    }
+    }    
 }
 
-float Mixer::GetDynamics(uint8_t vChannelIndex){
+void Mixer::GetDynamics(uint8_t vChannelIndex, char option, float* value) {
     if (vChannelIndex == VCHANNEL_NOT_SET) {
-        return 0;
+        return;
     }
 
     VChannel* chan = GetVChannel(vChannelIndex);
 
     if (chan->vChannelType == X32_VCHANNELTYPE_NORMAL || chan->vChannelType == X32_VCHANNELTYPE_AUX){
-        return dsp->Channel[vChannelIndex].compressor.threshold;
+        sCompressor* comp = &dsp->Channel[vChannelIndex].compressor;
+        switch (option) {
+            case 'T': // Threshold
+                *value = comp->threshold;
+                break;
+            case 'R': // Ratio
+                *value = comp->ratio;
+                break;
+            case 'M': // Makeup
+                *value = comp->makeup;
+                break;
+            case 'A': // Attack
+                *value = comp->attack;
+                break;
+            case 'H': // Hold
+                *value = comp->hold;
+                break;
+            case 'r': // Release
+                *value = comp->release;
+                break;
+        }
     }
-    
-    return 0;
 }
 
-
-void Mixer::ChangeDynamics(uint8_t vChannelIndex, int8_t amount){
+void Mixer::ChangeDynamics(uint8_t vChannelIndex, char option, int8_t p_amount) {
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
     }
 
-    //float newValue = GetDynamics(vChannelIndex) * (1 + ((float)amount * abs((float)amount)) * 0.4f);
-    float newValue = GetDynamics(vChannelIndex) + (amount/2.0);
-    SetDynamics(vChannelIndex, newValue);
+    float newValue = GetDynamics(vChannelIndex, option);
+
+    switch (option) {
+        case 'T': // Threshold
+            newValue += (float)p_amount/2.0f;
+            break;
+        case 'R': // Ratio
+            newValue += (float)p_amount/2.0f;
+            break;
+        case 'M': // Makeup
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            break;
+        case 'A': // Attack
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            break;
+        case 'H': // Hold
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            break;
+        case 'r': // Release
+            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
+            break;
+    }
+
+    SetDynamics(vChannelIndex, option, newValue);
 }
 
 void Mixer::SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float value){

@@ -375,7 +375,9 @@ typedef enum {
     X32_PAGE_HOME,
         // sub-pages of home
         X32_PAGE_CONFIG,
+        X32_PAGE_GATE,
         X32_PAGE_EQ,
+        X32_PAGE_COMPRESSOR,
     X32_PAGE_METERS,
     X32_PAGE_ROUTING,
         // sub-pages of routing

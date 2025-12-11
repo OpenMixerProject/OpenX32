@@ -55,9 +55,9 @@ class Mixer : public X32Base
         void SetPeq(uint8_t vChannelIndex, uint8_t eqIndex, char option, float value);
         void SetGain(uint8_t vChannelIndex, float gain);
         void SetBusSend(uint8_t vChannelIndex, uint8_t index, float value);
-        void SetGate(uint8_t vChannelIndex, float threshold);
+        void SetGate(uint8_t vChannelIndex, char option, float value);
         void SetLowcut(uint8_t vChannelIndex, float lowCutFrequency);
-        void SetDynamics(uint8_t vChannelIndex, float lowCutFrequency);
+        void SetDynamics(uint8_t vChannelIndex, char option, float value);
 
         void TogglePhantom(uint8_t vChannelIndex);
         void TogglePhaseInvert(uint8_t vChannelIndex);
@@ -70,9 +70,9 @@ class Mixer : public X32Base
 	    void ChangeDspInput(uint8_t vChannelIndex, int8_t amount);
         void ChangeBalance(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend);
-        void ChangeGate(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangeGate(uint8_t vChannelIndex, char option, int8_t p_amount);
         void ChangeLowcut(uint8_t p_vChannelIndex, int8_t p_amount);
-        void ChangeDynamics(uint8_t p_vChannelIndex, int8_t p_amount);
+        void ChangeDynamics(uint8_t vChannelIndex, char option, int8_t p_amount);
         void ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_t p_amount);
         void ChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
@@ -88,9 +88,9 @@ class Mixer : public X32Base
         bool GetPhantomPower(uint8_t dspChannel);
         bool GetPhaseInvert(uint8_t dspChannel);
         float GetBusSend(uint8_t dspChannel, uint8_t index);
-        float GetGate(uint8_t vChannelIndex);
+        float GetGate(uint8_t vChannelIndex, char option);
         float GetLowcut(uint8_t vChannelIndex);
-        float GetDynamics(uint8_t vChannelIndex);
+        void GetDyamics(uint8_t vChannelIndex, char option, float* value);
 
         void ResetVChannelChangeFlags(VChannel p_chan);
 

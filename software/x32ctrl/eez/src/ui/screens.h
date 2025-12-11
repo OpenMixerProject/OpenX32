@@ -25,6 +25,8 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_invert;
     lv_obj_t *current_channel_pan_bal;
     lv_obj_t *current_channel_volume;
+    lv_obj_t *current_channel_gate;
+    lv_obj_t *current_channel_comp;
     lv_obj_t *eqtab;
     lv_obj_t *current_channel_eq;
     lv_obj_t *slider01;

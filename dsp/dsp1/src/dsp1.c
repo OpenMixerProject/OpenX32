@@ -370,10 +370,6 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 						}
 					}
 					break;
-				case 'r':
-					// reset SPORT-system
-					systemSportInit();
-					break;
 			}
 			break;
 		default:
