@@ -48,7 +48,6 @@ class X32Ctrl : public X32Base {
         sBankMode modes[3];
 
         sMixerPage pages[MAX_PAGES];  
-        X32_PAGE activePage;
         uint8_t activeBank_inputFader;
         uint8_t activeBank_busFader;
         uint8_t activeEQ;

@@ -126,83 +126,6 @@ void X32Ctrl::Init(){
 	state->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
 }
 
-void X32Ctrl::LoadConfig() {
-	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
-	mixer_ini.load(X32_MIXER_CONFIGFILE);
-
-	// VChannels
-	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)	{
-		VChannel* chan = GetVChannel(i);
-		string section = (String("vchannel") + String(i)).c_str();
-
-		chan->name = mixer_ini[section]["name"].as<string>().c_str();
-		chan->color = mixer_ini[section]["color"].as<int>();
-	}
-
-	//DspChannels
-	for (uint8_t i = 0; i < MAX_DSP_INPUTCHANNELS; i++)	{
-		string section = string("dspchannel") + to_string(i);
-		mixer->dsp->Channel[i].inputSource = mixer_ini[section]["inputSource"].as<int>();
-		mixer->dsp->Channel[i].inputTapPoint = mixer_ini[section]["inputTapPoint"].as<int>();
-	}
-	//DspOutChannels
-	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++) {
-		string section = string("dspoutchannel") + to_string(i);
-		mixer->dsp->Dsp2FpgaChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	//Dsp2FxChannels
-	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++) {
-		string section = string("dspfxchannel") + to_string(i);
-		mixer->dsp->Dsp2FxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2FxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	//Dsp2AuxChannels
-	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++) {
-		string section = string("dspauxchannel") + to_string(i);
-		mixer->dsp->Dsp2AuxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2AuxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	mixer->dsp->SendAll();
-
-	// FPGA Routing
-	{
-		string section = "fpga";
-		for (uint8_t i = 0; i < 8; i++)	{
-			mixer->fpga->fpgaRouting.aux[i] = mixer_ini[section][(String("aux") + i).c_str()].as<int>();
-		}
-		for (uint8_t i = 0; i < 16; i++) {
-			mixer->fpga->fpgaRouting.xlr[i] = mixer_ini[section][(String("xlr") + i).c_str()].as<int>();
-			mixer->fpga->fpgaRouting.p16[i] = mixer_ini[section][(String("p16") + i).c_str()].as<int>();
-		}
-		for (uint8_t i = 0; i < 32; i++) {
-			mixer->fpga->fpgaRouting.card[i] = mixer_ini[section][(String("card") + i).c_str()].as<int>();
-		}
-		for (uint8_t i = 0; i < 40; i++) {
-			mixer->fpga->fpgaRouting.dsp[i] = mixer_ini[section][(String("dsp") + i).c_str()].as<int>();
-		}
-		mixer->fpga->RoutingSendConfigToFpga();
-	}
-
-}
-
-void X32Ctrl::ResetFaderBankLayout() {
-	// reset channel section
-	for (uint8_t b = 0; b < 8; b++){
-		for (uint8_t sCh = 0; sCh < 16; sCh++){
-			modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-			modes[X32_SURFACE_MODE_BANKING_USER].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-		}
-	}
-	// reset bus section
-	for (uint8_t b = 0; b < 4; b++){
-		for (uint8_t sCh = 0; sCh < 8; sCh++){
-			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-			modes[X32_SURFACE_MODE_BANKING_USER].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-		}
-	}
-}
-
 // Load a Fader bank layout, e.g. LAYOUT_X32 or LAYOUT_USER
 void X32Ctrl::LoadFaderBankLayout(int layout) {
 
@@ -262,7 +185,111 @@ void X32Ctrl::LoadFaderBankLayout(int layout) {
 	}	
 }
 
+void X32Ctrl::ResetFaderBankLayout() {
+	// reset channel section
+	for (uint8_t b = 0; b < 8; b++){
+		for (uint8_t sCh = 0; sCh < 16; sCh++){
+			modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+			modes[X32_SURFACE_MODE_BANKING_USER].inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+		}
+	}
+	// reset bus section
+	for (uint8_t b = 0; b < 4; b++){
+		for (uint8_t sCh = 0; sCh < 8; sCh++){
+			modes[X32_SURFACE_MODE_BANKING_X32].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+			modes[X32_SURFACE_MODE_BANKING_USER].busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
+		}
+	}
+}
+
+// ##        #######     ###    ########  
+// ##       ##     ##   ## ##   ##     ## 
+// ##       ##     ##  ##   ##  ##     ## 
+// ##       ##     ## ##     ## ##     ## 
+// ##       ##     ## ######### ##     ## 
+// ##       ##     ## ##     ## ##     ## 
+// ########  #######  ##     ## ########  
+
+void X32Ctrl::LoadConfig() {
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
+	mixer_ini.load(X32_MIXER_CONFIGFILE);
+
+	// mixer config
+	{
+		string section = string("mixer");
+		state->activePage = (X32_PAGE)mixer_ini[section]["activePage"].as<int>();
+	}
+	// VChannels
+	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)	{
+		VChannel* chan = GetVChannel(i);
+		string section = (String("vchannel") + String(i)).c_str();
+
+		chan->name = mixer_ini[section]["name"].as<string>().c_str();
+		chan->color = mixer_ini[section]["color"].as<int>();
+	}
+
+	//DspChannels
+	for (uint8_t i = 0; i < MAX_DSP_INPUTCHANNELS; i++)	{
+		string section = string("dspchannel") + to_string(i);
+		mixer->dsp->Channel[i].inputSource = mixer_ini[section]["inputSource"].as<int>();
+		mixer->dsp->Channel[i].inputTapPoint = mixer_ini[section]["inputTapPoint"].as<int>();
+	}
+	//DspOutChannels
+	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++) {
+		string section = string("dspoutchannel") + to_string(i);
+		mixer->dsp->Dsp2FpgaChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	//Dsp2FxChannels
+	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++) {
+		string section = string("dspfxchannel") + to_string(i);
+		mixer->dsp->Dsp2FxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2FxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	//Dsp2AuxChannels
+	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++) {
+		string section = string("dspauxchannel") + to_string(i);
+		mixer->dsp->Dsp2AuxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp2AuxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+	}
+	mixer->dsp->SendAll();
+
+	// FPGA Routing
+	{
+		string section = "fpga";
+		for (uint8_t i = 0; i < 8; i++)	{
+			mixer->fpga->fpgaRouting.aux[i] = mixer_ini[section][(String("aux") + i).c_str()].as<int>();
+		}
+		for (uint8_t i = 0; i < 16; i++) {
+			mixer->fpga->fpgaRouting.xlr[i] = mixer_ini[section][(String("xlr") + i).c_str()].as<int>();
+			mixer->fpga->fpgaRouting.p16[i] = mixer_ini[section][(String("p16") + i).c_str()].as<int>();
+		}
+		for (uint8_t i = 0; i < 32; i++) {
+			mixer->fpga->fpgaRouting.card[i] = mixer_ini[section][(String("card") + i).c_str()].as<int>();
+		}
+		for (uint8_t i = 0; i < 40; i++) {
+			mixer->fpga->fpgaRouting.dsp[i] = mixer_ini[section][(String("dsp") + i).c_str()].as<int>();
+		}
+		mixer->fpga->RoutingSendConfigToFpga();
+	}
+
+}
+
+
+//  ######     ###    ##     ## ######## 
+// ##    ##   ## ##   ##     ## ##       
+// ##        ##   ##  ##     ## ##       
+//  ######  ##     ## ##     ## ######   
+//       ## #########  ##   ##  ##       
+// ##    ## ##     ##   ## ##   ##       
+//  ######  ##     ##    ###    ######## 
+
 void X32Ctrl::SaveConfig() {
+	// mixer config
+	{
+		string section = string("mixer");
+		mixer_ini[section]["activePage"] = (int)state->activePage;
+	}
 	// VChannels
 	for (uint8_t i = 0; i < MAX_VCHANNELS; i++) {
 		VChannel* chan = GetVChannel(i);
@@ -713,14 +740,14 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 }
 
 void X32Ctrl::ShowNextPage(void){
-	if (pages[activePage].nextPage != X32_PAGE_NONE){
-		ShowPage(pages[activePage].nextPage);
+	if (pages[state->activePage].nextPage != X32_PAGE_NONE){
+		ShowPage(pages[state->activePage].nextPage);
 	}
 }
 
 void X32Ctrl::ShowPrevPage(void){
-	if (pages[activePage].prevPage != X32_PAGE_NONE){
-		ShowPage(pages[activePage].prevPage);
+	if (pages[state->activePage].prevPage != X32_PAGE_NONE){
+		ShowPage(pages[state->activePage].prevPage);
 	}
 }
 
@@ -741,9 +768,9 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 	surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, 0);
 	surface->SetLedByEnum(X32_BTN_VIEW_EQ, 0);
 
-	activePage = p_page;
+	state->activePage = p_page;
 
-	switch (activePage)
+	switch (state->activePage)
 	{
 		case X32_PAGE_HOME:
 			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
@@ -827,7 +854,7 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
 			surface->SetLedByEnum(X32_BTN_UTILITY, 1);
 			break;
 		default:
-			activePage = X32_PAGE_NONE;
+			state->activePage = X32_PAGE_NONE;
 			helper->Error("Page not found!\n");
 	}
 
@@ -881,7 +908,7 @@ void X32Ctrl::guiSync(void) {
 		state->HasChanged(X32_MIXER_CHANGED_GUI)) {
 
 		if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
-			helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", activePage);
+			helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
 		}
 
 		VChannel* chan = GetSelectedvChannel();
@@ -933,7 +960,7 @@ void X32Ctrl::guiSync(void) {
 
 		bool phantomPower = mixer->GetPhantomPower(GetSelectedvChannelIndex());
 		
-		if (activePage == X32_PAGE_CONFIG){
+		if (state->activePage == X32_PAGE_CONFIG){
 		//####################################
 		//#         Page Config
 		//####################################
@@ -953,7 +980,7 @@ void X32Ctrl::guiSync(void) {
 			//lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
 			guiSetEncoderText("Source\n[Invert]", "Gain\n[48V]", "PAN/BAL\n[Center]", "Volume\n[Mute]", "-", "-");
-		}else if (activePage == X32_PAGE_ROUTING_FPGA) {
+		}else if (state->activePage == X32_PAGE_ROUTING_FPGA) {
 		//####################################
 		//#         Page Routing (FPGA)
 		//####################################
@@ -1025,7 +1052,7 @@ void X32Ctrl::guiSync(void) {
 			}
 
 			guiSetEncoderText("\xEF\x81\xB7 Target \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "-", "-");
-		}else if (activePage == X32_PAGE_ROUTING_DSP1) {
+		}else if (state->activePage == X32_PAGE_ROUTING_DSP1) {
 		//####################################
 		//#         Page Input-Routing (DSP)
 		//####################################
@@ -1119,7 +1146,7 @@ void X32Ctrl::guiSync(void) {
 			}
 
 			guiSetEncoderText("\xEF\x81\xB7 Input \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
-		}else if (activePage == X32_PAGE_ROUTING_DSP2) {
+		}else if (state->activePage == X32_PAGE_ROUTING_DSP2) {
 		//####################################
 		//#         Page Output-Routing (DSP)
 		//####################################
@@ -1241,7 +1268,7 @@ void X32Ctrl::guiSync(void) {
 			}
 
 			guiSetEncoderText("\xEF\x81\xB7 Output \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
-		}else if (activePage == X32_PAGE_GATE) {
+		}else if (state->activePage == X32_PAGE_GATE) {
 		//####################################
 		//#         Page GATE
 		//####################################
@@ -1262,7 +1289,7 @@ void X32Ctrl::guiSync(void) {
 				guiSetEncoderText("-", "-", "-", "-", "-", "-");
 			}
 
-		}else if (activePage == X32_PAGE_COMPRESSOR) {
+		}else if (state->activePage == X32_PAGE_COMPRESSOR) {
 		//####################################
 		//#         Page COMPRESSOR
 		//####################################
@@ -1283,7 +1310,7 @@ void X32Ctrl::guiSync(void) {
 				guiSetEncoderText("-", "-", "-", "-", "-", "-");
 			}
 
-		}else if (activePage == X32_PAGE_EQ) {
+		}else if (state->activePage == X32_PAGE_EQ) {
 		//####################################
 		//#         Page EQ
 		//####################################
@@ -1303,7 +1330,7 @@ void X32Ctrl::guiSync(void) {
 				// unsupported at the moment
 				guiSetEncoderText("-", "-", "-", "-", "-", "-");
 			}
-		}else if (activePage == X32_PAGE_METERS) {
+		}else if (state->activePage == X32_PAGE_METERS) {
 		//####################################
 		//#         Page Meters
 		//####################################
@@ -1382,7 +1409,7 @@ void X32Ctrl::guiSync(void) {
 				(double)mixer->dsp->Channel[6].volumeLR,
 				(double)mixer->dsp->Channel[7].volumeLR
 			);
-		}else if (activePage == X32_PAGE_SETUP) {
+		}else if (state->activePage == X32_PAGE_SETUP) {
 		//####################################
 		//#         Page Setup
 		//####################################
@@ -1394,7 +1421,7 @@ void X32Ctrl::guiSync(void) {
 			// pChannelSelected.mute ?
 			//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_PRESSED):
 			//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
-		}else if (activePage == X32_PAGE_UTILITY) {
+		}else if (state->activePage == X32_PAGE_UTILITY) {
 		//####################################
 		//#         Page Meters
 		//####################################
@@ -2307,7 +2334,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 	// Display Encoders
 	// - are independent from Surface Modes!
 	if (config->IsModelX32FullOrCompactOrProducerOrRack()){
-		if (activePage == X32_PAGE_CONFIG){
+		if (state->activePage == X32_PAGE_CONFIG){
 			if (buttonPressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -2330,7 +2357,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 						break;
 				}
 			}
-		}else if (activePage == X32_PAGE_GATE){
+		}else if (state->activePage == X32_PAGE_GATE){
 			if (buttonPressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -2354,7 +2381,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 						break;
 				}
 			}
-		}else if (activePage == X32_PAGE_COMPRESSOR){
+		}else if (state->activePage == X32_PAGE_COMPRESSOR){
 			if (buttonPressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -2379,7 +2406,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 						break;
 				}
 			}
-		}else if (activePage == X32_PAGE_EQ){
+		}else if (state->activePage == X32_PAGE_EQ){
 			if (buttonPressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -2404,7 +2431,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 						break;
 				}
 			}
-		}else if (activePage == X32_PAGE_UTILITY){
+		}else if (state->activePage == X32_PAGE_UTILITY){
 			if (buttonPressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -2505,7 +2532,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 	// Display Encoders
 	// - are independent from Surface Modes!
 	if (config->IsModelX32FullOrCompactOrProducerOrRack()) {
-		if (activePage == X32_PAGE_CONFIG){
+		if (state->activePage == X32_PAGE_CONFIG){
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeDspInput(GetSelectedvChannelIndex(), amount);
@@ -2527,7 +2554,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 					// just here to avoid compiler warnings                  
 					break;
 			}
-		}else if (activePage == X32_PAGE_GATE) {
+		}else if (state->activePage == X32_PAGE_GATE) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGate(GetSelectedvChannelIndex(), 'T', amount);
@@ -2549,7 +2576,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				default:
 					break;
 			}
-		}else if (activePage == X32_PAGE_COMPRESSOR) {
+		}else if (state->activePage == X32_PAGE_COMPRESSOR) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'T', amount);
@@ -2572,7 +2599,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				default:
 					break;
 			}
-		}else if (activePage == X32_PAGE_EQ) {
+		}else if (state->activePage == X32_PAGE_EQ) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeLowcut(GetSelectedvChannelIndex(), amount);
@@ -2603,7 +2630,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				default:
 					break;
 			}
-		}else if (activePage == X32_PAGE_ROUTING_FPGA) {
+		}else if (state->activePage == X32_PAGE_ROUTING_FPGA) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGuiSelection(amount);
@@ -2638,7 +2665,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 					// just here to avoid compiler warnings                  
 					break;
 			}
-		}else if (activePage == X32_PAGE_ROUTING_DSP1) {
+		}else if (state->activePage == X32_PAGE_ROUTING_DSP1) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGuiSelection(amount);
@@ -2673,7 +2700,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 					// just here to avoid compiler warnings                  
 					break;
 			}
-		}else if (activePage == X32_PAGE_ROUTING_DSP2) {
+		}else if (state->activePage == X32_PAGE_ROUTING_DSP2) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGuiSelection(amount);
@@ -2726,7 +2753,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 					// just here to avoid compiler warnings                  
 					break;
 			}
-		}else if (activePage == X32_PAGE_UTILITY) {
+		}else if (state->activePage == X32_PAGE_UTILITY) {
 			switch (encoder){
 				case X32_ENC_ENCODER1:
 					// reload DSP1 on button-click

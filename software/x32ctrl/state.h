@@ -24,6 +24,8 @@ class State {
         int16_t gui_old_selected_item = 0;
         int16_t gui_selected_item = 0;
 
+        X32_PAGE activePage;
+
         // DEBUG
         uint8_t debugvalue = 0;
         bool dsp_disable_activity_light = false;

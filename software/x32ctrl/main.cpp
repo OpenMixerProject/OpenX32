@@ -49,6 +49,7 @@
 #include "ctrl.h"
 
 X32Ctrl* ctrl;
+State* state;
 CLI::App* app;
 timer_t timerid;
 struct sigevent sev;
@@ -118,7 +119,8 @@ void guiInit(void) {
 	// initialize GUI created by EEZ
 	ui_init();
 
-	ctrl->ShowPage(X32_PAGE_HOME);   // shows the HOME Page
+	ctrl->ShowPage(state->activePage);
+	
 
 	// setup Gate-graph
 	lv_chart_set_type(objects.current_channel_gate, LV_CHART_TYPE_LINE);
@@ -180,7 +182,7 @@ int main(int argc, char* argv[]) {
 
     Helper* helper = new Helper();
     Config* config = new Config();
-    State* state = new State(helper);
+    state = new State(helper);
 
 	app = new CLI::App();
 	app->description("OpenX32 Main Control");
