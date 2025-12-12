@@ -164,6 +164,23 @@ float Helper::Dbfs2Oscvalue(float dbfsValue) {
 	return Fadervalue2Oscvalue(Dbfs2Fader(dbfsValue));
 }
 
+float Helper::samplePu2Dbfs(float samplePu) {
+    if (samplePu < (1.0f / 2147483648.0f)) {
+        return -120.0f;
+    }
+
+    return (20.0f * log10f(samplePu));
+}
+
+float Helper::sample2Dbfs(uint32_t sample) {
+    if (sample < 1) {
+        return -120;
+    }
+
+    //return (-6 * (__builtin_clz(sample) - 1));
+    return (20.0f * log10f((float)sample/2147483648.0f));
+}
+
 uint16_t Helper::Dbfs2Fader(float dbfsValue) {
   const uint16_t FADER_MAX = 4095;
   //const uint16_t FADER_0DB = (uint16_t)(0.75 * FADER_MAX); // unused

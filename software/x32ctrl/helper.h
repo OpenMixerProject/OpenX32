@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <string>
 #include <vector>
+#include <math.h>
 
 // includes for reading IP-Address
 #include <sys/stat.h>
@@ -39,6 +40,8 @@ class Helper {
         float Fadervalue2Oscvalue(uint16_t faderValue);
         uint16_t Dbfs2Fader(float dbfsValue);
         float Dbfs2Oscvalue(float dbfsValue);
+        float samplePu2Dbfs(float samplePu);
+        float sample2Dbfs(uint32_t sample);
 
         long GetFileSize(const char* filename);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);

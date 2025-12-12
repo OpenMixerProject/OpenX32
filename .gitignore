@@ -16,6 +16,7 @@ initramfs_root/linuxrc
 initramfs_root/proc
 initramfs_root/sbin
 initramfs_root/sys
+initramfs_root/home
 
 # compiled software
 software/x32ctrl/build

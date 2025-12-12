@@ -1318,10 +1318,10 @@
                             {
                               "objID": "9bd80eaa-5940-455f-918a-bb08849f14c6",
                               "type": "LVGLChartWidget",
-                              "left": -18,
-                              "top": -20,
-                              "width": 794,
-                              "height": 343,
+                              "left": 25,
+                              "top": 25,
+                              "width": 200,
+                              "height": 200,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -1401,10 +1401,10 @@
                             {
                               "objID": "63c46d02-5f3f-4afb-9e0a-b6d9642a7fc3",
                               "type": "LVGLChartWidget",
-                              "left": -18,
-                              "top": -20,
-                              "width": 794,
-                              "height": 343,
+                              "left": 25,
+                              "top": 25,
+                              "width": 200,
+                              "height": 200,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -1474,6 +1474,7 @@
                             "conditionalStyles": [],
                             "childStyles": []
                           },
+                          "locked": true,
                           "timeline": [],
                           "eventHandlers": [],
                           "identifier": "eqtab",
@@ -1497,7 +1498,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
-                              "locked": true,
+                              "locked": false,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "current_channel_eq",

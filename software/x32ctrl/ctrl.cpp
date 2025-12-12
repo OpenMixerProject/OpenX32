@@ -364,6 +364,8 @@ void X32Ctrl::Tick10ms(void){
 	UdpHandleCommunication();
 
 	syncAll();
+
+	guiFastRefresh();
 }
 
 void X32Ctrl::Tick100ms(void){
@@ -621,6 +623,32 @@ void X32Ctrl::UdpHandleCommunication(void) {
 // ###################################################################
 
 
+void X32Ctrl::guiFastRefresh(void) {
+    // update gate-display if visible
+    if (state->activePage == X32_PAGE_GATE) {
+        int32_t gateValueAudioDbfs = -120;
+
+        uint8_t selectedChannelIndex = GetSelectedvChannelIndex();
+        if (selectedChannelIndex < 40) {
+            gateValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
+        }
+
+        // add new value to chart
+        lv_chart_set_next_value(objects.current_channel_gate, chartSeriesGateAudio, gateValueAudioDbfs);
+        //lv_chart_refresh(objects.current_channel_gate);
+    }else if (state->activePage == X32_PAGE_COMPRESSOR) {
+        int32_t compValueAudioDbfs = -120;
+
+        uint8_t selectedChannelIndex = GetSelectedvChannelIndex();
+        if (selectedChannelIndex < 40) {
+            compValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
+        }
+
+        // add new value to chart
+        lv_chart_set_next_value(objects.current_channel_comp, chartSeriesCompressorAudio, compValueAudioDbfs);
+        //lv_chart_refresh(objects.current_channel_comp);
+    }
+}
 
 void X32Ctrl::guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
 
@@ -1902,7 +1930,7 @@ uint8_t X32Ctrl::surfaceCalcPreampMeter(uint8_t channel) {
 		return 0; // no preamps outside the 40 dsp-channels
 	}
 
-	float audiodata = mixer->dsp->rChannel[channel].meterPu*2147483648.0f;
+	uint32_t audiodata = mixer->dsp->rChannel[channel].meter;
 	uint8_t meterdata = 0;
 	if (audiodata >= vuThresholds[0])  { meterdata |= 0b10000000; } // CLIP
 	if (audiodata >= vuThresholds[3])  { meterdata |= 0b01000000; } // -3dBfs

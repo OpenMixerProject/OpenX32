@@ -258,8 +258,8 @@ void create_screen_main() {
                                             // current_channel_gate
                                             lv_obj_t *obj = lv_chart_create(parent_obj);
                                             objects.current_channel_gate = obj;
-                                            lv_obj_set_pos(obj, -18, -20);
-                                            lv_obj_set_size(obj, 794, 343);
+                                            lv_obj_set_pos(obj, 25, 25);
+                                            lv_obj_set_size(obj, 200, 200);
                                         }
                                     }
                                 }
@@ -271,8 +271,8 @@ void create_screen_main() {
                                             // current_channel_comp
                                             lv_obj_t *obj = lv_chart_create(parent_obj);
                                             objects.current_channel_comp = obj;
-                                            lv_obj_set_pos(obj, -18, -20);
-                                            lv_obj_set_size(obj, 794, 343);
+                                            lv_obj_set_pos(obj, 25, 25);
+                                            lv_obj_set_size(obj, 200, 200);
                                         }
                                     }
                                 }

@@ -66,7 +66,9 @@ class X32Ctrl : public X32Base {
     public:
         lv_chart_series_t* chartSeriesEQ;
         lv_chart_series_t* chartSeriesCompressor;
+        lv_chart_series_t* chartSeriesCompressorAudio;
         lv_chart_series_t* chartSeriesGate;
+        lv_chart_series_t* chartSeriesGateAudio;
 
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
@@ -77,6 +79,7 @@ class X32Ctrl : public X32Base {
         void UdpHandleCommunication(void);
 
         void guiInit(void);
+        void guiFastRefresh(void);
         void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
         void DrawGate(uint8_t selectedChannelIndex);
         void DrawDynamics(uint8_t selectedChannelIndex);
