@@ -181,6 +181,22 @@ int Uart::Tx(MessageBase* message, bool addChecksum) {
         // add checksum to message and send data via serial-port
         message->AddRawByte(checksum);
     }
+
+    // DEBUG: print received bytes as hex and string
+    if (helper->DEBUG_UART(DEBUGLEVEL_TRACE)){
+        printf("DEBUG_UART: fd=%d Transmit: ", fd);
+        printf("hex: ");
+        for (uint8_t i=0; i < message->current_length; i++){
+            printf("%.2X ", message->buffer[i]);
+        }
+        printf("| char: ");
+        for (uint8_t i=0; i < message->current_length; i++){
+            printf("%c", message->buffer[i]);
+        }
+        
+        printf("\n");      
+    }
+
     int bytes_written = write(fd, message->buffer, message->current_length);
 
     return TxRaw(message);
