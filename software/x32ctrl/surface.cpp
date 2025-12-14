@@ -1215,8 +1215,8 @@ void Surface::ProcessUartData() {
 	}
 
     // first init package buffer with 0x00s
-    // start at surfacePacketCurrentIndex to not overwrite saved data from last incomplete package
     for (uint8_t package=0; package<SURFACE_MAX_PACKET_LENGTH;package++){
+        // start at surfacePacketCurrentIndex to not overwrite saved data from last incomplete package
         for (int i = surfacePacketCurrentIndex; i < 6; i++) {
             surfacePacketBuffer[package][i]=0x00;
         }
