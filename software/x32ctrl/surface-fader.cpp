@@ -22,9 +22,5 @@
   GNU General Public License for more details.
 */
 
-#include "surface-faderblock.h"
+#include "surface-fader.h"
 
-SurfaceFaderblock::SurfaceFaderblock(uint8_t boardId, uint8_t index){
-    _boardId = boardId;
-    _index = index;
-}

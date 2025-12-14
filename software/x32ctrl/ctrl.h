@@ -120,9 +120,6 @@ class X32Ctrl : public X32Base {
         void BankingEQ(X32_BTN p_button);
         void Banking(X32_BTN p_button);
 
-        void touchcontrolTick(void);
-        bool touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex);
-
         void DebugPrintBank(uint8_t bank);
         void DebugPrintBusBank(uint8_t bank);
 };

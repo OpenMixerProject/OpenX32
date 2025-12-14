@@ -73,6 +73,7 @@
 
 #define MAX_BUTTONS 255
 #define MAX_ENCODERS 23 // counted on X32 Full
+#define MAX_FADERS 25   // counted on X32 Full
 
 // LED Brightness
 #define X32_BRIGHTNESS_1 0x0

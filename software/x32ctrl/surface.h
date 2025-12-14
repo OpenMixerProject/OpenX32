@@ -11,7 +11,7 @@
 #include "lcd.h"
 #include "surface-event.h"
 #include "surface-message.h"
-#include "surface-faderblock.h"
+#include "surface-fader.h"
 #include "helper.h"
 #include "vchannel.h"
 
@@ -34,7 +34,7 @@ class Surface : public X32Base
         uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
 
         list<SurfaceEvent*> eventBuffer;
-        list<SurfaceFaderblock*> faderBlockList;
+        SurfaceFader faders[MAX_FADERS];
 
         uint8_t int2segment(int8_t p_value);
 
@@ -49,11 +49,17 @@ class Surface : public X32Base
         void AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr);
         void AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr); 
 
+        void SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position);
+        uint8_t GetFaderIndex(uint8_t boardId, uint8_t index);
+        uint8_t GetBoardId(uint8_t faderindex);
+        uint8_t GetFaderId(uint8_t faderindex);
+
     public:
         Surface(X32BaseParameter* basepar);
 
-        void Init(void);
-        void Reset(void);
+        void Init();
+        void Reset();
+        void Tick10ms();
 
         void SetBrightness(uint8_t boardId, uint8_t brightness);
         void SetContrast(uint8_t boardId, uint8_t contrast);
@@ -85,6 +91,9 @@ class Surface : public X32Base
         uint16_t Enum2Encoder(X32_ENC encoder);
         X32_ENC Encoder2Enum(uint16_t encoderNr);
 
+        void FaderMoved(SurfaceEvent* event);
+        
         void BlockFader(uint8_t boardId, uint8_t faderIndex);
         bool IsFaderBlocked(uint8_t boardId, uint8_t faderIndex);
+        void Touchcontrol();
 };

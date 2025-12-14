@@ -355,7 +355,7 @@ void X32Ctrl::SaveConfig() {
 
 
 void X32Ctrl::Tick10ms(void){
-	surface->ProcessUartData();
+	surface->Tick10ms();	
 	mixer->Tick10ms();
 
 	ProcessEvents();
@@ -369,9 +369,7 @@ void X32Ctrl::Tick10ms(void){
 }
 
 void X32Ctrl::Tick100ms(void){
-	touchcontrolTick();
 	surfaceUpdateMeter();
-
 	// update meters on XRemote-clients
 	xremote->UpdateMeter(mixer);
 
@@ -1664,10 +1662,10 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 					surface->SetLed(p_board, 0x40+i, mixer->GetMute(channelIndex)); 
 				}
 
-				if ((fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)) && touchcontrolCanSetFader(p_board, i)){
+				if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
 					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Fader");
-					u_int16_t faderVolume = mixer->GetVolumeFadervalue(channelIndex);
-					surface->SetFader(p_board, i, faderVolume);
+					u_int16_t faderPosition = mixer->GetVolumeFadervalue(channelIndex);
+					surface->SetFader(p_board, i, faderPosition);
 				}
 
 				if (
@@ -2149,17 +2147,11 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 			}
 		}
 
-		// TODO implement properly
-		//if (!surface->IsFaderBlocked(event->boardId, event->index)){
-			vchannelIndex = SurfaceChannel2vChannel(event->index + offset);
-			mixer->SetVolume(vchannelIndex, helper->Fadervalue2dBfs(event->value));
-
-			touchcontrol.board = event->boardId;
-			touchcontrol.faderIndex = event->index;
-			touchcontrol.value = 5;
-
-			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
-		//}
+		vchannelIndex = SurfaceChannel2vChannel(event->index + offset);
+		mixer->SetVolume(vchannelIndex, helper->Fadervalue2dBfs(event->value));
+		surface->FaderMoved(event);
+		
+		//helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "FaderMoved(%s): vChannel%d TouchControl=%d\n", event->ToString().c_str(), vchannelIndex, touchcontrol.value);
 	}
 }
 
@@ -2973,44 +2965,7 @@ void X32Ctrl::Banking(X32_BTN p_button){
 	state->SetChangeFlags(changeflag);
 }
 
-// ####################################################################
-// #
-// #
-// #        Touchcontrol
-// #
-// #
-// ####################################################################
 
-void X32Ctrl::touchcontrolTick(void){
-	if (touchcontrol.value > 0) {
-		touchcontrol.value--;
-		if (touchcontrol.value == 0)
-		{
-			// trigger sync for this channel
-			mixer->SetVChannelChangeFlagsFromIndex(
-				GetvChannelIndexFromButtonOrFaderIndex(touchcontrol.board, touchcontrol.faderIndex),
-				X32_VCHANNEL_CHANGED_VOLUME
-			);
-		}
-		helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "TouchControl=%d\n", touchcontrol.value);
-	}
-}
-
-bool X32Ctrl::touchcontrolCanSetFader(X32_BOARD p_board, uint8_t p_faderIndex) {
-	if (touchcontrol.board != p_board){
-		return true;
-	} 
-
-	if (touchcontrol.faderIndex != p_faderIndex){
-		return true;
-	} 
-
-	if (touchcontrol.value == 0){
-		return true;
-	}
-
-	return false;
-}
 
 // ####################################################################
 // #
