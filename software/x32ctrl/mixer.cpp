@@ -459,7 +459,8 @@ void Mixer::SetMute(uint8_t channelIndex, bool mute){
     VChannel* chan = GetVChannel(channelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE_NORMAL: {
+        case X32_VCHANNELTYPE_NORMAL:
+        case X32_VCHANNELTYPE_AUX: {
             chan->dspChannel->muted = mute; 
             chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
             break;
