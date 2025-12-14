@@ -145,7 +145,7 @@ int Uart::TxRaw(MessageBase* message) {
         return -1;
     }
 
-	if (helper->DEBUG_UART()) {
+	if (helper->DEBUG_UART(DEBUGLEVEL_TRACE)) {
 		printf("DEBUG_UART: fd=%d Transmit: ", fd);
     	printf("hex: ");
         for (uint8_t i=0; i < message->current_length; i++){
@@ -208,7 +208,7 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 		}
 
         // DEBUG: print received bytes as hex and string
-        if (helper->DEBUG_UART()){
+        if (helper->DEBUG_UART(DEBUGLEVEL_TRACE)){
             printf("DEBUG_UART: fd=%d Receive: ", fd);
             printf("hex: ");
             for (uint8_t i=0; i < bytesRead; i++){
