@@ -228,36 +228,50 @@ int main(int argc, char* argv[]) {
 
 	bool verbose;
 	bool trace;
+	const char* catDebug = "Debug";
+	const char* catDebugSurface = "Debug Surface";
 	app->add_flag("--verbose", verbose, "Print more debug messages")
 		->configurable(false)
-		->group("Debug")
+		->group(catDebug)
 		->expected(0,1);
 
 	app->add_flag("--trace", trace, "Print all possible debug messages")
 		->configurable(false)
-		->group("Debug")
+		->group(catDebug)
 		->expected(0,1);
 
 	app->add_flag("--fpga-spi-speed", state->fpga_spi_speed, "SPI clockrate for bitstream loading and normal data transfer to/from FPGA")
 		->configurable(false)
-		->group("Debug")
+		->group(catDebug)
 		->expected(0,1)
 		->default_val<uint32_t>(SPI_FPGA_SPEED_HZ);
 
 	app->add_flag("--dsps-spi-config-speed", state->dsp_spi_config_speed, "SPI clockrate for bitstream loading to DSPs")
 		->configurable(false)
-		->group("Debug")
+		->group(catDebug)
 		->expected(0,1)
 		->default_val<uint32_t>(SPI_DSP_CONF_SPEED_HZ);
 
 	app->add_flag("--dsps-spi-speed", state->dsp_spi_speed, "SPI clockrate for normal data transfer to/from DSPs")
 		->configurable(false)
-		->group("Debug")
+		->group(catDebug)
 		->expected(0,1)
 		->default_val<uint32_t>(SPI_DSP_SPEED_HZ);
 
-	app->add_flag("--dsps-disable-activity-light", state->dsp_disable_activity_light, "Disable DSPs activity light via SPI switching command")->configurable(false)->group("Debug")->expected(0,1);
-	app->add_flag("--dsps-disable-readout", state->dsp_disable_readout, "Disable DSPs readout")->configurable(false)->group("Debug")->expected(0,1);
+	app->add_flag("--dsps-disable-activity-light", state->dsp_disable_activity_light, "Disable DSPs activity light via SPI switching command")
+		->configurable(false)
+		->group(catDebug)
+		->expected(0,1);
+
+	app->add_flag("--dsps-disable-readout", state->dsp_disable_readout, "Disable DSPs readout")
+		->configurable(false)
+		->group(catDebug)
+		->expected(0,1);
+
+	app->add_flag("--surface-disable-lcd-update", state->surface_disable_lcd_update, "Disable LCD update")
+		->configurable(false)
+		->group(catDebugSurface)
+		->expected(0,1);
 	
 	app->get_config_formatter_base()->quoteCharacter('"', '"');
 

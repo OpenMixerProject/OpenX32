@@ -341,18 +341,13 @@ void X32Ctrl::SaveConfig() {
 	mixer_ini.save(X32_MIXER_CONFIGFILE);
 }
 
-// ###########################################################################
-// #
-// #      ###### #  #    # ##### #####
-// #        #    #  ##  ## #     #   #      
-// #        #    #  # ## # ##### ####       
-// #        #    #  #    # #     #   #      
-// #        #    #  #    # ##### #    #      
-// #
-// ###########################################################################
-
-
-
+// ######## #### ##     ## ######## ########  
+//    ##     ##  ###   ### ##       ##     ## 
+//    ##     ##  #### #### ##       ##     ## 
+//    ##     ##  ## ### ## ######   ########  
+//    ##     ##  ##     ## ##       ##   ##   
+//    ##     ##  ##     ## ##       ##    ##  
+//    ##    #### ##     ## ######## ##     ## 
 
 void X32Ctrl::Tick10ms(void){
 	surface->Tick10ms();	
@@ -377,7 +372,7 @@ void X32Ctrl::Tick100ms(void){
 
 	if (!config->IsModelX32Core()) {
 		// read the current DSP load
-		lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
+	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
 	}
 }
 
@@ -429,7 +424,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
     data_32b value32bit;
     
     // check for bytes in UDP-buffer
-    //int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
+    int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
     if (bytes_available > 0) {
         socklen_t xremoteClientAddrLen = sizeof(xremote->ClientAddr);
         uint8_t len = recvfrom(xremote->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremote->ClientAddr, &xremoteClientAddrLen);
@@ -1668,21 +1663,23 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 					surface->SetFader(p_board, i, faderPosition);
 				}
 
-				if (
-					fullSync                                              ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_PHASE_INVERT)   ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)           ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)             ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)           ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)        ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)        ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
-					chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
-				)
-				{
-					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "LCD");
-					SetLcdFromVChannel(p_board, i, channelIndex);
+				if(!state->surface_disable_lcd_update) {
+					if (
+						fullSync                                              ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_PHASE_INVERT)   ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)           ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)             ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)           ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)        ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)        ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
+						chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
+					)
+					{
+						helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "LCD");
+						SetLcdFromVChannel(p_board, i, channelIndex);
+					}
 				}
 			}
 		}

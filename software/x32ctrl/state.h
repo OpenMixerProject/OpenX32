@@ -30,6 +30,7 @@ class State {
         uint8_t debugvalue = 0;
         bool dsp_disable_activity_light = false;
         bool dsp_disable_readout = false;
+        bool surface_disable_lcd_update = false;
 
         uint32_t fpga_spi_speed = 0;
         uint32_t dsp_spi_config_speed = 0;
