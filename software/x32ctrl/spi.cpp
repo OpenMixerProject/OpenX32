@@ -841,34 +841,31 @@ int SPI::ConfigureDsp(void) {
 }
 
 void SPI::Tick10ms(void){
-#if X32_CTRL_DEBUG
-    if (!(state->dsp_disable_readout)) {
-#endif
-    // continuously read data from both DSPs
-    if (!config->IsModelX32Core()) {
-        // read update-packet from DSP1
-        SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-        SendReceiveDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
 
-        // read update-packet from DSP2
-        SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-        SendReceiveDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
+    if (!(state->dsp_disable_readout)) {
+        // continuously read data from both DSPs
+        if (!config->IsModelX32Core()) {
+            // read update-packet from DSP1
+            SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
+            SendReceiveDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
+
+            // read update-packet from DSP2
+            SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
+            SendReceiveDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
+        }
     }
-#if X32_CTRL_DEBUG
-    }
-#endif
+
 }
 
 void SPI::Tick100ms(void){
-#if X32_CTRL_DEBUG
+
     if (!(state->dsp_disable_activity_light)) {
-#endif
+
    	    // toggle the LED on DSP1 and DSP2 to show some activity
 	    SendDspParameter_uint32(0, 'a', 42, 0, 2);
 	    SendDspParameter_uint32(1, 'a', 42, 0, 2);
-#if X32_CTRL_DEBUG
     }
-#endif
+
 }
 
 bool SPI::OpenDspConnections() {
@@ -1044,7 +1041,6 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
     spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
 
-#if X32_CTRL_DEBUG
     if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
         printf("SendDspParameterArray: ");
         for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
@@ -1055,7 +1051,6 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
         }
         printf("\n");
     }
-#endif
 
     ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
     return true;
@@ -1093,7 +1088,6 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
     spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
     
-#if X32_CTRL_DEBUG
     if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
         printf("SendReceiveDspParameterArray: ");
         for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
@@ -1104,7 +1098,6 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
         }
         printf("\n");
     }
-#endif
 
     UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
 
