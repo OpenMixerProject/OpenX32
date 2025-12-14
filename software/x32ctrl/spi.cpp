@@ -240,7 +240,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 	uint32_t status;
     FILE *bitstream_file = NULL;
 
-    uint8_t spiMode = SPI_MODE_0; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
+    uint8_t spiMode = SPI_MODE_3; // both SPI_MODE_0 and SPI_MODE_3 can be used as the Lattice ECP5-FPGA is reading on rising edge
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = 2 * state->fpga_spi_speed; // Linux SPI driver seems to divide speed by 2
 
@@ -869,7 +869,7 @@ void SPI::Tick100ms(void){
 }
 
 bool SPI::OpenDspConnections() {
-    uint8_t spiMode = SPI_MODE_3; // user-program uses SPI MODE 0
+    uint8_t spiMode = SPI_MODE_3;
     uint8_t spiBitsPerWord = 32; // we are using 32-bit-mode here for communication
     uint32_t spiSpeed = 2 * state->dsp_spi_speed; // Linux SPI driver seems to divide speed by 2
 
@@ -973,6 +973,7 @@ void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values
         }else{
             // buffer-overflow -> reject new data
             // clear buffer (we receive 0x000000 if no data is sent)
+            helper->Log("DSP%d: buffer-overflow -> reject new data", dsp);
             spiRxRingBuffer[dsp].head = 0;
             spiRxRingBuffer[dsp].tail = 0;
             spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER;
