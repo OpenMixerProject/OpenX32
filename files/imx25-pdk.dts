@@ -102,12 +102,6 @@ leds {
 			default-state = "off";
 		};
 
-		done_fpga {
-			label = "done_fpga";
-			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
-			default-state = "off";
-		};
-
 		reset_dsp {
 			label = "reset_dsp";
 			gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
@@ -179,7 +173,7 @@ leds {
 		pinctrl_esdhc1: esdhc1grp {
 			fsl,pins = <
 
-				// values from DCP-Loader
+				// values from DCP-Loader / X32 image
 				MX25_PAD_SD1_CMD__ESDHC1_CMD		0x000000D1
 				MX25_PAD_SD1_CLK__ESDHC1_CLK		0x000000D1
 				MX25_PAD_SD1_DATA0__ESDHC1_DAT0		0x000000D1
@@ -246,9 +240,9 @@ leds {
 
 		pinctrl_uart1: uart1grp {
 			fsl,pins = <
-				// values from DCP-Loader
+				// values from DCP-Loader / X32 image
 				MX25_PAD_UART1_TXD__UART1_TXD	0x0
-				MX25_PAD_UART1_RXD__UART1_RXD	0xc0 // 100 KOhm pull down
+				MX25_PAD_UART1_RXD__UART1_RXD	0xC0
 			>;
 		};
 
@@ -256,35 +250,37 @@ leds {
 			fsl,pins = <
 				// values from DCP-Loader
 				MX25_PAD_UART2_TXD__UART2_TXD   0x0
-				MX25_PAD_UART2_RXD__UART2_RXD   0xc0 // 100 KOhm pull down
+				MX25_PAD_UART2_RXD__UART2_RXD   0x0
 			>;
 		};
 		
 		pinctrl_uart3: uart3grp {
 			fsl,pins = <
+				// values from X32 image
 				MX25_PAD_KPP_ROW1__UART3_TXD    0x0
-				MX25_PAD_KPP_ROW0__UART3_RXD    0xc0 // 100 KOhm pull down
+				MX25_PAD_KPP_ROW0__UART3_RXD    0x0
 			>;
 		};
 		
 		pinctrl_uart4: uart4grp {
 			fsl,pins = <
 				MX25_PAD_KPP_COL1__UART4_TXD    0x0
-				MX25_PAD_KPP_COL0__UART4_RXD    0xc0 // 100 KOhm pull down
+				MX25_PAD_KPP_COL0__UART4_RXD    0x0
 			>;
 		};
 		
 		pinctrl_uart5: uart5grp {
 			fsl,pins = <
+				// values from X32 image
 				MX25_PAD_ECB__UART5_TXD		0x0
-				MX25_PAD_LBA__UART5_RXD		0xc0 // 100 KOhm pull down
+				MX25_PAD_LBA__UART5_RXD		0x0
 			>;
 		};
 		
 		pinctrl_usbh1_pwr: usbh1_pwr_pins {
 			fsl,pins = <
 
-				// values from DCP-Loader
+				// values from DCP-Loader / from X32 image
 				MX25_PAD_D9__GPIO_4_11		0x80 // Keeper enabled
 				MX25_PAD_D8__GPIO_4_12		0xE0 // Pull up 100KOhm
 
@@ -293,8 +289,9 @@ leds {
 
 		pinctrl_audmux: audmuxgrp {
 			fsl,pins = <
-				MX25_PAD_CSI_VSYNC__AUD6_RXD	0xc0	// I2S RxD
-				MX25_PAD_CSI_MCLK__AUD6_TXD		0x0		// I2S TxD
+				// values from X32 image
+				MX25_PAD_CSI_VSYNC__AUD6_RXD	0x0		// I2S RxD
+				MX25_PAD_CSI_MCLK__AUD6_TXD		0xC0	// I2S TxD
 				MX25_PAD_CSI_HSYNC__AUD6_TXC	0x0		// I2S BitClock
 				MX25_PAD_CSI_PIXCLK__AUD6_TXFS	0x0		// I2S FrameSync
 			>;
@@ -302,21 +299,23 @@ leds {
 
 		pinctrl_spi1: spi1grp {
 			fsl,pins = <
-				MX25_PAD_CSPI1_MOSI__CSPI1_MOSI	0x1     // DSP SPI MOSI
-				MX25_PAD_CSPI1_SCLK__CSPI1_SCLK	0x1      // DSP SPI SCLK
-				MX25_PAD_CSPI1_MISO__CSPI1_MISO	0xB1	 // DSP SPI MISO // B1 -> 22KOhm Pull Up, Fast Slew Rate
-				MX25_PAD_CSPI1_SS0__GPIO_1_16	0x80000000     // DSP SPI nCS DSP1 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
-				MX25_PAD_CSPI1_SS1__GPIO_1_17	0x80000000     // DSP SPI nCS DSP2 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
+				// values from X32 image
+				MX25_PAD_CSPI1_MOSI__CSPI1_MOSI	0x0     // DSP SPI MOSI
+				MX25_PAD_CSPI1_SCLK__CSPI1_SCLK	0x0      // DSP SPI SCLK
+				MX25_PAD_CSPI1_MISO__CSPI1_MISO	0x0	 // DSP SPI MISO
+				MX25_PAD_CSPI1_SS0__GPIO_1_16	0x0     // DSP SPI nCS DSP1 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
+				MX25_PAD_CSPI1_SS1__GPIO_1_17	0x0     // DSP SPI nCS DSP2 	// Slow Slew Rate, Standard drive strength, CMOS, 3.3V
 			>;
 		};
 
 		pinctrl_spi3: spi3grp {
 			fsl,pins = <
+				// values from X32 image
 				MX25_PAD_CSI_D2__CSPI3_MOSI	0x1			// FPGA SPI MOSI
 				MX25_PAD_CSI_D4__CSPI3_SCLK	0x1		// FPGA SPI SCLK
-				MX25_PAD_CSI_D3__CSPI3_MISO	0x81		// FPGA SPI MISO
-				//MX25_PAD_CSI_D6__GPIO_1_31	0x80000000		// FPGA nCS0
-				MX25_PAD_CSI_D7__GPIO_1_6	0x80000000			// FPGA nCS1
+				MX25_PAD_CSI_D3__CSPI3_MISO	0x1		// FPGA SPI MISO
+				//MX25_PAD_CSI_D6__GPIO_1_31	0x1		// FPGA nCS0
+				MX25_PAD_CSI_D7__GPIO_1_6	0x1			// FPGA nCS1
 			>;
 		};
 
@@ -325,17 +324,18 @@ leds {
 				MX25_PAD_UART1_RTS__GPIO_4_24	0x80000000		// MCU_LED
 				MX25_PAD_PWM__GPIO_1_26		0x80000000			// Desk-LAMP
 				MX25_PAD_CSI_D5__GPIO_1_30	0x80000000			// FPGA nPROG
-				//MX25_PAD_GPIO_C__GPIO_1_2	0x80000000		// FPGA DONE
-				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x80000000     // DSP nRESET
+				//MX25_PAD_GPIO_C__GPIO_1_2	0x80000000			// FPGA DONE
+				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x80000000  	// DSP nRESET
 				MX25_PAD_UART2_RTS__GPIO_4_28	0x80000000		// Surface nRESET
 				MX25_PAD_GPIO_D__GPIO_1_3	0x80000000			// MUTEOFF
+				MX25_PAD_CSI_D6__GPIO_1_31  0x0					// FPGA CS 
 			>;
 		};
 
 		pinctrl_gpio1: gpio1grp {
 			fsl,pins = <
 				//MX25_PAD_CSI_D5__GPIO_1_30	0x0	// FPGA nPROG
-				MX25_PAD_GPIO_C__GPIO_1_2	0x80000000		// FPGA DONE
+				MX25_PAD_GPIO_C__GPIO_1_2	0x1		// FPGA DONE
 			>;
 		};
 
