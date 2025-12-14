@@ -928,7 +928,8 @@ void X32Ctrl::guiSync(void) {
 	}
 
 	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)    ||
-		state->HasChanged(X32_MIXER_CHANGED_BANKING) ||
+		// state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT) ||
+		// state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS) ||
 		state->HasChanged(X32_MIXER_CHANGED_SELECT)  ||
 		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)||
 		state->HasChanged(X32_MIXER_CHANGED_ROUTING)||
@@ -1470,12 +1471,14 @@ void X32Ctrl::surfaceSync(void) {
 		surfaceSyncBoardMain();
 
 		if (config->IsModelX32FullOrCompactOrProducer()){   
+			surfaceSyncBankIndicator();
+
 			surfaceSyncBoard(X32_BOARD_L);
 			if (config->IsModelX32Full()){
 				surfaceSyncBoard(X32_BOARD_M);
 			}
 			surfaceSyncBoard(X32_BOARD_R);
-			surfaceSyncBankIndicator();
+			
 		}
 	}
 }
@@ -1607,11 +1610,16 @@ void X32Ctrl::surfaceSyncBoardMain() {
 void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 	bool fullSync = false;
 
-	if (state->HasChanged(X32_MIXER_CHANGED_SELECT) || state->HasChanged(X32_MIXER_CHANGED_BANKING)){ 
-		// channel selection has changed - do a full sync
-		fullSync=true; 
+	if (config->IsModelX32Full()){
+		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT) && ((p_board == X32_BOARD_L) || (p_board == X32_BOARD_M))){ fullSync=true; }
+		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS) && p_board == X32_BOARD_R){ fullSync=true; }
 	}
 
+	if (config->IsModelX32CompactOrProducer()){
+		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT) && p_board == X32_BOARD_L){ fullSync=true; }
+		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS) && p_board == X32_BOARD_R){ fullSync=true; }
+	}
+	
 	uint8_t offset = 0;
 	if (config->IsModelX32Full()){
 		if (p_board == X32_BOARD_M){ offset=8; }
@@ -1880,43 +1888,29 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 }
 
 void X32Ctrl::surfaceSyncBankIndicator(void) {
-	if (state->HasChanged(X32_MIXER_CHANGED_BANKING)) {
+	if (state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT)) {
 		if (config->IsModelX32Full()){
-			surface->SetLedByEnum(X32_BTN_CH_1_16, 0);
-			surface->SetLedByEnum(X32_BTN_CH_17_32, 0);
-			surface->SetLedByEnum(X32_BTN_AUX_IN_EFFECTS, 0);
-			surface->SetLedByEnum(X32_BTN_BUS_MASTER, 0);
-			if (activeBank_inputFader == 0) { surface->SetLedByEnum(X32_BTN_CH_1_16, 1); }
-			if (activeBank_inputFader == 1) { surface->SetLedByEnum(X32_BTN_CH_17_32, 1); }
-			if (activeBank_inputFader == 2) { surface->SetLedByEnum(X32_BTN_AUX_IN_EFFECTS, 1); }
-			if (activeBank_inputFader == 3) { surface->SetLedByEnum(X32_BTN_BUS_MASTER, 1); }
+			surface->SetLedByEnum(X32_BTN_CH_1_16, activeBank_inputFader == 0);
+			surface->SetLedByEnum(X32_BTN_CH_17_32, activeBank_inputFader == 1);
+			surface->SetLedByEnum(X32_BTN_AUX_IN_EFFECTS, activeBank_inputFader == 2);
+			surface->SetLedByEnum(X32_BTN_BUS_MASTER, activeBank_inputFader == 3);
 		}
 		if (config->IsModelX32CompactOrProducer()) {
-			surface->SetLedByEnum(X32_BTN_CH_1_8, 0);
-			surface->SetLedByEnum(X32_BTN_CH_9_16, 0);
-			surface->SetLedByEnum(X32_BTN_CH_17_24, 0);
-			surface->SetLedByEnum(X32_BTN_CH_25_32, 0);
-			surface->SetLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 0);
-			surface->SetLedByEnum(X32_BTN_EFFECTS_RETURNS, 0);
-			surface->SetLedByEnum(X32_BTN_BUS_1_8_MASTER, 0);
-			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, 0);
-			if (activeBank_inputFader == 0) { surface->SetLedByEnum(X32_BTN_CH_1_8, 1); }
-			if (activeBank_inputFader == 1) { surface->SetLedByEnum(X32_BTN_CH_9_16, 1); }
-			if (activeBank_inputFader == 2) { surface->SetLedByEnum(X32_BTN_CH_17_24, 1); }
-			if (activeBank_inputFader == 3) { surface->SetLedByEnum(X32_BTN_CH_25_32, 1); }
-			if (activeBank_inputFader == 4) { surface->SetLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, 1); }
-			if (activeBank_inputFader == 5) { surface->SetLedByEnum(X32_BTN_EFFECTS_RETURNS, 1); }
-			if (activeBank_inputFader == 6) { surface->SetLedByEnum(X32_BTN_BUS_1_8_MASTER, 1); }
-			if (activeBank_inputFader == 7) { surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, 1); }
+			surface->SetLedByEnum(X32_BTN_CH_1_8, activeBank_inputFader == 0);
+			surface->SetLedByEnum(X32_BTN_CH_9_16, activeBank_inputFader == 1);
+			surface->SetLedByEnum(X32_BTN_CH_17_24, activeBank_inputFader == 2);
+			surface->SetLedByEnum(X32_BTN_CH_25_32, activeBank_inputFader == 3);
+			surface->SetLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, activeBank_inputFader == 4);
+			surface->SetLedByEnum(X32_BTN_EFFECTS_RETURNS, activeBank_inputFader == 5);
+			surface->SetLedByEnum(X32_BTN_BUS_1_8_MASTER, activeBank_inputFader == 6);
+			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, activeBank_inputFader == 7);
 		}
-		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, 0);
-		surface->SetLedByEnum(X32_BTN_BUS_1_8, 0);
-		surface->SetLedByEnum(X32_BTN_BUS_9_16, 0);
-		surface->SetLedByEnum(X32_BTN_MATRIX_MAIN_C, 0);
-		if (activeBank_busFader == 0) { surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, 1); }
-		if (activeBank_busFader == 1) { surface->SetLedByEnum(X32_BTN_BUS_1_8, 1); }
-		if (activeBank_busFader == 2) { surface->SetLedByEnum(X32_BTN_BUS_9_16, 1); }
-		if (activeBank_busFader == 3) { surface->SetLedByEnum(X32_BTN_MATRIX_MAIN_C, 1); }
+	}
+	if (state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS)) {
+		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, activeBank_busFader == 0);
+		surface->SetLedByEnum(X32_BTN_BUS_1_8, activeBank_busFader == 1);
+		surface->SetLedByEnum(X32_BTN_BUS_9_16, activeBank_busFader == 2);
+		surface->SetLedByEnum(X32_BTN_MATRIX_MAIN_C, activeBank_busFader == 3);
 	}
 }
 
@@ -2880,31 +2874,42 @@ void X32Ctrl::BankingEQ(X32_BTN p_button){
 }
 
 void X32Ctrl::Banking(X32_BTN p_button){
+	uint16_t changeflag = X32_MIXER_CHANGED_NONE;
+
+
 	if (config->IsModelX32Full()){
 		switch (p_button){
 			case X32_BTN_CH_1_16:
 				activeBank_inputFader = 0;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_17_32:
 				activeBank_inputFader = 1;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_AUX_IN_EFFECTS:
 				activeBank_inputFader = 2;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_BUS_MASTER:
 				activeBank_inputFader = 3;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_GROUP_DCA_1_8:
 				activeBank_busFader = 0;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_1_8:
 				activeBank_busFader = 1;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_9_16:
 				activeBank_busFader = 2;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_MATRIX_MAIN_C:
 				activeBank_busFader = 3;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			default:
 				break;
@@ -2914,46 +2919,58 @@ void X32Ctrl::Banking(X32_BTN p_button){
 		switch (p_button){
 			case X32_BTN_CH_1_8:
 				activeBank_inputFader = 0;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_9_16:
 				activeBank_inputFader = 1;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_17_24:
 				activeBank_inputFader = 2;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_25_32:
 				activeBank_inputFader = 3;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_AUX_IN_1_6_USB_REC:
 				activeBank_inputFader = 4;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_EFFECTS_RETURNS:
 				activeBank_inputFader = 5;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_BUS_1_8_MASTER:
 				activeBank_inputFader = 6;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_BUS_9_16_MASTER:
 				activeBank_inputFader = 7;
+				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_GROUP_DCA_1_8:
 				activeBank_busFader = 0;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_1_8:
 				activeBank_busFader = 1;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_9_16:
 				activeBank_busFader = 2;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_MATRIX_MAIN_C:
 				activeBank_busFader = 3;
+				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			default:
 				break;
 		}
 	}
 
-	state->SetChangeFlags(X32_MIXER_CHANGED_BANKING);
+	state->SetChangeFlags(changeflag);
 }
 
 // ####################################################################
