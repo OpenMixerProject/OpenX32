@@ -63,6 +63,7 @@ class Helper {
             debuglevel_ = debuglevel;
         }
 
+        #if BUILD_DEBUG
         #define DEBUG_DEF(name, bitvalue) \
             void name(int debuglevel, const char* format, ...) { \
                 if (debuglevel <= debuglevel_ && ((debug_ & bitvalue) == bitvalue)) { \
@@ -87,6 +88,12 @@ class Helper {
                     debug_ &= ~bitvalue; \
                 } \
             } 
+        #else
+        #define DEBUG_DEF(name, bitvalue) \
+        void name(int debuglevel, const char* format, ...) { } \
+        bool name(int debuglevel=0) { return false; } \
+        void name(bool enabled) { } 
+        #endif
 
         DEBUG_DEF(DEBUG_XREMOTE,  0b0000000000000001);
         DEBUG_DEF(DEBUG_SURFACE,  0b0000000000000010);
@@ -102,5 +109,6 @@ class Helper {
         DEBUG_DEF(DEBUG_UART,     0b0000100000000000);
         DEBUG_DEF(DEBUG_INI,      0b0001000000000000);
         DEBUG_DEF(DEBUG_STATE,    0b0010000000000000);
+
 
 };
