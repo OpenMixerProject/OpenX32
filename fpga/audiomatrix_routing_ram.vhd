@@ -40,7 +40,7 @@ entity audiomatrix_routing_ram is
 		
         -- write-port for rs232-receiver
         cfg_wr_addr        : in std_logic_vector(ADDR_WIDTH - 1 downto 0);    -- output-channel to be configured
-        cfg_wr_data        : in std_logic_vector((ADDR_WIDTH * 8) - 1 downto 0);    -- source for the current output-channel
+        cfg_wr_data        : in std_logic_vector(ADDR_WIDTH - 1 downto 0);    -- source for the current output-channel
         cfg_wr_en          : in std_logic;
 
 		  -- read port for audio-matrix
@@ -58,15 +58,7 @@ begin
         if rising_edge(clk) then
             -- 1. writing (configuration)
 				if cfg_wr_en = '1' then
-					-- we receive are receiving routing-information for 8 channels at once, so we have to distribute them in RAM
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 0) <= cfg_wr_data((ADDR_WIDTH * 1) - 1 downto (ADDR_WIDTH * 0));
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 1) <= cfg_wr_data((ADDR_WIDTH * 2) - 1 downto (ADDR_WIDTH * 1));
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 2) <= cfg_wr_data((ADDR_WIDTH * 3) - 1 downto (ADDR_WIDTH * 2));
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 3) <= cfg_wr_data((ADDR_WIDTH * 4) - 1 downto (ADDR_WIDTH * 3));
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 4) <= cfg_wr_data((ADDR_WIDTH * 5) - 1 downto (ADDR_WIDTH * 4));
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 5) <= cfg_wr_data((ADDR_WIDTH * 6) - 1 downto (ADDR_WIDTH * 5));
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 6) <= cfg_wr_data((ADDR_WIDTH * 7) - 1 downto (ADDR_WIDTH * 6));
-					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr)) + 7) <= cfg_wr_data((ADDR_WIDTH * 8) - 1 downto (ADDR_WIDTH * 7));
+					cfg_ram_inst(to_integer(unsigned(cfg_wr_addr))) <= cfg_wr_data(ADDR_WIDTH - 1 downto 0);
 				end if;
             
             -- 2. reading (routing-Lookup)

@@ -71,11 +71,13 @@ class SPI : public X32Base {
     const unsigned int SPI_END_MARKER = 0x00000023; // '#'
     sSpiRxRingBuffer spiRxRingBuffer[2]; // for both DSPs
     int spiDspHandle[2];
+    int spiFpgaHandle;
     std::list<SpiEvent*> eventBuffer;
 
-    void fpgaLatticeToggleProgramnPin();
-    void fpgaLatticeChipSelectPin(bool state);
-    void fpgaLatticeDonePin(bool state);
+    void toggleFpgaProgramnPin(uint32_t assertTime, uint32_t waitTime);
+    void setFpgaChipSelectPin(bool state);
+    void setFpgaDonePin(bool state);
+
     int fpgaLatticeReadData(int* spi_fd, uint8_t cmd);
     uint32_t fpgaLatticeReverseByteOrder_uint32(uint32_t x);
     void fpgaLatticePrintBits(uint32_t status);
@@ -85,16 +87,19 @@ class SPI : public X32Base {
 
   public:
     SPI(X32BaseParameter* basepar);
-    int ConfigureFpgaXilinx();
-    bool ConfigureFpgaLattice();
-    int ConfigureDsp();
+    int UploadBitstreamFpgaXilinx();
+    bool UploadBitstreamFpgaLattice();
+    int UploadBitstreamDsps();
     void Tick10ms(void);
     void Tick100ms(void);
-    bool OpenDspConnections();
-    bool CloseDspConnections();
+    bool OpenConnectionFpga();
+    bool CloseConnectionFpga();
+    bool OpenConnectionDsps();
+    bool CloseConnectionDsps();
     void ProcessRxData(uint8_t dsp);
     void UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index);
     void PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]);
+    bool SendFgpaData(uint8_t txData[], uint8_t rxData[], uint8_t len);
     bool SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
     bool SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
     bool SendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value);

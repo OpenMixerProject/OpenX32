@@ -26,10 +26,13 @@
 
 DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
     spi = new SPI(basepar);
+    spi->UploadBitstreamDsps();
+    spi->OpenConnectionDsps();
+
     fx = new FX(basepar);
 };
 
-void DSP1::dspInit(void) {
+void DSP1::Init(void) {
     MainChannelLR.volume = VOLUME_MIN; // dB
     MainChannelLR.balance = 0; // -100 .. 0 .. +100
     MainChannelSub.volume = VOLUME_MIN; // dB

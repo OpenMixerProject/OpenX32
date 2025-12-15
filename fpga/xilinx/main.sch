@@ -191,9 +191,6 @@
         <signal name="AD1_MCLK" />
         <signal name="AD1_BCLK" />
         <signal name="AD1_FSYNC" />
-        <signal name="imx25_uart4_rxd" />
-        <signal name="XLXN_52(7:0)" />
-        <signal name="XLXN_50" />
         <signal name="imx25_uart3_txd" />
         <signal name="DA_TX" />
         <signal name="AD0_TX" />
@@ -322,31 +319,24 @@
         <signal name="start" />
         <signal name="PLL_IN" />
         <signal name="FPGACLK" />
-        <signal name="XLXN_2359(7:0)" />
-        <signal name="XLXN_2360(7:0)" />
-        <signal name="XLXN_2361(7:0)" />
-        <signal name="XLXN_2362(7:0)" />
-        <signal name="XLXN_2363(7:0)" />
-        <signal name="XLXN_2364(7:0)" />
-        <signal name="XLXN_2365(7:0)" />
-        <signal name="XLXN_2366(7:0)" />
-        <signal name="XLXN_2367(7:0)" />
         <signal name="XLXN_2374(23:0)" />
-        <signal name="XLXN_2377" />
         <signal name="audio_output(2687:0)" />
         <signal name="XLXN_2448(6:0)" />
         <signal name="XLXN_2449(6:0)" />
-        <signal name="imx25_uart4_txd" />
-        <signal name="XLXN_62(7:0)" />
-        <signal name="XLXN_63" />
-        <signal name="XLXN_2427" />
-        <signal name="XLXN_2428(6:0)" />
-        <signal name="XLXN_2429(55:0)" />
         <signal name="imx25_uart3_rxd" />
         <signal name="DA_RX" />
         <signal name="AD0_RX" />
         <signal name="AD1_RX" />
         <signal name="CARD_RX" />
+        <signal name="imx25_uart4_txd" />
+        <signal name="imx25_uart4_rxd" />
+        <signal name="XLXN_2459(6:0)" />
+        <signal name="XLXN_2460" />
+        <signal name="XLXN_2461(6:0)" />
+        <signal name="SPI_CLK" />
+        <signal name="SPI_MOSI" />
+        <signal name="SPI_MISO" />
+        <signal name="SPI_nCS0" />
         <port polarity="Output" name="CARD_OUT0" />
         <port polarity="Output" name="CARD_OUT1" />
         <port polarity="Output" name="CARD_OUT2" />
@@ -381,7 +371,6 @@
         <port polarity="Output" name="AD1_MCLK" />
         <port polarity="Output" name="AD1_BCLK" />
         <port polarity="Output" name="AD1_FSYNC" />
-        <port polarity="Output" name="imx25_uart4_rxd" />
         <port polarity="Input" name="imx25_uart3_txd" />
         <port polarity="Output" name="DA_TX" />
         <port polarity="Output" name="AD0_TX" />
@@ -414,64 +403,17 @@
         <port polarity="Output" name="P16_B_TXM" />
         <port polarity="Output" name="PLL_IN" />
         <port polarity="Input" name="FPGACLK" />
-        <port polarity="Input" name="imx25_uart4_txd" />
         <port polarity="Output" name="imx25_uart3_rxd" />
         <port polarity="Input" name="DA_RX" />
         <port polarity="Input" name="AD0_RX" />
         <port polarity="Input" name="AD1_RX" />
         <port polarity="Input" name="CARD_RX" />
-        <blockdef name="uart_tx">
-            <timestamp>2025-7-23T18:43:51</timestamp>
-            <rect width="304" x="64" y="-192" height="192" />
-            <line x2="0" y1="-160" y2="-160" x1="64" />
-            <line x2="0" y1="-96" y2="-96" x1="64" />
-            <rect width="64" x="0" y="-44" height="24" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="432" y1="-160" y2="-160" x1="368" />
-            <line x2="432" y1="-96" y2="-96" x1="368" />
-            <line x2="432" y1="-32" y2="-32" x1="368" />
-        </blockdef>
-        <blockdef name="rs232_encoder">
-            <timestamp>2025-11-30T15:54:32</timestamp>
-            <rect width="64" x="0" y="20" height="24" />
-            <line x2="0" y1="32" y2="32" x1="64" />
-            <rect width="64" x="0" y="84" height="24" />
-            <line x2="0" y1="96" y2="96" x1="64" />
-            <rect width="64" x="0" y="148" height="24" />
-            <line x2="0" y1="160" y2="160" x1="64" />
-            <rect width="64" x="0" y="212" height="24" />
-            <line x2="0" y1="224" y2="224" x1="64" />
-            <rect width="64" x="0" y="276" height="24" />
-            <line x2="0" y1="288" y2="288" x1="64" />
-            <line x2="0" y1="-352" y2="-352" x1="64" />
-            <line x2="0" y1="-288" y2="-288" x1="64" />
-            <rect width="64" x="0" y="-236" height="24" />
-            <line x2="0" y1="-224" y2="-224" x1="64" />
-            <rect width="64" x="0" y="-172" height="24" />
-            <line x2="0" y1="-160" y2="-160" x1="64" />
-            <rect width="64" x="0" y="-108" height="24" />
-            <line x2="0" y1="-96" y2="-96" x1="64" />
-            <rect width="64" x="0" y="-44" height="24" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="384" y1="-352" y2="-352" x1="320" />
-            <rect width="256" x="64" y="-384" height="704" />
-            <rect width="64" x="320" y="-300" height="24" />
-            <line x2="384" y1="-288" y2="-288" x1="320" />
-        </blockdef>
-        <blockdef name="constant">
-            <timestamp>2006-1-1T10:10:10</timestamp>
-            <rect width="112" x="0" y="0" height="64" />
-            <line x2="112" y1="32" y2="32" x1="144" />
-        </blockdef>
-        <blockdef name="uart_rx">
-            <timestamp>2025-7-23T18:44:2</timestamp>
-            <rect width="304" x="64" y="-128" height="128" />
-            <line x2="0" y1="-96" y2="-96" x1="64" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="432" y1="-96" y2="-96" x1="368" />
-            <rect width="64" x="368" y="-44" height="24" />
-            <line x2="432" y1="-32" y2="-32" x1="368" />
-        </blockdef>
+        <port polarity="Input" name="imx25_uart4_txd" />
+        <port polarity="Output" name="imx25_uart4_rxd" />
+        <port polarity="Input" name="SPI_CLK" />
+        <port polarity="Input" name="SPI_MOSI" />
+        <port polarity="Output" name="SPI_MISO" />
+        <port polarity="Input" name="SPI_nCS0" />
         <blockdef name="cs42438_config">
             <timestamp>2025-7-26T21:55:16</timestamp>
             <rect width="256" x="64" y="-320" height="320" />
@@ -587,21 +529,8 @@
             <line x2="64" y1="-32" y2="-64" x1="128" />
             <line x2="64" y1="-64" y2="0" x1="64" />
         </blockdef>
-        <blockdef name="rs232_decoder">
-            <timestamp>2025-11-30T0:37:38</timestamp>
-            <line x2="0" y1="-160" y2="-160" x1="64" />
-            <line x2="0" y1="-96" y2="-96" x1="64" />
-            <rect width="64" x="0" y="-44" height="24" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <rect width="384" x="64" y="-192" height="192" />
-            <line x2="512" y1="-160" y2="-160" x1="448" />
-            <rect width="64" x="448" y="-108" height="24" />
-            <line x2="512" y1="-96" y2="-96" x1="448" />
-            <rect width="64" x="448" y="-44" height="24" />
-            <line x2="512" y1="-32" y2="-32" x1="448" />
-        </blockdef>
         <blockdef name="audiomatrix_ram">
-            <timestamp>2025-11-30T0:59:39</timestamp>
+            <timestamp>2025-12-14T14:48:6</timestamp>
             <line x2="0" y1="-288" y2="-288" x1="64" />
             <line x2="0" y1="-224" y2="-224" x1="64" />
             <rect width="64" x="0" y="-108" height="24" />
@@ -672,7 +601,7 @@
             <line x2="384" y1="-32" y2="-32" x1="320" />
         </blockdef>
         <blockdef name="audiomatrix_routing_ram">
-            <timestamp>2025-11-30T15:52:2</timestamp>
+            <timestamp>2025-12-14T14:46:7</timestamp>
             <line x2="0" y1="-288" y2="-288" x1="64" />
             <line x2="0" y1="-224" y2="-224" x1="64" />
             <rect width="64" x="0" y="-172" height="24" />
@@ -695,6 +624,24 @@
             <line x2="0" y1="-96" y2="-96" x1="64" />
             <line x2="0" y1="-32" y2="-32" x1="64" />
             <line x2="384" y1="-352" y2="-352" x1="320" />
+        </blockdef>
+        <blockdef name="spi_rx_routing">
+            <timestamp>2025-12-14T14:45:8</timestamp>
+            <rect width="336" x="64" y="-256" height="256" />
+            <line x2="0" y1="-224" y2="-224" x1="64" />
+            <line x2="0" y1="-160" y2="-160" x1="64" />
+            <line x2="0" y1="-96" y2="-96" x1="64" />
+            <line x2="0" y1="-32" y2="-32" x1="64" />
+            <line x2="464" y1="-224" y2="-224" x1="400" />
+            <rect width="64" x="400" y="-140" height="24" />
+            <line x2="464" y1="-128" y2="-128" x1="400" />
+            <rect width="64" x="400" y="-44" height="24" />
+            <line x2="464" y1="-32" y2="-32" x1="400" />
+        </blockdef>
+        <blockdef name="constant">
+            <timestamp>2006-1-1T10:10:10</timestamp>
+            <rect width="112" x="0" y="0" height="64" />
+            <line x2="112" y1="32" y2="32" x1="144" />
         </blockdef>
         <block symbolname="tdm_8ch_tx" name="XLXI_415">
             <blockpin signalname="clk_12_288MHz" name="bclk" />
@@ -993,29 +940,6 @@
             <blockpin signalname="tdm_fs" name="I" />
             <blockpin signalname="AD1_FSYNC" name="O" />
         </block>
-        <block symbolname="rs232_encoder" name="XLXI_23">
-            <blockpin signalname="clk_24_576MHz" name="clk" />
-            <blockpin signalname="XLXN_2377" name="TX_rdy" />
-            <blockpin signalname="XLXN_2362(7:0)" name="byte1(7:0)" />
-            <blockpin signalname="XLXN_2359(7:0)" name="byte2(7:0)" />
-            <blockpin signalname="XLXN_2360(7:0)" name="byte3(7:0)" />
-            <blockpin signalname="XLXN_2361(7:0)" name="byte4(7:0)" />
-            <blockpin signalname="XLXN_2363(7:0)" name="byte5(7:0)" />
-            <blockpin signalname="XLXN_2364(7:0)" name="byte6(7:0)" />
-            <blockpin signalname="XLXN_2365(7:0)" name="byte7(7:0)" />
-            <blockpin signalname="XLXN_2366(7:0)" name="byte8(7:0)" />
-            <blockpin signalname="XLXN_2367(7:0)" name="byte9(7:0)" />
-            <blockpin signalname="XLXN_50" name="TX_send" />
-            <blockpin signalname="XLXN_52(7:0)" name="TX_data(7:0)" />
-        </block>
-        <block symbolname="uart_tx" name="XLXI_21">
-            <blockpin signalname="clk_24_576MHz" name="i_Clk" />
-            <blockpin signalname="XLXN_50" name="i_TX_DV" />
-            <blockpin signalname="XLXN_52(7:0)" name="i_TX_Byte(7:0)" />
-            <blockpin name="o_TX_Active" />
-            <blockpin signalname="imx25_uart4_rxd" name="o_TX_Serial" />
-            <blockpin signalname="XLXN_2377" name="o_TX_Done" />
-        </block>
         <block symbolname="buf" name="XLXI_130">
             <blockpin signalname="imx25_uart3_txd" name="I" />
             <blockpin signalname="AD0_TX" name="O" />
@@ -1218,14 +1142,6 @@
             <blockpin signalname="XLXN_1973(6:0)" name="o_ram_write_addr(6:0)" />
             <blockpin signalname="XLXN_1974(23:0)" name="o_ram_data(23:0)" />
         </block>
-        <block symbolname="audiomatrix_ram" name="XLXI_578">
-            <blockpin signalname="clk_24_576MHz" name="clk" />
-            <blockpin signalname="XLXN_1898" name="wr_en" />
-            <blockpin signalname="XLXN_1973(6:0)" name="write_addr(6:0)" />
-            <blockpin signalname="XLXN_1974(23:0)" name="i_data(23:0)" />
-            <blockpin signalname="XLXN_2374(23:0)" name="o_data(23:0)" />
-            <blockpin signalname="XLXN_2448(6:0)" name="read_addr(6:0)" />
-        </block>
         <block symbolname="buf" name="XLXI_556">
             <blockpin signalname="nRST" name="I" />
             <blockpin signalname="DA_nRESET" name="O" />
@@ -1278,106 +1194,12 @@
             <blockpin signalname="FPGACLK" name="I" />
             <blockpin signalname="PLL_IN" name="O" />
         </block>
-        <block symbolname="constant" name="XLXI_25">
-            <attr value="33" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2360(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_24">
-            <attr value="58" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2359(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_26">
-            <attr value="32" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2361(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_750">
-            <attr value="6F" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2362(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_751">
-            <attr value="76" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2363(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_752">
-            <attr value="30" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2364(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_753">
-            <attr value="30" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2366(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_754">
-            <attr value="2E" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2365(7:0)" name="O" />
-        </block>
-        <block symbolname="constant" name="XLXI_755">
-            <attr value="31" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
-            <blockpin signalname="XLXN_2367(7:0)" name="O" />
-        </block>
         <block symbolname="audiomatrix_ram_read" name="XLXI_711">
             <blockpin signalname="clk_24_576MHz" name="clk" />
             <blockpin signalname="XLXN_2357" name="sync_in" />
             <blockpin signalname="XLXN_2449(6:0)" name="output_channel_idx(6:0)" />
             <blockpin signalname="audio_output(2687:0)" name="output_data(2687:0)" />
             <blockpin signalname="XLXN_2374(23:0)" name="i_ram_data(23:0)" />
-        </block>
-        <block symbolname="uart_rx" name="XLXI_28">
-            <blockpin signalname="clk_24_576MHz" name="i_Clk" />
-            <blockpin signalname="imx25_uart4_txd" name="i_RX_Serial" />
-            <blockpin signalname="XLXN_63" name="o_RX_DV" />
-            <blockpin signalname="XLXN_62(7:0)" name="o_RX_Byte(7:0)" />
-        </block>
-        <block symbolname="audiomatrix_routing_ram" name="XLXI_761">
-            <blockpin signalname="clk_24_576MHz" name="clk" />
-            <blockpin signalname="XLXN_2427" name="cfg_wr_en" />
-            <blockpin signalname="XLXN_2428(6:0)" name="cfg_wr_addr(6:0)" />
-            <blockpin signalname="XLXN_2429(55:0)" name="cfg_wr_data(55:0)" />
-            <blockpin signalname="XLXN_2449(6:0)" name="output_channel_idx(6:0)" />
-            <blockpin signalname="XLXN_2448(6:0)" name="read_addr(6:0)" />
-        </block>
-        <block symbolname="rs232_decoder" name="XLXI_456">
-            <blockpin signalname="clk_24_576MHz" name="clk" />
-            <blockpin signalname="XLXN_63" name="RX_DataReady" />
-            <blockpin signalname="XLXN_62(7:0)" name="RX_Data(7:0)" />
-            <blockpin signalname="XLXN_2427" name="cfg_wr_en" />
-            <blockpin signalname="XLXN_2428(6:0)" name="cfg_wr_addr(6:0)" />
-            <blockpin signalname="XLXN_2429(55:0)" name="cfg_wr_data(55:0)" />
         </block>
         <block symbolname="uart_collector" name="XLXI_763">
             <blockpin signalname="clk_16MHz" name="clk_in" />
@@ -1387,6 +1209,43 @@
             <blockpin signalname="AD1_RX" name="uart3_in" />
             <blockpin signalname="CARD_RX" name="uart4_in" />
             <blockpin signalname="imx25_uart3_rxd" name="uart_out" />
+        </block>
+        <block symbolname="buf" name="XLXI_764">
+            <blockpin signalname="imx25_uart4_txd" name="I" />
+            <blockpin signalname="imx25_uart4_rxd" name="O" />
+        </block>
+        <block symbolname="spi_rx_routing" name="XLXI_768">
+            <blockpin signalname="clk_24_576MHz" name="clk" />
+            <blockpin signalname="SPI_nCS0" name="i_spi_ncs" />
+            <blockpin signalname="SPI_CLK" name="i_spi_clk" />
+            <blockpin signalname="SPI_MOSI" name="i_spi_data" />
+            <blockpin signalname="XLXN_2460" name="o_cfg_wr_en" />
+            <blockpin signalname="XLXN_2459(6:0)" name="o_cfg_wr_addr(6:0)" />
+            <blockpin signalname="XLXN_2461(6:0)" name="o_cfg_wr_data(6:0)" />
+        </block>
+        <block symbolname="audiomatrix_routing_ram" name="XLXI_769">
+            <blockpin signalname="clk_24_576MHz" name="clk" />
+            <blockpin signalname="XLXN_2460" name="cfg_wr_en" />
+            <blockpin signalname="XLXN_2459(6:0)" name="cfg_wr_addr(6:0)" />
+            <blockpin signalname="XLXN_2461(6:0)" name="cfg_wr_data(6:0)" />
+            <blockpin signalname="XLXN_2449(6:0)" name="output_channel_idx(6:0)" />
+            <blockpin signalname="XLXN_2448(6:0)" name="read_addr(6:0)" />
+        </block>
+        <block symbolname="audiomatrix_ram" name="XLXI_770">
+            <blockpin signalname="clk_24_576MHz" name="clk" />
+            <blockpin signalname="XLXN_1898" name="wr_en" />
+            <blockpin signalname="XLXN_1973(6:0)" name="write_addr(6:0)" />
+            <blockpin signalname="XLXN_1974(23:0)" name="i_data(23:0)" />
+            <blockpin signalname="XLXN_2448(6:0)" name="read_addr(6:0)" />
+            <blockpin signalname="XLXN_2374(23:0)" name="o_data(23:0)" />
+        </block>
+        <block symbolname="constant" name="XLXI_771">
+            <attr value="0" name="CValue">
+                <trait delete="all:1 sym:0" />
+                <trait editname="all:1 sch:0" />
+                <trait valuetype="BitVector 32 Hexadecimal" />
+            </attr>
+            <blockpin signalname="SPI_MISO" name="O" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
@@ -2391,20 +2250,6 @@
         <iomarker fontsize="28" x="1472" y="3296" name="AD1_MCLK" orien="R0" />
         <iomarker fontsize="28" x="1472" y="3376" name="AD1_BCLK" orien="R0" />
         <iomarker fontsize="28" x="1472" y="3456" name="AD1_FSYNC" orien="R0" />
-        <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="1092" y="712">UART to i.MX25 (Configuration-Data)</text>
-        <instance x="1520" y="1216" name="XLXI_23" orien="R0">
-        </instance>
-        <branch name="imx25_uart4_rxd">
-            <wire x2="2480" y1="864" y2="864" x1="2448" />
-        </branch>
-        <branch name="XLXN_52(7:0)">
-            <wire x2="2016" y1="928" y2="928" x1="1904" />
-        </branch>
-        <branch name="XLXN_50">
-            <wire x2="2016" y1="864" y2="864" x1="1904" />
-        </branch>
-        <instance x="2016" y="960" name="XLXI_21" orien="R0">
-        </instance>
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1716" x="3856" y="664" height="636" />
         <instance x="5072" y="1024" name="XLXI_130" orien="R0" />
         <instance x="5072" y="1104" name="XLXI_131" orien="R0" />
@@ -2432,7 +2277,6 @@
         <branch name="CARD_TX">
             <wire x2="5328" y1="1152" y2="1152" x1="5296" />
         </branch>
-        <iomarker fontsize="28" x="2480" y="864" name="imx25_uart4_rxd" orien="R0" />
         <iomarker fontsize="28" x="5328" y="912" name="DA_TX" orien="R0" />
         <iomarker fontsize="28" x="5328" y="992" name="AD0_TX" orien="R0" />
         <iomarker fontsize="28" x="5328" y="1072" name="AD1_TX" orien="R0" />
@@ -3086,16 +2930,6 @@
             <wire x2="4832" y1="304" y2="304" x1="4736" />
             <wire x2="4864" y1="304" y2="304" x1="4832" />
         </branch>
-        <branch name="clk_24_576MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1456" y="864" type="branch" />
-            <wire x2="1456" y1="864" y2="864" x1="1296" />
-            <wire x2="1520" y1="864" y2="864" x1="1456" />
-        </branch>
-        <branch name="clk_24_576MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="1968" y="800" type="branch" />
-            <wire x2="1968" y1="800" y2="800" x1="1920" />
-            <wire x2="2016" y1="800" y2="800" x1="1968" />
-        </branch>
         <branch name="PLL_IN">
             <wire x2="720" y1="560" y2="560" x1="688" />
         </branch>
@@ -3120,81 +2954,16 @@
         </branch>
         <instance x="464" y="464" name="XLXI_745" orien="R0" />
         <instance x="464" y="592" name="XLXI_746" orien="R0" />
-        <instance x="1216" y="1088" name="XLXI_25" orien="R0">
-        </instance>
-        <instance x="1088" y="1024" name="XLXI_24" orien="R0">
-        </instance>
-        <instance x="1088" y="1152" name="XLXI_26" orien="R0">
-        </instance>
-        <branch name="XLXN_2359(7:0)">
-            <wire x2="1520" y1="1056" y2="1056" x1="1232" />
-        </branch>
-        <branch name="XLXN_2360(7:0)">
-            <wire x2="1520" y1="1120" y2="1120" x1="1360" />
-        </branch>
-        <branch name="XLXN_2361(7:0)">
-            <wire x2="1520" y1="1184" y2="1184" x1="1232" />
-        </branch>
-        <instance x="1216" y="960" name="XLXI_750" orien="R0">
-        </instance>
-        <branch name="XLXN_2362(7:0)">
-            <wire x2="1520" y1="992" y2="992" x1="1360" />
-        </branch>
-        <text x="1344" y="1104">Character '3'</text>
-        <instance x="1216" y="1216" name="XLXI_751" orien="R0">
-        </instance>
-        <text x="1340" y="1044">Character 'X'</text>
-        <text x="1344" y="976">Character 'o'</text>
-        <text x="1344" y="1172">Character '2'</text>
-        <branch name="XLXN_2363(7:0)">
-            <wire x2="1520" y1="1248" y2="1248" x1="1360" />
-        </branch>
-        <text x="1348" y="1240">Character 'v'</text>
-        <text x="1352" y="1428">Character '0'</text>
-        <instance x="1088" y="1408" name="XLXI_753" orien="R0">
-        </instance>
-        <instance x="1232" y="1344" name="XLXI_754" orien="R0">
-        </instance>
-        <instance x="1232" y="1472" name="XLXI_755" orien="R0">
-        </instance>
-        <branch name="XLXN_2364(7:0)">
-            <wire x2="1520" y1="1312" y2="1312" x1="1232" />
-        </branch>
-        <branch name="XLXN_2365(7:0)">
-            <wire x2="1520" y1="1376" y2="1376" x1="1376" />
-        </branch>
-        <branch name="XLXN_2366(7:0)">
-            <wire x2="1520" y1="1440" y2="1440" x1="1232" />
-        </branch>
-        <branch name="XLXN_2367(7:0)">
-            <wire x2="1520" y1="1504" y2="1504" x1="1376" />
-        </branch>
-        <instance x="1088" y="1280" name="XLXI_752" orien="R0">
-        </instance>
-        <text x="1352" y="1324">Character '0'</text>
-        <text x="1356" y="1360">Character '.'</text>
-        <text x="1360" y="1488">Character '1'</text>
         <branch name="XLXN_2374(23:0)">
             <wire x2="4624" y1="1680" y2="1680" x1="4592" />
             <wire x2="4640" y1="1616" y2="1616" x1="4624" />
             <wire x2="4624" y1="1616" y2="1680" x1="4624" />
-        </branch>
-        <branch name="XLXN_2377">
-            <wire x2="1472" y1="928" y2="1584" x1="1472" />
-            <wire x2="2000" y1="1584" y2="1584" x1="1472" />
-            <wire x2="1520" y1="928" y2="928" x1="1472" />
-            <wire x2="2000" y1="1024" y2="1584" x1="2000" />
-            <wire x2="2464" y1="1024" y2="1024" x1="2000" />
-            <wire x2="2464" y1="928" y2="928" x1="2448" />
-            <wire x2="2464" y1="928" y2="1024" x1="2464" />
         </branch>
         <branch name="audio_output(2687:0)">
             <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="5296" y="1552" type="branch" />
             <wire x2="5296" y1="1552" y2="1552" x1="5200" />
         </branch>
         <instance x="4640" y="1712" name="XLXI_711" orien="R0">
-        </instance>
-        <instance x="4160" y="1968" name="XLXI_578" orien="R0">
         </instance>
         <instance x="3280" y="1968" name="XLXI_580" orien="R0">
         </instance>
@@ -3216,63 +2985,24 @@
             <wire x2="5504" y1="1488" y2="2512" x1="5504" />
         </branch>
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="2084" y="1404">Audio Routing Matrix</text>
-        <branch name="imx25_uart4_txd">
-            <wire x2="2336" y1="2368" y2="2368" x1="2304" />
-        </branch>
-        <branch name="XLXN_62(7:0)">
-            <wire x2="2864" y1="2368" y2="2368" x1="2768" />
-        </branch>
-        <branch name="XLXN_63">
-            <wire x2="2864" y1="2304" y2="2304" x1="2768" />
-        </branch>
-        <instance x="2336" y="2400" name="XLXI_28" orien="R0">
-        </instance>
-        <branch name="clk_24_576MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2256" y="2304" type="branch" />
-            <wire x2="2256" y1="2304" y2="2304" x1="2128" />
-            <wire x2="2336" y1="2304" y2="2304" x1="2256" />
-        </branch>
-        <branch name="clk_24_576MHz">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2816" y="2240" type="branch" />
-            <wire x2="2816" y1="2240" y2="2240" x1="2704" />
-            <wire x2="2864" y1="2240" y2="2240" x1="2816" />
-        </branch>
         <branch name="clk_24_576MHz">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="3520" y="2176" type="branch" />
             <wire x2="3552" y1="2176" y2="2176" x1="3520" />
         </branch>
-        <branch name="XLXN_2427">
-            <wire x2="3552" y1="2240" y2="2240" x1="3376" />
-        </branch>
-        <branch name="XLXN_2428(6:0)">
-            <wire x2="3552" y1="2304" y2="2304" x1="3376" />
-        </branch>
-        <branch name="XLXN_2429(55:0)">
-            <wire x2="3552" y1="2368" y2="2368" x1="3376" />
-        </branch>
-        <instance x="3552" y="2464" name="XLXI_761" orien="R0">
-        </instance>
-        <instance x="2864" y="2400" name="XLXI_456" orien="R0">
-        </instance>
-        <iomarker fontsize="28" x="2304" y="2368" name="imx25_uart4_txd" orien="R180" />
         <branch name="imx25_uart3_rxd">
             <wire x2="4576" y1="896" y2="896" x1="4544" />
         </branch>
         <branch name="DA_RX">
-            <wire x2="4128" y1="1024" y2="1024" x1="4064" />
-            <wire x2="4160" y1="1024" y2="1024" x1="4128" />
+            <wire x2="4160" y1="1024" y2="1024" x1="4064" />
         </branch>
         <branch name="AD0_RX">
-            <wire x2="4128" y1="1088" y2="1088" x1="4080" />
-            <wire x2="4160" y1="1088" y2="1088" x1="4128" />
+            <wire x2="4160" y1="1088" y2="1088" x1="4080" />
         </branch>
         <branch name="AD1_RX">
-            <wire x2="4128" y1="1152" y2="1152" x1="4080" />
-            <wire x2="4160" y1="1152" y2="1152" x1="4128" />
+            <wire x2="4160" y1="1152" y2="1152" x1="4080" />
         </branch>
         <branch name="CARD_RX">
-            <wire x2="4128" y1="1216" y2="1216" x1="4096" />
-            <wire x2="4160" y1="1216" y2="1216" x1="4128" />
+            <wire x2="4160" y1="1216" y2="1216" x1="4096" />
         </branch>
         <branch name="clk_16MHz">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4080" y="896" type="branch" />
@@ -3290,5 +3020,62 @@
         <iomarker fontsize="28" x="4096" y="1216" name="CARD_RX" orien="R180" />
         <iomarker fontsize="28" x="4576" y="896" name="imx25_uart3_rxd" orien="R0" />
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="3896" y="716">UART to i.MX25 (UART-Communication to Boards)</text>
+        <branch name="imx25_uart4_txd">
+            <wire x2="4992" y1="784" y2="784" x1="4912" />
+        </branch>
+        <branch name="imx25_uart4_rxd">
+            <wire x2="5248" y1="784" y2="784" x1="5216" />
+        </branch>
+        <instance x="4992" y="816" name="XLXI_764" orien="R0" />
+        <iomarker fontsize="28" x="4912" y="784" name="imx25_uart4_txd" orien="R180" />
+        <iomarker fontsize="28" x="5248" y="784" name="imx25_uart4_rxd" orien="R0" />
+        <branch name="XLXN_2459(6:0)">
+            <wire x2="3536" y1="2304" y2="2304" x1="3200" />
+            <wire x2="3552" y1="2304" y2="2304" x1="3536" />
+        </branch>
+        <branch name="XLXN_2460">
+            <wire x2="3264" y1="2208" y2="2208" x1="3200" />
+            <wire x2="3264" y1="2208" y2="2240" x1="3264" />
+            <wire x2="3536" y1="2240" y2="2240" x1="3264" />
+            <wire x2="3552" y1="2240" y2="2240" x1="3536" />
+        </branch>
+        <branch name="XLXN_2461(6:0)">
+            <wire x2="3264" y1="2400" y2="2400" x1="3200" />
+            <wire x2="3536" y1="2368" y2="2368" x1="3264" />
+            <wire x2="3552" y1="2368" y2="2368" x1="3536" />
+            <wire x2="3264" y1="2368" y2="2400" x1="3264" />
+        </branch>
+        <iomarker fontsize="28" x="2704" y="2336" name="SPI_CLK" orien="R180" />
+        <iomarker fontsize="28" x="2704" y="2400" name="SPI_MOSI" orien="R180" />
+        <instance x="3552" y="2464" name="XLXI_769" orien="R0">
+        </instance>
+        <instance x="4160" y="1968" name="XLXI_770" orien="R0">
+        </instance>
+        <branch name="SPI_MISO">
+            <wire x2="2976" y1="2496" y2="2496" x1="2944" />
+        </branch>
+        <instance x="2800" y="2464" name="XLXI_771" orien="R0">
+        </instance>
+        <iomarker fontsize="28" x="2976" y="2496" name="SPI_MISO" orien="R0" />
+        <branch name="SPI_MOSI">
+            <wire x2="2720" y1="2400" y2="2400" x1="2704" />
+            <wire x2="2736" y1="2400" y2="2400" x1="2720" />
+        </branch>
+        <branch name="SPI_CLK">
+            <wire x2="2720" y1="2336" y2="2336" x1="2704" />
+            <wire x2="2736" y1="2336" y2="2336" x1="2720" />
+        </branch>
+        <branch name="clk_24_576MHz">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="2672" y="2208" type="branch" />
+            <wire x2="2688" y1="2208" y2="2208" x1="2672" />
+            <wire x2="2736" y1="2208" y2="2208" x1="2688" />
+        </branch>
+        <instance x="2736" y="2432" name="XLXI_768" orien="R0">
+        </instance>
+        <branch name="SPI_nCS0">
+            <wire x2="2720" y1="2272" y2="2272" x1="2704" />
+            <wire x2="2736" y1="2272" y2="2272" x1="2720" />
+        </branch>
+        <iomarker fontsize="28" x="2704" y="2272" name="SPI_nCS0" orien="R180" />
     </sheet>
 </drawing>

@@ -1,9 +1,0 @@
-[Inputs]
-clk
-cfg_wr_en
-=cfg_wr_addr[6:0]=
-=cfg_wr_data[55:0]=
-=output_channel_idx[6:0]=
-[Outputs]
-=read_addr[6:0]=
-[BiDir]

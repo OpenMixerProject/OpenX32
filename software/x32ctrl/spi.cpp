@@ -24,21 +24,13 @@
 
 #include "spi.h"
 
-SPI::SPI(X32BaseParameter* basepar) : X32Base(basepar) {
-    
-    if (!ConfigureFpgaLattice()) {
-        ConfigureFpgaXilinx();
-    }     
-    ConfigureDsp();
-
-    OpenDspConnections();
-}
-
+SPI::SPI(X32BaseParameter* basepar) : X32Base(basepar) {}
 
 // configures a Xilinx Spartan 3A via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
-int SPI::ConfigureFpgaXilinx(void) {
+// Xilinx FPGAs do *not* use ChipSelect during SPI Slave Programming!
+int SPI::UploadBitstreamFpgaXilinx(void) {
 
     string filename_xilinx = app->get_option("--X")->as<string>();
 
@@ -158,13 +150,7 @@ int SPI::ConfigureFpgaXilinx(void) {
     tr.cs_change = 0;
     tr.delay_usecs = 0;
 
-    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "Setting PROG_B-Sequence HIGH -> LOW -> HIGH and start upload...");
-    int fdResetFpga = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
-    write(fdResetFpga, "1", 1);
-    usleep(500); // assert PROG_B at least 500ns (here 500us) to restart configuration process (see page 56 of UG332 v1.7)
-    write(fdResetFpga, "0", 1);
-    close(fdResetFpga);
-    usleep(500);
+    toggleFpgaProgramnPin(500, 500); // start configuration by toggling PROGRAMN-pin
 
     // send data
     long total_bytes_sent = 0;
@@ -226,7 +212,7 @@ int SPI::ConfigureFpgaXilinx(void) {
 
 // configures a Lattice ECP5 via SPI
 // returns 0 if successul, -1 on errors
-bool SPI::ConfigureFpgaLattice(void) {
+bool SPI::UploadBitstreamFpgaLattice(void) {
 
     string filename_lattice = app->get_option("--L")->as<string>();
 
@@ -244,7 +230,7 @@ bool SPI::ConfigureFpgaLattice(void) {
     uint8_t spiBitsPerWord = 8;
     uint32_t spiSpeed = 2 * state->fpga_spi_speed; // Linux SPI driver seems to divide speed by 2
 
-	fpgaLatticeDonePin(false); // deassert DONE-pin
+	setFpgaDonePin(false); // deassert DONE-pin
 	
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI...");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
@@ -282,7 +268,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 
 	// first activate the configuration-mode by toggle the PROGRAMN-pin
     helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...");
-	fpgaLatticeToggleProgramnPin();
+	toggleFpgaProgramnPin(4000, 50000);
 
     // read IDCODE
     uint32_t idcode = fpgaLatticeReadData(&spi_fd, CMD_READ_ID);
@@ -350,7 +336,7 @@ bool SPI::ConfigureFpgaLattice(void) {
     }
     printf("\n-----------------------------------------\n\n");
     
-    fpgaLatticeChipSelectPin(true);
+    setFpgaChipSelectPin(true);
 
     helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending LSC_BITSTREAM_BURST");
     fpgaLatticeTransferCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST); // keep CS asserted after this command
@@ -418,7 +404,7 @@ bool SPI::ConfigureFpgaLattice(void) {
 
 	// =========== END of bitstream-transmitting without deasserting ChipSelect ===========
   
-    fpgaLatticeChipSelectPin(false);
+    setFpgaChipSelectPin(false);
 
     helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending CMD_LSC_READ_STATUS");
     status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
@@ -452,29 +438,24 @@ bool SPI::ConfigureFpgaLattice(void) {
 	return ret;
 }
 
-
-// ===============================================
-// Functions for Lattice FPGA
-// ===============================================
-
-void SPI::fpgaLatticeToggleProgramnPin() {
+void SPI::toggleFpgaProgramnPin(uint32_t assertTime, uint32_t waitTime) {
     int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fd, "1", 1); // assert PROGRAMN-pin (this sets the real GPIO to LOW)
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to LOW");
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to LOW for %d ms", assertTime/1000);
 
 	// we have to keep at least 25ns. So keep it 4ms asserted
-    usleep(4000);
+    usleep(assertTime);
 
     write(fd, "0", 1); // deassert PROGRAMN-pin (this sets the real GPIO to HIGH)
     helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to HIGH");
     close(fd);
 	
 	// wait 50ms until FPGA is ready
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "wait 50ms");
-    usleep(50000);
+    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "wait %d ms", waitTime/1000);
+    usleep(waitTime);
 }
 
-void SPI::fpgaLatticeChipSelectPin(bool state) {
+void SPI::setFpgaChipSelectPin(bool state) {
     int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
     if (state) {
         write(fd, "1", 1); // assert ChipSelect (sets the real pin to LOW)
@@ -486,7 +467,7 @@ void SPI::fpgaLatticeChipSelectPin(bool state) {
     close(fd);
 }
 
-void SPI::fpgaLatticeDonePin(bool state) {
+void SPI::setFpgaDonePin(bool state) {
 	int fd = open("/sys/class/leds/done_fpga/brightness", O_WRONLY);
 	if (state) {
 		write(fd, "1", 1); // assert FPGA_DONE (sets the real pin to HIGH)
@@ -495,6 +476,10 @@ void SPI::fpgaLatticeDonePin(bool state) {
 	}
 	close(fd);
 }
+
+// ===============================================
+// Functions for Lattice FPGA
+// ===============================================
 
 int SPI::fpgaLatticeReadData(int* spi_fd, uint8_t cmd) {
 	// prepare ioc-message
@@ -509,9 +494,9 @@ int SPI::fpgaLatticeReadData(int* spi_fd, uint8_t cmd) {
     tx_buf[0] = cmd; // command
 
 	// transmit and read message (8 bytes in total)
-	fpgaLatticeChipSelectPin(true); // assert ChipSelect
+	setFpgaChipSelectPin(true); // assert ChipSelect
     ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);    
-	fpgaLatticeChipSelectPin(false); // deassert ChipSelect
+	setFpgaChipSelectPin(false); // deassert ChipSelect
 
 	// copy desired data to 32-bit word
     int rx_data;
@@ -614,10 +599,10 @@ bool SPI::fpgaLatticeSendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool che
     tx_buf[0] = cmd; // command
 
 	// transmit message (4 bytes)
-	fpgaLatticeChipSelectPin(true); // assert ChipSelect
+	setFpgaChipSelectPin(true); // assert ChipSelect
     int ret = ioctl(*spi_fd, SPI_IOC_MESSAGE(1), &tr_cmd);
 	if(!keepCS){
-		fpgaLatticeChipSelectPin(false); // deassert ChipSelect
+		setFpgaChipSelectPin(false); // deassert ChipSelect
 	}
 	
 	// optional: wait until busy-flag is reset
@@ -649,7 +634,7 @@ int SPI::fpgaLatticeTransferCommand(int* spi_fd, uint8_t cmd) {
 // configures AnalogDevices 21371 SHARC DSP via SPI
 // accepts path to bitstream-file
 // returns 0 if sucecssul, -1 on errors
-// callit like: spiConfigureDsp(argv[1], argv[2], 2)
+// callit like: spiUploadBitstreamDsps(argv[1], argv[2], 2)
 //
 // /RESET: 1 -> 0 -> 1 (Linux already inverts the reset for us)
 // wait at least 256 us
@@ -659,7 +644,7 @@ int SPI::fpgaLatticeTransferCommand(int* spi_fd, uint8_t cmd) {
 //   - load IVT (1536 8-bit words)
 // DMA-Transfer expects a seemless data-transport while the manual says something about handshake and wait-states... strange
 //
-int SPI::ConfigureDsp(void) {
+int SPI::UploadBitstreamDsps(void) {
     
     int spi_fd[2] = {-1};
     FILE *bitstream_file[2] = {NULL};
@@ -868,8 +853,32 @@ void SPI::Tick100ms(void){
 
 }
 
-bool SPI::OpenDspConnections() {
-    uint8_t spiMode = SPI_MODE_3;
+bool SPI::OpenConnectionFpga() {
+    uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
+    uint8_t spiBitsPerWord = 8; // we are using standard 8-bit-mode here for communication
+    uint32_t spiSpeed = 1000000; // SPI_FPGA_SPEED_HZ
+
+    spiFpgaHandle = open(SPI_DEVICE_FPGA, O_RDWR);
+    if (spiFpgaHandle < 0) {
+        helper->Error("Error: Could not open SPI-device");
+        return false;
+    }
+
+    ioctl(spiFpgaHandle, SPI_IOC_WR_MODE, &spiMode);
+    ioctl(spiFpgaHandle, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
+    ioctl(spiFpgaHandle, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
+    return true;
+}
+
+bool SPI::CloseConnectionFpga() {
+    if (spiFpgaHandle >= 0) {
+        close(spiFpgaHandle);
+    }
+    return true;
+}
+
+bool SPI::OpenConnectionDsps() {
+    uint8_t spiMode = SPI_MODE_3; // user-program uses SPI MODE 3
     uint8_t spiBitsPerWord = 32; // we are using 32-bit-mode here for communication
     uint32_t spiSpeed = 2 * state->dsp_spi_speed; // Linux SPI driver seems to divide speed by 2
 
@@ -891,7 +900,7 @@ bool SPI::OpenDspConnections() {
     return true;
 }
 
-bool SPI::CloseDspConnections() {
+bool SPI::CloseConnectionDsps() {
     for (uint8_t i = 0; i < 2; i++) {
         if (spiDspHandle[i] >= 0) close(spiDspHandle[i]);
     }
@@ -1011,6 +1020,25 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
     dataToRead[dsp] += 3;
 }
 
+bool SPI::SendFgpaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
+    struct spi_ioc_transfer tr = {0};
+
+    // configure SPI-system for this transmission
+    tr.tx_buf = (unsigned long)txData;
+    tr.rx_buf = (unsigned long)rxData;
+    tr.bits_per_word = 8;
+    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
+    tr.cs_change = 0; // disable CS between two messages
+    tr.len = len;
+    tr.speed_hz = 1000000; // SPI_FPGA_SPEED_HZ
+
+    setFpgaChipSelectPin(true); // assert ChipSelect
+    int ret = ioctl(spiFpgaHandle, SPI_IOC_MESSAGE(1), &tr); // send via SPI
+	setFpgaChipSelectPin(false); // deassert ChipSelect
+
+    return (ret >= 0);
+}
+
 bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
     if (valueCount == 0) {
         // dont allow empty messages
@@ -1053,8 +1081,8 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
         printf("\n");
     }
 
-    ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-    return true;
+    int ret = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+    return (ret >= 0);
 }
 
 bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {

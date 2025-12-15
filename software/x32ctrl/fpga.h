@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include "base.h"
-#include "uart.h"
+#include "spi.h"
 
 #define FPGA_MAX_PACKET_LENGTH 32
 #define FPGA_PACKET_LENGTH 8 // *xxxxSS#
@@ -10,12 +10,10 @@
 #define FPGA_IDX_CH_VOL    200  // here we need 40 values here
 
 class Fpga : public X32Base {
-        Uart* uart;
     public:
-        char fpgaBufferUart[256];
         sFpgaRouting fpgaRouting;
-        int fpgaPacketBufLen = 0;
-        char fpgaPacketBuffer[FPGA_MAX_PACKET_LENGTH];
+
+        SPI* spi;
 
         Fpga(X32BaseParameter* basepar);
 
@@ -38,6 +36,5 @@ class Fpga : public X32Base {
         void RoutingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t p_chan);
         void RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
 
-        void RoutingSendConfigToFpga(void);
-        void ProcessUartData();
+        void RoutingSendConfigToFpga(int16_t channel);
 };

@@ -185,6 +185,13 @@ int board_init(void)
         "str r1, [r0]"
         );
 
+        // set SPI-pin-strength to high
+        asm volatile(
+        "ldr r0, =0x43FAC450\n\t"
+        "ldr r1, =0x00000002\n\t"
+        "str r1, [r0]"
+        );
+
 	// enable LAMP (asserted when high)
 	gpio_request(LAMP_PWM, "LAMP_PWM");
 	gpio_direction_output(LAMP_PWM, 1);

@@ -24,9 +24,9 @@
 
 #include "mixer.h"
 
-Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) { 
-    dsp = new DSP1(basepar);
+Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     fpga = new Fpga(basepar);
+    dsp = new DSP1(basepar);
     adda = new Adda(basepar);
 
     for(int v=0;v<MAX_VCHANNELS;v++) {
@@ -35,7 +35,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Mixer::Init() {
-    dsp->dspInit();
+    dsp->Init();
     dsp->SendAll();
     fpga->Init();
     adda->Init();
@@ -48,7 +48,6 @@ void Mixer::Init() {
 }
 
 void Mixer::Tick10ms(void){
-    fpga->ProcessUartData();
     dsp->Tick10ms();
 }
 
@@ -192,16 +191,16 @@ void Mixer::ChangeHardwareInput(uint8_t outputIndex, int8_t amount) {
     int16_t newValue = currentRouting + amount;
 
     if (newValue > NUM_INPUT_CHANNEL) {
-        newValue -= NUM_INPUT_CHANNEL;
+        newValue -= (NUM_INPUT_CHANNEL + 1);
     }
     if (newValue < 0) {
-        newValue += NUM_INPUT_CHANNEL;
+        newValue += (NUM_INPUT_CHANNEL + 1); // we allow 112 input channels plus a single "OFF" channel
     }
 
     helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Change! %d -> %d", currentRouting, newValue);
 
     fpga->RoutingSetOutputSourceByIndex(outputIndex+1, newValue);
-    fpga->RoutingSendConfigToFpga();
+    fpga->RoutingSendConfigToFpga(outputIndex);
     state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 

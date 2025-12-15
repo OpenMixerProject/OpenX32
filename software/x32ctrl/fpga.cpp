@@ -25,15 +25,14 @@
 #include "fpga.h"
 
 Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
-	uart = new Uart(basepar);
+	spi = new SPI(basepar);
+    if (!spi->UploadBitstreamFpgaLattice()) {
+        spi->UploadBitstreamFpgaXilinx();
+    }
+    spi->OpenConnectionFpga();
 }
 
 void Fpga::Init(void) {
-	const char serial[] = "/dev/ttymxc3";
-	const uint32_t speed = 115200;
-	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial, speed);
-	uart->Open(serial, speed, true);
-
 	// reset routing-configuration and dsp-configuration
 	RoutingDefaultConfig();
 }
@@ -74,7 +73,7 @@ void Fpga::RoutingDefaultConfig(void) {
 	}
 
 	// transmit routing-configuration to FPGA
-	RoutingSendConfigToFpga();
+	RoutingSendConfigToFpga(-1);
 }
 
 // set the outputs of the audio-routing-matrix to desired input-sources
@@ -442,89 +441,32 @@ void Fpga::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
 }
 
 // helper-function to send the audio-routing to the fpga
-void Fpga::RoutingSendConfigToFpga(void) {
-	data_64b routingData;
-
+void Fpga::RoutingSendConfigToFpga(int16_t channel) {
 	// copy routing-struct into array
 	uint8_t buf[sizeof(fpgaRouting)];
 	memcpy(&buf[0], &fpgaRouting, sizeof(fpgaRouting));
 
-	// now copy this array into chunks of 64-bit-data and transmit it to FPGA
-	uint8_t chunkCount = (NUM_INPUT_CHANNEL/8);
-	for (uint8_t i = 0; i < chunkCount; i++) {
-		// copy 8 bytes from routing-data
-		memcpy(&routingData.u8[0], &buf[i * 8], 8);
+	// FPGA expects data in this format:
+	// 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+	// 0  |----- DATA -----| 0 |--- ADDR ---|
 
-		helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "send routing data as chunk %d of %d", i, chunkCount-1);
-		// now send data to FPGA
-		uart->TxToFPGA(FPGA_IDX_ROUTING + (i * 8), &routingData);
-	}
-}
+	uint8_t txData[2];
+	uint8_t rxData[2];
 
-void Fpga::ProcessUartData() {
-	uint8_t currentByte;
-
-	int bytesToProcess = uart->Rx(&fpgaBufferUart[0], sizeof(fpgaBufferUart));
-
-	if (bytesToProcess <= 0) {
-		return;
-	}
-
-	for (int i = 0; i < bytesToProcess; i++) {
-		currentByte = (uint8_t)fpgaBufferUart[i];
-	
-		// add received byte to buffer
-		if (fpgaPacketBufLen < FPGA_MAX_PACKET_LENGTH) {
-			fpgaPacketBuffer[fpgaPacketBufLen++] = currentByte;
-		} else {
-			// buffer full -> remove oldest byte
-			memmove(fpgaPacketBuffer, fpgaPacketBuffer + 1, FPGA_MAX_PACKET_LENGTH - 1);
-			fpgaPacketBuffer[FPGA_MAX_PACKET_LENGTH - 1] = currentByte;
+	if (channel >= 0) {
+		helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "send routing data %d", channel+1);
+		txData[0] = buf[channel]; // data (will be sent first)
+		txData[1] = channel; // address (will be sent last)
+		spi->SendFgpaData(&txData[0], &rxData[0], 2);
+		// ignore received data for now
+	}else{
+		//for (uint8_t i = 0; i < sizeof(fpgaRouting); i++) {
+		for (uint8_t i = 0; i < 112; i++) {
+			helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "send routing data %d of %d", i+1, sizeof(fpgaRouting));
+			txData[0] = buf[i]; // data (will be sent first)
+			txData[1] = i; // address (will be sent last)
+			spi->SendFgpaData(&txData[0], &rxData[0], 2);
+			// ignore received data for now
 		}
-
-		int packetBegin = -1;
-		int packetEnd = -1;
-		int receivedPacketLength = 0; // length of detected packet
-
-		// check if we received enought data. We expect *xxxxss#
-		if (fpgaPacketBufLen >= FPGA_PACKET_LENGTH) {
-			// check if received character is end of message ('#')
-			if (fpgaPacketBuffer[fpgaPacketBufLen - 1] == '#') {
-				// we received possible end of a message
-				packetEnd = fpgaPacketBufLen - 1;
-
-				// now check begin of message ('*')
-				if (fpgaPacketBuffer[fpgaPacketBufLen - FPGA_PACKET_LENGTH] == '*') {
-					packetBegin = fpgaPacketBufLen - FPGA_PACKET_LENGTH;
-
-					receivedPacketLength = packetEnd - packetBegin + 1;
-
-					// now calc sum over payload and check against transmitted sum
-					uint16_t sumRemote = ((uint16_t)fpgaPacketBuffer[packetEnd - 2] << 8) + (uint16_t)fpgaPacketBuffer[packetEnd - 1];
-					uint16_t sumLocal = 0;
-					for (uint8_t j = 0; j < (receivedPacketLength - 4); j++) {
-						sumLocal += fpgaPacketBuffer[packetBegin + 1 + j];
-					}
-
-					if (sumLocal == sumRemote) {
-
-						// empfangene Bytes als String-Wert ausgeben
-						helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "Received: %s", &fpgaPacketBuffer[packetBegin + 1]);
-						
-						
-						// TODO: Implement FPGA EventBuffer (really needed?)
-
-						// we received a valid packet. Offer the received data to fpgaCallback
-						//uint8_t payloadLen = receivedPacketLength - 4;
-						
-						//callbackFpga(&fpgaPacketBuffer[packetBegin + 1], payloadLen);
-
-						// shift remaining bytes by processed amount of data
-						memmove(fpgaPacketBuffer, fpgaPacketBuffer + receivedPacketLength, fpgaPacketBufLen - receivedPacketLength);
-						fpgaPacketBufLen -= receivedPacketLength;
-					}
-				}
-			}
-		}
-  	}
+	}
 }

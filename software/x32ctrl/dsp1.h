@@ -53,7 +53,7 @@ class DSP1 : X32Base {
         SPI* spi;
 
         DSP1(X32BaseParameter* basepar);
-        void dspInit(void);
+        void Init(void);
         void Tick10ms(void);
         void Tick100ms(void);
 

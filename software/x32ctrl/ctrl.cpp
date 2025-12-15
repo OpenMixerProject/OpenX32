@@ -270,7 +270,7 @@ void X32Ctrl::LoadConfig() {
 		for (uint8_t i = 0; i < 40; i++) {
 			mixer->fpga->fpgaRouting.dsp[i] = mixer_ini[section][(String("dsp") + i).c_str()].as<int>();
 		}
-		mixer->fpga->RoutingSendConfigToFpga();
+		mixer->fpga->RoutingSendConfigToFpga(-1);
 	}
 
 }
@@ -2458,9 +2458,9 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 				switch (button){
 					case X32_BTN_ENCODER1:
 						// Reload DSP1
-						mixer->dsp->spi->CloseDspConnections();
-						mixer->dsp->spi->ConfigureDsp();
-						mixer->dsp->spi->OpenDspConnections();
+						mixer->dsp->spi->CloseConnectionDsps();
+						mixer->dsp->spi->UploadBitstreamDsps();
+						mixer->dsp->spi->OpenConnectionDsps();
 						usleep(50000); // wait 50ms
 						mixer->dsp->SendAll();
 						mixer->dsp->SendAll(); // currently we need to send the data twice. Maybe a bug in the SPI-connection or a timing-issue?

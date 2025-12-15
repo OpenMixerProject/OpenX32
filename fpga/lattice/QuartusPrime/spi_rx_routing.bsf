@@ -21,9 +21,9 @@ on the Quartus Prime software download page.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 376 160)
-	(text "audiomatrix_routing_ram" (rect 5 0 104 12)(font "Arial" ))
-	(text "inst" (rect 8 128 20 140)(font "Arial" ))
+	(rect 16 16 240 128)
+	(text "spi_rx_routing" (rect 5 0 61 12)(font "Arial" ))
+	(text "inst" (rect 8 96 20 108)(font "Arial" ))
 	(port
 		(pt 0 32)
 		(input)
@@ -34,50 +34,46 @@ on the Quartus Prime software download page.
 	(port
 		(pt 0 48)
 		(input)
-		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 0 0 122 12)(font "Arial" ))
-		(text "cfg_wr_addr[(addr_width-1)..0]" (rect 21 43 143 55)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48)(line_width 3))
+		(text "i_spi_ncs" (rect 0 0 37 12)(font "Arial" ))
+		(text "i_spi_ncs" (rect 21 43 58 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 1))
 	)
 	(port
 		(pt 0 64)
 		(input)
-		(text "cfg_wr_data[(addr_width-1)..0]" (rect 0 0 121 12)(font "Arial" ))
-		(text "cfg_wr_data[(addr_width-1)..0]" (rect 21 59 142 71)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
+		(text "i_spi_clk" (rect 0 0 34 12)(font "Arial" ))
+		(text "i_spi_clk" (rect 21 59 55 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 1))
 	)
 	(port
 		(pt 0 80)
 		(input)
-		(text "cfg_wr_en" (rect 0 0 43 12)(font "Arial" ))
-		(text "cfg_wr_en" (rect 21 75 64 87)(font "Arial" ))
+		(text "i_spi_data" (rect 0 0 40 12)(font "Arial" ))
+		(text "i_spi_data" (rect 21 75 61 87)(font "Arial" ))
 		(line (pt 0 80)(pt 16 80)(line_width 1))
 	)
 	(port
-		(pt 0 96)
-		(input)
-		(text "output_channel_idx[(addr_width-1)..0]" (rect 0 0 146 12)(font "Arial" ))
-		(text "output_channel_idx[(addr_width-1)..0]" (rect 21 91 167 103)(font "Arial" ))
-		(line (pt 0 96)(pt 16 96)(line_width 3))
+		(pt 224 32)
+		(output)
+		(text "o_cfg_wr_addr[6..0]" (rect 0 0 82 12)(font "Arial" ))
+		(text "o_cfg_wr_addr[6..0]" (rect 121 27 203 39)(font "Arial" ))
+		(line (pt 224 32)(pt 208 32)(line_width 3))
 	)
 	(port
-		(pt 360 32)
+		(pt 224 48)
 		(output)
-		(text "read_addr[(addr_width-1)..0]" (rect 0 0 112 12)(font "Arial" ))
-		(text "read_addr[(addr_width-1)..0]" (rect 227 27 339 39)(font "Arial" ))
-		(line (pt 360 32)(pt 344 32)(line_width 3))
+		(text "o_cfg_wr_data[6..0]" (rect 0 0 81 12)(font "Arial" ))
+		(text "o_cfg_wr_data[6..0]" (rect 122 43 203 55)(font "Arial" ))
+		(line (pt 224 48)(pt 208 48)(line_width 3))
 	)
-	(parameter
-		"RAM_DEPTH"
-		"128"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"ADDR_WIDTH"
-		"7"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
+	(port
+		(pt 224 64)
+		(output)
+		(text "o_cfg_wr_en" (rect 0 0 54 12)(font "Arial" ))
+		(text "o_cfg_wr_en" (rect 149 59 203 71)(font "Arial" ))
+		(line (pt 224 64)(pt 208 64)(line_width 1))
+	)
 	(drawing
-		(rectangle (rect 16 16 344 128)(line_width 1))
+		(rectangle (rect 16 16 208 96)(line_width 1))
 	)
-	(annotation_block (parameter)(rect 376 -64 476 16))
 )

@@ -342,7 +342,7 @@ leds {
 //		pinctrl_gpio2: gpio2grp {
 //                        fsl,pins = <
 //				MX25_PAD_CSPI1_RDY__GPIO_2_22	0x80000000      // DSP nRESET
-//				MX25_PAD_KPP_ROW0__GPIO_2_29	0x80000000		// FPGA nINIT_B
+//				MX25_PAD_KPP_ROW0__GPIO_2_29	0x80000000	// FPGA nINIT_B
 //			>;
 //		};
 //
