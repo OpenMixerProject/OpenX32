@@ -86,6 +86,9 @@
         <Source name="../uart_collector.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
+        <Source name="../spi_rx_routing.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
         <Source name="impl1/impl1.xcf" type="Programming Project File" type_short="Programming">
             <Options/>
         </Source>
