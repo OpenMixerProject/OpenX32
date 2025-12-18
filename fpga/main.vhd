@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Mon Dec 15 01:21:51 2025"
+-- CREATED		"Thu Dec 18 23:22:32 2025"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -363,7 +363,7 @@ DA_TX <= imx25_uart3_txd;
 AD0_TX <= imx25_uart3_txd;
 AD1_TX <= imx25_uart3_txd;
 CARD_TX <= imx25_uart3_txd;
-SPI_MISO <= '0';
+SPI_MISO <= SPI_MOSI;
 
 
 
@@ -928,7 +928,6 @@ b2v_inst6 : audioclk
 PORT MAP(i_clk => clk_24_576MHz,
 		 o_clk => clk_12_288MHz,
 		 o_fs => tdm_fs);
-
 
 clk_16MHz <= fpgaclk;
 AD0_MCLK <= clk_12_288MHz;

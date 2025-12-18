@@ -374,9 +374,9 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 1344 1072 1512 1088)
+	(rect 1312 1072 1480 1088)
 	(text "INPUT" (rect 125 0 153 9)(font "Arial" (font_size 6)))
-	(text "SPI_nCS0" (rect 5 0 49 10)(font "DejaVu Sans Condensed" ))
+	(text "SPI_nCS0" (rect 5 0 48 10)(font "DejaVu Sans Condensed" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -390,9 +390,9 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 1344 1088 1512 1104)
+	(rect 1312 1088 1480 1104)
 	(text "INPUT" (rect 125 0 153 9)(font "Arial" (font_size 6)))
-	(text "SPI_CLK" (rect 5 0 44 10)(font "DejaVu Sans Condensed" ))
+	(text "SPI_CLK" (rect 5 0 43 10)(font "DejaVu Sans Condensed" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -406,9 +406,9 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 1344 1104 1512 1120)
+	(rect 1312 1104 1480 1120)
 	(text "INPUT" (rect 125 0 153 9)(font "Arial" (font_size 6)))
-	(text "SPI_MOSI" (rect 5 0 48 10)(font "DejaVu Sans Condensed" ))
+	(text "SPI_MOSI" (rect 5 0 47 10)(font "DejaVu Sans Condensed" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -4581,21 +4581,21 @@ on the Quartus Prime software download page.
 		(pt 224 32)
 		(output)
 		(text "o_cfg_wr_addr[6..0]" (rect 0 0 97 10)(font "Arial" ))
-		(text "o_cfg_wr_addr[6..0]" (rect 121 27 203 37)(font "Arial" ))
+		(text "o_cfg_wr_addr[6..0]" (rect 121 27 218 37)(font "Arial" ))
 		(line (pt 224 32)(pt 208 32)(line_width 3))
 	)
 	(port
 		(pt 224 48)
 		(output)
 		(text "o_cfg_wr_data[6..0]" (rect 0 0 97 10)(font "Arial" ))
-		(text "o_cfg_wr_data[6..0]" (rect 121 43 203 53)(font "Arial" ))
+		(text "o_cfg_wr_data[6..0]" (rect 121 43 218 53)(font "Arial" ))
 		(line (pt 224 48)(pt 208 48)(line_width 3))
 	)
 	(port
 		(pt 224 64)
 		(output)
 		(text "o_cfg_wr_en" (rect 0 0 62 10)(font "Arial" ))
-		(text "o_cfg_wr_en" (rect 151 59 203 69)(font "Arial" ))
+		(text "o_cfg_wr_en" (rect 151 59 213 69)(font "Arial" ))
 		(line (pt 224 64)(pt 208 64))
 	)
 	(drawing
@@ -4645,7 +4645,7 @@ on the Quartus Prime software download page.
 		(pt 360 32)
 		(output)
 		(text "read_addr[(addr_width-1)..0]" (rect 0 0 136 10)(font "Arial" ))
-		(text "read_addr[(addr_width-1)..0]" (rect 224 27 339 37)(font "Arial" ))
+		(text "read_addr[(addr_width-1)..0]" (rect 224 27 360 37)(font "Arial" ))
 		(line (pt 360 32)(pt 344 32)(line_width 3))
 	)
 	(parameter
@@ -4662,23 +4662,6 @@ on the Quartus Prime software download page.
 		(rectangle (rect 16 16 344 128))
 	)
 	(annotation_block (parameter)(rect 1984 968 2192 1008))
-)
-(symbol
-	(rect 1528 1168 1560 1200)
-	(text "GND" (rect 8 16 29 25)(font "Arial" (font_size 6)))
-	(text "inst7" (rect 3 21 25 31)(font "DejaVu Sans Condensed" )(invisible))
-	(port
-		(pt 16 0)
-		(output)
-		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
-		(line (pt 16 8)(pt 16 0))
-	)
-	(drawing
-		(line (pt 8 8)(pt 16 16))
-		(line (pt 16 16)(pt 24 8))
-		(line (pt 8 8)(pt 24 8))
-	)
 )
 (connector
 	(pt 224 736)
@@ -7070,24 +7053,28 @@ on the Quartus Prime software download page.
 	(pt 1904 1096)
 )
 (connector
+	(pt 1480 1080)
 	(pt 1520 1080)
-	(pt 1512 1080)
 )
 (connector
+	(pt 1480 1096)
 	(pt 1520 1096)
-	(pt 1512 1096)
-)
-(connector
-	(pt 1520 1112)
-	(pt 1512 1112)
 )
 (connector
 	(pt 1576 1160)
-	(pt 1544 1160)
+	(pt 1504 1160)
 )
 (connector
-	(pt 1544 1160)
-	(pt 1544 1168)
+	(pt 1504 1160)
+	(pt 1504 1112)
+)
+(connector
+	(pt 1480 1112)
+	(pt 1504 1112)
+)
+(connector
+	(pt 1504 1112)
+	(pt 1520 1112)
 )
 (junction (pt 232 1136))
 (junction (pt 704 1136))
@@ -7099,6 +7086,7 @@ on the Quartus Prime software download page.
 (junction (pt 2520 576))
 (junction (pt 2520 584))
 (junction (pt 2520 568))
+(junction (pt 1504 1112))
 (text "Clock and reset" (rect 48 112 135 125)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "PLL Configuration" (rect 816 112 915 125)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "UART to i.MX25 (UART-Communication to Boards)" (rect 2248 352 2528 365)(font "Intel Clear" (color 255 0 0)(font_size 8)))
