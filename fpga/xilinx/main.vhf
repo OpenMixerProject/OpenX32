@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 12/14/2025 23:44:04
+-- /___/   /\     Timestamp : 12/18/2025 21:27:44
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -266,16 +266,6 @@ architecture BEHAVIORAL of main is
              uart_out : out   std_logic);
    end component;
    
-   component spi_rx_routing
-      port ( clk           : in    std_logic; 
-             i_spi_ncs     : in    std_logic; 
-             i_spi_clk     : in    std_logic; 
-             i_spi_data    : in    std_logic; 
-             o_cfg_wr_en   : out   std_logic; 
-             o_cfg_wr_addr : out   std_logic_vector (6 downto 0); 
-             o_cfg_wr_data : out   std_logic_vector (6 downto 0));
-   end component;
-   
    component audiomatrix_routing_ram
       port ( clk                : in    std_logic; 
              cfg_wr_en          : in    std_logic; 
@@ -294,8 +284,17 @@ architecture BEHAVIORAL of main is
              o_data     : out   std_logic_vector (23 downto 0));
    end component;
    
+   component spi_rx_routing
+      port ( clk           : in    std_logic; 
+             i_spi_ncs     : in    std_logic; 
+             i_spi_clk     : in    std_logic; 
+             i_spi_data    : in    std_logic; 
+             o_cfg_wr_en   : out   std_logic; 
+             o_cfg_wr_addr : out   std_logic_vector (6 downto 0); 
+             o_cfg_wr_data : out   std_logic_vector (6 downto 0));
+   end component;
+   
 begin
-   SPI_MISO <= '0';
    XLXI_49 : tdm_8ch_rx
       port map (bclk=>clk_12_288MHz,
                 fsync=>tdm_fs,
@@ -867,15 +866,6 @@ begin
       port map (I=>imx25_uart4_txd,
                 O=>imx25_uart4_rxd);
    
-   XLXI_768 : spi_rx_routing
-      port map (clk=>clk_24_576MHz,
-                i_spi_clk=>SPI_CLK,
-                i_spi_data=>SPI_MOSI,
-                i_spi_ncs=>SPI_nCS0,
-                o_cfg_wr_addr(6 downto 0)=>XLXN_2459(6 downto 0),
-                o_cfg_wr_data(6 downto 0)=>XLXN_2461(6 downto 0),
-                o_cfg_wr_en=>XLXN_2460);
-   
    XLXI_769 : audiomatrix_routing_ram
       port map (cfg_wr_addr(6 downto 0)=>XLXN_2459(6 downto 0),
                 cfg_wr_data(6 downto 0)=>XLXN_2461(6 downto 0),
@@ -891,6 +881,19 @@ begin
                 write_addr(6 downto 0)=>XLXN_1973(6 downto 0),
                 wr_en=>XLXN_1898,
                 o_data(23 downto 0)=>XLXN_2374(23 downto 0));
+   
+   XLXI_772 : BUF
+      port map (I=>SPI_MOSI,
+                O=>SPI_MISO);
+   
+   XLXI_773 : spi_rx_routing
+      port map (clk=>clk_24_576MHz,
+                i_spi_clk=>SPI_CLK,
+                i_spi_data=>SPI_MOSI,
+                i_spi_ncs=>SPI_nCS0,
+                o_cfg_wr_addr(6 downto 0)=>XLXN_2459(6 downto 0),
+                o_cfg_wr_data(6 downto 0)=>XLXN_2461(6 downto 0),
+                o_cfg_wr_en=>XLXN_2460);
    
 end BEHAVIORAL;
 

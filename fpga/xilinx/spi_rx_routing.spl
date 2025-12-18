@@ -1,0 +1,10 @@
+[Inputs]
+clk
+i_spi_ncs
+i_spi_clk
+i_spi_data
+[Outputs]
+o_cfg_wr_en
+=o_cfg_wr_addr[6:0]=
+=o_cfg_wr_data[6:0]=
+[BiDir]

@@ -337,6 +337,7 @@
         <signal name="SPI_MOSI" />
         <signal name="SPI_MISO" />
         <signal name="SPI_nCS0" />
+        <signal name="XLXN_2462" />
         <port polarity="Output" name="CARD_OUT0" />
         <port polarity="Output" name="CARD_OUT1" />
         <port polarity="Output" name="CARD_OUT2" />
@@ -626,7 +627,7 @@
             <line x2="384" y1="-352" y2="-352" x1="320" />
         </blockdef>
         <blockdef name="spi_rx_routing">
-            <timestamp>2025-12-14T14:45:8</timestamp>
+            <timestamp>2025-12-18T20:27:25</timestamp>
             <rect width="336" x="64" y="-256" height="256" />
             <line x2="0" y1="-224" y2="-224" x1="64" />
             <line x2="0" y1="-160" y2="-160" x1="64" />
@@ -637,11 +638,6 @@
             <line x2="464" y1="-128" y2="-128" x1="400" />
             <rect width="64" x="400" y="-44" height="24" />
             <line x2="464" y1="-32" y2="-32" x1="400" />
-        </blockdef>
-        <blockdef name="constant">
-            <timestamp>2006-1-1T10:10:10</timestamp>
-            <rect width="112" x="0" y="0" height="64" />
-            <line x2="112" y1="32" y2="32" x1="144" />
         </blockdef>
         <block symbolname="tdm_8ch_tx" name="XLXI_415">
             <blockpin signalname="clk_12_288MHz" name="bclk" />
@@ -1214,15 +1210,6 @@
             <blockpin signalname="imx25_uart4_txd" name="I" />
             <blockpin signalname="imx25_uart4_rxd" name="O" />
         </block>
-        <block symbolname="spi_rx_routing" name="XLXI_768">
-            <blockpin signalname="clk_24_576MHz" name="clk" />
-            <blockpin signalname="SPI_nCS0" name="i_spi_ncs" />
-            <blockpin signalname="SPI_CLK" name="i_spi_clk" />
-            <blockpin signalname="SPI_MOSI" name="i_spi_data" />
-            <blockpin signalname="XLXN_2460" name="o_cfg_wr_en" />
-            <blockpin signalname="XLXN_2459(6:0)" name="o_cfg_wr_addr(6:0)" />
-            <blockpin signalname="XLXN_2461(6:0)" name="o_cfg_wr_data(6:0)" />
-        </block>
         <block symbolname="audiomatrix_routing_ram" name="XLXI_769">
             <blockpin signalname="clk_24_576MHz" name="clk" />
             <blockpin signalname="XLXN_2460" name="cfg_wr_en" />
@@ -1239,13 +1226,18 @@
             <blockpin signalname="XLXN_2448(6:0)" name="read_addr(6:0)" />
             <blockpin signalname="XLXN_2374(23:0)" name="o_data(23:0)" />
         </block>
-        <block symbolname="constant" name="XLXI_771">
-            <attr value="0" name="CValue">
-                <trait delete="all:1 sym:0" />
-                <trait editname="all:1 sch:0" />
-                <trait valuetype="BitVector 32 Hexadecimal" />
-            </attr>
+        <block symbolname="buf" name="XLXI_772">
+            <blockpin signalname="SPI_MOSI" name="I" />
             <blockpin signalname="SPI_MISO" name="O" />
+        </block>
+        <block symbolname="spi_rx_routing" name="XLXI_773">
+            <blockpin signalname="clk_24_576MHz" name="clk" />
+            <blockpin signalname="SPI_nCS0" name="i_spi_ncs" />
+            <blockpin signalname="SPI_CLK" name="i_spi_clk" />
+            <blockpin signalname="SPI_MOSI" name="i_spi_data" />
+            <blockpin signalname="XLXN_2460" name="o_cfg_wr_en" />
+            <blockpin signalname="XLXN_2459(6:0)" name="o_cfg_wr_addr(6:0)" />
+            <blockpin signalname="XLXN_2461(6:0)" name="o_cfg_wr_data(6:0)" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
@@ -3045,8 +3037,6 @@
             <wire x2="3552" y1="2368" y2="2368" x1="3536" />
             <wire x2="3264" y1="2368" y2="2400" x1="3264" />
         </branch>
-        <iomarker fontsize="28" x="2704" y="2336" name="SPI_CLK" orien="R180" />
-        <iomarker fontsize="28" x="2704" y="2400" name="SPI_MOSI" orien="R180" />
         <instance x="3552" y="2464" name="XLXI_769" orien="R0">
         </instance>
         <instance x="4160" y="1968" name="XLXI_770" orien="R0">
@@ -3054,15 +3044,16 @@
         <branch name="SPI_MISO">
             <wire x2="2976" y1="2496" y2="2496" x1="2944" />
         </branch>
-        <instance x="2800" y="2464" name="XLXI_771" orien="R0">
-        </instance>
         <iomarker fontsize="28" x="2976" y="2496" name="SPI_MISO" orien="R0" />
         <branch name="SPI_MOSI">
-            <wire x2="2720" y1="2400" y2="2400" x1="2704" />
+            <wire x2="2688" y1="2400" y2="2400" x1="2592" />
+            <wire x2="2720" y1="2400" y2="2400" x1="2688" />
             <wire x2="2736" y1="2400" y2="2400" x1="2720" />
+            <wire x2="2688" y1="2400" y2="2496" x1="2688" />
+            <wire x2="2720" y1="2496" y2="2496" x1="2688" />
         </branch>
         <branch name="SPI_CLK">
-            <wire x2="2720" y1="2336" y2="2336" x1="2704" />
+            <wire x2="2720" y1="2336" y2="2336" x1="2576" />
             <wire x2="2736" y1="2336" y2="2336" x1="2720" />
         </branch>
         <branch name="clk_24_576MHz">
@@ -3070,12 +3061,15 @@
             <wire x2="2688" y1="2208" y2="2208" x1="2672" />
             <wire x2="2736" y1="2208" y2="2208" x1="2688" />
         </branch>
-        <instance x="2736" y="2432" name="XLXI_768" orien="R0">
-        </instance>
         <branch name="SPI_nCS0">
-            <wire x2="2720" y1="2272" y2="2272" x1="2704" />
+            <wire x2="2720" y1="2272" y2="2272" x1="2592" />
             <wire x2="2736" y1="2272" y2="2272" x1="2720" />
         </branch>
-        <iomarker fontsize="28" x="2704" y="2272" name="SPI_nCS0" orien="R180" />
+        <instance x="2720" y="2528" name="XLXI_772" orien="R0" />
+        <iomarker fontsize="28" x="2592" y="2272" name="SPI_nCS0" orien="R180" />
+        <iomarker fontsize="28" x="2576" y="2336" name="SPI_CLK" orien="R180" />
+        <iomarker fontsize="28" x="2592" y="2400" name="SPI_MOSI" orien="R180" />
+        <instance x="2736" y="2432" name="XLXI_773" orien="R0">
+        </instance>
     </sheet>
 </drawing>

@@ -856,7 +856,7 @@ void SPI::Tick100ms(void){
 bool SPI::OpenConnectionFpga() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 8; // we are using standard 8-bit-mode here for communication
-    uint32_t spiSpeed = 1000000; // SPI_FPGA_SPEED_HZ
+    uint32_t spiSpeed = SPI_FPGA_SPEED_HZ;
 
     spiFpgaHandle = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spiFpgaHandle < 0) {
@@ -1030,7 +1030,7 @@ bool SPI::SendFgpaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
     tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
     tr.cs_change = 0; // disable CS between two messages
     tr.len = len;
-    tr.speed_hz = 1000000; // SPI_FPGA_SPEED_HZ
+    tr.speed_hz = SPI_FPGA_SPEED_HZ;
 
     setFpgaChipSelectPin(true); // assert ChipSelect
     int ret = ioctl(spiFpgaHandle, SPI_IOC_MESSAGE(1), &tr); // send via SPI

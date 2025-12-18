@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="spi_rx_routing">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2025-12-14T14:45:8</timestamp>
+    <timestamp>2025-12-18T20:27:24</timestamp>
     <pin polarity="Input" x="0" y="-224" name="clk" />
     <pin polarity="Input" x="0" y="-160" name="i_spi_ncs" />
     <pin polarity="Input" x="0" y="-96" name="i_spi_clk" />
