@@ -94,7 +94,6 @@ class X32Ctrl : public X32Base {
         void DrawDynamics(uint8_t selectedChannelIndex);
         void DrawEq(uint8_t selectedChannelIndex);
 
-        void InitPages(void);
         void ShowPage(X32_PAGE page);
         void ShowPrevPage(void);
         void ShowNextPage(void);
@@ -104,6 +103,7 @@ class X32Ctrl : public X32Base {
         void surfaceSync(void);
         void surfaceSyncBoardMain();
         void surfaceSyncBoard(X32_BOARD board);
+        void surfaceSyncBoardExtra();
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void surfaceSyncBankIndicator(void);
         void surfaceUpdateMeter(void);

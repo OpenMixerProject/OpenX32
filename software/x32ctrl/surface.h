@@ -22,12 +22,13 @@ using namespace std;
 class Surface : public X32Base
 {
     private:
-        int buttonDefinitionIndex;
-        SurfaceButton x32_btn_def[MAX_BUTTONS];
         int encoderDefinitionIndex;
         sEncoderInfo x32_enc_def[MAX_ENCODERS];
 
         SurfaceFader faders[MAX_FADERS];
+
+        bool blinkstate = false;
+        set<uint16_t> blinklist;
 
         uint8_t int2segment(int8_t p_value);
 
@@ -56,6 +57,7 @@ class Surface : public X32Base
         void Init();
         void Reset();
         void Tick10ms();
+        void Tick100ms();
 
         void SetBrightness(uint8_t boardId, uint8_t brightness);
         void SetContrast(uint8_t boardId, uint8_t contrast);
@@ -63,8 +65,8 @@ class Surface : public X32Base
         void SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1);
         void SetX32RackDisplay(uint8_t p_value);
         void SetLed(uint8_t boardId, uint8_t ledId, bool state);
-        void SetLedByNr(uint16_t ledNr, bool state);
-        void SetLedByEnum(X32_BTN led, bool state);
+        void SetLedByNr(uint16_t ledNr, bool state, bool blink=false);
+        void SetLedByEnum(X32_BTN led, bool state, bool blink=false);
         void SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds);
         void SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);
         void SetMeterLedMain_FullCompactProducer(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);
@@ -78,8 +80,9 @@ class Surface : public X32Base
         );
         void SetLcdX(LcdData* p_data, uint8_t p_textCount);
 
-        uint16_t Enum2Button(X32_BTN button);
-        X32_BTN Button2Enum(uint16_t buttonNr);
+        map<X32_BTN, uint16_t> Enum2Button;
+        map<uint16_t, X32_BTN> Button2Enum;
+
         uint16_t Enum2Encoder(X32_ENC encoder);
         X32_ENC Encoder2Enum(uint16_t encoderNr);
 
