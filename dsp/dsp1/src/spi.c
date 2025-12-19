@@ -49,6 +49,7 @@ void spiInit(void) {
 	// Start SPI in CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
 	// TIMOD0 (no set TIMODx) = The SPI interrupt is latched in every core clock cycle in which the RXSPI buffer has a word in it
 	// TIMOD1 = The SPI interrupt is latched in every core clock cycle in which the TXSPI buffer is empty
+	//*pSPICTL = ISSEN | MSBF | WL32 | OPD; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainMode
 	*pSPICTL = ISSEN | MSBF | WL32; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit
 	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
 	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle

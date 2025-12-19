@@ -467,6 +467,28 @@ void Fpga::RoutingSendConfigToFpga(int16_t channel) {
 			printf("ERROR: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 		}
 	}else{
+		uint8_t txData[2];
+		uint8_t rxData[2];
+
+		// 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+		// 0  |----- DATA -----| 0 |--- ADDR ---|
+
+		for (uint8_t i = 0; i < 112; i++) {
+			helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "send routing data %d", channel+1);
+			txData[0] = buf[i]; // data (will be sent first and will put to bit 15 downto 8 in FPGA)
+			txData[1] = (i & 0b01111111); // address (will be sent last to bit 7 downto 0 in FPGA)
+			spi->SendFgpaData(&txData[0], &rxData[0], 2);
+
+			if ((rxData[0] != txData[0]) || (rxData[1] != txData[1])) {
+				// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
+				printf("ERROR: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
+			}
+		}
+
+
+
+
+		/*
 		// the FPGA has an auto-increment option when the last address-bit has been set to 1
 		uint8_t txData[113]; // first address plus 112 signals
 		uint8_t rxData[113]; // first address plus 112 signals
@@ -487,5 +509,6 @@ void Fpga::RoutingSendConfigToFpga(int16_t channel) {
 
 		// send all data in one transmission
 		spi->SendFgpaData(&txData[0], &rxData[0], 113);
+		*/
 	}
 }
