@@ -22,10 +22,13 @@ using namespace std;
 class Surface : public X32Base
 {
     private:
-        int buttonDefinitionIndex;
-        SurfaceButton x32_btn_def[MAX_BUTTONS];
+        
+
         int encoderDefinitionIndex;
         sEncoderInfo x32_enc_def[MAX_ENCODERS];
+        
+
+
 
         SurfaceFader faders[MAX_FADERS];
 
@@ -78,8 +81,9 @@ class Surface : public X32Base
         );
         void SetLcdX(LcdData* p_data, uint8_t p_textCount);
 
-        uint16_t Enum2Button(X32_BTN button);
-        X32_BTN Button2Enum(uint16_t buttonNr);
+        map<X32_BTN, uint16_t> Enum2Button;
+        map<uint16_t, X32_BTN> Button2Enum;
+
         uint16_t Enum2Encoder(X32_ENC encoder);
         X32_ENC Encoder2Enum(uint16_t encoderNr);
 

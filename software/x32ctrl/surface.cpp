@@ -27,7 +27,6 @@
 Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
     uart = new Uart(basepar);
 
-    buttonDefinitionIndex = 0;
     encoderDefinitionIndex = 0;
 }
 
@@ -71,15 +70,9 @@ void Surface::Tick10ms(){
 }
 
 void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
-    if (buttonDefinitionIndex >= MAX_BUTTONS)
-    {
-        //TODO: Error Message
-        helper->Error("ERROR: MAX_BUTTONS\n");
-        return;
-    }
-    x32_btn_def[buttonDefinitionIndex].button = p_button;
-    x32_btn_def[buttonDefinitionIndex].buttonNr = p_buttonNr;
-    buttonDefinitionIndex++;
+    Enum2Button[p_button] = p_buttonNr;
+    Button2Enum[p_buttonNr] = p_button;
+
     helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
 }
 
@@ -100,6 +93,41 @@ void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
 void Surface::InitDefinitions(void) {
     if(config->IsModelX32Full()) {
     
+        // Board Extra
+
+        AddButtonDefinition(X32_BTN_VIEW_SCENES, 0x00);
+        AddButtonDefinition(X32_BTN_SCENES_PREV, 0x01);
+        AddButtonDefinition(X32_BTN_SCENES_NEXT, 0x02);
+        AddButtonDefinition(X32_BTN_SCENES_UNDO, 0x03);
+        AddButtonDefinition(X32_BTN_SCENES_GO, 0x04);
+
+        AddButtonDefinition(X32_BTN_VIEW_ASSIGN, 0x05);
+        AddButtonDefinition(X32_BTN_ASSIGN_5, 0x06);
+        AddButtonDefinition(X32_BTN_ASSIGN_6, 0x07);
+        AddButtonDefinition(X32_BTN_ASSIGN_7, 0x08);
+        AddButtonDefinition(X32_BTN_ASSIGN_8, 0x09);
+        AddButtonDefinition(X32_BTN_ASSIGN_9, 0x0A);
+        AddButtonDefinition(X32_BTN_ASSIGN_10, 0x0B);
+        AddButtonDefinition(X32_BTN_ASSIGN_11, 0x0C);
+        AddButtonDefinition(X32_BTN_ASSIGN_12, 0x0D);
+        AddButtonDefinition(X32_BTN_ASSIGN_A, 0x0E);
+        AddButtonDefinition(X32_BTN_ASSIGN_B, 0x0F);
+        AddButtonDefinition(X32_BTN_ASSIGN_C, 0x10);
+
+        AddButtonDefinition(X32_BTN_MUTE_GROUP_1, 0x11);
+        AddButtonDefinition(X32_BTN_MUTE_GROUP_2, 0x12);
+        AddButtonDefinition(X32_BTN_MUTE_GROUP_3, 0x13);
+        AddButtonDefinition(X32_BTN_MUTE_GROUP_4, 0x14);
+        AddButtonDefinition(X32_BTN_MUTE_GROUP_5, 0x15);
+        AddButtonDefinition(X32_BTN_MUTE_GROUP_6, 0x16);
+
+        AddButtonDefinition(X32_LED_BACKLIGHT_ASSING_1, 0x17);
+        AddButtonDefinition(X32_LED_BACKLIGHT_ASSING_2, 0x18);
+        AddButtonDefinition(X32_LED_BACKLIGHT_ASSING_3, 0x19);
+        AddButtonDefinition(X32_LED_BACKLIGHT_ASSING_4, 0x1A);
+
+        // Board Main
+
         AddButtonDefinition(X32_BTN_TALK_A, 0x012E);
         AddButtonDefinition(X32_BTN_TALK_B, 0x012F);
         AddButtonDefinition(X32_BTN_VIEW_TALK, 0x0130);
@@ -157,7 +185,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_LEFT, 0x011E);
         AddButtonDefinition(X32_BTN_RIGHT, 0x011F);
 
-        // Board, L);
+        // Board L
 
         AddButtonDefinition(X32_BTN_DAW_REMOTE, 0x400);
         AddButtonDefinition(X32_BTN_CH_1_16, 0x401);
@@ -192,7 +220,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_BOARD_L_CH_7_MUTE, 0x446);
         AddButtonDefinition(X32_BTN_BOARD_L_CH_8_MUTE, 0x447);
 
-        // Board, M);
+        // Board M
 
         AddButtonDefinition(X32_BTN_BOARD_M_CH_1_SELECT, 0x520);
         AddButtonDefinition(X32_BTN_BOARD_M_CH_2_SELECT, 0x521);
@@ -221,40 +249,14 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_BOARD_M_CH_7_MUTE, 0x546);
         AddButtonDefinition(X32_BTN_BOARD_M_CH_8_MUTE, 0x547);
 
-        // Board, R);
+        // Board R
 
         AddButtonDefinition(X32_BTN_SEND_ON_FADERS, 0x800);
         AddButtonDefinition(X32_BTN_GROUP_DCA_1_8, 0x801);
         AddButtonDefinition(X32_BTN_BUS_1_8, 0x802);
         AddButtonDefinition(X32_BTN_BUS_9_16, 0x803);
         AddButtonDefinition(X32_BTN_MATRIX_MAIN_C, 0x804);
-        AddButtonDefinition(X32_BTN_CLEAR_SOLO, 0x806);
-
-        AddButtonDefinition(X32_BTN_SCENES_UNDO, 0x03);
-        AddButtonDefinition(X32_BTN_SCENES_GO, 0x04);
-        AddButtonDefinition(X32_BTN_SCENES_PREV, 0x01);
-        AddButtonDefinition(X32_BTN_SCENES_NEXT, 0x02);
-        AddButtonDefinition(X32_BTN_VIEW_SCENES, 0x00);
-
-        AddButtonDefinition(X32_BTN_ASSIGN_5, 0x06);
-        AddButtonDefinition(X32_BTN_ASSIGN_6, 0x07);
-        AddButtonDefinition(X32_BTN_ASSIGN_7, 0x08);
-        AddButtonDefinition(X32_BTN_ASSIGN_8, 0x09);
-        AddButtonDefinition(X32_BTN_ASSIGN_9, 0x0A);
-        AddButtonDefinition(X32_BTN_ASSIGN_10, 0x0B);
-        AddButtonDefinition(X32_BTN_ASSIGN_11, 0x0C);
-        AddButtonDefinition(X32_BTN_ASSIGN_12, 0x0D);
-        AddButtonDefinition(X32_BTN_ASSIGN_A, 0x0E);
-        AddButtonDefinition(X32_BTN_ASSIGN_B, 0x0F);
-        AddButtonDefinition(X32_BTN_ASSIGN_C, 0x10);
-        AddButtonDefinition(X32_BTN_VIEW_ASSIGN, 0x05);
-
-        AddButtonDefinition(X32_BTN_MUTE_GROUP_1, 0x11);
-        AddButtonDefinition(X32_BTN_MUTE_GROUP_2, 0x12);
-        AddButtonDefinition(X32_BTN_MUTE_GROUP_3, 0x13);
-        AddButtonDefinition(X32_BTN_MUTE_GROUP_4, 0x14);
-        AddButtonDefinition(X32_BTN_MUTE_GROUP_5, 0x15);
-        AddButtonDefinition(X32_BTN_MUTE_GROUP_6, 0x16);
+        AddButtonDefinition(X32_BTN_CLEAR_SOLO, 0x805);
 
         AddButtonDefinition(X32_BTN_BOARD_R_CH_1_SELECT, 0x820);
         AddButtonDefinition(X32_BTN_BOARD_R_CH_2_SELECT, 0x821);
@@ -286,7 +288,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_BOARD_R_CH_8_MUTE, 0x847);
         AddButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
 
-        // LED, only);
+        // LED, only
 
         AddButtonDefinition(X32_LED_EQ_HCUT, 0x0118);
         AddButtonDefinition(X32_LED_EQ_HSHV, 0x0119);
@@ -295,7 +297,8 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_LED_EQ_LSHV, 0x011C);
         AddButtonDefinition(X32_LED_EQ_LCUT, 0x011D);
 
-        AddButtonDefinition(X32_LED_USB_ACCESS, 0x0122);
+        // TODO
+        //AddButtonDefinition(X32_LED_USB_ACCESS, 0x0122);
 
         AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_GAIN, 0x012A);
         AddButtonDefinition(X32_LED_BACKLIGHT_CONFIG_FREQ, 0x012B);
@@ -613,31 +616,6 @@ void Surface::InitDefinitions(void) {
 
     }
 }
-
-uint16_t Surface::Enum2Button(X32_BTN button) {
-    //x32debug("DEBUG: enum2button: Button %d -> ", button);
-    for(int i = 0; i < buttonDefinitionIndex; i++) {
-        if (x32_btn_def[i].button == button) {
-            //x32debug("gefunden: Button %d\n", x32_btn_def[i].buttonNr);
-            return x32_btn_def[i].buttonNr;
-        }
-    }
-    //x32debug(" NICHT gefunden!\n");
-    return 0;
-}
-
-X32_BTN Surface::Button2Enum(uint16_t buttonNr) {
-    //x32debug("DEBUG: button2enum: ButtonNr %d -> ", buttonNr);
-    for(int i = 0; i < buttonDefinitionIndex; i++) {
-        if (x32_btn_def[i].buttonNr == buttonNr) {
-            //x32debug("gefunden: Button %d\n", x32_btn_def[i].button);
-            return x32_btn_def[i].button;
-        }
-    }
-    //x32debug(" NICHT gefunden!\n");
-    return X32_BTN_NONE;
-}
-
 uint16_t Surface::Enum2Encoder(X32_ENC encoder) {
     //x32debug("DEBUG: enum2button: Encoder %d -> ", encoder);
     for(int i = 0; i < encoderDefinitionIndex; i++) {
@@ -661,7 +639,6 @@ X32_ENC Surface::Encoder2Enum(uint16_t encoderNr) {
     //x32debug(" NICHT gefunden!\n");
     return X32_ENC_NONE;
 }
-
 // bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight
 // CCW <- XXXXXX X XXXXXX -> CW
 uint16_t Surface::CalcEncoderRingLedIncrement(uint8_t pct) {
@@ -1009,7 +986,7 @@ void Surface::SetLedByNr(uint16_t ledNr, bool ledState) {
 // ledNr = LED from X32_BTN enum
 // state = 0 / 1
 void Surface::SetLedByEnum(X32_BTN led, bool ledState) {
-    SetLedByNr(Enum2Button(led), ledState);
+    SetLedByNr(Enum2Button[led], ledState);
 }
 
 // boardId = 0, 1, 4, 5, 8

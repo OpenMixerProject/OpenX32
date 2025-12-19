@@ -1432,9 +1432,9 @@ void X32Ctrl::guiSync(void) {
 			//     lv_imagebutton_set_state(objects.setup_mute, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED);
 		}else if (state->activePage == X32_PAGE_UTILITY) {
 		//####################################
-		//#         Page Meters
+		//#         Page Utility
 		//####################################
-			guiSetEncoderText("Reload DSPs", "-", "-", "-", "-", String(state->debugvalue).c_str());
+			guiSetEncoderText("Reload DSPs", "-", "-", "-", String("D2: ") + String(state->debugvalue2).c_str(), String("D1: ") + String(state->debugvalue).c_str());
 		}else{
 		//####################################
 		//#         All other pages
@@ -1460,6 +1460,8 @@ void X32Ctrl::surfaceSync(void) {
 			surfaceSyncBoard(X32_BOARD_R);
 			
 		}
+
+		surfaceSyncBoardExtra();
 	}
 }
 
@@ -1677,6 +1679,17 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) { surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated()); }
 	}
 }
+
+void X32Ctrl::surfaceSyncBoardExtra() {
+	if (config->IsModelX32Full()) {
+		// TODO
+		surface->SetLcd(0, 0, 7, 0, 0, 0xA0, 0x20, 5, 5, "OpenX32", 0, 0, 0, "");
+		surface->SetLcd(0, 1, 7, 0, 0, 0xA0, 0x20, 5, 5, "is a", 0, 0, 0, "");
+		surface->SetLcd(0, 2, 7, 0, 0, 0xA0, 0x20, 5, 5, "cool", 0, 0, 0, "");
+		surface->SetLcd(0, 3, 7, 0, 0, 0xA0, 0x20, 5, 5, "Thing!", 0, 0, 0, "");
+	}
+}
+
 
 void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex){
     LcdData* data = new LcdData();
@@ -2291,8 +2304,7 @@ void X32Ctrl::ProcessUartData() {
             }       
 
             if (valid){
-                helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback(%d, %02X, %02X, %04X)", receivedBoardId, receivedClass, receivedIndex, receivedValue);
-                //eventBuffer.push_back(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
+                helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback: BoardId 0x%02X, Class 0x%02X, Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedIndex, receivedValue);
 				ProcessEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }
@@ -2350,8 +2362,10 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 }
 
 void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
-	X32_BTN button = surface->Button2Enum(((uint16_t)event->boardId << 8) + (uint16_t)(event->value & 0x7F));
+	X32_BTN button = surface->Button2Enum[((uint16_t)event->boardId << 8) + (uint16_t)(event->value & 0x7F)];
 	bool buttonPressed = (event->value >> 7) == 1;
+
+	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "X32_BTN:%d", button);
 
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		if (buttonPressed){
@@ -2543,7 +2557,6 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					mixer->ToggleMute(GetSelectedvChannelIndex());
 					break;
 				default:
-					// TODO: Callback to x32ctrl if needed
 					helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Unhandled button detected.\n");
 					break;
 			}
@@ -2671,6 +2684,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					case X32_BTN_ENCODER5:
 						break;
 					case X32_BTN_ENCODER6:
+						state->debugvalue = 0;
 						break;
 					default:
 						break;
@@ -2984,9 +2998,12 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				case X32_ENC_ENCODER4:
 					break;
 				case X32_ENC_ENCODER5:
+					state->debugvalue2++;
+					state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 					break;
 				case X32_ENC_ENCODER6:
-					surface->SetLed(1,state->debugvalue++, true);
+					//surface->SetLed(state->debugvalue2,state->debugvalue++, true);
+					surface->SetLcd(state->debugvalue2, state->debugvalue++, 1, 0, 0, 0xA0, 0x20, 10, 10, "huhu", 0x00, 0, 0, "");
 					state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 					break;
 				default:  

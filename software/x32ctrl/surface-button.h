@@ -24,7 +24,5 @@ class SurfaceButton
 
     public:
         X32_BTN button;
-        uint16_t buttonNr;
-        bool blink;
-        
+        bool blink;        
 };
