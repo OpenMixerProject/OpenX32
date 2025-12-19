@@ -63,6 +63,15 @@ class X32Ctrl : public X32Base {
         void LoadFaderBankLayout(int layout);
         void LoadConfig();
 
+        int surfacePacketCurrentIndex = 0;
+        int surfacePacketCurrent = 0;
+        char surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
+        char surfaceBufferUart[256]; // buffer for UART-readings
+        uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
+        void ProcessUartData();
+
+        void Blink();
+
     public:
         lv_chart_series_t* chartSeriesEQ;
         lv_chart_series_t* chartSeriesCompressor;
@@ -75,7 +84,7 @@ class X32Ctrl : public X32Base {
         void SaveConfig();
         void Tick10ms(void);
         void Tick100ms(void);
-        void ProcessEvents(void);
+        void ProcessEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
 
         void guiInit(void);

@@ -35,11 +35,6 @@ typedef union {
 } data_16b;
 
 typedef struct{
-    X32_BTN button;
-    uint16_t buttonNr;
-} sButtonInfo;
-
-typedef struct{
     X32_ENC encoder;
     uint16_t encoderNr;
 } sEncoderInfo;

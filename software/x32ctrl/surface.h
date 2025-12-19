@@ -12,28 +12,21 @@
 #include "surface-event.h"
 #include "surface-message.h"
 #include "surface-fader.h"
+#include "surface-button.h"
 #include "helper.h"
 #include "vchannel.h"
+
 
 using namespace std;
 
 class Surface : public X32Base
 {
     private:
-        Uart* uart;
-       
         int buttonDefinitionIndex;
-        sButtonInfo x32_btn_def[MAX_BUTTONS];
+        SurfaceButton x32_btn_def[MAX_BUTTONS];
         int encoderDefinitionIndex;
         sEncoderInfo x32_enc_def[MAX_ENCODERS];
 
-        int surfacePacketCurrentIndex = 0;
-        int surfacePacketCurrent = 0;
-        char surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
-        char surfaceBufferUart[256]; // buffer for UART-readings
-        uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
-
-        list<SurfaceEvent*> eventBuffer;
         SurfaceFader faders[MAX_FADERS];
 
         uint8_t int2segment(int8_t p_value);
@@ -54,8 +47,11 @@ class Surface : public X32Base
         uint8_t GetBoardId(uint8_t faderindex);
         uint8_t GetFaderId(uint8_t faderindex);
 
+        void Blink();
+
     public:
         Surface(X32BaseParameter* basepar);
+        Uart* uart;
 
         void Init();
         void Reset();
@@ -81,10 +77,6 @@ class Surface : public X32Base
             uint8_t sizeB, uint8_t xB, uint8_t yB, const char* strB
         );
         void SetLcdX(LcdData* p_data, uint8_t p_textCount);
-
-        void ProcessUartData(void);
-        bool HasNextEvent(void);
-        SurfaceEvent* GetNextEvent(void);
 
         uint16_t Enum2Button(X32_BTN button);
         X32_BTN Button2Enum(uint16_t buttonNr);

@@ -353,7 +353,7 @@ void X32Ctrl::Tick10ms(void){
 	surface->Tick10ms();	
 	mixer->Tick10ms();
 
-	ProcessEvents();
+	ProcessUartData();
 
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
 	UdpHandleCommunication();
@@ -386,18 +386,7 @@ void X32Ctrl::Tick100ms(void){
 //#####################################################################################################################
 //#####################################################################################################################
 
-void X32Ctrl::ProcessEvents(void){
-
-  // ############################################
-  // #
-  // #      Surface-Events
-  // #
-  // ############################################
-
-  while(surface->HasNextEvent()){
-	SurfaceEvent* event = surface->GetNextEvent();
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_TRACE, "Event: %s\n", (event->ToString()).c_str());
-
+void X32Ctrl::ProcessEventsRaw(SurfaceEvent* event){
 	switch(event->classId){
 	  case 'f':
 		FaderMoved(event);
@@ -411,9 +400,7 @@ void X32Ctrl::ProcessEvents(void){
 	  default:
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_TRACE, "unknown message: %s\n", event->ToString().c_str());
 	}
-
 	delete(event);
-  }
 }
 
 // receive data from XRemote client
@@ -2124,6 +2111,216 @@ uint8_t X32Ctrl::GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint1
 	}
 	return SurfaceChannel2vChannel(p_buttonIndex + offset);
 }
+
+void X32Ctrl::ProcessUartData() {
+    uint8_t receivedClass = 0;
+    uint8_t receivedIndex = 0;
+    uint16_t receivedValue = 0;
+    bool lastPackageIncomplete = false;
+
+    int bytesToProcess = surface->uart->Rx(&surfaceBufferUart[0], sizeof(surfaceBufferUart));
+
+    if (bytesToProcess <= 0) {
+        return;
+	}
+
+    // first init package buffer with 0x00s
+    for (uint8_t package=0; package<SURFACE_MAX_PACKET_LENGTH;package++){
+        // start at surfacePacketCurrentIndex to not overwrite saved data from last incomplete package
+        for (int i = surfacePacketCurrentIndex; i < 6; i++) {
+            surfacePacketBuffer[package][i]=0x00;
+        }
+        surfacePacketCurrentIndex=0;
+    }
+
+
+
+    if (helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE)) {
+        printf("DEBUG_SURFACE: ");
+
+        // print received values on one row
+        bool divide_after_next_dbg = false;
+        for (int i = 0; i < bytesToProcess; i++) {
+            if (divide_after_next_dbg && ((uint8_t)surfaceBufferUart[i] == 0xFE)) {
+                printf("| ");
+                divide_after_next_dbg = false;
+            }
+            printf("%02X ", (uint8_t)surfaceBufferUart[i]); // empfangene Bytes als HEX-Wert ausgeben
+            if (divide_after_next_dbg){
+                printf("| ");
+                divide_after_next_dbg = false;
+            } 
+            if ((uint8_t)surfaceBufferUart[i] == 0xFE) {
+                divide_after_next_dbg=true;
+            }
+        }
+        printf("\n");
+    }
+
+    // break up received data into packages
+    bool divide_after_next = false;
+    for (int i = 0; i < bytesToProcess; i++) {
+
+        if (divide_after_next && ((uint8_t)surfaceBufferUart[i] == 0xFE)) {
+            // previous package had no checksum
+            surfacePacketCurrent++;
+            surfacePacketCurrentIndex=0;
+            divide_after_next = false;
+        }
+
+        surfacePacketBuffer[surfacePacketCurrent][surfacePacketCurrentIndex++] = (uint8_t)surfaceBufferUart[i];
+
+        if (divide_after_next) {
+            surfacePacketCurrent++;
+            surfacePacketCurrentIndex=0;
+            divide_after_next = false;
+        }
+
+        // use 0xFE as package divider
+        if (((uint8_t)surfaceBufferUart[i] == 0xFE))
+        {
+            divide_after_next = true;
+        }
+    }
+
+    if (divide_after_next){
+        // divide_after_next got no usage, because the uartBuffer was emptied out -> reason: no checksum was send
+        // clean up this situation
+        surfacePacketCurrent++;
+        while (surfacePacketCurrentIndex < 6){  
+            // fill with zero - maybe not needed
+            surfacePacketBuffer[surfacePacketCurrent][surfacePacketCurrentIndex++]=0x00;
+        }
+        surfacePacketCurrentIndex=0;
+    }
+
+    if (
+        (surfacePacketCurrentIndex!=0) &&
+        !((surfacePacketBuffer[surfacePacketCurrent][3]==0xFE) | (surfacePacketBuffer[surfacePacketCurrent][4]==0xFE))
+    ){
+        // last package was incomplete, save it for next run
+        /*
+            Example1:                                  _____ incomplete, has no 0xFE (and is too short)
+                                                      /  
+            this run         66 01 FB 00 FE 12 | 66 02
+
+            next run         46 02 FE 44 | 66 03 D6 02 FE 33 | 66 04 73 02 FE 15 | 66 05 4E 03 FE 38 | 66 06 21 02 FE 65 |
+                             \
+                              \____ take the bytes from the last incomplete package and glue it together
+
+
+            Example2:                                        _____ incomplete, has no 0xFE
+                                                            / 
+            this run         66 05 EF 0E FE 0C | 66 06 52 0D
+
+            next run         FE 29 | 66 07 C2 0C FE 39
+                             \
+                              \____ take the bytes from the last incomplete package and glue it together
+            
+        */
+
+        helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "surfacePacketCurrent=%d seems incomplete? surfacePacketCurrentIndex=%d", surfacePacketCurrent, surfacePacketCurrentIndex);
+        lastPackageIncomplete = true;
+    }
+
+
+    if (helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE)) {
+        printf("DEBUG_SURFACE: ");
+        
+        // print packages, one in a row    
+        uint8_t packagesToPrint = surfacePacketCurrent;
+        if (lastPackageIncomplete){
+            packagesToPrint++;
+        }
+        printf("surfacePacketCurrent=%d\n", surfacePacketCurrent);
+
+        for (int package=0; package < packagesToPrint; package++) {
+            printf("surfaceProcessUartData(): Package %d: ", package);
+            for (uint8_t i = 0; i<6; i++){
+                printf("%02X ", surfacePacketBuffer[package][i]);
+            }
+            if (surfacePacketBuffer[package][0] == 0xFE){
+                printf("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
+            } else if (lastPackageIncomplete){
+                printf("  <--- incomplete, saved for next run");
+            }
+            printf("\n");
+        } 
+    }   
+
+
+    for (int8_t package=0; package < surfacePacketCurrent;package++){
+
+        if (surfacePacketBuffer[package][0] == 0xFE){
+            // received BoardId
+            uint8_t receivedBoardIdtemp = surfacePacketBuffer[package][1] & 0x7F;
+            switch(receivedBoardIdtemp){
+                case 0:
+                case 1:
+                case 4:
+                case 5:
+                case 8:
+                    receivedBoardId = receivedBoardIdtemp;
+                    break;
+            }
+        } else {
+            receivedClass = surfacePacketBuffer[package][0];
+            receivedIndex = surfacePacketBuffer[package][1];
+            if (surfacePacketBuffer[package][3] == 0xFE){
+                // short package
+                receivedValue = surfacePacketBuffer[package][2];
+                //receivedChecksum = surfacePacketBuffer[package][4];
+            } else if (surfacePacketBuffer[package][4] == 0xFE){
+                // long package
+                receivedValue = ((uint16_t)surfacePacketBuffer[package][3] << 8) | (uint16_t)surfacePacketBuffer[package][2];
+                //receivedChecksum = surfacePacketBuffer[package][5];
+            }
+        
+
+            // only process valid packages
+            bool valid = true;
+
+            switch (receivedClass){
+                case 'f':
+                case 'b':
+                case 'e':
+                    break;
+                default:
+                    valid = false;
+                    break;
+            }       
+
+            if (valid){
+                helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback(%d, %02X, %02X, %04X)", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+                //eventBuffer.push_back(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
+				ProcessEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
+            } 
+        }
+    }
+
+    // all packages are processed
+    // now clean up for next run
+
+    if (lastPackageIncomplete){
+        // copy last incomplete package to package0 for next run
+        for (uint8_t i=0; i < surfacePacketCurrentIndex; i++){
+            surfacePacketBuffer[0][i] = surfacePacketBuffer[surfacePacketCurrent][i];
+        }
+
+        // reset index for next run
+        lastPackageIncomplete=false;
+        surfacePacketCurrent=0;
+        // do NOT touch surfacePacketCurrentIndex!
+    }else {
+        // reset index for next run
+        surfacePacketCurrent=0;
+        surfacePacketCurrentIndex=0;
+    }
+}
+
+
+
+
 
 void X32Ctrl::FaderMoved(SurfaceEvent* event){
 	uint8_t vchannelIndex = VCHANNEL_NOT_SET;
