@@ -22,15 +22,13 @@ using namespace std;
 class Surface : public X32Base
 {
     private:
-        
-
         int encoderDefinitionIndex;
         sEncoderInfo x32_enc_def[MAX_ENCODERS];
-        
-
-
 
         SurfaceFader faders[MAX_FADERS];
+
+        bool blinkstate = false;
+        set<uint16_t> blinklist;
 
         uint8_t int2segment(int8_t p_value);
 
@@ -59,6 +57,7 @@ class Surface : public X32Base
         void Init();
         void Reset();
         void Tick10ms();
+        void Tick100ms();
 
         void SetBrightness(uint8_t boardId, uint8_t brightness);
         void SetContrast(uint8_t boardId, uint8_t contrast);
@@ -66,8 +65,8 @@ class Surface : public X32Base
         void SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1);
         void SetX32RackDisplay(uint8_t p_value);
         void SetLed(uint8_t boardId, uint8_t ledId, bool state);
-        void SetLedByNr(uint16_t ledNr, bool state);
-        void SetLedByEnum(X32_BTN led, bool state);
+        void SetLedByNr(uint16_t ledNr, bool state, bool blink=false);
+        void SetLedByEnum(X32_BTN led, bool state, bool blink=false);
         void SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds);
         void SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);
         void SetMeterLedMain_FullCompactProducer(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);

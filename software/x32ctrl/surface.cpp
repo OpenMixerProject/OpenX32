@@ -69,6 +69,10 @@ void Surface::Tick10ms(){
     Touchcontrol();
 }
 
+void Surface::Tick100ms(){
+    Blink();
+}
+
 void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
     Enum2Button[p_button] = p_buttonNr;
     Button2Enum[p_buttonNr] = p_button;
@@ -974,19 +978,26 @@ uint8_t Surface::int2segment(int8_t p_value){
 
 // ledNr = Nr of the LED from constants.h (contains BoardId and LED-Nr)
 // state = 0 / 1
-void Surface::SetLedByNr(uint16_t ledNr, bool ledState) {
+void Surface::SetLedByNr(uint16_t ledNr, bool ledState, bool blink) {
   uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
   uint8_t ledId = (uint8_t)(ledNr & 0x7F);
 
-  //x32debug("LedNr: 0x%04X -> BoardId: 0x%02X, LED: 0x%02X\n", ledNr, boardId, ledId);
+  if(blink) {
+    blinklist.insert(ledNr);
+  } else if (!blinklist.empty()) {
+    set<uint16_t>::iterator it = blinklist.find(ledNr);
+    if (it != blinklist.end()) {
+        blinklist.erase(it);
+    }
+  }
 
   SetLed(boardId, ledId, ledState);
 }
 
 // ledNr = LED from X32_BTN enum
 // state = 0 / 1
-void Surface::SetLedByEnum(X32_BTN led, bool ledState) {
-    SetLedByNr(Enum2Button[led], ledState);
+void Surface::SetLedByEnum(X32_BTN led, bool ledState, bool blink) {
+    SetLedByNr(Enum2Button[led], ledState, blink);
 }
 
 // boardId = 0, 1, 4, 5, 8
@@ -1177,7 +1188,14 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
 }
 
 void Surface::Blink(){
-    
+    blinkstate = !blinkstate;
+
+    for(uint16_t buttonNr : blinklist) {
+        uint8_t boardId = (uint8_t)((buttonNr & 0xFF00) >> 8);
+        uint8_t ledId = (uint8_t)(buttonNr & 0x7F);
+
+        SetLed(boardId, ledId, blinkstate);
+    }
 }
 
 

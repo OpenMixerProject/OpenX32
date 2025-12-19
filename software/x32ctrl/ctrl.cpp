@@ -368,6 +368,7 @@ void X32Ctrl::Tick100ms(void){
 	// update meters on XRemote-clients
 	xremote->UpdateMeter(mixer);
 
+	surface->Tick100ms();
 	mixer->Tick100ms();
 
 	if (!config->IsModelX32Core()) {
@@ -1579,7 +1580,10 @@ void X32Ctrl::surfaceSyncBoardMain() {
 
 	if (config->IsModelX32Rack()){
 		// Clear Solo
-		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)){ surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated()); }
+		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)){
+			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated(), mixer->IsSoloActivated()); 
+
+		}
 
 		// Main Channel
 		VChannel* mainchan = GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
@@ -1676,7 +1680,10 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 
 	if (p_board == X32_BOARD_R){
 		// Clear Solo
-		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) { surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated()); }
+		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) { 
+			bool soloActivated = mixer->IsSoloActivated();
+			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActivated, soloActivated); 
+		}
 	}
 }
 
