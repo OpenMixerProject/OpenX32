@@ -197,12 +197,16 @@ void systemSruInit(void) {
 	// ========================================
 	// route SPI signals to i.MX25
 	SRU(DPI_PB01_O, SPI_MOSI_I);	// Connect DPI PB1 to MOSI
-	SRU(SPI_MISO_O, DPI_PB02_I);	// Connect MISO to DPI PB2
 	SRU(DPI_PB03_O, SPI_CLK_I); 	// Connect DPI PB3 to SPI CLK
 	SRU(DPI_PB04_O, SPI_DS_I);  	// Connect DPI PB4 to SPI ChipSelect
+	SRU(SPI_MISO_O, DPI_PB02_I);	// Connect MISO to DPI PB2
 
+	// enable pin-output of MISO-pin when chip is selected
+	SRU(DPI_PB04_O, MISCA_IN0_I);	// Connect DPI PB4 (ChipSelect) to Inverter in MISCA-module
+	SRU(MISCA_OUT0_O, DPI_PBEN02_I);// Use inverted output of MISCA-module to enable pinBuffer for MISO when chip is activated
+
+	// set all other pins to input
 	SRU(LOW, DPI_PBEN01_I); 		// set to input
-	SRU(SPI_MISO_PBEN_O, DPI_PBEN02_I); 	// set to output when needed
 	SRU(LOW, DPI_PBEN03_I); 		// set to input
 	SRU(LOW, DPI_PBEN04_I); 		// set to input
 }

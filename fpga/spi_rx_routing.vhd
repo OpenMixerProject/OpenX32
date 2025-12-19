@@ -22,7 +22,7 @@
 -- GNU General Public License for more details.
 -- 
 -- VHDL File to read from SPI-device
--- v0.0.5, 15.12.2025
+-- v0.0.7, 19.12.2025
 -- OpenX32 Project
 -- https://github.com/OpenMixerProject/OpenX32
 --
@@ -50,22 +50,27 @@ entity spi_rx_routing is
 end entity;
 
 architecture behavioral of spi_rx_routing is
-	type t_SM is (s_Ready, s_Rx, s_Output, s_AutoIncrement, s_RxAi, s_OutputAi, s_Cleanup);
+	type t_SM is (s_Ready, s_Rx, s_Output, s_AutoIncrement, s_RxAi, s_OutputAi, s_Cleanup, s_WaitCsHigh);
 	signal s_SM				: t_SM := s_Ready;
 	
 	signal address_ai		: std_logic_vector(6 downto 0) := (others => '0');
 	signal z_spi_ncs		: std_logic;
 	signal z_spi_clk		: std_logic;
 	signal z_spi_data		: std_logic;
+	signal zz_spi_clk		: std_logic;
 	signal rx_data			: std_logic_vector(15 downto 0);
-	signal rx_bit_count	: integer range 0 to 20 := 0;
+	signal rx_bit_count	: integer range 0 to 16 := 0;
 begin
 	process (clk)
 	begin
 		if rising_edge(clk) then
+			-- set default-value for write-enable to low
+			o_cfg_wr_en <= '0';
+
 			z_spi_ncs <= i_spi_ncs;
 			z_spi_data <= i_spi_data;
 			z_spi_clk <= i_spi_clk;
+			zz_spi_clk <= z_spi_clk;
 		
 			if (s_SM = s_Ready) then
 				-- wait for ChipSelect to be asserted
@@ -77,7 +82,7 @@ begin
 				
 			elsif (s_SM = s_Rx) then
 				-- read data into shift-register on rising-edge
-				if (i_spi_clk = '1' and z_spi_clk = '0') then
+				if (z_spi_clk = '1' and zz_spi_clk = '0') then
 					-- rising edge of SPI_CLK
 
 					-- we are receiving:
@@ -87,7 +92,7 @@ begin
 					rx_bit_count <= rx_bit_count + 1;
 				end if;
 
-				if ((rx_bit_count = 15) and (i_spi_clk = '1' and z_spi_clk = '0')) then
+				if (rx_bit_count >= 16) then
 					-- we just received the expected 16 bytes -> output received data to RAM-block
 					s_SM <= s_Output;
 				elsif (z_spi_ncs = '1') then
@@ -121,18 +126,20 @@ begin
 
 			elsif (s_SM = s_RxAi) then
 				-- read data into shift-register on rising-edge
-				if (i_spi_clk = '1' and z_spi_clk = '0') then
+				if (z_spi_clk = '1' and zz_spi_clk = '0') then
 					-- rising edge of SPI_CLK
 
-					-- we are receiving:
+					-- in auto-increment-mode we are receiving only 8 bits
+					-- the upper 8 bits of the shift-register are unused:
+					-- 
 					-- 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-					-- 0  |----- DATA -----| 0 |--- ADDR ---|
+					--  x  x  x  x  x  x x x 0 |-- DATA ---|
 					rx_data <= rx_data(14 downto 0) & z_spi_data;
 					rx_bit_count <= rx_bit_count + 1;
 				end if;
 
-				if ((rx_bit_count = 7) and (i_spi_clk = '1' and z_spi_clk = '0')) then
-					-- we just received the expected 16 bytes -> output received data to RAM-block
+				if (rx_bit_count >= 8) then
+					-- we received the expected 8 bytes when in auto-increment-mode -> output received data to RAM-block
 					s_SM <= s_OutputAi;
 				elsif (z_spi_ncs = '1') then
 					-- ChipSelect deasserted -> abort
@@ -150,7 +157,16 @@ begin
 
 			elsif (s_SM = s_Cleanup) then
 				o_cfg_wr_en <= '0';
+				
+				s_SM <= s_WaitCsHigh;
 			
+			elsif (s_SM = s_WaitCsHigh) then
+				-- wait until ChipSelect is deasserted
+				if (z_spi_ncs = '1') then
+					s_SM <= s_Ready;
+				end if;
+				
+			else
 				s_SM <= s_Ready;
 				
 			end if;
