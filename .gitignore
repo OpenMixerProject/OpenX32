@@ -113,3 +113,4 @@ fpga/lattice/QuartusPrime/db/
 *.srp
 *.dmp
 ._Real_._Math_.vhd
+software/x32ctrl/.vscode/tasks.json
