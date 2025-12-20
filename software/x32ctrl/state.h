@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <stdint.h>
 #include "defines.h"
 #include "WString.h"
@@ -36,6 +37,16 @@ class State {
         uint32_t fpga_spi_speed = 0;
         uint32_t dsp_spi_config_speed = 0;
         uint32_t dsp_spi_speed = 0;
+
+        bool timers = false;
+        std::chrono::_V2::system_clock::time_point tp100msLastCall = std::chrono::system_clock::now();
+        std::chrono::_V2::system_clock::time_point tp10msLastCall = std::chrono::system_clock::now();
+        std::chrono::_V2::system_clock::time_point tp100msStart = std::chrono::system_clock::now();
+        std::chrono::_V2::system_clock::time_point tp100msEnd = std::chrono::system_clock::now();
+        std::chrono::nanoseconds tp100msDiff;
+        std::chrono::_V2::system_clock::time_point tp10msStart = std::chrono::system_clock::now();
+        std::chrono::_V2::system_clock::time_point tp10msEnd = std::chrono::system_clock::now();
+        std::chrono::nanoseconds tp10msDiff;
 
         void SetChangeFlags(uint16_t p_flag);
         bool HasChanged(uint16_t p_flag);

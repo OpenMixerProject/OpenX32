@@ -240,6 +240,11 @@ int main(int argc, char* argv[]) {
 		->group(catDebug)
 		->expected(0,1);
 
+	app->add_flag("--timers", state->timers, "Meassure Timers")
+		->configurable(false)
+		->group(catDebug)
+		->expected(0,1);
+
 	app->add_flag("--fpga-spi-speed", state->fpga_spi_speed, "SPI clockrate for bitstream loading and normal data transfer to/from FPGA")
 		->configurable(false)
 		->group(catDebug)

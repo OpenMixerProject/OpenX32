@@ -350,6 +350,12 @@ void X32Ctrl::SaveConfig() {
 //    ##    #### ##     ## ######## ##     ## 
 
 void X32Ctrl::Tick10ms(void){
+	if (state->timers){
+		state->tp10msStart = std::chrono::system_clock::now();
+		state->tp10msDiff = state->tp10msStart - state->tp10msLastCall; 
+		state->tp10msLastCall = state->tp10msStart;
+	}
+
 	surface->Tick10ms();	
 	mixer->Tick10ms();
 
@@ -361,19 +367,38 @@ void X32Ctrl::Tick10ms(void){
 	syncAll();
 
 	guiFastRefresh();
+
+	if (state->timers){
+		auto tp2 = std::chrono::system_clock::now();
+		std::chrono::nanoseconds diff2 = tp2 - state->tp10msStart; 
+		std::cout << "10 ms Timer - was called  " << chrono::duration_cast<chrono::milliseconds>(state->tp10msDiff).count() << " ms before, has taken " << chrono::duration_cast<chrono::milliseconds>(diff2).count() << " ms" << endl;
+	}
 }
 
 void X32Ctrl::Tick100ms(void){
+	if (state->timers){
+		state->tp100msStart = std::chrono::system_clock::now();
+		state->tp100msDiff = state->tp100msStart - state->tp100msLastCall; 
+		state->tp100msLastCall = state->tp100msStart;
+	}
+	
 	surfaceUpdateMeter();
+	surface->Tick100ms();
+
 	// update meters on XRemote-clients
 	xremote->UpdateMeter(mixer);
-
-	surface->Tick100ms();
+	
 	mixer->Tick100ms();
 
 	if (!config->IsModelX32Core()) {
 		// read the current DSP load
 	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
+	}
+
+	if (state->timers){
+		auto tp2 = std::chrono::system_clock::now();
+		std::chrono::nanoseconds diff2 = tp2 - state->tp100msStart; 
+		std::cout << "100 ms Timer - was called  " << chrono::duration_cast<chrono::milliseconds>(state->tp100msDiff).count() << " ms before, has taken " << chrono::duration_cast<chrono::milliseconds>(diff2).count() << " ms" << endl;
 	}
 }
 
@@ -1688,13 +1713,13 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 }
 
 void X32Ctrl::surfaceSyncBoardExtra() {
-	if (config->IsModelX32Full()) {
-		// TODO
-		surface->SetLcd(0, 0, 7, 0, 0, 0xA0, 0x20, 5, 5, "OpenX32", 0, 0, 0, "");
-		surface->SetLcd(0, 1, 7, 0, 0, 0xA0, 0x20, 5, 5, "is a", 0, 0, 0, "");
-		surface->SetLcd(0, 2, 7, 0, 0, 0xA0, 0x20, 5, 5, "cool", 0, 0, 0, "");
-		surface->SetLcd(0, 3, 7, 0, 0, 0xA0, 0x20, 5, 5, "Thing!", 0, 0, 0, "");
-	}
+	// if (config->IsModelX32Full()) {
+	// 	// TODO
+	// 	surface->SetLcd(0, 0, 7, 0, 0, 0xA0, 0x20, 5, 5, "OpenX32", 0, 0, 0, "");
+	// 	surface->SetLcd(0, 1, 7, 0, 0, 0xA0, 0x20, 5, 5, "is a", 0, 0, 0, "");
+	// 	surface->SetLcd(0, 2, 7, 0, 0, 0xA0, 0x20, 5, 5, "cool", 0, 0, 0, "");
+	// 	surface->SetLcd(0, 3, 7, 0, 0, 0xA0, 0x20, 5, 5, "Thing!", 0, 0, 0, "");
+	// }
 }
 
 
