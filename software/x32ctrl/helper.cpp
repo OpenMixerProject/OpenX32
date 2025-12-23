@@ -386,3 +386,26 @@ vector<string> Helper::split(string s, string delimiter) {
     res.push_back (s.substr (pos_start));
     return res;
 }
+
+
+void Helper::starttimer(uint8_t timer) {
+	plf::nanotimer* t = new plf::nanotimer();
+	timers[timer] = t;
+	t->start();
+}
+
+void Helper::stoptimer(uint8_t timer, const char* description) {
+
+	if (timers[timer] == NULL)
+	{
+		return;
+	}
+
+	plf::nanotimer* t = timers.at(timer);
+	double results = t->get_elapsed_ms();
+	
+	timers.erase(timer);
+	delete(t);
+
+	printf("Timing %s: %fms\n", description, results);
+}

@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <math.h>
 
 // includes for reading IP-Address
@@ -13,6 +14,8 @@
 #include <ifaddrs.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#include "lib/plf_nanotimer.h"
 
 #include "config.h"
 
@@ -27,6 +30,8 @@ class Helper {
     private:
         uint32_t debug_;
         uint8_t debuglevel_;
+
+        map<uint8_t, plf::nanotimer*> timers;
 
     public:
         void Log(const char* format, ...);
@@ -56,6 +61,10 @@ class Helper {
         bool IsInChannelBlock(uint8_t index, X32_VCHANNEL_BLOCK block);
 
         vector<string> split(string s, string delimiter);
+
+        void starttimer(uint8_t timer);
+        void stoptimer(uint8_t timer, const char* description);
+
 
         // Only show debug messages up to DEBUGLEVEL_..., e.g. DEBUGLEVEL_NORMAL
         void SetDebugLevel(uint8_t debuglevel)

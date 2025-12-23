@@ -591,7 +591,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_LED_MATRIX, 0x0015);
 
         AddButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
-        
+
     }
 
     if (config->IsModelX32Core()){
@@ -978,19 +978,21 @@ uint8_t Surface::int2segment(int8_t p_value){
 // ledNr = Nr of the LED from constants.h (contains BoardId and LED-Nr)
 // state = 0 / 1
 void Surface::SetLedByNr(uint16_t ledNr, bool ledState, bool blink) {
-  uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
-  uint8_t ledId = (uint8_t)(ledNr & 0x7F);
+    uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
+    uint8_t ledId = (uint8_t)(ledNr & 0x7F);
 
-  if(blink) {
-    blinklist.insert(ledNr);
-  } else if (!blinklist.empty()) {
-    set<uint16_t>::iterator it = blinklist.find(ledNr);
-    if (it != blinklist.end()) {
-        blinklist.erase(it);
-    }
-  }
-
-  SetLed(boardId, ledId, ledState);
+    if(blink) {
+        blinklist.insert(ledNr);
+    } else {
+        if (!blinklist.empty()) {
+            set<uint16_t>::iterator it = blinklist.find(ledNr);
+            if (it != blinklist.end()) {
+                blinklist.erase(it);
+            }
+        }
+        
+        SetLed(boardId, ledId, ledState);
+    }    
 }
 
 // ledNr = LED from X32_BTN enum

@@ -190,6 +190,7 @@ int Uart::Tx(MessageBase* message, bool addChecksum) {
 int Uart::Rx(char* buf, uint16_t bufLen) {
     int bytesRead;
     int bytesAvailable;
+    int bytesToRead;
 
 	if (ioctl(fd, FIONREAD, &bytesAvailable) == -1) {
 		perror("Error on ioctl FIONREAD");
@@ -198,7 +199,15 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 	}
 
 	if (bytesAvailable > 0) {
-        bytesRead = read(fd, buf, (bytesAvailable < bufLen) ? bytesAvailable : bufLen);
+
+        if (bytesAvailable < bufLen) {
+                bytesToRead = bytesAvailable;
+            } else { 
+                bytesToRead = bufLen;
+                helper->DEBUG_UART(DEBUGLEVEL_NORMAL, "buffer: %d bytes, bytes available to read: %d bytes - Buffer too small, we can not read all bytes!", bufLen, bytesAvailable);
+            }
+
+        bytesRead = read(fd, buf, bytesToRead);
 
 		if (bytesRead < 0) {
 			perror("Error reading from serial-port");

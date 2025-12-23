@@ -202,6 +202,8 @@ void X32Ctrl::ResetFaderBankLayout() {
 	}
 }
 
+//#####################################################################################################################
+//
 // ##        #######     ###    ########  
 // ##       ##     ##   ## ##   ##     ## 
 // ##       ##     ##  ##   ##  ##     ## 
@@ -209,6 +211,8 @@ void X32Ctrl::ResetFaderBankLayout() {
 // ##       ##     ## ######### ##     ## 
 // ##       ##     ## ##     ## ##     ## 
 // ########  #######  ##     ## ########  
+//
+//#####################################################################################################################
 
 void X32Ctrl::LoadConfig() {
 	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
@@ -275,7 +279,8 @@ void X32Ctrl::LoadConfig() {
 
 }
 
-
+//#####################################################################################################################
+//
 //  ######     ###    ##     ## ######## 
 // ##    ##   ## ##   ##     ## ##       
 // ##        ##   ##  ##     ## ##       
@@ -283,6 +288,8 @@ void X32Ctrl::LoadConfig() {
 //       ## #########  ##   ##  ##       
 // ##    ## ##     ##   ## ##   ##       
 //  ######  ##     ##    ###    ######## 
+//
+//#####################################################################################################################
 
 void X32Ctrl::SaveConfig() {
 	// mixer config
@@ -341,6 +348,8 @@ void X32Ctrl::SaveConfig() {
 	mixer_ini.save(X32_MIXER_CONFIGFILE);
 }
 
+//#####################################################################################################################
+//
 // ######## #### ##     ## ######## ########  
 //    ##     ##  ###   ### ##       ##     ## 
 //    ##     ##  #### #### ##       ##     ## 
@@ -348,12 +357,12 @@ void X32Ctrl::SaveConfig() {
 //    ##     ##  ##     ## ##       ##   ##   
 //    ##     ##  ##     ## ##       ##    ##  
 //    ##    #### ##     ## ######## ##     ## 
+//
+//#####################################################################################################################
 
 void X32Ctrl::Tick10ms(void){
 	if (state->timers){
-		state->tp10msStart = std::chrono::system_clock::now();
-		state->tp10msDiff = state->tp10msStart - state->tp10msLastCall; 
-		state->tp10msLastCall = state->tp10msStart;
+		helper->stoptimer(10, "Tick10ms - delay between calls");
 	}
 
 	surface->Tick10ms();	
@@ -368,18 +377,15 @@ void X32Ctrl::Tick10ms(void){
 
 	guiFastRefresh();
 
+	
 	if (state->timers){
-		auto tp2 = std::chrono::system_clock::now();
-		std::chrono::nanoseconds diff2 = tp2 - state->tp10msStart; 
-		std::cout << "10 ms Timer - was called  " << chrono::duration_cast<chrono::milliseconds>(state->tp10msDiff).count() << " ms before, has taken " << chrono::duration_cast<chrono::milliseconds>(diff2).count() << " ms" << endl;
+		helper->starttimer(10);
 	}
 }
 
 void X32Ctrl::Tick100ms(void){
 	if (state->timers){
-		state->tp100msStart = std::chrono::system_clock::now();
-		state->tp100msDiff = state->tp100msStart - state->tp100msLastCall; 
-		state->tp100msLastCall = state->tp100msStart;
+		helper->stoptimer(0, "Tick100ms - delay between calls");
 	}
 	
 	surfaceUpdateMeter();
@@ -396,9 +402,7 @@ void X32Ctrl::Tick100ms(void){
 	}
 
 	if (state->timers){
-		auto tp2 = std::chrono::system_clock::now();
-		std::chrono::nanoseconds diff2 = tp2 - state->tp100msStart; 
-		std::cout << "100 ms Timer - was called  " << chrono::duration_cast<chrono::milliseconds>(state->tp100msDiff).count() << " ms before, has taken " << chrono::duration_cast<chrono::milliseconds>(diff2).count() << " ms" << endl;
+		helper->starttimer(0);
 	}
 }
 
@@ -619,14 +623,18 @@ void X32Ctrl::UdpHandleCommunication(void) {
 
 
 }
+//#####################################################################################################################
+//
+//  ######   ##     ## #### 
+// ##    ##  ##     ##  ##  
+// ##        ##     ##  ##  
+// ##   #### ##     ##  ##  
+// ##    ##  ##     ##  ##  
+// ##    ##  ##     ##  ##  
+//  ######    #######  #### 
+//
+//#####################################################################################################################
 
-// ####################################################################
-// #
-// #
-// #        GUI
-// #
-// #
-// ###################################################################
 
 
 void X32Ctrl::guiFastRefresh(void) {
@@ -772,6 +780,18 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 	}
 	lv_chart_refresh(objects.current_channel_eq);
 }
+
+//#####################################################################################################################
+//
+// ########     ###     ######   ########       ######   #######  ##    ## ######## ########   #######  ##       
+// ##     ##   ## ##   ##    ##  ##            ##    ## ##     ## ###   ##    ##    ##     ## ##     ## ##       
+// ##     ##  ##   ##  ##        ##            ##       ##     ## ####  ##    ##    ##     ## ##     ## ##       
+// ########  ##     ## ##   #### ######        ##       ##     ## ## ## ##    ##    ########  ##     ## ##       
+// ##        ######### ##    ##  ##            ##       ##     ## ##  ####    ##    ##   ##   ##     ## ##       
+// ##        ##     ## ##    ##  ##            ##    ## ##     ## ##   ###    ##    ##    ##  ##     ## ##       
+// ##        ##     ##  ######   ########       ######   #######  ##    ##    ##    ##     ##  #######  ######## 
+//
+//#####################################################################################################################
 
 void X32Ctrl::ShowNextPage(void){
 	if (pages[state->activePage].nextPage != X32_PAGE_NONE){
@@ -993,7 +1013,7 @@ void X32Ctrl::guiSync(void) {
 		//#         Page Home
 		//####################################
 
-		bool phantomPower = mixer->GetPhantomPower(GetSelectedvChannelIndex());
+		
 		
 		if (state->activePage == X32_PAGE_CONFIG){
 		//####################################
@@ -1004,7 +1024,7 @@ void X32Ctrl::guiSync(void) {
 			lv_label_set_text_fmt(objects.current_channel_source, "%02d: %s", (chanIndex + 1), dspSourceName);
 
 			lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)mixer->GetGain(chanIndex));
-			lv_label_set_text_fmt(objects.current_channel_phantom, "%d", phantomPower);
+			lv_label_set_text_fmt(objects.current_channel_phantom, "%d", mixer->GetPhantomPower(GetSelectedvChannelIndex()));
 			lv_label_set_text_fmt(objects.current_channel_invert, "%d", mixer->GetPhaseInvert(chanIndex));
 			lv_label_set_text_fmt(objects.current_channel_pan_bal, "%f", (double)mixer->GetBalance(chanIndex));
 			lv_label_set_text_fmt(objects.current_channel_volume, "%f", (double)mixer->GetVolumeDbfs(chanIndex));
@@ -1508,6 +1528,8 @@ void X32Ctrl::surfaceSyncBoardMain() {
 		needForSync=true;
 	}
 
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "needForSync %d, fullSync %d", needForSync, fullSync);
+
 	if (needForSync){
 		if (config->IsModelX32FullOrCompactOrProducer()){
 			// Channel section
@@ -1999,6 +2021,9 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 	}
 }
 
+
+
+
 // sync mixer state to GUI
 void X32Ctrl::xremoteSync(bool syncAll) {
 	bool fullSync = false;
@@ -2362,9 +2387,17 @@ void X32Ctrl::ProcessUartData() {
     }
 }
 
-
-
-
+//#####################################################################################################################
+//
+//  ######  ##     ## ########  ########    ###     ######  ########      #### ##    ## ########  ##     ## ######## 
+// ##    ## ##     ## ##     ## ##         ## ##   ##    ## ##             ##  ###   ## ##     ## ##     ##    ##    
+// ##       ##     ## ##     ## ##        ##   ##  ##       ##             ##  ####  ## ##     ## ##     ##    ##    
+//  ######  ##     ## ########  ######   ##     ## ##       ######         ##  ## ## ## ########  ##     ##    ##    
+//       ## ##     ## ##   ##   ##       ######### ##       ##             ##  ##  #### ##        ##     ##    ##    
+// ##    ## ##     ## ##    ##  ##       ##     ## ##    ## ##             ##  ##   ### ##        ##     ##    ##    
+//  ######   #######  ##     ## ##       ##     ##  ######  ########      #### ##    ## ##         #######     ##    
+//
+//#####################################################################################################################
 
 void X32Ctrl::FaderMoved(SurfaceEvent* event){
 	uint8_t vchannelIndex = VCHANNEL_NOT_SET;
@@ -2747,7 +2780,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangeVolume(X32_VCHANNEL_BLOCK_MAIN, amount);
 				break;
 			case X32_ENC_CHANNEL_LEVEL:
-				mixer->ChangeVolume(GetSelectedvChannelIndex(), amount);
+				mixer->ChangeVolume(GetSelectedvChannelIndex(), amount);				
 				break;
 			case X32_BTN_EQ_MODE:
 				mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'T', amount);
@@ -3046,6 +3079,19 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 	}
 }
 
+//#####################################################################################################################
+//
+// ########     ###    ##    ## ##     ## #### ##    ##  ######   
+// ##     ##   ## ##   ###   ## ##    ##   ##  ###   ## ##    ##  
+// ##     ##  ##   ##  ####  ## ##   ##    ##  ####  ## ##        
+// ########  ##     ## ## ## ## #####      ##  ## ## ## ##   #### 
+// ##     ## ######### ##  #### ##   ##    ##  ##  #### ##    ##  
+// ##     ## ##     ## ##   ### ##    ##   ##  ##   ### ##    ##  
+// ########  ##     ## ##    ## ##     ## #### ##    ##  ######   
+//
+//#####################################################################################################################
+
+
 void X32Ctrl::BankingSends(X32_BTN p_button) {
 	surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 0);
 	surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 0);
@@ -3208,15 +3254,18 @@ void X32Ctrl::Banking(X32_BTN p_button){
 	state->SetChangeFlags(changeflag);
 }
 
+//####################################################################
+// 
+// ########  ######## ########  ##     ##  ######   
+// ##     ## ##       ##     ## ##     ## ##    ##  
+// ##     ## ##       ##     ## ##     ## ##        
+// ##     ## ######   ########  ##     ## ##   #### 
+// ##     ## ##       ##     ## ##     ## ##    ##  
+// ##     ## ##       ##     ## ##     ## ##    ##  
+// ########  ######## ########   #######   ######   
+//
+//####################################################################
 
-
-// ####################################################################
-// #
-// #
-// #        Debug
-// #
-// #
-// ###################################################################
 
 void X32Ctrl::DebugPrintBank(uint8_t bank)
 {
