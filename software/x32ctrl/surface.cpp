@@ -591,8 +591,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_LED_MATRIX, 0x0015);
 
         AddButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
-        AddButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0017);
-
+        
     }
 
     if (config->IsModelX32Core()){
