@@ -981,6 +981,8 @@ void Surface::SetLedByNr(uint16_t ledNr, bool ledState, bool blink) {
     uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
     uint8_t ledId = (uint8_t)(ledNr & 0x7F);
 
+    helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "SetLedByNr: ledNr 0x%X ledState %d blink %d", ledNr, ledState, blink);
+
     if(blink) {
         blinklist.insert(ledNr);
     } else {
