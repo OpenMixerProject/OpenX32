@@ -396,7 +396,7 @@ void X32Ctrl::Tick100ms(void){
 	
 	mixer->Tick100ms();
 
-	if (!config->IsModelX32Core()) {
+	if (!config->IsModelX32Core() && state->activePage == X32_PAGE_UTILITY) {
 		// read the current DSP load
 	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
 	}
@@ -665,9 +665,6 @@ void X32Ctrl::guiFastRefresh(void) {
 }
 
 void X32Ctrl::guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
-
-	
-
 	sprintf(&displayEncoderText[0][0], "%s", enc1.c_str());
 	sprintf(&displayEncoderText[1][0], "%s", enc2.c_str());
 	sprintf(&displayEncoderText[2][0], "%s", enc3.c_str());
@@ -965,58 +962,53 @@ void X32Ctrl::guiSync(void) {
 		return;
 	}
 
-	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
-		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
-	}
-
 	VChannel* chan = GetSelectedvChannel();
 	uint8_t chanIndex = GetSelectedvChannelIndex();
+	bool pageInit = false; // Init page after page change
+	
+	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
+		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
+		pageInit = true;
+	}
 
 	//####################################
 	//#         General
 	//####################################
 
-	lv_color_t color;
-	switch (chan->color){
-		case SURFACE_COLOR_BLACK:
-			color = lv_color_make(0, 0, 0);
-			break;
-		case SURFACE_COLOR_RED:
-			color = lv_color_make(255, 0, 0);
-			break;
-		case SURFACE_COLOR_GREEN:
-			color = lv_color_make(0, 255, 0);
-			break;
-		case SURFACE_COLOR_YELLOW:
-			color = lv_color_make(255, 255, 0);
-			break;
-		case SURFACE_COLOR_BLUE:
-			color = lv_color_make(0, 0, 255);
-			break;
-		case SURFACE_COLOR_PINK:
-			color = lv_color_make(255, 0, 255);
-			break;
-		case SURFACE_COLOR_CYAN:
-			color = lv_color_make(0, 255, 255);
-			break;
-		case SURFACE_COLOR_WHITE:
-			color = lv_color_make(255, 255, 255);
-			break;
+	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)) {
+		lv_color_t color;
+		switch (chan->color){
+			case SURFACE_COLOR_BLACK:
+				color = lv_color_make(0, 0, 0);
+				break;
+			case SURFACE_COLOR_RED:
+				color = lv_color_make(255, 0, 0);
+				break;
+			case SURFACE_COLOR_GREEN:
+				color = lv_color_make(0, 255, 0);
+				break;
+			case SURFACE_COLOR_YELLOW:
+				color = lv_color_make(255, 255, 0);
+				break;
+			case SURFACE_COLOR_BLUE:
+				color = lv_color_make(0, 0, 255);
+				break;
+			case SURFACE_COLOR_PINK:
+				color = lv_color_make(255, 0, 255);
+				break;
+			case SURFACE_COLOR_CYAN:
+				color = lv_color_make(0, 255, 255);
+				break;
+			case SURFACE_COLOR_WHITE:
+				color = lv_color_make(255, 255, 255);
+				break;
+		}
+
+		lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
+		lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
+		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 	}
 
-	lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
-	lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
-	lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
-
-	// //set Encoders to default state
-	// const char*  encoderTextMap[] = {"Input", " ", " "," "," ","Output", NULL};
-	// lv_btnmatrix_set_map(objects.display_encoders, encoderTextMap);
-
-	//####################################
-	//#         Page Home
-	//####################################
-
-	
 	
 	if (state->activePage == X32_PAGE_CONFIG){
 	//####################################
@@ -1331,20 +1323,28 @@ void X32Ctrl::guiSync(void) {
 	//#         Page GATE
 	//####################################
 
-		DrawGate(GetSelectedvChannelIndex());
+		if (pageInit || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)) {
+			DrawGate(GetSelectedvChannelIndex());
+			helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "DrawGate()");
+		}
 
 		if (chanIndex < 40) {
-			// support Gate
-			guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
-				"Range: " + String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
-				"Attack: " + String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
-				"Hold: " + String(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 0) + " ms",
-				"Release: " + String(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 0) + " ms",
-				"-"
-			);
+			if (pageInit || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
+				// Gate
+				helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "guiSetEncoderText()");
+				guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
+					"Range: " + String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
+					"Attack: " + String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
+					"Hold: " + String(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 0) + " ms",
+					"Release: " + String(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 0) + " ms",
+					"-"
+				);
+		}
 		}else{
-			// unsupported at the moment
-			guiSetEncoderText("-", "-", "-", "-", "-", "-");
+			if (pageInit) {
+				// unsupported at the moment
+				guiSetEncoderText("-", "-", "-", "-", "-", "-");
+			}
 		}
 
 	}else if (state->activePage == X32_PAGE_COMPRESSOR) {
@@ -1488,7 +1488,9 @@ void X32Ctrl::guiSync(void) {
 	//####################################
 	//#         All other pages
 	//####################################
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
+		if (pageInit) {
+			guiSetEncoderText("-", "-", "-", "-", "-", "-");
+		}
 	}
 }
 
