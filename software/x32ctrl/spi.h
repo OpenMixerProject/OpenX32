@@ -102,7 +102,6 @@ class SPI : public X32Base {
     bool SendFgpaData(uint8_t txData[], uint8_t rxData[], uint8_t len);
     bool SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
     bool SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
-    bool SendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value);
     bool SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value);
 
     bool HasNextEvent(void);

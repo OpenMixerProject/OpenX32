@@ -1138,10 +1138,6 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
     return (bytesRead > 0);
 }
 
-bool SPI::SendDspParameter(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, float value) {
-    return SendDspParameterArray(dsp, classId, channel, index, 1, &value);
-}
-
 bool SPI::SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
     return SendReceiveDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
 }
