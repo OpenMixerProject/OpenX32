@@ -1628,8 +1628,8 @@ void X32Ctrl::surfaceSyncBoardMain() {
 	if (config->IsModelX32Rack()){
 		// Clear Solo
 		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)){
-			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, mixer->IsSoloActivated(), mixer->IsSoloActivated()); 
-
+			bool soloActive = mixer->IsSoloActivated();
+			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActive, soloActive);
 		}
 
 		// Main Channel
