@@ -1536,36 +1536,40 @@ void X32Ctrl::surfaceSyncBoardMain() {
 
 	if (needForSync){
 		if (config->IsModelX32FullOrCompactOrProducer()){
-			// Channel section
+			
+			// Phantom
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)){
 				surface->SetLedByEnum(X32_BTN_PHANTOM_48V, mixer->GetPhantomPower(chanIndex)); 
 			}
+			// Phase Invert
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_PHASE_INVERT)){
 				surface->SetLedByEnum(X32_BTN_PHASE_INVERT, mixer->GetPhaseInvert(chanIndex));
 			}
+			// Gain
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)){
-				// update gain-encoder
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_GAIN) >> 8, surface->Enum2Encoder(X32_ENC_GAIN) & 0xFF, 0, (mixer->GetGain(chanIndex) + 12.0f)/0.72f, 1);
 			}
+			// Balance/Panorama
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
-				// update pan-encoder
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_PAN) >> 8, surface->Enum2Encoder(X32_ENC_PAN) & 0xFF, 2, (mixer->GetBalance(chanIndex) + 100.0f)/2.0f, 1);
 			}
+			// Bus sends
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS)){
-				// update pan-encoder
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_1) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_1) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_2) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_2) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_3) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_3) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_4) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_4) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
 			}
+			// Gate
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_GATE) >> 8, surface->Enum2Encoder(X32_ENC_GATE) & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].gate.threshold + 80.0f)/0.8f), 1);
 			}
+			// Dynamics
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)){
 				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_DYNAMICS) >> 8, surface->Enum2Encoder(X32_ENC_DYNAMICS) & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].compressor.threshold + 60.0f)/0.6f), 1);
 			}
+			// EQ
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
-				// update EQ-encoder
 				if (chanIndex < 40) {
 					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_LOWCUT) >> 8, surface->Enum2Encoder(X32_ENC_LOWCUT) & 0xFF, 1, (mixer->dsp->Channel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
 					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_FREQ) >> 8, surface->Enum2Encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[activeEQ].fc - 20.0f)/199.8f, 1);
@@ -1610,19 +1614,21 @@ void X32Ctrl::surfaceSyncBoardMain() {
 					surface->SetLedByEnum(X32_BTN_EQ_HIGH, activeEQ == 3);
 				}
 			}
-			
 		}
 
 		if (config->IsModelX32Rack()){			
 			if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){
 				setLedChannelIndicator();
 			}
+			// Solo
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
 				surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, mixer->GetSolo(chanIndex)); 
 			}
+			// Mute
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
 				surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, mixer->GetMute(chanIndex)); 
 			}
+			// Volume
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
 				surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, mixer->GetVolumeDbfs(chanIndex),  mixer->GetMute(chanIndex), 0);
 			}
@@ -1635,7 +1641,6 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			bool soloActive = mixer->IsSoloActivated();
 			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActive, soloActive);
 		}
-
 		// Main Channel
 		VChannel* mainchan = GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
 		if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
