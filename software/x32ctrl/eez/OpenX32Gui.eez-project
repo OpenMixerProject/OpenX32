@@ -570,55 +570,7 @@
                           "topUnit": "px",
                           "widthUnit": "px",
                           "heightUnit": "px",
-                          "children": [
-                            {
-                              "objID": "5efc80b9-6b12-451f-c717-cdf886084279",
-                              "type": "LVGLTextareaWidget",
-                              "left": 24,
-                              "top": 47,
-                              "width": 691,
-                              "height": 234,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "bebecfd8-22f0-4c82-d817-0255b5aec215",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "locked": false,
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "leftUnit": "px",
-                              "topUnit": "px",
-                              "widthUnit": "px",
-                              "heightUnit": "px",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_ON_FOCUS|SNAPPABLE",
-                              "hiddenFlagType": "literal",
-                              "clickableFlag": true,
-                              "clickableFlagType": "literal",
-                              "flagScrollbarMode": "",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "f98bebc2-8cd3-47da-f960-ba35e852f33f"
-                              },
-                              "group": "",
-                              "groupIndex": 0,
-                              "text": "Currently (rudimentary) implemented pages:\n- HOME\n- METERS\n- SETUP\n- UTILITY (for Development)\n\n\n\n-> Press the EFFECTS button to get a nice demo <-",
-                              "textType": "literal",
-                              "placeholder": "",
-                              "oneLineMode": false,
-                              "passwordMode": false,
-                              "acceptedCharacters": "",
-                              "maxTextLength": 255
-                            }
-                          ],
+                          "children": [],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
                           "hiddenFlagType": "literal",
                           "clickableFlag": true,
@@ -1498,7 +1450,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
-                              "locked": false,
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "current_channel_eq",
@@ -4327,14 +4279,7 @@
           "disabledStateType": "literal",
           "states": "",
           "localStyles": {
-            "objID": "8eb86917-c831-b762-5685-8d01972e8a22",
-            "definition": {
-              "MAIN": {
-                "DEFAULT": {
-                  "bg_color": "#5188db"
-                }
-              }
-            }
+            "objID": "8eb86917-c831-b762-5685-8d01972e8a22"
           },
           "groupIndex": 0
         }

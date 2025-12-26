@@ -19,7 +19,6 @@ void create_screen_main() {
     objects.main = obj;
     lv_obj_set_pos(obj, 0, 0);
     lv_obj_set_size(obj, 800, 480);
-    lv_obj_set_style_bg_color(obj, lv_color_hex(0xff5188db), LV_PART_MAIN | LV_STATE_DEFAULT);
     {
         lv_obj_t *parent_obj = obj;
         {
@@ -127,18 +126,6 @@ void create_screen_main() {
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Home");
                                     lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
-                                    {
-                                        lv_obj_t *parent_obj = obj;
-                                        {
-                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
-                                            lv_obj_set_pos(obj, 24, 47);
-                                            lv_obj_set_size(obj, 691, 234);
-                                            lv_textarea_set_max_length(obj, 255);
-                                            lv_textarea_set_text(obj, "Currently (rudimentary) implemented pages:\n- HOME\n- METERS\n- SETUP\n- UTILITY (for Development)\n\n\n\n-> Press the EFFECTS button to get a nice demo <-");
-                                            lv_textarea_set_one_line(obj, false);
-                                            lv_textarea_set_password_mode(obj, false);
-                                        }
-                                    }
                                 }
                                 {
                                     // configtab
