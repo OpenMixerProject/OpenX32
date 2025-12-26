@@ -802,23 +802,24 @@ void X32Ctrl::ShowPrevPage(void){
 	}
 }
 
-void X32Ctrl::ShowPage(X32_PAGE p_page) {
+void X32Ctrl::ShowPage(X32_PAGE newPage) {
 
+	// only work's on devices with display
 	if (!(config->IsModelX32FullOrCompactOrProducerOrRack()))
 	{
-		// only work's on devices with display :-)
 		return;
 	}
 	
-	if (p_page == state->activePage) {
+	if (newPage == state->activePage) {
 		// operator has pressed the button of the current active page,
 		// so go back to previous page
-		p_page = state->lastPage;
+		newPage = state->lastPage;
 	}
 
 	state->lastPage = state->activePage;
-	state->activePage = p_page;
+	state->activePage = newPage;
 
+	// Buttons on all models with display (Full, Compact, Producer, Rack)
 	surface->SetLedByEnum(X32_BTN_HOME, state->activePage == X32_PAGE_HOME);
 	surface->SetLedByEnum(X32_BTN_METERS, state->activePage == X32_PAGE_METERS);
 	surface->SetLedByEnum(X32_BTN_ROUTING, state->activePage == X32_PAGE_ROUTING);
@@ -827,10 +828,15 @@ void X32Ctrl::ShowPage(X32_PAGE p_page) {
 	surface->SetLedByEnum(X32_BTN_EFFECTS, state->activePage == X32_PAGE_EFFECTS);
 	surface->SetLedByEnum(X32_BTN_MUTE_GRP, state->activePage == X32_PAGE_MUTE_GRP);
 	surface->SetLedByEnum(X32_BTN_UTILITY, state->activePage == X32_PAGE_UTILITY);
-	surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, state->activePage == X32_PAGE_CONFIG);
-	surface->SetLedByEnum(X32_BTN_VIEW_GATE, state->activePage == X32_PAGE_GATE);
-	surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, state->activePage == X32_PAGE_COMPRESSOR);
-	surface->SetLedByEnum(X32_BTN_VIEW_EQ, state->activePage == X32_PAGE_EQ);
+
+	// Buttons on all models with display (Full, Compact, Producer) except Rack!
+	if (config->IsModelX32FullOrCompactOrProducer())
+	{
+		surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, state->activePage == X32_PAGE_CONFIG);
+		surface->SetLedByEnum(X32_BTN_VIEW_GATE, state->activePage == X32_PAGE_GATE);
+		surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, state->activePage == X32_PAGE_COMPRESSOR);
+		surface->SetLedByEnum(X32_BTN_VIEW_EQ, state->activePage == X32_PAGE_EQ);
+	}
 
 	switch (state->activePage)
 	{
