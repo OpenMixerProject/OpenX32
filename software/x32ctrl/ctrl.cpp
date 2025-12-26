@@ -802,107 +802,91 @@ void X32Ctrl::ShowPrevPage(void){
 	}
 }
 
-void X32Ctrl::ShowPage(X32_PAGE p_page) {  // TODO: move to GUI Update section
+void X32Ctrl::ShowPage(X32_PAGE p_page) {
 
-	// first turn all page LEDs off
-	surface->SetLedByEnum(X32_BTN_HOME, 0);
-	surface->SetLedByEnum(X32_BTN_METERS, 0);
-	surface->SetLedByEnum(X32_BTN_ROUTING, 0);
-	surface->SetLedByEnum(X32_BTN_SETUP, 0);
-	surface->SetLedByEnum(X32_BTN_LIBRARY, 0);
-	surface->SetLedByEnum(X32_BTN_EFFECTS, 0);
-	surface->SetLedByEnum(X32_BTN_MUTE_GRP, 0);
-	surface->SetLedByEnum(X32_BTN_UTILITY, 0);
-	// turn all view LEDs of
-	surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, 0);
-	surface->SetLedByEnum(X32_BTN_VIEW_GATE, 0);
-	surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, 0);
-	surface->SetLedByEnum(X32_BTN_VIEW_EQ, 0);
+	if (!(config->IsModelX32FullOrCompactOrProducerOrRack()))
+	{
+		// only work's on devices with display :-)
+		return;
+	}
+	
+	if (p_page == state->activePage) {
+		// operator has pressed the button of the current active page,
+		// so go back to previous page
+		p_page = state->lastPage;
+	}
 
+	state->lastPage = state->activePage;
 	state->activePage = p_page;
+
+	surface->SetLedByEnum(X32_BTN_HOME, state->activePage == X32_PAGE_HOME);
+	surface->SetLedByEnum(X32_BTN_METERS, state->activePage == X32_PAGE_METERS);
+	surface->SetLedByEnum(X32_BTN_ROUTING, state->activePage == X32_PAGE_ROUTING);
+	surface->SetLedByEnum(X32_BTN_SETUP, state->activePage == X32_PAGE_SETUP);
+	surface->SetLedByEnum(X32_BTN_LIBRARY, state->activePage == X32_PAGE_LIBRARY);
+	surface->SetLedByEnum(X32_BTN_EFFECTS, state->activePage == X32_PAGE_EFFECTS);
+	surface->SetLedByEnum(X32_BTN_MUTE_GRP, state->activePage == X32_PAGE_MUTE_GRP);
+	surface->SetLedByEnum(X32_BTN_UTILITY, state->activePage == X32_PAGE_UTILITY);
+	surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, state->activePage == X32_PAGE_CONFIG);
+	surface->SetLedByEnum(X32_BTN_VIEW_GATE, state->activePage == X32_PAGE_GATE);
+	surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, state->activePage == X32_PAGE_COMPRESSOR);
+	surface->SetLedByEnum(X32_BTN_VIEW_EQ, state->activePage == X32_PAGE_EQ);
 
 	switch (state->activePage)
 	{
 		case X32_PAGE_HOME:
 			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 0, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_HOME, 1);
 			break;
 		case X32_PAGE_CONFIG:
 			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 1, LV_ANIM_OFF);
-			if (config->IsModelX32FullOrCompactOrProducer()) {
-				surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, 1);
-			}
 			break;
-
 		case X32_PAGE_GATE:
 			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 2, LV_ANIM_OFF);
-			if (config->IsModelX32FullOrCompactOrProducer()) {
-				surface->SetLedByEnum(X32_BTN_VIEW_GATE, 1);
-			}
 			break;
-
 		case X32_PAGE_COMPRESSOR:
 			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 3, LV_ANIM_OFF);
-			if (config->IsModelX32FullOrCompactOrProducer()) {
-				surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, 1);
-			}
 			break;
-
 		case X32_PAGE_EQ:
 			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.hometab, 4, LV_ANIM_OFF);
-			if (config->IsModelX32FullOrCompactOrProducer()) {
-				surface->SetLedByEnum(X32_BTN_VIEW_EQ, 1);
-			}
 			break;
-
 		case X32_PAGE_METERS:
 			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_METERS, 1);
 			break;
 		case X32_PAGE_ROUTING:
 			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.routingtab, 0, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
 			break;
 		case X32_PAGE_ROUTING_FPGA:
 			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.routingtab, 1, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
 			break;
 		case X32_PAGE_ROUTING_DSP1:
 			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.routingtab, 2, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
 			break;
 		case X32_PAGE_ROUTING_DSP2:
 			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
 			lv_tabview_set_active(objects.routingtab, 3, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_ROUTING, 1);
 			break;
 		case X32_PAGE_SETUP:
 			lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_SETUP, 1);
 			break;
 		case X32_PAGE_LIBRARY:
 			lv_tabview_set_active(objects.maintab, 4, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_LIBRARY, 1);
 			break;
 		case X32_PAGE_EFFECTS:
 			lv_tabview_set_active(objects.maintab, 5, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_EFFECTS, 1);
 			break;
 		case X32_PAGE_MUTE_GRP:
 			lv_tabview_set_active(objects.maintab, 6, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_MUTE_GRP, 1);
 			break;
 		case X32_PAGE_UTILITY:
 			lv_tabview_set_active(objects.maintab, 7, LV_ANIM_OFF);
-			surface->SetLedByEnum(X32_BTN_UTILITY, 1);
 			break;
 		default:
 			state->activePage = X32_PAGE_NONE;

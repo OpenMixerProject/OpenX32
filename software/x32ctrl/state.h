@@ -25,6 +25,7 @@ class State {
         int16_t gui_old_selected_item = 0;
         int16_t gui_selected_item = 0;
 
+        X32_PAGE lastPage = X32_PAGE_HOME;
         X32_PAGE activePage = X32_PAGE_HOME;
 
         // DEBUG
