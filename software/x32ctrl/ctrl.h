@@ -9,6 +9,8 @@
 #include "mixer.h"
 #include "xremote.h"
 
+#include "page.h"
+
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"
 
@@ -47,7 +49,8 @@ class X32Ctrl : public X32Base {
 
         sBankMode modes[3];
 
-        sMixerPage pages[MAX_PAGES];  
+        map<X32_PAGE, Page*> pages;
+
         uint8_t activeBank_inputFader;
         uint8_t activeBank_busFader;
         uint8_t activeEQ;
@@ -61,6 +64,7 @@ class X32Ctrl : public X32Base {
 
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);
+
         void LoadConfig();
 
         int surfacePacketCurrentIndex = 0;
@@ -87,16 +91,16 @@ class X32Ctrl : public X32Base {
         void ProcessEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
 
-        void guiInit(void);
-        void guiFastRefresh(void);
+        void guiFastRefresh();
         void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
         void DrawGate(uint8_t selectedChannelIndex);
         void DrawDynamics(uint8_t selectedChannelIndex);
         void DrawEq(uint8_t selectedChannelIndex);
 
+        void InitPages();
         void ShowPage(X32_PAGE page);
-        void ShowPrevPage(void);
-        void ShowNextPage(void);
+        void ShowPrevPage();
+        void ShowNextPage();
 
         void syncAll(void);
         void guiSync(void);

@@ -18,7 +18,6 @@
 
 using namespace std;
 
-// The string class
 class Mixer : public X32Base
 {
     private:

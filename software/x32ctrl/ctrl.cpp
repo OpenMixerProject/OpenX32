@@ -44,6 +44,7 @@ void X32Ctrl::Init(){
 	helper->ReadConfig("/etc/x32.conf", "SN=", serial, 15);
 	helper->ReadConfig("/etc/x32.conf", "DATE=", date, 16);
 	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
+	
 	config->SetModel(model);
 	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
 
@@ -57,12 +58,6 @@ void X32Ctrl::Init(){
 	surface->Init();
 	xremote->Init();
 
-	//##################################################################################
-	//#
-	//# 	Configure the fader bank layout (only X32 Full/Compact/Producer)
-	//#
-	//##################################################################################
-
 	if(config->IsModelX32FullOrCompactOrProducer()) {
 
 		ResetFaderBankLayout();
@@ -73,41 +68,6 @@ void X32Ctrl::Init(){
 		activeEQ = 0;
 		activeBusSend = 0;
 	}
-
-	//##################################################################################
-	//#
-	//# 	Connect pages together
-	//#
-	//##################################################################################
-
-	// Home
-	pages[X32_PAGE_HOME].prevPage = X32_PAGE_NONE;
-	pages[X32_PAGE_HOME].nextPage = X32_PAGE_CONFIG;
-
-	pages[X32_PAGE_CONFIG].prevPage = X32_PAGE_HOME;
-	pages[X32_PAGE_CONFIG].nextPage = X32_PAGE_GATE;
-
-	pages[X32_PAGE_GATE].prevPage = X32_PAGE_CONFIG;
-	pages[X32_PAGE_GATE].nextPage = X32_PAGE_COMPRESSOR;
-
-	pages[X32_PAGE_COMPRESSOR].prevPage = X32_PAGE_GATE;
-	pages[X32_PAGE_COMPRESSOR].nextPage = X32_PAGE_EQ;
-
-	pages[X32_PAGE_EQ].prevPage = X32_PAGE_COMPRESSOR;
-	pages[X32_PAGE_EQ].nextPage = X32_PAGE_NONE;
-
-	// Routing
-	pages[X32_PAGE_ROUTING].prevPage = X32_PAGE_NONE;
-	pages[X32_PAGE_ROUTING].nextPage = X32_PAGE_ROUTING_FPGA;
-
-	pages[X32_PAGE_ROUTING_FPGA].prevPage = X32_PAGE_ROUTING;
-	pages[X32_PAGE_ROUTING_FPGA].nextPage = X32_PAGE_ROUTING_DSP1;
-
-	pages[X32_PAGE_ROUTING_DSP1].prevPage = X32_PAGE_ROUTING_FPGA;
-	pages[X32_PAGE_ROUTING_DSP1].nextPage = X32_PAGE_ROUTING_DSP2;
-
-	pages[X32_PAGE_ROUTING_DSP2].prevPage = X32_PAGE_ROUTING_DSP1;
-	pages[X32_PAGE_ROUTING_DSP2].nextPage = X32_PAGE_NONE;
 
 	SetSelect(0, true);
 	
@@ -123,7 +83,8 @@ void X32Ctrl::Init(){
 		LoadConfig();
 	}
 
-	state->SetChangeFlags(X32_MIXER_CHANGED_ALL); // trigger first sync to gui/surface
+	// trigger first sync to gui/surface
+	state->SetChangeFlags(X32_MIXER_CHANGED_ALL);
 }
 
 // Load a Fader bank layout, e.g. LAYOUT_X32 or LAYOUT_USER
@@ -790,15 +751,53 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 //
 //#####################################################################################################################
 
+void X32Ctrl::InitPages(){
+
+	if(!(config->IsModelX32FullOrCompactOrProducerOrRack())) {
+		return;
+	}
+
+	// Home
+    pages[X32_PAGE_HOME] = new Page(X32_PAGE_NONE, X32_PAGE_CONFIG, objects.maintab, 0, objects.hometab, 0, X32_BTN_HOME);
+	pages[X32_PAGE_CONFIG] = new Page(X32_PAGE_HOME, X32_PAGE_GATE, objects.maintab, 0, objects.hometab, 1, X32_BTN_VIEW_CONFIG, true);
+	pages[X32_PAGE_GATE] = new Page(X32_PAGE_CONFIG, X32_PAGE_COMPRESSOR, objects.maintab, 0, objects.hometab, 2, X32_BTN_VIEW_GATE, true);
+	pages[X32_PAGE_COMPRESSOR] = new Page(X32_PAGE_GATE, X32_PAGE_EQ, objects.maintab, 0, objects.hometab, 3, X32_BTN_VIEW_COMPRESSOR, true);
+	pages[X32_PAGE_EQ] = new Page(X32_PAGE_COMPRESSOR, X32_PAGE_NONE, objects.maintab, 0, objects.hometab, 4, X32_BTN_VIEW_EQ, true);
+
+	// Meters
+	pages[X32_PAGE_METERS] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 1, 0, 0, X32_BTN_METERS);
+
+	// Routing
+	pages[X32_PAGE_ROUTING] = new Page(X32_PAGE_NONE, X32_PAGE_ROUTING_FPGA, objects.maintab, 2, objects.routingtab, 0, X32_BTN_ROUTING);
+	pages[X32_PAGE_ROUTING_FPGA] = new Page(X32_PAGE_ROUTING, X32_PAGE_ROUTING_DSP1, objects.maintab, 2, objects.routingtab, 1, X32_BTN_NONE);
+	pages[X32_PAGE_ROUTING_DSP1] = new Page(X32_PAGE_ROUTING_FPGA, X32_PAGE_ROUTING_DSP2, objects.maintab, 2, objects.routingtab, 2, X32_BTN_NONE);
+	pages[X32_PAGE_ROUTING_DSP1] = new Page(X32_PAGE_ROUTING_DSP1, X32_PAGE_NONE, objects.maintab, 2, objects.routingtab, 3, X32_BTN_NONE);
+
+	// Setup
+	pages[X32_PAGE_SETUP] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 3, 0, 0, X32_BTN_SETUP);
+
+	// Library
+	pages[X32_PAGE_LIBRARY] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 4, 0, 0, X32_BTN_LIBRARY);
+
+	// Effects
+	pages[X32_PAGE_EFFECTS] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 5, 0, 0, X32_BTN_EFFECTS);
+
+	// Mute Group
+	pages[X32_PAGE_MUTE_GRP] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 6, 0, 0, X32_BTN_MUTE_GRP);
+
+	// Ultility
+	pages[X32_PAGE_UTILITY] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 7, 0, 0, X32_BTN_UTILITY);
+}
+
 void X32Ctrl::ShowNextPage(void){
-	if (pages[state->activePage].nextPage != X32_PAGE_NONE){
-		ShowPage(pages[state->activePage].nextPage);
+	if (pages[state->activePage]->nextPage != X32_PAGE_NONE){
+	 	ShowPage(pages[state->activePage]->nextPage);
 	}
 }
 
 void X32Ctrl::ShowPrevPage(void){
-	if (pages[state->activePage].prevPage != X32_PAGE_NONE){
-		ShowPage(pages[state->activePage].prevPage);
+	if (pages[state->activePage]->prevPage != X32_PAGE_NONE){
+	 	ShowPage(pages[state->activePage]->prevPage);
 	}
 }
 
@@ -818,85 +817,28 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 
 	state->lastPage = state->activePage;
 	state->activePage = newPage;
+	
+	Page* p = pages[state->activePage];
+	Page* l = pages[state->lastPage];
 
-	// Buttons on all models with display (Full, Compact, Producer, Rack)
-	surface->SetLedByEnum(X32_BTN_HOME, state->activePage == X32_PAGE_HOME);
-	surface->SetLedByEnum(X32_BTN_METERS, state->activePage == X32_PAGE_METERS);
-	surface->SetLedByEnum(X32_BTN_ROUTING, state->activePage == X32_PAGE_ROUTING);
-	surface->SetLedByEnum(X32_BTN_SETUP, state->activePage == X32_PAGE_SETUP);
-	surface->SetLedByEnum(X32_BTN_LIBRARY, state->activePage == X32_PAGE_LIBRARY);
-	surface->SetLedByEnum(X32_BTN_EFFECTS, state->activePage == X32_PAGE_EFFECTS);
-	surface->SetLedByEnum(X32_BTN_MUTE_GRP, state->activePage == X32_PAGE_MUTE_GRP);
-	surface->SetLedByEnum(X32_BTN_UTILITY, state->activePage == X32_PAGE_UTILITY);
-
-	// Buttons on all models with display (Full, Compact, Producer) except Rack!
-	if (config->IsModelX32FullOrCompactOrProducer())
-	{
-		surface->SetLedByEnum(X32_BTN_VIEW_CONFIG, state->activePage == X32_PAGE_CONFIG);
-		surface->SetLedByEnum(X32_BTN_VIEW_GATE, state->activePage == X32_PAGE_GATE);
-		surface->SetLedByEnum(X32_BTN_VIEW_COMPRESSOR, state->activePage == X32_PAGE_COMPRESSOR);
-		surface->SetLedByEnum(X32_BTN_VIEW_EQ, state->activePage == X32_PAGE_EQ);
+	// turn off led of prev page
+	if (l->led != X32_BTN_NONE && !(config->IsModelX32Rack() && l->noLedOnRack)) {
+		surface->SetLedByEnum(l->led, false);
 	}
 
-	switch (state->activePage)
-	{
-		case X32_PAGE_HOME:
-			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.hometab, 0, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_CONFIG:
-			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.hometab, 1, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_GATE:
-			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.hometab, 2, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_COMPRESSOR:
-			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.hometab, 3, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_EQ:
-			lv_tabview_set_active(objects.maintab, 0, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.hometab, 4, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_METERS:
-			lv_tabview_set_active(objects.maintab, 1, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_ROUTING:
-			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.routingtab, 0, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_ROUTING_FPGA:
-			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.routingtab, 1, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_ROUTING_DSP1:
-			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.routingtab, 2, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_ROUTING_DSP2:
-			lv_tabview_set_active(objects.maintab, 2, LV_ANIM_OFF);
-			lv_tabview_set_active(objects.routingtab, 3, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_SETUP:
-			lv_tabview_set_active(objects.maintab, 3, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_LIBRARY:
-			lv_tabview_set_active(objects.maintab, 4, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_EFFECTS:
-			lv_tabview_set_active(objects.maintab, 5, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_MUTE_GRP:
-			lv_tabview_set_active(objects.maintab, 6, LV_ANIM_OFF);
-			break;
-		case X32_PAGE_UTILITY:
-			lv_tabview_set_active(objects.maintab, 7, LV_ANIM_OFF);
-			break;
-		default:
-			state->activePage = X32_PAGE_NONE;
-			helper->Error("Page not found!\n");
+	// turn on led of new active page
+	if (p->led != X32_BTN_NONE && !(config->IsModelX32Rack() && p->noLedOnRack)) {
+		surface->SetLedByEnum(p->led, true);
+	}
+
+	// open tab on Layer0
+	if (p->tabLayer0 != 0) {
+		lv_tabview_set_active(p->tabLayer0, p->tabIndex0, LV_ANIM_OFF);
+	}
+
+	// open tab on Layer1
+	if (p->tabLayer1 != 0) {
+		lv_tabview_set_active(p->tabLayer1, p->tabIndex1, LV_ANIM_OFF);
 	}
 
 	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);

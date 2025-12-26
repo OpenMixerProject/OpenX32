@@ -119,8 +119,9 @@ void guiInit(void) {
 	// initialize GUI created by EEZ
 	ui_init();
 
+	// InitPages() has to be called after ui_init()!
+	ctrl->InitPages();
 	ctrl->ShowPage(state->activePage);
-	
 
 	// setup Gate-graph
 	lv_chart_set_type(objects.current_channel_gate, LV_CHART_TYPE_LINE);

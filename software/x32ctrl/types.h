@@ -239,12 +239,6 @@ typedef struct{
     sBank busBanks[4];
 } sBankMode;
 
-typedef struct{
-    X32_PAGE pageEnum;
-    X32_PAGE nextPage;
-    X32_PAGE prevPage;
-} sMixerPage;
-
 // values only for runtime use
 typedef struct {
   float meterPu; // meter information in p.u.
