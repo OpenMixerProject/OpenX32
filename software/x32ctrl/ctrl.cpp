@@ -1537,34 +1537,34 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			}
 			// Gain
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)){
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_GAIN) >> 8, surface->Enum2Encoder(X32_ENC_GAIN) & 0xFF, 0, (mixer->GetGain(chanIndex) + 12.0f)/0.72f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_GAIN] & 0xFF, 0, (mixer->GetGain(chanIndex) + 12.0f)/0.72f, 1);
 			}
 			// Balance/Panorama
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_PAN) >> 8, surface->Enum2Encoder(X32_ENC_PAN) & 0xFF, 2, (mixer->GetBalance(chanIndex) + 100.0f)/2.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_PAN] >> 8, surface->Enum2Encoder[X32_ENC_PAN] & 0xFF, 2, (mixer->GetBalance(chanIndex) + 100.0f)/2.0f, 1);
 			}
 			// Bus sends
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS)){
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_1) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_1) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_2) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_2) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_3) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_3) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_BUS_SEND_4) >> 8, surface->Enum2Encoder(X32_ENC_BUS_SEND_4) & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
 			}
 			// Gate
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_GATE) >> 8, surface->Enum2Encoder(X32_ENC_GATE) & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].gate.threshold + 80.0f)/0.8f), 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GATE] >> 8, surface->Enum2Encoder[X32_ENC_GATE] & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].gate.threshold + 80.0f)/0.8f), 1);
 			}
 			// Dynamics
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)){
-				surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_DYNAMICS) >> 8, surface->Enum2Encoder(X32_ENC_DYNAMICS) & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].compressor.threshold + 60.0f)/0.6f), 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_DYNAMICS] >> 8, surface->Enum2Encoder[X32_ENC_DYNAMICS] & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].compressor.threshold + 60.0f)/0.6f), 1);
 			}
 			// EQ
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
 				if (chanIndex < 40) {
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_LOWCUT) >> 8, surface->Enum2Encoder(X32_ENC_LOWCUT) & 0xFF, 1, (mixer->dsp->Channel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_FREQ) >> 8, surface->Enum2Encoder(X32_ENC_EQ_FREQ) & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[activeEQ].fc - 20.0f)/199.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_GAIN) >> 8, surface->Enum2Encoder(X32_ENC_EQ_GAIN) & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[activeEQ].gain + 15.0f)/0.3f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder(X32_ENC_EQ_Q) >> 8, surface->Enum2Encoder(X32_ENC_EQ_Q) & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[activeEQ].Q) + 0.3f)/0.097f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[activeEQ].fc - 20.0f)/199.8f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[activeEQ].gain + 15.0f)/0.3f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[activeEQ].Q) + 0.3f)/0.097f, 1);
 					
 					// EQ-LEDS
 					surface->SetLedByEnum(X32_LED_EQ_HCUT, false);
@@ -2440,12 +2440,12 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 				case X32_BTN_RIGHT:
 					ShowNextPage();
 					break;
-				// case X32_BTN_UP: {
-				// 	for (int l =0; l<25; l++){
-				// 		surface->SetLed(1, l, true);
-				// 	}
-				// 	break;
-				// }
+				case X32_BTN_UP:
+					surface->SetLed(state->debugvalue2, state->debugvalue, true);
+					break;
+				case X32_BTN_DOWN:
+					surface->SetLed(state->debugvalue2, state->debugvalue, false);
+					break;
 				case X32_BTN_HOME:
 					ShowPage(X32_PAGE_HOME);
 					break;
@@ -2746,9 +2746,12 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					case X32_BTN_ENCODER4:
 						break;
 					case X32_BTN_ENCODER5:
+						state->debugvalue2 = 0;
+						state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 						break;
 					case X32_BTN_ENCODER6:
 						state->debugvalue = 0;
+						state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 						break;
 					default:
 						break;
@@ -2759,7 +2762,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 }
 
 void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
-	X32_ENC encoder = surface->Encoder2Enum(((uint16_t)event->boardId << 8) + (uint16_t)(event->index));
+	X32_ENC encoder = surface->Encoder2Enum[((uint16_t)event->boardId << 8) + (uint16_t)(event->index)];
 	int8_t amount = 0;
 	int8_t newValue;
 
@@ -3062,12 +3065,11 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				case X32_ENC_ENCODER4:
 					break;
 				case X32_ENC_ENCODER5:
-					state->debugvalue2++;
+					state->debugvalue2 += amount;
 					state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 					break;
 				case X32_ENC_ENCODER6:
-					//surface->SetLed(state->debugvalue2,state->debugvalue++, true);
-					surface->SetLcd(state->debugvalue2, state->debugvalue++, 1, 0, 0, 0xA0, 0x20, 10, 10, "huhu", 0x00, 0, 0, "");
+					state->debugvalue += amount;
 					state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 					break;
 				default:  

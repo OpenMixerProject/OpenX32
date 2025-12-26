@@ -26,8 +26,6 @@
 
 Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
     uart = new Uart(basepar);
-
-    encoderDefinitionIndex = 0;
 }
 
 void Surface::Init(void) {
@@ -73,24 +71,23 @@ void Surface::Tick100ms(){
     Blink();
 }
 
-void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr) {
-    Enum2Button[p_button] = p_buttonNr;
-    Button2Enum[p_buttonNr] = p_button;
+void Surface::AddLedDefinition(X32_BTN led, uint16_t ledNr) {
+    Enum2Led[led] = ledNr;
+    helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "added led definition: Led %d -> LedNr %d", led, ledNr);
+}
 
-    helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
+void Surface::AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr, bool hasLed = true) {
+    Button2Enum[p_buttonNr] = p_button;
+    if (hasLed) {
+        AddLedDefinition(p_button, p_buttonNr);
+    }
+    helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "added button definition: Button %d -> ButtonNr %d", p_button, p_buttonNr);
 }
 
 void Surface::AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr) {
-    if (encoderDefinitionIndex >= MAX_ENCODERS)
-    {
-        //TODO: Error Message
-        helper->Error("MAX_ENCODERS");
-        return;
-    }
-    x32_enc_def[encoderDefinitionIndex].encoder = p_encoder;
-    x32_enc_def[encoderDefinitionIndex].encoderNr = p_encoderNr;
-    encoderDefinitionIndex++;
-    helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
+    Enum2Encoder[p_encoder]=p_encoderNr;
+    Encoder2Enum[p_encoderNr]=p_encoder;
+    helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "added encoder definition: Encoder %d -> EncoderNr %d", p_encoder, p_encoderNr);
 }
 
 
@@ -555,17 +552,17 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_MUTE_GRP, 0x000E);
         AddButtonDefinition(X32_BTN_UTILITY, 0x000F);
 
-        AddButtonDefinition(X32_BTN_ENCODER1, 0x0010);
-        AddButtonDefinition(X32_BTN_ENCODER2, 0x0011);
-        AddButtonDefinition(X32_BTN_ENCODER3, 0x0012);
-        AddButtonDefinition(X32_BTN_ENCODER4, 0x0013);
-        AddButtonDefinition(X32_BTN_ENCODER5, 0x0014);
-        AddButtonDefinition(X32_BTN_ENCODER6, 0x0015);
+        AddButtonDefinition(X32_BTN_ENCODER1, 0x0010, false);
+        AddButtonDefinition(X32_BTN_ENCODER2, 0x0011, false);
+        AddButtonDefinition(X32_BTN_ENCODER3, 0x0012, false);
+        AddButtonDefinition(X32_BTN_ENCODER4, 0x0013, false);
+        AddButtonDefinition(X32_BTN_ENCODER5, 0x0014, false);
+        AddButtonDefinition(X32_BTN_ENCODER6, 0x0015, false);
 
-        AddButtonDefinition(X32_BTN_UP, 0x0016);
-        AddButtonDefinition(X32_BTN_LEFT, 0x0017);
-        AddButtonDefinition(X32_BTN_RIGHT, 0x0018);
-        AddButtonDefinition(X32_BTN_DOWN, 0x0019);
+        AddButtonDefinition(X32_BTN_UP, 0x0016, false);
+        AddButtonDefinition(X32_BTN_LEFT, 0x0017, false);
+        AddButtonDefinition(X32_BTN_RIGHT, 0x0018, false);
+        AddButtonDefinition(X32_BTN_DOWN, 0x0019, false);
 
         // Encoder
 
@@ -581,16 +578,17 @@ void Surface::InitDefinitions(void) {
 
         // LED only
 
-        AddButtonDefinition(X32_LED_VIEW_USB_RED, 0x0005);
+        AddLedDefinition(X32_LED_VIEW_USB_RED, 0x0005);
 
-        AddButtonDefinition(X32_LED_IN, 0x0010);
-        AddButtonDefinition(X32_LED_AUX, 0x0011);
-        AddButtonDefinition(X32_LED_BUS, 0x0012);
-        AddButtonDefinition(X32_LED_DCA, 0x0013);
-        AddButtonDefinition(X32_LED_MAIN, 0x0014);
-        AddButtonDefinition(X32_LED_MATRIX, 0x0015);
+        AddLedDefinition(X32_LED_IN, 0x0010);
+        AddLedDefinition(X32_LED_AUX, 0x0011);
+        AddLedDefinition(X32_LED_BUS, 0x0012);
+        AddLedDefinition(X32_LED_DCA, 0x0013);
+        AddLedDefinition(X32_LED_MAIN, 0x0014);
+        AddLedDefinition(X32_LED_MATRIX, 0x0015);
 
-        AddButtonDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
+        AddLedDefinition(X32_LED_BACKLIGHT_CHANNEL_LEVEL, 0x0016);
+        AddLedDefinition(X32_LED_BACKLIGHT_MAIN_LEVEL, 0x0017);
 
     }
 
@@ -606,42 +604,20 @@ void Surface::InitDefinitions(void) {
         //AddButtonDefinition(X32_BTN_ENCODER1,       0x0006);
 
         // LED only
-        AddButtonDefinition(X32_LED_SCENE_SETUP_RED,0x0006);
-        AddButtonDefinition(X32_LED_IN,             0x0007);
-        AddButtonDefinition(X32_LED_AUX,            0x0008);
-        AddButtonDefinition(X32_LED_BUS,            0x0009);
-        AddButtonDefinition(X32_LED_MTX,            0x000A);
-        AddButtonDefinition(X32_LED_DCA,            0x000B);
-        AddButtonDefinition(X32_LED_AESA_GREEN,     0x000C);
-        AddButtonDefinition(X32_LED_AESA_RED,       0x000D);
-        AddButtonDefinition(X32_LED_AESB_GREEN,     0x000E);
-        AddButtonDefinition(X32_LED_AESB_RED,       0x000F);
+        AddLedDefinition(X32_LED_SCENE_SETUP_RED,0x0006);
+        AddLedDefinition(X32_LED_IN,             0x0007);
+        AddLedDefinition(X32_LED_AUX,            0x0008);
+        AddLedDefinition(X32_LED_BUS,            0x0009);
+        AddLedDefinition(X32_LED_MTX,            0x000A);
+        AddLedDefinition(X32_LED_DCA,            0x000B);
+        AddLedDefinition(X32_LED_AESA_GREEN,     0x000C);
+        AddLedDefinition(X32_LED_AESA_RED,       0x000D);
+        AddLedDefinition(X32_LED_AESB_GREEN,     0x000E);
+        AddLedDefinition(X32_LED_AESB_RED,       0x000F);
 
     }
 }
-uint16_t Surface::Enum2Encoder(X32_ENC encoder) {
-    //x32debug("DEBUG: enum2button: Encoder %d -> ", encoder);
-    for(int i = 0; i < encoderDefinitionIndex; i++) {
-        if (x32_enc_def[i].encoder == encoder) {
-            //x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoderNr);
-            return x32_enc_def[i].encoderNr;
-        }
-    }
-    //x32debug(" NICHT gefunden!\n");
-    return 0;
-}
 
-X32_ENC Surface::Encoder2Enum(uint16_t encoderNr) {
-    //x32debug("DEBUG: encoder2enum: EncoderNr %d -> ", encoderNr);
-    for(int i = 0; i < encoderDefinitionIndex; i++) {
-        if (x32_enc_def[i].encoderNr == encoderNr) {
-            //x32debug("gefunden: Encoder %d\n", x32_enc_def[i].encoder);
-            return x32_enc_def[i].encoder;
-        }
-    }
-    //x32debug(" NICHT gefunden!\n");
-    return X32_ENC_NONE;
-}
 // bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight
 // CCW <- XXXXXX X XXXXXX -> CW
 uint16_t Surface::CalcEncoderRingLedIncrement(uint8_t pct) {
@@ -893,7 +869,7 @@ void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool ledState){
     message.AddDataByte(0x80 + boardId);
     message.AddDataByte('L'); // class: L = LED
     message.AddDataByte(0x80); // index - fixed at 0x80 for LEDs
-    if (ledState > 0) {
+    if (ledState) {
         message.AddDataByte(ledId + 0x80); // turn LED on
     }else{
         message.AddDataByte(ledId); // turn LED off
@@ -1000,7 +976,7 @@ void Surface::SetLedByNr(uint16_t ledNr, bool ledState, bool blink) {
 // ledNr = LED from X32_BTN enum
 // state = 0 / 1
 void Surface::SetLedByEnum(X32_BTN led, bool ledState, bool blink) {
-    SetLedByNr(Enum2Button[led], ledState, blink);
+    SetLedByNr(Enum2Led[led], ledState, blink);
 }
 
 // boardId = 0, 1, 4, 5, 8

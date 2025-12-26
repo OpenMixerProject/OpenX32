@@ -22,9 +22,6 @@ using namespace std;
 class Surface : public X32Base
 {
     private:
-        int encoderDefinitionIndex;
-        sEncoderInfo x32_enc_def[MAX_ENCODERS];
-
         SurfaceFader faders[MAX_FADERS];
 
         bool blinkstate = false;
@@ -40,7 +37,8 @@ class Surface : public X32Base
         uint16_t CalcEncoderRingLedWidth(uint8_t pct);
 
         void InitDefinitions(void);        
-        void AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr);
+        void AddLedDefinition(X32_BTN led, uint16_t ledNr);
+        void AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr, bool noLed);
         void AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr); 
 
         void SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position);
@@ -80,11 +78,10 @@ class Surface : public X32Base
         );
         void SetLcdX(LcdData* p_data, uint8_t p_textCount);
 
-        map<X32_BTN, uint16_t> Enum2Button;
         map<uint16_t, X32_BTN> Button2Enum;
-
-        uint16_t Enum2Encoder(X32_ENC encoder);
-        X32_ENC Encoder2Enum(uint16_t encoderNr);
+        map<X32_BTN, uint16_t> Enum2Led;
+        map<X32_ENC, uint16_t> Enum2Encoder;
+        map<uint16_t, X32_ENC> Encoder2Enum;
 
         void FaderMoved(SurfaceEvent* event);
         
