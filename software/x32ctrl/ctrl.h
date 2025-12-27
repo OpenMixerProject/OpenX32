@@ -80,6 +80,17 @@ class X32Ctrl : public X32Base {
 
         void Blink();
 
+        PAGE_FUNC_DEF(syncGuiPageHome);
+        PAGE_FUNC_DEF(syncGuiPageConfig);
+        PAGE_FUNC_DEF(syncGuiPageGate);
+        PAGE_FUNC_DEF(syncGuiPageCompressor);
+        PAGE_FUNC_DEF(syncGuiPageEQ);
+        PAGE_FUNC_DEF(syncGuiPageMeters);
+        PAGE_FUNC_DEF(syncGuiPageRoutingFpga);
+        PAGE_FUNC_DEF(syncGuiPageRoutingDsp1);
+        PAGE_FUNC_DEF(syncGuiPageRoutingDsp2);
+        PAGE_FUNC_DEF(syncGuiPageUtility);
+
     public:
         lv_chart_series_t* chartSeriesEQ;
         lv_chart_series_t* chartSeriesCompressor;
@@ -109,16 +120,8 @@ class X32Ctrl : public X32Base {
         void syncAll(void);
         void syncGui(void);
         void syncSurface(void);
-    
-        PAGE_FUNC_DEF(syncGuiPageGate);
-        PAGE_FUNC_DEF(syncGuiPageConfig);
-        PAGE_FUNC_DEF(syncGuiPageRoutingFpga);
-        PAGE_FUNC_DEF(syncGuiPageRoutingDsp1);
-        PAGE_FUNC_DEF(syncGuiPageRoutingDsp2);
-        PAGE_FUNC_DEF(syncGuiPageCompressor);
-        PAGE_FUNC_DEF(syncGuiPageEQ);
-        PAGE_FUNC_DEF(syncGuiPageMeters);
-        PAGE_FUNC_DEF(syncGuiPageUtility);
+        
+
 
         void surfaceSyncBoardMain();
         void surfaceSyncBoard(X32_BOARD board);

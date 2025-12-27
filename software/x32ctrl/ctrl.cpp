@@ -741,13 +741,13 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 
 //#####################################################################################################################
 //
-// ########     ###     ######   ########       ######   #######  ##    ## ######## ########   #######  ##       
-// ##     ##   ## ##   ##    ##  ##            ##    ## ##     ## ###   ##    ##    ##     ## ##     ## ##       
-// ##     ##  ##   ##  ##        ##            ##       ##     ## ####  ##    ##    ##     ## ##     ## ##       
-// ########  ##     ## ##   #### ######        ##       ##     ## ## ## ##    ##    ########  ##     ## ##       
-// ##        ######### ##    ##  ##            ##       ##     ## ##  ####    ##    ##   ##   ##     ## ##       
-// ##        ##     ## ##    ##  ##            ##    ## ##     ## ##   ###    ##    ##    ##  ##     ## ##       
-// ##        ##     ##  ######   ########       ######   #######  ##    ##    ##    ##     ##  #######  ######## 
+// ########     ###     ######   ########  ######  
+// ##     ##   ## ##   ##    ##  ##       ##    ## 
+// ##     ##  ##   ##  ##        ##       ##       
+// ########  ##     ## ##   #### ######    ######  
+// ##        ######### ##    ##  ##             ## 
+// ##        ##     ## ##    ##  ##       ##    ## 
+// ##        ##     ##  ######   ########  ######  
 //
 //#####################################################################################################################
 
@@ -757,8 +757,22 @@ void X32Ctrl::InitPages(){
 		return;
 	}
 
+	// Inits all the page metadata
+
+	// pages:
+	// - previous page (button left)
+	// - next page page (button right)
+	// - tab object and index on upper tab layer
+	// - tab object and index on second layer (set to 0 if not used)
+	// - the surface button to light up (set to X32_BTN_NONE if not used)
+	// - (optional) if the led does not exists on the X32 Rack
+
+	//pagefunctions:
+	// - C++ pointer-to-member to the page control function
+
 	// Home
     pages[X32_PAGE_HOME] = new Page(X32_PAGE_NONE, X32_PAGE_CONFIG, objects.maintab, 0, objects.hometab, 0, X32_BTN_HOME);
+	pagefunctions[X32_PAGE_HOME] = &X32Ctrl::syncGuiPageHome;
 	
 	pages[X32_PAGE_CONFIG] = new Page(X32_PAGE_HOME, X32_PAGE_GATE, objects.maintab, 0, objects.hometab, 1, X32_BTN_VIEW_CONFIG, true);
 	pagefunctions[X32_PAGE_CONFIG] = &X32Ctrl::syncGuiPageConfig;
@@ -806,167 +820,9 @@ void X32Ctrl::InitPages(){
 
 }
 
-void X32Ctrl::ShowNextPage(void){
-	if (pages[state->activePage]->nextPage != X32_PAGE_NONE){
-	 	ShowPage(pages[state->activePage]->nextPage);
-	}
-}
+PAGE_FUNC_IMPL(syncGuiPageHome) {
 
-void X32Ctrl::ShowPrevPage(void){
-	if (pages[state->activePage]->prevPage != X32_PAGE_NONE){
-	 	ShowPage(pages[state->activePage]->prevPage);
-	}
-}
-
-void X32Ctrl::ShowPage(X32_PAGE newPage) {
-
-	// only work's on devices with display
-	if (!(config->IsModelX32FullOrCompactOrProducerOrRack()))
-	{
-		return;
-	}
-	
-	if (newPage == state->activePage) {
-		// operator has pressed the button of the current active page,
-		// so go back to previous page
-		newPage = state->lastPage;
-	}
-
-	state->lastPage = state->activePage;
-	state->activePage = newPage;
-	
-	Page* p = pages[state->activePage];
-	Page* l = pages[state->lastPage];
-
-	// turn off led of prev page
-	if (l->led != X32_BTN_NONE && !(config->IsModelX32Rack() && l->noLedOnRack)) {
-		surface->SetLedByEnum(l->led, false);
-	}
-
-	// turn on led of new active page
-	if (p->led != X32_BTN_NONE && !(config->IsModelX32Rack() && p->noLedOnRack)) {
-		surface->SetLedByEnum(p->led, true);
-	}
-
-	// open tab on Layer0
-	if (p->tabLayer0 != 0) {
-		lv_tabview_set_active(p->tabLayer0, p->tabIndex0, LV_ANIM_OFF);
-	}
-
-	// open tab on Layer1
-	if (p->tabLayer1 != 0) {
-		lv_tabview_set_active(p->tabLayer1, p->tabIndex1, LV_ANIM_OFF);
-	}
-
-	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
-}
-
-//#####################################################################################################################
-//
-//  ######  ##    ## ##    ##  ######  
-// ##    ##  ##  ##  ###   ## ##    ## 
-// ##         ####   ####  ## ##       
-//  ######     ##    ## ## ## ##       
-//       ##    ##    ##  #### ##       
-// ##    ##    ##    ##   ### ##    ## 
-//  ######     ##    ##    ##  ######
-//
-//#####################################################################################################################
-
-void X32Ctrl::syncAll(void) {
-	if (state->HasAnyChanged()){
-
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "SyncAll ");
-
-		syncGui();
-		syncSurface();
-		syncXRemote(false);
-
-		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
-			mixer->Sync();
-		}
-
-		state->ResetChangeFlags();
-		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
-			mixer->GetVChannel(index)->ResetVChannelChangeFlags();
-		}
-	}
-}
-
-// sync mixer state to GUI
-void X32Ctrl::syncGui(void) {
-	if (config->IsModelX32Core()){
-		return;
-	}
-
-	// if these have not changed, do nothing
-	if (!(
-		state->HasChanged(X32_MIXER_CHANGED_PAGE)  		||
-		state->HasChanged(X32_MIXER_CHANGED_SELECT)  	||
-		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)	||
-		state->HasChanged(X32_MIXER_CHANGED_ROUTING) 	||
-		state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)	||
-		state->HasChanged(X32_MIXER_CHANGED_GUI)
-		)) {
-		return;
-	}
-
-	VChannel* chan = GetSelectedvChannel();
-	uint8_t chanIndex = GetSelectedvChannelIndex();
-	bool pageInit = false; // Init page after page change
-	
-	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
-		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
-		pageInit = true;
-	}
-
-	//####################################
-	//#         General
-	//####################################
-
-	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)) {
-		lv_color_t color;
-		switch (chan->color){
-			case SURFACE_COLOR_BLACK:
-				color = lv_color_make(0, 0, 0);
-				break;
-			case SURFACE_COLOR_RED:
-				color = lv_color_make(255, 0, 0);
-				break;
-			case SURFACE_COLOR_GREEN:
-				color = lv_color_make(0, 255, 0);
-				break;
-			case SURFACE_COLOR_YELLOW:
-				color = lv_color_make(255, 255, 0);
-				break;
-			case SURFACE_COLOR_BLUE:
-				color = lv_color_make(0, 0, 255);
-				break;
-			case SURFACE_COLOR_PINK:
-				color = lv_color_make(255, 0, 255);
-				break;
-			case SURFACE_COLOR_CYAN:
-				color = lv_color_make(0, 255, 255);
-				break;
-			case SURFACE_COLOR_WHITE:
-				color = lv_color_make(255, 255, 255);
-				break;
-		}
-
-		lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
-		lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
-		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
-	}
-
-	// call the page sync function of the active page
-	if (pagefunctions[state->activePage] != nullptr) {
-		((this)->*pagefunctions[state->activePage])(pageInit, chanIndex, chan);
-	} else {
-		// all pages without dedicaded page function
-		if (pageInit) {
-			guiSetEncoderText("-", "-", "-", "-", "-", "-");
-		}
-	}
+	guiSetEncoderText("HOME", "-", "-", "-", "-", "-");
 }
 
 PAGE_FUNC_IMPL(syncGuiPageConfig) {
@@ -1013,6 +869,120 @@ PAGE_FUNC_IMPL(syncGuiPageGate) {
 			guiSetEncoderText("-", "-", "-", "-", "-", "-");
 		}
 	}
+}
+
+PAGE_FUNC_IMPL(syncGuiPageCompressor) {
+	DrawDynamics(GetSelectedvChannelIndex());
+
+	if (chanIndex < 40) {
+		// support Compressor
+		guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].compressor.threshold, 1) + " dB",
+			"Ratio: " + String(mixer->dsp->Channel[chanIndex].compressor.ratio, 1) + ":1",
+			"Makeup: " + String(mixer->dsp->Channel[chanIndex].compressor.makeup, 1) + " dB",
+			"Attack: " + String(mixer->dsp->Channel[chanIndex].compressor.attackTime_ms, 0) + " ms",
+			"Hold: " + String(mixer->dsp->Channel[chanIndex].compressor.holdTime_ms, 0) + " ms",
+			"Release: " + String(mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms, 0) + " ms"
+		);
+	}else{
+		// unsupported at the moment
+		guiSetEncoderText("-", "-", "-", "-", "-", "-");
+	}
+}
+
+PAGE_FUNC_IMPL(syncGuiPageEQ) {
+	// draw EQ-plot
+	DrawEq(GetSelectedvChannelIndex());
+
+	if (chanIndex < 40) {
+		// support EQ-channel
+		guiSetEncoderText("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
+			"F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].fc),
+			"G: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].gain, 1) + " dB",
+			"Q: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].Q, 1),
+			"M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].type),
+			"PEQ: " + String(activeEQ + 1)
+		);
+	}else{
+		// unsupported at the moment
+		guiSetEncoderText("-", "-", "-", "-", "-", "-");
+	}
+}
+
+PAGE_FUNC_IMPL(syncGuiPageMeters) {
+	// TODO
+
+	for(int i=0; i<=15; i++){
+		chan = GetVChannel(i);
+		chanIndex = i;
+
+		if (mixer->GetPhantomPower(i)){
+			lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+		} else {
+			lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+		}
+
+		switch (i){
+			case 0:
+				lv_slider_set_value(objects.slider01, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 1:
+				lv_slider_set_value(objects.slider02, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 2:
+				lv_slider_set_value(objects.slider03, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 3:
+				lv_slider_set_value(objects.slider04, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 4:
+				lv_slider_set_value(objects.slider05, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 5:
+				lv_slider_set_value(objects.slider06, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 6:
+				lv_slider_set_value(objects.slider07, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 7:
+				lv_slider_set_value(objects.slider08, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 8:
+				lv_slider_set_value(objects.slider09, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 9:
+				lv_slider_set_value(objects.slider10, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 10:
+				lv_slider_set_value(objects.slider11, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 11:
+				lv_slider_set_value(objects.slider12, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 12:
+				lv_slider_set_value(objects.slider13, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 13:
+				lv_slider_set_value(objects.slider14, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 14:
+				lv_slider_set_value(objects.slider15, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+			case 15:
+				lv_slider_set_value(objects.slider16, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
+				break;
+		}
+	}
+
+	lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
+		(double)mixer->dsp->Channel[0].volumeLR,
+		(double)mixer->dsp->Channel[1].volumeLR,
+		(double)mixer->dsp->Channel[2].volumeLR,
+		(double)mixer->dsp->Channel[3].volumeLR,
+		(double)mixer->dsp->Channel[4].volumeLR,
+		(double)mixer->dsp->Channel[5].volumeLR,
+		(double)mixer->dsp->Channel[6].volumeLR,
+		(double)mixer->dsp->Channel[7].volumeLR
+	);
 }
 
 PAGE_FUNC_IMPL(syncGuiPageRoutingFpga) {
@@ -1300,125 +1270,176 @@ PAGE_FUNC_IMPL(syncGuiPageRoutingDsp2) {
 	guiSetEncoderText("\xEF\x81\xB7 Output \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
 }
 
-PAGE_FUNC_IMPL(syncGuiPageCompressor) {
-	DrawDynamics(GetSelectedvChannelIndex());
 
-	if (chanIndex < 40) {
-		// support Compressor
-		guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].compressor.threshold, 1) + " dB",
-			"Ratio: " + String(mixer->dsp->Channel[chanIndex].compressor.ratio, 1) + ":1",
-			"Makeup: " + String(mixer->dsp->Channel[chanIndex].compressor.makeup, 1) + " dB",
-			"Attack: " + String(mixer->dsp->Channel[chanIndex].compressor.attackTime_ms, 0) + " ms",
-			"Hold: " + String(mixer->dsp->Channel[chanIndex].compressor.holdTime_ms, 0) + " ms",
-			"Release: " + String(mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms, 0) + " ms"
-		);
-	}else{
-		// unsupported at the moment
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
-	}
-}
 
-PAGE_FUNC_IMPL(syncGuiPageEQ) {
-	// draw EQ-plot
-	DrawEq(GetSelectedvChannelIndex());
 
-	if (chanIndex < 40) {
-		// support EQ-channel
-		guiSetEncoderText("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
-			"F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].fc),
-			"G: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].gain, 1) + " dB",
-			"Q: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].Q, 1),
-			"M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].type),
-			"PEQ: " + String(activeEQ + 1)
-		);
-	}else{
-		// unsupported at the moment
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
-	}
-}
-
-PAGE_FUNC_IMPL(syncGuiPageMeters) {
-	// TODO
-
-	for(int i=0; i<=15; i++){
-		chan = GetVChannel(i);
-		chanIndex = i;
-
-		if (mixer->GetPhantomPower(i)){
-			lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-		} else {
-			lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-		}
-
-		switch (i){
-			case 0:
-				lv_slider_set_value(objects.slider01, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 1:
-				lv_slider_set_value(objects.slider02, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 2:
-				lv_slider_set_value(objects.slider03, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 3:
-				lv_slider_set_value(objects.slider04, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 4:
-				lv_slider_set_value(objects.slider05, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 5:
-				lv_slider_set_value(objects.slider06, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 6:
-				lv_slider_set_value(objects.slider07, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 7:
-				lv_slider_set_value(objects.slider08, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 8:
-				lv_slider_set_value(objects.slider09, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 9:
-				lv_slider_set_value(objects.slider10, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 10:
-				lv_slider_set_value(objects.slider11, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 11:
-				lv_slider_set_value(objects.slider12, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 12:
-				lv_slider_set_value(objects.slider13, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 13:
-				lv_slider_set_value(objects.slider14, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 14:
-				lv_slider_set_value(objects.slider15, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 15:
-				lv_slider_set_value(objects.slider16, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-		}
-	}
-
-	lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-		(double)mixer->dsp->Channel[0].volumeLR,
-		(double)mixer->dsp->Channel[1].volumeLR,
-		(double)mixer->dsp->Channel[2].volumeLR,
-		(double)mixer->dsp->Channel[3].volumeLR,
-		(double)mixer->dsp->Channel[4].volumeLR,
-		(double)mixer->dsp->Channel[5].volumeLR,
-		(double)mixer->dsp->Channel[6].volumeLR,
-		(double)mixer->dsp->Channel[7].volumeLR
-	);
-}
 
 PAGE_FUNC_IMPL(syncGuiPageUtility) {
 	guiSetEncoderText("Reload DSPs", "-", "-", "-", String("D2: ") + String(state->debugvalue2).c_str(), String("D1: ") + String(state->debugvalue).c_str());
 }
 
+void X32Ctrl::ShowNextPage(void){
+	if (pages[state->activePage]->nextPage != X32_PAGE_NONE){
+	 	ShowPage(pages[state->activePage]->nextPage);
+	}
+}
 
+void X32Ctrl::ShowPrevPage(void){
+	if (pages[state->activePage]->prevPage != X32_PAGE_NONE){
+	 	ShowPage(pages[state->activePage]->prevPage);
+	}
+}
+
+void X32Ctrl::ShowPage(X32_PAGE newPage) {
+
+	// only work's on devices with display
+	if (!(config->IsModelX32FullOrCompactOrProducerOrRack()))
+	{
+		return;
+	}
+	
+	if (newPage == state->activePage) {
+		// operator has pressed the button of the current active page,
+		// so go back to previous page
+		newPage = state->lastPage;
+	}
+
+	state->lastPage = state->activePage;
+	state->activePage = newPage;
+	
+	Page* p = pages[state->activePage];
+	Page* l = pages[state->lastPage];
+
+	// turn off led of prev page
+	if (l->led != X32_BTN_NONE && !(config->IsModelX32Rack() && l->noLedOnRack)) {
+		surface->SetLedByEnum(l->led, false);
+	}
+
+	// turn on led of new active page
+	if (p->led != X32_BTN_NONE && !(config->IsModelX32Rack() && p->noLedOnRack)) {
+		surface->SetLedByEnum(p->led, true);
+	}
+
+	// open tab on Layer0
+	if (p->tabLayer0 != 0) {
+		lv_tabview_set_active(p->tabLayer0, p->tabIndex0, LV_ANIM_OFF);
+	}
+
+	// open tab on Layer1
+	if (p->tabLayer1 != 0) {
+		lv_tabview_set_active(p->tabLayer1, p->tabIndex1, LV_ANIM_OFF);
+	}
+
+	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
+}
+
+//#####################################################################################################################
+//
+//  ######  ##    ## ##    ##  ######  
+// ##    ##  ##  ##  ###   ## ##    ## 
+// ##         ####   ####  ## ##       
+//  ######     ##    ## ## ## ##       
+//       ##    ##    ##  #### ##       
+// ##    ##    ##    ##   ### ##    ## 
+//  ######     ##    ##    ##  ######
+//
+//#####################################################################################################################
+
+void X32Ctrl::syncAll(void) {
+	if (state->HasAnyChanged()){
+
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "SyncAll ");
+
+		syncGui();
+		syncSurface();
+		syncXRemote(false);
+
+		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
+			mixer->Sync();
+		}
+
+		state->ResetChangeFlags();
+		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
+			mixer->GetVChannel(index)->ResetVChannelChangeFlags();
+		}
+	}
+}
+
+// sync mixer state to GUI
+void X32Ctrl::syncGui(void) {
+	if (config->IsModelX32Core()){
+		return;
+	}
+
+	// if these have not changed, do nothing
+	if (!(
+		state->HasChanged(X32_MIXER_CHANGED_PAGE)  		||
+		state->HasChanged(X32_MIXER_CHANGED_SELECT)  	||
+		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)	||
+		state->HasChanged(X32_MIXER_CHANGED_ROUTING) 	||
+		state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)	||
+		state->HasChanged(X32_MIXER_CHANGED_GUI)
+		)) {
+		return;
+	}
+
+	VChannel* chan = GetSelectedvChannel();
+	uint8_t chanIndex = GetSelectedvChannelIndex();
+	bool pageInit = false; // Init page after page change
+	
+	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
+		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
+		pageInit = true;
+	}
+
+	//####################################
+	//#         General
+	//####################################
+
+	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)) {
+		lv_color_t color;
+		switch (chan->color){
+			case SURFACE_COLOR_BLACK:
+				color = lv_color_make(0, 0, 0);
+				break;
+			case SURFACE_COLOR_RED:
+				color = lv_color_make(255, 0, 0);
+				break;
+			case SURFACE_COLOR_GREEN:
+				color = lv_color_make(0, 255, 0);
+				break;
+			case SURFACE_COLOR_YELLOW:
+				color = lv_color_make(255, 255, 0);
+				break;
+			case SURFACE_COLOR_BLUE:
+				color = lv_color_make(0, 0, 255);
+				break;
+			case SURFACE_COLOR_PINK:
+				color = lv_color_make(255, 0, 255);
+				break;
+			case SURFACE_COLOR_CYAN:
+				color = lv_color_make(0, 255, 255);
+				break;
+			case SURFACE_COLOR_WHITE:
+				color = lv_color_make(255, 255, 255);
+				break;
+		}
+
+		lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
+		lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
+		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
+	}
+
+	// call the page sync function of the active page
+	if (pagefunctions[state->activePage] != nullptr) {
+		((this)->*pagefunctions[state->activePage])(pageInit, chanIndex, chan);
+	} else {
+		// all pages without dedicaded page function
+		if (pageInit) {
+			guiSetEncoderText("-", "-", "-", "-", "-", "-");
+		}
+	}
+}
 
 // sync mixer state to Surface
 void X32Ctrl::syncSurface(void) {
