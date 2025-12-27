@@ -457,6 +457,8 @@ void Mixer::TogglePhaseInvert(uint8_t vChannelIndex){
 void Mixer::SetMute(uint8_t channelIndex, bool mute){
     VChannel* chan = GetVChannel(channelIndex);
 
+    helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "mute channelIndex=%d %s", channelIndex, mute ? "ON": "OFF");
+
     switch(chan->vChannelType){
         case X32_VCHANNELTYPE_NORMAL:
         case X32_VCHANNELTYPE_AUX: {
