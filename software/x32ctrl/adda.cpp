@@ -272,14 +272,22 @@ int8_t Adda::GetXlrInBoardId(uint8_t channel) {
 
 	if (config->IsModelX32Full()) {
 		if ((channel >= 1) && (channel <= 8)) {
-				return 1;
+				return ADDA_BOARD_XLR_IN_1;
 		}else if ((channel >= 9) && (channel <= 16)) {
-				return 3;
+				return ADDA_BOARD_XLR_IN_3;
 		}else if ((channel >= 17) && (channel <= 24)) {
-				return 0;
+				return ADDA_BOARD_XLR_IN_0;
 		}else if ((channel >= 25) && (channel <= 32)) {
-				return 2;
+				return ADDA_BOARD_XLR_IN_2;
 		}
+	}
+
+	if(config->IsModelX32Compact()) {
+		if ((channel >= 1) && (channel <= 8)) {
+			return ADDA_BOARD_XLR_IN_3;
+		}else if ((channel >= 9) && (channel <= 16)) {
+			return ADDA_BOARD_XLR_IN_2;
+		}				
 	}
 
 	if(config->IsModelX32Rack()) {
