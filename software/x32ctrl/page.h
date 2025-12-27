@@ -19,7 +19,8 @@ class Page {
         X32_BTN led;
         bool noLedOnRack;
 
-        Page(X32_PAGE _prevPage,
+        Page(
+            X32_PAGE _prevPage,
             X32_PAGE _nextPage,
             lv_obj_t* _tabLayer0,
             uint32_t _tabIndex0,

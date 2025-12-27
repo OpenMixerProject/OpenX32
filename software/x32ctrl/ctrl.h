@@ -39,6 +39,9 @@ using namespace std;
 #define FADER_BANK_LAYOUT_X32 0 // fader bank layout like X32 (Channels, Busses, etc.)
 #define FADER_BANK_LAYOUT_USER 1
 
+#define PAGE_FUNC_DEF(pagename) void pagename(bool pageInit, uint8_t chanIndex, VChannel* chan)
+#define PAGE_FUNC_IMPL(pagename) void X32Ctrl::pagename(bool pageInit, uint8_t chanIndex, VChannel* chan)
+
 class X32Ctrl : public X32Base {
     private:
         ini::IniFile mixer_ini;
@@ -50,6 +53,7 @@ class X32Ctrl : public X32Base {
         sBankMode modes[3];
 
         map<X32_PAGE, Page*> pages;
+        map<X32_PAGE, void (X32Ctrl::*)(bool pageInit, uint8_t chanIndex, VChannel* chan)> pagefunctions;
 
         uint8_t activeBank_inputFader;
         uint8_t activeBank_busFader;
@@ -103,18 +107,29 @@ class X32Ctrl : public X32Base {
         void ShowNextPage();
 
         void syncAll(void);
-        void guiSync(void);
-        void surfaceSync(void);
+        void syncGui(void);
+        void syncSurface(void);
+    
+        PAGE_FUNC_DEF(syncGuiPageGate);
+        PAGE_FUNC_DEF(syncGuiPageConfig);
+        PAGE_FUNC_DEF(syncGuiPageRoutingFpga);
+        PAGE_FUNC_DEF(syncGuiPageRoutingDsp1);
+        PAGE_FUNC_DEF(syncGuiPageRoutingDsp2);
+        PAGE_FUNC_DEF(syncGuiPageCompressor);
+        PAGE_FUNC_DEF(syncGuiPageEQ);
+        PAGE_FUNC_DEF(syncGuiPageMeters);
+        PAGE_FUNC_DEF(syncGuiPageUtility);
+
         void surfaceSyncBoardMain();
         void surfaceSyncBoard(X32_BOARD board);
         void surfaceSyncBoardExtra();
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void surfaceSyncBankIndicator(void);
         void surfaceUpdateMeter(void);
-        void setLedChannelIndicator(void);
+        void setLedChannelIndicator(void);        
         uint8_t surfaceCalcPreampMeter(uint8_t channel);
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
-        void xremoteSync(bool syncAll);
+        void syncXRemote(bool syncAll);
 
         void ChangeSelect(int8_t direction);
         void SetSelect(uint8_t vChannelIndex, bool solo);
@@ -135,4 +150,4 @@ class X32Ctrl : public X32Base {
 
         void DebugPrintBank(uint8_t bank);
         void DebugPrintBusBank(uint8_t bank);
-};
+}; 
