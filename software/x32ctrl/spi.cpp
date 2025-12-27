@@ -243,7 +243,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
     ioctl(spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "SPI-Bus '%s' initialized. (Mode %d, Speed %d Hz).", SPI_DEVICE_FPGA, spiMode, spiSpeed/2);
 
-    if (helper->DEBUG_SPI()){
+    if (helper->DEBUG_SPI(DEBUGLEVEL_NORMAL)){
 	    status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
         fpgaLatticePrintBits(status);
     }
@@ -267,7 +267,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Configuring Lattice FPGA...");
 
 	// first activate the configuration-mode by toggle the PROGRAMN-pin
-    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Setting PROGRAMN-Sequence HIGH -> LOW -> HIGH and start upload...");
 	toggleFpgaProgramnPin(4000, 50000);
 
     // read IDCODE
@@ -282,7 +282,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
 	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
-    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "Sending ISC_ENABLE...");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Sending ISC_ENABLE...");
     fpgaLatticeSendCommand(&spi_fd, CMD_ISC_ENABLE, false, false);
     
 	// =========== BEGIN of bitstream-transmitting without deasserting ChipSelect ===========
@@ -321,24 +321,26 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
         return false;
     }
 
-    int p = 20;
-    printf("\n\n-----------------------------------------\n");
-      printf("first and last %d bytes of bitstream:\n\n", p);
-  
-    for (int i=0; i < p; i++){
-        printf("0x%.2X ", bitstream_payload[i]);
+    if (helper->DEBUG_SPI(DEBUGLEVEL_NORMAL)) {
+        int p = 20;
+        printf("\n\n-----------------------------------------\n");
+        printf("first and last %d bytes of bitstream:\n\n", p);
+    
+        for (int i=0; i < p; i++){
+            printf("0x%.2X ", bitstream_payload[i]);
+        }
+        printf("\n...");
+        printf("\n...");
+        printf("\n...\n");
+        for (int i=p; i > 0; i--){
+            printf("0x%.2X ", bitstream_payload[bitstream_size - i]);
+        }
+        printf("\n-----------------------------------------\n\n");
     }
-    printf("\n...");
-    printf("\n...");
-    printf("\n...\n");
-    for (int i=p; i > 0; i--){
-        printf("0x%.2X ", bitstream_payload[bitstream_size - i]);
-    }
-    printf("\n-----------------------------------------\n\n");
     
     setFpgaChipSelectPin(true);
 
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending LSC_BITSTREAM_BURST");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Sending LSC_BITSTREAM_BURST");
     fpgaLatticeTransferCommand(&spi_fd, CMD_LSC_BITSTREAM_BURST); // keep CS asserted after this command
 
     // configure transfer
@@ -358,7 +360,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
         struct spi_ioc_transfer tr;
 
         tr.tx_buf = (unsigned long)(&bitstream_payload[current_offset]);
-        tr.rx_buf = 0; // Kein Rx erforderlich
+        tr.rx_buf = (unsigned long)(&bitstream_payload[current_offset]); // Kein Rx erforderlich
         tr.len = len;
         tr.bits_per_word = spiBitsPerWord;
         tr.cs_change = 0; // keep CS asserted between individual chunks, but deassert after last chunk. Behavior tested on RaspberryPi 4.
@@ -406,26 +408,23 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
   
     setFpgaChipSelectPin(false);
 
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending CMD_LSC_READ_STATUS");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Sending CMD_LSC_READ_STATUS");
     status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
-    if(helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE)) {
+    if(helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL)) {
         fpgaLatticePrintBits(status);
     }
-    fprintf(stdout, "\n");
-    fflush(stdout); // immediately write to console!
 
     // Exit Programming Mode: send ISC_DISABLE
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending CMD_ISC_DISABLE");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Sending CMD_ISC_DISABLE");
 	fpgaLatticeSendCommand(&spi_fd, CMD_ISC_DISABLE, false, true);
-    fprintf(stdout, "OK\n");
 
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "wait 100 ms");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "wait 100 ms");
 	usleep(100000); // wait 100 ms
 
     // check Status-Bits
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "Sending CMD_LSC_READ_STATUS");
+    helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Sending CMD_LSC_READ_STATUS");
 	status = fpgaLatticeReadData(&spi_fd, CMD_LSC_READ_STATUS);
-    if(helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE)) {
+    if(helper->DEBUG_SPI(DEBUGLEVEL_NORMAL)) {
         fpgaLatticePrintBits(status);
     }
     bool ret =
@@ -441,17 +440,17 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
 void SPI::toggleFpgaProgramnPin(uint32_t assertTime, uint32_t waitTime) {
     int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
     write(fd, "1", 1); // assert PROGRAMN-pin (this sets the real GPIO to LOW)
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to LOW for %d ms", assertTime/1000);
+    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to LOW for %d ms", assertTime/1000);
 
 	// we have to keep at least 25ns. So keep it 4ms asserted
     usleep(assertTime);
 
     write(fd, "0", 1); // deassert PROGRAMN-pin (this sets the real GPIO to HIGH)
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to HIGH");
+    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to HIGH");
     close(fd);
 	
 	// wait 50ms until FPGA is ready
-    helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "wait %d ms", waitTime/1000);
+    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "wait %d ms", waitTime/1000);
     usleep(waitTime);
 }
 
@@ -459,10 +458,10 @@ void SPI::setFpgaChipSelectPin(bool state) {
     int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
     if (state) {
         write(fd, "1", 1); // assert ChipSelect (sets the real pin to LOW)
-        helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "asserted ChipSelect");
+        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "asserted ChipSelect");
     }else{
         write(fd, "0", 1); // deassert ChipSelect (sets the real pin to HIGH)
-        helper->DEBUG_FPGA(DEBUGLEVEL_VERBOSE, "deasserted ChipSelect");
+        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "deasserted ChipSelect");
     }
     close(fd);
 }
@@ -585,9 +584,10 @@ bool SPI::fpgaLatticePollBusyFlag(int* spi_fd) {
 bool SPI::fpgaLatticeSendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool checkBusyAndStatus) {
 	// prepare ioc-message
     uint8_t tx_buf[4] = {0x00, 0x00, 0x00, 0x00};
+    uint8_t rx_buf[4] = {0x0};
     struct spi_ioc_transfer tr_cmd = {
         .tx_buf = (unsigned long)tx_buf,
-        .rx_buf = 0,
+        .rx_buf = (unsigned long)rx_buf,
         .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
         .bits_per_word = 8
     };
@@ -619,9 +619,10 @@ bool SPI::fpgaLatticeSendCommand(int* spi_fd, uint8_t cmd, bool keepCS, bool che
 int SPI::fpgaLatticeTransferCommand(int* spi_fd, uint8_t cmd) {
 	// prepare ioc-message
     uint8_t tx_buf[4] = {0x00, 0x00, 0x00, 0x00};
+    uint8_t rx_buf[4] = {0x0};
     struct spi_ioc_transfer tr_cmd = {
         .tx_buf = (unsigned long)tx_buf,
-        .rx_buf = 0,
+        .rx_buf = (unsigned long)rx_buf,
         .len = 4, // Standard 4-Byte-Befehl (8-Bit Cmd + 24-Bit Dummy)
         .bits_per_word = 8
     };
