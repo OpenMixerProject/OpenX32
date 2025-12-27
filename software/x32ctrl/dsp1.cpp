@@ -791,6 +791,8 @@ void DSP1::UpdateVuMeter() {
 		//Channel[i].compressor.gain = floatValues[45 + i];
 		//Channel[i].gate.gain = floatValues[85 + i];
 	}
+
+    state->SetChangeFlags(X32_MIXER_CHANGED_METER);
 }
 
 void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {

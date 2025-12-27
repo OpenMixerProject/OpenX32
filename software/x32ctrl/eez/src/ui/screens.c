@@ -311,187 +311,320 @@ void create_screen_main() {
                                             // slider01
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider01 = obj;
-                                            lv_obj_set_pos(obj, -5, 150);
+                                            lv_obj_set_pos(obj, -4, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider02
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider02 = obj;
-                                            lv_obj_set_pos(obj, 32, 151);
+                                            lv_obj_set_pos(obj, 19, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider03
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider03 = obj;
-                                            lv_obj_set_pos(obj, 72, 151);
+                                            lv_obj_set_pos(obj, 42, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider04
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider04 = obj;
-                                            lv_obj_set_pos(obj, 112, 151);
+                                            lv_obj_set_pos(obj, 65, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider05
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider05 = obj;
-                                            lv_obj_set_pos(obj, 153, 151);
+                                            lv_obj_set_pos(obj, 88, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider06
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider06 = obj;
-                                            lv_obj_set_pos(obj, 192, 151);
+                                            lv_obj_set_pos(obj, 111, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider07
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider07 = obj;
-                                            lv_obj_set_pos(obj, 233, 151);
+                                            lv_obj_set_pos(obj, 134, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider08
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider08 = obj;
-                                            lv_obj_set_pos(obj, 274, 150);
+                                            lv_obj_set_pos(obj, 157, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider09
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider09 = obj;
-                                            lv_obj_set_pos(obj, 316, 150);
+                                            lv_obj_set_pos(obj, 187, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider10
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider10 = obj;
-                                            lv_obj_set_pos(obj, 356, 151);
+                                            lv_obj_set_pos(obj, 210, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider11
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider11 = obj;
-                                            lv_obj_set_pos(obj, 397, 151);
+                                            lv_obj_set_pos(obj, 233, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider12
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider12 = obj;
-                                            lv_obj_set_pos(obj, 438, 151);
+                                            lv_obj_set_pos(obj, 256, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider13
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider13 = obj;
-                                            lv_obj_set_pos(obj, 478, 151);
+                                            lv_obj_set_pos(obj, 279, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider14
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider14 = obj;
-                                            lv_obj_set_pos(obj, 519, 151);
+                                            lv_obj_set_pos(obj, 302, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider15
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider15 = obj;
-                                            lv_obj_set_pos(obj, 565, 151);
+                                            lv_obj_set_pos(obj, 325, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             // slider16
                                             lv_obj_t *obj = lv_slider_create(parent_obj);
                                             objects.slider16 = obj;
-                                            lv_obj_set_pos(obj, 606, 151);
+                                            lv_obj_set_pos(obj, 348, 14);
                                             lv_obj_set_size(obj, 11, 111);
-                                            lv_slider_set_range(obj, 0, 4095);
+                                            lv_slider_set_range(obj, -60, 0);
                                             lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
-                                            // phantomindicators
-                                            lv_obj_t *obj = lv_buttonmatrix_create(parent_obj);
-                                            objects.phantomindicators = obj;
-                                            lv_obj_set_pos(obj, -15, 20);
-                                            lv_obj_set_size(obj, 350, 82);
-                                            static const char *map[8] = {
-                                                "48V",
-                                                "48V",
-                                                "48V",
-                                                "48V",
-                                                "48V",
-                                                "48V",
-                                                "48V",
-                                                NULL,
-                                            };
-                                            static lv_buttonmatrix_ctrl_t ctrl_map[7] = {
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                                1 | LV_BUTTONMATRIX_CTRL_CHECKABLE,
-                                            };
-                                            lv_buttonmatrix_set_map(obj, map);
-                                            lv_buttonmatrix_set_ctrl_map(obj, ctrl_map);
+                                            // slider17
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider17 = obj;
+                                            lv_obj_set_pos(obj, 399, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider18
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider18 = obj;
+                                            lv_obj_set_pos(obj, 422, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider19
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider19 = obj;
+                                            lv_obj_set_pos(obj, 445, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider20
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider20 = obj;
+                                            lv_obj_set_pos(obj, 468, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider21
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider21 = obj;
+                                            lv_obj_set_pos(obj, 491, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider22
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider22 = obj;
+                                            lv_obj_set_pos(obj, 514, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider23
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider23 = obj;
+                                            lv_obj_set_pos(obj, 537, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider24
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider24 = obj;
+                                            lv_obj_set_pos(obj, 560, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider25
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider25 = obj;
+                                            lv_obj_set_pos(obj, 590, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider26
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider26 = obj;
+                                            lv_obj_set_pos(obj, 613, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider27
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider27 = obj;
+                                            lv_obj_set_pos(obj, 636, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider28
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider28 = obj;
+                                            lv_obj_set_pos(obj, 659, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider29
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider29 = obj;
+                                            lv_obj_set_pos(obj, 682, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider30
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider30 = obj;
+                                            lv_obj_set_pos(obj, 705, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider31
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider31 = obj;
+                                            lv_obj_set_pos(obj, 728, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
+                                        }
+                                        {
+                                            // slider32
+                                            lv_obj_t *obj = lv_slider_create(parent_obj);
+                                            objects.slider32 = obj;
+                                            lv_obj_set_pos(obj, 751, 14);
+                                            lv_obj_set_size(obj, 11, 111);
+                                            lv_slider_set_range(obj, -60, 0);
+                                            lv_slider_set_value(obj, 25, LV_ANIM_OFF);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, -6, 288);
+                                            lv_obj_set_pos(obj, -1, 135);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "1        2        3        4        5        6        7        8 ");
+                                            lv_label_set_text(obj, "1    2    3   4    5   6    7    8");
                                         }
                                         {
-                                            // volumes
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            objects.volumes = obj;
-                                            lv_obj_set_pos(obj, -12, 115);
+                                            lv_obj_set_pos(obj, 187, 135);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "Text");
+                                            lv_label_set_text(obj, "9   10   11   12  13  14   15  16");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 587, 135);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "25  26 27  28  29 30  31  32");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 399, 135);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "17  18  19  20  21  22  23  24");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 366, -14);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "dB\n0\n-\n-\n-\n-\n-\n-\n-60");
                                         }
                                     }
                                 }

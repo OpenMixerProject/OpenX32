@@ -39,8 +39,9 @@ using namespace std;
 #define FADER_BANK_LAYOUT_X32 0 // fader bank layout like X32 (Channels, Busses, etc.)
 #define FADER_BANK_LAYOUT_USER 1
 
-#define PAGE_FUNC_DEF(pagename) void pagename(bool pageInit, uint8_t chanIndex, VChannel* chan)
-#define PAGE_FUNC_IMPL(pagename) void X32Ctrl::pagename(bool pageInit, uint8_t chanIndex, VChannel* chan)
+#define PAGE_FUNC_BASE (bool pageInit, bool meterupdate, uint8_t chanIndex, VChannel* chan)
+#define PAGE_FUNC_DEF(pagename) void pagename PAGE_FUNC_BASE
+#define PAGE_FUNC_IMPL(pagename) void X32Ctrl:: pagename PAGE_FUNC_BASE
 
 class X32Ctrl : public X32Base {
     private:
@@ -53,7 +54,7 @@ class X32Ctrl : public X32Base {
         sBankMode modes[3];
 
         map<X32_PAGE, Page*> pages;
-        map<X32_PAGE, void (X32Ctrl::*)(bool pageInit, uint8_t chanIndex, VChannel* chan)> pagefunctions;
+        map<X32_PAGE, void (X32Ctrl::*) PAGE_FUNC_BASE > pagefunctions;
 
         uint8_t activeBank_inputFader;
         uint8_t activeBank_busFader;

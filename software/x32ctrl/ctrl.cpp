@@ -909,80 +909,47 @@ PAGE_FUNC_IMPL(syncGuiPageEQ) {
 }
 
 PAGE_FUNC_IMPL(syncGuiPageMeters) {
-	// TODO
 
-	for(int i=0; i<=15; i++){
-		chan = GetVChannel(i);
-		chanIndex = i;
-
-		if (mixer->GetPhantomPower(i)){
-			lv_buttonmatrix_set_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-		} else {
-			lv_buttonmatrix_clear_button_ctrl(objects.phantomindicators, i, LV_BUTTONMATRIX_CTRL_CHECKED);
-		}
-
-		switch (i){
-			case 0:
-				lv_slider_set_value(objects.slider01, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 1:
-				lv_slider_set_value(objects.slider02, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 2:
-				lv_slider_set_value(objects.slider03, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 3:
-				lv_slider_set_value(objects.slider04, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 4:
-				lv_slider_set_value(objects.slider05, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 5:
-				lv_slider_set_value(objects.slider06, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 6:
-				lv_slider_set_value(objects.slider07, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 7:
-				lv_slider_set_value(objects.slider08, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 8:
-				lv_slider_set_value(objects.slider09, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 9:
-				lv_slider_set_value(objects.slider10, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 10:
-				lv_slider_set_value(objects.slider11, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 11:
-				lv_slider_set_value(objects.slider12, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 12:
-				lv_slider_set_value(objects.slider13, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 13:
-				lv_slider_set_value(objects.slider14, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 14:
-				lv_slider_set_value(objects.slider15, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-			case 15:
-				lv_slider_set_value(objects.slider16, helper->Dbfs2Fader(mixer->dsp->Channel[chanIndex].volumeLR), LV_ANIM_OFF);
-				break;
-		}
+	if (pageInit) {
+		guiSetEncoderText("-", "-", "-", "-", "-", "-");
 	}
 
-	lv_label_set_text_fmt(objects.volumes, "%2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB %2.1fdB", 
-		(double)mixer->dsp->Channel[0].volumeLR,
-		(double)mixer->dsp->Channel[1].volumeLR,
-		(double)mixer->dsp->Channel[2].volumeLR,
-		(double)mixer->dsp->Channel[3].volumeLR,
-		(double)mixer->dsp->Channel[4].volumeLR,
-		(double)mixer->dsp->Channel[5].volumeLR,
-		(double)mixer->dsp->Channel[6].volumeLR,
-		(double)mixer->dsp->Channel[7].volumeLR
-	);
+	if (meterupdate) {
+		if (config->IsModelX32FullOrCompactOrProducerOrRack()) {
+			lv_slider_set_value(objects.slider01, helper->sample2Dbfs(mixer->dsp->rChannel[0].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider02, helper->sample2Dbfs(mixer->dsp->rChannel[1].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider03, helper->sample2Dbfs(mixer->dsp->rChannel[2].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider04, helper->sample2Dbfs(mixer->dsp->rChannel[3].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider05, helper->sample2Dbfs(mixer->dsp->rChannel[4].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider06, helper->sample2Dbfs(mixer->dsp->rChannel[5].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider07, helper->sample2Dbfs(mixer->dsp->rChannel[6].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider08, helper->sample2Dbfs(mixer->dsp->rChannel[7].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider09, helper->sample2Dbfs(mixer->dsp->rChannel[8].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider10, helper->sample2Dbfs(mixer->dsp->rChannel[9].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider11, helper->sample2Dbfs(mixer->dsp->rChannel[10].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider12, helper->sample2Dbfs(mixer->dsp->rChannel[11].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider13, helper->sample2Dbfs(mixer->dsp->rChannel[12].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider14, helper->sample2Dbfs(mixer->dsp->rChannel[13].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider15, helper->sample2Dbfs(mixer->dsp->rChannel[14].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider16, helper->sample2Dbfs(mixer->dsp->rChannel[15].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider17, helper->sample2Dbfs(mixer->dsp->rChannel[16].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider18, helper->sample2Dbfs(mixer->dsp->rChannel[17].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider19, helper->sample2Dbfs(mixer->dsp->rChannel[18].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider20, helper->sample2Dbfs(mixer->dsp->rChannel[19].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider21, helper->sample2Dbfs(mixer->dsp->rChannel[20].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider22, helper->sample2Dbfs(mixer->dsp->rChannel[21].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider23, helper->sample2Dbfs(mixer->dsp->rChannel[22].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider24, helper->sample2Dbfs(mixer->dsp->rChannel[23].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider25, helper->sample2Dbfs(mixer->dsp->rChannel[24].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider26, helper->sample2Dbfs(mixer->dsp->rChannel[25].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider27, helper->sample2Dbfs(mixer->dsp->rChannel[26].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider28, helper->sample2Dbfs(mixer->dsp->rChannel[27].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider29, helper->sample2Dbfs(mixer->dsp->rChannel[28].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider30, helper->sample2Dbfs(mixer->dsp->rChannel[29].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider31, helper->sample2Dbfs(mixer->dsp->rChannel[30].meterDecay), LV_ANIM_OFF);
+			lv_slider_set_value(objects.slider32, helper->sample2Dbfs(mixer->dsp->rChannel[31].meterDecay), LV_ANIM_OFF);
+		}
+	}
 }
 
 PAGE_FUNC_IMPL(syncGuiPageRoutingFpga) {
@@ -1377,6 +1344,7 @@ void X32Ctrl::syncGui(void) {
 		state->HasChanged(X32_MIXER_CHANGED_SELECT)  	||
 		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)	||
 		state->HasChanged(X32_MIXER_CHANGED_ROUTING) 	||
+		state->HasChanged(X32_MIXER_CHANGED_METER)		||
 		state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)	||
 		state->HasChanged(X32_MIXER_CHANGED_GUI)
 		)) {
@@ -1386,10 +1354,15 @@ void X32Ctrl::syncGui(void) {
 	VChannel* chan = GetSelectedvChannel();
 	uint8_t chanIndex = GetSelectedvChannelIndex();
 	bool pageInit = false; // Init page after page change
+	bool meterupdate = false; // Init page after page change
 	
 	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
 		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
 		pageInit = true;
+	}
+
+	if (state->HasChanged(X32_MIXER_CHANGED_METER)){
+		meterupdate = true;
 	}
 
 	//####################################
@@ -1432,7 +1405,7 @@ void X32Ctrl::syncGui(void) {
 
 	// call the page sync function of the active page
 	if (pagefunctions[state->activePage] != nullptr) {
-		((this)->*pagefunctions[state->activePage])(pageInit, chanIndex, chan);
+		((this)->*pagefunctions[state->activePage])(pageInit, meterupdate, chanIndex, chan);
 	} else {
 		// all pages without dedicaded page function
 		if (pageInit) {
@@ -1788,6 +1761,8 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 		 	mixer->dsp->MainChannelSub.meterInfo[0]
 		);
 	}
+
+	
 
 	// update channel-meters
 	if (config->IsModelX32Full()) {
