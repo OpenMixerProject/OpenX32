@@ -39,6 +39,15 @@ void DSP1::Init(void) {
     MainChannelSub.balance = 0; // -100 .. 0 .. +100
 
     for (uint8_t i = 0; i < 40; i++) {
+
+        Channel[i].muted = false;
+        Channel[i].solo = false;
+
+        Channel[i].volumeLR = 0; // dbFS
+        Channel[i].volumeSub = VOLUME_MIN;
+        Channel[i].balance = 0; // Center
+
+
         Channel[i].lowCutFrequency = 100.0f; // Hz
 
         Channel[i].gate.threshold = -80; // dB -> no gate
@@ -63,6 +72,7 @@ void DSP1::Init(void) {
 
         for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
             Channel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
+            Channel[i].sendMixbusTapPoint[i_mixbus] = DSP_TAP_PRE_FADER;
         }
 
         monitorVolume = 0; // dBfs
