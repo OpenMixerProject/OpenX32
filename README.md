@@ -59,7 +59,10 @@ I want to learn things about embedded systems and how they work. The X32 is a ve
 
 Yes, here: https://discourse.openmixerproject.de
 
-## Steps to compile and load the new operating system
+## Steps to run OpenX32 without recompiling
+Checkout the most recent release from https://github.com/OpenMixerProject/OpenX32/releases and follow the instructions there. You only have to copy a couple of files onto an USB-thumbdrive and boot into Linux :)
+
+## Steps to compile the new operating system
 
 ### Step 1: Init Git-Submodules and install dependencies
 This system uses the most recent versions of the tools I could find: the bootloader u-Boot is used in Version 2020.10 as this is the last U-Boot supporting the i.MX25. Up to now Linux has still support for the i.MX25 and I selected v6.12, the most recent LTS-kernel.
