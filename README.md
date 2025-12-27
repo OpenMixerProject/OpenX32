@@ -40,10 +40,10 @@ Several audio-functions are already supported:
 And most of the hardware-surface is working already:
 * [x] Support of booting from SD-Card and via original DCP-Bootloader
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
+* [x] Support for newer revisions of the X32 using Lattice FPGAs
 
 So the most important things (audio in/out, control-surface, display) are working already and more things are on the ToDo-list:
-* [ ] In-Progress: Support for newer revisions of the X32 using Lattice FPGAs (logic is synthesized, but uploading is not working yet)
-* [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years)
+* [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years; barebox already boots OpenX32 from development sd-cards)
 * [ ] Planned: Implement advanced audio-algorithms in DSP2
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
