@@ -6,11 +6,12 @@ This repository contains software to load and start the Linux-Kernel on the Behr
 
 ![alt_text](Documentation/openx32_1.jpg)
 
-Currently the Linux Kernel is running in Version 6.12 (LTS) with busybox:
+Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox:
 
 ![alt_text](Documentation/openx32_2.jpg)
 
-More information in my related Youtube-Video:
+More information in the related two Youtube-Videos:
+[![alt text](https://img.youtube.com/vi/c5jjBm8EPsg/0.jpg)](https://www.youtube.com/watch?v=c5jjBm8EPsg)
 
 [![alt text](https://img.youtube.com/vi/6CfLC5xVy90/0.jpg)](https://www.youtube.com/watch?v=6CfLC5xVy90)
 
@@ -18,39 +19,38 @@ More information in my related Youtube-Video:
 Next to the underlaying Linux we are working on the audio-processing as well.
 
 The Linux has control over most parts of the i.M253 main-controller:
-* [x] Linux-Kernel in Version 6.12 (LTS) starts to shell using display framebuffer
+* [x] Linux-Kernel in Version 6.18 (LTS) starts to shell using 800x480 display framebuffer
 * [x] init-script for setting up the operating system
 * [x] MIDI-Input and -output is used as an additional serial-port-terminal (see pinout down below)
-* [x] Support of 800x480 32-bit framebuffer for applications (/dev/fb0)
 * [x] Support of 100MBit ethernet network-support with DHCP
 * [x] Support of internal Realtime-Clock
 * [x] Support of USB-Host interface (HID-Keyboard, HID-Mouse, Mass-Storage-Devices, Joystick, Soundcard, etc.)
 * [x] Support of internal SD-Card to read MAC-Address and the general configuration
 
 Several audio-functions are already supported:
-* [x] Configuration of main-FPGA (Xilinx Spartan 3A, X3CS1400) via internal SPI-interface
+* [x] Configuration of FPGA (Xilinx Spartan 3A or Lattice ECP5) via internal SPI-interface
 * [x] Support of both AnalogDevices DSPs (ADSP-21371 SHARC DSPs) via internal SPI-interface
-* [x] Support of TDM8-input- and output-streams from AD/DA-boards, Expansion Card, AUX-ICs, UltraNet
 * [x] Support of 1:1-routing for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
 * [x] Support of UltraNet-Output
 * [x] Support of internal 8-channel analog input- and output-cards including headamp- and phantom-power-control
 * [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438 on older revisions, M8000 on newer revisions)
 * [x] Noisegate, 4-band EQ and compressor per channel is already working within the main-DSP
 
-And most of the hardware-surface is working already:
-* [x] Support of booting from SD-Card and via original DCP-Bootloader
+The hardware-surface is working, too:
+* [x] Support of booting from SD-Card and via USB using the original DCP-Bootloader
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
-* [x] Support for newer revisions of the X32 using Lattice FPGAs
 
 So the most important things (audio in/out, control-surface, display) are working already and more things are on the ToDo-list:
 * [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years; barebox already boots OpenX32 from development sd-cards)
+* [ ] Planned: Support of AES50
 * [ ] Planned: Implement advanced audio-algorithms in DSP2
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
-* [ ] Planned: Support of AES50 (needs more investigation on AES50-protocol)
 
 LVGL v9.3.0 is running on the X32 with a good performance (30 fps). So this will be a basis for this open-source Operating System:
 ![alt_text](Documentation/openx32_3.jpg)
+
+![alt_text](Documentation/openx32_4.jpg)
 
 ## What's the reason for developing such a thing?
 I want to learn things about embedded systems and how they work. The X32 is a very powerful playground with lots of different controllers, nice faders and displays. So that's the only reason why I'm doing this :-)
