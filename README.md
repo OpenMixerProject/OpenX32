@@ -154,6 +154,8 @@ The MIDI-Ports are connected to the UART5 of the i.MX25. With a simple resistor 
       Pin 5          |___|                                                 Pin 5
     MIDI OUT- o----<---|----->----o Pin 2 (RxD)   Pin 3 (TxD) o-----<----o MIDI In-
 
+see also: [Article in our Discourse](https://discourse.openmixerproject.de/t/midi-port-as-uart-serial-port)
+
 ## Used third-party software
 * U-Boot in Version 2020.10 (https://github.com/u-boot/u-boot/tree/v2020.10)
 * Linux in Version 6.18 (https://github.com/torvalds/linux/tree/v6.18)
