@@ -158,7 +158,7 @@ The MIDI-Ports are connected to the UART5 of the i.MX25. With a simple resistor 
 
 ## Used third-party software
 * U-Boot in Version 2020.10 (https://github.com/u-boot/u-boot/tree/v2020.10)
-* Linux in Version 6.12 (https://github.com/torvalds/linnux/tree/v6.12)
+* Linux in Version 6.12 (https://github.com/torvalds/linux/tree/v6.12)
 * Busybox (https://git.busybox.net/busybox)
 * pyATK in Version 0.1.0 (https://github.com/hbock/pyatk)
 * LVGL in Version 9.3.0 (https://github.com/lvgl/lv_port_linux)
