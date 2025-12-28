@@ -15,8 +15,8 @@ More information in the related two Youtube-Videos:
 
 [![alt text](https://img.youtube.com/vi/6CfLC5xVy90/0.jpg)](https://www.youtube.com/watch?v=6CfLC5xVy90)
 
-and a short demo of OpenX32 running on a X32 Rack:
-https://youtube.com/shorts/HEKZBwd_7Ww?si=Q7c15EphQGNHR0TK
+A short demo of OpenX32 running on a X32 Rack:
+[![alt text](https://github.com/user-attachments/assets/22b80851-2e81-4e67-839e-024f9c71aaa1)](https://youtube.com/shorts/HEKZBwd_7Ww?si=Q7c15EphQGNHR0TK)
 
 ## What is working at the moment and what is planned so far
 Next to the underlaying Linux we are working on the audio-processing as well.
