@@ -11,6 +11,9 @@ class Config {
         X32_SURFACE_MODE_BANKING _activeBankMode;
 
     public:
+
+        uint8_t selectedVChannel;
+
         int ReadConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
 
         void SetModel(String model);

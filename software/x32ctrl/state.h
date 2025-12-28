@@ -28,6 +28,8 @@ class State {
         X32_PAGE lastPage = X32_PAGE_HOME;
         X32_PAGE activePage = X32_PAGE_HOME;
 
+        uint8_t activeEQ;
+
         // DEBUG
         uint8_t debugvalue = 0;
         uint8_t debugvalue2 = 0;

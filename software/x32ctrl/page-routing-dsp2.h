@@ -1,0 +1,170 @@
+#pragma once
+
+#include "page.h"
+
+using namespace std;
+
+class PageRoutingDsp2: public Page {
+    public:
+        PageRoutingDsp2(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+            prevPage = X32_PAGE_ROUTING_DSP2;
+            nextPage = X32_PAGE_NONE;
+            tabLayer0 = objects.maintab;
+            tabIndex0 = 2;
+            tabLayer1 = objects.routingtab;
+            tabIndex1 = 3;
+        }
+
+		void OnInit() override {
+			if (state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)) {
+				state->gui_selected_item = 0;
+			}else if (state->gui_selected_item < 0) {
+				state->gui_selected_item = (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS) - 1;
+			}
+
+			lv_table_set_row_count(objects.table_routing_dsp_output, (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+			lv_table_set_column_count(objects.table_routing_dsp_output, 5); // Input | # | Source | # | Tap | #
+			lv_table_set_column_width(objects.table_routing_dsp_output, 0, 200);
+			lv_table_set_column_width(objects.table_routing_dsp_output, 1, 50);
+			lv_table_set_column_width(objects.table_routing_dsp_output, 2, 200);
+			lv_table_set_column_width(objects.table_routing_dsp_output, 3, 50);
+			lv_table_set_column_width(objects.table_routing_dsp_output, 4, 100);
+			for (uint8_t i=0; i < MAX_DSP_OUTPUTCHANNELS; i++){
+				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+1);
+				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FpgaChannel[i].outputSource, mixer->dsp->Channel[i].inputSource);
+				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint);
+
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 0, "%s", outputChannelName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 2, "%s", outputSourceName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 4, "%s", tapPointName);
+			}
+
+			for (uint8_t i=0; i < MAX_DSP_FXCHANNELS; i++){
+				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+MAX_DSP_OUTPUTCHANNELS+1);
+				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FxChannel[i].outputSource, 0);
+				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FxChannel[i].outputTapPoint);
+
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 0, "%s", outputChannelName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 2, "%s", outputSourceName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 4, "%s", tapPointName);
+			}
+
+			for (uint8_t i=0; i < MAX_DSP_AUXCHANNELS; i++){
+				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+1);
+				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2AuxChannel[i].outputSource, 0);
+				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2AuxChannel[i].outputTapPoint);
+
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 0, "%s", outputChannelName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 2, "%s", outputSourceName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 4, "%s", tapPointName);
+			}
+
+			lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
+			lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
+		}
+
+		void OnShow() override {
+			SetEncoderText("\xEF\x81\xB7 Output \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
+		}
+
+		void OnChange() override {
+			if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
+				if (state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)) {
+					state->gui_selected_item = 0;
+				}else if (state->gui_selected_item < 0) {
+					state->gui_selected_item = (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS) - 1;
+				}
+
+				if (state->gui_selected_item != state->gui_old_selected_item ) {
+					// remove old indicator
+					lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_old_selected_item, 1, " ");
+					lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_old_selected_item, 3, " ");
+					
+					// display new indicator
+					lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
+					lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
+					
+					// set select to scroll table
+					lv_table_set_selected_cell(objects.table_routing_dsp_output, state->gui_selected_item, 2);
+					
+					state->gui_old_selected_item = state->gui_selected_item;
+				}
+			} 
+			
+			if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
+				if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
+					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item].outputSource, mixer->dsp->Channel[state->gui_selected_item].inputSource);
+					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item].outputTapPoint);
+				}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS))) {
+					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS].outputSource, 0);
+					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS].outputTapPoint);
+				}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS))) {
+					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2AuxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS-MAX_DSP_FXCHANNELS].outputSource, 0);
+					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2AuxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS-MAX_DSP_FXCHANNELS].outputTapPoint);
+				}
+
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, state->gui_selected_item, 2, "%s", outputSourceName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, state->gui_selected_item, 4, "%s", tapPointName);
+			}
+		}
+
+        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {
+            switch (encoder){
+				case X32_ENC_ENCODER1:
+					mixer->ChangeGuiSelection(amount);
+					break;
+				case X32_ENC_ENCODER2:
+					if (amount < 0) {
+						mixer->ChangeGuiSelection(-8);
+					}else{
+						mixer->ChangeGuiSelection(8);
+					}
+					break;
+				case X32_ENC_ENCODER3:
+					if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
+						mixer->ChangeDspOutput(state->gui_selected_item, amount);
+					}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
+						mixer->ChangeDspFxOutput(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS, amount);
+					}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
+						mixer->ChangeDspAuxOutput(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, amount);
+					}
+					break;
+				case X32_ENC_ENCODER4:
+					int8_t absoluteChange;
+					if (amount < 0) {
+						absoluteChange = -8;
+					}else{
+						absoluteChange = 8;
+					}
+					for (uint8_t i=state->gui_selected_item; i<(state->gui_selected_item+8); i++) {
+						if (i < MAX_DSP_OUTPUTCHANNELS) {
+							mixer->ChangeDspOutput(i, absoluteChange);
+						}else if ((i >= MAX_DSP_OUTPUTCHANNELS) && (i < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
+							mixer->ChangeDspFxOutput(i - MAX_DSP_OUTPUTCHANNELS, absoluteChange);
+						}else if ((i >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (i < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
+							mixer->ChangeDspAuxOutput(i - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, absoluteChange);
+						}
+					}
+					break;
+				case X32_ENC_ENCODER5:
+					if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
+						mixer->ChangeDspOutputTapPoint(state->gui_selected_item, amount);
+					}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
+						mixer->ChangeDspFxOutputTapPoint(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS, amount);
+					}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
+						mixer->ChangeDspAuxOutputTapPoint(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, amount);
+					}
+					break;
+				case X32_ENC_ENCODER6:
+					break;
+				default:  
+					// just here to avoid compiler warnings                  
+					break;
+			}
+        }
+
+		private:
+			char outputChannelName[25] = "";
+			char outputSourceName[25] = "";
+			char tapPointName[15] = "";
+};

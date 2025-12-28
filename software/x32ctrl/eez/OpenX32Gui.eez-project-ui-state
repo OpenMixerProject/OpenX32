@@ -2,7 +2,6 @@
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/0",
-    "selectedLvglGroupObject": "[OpenX32Gui.eez-project]:/lvglGroups/groups/-1",
     "subnavigationSelectedItems": {}
   },
   "layoutModel": {
@@ -211,8 +210,7 @@
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
@@ -227,7 +225,8 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ]
+              ],
+              "active": true
             }
           ]
         }
@@ -965,6 +964,9 @@
             "1": {
               "0": {
                 "0": {
+                  "0": {
+                    "$selected": true
+                  },
                   "2": {},
                   "3": {}
                 }

@@ -10,6 +10,22 @@
 #include "xremote.h"
 
 #include "page.h"
+#include "page-meter.h"
+#include "page-home.h"
+#include "page-config.h"
+#include "page-gate.h"
+#include "page-dynamics.h"
+#include "page-eq.h"
+#include "page-routing.h"
+#include "page-routing-fpga.h"
+#include "page-routing-dsp1.h"
+#include "page-routing-dsp2.h"
+#include "page-library.h"
+#include "page-effects.h"
+#include "page-setup.h"
+#include "page-mutegroup.h"
+#include "page-utility.h"
+
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"
@@ -54,14 +70,11 @@ class X32Ctrl : public X32Base {
         sBankMode modes[3];
 
         map<X32_PAGE, Page*> pages;
-        map<X32_PAGE, void (X32Ctrl::*) PAGE_FUNC_BASE > pagefunctions;
+        //map<X32_PAGE, void (X32Ctrl::*) PAGE_FUNC_BASE > pagefunctions;
 
         uint8_t activeBank_inputFader;
         uint8_t activeBank_busFader;
-        uint8_t activeEQ;
         uint8_t activeBusSend;
-
-        uint8_t selectedVChannel;
 
         sTouchControl touchcontrol;
 
@@ -81,24 +94,7 @@ class X32Ctrl : public X32Base {
 
         void Blink();
 
-        PAGE_FUNC_DEF(syncGuiPageHome);
-        PAGE_FUNC_DEF(syncGuiPageConfig);
-        PAGE_FUNC_DEF(syncGuiPageGate);
-        PAGE_FUNC_DEF(syncGuiPageCompressor);
-        PAGE_FUNC_DEF(syncGuiPageEQ);
-        PAGE_FUNC_DEF(syncGuiPageMeters);
-        PAGE_FUNC_DEF(syncGuiPageRoutingFpga);
-        PAGE_FUNC_DEF(syncGuiPageRoutingDsp1);
-        PAGE_FUNC_DEF(syncGuiPageRoutingDsp2);
-        PAGE_FUNC_DEF(syncGuiPageUtility);
-
     public:
-        lv_chart_series_t* chartSeriesEQ;
-        lv_chart_series_t* chartSeriesCompressor;
-        lv_chart_series_t* chartSeriesCompressorAudio;
-        lv_chart_series_t* chartSeriesGate;
-        lv_chart_series_t* chartSeriesGateAudio;
-
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
         void SaveConfig();
@@ -106,12 +102,6 @@ class X32Ctrl : public X32Base {
         void Tick100ms(void);
         void ProcessEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
-
-        void guiFastRefresh();
-        void guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
-        void DrawGate(uint8_t selectedChannelIndex);
-        void DrawDynamics(uint8_t selectedChannelIndex);
-        void DrawEq(uint8_t selectedChannelIndex);
 
         void InitPages();
         void ShowPage(X32_PAGE page);
@@ -122,8 +112,6 @@ class X32Ctrl : public X32Base {
         void syncGui(void);
         void syncSurface(void);
         
-
-
         void surfaceSyncBoardMain();
         void surfaceSyncBoard(X32_BOARD board);
         void surfaceSyncBoardExtra();
@@ -138,7 +126,6 @@ class X32Ctrl : public X32Base {
         void ChangeSelect(int8_t direction);
         void SetSelect(uint8_t vChannelIndex, bool solo);
         void ToggleSelect(uint8_t vChannelIndex);
-        uint8_t GetSelectedvChannelIndex(void);
         VChannel* GetSelectedvChannel(void);
         VChannel* GetVChannel(uint8_t VChannelIndex);
         uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);

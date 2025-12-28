@@ -1,15 +1,5 @@
 #include "ctrl.h"
 
-char displayEncoderText[6][30];
-static const char* displayEncoderButtonMap[] = {
-    displayEncoderText[0],
-    displayEncoderText[1],
-    displayEncoderText[2],
-    displayEncoderText[3],
-    displayEncoderText[4],
-    displayEncoderText[5],
-    NULL};
-
 X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
 	mixer = new Mixer(basepar);
 	surface = new Surface(basepar);
@@ -65,7 +55,7 @@ void X32Ctrl::Init(){
 
 		activeBank_inputFader = 0;
 		activeBank_busFader = 0;
-		activeEQ = 0;
+		state->activeEQ = 0;
 		activeBusSend = 0;
 	}
 
@@ -322,6 +312,7 @@ void X32Ctrl::SaveConfig() {
 //#####################################################################################################################
 
 void X32Ctrl::Tick10ms(void){
+	// DEBUG
 	if (state->timers){
 		helper->stoptimer(10, "Tick10ms - delay between calls");
 	}
@@ -336,25 +327,21 @@ void X32Ctrl::Tick10ms(void){
 
 	syncAll();
 
-	guiFastRefresh();
-
-	
+	// DEBUG
 	if (state->timers){
 		helper->starttimer(10);
 	}
 }
 
 void X32Ctrl::Tick100ms(void){
+	// DEBUG
 	if (state->timers){
 		helper->stoptimer(0, "Tick100ms - delay between calls");
 	}
 	
 	surfaceUpdateMeter();
 	surface->Tick100ms();
-
-	// update meters on XRemote-clients
 	xremote->UpdateMeter(mixer);
-	
 	mixer->Tick100ms();
 
 	if (!config->IsModelX32Core() && state->activePage == X32_PAGE_UTILITY) {
@@ -362,6 +349,7 @@ void X32Ctrl::Tick100ms(void){
 	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
 	}
 
+	// DEBUG
 	if (state->timers){
 		helper->starttimer(0);
 	}
@@ -584,160 +572,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
 
 
 }
-//#####################################################################################################################
-//
-//  ######   ##     ## #### 
-// ##    ##  ##     ##  ##  
-// ##        ##     ##  ##  
-// ##   #### ##     ##  ##  
-// ##    ##  ##     ##  ##  
-// ##    ##  ##     ##  ##  
-//  ######    #######  #### 
-//
-//#####################################################################################################################
 
-
-
-void X32Ctrl::guiFastRefresh(void) {
-    // update gate-display if visible
-    if (state->activePage == X32_PAGE_GATE) {
-        int32_t gateValueAudioDbfs = -120;
-
-        uint8_t selectedChannelIndex = GetSelectedvChannelIndex();
-        if (selectedChannelIndex < 40) {
-            gateValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
-        }
-
-        // add new value to chart
-        lv_chart_set_next_value(objects.current_channel_gate, chartSeriesGateAudio, gateValueAudioDbfs);
-        //lv_chart_refresh(objects.current_channel_gate);
-    }else if (state->activePage == X32_PAGE_COMPRESSOR) {
-        int32_t compValueAudioDbfs = -120;
-
-        uint8_t selectedChannelIndex = GetSelectedvChannelIndex();
-        if (selectedChannelIndex < 40) {
-            compValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
-        }
-
-        // add new value to chart
-        lv_chart_set_next_value(objects.current_channel_comp, chartSeriesCompressorAudio, compValueAudioDbfs);
-        //lv_chart_refresh(objects.current_channel_comp);
-    }
-}
-
-void X32Ctrl::guiSetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
-	sprintf(&displayEncoderText[0][0], "%s", enc1.c_str());
-	sprintf(&displayEncoderText[1][0], "%s", enc2.c_str());
-	sprintf(&displayEncoderText[2][0], "%s", enc3.c_str());
-	sprintf(&displayEncoderText[3][0], "%s", enc4.c_str());
-	sprintf(&displayEncoderText[4][0], "%s", enc5.c_str());
-	sprintf(&displayEncoderText[5][0], "%s", enc6.c_str());
-	lv_btnmatrix_set_map(objects.display_encoders, displayEncoderButtonMap);
-}
-
-void X32Ctrl::DrawGate(uint8_t selectedChannelIndex) {
-	if (selectedChannelIndex >= 40) {
-		return;
-	}
-
-	// calculate the gate curve
-	float gateValue[200];
-	float inputLevel;
-	float outputLevel;
-
-	memset(&gateValue[0], 0, sizeof(gateValue));
-
-	sGate* gate = &mixer->dsp->Channel[GetSelectedvChannelIndex()].gate;
-
-	for (uint16_t pixel = 0; pixel < 200; pixel++) {
-		inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
-
-		if (inputLevel >= gate->threshold) {
-			// above threshold
-			outputLevel = inputLevel;
-		}else{
-			// below threshold -> apply reduction
-			outputLevel = inputLevel - gate->range;
-		}
-
-		// scale outputLevel to -6000 .. 0
-		gateValue[pixel] = outputLevel * 100.0f;
-	}
-
-	int32_t* chartSeriesGatePoints = lv_chart_get_series_y_array(objects.current_channel_gate, chartSeriesGate);
-	for (uint16_t i = 0; i < 200; i++) {
-	   chartSeriesGatePoints[i] = gateValue[i];
-	}
-	lv_chart_refresh(objects.current_channel_gate);
-}
-
-void X32Ctrl::DrawDynamics(uint8_t selectedChannelIndex) {
-	if (selectedChannelIndex >= 40) {
-		return;
-	}
-
-	// calculate the compressor curve
-	float compValue[200];
-	float inputLevel;
-	float outputLevel;
-
-	memset(&compValue[0], 0, sizeof(compValue));
-
-	sCompressor* comp = &mixer->dsp->Channel[GetSelectedvChannelIndex()].compressor;
-
-	for (uint16_t pixel = 0; pixel < 200; pixel++) {
-		inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
-
-		if (inputLevel < comp->threshold) {
-			// below threshold
-			outputLevel = inputLevel;
-		}else{
-			// above threshold -> calculate overshoot (inputLevel - comp->threshold) and take ratio into account
-			outputLevel = comp->threshold + ((inputLevel - comp->threshold) / comp->ratio);
-		}
-
-		// scale outputLevel to -6000 .. 0
-		compValue[pixel] = outputLevel * 100.0f;
-	}
-
-	int32_t* chartSeriesCompPoints = lv_chart_get_series_y_array(objects.current_channel_comp, chartSeriesCompressor);
-	for (uint16_t i = 0; i < 200; i++) {
-	   chartSeriesCompPoints[i] = compValue[i];
-	}
-	lv_chart_refresh(objects.current_channel_comp);
-}
-
-void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
-	if (selectedChannelIndex >= 40) {
-		return;
-	}
-
-	// calculate the filter-response between 20 Hz and 20 kHz for all 4 PEQs
-	sPEQ* peq;
-	float eqValue[200];
-	float freq;
-
-	memset(&eqValue[0], 0, sizeof(eqValue));
-
-	for (uint16_t pixel = 0; pixel < 200; pixel++) {
-		freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
-
-		// LowCut
-		eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_LC(freq, mixer->dsp->Channel[selectedChannelIndex].lowCutFrequency, config->GetSamplerate());
-
-		// PEQ
-		for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
-			peq = &mixer->dsp->Channel[GetSelectedvChannelIndex()].peq[i_peq];
-			eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, config->GetSamplerate());
-		}
-	}
-
-	int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, chartSeriesEQ);
-	for (uint16_t i = 0; i < 200; i++) {
-	   chartSeriesEqPoints[i] = eqValue[i] * 1000.0f;
-	}
-	lv_chart_refresh(objects.current_channel_eq);
-}
 
 //#####################################################################################################################
 //
@@ -752,508 +587,41 @@ void X32Ctrl::DrawEq(uint8_t selectedChannelIndex) {
 //#####################################################################################################################
 
 void X32Ctrl::InitPages(){
-
 	if(!(config->IsModelX32FullOrCompactOrProducerOrRack())) {
 		return;
 	}
-
-	// Inits all the page metadata
-
-	// pages:
-	// - previous page (button left)
-	// - next page page (button right)
-	// - tab object and index on upper tab layer
-	// - tab object and index on second layer (set to 0 if not used)
-	// - the surface button to light up (set to X32_BTN_NONE if not used)
-	// - (optional) if the led does not exists on the X32 Rack
-
-	//pagefunctions:
-	// - C++ pointer-to-member to the page control function
-
-	// Home
-    pages[X32_PAGE_HOME] = new Page(X32_PAGE_NONE, X32_PAGE_CONFIG, objects.maintab, 0, objects.hometab, 0, X32_BTN_HOME);
-	pagefunctions[X32_PAGE_HOME] = &X32Ctrl::syncGuiPageHome;
-	
-	pages[X32_PAGE_CONFIG] = new Page(X32_PAGE_HOME, X32_PAGE_GATE, objects.maintab, 0, objects.hometab, 1, X32_BTN_VIEW_CONFIG, true);
-	pagefunctions[X32_PAGE_CONFIG] = &X32Ctrl::syncGuiPageConfig;
-	
-	pages[X32_PAGE_GATE] = new Page(X32_PAGE_CONFIG, X32_PAGE_COMPRESSOR, objects.maintab, 0, objects.hometab, 2, X32_BTN_VIEW_GATE, true);
-	pagefunctions[X32_PAGE_GATE] = &X32Ctrl::syncGuiPageGate;
-	
-	pages[X32_PAGE_COMPRESSOR] = new Page(X32_PAGE_GATE, X32_PAGE_EQ, objects.maintab, 0, objects.hometab, 3, X32_BTN_VIEW_COMPRESSOR, true);
-	pagefunctions[X32_PAGE_COMPRESSOR] = &X32Ctrl::syncGuiPageCompressor;
-
-	pages[X32_PAGE_EQ] = new Page(X32_PAGE_COMPRESSOR, X32_PAGE_NONE, objects.maintab, 0, objects.hometab, 4, X32_BTN_VIEW_EQ, true);
-	pagefunctions[X32_PAGE_EQ] = &X32Ctrl::syncGuiPageEQ;
-
-	// Meters
-	pages[X32_PAGE_METERS] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 1, 0, 0, X32_BTN_METERS);
-	pagefunctions[X32_PAGE_METERS] = &X32Ctrl::syncGuiPageMeters;
-
-	// Routing
-	pages[X32_PAGE_ROUTING] = new Page(X32_PAGE_NONE, X32_PAGE_ROUTING_FPGA, objects.maintab, 2, objects.routingtab, 0, X32_BTN_ROUTING);
-
-	pages[X32_PAGE_ROUTING_FPGA] = new Page(X32_PAGE_ROUTING, X32_PAGE_ROUTING_DSP1, objects.maintab, 2, objects.routingtab, 1, X32_BTN_NONE);
-	pagefunctions[X32_PAGE_ROUTING_FPGA] = &X32Ctrl::syncGuiPageRoutingFpga;
-
-	pages[X32_PAGE_ROUTING_DSP1] = new Page(X32_PAGE_ROUTING_FPGA, X32_PAGE_ROUTING_DSP2, objects.maintab, 2, objects.routingtab, 2, X32_BTN_NONE);
-	pagefunctions[X32_PAGE_ROUTING_DSP1] = &X32Ctrl::syncGuiPageRoutingDsp1;
-
-	pages[X32_PAGE_ROUTING_DSP2] = new Page(X32_PAGE_ROUTING_DSP2, X32_PAGE_NONE, objects.maintab, 2, objects.routingtab, 3, X32_BTN_NONE);
-	pagefunctions[X32_PAGE_ROUTING_DSP2] = &X32Ctrl::syncGuiPageRoutingDsp2;
-
-	// Setup
-	pages[X32_PAGE_SETUP] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 3, 0, 0, X32_BTN_SETUP);
-
-	// Library
-	pages[X32_PAGE_LIBRARY] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 4, 0, 0, X32_BTN_LIBRARY);
-
-	// Effects
-	pages[X32_PAGE_EFFECTS] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 5, 0, 0, X32_BTN_EFFECTS);
-
-	// Mute Group
-	pages[X32_PAGE_MUTE_GRP] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 6, 0, 0, X32_BTN_MUTE_GRP);
-
-	// Ultility
-	pages[X32_PAGE_UTILITY] = new Page(X32_PAGE_NONE, X32_PAGE_NONE, objects.maintab, 7, 0, 0, X32_BTN_UTILITY);
-	pagefunctions[X32_PAGE_UTILITY] = &X32Ctrl::syncGuiPageUtility;
-
-}
-
-PAGE_FUNC_IMPL(syncGuiPageHome) {
-
-	guiSetEncoderText("HOME", "-", "-", "-", "-", "-");
-}
-
-PAGE_FUNC_IMPL(syncGuiPageConfig) {
-
-	// TODO implement with better string handling -> (*** stack smashing detected ***: terminated)
-	// char dspSourceName[5] = "";
-	// mixer->dsp->GetSourceName(&dspSourceName[0], GetSelectedvChannelIndex(), mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[GetSelectedvChannelIndex()].inputSource - 1]);
-	// lv_label_set_text_fmt(objects.current_channel_source, "%02d: %s", (chanIndex + 1), dspSourceName);
-
-	lv_label_set_text_fmt(objects.current_channel_gain, "%f", (double)mixer->GetGain(chanIndex));
-	lv_label_set_text_fmt(objects.current_channel_phantom, "%d", mixer->GetPhantomPower(GetSelectedvChannelIndex()));
-	lv_label_set_text_fmt(objects.current_channel_invert, "%d", mixer->GetPhaseInvert(chanIndex));
-	lv_label_set_text_fmt(objects.current_channel_pan_bal, "%f", (double)mixer->GetBalance(chanIndex));
-	lv_label_set_text_fmt(objects.current_channel_volume, "%f", (double)mixer->GetVolumeDbfs(chanIndex));
-
-
-	//char outputDestinationName[10] = "";
-	//routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
-	//lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
-
-	guiSetEncoderText("Source\n[Invert]", "Gain\n[48V]", "PAN/BAL\n[Center]", "Volume\n[Mute]", "-", "-");
-}
-
-PAGE_FUNC_IMPL(syncGuiPageGate) {
-	if (pageInit || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)) {
-		DrawGate(GetSelectedvChannelIndex());
-		helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "DrawGate()");
+	PageBaseParameter* pagebasepar = new PageBaseParameter(app, config, state, helper, mixer);
+	pages[X32_PAGE_HOME] = new PageHome(pagebasepar);
+	pages[X32_PAGE_CONFIG] = new PageConfig(pagebasepar);
+	pages[X32_PAGE_GATE] = new PageGate(pagebasepar);
+	pages[X32_PAGE_COMPRESSOR] = new PageDynamics(pagebasepar);
+	pages[X32_PAGE_EQ] = new PageEq(pagebasepar);
+	pages[X32_PAGE_METERS] = new PageMeter(pagebasepar);
+	pages[X32_PAGE_ROUTING] = new PageRouting(pagebasepar);
+	pages[X32_PAGE_ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);
+	pages[X32_PAGE_ROUTING_DSP1] = new PageRoutingDsp1(pagebasepar);
+	pages[X32_PAGE_ROUTING_DSP2] = new PageRoutingDsp2(pagebasepar);
+	pages[X32_PAGE_SETUP] = new PageSetup(pagebasepar);
+	pages[X32_PAGE_LIBRARY] = new PageLibrary(pagebasepar);
+	pages[X32_PAGE_EFFECTS] = new PageEffects(pagebasepar);
+	pages[X32_PAGE_MUTE_GRP] = new PageMutegroup(pagebasepar);
+	pages[X32_PAGE_UTILITY] = new PageUtility(pagebasepar);
+	for (const auto& [key, value] : pages) {
+    	value->Init();
 	}
-	if (chanIndex < 40) {
-		if (pageInit || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
-			// Gate
-			helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "guiSetEncoderText()");
-			guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
-				"Range: " + String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
-				"Attack: " + String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
-				"Hold: " + String(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 0) + " ms",
-				"Release: " + String(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 0) + " ms",
-				"-"
-			);
-	}
-	}else{
-		if (pageInit) {
-			// unsupported at the moment
-			guiSetEncoderText("-", "-", "-", "-", "-", "-");
-		}
-	}
-}
-
-PAGE_FUNC_IMPL(syncGuiPageCompressor) {
-	DrawDynamics(GetSelectedvChannelIndex());
-
-	if (chanIndex < 40) {
-		// support Compressor
-		guiSetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].compressor.threshold, 1) + " dB",
-			"Ratio: " + String(mixer->dsp->Channel[chanIndex].compressor.ratio, 1) + ":1",
-			"Makeup: " + String(mixer->dsp->Channel[chanIndex].compressor.makeup, 1) + " dB",
-			"Attack: " + String(mixer->dsp->Channel[chanIndex].compressor.attackTime_ms, 0) + " ms",
-			"Hold: " + String(mixer->dsp->Channel[chanIndex].compressor.holdTime_ms, 0) + " ms",
-			"Release: " + String(mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms, 0) + " ms"
-		);
-	}else{
-		// unsupported at the moment
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
-	}
-}
-
-PAGE_FUNC_IMPL(syncGuiPageEQ) {
-	// draw EQ-plot
-	DrawEq(GetSelectedvChannelIndex());
-
-	if (chanIndex < 40) {
-		// support EQ-channel
-		guiSetEncoderText("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
-			"F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].fc),
-			"G: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].gain, 1) + " dB",
-			"Q: " + String(mixer->dsp->Channel[chanIndex].peq[activeEQ].Q, 1),
-			"M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[activeEQ].type),
-			"PEQ: " + String(activeEQ + 1)
-		);
-	}else{
-		// unsupported at the moment
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
-	}
-}
-
-PAGE_FUNC_IMPL(syncGuiPageMeters) {
-
-	if (pageInit) {
-		guiSetEncoderText("-", "-", "-", "-", "-", "-");
-	}
-
-	if (meterupdate) {
-		if (config->IsModelX32FullOrCompactOrProducerOrRack()) {
-			lv_slider_set_value(objects.slider01, helper->sample2Dbfs(mixer->dsp->rChannel[0].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider02, helper->sample2Dbfs(mixer->dsp->rChannel[1].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider03, helper->sample2Dbfs(mixer->dsp->rChannel[2].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider04, helper->sample2Dbfs(mixer->dsp->rChannel[3].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider05, helper->sample2Dbfs(mixer->dsp->rChannel[4].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider06, helper->sample2Dbfs(mixer->dsp->rChannel[5].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider07, helper->sample2Dbfs(mixer->dsp->rChannel[6].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider08, helper->sample2Dbfs(mixer->dsp->rChannel[7].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider09, helper->sample2Dbfs(mixer->dsp->rChannel[8].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider10, helper->sample2Dbfs(mixer->dsp->rChannel[9].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider11, helper->sample2Dbfs(mixer->dsp->rChannel[10].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider12, helper->sample2Dbfs(mixer->dsp->rChannel[11].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider13, helper->sample2Dbfs(mixer->dsp->rChannel[12].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider14, helper->sample2Dbfs(mixer->dsp->rChannel[13].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider15, helper->sample2Dbfs(mixer->dsp->rChannel[14].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider16, helper->sample2Dbfs(mixer->dsp->rChannel[15].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider17, helper->sample2Dbfs(mixer->dsp->rChannel[16].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider18, helper->sample2Dbfs(mixer->dsp->rChannel[17].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider19, helper->sample2Dbfs(mixer->dsp->rChannel[18].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider20, helper->sample2Dbfs(mixer->dsp->rChannel[19].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider21, helper->sample2Dbfs(mixer->dsp->rChannel[20].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider22, helper->sample2Dbfs(mixer->dsp->rChannel[21].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider23, helper->sample2Dbfs(mixer->dsp->rChannel[22].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider24, helper->sample2Dbfs(mixer->dsp->rChannel[23].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider25, helper->sample2Dbfs(mixer->dsp->rChannel[24].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider26, helper->sample2Dbfs(mixer->dsp->rChannel[25].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider27, helper->sample2Dbfs(mixer->dsp->rChannel[26].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider28, helper->sample2Dbfs(mixer->dsp->rChannel[27].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider29, helper->sample2Dbfs(mixer->dsp->rChannel[28].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider30, helper->sample2Dbfs(mixer->dsp->rChannel[29].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider31, helper->sample2Dbfs(mixer->dsp->rChannel[30].meterDecay), LV_ANIM_OFF);
-			lv_slider_set_value(objects.slider32, helper->sample2Dbfs(mixer->dsp->rChannel[31].meterDecay), LV_ANIM_OFF);
-		}
-	}
-}
-
-PAGE_FUNC_IMPL(syncGuiPageRoutingFpga) {
-	char outputDestinationName[15] = "";
-	char inputSourceName[15] = "";
-	uint8_t routingIndex = 0;
-
-	// Table
-
-	// output-taps
-	// 1-16 = XLR-outputs
-	// 17-32 = UltraNet/P16-outputs
-	// 33-64 = Card-outputs
-	// 65-72 = AUX-outputs
-	// 73-112 = DSP-inputs
-	// 113-160 = AES50A-outputs
-	// 161-208 = AES50B-outputs
-
-	// Inital Table Draw
-	if (!state->page_routing_fpga_table_drawn){
-		if (state->gui_selected_item >= NUM_OUTPUT_CHANNEL) {
-			state->gui_selected_item = 0;
-		}else if (state->gui_selected_item < 0) {
-			state->gui_selected_item = NUM_OUTPUT_CHANNEL - 1;
-		}
-
-		lv_table_set_row_count(objects.table_routing_fpga, NUM_OUTPUT_CHANNEL); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
-		lv_table_set_column_count(objects.table_routing_fpga, 3);
-		lv_table_set_column_width(objects.table_routing_fpga, 0, 200);
-		lv_table_set_column_width(objects.table_routing_fpga, 1, 50);
-		lv_table_set_column_width(objects.table_routing_fpga, 2, 200);
-		for (uint8_t i=0; i < NUM_OUTPUT_CHANNEL; i++){
-			mixer->fpga->RoutingGetOutputNameByIndex(&outputDestinationName[0], i+1);
-			routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(i+1);
-			mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
-			lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 0, "%s", outputDestinationName);
-			lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 2, "%s", inputSourceName);
-		}
-		lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-		state->page_routing_fpga_table_drawn = true;
-	}
-
-	// Update Table
-	if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
-		if (state->gui_selected_item >= NUM_OUTPUT_CHANNEL) {
-			state->gui_selected_item = 0;
-		}else if (state->gui_selected_item < 0) {
-			state->gui_selected_item = NUM_OUTPUT_CHANNEL - 1;
-		}
-
-		if (state->gui_selected_item != state->gui_old_selected_item ) {
-			// remove old indicator
-			lv_table_set_cell_value(objects.table_routing_fpga, state->gui_old_selected_item, 1, " ");
-			
-			// display new indicator
-			lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-			
-			// set select to scroll table
-			lv_table_set_selected_cell(objects.table_routing_fpga, state->gui_selected_item, 2);
-			
-			state->gui_old_selected_item = state->gui_selected_item;
-		}
-	} 
-	
-	if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
-		routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1);
-		mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
-		lv_table_set_cell_value_fmt(objects.table_routing_fpga, state->gui_selected_item, 2, "%s", inputSourceName);
-	}
-
-	guiSetEncoderText("\xEF\x81\xB7 Target \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "-", "-");
-}
-
-PAGE_FUNC_IMPL(syncGuiPageRoutingDsp1) {
-	char inputChannelName[25] = "";
-	char inputSourceName[25] = "";
-	char tapPointName[15] = "";
-
-	// Table
-
-	// DSP-input-channels:
-	// 0-31		Full-Featured DSP-Channels
-	// 32-39	Aux-Channel
-
-	// DSP-output-channels:
-	// 0-31		Main-Output to FPGA
-	// 32-39	Aux-Output to FPGA
-	// 40-56	FX-Sends 1-16 to DSP2
-	// 57-64	FX-Aux to DSP2
-
-	// DSP-Taps
-	// 0		DSP_BUF_IDX_OFF
-	// 1-33		DSP-Input 1-32 from FPGA
-	// 33-40	AUX-Input 1-8 from FPGA
-	// 41-56	FX-Return 1-8 from DSP2
-	// 57-72	Mixbus 1-16 (internal)
-	// 73-75	Main Left, Right, Sub (internal)
-	// 76-81	Matrix 1-6 (internal)
-	// 82-89	FX-Aux-Channel 1-8 from DSP2
-	// 90-92	Monitor Left, Right, Talkback (internal)
-
-	// Initial Table Draw
-	if (!state->page_routing_dsp1_table_drawn){
-		if (state->gui_selected_item >= MAX_DSP_INPUTCHANNELS) {
-			state->gui_selected_item = 0;
-		}else if (state->gui_selected_item < 0) {
-			state->gui_selected_item = MAX_DSP_INPUTCHANNELS - 1;
-		}
-
-		lv_table_set_row_count(objects.table_routing_dsp_input, MAX_DSP_INPUTCHANNELS); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
-		lv_table_set_column_count(objects.table_routing_dsp_input, 5); // Input | # | Source | # | Tap
-		lv_table_set_column_width(objects.table_routing_dsp_input, 0, 200);
-		lv_table_set_column_width(objects.table_routing_dsp_input, 1, 50);
-		lv_table_set_column_width(objects.table_routing_dsp_input, 2, 200);
-		lv_table_set_column_width(objects.table_routing_dsp_input, 3, 50);
-		lv_table_set_column_width(objects.table_routing_dsp_input, 4, 100);
-		for (uint8_t i=0; i < MAX_DSP_INPUTCHANNELS; i++){
-			mixer->dsp->RoutingGetInputNameByIndex(&inputChannelName[0], i+1);
-			mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[i].inputSource, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[i].inputSource - 1]);
-			mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[i].inputTapPoint);
-
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, i, 0, "%s", inputChannelName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, i, 2, "%s", inputSourceName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, i, 4, "%s", tapPointName);
-		}
-
-		lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-		lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
-		state->page_routing_fpga_table_drawn = true;
-	}
-
-	// Update Table
-	if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
-		if (state->gui_selected_item >= MAX_DSP_INPUTCHANNELS) {
-			state->gui_selected_item = 0;
-		}else if (state->gui_selected_item < 0) {
-			state->gui_selected_item = MAX_DSP_INPUTCHANNELS - 1;
-		}
-
-		if (state->gui_selected_item != state->gui_old_selected_item ) {
-			// remove old indicator
-			lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_old_selected_item, 1, " ");
-			lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_old_selected_item, 3, " ");
-			
-			// display new indicator
-			lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-			lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
-			
-			// set select to scroll table
-			lv_table_set_selected_cell(objects.table_routing_dsp_input, state->gui_selected_item, 2);
-			
-			state->gui_old_selected_item = state->gui_selected_item;
-		}
-	} 
-	
-	if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
-		mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[state->gui_selected_item].inputSource, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[state->gui_selected_item].inputSource - 1]);
-		mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[state->gui_selected_item].inputTapPoint);
-
-		lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, state->gui_selected_item, 2, "%s", inputSourceName);
-		lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, state->gui_selected_item, 4, "%s", tapPointName);
-	}
-
-	guiSetEncoderText("\xEF\x81\xB7 Input \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
-}
-
-PAGE_FUNC_IMPL(syncGuiPageRoutingDsp2) {
-	char outputChannelName[25] = "";
-	char outputSourceName[25] = "";
-	char tapPointName[15] = "";
-
-	// Table
-
-	// DSP-input-channels:
-	// 0-31		Full-Featured DSP-Channels
-	// 32-39	Aux-Channel
-
-	// DSP-output-channels:
-	// 0-31		Main-Output to FPGA
-	// 32-39	Aux-Output to FPGA
-	// 40-56	FX-Sends 1-16 to DSP2
-	// 57-64	FX-Aux to DSP2
-
-	// DSP-Taps
-	// 0		DSP_BUF_IDX_OFF
-	// 1-33		DSP-Input 1-32 from FPGA
-	// 33-40	AUX-Input 1-8 from FPGA
-	// 41-56	FX-Return 1-8 from DSP2
-	// 57-72	Mixbus 1-16 (internal)
-	// 73-75	Main Left, Right, Sub (internal)
-	// 76-81	Matrix 1-6 (internal)
-	// 82-89	FX-Aux-Channel 1-8 from DSP2
-	// 90-92	Monitor Left, Right, Talkback (internal)
-
-	// Initial Table Draw
-	if (!state->page_routing_dsp2_table_drawn){
-		if (state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)) {
-			state->gui_selected_item = 0;
-		}else if (state->gui_selected_item < 0) {
-			state->gui_selected_item = (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS) - 1;
-		}
-
-		lv_table_set_row_count(objects.table_routing_dsp_output, (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
-		lv_table_set_column_count(objects.table_routing_dsp_output, 5); // Input | # | Source | # | Tap | #
-		lv_table_set_column_width(objects.table_routing_dsp_output, 0, 200);
-		lv_table_set_column_width(objects.table_routing_dsp_output, 1, 50);
-		lv_table_set_column_width(objects.table_routing_dsp_output, 2, 200);
-		lv_table_set_column_width(objects.table_routing_dsp_output, 3, 50);
-		lv_table_set_column_width(objects.table_routing_dsp_output, 4, 100);
-		for (uint8_t i=0; i < MAX_DSP_OUTPUTCHANNELS; i++){
-			mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+1);
-			mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FpgaChannel[i].outputSource, mixer->dsp->Channel[i].inputSource);
-			mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint);
-
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 0, "%s", outputChannelName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 2, "%s", outputSourceName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 4, "%s", tapPointName);
-		}
-
-		for (uint8_t i=0; i < MAX_DSP_FXCHANNELS; i++){
-			mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+MAX_DSP_OUTPUTCHANNELS+1);
-			mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FxChannel[i].outputSource, 0);
-			mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FxChannel[i].outputTapPoint);
-
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 0, "%s", outputChannelName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 2, "%s", outputSourceName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 4, "%s", tapPointName);
-		}
-
-		for (uint8_t i=0; i < MAX_DSP_AUXCHANNELS; i++){
-			mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+1);
-			mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2AuxChannel[i].outputSource, 0);
-			mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2AuxChannel[i].outputTapPoint);
-
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 0, "%s", outputChannelName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 2, "%s", outputSourceName);
-			lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 4, "%s", tapPointName);
-		}
-
-		lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-		lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
-		state->page_routing_fpga_table_drawn = true;
-	}
-
-	// Update Table
-	if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
-		if (state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)) {
-			state->gui_selected_item = 0;
-		}else if (state->gui_selected_item < 0) {
-			state->gui_selected_item = (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS) - 1;
-		}
-
-		if (state->gui_selected_item != state->gui_old_selected_item ) {
-			// remove old indicator
-			lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_old_selected_item, 1, " ");
-			lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_old_selected_item, 3, " ");
-			
-			// display new indicator
-			lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-			lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
-			
-			// set select to scroll table
-			lv_table_set_selected_cell(objects.table_routing_dsp_output, state->gui_selected_item, 2);
-			
-			state->gui_old_selected_item = state->gui_selected_item;
-		}
-	} 
-	
-	if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
-		if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
-			mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item].outputSource, mixer->dsp->Channel[state->gui_selected_item].inputSource);
-			mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item].outputTapPoint);
-		}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS))) {
-			mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS].outputSource, 0);
-			mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2FxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS].outputTapPoint);
-		}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS))) {
-			mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2AuxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS-MAX_DSP_FXCHANNELS].outputSource, 0);
-			mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2AuxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS-MAX_DSP_FXCHANNELS].outputTapPoint);
-		}
-
-		lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, state->gui_selected_item, 2, "%s", outputSourceName);
-		lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, state->gui_selected_item, 4, "%s", tapPointName);
-	}
-
-	guiSetEncoderText("\xEF\x81\xB7 Output \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
-}
-
-
-
-
-
-PAGE_FUNC_IMPL(syncGuiPageUtility) {
-	guiSetEncoderText("Reload DSPs", "-", "-", "-", String("D2: ") + String(state->debugvalue2).c_str(), String("D1: ") + String(state->debugvalue).c_str());
 }
 
 void X32Ctrl::ShowNextPage(void){
-	if (pages[state->activePage]->nextPage != X32_PAGE_NONE){
-	 	ShowPage(pages[state->activePage]->nextPage);
+	X32_PAGE nextPage = pages[state->activePage]->GetNextPage();
+	if (nextPage != X32_PAGE_NONE){
+	 	ShowPage(nextPage);
 	}
 }
 
 void X32Ctrl::ShowPrevPage(void){
-	if (pages[state->activePage]->prevPage != X32_PAGE_NONE){
-	 	ShowPage(pages[state->activePage]->prevPage);
+	X32_PAGE prevPage = pages[state->activePage]->GetPrevPage();
+	if (prevPage != X32_PAGE_NONE){
+	 	ShowPage(prevPage);
 	}
 }
 
@@ -1278,23 +646,13 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 	Page* l = pages[state->lastPage];
 
 	// turn off led of prev page
-	if (l->led != X32_BTN_NONE && !(config->IsModelX32Rack() && l->noLedOnRack)) {
-		surface->SetLedByEnum(l->led, false);
+	if (l->GetLed() != X32_BTN_NONE) {
+		surface->SetLedByEnum(l->GetLed(), false);
 	}
 
 	// turn on led of new active page
-	if (p->led != X32_BTN_NONE && !(config->IsModelX32Rack() && p->noLedOnRack)) {
-		surface->SetLedByEnum(p->led, true);
-	}
-
-	// open tab on Layer0
-	if (p->tabLayer0 != 0) {
-		lv_tabview_set_active(p->tabLayer0, p->tabIndex0, LV_ANIM_OFF);
-	}
-
-	// open tab on Layer1
-	if (p->tabLayer1 != 0) {
-		lv_tabview_set_active(p->tabLayer1, p->tabIndex1, LV_ANIM_OFF);
+	if (p->GetLed() != X32_BTN_NONE) {
+		surface->SetLedByEnum(p->GetLed(), true);
 	}
 
 	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
@@ -1338,38 +696,38 @@ void X32Ctrl::syncGui(void) {
 		return;
 	}
 
-	// if these have not changed, do nothing
+	// call timer based Gui operations
+	pages[state->activePage]->Time10ms();
+
+	// if these have not changed, do nothing else
 	if (!(
 		state->HasChanged(X32_MIXER_CHANGED_PAGE)  		||
 		state->HasChanged(X32_MIXER_CHANGED_SELECT)  	||
 		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)	||
 		state->HasChanged(X32_MIXER_CHANGED_ROUTING) 	||
 		state->HasChanged(X32_MIXER_CHANGED_METER)		||
-		state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)	||
 		state->HasChanged(X32_MIXER_CHANGED_GUI)
 		)) {
 		return;
 	}
-
-	VChannel* chan = GetSelectedvChannel();
-	uint8_t chanIndex = GetSelectedvChannelIndex();
-	bool pageInit = false; // Init page after page change
-	bool meterupdate = false; // Init page after page change
 	
+	//####################################
+	//#       Init / Update Page
+	//####################################
+
 	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
 		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
-		pageInit = true;
+		pages[state->activePage]->Show();
 	}
 
-	if (state->HasChanged(X32_MIXER_CHANGED_METER)){
-		meterupdate = true;
-	}
+	pages[state->activePage]->Change();
 
 	//####################################
-	//#         General
+	//#     Update General Header
 	//####################################
 
 	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)) {
+		VChannel* chan = GetSelectedvChannel();
 		lv_color_t color;
 		switch (chan->color){
 			case SURFACE_COLOR_BLACK:
@@ -1402,16 +760,6 @@ void X32Ctrl::syncGui(void) {
 		lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
 		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 	}
-
-	// call the page sync function of the active page
-	if (pagefunctions[state->activePage] != nullptr) {
-		((this)->*pagefunctions[state->activePage])(pageInit, meterupdate, chanIndex, chan);
-	} else {
-		// all pages without dedicaded page function
-		if (pageInit) {
-			guiSetEncoderText("-", "-", "-", "-", "-", "-");
-		}
-	}
 }
 
 // sync mixer state to Surface
@@ -1430,7 +778,6 @@ void X32Ctrl::syncSurface(void) {
 			surfaceSyncBoard(X32_BOARD_R);
 			
 		}
-
 		surfaceSyncBoardExtra();
 	}
 }
@@ -1439,7 +786,7 @@ void X32Ctrl::surfaceSyncBoardMain() {
 	bool needForSync = false;
 	bool fullSync = false;
 	VChannel* chan = GetSelectedvChannel();
-	uint8_t chanIndex = GetSelectedvChannelIndex();
+	uint8_t chanIndex = config->selectedVChannel;
 
 	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
 		// channel selection has changed - do a full sync
@@ -1492,9 +839,9 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
 				if (chanIndex < 40) {
 					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[activeEQ].fc - 20.0f)/199.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[activeEQ].gain + 15.0f)/0.3f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[activeEQ].Q) + 0.3f)/0.097f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc - 20.0f)/199.8f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain + 15.0f)/0.3f, 1);
+					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q) + 0.3f)/0.097f, 1);
 					
 					// EQ-LEDS
 					surface->SetLedByEnum(X32_LED_EQ_HCUT, false);
@@ -1504,7 +851,7 @@ void X32Ctrl::surfaceSyncBoardMain() {
 					surface->SetLedByEnum(X32_LED_EQ_PEQ, false);
 					surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
 
-					switch (mixer->dsp->Channel[chanIndex].peq[activeEQ].type) {
+					switch (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].type) {
 						case 0: // Allpass
 							break;
 						case 1: // Peak
@@ -1528,10 +875,10 @@ void X32Ctrl::surfaceSyncBoardMain() {
 							break;
 					}
 
-					surface->SetLedByEnum(X32_BTN_EQ_LOW, activeEQ == 0);
-					surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, activeEQ == 1);
-					surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, activeEQ == 2);
-					surface->SetLedByEnum(X32_BTN_EQ_HIGH, activeEQ == 3);
+					surface->SetLedByEnum(X32_BTN_EQ_LOW, state->activeEQ == 0);
+					surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, state->activeEQ == 1);
+					surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, state->activeEQ == 2);
+					surface->SetLedByEnum(X32_BTN_EQ_HIGH, state->activeEQ == 3);
 				}
 			}
 		}
@@ -1664,13 +1011,13 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 }
 
 void X32Ctrl::surfaceSyncBoardExtra() {
-	// if (config->IsModelX32Full()) {
-	// 	// TODO
-	// 	surface->SetLcd(0, 0, 7, 0, 0, 0xA0, 0x20, 5, 5, "OpenX32", 0, 0, 0, "");
-	// 	surface->SetLcd(0, 1, 7, 0, 0, 0xA0, 0x20, 5, 5, "is a", 0, 0, 0, "");
-	// 	surface->SetLcd(0, 2, 7, 0, 0, 0xA0, 0x20, 5, 5, "cool", 0, 0, 0, "");
-	// 	surface->SetLcd(0, 3, 7, 0, 0, 0xA0, 0x20, 5, 5, "Thing!", 0, 0, 0, "");
-	// }
+	if (config->IsModelX32Full()) {
+		// TODO
+		surface->SetLcd(0, 0, 7, 0, 0, 0xA0, 0x20, 5, 5, "OpenX32", 0, 0, 0, "");
+		surface->SetLcd(0, 1, 7, 0, 0, 0xA0, 0x20, 5, 5, "is a", 0, 0, 0, "");
+		surface->SetLcd(0, 2, 7, 0, 0, 0xA0, 0x20, 5, 5, "cool", 0, 0, 0, "");
+		surface->SetLcd(0, 3, 7, 0, 0, 0xA0, 0x20, 5, 5, "Thing!", 0, 0, 0, "");
+	}
 }
 
 
@@ -1751,7 +1098,7 @@ void X32Ctrl::surfaceUpdateMeter(void) {
 		return;
 	}
 
-	uint8_t chanIdx = GetSelectedvChannelIndex();
+	uint8_t chanIdx = config->selectedVChannel;
 
 	if (config->IsModelX32Rack()) {
 		surface->SetMeterLedMain_Rack(
@@ -1897,7 +1244,7 @@ void X32Ctrl::surfaceSyncBankIndicator(void) {
 // only X32 Rack and X32 Core
 void X32Ctrl::setLedChannelIndicator(void){
 	if (config->IsModelX32Core() || config->IsModelX32Rack()){
-		uint8_t chanIdx = GetSelectedvChannelIndex();
+		uint8_t chanIdx = config->selectedVChannel;
 		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
 		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
 		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
@@ -2027,8 +1374,8 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 
 // direction - positive or negative integer value
 void X32Ctrl::ChangeSelect(int8_t direction){
-	int16_t newSelectedVChannel = GetSelectedvChannelIndex() + direction;
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d\n", GetSelectedvChannelIndex(), direction, newSelectedVChannel);
+	int16_t newSelectedVChannel = config->selectedVChannel + direction;
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d\n", config->selectedVChannel, direction, newSelectedVChannel);
 	if (newSelectedVChannel < 0) {
 		newSelectedVChannel = MAX_VCHANNELS -1;
 	} else if (newSelectedVChannel >= MAX_VCHANNELS){
@@ -2046,7 +1393,7 @@ void X32Ctrl::SetSelect(uint8_t vChannelIndex, bool select){
 	mixer->vchannel[vChannelIndex]->selected = select;
 	mixer->vchannel[vChannelIndex]->SetChanged(X32_VCHANNEL_CHANGED_SELECT);
 
-	selectedVChannel = vChannelIndex;
+	config->selectedVChannel = vChannelIndex;
 	state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
 }
 
@@ -2054,12 +1401,8 @@ void X32Ctrl::ToggleSelect(uint8_t vChannelIndex){
 	SetSelect(vChannelIndex, !mixer->vchannel[vChannelIndex]->selected);
 }
 
-uint8_t X32Ctrl::GetSelectedvChannelIndex(void){
-	return selectedVChannel;
-}
-
-VChannel* X32Ctrl::GetSelectedvChannel(void){
-	return mixer->vchannel[GetSelectedvChannelIndex()];
+VChannel* X32Ctrl::GetSelectedvChannel() {
+	return mixer->vchannel[config->selectedVChannel];
 }
 
 VChannel* X32Ctrl::GetVChannel(uint8_t VChannelIndex){
@@ -2366,17 +1709,12 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		if (buttonPressed){
 			switch (button) {
+				// Note: X32_BTN_UP and X32_BTN_DOWN are handled in the page classes!
 				case X32_BTN_LEFT:
 					ShowPrevPage();
 					break;
 				case X32_BTN_RIGHT:
 					ShowNextPage();
-					break;
-				case X32_BTN_UP:
-					surface->SetLed(state->debugvalue2, state->debugvalue, true);
-					break;
-				case X32_BTN_DOWN:
-					surface->SetLed(state->debugvalue2, state->debugvalue, false);
 					break;
 				case X32_BTN_HOME:
 					ShowPage(X32_PAGE_HOME);
@@ -2541,16 +1879,16 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					mixer->ClearSolo();
 					break;
 				case X32_BTN_PHANTOM_48V:
-					mixer->TogglePhantom(GetSelectedvChannelIndex());
+					mixer->TogglePhantom(config->selectedVChannel);
 					break;
 				case X32_BTN_PHASE_INVERT:
-					mixer->TogglePhaseInvert(GetSelectedvChannelIndex());
+					mixer->TogglePhaseInvert(config->selectedVChannel);
 					break;
 				case X32_BTN_CHANNEL_SOLO: // only X32 Rack
-					mixer->ToggleSolo(GetSelectedvChannelIndex());
+					mixer->ToggleSolo(config->selectedVChannel);
 					break;
 				case X32_BTN_CHANNEL_MUTE: // only X32 Rack
-					mixer->ToggleMute(GetSelectedvChannelIndex());
+					mixer->ToggleMute(config->selectedVChannel);
 					break;
 				default:
 					helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Unhandled button detected.\n");
@@ -2562,133 +1900,19 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 	// Display Encoders
 	// - are independent from Surface Modes!
 	if (config->IsModelX32FullOrCompactOrProducerOrRack()){
-		if (state->activePage == X32_PAGE_CONFIG){
-			if (buttonPressed){
-				switch (button){
-					case X32_BTN_ENCODER1:
-						mixer->TogglePhaseInvert(GetSelectedvChannelIndex());
-						break;
-					case X32_BTN_ENCODER2:
-						mixer->TogglePhantom(GetSelectedvChannelIndex());
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetBalance(GetSelectedvChannelIndex(), 0.0);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->ToggleMute(GetSelectedvChannelIndex());
-						break;
-					case X32_BTN_ENCODER5:
-						break;
-					case X32_BTN_ENCODER6:
-						break;
-					default:
-						break;
-				}
-			}
-		}else if (state->activePage == X32_PAGE_GATE){
-			if (buttonPressed){
-				switch (button){
-					case X32_BTN_ENCODER1:
-						mixer->SetGate(GetSelectedvChannelIndex(), 'T', -80.0f);
-						break;
-					case X32_BTN_ENCODER2:
-						mixer->SetGate(GetSelectedvChannelIndex(), 'R', 60.0f);
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetGate(GetSelectedvChannelIndex(), 'A', 10.0f);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->SetGate(GetSelectedvChannelIndex(), 'H', 50.0f);
-						break;
-					case X32_BTN_ENCODER5:
-						mixer->SetGate(GetSelectedvChannelIndex(), 'r', 250.0f);
-						break;
-					case X32_BTN_ENCODER6:
-						break;
-					default:
-						break;
-				}
-			}
-		}else if (state->activePage == X32_PAGE_COMPRESSOR){
-			if (buttonPressed){
-				switch (button){
-					case X32_BTN_ENCODER1:
-						mixer->SetDynamics(GetSelectedvChannelIndex(), 'T', 0.0f);
-						break;
-					case X32_BTN_ENCODER2:
-						mixer->SetDynamics(GetSelectedvChannelIndex(), 'R', 60.0f);
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetDynamics(GetSelectedvChannelIndex(), 'M', 0.0f);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->SetDynamics(GetSelectedvChannelIndex(), 'A', 10.0f);
-						break;
-					case X32_BTN_ENCODER5:
-						mixer->SetDynamics(GetSelectedvChannelIndex(), 'H', 10.0f);
-						break;
-					case X32_BTN_ENCODER6:
-						mixer->SetDynamics(GetSelectedvChannelIndex(), 'r', 150.0f);
-						break;
-					default:
-						break;
-				}
-			}
-		}else if (state->activePage == X32_PAGE_EQ){
-			if (buttonPressed){
-				switch (button){
-					case X32_BTN_ENCODER1:
-						mixer->SetLowcut(GetSelectedvChannelIndex(), 20); // set to 20 Hz
-						break;
-					case X32_BTN_ENCODER2:
-						mixer->SetPeq(GetSelectedvChannelIndex(), activeEQ, 'F', 3000);
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetPeq(GetSelectedvChannelIndex(), activeEQ, 'G', 0);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->SetPeq(GetSelectedvChannelIndex(), activeEQ, 'Q', 2);
-						break;
-					case X32_BTN_ENCODER5:
-						mixer->SetPeq(GetSelectedvChannelIndex(), activeEQ, 'T', 1);
-						break;
-					case X32_BTN_ENCODER6:
-						mixer->dsp->ResetEq(GetSelectedvChannelIndex());
-						break;
-					default:
-						break;
-				}
-			}
-		}else if (state->activePage == X32_PAGE_UTILITY){
-			if (buttonPressed){
-				switch (button){
-					case X32_BTN_ENCODER1:
-						// Reload DSP1
-						mixer->dsp->spi->CloseConnectionDsps();
-						mixer->dsp->spi->UploadBitstreamDsps();
-						mixer->dsp->spi->OpenConnectionDsps();
-						usleep(50000); // wait 50ms
-						mixer->dsp->SendAll();
-						mixer->dsp->SendAll(); // currently we need to send the data twice. Maybe a bug in the SPI-connection or a timing-issue?
-						break;
-					case X32_BTN_ENCODER2:
-						break;
-					case X32_BTN_ENCODER3:
-						break;
-					case X32_BTN_ENCODER4:
-						break;
-					case X32_BTN_ENCODER5:
-						state->debugvalue2 = 0;
-						state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-						break;
-					case X32_BTN_ENCODER6:
-						state->debugvalue = 0;
-						state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-						break;
-					default:
-						break;
-				}
-			}
+		switch (button){
+			case X32_BTN_UP:
+			case X32_BTN_DOWN:
+			case X32_BTN_ENCODER1:
+			case X32_BTN_ENCODER2:
+			case X32_BTN_ENCODER3:
+			case X32_BTN_ENCODER4:		
+			case X32_BTN_ENCODER5:				
+			case X32_BTN_ENCODER6:
+				pages[state->activePage]->OnDisplayButton(button, buttonPressed);
+				break;
+			default:
+				break;
 		}
 	}
 }
@@ -2714,46 +1938,46 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangeVolume(X32_VCHANNEL_BLOCK_MAIN, amount);
 				break;
 			case X32_ENC_CHANNEL_LEVEL:
-				mixer->ChangeVolume(GetSelectedvChannelIndex(), amount);				
+				mixer->ChangeVolume(config->selectedVChannel, amount);				
 				break;
 			case X32_BTN_EQ_MODE:
-				mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'T', amount);
+				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'T', amount);
 				break;
 			case X32_ENC_GAIN:
-				mixer->ChangeGain(GetSelectedvChannelIndex(), amount);
+				mixer->ChangeGain(config->selectedVChannel, amount);
 				break;
 			case X32_ENC_GATE:
-				mixer->ChangeGate(GetSelectedvChannelIndex(), 'T', amount);
+				mixer->ChangeGate(config->selectedVChannel, 'T', amount);
 				break;
 			case X32_ENC_LOWCUT:
-				mixer->ChangeLowcut(GetSelectedvChannelIndex(), amount);
+				mixer->ChangeLowcut(config->selectedVChannel, amount);
 				break;
 			case X32_ENC_DYNAMICS:
-				mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'T', amount);
+				mixer->ChangeDynamics(config->selectedVChannel, 'T', amount);
 				break;
 			case X32_ENC_EQ_Q:
-				mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'Q', amount);
+				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'Q', amount);
 				break;
 			case X32_ENC_EQ_FREQ:
-				mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'F', amount);
+				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'F', amount);
 				break;
 			case X32_ENC_EQ_GAIN:
-				mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'G', amount);
+				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'G', amount);
 				break;
 			case X32_ENC_PAN:
-				mixer->ChangeBalance(GetSelectedvChannelIndex(), amount);
+				mixer->ChangeBalance(config->selectedVChannel, amount);
 				break;
 			case X32_ENC_BUS_SEND_1:
-				mixer->ChangeBusSend(GetSelectedvChannelIndex(), 0, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 0, amount, activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_2:
-				mixer->ChangeBusSend(GetSelectedvChannelIndex(), 1, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 1, amount, activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_3:
-				mixer->ChangeBusSend(GetSelectedvChannelIndex(), 2, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 2, amount, activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_4:
-				mixer->ChangeBusSend(GetSelectedvChannelIndex(), 3, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 3, amount, activeBusSend);
 				break;
 			default:
 				// just here to avoid compiler warnings                  
@@ -2764,250 +1988,18 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 	// Display Encoders
 	// - are independent from Surface Modes!
 	if (config->IsModelX32FullOrCompactOrProducerOrRack()) {
-		if (state->activePage == X32_PAGE_CONFIG){
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeDspInput(GetSelectedvChannelIndex(), amount);
-					break;
-				case X32_ENC_ENCODER2:
-					mixer->ChangeGain(GetSelectedvChannelIndex(), amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeBalance(GetSelectedvChannelIndex(), amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangeVolume(GetSelectedvChannelIndex(), amount);
-					break;
-				case X32_ENC_ENCODER5:
-					break;
-				case X32_ENC_ENCODER6:
-					break;
-				default:  
-					// just here to avoid compiler warnings                  
-					break;
-			}
-		}else if (state->activePage == X32_PAGE_GATE) {
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeGate(GetSelectedvChannelIndex(), 'T', amount);
-					break;
-				case X32_ENC_ENCODER2:
-					mixer->ChangeGate(GetSelectedvChannelIndex(), 'R', amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeGate(GetSelectedvChannelIndex(), 'A', amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangeGate(GetSelectedvChannelIndex(), 'H', amount);
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangeGate(GetSelectedvChannelIndex(), 'r', amount);
-					break;
-				case X32_ENC_ENCODER6:
-					break;
-				default:
-					break;
-			}
-		}else if (state->activePage == X32_PAGE_COMPRESSOR) {
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'T', amount);
-					break;
-				case X32_ENC_ENCODER2:
-					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'R', amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'M', amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'A', amount);
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'H', amount);
-					break;
-				case X32_ENC_ENCODER6:
-					mixer->ChangeDynamics(GetSelectedvChannelIndex(), 'r', amount);
-					break;
-				default:
-					break;
-			}
-		}else if (state->activePage == X32_PAGE_EQ) {
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeLowcut(GetSelectedvChannelIndex(), amount);
-					break;
-				case X32_ENC_ENCODER2:
-					mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'F', amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'G', amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'Q', amount);
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'T', amount);
-					break;
-				case X32_ENC_ENCODER6:
-					newValue = activeEQ + amount;
-					if (newValue < 0) {
-						activeEQ = 0;
-					}else if(newValue >= MAX_CHAN_EQS) {
-						activeEQ = MAX_CHAN_EQS - 1;
-					}else{
-						activeEQ = newValue;
-					}
-					mixer->ChangePeq(GetSelectedvChannelIndex(), activeEQ, 'T', 0);
-					break;
-				default:
-					break;
-			}
-		}else if (state->activePage == X32_PAGE_ROUTING_FPGA) {
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeGuiSelection(amount);
-					break;
-				case X32_ENC_ENCODER2:
-					if (amount < 0) {
-						mixer->ChangeGuiSelection(-8);
-					}else{
-						mixer->ChangeGuiSelection(8);
-					}
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeHardwareInput(state->gui_selected_item, amount);
-					break;
-				case X32_ENC_ENCODER4:
-					int8_t absoluteChange;
-					uint8_t currentItem;
-					if (amount < 0) {
-						absoluteChange = -8;
-					}else{
-						absoluteChange = 8;
-					}
-					for (uint8_t i=state->gui_selected_item; i<(state->gui_selected_item+8); i++) {
-						mixer->ChangeHardwareInput(i, absoluteChange);
-					}
-					break;
-				case X32_ENC_ENCODER5:
-					break;
-				case X32_ENC_ENCODER6:
-					break;
-				default:  
-					// just here to avoid compiler warnings                  
-					break;
-			}
-		}else if (state->activePage == X32_PAGE_ROUTING_DSP1) {
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeGuiSelection(amount);
-					break;
-				case X32_ENC_ENCODER2:
-					if (amount < 0) {
-						mixer->ChangeGuiSelection(-8);
-					}else{
-						mixer->ChangeGuiSelection(8);
-					}
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeDspInput(state->gui_selected_item, amount);
-					break;
-				case X32_ENC_ENCODER4:
-					int8_t absoluteChange;
-					if (amount < 0) {
-						absoluteChange = -8;
-					}else{
-						absoluteChange = 8;
-					}
-					for (uint8_t i=state->gui_selected_item; i<(state->gui_selected_item+8); i++) {
-						mixer->ChangeDspInput(i, absoluteChange);
-					}
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangeDspInputTapPoint(state->gui_selected_item, amount);
-					break;
-				case X32_ENC_ENCODER6:
-					break;
-				default:  
-					// just here to avoid compiler warnings                  
-					break;
-			}
-		}else if (state->activePage == X32_PAGE_ROUTING_DSP2) {
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeGuiSelection(amount);
-					break;
-				case X32_ENC_ENCODER2:
-					if (amount < 0) {
-						mixer->ChangeGuiSelection(-8);
-					}else{
-						mixer->ChangeGuiSelection(8);
-					}
-					break;
-				case X32_ENC_ENCODER3:
-					if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
-						mixer->ChangeDspOutput(state->gui_selected_item, amount);
-					}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
-						mixer->ChangeDspFxOutput(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS, amount);
-					}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
-						mixer->ChangeDspAuxOutput(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, amount);
-					}
-					break;
-				case X32_ENC_ENCODER4:
-					int8_t absoluteChange;
-					if (amount < 0) {
-						absoluteChange = -8;
-					}else{
-						absoluteChange = 8;
-					}
-					for (uint8_t i=state->gui_selected_item; i<(state->gui_selected_item+8); i++) {
-						if (i < MAX_DSP_OUTPUTCHANNELS) {
-							mixer->ChangeDspOutput(i, absoluteChange);
-						}else if ((i >= MAX_DSP_OUTPUTCHANNELS) && (i < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
-							mixer->ChangeDspFxOutput(i - MAX_DSP_OUTPUTCHANNELS, absoluteChange);
-						}else if ((i >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (i < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
-							mixer->ChangeDspAuxOutput(i - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, absoluteChange);
-						}
-					}
-					break;
-				case X32_ENC_ENCODER5:
-					if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
-						mixer->ChangeDspOutputTapPoint(state->gui_selected_item, amount);
-					}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
-						mixer->ChangeDspFxOutputTapPoint(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS, amount);
-					}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
-						mixer->ChangeDspAuxOutputTapPoint(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, amount);
-					}
-					break;
-				case X32_ENC_ENCODER6:
-					break;
-				default:  
-					// just here to avoid compiler warnings                  
-					break;
-			}
-		}else if (state->activePage == X32_PAGE_UTILITY) {
-			switch (encoder){
-				case X32_ENC_ENCODER1:
-					// reload DSP1 on button-click
-					break;
-				case X32_ENC_ENCODER2:
-					break;
-				case X32_ENC_ENCODER3:
-					break;
-				case X32_ENC_ENCODER4:
-					break;
-				case X32_ENC_ENCODER5:
-					state->debugvalue2 += amount;
-					state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-					break;
-				case X32_ENC_ENCODER6:
-					state->debugvalue += amount;
-					state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-					break;
-				default:  
-					// just here to avoid compiler warnings                  
-					break;
-			}
+		switch (encoder){
+			case X32_ENC_ENCODER1:
+			case X32_ENC_ENCODER2:
+			case X32_ENC_ENCODER3:
+			case X32_ENC_ENCODER4:
+			case X32_ENC_ENCODER5:
+			case X32_ENC_ENCODER6:
+				pages[state->activePage]->OnDisplayEncoderTurned(encoder, amount);
+				break;
+			default:  
+				// just here to avoid compiler warnings                  
+				break;
 		}
 	}
 }
@@ -3063,19 +2055,19 @@ void X32Ctrl::BankingEQ(X32_BTN p_button){
 
 	switch (p_button){
 		case X32_BTN_EQ_LOW:
-			activeEQ = 0;
+			state->activeEQ = 0;
 			surface->SetLedByEnum(X32_BTN_EQ_LOW, 1);
 			break;
 		case X32_BTN_EQ_LOW_MID:
-			activeEQ = 1;
+			state->activeEQ = 1;
 			surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, 1);
 			break;
 		case X32_BTN_EQ_HIGH_MID:
-			activeEQ = 2;
+			state->activeEQ = 2;
 			surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, 1);
 			break;
 		case X32_BTN_EQ_HIGH:
-			activeEQ = 3;
+			state->activeEQ = 3;
 			surface->SetLedByEnum(X32_BTN_EQ_HIGH, 1);
 			break;
 		// TODO: implement LOW2 and HIGH2

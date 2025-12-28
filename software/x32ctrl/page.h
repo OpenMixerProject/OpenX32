@@ -2,39 +2,65 @@
 
 #include "defines.h"
 #include "enum.h"
+#include "base.h"
+#include "page-baseparameter.h"
+#include "mixer.h"
+
 #include "lv_port_linux/lvgl/lvgl.h"
+#include "eez/src/ui/screens.h"
 
 using namespace std;
 
-class Page {
+class Page : public X32Base {
+    protected:
+        Mixer* mixer;
+
+        X32_PAGE nextPage = X32_PAGE_NONE;
+        X32_PAGE prevPage = X32_PAGE_NONE;
+
+        X32_BTN led = X32_BTN_NONE;
+        bool noLedOnRack = false;
+
+        lv_obj_t* tabLayer0 = nullptr; 
+        uint32_t tabIndex0 = 0;
+        lv_obj_t* tabLayer1 = nullptr;
+        uint32_t tabIndex1 = 0;
+
+        char displayEncoderText[6][30];
+        const char* displayEncoderButtonMap[7] = {
+            displayEncoderText[0],
+            displayEncoderText[1],
+            displayEncoderText[2],
+            displayEncoderText[3],
+            displayEncoderText[4],
+            displayEncoderText[5],
+        NULL};
+
+        bool initDone = false;
+
+        void SetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
+
+        virtual void OnInit();
+        virtual void OnTime10ms();
+        virtual void OnShow();
+        virtual void OnChange();
+
     public:
-        X32_PAGE nextPage;
-        X32_PAGE prevPage;
+        Page(PageBaseParameter* pagebasepar);
 
-        lv_obj_t* tabLayer0; 
-        uint32_t tabIndex0;
-        lv_obj_t* tabLayer1;
-        uint32_t tabIndex1;
+        void Init();
+        void Show();
+        void Time10ms();
+        void Change();
 
-        X32_BTN led;
-        bool noLedOnRack;
+        // a display encoder was turned
+        virtual void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount);
 
-        Page(
-            X32_PAGE _prevPage,
-            X32_PAGE _nextPage,
-            lv_obj_t* _tabLayer0,
-            uint32_t _tabIndex0,
-            lv_obj_t* _tabLayer1,
-            uint32_t _tabIndex1,
-            X32_BTN _led,
-            bool _noLedOnRack = false) {
-                this->nextPage = _nextPage;
-                this->prevPage = _prevPage;
-                this->tabLayer0 = _tabLayer0;
-                this->tabIndex0 = _tabIndex0;
-                this->tabLayer1 = _tabLayer1;
-                this->tabIndex1 = _tabIndex1;
-                this->led = _led;
-                this->noLedOnRack = _noLedOnRack;
-        }
+        // a display button was pressed
+        virtual void OnDisplayButton(X32_BTN button, bool pressed);
+
+        X32_PAGE GetNextPage();
+        X32_PAGE GetPrevPage();
+
+        X32_BTN GetLed();
 };
