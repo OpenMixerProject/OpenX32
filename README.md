@@ -4,7 +4,7 @@ This repository contains software to load and start the Linux-Kernel on the Behr
 
 ![alt_text](Documentation/openx32_1.jpg)
 
-Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox:
+Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox (the picture is older, shows Kernel 6.12):
 
 ![alt_text](Documentation/openx32_2.jpg)
 
