@@ -612,7 +612,7 @@ void create_screen_main() {
                                             lv_obj_set_pos(obj, 386, 2);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_label_set_text(obj, "dB\n0\n-\n-\n-\n-\n-\n-\n-60");
+                                            lv_label_set_text(obj, "dB\n0\n-8\n-16\n-25\n-34\n-42\n-51\n-60");
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
@@ -671,7 +671,7 @@ void create_screen_main() {
                                             lv_obj_set_pos(obj, 386, 189);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_label_set_text(obj, "dB\n0\n-\n-\n-\n-\n-\n-\n-60");
+                                            lv_label_set_text(obj, "dB\n0\n-8\n-16\n-25\n-34\n-42\n-51\n-60");
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);

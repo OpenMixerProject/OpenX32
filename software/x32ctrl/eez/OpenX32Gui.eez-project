@@ -3525,7 +3525,7 @@
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "dB\n0\n-\n-\n-\n-\n-\n-\n-60",
+                              "text": "dB\n0\n-8\n-16\n-25\n-34\n-42\n-51\n-60",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
@@ -3839,7 +3839,7 @@
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "dB\n0\n-\n-\n-\n-\n-\n-\n-60",
+                              "text": "dB\n0\n-8\n-16\n-25\n-34\n-42\n-51\n-60",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
