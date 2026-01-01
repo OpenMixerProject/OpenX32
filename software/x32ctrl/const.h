@@ -2,59 +2,53 @@
 
 #include <stdint.h>
 
-// (uint32_t)(pow(2, 31) * pow(10, dBfs / 20.0))
-const uint32_t vuThresholds[] = {
-    2120000000, // index  0 = ~0 dBfs // should be 2147483648, but turn-on CLIP-led on before real clipping
-    1914948731, // index  1 = -1 dBfs
-    1705600109, // index  2 = -2 dBfs
-    1520146747, // index  3 = -3 dBfs
-    1355416719, // index  4 = -4 dBfs
-    1077708304, // index  5 = -6 dBfs
-    856262174,  // index  6 = -8 dBfs
-    680373708,  // index  7 = -10 dBfs
-    539824673,  // index  8 = -12 dBfs
-    382216890,  // index  9 = -15 dBfs
-    270387531,  // index 10 = -18 dBfs
-    191494873,  // index 11 = -21 dBfs
-    135541672,  // index 12 = -24 dBfs
-    96009653,   // index 13 = -27 dBfs
-    68037371,   // index 14 = -30 dBfs
-    48169904,   // index 15 = -33 dBfs
-    34105089,   // index 16 = -36 dBfs
-    24160410,   // index 17 = -39 dBfs
-    17109579,   // index 18 = -42 dBfs
-    12117565,   // index 19 = -45 dBfs
-    8582730,    // index 20 = -48 dBfs
-    6077596,    // index 21 = -51 dBfs
-    4300762,    // index 22 = -54 dBfs
-    3046757,    // index 23 = -57 dBfs
-    2147483     // index 24 = -60 dBfs
+
+const uint32_t vuThresholds_minus60dbfs_25steps[] = {
+    VUTRESH_00_DBFS_CLIP, // index  0 = ~0 dBfs // should be 2147483648, but turn-on CLIP-led on before real clipping
+    VUTRESH_MINUS_01_DBFS, // index  1 = -1 dBfs
+    VUTRESH_MINUS_02_DBFS, // index  2 = -2 dBfs
+    VUTRESH_MINUS_03_DBFS, // index  3 = -3 dBfs
+    VUTRESH_MINUS_04_DBFS, // index  4 = -4 dBfs
+    VUTRESH_MINUS_06_DBFS, // index  5 = -6 dBfs
+    VUTRESH_MINUS_08_DBFS,  // index  6 = -8 dBfs
+    VUTRESH_MINUS_10_DBFS,  // index  7 = -10 dBfs
+    VUTRESH_MINUS_12_DBFS,  // index  8 = -12 dBfs
+    VUTRESH_MINUS_15_DBFS,  // index  9 = -15 dBfs
+    VUTRESH_MINUS_18_DBFS,  // index 10 = -18 dBfs
+    VUTRESH_MINUS_21_DBFS,  // index 11 = -21 dBfs
+    VUTRESH_MINUS_24_DBFS,  // index 12 = -24 dBfs
+    VUTRESH_MINUS_27_DBFS,   // index 13 = -27 dBfs
+    VUTRESH_MINUS_30_DBFS,   // index 14 = -30 dBfs
+    VUTRESH_MINUS_33_DBFS,   // index 15 = -33 dBfs
+    VUTRESH_MINUS_36_DBFS,   // index 16 = -36 dBfs
+    VUTRESH_MINUS_39_DBFS,   // index 17 = -39 dBfs
+    VUTRESH_MINUS_42_DBFS,   // index 18 = -42 dBfs
+    VUTRESH_MINUS_45_DBFS,   // index 19 = -45 dBfs
+    VUTRESH_MINUS_48_DBFS,    // index 20 = -48 dBfs
+    VUTRESH_MINUS_51_DBFS,    // index 21 = -51 dBfs
+    VUTRESH_MINUS_54_DBFS,    // index 22 = -54 dBfs
+    VUTRESH_MINUS_57_DBFS,    // index 23 = -57 dBfs
+    VUTRESH_MINUS_60_DBFS     // index 24 = -60 dBfs
 };
 
-const float vuThresholdsPu[] = {
-    0.987201929092407,
-    0.891717491205782,
-    0.79423194238916,
-    0.707873491104692,
-    0.631165094207972,
-    0.50184703618288,
-    0.398728146217763,
-    0.31682369671762,
-    0.251375452149659,
-    0.177983609028161,
-    0.125909005757421,
-    0.089171749074012,
-    0.0631165094673634,
-    0.0447079786099494,
-    0.0316823697648943,
-    0.0224308595061302,
-    0.015881419647485,
-    0.0112505676224828,
-    0.00796726858243346,
-    0.00564268091693521,
-    0.00399664510041475,
-    0.00283010117709637,
-    0.00200269836932421,
-    0.00141875678673387,
-    0.000999999698251486
+
+const uint32_t vuThresholds_minus45dbfs_18steps[] = {
+    VUTRESH_00_DBFS_CLIP,
+    VUTRESH_MINUS_02_DBFS,
+    VUTRESH_MINUS_04_DBFS,
+    VUTRESH_MINUS_06_DBFS,
+    VUTRESH_MINUS_08_DBFS,
+    VUTRESH_MINUS_10_DBFS,
+    VUTRESH_MINUS_12_DBFS,
+    VUTRESH_MINUS_15_DBFS,
+    VUTRESH_MINUS_18_DBFS,
+    VUTRESH_MINUS_21_DBFS,
+    VUTRESH_MINUS_24_DBFS,
+    VUTRESH_MINUS_27_DBFS,
+    VUTRESH_MINUS_30_DBFS,
+    VUTRESH_MINUS_33_DBFS,
+    VUTRESH_MINUS_36_DBFS,
+    VUTRESH_MINUS_39_DBFS,
+    VUTRESH_MINUS_42_DBFS,
+    VUTRESH_MINUS_45_DBFS
 };

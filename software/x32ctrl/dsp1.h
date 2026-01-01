@@ -83,6 +83,7 @@ class DSP1 : X32Base {
         void RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source);
         void RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position);
         void UpdateVuMeter();
+        uint8_t GetPeak(int i, uint8_t steps);
 
         void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
         void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);

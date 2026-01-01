@@ -17,17 +17,20 @@ class Config {
         int ReadConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
 
         void SetModel(String model);
-        bool IsModelX32Full(void);
-        bool IsModelX32FullOrCompactOrProducer(void);
-        bool IsModelX32FullOrCompactOrProducerOrRack(void);
-        bool IsModelX32CompactOrProducer(void);
-        bool IsModelX32Core(void);
-        bool IsModelX32Rack(void);
-        bool IsModelX32Compact(void);
+        bool IsModelX32Full();
+        bool IsModelX32FullOrCompact();
+        bool IsModelX32FullOrCompactOrProducer();
+        bool IsModelX32FullOrCompactOrProducerOrRack();
+        bool IsModelX32CompactOrProducer();
+        bool IsModelX32ProducerOrRack();
+        bool IsModelX32Core();
+        bool IsModelX32Rack();
+        bool IsModelX32Producer();
+        bool IsModelX32Compact();
 
         void SetSamplerate(uint32_t samplerate);
-        uint32_t GetSamplerate(void);
+        uint32_t GetSamplerate();
 
         void SetBankMode(X32_SURFACE_MODE_BANKING mode);
-        X32_SURFACE_MODE_BANKING GetBankMode(void);
+        X32_SURFACE_MODE_BANKING GetBankMode();
 };

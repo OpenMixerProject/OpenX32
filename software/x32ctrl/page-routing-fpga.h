@@ -28,11 +28,9 @@ class PageRoutingFpga: public Page {
             lv_table_set_column_width(objects.table_routing_fpga, 1, 50);
             lv_table_set_column_width(objects.table_routing_fpga, 2, 200);
             for (uint8_t i=0; i < NUM_OUTPUT_CHANNEL; i++){
-                mixer->fpga->RoutingGetOutputNameByIndex(&outputDestinationName[0], i+1);
-                routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(i+1);
-                mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
-                lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 0, "%s", outputDestinationName);
-                lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 2, "%s", inputSourceName);
+                routingIndex = mixer->fpga->GetOutputByIndex(i+1);
+                lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 0, "%s", mixer->fpga->GetOutputNameByIndex(i+1));
+                lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 2, "%s", mixer->fpga->GetInputNameByIndex(routingIndex).c_str());
             }
             lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
             state->page_routing_fpga_table_drawn = true;
@@ -66,9 +64,8 @@ class PageRoutingFpga: public Page {
             } 
             
             if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
-                routingIndex = mixer->fpga->RoutingGetOutputSourceByIndex(state->gui_selected_item+1);
-                mixer->fpga->RoutingGetSourceNameByIndex(&inputSourceName[0], routingIndex);
-                lv_table_set_cell_value_fmt(objects.table_routing_fpga, state->gui_selected_item, 2, "%s", inputSourceName);
+                routingIndex = mixer->fpga->GetOutputByIndex(state->gui_selected_item+1);
+                lv_table_set_cell_value_fmt(objects.table_routing_fpga, state->gui_selected_item, 2, "%s", mixer->fpga->GetInputNameByIndex(routingIndex).c_str());
             }
         }
 

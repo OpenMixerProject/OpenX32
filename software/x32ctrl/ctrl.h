@@ -117,9 +117,9 @@ class X32Ctrl : public X32Base {
         void surfaceSyncBoardExtra();
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void surfaceSyncBankIndicator(void);
-        void surfaceUpdateMeter(void);
+        void UpdateMeters(void);
         void setLedChannelIndicator(void);        
-        uint8_t surfaceCalcPreampMeter(uint8_t channel);
+        uint8_t CalcPreampMeter_FullOrCompact(uint8_t channel);
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
         void syncXRemote(bool syncAll);
 

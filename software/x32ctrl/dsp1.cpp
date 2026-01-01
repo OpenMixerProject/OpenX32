@@ -583,7 +583,13 @@ void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
 }
 
 void DSP1::UpdateVuMeter() {
-	// leds Main   = 32-bit bitwise (bit 0=-57dB ... 22=-2, 23=-1, 24=Clip)
+	
+    uint8_t vuTreshLookupSize = 0;
+    if (config->IsModelX32ProducerOrRack()) {
+        vuTreshLookupSize = 18;
+    } else if (config->IsModelX32FullOrCompact()) {
+        vuTreshLookupSize = 24;
+    }
 
 	uint32_t data[3];
 	data[0] = MainChannelLR.meter[0];
@@ -594,11 +600,18 @@ void DSP1::UpdateVuMeter() {
 	uint8_t currentMeterPeakIndexMain[3]; // L, R, Sub
 	for (int k = 0; k < 3; k++) {
 		currentMeterPeakIndexMain[k] = 0;
-		for (int i = 0; i < 24; i++) {
-			if (data[k] >= vuThresholds[i]) {
-				currentMeterPeakIndexMain[k] = (23 - i) + 1;
-				break;
-			}
+		for (int i = 0; i < vuTreshLookupSize; i++) {
+            if (config->IsModelX32ProducerOrRack()) {
+                if (data[k] >= vuThresholds_minus45dbfs_18steps[i]) {
+                    currentMeterPeakIndexMain[k] = (16 - i) + 1;
+                    break;
+			    }
+            } else if (config->IsModelX32FullOrCompact()) {
+                if (data[k] >= vuThresholds_minus60dbfs_25steps[i]) {
+                    currentMeterPeakIndexMain[k] = (23 - i) + 1;
+                    break;
+                }
+            }
 		}
 	}
 	// MainLeft
@@ -698,10 +711,16 @@ void DSP1::UpdateVuMeter() {
 	MainChannelLR.meterInfo[0] = 0;
 	MainChannelLR.meterInfo[1] = 0;
 	MainChannelSub.meterInfo[0] = 0;
-	for (int i = 0; i < 24; i++) {
-		if (MainChannelLR.meterDecay[0] >= vuThresholds[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
-		if (MainChannelLR.meterDecay[1] >= vuThresholds[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
-		if (MainChannelSub.meterDecay[0] >= vuThresholds[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
+	for (int i = 0; i < vuTreshLookupSize; i++) {
+        if (config->IsModelX32ProducerOrRack()) {
+            if (MainChannelLR.meterDecay[0] >= vuThresholds_minus45dbfs_18steps[i]) { MainChannelLR.meterInfo[0]  |= (1U << (16 - i)); }
+            if (MainChannelLR.meterDecay[1] >= vuThresholds_minus45dbfs_18steps[i]) { MainChannelLR.meterInfo[1]  |= (1U << (16 - i)); }
+            if (MainChannelSub.meterDecay[0] >= vuThresholds_minus45dbfs_18steps[i]) { MainChannelSub.meterInfo[0] |= (1U << (16 - i)); }
+        } else if (config->IsModelX32FullOrCompact()) {
+            if (MainChannelLR.meterDecay[0] >= vuThresholds_minus60dbfs_25steps[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
+            if (MainChannelLR.meterDecay[1] >= vuThresholds_minus60dbfs_25steps[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
+            if (MainChannelSub.meterDecay[0] >= vuThresholds_minus60dbfs_25steps[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
+        }
 	}
 	if (MainChannelLR.meterPeakIndex[0] > 0) {
 		MainChannelLR.meterInfo[0]  |= (1U << (MainChannelLR.meterPeakIndex[0] - 1));
@@ -718,62 +737,69 @@ void DSP1::UpdateVuMeter() {
 	for (int i = 0; i < 40; i++) {
 		// check if current data is above stored peak-index
 
-		// Step 1: Perform Peak Hold Logic
-		uint8_t currentMeterPeakIndex;
-		if (rChannel[i].meter >= vuThresholds[0]) {currentMeterPeakIndex = 6;}        // CLIP
-		else if (rChannel[i].meter >= vuThresholds[5]) {currentMeterPeakIndex = 5;}   // -6dBfs
-		else if (rChannel[i].meter >= vuThresholds[8]) {currentMeterPeakIndex = 4;}   // -12dBfs
-		else if (rChannel[i].meter >= vuThresholds[10]) {currentMeterPeakIndex = 3;}  // -18dBfs
-		else if (rChannel[i].meter >= vuThresholds[14]) {currentMeterPeakIndex = 2;}  // -30dBfs
-		else if (rChannel[i].meter >= vuThresholds[24]) {currentMeterPeakIndex = 1;}  // -60dBfs
-		else {currentMeterPeakIndex = 0;} // below -60dBfs
+        //####################################################################
+        //
+        //      6-Step Meter (Channelstrip on Full, Compact, Producer)
+        //
+        //      CLIP
+        //      -6
+        //      -12
+        //      -18
+        //      -30
+        //      -60
+        //
+        //#####################################################################
 
-		if (currentMeterPeakIndex >= rChannel[i].meterPeakIndex) {
+		// Step 1: Perform Peak Hold Logic
+		uint8_t currentMeterPeak6Index;
+        currentMeterPeak6Index = GetPeak(i, 6);
+
+        if (currentMeterPeak6Index >= rChannel[i].meterPeak6Index) {
 			// currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
-			rChannel[i].meterPeakIndex = currentMeterPeakIndex;
-			rChannel[i].meterPeakHoldTimer = 100; // preload to 1000ms
+			rChannel[i].meterPeak6Index = currentMeterPeak6Index;
+			rChannel[i].meterPeak6HoldTimer = 100; // preload to 1000ms
 		}else{
 			// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
-			if (rChannel[i].meterPeakHoldTimer > 0) {
+			if (rChannel[i].meterPeak6HoldTimer > 0) {
 				// hold current LED
-				rChannel[i].meterPeakHoldTimer--;
-				rChannel[i].meterPeakDecayTimer = 10; // preload
+				rChannel[i].meterPeak6HoldTimer--;
+				rChannel[i].meterPeak6DecayTimer = 10; // preload
 			}else{
 				// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
-				if (rChannel[i].meterPeakIndex > currentMeterPeakIndex) {
-					if (rChannel[i].meterPeakDecayTimer > 0) {
-						rChannel[i].meterPeakDecayTimer--;
+				if (rChannel[i].meterPeak6Index > currentMeterPeak6Index) {
+					if (rChannel[i].meterPeak6DecayTimer > 0) {
+						rChannel[i].meterPeak6DecayTimer--;
 					}else{
-						rChannel[i].meterPeakIndex--;
-						rChannel[i].meterPeakDecayTimer = 10; // preload for next iteration
+						rChannel[i].meterPeak6Index--;
+						rChannel[i].meterPeak6DecayTimer = 10; // preload for next iteration
 					}
 				}
 			}
 		}
 
 		// Step 2: Calculate decayed value
-		if (rChannel[i].meter > rChannel[i].meterDecay) {
+		if (rChannel[i].meter > rChannel[i].meter6Decay) {
 			// current value is above stored decay-value -> copy value immediatly
-			rChannel[i].meterDecay = rChannel[i].meter;
+			rChannel[i].meter6Decay = rChannel[i].meter;
 		}else{
 			// current value is below -> afterglow
 			// this function is called every 10ms. A Decay-Rate of 6dB/second would be ideal, but we do a rought estimation here
-			rChannel[i].meterDecay -= (rChannel[i].meterDecay / 10);
+			rChannel[i].meter6Decay -= (rChannel[i].meter6Decay / 10);
 		}
 
 		// Step 3: Calculate real LEDs to switch on
 		// data contains a 32-bit sample-value
 		// lets check the threshold and set meterInfo
-		rChannel[i].meterInfo = 0;
-		if (rChannel[i].meterDecay >= vuThresholds[0])  { rChannel[i].meterInfo |= 0b00100000; } // CLIP
-		if (rChannel[i].meterDecay >= vuThresholds[5])  { rChannel[i].meterInfo |= 0b00010000; } // -6dBfs
-		if (rChannel[i].meterDecay >= vuThresholds[8])  { rChannel[i].meterInfo |= 0b00001000; } // -12dBfs
-		if (rChannel[i].meterDecay >= vuThresholds[10]) { rChannel[i].meterInfo |= 0b00000100; } // -18dBfs
-		if (rChannel[i].meterDecay >= vuThresholds[14]) { rChannel[i].meterInfo |= 0b00000010; } // -30dBfs
-		if (rChannel[i].meterDecay >= vuThresholds[24]) { rChannel[i].meterInfo |= 0b00000001; } // -60dBfs
+		rChannel[i].meter6Info = 0;
+		if (rChannel[i].meter6Decay >= VUTRESH_00_DBFS_CLIP)  { rChannel[i].meter6Info |= 0b00100000; } // CLIP
+		if (rChannel[i].meter6Decay >= VUTRESH_MINUS_06_DBFS)  { rChannel[i].meter6Info |= 0b00010000; } // -6dBfs
+		if (rChannel[i].meter6Decay >= VUTRESH_MINUS_12_DBFS)  { rChannel[i].meter6Info |= 0b00001000; } // -12dBfs
+		if (rChannel[i].meter6Decay >= VUTRESH_MINUS_18_DBFS) { rChannel[i].meter6Info |= 0b00000100; } // -18dBfs
+		if (rChannel[i].meter6Decay >= VUTRESH_MINUS_30_DBFS) { rChannel[i].meter6Info |= 0b00000010; } // -30dBfs
+		if (rChannel[i].meter6Decay >= VUTRESH_MINUS_60_DBFS) { rChannel[i].meter6Info |= 0b00000001; } // -60dBfs
 
 		uint8_t peakBit = 0;
-		switch (rChannel[i].meterPeakIndex) {
+		switch (rChannel[i].meterPeak6Index) {
 			case 6: peakBit = 0b00100000; break; // CLIP
 			case 5: peakBit = 0b00010000; break; // -6dBfs
 			case 4: peakBit = 0b00001000; break; // -12dBfs
@@ -782,17 +808,123 @@ void DSP1::UpdateVuMeter() {
 			case 1: peakBit = 0b00000001; break; // -60dBfs
 			default: peakBit = 0; break;
 		}
-		rChannel[i].meterInfo |= peakBit;
+		rChannel[i].meter6Info |= peakBit;
 
+
+        //#####################################################################
+        //
+        //    8-Step Meter (Selected Channel Meter, all models)
+        //
+        //      CLIP
+        //      -3
+        //      -6
+        //      -9
+        //      -12
+        //      -18
+        //      -30
+        //      SIG
+        //
+        //#####################################################################
+
+		// Step 1: Perform Peak Hold Logic
+		uint8_t currentMeterPeak8Index;
+        currentMeterPeak8Index = GetPeak(i, 6);
+
+        if (currentMeterPeak8Index >= rChannel[i].meterPeak8Index) {
+			// currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
+			rChannel[i].meterPeak8Index = currentMeterPeak8Index;
+			rChannel[i].meterPeak8HoldTimer = 100; // preload to 1000ms
+		}else{
+			// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
+			if (rChannel[i].meterPeak8HoldTimer > 0) {
+				// hold current LED
+				rChannel[i].meterPeak8HoldTimer--;
+				rChannel[i].meterPeak8DecayTimer = 10; // preload
+			}else{
+				// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
+				if (rChannel[i].meterPeak8Index > currentMeterPeak8Index) {
+					if (rChannel[i].meterPeak8DecayTimer > 0) {
+						rChannel[i].meterPeak8DecayTimer--;
+					}else{
+						rChannel[i].meterPeak8Index--;
+						rChannel[i].meterPeak8DecayTimer = 10; // preload for next iteration
+					}
+				}
+			}
+		}
+
+		// Step 2: Calculate decayed value
+		if (rChannel[i].meter > rChannel[i].meter8Decay) {
+			// current value is above stored decay-value -> copy value immediatly
+			rChannel[i].meter8Decay = rChannel[i].meter;
+		}else{
+			// current value is below -> afterglow
+			// this function is called every 10ms. A Decay-Rate of 6dB/second would be ideal, but we do a rought estimation here
+			rChannel[i].meter8Decay -= (rChannel[i].meter8Decay / 10);
+		}
+
+		// Step 3: Calculate real LEDs to switch on
+		// data contains a 32-bit sample-value
+		// lets check the threshold and set meterInfo
+		rChannel[i].meter8Info = 0;
+		if (rChannel[i].meter8Decay >= VUTRESH_00_DBFS_CLIP)  { rChannel[i].meter8Info |= 0b00100000; } // CLIP
+		if (rChannel[i].meter8Decay >= VUTRESH_MINUS_06_DBFS)  { rChannel[i].meter8Info |= 0b00010000; } // -6dBfs
+		if (rChannel[i].meter8Decay >= VUTRESH_MINUS_12_DBFS)  { rChannel[i].meter8Info |= 0b00001000; } // -12dBfs
+		if (rChannel[i].meter8Decay >= VUTRESH_MINUS_18_DBFS) { rChannel[i].meter8Info |= 0b00000100; } // -18dBfs
+		if (rChannel[i].meter8Decay >= VUTRESH_MINUS_30_DBFS) { rChannel[i].meter8Info |= 0b00000010; } // -30dBfs
+		if (rChannel[i].meter8Decay >= VUTRESH_MINUS_60_DBFS) { rChannel[i].meter8Info |= 0b00000001; } // -60dBfs
+
+		uint8_t peak8Bit = 0;
+		switch (rChannel[i].meterPeak8Index) {
+			case 6: peak8Bit = 0b00100000; break; // CLIP
+			case 5: peak8Bit = 0b00010000; break; // -6dBfs
+			case 4: peak8Bit = 0b00001000; break; // -12dBfs
+			case 3: peak8Bit = 0b00000100; break; // -18dBfs
+			case 2: peak8Bit = 0b00000010; break; // -30dBfs
+			case 1: peak8Bit = 0b00000001; break; // -60dBfs
+			default: peak8Bit = 0; break;
+		}
+		rChannel[i].meter8Info |= peak8Bit;
+
+
+
+        
 		// the dynamic-information is received with the 'd' information, but we will store them here
-		if (Channel[i].gate.gain < 1.0f) { rChannel[i].meterInfo |= 0b01000000; }
-		if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meterInfo |= 0b10000000; }
+		if (Channel[i].gate.gain < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
+		if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
 
 		//Channel[i].compressor.gain = floatValues[45 + i];
 		//Channel[i].gate.gain = floatValues[85 + i];
 	}
 
     state->SetChangeFlags(X32_MIXER_CHANGED_METER);
+}
+
+uint8_t DSP1::GetPeak(int i, uint8_t steps)
+{
+    if (steps==6) {
+        if (rChannel[i].meter >= VUTRESH_00_DBFS_CLIP) { return 6; } // CLIP
+        else if (rChannel[i].meter >= VUTRESH_MINUS_06_DBFS) { return 5; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_12_DBFS) { return 4; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_18_DBFS) { return 3; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_30_DBFS) { return 2; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_60_DBFS) { return 1; }
+        else { return 0; }
+    }
+
+    if (steps==8) {
+        if (rChannel[i].meter >= VUTRESH_00_DBFS_CLIP) { return 8; } // CLIP
+        else if (rChannel[i].meter >= VUTRESH_MINUS_03_DBFS) { return 7; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_06_DBFS) { return 6; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_09_DBFS) { return 5; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_12_DBFS) { return 4; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_18_DBFS) { return 3; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_30_DBFS) { return 2; }
+        else if (rChannel[i].meter >= VUTRESH_MINUS_60_DBFS) { return 1; }
+        else { return 0; }
+    }
+
+    return 0;
 }
 
 void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {

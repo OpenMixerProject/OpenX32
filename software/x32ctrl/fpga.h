@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "WString.h"
 #include "base.h"
 #include "spi.h"
 
@@ -20,21 +21,21 @@ class Fpga : public X32Base {
         void Init(void);
         void RoutingDefaultConfig(void);
 
-        void RoutingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource);
-        void RoutingSetOutputSourceByIndex(uint8_t outputIndex, uint8_t inputsource);
-        uint8_t RoutingGetOutputSource(uint8_t group, uint8_t channel);
-        uint8_t RoutingGetOutputSourceByIndex(uint8_t outputIndex);
+        void Connect(uint8_t inputIndex, uint8_t group, uint8_t channel);
+        void ConnectByIndex(uint8_t inputIndex, uint8_t outputIndex);
+        uint8_t GetOutput(uint8_t group, uint8_t channel);
+        uint8_t GetOutputByIndex(uint8_t outputIndex);
 
-        uint8_t RoutingGetSourceIndex(uint8_t group, uint8_t channel);
-        uint8_t RoutingGetOutputIndex(uint8_t group, uint8_t channel);
-        void RoutingGetSourceGroupAndChannelByIndex(uint8_t sourceIndex, uint8_t* group, uint8_t* channel);
-        void RoutingGetOutputGroupAndChannelByIndex(uint8_t outputIndex, uint8_t* group, uint8_t* channel);
+        uint8_t GetInputIndex(uint8_t group, uint8_t channel);
+        uint8_t GetOutputIndex(uint8_t group, uint8_t channel);
+        void GetInputGroupAndChannelByIndex(uint8_t sourceIndex, uint8_t* group, uint8_t* channel);
+        void GetOutputGroupAndChannelByIndex(uint8_t outputIndex, uint8_t* group, uint8_t* channel);
         void RoutingGetSourceGroupAndChannelByDspChannel(uint8_t dspChannel, uint8_t* group, uint8_t* channel);
 
-        void RoutingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel);
-        void RoutingGetSourceNameByIndex(char* p_nameBuffer, uint8_t sourceIndex);
-        void RoutingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t p_chan);
-        void RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
+        String GetInputName(uint8_t group, uint8_t channel);
+        String GetInputNameByIndex(uint8_t sourceIndex);
+        String GetOutputName(uint8_t group, uint8_t p_chan);
+        String GetOutputNameByIndex(uint8_t index);
 
-        void RoutingSendConfigToFpga(int16_t channel);
+        void SendRoutingToFpga(int16_t channel);
 };

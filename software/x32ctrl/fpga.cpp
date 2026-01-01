@@ -41,44 +41,45 @@ void Fpga::Init(void) {
 void Fpga::RoutingDefaultConfig(void) {
 	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "RoutingDefaultConfig()");
 
-	// DSP-inputs 1-32 <- XLR-inputs 1-32
+	// XLR-inputs 1-32 -> DSP-inputs 1-32
 	for (uint8_t ch = 1; ch <= 32; ch++) {
-		RoutingSetOutputSource('d', ch, RoutingGetSourceIndex('x', ch));
+		Connect(GetInputIndex('x', ch), 'd', ch);
 	}
-	// DSP-inputs 33-40 <- AUX-inputs 1-8
+	// AUX-inputs 1-8 -> DSP-inputs 33-40
 	for (uint8_t ch = 1; ch <= 8; ch++) {
-		RoutingSetOutputSource('d', ch + 32, RoutingGetSourceIndex('a', ch));
+		Connect(GetInputIndex('a', ch), 'd', ch + 32);
 	}
 
 	// ---------------------------------------------
 
-	// XLR-outputs 1-16 <- DSP-outputs 1-16
+	// DSP Return 1-16 -> XLR-outputs 1-16
 	for (uint8_t ch = 1; ch <= 16; ch++) {
-		RoutingSetOutputSource('x', ch, RoutingGetSourceIndex('d', ch));
+		Connect(GetInputIndex('d', ch), 'x', ch);
 	}
-	// P16-output 1-16 <- DSP-outputs 17-32
+	// DSP Return 17-32 -> P16-output 1-16
 	for (uint8_t ch = 1; ch <= 16; ch++) {
-		RoutingSetOutputSource('p', ch, RoutingGetSourceIndex('d', ch + 16));
+		Connect(GetInputIndex('d', ch + 16), 'p', ch);
 	}
-	// AUX-outputs 1-6 + ControlRoom L/R <- DSP-outputs 33-40
+	// DSP Return 33-40 -> AUX-outputs 1-6 + ControlRoom L/R
 	for (uint8_t ch = 1; ch <= 8 ; ch++) {
-		RoutingSetOutputSource('a', ch, RoutingGetSourceIndex('d', ch + 32));
+		Connect(GetInputIndex('d', ch + 32), 'a', ch);
 	}
 
 	// ---------------------------------------------
 
-	// Card-outputs 1-32 <- XLR-inputs 1-32
+	// XLR-inputs 1-32 -> Card 1-32
 	for (uint8_t ch = 1; ch <= 32; ch++) {
-		RoutingSetOutputSource('c', ch, RoutingGetSourceIndex('x', ch));
+		Connect(GetInputIndex('x', ch), 'c', ch);
 	}
 
 	// transmit routing-configuration to FPGA
-	RoutingSendConfigToFpga(-1);
+	SendRoutingToFpga(-1);
 }
 
-// set the outputs of the audio-routing-matrix to desired input-sources
-void Fpga::RoutingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputsource) {
-	// input-sources:
+// connects the input to the output via the audio-routing-matrix
+void Fpga::Connect(uint8_t inputIndex, uint8_t group, uint8_t channel) {
+	// Inputs
+	//
 	// 0 = OFF
 	// 1-32 = XLR-inputs
 	// 33-64 = Card-inputs
@@ -87,7 +88,8 @@ void Fpga::RoutingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputs
 	// 113-160 = AES50A-inputs
 	// 161-208 = AES50B-inputs
 
-	// output-taps
+	// Outputs
+	//
 	// 1-16 = XLR-outputs
 	// 17-32 = UltraNet/P16-outputs
 	// 33-64 = Card-outputs
@@ -102,37 +104,37 @@ void Fpga::RoutingSetOutputSource(uint8_t group, uint8_t channel, uint8_t inputs
 
 	switch (group) {
 		case 'x': // XLR-Outputs 1-16
-			fpgaRouting.xlr[channel - 1] = inputsource;
+			fpgaRouting.xlr[channel - 1] = inputIndex;
 			break;
 		case 'p': // P16-Outputs 1-16
-			fpgaRouting.p16[channel - 1] = inputsource;
+			fpgaRouting.p16[channel - 1] = inputIndex;
 			break;
 		case 'c': // Card-Outputs 1-32
-			fpgaRouting.card[channel - 1] = inputsource;
+			fpgaRouting.card[channel - 1] = inputIndex;
 			break;
 		case 'a': // Aux-Outputs 1-8
-			fpgaRouting.aux[channel - 1] = inputsource;
+			fpgaRouting.aux[channel - 1] = inputIndex;
 			break;
 		case 'd': // DSP-Inputs 1-40
-			fpgaRouting.dsp[channel - 1] = inputsource;
+			fpgaRouting.dsp[channel - 1] = inputIndex;
 			break;
 		case 'A': // AES50A-Outputs
-			fpgaRouting.aes50a[channel - 1] = inputsource;
+			fpgaRouting.aes50a[channel - 1] = inputIndex;
 			break;
 		case 'B': // AES50B-Outputs
-			fpgaRouting.aes50b[channel - 1] = inputsource;
+			fpgaRouting.aes50b[channel - 1] = inputIndex;
 			break;
 	}
 }
 
-void Fpga::RoutingSetOutputSourceByIndex(uint8_t outputIndex, uint8_t inputsource) {
+void Fpga::ConnectByIndex(uint8_t inputIndex, uint8_t outputIndex) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	RoutingGetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // outputIndex =  1..112, channel = 0..x
-	RoutingSetOutputSource(group, channel, inputsource); // inputSource = 0..112
+	GetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // outputIndex =  1..112, channel = 0..x
+	Connect(inputIndex, group, channel); // inputSource = 0..112
 }
 
-uint8_t Fpga::RoutingGetOutputSource(uint8_t group, uint8_t channel) {
+uint8_t Fpga::GetOutput(uint8_t group, uint8_t channel) {
 	// input-sources:
 	// 1-32 = XLR-inputs
 	// 33-64 = Card-inputs
@@ -181,15 +183,15 @@ uint8_t Fpga::RoutingGetOutputSource(uint8_t group, uint8_t channel) {
 	return 0;
 }
 
-uint8_t Fpga::RoutingGetOutputSourceByIndex(uint8_t outputIndex) {
+uint8_t Fpga::GetOutputByIndex(uint8_t outputIndex) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	RoutingGetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // index = 1..112
-	return RoutingGetOutputSource(group, channel);
+	GetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // index = 1..112
+	return GetOutput(group, channel);
 }
 
 // get the absolute input-source (global channel-number)
-uint8_t Fpga::RoutingGetSourceIndex(uint8_t group, uint8_t channel) {
+uint8_t Fpga::GetInputIndex(uint8_t group, uint8_t channel) {
 	// input-sources:
 	// 1-32 = XLR-inputs
 	// 33-64 = Card-inputs
@@ -226,7 +228,7 @@ uint8_t Fpga::RoutingGetSourceIndex(uint8_t group, uint8_t channel) {
 	return 0;
 }
 
-uint8_t Fpga::RoutingGetOutputIndex(uint8_t group, uint8_t channel) {
+uint8_t Fpga::GetOutputIndex(uint8_t group, uint8_t channel) {
 	// output-taps
 	// 1-16 = XLR-outputs
 	// 17-32 = UltraNet/P16-outputs
@@ -267,12 +269,13 @@ uint8_t Fpga::RoutingGetOutputIndex(uint8_t group, uint8_t channel) {
 	return 0;
 }
 
-void Fpga::RoutingGetSourceGroupAndChannelByIndex(uint8_t sourceIndex, uint8_t* group, uint8_t* channel) {
-	// input-sources:
+void Fpga::GetInputGroupAndChannelByIndex(uint8_t sourceIndex, uint8_t* group, uint8_t* channel) {
+	// Inputs
+	//
 	// 1-32 = XLR-inputs
 	// 33-64 = Card-inputs
 	// 65-72 = AUX-inputs
-	// 73-112 = DSP-outputs
+	// 73-112 = DSP-return
 	// 113-160 = AES50A-inputs
 	// 161-208 = AES50B-inputs
 
@@ -301,7 +304,7 @@ void Fpga::RoutingGetSourceGroupAndChannelByIndex(uint8_t sourceIndex, uint8_t* 
 	}
 }
 
-void Fpga::RoutingGetOutputGroupAndChannelByIndex(uint8_t outputIndex, uint8_t* group, uint8_t* channel) {
+void Fpga::GetOutputGroupAndChannelByIndex(uint8_t outputIndex, uint8_t* group, uint8_t* channel) {
 	// output-taps
 	// 1-16 = XLR-outputs
 	// 17-32 = UltraNet/P16-outputs
@@ -347,53 +350,45 @@ void Fpga::RoutingGetOutputGroupAndChannelByIndex(uint8_t outputIndex, uint8_t* 
 //     fpgaRoutingGetSourceGroupAndChannelByIndex(sourceIndex, group, channel);
 // }
 
-// get the input-source name
-void Fpga::RoutingGetSourceName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
-	// input-sources:
+String Fpga::GetInputName(uint8_t group, uint8_t channel) {
+	// Inputs
 	//       0 = OFF
 	//    1-32 = XLR-inputs
 	//   33-64 = Card-inputs
 	//   65-72 = AUX-inputs
-	//  73-112 = DSP-outputs
+	//  73-112 = DSP1 Return
 	// 113-160 = AES50A-inputs
 	// 161-208 = AES50B-inputs
 
 	if (channel == 0){
-		sprintf(p_nameBuffer, "Off");
-		return;
+		return "Off";
 	}
 
 	switch (group) {
 		case 'x': // XLR-Inputs 1-32
-			sprintf(p_nameBuffer, "XLR In %d", channel);
-			break;
+			return String("XLR In ") + String(channel);
 		case 'c': // Card-Inputs 1-32
-			sprintf(p_nameBuffer, "Card Out %d", channel);
-			break;
+			return String("Card In ") + String(channel);
 		case 'a': // Aux-Inputs 1-8
-			sprintf(p_nameBuffer, "AUX In %d", channel);
-			break;
+			return String("AUX In ") + String(channel);
 		case 'd': // DSP-Outputs 1-40
-			sprintf(p_nameBuffer, "DSP Out %d", channel);
-			break;
+			return String("DSP1 Return ") + String(channel);
 		case 'A': // AES50A-Inputs 1-48
-			sprintf(p_nameBuffer, "AESA In %d", channel);
-			break;
+			return String("AESA In ") + String(channel);
 		case 'B': // AES50B-Inputs 1-48
-			sprintf(p_nameBuffer, "AESB In %d", channel);
-			break;
+			return String("AESB In ") + String(channel);
 	}
 }
 
-void Fpga::RoutingGetSourceNameByIndex(char* p_nameBuffer, uint8_t sourceIndex) {
+String Fpga::GetInputNameByIndex(uint8_t sourceIndex) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	RoutingGetSourceGroupAndChannelByIndex(sourceIndex, &group, &channel); // index = 0 .. 112
-	RoutingGetSourceName(p_nameBuffer, group, channel);
+	GetInputGroupAndChannelByIndex(sourceIndex, &group, &channel); // index = 0 .. 112
+	return GetInputName(group, channel);
 }
 
 // get the output destination name
-void Fpga::RoutingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t channel) {
+String Fpga::GetOutputName(uint8_t group, uint8_t channel) {
 	// output-taps
 	// 1-16 = XLR-outputs
 	// 17-32 = UltraNet/P16-outputs
@@ -404,44 +399,36 @@ void Fpga::RoutingGetOutputName(char* p_nameBuffer, uint8_t group, uint8_t chann
 	// 161-208 = AES50B-outputs
 
 	if (channel == 0) {
-		sprintf(p_nameBuffer, "Off");
-		return;
+		return "Off";
 	}
 
 	switch(group){
 		case 'x':
-			sprintf(p_nameBuffer, "XLR Out %d", channel);
-			break;
+			return "XLR Out " + String(channel);
 		case 'p':
-			sprintf(p_nameBuffer, "P16-%d", channel);
-			break;
+			return "P16-" + String(channel);
 		case 'c':
-			sprintf(p_nameBuffer, "Card In %d", channel);
-			break;
+			return "Card Out " + String(channel);
 		case 'a':
-			sprintf(p_nameBuffer, "AUX Out %d", channel);
-			break;
+			return "AUX Out " + String(channel);
 		case 'd':
-			sprintf(p_nameBuffer, "DSP In %d", channel);
-			break;
+			return "DSP1 In " + String(channel);
 		case 'A':
-			sprintf(p_nameBuffer, "AESA Out %d", channel);
-			break;
+			return "AESA Out " + String(channel);
 		case 'B':
-			sprintf(p_nameBuffer, "AESB Out %d", channel);
-			break;
+			return "AESB Out " + String(channel);
 	}
 }
 
-void Fpga::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
+String Fpga::GetOutputNameByIndex(uint8_t index) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	RoutingGetOutputGroupAndChannelByIndex(index, &group, &channel); // index = 1..112
-	RoutingGetOutputName(p_nameBuffer, group, channel);
+	GetOutputGroupAndChannelByIndex(index, &group, &channel); // index = 1..112
+	return GetOutputName(group, channel);
 }
 
 // helper-function to send the audio-routing to the fpga
-void Fpga::RoutingSendConfigToFpga(int16_t channel) {
+void Fpga::SendRoutingToFpga(int16_t channel) {
 	// copy routing-struct into array
 	uint8_t buf[sizeof(fpgaRouting)];
 	memcpy(&buf[0], &fpgaRouting, sizeof(fpgaRouting));
@@ -464,7 +451,7 @@ void Fpga::RoutingSendConfigToFpga(int16_t channel) {
 
 		if ((rxData[0] != txData[0]) || (rxData[1] != txData[1])) {
 			// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
-			printf("ERROR: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
+			helper->Error("FPGA-Routing: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 		}
 	}else{
 		uint8_t txData[2];
@@ -481,7 +468,7 @@ void Fpga::RoutingSendConfigToFpga(int16_t channel) {
 
 			if ((rxData[0] != txData[0]) || (rxData[1] != txData[1])) {
 				// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
-				printf("ERROR: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
+				helper->Error("FPGA-Routing: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 			}
 		}
 

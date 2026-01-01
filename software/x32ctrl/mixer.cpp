@@ -187,7 +187,7 @@ void Mixer::ChangeGuiSelection(int8_t amount) {
 
 void Mixer::ChangeHardwareInput(uint8_t outputIndex, int8_t amount) {
     // get current routingIndex
-    uint8_t currentRouting = fpga->RoutingGetOutputSourceByIndex(outputIndex+1);
+    uint8_t currentRouting = fpga->GetOutputByIndex(outputIndex + 1);
     int16_t newValue = currentRouting + amount;
 
     if (newValue > NUM_INPUT_CHANNEL) {
@@ -199,8 +199,8 @@ void Mixer::ChangeHardwareInput(uint8_t outputIndex, int8_t amount) {
 
     helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Change! %d -> %d", currentRouting, newValue);
 
-    fpga->RoutingSetOutputSourceByIndex(outputIndex+1, newValue);
-    fpga->RoutingSendConfigToFpga(outputIndex);
+    fpga->ConnectByIndex(newValue, outputIndex + 1);
+    fpga->SendRoutingToFpga(outputIndex);
     state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
