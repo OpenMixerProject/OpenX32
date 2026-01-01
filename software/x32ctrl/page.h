@@ -26,6 +26,7 @@ class Page : public X32Base {
         lv_obj_t* tabLayer1 = nullptr;
         uint32_t tabIndex1 = 0;
 
+        bool hideEncoders = false;
         char displayEncoderText[6][30];
         const char* displayEncoderButtonMap[7] = {
             displayEncoderText[0],

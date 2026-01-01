@@ -52,6 +52,8 @@ void Page::Show() {
 		lv_tabview_set_active(tabLayer1, tabIndex1, LV_ANIM_OFF);
 	}
 
+    lv_obj_set_flag(objects.display_encoders, LV_OBJ_FLAG_HIDDEN, hideEncoders);
+
     OnShow();
 }
 

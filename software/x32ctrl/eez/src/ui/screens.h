@@ -14,7 +14,6 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_name;
     lv_obj_t *current_channel_color;
     lv_obj_t *openx32logo_1;
-    lv_obj_t *display_encoders;
     lv_obj_t *maintab;
     lv_obj_t *hometab;
     lv_obj_t *configtab;
@@ -61,6 +60,42 @@ typedef struct _objects_t {
     lv_obj_t *slider30;
     lv_obj_t *slider31;
     lv_obj_t *slider32;
+    lv_obj_t *meter_aux;
+    lv_obj_t *meter_aux__slider01;
+    lv_obj_t *meter_aux__slider02;
+    lv_obj_t *meter_aux__slider03;
+    lv_obj_t *meter_aux__slider04;
+    lv_obj_t *meter_aux__slider05;
+    lv_obj_t *meter_aux__slider06;
+    lv_obj_t *meter_aux__slider07;
+    lv_obj_t *meter_aux__slider08;
+    lv_obj_t *meter_fxret;
+    lv_obj_t *meter_fxret__slider01;
+    lv_obj_t *meter_fxret__slider02;
+    lv_obj_t *meter_fxret__slider03;
+    lv_obj_t *meter_fxret__slider04;
+    lv_obj_t *meter_fxret__slider05;
+    lv_obj_t *meter_fxret__slider06;
+    lv_obj_t *meter_fxret__slider07;
+    lv_obj_t *meter_fxret__slider08;
+    lv_obj_t *meter_bus18;
+    lv_obj_t *meter_bus18__slider01;
+    lv_obj_t *meter_bus18__slider02;
+    lv_obj_t *meter_bus18__slider03;
+    lv_obj_t *meter_bus18__slider04;
+    lv_obj_t *meter_bus18__slider05;
+    lv_obj_t *meter_bus18__slider06;
+    lv_obj_t *meter_bus18__slider07;
+    lv_obj_t *meter_bus18__slider08;
+    lv_obj_t *meter_bux916;
+    lv_obj_t *meter_bux916__slider01;
+    lv_obj_t *meter_bux916__slider02;
+    lv_obj_t *meter_bux916__slider03;
+    lv_obj_t *meter_bux916__slider04;
+    lv_obj_t *meter_bux916__slider05;
+    lv_obj_t *meter_bux916__slider06;
+    lv_obj_t *meter_bux916__slider07;
+    lv_obj_t *meter_bux916__slider08;
     lv_obj_t *routingtab;
     lv_obj_t *hw_inputs;
     lv_obj_t *hw_outputs;
@@ -75,6 +110,7 @@ typedef struct _objects_t {
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;
+    lv_obj_t *display_encoders;
 } objects_t;
 
 extern objects_t objects;
@@ -85,6 +121,9 @@ enum ScreensEnum {
 
 void create_screen_main();
 void tick_screen_main();
+
+void create_user_widget_8meters(lv_obj_t *parent_obj, int startWidgetIndex);
+void tick_user_widget_8meters(int startWidgetIndex);
 
 void tick_screen_by_id(enum ScreensEnum screenId);
 void tick_screen(int screen_index);
