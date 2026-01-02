@@ -280,7 +280,9 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
+                            // metertab
                             lv_obj_t *obj = lv_tabview_create(parent_obj);
+                            objects.metertab = obj;
                             lv_obj_set_pos(obj, LV_PCT(0), LV_PCT(0));
                             lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
                             lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
@@ -638,7 +640,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_8meters(obj, 53);
+                                            create_user_widget_8meters(obj, 54);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
@@ -658,7 +660,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_8meters(obj, 62);
+                                            create_user_widget_8meters(obj, 63);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
@@ -697,7 +699,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_8meters(obj, 71);
+                                            create_user_widget_8meters(obj, 72);
                                         }
                                         {
                                             // meter_bux916
@@ -711,7 +713,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_8meters(obj, 80);
+                                            create_user_widget_8meters(obj, 81);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
@@ -740,8 +742,106 @@ void create_screen_main() {
                                     }
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Overview");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Meter Prototypes");
                                     add_style_tab_nopad(obj);
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // led_xlr01_phantom
+                                            lv_obj_t *obj = lv_led_create(parent_obj);
+                                            objects.led_xlr01_phantom = obj;
+                                            lv_obj_set_pos(obj, 59, 46);
+                                            lv_obj_set_size(obj, 5, 5);
+                                            lv_led_set_color(obj, lv_color_hex(0xffffbc00));
+                                            lv_led_set_brightness(obj, 255);
+                                        }
+                                        {
+                                            // led_xlr01_invert
+                                            lv_obj_t *obj = lv_led_create(parent_obj);
+                                            objects.led_xlr01_invert = obj;
+                                            lv_obj_set_pos(obj, 122, 46);
+                                            lv_obj_set_size(obj, 5, 5);
+                                            lv_led_set_color(obj, lv_color_hex(0xffffbc00));
+                                            lv_led_set_brightness(obj, 255);
+                                        }
+                                        {
+                                            // led_xlr01_input_level
+                                            lv_obj_t *obj = lv_led_create(parent_obj);
+                                            objects.led_xlr01_input_level = obj;
+                                            lv_obj_set_pos(obj, 191, 46);
+                                            lv_obj_set_size(obj, 5, 5);
+                                            lv_led_set_color(obj, lv_color_hex(0xff00ff14));
+                                            lv_led_set_brightness(obj, 255);
+                                        }
+                                        {
+                                            // led_ch01_input
+                                            lv_obj_t *obj = lv_led_create(parent_obj);
+                                            objects.led_ch01_input = obj;
+                                            lv_obj_set_pos(obj, 361, 45);
+                                            lv_obj_set_size(obj, 5, 5);
+                                            lv_led_set_color(obj, lv_color_hex(0xff00ff14));
+                                            lv_led_set_brightness(obj, 255);
+                                        }
+                                        {
+                                            // led_ch01_output
+                                            lv_obj_t *obj = lv_led_create(parent_obj);
+                                            objects.led_ch01_output = obj;
+                                            lv_obj_set_pos(obj, 417, 45);
+                                            lv_obj_set_size(obj, 5, 5);
+                                            lv_led_set_color(obj, lv_color_hex(0xff00ff14));
+                                            lv_led_set_brightness(obj, 255);
+                                        }
+                                        {
+                                            // led_main_l
+                                            lv_obj_t *obj = lv_led_create(parent_obj);
+                                            objects.led_main_l = obj;
+                                            lv_obj_set_pos(obj, 656, 45);
+                                            lv_obj_set_size(obj, 5, 5);
+                                            lv_led_set_color(obj, lv_color_hex(0xff00ff14));
+                                            lv_led_set_brightness(obj, 255);
+                                        }
+                                        {
+                                            // led_main_r
+                                            lv_obj_t *obj = lv_led_create(parent_obj);
+                                            objects.led_main_r = obj;
+                                            lv_obj_set_pos(obj, 679, 45);
+                                            lv_obj_set_size(obj, 5, 5);
+                                            lv_led_set_color(obj, lv_color_hex(0xff00ff14));
+                                            lv_led_set_brightness(obj, 255);
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 12, 40);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "01");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 30, 14);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "Phantom, Invert, Input Level");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 341, 6);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "Channel\nInput | Output");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 323, 40);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "01");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 653, 8);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "Main\nL | R");
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1061,10 +1161,10 @@ void create_screen_main() {
 }
 
 void tick_screen_main() {
-    tick_user_widget_8meters(53);
-    tick_user_widget_8meters(62);
-    tick_user_widget_8meters(71);
-    tick_user_widget_8meters(80);
+    tick_user_widget_8meters(54);
+    tick_user_widget_8meters(63);
+    tick_user_widget_8meters(72);
+    tick_user_widget_8meters(81);
 }
 
 void create_user_widget_8meters(lv_obj_t *parent_obj, int startWidgetIndex) {

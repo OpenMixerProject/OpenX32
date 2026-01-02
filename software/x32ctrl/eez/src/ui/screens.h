@@ -28,6 +28,7 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_comp;
     lv_obj_t *eqtab;
     lv_obj_t *current_channel_eq;
+    lv_obj_t *metertab;
     lv_obj_t *slider01;
     lv_obj_t *slider02;
     lv_obj_t *slider03;
@@ -96,6 +97,13 @@ typedef struct _objects_t {
     lv_obj_t *meter_bux916__slider06;
     lv_obj_t *meter_bux916__slider07;
     lv_obj_t *meter_bux916__slider08;
+    lv_obj_t *led_xlr01_phantom;
+    lv_obj_t *led_xlr01_invert;
+    lv_obj_t *led_xlr01_input_level;
+    lv_obj_t *led_ch01_input;
+    lv_obj_t *led_ch01_output;
+    lv_obj_t *led_main_l;
+    lv_obj_t *led_main_r;
     lv_obj_t *routingtab;
     lv_obj_t *hw_inputs;
     lv_obj_t *hw_outputs;

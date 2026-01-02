@@ -11,6 +11,7 @@
 
 #include "page.h"
 #include "page-meter.h"
+#include "page-meterprototypes.h"
 #include "page-home.h"
 #include "page-config.h"
 #include "page-gate.h"

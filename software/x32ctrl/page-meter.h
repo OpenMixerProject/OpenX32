@@ -5,13 +5,16 @@ using namespace std;
 class PageMeter : public Page {
     public:
         PageMeter(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+            nextPage = X32_PAGE_METER_PROTOTYPES;
             tabLayer0 = objects.maintab;
             tabIndex0 = 1;
+            tabLayer1 = objects.metertab;
+            tabIndex1 = 0;
             led = X32_BTN_METERS;
             hideEncoders = true;
         }
 
-        void OnChange() {
+        void OnChange() override {
             if (config->IsModelX32FullOrCompactOrProducerOrRack()) {
 
                 // Channel 1-32

@@ -381,6 +381,8 @@ typedef enum {
         X32_PAGE_EQ,
         X32_PAGE_COMPRESSOR,
     X32_PAGE_METERS,
+        // sub-pages of meters
+        X32_PAGE_METER_PROTOTYPES,
     X32_PAGE_ROUTING,
         // sub-pages of routing
         X32_PAGE_ROUTING_FPGA,

@@ -596,6 +596,7 @@ void X32Ctrl::InitPages(){
 	pages[X32_PAGE_COMPRESSOR] = new PageDynamics(pagebasepar);
 	pages[X32_PAGE_EQ] = new PageEq(pagebasepar);
 	pages[X32_PAGE_METERS] = new PageMeter(pagebasepar);
+	pages[X32_PAGE_METER_PROTOTYPES] = new PageMeterPrototypes(pagebasepar);
 	pages[X32_PAGE_ROUTING] = new PageRouting(pagebasepar);
 	pages[X32_PAGE_ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);
 	pages[X32_PAGE_ROUTING_DSP1] = new PageRoutingDsp1(pagebasepar);
@@ -638,23 +639,28 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 		newPage = state->lastPage;
 	}
 
-	state->lastPage = state->activePage;
-	state->activePage = newPage;
-	
-	Page* p = pages[state->activePage];
-	Page* l = pages[state->lastPage];
+	if (pages[newPage] != nullptr) {
 
-	// turn off led of prev page
-	if (l->GetLed() != X32_BTN_NONE) {
-		surface->SetLedByEnum(l->GetLed(), false);
+		state->lastPage = state->activePage;
+		state->activePage = newPage;
+		
+		Page* p = pages[state->activePage];
+		Page* l = pages[state->lastPage];
+
+		// turn off led of prev page
+		if (l->GetLed() != X32_BTN_NONE) {
+			surface->SetLedByEnum(l->GetLed(), false);
+		}
+
+		// turn on led of new active page
+		if (p->GetLed() != X32_BTN_NONE) {
+			surface->SetLedByEnum(p->GetLed(), true);
+		}
+
+		state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
+	} else {
+		helper->Error("Page 0x%02X is not registered -> look at X32Ctrl::InitPages() to do so!\n", newPage);
 	}
-
-	// turn on led of new active page
-	if (p->GetLed() != X32_BTN_NONE) {
-		surface->SetLedByEnum(p->GetLed(), true);
-	}
-
-	state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
 }
 
 //#####################################################################################################################

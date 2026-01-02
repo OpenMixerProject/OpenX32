@@ -24,7 +24,7 @@
           },
           {
             "type": "border",
-            "selected": 5,
+            "selected": 2,
             "size": 162.5,
             "location": "right",
             "children": [
@@ -176,8 +176,7 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
@@ -227,7 +226,8 @@
                   },
                   "icon": "svg:page"
                 }
-              ]
+              ],
+              "active": true
             },
             {
               "type": "tabset",
@@ -977,20 +977,10 @@
       "selection": {
         "0": {
           "2": {
-            "0": {
-              "0": {}
-            },
+            "0": {},
             "1": {
               "0": {
-                "0": {
-                  "0": {},
-                  "2": {},
-                  "3": {},
-                  "15": {},
-                  "47": {
-                    "$selected": true
-                  }
-                }
+                "1": {}
               }
             }
           },
@@ -999,10 +989,10 @@
       },
       "transform": {
         "translate": {
-          "x": -413.3111198144032,
-          "y": -211.0919257169718
+          "x": -370.941176664132,
+          "y": -182.37653184657327
         },
-        "scale": 1
+        "scale": 0.9
       },
       "timeline": {
         "isEditorActive": false,
@@ -1030,7 +1020,7 @@
           "x": -423.2833333333336,
           "y": -369.8636363636365
         },
-        "scale": 1
+        "scale": 0.9
       },
       "timeline": {
         "isEditorActive": false,
@@ -1059,6 +1049,6 @@
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 1,
+  "flowZoom": 0.9,
   "implementationLanguage": "C"
 }
