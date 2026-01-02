@@ -29,7 +29,7 @@ class PageRoutingFpga: public Page {
             lv_table_set_column_width(objects.table_routing_fpga, 2, 200);
             for (uint8_t i=0; i < NUM_OUTPUT_CHANNEL; i++){
                 routingIndex = mixer->fpga->GetOutputByIndex(i+1);
-                lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 0, "%s", mixer->fpga->GetOutputNameByIndex(i+1));
+                lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 0, "%s", mixer->fpga->GetOutputNameByIndex(i+1).c_str());
                 lv_table_set_cell_value_fmt(objects.table_routing_fpga, i, 2, "%s", mixer->fpga->GetInputNameByIndex(routingIndex).c_str());
             }
             lv_table_set_cell_value(objects.table_routing_fpga, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
