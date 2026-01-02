@@ -119,7 +119,7 @@ void create_screen_main() {
                                             lv_obj_t *obj = lv_obj_create(parent_obj);
                                             objects.source_panel = obj;
                                             lv_obj_set_pos(obj, 12, 35);
-                                            lv_obj_set_size(obj, 499, 181);
+                                            lv_obj_set_size(obj, 499, 190);
                                             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             {
                                                 lv_obj_t *parent_obj = obj;
@@ -257,7 +257,7 @@ void create_screen_main() {
                                             lv_obj_t *obj = lv_chart_create(parent_obj);
                                             objects.current_channel_eq = obj;
                                             lv_obj_set_pos(obj, LV_PCT(0), LV_PCT(0));
-                                            lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+                                            lv_obj_set_size(obj, LV_PCT(100), 322);
                                         }
                                     }
                                 }
@@ -740,7 +740,7 @@ void create_screen_main() {
                                     }
                                 }
                                 {
-                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "IN/OUT");
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Overview");
                                     add_style_tab_nopad(obj);
                                 }
                             }
@@ -877,7 +877,7 @@ void create_screen_main() {
                                             lv_obj_t *obj = lv_table_create(parent_obj);
                                             objects.table_routing_fpga = obj;
                                             lv_obj_set_pos(obj, LV_PCT(0), LV_PCT(0));
-                                            lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+                                            lv_obj_set_size(obj, LV_PCT(100), 322);
                                             lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
                                             lv_obj_set_style_pad_top(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
                                             lv_obj_set_style_pad_bottom(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
@@ -898,7 +898,7 @@ void create_screen_main() {
                                             lv_obj_t *obj = lv_table_create(parent_obj);
                                             objects.table_routing_dsp_input = obj;
                                             lv_obj_set_pos(obj, LV_PCT(0), LV_PCT(0));
-                                            lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+                                            lv_obj_set_size(obj, LV_PCT(100), 322);
                                             lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
                                             lv_obj_set_style_pad_top(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
                                             lv_obj_set_style_pad_bottom(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
@@ -919,7 +919,7 @@ void create_screen_main() {
                                             lv_obj_t *obj = lv_table_create(parent_obj);
                                             objects.table_routing_dsp_output = obj;
                                             lv_obj_set_pos(obj, LV_PCT(0), LV_PCT(0));
-                                            lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+                                            lv_obj_set_size(obj, LV_PCT(100), 322);
                                             lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
                                             lv_obj_set_style_pad_top(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
                                             lv_obj_set_style_pad_bottom(obj, 2, LV_PART_ITEMS | LV_STATE_DEFAULT);
@@ -1046,7 +1046,6 @@ void create_screen_main() {
                 NULL,
             };
             lv_buttonmatrix_set_map(obj, map);
-            lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_top(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);

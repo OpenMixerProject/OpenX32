@@ -509,7 +509,7 @@
                           "left": -94,
                           "top": 56,
                           "width": 800,
-                          "height": 142,
+                          "height": 382,
                           "customInputs": [],
                           "customOutputs": [],
                           "style": {
@@ -533,7 +533,7 @@
                               "left": 12,
                               "top": 35,
                               "width": 499,
-                              "height": 181,
+                              "height": 190,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -1359,7 +1359,7 @@
                               "left": 0,
                               "top": 0,
                               "width": 100,
-                              "height": 100,
+                              "height": 322,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -1375,7 +1375,7 @@
                               "leftUnit": "%",
                               "topUnit": "%",
                               "widthUnit": "%",
-                              "heightUnit": "%",
+                              "heightUnit": "px",
                               "children": [],
                               "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
                               "hiddenFlagType": "literal",
@@ -4255,7 +4255,7 @@
                           },
                           "group": "",
                           "groupIndex": 0,
-                          "tabName": "IN/OUT",
+                          "tabName": "Overview",
                           "tabNameType": "literal"
                         }
                       ],
@@ -4306,7 +4306,7 @@
                   "left": 0,
                   "top": 0,
                   "width": 800,
-                  "height": 336,
+                  "height": 402,
                   "customInputs": [],
                   "customOutputs": [],
                   "style": {
@@ -4353,7 +4353,7 @@
                           "left": 0,
                           "top": 0,
                           "width": 800,
-                          "height": 316,
+                          "height": 382,
                           "customInputs": [],
                           "customOutputs": [],
                           "style": {
@@ -4791,7 +4791,7 @@
                           "left": 0,
                           "top": 0,
                           "width": 800,
-                          "height": 316,
+                          "height": 382,
                           "customInputs": [],
                           "customOutputs": [],
                           "style": {
@@ -4813,7 +4813,7 @@
                               "left": 0,
                               "top": 0,
                               "width": 100,
-                              "height": 100,
+                              "height": 322,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -4829,7 +4829,7 @@
                               "leftUnit": "%",
                               "topUnit": "%",
                               "widthUnit": "%",
-                              "heightUnit": "%",
+                              "heightUnit": "px",
                               "children": [],
                               "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
                               "hiddenFlagType": "literal",
@@ -4883,10 +4883,10 @@
                         {
                           "objID": "314bd3fb-7477-4637-a232-07fa1b8790c2",
                           "type": "LVGLTabWidget",
-                          "left": 0,
-                          "top": 0,
+                          "left": -11,
+                          "top": 148,
                           "width": 800,
-                          "height": 316,
+                          "height": 382,
                           "customInputs": [],
                           "customOutputs": [],
                           "style": {
@@ -4908,7 +4908,7 @@
                               "left": 0,
                               "top": 0,
                               "width": 100,
-                              "height": 100,
+                              "height": 322,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -4924,7 +4924,7 @@
                               "leftUnit": "%",
                               "topUnit": "%",
                               "widthUnit": "%",
-                              "heightUnit": "%",
+                              "heightUnit": "px",
                               "children": [],
                               "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
                               "hiddenFlagType": "literal",
@@ -4981,7 +4981,7 @@
                           "left": 0,
                           "top": 0,
                           "width": 800,
-                          "height": 316,
+                          "height": 382,
                           "customInputs": [],
                           "customOutputs": [],
                           "style": {
@@ -5003,7 +5003,7 @@
                               "left": 0,
                               "top": 0,
                               "width": 100,
-                              "height": 100,
+                              "height": 322,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -5019,7 +5019,7 @@
                               "leftUnit": "%",
                               "topUnit": "%",
                               "widthUnit": "%",
-                              "heightUnit": "%",
+                              "heightUnit": "px",
                               "children": [],
                               "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
                               "hiddenFlagType": "literal",
@@ -5118,7 +5118,7 @@
                   "left": 113,
                   "top": 47,
                   "width": 800,
-                  "height": 336,
+                  "height": 402,
                   "customInputs": [],
                   "customOutputs": [],
                   "style": {
@@ -5463,7 +5463,7 @@
                   "left": 310,
                   "top": 276,
                   "width": 800,
-                  "height": 336,
+                  "height": 402,
                   "customInputs": [],
                   "customOutputs": [],
                   "style": {
@@ -5741,7 +5741,7 @@
               "heightUnit": "px",
               "children": [],
               "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-              "hiddenFlag": true,
+              "hiddenFlag": false,
               "hiddenFlagType": "literal",
               "clickableFlag": true,
               "clickableFlagType": "literal",

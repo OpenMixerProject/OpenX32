@@ -1,6 +1,8 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/0",
+    "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/0",
     "subnavigationSelectedItems": {}
   },
@@ -22,7 +24,8 @@
           },
           {
             "type": "border",
-            "size": 240,
+            "selected": 5,
+            "size": 162.5,
             "location": "right",
             "children": [
               {
@@ -78,6 +81,7 @@
           {
             "type": "border",
             "selected": 0,
+            "size": 47.5,
             "location": "bottom",
             "children": [
               {
@@ -172,7 +176,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -195,10 +200,22 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 53.48110690993827,
+              "weight": 59.446516019096016,
+              "selected": 1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
+                {
+                  "type": "tab",
+                  "id": "#4c22da9d-463a-45d2-b95c-296809b6afa2",
+                  "name": "8meters",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/0",
+                    "permanent": false
+                  },
+                  "icon": "svg:user_widget"
+                },
                 {
                   "type": "tab",
                   "id": "#f7536bcc-2177-4d87-b336-cbcdbdaeec65",
@@ -210,13 +227,12 @@
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 25.275317649217403,
+              "weight": 19.30990854005965,
               "children": [
                 {
                   "type": "tab",
@@ -746,7 +762,8 @@
                       "component": "styles",
                       "enableClose": false
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -959,25 +976,59 @@
     "[OpenX32Gui.eez-project]:/userPages/0[flow-state]": {
       "selection": {
         "0": {
-          "2": {},
-          "3": {
+          "2": {
+            "0": {
+              "0": {}
+            },
             "1": {
               "0": {
                 "0": {
                   "0": {},
                   "2": {},
                   "3": {},
-                  "$selected": true
+                  "15": {},
+                  "47": {
+                    "$selected": true
+                  }
                 }
               }
             }
-          }
+          },
+          "3": {}
         }
       },
       "transform": {
         "translate": {
-          "x": -374.17792293527395,
-          "y": -306.0014265015668
+          "x": -413.3111198144032,
+          "y": -211.0919257169718
+        },
+        "scale": 1
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
+    },
+    "[OpenX32Gui.eez-project]:/lvglStyles/styles[tree-state]": {
+      "0": {
+        "$selected": true
+      },
+      "1": {
+        "$selected": true
+      }
+    },
+    "[OpenX32Gui.eez-project]:/userWidgets/0[flow-state]": {
+      "selection": {
+        "0": {
+          "$selected": true
+        }
+      },
+      "transform": {
+        "translate": {
+          "x": -423.2833333333336,
+          "y": -369.8636363636365
         },
         "scale": 1
       },
