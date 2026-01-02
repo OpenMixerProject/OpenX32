@@ -18,7 +18,7 @@ class PageConfig : public Page {
         }
 
         void OnShow() override { 
-            SetEncoderText("Source\n[Invert]", "Gain\n[48V]", "PAN/BAL\n[Center]", "Volume\n[Mute]", "-", "-");
+            SetEncoderText("Source\n[Invert]", "Gain\n[48V]", "PAN/BAL\n[Center]", "Volume\n[Mute]", "DEBUG: 1-32\nPhanton + 47dB", "DEBUG: 1-16\nPhanton + 47dB");
         }
 
         void OnChange() override {
@@ -81,8 +81,20 @@ class PageConfig : public Page {
 						mixer->ToggleMute(config->selectedVChannel);
 						break;
 					case X32_BTN_ENCODER5:
+						{
+							for (int i =0; i < 32; i++) {
+								mixer->SetPhantom(i, true);
+								mixer->SetGain(i, 47);
+							}
+						}
 						break;
 					case X32_BTN_ENCODER6:
+						{
+							for (int i =0; i < 16; i++) {
+								mixer->SetPhantom(i, true);
+								mixer->SetGain(i, 47);
+							}
+						}
 						break;
 					default:
                         // just here to avoid compiler warnings
