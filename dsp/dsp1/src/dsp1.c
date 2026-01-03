@@ -52,6 +52,7 @@
 // global data
 //static volatile uint32_t timerCounter;
 static cycle_stats_t systemStats;
+static uint32_t cyclesAudio;
 static uint32_t cyclesMain;
 
 /*
@@ -117,7 +118,8 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 				case 'u': // update-packet
 					data[0] = DSP_VERSION;
-					memcpy(&data[1], &cyclesMain, sizeof(float));
+					uint32_t cyclesTotal = cyclesAudio + cyclesMain;
+					memcpy(&data[1], &cyclesTotal, sizeof(float));
 
 					// VU-meters of main-channels
 					data[2] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
@@ -433,13 +435,19 @@ int main() {
 			audioProcessData();
 
 			CYCLES_STOP(systemStats);
-			cyclesMain = systemStats._cycles;
+			cyclesAudio = systemStats._cycles;
 			CYCLES_RESET(systemStats);
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
+			CYCLES_START(systemStats);
+			
 			spiProcessRxData();
+			
+			CYCLES_STOP(systemStats);
+			cyclesMain = systemStats._cycles;
+			CYCLES_RESET(systemStats);
 		}
 	}
 }
