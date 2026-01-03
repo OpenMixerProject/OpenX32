@@ -168,6 +168,28 @@ float FX::CalcFrequencyResponse_PEQ(float a0, float a1, float a2,  float b1, flo
 */
 }
 
+float FX::CalcPhaseResponse_LC(float f, float fc) {
+    // Phase = arctan(fc / f)
+    return atan2f(fc, f);
+}
+float FX::CalcPhaseResponse_HC(float f, float fc) {
+    // Phase = arctan(-f / fc)
+    return atan2f(-f, fc);
+}
+
+float FX::CalcPhaseResponse_PEQ(float a0, float a1, float a2, float b0, float b1, float b2, float f, float fs) {
+  float omega = (2.0f * PI * f) / fs;
+  float sin_omega = sinf(omega);
+  float cos_omega = cosf(omega);
+
+  float num_real = a0 + a1 * cos_omega + a2 * (cos_omega * cos_omega - sin_omega * sin_omega);
+  float num_imag = a1 * sin_omega + 2.0f * a2 * cos_omega * sin_omega;
+  float den_real = b0 + b1 * cos_omega + b2 * (cos_omega * cos_omega - sin_omega * sin_omega);
+  float den_imag = b1 * sin_omega + 2.0f * b2 * cos_omega * sin_omega;
+
+  return atan2f(num_imag, num_real) - atan2f(den_imag, den_real);
+}
+
 void FX::RecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;

@@ -23,10 +23,12 @@ class PageEq: public Page {
             lv_obj_set_style_size(objects.current_channel_eq, 0, 0, LV_PART_INDICATOR);
             lv_obj_set_style_line_width(objects.current_channel_eq, 5, LV_PART_ITEMS);
             chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
+            chartSeriesEQPhase = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_GREEN), LV_CHART_AXIS_PRIMARY_Y);
             lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7);
             lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15000, 15000);
             lv_chart_set_point_count(objects.current_channel_eq, 200);
             lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQ, lv_color_hex(0xef7900));
+            lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQPhase, lv_color_hex(0x008000));
             //chart-shadow: 0x7e4000
         }
 
@@ -109,6 +111,7 @@ class PageEq: public Page {
 
     private:
         lv_chart_series_t* chartSeriesEQ;
+        lv_chart_series_t* chartSeriesEQPhase;
 
         void EncoderText(uint8_t chanIndex) {
             if (chanIndex < 40) {
@@ -137,6 +140,8 @@ class PageEq: public Page {
 
             memset(&eqValue[0], 0, sizeof(eqValue));
 
+            // draw the amplitude response over frequency
+            int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, chartSeriesEQ);
             for (uint16_t pixel = 0; pixel < 200; pixel++) {
                 freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
 
@@ -148,12 +153,33 @@ class PageEq: public Page {
                     peq = &mixer->dsp->Channel[config->selectedVChannel].peq[i_peq];
                     eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, config->GetSamplerate());
                 }
+
+                // draw point
+                chartSeriesEqPoints[pixel] = eqValue[pixel] * 1000.0f; // convert to primary Y-axis range (+/-15 -> +/-15,000)
             }
 
-            int32_t* chartSeriesEqPoints = lv_chart_get_series_y_array(objects.current_channel_eq, chartSeriesEQ);
-            for (uint16_t i = 0; i < 200; i++) {
-                chartSeriesEqPoints[i] = eqValue[i] * 1000.0f;
+            // draw the phase response over frequency
+            int32_t* chartSeriesEqPhasePoints = lv_chart_get_series_y_array(objects.current_channel_eq, chartSeriesEQPhase);
+            for (uint16_t pixel = 0; pixel < 200; pixel++) {
+                freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
+                float phase = 0.0f;
+                // LowCut
+                phase += mixer->dsp->fx->CalcPhaseResponse_LC(freq, mixer->dsp->Channel[selectedChannelIndex].lowCutFrequency);
+
+                // PEQ  
+                for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
+                    peq = &mixer->dsp->Channel[config->selectedVChannel].peq[i_peq];
+                    phase += mixer->dsp->fx->CalcPhaseResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], 1.0f, peq->b[1], peq->b[2], freq, config->GetSamplerate());
+                }
+
+                // limit phase to +/- PI
+                while (phase > PI)  phase -= 2.0f * PI;
+                while (phase < -PI) phase += 2.0f * PI;
+
+                // draw point
+                chartSeriesEqPhasePoints[pixel] = phase * (-15000.0f / PI); // convert to primary Y-axis range (+/-PI -> +/-15,000)
             }
+
             lv_chart_refresh(objects.current_channel_eq);
         }
 };
