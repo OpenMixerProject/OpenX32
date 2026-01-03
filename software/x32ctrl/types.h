@@ -244,13 +244,13 @@ typedef struct {
   float meterPu; // meter information in p.u.
   uint32_t meter;
 
-  uint32_t meter6Decay; // meter information with decay
+  uint32_t meterDecay; // meter information with decay
+
   uint8_t meterPeak6Index;
   uint8_t meterPeak6HoldTimer; // will be updated every 100ms. On 0 the current value will be used
   uint8_t meterPeak6DecayTimer;
   uint8_t meter6Info; // compatible to MeterLED on surface: 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
 
-  uint32_t meter8Decay; // meter information with decay
   uint8_t meterPeak8Index;
   uint8_t meterPeak8HoldTimer; // will be updated every 100ms. On 0 the current value will be used
   uint8_t meterPeak8DecayTimer;

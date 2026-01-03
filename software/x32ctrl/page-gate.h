@@ -58,7 +58,7 @@ class PageGate: public Page {
 
             uint8_t selectedChannelIndex = config->selectedVChannel;
             if (selectedChannelIndex < 40) {
-                gateValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meter6Decay) * 100.0f;
+                gateValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
             }
             
             // add new value to chart
