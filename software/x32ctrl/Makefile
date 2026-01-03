@@ -64,8 +64,6 @@ OBJS            = $(AOBJS) $(COBJS) $(CXXOBJS)
 TARGET          = $(addprefix $(BUILD_OBJ_DIR)/, $(patsubst ./%, %, $(OBJS)))
 DEPS            = $(TARGET:.o=.d)
 
-LV_CONF_TARGET  = lv_port_linux/lv_conf.h
-
 $(BUILD_OBJ_DIR)/%.o: %.c lv_conf.h
 	@mkdir -p $(dir $@)
 	@$(CC)  $(CFLAGS) -c $< -o $@
@@ -81,14 +79,12 @@ $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
 	@$(CC)  $(CFLAGS) -c $< -o $@
 	@echo "AS  $<"
 
-
-# rule to copy the lv_conf.h when changed
 copy:
-	# copy lv_conf.h to lv_port_linux to match expected structure of LVGL and its port
-	#cp lv_conf.h lv_port_linux/lv_conf.h
-	@if ! diff -q lv_conf.h $(LV_CONF_TARGET) >/dev/null 2>&1; then \
-		cp lv_conf.h $(LV_CONF_TARGET); \
-		echo "Update $(LV_CONF_TARGET) (changed content)"; \
+	@if ! diff -q lv_conf.h lv_port_linux/lv_conf.h >/dev/null 2>&1; then \
+		cp lv_conf.h lv_port_linux/lv_conf.h; \
+		echo "Update lv_port_linux/lv_conf.h (changed content)"; \
+	else \
+		echo "lv_conf.h is up to date."; \
 	fi
 
 default: $(TARGET)

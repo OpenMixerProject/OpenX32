@@ -28,6 +28,13 @@ class PageDynamics: public Page {
             lv_chart_set_range(objects.current_channel_comp, LV_CHART_AXIS_PRIMARY_Y, -6000, 0);
             lv_chart_set_point_count(objects.current_channel_comp, 200); // with incoming audio every 10ms we see 2 seconds of audio-history
             lv_chart_set_series_color(objects.current_channel_comp, chartSeriesCompressor, lv_color_hex(0xef7900));
+
+            // register draw event callback to change color of audio level depending on gate threshold
+            lv_obj_add_event_cb(objects.current_channel_comp, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+            lv_obj_add_flag(objects.current_channel_comp, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+
+            // store mixer pointer in user data for use in draw callback
+            lv_obj_set_user_data(objects.current_channel_comp, mixer);
             //chart-shadow: 0x7e4000
         }
 
@@ -114,6 +121,57 @@ class PageDynamics: public Page {
     private:
         lv_chart_series_t* chartSeriesCompressor;
         lv_chart_series_t* chartSeriesCompressorAudio;
+
+        static void draw_event_cb(lv_event_t * e) {
+            lv_draw_task_t* draw_task = lv_event_get_draw_task(e);
+            lv_draw_dsc_base_t* base_dsc = (lv_draw_dsc_base_t*)lv_draw_task_get_draw_dsc(draw_task);
+
+            if (base_dsc->part != LV_PART_ITEMS) {
+                return;
+            }
+
+            if (lv_draw_task_get_type(draw_task) != LV_DRAW_TASK_TYPE_LINE) {
+                return;
+            }
+
+            lv_obj_t* chart = (lv_obj_t*)lv_event_get_target(e);
+            lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
+
+            uint32_t series_id = base_dsc->id1;
+            //uint32_t point_id = base_dsc->id2; // this does not work for moving charts
+
+            // only change audio-level line
+            if (series_id != 1) {
+                return; // series_id 1 = audio level
+            }
+
+            // find desired series
+            lv_chart_series_t* series = lv_chart_get_series_next(chart, NULL);
+            for (uint32_t i = 0; i < series_id; i++) {
+                series = lv_chart_get_series_next(chart, series);
+            }
+
+            lv_draw_line_dsc_t* line_dsc = lv_draw_task_get_line_dsc(draw_task);
+            if (line_dsc) {
+                // change color depending on gate threshold
+
+                // find the first point (left) of chart and add 199 to get the last point (right) being drawn
+                uint32_t point_id = lv_chart_get_x_start_point(chart, series) + lv_chart_get_point_count(chart) - 1;
+                if (point_id >= lv_chart_get_point_count(chart)) {
+                    point_id -= lv_chart_get_point_count(chart);
+                }
+
+                int32_t* y_array = lv_chart_get_series_y_array(chart, series); //lv_chart_get_y_array
+                int32_t value = y_array[point_id];
+
+                Mixer* mixer = (Mixer*)lv_obj_get_user_data(obj);
+                if (value >= mixer->dsp->Channel[mixer->GetSelectedVChannelIndex()].compressor.threshold * 100.0f) {
+                    line_dsc->color = lv_palette_main(LV_PALETTE_ORANGE);
+                } else {
+                    line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
+                }
+            }
+        }
 
         void EncoderText(uint8_t chanIndex) {
             if (chanIndex < 40) {

@@ -153,7 +153,9 @@ class PageGate: public Page {
             lv_draw_line_dsc_t* line_dsc = lv_draw_task_get_line_dsc(draw_task);
             if (line_dsc) {
                 // change color depending on gate threshold
-                uint32_t point_id = lv_chart_get_x_start_point(chart, series) + 199; // find the first point of chart and add 199 to get the last point being drawn
+
+                // find the first point (left) of chart and add 199 to get the last point (right) being drawn
+                uint32_t point_id = lv_chart_get_x_start_point(chart, series) + lv_chart_get_point_count(chart) - 1;
                 if (point_id >= lv_chart_get_point_count(chart)) {
                     point_id -= lv_chart_get_point_count(chart);
                 }
