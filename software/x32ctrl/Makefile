@@ -18,7 +18,8 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value
 
 # normal build
-CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS)
+DEPFLAGS        = -MMD -MP
+CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
 #CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS)
@@ -61,6 +62,9 @@ AOBJS           = $(ASRCS:.S=$(OBJEXT))
 SRCS            = $(ASRCS) $(CSRCS) $(CXXSRCS)
 OBJS            = $(AOBJS) $(COBJS) $(CXXOBJS)
 TARGET          = $(addprefix $(BUILD_OBJ_DIR)/, $(patsubst ./%, %, $(OBJS)))
+DEPS            = $(TARGET:.o=.d)
+
+LV_CONF_TARGET  = lv_port_linux/lv_conf.h
 
 $(BUILD_OBJ_DIR)/%.o: %.c lv_conf.h
 	@mkdir -p $(dir $@)
@@ -77,13 +81,21 @@ $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
 	@$(CC)  $(CFLAGS) -c $< -o $@
 	@echo "AS  $<"
 
+
+# rule to copy the lv_conf.h when changed
 copy:
 	# copy lv_conf.h to lv_port_linux to match expected structure of LVGL and its port
-	cp lv_conf.h lv_port_linux/lv_conf.h
+	#cp lv_conf.h lv_port_linux/lv_conf.h
+	@if ! diff -q lv_conf.h $(LV_CONF_TARGET) >/dev/null 2>&1; then \
+		cp lv_conf.h $(LV_CONF_TARGET); \
+		echo "Update $(LV_CONF_TARGET) (changed content)"; \
+	fi
 
 default: $(TARGET)
 	@mkdir -p $(dir $(BUILD_BIN_DIR)/)
 	$(CXX) -o $(BUILD_BIN_DIR)/$(BIN) $(TARGET) $(LDFLAGS)
+
+-include $(DEPS)
 
 clean:
 	rm -rf $(BUILD_DIR)

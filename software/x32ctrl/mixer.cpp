@@ -1287,6 +1287,10 @@ uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
     }
 }
 
+uint16_t Mixer::GetSelectedVChannelIndex(void) {
+    return config->selectedVChannel;
+}
+
 VChannel* Mixer::GetVChannel(uint8_t vCHannelIndex){
     return vchannel[vCHannelIndex];
 }

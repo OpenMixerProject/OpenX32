@@ -23,9 +23,10 @@ class PageEq: public Page {
             lv_obj_set_style_size(objects.current_channel_eq, 0, 0, LV_PART_INDICATOR);
             lv_obj_set_style_line_width(objects.current_channel_eq, 5, LV_PART_ITEMS);
             chartSeriesEQ = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_AMBER), LV_CHART_AXIS_PRIMARY_Y);
-            chartSeriesEQPhase = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_GREEN), LV_CHART_AXIS_PRIMARY_Y);
-            lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7);
+            chartSeriesEQPhase = lv_chart_add_series(objects.current_channel_eq, lv_palette_main(LV_PALETTE_GREEN), LV_CHART_AXIS_SECONDARY_Y);
+            lv_chart_set_div_line_count(objects.current_channel_eq, 5, 7); // hdiv_num, vdiv_num
             lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_PRIMARY_Y, -15000, 15000);
+            lv_chart_set_range(objects.current_channel_eq, LV_CHART_AXIS_SECONDARY_Y, -15000, 15000);
             lv_chart_set_point_count(objects.current_channel_eq, 200);
             lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQ, lv_color_hex(0xef7900));
             lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQPhase, lv_color_hex(0x008000));
@@ -177,7 +178,7 @@ class PageEq: public Page {
                 while (phase < -PI) phase += 2.0f * PI;
 
                 // draw point
-                chartSeriesEqPhasePoints[pixel] = phase * (-15000.0f / PI); // convert to primary Y-axis range (+/-PI -> +/-15,000)
+                chartSeriesEqPhasePoints[pixel] = phase * (-15000.0f / PI); // convert to secondary Y-axis range (+/-PI -> +/-15,000)
             }
 
             lv_chart_refresh(objects.current_channel_eq);

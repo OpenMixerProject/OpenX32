@@ -83,6 +83,7 @@ class Mixer : public X32Base
         void ChangeGain(uint8_t p_vChannelIndex, int8_t p_amount);
         void ChangeVolume(uint8_t p_vChannelIndex, int8_t p_amount);
 
+        uint16_t GetSelectedVChannelIndex(void);
         VChannel* GetVChannel(uint8_t vCHannelIndex);
         float GetVolumeDbfs(uint8_t vChannelIndex);
         u_int16_t GetVolumeFadervalue(uint8_t vChannelIndex);
