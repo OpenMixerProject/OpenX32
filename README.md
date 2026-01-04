@@ -1,6 +1,7 @@
 ![alt_text](Documentation/OpenX32.png)
 
-This repository contains software to load and start the Linux-Kernel on the Behringer X32. This audio-mixing-console uses a Freescale/NXP i.MX253 Microcontroller with an ARM926EJ-S core that supports booting Linux.
+This repository contains software to load and start the Linux-Kernel on the Behringer X32, some userland tools and x32ctrl - the main logic of our custom firmware.
+This audio-mixing-console uses a Freescale/NXP i.MX253 Microcontroller with an ARM926EJ-S core that supports booting Linux.
 
 ![alt_text](Documentation/openx32_1.jpg)
 
@@ -13,7 +14,7 @@ More information in the related two Youtube-Videos:
 
 [![alt text](https://img.youtube.com/vi/6CfLC5xVy90/0.jpg)](https://www.youtube.com/watch?v=6CfLC5xVy90)
 
-A Youtube Short of OpenX32 running on a X32 Rack:
+A Youtube Short of the complete OpenX32 Alpha running on a X32 Rack:
 [![alt text](https://github.com/user-attachments/assets/273cbe2a-601b-4b46-af98-975f552c6958)](https://youtube.com/shorts/HEKZBwd_7Ww?si=Q7c15EphQGNHR0TK)
 
 ## What is working at the moment and what is planned so far
