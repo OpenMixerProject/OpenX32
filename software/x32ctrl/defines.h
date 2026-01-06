@@ -14,7 +14,7 @@
 #define SPI_DSP_CONF_SPEED_HZ   8 MHz
 #define SPI_DSP_SPEED_HZ        8 MHz // 16 MHz is the regular SPI-clock on the original X32
 
-#define PI 3.14159265358979323846
+#define PI 3.14159265358979323846f
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
 #define SURFACE_MAX_PACKET_LENGTH 32
 #define MAX_PAGES 20
@@ -22,8 +22,9 @@
 #define VOLUME_MIN -100.0f
 
 #define MAX_CHAN_EQS                       4
-#define NUM_INPUT_CHANNEL                  112  // at the moment we are not using AES50A and AES50B
-#define NUM_OUTPUT_CHANNEL                 112  // at the moment we are not using AES50A and AES50B
+
+#define NUM_INPUT_CHANNEL                  208
+#define NUM_OUTPUT_CHANNEL                 208
 #define MAX_FPGA_TO_DSP1_CHANNELS          40
 #define MAX_DSP1_TO_FPGA_CHANNELS          40
 #define MAX_DSP1_TO_DSP2_CHANNELS          24

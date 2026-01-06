@@ -1021,7 +1021,7 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
     dataToRead[dsp] += 3;
 }
 
-bool SPI::SendFgpaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
+bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
     struct spi_ioc_transfer tr = {0};
 
     // configure SPI-system for this transmission

@@ -194,7 +194,7 @@ void Mixer::ChangeHardwareInput(uint8_t outputIndex, int8_t amount) {
         newValue -= (NUM_INPUT_CHANNEL + 1);
     }
     if (newValue < 0) {
-        newValue += (NUM_INPUT_CHANNEL + 1); // we allow 112 input channels plus a single "OFF" channel
+        newValue += (NUM_INPUT_CHANNEL + 1); // we allow 208 input channels plus a single "OFF" channel
     }
 
     helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Change! %d -> %d", currentRouting, newValue);
@@ -216,7 +216,7 @@ void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
 
     dsp->Channel[vChannelIndex].input = newValue;
     dsp->SetInputRouting(vChannelIndex);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount) {
@@ -231,7 +231,7 @@ void Mixer::ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount) {
 
     dsp->Channel[vChannelIndex].inputTapPoint = newValue;
     dsp->SetInputRouting(vChannelIndex);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
@@ -246,7 +246,7 @@ void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
 
     dsp->Dsp1toFpgaRouting[channel].input = newValue;
     dsp->SetOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
@@ -261,7 +261,7 @@ void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
 
     dsp->Dsp1toFpgaRouting[channel].tapPoint = newValue;
     dsp->SetOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspFxOutput(uint8_t channel, int8_t amount) {
@@ -276,7 +276,7 @@ void Mixer::ChangeDspFxOutput(uint8_t channel, int8_t amount) {
 
     dsp->Dsp1toDsp2Routing[channel].input = newValue;
     dsp->SetFxOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspFxOutputTapPoint(uint8_t channel, int8_t amount) {
@@ -291,7 +291,7 @@ void Mixer::ChangeDspFxOutputTapPoint(uint8_t channel, int8_t amount) {
 
     dsp->Dsp1toDsp2Routing[channel].tapPoint = newValue;
     dsp->SetFxOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag){

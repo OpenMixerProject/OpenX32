@@ -130,8 +130,8 @@ void Fpga::Connect(uint8_t inputIndex, uint8_t group, uint8_t channel) {
 void Fpga::ConnectByIndex(uint8_t inputIndex, uint8_t outputIndex) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	GetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // outputIndex =  1..112, channel = 0..x
-	Connect(inputIndex, group, channel); // inputSource = 0..112
+	GetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // outputIndex =  1..208, channel = 0..x
+	Connect(inputIndex, group, channel); // inputSource = 0..208
 }
 
 uint8_t Fpga::GetOutput(uint8_t group, uint8_t channel) {
@@ -186,7 +186,7 @@ uint8_t Fpga::GetOutput(uint8_t group, uint8_t channel) {
 uint8_t Fpga::GetOutputByIndex(uint8_t outputIndex) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	GetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // index = 1..112
+	GetOutputGroupAndChannelByIndex(outputIndex, &group, &channel); // index = 1..208
 	return GetOutput(group, channel);
 }
 
@@ -383,7 +383,7 @@ String Fpga::GetInputName(uint8_t group, uint8_t channel) {
 String Fpga::GetInputNameByIndex(uint8_t sourceIndex) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	GetInputGroupAndChannelByIndex(sourceIndex, &group, &channel); // index = 0 .. 112
+	GetInputGroupAndChannelByIndex(sourceIndex, &group, &channel); // index = 0 .. 208
 	return GetInputName(group, channel);
 }
 
@@ -423,79 +423,46 @@ String Fpga::GetOutputName(uint8_t group, uint8_t channel) {
 String Fpga::GetOutputNameByIndex(uint8_t index) {
 	uint8_t group = 0;
 	uint8_t channel = 0;
-	GetOutputGroupAndChannelByIndex(index, &group, &channel); // index = 1..112
+	GetOutputGroupAndChannelByIndex(index, &group, &channel); // index = 1..208
 	return GetOutputName(group, channel);
 }
 
 // helper-function to send the audio-routing to the fpga
 void Fpga::SendRoutingToFpga(int16_t channel) {
+	uint8_t txData[2];
+	uint8_t rxData[2];
+
 	// copy routing-struct into array
 	uint8_t buf[sizeof(fpgaRouting)];
 	memcpy(&buf[0], &fpgaRouting, sizeof(fpgaRouting));
 
 	// FPGA expects data in this format:
 	// 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-	// 0  |----- DATA -----| 0 |--- ADDR ---|
+	// |------- DATA ------||---- ADDR ----|
 
 	if (channel >= 0) {
-		uint8_t txData[2];
-		uint8_t rxData[2];
-
-		// 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-		// 0  |----- DATA -----| 0 |--- ADDR ---|
-
+		// send only one routing-data to FPGA
 		helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "send routing data %d", channel+1);
 		txData[0] = buf[channel]; // data (will be sent first and will put to bit 15 downto 8 in FPGA)
-		txData[1] = (channel & 0b01111111); // address (will be sent last to bit 7 downto 0 in FPGA)
-		spi->SendFgpaData(&txData[0], &rxData[0], 2);
+		txData[1] = channel; // address (will be sent last to bit 7 downto 0 in FPGA)
+		spi->SendFpgaData(&txData[0], &rxData[0], 2);
 
 		if ((rxData[0] != txData[0]) || (rxData[1] != txData[1])) {
 			// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
 			helper->Error("FPGA-Routing: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 		}
 	}else{
-		uint8_t txData[2];
-		uint8_t rxData[2];
-
-		// 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-		// 0  |----- DATA -----| 0 |--- ADDR ---|
-
-		for (uint8_t i = 0; i < 112; i++) {
+		// send all routing-data to FPGA
+		for (uint8_t i = 0; i < 208; i++) {
 			helper->DEBUG_FPGA(DEBUGLEVEL_TRACE, "send routing data %d", channel+1);
 			txData[0] = buf[i]; // data (will be sent first and will put to bit 15 downto 8 in FPGA)
-			txData[1] = (i & 0b01111111); // address (will be sent last to bit 7 downto 0 in FPGA)
-			spi->SendFgpaData(&txData[0], &rxData[0], 2);
+			txData[1] = i; // address (will be sent last to bit 7 downto 0 in FPGA)
+			spi->SendFpgaData(&txData[0], &rxData[0], 2);
 
 			if ((rxData[0] != txData[0]) || (rxData[1] != txData[1])) {
 				// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
 				helper->Error("FPGA-Routing: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 			}
 		}
-
-
-
-
-		/*
-		// the FPGA has an auto-increment option when the last address-bit has been set to 1
-		uint8_t txData[113]; // first address plus 112 signals
-		uint8_t rxData[113]; // first address plus 112 signals
-
-		// first message is same as regular message with last bit of address set to 1
-		//
-		// 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-		// 0  |----- DATA -----| 1 |--- ADDR ---|
-		//
-		// all following bytes are used as data-byte with auto-incremented address within the FPGA
-
-		// set first address
-		txData[0] = buf[0]; // first data-byte (will be sent first over SPI and will put to bit 15 downto 8 in FPGA)
-		txData[1] = 0b1000000; // address with set auto-increment-bit (will be sent last to bit 7 downto 0 in FPGA)
-		for (uint8_t i = 1; i < 112; i++) {
-			txData[1 + i] = buf[i];
-		}
-
-		// send all data in one transmission
-		spi->SendFgpaData(&txData[0], &rxData[0], 113);
-		*/
 	}
 }
