@@ -26,3 +26,6 @@
 	path = software/openssh-portable
 	url = https://github.com/openssh/openssh-portable.git
 	ignore = dirty
+[submodule "fpga/AES50"]
+	path = fpga/AES50
+	url = git@github.com:OpenMixerProject/AES50.git
