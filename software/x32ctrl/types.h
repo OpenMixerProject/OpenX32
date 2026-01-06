@@ -138,13 +138,13 @@ typedef struct {
 } sDspChannel;
 
 typedef struct {
-  uint8_t outputSource; // controls the 40 audio-channels out of the DSP
-  uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
+  uint8_t output; // controls the 40 audio-channels out of the DSP
+  uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
 } sDspOutchannel;
 
 typedef struct {
-  uint8_t outputSource; // controls which channel should be routed to DSP2 (FX)
-  uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
+  uint8_t output; // controls which channel should be routed to DSP2 (FX)
+  uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
 } sFxChannel;
 
 typedef struct {

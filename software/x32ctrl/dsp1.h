@@ -38,11 +38,11 @@ class DSP1 : X32Base {
         sDspChannel Channel[MAX_DSP_INPUTCHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
         sMatrixChannel Matrix[6];
-        sFxChannel Dsp2FxChannel[MAX_DSP_FXCHANNELS];
+        sFxChannel Dsp1toDsp2Routing[MAX_DSP_FXCHANNELS];
         sDsp2AuxChannel Dsp2AuxChannel[MAX_DSP_AUXCHANNELS];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
-        sDspOutchannel Dsp2FpgaChannel[MAX_DSP_OUTPUTCHANNELS];
+        sDspOutchannel Dsp1toFpgaRouting[MAX_DSP_OUTPUTCHANNELS];
         float volumeFxReturn[8];
         float volumeDca[8];
 

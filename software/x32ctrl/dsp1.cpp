@@ -78,26 +78,27 @@ void DSP1::Init(void) {
         monitorVolume = 0; // dBfs
         monitorTapPoint = DSP_TAP_INPUT;
 
-        // initialize dsp-routing
-        // route output 1-14 to Mixbus 1-14
-        // route output 15/16 to MainLeft/MainRight
-        // route output 17-32 to DirectOut 1-16
-        // route output 33-37 to AuxIn
-        // route output 38-39 to ???
+    }
+
+    for (uint8_t i = 0; i < 40; i++) {
+
+        // DSP1 Inputs
         //
-        // audioOutputChannelBuffer contains this data
         // 0:       OFF
-        // 1..32:   Input 1-32
-        // 33..40:  AuxIn 1-6, TalkbackA, TalkbackB
+        // 1..32:   Input 1-32 (from FPGA)
+        // 33..38:  AuxIn 1-6 (from FPGA)
+        // 39:      Talkback intern (from FPGA)
+        // 40:      Talkback extern (from FPGA)
         // 41..56:  MixBus 1-16
-        // 57..62:   Matrix 1-6
-        // 63: MainL
-        // 64: MainR
-        // 65: MainSub
-        // 66..68: Monitor L/R/TB
-        // 69..84: FX Return 1-16
-        // 85..92: DSP2 Aux-Channel 1-8
-        //
+        // 57..62:  Matrix 1-6
+        // 63:      MainL
+        // 64:      MainR
+        // 65:      MainSub
+        // 66:      Monitor L
+        // 67:      Monitor R
+        // 68:      TalkBack
+        // 69..92:  DSP2 Return 1-24 (from DSP2)
+
         // connect DSP-inputs 1-40 to all 40 input-sources from FPGA
         Channel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
         Channel[i].inputTapPoint = DSP_TAP_INPUT;
@@ -106,17 +107,17 @@ void DSP1::Init(void) {
     }
 
     for (uint8_t i = 0; i < 16; i++) {
-        Dsp2FxChannel[i].outputSource = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2
-        Dsp2FxChannel[i].outputTapPoint = DSP_TAP_POST_FADER;
+        Dsp1toDsp2Routing[i].output = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2 Channels 1-16
+        Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
     }
-    for (uint8_t i = 0; i < 8; i++) {
-        Dsp2AuxChannel[i].outputSource = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Aux-Channels 1-8
-        Dsp2AuxChannel[i].outputTapPoint = DSP_TAP_POST_FADER;
+    for (uint8_t i = 16; i < 24; i++) {
+        Dsp1toDsp2Routing[i].output = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Channels 17-24
+        Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
     }
     for (uint8_t i = 0; i < 40; i++) {
         // connect MainLeft on even and MainRight on odd channels as PostFader
-        Dsp2FpgaChannel[i].outputSource = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
-        Dsp2FpgaChannel[i].outputTapPoint = DSP_TAP_POST_FADER;
+        Dsp1toFpgaRouting[i].output = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
+        Dsp1toFpgaRouting[i].tapPoint = DSP_TAP_POST_FADER;
     }
 }
 
@@ -389,15 +390,15 @@ void DSP1::SetInputRouting(uint8_t chan) {
 
 void DSP1::SetOutputRouting(uint8_t chan) {
     uint32_t values[2];
-    values[0] = Dsp2FpgaChannel[chan].outputSource;
-    values[1] = Dsp2FpgaChannel[chan].outputTapPoint;
+    values[0] = Dsp1toFpgaRouting[chan].output;
+    values[1] = Dsp1toFpgaRouting[chan].tapPoint;
     spi->SendReceiveDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetFxOutputRouting(uint8_t fxchan) {
     uint32_t values[2];
-    values[0] = Dsp2FxChannel[fxchan].outputSource;
-    values[1] = Dsp2FxChannel[fxchan].outputTapPoint;
+    values[0] = Dsp1toDsp2Routing[fxchan].output;
+    values[1] = Dsp1toDsp2Routing[fxchan].tapPoint;
     spi->SendReceiveDspParameterArray(0, 'r', (MAX_DSP_OUTPUTCHANNELS + fxchan), 1, 2, (float*)&values[0]);
 }
 
@@ -474,10 +475,10 @@ void DSP1::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
         sprintf(p_nameBuffer, "DSP-Out %02d", index);
     }else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
         sprintf(p_nameBuffer, "DSP-AuxOut %02d", index - 32);
-    }else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 24))) {
+    }else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
         sprintf(p_nameBuffer, "FX-SendOut %02d", index - 40);
-    }else if ((index >= (DSP_BUF_IDX_DSP2_FX + 24)) && (index < (DSP_BUF_IDX_DSP2_FX + 32))) {
-        sprintf(p_nameBuffer, "FX-AuxOut %02d", index - 48);
+    }else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 24))) {
+        sprintf(p_nameBuffer, "FX-AuxOut %02d", index - 56);
     }else{
         sprintf(p_nameBuffer, "???");
     }

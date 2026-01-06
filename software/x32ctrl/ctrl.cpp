@@ -192,14 +192,14 @@ void X32Ctrl::LoadConfig() {
 	//DspOutChannels
 	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++) {
 		string section = string("dspoutchannel") + to_string(i);
-		mixer->dsp->Dsp2FpgaChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+		mixer->dsp->Dsp1toFpgaRouting[i].output = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp1toFpgaRouting[i].tapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
 	}
 	//Dsp2FxChannels
 	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++) {
 		string section = string("dspfxchannel") + to_string(i);
-		mixer->dsp->Dsp2FxChannel[i].outputSource = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp2FxChannel[i].outputTapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+		mixer->dsp->Dsp1toDsp2Routing[i].output = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp1toDsp2Routing[i].tapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
 	}
 	//Dsp2AuxChannels
 	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++) {
@@ -264,14 +264,14 @@ void X32Ctrl::SaveConfig() {
 	//DspOutChannels
 	for (uint8_t i = 0; i < MAX_DSP_OUTPUTCHANNELS; i++) {
 		string section = string("dspoutchannel") + to_string(i);
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputSource;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FpgaChannel[i].outputTapPoint;
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp1toFpgaRouting[i].output;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp1toFpgaRouting[i].tapPoint;
 	}
 	//Dsp2FxChannels
 	for (uint8_t i = 0; i < MAX_DSP_FXCHANNELS; i++) {
 		string section = string("dspfxchannel") + to_string(i);
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp2FxChannel[i].outputSource;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp2FxChannel[i].outputTapPoint;
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp1toDsp2Routing[i].output;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp1toDsp2Routing[i].tapPoint;
 	}
 	//Dsp2AuxChannels
 	for (uint8_t i = 0; i < MAX_DSP_AUXCHANNELS; i++) {
