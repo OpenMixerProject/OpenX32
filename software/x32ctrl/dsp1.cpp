@@ -82,7 +82,7 @@ void DSP1::Init(void) {
 
     for (uint8_t i = 0; i < 40; i++) {
 
-        // DSP1 Inputs
+        // DSP1 Routing Sources
         //
         // 0:       OFF
         // 1..32:   Input 1-32 (from FPGA)
@@ -99,24 +99,24 @@ void DSP1::Init(void) {
         // 68:      TalkBack
         // 69..92:  DSP2 Return 1-24 (from DSP2)
 
-        // connect DSP-inputs 1-40 to all 40 input-sources from FPGA
-        Channel[i].inputSource = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
+        // connect FPGA2DSP-Source 1-40 to all 40 Mixing Channels (1-32 + AUX 1-8)
+        Channel[i].input = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
         Channel[i].inputTapPoint = DSP_TAP_INPUT;
 
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
     }
 
     for (uint8_t i = 0; i < 16; i++) {
-        Dsp1toDsp2Routing[i].output = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2 Channels 1-16
+        Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2 Channels 1-16
         Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
     }
     for (uint8_t i = 16; i < 24; i++) {
-        Dsp1toDsp2Routing[i].output = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Channels 17-24
+        Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Channels 17-24
         Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
     }
     for (uint8_t i = 0; i < 40; i++) {
         // connect MainLeft on even and MainRight on odd channels as PostFader
-        Dsp1toFpgaRouting[i].output = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
+        Dsp1toFpgaRouting[i].input = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
         Dsp1toFpgaRouting[i].tapPoint = DSP_TAP_POST_FADER;
     }
 }
@@ -383,30 +383,23 @@ void DSP1::SendAll() {
 
 void DSP1::SetInputRouting(uint8_t chan) {
     uint32_t values[2];
-    values[0] = Channel[chan].inputSource;
+    values[0] = Channel[chan].input;
     values[1] = Channel[chan].inputTapPoint;
     spi->SendReceiveDspParameterArray(0, 'r', chan, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetOutputRouting(uint8_t chan) {
     uint32_t values[2];
-    values[0] = Dsp1toFpgaRouting[chan].output;
+    values[0] = Dsp1toFpgaRouting[chan].input;
     values[1] = Dsp1toFpgaRouting[chan].tapPoint;
     spi->SendReceiveDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetFxOutputRouting(uint8_t fxchan) {
     uint32_t values[2];
-    values[0] = Dsp1toDsp2Routing[fxchan].output;
+    values[0] = Dsp1toDsp2Routing[fxchan].input;
     values[1] = Dsp1toDsp2Routing[fxchan].tapPoint;
-    spi->SendReceiveDspParameterArray(0, 'r', (MAX_DSP_OUTPUTCHANNELS + fxchan), 1, 2, (float*)&values[0]);
-}
-
-void DSP1::SetAuxOutputRouting(uint8_t auxchan) {
-    uint32_t values[2];
-    values[0] = Dsp2AuxChannel[auxchan].outputSource;
-    values[1] = Dsp2AuxChannel[auxchan].outputTapPoint;
-    spi->SendReceiveDspParameterArray(0, 'r', (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + auxchan), 1, 2, (float*)&values[0]);
+    spi->SendReceiveDspParameterArray(0, 'r', (MAX_DSP1_TO_FPGA_CHANNELS + fxchan), 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
@@ -439,7 +432,7 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
 void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
     if (dspChannel < 40) {
         // we have a DSP-channel
-        uint8_t channelInputSource = Channel[dspChannel].inputSource;
+        uint8_t channelInputSource = Channel[dspChannel].input;
 
         RoutingGetTapNameByIndex(p_nameBuffer, channelInputSource, dspInputSource);
     }else{

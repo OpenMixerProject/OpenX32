@@ -68,9 +68,9 @@ void VChannel::ChangeInput(int8_t amount){
     85..92: DSP2 Aux-Channel 1-8
     */
 
-    helper->DEBUG_VCHANNEL(DEBUGLEVEL_NORMAL, "mixerChangeVChannel(): dspChannel=%d", dspChannel->inputSource);
+    helper->DEBUG_VCHANNEL(DEBUGLEVEL_NORMAL, "mixerChangeVChannel(): dspChannel=%d", dspChannel->input);
 
-    int16_t newValue = (int16_t)dspChannel->inputSource + amount;
+    int16_t newValue = (int16_t)dspChannel->input + amount;
 
     if (newValue > DSP_MAX_INTERNAL_CHANNELS) {
         newValue = 0;
@@ -83,7 +83,7 @@ void VChannel::ChangeInput(int8_t amount){
     
 
     //mixer.dsp->dspChannel[chan->index].inputSource = newValue; // OFF / In1-32 / AUX 1-8 / BUS1-16
-    dspChannel->inputSource = newValue; // 32 in + 8 aux + 8 FX return + 16 bus
+    dspChannel->input = newValue; // 32 in + 8 aux + 8 FX return + 16 bus
 
     // if (chan.dspChannel.inputSource == 0) {
     //     // OFF: not supported yet

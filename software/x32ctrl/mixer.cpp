@@ -205,7 +205,7 @@ void Mixer::ChangeHardwareInput(uint8_t outputIndex, int8_t amount) {
 }
 
 void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
-    int16_t newValue = dsp->Channel[vChannelIndex].inputSource + amount;
+    int16_t newValue = dsp->Channel[vChannelIndex].input + amount;
 
     if (newValue >= DSP_MAX_INTERNAL_CHANNELS) {
         newValue -= DSP_MAX_INTERNAL_CHANNELS;
@@ -214,7 +214,7 @@ void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
         newValue += DSP_MAX_INTERNAL_CHANNELS;
     }
 
-    dsp->Channel[vChannelIndex].inputSource = newValue;
+    dsp->Channel[vChannelIndex].input = newValue;
     dsp->SetInputRouting(vChannelIndex);
     state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
@@ -235,7 +235,7 @@ void Mixer::ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount) {
 }
 
 void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toFpgaRouting[channel].output + amount;
+    int16_t newValue = dsp->Dsp1toFpgaRouting[channel].input + amount;
 
     if (newValue >= DSP_MAX_INTERNAL_CHANNELS) {
         newValue -= DSP_MAX_INTERNAL_CHANNELS;
@@ -244,7 +244,7 @@ void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
         newValue += DSP_MAX_INTERNAL_CHANNELS;
     }
 
-    dsp->Dsp1toFpgaRouting[channel].output = newValue;
+    dsp->Dsp1toFpgaRouting[channel].input = newValue;
     dsp->SetOutputRouting(channel);
     state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
@@ -265,16 +265,16 @@ void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
 }
 
 void Mixer::ChangeDspFxOutput(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toDsp2Routing[channel].output + amount;
+    int16_t newValue = dsp->Dsp1toDsp2Routing[channel].input + amount;
 
-    if (newValue >= MAX_DSP_FXCHANNELS) {
-        newValue -= MAX_DSP_FXCHANNELS;
+    if (newValue >= MAX_DSP1_TO_DSP2_CHANNELS) {
+        newValue -= MAX_DSP1_TO_DSP2_CHANNELS;
     }
     if (newValue < 0) {
-        newValue += MAX_DSP_FXCHANNELS;
+        newValue += MAX_DSP1_TO_DSP2_CHANNELS;
     }
 
-    dsp->Dsp1toDsp2Routing[channel].output = newValue;
+    dsp->Dsp1toDsp2Routing[channel].input = newValue;
     dsp->SetFxOutputRouting(channel);
     state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
@@ -294,41 +294,10 @@ void Mixer::ChangeDspFxOutputTapPoint(uint8_t channel, int8_t amount) {
     state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 }
 
-void Mixer::ChangeDspAuxOutput(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp2AuxChannel[channel].outputSource + amount;
-
-    if (newValue >= MAX_DSP_AUXCHANNELS) {
-        newValue -= MAX_DSP_AUXCHANNELS;
-    }
-    if (newValue < 0) {
-        newValue += MAX_DSP_AUXCHANNELS;
-    }
-
-    dsp->Dsp2AuxChannel[channel].outputSource = newValue;
-    dsp->SetAuxOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-}
-
-void Mixer::ChangeDspAuxOutputTapPoint(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp2AuxChannel[channel].outputTapPoint + amount;
-
-    if (newValue > 4) {
-        newValue = 0;
-    }
-    if (newValue < 0) {
-        newValue = 4;
-    }
-
-    dsp->Dsp2AuxChannel[channel].outputTapPoint = newValue;
-    dsp->SetAuxOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-}
-
 void Mixer::SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag){
     vchannel[p_chanIndex]->SetChanged(p_flag);
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
-
 
 
 void Mixer::SetSolo(uint8_t channelIndex, bool solo){
@@ -386,7 +355,7 @@ void Mixer::ClearSolo(void){
 void Mixer::SetPhantom(uint8_t p_vChannelIndex, bool p_phantom){
     VChannel* chan = GetVChannel(p_vChannelIndex);
     if (chan->vChannelType == X32_VCHANNELTYPE_NORMAL) {
-        uint8_t channelInputSource = chan->dspChannel->inputSource;
+        uint8_t channelInputSource = chan->dspChannel->input;
 
         // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
         if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -421,7 +390,7 @@ void Mixer::TogglePhantom(uint8_t p_vChannelIndex){
 void Mixer::SetPhaseInvert(uint8_t p_vChannelIndex, bool p_phaseInvert){
     VChannel* chan = GetVChannel(p_vChannelIndex);
     if (chan->vChannelType == X32_VCHANNELTYPE_NORMAL) {
-        uint8_t channelInputSource = chan->dspChannel->inputSource;
+        uint8_t channelInputSource = chan->dspChannel->input;
 
         // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
         if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -498,7 +467,7 @@ void Mixer::SetGain(uint8_t p_vChannelIndex, float gain) {
 
     if(chan->vChannelType == X32_VCHANNELTYPE_NORMAL || chan->vChannelType == X32_VCHANNELTYPE_AUX) {
 
-        uint8_t channelInputSource = dsp->Channel[p_vChannelIndex].inputSource;
+        uint8_t channelInputSource = dsp->Channel[p_vChannelIndex].input;
 
         // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
         if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1216,7 +1185,7 @@ void Mixer::Sync(void){
 
 // set the gain of the local XLR head-amp-control
 void Mixer::halSendGain(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].input;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1247,7 +1216,7 @@ void Mixer::halSendGain(uint8_t dspChannel) {
 
 // enable or disable phatom-power of local XLR-inputs
 void Mixer::halSendPhantomPower(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].input;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1276,7 +1245,7 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
 }
 
 uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].input;
 
     // check if we are using one of the FPGA-routed channels
     if ((channelInputSource >= 1) && (channelInputSource < 40)) {
@@ -1418,7 +1387,7 @@ float Mixer::GetGain(uint8_t vChannelIndex) {
 
     if(chan->vChannelType == X32_VCHANNELTYPE_NORMAL || chan->vChannelType == X32_VCHANNELTYPE_AUX) {
 
-        uint8_t channelInputSource = dsp->Channel[vChannelIndex].inputSource;
+        uint8_t channelInputSource = dsp->Channel[vChannelIndex].input;
 
         // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
         if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1450,7 +1419,7 @@ bool Mixer::GetPhantomPower(uint8_t vChannelIndex) {
     switch(chan->vChannelType){
         case X32_VCHANNELTYPE_NORMAL: {
 
-            uint8_t channelInputSource = dsp->Channel[vChannelIndex].inputSource;
+            uint8_t channelInputSource = dsp->Channel[vChannelIndex].input;
 
             // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
             if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
@@ -1477,7 +1446,7 @@ bool Mixer::GetPhantomPower(uint8_t vChannelIndex) {
 }
 
 bool Mixer::GetPhaseInvert(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].inputSource;
+    uint8_t channelInputSource = dsp->Channel[dspChannel].input;
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {

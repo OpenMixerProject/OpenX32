@@ -16,22 +16,22 @@ class PageRoutingDsp2: public Page {
         }
 
 		void OnInit() override {
-			if (state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)) {
+			if (state->gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)) {
 				state->gui_selected_item = 0;
 			}else if (state->gui_selected_item < 0) {
-				state->gui_selected_item = (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS) - 1;
+				state->gui_selected_item = (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS) - 1;
 			}
 
-			lv_table_set_row_count(objects.table_routing_dsp_output, (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+			lv_table_set_row_count(objects.table_routing_dsp_output, (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
 			lv_table_set_column_count(objects.table_routing_dsp_output, 5); // Input | # | Source | # | Tap | #
 			lv_table_set_column_width(objects.table_routing_dsp_output, 0, 200);
 			lv_table_set_column_width(objects.table_routing_dsp_output, 1, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_output, 2, 200);
 			lv_table_set_column_width(objects.table_routing_dsp_output, 3, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_output, 4, 100);
-			for (uint8_t i=0; i < MAX_DSP_OUTPUTCHANNELS; i++){
+			for (uint8_t i=0; i < MAX_DSP1_TO_FPGA_CHANNELS; i++){
 				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+1);
-				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toFpgaRouting[i].output, mixer->dsp->Channel[i].inputSource);
+				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toFpgaRouting[i].input, mixer->dsp->Channel[i].input);
 				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toFpgaRouting[i].tapPoint);
 
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 0, "%s", outputChannelName);
@@ -39,24 +39,14 @@ class PageRoutingDsp2: public Page {
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 4, "%s", tapPointName);
 			}
 
-			for (uint8_t i=0; i < MAX_DSP_FXCHANNELS; i++){
-				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+MAX_DSP_OUTPUTCHANNELS+1);
-				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[i].output, 0);
+			for (uint8_t i=0; i < MAX_DSP1_TO_DSP2_CHANNELS; i++){
+				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+MAX_DSP1_TO_FPGA_CHANNELS+1);
+				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[i].input, 0);
 				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toDsp2Routing[i].tapPoint);
 
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 0, "%s", outputChannelName);
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 2, "%s", outputSourceName);
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS, 4, "%s", tapPointName);
-			}
-
-			for (uint8_t i=0; i < MAX_DSP_AUXCHANNELS; i++){
-				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+1);
-				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2AuxChannel[i].outputSource, 0);
-				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2AuxChannel[i].outputTapPoint);
-
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 0, "%s", outputChannelName);
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 2, "%s", outputSourceName);
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS, 4, "%s", tapPointName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP1_TO_FPGA_CHANNELS, 0, "%s", outputChannelName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP1_TO_FPGA_CHANNELS, 2, "%s", outputSourceName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i+MAX_DSP1_TO_FPGA_CHANNELS, 4, "%s", tapPointName);
 			}
 
 			lv_table_set_cell_value(objects.table_routing_dsp_output, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
@@ -69,10 +59,10 @@ class PageRoutingDsp2: public Page {
 
 		void OnChange() override {
 			if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
-				if (state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS)) {
+				if (state->gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)) {
 					state->gui_selected_item = 0;
 				}else if (state->gui_selected_item < 0) {
-					state->gui_selected_item = (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS) - 1;
+					state->gui_selected_item = (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS) - 1;
 				}
 
 				if (state->gui_selected_item != state->gui_old_selected_item ) {
@@ -92,15 +82,12 @@ class PageRoutingDsp2: public Page {
 			} 
 			
 			if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
-				if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
-					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item].output, mixer->dsp->Channel[state->gui_selected_item].inputSource);
+				if (state->gui_selected_item < MAX_DSP1_TO_FPGA_CHANNELS) {
+					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item].input, mixer->dsp->Channel[state->gui_selected_item].input);
 					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item].tapPoint);
-				}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS))) {
-					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS].output, 0);
-					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS].tapPoint);
-				}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS+MAX_DSP_FXCHANNELS+MAX_DSP_AUXCHANNELS))) {
-					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp2AuxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS-MAX_DSP_FXCHANNELS].outputSource, 0);
-					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp2AuxChannel[state->gui_selected_item-MAX_DSP_OUTPUTCHANNELS-MAX_DSP_FXCHANNELS].outputTapPoint);
+				}else if ((state->gui_selected_item >= MAX_DSP1_TO_FPGA_CHANNELS) && (state->gui_selected_item < (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS))) {
+					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item-MAX_DSP1_TO_FPGA_CHANNELS].input, 0);
+					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item-MAX_DSP1_TO_FPGA_CHANNELS].tapPoint);
 				}
 
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, state->gui_selected_item, 2, "%s", outputSourceName);
@@ -121,12 +108,10 @@ class PageRoutingDsp2: public Page {
 					}
 					break;
 				case X32_ENC_ENCODER3:
-					if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
+					if (state->gui_selected_item < MAX_DSP1_TO_FPGA_CHANNELS) {
 						mixer->ChangeDspOutput(state->gui_selected_item, amount);
-					}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
-						mixer->ChangeDspFxOutput(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS, amount);
-					}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
-						mixer->ChangeDspAuxOutput(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, amount);
+					}else if ((state->gui_selected_item >= MAX_DSP1_TO_FPGA_CHANNELS) && (state->gui_selected_item < (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS))) {
+						mixer->ChangeDspFxOutput(state->gui_selected_item - MAX_DSP1_TO_FPGA_CHANNELS, amount);
 					}
 					break;
 				case X32_ENC_ENCODER4:
@@ -137,22 +122,18 @@ class PageRoutingDsp2: public Page {
 						absoluteChange = 8;
 					}
 					for (uint8_t i=state->gui_selected_item; i<(state->gui_selected_item+8); i++) {
-						if (i < MAX_DSP_OUTPUTCHANNELS) {
+						if (i < MAX_DSP1_TO_FPGA_CHANNELS) {
 							mixer->ChangeDspOutput(i, absoluteChange);
-						}else if ((i >= MAX_DSP_OUTPUTCHANNELS) && (i < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
-							mixer->ChangeDspFxOutput(i - MAX_DSP_OUTPUTCHANNELS, absoluteChange);
-						}else if ((i >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (i < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
-							mixer->ChangeDspAuxOutput(i - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, absoluteChange);
+						}else if ((i >= MAX_DSP1_TO_FPGA_CHANNELS) && (i < (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS))) {
+							mixer->ChangeDspFxOutput(i - MAX_DSP1_TO_FPGA_CHANNELS, absoluteChange);
 						}
 					}
 					break;
 				case X32_ENC_ENCODER5:
-					if (state->gui_selected_item < MAX_DSP_OUTPUTCHANNELS) {
+					if (state->gui_selected_item < MAX_DSP1_TO_FPGA_CHANNELS) {
 						mixer->ChangeDspOutputTapPoint(state->gui_selected_item, amount);
-					}else if ((state->gui_selected_item >= MAX_DSP_OUTPUTCHANNELS) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS))) {
-						mixer->ChangeDspFxOutputTapPoint(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS, amount);
-					}else if ((state->gui_selected_item >= (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS)) && (state->gui_selected_item < (MAX_DSP_OUTPUTCHANNELS + MAX_DSP_FXCHANNELS + MAX_DSP_AUXCHANNELS))) {
-						mixer->ChangeDspAuxOutputTapPoint(state->gui_selected_item - MAX_DSP_OUTPUTCHANNELS - MAX_DSP_AUXCHANNELS, amount);
+					}else if ((state->gui_selected_item >= MAX_DSP1_TO_FPGA_CHANNELS) && (state->gui_selected_item < (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS))) {
+						mixer->ChangeDspFxOutputTapPoint(state->gui_selected_item - MAX_DSP1_TO_FPGA_CHANNELS, amount);
 					}
 					break;
 				case X32_ENC_ENCODER6:

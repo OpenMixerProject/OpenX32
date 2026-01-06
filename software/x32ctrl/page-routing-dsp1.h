@@ -20,22 +20,22 @@ class PageRoutingDsp1: public Page {
 		}
 
 		void OnInit() override {
-			if (state->gui_selected_item >= MAX_DSP_INPUTCHANNELS) {
+			if (state->gui_selected_item >= MAX_FPGA_TO_DSP1_CHANNELS) {
 				state->gui_selected_item = 0;
 			}else if (state->gui_selected_item < 0) {
-				state->gui_selected_item = MAX_DSP_INPUTCHANNELS - 1;
+				state->gui_selected_item = MAX_FPGA_TO_DSP1_CHANNELS - 1;
 			}
 
-			lv_table_set_row_count(objects.table_routing_dsp_input, MAX_DSP_INPUTCHANNELS); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+			lv_table_set_row_count(objects.table_routing_dsp_input, MAX_FPGA_TO_DSP1_CHANNELS); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
 			lv_table_set_column_count(objects.table_routing_dsp_input, 5); // Input | # | Source | # | Tap
 			lv_table_set_column_width(objects.table_routing_dsp_input, 0, 200);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 1, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 2, 200);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 3, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 4, 100);
-			for (uint8_t i=0; i < MAX_DSP_INPUTCHANNELS; i++){
+			for (uint8_t i=0; i < MAX_FPGA_TO_DSP1_CHANNELS; i++){
 				mixer->dsp->RoutingGetInputNameByIndex(&inputChannelName[0], i+1);
-				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[i].inputSource, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[i].inputSource - 1]);
+				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[i].input, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[i].input - 1]);
 				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[i].inputTapPoint);
 
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, i, 0, "%s", inputChannelName);
@@ -49,10 +49,10 @@ class PageRoutingDsp1: public Page {
 
 		void OnChange() override {
 			if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
-				if (state->gui_selected_item >= MAX_DSP_INPUTCHANNELS) {
+				if (state->gui_selected_item >= MAX_FPGA_TO_DSP1_CHANNELS) {
 					state->gui_selected_item = 0;
 				}else if (state->gui_selected_item < 0) {
-					state->gui_selected_item = MAX_DSP_INPUTCHANNELS - 1;
+					state->gui_selected_item = MAX_FPGA_TO_DSP1_CHANNELS - 1;
 				}
 
 				if (state->gui_selected_item != state->gui_old_selected_item ) {
@@ -72,7 +72,7 @@ class PageRoutingDsp1: public Page {
 			} 
 			
 			if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
-				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[state->gui_selected_item].inputSource, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[state->gui_selected_item].inputSource - 1]);
+				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[state->gui_selected_item].input, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[state->gui_selected_item].input - 1]);
 				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[state->gui_selected_item].inputTapPoint);
 
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, state->gui_selected_item, 2, "%s", inputSourceName);

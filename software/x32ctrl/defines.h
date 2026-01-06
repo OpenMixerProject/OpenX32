@@ -24,10 +24,10 @@
 #define MAX_CHAN_EQS                       4
 #define NUM_INPUT_CHANNEL                  112  // at the moment we are not using AES50A and AES50B
 #define NUM_OUTPUT_CHANNEL                 112  // at the moment we are not using AES50A and AES50B
-#define MAX_DSP_INPUTCHANNELS              40
-#define MAX_DSP_OUTPUTCHANNELS             40
-#define MAX_DSP_FXCHANNELS                 16
-#define MAX_DSP_AUXCHANNELS                8
+#define MAX_FPGA_TO_DSP1_CHANNELS          40
+#define MAX_DSP1_TO_FPGA_CHANNELS          40
+#define MAX_DSP1_TO_DSP2_CHANNELS          24
+#define MAX_DSP2_TO_DSP1_CHANNELS          24
 #define DSP_MAX_INTERNAL_CHANNELS          93
 #define DSP_SAMPLES_IN_BUFFER              16
 

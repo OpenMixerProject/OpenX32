@@ -121,7 +121,7 @@ typedef struct {
 
 // values stored in config
 typedef struct {
-  uint8_t inputSource; // controls the 40 audio-channels into the DSP
+  uint8_t input; // controls the 40 audio-channels into the DSP
   uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
 
   float lowCutFrequency;
@@ -138,12 +138,12 @@ typedef struct {
 } sDspChannel;
 
 typedef struct {
-  uint8_t output; // controls the 40 audio-channels out of the DSP
+  uint8_t input; // controls the 40 audio-channels out of the DSP
   uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
 } sDspOutchannel;
 
 typedef struct {
-  uint8_t output; // controls which channel should be routed to DSP2 (FX)
+  uint8_t input; // controls which channel should be routed to DSP2 (FX)
   uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
 } sFxChannel;
 

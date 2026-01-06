@@ -34,15 +34,14 @@ class DSP1 : X32Base {
         uint8_t monitorTapPoint;
 
     public:
-        srDspChannel rChannel[MAX_DSP_INPUTCHANNELS];  // values used only during runtime
-        sDspChannel Channel[MAX_DSP_INPUTCHANNELS]; // values stored in config
+        srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS];  // values used only during runtime
+        sDspChannel Channel[MAX_FPGA_TO_DSP1_CHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
         sMatrixChannel Matrix[6];
-        sFxChannel Dsp1toDsp2Routing[MAX_DSP_FXCHANNELS];
-        sDsp2AuxChannel Dsp2AuxChannel[MAX_DSP_AUXCHANNELS];
+        sFxChannel Dsp1toDsp2Routing[MAX_DSP1_TO_DSP2_CHANNELS];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
-        sDspOutchannel Dsp1toFpgaRouting[MAX_DSP_OUTPUTCHANNELS];
+        sDspOutchannel Dsp1toFpgaRouting[MAX_DSP1_TO_FPGA_CHANNELS];
         float volumeFxReturn[8];
         float volumeDca[8];
 
