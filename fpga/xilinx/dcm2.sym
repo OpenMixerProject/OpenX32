@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<symbol version="7" name="dcm1">
+<symbol version="7" name="dcm2">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2026-1-7T12:29:33</timestamp>
+    <timestamp>2026-1-7T12:36:48</timestamp>
     <pin polarity="Input" x="0" y="-224" name="RST_IN" />
     <pin polarity="Input" x="0" y="-32" name="CLKIN_IN" />
     <pin polarity="Output" x="464" y="-224" name="LOCKED_OUT" />
@@ -9,19 +9,19 @@
     <pin polarity="Output" x="464" y="-96" name="CLKIN_IBUFG_OUT" />
     <pin polarity="Output" x="464" y="-32" name="CLK0_OUT" />
     <graph>
+        <rect width="336" x="64" y="-256" height="256" />
         <attrtext style="alignment:BCENTER;fontsize:56;fontname:Arial" attrname="SymbolName" x="232" y="-264" type="symbol" />
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-224" type="pin RST_IN" />
-        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin CLKIN_IN" />
-        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-224" type="pin LOCKED_OUT" />
-        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-160" type="pin CLKFX_OUT" />
-        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-96" type="pin CLKIN_IBUFG_OUT" />
-        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-32" type="pin CLK0_OUT" />
-        <rect width="336" x="64" y="-256" height="256" />
         <line x2="0" y1="-224" y2="-224" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin CLKIN_IN" />
         <line x2="0" y1="-32" y2="-32" x1="64" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-224" type="pin LOCKED_OUT" />
         <line x2="464" y1="-224" y2="-224" x1="400" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-160" type="pin CLKFX_OUT" />
         <line x2="464" y1="-160" y2="-160" x1="400" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-96" type="pin CLKIN_IBUFG_OUT" />
         <line x2="464" y1="-96" y2="-96" x1="400" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="392" y="-32" type="pin CLK0_OUT" />
         <line x2="464" y1="-32" y2="-32" x1="400" />
     </graph>
 </symbol>

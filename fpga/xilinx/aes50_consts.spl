@@ -1,0 +1,12 @@
+[Inputs]
+[Outputs]
+=debug_out_signal_pulse_len[19:0]=
+=first_transmit_start_counter_48k[22:0]=
+=first_transmit_start_counter_44k1[22:0]=
+=wd_aes_clk_timeout[5:0]=
+=wd_aes_rx_dv_timeout[14:0]=
+=mdix_timer_1ms_reference[16:0]=
+=aes_clk_ok_counter_reference[19:0]=
+=mult_clk625_48k[31:0]=
+=mult_clk625_44k1[31:0]=
+[BiDir]

@@ -182,6 +182,74 @@ NET "AD0_RX" IOSTANDARD = LVCMOS33;
 NET "AD0_MCLK" IOSTANDARD = LVCMOS33;
 NET "AD0_FSYNC" IOSTANDARD = LVCMOS33;
 
-# PlanAhead Generated physical constraints 
 
 NET "PLL_AUX" LOC = T9;
+
+# PlanAhead Generated physical constraints 
+
+NET "aes50a_clk_a_rx_in" LOC = A12;
+NET "aes50a_clk_a_rx_nen_out" LOC = B12;
+NET "aes50a_clk_a_tx_en_out" LOC = C12;
+NET "aes50a_clk_a_tx_out" LOC = A13;
+NET "aes50a_clk_b_rx_in" LOC = C13;
+NET "aes50a_clk_b_rx_nen_out" LOC = A14;
+NET "aes50a_clk_b_tx_en_out" LOC = B14;
+NET "aes50a_clk_b_tx_out" LOC = B15;
+NET "aes50a_phy_rst_n_out" LOC = C11;
+NET "aes50a_rmii_clk_out" LOC = C16;
+NET "aes50a_rmii_crs_dv_in" LOC = D14;
+NET "aes50a_rmii_tx_en_out" LOC = F16;
+NET "aes50a_rmii_txd_0_out" LOC = F15;
+NET "aes50a_rmii_txd_1_out" LOC = F14;
+
+# PlanAhead Generated IO constraints 
+
+NET "PLL_AUX" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_rx_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_txd_1_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_txd_0_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_crs_dv_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_clk_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_phy_rst_n_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_rx_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "AD0_MCLK" SLEW = FAST;
+NET "AD0_BCLK" SLEW = FAST;
+NET "AD1_BCLK" SLEW = FAST;
+NET "AD1_MCLK" SLEW = FAST;
+NET "aes50a_clk_a_tx_out" SLEW = FAST;
+NET "aes50a_clk_b_tx_out" SLEW = FAST;
+NET "aes50a_rmii_clk_out" SLEW = FAST;
+NET "aes50a_rmii_txd_0_out" SLEW = FAST;
+NET "aes50a_rmii_txd_1_out" SLEW = FAST;
+NET "AUX_DA" SLEW = FAST;
+NET "AUX_MCLK" SLEW = FAST;
+NET "AUX_SCLK" SLEW = FAST;
+NET "CARD_BCLK" SLEW = FAST;
+NET "CARD_OUT0" SLEW = FAST;
+NET "CARD_OUT1" SLEW = FAST;
+NET "CARD_OUT2" SLEW = FAST;
+NET "CARD_OUT3" SLEW = FAST;
+NET "D_CLK" SLEW = FAST;
+NET "D_CLK2" SLEW = FAST;
+NET "DA_BCLK" SLEW = FAST;
+NET "DA_DATA0" SLEW = FAST;
+NET "DA_DATA1" SLEW = FAST;
+NET "DA_MCLK" SLEW = FAST;
+NET "DSP_DIN0" SLEW = FAST;
+NET "DSP_DIN1" SLEW = FAST;
+NET "DSP_DIN2" SLEW = FAST;
+NET "DSP_DIN3" SLEW = FAST;
+NET "DSP_DINAUX" SLEW = FAST;
+NET "P16_A_TXM" SLEW = FAST;
+NET "P16_A_TXP" SLEW = FAST;
+NET "P16_B_TXM" SLEW = FAST;
+NET "P16_B_TXP" SLEW = FAST;
+NET "PLL_IN" SLEW = FAST;
+NET "SPI_MISO" SLEW = FAST;

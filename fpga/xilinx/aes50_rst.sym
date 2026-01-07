@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<symbol version="7" name="aes50_rst">
+    <symboltype>BLOCK</symboltype>
+    <timestamp>2026-1-7T11:52:44</timestamp>
+    <pin polarity="Input" x="0" y="-96" name="clk100_i" />
+    <pin polarity="Input" x="0" y="-32" name="start_i" />
+    <pin polarity="Output" x="384" y="-96" name="rst_o" />
+    <graph>
+        <rect width="256" x="64" y="-128" height="128" />
+        <attrtext style="alignment:BCENTER;fontsize:56;fontname:Arial" attrname="SymbolName" x="192" y="-136" type="symbol" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-96" type="pin clk100_i" />
+        <line x2="0" y1="-96" y2="-96" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin start_i" />
+        <line x2="0" y1="-32" y2="-32" x1="64" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="312" y="-96" type="pin rst_o" />
+        <line x2="384" y1="-96" y2="-96" x1="320" />
+    </graph>
+</symbol>
