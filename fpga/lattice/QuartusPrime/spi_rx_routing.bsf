@@ -55,15 +55,15 @@ on the Quartus Prime software download page.
 	(port
 		(pt 224 32)
 		(output)
-		(text "o_cfg_wr_addr[6..0]" (rect 0 0 82 12)(font "Arial" ))
-		(text "o_cfg_wr_addr[6..0]" (rect 121 27 203 39)(font "Arial" ))
+		(text "o_cfg_wr_addr[7..0]" (rect 0 0 82 12)(font "Arial" ))
+		(text "o_cfg_wr_addr[7..0]" (rect 121 27 203 39)(font "Arial" ))
 		(line (pt 224 32)(pt 208 32)(line_width 3))
 	)
 	(port
 		(pt 224 48)
 		(output)
-		(text "o_cfg_wr_data[6..0]" (rect 0 0 81 12)(font "Arial" ))
-		(text "o_cfg_wr_data[6..0]" (rect 122 43 203 55)(font "Arial" ))
+		(text "o_cfg_wr_data[7..0]" (rect 0 0 81 12)(font "Arial" ))
+		(text "o_cfg_wr_data[7..0]" (rect 122 43 203 55)(font "Arial" ))
 		(line (pt 224 48)(pt 208 48)(line_width 3))
 	)
 	(port

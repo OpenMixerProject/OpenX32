@@ -1,0 +1,93 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 16 16 280 224)
+	(text "aes50_consts" (rect 5 0 60 12)(font "Arial" ))
+	(text "inst" (rect 8 192 20 204)(font "Arial" ))
+	(port
+		(pt 264 32)
+		(output)
+		(text "debug_out_signal_pulse_len[19..0]" (rect 0 0 134 12)(font "Arial" ))
+		(text "debug_out_signal_pulse_len[19..0]" (rect 109 27 243 39)(font "Arial" ))
+		(line (pt 264 32)(pt 248 32)(line_width 3))
+	)
+	(port
+		(pt 264 48)
+		(output)
+		(text "first_transmit_start_counter_48k[22..0]" (rect 0 0 158 12)(font "Arial" ))
+		(text "first_transmit_start_counter_48k[22..0]" (rect 85 43 243 55)(font "Arial" ))
+		(line (pt 264 48)(pt 248 48)(line_width 3))
+	)
+	(port
+		(pt 264 64)
+		(output)
+		(text "first_transmit_start_counter_44k1[22..0]" (rect 0 0 162 12)(font "Arial" ))
+		(text "first_transmit_start_counter_44k1[22..0]" (rect 81 59 243 71)(font "Arial" ))
+		(line (pt 264 64)(pt 248 64)(line_width 3))
+	)
+	(port
+		(pt 264 80)
+		(output)
+		(text "wd_aes_clk_timeout[5..0]" (rect 0 0 101 12)(font "Arial" ))
+		(text "wd_aes_clk_timeout[5..0]" (rect 142 75 243 87)(font "Arial" ))
+		(line (pt 264 80)(pt 248 80)(line_width 3))
+	)
+	(port
+		(pt 264 96)
+		(output)
+		(text "wd_aes_rx_dv_timeout[14..0]" (rect 0 0 120 12)(font "Arial" ))
+		(text "wd_aes_rx_dv_timeout[14..0]" (rect 123 91 243 103)(font "Arial" ))
+		(line (pt 264 96)(pt 248 96)(line_width 3))
+	)
+	(port
+		(pt 264 112)
+		(output)
+		(text "mdix_timer_1ms_reference[16..0]" (rect 0 0 135 12)(font "Arial" ))
+		(text "mdix_timer_1ms_reference[16..0]" (rect 108 107 243 119)(font "Arial" ))
+		(line (pt 264 112)(pt 248 112)(line_width 3))
+	)
+	(port
+		(pt 264 128)
+		(output)
+		(text "aes_clk_ok_counter_reference[19..0]" (rect 0 0 149 12)(font "Arial" ))
+		(text "aes_clk_ok_counter_reference[19..0]" (rect 94 123 243 135)(font "Arial" ))
+		(line (pt 264 128)(pt 248 128)(line_width 3))
+	)
+	(port
+		(pt 264 144)
+		(output)
+		(text "mult_clk625_48k[31..0]" (rect 0 0 92 12)(font "Arial" ))
+		(text "mult_clk625_48k[31..0]" (rect 151 139 243 151)(font "Arial" ))
+		(line (pt 264 144)(pt 248 144)(line_width 3))
+	)
+	(port
+		(pt 264 160)
+		(output)
+		(text "mult_clk625_44k1[31..0]" (rect 0 0 96 12)(font "Arial" ))
+		(text "mult_clk625_44k1[31..0]" (rect 147 155 243 167)(font "Arial" ))
+		(line (pt 264 160)(pt 248 160)(line_width 3))
+	)
+	(drawing
+		(rectangle (rect 16 16 248 192)(line_width 1))
+	)
+)

@@ -19,6 +19,7 @@ initramfs_root/sys
 initramfs_root/home
 
 # compiled software
+software/x32ctrl/.vscode/tasks.json
 software/x32ctrl/build
 software/bin
 
@@ -98,7 +99,13 @@ software/x32ctrl-ng/.vscode/settings.json
 
 # Lattice Diamond
 fpga/lattice/impl*/
+fpga/lattice/.floorplanner.ini
+fpga/lattice/QuartusPrime/openx32.qws
 fpga/lattice/QuartusPrime/db/
+fpga/lattice/pll/archv
+fpga/lattice/pll/aes50_clk_ddr/syn_results
+fpga/lattice/pll/lattice_pll_audio/syn_results
+fpga/lattice/pll/lattice_pll/syn_results
 *.dir/
 *.html
 *.xml
@@ -113,4 +120,3 @@ fpga/lattice/QuartusPrime/db/
 *.srp
 *.dmp
 ._Real_._Math_.vhd
-software/x32ctrl/.vscode/tasks.json

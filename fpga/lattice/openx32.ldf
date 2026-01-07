@@ -4,7 +4,7 @@
         <Option name="HDL type" value="VHDL"/>
     </Options>
     <Implementation title="impl1" dir="impl1" description="impl1" synthesis="synplify" default_strategy="Strategy1">
-        <Options def_top="and4_gate" top="main"/>
+        <Options def_top="audioclk_slow" top="main"/>
         <Source name="../audioclk.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
@@ -29,7 +29,7 @@
         <Source name="../ddfs_drom.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../main.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../main_lattice.vhd" type="VHDL" type_short="VHDL">
             <Options top_module="main"/>
         </Source>
         <Source name="../reset.vhd" type="VHDL" type_short="VHDL">
@@ -87,6 +87,78 @@
             <Options/>
         </Source>
         <Source name="../spi_rx_routing.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_clockmanager.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_cs2x00_pll_controller.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_dual_port_bram.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_i2c_master.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_ring_buffer.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_rmii_crc32.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_rmii_transceiver.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_rx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_tdm_if.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_top.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../AES50/AES50 IP/SRC/aes50_tx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../aes50_consts.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../tdm_tx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../tdm_rx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../zeros_const.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="pll/pll.sbx" type="sbx" type_short="SBX">
+            <Options/>
+        </Source>
+        <Source name="pll/lattice_pll/lattice_pll.v" type="Verilog" type_short="Verilog">
+            <Options/>
+        </Source>
+        <Source name="../tdm_demux.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../aes50_rst.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../bclk_2_fsync.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="pll/aes50_clk_ddr/aes50_clk_ddr.v" type="Verilog" type_short="Verilog">
+            <Options/>
+        </Source>
+        <Source name="../tdm_multichan_rx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../tdm_multichan_tx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audioclk_slow.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="impl1/impl1.xcf" type="Programming Project File" type_short="Programming">

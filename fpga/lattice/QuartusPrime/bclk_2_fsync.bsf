@@ -1,0 +1,44 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 16 16 176 96)
+	(text "bclk_2_fsync" (rect 5 0 60 12)(font "Arial" ))
+	(text "inst" (rect 8 64 20 76)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "bclk_i" (rect 0 0 22 12)(font "Arial" ))
+		(text "bclk_i" (rect 21 27 43 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32)(line_width 1))
+	)
+	(port
+		(pt 160 32)
+		(output)
+		(text "fsync_o" (rect 0 0 34 12)(font "Arial" ))
+		(text "fsync_o" (rect 105 27 139 39)(font "Arial" ))
+		(line (pt 160 32)(pt 144 32)(line_width 1))
+	)
+	(drawing
+		(rectangle (rect 16 16 144 64)(line_width 1))
+	)
+)

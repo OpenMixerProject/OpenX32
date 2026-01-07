@@ -33,24 +33,23 @@ use ieee.numeric_std.all;
 entity audiomatrix_ram is
 	generic (
 		DATA_WIDTH				: integer := 24;	-- 24-bit audio-samples
-		NUM_INPUT_PORTS		: integer := 112;	-- 32x Analog-Input, 32x Card-Input, 8x AUX-Input, 40 DSP-Output
-		RAM_DEPTH				: integer := 128; -- 32x Analog-Input, 32x Card-Input, 8x AUX-Input, 40 DSP-Output
-		ADDR_WIDTH         	: integer := 7    -- log2(112) = 7
+		RAM_DEPTH				: integer := 256; -- 32x Analog-Input, 32x Card-Input, 8x AUX-Input, 40x DSP-Output, 48x AES50A, 48x AES50B
+		ADDR_WIDTH         	: integer := 8    -- log2(208) = 8
 	);
 	port (
 		clk						: in std_logic;
-		write_addr				: in std_logic_vector(ADDR_WIDTH - 1 downto 0); -- log2(112) = 7
+		write_addr				: in std_logic_vector(ADDR_WIDTH - 1 downto 0); -- log2(208) = 8
 		i_data					: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 		wr_en						: in std_logic;
 
-		read_addr				: in std_logic_vector(ADDR_WIDTH - 1 downto 0); -- log2(112) = 7
+		read_addr				: in std_logic_vector(ADDR_WIDTH - 1 downto 0); -- log2(208) = 8 (0 = OFF, 1=XLR1, 2=XLR2, ...)
 
 		o_data					: out std_logic_vector(DATA_WIDTH - 1 downto 0)
 	);
 end entity audiomatrix_ram;
 
 architecture behavioral of audiomatrix_ram is
-	type ram_type is array (RAM_DEPTH - 1 downto 0) of std_logic_vector(DATA_WIDTH - 1 downto 0); -- we are using only 112 elements, but we take 2^7 RAM-elements to match the full address-range of 7-bit address-pointers
+	type ram_type is array (RAM_DEPTH - 1 downto 0) of std_logic_vector(DATA_WIDTH - 1 downto 0); -- we are using only 208 elements, but we take 2^8 RAM-elements to match the full address-range of 8-bit address-pointers
 	signal ram_inst : ram_type;
 begin
 	process(clk)

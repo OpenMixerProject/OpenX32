@@ -1,8 +1,0 @@
-[Inputs]
-clk
-sync_in
-=i_ram_data[23:0]=
-[Outputs]
-=output_channel_idx[6:0]=
-=output_data[2687:0]=
-[BiDir]

@@ -75,22 +75,36 @@ architecture behavioral of cs2000cp_config is
 		(x"04", "00000001"), -- Hybrid-PLL mode and lock-clock-ratio to 0
 		
 		-- ratio for 12.288 MHz clock-output
+		-- 16MHz -> 12.288 MHz = x0.768 -> 2^20 * 0.768 =  805306 = 0x000C49BA
 		--(x"06", x"00"), -- Multiplicator-Value MSB
 		--(x"07", x"0C"), -- Multiplicator-Value
 		--(x"08", x"49"), -- Multiplicator-Value
 		--(x"09", x"BA"), -- Multiplicator-Value LSB
 
 		-- ratio for 24.576 MHz clock-output
+		-- 16MHz -> 24.576 MHz = x1.536 -> 2^20 * 1.536 = 1610613 = 0x00189375
+		--(x"06", x"00"), -- Multiplicator-Value MSB
+		--(x"07", x"18"), -- Multiplicator-Value
+		--(x"08", x"93"), -- Multiplicator-Value
+		--(x"09", x"75"), -- Multiplicator-Value LSB
+
+		-- ratio for 49.152 MHz clock-output
+		-- 16MHz -> 49.152 MHz = x3.072 -> 2^20 * 3.072 = 3221225 = 0x003126E9
 		(x"06", x"00"), -- Multiplicator-Value MSB
-		(x"07", x"18"), -- Multiplicator-Value
-		(x"08", x"93"), -- Multiplicator-Value
-		(x"09", x"75"), -- Multiplicator-Value LSB
+		(x"07", x"31"), -- Multiplicator-Value
+		(x"08", x"26"), -- Multiplicator-Value
+		(x"09", x"E9"), -- Multiplicator-Value LSB
+
+		-- ratio for 49.152 MHz clock-output
+		-- 6.25MHz -> 49.152 MHz = x7.864319801 -> 2^20 * 3.072 = 8246337 = 0x003126E9
+		--(x"06", x"00"), -- Multiplicator-Value MSB
+		--(x"07", x"7D"), -- Multiplicator-Value
+		--(x"08", x"D4"), -- Multiplicator-Value
+		--(x"09", x"41"), -- Multiplicator-Value LSB
 
 		(x"02", "00000000"), -- Enable CLK- and AUX-Output
 		(x"05", "00000001")  -- Set Freeze to 0 -> changes take effect immediately
 	);
-	-- 16MHz -> 12.288 MHz = x0.768 -> 2^20 * 0.768 = 805306 = 0x000C49BA
-	-- 16MHz -> 24.576 MHz = x1.536 -> 2^20 * 1.536 = 1610613 = 0x00189375
 begin
 	process (clk)
 	begin

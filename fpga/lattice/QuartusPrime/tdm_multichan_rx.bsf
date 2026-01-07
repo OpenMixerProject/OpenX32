@@ -1,0 +1,69 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 16 16 392 128)
+	(text "tdm_multichan_rx" (rect 5 0 76 12)(font "Arial" ))
+	(text "inst" (rect 8 96 20 108)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "bclk" (rect 0 0 15 12)(font "Arial" ))
+		(text "bclk" (rect 21 27 36 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32)(line_width 1))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "fsync" (rect 0 0 23 12)(font "Arial" ))
+		(text "fsync" (rect 21 43 44 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 1))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "tdm_in[(tdm_receiver-1)..0]" (rect 0 0 109 12)(font "Arial" ))
+		(text "tdm_in[(tdm_receiver-1)..0]" (rect 21 59 130 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 376 32)
+		(output)
+		(text "data_out[((tdm_receiver*data_width)-1)..0]" (rect 0 0 165 12)(font "Arial" ))
+		(text "data_out[((tdm_receiver*data_width)-1)..0]" (rect 190 27 355 39)(font "Arial" ))
+		(line (pt 376 32)(pt 360 32)(line_width 3))
+	)
+	(parameter
+		"TDM_RECEIVER"
+		"20"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 360 96)(line_width 1))
+	)
+	(annotation_block (parameter)(rect 392 -64 492 16))
+)

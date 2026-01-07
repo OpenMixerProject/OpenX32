@@ -113,7 +113,7 @@ begin
 				end if;
 
 			elsif (s_SM = s_Done) then
-				-- stay here until next start-request
+				-- stay here forever
 				mapaddress <= x"00";
 				data <= x"00";
 				count_cfg <= 0;

@@ -21,7 +21,7 @@ on the Quartus Prime software download page.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 376 160)
+	(rect 16 16 352 160)
 	(text "audiomatrix_routing_ram" (rect 5 0 104 12)(font "Arial" ))
 	(text "inst" (rect 8 128 20 140)(font "Arial" ))
 	(port
@@ -55,29 +55,29 @@ on the Quartus Prime software download page.
 	(port
 		(pt 0 96)
 		(input)
-		(text "output_channel_idx[(addr_width-1)..0]" (rect 0 0 146 12)(font "Arial" ))
-		(text "output_channel_idx[(addr_width-1)..0]" (rect 21 91 167 103)(font "Arial" ))
+		(text "channel_idx[(addr_width-1)..0]" (rect 0 0 116 12)(font "Arial" ))
+		(text "channel_idx[(addr_width-1)..0]" (rect 21 91 137 103)(font "Arial" ))
 		(line (pt 0 96)(pt 16 96)(line_width 3))
 	)
 	(port
-		(pt 360 32)
+		(pt 336 32)
 		(output)
 		(text "read_addr[(addr_width-1)..0]" (rect 0 0 112 12)(font "Arial" ))
-		(text "read_addr[(addr_width-1)..0]" (rect 227 27 339 39)(font "Arial" ))
-		(line (pt 360 32)(pt 344 32)(line_width 3))
+		(text "read_addr[(addr_width-1)..0]" (rect 203 27 315 39)(font "Arial" ))
+		(line (pt 336 32)(pt 320 32)(line_width 3))
 	)
 	(parameter
 		"RAM_DEPTH"
-		"128"
+		"256"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"ADDR_WIDTH"
-		"7"
+		"8"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
-		(rectangle (rect 16 16 344 128)(line_width 1))
+		(rectangle (rect 16 16 320 128)(line_width 1))
 	)
-	(annotation_block (parameter)(rect 376 -64 476 16))
+	(annotation_block (parameter)(rect 352 -64 452 16))
 )

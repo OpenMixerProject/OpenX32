@@ -1,0 +1,139 @@
+(edif aes50_clk_ddr
+  (edifVersion 2 0 0)
+  (edifLevel 0)
+  (keywordMap (keywordLevel 0))
+  (status
+    (written
+      (timestamp 2026 1 4 23 35 24)
+      (program "SCUBA" (version "Diamond (64-bit) 3.14.0.75.2"))))
+      (comment "C:\Programme2\Lattice\Diamond\3.14\ispfpga\bin\nt64\scuba.exe -w -n aes50_clk_ddr -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type iol -mode Transmit -io_type LVCMOS33 -width 1 -freq_in 50.00 -gear 2 -aligned -del -1 -fdc O:/fpga/lattice/pll/aes50_clk_ddr/aes50_clk_ddr.fdc ")
+  (library ORCLIB
+    (edifLevel 0)
+    (technology
+      (numberDefinition))
+    (cell VHI
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell VLO
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell OB
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port I
+            (direction INPUT))
+          (port O
+            (direction OUTPUT)))))
+    (cell ODDRX1F
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port SCLK
+            (direction INPUT))
+          (port RST
+            (direction INPUT))
+          (port D0
+            (direction INPUT))
+          (port D1
+            (direction INPUT))
+          (port Q
+            (direction OUTPUT)))))
+    (cell aes50_clk_ddr
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port clkout
+            (direction OUTPUT))
+          (port refclk
+            (direction INPUT))
+          (port reset
+            (direction INPUT))
+          (port (array (rename data "data(1:0)") 2)
+            (direction INPUT))
+          (port (array (rename dout "dout(0:0)") 1)
+            (direction OUTPUT)))
+        (property NGD_DRC_MASK (integer 1))
+        (contents
+          (instance Inst4_ODDRX1F0
+            (viewRef view1 
+              (cellRef ODDRX1F)))
+          (instance scuba_vlo_inst
+            (viewRef view1 
+              (cellRef VLO)))
+          (instance scuba_vhi_inst
+            (viewRef view1 
+              (cellRef VHI)))
+          (instance Inst3_ODDRX1F
+            (viewRef view1 
+              (cellRef ODDRX1F)))
+          (instance Inst2_OB
+            (viewRef view1 
+              (cellRef OB))
+            (property IO_TYPE
+              (string "LVCMOS33")))
+          (instance Inst1_OB0
+            (viewRef view1 
+              (cellRef OB))
+            (property IO_TYPE
+              (string "LVCMOS33")))
+          (net db0
+            (joined
+              (portRef D1 (instanceRef Inst4_ODDRX1F0))
+              (portRef (member data 0))))
+          (net da0
+            (joined
+              (portRef D0 (instanceRef Inst4_ODDRX1F0))
+              (portRef (member data 1))))
+          (net scuba_vlo
+            (joined
+              (portRef Z (instanceRef scuba_vlo_inst))
+              (portRef D1 (instanceRef Inst3_ODDRX1F))))
+          (net scuba_vhi
+            (joined
+              (portRef Z (instanceRef scuba_vhi_inst))
+              (portRef D0 (instanceRef Inst3_ODDRX1F))))
+          (net sclk_t
+            (joined
+              (portRef SCLK (instanceRef Inst4_ODDRX1F0))
+              (portRef refclk)))
+          (net clkos
+            (joined
+              (portRef SCLK (instanceRef Inst3_ODDRX1F))
+              (portRef refclk)))
+          (net buf_clkout
+            (joined
+              (portRef I (instanceRef Inst2_OB))
+              (portRef Q (instanceRef Inst3_ODDRX1F))))
+          (net buf_douto0
+            (joined
+              (portRef I (instanceRef Inst1_OB0))
+              (portRef Q (instanceRef Inst4_ODDRX1F0))))
+          (net dout0
+            (joined
+              (portRef (member dout 0))
+              (portRef O (instanceRef Inst1_OB0))))
+          (net reset
+            (joined
+              (portRef reset)
+              (portRef RST (instanceRef Inst4_ODDRX1F0))
+              (portRef RST (instanceRef Inst3_ODDRX1F))))
+          (net clkout
+            (joined
+              (portRef clkout)
+              (portRef O (instanceRef Inst2_OB))))))))
+  (design aes50_clk_ddr
+    (cellRef aes50_clk_ddr
+      (libraryRef ORCLIB)))
+)

@@ -21,7 +21,7 @@ on the Quartus Prime software download page.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 432 128)
+	(rect 16 16 384 128)
 	(text "audiomatrix_ram_read" (rect 5 0 95 12)(font "Arial" ))
 	(text "inst" (rect 8 96 20 108)(font "Arial" ))
 	(port
@@ -34,31 +34,43 @@ on the Quartus Prime software download page.
 	(port
 		(pt 0 48)
 		(input)
-		(text "sync_in" (rect 0 0 31 12)(font "Arial" ))
-		(text "sync_in" (rect 21 43 52 55)(font "Arial" ))
+		(text "bclk" (rect 0 0 15 12)(font "Arial" ))
+		(text "bclk" (rect 21 43 36 55)(font "Arial" ))
 		(line (pt 0 48)(pt 16 48)(line_width 1))
 	)
 	(port
 		(pt 0 64)
 		(input)
-		(text "i_ram_data[(data_width-1)..0]" (rect 0 0 115 12)(font "Arial" ))
-		(text "i_ram_data[(data_width-1)..0]" (rect 21 59 136 71)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
+		(text "fsync" (rect 0 0 23 12)(font "Arial" ))
+		(text "fsync" (rect 21 59 44 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 1))
 	)
 	(port
-		(pt 416 32)
-		(output)
-		(text "output_channel_idx[6..0]" (rect 0 0 95 12)(font "Arial" ))
-		(text "output_channel_idx[6..0]" (rect 300 27 395 39)(font "Arial" ))
-		(line (pt 416 32)(pt 400 32)(line_width 3))
+		(pt 0 80)
+		(input)
+		(text "ram_data[(data_width-1)..0]" (rect 0 0 108 12)(font "Arial" ))
+		(text "ram_data[(data_width-1)..0]" (rect 21 75 129 87)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 3))
 	)
 	(port
-		(pt 416 48)
+		(pt 368 32)
 		(output)
-		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 0 0 195 12)(font "Arial" ))
-		(text "output_data[((num_output_ports*data_width)-1)..0]" (rect 200 43 395 55)(font "Arial" ))
-		(line (pt 416 48)(pt 400 48)(line_width 3))
+		(text "channel_idx_out[(addr_width-1)..0]" (rect 0 0 134 12)(font "Arial" ))
+		(text "channel_idx_out[(addr_width-1)..0]" (rect 213 27 347 39)(font "Arial" ))
+		(line (pt 368 32)(pt 352 32)(line_width 3))
 	)
+	(port
+		(pt 368 48)
+		(output)
+		(text "data_out[((tdm_sender*data_width)-1)..0]" (rect 0 0 159 12)(font "Arial" ))
+		(text "data_out[((tdm_sender*data_width)-1)..0]" (rect 188 43 347 55)(font "Arial" ))
+		(line (pt 368 48)(pt 352 48)(line_width 3))
+	)
+	(parameter
+		"TDM_SENDER"
+		"14"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"DATA_WIDTH"
 		"24"
@@ -69,8 +81,13 @@ on the Quartus Prime software download page.
 		"112"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"ADDR_WIDTH"
+		"8"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
-		(rectangle (rect 16 16 400 96)(line_width 1))
+		(rectangle (rect 16 16 352 96)(line_width 1))
 	)
-	(annotation_block (parameter)(rect 432 -64 532 16))
+	(annotation_block (parameter)(rect 384 -64 484 16))
 )

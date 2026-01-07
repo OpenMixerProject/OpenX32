@@ -72,18 +72,13 @@ on the Quartus Prime software download page.
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
-		"NUM_INPUT_PORTS"
-		"112"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
 		"RAM_DEPTH"
-		"128"
+		"256"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"ADDR_WIDTH"
-		"7"
+		"8"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing

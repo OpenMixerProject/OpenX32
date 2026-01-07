@@ -1,0 +1,226 @@
+(edif lattice_pll
+  (edifVersion 2 0 0)
+  (edifLevel 0)
+  (keywordMap (keywordLevel 0))
+  (status
+    (written
+      (timestamp 2026 1 4 21 57 13)
+      (program "SCUBA" (version "Diamond (64-bit) 3.14.0.75.2"))))
+      (comment "C:\Programme2\Lattice\Diamond\3.14\ispfpga\bin\nt64\scuba.exe -w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 100 -fclkos_tol 0.0 -phases 0 -fclkos2 50 -fclkos2_tol 0.0 -phases2 0 -phase_cntl STATIC -rst -fb_mode 1 -fdc O:/fpga/lattice/pll/lattice_pll/lattice_pll.fdc ")
+  (library ORCLIB
+    (edifLevel 0)
+    (technology
+      (numberDefinition))
+    (cell EHXPLLL
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port CLKI
+            (direction INPUT))
+          (port CLKFB
+            (direction INPUT))
+          (port PHASESEL1
+            (direction INPUT))
+          (port PHASESEL0
+            (direction INPUT))
+          (port PHASEDIR
+            (direction INPUT))
+          (port PHASESTEP
+            (direction INPUT))
+          (port PHASELOADREG
+            (direction INPUT))
+          (port STDBY
+            (direction INPUT))
+          (port PLLWAKESYNC
+            (direction INPUT))
+          (port RST
+            (direction INPUT))
+          (port ENCLKOP
+            (direction INPUT))
+          (port ENCLKOS
+            (direction INPUT))
+          (port ENCLKOS2
+            (direction INPUT))
+          (port ENCLKOS3
+            (direction INPUT))
+          (port CLKOP
+            (direction OUTPUT))
+          (port CLKOS
+            (direction OUTPUT))
+          (port CLKOS2
+            (direction OUTPUT))
+          (port CLKOS3
+            (direction OUTPUT))
+          (port LOCK
+            (direction OUTPUT))
+          (port INTLOCK
+            (direction OUTPUT))
+          (port REFCLK
+            (direction OUTPUT))
+          (port CLKINTFB
+            (direction OUTPUT)))))
+    (cell VHI
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell VLO
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell lattice_pll
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port CLKI
+            (direction INPUT))
+          (port RST
+            (direction INPUT))
+          (port CLKOP
+            (direction OUTPUT))
+          (port CLKOS
+            (direction OUTPUT))
+          (port CLKOS2
+            (direction OUTPUT)))
+        (property NGD_DRC_MASK (integer 1))
+        (contents
+          (instance scuba_vhi_inst
+            (viewRef view1 
+              (cellRef VHI)))
+          (instance scuba_vlo_inst
+            (viewRef view1 
+              (cellRef VLO)))
+          (instance PLLInst_0
+            (viewRef view1 
+              (cellRef EHXPLLL))
+            (property PLLRST_ENA
+              (string "ENABLED"))
+            (property INTFB_WAKE
+              (string "DISABLED"))
+            (property STDBY_ENABLE
+              (string "DISABLED"))
+            (property DPHASE_SOURCE
+              (string "DISABLED"))
+            (property CLKOS3_FPHASE
+              (string "0"))
+            (property CLKOS3_CPHASE
+              (string "0"))
+            (property CLKOS2_FPHASE
+              (string "0"))
+            (property CLKOS2_CPHASE
+              (string "11"))
+            (property CLKOS_FPHASE
+              (string "0"))
+            (property CLKOS_CPHASE
+              (string "5"))
+            (property CLKOP_FPHASE
+              (string "0"))
+            (property CLKOP_CPHASE
+              (string "2"))
+            (property PLL_LOCK_MODE
+              (string "0"))
+            (property CLKOS_TRIM_DELAY
+              (string "0"))
+            (property CLKOS_TRIM_POL
+              (string "FALLING"))
+            (property CLKOP_TRIM_DELAY
+              (string "0"))
+            (property CLKOP_TRIM_POL
+              (string "FALLING"))
+            (property OUTDIVIDER_MUXD
+              (string "DIVD"))
+            (property CLKOS3_ENABLE
+              (string "DISABLED"))
+            (property FREQUENCY_PIN_CLKOS2
+              (string "50.000000"))
+            (property OUTDIVIDER_MUXC
+              (string "DIVC"))
+            (property CLKOS2_ENABLE
+              (string "ENABLED"))
+            (property FREQUENCY_PIN_CLKOS
+              (string "100.000000"))
+            (property OUTDIVIDER_MUXB
+              (string "DIVB"))
+            (property CLKOS_ENABLE
+              (string "ENABLED"))
+            (property FREQUENCY_PIN_CLKOP
+              (string "200.000000"))
+            (property OUTDIVIDER_MUXA
+              (string "DIVA"))
+            (property CLKOP_ENABLE
+              (string "ENABLED"))
+            (property FREQUENCY_PIN_CLKI
+              (string "16.000000"))
+            (property ICP_CURRENT
+              (string "5"))
+            (property LPF_RESISTOR
+              (string "16"))
+            (property CLKOS3_DIV
+              (string "1"))
+            (property CLKOS2_DIV
+              (string "12"))
+            (property CLKOS_DIV
+              (string "6"))
+            (property CLKOP_DIV
+              (string "3"))
+            (property CLKFB_DIV
+              (string "25"))
+            (property CLKI_DIV
+              (string "2"))
+            (property FEEDBK_PATH
+              (string "CLKOP")))
+          (net REFCLK
+            (joined
+              (portRef REFCLK (instanceRef PLLInst_0))))
+          (net LOCK
+            (joined
+              (portRef LOCK (instanceRef PLLInst_0))))
+          (net scuba_vhi
+            (joined
+              (portRef Z (instanceRef scuba_vhi_inst))))
+          (net scuba_vlo
+            (joined
+              (portRef Z (instanceRef scuba_vlo_inst))
+              (portRef ENCLKOS3 (instanceRef PLLInst_0))
+              (portRef ENCLKOS2 (instanceRef PLLInst_0))
+              (portRef ENCLKOS (instanceRef PLLInst_0))
+              (portRef ENCLKOP (instanceRef PLLInst_0))
+              (portRef PLLWAKESYNC (instanceRef PLLInst_0))
+              (portRef STDBY (instanceRef PLLInst_0))
+              (portRef PHASELOADREG (instanceRef PLLInst_0))
+              (portRef PHASESTEP (instanceRef PLLInst_0))
+              (portRef PHASEDIR (instanceRef PLLInst_0))
+              (portRef PHASESEL1 (instanceRef PLLInst_0))
+              (portRef PHASESEL0 (instanceRef PLLInst_0))))
+          (net CLKOS2
+            (joined
+              (portRef CLKOS2)
+              (portRef CLKOS2 (instanceRef PLLInst_0))))
+          (net CLKOS
+            (joined
+              (portRef CLKOS)
+              (portRef CLKOS (instanceRef PLLInst_0))))
+          (net CLKOP
+            (joined
+              (portRef CLKOP)
+              (portRef CLKFB (instanceRef PLLInst_0))
+              (portRef CLKOP (instanceRef PLLInst_0))))
+          (net RST
+            (joined
+              (portRef RST)
+              (portRef RST (instanceRef PLLInst_0))))
+          (net CLKI
+            (joined
+              (portRef CLKI)
+              (portRef CLKI (instanceRef PLLInst_0))))))))
+  (design lattice_pll
+    (cellRef lattice_pll
+      (libraryRef ORCLIB)))
+)

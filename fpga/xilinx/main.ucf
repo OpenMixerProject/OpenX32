@@ -99,12 +99,10 @@ NET "D_FS2" LOC = F1;
 NET "SPI_CLK" LOC = R14;
 NET "SPI_MOSI" LOC = T14;
 
-# PlanAhead Generated physical constraints 
 
 NET "SPI_nCS0" LOC = R15;
 NET "SPI_MISO" LOC = P13;
 
-# PlanAhead Generated IO constraints 
 
 NET "AD0_BCLK" IOSTANDARD = LVCMOS33;
 NET "AD0_DATA0" IOSTANDARD = LVCMOS33;
@@ -183,3 +181,7 @@ NET "AD0_TX" IOSTANDARD = LVCMOS33;
 NET "AD0_RX" IOSTANDARD = LVCMOS33;
 NET "AD0_MCLK" IOSTANDARD = LVCMOS33;
 NET "AD0_FSYNC" IOSTANDARD = LVCMOS33;
+
+# PlanAhead Generated physical constraints 
+
+NET "PLL_AUX" LOC = T9;
