@@ -358,13 +358,9 @@ void DSP1::SendAll() {
     for (uint8_t chan = 0; chan <= 39; chan++) {
         SetOutputRouting(chan);
     }
-    // configuration for 16 FX sends to DSP2
-    for (uint8_t fxchan = 0; fxchan <= 15; fxchan++) {
+    // configuration for 24 channels sends to DSP2 (16x FX, 8x AUX)
+    for (uint8_t fxchan = 0; fxchan <= 23; fxchan++) {
         SetFxOutputRouting(fxchan);
-    }
-    // configuration for 8 AUX-sends to DSP2
-    for (uint8_t auxchan = 0; auxchan <= 7; auxchan++) {
-        SetAuxOutputRouting(auxchan);
     }
 
     for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
