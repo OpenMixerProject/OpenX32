@@ -189,7 +189,7 @@ void audioProcessData(void) {
 		for (int i_tdm = TDM_INPUTS_FPGA; i_tdm < TDM_INPUTS-1; i_tdm++) {
 			bufferIndex = bufferSampleIndex + tdmBufferOffset;
 
-			// input from DSP2 side (we are receving float data here)
+			// input from DSP2 side (we are receiving float data here)
 			// TODO: use DMA to store data in the destination as we already receive float-values
 			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FX + dspCh], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
 
@@ -199,7 +199,7 @@ void audioProcessData(void) {
 		{
 			bufferIndex = bufferSampleIndex + tdmBufferOffset;
 
-			// input from DSP2 side (we are receving float data here)
+			// input from DSP2 side (we are receiving float data here)
 			// TODO: use DMA to store data in the destination as we already receive float-values
 			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_AUX], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
 		}
@@ -216,7 +216,7 @@ void audioProcessData(void) {
 	// process the audio data per channel
 
 /*
-	              32+8 Channels from FPGA             8 FX Returns from DSP2	TAP_INPUT
+	              32 Channels from FPGA              8 AUX + 8 FX-Ret from DSP2	TAP_INPUT
 	=========================================================================
 	            (MAX_CHANNEL_FULLFEATURED)          |    (AUX + FX Return)
 	  -------------------\/--------------------------------------\/---------
@@ -255,7 +255,7 @@ void audioProcessData(void) {
 			audioTempBufferChanA[i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
 		}
 		// copy data for the non-fullfeatured channels to the TAP_PRE_EQ directly without processing
-		for (int i_ch = MAX_CHAN_FULLFEATURED; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
+		for (int i_ch = MAX_CHAN_FULLFEATURED; i_ch < MAX_CHAN_FPGA; i_ch++) {
 			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
 		}
 
@@ -267,7 +267,7 @@ void audioProcessData(void) {
 	}
 	#else
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
+		for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
 			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
 		}
 	}
@@ -323,16 +323,22 @@ void audioProcessData(void) {
 	// Hardware-Accelerated Biquad-Filter
 	// Ressource-Demand: ~20%
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		memcpy(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], CHANNELS_WITH_4BD_EQ * sizeof(float));
-		//                 input and output                BiQuad-Coefficients                        Delay-Line                  samples           Sections
-		biquad_trans(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.peqCoeffs[0][0], &dsp.peqStates[0][0], CHANNELS_WITH_4BD_EQ, MAX_CHAN_EQS);
+		// copy data for all channels from PreEQ-tap to Post-EQ-tap
+		memcpy(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FPGA * sizeof(float));
+
+		// now calculate the Biquad-Filters for the desired channels
+		// TODO: at the moment the DSP-resources are enough for only 16 channels instead of all 32
+		for (int i_ch = 0; i_ch < 16; i_ch++) {
+			//           |------------------- input and output -------------------|  |- BiQuad-Coefficients -|   |--- Delay-Line ---| samples Sections
+			biquad_trans(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch], &dsp.peqCoeffs[i_ch][0], &dsp.peqStates[i_ch][0], 1, MAX_CHAN_EQS);
+		}
 
 		// caution: biquad() without "_trans" takes way(!) more cpu-cycles. Dont use it.
 		//biquad(&audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], &dsp.dspChannel[i_ch].peqCoeffs[0], &dsp.dspChannel[i_ch].peqStates[0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
 	}
 	#else
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		memcpy(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) * sizeof(float));
+		memcpy(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FPGA * sizeof(float));
 	}
 	#endif
 
@@ -362,9 +368,14 @@ void audioProcessData(void) {
 	}
 	#else
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		memcpy(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) * sizeof(float));
+		memcpy(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FPGA * sizeof(float));
 	}
 	#endif
+
+	// copy data for DSP2-FX-Return-Channels from TAP_INPUT to TAP_PRE_FADER without processing. All other DSP2-channel have no volume-control yet
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		memcpy(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSP2_FX], &audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FX], MAX_DSP2_FXRETURN * sizeof(float));
+	}
 
 	//   ____ _                            _   _____         _
 	//  / ___| |__   __ _ _ __  _ __   ___| | |  ___|_ _  __| | ___ _ __
@@ -378,6 +389,7 @@ void audioProcessData(void) {
 		vecvmltf(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelVolume[0], &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN));
 	}
 
+	#if DEBUG_DISABLE_MIXBUS == 0
 	//				  __  __ _____  ______  _   _ ____
 	//				 |  \/  |_ _\ \/ / __ )| | | / ___|
 	//				 | |\/| || | \  /|  _ \| | | \___ \
@@ -404,7 +416,7 @@ void audioProcessData(void) {
 	//				 | |\/| |/ _` | | '_ \ _____| | | | | | | __|
 	//				 | |  | | (_| | | | | |_____| |_| | |_| | |_
 	//				 |_|  |_|\__,_|_|_| |_|      \___/ \__,_|\__|
-	// calculate summarized main left, right and sub
+	// calculate summarized main left, right and sub. Source: 40 Channels from FPGA, 24 Channels from DSP2, 16 Channels Mixbus
 	// vecdotf(const float dm a[],	const float dm b[], int samples) -> A dot B = A0*B0 + A1*B1 + A2*B2 + ...
 	// Ressource-Demand: ~16%
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
@@ -412,6 +424,21 @@ void audioProcessData(void) {
 		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINRIGHT] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainRightVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS);
 		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINSUB] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainSubVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS);
 	}
+	#else
+	//				  __  __       _              ___        _
+	//				 |  \/  | __ _(_)_ __        / _ \ _   _| |_
+	//				 | |\/| |/ _` | | '_ \ _____| | | | | | | __|
+	//				 | |  | | (_| | | | | |_____| |_| | |_| | |_
+	//				 |_|  |_|\__,_|_|_| |_|      \___/ \__,_|\__|
+	// calculate summarized main left, right and sub. Source: 40 Channels from FPGA, 24 Channels from DSP2
+	// vecdotf(const float dm a[],	const float dm b[], int samples) -> A dot B = A0*B0 + A1*B1 + A2*B2 + ...
+	// Ressource-Demand: ~16%
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINLEFT] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainLeftVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN);
+		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINRIGHT] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainRightVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN);
+		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINSUB] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainSubVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN);
+	}
+	#endif
 
 	// TODO: process 6-band PEQ on main L/R/S
 	// TODO: process dynamics on main L/R/S

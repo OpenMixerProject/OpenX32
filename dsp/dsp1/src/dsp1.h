@@ -8,9 +8,10 @@
 #define DSP_VERSION				0.33
 
 #define DEBUG_DISABLE_LOWCUT	0
-#define DEBUG_DISABLE_GATE		0 // Gate is working correctly
-#define DEBUG_DISABLE_EQ		1 // TODO: current EQ implementation mixes samples from different channels together!!!
-#define DEBUG_DISABLE_DYNAMICS	0 // Dynamics are working correctly
+#define DEBUG_DISABLE_GATE		0
+#define DEBUG_DISABLE_EQ		0
+#define DEBUG_DISABLE_DYNAMICS	0
+#define DEBUG_DISABLE_MIXBUS	1
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
