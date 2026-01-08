@@ -52,7 +52,9 @@
 // global data
 //static volatile uint32_t timerCounter;
 static cycle_stats_t systemStats;
+static uint32_t cyclesAudio;
 static uint32_t cyclesMain;
+static uint32_t cyclesTotal;
 
 void openx32Init(void) {
 	// initialize the default samplerate with 48kHz
@@ -84,7 +86,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 				case 'u': // update-packet
 					data[0] = DSP_VERSION;
-					memcpy(&data[1], &cyclesMain, sizeof(float));
+					memcpy(&data[1], &cyclesTotal, sizeof(float));
 					spiSendArray('s', 'u', 0, 2, &data);
 					break;
 				default:
@@ -199,13 +201,20 @@ int main() {
 			audioProcessData();
 
 			CYCLES_STOP(systemStats);
-			cyclesMain = systemStats._cycles;
+			cyclesAudio = systemStats._cycles;
+			cyclesTotal = cyclesAudio + cyclesMain;
 			CYCLES_RESET(systemStats);
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
+			CYCLES_START(systemStats);
+
 			spiProcessRxData();
+
+			CYCLES_STOP(systemStats);
+			cyclesMain = systemStats._cycles;
+			CYCLES_RESET(systemStats);
 		}
 	}
 }

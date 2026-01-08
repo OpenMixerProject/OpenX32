@@ -15,14 +15,14 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Wed Jan  7 00:54:34 2026"
+-- CREATED		"Thu Jan  8 11:00:49 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 
 LIBRARY work;
 
-ENTITY main IS 
+ENTITY main_lattice IS 
 	PORT
 	(
 		fpgaclk :  IN  STD_LOGIC;
@@ -121,9 +121,9 @@ ENTITY main IS
 		aes50a_clk_b_rx_nen_out :  OUT  STD_LOGIC;
 		aes50a_rmii_clk_out :  OUT  STD_LOGIC
 	);
-END main;
+END main_lattice;
 
-ARCHITECTURE bdf_type OF main IS 
+ARCHITECTURE bdf_type OF main_lattice IS 
 
 COMPONENT spi_rx_routing
 	PORT(clk : IN STD_LOGIC;
@@ -245,6 +245,14 @@ COMPONENT aes50_rst
 	);
 END COMPONENT;
 
+COMPONENT lattice_pll_audio
+	PORT(CLKI : IN STD_LOGIC;
+		 RST : IN STD_LOGIC;
+		 CLKOP : OUT STD_LOGIC;
+		 CLKOS : OUT STD_LOGIC
+	);
+END COMPONENT;
+
 COMPONENT ultranet_tx
 GENERIC (AES3_PREAMBLE_X : STD_LOGIC_VECTOR(7 DOWNTO 0);
 			AES3_PREAMBLE_Y : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -344,14 +352,6 @@ COMPONENT aes50_consts
 	);
 END COMPONENT;
 
-COMPONENT audioclk
-	PORT(fs_x_1024_i : IN STD_LOGIC;
-		 fs_x_512_o : OUT STD_LOGIC;
-		 fs_x_256_o : OUT STD_LOGIC;
-		 fs_o : OUT STD_LOGIC
-	);
-END COMPONENT;
-
 COMPONENT aes50_top
 	PORT(clk50_i : IN STD_LOGIC;
 		 clk100_i : IN STD_LOGIC;
@@ -397,6 +397,12 @@ COMPONENT aes50_top
 		 pll_mult_value_o : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		 rmii_txd_o : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 		 tdm_o : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
+	);
+END COMPONENT;
+
+COMPONENT wordclock
+	PORT(i_clk : IN STD_LOGIC;
+		 o_fs : OUT STD_LOGIC
 	);
 END COMPONENT;
 
@@ -545,6 +551,7 @@ PORT MAP(clk => clk_24_576MHz,
 b2v_inst0 : reset
 PORT MAP(clk => clk_16MHz,
 		 o_pripll_rst => pripll_rst,
+		 o_secpll_rst => secpll_rst,
 		 o_global_rst => rst,
 		 o_online => online);
 
@@ -659,6 +666,12 @@ PORT MAP(clk100_i => clk_100MHz,
 		 rst_o => SYNTHESIZED_WIRE_45);
 
 
+b2v_inst38 : lattice_pll_audio
+PORT MAP(CLKI => clk_49_152MHz,
+		 RST => secpll_rst,
+		 CLKOP => clk_24_576MHz,
+		 CLKOS => clk_12_288MHz);
+
 
 b2v_inst39 : ultranet_tx
 GENERIC MAP(AES3_PREAMBLE_X => "10010011",
@@ -708,7 +721,6 @@ PORT MAP(bit_clock => clk_24_576MHz,
 		 ch8 => SYNTHESIZED_WIRE_37,
 		 ultranet_out_p => P16_B_TXP,
 		 ultranet_out_m => P16_B_TXM);
-
 
 
 b2v_inst42 : aes50_clk_ddr
@@ -813,12 +825,6 @@ tdm_input(17) <= aes50a_tdm_out(3);
 
 
 
-b2v_inst6 : audioclk
-PORT MAP(fs_x_1024_i => clk_49_152MHz,
-		 fs_x_512_o => clk_24_576MHz,
-		 fs_x_256_o => clk_12_288MHz,
-		 fs_o => tdm_fs);
-
 tdm_input(18) <= aes50a_tdm_out(4);
 
 
@@ -866,6 +872,11 @@ PORT MAP(clk50_i => clk_50MHz,
 
 
 
+
+
+b2v_inst7 : wordclock
+PORT MAP(i_clk => clk_12_288MHz,
+		 o_fs => tdm_fs);
 
 
 

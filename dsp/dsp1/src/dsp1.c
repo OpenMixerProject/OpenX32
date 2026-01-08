@@ -54,6 +54,7 @@
 static cycle_stats_t systemStats;
 static uint32_t cyclesAudio;
 static uint32_t cyclesMain;
+static uint32_t cyclesTotal;
 
 /*
 #pragma optimize_for_speed // interrupt handlers usually need to be optimized
@@ -118,7 +119,6 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					break;
 				case 'u': // update-packet
 					data[0] = DSP_VERSION;
-					uint32_t cyclesTotal = cyclesAudio + cyclesMain;
 					memcpy(&data[1], &cyclesTotal, sizeof(float));
 
 					// VU-meters of main-channels
@@ -134,6 +134,7 @@ void openx32Command(unsigned short classId, unsigned short channel, unsigned sho
 					}
 
 					spiSendArray('s', 'u', 0, 45, &data);
+					//spiSendArray('s', 'u', 0, 85, &data);
 					//spiSendArray('s', 'u', 0, 125, &data);
 					break;
 				default:
@@ -436,15 +437,16 @@ int main() {
 
 			CYCLES_STOP(systemStats);
 			cyclesAudio = systemStats._cycles;
+			cyclesTotal = cyclesAudio + cyclesMain;
 			CYCLES_RESET(systemStats);
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
 			CYCLES_START(systemStats);
-			
+
 			spiProcessRxData();
-			
+
 			CYCLES_STOP(systemStats);
 			cyclesMain = systemStats._cycles;
 			CYCLES_RESET(systemStats);
