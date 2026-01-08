@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.3.3, 11.12.2025
+  ControlSystem for DSP1 (MainDSP) v0.3.4, 08.01.2026
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject

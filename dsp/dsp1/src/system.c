@@ -24,61 +24,96 @@
 
 #include "system.h"
 
-#define SDMODIFY 1
-
-void systemPllInit()
-{
+void systemPllInit() {
 	int i, pmctlsetting;
 
-	pmctlsetting = *pPMCTL;
-	pmctlsetting &= ~(0xFF); // clear pmctlsetting
+	// CLKIN = 16.000MHz
+	// Multiplier = 32
+	// Divisor = 2
+	// CCLK_SDCLK_RATIO = 2.5
 
-	// Core clock = 16MHz * (33/2) = 264MHz. Maximum is 266MHz
-	pmctlsetting = (PLLM33 | PLLD2 | DIVEN | SDCKR2); // multiplier=33 | divider=2 | divider enabled | SD-Clock-Ratio=2=132MHz
+	// set desired PLL-configuration
+	pmctlsetting = (PLLM33 | PLLD2 | DIVEN | SDCKR2); // (Core Clock = 16.000MHz * 33) / 2 = 264 MHz
 	*pPMCTL = pmctlsetting;
 
-    // bypass mode must be used if any runtime VCO clock change is required
-	pmctlsetting |= PLLBP;
-    pmctlsetting &= ~DIVEN; // DIVEN can be cleared: DIVEN=1 -> Load PLLD, DIVEN=0 -> Do not load PLLD
+	// enable bypass-mode to let the PLL take the changes
+	pmctlsetting |= PLLBP; // enable bypass-mode
+	pmctlsetting &= ~DIVEN; // remove DIVEN
 	*pPMCTL = pmctlsetting;
 
-    /*Wait for around 4096 cycles for the pll to lock.*/
-    for (i=0; i<4096; i++) {
-         NOP();
-    }
+    // Wait for at least 4096 CLKIN cycles for the PLL to lock
+    for (i=0; i<5000; i++) { asm("nop;"); }
 
-    // disable bypass mode
+    // disable the bypass-mode
     *pPMCTL &= ~PLLBP;
+
+    // wait 16 core clocks before next activity
+    for (i=0; i<16; i++) { asm("nop;"); }
 }
 
-void systemExternalMemoryInit()
-{
-/*
+void systemExternalMemoryInit() {
+	// in X32 the RAM of each DSP is a MT48LC8M16A2-6A SDRAM (2 Meg x 16 x 4 Banks)
+	// from datasheet page 1
+	// t_WR = 2 CLK
+	// t_RCD = 18ns (3 CLK)
+	// t_RP = 18ns (3 CLK)
+	// t_CL = 18ns (3 CLK)
+	// t_RAS = 42..120 ns = 6 CLK ... 16 CLK
+	// t_REF = max. 64 ns = 8 CLK
+	// Auto-Refresh: 64ms for 4096 cycles
+	//
+	// From datasheet page 2
+	// - col addressing 9bit
+	// - row addressing 12 bit
+	// - refresh count 4k
+	// - bank addressing 2 bit
+	//
+	// it is connected as 16-bit Row and Column Address Mapping (2k Words) but without A12 connected
+	// see table 3-10 in Hardware Reference of ADSP-21371
+
+	// set SDRRC and enable SDRAM read optimization
+	// RDIV from datasheet: RDIV = (f_SDCLK * t_REF/NRA) - (t_RAS + t_RP)
+	// RDIV from datasheet: RDIV = (132MHz * 64ms/4096) - (42 + 18ns) = 2062 - 60 = 2002 = 0x7D2
+	*pSDRRC = 0x7D2 | (1<<17) | SDROPT; // SDMODIFY is set to 0001 (default) and SDROPT is enabled
+
 	// SDCL3   = set CAS Latency to 3 (from datasheet)
-	// X16DE   = Data-Bits 0..15 are connected to SD-ram
-	// SDCAW10 = set Address Width to 10 bit
-	// SDRAW11 = set Row address Width to 11 bit
-	// SDTRAS  = SDRAM tRAS Specification. Active Command delay = x cycles
-	// SDTRP   = SDRAM tRP Specification. Precharge delay = x cycles.
-	// SDTWR   = SDRAM tWR Specification. tWR = x cycles.
-	// SDTRCD  = SDRAM tRCD Specification. tRCD = x cycles.
+	// X16DE   = Data-Bits 0..15 are connected to SD-RAM
+	// SDCAW9 = set Address Width to 9 bit
+	// SDRAW12 = set Row address Width to 12 bit
+	// SDTRAS  = SDRAM tRAS Specification. Active Command delay = 6 cycles
+	// SDTRP   = SDRAM tRP Specification. Precharge delay = 3 cycles.
+	// SDTWR   = SDRAM tWR Specification. tWR = 2 cycles.
+	// SDTRCD  = SDRAM tRCD Specification. tRCD = 3 cycles.
 	// SDPSS   = start SDRAM power-up on next cycle
-	*pSDCTL = SDCL3 | X16DE | SDCAW10 | SDRAW11 | SDTRAS8 | SDTRP4 | SDTWR3 | SDTRCD4 | SDPSS;
-
-	// Mapping Bank 1 to SDRAM
-	*pEPCTL |= B1SD;
-
-	// configure the AMI Control Register of Bank1 for the K4S281632E
-	// AMIEN  = enables AMI Controller
-	// BW16   = set DataBusWidth to 16bit
-	// WS32   = 23 WaitStates
-	*pAMICTL1 = AMIEN | BW16 | WS23;
-
-	*pSDRRC = 0x406; // RDIV from datasheet: RDIV = (f_SDCLK * t_REF/NRA) - (t_RAW * t_RP)
+	// SDPM    = SDRAM Power-Up Mode: SDC is prepared to start a precharge all command, followed by load mode register command followed by eight auto-refresh cycles
+	// SDSRF   = enable SDRAM Self-Refresh
+	*pSDCTL = SDCL3 | X16DE | SDCAW9 | SDRAW12 | SDTRAS6 | SDTRP3 | SDTWR2 | SDTRCD3 | SDPSS;
+	*pSDCTL &= ~DSDCTL; // enable controller
 
 	// enable SDRAM
 	*pSYSCTL |= MSEN;
-*/
+
+	// Mapping Bank 1 to SDRAM and disable all other banks
+	*pEPCTL |= B1SD;
+	*pEPCTL &= ~(B0SD|B2SD|B3SD);
+
+    // wait at least 8 PCLK cycles before next activity
+    for (int i=0; i<20; i++) { asm("nop;"); }
+
+	// configure the AMI Control Register of Bank1 for the K4S281632E
+	// 1:1 mapping for 8 bits per byte
+	// AMIEN  = enables AMI Controller
+	// BW16   = set DataBusWidth to 16bit
+	// WS23   = 23 WaitStates
+	*pAMICTL1 = AMIEN | BW16 | WS23;
+
+	// dummy access to initialize the controller
+	int dummy = *(int*)0x4000000;
+	NOP();
+	NOP();
+	NOP();
+	NOP();
+	NOP();
 }
 
 void systemSruInit(void) {

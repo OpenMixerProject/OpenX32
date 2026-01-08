@@ -5,7 +5,7 @@
 #ifndef __DSP2_H__
 #define __DSP2_H__
 
-#define DSP_VERSION				0.04
+#define DSP_VERSION				0.05
 
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 

@@ -152,8 +152,8 @@
 								<option id="compiler.option.allowmixsizes.670205959" name="Allow mixing of sizes (-double-size-any)" superClass="compiler.option.allowmixsizes" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="compiler.option.threads.2064934455" name="Enable toolchain RTOS support (-threads)" superClass="compiler.option.threads" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="sharc.compiler.option.additionaloptions.1970952470" name="Additional options:" superClass="sharc.compiler.option.additionaloptions" useByScannerDiscovery="false" valueType="stringList"/>
-								<option id="compiler.option.processpeed.434301771" superClass="compiler.option.processpeed" useByScannerDiscovery="false" value="264" valueType="string"/>
-								<option id="compiler.option.compilerprofiling.1401197926" superClass="compiler.option.compilerprofiling" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="compiler.option.processpeed.434301771" name="Processor speed (MHz) (-D__PROCESSOR_SPEED__):" superClass="compiler.option.processpeed" useByScannerDiscovery="false" value="264" valueType="string"/>
+								<option id="compiler.option.compilerprofiling.1401197926" name="Enable compiler instrumented profiling (-p)" superClass="compiler.option.compilerprofiling" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="compiler.inputType.1421259369" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="sharc.toolchain.linker.279780464" name="CrossCore SHARC Linker" superClass="sharc.toolchain.linker">
@@ -173,6 +173,7 @@
 								<option id="linker.option.misrachecksrcfiles.308200581" name="-misra-no-cross-module" superClass="linker.option.misrachecksrcfiles" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="linker.option.runtimeinit.2024926075" name="Runtime initialization (-mem)" superClass="linker.option.runtimeinit" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="linker.option.threadsafelibraries.280046698" name="Link against thread-safe run-time libraries (-threads)" superClass="linker.option.threadsafelibraries" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="linker.option.gensymbolmap.316787546" name="Generate symbol map (-map)" superClass="linker.option.gensymbolmap" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="linker.doj.input.213605980" name="Object Files" superClass="linker.doj.input"/>
 							</tool>
 							<tool id="sharc.toolchain.archiver.1748186323" name="CrossCore SHARC Archiver" superClass="sharc.toolchain.archiver">

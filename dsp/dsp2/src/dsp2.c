@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP2 (FX DSP) v0.0.4, 11.12.2025
+  ControlSystem for DSP2 (FX DSP) v0.0.4, 08.01.2026
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025 OpenMixerProject

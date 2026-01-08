@@ -5,7 +5,7 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
-#define DSP_VERSION				0.33
+#define DSP_VERSION				0.34
 
 #define DEBUG_DISABLE_LOWCUT	0
 #define DEBUG_DISABLE_GATE		0

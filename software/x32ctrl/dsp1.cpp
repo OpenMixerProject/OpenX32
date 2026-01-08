@@ -907,6 +907,9 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                 case 'u': // Update pack
                     if (valueCount == 45) {
                         state->dspVersion[0] = floatValues[0];
+
+                        // we are receiving 16 samples with 20.83us each resulting in 16*20.83us = 333us per interrupt
+                        // DSP-Load calculation: number of used CPU-cycles for processing divided by the core-clock-frequency based on the 333us timebase
                         state->dspLoad[0] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
 
                         // copy meter-info to channel-struct

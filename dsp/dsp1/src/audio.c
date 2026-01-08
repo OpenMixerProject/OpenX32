@@ -328,7 +328,7 @@ void audioProcessData(void) {
 
 		// now calculate the Biquad-Filters for the desired channels
 		// TODO: at the moment the DSP-resources are enough for only 16 channels instead of all 32
-		for (int i_ch = 0; i_ch < 16; i_ch++) {
+		for (int i_ch = 0; i_ch < 14; i_ch++) {
 			//           |------------------- input and output -------------------|  |- BiQuad-Coefficients -|   |--- Delay-Line ---| samples Sections
 			biquad_trans(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch], &dsp.peqCoeffs[i_ch][0], &dsp.peqStates[i_ch][0], 1, MAX_CHAN_EQS);
 		}

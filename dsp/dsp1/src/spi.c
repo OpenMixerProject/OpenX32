@@ -151,7 +151,7 @@ void spiISR(int sig) {
 
 			// check for buffer-overflow
 			int next_head = (spiRxRingBuffer.head + 1);
-			if (next_head > SPI_RX_BUFFER_SIZE) {
+			if (next_head >= SPI_RX_BUFFER_SIZE) {
 				next_head -= SPI_RX_BUFFER_SIZE;
 			}
 			if (next_head != spiRxRingBuffer.tail) {
@@ -170,7 +170,7 @@ void spiISR(int sig) {
 			if (spiTxRingBuffer.head != spiTxRingBuffer.tail) {
 				*pTXSPI = spiTxRingBuffer.buffer[spiTxRingBuffer.tail];
 				spiTxRingBuffer.tail += 1;
-				if (spiTxRingBuffer.tail > SPI_TX_BUFFER_SIZE) {
+				if (spiTxRingBuffer.tail >= SPI_TX_BUFFER_SIZE) {
 					spiTxRingBuffer.tail -= SPI_TX_BUFFER_SIZE;
 				}
 			}else{
@@ -202,7 +202,7 @@ void spiProcessRxData(void) {
 	while (spiRxRingBuffer.head != spiRxRingBuffer.tail) {
 		unsigned int data = spiRxRingBuffer.buffer[spiRxRingBuffer.tail];
 		spiRxRingBuffer.tail += 1;
-		if (spiRxRingBuffer.tail > SPI_RX_BUFFER_SIZE) {
+		if (spiRxRingBuffer.tail >= SPI_RX_BUFFER_SIZE) {
 			spiRxRingBuffer.tail -= SPI_RX_BUFFER_SIZE;
 		}
 
@@ -251,7 +251,7 @@ void spiProcessRxData(void) {
 void spiPushValueToTxBuffer(unsigned int value) {
 	// check for buffer-overflow
 	int next_head = spiTxRingBuffer.head + 1;
-	if (next_head > SPI_TX_BUFFER_SIZE) {
+	if (next_head >= SPI_TX_BUFFER_SIZE) {
 		next_head -= SPI_TX_BUFFER_SIZE;
 	}
 	if (next_head != spiTxRingBuffer.tail) {
