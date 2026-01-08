@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 01/07/2026 13:42:16
+-- /___/   /\     Timestamp : 01/07/2026 14:15:32
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -472,6 +472,12 @@ architecture BEHAVIORAL of main is
              CLKFX_OUT       : out   std_logic; 
              CLKIN_IBUFG_OUT : out   std_logic; 
              CLK0_OUT        : out   std_logic);
+   end component;
+   
+   component oddr_clock
+      port ( clk_in  : in    std_logic; 
+             reset   : in    std_logic; 
+             clk_out : out   std_logic);
    end component;
    
 begin
@@ -1038,10 +1044,6 @@ begin
    XLXI_1150 : VCC
       port map (P=>aes50_sys_mode(1));
    
-   XLXI_1156 : BUFG
-      port map (I=>clk_50MHz,
-                O=>aes50a_rmii_clk_out);
-   
    XLXI_1157 : dcm1
       port map (CLKIN_IN=>FPGACLK,
                 RST_IN=>pripll_rst,
@@ -1057,6 +1059,11 @@ begin
                 CLKIN_IBUFG_OUT=>open,
                 CLK0_OUT=>open,
                 LOCKED_OUT=>open);
+   
+   XLXI_1261 : oddr_clock
+      port map (clk_in=>clk_50MHz,
+                reset=>rst,
+                clk_out=>aes50a_rmii_clk_out);
    
 end BEHAVIORAL;
 
