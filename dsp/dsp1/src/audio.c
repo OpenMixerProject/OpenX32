@@ -98,22 +98,16 @@ void audioInit(void) {
 		}
 	}
 
-	// initialize PEQs
+	// initialize memories
+	memset(dsp.lowcutStatesInput, 0, sizeof(dsp.lowcutStatesInput));
+	memset(dsp.lowcutStatesOutput, 0, sizeof(dsp.lowcutStatesOutput));
+	memset(dsp.peqStates, 0, sizeof(dsp.peqStates));
+	memset(audioBuffer, 0, sizeof(audioBuffer));
+
+	// initialize PEQs to bypass
 	//float coeffs[5] = {2.86939942317678, -0.6369199596053572, -1.8013330773336653, -0.6369199596053572, 0.06806634584311462}; // a0, a1, a2, b1, b2: +14dB @ 7kHz with Q=0.46
 	float coeffs[5] = {1, 0, 0, 0, 0}; // a0, a1, a2, b1, b2: direct passthrough
-	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
-		// init single-pole lowcut
-		dsp.lowcutStatesInput[i_ch] = 0.0;
-		dsp.lowcutStatesOutput[i_ch] = 0.0;
-	}
-
 	for (int i_ch = 0; i_ch < CHANNELS_WITH_4BD_EQ; i_ch++) {
-		// init PEQ-states
-		for (int s = 0; s < (2 * MAX_CHAN_EQS); s++) {
-			dsp.peqStates[i_ch][s] = 0;
-			dsp.peqStates[i_ch][s] = 0;
-		}
-		// initialize PEQs
 		for (int i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
 			fxSetPeqCoeffs(i_ch, i_peq, &coeffs[0]);
 		}
@@ -121,9 +115,6 @@ void audioInit(void) {
 
 	// initialize variables
 	dsp.monitorTapPoint = TAP_INPUT;
-
-	// initialize memory
-	memset(audioBuffer, 0, sizeof(audioBuffer));
 }
 
 void audioSmoothVolume(void) {

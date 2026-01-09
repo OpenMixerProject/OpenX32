@@ -23,8 +23,8 @@
 
 #define MAX_CHAN_EQS                       4
 
-#define NUM_INPUT_CHANNEL                  208
-#define NUM_OUTPUT_CHANNEL                 208
+#define NUM_INPUT_CHANNEL                  160 // just use a single AES50-port for now
+#define NUM_OUTPUT_CHANNEL                 160 // just use a single AES50-port for now
 #define MAX_FPGA_TO_DSP1_CHANNELS          40
 #define MAX_DSP1_TO_FPGA_CHANNELS          40
 #define MAX_DSP1_TO_DSP2_CHANNELS          24

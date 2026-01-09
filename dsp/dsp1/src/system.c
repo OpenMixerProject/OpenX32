@@ -24,39 +24,66 @@
 
 #include "system.h"
 
+void systemPllSetBypass(bool bypass) {
+	int i;
+
+	if (bypass) {
+		// enable bypass-mode
+		*pPMCTL |= PLLBP;
+	}else{
+		// wait at least 4096 CLKIN cycles
+		for (i=0; i<4096; i++) { asm("nop;"); }
+		// disable bypass-mode
+		*pPMCTL &= ~PLLBP;
+	}
+
+	// wait 16 CCLK cycles
+	for (i=0; i<16; i++) { asm("nop;"); }
+}
+
 void systemPllInit() {
-	uint32_t i, pmctlsetting;
+	/*
+	PLL is special on the SHARC...
 
-    // CLKIN = 16.000MHz
-	// Multiplier = 32
-	// Divisor = 2
-	// CCLK_SDCLK_RATIO = 2.5
+	The general clock-path looks like this:
+	CLKIN -> INDIV -> PLLM -> PLLD -> CCLK
 
-	// CoreClock = CLKIN / INDIV * PLLM / PLLD = 16MHz / 2 * 32 / 1 = 264MHz
-	//pmctlsetting = (PLLM24 | PLLD1 | DIVEN | SDCKR2); // 1.225 Hz (96MHz -> 0.8Hz)
-	//pmctlsetting = (PLLM26 | PLLD1 | DIVEN | SDCKR2); // 1.33 Hz (96MHz -> 0.8Hz)
+	BOOTCFG[1:0] is set to 00 on the X32, so the console boots at 6*16MHz = 96MHz
 
-	// VCO max is 400..500MHz
+	Here some important things for the ADSP-21371:
+	- CCLK_max = 266MHz
+	- f_VCO = 200MHz ... 800MHz
+	- do _not_ set DIVEN and PLLBP in same CCLK
+	- CLKIN x PLLM < f_VCO_max/2 if INDIV==0
+	- CLKIN x PLLM < f_VCO_max   if INDIV==1
+	- setting INDIV bit requires the PLL to be set into bypass mode first
+	- all changes to the VCO-frequency requires the PLL to be set in bypass mode first
 
-	pmctlsetting = (PLLM33 | PLLD2 | DIVEN | SDCKR2); // Getestet: INDIV halbiert eingangstakt, PLLM6 -> 48MHz, PLLM12 -> 96MHz, PLLM18 -> schneller, PLLM24 -> ca. 1.2Hz, PLLM28 -> 1.4Hz
-	*pPMCTL = pmctlsetting;
+	Calculation of the best fitting settings:
+	f_CCLK = (2 * PLLM * f_input)     / (2 * PLLD)
+	       = (2 * PLLM * CLKIN/INDIV) / (2 * PLLD)
+	       = (2 * 33   * 16MHz/2)     / (2 * 1)
+	       = 264MHz
 
-    // wait 16 core clocks before next activity
-    for (i=0; i<16; i++) { asm("nop;"); }
+	check f_VCO:
+	f_VCO = 2 * PLLM * f_input
+	      = 2 * PLLM * (CLKIN/DIVIN)
+	      = 2 * 33   * 16MHz/2
+	      = 528MHz < 800MHz <- this is valid
+	*/
 
-	pmctlsetting |= PLLBP;
-	pmctlsetting &= ~DIVEN;
-	*pPMCTL = pmctlsetting;
+	// Step 1: enable input divider to match VCO-requirements lateron
+	// ================================================================
+	systemPllSetBypass(true);
+	*pPMCTL |= INDIV;
+	systemPllSetBypass(false);
 
-    // Wait for at least 4096 CLKIN cycles for the PLL to lock
-    for (i=0; i<4096; i++) { asm("nop;"); }
-
-    pmctlsetting = *pPMCTL;
-    pmctlsetting &= ~PLLBP;
-    *pPMCTL = pmctlsetting;
-
-    // wait 16 core clocks before next activity
-    for (i=0; i<16; i++) { asm("nop;"); }
+	// Step 2: set PLL-configuration to the desired values
+	// ================================================================
+	systemPllSetBypass(true);
+	*pPMCTL = (INDIV | PLLM33 | PLLD1 | SDCKR2 | PLLBP | DIVEN);
+	*pPMCTL = (INDIV | PLLM33 | PLLD1 | SDCKR2 | PLLBP); // disable DIVEN (DIVEN is WriteOnly, so set the whole setting without DIVEN)
+	systemPllSetBypass(false);
 }
 
 void systemExternalMemoryInit() {
