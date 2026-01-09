@@ -64,7 +64,7 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR]; // audioBuffer[TAPPOINT][SAMPLE][CHANNEL]
 float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
-float biquadBuffer[CHANNELS_WITH_4BD_EQ][SAMPLES_IN_BUFFER];
+float sampleBuffer[SAMPLES_IN_BUFFER]; // main channels can be calculated only after the other channels, so we can save some memory here
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 int audioRx_tcb[8][BUFFER_COUNT][4];
@@ -336,15 +336,15 @@ void audioProcessData(void) {
 	for (int i_ch = 0; i_ch < (CHANNELS_WITH_4BD_EQ - MAX_MAIN); i_ch++) {
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// EQ for all 40 input channels + 8 FX Returns from DSP2
-			biquadBuffer[i_ch][s] = audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch];
+			sampleBuffer[s] = audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch];
 		}
 
 		// call biquad trans
-		biquad_trans(&biquadBuffer[i_ch][0], &dsp.peqCoeffs[i_ch][0], &dsp.peqStates[i_ch][0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
+		biquad_trans(&sampleBuffer[0], &dsp.peqCoeffs[i_ch][0], &dsp.peqStates[i_ch][0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
 
 		// copy samples back
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = biquadBuffer[i_ch][s];
+			audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = sampleBuffer[s];
 		}
 	}
 	#else
@@ -447,37 +447,42 @@ void audioProcessData(void) {
 	}
 	#endif
 
-	//				  _____                  _ _
-	//				 | ____|__ _ _   _  __ _| (_)_______ _ __
-	//				 |  _| / _` | | | |/ _` | | |_  / _ \ '__|
-	//				 | |__| (_| | |_| | (_| | | |/ /  __/ |
-	//				 |_____\__, |\__,_|\__,_|_|_/___\___|_|
-	//				          |_|
-	// Hardware-Accelerated Biquad-Filter
+	//	 __  __       _             _______  __  _____                  _ _
+	//	|  \/  | __ _(_)_ __    _  |  ___\ \/ / | ____|__ _ _   _  __ _| (_)_______ _ __
+	//	| |\/| |/ _` | | '_ \ _| |_| |_   \  /  |  _| / _` | | | |/ _` | | |_  / _ \ '__|
+	//	| |  | | (_| | | | | |_   _|  _|  /  \  | |__| (_| | |_| | (_| | | |/ /  __/ |
+	//	|_|  |_|\__,_|_|_| |_| |_| |_|   /_/\_\ |_____\__, |\__,_|\__,_|_|_/___\___|_|
+	//	                                                 |_|
+	// Hardware-Accelerated Biquad-Filter for the Main-Channels Left/Right/Sub
 	// copy samples into new array
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		for (int i_ch = 0; i_ch < 3; i_ch++) {
-			biquadBuffer[i_ch][s] = audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINLEFT + i_ch];
+	#if DEBUG_DISABLE_EQMAIN == 0
+	for (int i_ch = 0; i_ch < MAX_MAIN; i_ch++) {
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			// copy samples for main left, right and sub
+			sampleBuffer[s] = audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINLEFT + i_ch];
 		}
-	}
-	// call biquad trans
-	for (int i_ch = 0; i_ch < 3; i_ch++) {
-		biquad_trans(&biquadBuffer[i_ch][0], &dsp.peqCoeffs[i_ch][0], &dsp.peqStates[i_ch][0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
-	}
-	// copy samples back
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		for (int i_ch = 0; i_ch < 3; i_ch++) {
-			audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_MAINLEFT + i_ch] = biquadBuffer[i_ch][s];
+
+		// call biquad trans
+//		biquad_trans(&sampleBuffer[0], &dsp.peqCoeffs[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + i_ch][0], &dsp.peqStates[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + i_ch][0], SAMPLES_IN_BUFFER, MAX_CHAN_EQS);
+
+		// copy samples back
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_MAINLEFT + i_ch] = sampleBuffer[s];
 		}
 	}
 
-	// TODO: process 6-band PEQ on main L/R/S
 	// TODO: process dynamics on main L/R/S
 
 	// main-volume
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		vecvmltf(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_MAINLEFT], &dsp.mainVolume[0], &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MAINLEFT], 3);
+		vecvmltf(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_MAINLEFT], &dsp.mainVolume[0], &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MAINLEFT], MAX_MAIN);
 	}
+	#else
+	// main-volume
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		vecvmltf(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINLEFT], &dsp.mainVolume[0], &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MAINLEFT], MAX_MAIN);
+	}
+	#endif
 
 	//  __  __    _  _____ ____  _____  __
 	// |  \/  |  / \|_   _|  _ \|_ _\ \/ /

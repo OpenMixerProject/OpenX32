@@ -7,6 +7,7 @@
 #define DEBUG_DISABLE_GATE		0
 #define DEBUG_DISABLE_EQ		0
 #define DEBUG_DISABLE_DYNAMICS	0
+#define DEBUG_DISABLE_EQMAIN	0
 #define DEBUG_DISABLE_MIXBUS	1
 
 #define DSP_BUF_IDX_OFF			0	// no audio
