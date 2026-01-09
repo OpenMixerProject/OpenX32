@@ -7,6 +7,7 @@ extern float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2
 
 // function prototypes
 void audioInit(void);
+void audioSmoothVolume(void);
 void audioProcessData(void);
 void audioRxISR(uint32_t , void *);
 

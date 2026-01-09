@@ -62,8 +62,8 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 
 // internal buffers for audio-samples
 float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR]; // audioBuffer[TAPPOINT][SAMPLE][CHANNEL]
-float audioTempBufferChanA[MAX_CHAN_FULLFEATURED] = {0};
-float audioTempBufferChanB[MAX_CHAN_FULLFEATURED] = {0};
+float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
+float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 int audioRx_tcb[8][BUFFER_COUNT][4];
@@ -125,6 +125,20 @@ void audioInit(void) {
 	memset(audioBuffer, 0, sizeof(audioBuffer));
 }
 
+void audioSmoothVolume(void) {
+	// this function smoothes the set audio-volume for a nice user-experience. It is called every 333µs
+
+	// smooth audio-volume for individual channels and FX-returns
+	vecvsubf(&dsp.channelVolumeSet[0], &dsp.channelVolume[0], &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // temp = (volumeSet - volume)
+	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // temp = temp * coeff
+	vecvaddf(&dsp.channelVolume[0], &audioTempBufferChanA[0], &dsp.channelVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // volume = volume + temp
+
+	// smooth audio-volume for mains
+	vecvsubf(&dsp.mainVolumeSet[0], &dsp.mainVolume[0], &audioTempBufferChanA[0], 3); // temp = (volumeSet - volume)
+	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], 3); // temp = temp * coeff
+	vecvaddf(&dsp.mainVolume[0], &audioTempBufferChanA[0], &dsp.mainVolume[0], 3); // volume = volume + temp
+}
+
 void audioProcessData(void) {
 /*
 	Ressource-Demand:
@@ -151,6 +165,8 @@ void audioProcessData(void) {
 	int sampleOffset;
 	int tdmOffset;
 	int tdmBufferOffset;
+
+	audioSmoothVolume();
 
 	//  ___                   _     ____             _   _
 	// |_ _|_ __  _ __  _   _| |_  |  _ \ ___  _   _| |_(_)_ __   __ _

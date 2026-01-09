@@ -1,0 +1,6 @@
+[Inputs]
+i_clk
+[Outputs]
+o_clk
+o_fs
+[BiDir]

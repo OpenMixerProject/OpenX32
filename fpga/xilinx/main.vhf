@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 01/09/2026 01:09:20
+-- /___/   /\     Timestamp : 01/09/2026 10:42:07
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -335,8 +335,9 @@ architecture BEHAVIORAL of main is
              LOCKED_OUT      : out   std_logic);
    end component;
    
-   component wordclock
+   component audioclk_slow
       port ( i_clk : in    std_logic; 
+             o_clk : out   std_logic; 
              o_fs  : out   std_logic);
    end component;
    
@@ -675,7 +676,7 @@ begin
    XLXI_1276 : oddr_clock
       port map (clk_in=>clk_16MHz,
                 reset=>pripll_rst,
-                clk_out=>PLL_IN);
+                clk_out=>open);
    
    XLXI_1277 : BUF
       port map (I=>PLL_AUX,
@@ -732,14 +733,19 @@ begin
    XLXI_1306 : dcm_audioclk
       port map (CLKIN_IN=>PLL_OUT,
                 RST_IN=>secpll_rst,
-                CLKDV_OUT=>clk_12_288MHz,
+                CLKDV_OUT=>open,
                 CLKFX_OUT=>clk_24_576MHz,
                 CLKIN_IBUFG_OUT=>open,
                 CLK0_OUT=>clk_49_152MHz,
                 LOCKED_OUT=>open);
    
-   XLXI_1311 : wordclock
-      port map (i_clk=>clk_12_288MHz,
+   XLXI_1314 : BUF
+      port map (I=>clk_16MHz,
+                O=>PLL_IN);
+   
+   XLXI_1316 : audioclk_slow
+      port map (i_clk=>clk_24_576MHz,
+                o_clk=>clk_12_288MHz,
                 o_fs=>tdm_fs);
    
 end BEHAVIORAL;

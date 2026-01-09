@@ -25,27 +25,35 @@
 #include "system.h"
 
 void systemPllInit() {
-	int i, pmctlsetting;
+	uint32_t i, pmctlsetting;
 
-	// CLKIN = 16.000MHz
+    // CLKIN = 16.000MHz
 	// Multiplier = 32
 	// Divisor = 2
 	// CCLK_SDCLK_RATIO = 2.5
 
-	// set desired PLL-configuration
-	pmctlsetting = (PLLM33 | PLLD2 | DIVEN | SDCKR2); // (Core Clock = 16.000MHz * 33) / 2 = 264 MHz
+	// CoreClock = CLKIN / INDIV * PLLM / PLLD = 16MHz / 2 * 32 / 1 = 264MHz
+	//pmctlsetting = (PLLM24 | PLLD1 | DIVEN | SDCKR2); // 1.225 Hz (96MHz -> 0.8Hz)
+	//pmctlsetting = (PLLM26 | PLLD1 | DIVEN | SDCKR2); // 1.33 Hz (96MHz -> 0.8Hz)
+
+	// VCO max is 400..500MHz
+
+	pmctlsetting = (PLLM33 | PLLD2 | DIVEN | SDCKR2); // Getestet: INDIV halbiert eingangstakt, PLLM6 -> 48MHz, PLLM12 -> 96MHz, PLLM18 -> schneller, PLLM24 -> ca. 1.2Hz, PLLM28 -> 1.4Hz
 	*pPMCTL = pmctlsetting;
 
-	// enable bypass-mode to let the PLL take the changes
-	pmctlsetting |= PLLBP; // enable bypass-mode
-	pmctlsetting &= ~DIVEN; // remove DIVEN
+    // wait 16 core clocks before next activity
+    for (i=0; i<16; i++) { asm("nop;"); }
+
+	pmctlsetting |= PLLBP;
+	pmctlsetting &= ~DIVEN;
 	*pPMCTL = pmctlsetting;
 
     // Wait for at least 4096 CLKIN cycles for the PLL to lock
-    for (i=0; i<5000; i++) { asm("nop;"); }
+    for (i=0; i<4096; i++) { asm("nop;"); }
 
-    // disable the bypass-mode
-    *pPMCTL &= ~PLLBP;
+    pmctlsetting = *pPMCTL;
+    pmctlsetting &= ~PLLBP;
+    *pPMCTL = pmctlsetting;
 
     // wait 16 core clocks before next activity
     for (i=0; i<16; i++) { asm("nop;"); }

@@ -23,7 +23,6 @@
         <signal name="PLL_nCS" />
         <signal name="PLL_CDATA" />
         <signal name="PLL_CCLK" />
-        <signal name="PLL_IN" />
         <signal name="PLL_OUT" />
         <signal name="clk_49_152MHz" />
         <signal name="DA_nRESET" />
@@ -161,12 +160,12 @@
         <signal name="AD0_TX" />
         <signal name="AD1_TX" />
         <signal name="CARD_TX" />
+        <signal name="PLL_IN" />
         <port polarity="Input" name="FPGACLK" />
         <port polarity="Input" name="PLL_AUX" />
         <port polarity="Output" name="PLL_nCS" />
         <port polarity="Output" name="PLL_CDATA" />
         <port polarity="Output" name="PLL_CCLK" />
-        <port polarity="Output" name="PLL_IN" />
         <port polarity="Input" name="PLL_OUT" />
         <port polarity="Output" name="DA_nRESET" />
         <port polarity="Output" name="AD_nRESET" />
@@ -239,6 +238,7 @@
         <port polarity="Output" name="AD0_TX" />
         <port polarity="Output" name="AD1_TX" />
         <port polarity="Output" name="CARD_TX" />
+        <port polarity="Output" name="PLL_IN" />
         <blockdef name="cs42438_config">
             <timestamp>2025-7-26T21:55:16</timestamp>
             <rect width="256" x="64" y="-320" height="320" />
@@ -481,10 +481,11 @@
             <line x2="464" y1="-96" y2="-96" x1="400" />
             <line x2="464" y1="-32" y2="-32" x1="400" />
         </blockdef>
-        <blockdef name="wordclock">
-            <timestamp>2026-1-8T9:16:26</timestamp>
-            <rect width="256" x="64" y="-64" height="64" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
+        <blockdef name="audioclk_slow">
+            <timestamp>2026-1-9T9:41:14</timestamp>
+            <rect width="256" x="64" y="-128" height="128" />
+            <line x2="0" y1="-96" y2="-96" x1="64" />
+            <line x2="384" y1="-96" y2="-96" x1="320" />
             <line x2="384" y1="-32" y2="-32" x1="320" />
         </blockdef>
         <block symbolname="ibufg" name="XLXI_1280">
@@ -518,20 +519,16 @@
         <block symbolname="dcm_audioclk" name="XLXI_1306">
             <blockpin signalname="PLL_OUT" name="CLKIN_IN" />
             <blockpin signalname="secpll_rst" name="RST_IN" />
-            <blockpin signalname="clk_12_288MHz" name="CLKDV_OUT" />
+            <blockpin name="CLKDV_OUT" />
             <blockpin signalname="clk_24_576MHz" name="CLKFX_OUT" />
             <blockpin name="CLKIN_IBUFG_OUT" />
             <blockpin signalname="clk_49_152MHz" name="CLK0_OUT" />
             <blockpin name="LOCKED_OUT" />
         </block>
-        <block symbolname="wordclock" name="XLXI_1311">
-            <blockpin signalname="clk_12_288MHz" name="i_clk" />
-            <blockpin signalname="tdm_fs" name="o_fs" />
-        </block>
         <block symbolname="oddr_clock" name="XLXI_1276">
             <blockpin signalname="clk_16MHz" name="clk_in" />
             <blockpin signalname="pripll_rst" name="reset" />
-            <blockpin signalname="PLL_IN" name="clk_out" />
+            <blockpin name="clk_out" />
         </block>
         <block symbolname="reset" name="XLXI_740">
             <blockpin signalname="clk_16MHz" name="clk" />
@@ -888,6 +885,15 @@
             <blockpin signalname="imx25_uart3_txd" name="I" />
             <blockpin signalname="CARD_TX" name="O" />
         </block>
+        <block symbolname="buf" name="XLXI_1314">
+            <blockpin signalname="clk_16MHz" name="I" />
+            <blockpin signalname="PLL_IN" name="O" />
+        </block>
+        <block symbolname="audioclk_slow" name="XLXI_1316">
+            <blockpin signalname="clk_24_576MHz" name="i_clk" />
+            <blockpin signalname="clk_12_288MHz" name="o_clk" />
+            <blockpin signalname="tdm_fs" name="o_fs" />
+        </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
         <attr value="CM" name="LengthUnitName" />
@@ -963,9 +969,6 @@
         <iomarker fontsize="28" x="1264" y="464" name="PLL_nCS" orien="R0" />
         <iomarker fontsize="28" x="1264" y="624" name="PLL_CDATA" orien="R0" />
         <iomarker fontsize="28" x="1264" y="544" name="PLL_CCLK" orien="R0" />
-        <branch name="PLL_IN">
-            <wire x2="2368" y1="176" y2="176" x1="2320" />
-        </branch>
         <branch name="clk_16MHz">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1904" y="176" type="branch" />
             <wire x2="1936" y1="176" y2="176" x1="1904" />
@@ -980,24 +983,9 @@
             <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="2432" y="464" type="branch" />
             <wire x2="2432" y1="464" y2="464" x1="2368" />
         </branch>
-        <branch name="clk_12_288MHz">
-            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="2432" y="400" type="branch" />
-            <wire x2="2432" y1="400" y2="400" x1="2368" />
-        </branch>
         <branch name="secpll_rst">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1872" y="656" type="branch" />
             <wire x2="1904" y1="656" y2="656" x1="1872" />
-        </branch>
-        <instance x="1936" y="880" name="XLXI_1311" orien="R0">
-        </instance>
-        <branch name="tdm_fs">
-            <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="2336" y="848" type="branch" />
-            <wire x2="2336" y1="848" y2="848" x1="2320" />
-            <wire x2="2448" y1="848" y2="848" x1="2336" />
-        </branch>
-        <branch name="clk_12_288MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1872" y="848" type="branch" />
-            <wire x2="1936" y1="848" y2="848" x1="1872" />
         </branch>
         <branch name="PLL_OUT">
             <wire x2="1904" y1="400" y2="400" x1="1840" />
@@ -1009,7 +997,6 @@
         </branch>
         <instance x="1936" y="272" name="XLXI_1276" orien="R0">
         </instance>
-        <iomarker fontsize="28" x="2368" y="176" name="PLL_IN" orien="R0" />
         <iomarker fontsize="28" x="1840" y="400" name="PLL_OUT" orien="R180" />
         <rect style="linewidth:W;linecolor:rgb(0,0,255)" width="1292" x="2816" y="40" height="588" />
         <text style="fontsize:36;fontname:Arial;textcolor:rgb(255,0,0)" x="2840" y="84">Reset</text>
@@ -1844,5 +1831,28 @@
         <iomarker fontsize="28" x="7264" y="448" name="AD1_TX" orien="R0" />
         <iomarker fontsize="28" x="6896" y="368" name="imx25_uart3_txd" orien="R180" />
         <iomarker fontsize="28" x="7264" y="528" name="CARD_TX" orien="R0" />
+        <branch name="PLL_IN">
+            <wire x2="1568" y1="144" y2="144" x1="1520" />
+        </branch>
+        <iomarker fontsize="28" x="1568" y="144" name="PLL_IN" orien="R0" />
+        <branch name="clk_16MHz">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1248" y="144" type="branch" />
+            <wire x2="1296" y1="144" y2="144" x1="1248" />
+        </branch>
+        <instance x="1296" y="176" name="XLXI_1314" orien="R0" />
+        <branch name="clk_24_576MHz">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1904" y="800" type="branch" />
+            <wire x2="1952" y1="800" y2="800" x1="1904" />
+        </branch>
+        <branch name="clk_12_288MHz">
+            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="2384" y="800" type="branch" />
+            <wire x2="2384" y1="800" y2="800" x1="2336" />
+        </branch>
+        <instance x="1952" y="896" name="XLXI_1316" orien="R0">
+        </instance>
+        <branch name="tdm_fs">
+            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="2384" y="864" type="branch" />
+            <wire x2="2384" y1="864" y2="864" x1="2336" />
+        </branch>
     </sheet>
 </drawing>

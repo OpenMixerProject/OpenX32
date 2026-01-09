@@ -234,7 +234,7 @@ void spiProcessRxData(void) {
 					unsigned short channel    = ((payload[0] & 0x0000FF00) >> 8);
 					unsigned short index      = ((payload[0] & 0x00FF0000) >> 16);
 					unsigned short valueCount = ((payload[0] & 0xFF000000) >> 24);
-					openx32Command(classId, channel, index, valueCount, &payload[1]); // classId, channel, index, valuecount, values[]
+					commExecCommand(classId, channel, index, valueCount, &payload[1]); // classId, channel, index, valuecount, values[]
 
 					state = LOOKING_FOR_START_MARKER; // reset state
 				}else{
