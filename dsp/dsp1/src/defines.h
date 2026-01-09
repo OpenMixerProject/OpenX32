@@ -39,7 +39,7 @@
 #define MAX_MONITOR				3	// internal Monitor-Channels
 
 #define MAX_CHAN_EQS			4
-#define CHANNELS_WITH_4BD_EQ	(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)	// consecutive channels that are using a 4-band PEQ
+#define CHANNELS_WITH_4BD_EQ	(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MAIN)	// consecutive channels that are using a 4-band PEQ
 #define CHANNELS_WITH_6BD_EQ	(MAX_MIXBUS)	// consecutive channels that are using a 6-band PEQ
 #define MAX_CHAN_FULLFEATURED	32	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 #define MAX_CHAN_REDUCED		(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN - MAX_CHAN_FULLFEATURED)	// depending on the overall load not all channels can be full-featured (gate + dynamics)
