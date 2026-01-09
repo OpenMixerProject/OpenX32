@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 01/08/2026 10:23:13
+-- /___/   /\     Timestamp : 01/09/2026 01:09:20
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -120,7 +120,6 @@ architecture BEHAVIORAL of main is
    signal pripll_rst      : std_logic;
    signal rst             : std_logic;
    signal secpll_rst      : std_logic;
-   signal start           : std_logic;
    signal tdm_fs          : std_logic;
    signal tdm_input       : std_logic_vector (19 downto 0);
    signal tdm_output      : std_logic_vector (19 downto 0);
@@ -378,7 +377,7 @@ begin
    
    XLXI_124 : cs42438_config
       port map (clk=>clk_16MHz,
-                i_start=>start,
+                i_start=>online,
                 i_txbusy=>XLXN_70,
                 o_address(7 downto 0)=>XLXN_67(7 downto 0),
                 o_data(7 downto 0)=>XLXN_69(7 downto 0),

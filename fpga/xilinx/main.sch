@@ -12,22 +12,13 @@
         <signal name="clk_24_576MHz" />
         <signal name="secpll_rst" />
         <signal name="pripll_rst" />
-        <signal name="XLXN_3424" />
-        <signal name="XLXN_3425" />
-        <signal name="XLXN_3426" />
-        <signal name="XLXN_3442" />
-        <signal name="XLXN_3450" />
-        <signal name="XLXN_3463" />
         <signal name="FPGACLK" />
         <signal name="PLL_AUX" />
         <signal name="pll_locked" />
-        <signal name="XLXN_3528" />
-        <signal name="XLXN_3540" />
         <signal name="XLXN_222" />
         <signal name="XLXN_223(7:0)" />
         <signal name="XLXN_224(7:0)" />
         <signal name="XLXN_225(7:0)" />
-        <signal name="XLXN_3552" />
         <signal name="XLXN_226" />
         <signal name="PLL_nCS" />
         <signal name="PLL_CDATA" />
@@ -35,24 +26,20 @@
         <signal name="PLL_IN" />
         <signal name="PLL_OUT" />
         <signal name="clk_49_152MHz" />
-        <signal name="XLXN_3582" />
         <signal name="DA_nRESET" />
         <signal name="AD_nRESET" />
         <signal name="CARD_nRESET" />
-        <signal name="XLXN_3596" />
         <signal name="online" />
         <signal name="rst" />
         <signal name="XLXN_67(7:0)" />
         <signal name="XLXN_68(7:0)" />
         <signal name="XLXN_69(7:0)" />
-        <signal name="XLXN_3618" />
         <signal name="XLXN_70" />
         <signal name="AUX_nRST" />
         <signal name="AUX_nCS" />
         <signal name="AUX_CCLK" />
         <signal name="AUX_CDATA" />
         <signal name="XLXN_346" />
-        <signal name="start" />
         <signal name="imx25_uart4_txd" />
         <signal name="imx25_uart4_rxd" />
         <signal name="imx25_uart3_rxd" />
@@ -60,8 +47,6 @@
         <signal name="AD0_RX" />
         <signal name="AD1_RX" />
         <signal name="CARD_RX" />
-        <signal name="XLXN_3647(7:0)" />
-        <signal name="XLXN_3649(7:0)" />
         <signal name="AD1_MCLK" />
         <signal name="AD1_BCLK" />
         <signal name="AD1_FSYNC" />
@@ -129,9 +114,7 @@
         <signal name="tdm_input(13)" />
         <signal name="XLXN_1898" />
         <signal name="XLXN_2448(7:0)" />
-        <signal name="XLXN_3852(7:0)" />
         <signal name="XLXN_2449(7:0)" />
-        <signal name="XLXN_3854(7:0)" />
         <signal name="XLXN_2459(7:0)" />
         <signal name="XLXN_2460" />
         <signal name="XLXN_2461(7:0)" />
@@ -582,7 +565,7 @@
         </block>
         <block symbolname="cs42438_config" name="XLXI_124">
             <blockpin signalname="clk_16MHz" name="clk" />
-            <blockpin signalname="start" name="i_start" />
+            <blockpin signalname="online" name="i_start" />
             <blockpin signalname="XLXN_70" name="i_txbusy" />
             <blockpin signalname="AUX_nRST" name="o_nRST" />
             <blockpin signalname="XLXN_346" name="o_start" />
@@ -1116,7 +1099,7 @@
         </instance>
         <instance x="4320" y="496" name="XLXI_124" orien="R0">
         </instance>
-        <branch name="start">
+        <branch name="online">
             <attrtext style="alignment:SOFT-BCENTER;fontsize:28;fontname:Arial" attrname="Name" x="4288" y="336" type="branch" />
             <wire x2="4288" y1="336" y2="336" x1="4192" />
             <wire x2="4320" y1="336" y2="336" x1="4288" />
