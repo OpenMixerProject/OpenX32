@@ -1488,6 +1488,14 @@ float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
     return 0;
 }
 
+void Mixer::Card_SetChannels(uint8_t channelparamter) {
+    adda->SetCard_XUSB_NumberOfChannels(channelparamter);
+}
+
+void Mixer::Card_SendCommand(String command) {
+    adda->Card_SendCommand(command);
+}
+
 void Mixer::DebugPrintvChannels(void){
 	for (int i = 0; i < MAX_VCHANNELS; i++)
 	{

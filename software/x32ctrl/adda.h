@@ -49,6 +49,10 @@ class Adda : public X32Base {
 
         void SetMuteAll(bool muted);
         int8_t GetXlrInBoardId(uint8_t channel);
+
+        void Card_SendCommand(String command);
+        void SetCard_XUSB_NumberOfChannels(uint8_t channelparameter);
+        void SetCard_XLIVE_NumberOfChannels(uint8_t channelparamter, bool usb);
 };
 
 

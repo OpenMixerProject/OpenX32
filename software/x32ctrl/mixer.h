@@ -108,5 +108,8 @@ class Mixer : public X32Base
         void Sync(void);
         uint8_t halGetDspInputSource(uint8_t dspChannel);
 
+        void Card_SetChannels(uint8_t channelparameter);
+        void Card_SendCommand(String command);
+
         void DebugPrintvChannels(void);
 };
