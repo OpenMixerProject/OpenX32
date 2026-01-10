@@ -8,6 +8,7 @@
 
 #include "lv_port_linux/lvgl/lvgl.h"
 #include "eez/src/ui/screens.h"
+#include "eez/src/ui/styles.h"
 
 using namespace std;
 

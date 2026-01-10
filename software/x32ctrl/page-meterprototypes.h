@@ -13,100 +13,137 @@ class PageMeterPrototypes : public Page {
             hideEncoders = true;
         }
 
+        void OnInit() override {
+            meterBlocks[0] = objects.meters_1_8;
+            meterBlocks[1] = objects.meters_9_16;
+            meterBlocks[2] = objects.meters_17_24;
+            meterBlocks[3] = objects.meters_25_32;
+            meterBlocks[4] = objects.meters_aux;
+            meterBlocks[5] = objects.meters_fxret;
+            meterBlocks[6] = objects.meters_bus_1_8;
+            meterBlocks[7] = objects.meters_bus_9_16;
+            meterBlocks[8] = objects.meters_matrix;
+        }
+
         void OnShow() override {
-            lv_led_off(objects.led_xlr01_phantom);
-            lv_led_off(objects.led_xlr01_invert);
-            lv_led_off(objects.led_xlr01_input_level);
-
-            lv_led_off(objects.led_ch01_input);
-            lv_led_off(objects.led_ch01_output);
-
-            lv_led_off(objects.led_main_l);
-            lv_led_off(objects.led_main_r);
+            OnChange();
+            firstInit = false;            
         }
 
         void OnChange() override {
 
-            if (state->HasChanged(X32_MIXER_CHANGED_METER))
+            if (state->HasChanged(X32_MIXER_CHANGED_METER) || state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) || firstInit)
             {
-                // Channel 1-32
-                // TODO Phantom, Invert, ...
-                if(debug1)
-                {
-                    lv_led_set_brightness(objects.led_ch01_input, metertoled(mixer->dsp->rChannel[0].meterDecay));
-                }
+                bool changed_meter = state->HasChanged(X32_MIXER_CHANGED_METER) || firstInit;
+                bool changed_vchannel = state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) || firstInit;
 
-                // Main L/R
-                if(debug1)
-                {
-                    lv_led_set_brightness(objects.led_main_l, metertoled(mixer->dsp->MainChannelLR.meterDecay[0]));
-                    lv_led_set_brightness(objects.led_main_r, metertoled(mixer->dsp->MainChannelLR.meterDecay[1]));
-                }
 
-                // LED-Style VU-Meters with faders
-                if(debug2)
-                {
-                                
-                    lv_obj_t * parent = objects.meterstrip_ch01;
-                    srDspChannel rDspChan = mixer->dsp->rChannel[0];
-                    for(int i = 0; i < lv_obj_get_child_count_by_type(parent, &lv_led_class); i++) {
-                        lv_obj_t * child = lv_obj_get_child_by_type(parent, i, &lv_led_class);
+                for(int m = 0; m < 9; m++) {
+                    lv_obj_t* parent = meterBlocks[m];
+                    for(int i = 0; i < lv_obj_get_child_count(parent); i++) {
 
-                        if (lv_obj_get_class(child) == &lv_led_class){                    
-                            lv_led_set_brightness(child, ((rDspChan.meter6Info << i) & 0b100000) ? 255: 0);
+                        uint8_t index = i+(m*8);
+
+                        lv_obj_t * strip = lv_obj_get_child(parent, i);
+                        lv_obj_t * meter = lv_obj_get_child(strip, 0);
+                        lv_obj_t * fader = lv_obj_get_child(strip, 2);   
+
+                        // CH1-32 + AUX
+                        if (m < 5) { 
+                            if (changed_meter) {
+                                lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
+                            }
+                            if (changed_vchannel) {
+                                VChannel* chan = mixer->GetVChannel(index);
+
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || firstInit) {
+                                    mixer->dsp->Channel[index].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                                }
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || firstInit) {
+                                    mixer->dsp->Channel[index].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                                } 
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
+                                    lv_slider_set_value(fader, mixer->dsp->Channel[index].volumeLR, LV_ANIM_OFF);
+                                } 
+                            }
+                        } else 
+
+                        // FX Ret
+                        if (m == 5) {
+                            if (changed_vchannel) {
+                                VChannel* chan = mixer->GetVChannel(index);
+
+                                // if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)) {
+                                //     mixer->dsp->Channel[index].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                                // }
+                                // if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)) {
+                                //     mixer->dsp->Channel[index].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                                // } 
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
+                                    lv_slider_set_value(fader, mixer->dsp->volumeFxReturn[index], LV_ANIM_OFF);
+                                } 
+                            }
+                        } else 
+                        
+                        // Bus 1-16
+                        if ((m == 6) || (m == 7)) {
+                            if (changed_meter) {
+                                //lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
+                            }
+                            if (changed_vchannel) {
+                                VChannel* chan = mixer->GetVChannel(index);
+
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
+                                    lv_slider_set_value(fader, mixer->dsp->Bus[i].volumeLR, LV_ANIM_OFF);
+                                }                          
+                            }
+                        } else
+                        
+                        // Matrix
+                        if (m == 8) {
+                            if (changed_meter) {
+                                if (i < 6) {
+                                    //lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->Matrix[i]. MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
+                                } else if (i == 6) {
+                                    lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
+                                } else if (i == 7) {
+                                    // TODO use both channels!
+                                    lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelLR.meterDecay[0]), LV_ANIM_OFF);
+                                }
+                            }
+                            if (changed_vchannel) {
+                                VChannel* chan = mixer->GetVChannel(index);
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || firstInit) {
+                                    if (i < 6) {
+                                        mixer->dsp->Matrix[i].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                                    } else if (i == 6) {
+                                        mixer->dsp->MainChannelSub.solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                                    } else if (i == 7) {
+                                        mixer->dsp->MainChannelLR.solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                                    }
+                                }
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || firstInit) {
+                                    if (i < 6) {
+                                        mixer->dsp->Matrix[i].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                                    } else if (i == 6) {
+                                        mixer->dsp->MainChannelSub.muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                                    } else if (i == 7) {
+                                        mixer->dsp->MainChannelLR.muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                                    }
+                                }
+                                if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
+                                    if (i < 6) {
+                                        lv_slider_set_value(fader, mixer->dsp->Matrix[i].volume, LV_ANIM_OFF);
+                                    } else if (i == 6) {
+                                        lv_slider_set_value(fader, mixer->dsp->MainChannelSub.volume, LV_ANIM_OFF);
+                                    } else if (i == 7) {
+                                        lv_slider_set_value(fader, mixer->dsp->MainChannelLR.volume, LV_ANIM_OFF);
+                                    }
+                                }
+                            }
                         }
                     }
-                    lv_slider_set_value(objects.meterstrip_ch01__fader, mixer->dsp->Channel[0].volumeLR, LV_ANIM_OFF);
-
-                    parent = objects.meterstrip_ch02;
-                    rDspChan = mixer->dsp->rChannel[1];
-                    for(int i = 0; i < lv_obj_get_child_count_by_type(parent, &lv_led_class); i++) {
-                        lv_obj_t * child = lv_obj_get_child_by_type(parent, i, &lv_led_class);
-
-                        if (lv_obj_get_class(child) == &lv_led_class){                    
-                            lv_led_set_brightness(child, ((rDspChan.meter6Info << i) & 0b100000) ? 255: 0);
-                        }
-                    }
-                    lv_slider_set_value(objects.meterstrip_ch02__fader, mixer->dsp->Channel[1].volumeLR, LV_ANIM_OFF);
-
-                    parent = objects.meterstrip_ch03;
-                    rDspChan = mixer->dsp->rChannel[2];
-                    for(int i = 0; i < lv_obj_get_child_count_by_type(parent, &lv_led_class); i++) {
-                        lv_obj_t * child = lv_obj_get_child_by_type(parent, i, &lv_led_class);
-
-                        if (lv_obj_get_class(child) == &lv_led_class){                    
-                            lv_led_set_brightness(child, ((rDspChan.meter6Info << i) & 0b100000) ? 255: 0);
-                        }
-                    }
-                    lv_slider_set_value(objects.meterstrip_ch03__fader, mixer->dsp->Channel[2].volumeLR, LV_ANIM_OFF);
-
-                    parent = objects.meterstrip_aux1;
-                    rDspChan = mixer->dsp->rChannel[32];
-
-                    for(int i = 0; i < lv_obj_get_child_count_by_type(parent, &lv_led_class); i++) {
-                        lv_obj_t * child = lv_obj_get_child_by_type(parent, i, &lv_led_class);
-
-                        if (lv_obj_get_class(child) == &lv_led_class){                    
-                            lv_led_set_brightness(child, ((rDspChan.meter6Info << i) & 0b100000) ? 255: 0);
-                        }
-                    }
-                    lv_slider_set_value(objects.meterstrip_aux1__fader, mixer->dsp->Channel[32].volumeLR, LV_ANIM_OFF);
-
-                    parent = objects.meterstrip_aux2;
-                    rDspChan = mixer->dsp->rChannel[33];
-
-                    for(int i = 0; i < lv_obj_get_child_count_by_type(parent, &lv_led_class); i++) {
-                        lv_obj_t * child = lv_obj_get_child_by_type(parent, i, &lv_led_class);
-
-                        if (lv_obj_get_class(child) == &lv_led_class){                    
-                            lv_led_set_brightness(child, ((rDspChan.meter6Info << i) & 0b100000) ? 255: 0);
-                        }
-                    }
-                    lv_slider_set_value(objects.meterstrip_aux2__fader, mixer->dsp->Channel[33].volumeLR, LV_ANIM_OFF);
-                }
-
-
-
+                }              
             }
         }
 
@@ -114,10 +151,8 @@ class PageMeterPrototypes : public Page {
             if (pressed){
                 switch (button){
                     case X32_BTN_ENCODER1:
-                        debug1 = !debug1;
                         break;
                     case X32_BTN_ENCODER2:
-                        debug2 = !debug2;
                         break;
                     case X32_BTN_ENCODER3:
                         break;
@@ -126,6 +161,12 @@ class PageMeterPrototypes : public Page {
                     case X32_BTN_ENCODER5:
                         break;
                     case X32_BTN_ENCODER6:
+                        {
+							for (int i =0; i < 16; i++) {
+								mixer->SetPhantom(i, true);
+								mixer->SetGain(i, 47);
+							}
+						}
                         break;
                     default:
                         // just here to avoid compiler warnings
@@ -135,21 +176,6 @@ class PageMeterPrototypes : public Page {
         }
 
         private:
-
-            bool debug1 = true;
-            bool debug2 = true;
-
-            uint8_t metertoled(uint32_t metervalue) {
-                
-                // TODO: find good looking values :-)
-                // TODO2: color -> green, yellow, red (Clip)
-
-                if (metervalue >= VUTRESH_00_DBFS_CLIP) return 255;
-                if (metervalue >= VUTRESH_MINUS_06_DBFS) return 200;
-                if (metervalue >= VUTRESH_MINUS_12_DBFS) return 180;
-                if (metervalue >= VUTRESH_MINUS_18_DBFS) return 150;
-                if (metervalue >= VUTRESH_MINUS_30_DBFS) return 100;
-                if (metervalue >= VUTRESH_MINUS_60_DBFS) return 50;
-                return 0;
-            }
+            lv_obj_t* meterBlocks[9];
+            bool firstInit = true;
 };

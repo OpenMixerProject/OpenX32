@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/1",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/2",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/0",
     "subnavigationSelectedItems": {}
@@ -81,7 +81,7 @@
           {
             "type": "border",
             "selected": 3,
-            "size": 277.5,
+            "size": 0,
             "location": "bottom",
             "children": [
               {
@@ -200,40 +200,38 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 59.446516019096016,
-              "selected": 1,
+              "weight": 25.989620104521364,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
                 {
                   "type": "tab",
-                  "id": "#eb47f86e-2fdf-46e2-b945-94fd6b0b135f",
-                  "name": "meter_strip",
+                  "id": "#afe9e1d6-4012-4f1c-a5c8-eb56d04ee272",
+                  "name": "meter_strip_bar",
                   "component": "editor",
                   "config": {
-                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/1",
-                    "permanent": false
+                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/2",
+                    "permanent": true
                   },
                   "icon": "svg:user_widget"
                 },
                 {
                   "type": "tab",
-                  "id": "#f7536bcc-2177-4d87-b336-cbcdbdaeec65",
+                  "id": "#bf2e16e9-e86f-4964-b174-c1b83223333e",
                   "name": "Main",
                   "component": "editor",
                   "config": {
                     "objectPath": "[OpenX32Gui.eez-project]:/userPages/0",
-                    "permanent": false
+                    "permanent": true
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 19.30990854005965,
+              "weight": 26.777184350112922,
               "children": [
                 {
                   "type": "tab",
@@ -243,7 +241,8 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ]
+              ],
+              "active": true
             }
           ]
         }
@@ -981,7 +980,11 @@
             "0": {},
             "1": {
               "0": {
-                "1": {}
+                "1": {
+                  "26": {
+                    "$selected": true
+                  }
+                }
               }
             }
           },
@@ -990,10 +993,10 @@
       },
       "transform": {
         "translate": {
-          "x": -401.70034321273556,
-          "y": -215.09110166833705
+          "x": -1353.2187920476208,
+          "y": -737.9043690522233
         },
-        "scale": 1
+        "scale": 9
       },
       "timeline": {
         "isEditorActive": false,
@@ -1049,6 +1052,26 @@
         "secondToPx": 200,
         "scrollLeft": 0
       }
+    },
+    "[OpenX32Gui.eez-project]:/userWidgets/2[flow-state]": {
+      "selection": {
+        "2": {
+          "$selected": true
+        }
+      },
+      "transform": {
+        "translate": {
+          "x": -192.04571428571347,
+          "y": -428.28571428570694
+        },
+        "scale": 9
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
     }
   },
   "activeOutputSection": 0,
@@ -1066,10 +1089,10 @@
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "TEXT"
+    "LINE"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 1,
+  "flowZoom": 9,
   "implementationLanguage": "C"
 }

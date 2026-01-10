@@ -17,6 +17,30 @@ lv_style_t *get_style_tab_nopad_MAIN_DEFAULT();
 void add_style_tab_nopad(lv_obj_t *obj);
 void remove_style_tab_nopad(lv_obj_t *obj);
 
+// Style: slider_fader
+lv_style_t *get_style_slider_fader_KNOB_DEFAULT();
+lv_style_t *get_style_slider_fader_INDICATOR_DEFAULT();
+void add_style_slider_fader(lv_obj_t *obj);
+void remove_style_slider_fader(lv_obj_t *obj);
+
+// Style: slider_fader_solo
+lv_style_t *get_style_slider_fader_solo_MAIN_DEFAULT();
+lv_style_t *get_style_slider_fader_solo_INDICATOR_DEFAULT();
+lv_style_t *get_style_slider_fader_solo_KNOB_DEFAULT();
+void add_style_slider_fader_solo(lv_obj_t *obj);
+void remove_style_slider_fader_solo(lv_obj_t *obj);
+
+// Style: slider_fader_mute
+lv_style_t *get_style_slider_fader_mute_KNOB_DEFAULT();
+lv_style_t *get_style_slider_fader_mute_INDICATOR_DEFAULT();
+void add_style_slider_fader_mute(lv_obj_t *obj);
+void remove_style_slider_fader_mute(lv_obj_t *obj);
+
+// Style: panel_flat_black
+lv_style_t *get_style_panel_flat_black_MAIN_DEFAULT();
+void add_style_panel_flat_black(lv_obj_t *obj);
+void remove_style_panel_flat_black(lv_obj_t *obj);
+
 
 
 #ifdef __cplusplus
