@@ -86,7 +86,6 @@ class PageRoutingFpga: public Page {
                     break;
                 case X32_ENC_ENCODER4:
                     int8_t absoluteChange;
-                    uint8_t currentItem;
                     if (amount < 0) {
                         absoluteChange = -8;
                     }else{
