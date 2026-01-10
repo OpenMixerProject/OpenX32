@@ -681,7 +681,8 @@ void X32Ctrl::syncGui() {
 		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)	||
 		state->HasChanged(X32_MIXER_CHANGED_ROUTING) 	||
 		state->HasChanged(X32_MIXER_CHANGED_METER)		||
-		state->HasChanged(X32_MIXER_CHANGED_GUI)
+		state->HasChanged(X32_MIXER_CHANGED_GUI)		||
+		state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)
 		)) {
 		return;
 	}
