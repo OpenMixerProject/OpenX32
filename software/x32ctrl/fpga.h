@@ -18,8 +18,10 @@ class Fpga : public X32Base {
 
         Fpga(X32BaseParameter* basepar);
 
-        void Init(void);
-        void RoutingDefaultConfig(void);
+        void Init();
+        void RoutingDefaultConfig();
+        void RoutingXlrAs32CHInput();
+        void RoutingCardAs32CHInput();
 
         void Connect(uint8_t inputIndex, uint8_t group, uint8_t channel);
         void ConnectByIndex(uint8_t inputIndex, uint8_t outputIndex);

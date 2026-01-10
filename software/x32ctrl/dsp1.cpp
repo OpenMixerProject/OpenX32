@@ -80,7 +80,13 @@ void DSP1::Init(void) {
 
     }
 
-    for (uint8_t i = 0; i < 40; i++) {
+    LoadRouting_X32Default();
+}
+
+void DSP1::LoadRouting_X32Default()
+{
+    for (uint8_t i = 0; i < 40; i++)
+    {
 
         // DSP1 Routing Sources
         //
@@ -106,23 +112,26 @@ void DSP1::Init(void) {
         // Volumes, Balance and Mute/Solo is setup in mixerInit()
     }
 
-    for (uint8_t i = 0; i < 16; i++) {
+    for (uint8_t i = 0; i < 16; i++)
+    {
         Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2 Channels 1-16
         Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
     }
-    for (uint8_t i = 16; i < 24; i++) {
+    for (uint8_t i = 16; i < 24; i++)
+    {
         Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Channels 17-24
         Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
     }
-    for (uint8_t i = 0; i < 40; i++) {
+    for (uint8_t i = 0; i < 40; i++)
+    {
         // connect MainLeft on even and MainRight on odd channels as PostFader
         Dsp1toFpga[i].input = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
         Dsp1toFpga[i].tapPoint = DSP_TAP_POST_FADER;
     }
 }
 
-void DSP1::Tick10ms(void) {
-    spi->Tick10ms();
+void DSP1::ReadAndUpdateVUMeterData(void) {
+    spi->ReadData();
 
     // process SPI-Data
     while (spi->HasNextEvent()) {
@@ -137,10 +146,6 @@ void DSP1::Tick10ms(void) {
 
     // recalculate peak-hold and VU with decay
     UpdateVuMeter();
-}
-
-void DSP1::Tick100ms(void) {
-    spi->Tick100ms();
 }
 
 
@@ -865,9 +870,6 @@ void DSP1::UpdateVuMeter() {
 		//Channel[i].compressor.gain = floatValues[45 + i];
 		//Channel[i].gate.gain = floatValues[85 + i];
 	}
-
-    state->SetChangeFlags(X32_MIXER_CHANGED_METER);
-
 }
 
 uint8_t DSP1::GetPeak(int i, uint8_t steps)

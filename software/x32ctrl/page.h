@@ -43,7 +43,7 @@ class Page : public X32Base {
         void SetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
 
         virtual void OnInit();
-        virtual void OnTime10ms();
+        virtual void OnUpdateMeters();
         virtual void OnShow();
         virtual void OnChange();
 
@@ -52,7 +52,7 @@ class Page : public X32Base {
 
         void Init();
         void Show();
-        void Time10ms();
+        void UpdateMeters();
         void Change();
 
         // a display encoder was turned

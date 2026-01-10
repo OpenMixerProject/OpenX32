@@ -39,8 +39,6 @@ class Mixer : public X32Base
 
         Mixer(X32BaseParameter* basepar);
         void Init();
-        void Tick10ms();
-        void Tick100ms();
 
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);

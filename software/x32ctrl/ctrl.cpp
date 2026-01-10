@@ -299,45 +299,48 @@ void X32Ctrl::SaveConfig() {
 //#####################################################################################################################
 
 void X32Ctrl::Tick10ms(void){
-	// DEBUG
-	if (state->timers){
-		helper->stoptimer(10, "Tick10ms - delay between calls");
-	}
 
-	surface->Tick10ms();	
-	mixer->Tick10ms();
+	surface->Touchcontrol();	
+	mixer->dsp->ReadAndUpdateVUMeterData();
 
 	ProcessUartData();
 
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
 	UdpHandleCommunication();
 
-	syncAll();
+	// sync all state-based events
+	if (state->HasAnyChanged()){
 
-	// DEBUG
-	if (state->timers){
-		helper->starttimer(10);
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "SyncAll ");
+
+		syncGui();
+		syncSurface();
+		syncXRemote(false);
+
+		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
+			mixer->Sync();
+		}
+
+		state->ResetChangeFlags();
+		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
+			mixer->GetVChannel(index)->ResetVChannelChangeFlags();
+		}
 	}
 }
 
-void X32Ctrl::Tick100ms(void){
-	// DEBUG
-	if (state->timers){
-		helper->stoptimer(0, "Tick100ms - delay between calls");
-	}
-	
+void X32Ctrl::Tick50ms(void) {
+
 	UpdateMeters();
-	surface->Tick100ms();
-	mixer->Tick100ms();
+}
+
+void X32Ctrl::Tick100ms(void) {
+
+	surface->Blink();
+	mixer->dsp->spi->ActivityLight();
 
 	if (!config->IsModelX32Core() && state->activePage == X32_PAGE_UTILITY) {
 		// read the current DSP load
 	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
-	}
-
-	// DEBUG
-	if (state->timers){
-		helper->starttimer(0);
 	}
 }
 
@@ -662,33 +665,14 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 //#####################################################################################################################
 
 void X32Ctrl::syncAll(void) {
-	if (state->HasAnyChanged()){
-
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "SyncAll ");
-
-		syncGui();
-		syncSurface();
-		syncXRemote(false);
-
-		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
-			mixer->Sync();
-		}
-
-		state->ResetChangeFlags();
-		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
-			mixer->GetVChannel(index)->ResetVChannelChangeFlags();
-		}
-	}
+	
 }
 
 // sync mixer state to GUI
-void X32Ctrl::syncGui(void) {
+void X32Ctrl::syncGui() {
 	if (config->IsModelX32Core()){
 		return;
 	}
-
-	// call timer based Gui operations
-	pages[state->activePage]->Time10ms();
 
 	// if these have not changed, do nothing else
 	if (!(
@@ -1085,16 +1069,17 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
 
 // Update all meters (Gui, Surface, xremote)
 void X32Ctrl::UpdateMeters(void) {
-	
+
+	pages[state->activePage]->UpdateMeters();
 	xremote->UpdateMeter(mixer);
 
-	uint8_t chanIdx = config->selectedVChannel;
+	// ########################################
+	//
+	//		Surface Meters
+	//
+	// ########################################
 
-	// ########################################
-	//
-	//		Main Meters
-	//
-	// ########################################
+	uint8_t chanIdx = config->selectedVChannel;
 
 	if (config->IsModelX32Core()) {
 		// TODO

@@ -53,8 +53,8 @@ class DSP1 : X32Base {
 
         DSP1(X32BaseParameter* basepar);
         void Init(void);
-        void Tick10ms(void);
-        void Tick100ms(void);
+        void LoadRouting_X32Default();
+        void ReadAndUpdateVUMeterData(void);
 
         void SendChannelVolume(uint8_t chan);
         void SendChannelSend(uint8_t chan);

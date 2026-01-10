@@ -62,15 +62,6 @@ void Surface::Reset(void) {
     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "... Done");
 }
 
-
-void Surface::Tick10ms(){
-    Touchcontrol();
-}
-
-void Surface::Tick100ms(){
-    Blink();
-}
-
 void Surface::AddLedDefinition(X32_BTN led, uint16_t ledNr) {
     Enum2Led[led] = ledNr;
     helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "added led definition: Led %d -> LedNr %d", led, ledNr);

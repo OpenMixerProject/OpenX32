@@ -99,6 +99,7 @@ class X32Ctrl : public X32Base {
         void Init();
         void SaveConfig();
         void Tick10ms(void);
+        void Tick50ms(void);
         void Tick100ms(void);
         void ProcessEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);

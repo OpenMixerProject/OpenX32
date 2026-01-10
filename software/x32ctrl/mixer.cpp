@@ -47,13 +47,8 @@ void Mixer::Init() {
 	}
 }
 
-void Mixer::Tick10ms(void){
-    dsp->Tick10ms();
-}
 
-void Mixer::Tick100ms(void){
-    dsp->Tick100ms();
-}
+
 
 
 void Mixer::LoadVChannelLayout() {

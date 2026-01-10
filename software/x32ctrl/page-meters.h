@@ -30,29 +30,64 @@ class PageMeters : public Page {
             firstInit = false;            
         }
 
+        void OnUpdateMeters() override {
+
+            for(int m = 0; m < 9; m++) {
+                lv_obj_t* parent = meterBlocks[m];
+                for(int i = 0; i < lv_obj_get_child_count(parent); i++) {
+
+                    uint8_t index = i+(m*8);
+
+                    lv_obj_t * strip = lv_obj_get_child(parent, i);
+                    lv_obj_t * meter = lv_obj_get_child(strip, 0); 
+
+                    // CH1-32 + AUX
+                    if (m < 5) { 
+                        lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
+                    } else 
+
+                    // FX Ret
+                    if (m == 5) {
+                        // TODO Meter
+                    } else 
+                    
+                    // Bus 1-16
+                    if ((m == 6) || (m == 7)) {
+                        // TODO Meter
+                    } else
+                    
+                    // Matrix
+                    if (m == 8) {
+                        if (i < 6) {
+                            //lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->Matrix[i]. MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
+                        } else if (i == 7) {
+                            lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
+                        }
+                    }
+                }
+            }
+
+            // Main L/R
+            // TODO use both channels!
+            lv_bar_set_value(objects.ms_main_lr__meter, helper->sample2Dbfs(mixer->dsp->MainChannelLR.meterDecay[0]), LV_ANIM_OFF);
+        }
+
         void OnChange() override {
 
-            if (state->HasChanged(X32_MIXER_CHANGED_METER) || state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) || firstInit)
+            if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) || firstInit)
             {
-                bool changed_meter = state->HasChanged(X32_MIXER_CHANGED_METER) || firstInit;
                 bool changed_vchannel = state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) || firstInit;
-
 
                 for(int m = 0; m < 9; m++) {
                     lv_obj_t* parent = meterBlocks[m];
                     for(int i = 0; i < lv_obj_get_child_count(parent); i++) {
 
                         uint8_t index = i+(m*8);
-
                         lv_obj_t * strip = lv_obj_get_child(parent, i);
-                        lv_obj_t * meter = lv_obj_get_child(strip, 0);
                         lv_obj_t * fader = lv_obj_get_child(strip, 2);   
 
                         // CH1-32 + AUX
                         if (m < 5) { 
-                            if (changed_meter) {
-                                lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
-                            }
                             if (changed_vchannel) {
                                 VChannel* chan = mixer->GetVChannel(index);
 
@@ -87,9 +122,6 @@ class PageMeters : public Page {
                         
                         // Bus 1-16
                         if ((m == 6) || (m == 7)) {
-                            if (changed_meter) {
-                                //lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
-                            }
                             if (changed_vchannel) {
                                 VChannel* chan = mixer->GetVChannel(index);
                                 int8_t channelindex = (m == 6) ? i : i + 8;
@@ -102,13 +134,6 @@ class PageMeters : public Page {
                         
                         // Matrix
                         if (m == 8) {
-                            if (changed_meter) {
-                                if (i < 6) {
-                                    //lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->Matrix[i]. MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
-                                } else if (i == 7) {
-                                    lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
-                                }
-                            }
                             if (changed_vchannel) {
                                 VChannel* chan = mixer->GetVChannel(index);
                                 if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || firstInit) {
@@ -139,10 +164,6 @@ class PageMeters : public Page {
                 
 
                 // Main L/R
-                if (changed_meter) {
-                    // TODO use both channels!
-                    lv_bar_set_value(objects.ms_main_lr__meter, helper->sample2Dbfs(mixer->dsp->MainChannelLR.meterDecay[0]), LV_ANIM_OFF);                
-                }
                 if (changed_vchannel) {
                     VChannel* main = mixer->GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
                                              

@@ -32,13 +32,13 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
     spi->OpenConnectionFpga();
 }
 
-void Fpga::Init(void) {
+void Fpga::Init() {
 	// reset routing-configuration and dsp-configuration
 	RoutingDefaultConfig();
 }
 
 // set a default configuration for the audio-routing-matrix
-void Fpga::RoutingDefaultConfig(void) {
+void Fpga::RoutingDefaultConfig() {
 	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "RoutingDefaultConfig()");
 
 	// XLR-inputs 1-32 -> DSP-inputs 1-32
@@ -75,6 +75,31 @@ void Fpga::RoutingDefaultConfig(void) {
 	// transmit routing-configuration to FPGA
 	SendRoutingToFpga(-1);
 }
+
+void Fpga::RoutingXlrAs32CHInput() {
+	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "RoutingXlrAs32CHInput()");
+
+	// XLR-inputs 1-32 -> DSP-inputs 1-32
+	for (uint8_t ch = 1; ch <= 32; ch++) {
+		Connect(GetInputIndex('x', ch), 'd', ch);
+	}
+
+	// transmit routing-configuration to FPGA
+	SendRoutingToFpga(-1);
+}
+
+void Fpga::RoutingCardAs32CHInput() {
+	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "RoutingCardAs32CHInput()");
+
+	// Card 1-32 -> DSP-inputs 1-32
+	for (uint8_t ch = 1; ch <= 32; ch++) {
+		Connect(GetInputIndex('c', ch), 'd', ch);
+	}
+
+	// transmit routing-configuration to FPGA
+	SendRoutingToFpga(-1);
+}
+
 
 // connects the input to the output via the audio-routing-matrix
 void Fpga::Connect(uint8_t inputIndex, uint8_t group, uint8_t channel) {

@@ -63,6 +63,14 @@ void timer100msCallbackLinux(int timer) {
 	ctrl->Tick100ms();
 }
 
+void timer50msCallbackLvgl(_lv_timer_t* lv_timer) { 
+	ctrl->Tick50ms();
+}
+
+void timer50msCallbackLinux(int timer) {
+	ctrl->Tick50ms();
+}
+
 void timer10msCallbackLvgl(_lv_timer_t* lv_timer) {
 	ui_tick(); ctrl->Tick10ms();
 }
@@ -79,7 +87,6 @@ void init100msTimer(void) {
 	sa.sa_flags = 0;
 	if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
 		perror("sigaction");
-		//return 1;
 	}
 
 	// Set up the sigevent structure for the timer
@@ -90,10 +97,41 @@ void init100msTimer(void) {
 	// Create the timer
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
 		perror("timer_create");
-		//return 1;
 	}
 	
 	// Set the timer to trigger every 1 second (1,000,000,000 nanoseconds)
+	trigger.it_value.tv_sec = 0;
+	trigger.it_value.tv_nsec = 100000000; // 100ms
+	trigger.it_interval.tv_sec = 0;
+	trigger.it_interval.tv_nsec = 100000000;
+
+	// Arm the timer
+	if (timer_settime(timerid, 0, &trigger, NULL) == -1) {
+		perror("timer_settime");
+	}
+}
+
+// initialize 50ms timer (only for Non-GUI systems)
+void init50msTimer(void) {
+	// Set up the signal handler
+	struct sigaction sa;
+	sa.sa_handler = timer50msCallbackLinux;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
+		perror("sigaction");
+	}
+
+	// Set up the sigevent structure for the timer
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timerid;
+
+	// Create the timer
+	if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
+		perror("timer_create");
+	}
+	
 	trigger.it_value.tv_sec = 0;
 	trigger.it_value.tv_nsec = 50000000; // 50ms = 50000us = 50000000ns
 	trigger.it_interval.tv_sec = 0;
@@ -102,7 +140,6 @@ void init100msTimer(void) {
 	// Arm the timer
 	if (timer_settime(timerid, 0, &trigger, NULL) == -1) {
 		perror("timer_settime");
-		//return 1;
 	}
 }
 
@@ -114,6 +151,7 @@ void guiInit(void) {
 	driver_backends_init_backend(dev);
 
 	lv_timer_create(timer10msCallbackLvgl, 10, NULL);
+	lv_timer_create(timer50msCallbackLvgl, 50, NULL);
 	lv_timer_create(timer100msCallbackLvgl, 100, NULL);
 
 	// initialize GUI created by EEZ
@@ -202,11 +240,6 @@ int main(int argc, char* argv[]) {
 		->expected(0,1);
 
 	app->add_flag("--trace", trace, "Print all possible debug messages")
-		->configurable(false)
-		->group(catDebug)
-		->expected(0,1);
-
-	app->add_flag("--timers", state->timers, "Meassure Timers")
 		->configurable(false)
 		->group(catDebug)
 		->expected(0,1);

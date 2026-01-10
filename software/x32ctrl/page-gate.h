@@ -53,7 +53,7 @@ class PageGate: public Page {
             }
         }
 
-        void OnTime10ms() override {
+        void OnUpdateMeters() override {
             int32_t gateValueAudioDbfs = -120;
 
             uint8_t selectedChannelIndex = config->selectedVChannel;

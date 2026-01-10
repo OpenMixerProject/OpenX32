@@ -90,8 +90,8 @@ class SPI : public X32Base {
     int UploadBitstreamFpgaXilinx();
     bool UploadBitstreamFpgaLattice();
     int UploadBitstreamDsps();
-    void Tick10ms(void);
-    void Tick100ms(void);
+    void ReadData(void);
+    void ActivityLight(void);
     bool OpenConnectionFpga();
     bool CloseConnectionFpga();
     bool OpenConnectionDsps();

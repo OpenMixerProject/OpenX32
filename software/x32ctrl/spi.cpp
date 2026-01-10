@@ -826,7 +826,7 @@ int SPI::UploadBitstreamDsps(void) {
     return 0;
 }
 
-void SPI::Tick10ms(void){
+void SPI::ReadData(void){
 
     if (!(state->dsp_disable_readout)) {
         // continuously read data from both DSPs
@@ -843,7 +843,7 @@ void SPI::Tick10ms(void){
 
 }
 
-void SPI::Tick100ms(void){
+void SPI::ActivityLight(void){
 
     if (!(state->dsp_disable_activity_light)) {
 

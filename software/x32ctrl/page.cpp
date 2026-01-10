@@ -73,14 +73,14 @@ void Page::OnChange() {
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::OnChange()");
 }
 
-void Page::Time10ms() {
+void Page::UpdateMeters() {
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::Time10ms()");
     if (initDone) {
-        OnTime10ms();
+        OnUpdateMeters();
     }
 }
 
-void Page::OnTime10ms() {
+void Page::OnUpdateMeters() {
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::OnTime10ms()");
 }
 

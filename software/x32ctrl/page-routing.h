@@ -15,4 +15,36 @@ class PageRouting: public Page {
             tabIndex1 = 0;
             led = X32_BTN_ROUTING;
         }
+
+        void OnShow() override {
+			SetEncoderText("Default Routing", "XLR -> Channels", "Card -> Channels", "-", "-", "-");
+		}
+
+        void OnDisplayButton(X32_BTN button, bool pressed) {
+            if (pressed){
+				switch (button){
+					case X32_BTN_ENCODER1:
+						mixer->dsp->LoadRouting_X32Default();
+						break;
+					case X32_BTN_ENCODER2:
+					    mixer->fpga->RoutingXlrAs32CHInput();                    
+						break;
+					case X32_BTN_ENCODER3:
+						mixer->fpga->RoutingCardAs32CHInput();
+						break;
+					case X32_BTN_ENCODER4:
+						
+						break;
+					case X32_BTN_ENCODER5:
+						
+						break;
+					case X32_BTN_ENCODER6:
+						
+						break;
+					default:
+                        // just here to avoid compiler warnings
+						break;
+				}
+            }
+        }
 };

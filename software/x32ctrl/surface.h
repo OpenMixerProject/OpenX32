@@ -46,8 +46,6 @@ class Surface : public X32Base
         uint8_t GetBoardId(uint8_t faderindex);
         uint8_t GetFaderId(uint8_t faderindex);
 
-        void Blink();
-
     public:
         Surface(X32BaseParameter* basepar);
         Uart* uart;
@@ -89,4 +87,6 @@ class Surface : public X32Base
         void BlockFader(uint8_t boardId, uint8_t faderIndex);
         bool IsFaderBlocked(uint8_t boardId, uint8_t faderIndex);
         void Touchcontrol();
+
+        void Blink();
 };
