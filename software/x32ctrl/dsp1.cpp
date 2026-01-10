@@ -116,8 +116,8 @@ void DSP1::Init(void) {
     }
     for (uint8_t i = 0; i < 40; i++) {
         // connect MainLeft on even and MainRight on odd channels as PostFader
-        Dsp1toFpgaRouting[i].input = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
-        Dsp1toFpgaRouting[i].tapPoint = DSP_TAP_POST_FADER;
+        Dsp1toFpga[i].input = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
+        Dsp1toFpga[i].tapPoint = DSP_TAP_POST_FADER;
     }
 }
 
@@ -386,8 +386,8 @@ void DSP1::SetInputRouting(uint8_t chan) {
 
 void DSP1::SetOutputRouting(uint8_t chan) {
     uint32_t values[2];
-    values[0] = Dsp1toFpgaRouting[chan].input;
-    values[1] = Dsp1toFpgaRouting[chan].tapPoint;
+    values[0] = Dsp1toFpga[chan].input;
+    values[1] = Dsp1toFpga[chan].tapPoint;
     spi->SendReceiveDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
 }
 

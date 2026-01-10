@@ -2,15 +2,15 @@
 #include "page.h"
 using namespace std;
 
-class PageMeterPrototypes : public Page {
+class PageMeters : public Page {
     public:
-        PageMeterPrototypes(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE_METERS;
+        PageMeters(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             tabLayer0 = objects.maintab;
             tabIndex0 = 1;
             tabLayer1 = objects.metertab;
-            tabIndex1 = 1;
-            hideEncoders = true;
+            tabIndex1 = 0;
+            led = X32_BTN_METERS;
+            hideEncoders = true;            
         }
 
         void OnInit() override {
@@ -80,7 +80,7 @@ class PageMeterPrototypes : public Page {
                                 //     mixer->dsp->Channel[index].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
                                 // } 
                                 if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
-                                    lv_slider_set_value(fader, mixer->dsp->volumeFxReturn[index], LV_ANIM_OFF);
+                                    lv_slider_set_value(fader, mixer->dsp->volumeFxReturn[i], LV_ANIM_OFF);
                                 } 
                             }
                         } else 
@@ -92,9 +92,10 @@ class PageMeterPrototypes : public Page {
                             }
                             if (changed_vchannel) {
                                 VChannel* chan = mixer->GetVChannel(index);
+                                int8_t channelindex = (m == 6) ? i : i + 8;
 
                                 if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
-                                    lv_slider_set_value(fader, mixer->dsp->Bus[i].volumeLR, LV_ANIM_OFF);
+                                    lv_slider_set_value(fader, mixer->dsp->Bus[channelindex].volumeLR, LV_ANIM_OFF);
                                 }                          
                             }
                         } else
@@ -104,11 +105,8 @@ class PageMeterPrototypes : public Page {
                             if (changed_meter) {
                                 if (i < 6) {
                                     //lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->Matrix[i]. MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
-                                } else if (i == 6) {
-                                    lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
                                 } else if (i == 7) {
-                                    // TODO use both channels!
-                                    lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelLR.meterDecay[0]), LV_ANIM_OFF);
+                                    lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
                                 }
                             }
                             if (changed_vchannel) {
@@ -116,34 +114,49 @@ class PageMeterPrototypes : public Page {
                                 if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || firstInit) {
                                     if (i < 6) {
                                         mixer->dsp->Matrix[i].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
-                                    } else if (i == 6) {
-                                        mixer->dsp->MainChannelSub.solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
                                     } else if (i == 7) {
-                                        mixer->dsp->MainChannelLR.solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
-                                    }
+                                        mixer->dsp->MainChannelSub.solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                                    } 
                                 }
                                 if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || firstInit) {
                                     if (i < 6) {
                                         mixer->dsp->Matrix[i].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
-                                    } else if (i == 6) {
-                                        mixer->dsp->MainChannelSub.muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
                                     } else if (i == 7) {
-                                        mixer->dsp->MainChannelLR.muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
-                                    }
+                                        mixer->dsp->MainChannelSub.muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                                    } 
                                 }
                                 if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
                                     if (i < 6) {
                                         lv_slider_set_value(fader, mixer->dsp->Matrix[i].volume, LV_ANIM_OFF);
-                                    } else if (i == 6) {
-                                        lv_slider_set_value(fader, mixer->dsp->MainChannelSub.volume, LV_ANIM_OFF);
                                     } else if (i == 7) {
-                                        lv_slider_set_value(fader, mixer->dsp->MainChannelLR.volume, LV_ANIM_OFF);
-                                    }
+                                        lv_slider_set_value(fader, mixer->dsp->MainChannelSub.volume, LV_ANIM_OFF);
+                                    } 
                                 }
                             }
                         }
                     }
-                }              
+                }  
+                
+
+                // Main L/R
+                if (changed_meter) {
+                    // TODO use both channels!
+                    lv_bar_set_value(objects.ms_main_lr__meter, helper->sample2Dbfs(mixer->dsp->MainChannelLR.meterDecay[0]), LV_ANIM_OFF);                
+                }
+                if (changed_vchannel) {
+                    VChannel* main = mixer->GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
+                                             
+                    if (main->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || firstInit) {
+                        mixer->dsp->MainChannelLR.solo ? add_style_slider_fader_solo(objects.ms_main_lr__fader) : remove_style_slider_fader_solo(objects.ms_main_lr__fader);
+                    }
+                    
+                    if (main->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || firstInit) {
+                        mixer->dsp->MainChannelLR.muted ? add_style_slider_fader_mute(objects.ms_main_lr__fader) : remove_style_slider_fader_mute(objects.ms_main_lr__fader);
+                    }
+                    if (main->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || firstInit) {
+                        lv_slider_set_value(objects.ms_main_lr__fader, mixer->dsp->MainChannelLR.volume, LV_ANIM_OFF);
+                    }
+                }
             }
         }
 

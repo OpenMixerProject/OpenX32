@@ -41,7 +41,7 @@ class DSP1 : X32Base {
         sFxChannel Dsp1toDsp2Routing[MAX_DSP1_TO_DSP2_CHANNELS];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
-        sDspOutchannel Dsp1toFpgaRouting[MAX_DSP1_TO_FPGA_CHANNELS];
+        sDspOutchannel Dsp1toFpga[MAX_DSP1_TO_FPGA_CHANNELS];
         float volumeFxReturn[8];
         float volumeDca[8];
 

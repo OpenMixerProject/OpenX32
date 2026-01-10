@@ -191,8 +191,8 @@ void X32Ctrl::LoadConfig() {
 	// DSP1 -> FPGA Channels
 	for (uint8_t i = 0; i < MAX_DSP1_TO_FPGA_CHANNELS; i++) {
 		string section = string("dspoutchannel") + to_string(i);
-		mixer->dsp->Dsp1toFpgaRouting[i].input = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp1toFpgaRouting[i].tapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
+		mixer->dsp->Dsp1toFpga[i].input = mixer_ini[section]["outputSource"].as<int>();
+		mixer->dsp->Dsp1toFpga[i].tapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
 	}
 	// DSP1 -> DSP2 Channels
 	for (uint8_t i = 0; i < MAX_DSP1_TO_DSP2_CHANNELS; i++) {
@@ -257,8 +257,8 @@ void X32Ctrl::SaveConfig() {
 	// DSP1 -> FPGA Channels
 	for (uint8_t i = 0; i < MAX_DSP1_TO_FPGA_CHANNELS; i++) {
 		string section = string("dspoutchannel") + to_string(i);
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp1toFpgaRouting[i].input;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp1toFpgaRouting[i].tapPoint;
+		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp1toFpga[i].input;
+		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp1toFpga[i].tapPoint;
 	}
 	// DSP1 -> DSP2 Channels
 	for (uint8_t i = 0; i < MAX_DSP1_TO_DSP2_CHANNELS; i++) {
@@ -582,8 +582,7 @@ void X32Ctrl::InitPages(){
 	pages[X32_PAGE_GATE] = new PageGate(pagebasepar);
 	pages[X32_PAGE_COMPRESSOR] = new PageDynamics(pagebasepar);
 	pages[X32_PAGE_EQ] = new PageEq(pagebasepar);
-	pages[X32_PAGE_METERS] = new PageMeter(pagebasepar);
-	pages[X32_PAGE_METER_PROTOTYPES] = new PageMeterPrototypes(pagebasepar);
+	pages[X32_PAGE_METERS] = new PageMeters(pagebasepar);
 	pages[X32_PAGE_ROUTING] = new PageRouting(pagebasepar);
 	pages[X32_PAGE_ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);
 	pages[X32_PAGE_ROUTING_DSP1] = new PageRoutingDsp1(pagebasepar);

@@ -159,7 +159,7 @@ void Mixer::LoadVChannelLayout() {
 
     // Main Channel
     {
-        VChannel* chan = vchannel[80];
+        VChannel* chan = vchannel[X32_VCHANNEL_BLOCK_MAIN];
         chan->name = String("MAIN");
         chan->nameIntern = chan->name;
         chan->color = SURFACE_COLOR_WHITE;
@@ -235,7 +235,7 @@ void Mixer::ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount) {
 }
 
 void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toFpgaRouting[channel].input + amount;
+    int16_t newValue = dsp->Dsp1toFpga[channel].input + amount;
 
     if (newValue >= DSP_MAX_INTERNAL_CHANNELS) {
         newValue -= DSP_MAX_INTERNAL_CHANNELS;
@@ -244,13 +244,13 @@ void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
         newValue += DSP_MAX_INTERNAL_CHANNELS;
     }
 
-    dsp->Dsp1toFpgaRouting[channel].input = newValue;
+    dsp->Dsp1toFpga[channel].input = newValue;
     dsp->SetOutputRouting(channel);
     state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toFpgaRouting[channel].tapPoint + amount;
+    int16_t newValue = dsp->Dsp1toFpga[channel].tapPoint + amount;
 
     if (newValue > 4) {
         newValue = 0;
@@ -259,7 +259,7 @@ void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
         newValue = 4;
     }
 
-    dsp->Dsp1toFpgaRouting[channel].tapPoint = newValue;
+    dsp->Dsp1toFpga[channel].tapPoint = newValue;
     dsp->SetOutputRouting(channel);
     state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }

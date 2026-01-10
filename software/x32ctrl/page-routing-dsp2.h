@@ -31,8 +31,8 @@ class PageRoutingDsp2: public Page {
 			lv_table_set_column_width(objects.table_routing_dsp_output, 4, 100);
 			for (uint8_t i=0; i < MAX_DSP1_TO_FPGA_CHANNELS; i++){
 				mixer->dsp->RoutingGetOutputNameByIndex(&outputChannelName[0], i+1);
-				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toFpgaRouting[i].input, mixer->dsp->Channel[i].input);
-				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toFpgaRouting[i].tapPoint);
+				mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toFpga[i].input, mixer->dsp->Channel[i].input);
+				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toFpga[i].tapPoint);
 
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 0, "%s", outputChannelName);
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_output, i, 2, "%s", outputSourceName);
