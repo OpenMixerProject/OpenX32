@@ -25,8 +25,6 @@ class Mixer : public X32Base
         // solo is (somewhere) activated
         bool solo = false;
 
-        Adda* adda;
-
         void halSendGain(uint8_t dspChannel);
         void halSendPhantomPower(uint8_t dspChannel);
         void LoadVChannelLayout();
@@ -35,6 +33,7 @@ class Mixer : public X32Base
         // all virtual - channels / busses / matrix / etc.
         VChannel* vchannel[MAX_VCHANNELS];        
         Fpga* fpga;
+        Adda* adda;
         DSP1* dsp;
 
         Mixer(X32BaseParameter* basepar);
