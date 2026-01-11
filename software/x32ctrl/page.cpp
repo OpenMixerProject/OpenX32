@@ -54,7 +54,9 @@ void Page::Show() {
 
     lv_obj_set_flag(objects.display_encoders, LV_OBJ_FLAG_HIDDEN, hideEncoders);
 
+    // Show Page and trigger a complete update
     OnShow();
+    OnChange(true);
 }
 
 void Page::OnShow() {
@@ -65,12 +67,12 @@ void Page::OnShow() {
 void Page::Change() {
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::Change()");
     if (initDone) {
-        OnChange();
+        OnChange(false);
     }
 }
 
-void Page::OnChange() {
-    helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::OnChange()");
+void Page::OnChange(bool force_update) {
+    helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::OnChange(force_update: %d)", force_update);
 }
 
 void Page::UpdateMeters() {

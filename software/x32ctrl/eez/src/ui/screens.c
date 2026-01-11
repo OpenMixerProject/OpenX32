@@ -785,10 +785,42 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 15, 20);
-                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_label_set_text(obj, "Setup");
+                            // setuptab
+                            lv_obj_t *obj = lv_tabview_create(parent_obj);
+                            objects.setuptab = obj;
+                            lv_obj_set_pos(obj, LV_PCT(0), LV_PCT(0));
+                            lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+                            lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
+                            lv_tabview_set_tab_bar_size(obj, 20);
+                            add_style_tabview_nopad(obj);
+                            {
+                                lv_obj_t *parent_obj = obj;
+                                {
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Setup");
+                                    add_style_tab_nopad(obj);
+                                }
+                                {
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Card");
+                                    add_style_tab_nopad(obj);
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 76, 82);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "Card detected:");
+                                        }
+                                        {
+                                            // setup_card_detected
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            objects.setup_card_detected = obj;
+                                            lv_obj_set_pos(obj, 202, 82);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "Text");
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -57,7 +57,7 @@ class PageRoutingDsp2: public Page {
 			SetEncoderText("\xEF\x81\xB7 Output \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
 		}
 
-		void OnChange() override {
+		void OnChange(bool force_update) override {
 			if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
 				if (state->gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)) {
 					state->gui_selected_item = 0;

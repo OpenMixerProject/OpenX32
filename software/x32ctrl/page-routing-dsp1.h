@@ -47,7 +47,7 @@ class PageRoutingDsp1: public Page {
 			lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
 		}
 
-		void OnChange() override {
+		void OnChange(bool force_update) override {
 			if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
 				if (state->gui_selected_item >= MAX_FPGA_TO_DSP1_CHANNELS) {
 					state->gui_selected_item = 0;

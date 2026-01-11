@@ -33,6 +33,7 @@
 }
 
 void VChannel::SetChanged(uint16_t p_flag){
+    helper->DEBUG_STATE(DEBUGLEVEL_TRACE, "VChannel::SetChanged(0x%.4X)", p_flag);
     changed |= p_flag;
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }

@@ -23,6 +23,7 @@
 #include "page-library.h"
 #include "page-effects.h"
 #include "page-setup.h"
+#include "page-setup-card.h"
 #include "page-mutegroup.h"
 #include "page-utility.h"
 

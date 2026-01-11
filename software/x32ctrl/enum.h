@@ -388,6 +388,8 @@ typedef enum {
         X32_PAGE_ROUTING_DSP1,
         X32_PAGE_ROUTING_DSP2,
     X32_PAGE_SETUP,
+        // sub-pages of setup
+        X32_PAGE_SETUP_CARD,
     X32_PAGE_LIBRARY,
     X32_PAGE_EFFECTS,
     X32_PAGE_MUTE_GRP,

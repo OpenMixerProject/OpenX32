@@ -21,7 +21,7 @@ class PageConfig : public Page {
             SetEncoderText("Source\n[Invert]", "Gain\n[48V]", "PAN/BAL\n[Center]", "Volume\n[Mute]", "DEBUG: 1-32\nPhanton + 47dB", "DEBUG: 1-16\nPhanton + 47dB");
         }
 
-        void OnChange() override {
+        void OnChange(bool force_update) override {
             uint8_t chanIndex = config->selectedVChannel;
 
             // TODO implement with better string handling -> (*** stack smashing detected ***: terminated)

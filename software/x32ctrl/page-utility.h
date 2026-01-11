@@ -10,7 +10,7 @@ class PageUtility: public Page {
             led = X32_BTN_UTILITY;
         }
 
-        void OnChange() override {
+        void OnChange(bool force_update) override {
             // TODO only update if values are changed
             SetEncoderText("Reload DSPs", String("CARD Ch\n") + String(state->cardchannels), "*8R#", "-", String("D2: ") + String(state->debugvalue2), String("D1: ") + String(state->debugvalue));
         }

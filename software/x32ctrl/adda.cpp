@@ -45,7 +45,7 @@ void Adda::Init() {
 	addaBoards[ADDA_BOARD_XLR_OUT_0] = SendReceive("*4I#"); // XLR OUT
 	addaBoards[ADDA_BOARD_XLR_OUT_1] = SendReceive("*5I#"); // XLR OUT
 	addaBoards[ADDA_BOARD_EXPANSION] = SendReceive("*8I#"); // Expansion-Card
-	addaBoards[ADDA_BOARD_EXPANSION_RETURN] = SendReceive("*8R#"); // Check if Expansion-Card has return
+	addaBoards[ADDA_BOARD_EXPANSION_RETURN] = SendReceive("*8R#"); // Check if Expansion-Card has return?!?
 	
 	// set gains to -2dB and turnoff phantom-power
 	// do always send to all possible boards, like the original firmware
@@ -71,33 +71,55 @@ void Adda::Init() {
 	usleep(20000); // wait 20ms
 }
 
+String Adda::GetXlrIn0(){
+	return addaBoards[ADDA_BOARD_XLR_IN_0];
+}
 bool Adda::HasXlrIn0(){
-	return addaBoards[ADDA_BOARD_XLR_IN_0] != "";
+	return GetXlrIn0().length() > 0;
 }
 
+String Adda::GetXlrIn1(){
+	return addaBoards[ADDA_BOARD_XLR_IN_1];
+}
 bool Adda::HasXlrIn1(){
-	return addaBoards[ADDA_BOARD_XLR_IN_1] != "";
+	return GetXlrIn1().length() > 0;
 }
 
+String Adda::GetXlrIn2(){
+	return addaBoards[ADDA_BOARD_XLR_IN_2];
+}
 bool Adda::HasXlrIn2(){
-	return addaBoards[ADDA_BOARD_XLR_IN_2] != "";
+	return GetXlrIn2().length() > 0;
 }
 
+String Adda::GetXlrIn3(){
+	return addaBoards[ADDA_BOARD_XLR_IN_3];
+}
 bool Adda::HasXlrIn3(){
-	return addaBoards[ADDA_BOARD_XLR_IN_3] != "";
+	return GetXlrIn3().length() > 0;
 }
 
+String Adda::GetXlrOut0(){
+	return addaBoards[ADDA_BOARD_XLR_OUT_0];
+}
 bool Adda::HasXlrOut0(){
-	return addaBoards[ADDA_BOARD_XLR_OUT_0] != "";
+	return GetXlrOut0().length() > 0;
 }
 
+String Adda::GetXlrOut1(){
+	return addaBoards[ADDA_BOARD_XLR_OUT_1];
+}
 bool Adda::HasXlrOut1(){
-	return addaBoards[ADDA_BOARD_XLR_OUT_1] != "";
+	return GetXlrOut1().length() > 0;
 }
 
-bool Adda::HasExpansion(){
-	return addaBoards[ADDA_BOARD_EXPANSION] != "";
+String Adda::GetExpansion(){
+	return addaBoards[ADDA_BOARD_EXPANSION];
 }
+bool Adda::HasExpansion(){
+	return GetExpansion().length() > 0;
+}
+
 
 void Adda::SetSamplerate(uint32_t samplerate) {
 	helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "Set samplerate to %d", samplerate);

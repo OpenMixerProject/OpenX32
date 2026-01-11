@@ -38,7 +38,7 @@ class PageEq: public Page {
             EncoderText(config->selectedVChannel);
         }
 
-        void OnChange() override {
+        void OnChange(bool force_update) override {
             uint8_t chanIndex = config->selectedVChannel;
             VChannel* chan = mixer->GetVChannel(chanIndex);
 

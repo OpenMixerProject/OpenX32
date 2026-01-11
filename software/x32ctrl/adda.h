@@ -44,6 +44,14 @@ class Adda : public X32Base {
         bool HasXlrOut1();
         bool HasExpansion();
 
+        String GetXlrIn0();
+        String GetXlrIn1();
+        String GetXlrIn2();
+        String GetXlrIn3();
+        String GetXlrOut0();
+        String GetXlrOut1();
+        String GetExpansion();
+
         void SetSamplerate(uint32_t samplerate);
         String SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomPower);
 

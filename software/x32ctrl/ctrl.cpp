@@ -591,6 +591,7 @@ void X32Ctrl::InitPages(){
 	pages[X32_PAGE_ROUTING_DSP1] = new PageRoutingDsp1(pagebasepar);
 	pages[X32_PAGE_ROUTING_DSP2] = new PageRoutingDsp2(pagebasepar);
 	pages[X32_PAGE_SETUP] = new PageSetup(pagebasepar);
+	pages[X32_PAGE_SETUP_CARD] = new PageSetupCard(pagebasepar);
 	pages[X32_PAGE_LIBRARY] = new PageLibrary(pagebasepar);
 	pages[X32_PAGE_EFFECTS] = new PageEffects(pagebasepar);
 	pages[X32_PAGE_MUTE_GRP] = new PageMutegroup(pagebasepar);

@@ -45,7 +45,7 @@ class Page : public X32Base {
         virtual void OnInit();
         virtual void OnUpdateMeters();
         virtual void OnShow();
-        virtual void OnChange();
+        virtual void OnChange(bool force_update);
 
     public:
         Page(PageBaseParameter* pagebasepar);
