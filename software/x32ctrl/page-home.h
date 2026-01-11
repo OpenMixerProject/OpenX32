@@ -11,9 +11,6 @@ class PageHome : public Page {
             tabLayer1 = objects.hometab;
             tabIndex1 = 0;
             led = X32_BTN_HOME;
-        }
-
-        void OnShow() override {
-            SetEncoderText("HOME", "-", "-", "-", "-", "-"); 
+            hideEncoders = true;
         }
 };

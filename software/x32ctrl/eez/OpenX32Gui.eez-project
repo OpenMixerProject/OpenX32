@@ -350,54 +350,6 @@
               "groupIndex": 0
             },
             {
-              "objID": "ea760926-a4b2-46d1-8dee-b44cdd3f67ce",
-              "type": "LVGLImageWidget",
-              "left": 273,
-              "top": -1,
-              "width": 395,
-              "height": 52,
-              "customInputs": [],
-              "customOutputs": [],
-              "style": {
-                "objID": "fa3958f2-9191-4bfb-9da8-69adcbe04cab",
-                "useStyle": "default",
-                "conditionalStyles": [],
-                "childStyles": []
-              },
-              "locked": false,
-              "hiddenInEditor": false,
-              "timeline": [],
-              "eventHandlers": [],
-              "identifier": "openx32logo_1",
-              "leftUnit": "px",
-              "topUnit": "px",
-              "widthUnit": "px",
-              "heightUnit": "px",
-              "children": [],
-              "widgetFlags": "ADV_HITTEST|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-              "hiddenFlagType": "literal",
-              "clickableFlagType": "literal",
-              "flagScrollbarMode": "",
-              "flagScrollDirection": "",
-              "scrollSnapX": "",
-              "scrollSnapY": "",
-              "checkedStateType": "literal",
-              "disabledStateType": "literal",
-              "states": "",
-              "localStyles": {
-                "objID": "abee052a-e6fd-4e23-acef-6f2edb1ac8b4"
-              },
-              "group": "",
-              "groupIndex": 0,
-              "image": "openx32logo",
-              "setPivot": false,
-              "pivotX": 0,
-              "pivotY": 0,
-              "zoom": 100,
-              "angle": 0,
-              "innerAlign": "CENTER"
-            },
-            {
               "objID": "39228710-9c52-42d2-e856-b989b870c5ae",
               "type": "LVGLTabviewWidget",
               "left": 0,
@@ -495,10 +447,10 @@
                             {
                               "objID": "32717057-1e1a-4924-9d21-e96701d3c89f",
                               "type": "LVGLLabelWidget",
-                              "left": 238,
-                              "top": 106,
-                              "width": 324,
-                              "height": 96,
+                              "left": 303,
+                              "top": 45,
+                              "width": 194,
+                              "height": 27,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -531,14 +483,166 @@
                                   "MAIN": {
                                     "DEFAULT": {
                                       "text_color": "#ff0000",
-                                      "text_align": "CENTER"
+                                      "text_align": "CENTER",
+                                      "text_font": "MONTSERRAT_24"
                                     }
                                   }
                                 }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "Alpha Firmware\n\nPossible 48V Phantom Power on XLR Inputs!\nPossible Loud Noises on Outputs!\n\nProtect your Gear!",
+                              "text": "Alpha Firmware",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
+                              "objID": "5b933191-496f-4f3c-f284-cae3f8504dab",
+                              "type": "LVGLLabelWidget",
+                              "left": 197,
+                              "top": 102,
+                              "width": 406,
+                              "height": 84,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "9b651e21-e6e3-4ace-a187-d0510b390289",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "warning_2",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "163dcd3d-268c-4ad3-c98d-79a6d7ba6dd9",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#ff0000",
+                                      "text_align": "CENTER",
+                                      "text_font": "MONTSERRAT_18"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "Possible 48V Phantom Power on XLR Inputs!\nPossible Loud Noises on Outputs!\n\nProtect your Gear!",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
+                              "objID": "ea760926-a4b2-46d1-8dee-b44cdd3f67ce",
+                              "type": "LVGLImageWidget",
+                              "left": 199,
+                              "top": 220,
+                              "width": 402,
+                              "height": 59,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "fa3958f2-9191-4bfb-9da8-69adcbe04cab",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "openx32logo_1",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "ADV_HITTEST|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "abee052a-e6fd-4e23-acef-6f2edb1ac8b4"
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "image": "openx32logo",
+                              "setPivot": false,
+                              "pivotX": 0,
+                              "pivotY": 0,
+                              "zoom": 100,
+                              "angle": 0,
+                              "innerAlign": "CENTER"
+                            },
+                            {
+                              "objID": "f14f6b66-3397-4ad0-8bcc-b144337ac294",
+                              "type": "LVGLLabelWidget",
+                              "left": 112,
+                              "top": 309,
+                              "width": 577,
+                              "height": 27,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "cef419f9-faaa-42f9-f664-07ad93b7b62d",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "warning_1",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "c1c9d5ec-1b50-4cd3-d341-15972f3c3c07",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER",
+                                      "text_font": "MONTSERRAT_24"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "https://github.com/OpenMixerProject/OpenX32",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false

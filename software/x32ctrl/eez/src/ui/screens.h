@@ -13,10 +13,12 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_number;
     lv_obj_t *current_channel_name;
     lv_obj_t *current_channel_color;
-    lv_obj_t *openx32logo_1;
     lv_obj_t *maintab;
     lv_obj_t *hometab;
     lv_obj_t *warning;
+    lv_obj_t *warning_2;
+    lv_obj_t *openx32logo_1;
+    lv_obj_t *warning_1;
     lv_obj_t *configtab;
     lv_obj_t *source_panel;
     lv_obj_t *current_channel_source;

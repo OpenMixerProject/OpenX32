@@ -64,15 +64,6 @@ void create_screen_main() {
             }
         }
         {
-            // openx32logo_1
-            lv_obj_t *obj = lv_image_create(parent_obj);
-            objects.openx32logo_1 = obj;
-            lv_obj_set_pos(obj, 273, -1);
-            lv_obj_set_size(obj, 395, 52);
-            lv_image_set_src(obj, &img_openx32logo);
-            lv_image_set_scale(obj, 100);
-        }
-        {
             // maintab
             lv_obj_t *obj = lv_tabview_create(parent_obj);
             objects.maintab = obj;
@@ -111,11 +102,42 @@ void create_screen_main() {
                                             // warning
                                             lv_obj_t *obj = lv_label_create(parent_obj);
                                             objects.warning = obj;
-                                            lv_obj_set_pos(obj, 238, 106);
+                                            lv_obj_set_pos(obj, 303, 45);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_color(obj, lv_color_hex(0xffff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_label_set_text(obj, "Alpha Firmware\n\nPossible 48V Phantom Power on XLR Inputs!\nPossible Loud Noises on Outputs!\n\nProtect your Gear!");
+                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "Alpha Firmware");
+                                        }
+                                        {
+                                            // warning_2
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            objects.warning_2 = obj;
+                                            lv_obj_set_pos(obj, 197, 102);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xffff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "Possible 48V Phantom Power on XLR Inputs!\nPossible Loud Noises on Outputs!\n\nProtect your Gear!");
+                                        }
+                                        {
+                                            // openx32logo_1
+                                            lv_obj_t *obj = lv_image_create(parent_obj);
+                                            objects.openx32logo_1 = obj;
+                                            lv_obj_set_pos(obj, 199, 220);
+                                            lv_obj_set_size(obj, 402, 59);
+                                            lv_image_set_src(obj, &img_openx32logo);
+                                            lv_image_set_scale(obj, 100);
+                                        }
+                                        {
+                                            // warning_1
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            objects.warning_1 = obj;
+                                            lv_obj_set_pos(obj, 112, 309);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "https://github.com/OpenMixerProject/OpenX32");
                                         }
                                     }
                                 }
@@ -323,7 +345,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 24);
+                                            create_user_widget_ms_bar8(obj, 26);
                                         }
                                         {
                                             // meters_9_16
@@ -337,7 +359,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 57);
+                                            create_user_widget_ms_bar8(obj, 59);
                                         }
                                         {
                                             // meters_17_24
@@ -351,7 +373,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 90);
+                                            create_user_widget_ms_bar8(obj, 92);
                                         }
                                         {
                                             // meters_25_32
@@ -365,7 +387,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 123);
+                                            create_user_widget_ms_bar8(obj, 125);
                                         }
                                         {
                                             // meters_aux
@@ -379,7 +401,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 156);
+                                            create_user_widget_ms_bar8(obj, 158);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
@@ -442,7 +464,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 189);
+                                            create_user_widget_ms_bar8(obj, 191);
                                         }
                                         {
                                             // meters_bus_1_8
@@ -456,7 +478,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 222);
+                                            create_user_widget_ms_bar8(obj, 224);
                                         }
                                         {
                                             // meters_bus_9_16
@@ -470,7 +492,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 255);
+                                            create_user_widget_ms_bar8(obj, 257);
                                         }
                                         {
                                             // meters_matrix
@@ -484,7 +506,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar8(obj, 288);
+                                            create_user_widget_ms_bar8(obj, 290);
                                         }
                                         {
                                             // ms_main_lr
@@ -498,7 +520,7 @@ void create_screen_main() {
                                             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            create_user_widget_ms_bar(obj, 321);
+                                            create_user_widget_ms_bar(obj, 323);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
@@ -885,16 +907,16 @@ void create_screen_main() {
 }
 
 void tick_screen_main() {
-    tick_user_widget_ms_bar8(24);
-    tick_user_widget_ms_bar8(57);
-    tick_user_widget_ms_bar8(90);
-    tick_user_widget_ms_bar8(123);
-    tick_user_widget_ms_bar8(156);
-    tick_user_widget_ms_bar8(189);
-    tick_user_widget_ms_bar8(222);
-    tick_user_widget_ms_bar8(255);
-    tick_user_widget_ms_bar8(288);
-    tick_user_widget_ms_bar(321);
+    tick_user_widget_ms_bar8(26);
+    tick_user_widget_ms_bar8(59);
+    tick_user_widget_ms_bar8(92);
+    tick_user_widget_ms_bar8(125);
+    tick_user_widget_ms_bar8(158);
+    tick_user_widget_ms_bar8(191);
+    tick_user_widget_ms_bar8(224);
+    tick_user_widget_ms_bar8(257);
+    tick_user_widget_ms_bar8(290);
+    tick_user_widget_ms_bar(323);
 }
 
 void create_user_widget_8meters(lv_obj_t *parent_obj, int startWidgetIndex) {
