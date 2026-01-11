@@ -3,6 +3,23 @@
 
 #define DSP_VERSION				0.05
 
+// DSP2 receives 24 Audio-channels
+// Channel 1-8		-> FX Sends 1-8
+// Channel 9-16		-> FX Sends 9-16
+// Channel 17-24	-> Aux 1-8
+//    Aux Ch 1-2	-> USB L/R
+//    Aux Ch 3-4	-> SPDIF L/R
+//    Aux Ch 5-6	-> i.MX25 L/R
+//    Aux Ch 7-8	-> Unused
+#define DSP_BUF_IDX_FXA			1	// FX-Sends 1-8
+#define DSP_BUF_IDX_FXB			9	// FX-Sends 9-16
+#define DSP_BUF_IDX_USB_LEFT	17  // USB-Audio Left
+#define DSP_BUF_IDX_USB_RIGHT	18  // USB-Audio Right
+#define DSP_BUF_IDX_SPDIF_LEFT	19  // SPDIF-Audio Left
+#define DSP_BUF_IDX_SPDIF_RIGHT	20  // SPDIF-Audio Right
+#define DSP_BUF_IDX_IMX_LEFT	19  // iMX25-Audio Left
+#define DSP_BUF_IDX_IMX_RIGHT	20  // iMX25-Audio Right
+
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
 #define SDRAM_START  			0x00200000	// start address of SDRAM

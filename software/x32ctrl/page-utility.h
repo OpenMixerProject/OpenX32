@@ -28,7 +28,7 @@ class PageUtility: public Page {
                 case X32_BTN_ENCODER1:
                     // Reload DSP1
                     mixer->dsp->spi->CloseConnectionDsps();
-                    mixer->dsp->spi->UploadBitstreamDsps();
+                    mixer->dsp->spi->UploadBitstreamDsps(false); // use UI to show progress
                     mixer->dsp->spi->OpenConnectionDsps();
                     usleep(50000); // wait 50ms
                     mixer->dsp->SendAll();

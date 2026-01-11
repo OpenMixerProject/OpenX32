@@ -89,7 +89,7 @@ class SPI : public X32Base {
     SPI(X32BaseParameter* basepar);
     int UploadBitstreamFpgaXilinx();
     bool UploadBitstreamFpgaLattice();
-    int UploadBitstreamDsps();
+    int UploadBitstreamDsps(bool useCli);
     void ReadData(void);
     void ActivityLight(void);
     bool OpenConnectionFpga();

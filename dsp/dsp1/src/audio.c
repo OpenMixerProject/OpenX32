@@ -57,8 +57,8 @@ int audioBufferOffset = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
-int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8
-int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | P16 Ch 1-8 | P16 Ch 9-16 | AUX Ch 1-8
+int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | Ch 17-24 | Ch 25-32 | AUX Ch 1-8 | DSP2 1-24
+int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | P16 Ch 1-8 | P16 Ch 9-16 | AUX Ch 1-8 | DSP2 1-24
 
 // internal buffers for audio-samples
 float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR]; // audioBuffer[TAPPOINT][SAMPLE][CHANNEL]
@@ -119,6 +119,7 @@ void audioInit(void) {
 
 void audioSmoothVolume(void) {
 	// this function smoothes the set audio-volume for a nice user-experience. It is called every 333µs
+	// out = (volumeSet - volume) * coeff + volume
 
 	// smooth audio-volume for individual channels and FX-returns
 	vecvsubf(&dsp.channelVolumeSet[0], &dsp.channelVolume[0], &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // temp = (volumeSet - volume)

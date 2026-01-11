@@ -26,7 +26,7 @@
 
 DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
     spi = new SPI(basepar);
-    spi->UploadBitstreamDsps();
+    spi->UploadBitstreamDsps(true); // use CLI to show progress
     spi->OpenConnectionDsps();
 
     fx = new FX(basepar);
@@ -480,7 +480,7 @@ void DSP1::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
 
 void DSP1::RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source) {
 /*
-    // DSP-Taps
+    // dspSource-Signals
     // 0		DSP_BUF_IDX_OFF
     // 1-33		DSP-Input 1-32 from FPGA
     // 33-40	AUX-Input 1-8 from FPGA

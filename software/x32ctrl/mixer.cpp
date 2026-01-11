@@ -262,11 +262,11 @@ void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
 void Mixer::ChangeDspFxOutput(uint8_t channel, int8_t amount) {
     int16_t newValue = dsp->Dsp1toDsp2Routing[channel].input + amount;
 
-    if (newValue >= MAX_DSP1_TO_DSP2_CHANNELS) {
-        newValue -= MAX_DSP1_TO_DSP2_CHANNELS;
+    if (newValue >= DSP_MAX_INTERNAL_CHANNELS) {
+        newValue -= DSP_MAX_INTERNAL_CHANNELS;
     }
     if (newValue < 0) {
-        newValue += MAX_DSP1_TO_DSP2_CHANNELS;
+        newValue += DSP_MAX_INTERNAL_CHANNELS;
     }
 
     dsp->Dsp1toDsp2Routing[channel].input = newValue;

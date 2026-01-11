@@ -57,12 +57,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			break;
 		case 'v':
 			switch(index) {
-				case 0: // FxReturnVolume
-					if (valueCount == 1) {
-						dsp.channelFxReturnVolume[channel] = floatValues[0];
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
-					}
-					break;
 				default:
 					break;
 			}

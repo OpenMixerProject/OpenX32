@@ -645,7 +645,7 @@ int SPI::fpgaLatticeTransferCommand(int* spi_fd, uint8_t cmd) {
 //   - load IVT (1536 8-bit words)
 // DMA-Transfer expects a seemless data-transport while the manual says something about handshake and wait-states... strange
 //
-int SPI::UploadBitstreamDsps(void) {
+int SPI::UploadBitstreamDsps(bool useCli) {
     
     int spi_fd[2] = {-1};
     FILE *bitstream_file[2] = {NULL};
@@ -797,26 +797,34 @@ int SPI::UploadBitstreamDsps(void) {
                 }
             }
 */
-            // calculate progress-bar
-            totalBytesSent += bytesRead;
-            current_progress = (totalBytesSent * 100) / file_size[i];
-            if ((current_progress > (last_progress + 5)) || (totalBytesSent == file_size[i])) {
-                int progress = (int)((float)totalBytesSent / file_size[i] * progress_bar_width);
-                printf("\rDSP%u [", i+1);
-                for (int i_progress = 0; i_progress < progress_bar_width; ++i_progress) {
-                    if (i_progress < progress) {
-                        printf("█");
-                    }else{
-                        printf(" ");
-                    }
-                }
-                printf("] %ld/%ld Bytes (%u %%)", totalBytesSent, file_size[i], (uint)((totalBytesSent * 100) / file_size[i]));
-                fflush(stdout);
 
-                last_progress = current_progress;
+            // calculate progress-bar
+            if (useCli) {
+                totalBytesSent += bytesRead;
+                current_progress = (totalBytesSent * 100) / file_size[i];
+                if ((current_progress > (last_progress + 5)) || (totalBytesSent == file_size[i])) {
+                    int progress = (int)((float)totalBytesSent / file_size[i] * progress_bar_width);
+                    printf("\rDSP%u [", i+1);
+                    for (int i_progress = 0; i_progress < progress_bar_width; ++i_progress) {
+                        if (i_progress < progress) {
+                            printf("█");
+                        }else{
+                            printf(" ");
+                        }
+                    }
+                    printf("] %ld/%ld Bytes (%u %%)", totalBytesSent, file_size[i], (uint)((totalBytesSent * 100) / file_size[i]));
+                    fflush(stdout);
+
+                    last_progress = current_progress;
+                }
+            }else{
+                // TODO: use UI to show progress
             }
         }
-        printf("\n");
+        
+        if (useCli) {
+            printf("\n");
+        }
 
         fclose(bitstream_file[i]);
         close(spi_fd[i]);

@@ -70,7 +70,7 @@
 							<tool id="sharc.toolchain.loader.709314857" name="CrossCore SHARC Loader" superClass="sharc.toolchain.loader">
 								<option id="loader.option.proc.1916285831" name="-proc" superClass="loader.option.proc" value=" ADSP-21371" valueType="string"/>
 								<option id="loader.option.sirevision.492836820" name="-si-revision" superClass="loader.option.sirevision" value=" 0.0" valueType="string"/>
-								<option id="sharc.loader.option.kernelfile.1689692417" name="Kernel file (-l)" superClass="sharc.loader.option.kernelfile" value="C:\Analog Devices\CrossCore Embedded Studio 2.12.1\SHARC\ldr\371_prom.dxe" valueType="string"/>
+								<option id="sharc.loader.option.kernelfile.1689692417" name="Kernel file (-l)" superClass="sharc.loader.option.kernelfile" value="C:\Programme2\AnalogDevices\CCES2\SHARC\ldr\371_prom.dxe" valueType="string"/>
 							</tool>
 							<tool id="sharc.toolchain.deviceprogrammer.853055470" name="CrossCore SHARC Device Programmer" superClass="sharc.toolchain.deviceprogrammer">
 								<option id="deviceprogrammer.option.proc.1248788353" name="-proc" superClass="deviceprogrammer.option.proc" value=" ADSP-21371" valueType="string"/>
@@ -148,6 +148,8 @@
 								<option id="sharc.compiler.option.linearsimd.81650597" name="Allow automatic SIMD code generation in linear code (-linear-simd)" superClass="sharc.compiler.option.linearsimd" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="sharc.compiler.option.loopsimd.1155211738" name="Allow automatic SIMD code generation in loops, aggregate assignments and inlined memcpy operations (-loop-simd)" superClass="sharc.compiler.option.loopsimd" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="compiler.option.interprocdoptim.1187562468" name="Interprocedural optimization (-ipa)" superClass="compiler.option.interprocdoptim" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="compiler.option.processpeed.1414369674" name="Processor speed (MHz) (-D__PROCESSOR_SPEED__):" superClass="compiler.option.processpeed" useByScannerDiscovery="false" value="264" valueType="string"/>
+								<option id="compiler.option.allowmixsizes.882623174" name="Allow mixing of sizes (-double-size-any)" superClass="compiler.option.allowmixsizes" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<inputType id="compiler.inputType.1421259369" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="sharc.toolchain.linker.279780464" name="CrossCore SHARC Linker" superClass="sharc.toolchain.linker">
@@ -175,7 +177,7 @@
 							<tool id="sharc.toolchain.loader.1157112879" name="CrossCore SHARC Loader" superClass="sharc.toolchain.loader">
 								<option id="loader.option.proc.489929248" name="-proc" superClass="loader.option.proc" useByScannerDiscovery="false" value=" ADSP-21371" valueType="string"/>
 								<option id="loader.option.sirevision.223740442" name="-si-revision" superClass="loader.option.sirevision" useByScannerDiscovery="false" value=" 0.0" valueType="string"/>
-								<option id="sharc.loader.option.kernelfile.1315019402" name="Kernel file (-l)" superClass="sharc.loader.option.kernelfile" useByScannerDiscovery="false" value="C:\Analog Devices\CrossCore Embedded Studio 2.12.1\SHARC\ldr\371_spi.dxe" valueType="string"/>
+								<option id="sharc.loader.option.kernelfile.1315019402" name="Kernel file (-l)" superClass="sharc.loader.option.kernelfile" useByScannerDiscovery="false" value="C:\Programme2\AnalogDevices\CCES2\SHARC\ldr\371_spi.dxe" valueType="string"/>
 								<option id="sharc.loader.option.enumerated.bootmode.575136739" name="Boot mode (-b)" superClass="sharc.loader.option.enumerated.bootmode" useByScannerDiscovery="false" value="sharc.loader.option.boot.enumerated.spihost" valueType="enumerated"/>
 								<option id="sharc.loader.option.enumerated.bootformat.1716156957" name="Boot format (-f)" superClass="sharc.loader.option.enumerated.bootformat" useByScannerDiscovery="false" value="sharc.loader.option.format.enumerated.binary" valueType="enumerated"/>
 								<option id="sharc.loader.option.enumerated.width.1528417475" name="Output width (-hostwidth)" superClass="sharc.loader.option.enumerated.width" useByScannerDiscovery="false" value="sharc.loader.option.width.enumerated.eight" valueType="enumerated"/>

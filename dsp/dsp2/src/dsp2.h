@@ -27,6 +27,7 @@
 //#include <filters.h>              // scalar version for fir, iir, biquad
 //#include <trans.h>                // scalar version for fft
 #include <window.h>
+#include <complex.h>
 
 // includes for hardware-pins
 #include <sru.h>
@@ -51,16 +52,13 @@ typedef struct {
 struct {
 	float samplerate;
 
-	float channelFxReturnVolume[16];
 	sDspChannel dspChannel[MAX_CHAN];
 } dsp;
 
 
 enum eBufferIndex {
     TAP_INPUT,
-	TAP_POST_EQ,
-	TAP_PRE_FADER,
-	TAP_POST_FADER
+	TAP_OUTPUT
 };
 
 void openx32Init(void);

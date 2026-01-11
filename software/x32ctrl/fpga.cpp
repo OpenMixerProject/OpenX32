@@ -399,9 +399,9 @@ String Fpga::GetInputName(uint8_t group, uint8_t channel) {
 		case 'd': // DSP-Outputs 1-40
 			return String("DSP1 Return ") + String(channel);
 		case 'A': // AES50A-Inputs 1-48
-			return String("AESA In ") + String(channel);
+			return String("AES50A In ") + String(channel);
 		case 'B': // AES50B-Inputs 1-48
-			return String("AESB In ") + String(channel);
+			return String("AES50B In ") + String(channel);
 	}
 }
 
@@ -439,9 +439,9 @@ String Fpga::GetOutputName(uint8_t group, uint8_t channel) {
 		case 'd':
 			return "DSP1 In " + String(channel);
 		case 'A':
-			return "AESA Out " + String(channel);
+			return "AES50A Out " + String(channel);
 		case 'B':
-			return "AESB Out " + String(channel);
+			return "AES50B Out " + String(channel);
 	}
 }
 

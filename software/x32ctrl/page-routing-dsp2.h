@@ -83,10 +83,35 @@ class PageRoutingDsp2: public Page {
 			
 			if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
 				if (state->gui_selected_item < MAX_DSP1_TO_FPGA_CHANNELS) {
-					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item].input, mixer->dsp->Channel[state->gui_selected_item].input);
-					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item].tapPoint);
+					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toFpga[state->gui_selected_item].input, mixer->dsp->Channel[state->gui_selected_item].input);
+					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toFpga[state->gui_selected_item].tapPoint);
 				}else if ((state->gui_selected_item >= MAX_DSP1_TO_FPGA_CHANNELS) && (state->gui_selected_item < (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS))) {
-					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item-MAX_DSP1_TO_FPGA_CHANNELS].input, 0);
+					/*
+						// dspSource-Signals
+						// 0		DSP_BUF_IDX_OFF
+						// 1-33		DSP-Input 1-32 from FPGA
+						// 33-40	AUX-Input 1-8 from FPGA
+						// 41-56	FX-Return 1-8 from DSP2
+						// 57-72	Mixbus 1-16 (internal)
+						// 73-75	Main Left, Right, Sub (internal)
+						// 76-81	Matrix 1-6 (internal)
+						// 82-89	FX-Aux-Channel 1-8 from DSP2
+						// 90-92	Monitor Left, Right, Talkback (internal)
+					*/
+					uint8_t dspOutputSourceIndex = mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item-MAX_DSP1_TO_FPGA_CHANNELS].input;
+
+					if (dspOutputSourceIndex <= 40) {
+						// we are using one of the DSP-channels -> check if it is routed from FPGA
+						if (mixer->dsp->Channel[dspOutputSourceIndex - 1].input < 40) {
+							// routed from FPGA
+							mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], dspOutputSourceIndex, mixer->fpga->fpgaRouting.dsp[dspOutputSourceIndex - 1]); // stringBuffer, dspSource, fpgaSource
+						}else{
+							// routed to internal DSP-signal
+							mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], dspOutputSourceIndex, mixer->dsp->Channel[dspOutputSourceIndex - 1].input + MAX_DSP1_TO_FPGA_CHANNELS); // stringBuffer, dspSource, dspSource
+						}
+					}else{
+						mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], dspOutputSourceIndex, 0); // DSP-internal signal without an FPGA-source
+					}
 					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toDsp2Routing[state->gui_selected_item-MAX_DSP1_TO_FPGA_CHANNELS].tapPoint);
 				}
 

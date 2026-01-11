@@ -41,6 +41,8 @@
 
 volatile int audioReady = 0;
 volatile int audioProcessing = 0;
+volatile int spdifSamplePointer = 0;
+volatile bool spdifLeftChannel = true;
 int audioBufferOffset = 0;
 
 // audio-buffers for transmitting and receiving
@@ -91,10 +93,8 @@ void audioInit(void) {
 	// initialize memory
 	memset(audioBuffer, 0, sizeof(audioBuffer));
 
-	// initialize channel-parameters
-	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-		dsp.channelFxReturnVolume[i_ch] = 1.0f;
-	}
+	// initialize effects
+	fxInit();
 }
 
 void audioProcessData(void) {
@@ -104,7 +104,7 @@ void audioProcessData(void) {
 	int bufferTdmIndex;
 	int dspCh;
 	int bufferIndex;
-	int sOffset;
+	int sampleOffset;
 	int tdmOffset;
 	int tdmBufferOffset;
 
@@ -115,9 +115,9 @@ void audioProcessData(void) {
 	// |____/ \___|    |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
 	//                                                                    |___/
 	// copy interleaved DMA input-buffer into channel buffers
-	sOffset = 0;
+	sampleOffset = 0;
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = audioBufferOffset + sOffset;
+		bufferSampleIndex = audioBufferOffset + sampleOffset;
 
 		// copy channels from FPGA
 		tdmOffset = 0;
@@ -137,8 +137,12 @@ void audioProcessData(void) {
 			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
 
-		sOffset += CHANNELS_PER_TDM;
+		sampleOffset += CHANNELS_PER_TDM;
 	}
+
+	// reset SPDIF-read-pointer to zero as we have new data in the buffer
+	spdifSamplePointer = 0;
+	spdifLeftChannel = true;
 
 	// ========================================================
 
@@ -157,7 +161,7 @@ void audioProcessData(void) {
 		vecsmltf(&audioBuffer[TAP_PRE_FADER][i_ch][0], dsp.channelFxReturnVolume[i_ch], &audioBuffer[TAP_POST_FADER][i_ch][0], SAMPLES_IN_BUFFER);
 	}
 */
-
+/*
 	// insert sinewave-audio to all channels with increasing frequency starting at 200Hz and ending at 2.5kHz
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		time += (1.0f/48000.0f); // add 20.83us
@@ -173,6 +177,40 @@ void audioProcessData(void) {
 			//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 268435456.0f; // scaled as 2^28 (results in -18dBfs)
 		}
 	}
+*/
+
+
+
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		audioBuffer[TAP_INPUT][0][s] = audioBuffer[TAP_INPUT][0][s] * 0.5f; // reduce volume on channel left to 50% for testing-purposes
+		//audioBuffer[TAP_INPUT][1][s] = audioBuffer[TAP_INPUT][1][s] * 0.5f; // reduce volume on channel right to 50% for testing-purposes
+	}
+
+
+	// perform stereo-decompositing and 5.0 upmixing
+	float* upmixInBuf[2];
+	float* upmixOutBuf[5];
+	upmixInBuf[0] = &audioBuffer[TAP_INPUT][0][0];
+	upmixInBuf[1] = &audioBuffer[TAP_INPUT][1][0];
+	fxDecompositingAndUpmixing(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
+
+	memcpy(&audioBuffer[TAP_OUTPUT][0][0], upmixOutBuf[0], SAMPLES_IN_BUFFER * sizeof(float));
+	memcpy(&audioBuffer[TAP_OUTPUT][1][0], upmixOutBuf[1], SAMPLES_IN_BUFFER * sizeof(float));
+	memcpy(&audioBuffer[TAP_OUTPUT][2][0], upmixOutBuf[2], SAMPLES_IN_BUFFER * sizeof(float));
+	memcpy(&audioBuffer[TAP_OUTPUT][3][0], upmixOutBuf[3], SAMPLES_IN_BUFFER * sizeof(float));
+	memcpy(&audioBuffer[TAP_OUTPUT][4][0], upmixOutBuf[4], SAMPLES_IN_BUFFER * sizeof(float));
+
+	// calculate LFE as sum of stereo-channels with 80 Hz HighCut
+	memcpy(&audioBuffer[TAP_OUTPUT][5][0], &audioBuffer[TAP_INPUT][0][0], SAMPLES_IN_BUFFER * sizeof(float)); // use direct input to feed-forward to output for debugging
+
+
+
+
+
+
+
+
+
 
 
 	// ========================================================
@@ -184,9 +222,9 @@ void audioProcessData(void) {
 	// |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
 	//                                                    |___/
 	// copy channel buffers to interleaved output-buffer
-	sOffset = 0;
+	sampleOffset = 0;
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = audioBufferOffset + sOffset;
+		bufferSampleIndex = audioBufferOffset + sampleOffset;
 
 		// copy data for FPGA
 		tdmOffset = 0;
@@ -199,14 +237,14 @@ void audioProcessData(void) {
 				bufferIndex = (bufferTdmIndex + i_ch);
 
 				// output to FPGA as float
-				memcpy(&audioTxBuf[bufferIndex], &audioBuffer[TAP_POST_FADER][dspCh][s], sizeof(float));
+				memcpy(&audioTxBuf[bufferIndex], &audioBuffer[TAP_OUTPUT][dspCh][s], sizeof(float));
 			}
 
 			tdmOffset += CHANNELS_PER_TDM;
 			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
 
-		sOffset += CHANNELS_PER_TDM;
+		sampleOffset += CHANNELS_PER_TDM;
 	}
 
 	// increment buffer-counter for next call
@@ -231,5 +269,12 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
 }
 
 void audioSpdifTxISR(uint32_t iid, void* handlerarg) {
-	*pTXSP6A = 0; // TODO: fill with useful audio-data here
+	if (spdifLeftChannel) {
+		*pTXSP6A = (int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_SPDIF_LEFT][spdifSamplePointer];
+		spdifLeftChannel = false;
+	}else{
+		*pTXSP6A = (int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_SPDIF_RIGHT][spdifSamplePointer];
+		spdifLeftChannel = true;
+		spdifSamplePointer++; // increase read-pointer to next sample
+	}
 }

@@ -30,6 +30,7 @@ lv_style_t *get_style_slider_fader_solo_KNOB_DEFAULT();
 void add_style_slider_fader_solo(lv_obj_t *obj);
 void remove_style_slider_fader_solo(lv_obj_t *obj);
 
+
 // Style: slider_fader_mute
 lv_style_t *get_style_slider_fader_mute_KNOB_DEFAULT();
 lv_style_t *get_style_slider_fader_mute_INDICATOR_DEFAULT();
