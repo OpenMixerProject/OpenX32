@@ -6,6 +6,11 @@
 #define X32_CTRL_CONFIGFILE "x32ctrl.cfg"
 #define X32_MIXER_CONFIGFILE "mixer.ini"
 
+#define TIMER_1MS 1000000 // 1ms = 1000000ns
+#define TIMER_100MS 100 * TIMER_1MS 
+#define TIMER_50MS   50 * TIMER_1MS
+#define TIMER_10MS   10 * TIMER_1MS
+
 #define SPI_DEVICE_DSP1 "/dev/spidev0.0"
 #define SPI_DEVICE_DSP2 "/dev/spidev0.1"
 #define SPI_DEVICE_FPGA "/dev/spidev2.0"
