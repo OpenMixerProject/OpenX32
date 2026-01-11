@@ -25,6 +25,9 @@
 #include "audio.h"
 #include "system.h"
 #include "fx.h"
+#if FX_USE_UPMIXER == 1
+#include "fxUpmixer.h"
+#endif
 
 /*
 	Used Audio-Mapping:
@@ -186,23 +189,18 @@ void audioProcessData(void) {
 		//audioBuffer[TAP_INPUT][1][s] = audioBuffer[TAP_INPUT][1][s] * 0.5f; // reduce volume on channel right to 50% for testing-purposes
 	}
 
-
-	// perform stereo-decompositing and 5.0 upmixing
+	#if FX_USE_UPMIXER == 1
+	// perform stereo-decompositing and 5.1 upmixing
 	float* upmixInBuf[2];
-	float* upmixOutBuf[5];
-	upmixInBuf[0] = &audioBuffer[TAP_INPUT][0][0];
-	upmixInBuf[1] = &audioBuffer[TAP_INPUT][1][0];
-	fxDecompositingAndUpmixing(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
-
-	memcpy(&audioBuffer[TAP_OUTPUT][0][0], upmixOutBuf[0], SAMPLES_IN_BUFFER * sizeof(float));
-	memcpy(&audioBuffer[TAP_OUTPUT][1][0], upmixOutBuf[1], SAMPLES_IN_BUFFER * sizeof(float));
-	memcpy(&audioBuffer[TAP_OUTPUT][2][0], upmixOutBuf[2], SAMPLES_IN_BUFFER * sizeof(float));
-	memcpy(&audioBuffer[TAP_OUTPUT][3][0], upmixOutBuf[3], SAMPLES_IN_BUFFER * sizeof(float));
-	memcpy(&audioBuffer[TAP_OUTPUT][4][0], upmixOutBuf[4], SAMPLES_IN_BUFFER * sizeof(float));
-
-	// calculate LFE as sum of stereo-channels with 80 Hz HighCut
-	memcpy(&audioBuffer[TAP_OUTPUT][5][0], &audioBuffer[TAP_INPUT][0][0], SAMPLES_IN_BUFFER * sizeof(float)); // use direct input to feed-forward to output for debugging
-
+	float* upmixOutBuf[6];
+	for (int i_ch = 0; i_ch < 2; i_ch++) {
+		upmixInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
+	}
+	for (int i_ch = 0; i_ch < 6; i_ch++) {
+		upmixOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 6 output-channels (L, R, C, BL, BR, Sub)
+	}
+	fxUpmixerProcess(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
+	#endif
 
 
 
