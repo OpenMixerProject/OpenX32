@@ -51,15 +51,13 @@
 X32Ctrl* ctrl;
 State* state;
 CLI::App* app;
-timer_t timerid;
-struct sigevent sev;
-struct itimerspec trigger;
+
+timer_t timerid_10ms;
+struct sigevent sev_10ms;
+struct itimerspec trigger_10ms;
+uint8_t vtimercounter = 0;
 
 void timer100msCallbackLvgl(_lv_timer_t* lv_timer) { 
-	ctrl->Tick100ms();
-}
-
-void timer100msCallbackLinux(int timer) {
 	ctrl->Tick100ms();
 }
 
@@ -67,83 +65,25 @@ void timer50msCallbackLvgl(_lv_timer_t* lv_timer) {
 	ctrl->Tick50ms();
 }
 
-void timer50msCallbackLinux(int timer) {
-	ctrl->Tick50ms();
-}
-
 void timer10msCallbackLvgl(_lv_timer_t* lv_timer) {
 	ui_tick(); ctrl->Tick10ms();
 }
 void timer10msCallbackLinux(int timer) {
+	
 	ctrl->Tick10ms();
-}
 
-// initialize 100ms timer (only for Non-GUI systems)
-void init100msTimer(void) {
-	// Set up the signal handler
-	struct sigaction sa;
-	sa.sa_handler = timer100msCallbackLinux;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
-		perror("sigaction");
+	// virtual timer for triggering every 50ms and 100ms
+	vtimercounter++;
+	if (vtimercounter == 5) {
+		ctrl->Tick50ms();
 	}
-
-	// Set up the sigevent structure for the timer
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_signo = SIGRTMIN;
-	sev.sigev_value.sival_ptr = &timerid;
-
-	// Create the timer
-	if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
-		perror("timer_create");
-	}
-	
-	trigger.it_value.tv_sec = 0;
-	trigger.it_value.tv_nsec = TIMER_100MS;
-	trigger.it_interval.tv_sec = 0;
-	trigger.it_interval.tv_nsec = TIMER_100MS;
-
-	// Arm the timer
-	if (timer_settime(timerid, 0, &trigger, NULL) == -1) {
-		perror("timer_settime");
+	if (vtimercounter >= 10) {
+		ctrl->Tick100ms();
+		vtimercounter = 0;
 	}
 }
 
-// initialize 50ms timer (only for Non-GUI systems)
-void init50msTimer(void) {
-	// Set up the signal handler
-	struct sigaction sa;
-	sa.sa_handler = timer50msCallbackLinux;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
-		perror("sigaction");
-	}
-
-	// Set up the sigevent structure for the timer
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_signo = SIGRTMIN;
-	sev.sigev_value.sival_ptr = &timerid;
-
-	// Create the timer
-	if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
-		perror("timer_create");
-	}
-	
-	trigger.it_value.tv_sec = 0;
-	trigger.it_value.tv_nsec = TIMER_50MS;
-	trigger.it_interval.tv_sec = 0;
-	trigger.it_interval.tv_nsec = TIMER_50MS;
-
-	// Arm the timer
-	if (timer_settime(timerid, 0, &trigger, NULL) == -1) {
-		perror("timer_settime");
-	}
-}
-
-// initialize 10ms timer (only for Non-GUI systems)
-void init10msTimer(void) {
+void init10msTimer_NonGUI(void) {
 	// Set up the signal handler
 	struct sigaction sa;
 	sa.sa_handler = timer10msCallbackLinux;
@@ -154,22 +94,22 @@ void init10msTimer(void) {
 	}
 
 	// Set up the sigevent structure for the timer
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_signo = SIGRTMIN;
-	sev.sigev_value.sival_ptr = &timerid;
+	sev_10ms.sigev_notify = SIGEV_SIGNAL;
+	sev_10ms.sigev_signo = SIGRTMIN;
+	sev_10ms.sigev_value.sival_ptr = &timerid_10ms;
 
 	// Create the timer
-	if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
+	if (timer_create(CLOCK_REALTIME, &sev_10ms, &timerid_10ms) == -1) {
 		perror("timer_create");
 	}
 	
-	trigger.it_value.tv_sec = 0;
-	trigger.it_value.tv_nsec = TIMER_10MS;
-	trigger.it_interval.tv_sec = 0;
-	trigger.it_interval.tv_nsec = TIMER_10MS;
+	trigger_10ms.it_value.tv_sec = 0;
+	trigger_10ms.it_value.tv_nsec = TIMER_10MS;
+	trigger_10ms.it_interval.tv_sec = 0;
+	trigger_10ms.it_interval.tv_nsec = TIMER_10MS;
 
 	// Arm the timer
-	if (timer_settime(timerid, 0, &trigger, NULL) == -1) {
+	if (timer_settime(timerid_10ms, 0, &trigger_10ms, NULL) == -1) {
 		perror("timer_settime");
 	}
 }
@@ -255,7 +195,7 @@ int main(int argc, char* argv[]) {
 
 	// debugging commandline option
 	vector<string> debug_parameters;
-	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA GUI INI MIXER SPI SURFACE UART VCHANNEL X32CTRL XREMOTE")
+	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA GUI INI MIXER SPI SURFACE TIMER UART VCHANNEL X32CTRL XREMOTE")
 			->configurable(false)
 			->group("Debug")
 			->expected(1,-1)
@@ -349,6 +289,7 @@ int main(int argc, char* argv[]) {
 			if (debug_parameters[i] == "XREMOTE") { helper->DEBUG_XREMOTE(true); }
 			if (debug_parameters[i] == "INI") { helper->DEBUG_INI(true); }
 			if (debug_parameters[i] == "STATE") { helper->DEBUG_STATE(true); }
+			if (debug_parameters[i] == "TIMER") { helper->DEBUG_TIMER(true); }
 		}
 
 		if (trace) {
@@ -377,9 +318,7 @@ int main(int argc, char* argv[]) {
 	if (config->IsModelX32Core()){
 		// only necessary if LVGL is not used
 		helper->Log("Starting Timers...\n");
-		init100msTimer();
-		init50msTimer();
-		init10msTimer();
+		init10msTimer_NonGUI();
 
 		helper->Log("Press Ctrl+C to terminate program.\n");
 		while (1) {

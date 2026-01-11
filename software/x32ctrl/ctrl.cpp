@@ -59,6 +59,13 @@ void X32Ctrl::Init(){
 		activeBusSend = 0;
 	}
 
+	if(config->IsModelX32Core()) {
+
+		// Turn on Scene/Setup LED
+		surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 1, 0);
+		surface->SetLedByEnum(X32_BTN_TALK_A, 1, 1);
+	}
+
 	SetSelect(0, true);
 	
 	if(helper->GetFileSize(X32_MIXER_CONFIGFILE) == -1)	{
@@ -299,6 +306,7 @@ void X32Ctrl::SaveConfig() {
 //#####################################################################################################################
 
 void X32Ctrl::Tick10ms(void){
+	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "10ms");
 
 	surface->Touchcontrol();	
 	mixer->dsp->ReadAndUpdateVUMeterData();
@@ -329,11 +337,13 @@ void X32Ctrl::Tick10ms(void){
 }
 
 void X32Ctrl::Tick50ms(void) {
+	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "50ms");
 
 	UpdateMeters();
 }
 
 void X32Ctrl::Tick100ms(void) {
+	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "100ms");
 
 	surface->Blink();
 	mixer->dsp->spi->ActivityLight();
@@ -1072,7 +1082,12 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
 // Update all meters (Gui, Surface, xremote)
 void X32Ctrl::UpdateMeters(void) {
 
-	pages[state->activePage]->UpdateMeters();
+	if (config->IsModelX32FullOrCompactOrProducerOrRack())
+	{
+		pages[state->activePage]->UpdateMeters();
+	}
+
+
 	xremote->UpdateMeter(mixer);
 
 	// ########################################
