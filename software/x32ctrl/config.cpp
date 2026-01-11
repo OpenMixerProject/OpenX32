@@ -2,7 +2,7 @@
 
 void Config::SetModel(String model){
 
-    if (model == "X32Core") {
+    if (model == "X32CORE") {
         _model = X32_MODEL_CORE;
     }else if (model == "X32RACK") {
         _model = X32_MODEL_RACK;
