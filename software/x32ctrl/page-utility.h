@@ -60,8 +60,6 @@ class PageUtility: public Page {
                     case X32_ENC_ENCODER1:
                         break;
                     case X32_ENC_ENCODER2:
-                        state->cardchannels += amount;
-                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
                         break;
                     case X32_ENC_ENCODER3:
                         break;

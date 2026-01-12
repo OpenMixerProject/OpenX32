@@ -79,7 +79,7 @@ void X32Ctrl::Init(){
 	//#                                                                          #
 	//#     Common to all                                                        #
 	//#                                                                          #
-			state->card_channelmode = CARD_CHANNELMODE_32IN_32OUT;
+			state->card_xusb_channelmode = CARD_CHANNELMODE_32IN_32OUT;
 			SetSelect(0, true);
 	//#                                                                          #
 	//############################################################################
@@ -248,6 +248,11 @@ void X32Ctrl::LoadConfig() {
 		mixer->fpga->SendRoutingToFpga(-1);
 	}
 
+	{
+		string section = "card";
+		state->card_xusb_channelmode = mixer_ini[section]["xusb-channelmode"].as<int>();
+	}
+
 }
 
 //#####################################################################################################################
@@ -309,6 +314,11 @@ void X32Ctrl::SaveConfig() {
 			mixer_ini[section][(String("dsp") + i).c_str()] = (int)mixer->fpga->fpgaRouting.dsp[i];
 		}
 	}
+	{
+		string section = "card";
+		mixer_ini[section]["xusb-channelmode"] = (int)state->card_xusb_channelmode;
+	}
+
 	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", X32_MIXER_CONFIGFILE);
 	mixer_ini.save(X32_MIXER_CONFIGFILE);
 }

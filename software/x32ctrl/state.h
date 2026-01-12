@@ -30,10 +30,9 @@ class State {
 
         uint8_t activeEQ;
 
-        uint8_t card_channelmode;
+        uint8_t card_xusb_channelmode;
 
         // DEBUG
-        uint8_t cardchannels = 0;
         uint8_t debugvalue = 0;
         uint8_t debugvalue2 = 0;
         bool dsp_disable_activity_light = false;

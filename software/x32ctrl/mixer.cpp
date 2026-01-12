@@ -1084,12 +1084,12 @@ bool Mixer::IsSoloActivated(void){
 }
 
 void Mixer::SetCardChannelMode(uint8_t mode) {
-    state->card_channelmode = mode;
+    state->card_xusb_channelmode = mode;
     state->SetChangeFlags(X32_MIXER_CHANGED_CARD);
 }
 
 uint8_t Mixer::GetCardChannelMode() {
-    return state->card_channelmode;
+    return state->card_xusb_channelmode;
 }
 
 String Mixer::GetCardChannelModeString() {
