@@ -23,6 +23,7 @@
 */
 
 #include "system.h"
+#include <def21371.h>
 
 void systemPllSetBypass(bool bypass) {
 	int i;
@@ -108,21 +109,22 @@ void systemExternalMemoryInit() {
 
 	// set SDRRC and enable SDRAM read optimization
 	// RDIV from datasheet: RDIV = (f_SDCLK * t_REF/NRA) - (t_RAS + t_RP)
-	// RDIV from datasheet: RDIV = (132MHz * 64ms/4096) - (42 + 18ns) = 2062 - 60 = 2002 = 0x7D2
-	*pSDRRC = 0x7D2 | (1<<17) | SDROPT; // SDMODIFY is set to 0001 (default) and SDROPT is enabled
+	// RDIV from datasheet: RDIV = (131.072MHz * 64ms/4096) - (7 + 3ns) = 2039 = 0x7F7
+	*pSDRRC = 0x7F7 | (1<<17) | SDROPT; // SDMODIFY is set to 0001 (default) and SDROPT is enabled
 
-	// SDCL3   = set CAS Latency to 3 (from datasheet)
-	// X16DE   = Data-Bits 0..15 are connected to SD-RAM
-	// SDCAW9 = set Address Width to 9 bit
-	// SDRAW12 = set Row address Width to 12 bit
-	// SDTRAS  = SDRAM tRAS Specification. Active Command delay = 6 cycles
-	// SDTRP   = SDRAM tRP Specification. Precharge delay = 3 cycles.
-	// SDTWR   = SDRAM tWR Specification. tWR = 2 cycles.
-	// SDTRCD  = SDRAM tRCD Specification. tRCD = 3 cycles.
-	// SDPSS   = start SDRAM power-up on next cycle
-	// SDPM    = SDRAM Power-Up Mode: SDC is prepared to start a precharge all command, followed by load mode register command followed by eight auto-refresh cycles
-	// SDSRF   = enable SDRAM Self-Refresh
-	*pSDCTL = SDCL3 | X16DE | SDCAW9 | SDRAW12 | SDTRAS6 | SDTRP3 | SDTWR2 | SDTRCD3 | SDPSS;
+    //  SDCL3     = SDRAM CAS Latency = 3 cycles
+    //  X16DE     = SDRAM external bus width = 16 bits wide
+    //  SDNOBSTOP = SDRAM No Burst Stop
+    //  SDCAW9    = SDRAM Bank Column Address Width = 9 bits
+    //  SDRAW12   = SDRAM Row Address Width = 12 bits
+    //  SDTRAS7   = SDRAM tRAS Specification = 7 cycles
+    //  SDTRP3    = SDRAM tRP Specification = 3 cycles.
+    //  SDTWR2    = SDRAM tWR Specification = 2 cycles.
+    //  SDTRCD3   = SDRAM tRCD Specification = 3 cycles.
+	//  DSDCLK1   = Disable SDRAM Clock 1
+	//  SDPSS     = Start SDRAM Power up Sequence
+	
+	*pSDCTL = SDCL3 | X16DE | SDNOBSTOP | SDCAW9 | SDRAW12 | SDTRAS7 | SDTRP3 | SDTWR2 | SDTRCD3 | DSDCLK1 | SDPSS;
 	*pSDCTL &= ~DSDCTL; // enable controller
 
 	// enable SDRAM
@@ -138,9 +140,9 @@ void systemExternalMemoryInit() {
 	// configure the AMI Control Register of Bank1 for the K4S281632E
 	// 1:1 mapping for 8 bits per byte
 	// AMIEN  = enables AMI Controller
-	// BW16   = set DataBusWidth to 16bit
+	// BW8    = set DataBusWidth to 8bit
 	// WS23   = 23 WaitStates
-	*pAMICTL1 = AMIEN | BW16 | WS23;
+	*pAMICTL1 = AMIEN | BW8 | WS23;
 
 	// dummy access to initialize the controller
 	int dummy = *(int*)0x4000000;
