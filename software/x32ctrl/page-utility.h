@@ -12,7 +12,7 @@ class PageUtility: public Page {
 
         void OnChange(bool force_update) override {
             // TODO only update if values are changed
-            SetEncoderText("Reload DSPs", String("CARD Ch\n") + String(state->cardchannels), "*8R#", "-", String("D2: ") + String(state->debugvalue2), String("D1: ") + String(state->debugvalue));
+            SetEncoderText("Reload DSPs", "-", "-", "-", String("D2: ") + String(state->debugvalue2), String("D1: ") + String(state->debugvalue));
         }
 
         void OnDisplayButton(X32_BTN button, bool pressed) override {
@@ -35,10 +35,8 @@ class PageUtility: public Page {
                     mixer->dsp->SendAll(); // currently we need to send the data twice. Maybe a bug in the SPI-connection or a timing-issue?
                     break;
                 case X32_BTN_ENCODER2:
-                    mixer->Card_SetChannels(state->cardchannels);
                     break;
                 case X32_BTN_ENCODER3:
-                    mixer->Card_SendCommand("*8R#");
                     break;
                 case X32_BTN_ENCODER4:
                     break;

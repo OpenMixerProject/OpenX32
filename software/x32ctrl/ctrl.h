@@ -110,7 +110,6 @@ class X32Ctrl : public X32Base {
         void ShowPrevPage();
         void ShowNextPage();
 
-        void syncAll(void);
         void syncGui(void);
         void syncSurface(void);
         

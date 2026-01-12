@@ -48,25 +48,45 @@ void X32Ctrl::Init(){
 	surface->Init();
 	xremote->Init();
 
+	//############################################################################
+	//#                                                                          #
+	//#     Default Config                                                       #
+	//#                                                                          #
+	//############################################################################
+	//#                                                                          #
+	//#     With GUI                                                             #
+	//#                                                                          #
 	if(config->IsModelX32FullOrCompactOrProducer()) {
 
-		ResetFaderBankLayout();
-		LoadFaderBankLayout(FADER_BANK_LAYOUT_X32);
+			ResetFaderBankLayout();
+			LoadFaderBankLayout(FADER_BANK_LAYOUT_X32);
 
-		activeBank_inputFader = 0;
-		activeBank_busFader = 0;
-		state->activeEQ = 0;
-		activeBusSend = 0;
+			activeBank_inputFader = 0;
+			activeBank_busFader = 0;
+			state->activeEQ = 0;
+			activeBusSend = 0;
 	}
-
+	//############################################################################
+	//#                                                                          #
+	//#     Without GUI                                                          #
+	//#                                                                          #
 	if(config->IsModelX32Core()) {
 
-		// Turn on Scene/Setup LED
-		surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 1, 0);
-		surface->SetLedByEnum(X32_BTN_TALK_A, 1, 1);
+			// Turn on Scene/Setup LED to give a hint of life
+			surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 1, 0);
 	}
-
-	SetSelect(0, true);
+	//############################################################################
+	//#                                                                          #
+	//#     Common to all                                                        #
+	//#                                                                          #
+			state->card_channelmode = CARD_CHANNELMODE_32IN_32OUT;
+			SetSelect(0, true);
+	//#                                                                          #
+	//############################################################################
+    //#                                                                          #
+	//#     EoDC - Default of Default Config :-)                                 #
+	//#                                                                          #
+	//############################################################################
 	
 	if(helper->GetFileSize(X32_MIXER_CONFIGFILE) == -1)	{
 		// create new ini file
@@ -80,7 +100,7 @@ void X32Ctrl::Init(){
 		LoadConfig();
 	}
 
-	// trigger first sync to gui/surface
+	// trigger first sync to everywhere
 	state->SetChangeFlags(X32_MIXER_CHANGED_ALL);
 }
 
@@ -319,15 +339,14 @@ void X32Ctrl::Tick10ms(void){
 	// sync all state-based events
 	if (state->HasAnyChanged()){
 
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "SyncAll ");
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Something has changed -> Sync");
 
 		syncGui();
 		syncSurface();
 		syncXRemote(false);
 
-		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) {
-			mixer->Sync();
-		}
+		mixer->Sync();
+		mixer->card->Sync();
 
 		state->ResetChangeFlags();
 		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
@@ -353,7 +372,6 @@ void X32Ctrl::Tick100ms(void) {
 	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
 	}
 }
-
 
 
 //#####################################################################################################################
@@ -675,37 +693,25 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 //
 //#####################################################################################################################
 
-void X32Ctrl::syncAll(void) {
-	
-}
 
 // sync mixer state to GUI
 void X32Ctrl::syncGui() {
 	if (config->IsModelX32Core()){
 		return;
 	}
-
-	// if these have not changed, do nothing else
-	if (!(
-		state->HasChanged(X32_MIXER_CHANGED_PAGE)  		||
-		state->HasChanged(X32_MIXER_CHANGED_SELECT)  	||
-		state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)	||
-		state->HasChanged(X32_MIXER_CHANGED_ROUTING) 	||
-		state->HasChanged(X32_MIXER_CHANGED_METER)		||
-		state->HasChanged(X32_MIXER_CHANGED_GUI)		||
-		state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)
-		)) {
-		return;
-	}
 	
 	//####################################
-	//#       Init / Update Page
+	//#     Show Active Page
 	//####################################
 
 	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
 		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
 		pages[state->activePage]->Show();
 	}
+
+	//####################################
+	//#     Update Active Page
+	//####################################
 
 	pages[state->activePage]->Change();
 
@@ -1876,6 +1882,22 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 					break;
 				case X32_BTN_CHANNEL_MUTE: // only X32 Rack
 					mixer->ToggleMute(config->selectedVChannel);
+					break;
+				case X32_BTN_ASSIGN_3:
+					if (config->IsModelX32Core()) {
+						//mixer->adda->SetCard_XUSB_NumberOfChannels(2);
+						mixer->card->Card_SendCommand("");
+					}
+					break;
+				case X32_BTN_ASSIGN_5:
+					if (config->IsModelX32Core()) {
+						mixer->SetCardChannelMode(-1);
+					}
+					break;
+				case X32_BTN_ASSIGN_6:
+					if (config->IsModelX32Core()) {
+						mixer->SetCardChannelMode(1);
+					}
 					break;
 				default:
 					helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Unhandled button detected.\n");

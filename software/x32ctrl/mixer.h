@@ -15,6 +15,7 @@
 #include "dsp1.h"
 #include "fpga.h"
 #include "adda.h"
+#include "card.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ class Mixer : public X32Base
         VChannel* vchannel[MAX_VCHANNELS];        
         Fpga* fpga;
         Adda* adda;
+        Card* card;
         DSP1* dsp;
 
         Mixer(X32BaseParameter* basepar);
@@ -54,6 +56,7 @@ class Mixer : public X32Base
         void SetGate(uint8_t vChannelIndex, char option, float value);
         void SetLowcut(uint8_t vChannelIndex, float lowCutFrequency);
         void SetDynamics(uint8_t vChannelIndex, char option, float value);
+        void SetCardChannelMode(uint8_t mode);
 
         void TogglePhantom(uint8_t vChannelIndex);
         void TogglePhaseInvert(uint8_t vChannelIndex);
@@ -95,6 +98,10 @@ class Mixer : public X32Base
         float GetGate(uint8_t vChannelIndex, char option);
         float GetLowcut(uint8_t vChannelIndex);
         float GetDynamics(uint8_t vChannelIndex, char option);
+        uint8_t GetCardChannelMode();
+        String GetCardChannelModeString();
+        String GetCardChannelModeString(uint8_t mode);
+        String GetCardModelString();
 
         void ResetVChannelChangeFlags(VChannel p_chan);
 
@@ -106,9 +113,6 @@ class Mixer : public X32Base
 
         void Sync(void);
         uint8_t halGetDspInputSource(uint8_t dspChannel);
-
-        void Card_SetChannels(uint8_t channelparameter);
-        void Card_SendCommand(String command);
 
         void DebugPrintvChannels(void);
 };

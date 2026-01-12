@@ -79,8 +79,14 @@
 #define SURFACE_COLOR_WHITE 7
 #define SURFACE_COLOR_INVERTED 8
 
-#define MAX_BUTTONS 255
-#define MAX_ENCODERS 23 // counted on X32 Full
+// channelparameter (in / out) - probed on "X-USB:A:3" card
+#define CARD_CHANNELMODE_32IN_32OUT     0
+#define CARD_CHANNELMODE_16IN_16OUT     1
+#define CARD_CHANNELMODE_32IN_8OUT      2
+#define CARD_CHANNELMODE_8IN_32OUT      3
+#define CARD_CHANNELMODE_8IN_8OUT       4
+#define CARD_CHANNELMODE_2IN_2OUT       5
+
 #define MAX_FADERS 25   // counted on X32 Full
 
 // LED Brightness

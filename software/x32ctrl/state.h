@@ -30,6 +30,8 @@ class State {
 
         uint8_t activeEQ;
 
+        uint8_t card_channelmode;
+
         // DEBUG
         uint8_t cardchannels = 0;
         uint8_t debugvalue = 0;
@@ -37,6 +39,7 @@ class State {
         bool dsp_disable_activity_light = false;
         bool dsp_disable_readout = false;
         bool surface_disable_lcd_update = false;
+        // \DEBUG
 
         uint32_t fpga_spi_speed = 0;
         uint32_t dsp_spi_config_speed = 0;

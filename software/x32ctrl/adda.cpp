@@ -174,20 +174,21 @@ String Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomP
 }
 
 void Adda::Send(String cmd) {
-	AddaMessage message;
-	String answer;
+	AddaMessage* message = new AddaMessage();
 
-	message.AddString(cmd.c_str());
+	message->AddString(cmd.c_str());
 
 	if (helper->DEBUG_ADDA(DEBUGLEVEL_TRACE)) {
 		printf("DEBUG_ADDA: Transmit: ");
-    	for (int i =0; i < message.current_length; i++){
-        	printf("%c", message.buffer[i]);
+    	for (int i =0; i < message->current_length; i++){
+        	printf("%c", message->buffer[i]);
     	}
     	printf("\n");
 	}
 
-	uart->TxRaw(&message);
+	uart->TxRaw(message);
+
+	delete(message);
 }
 
 String Adda::SendReceive(String cmd) {
@@ -321,58 +322,4 @@ int8_t Adda::GetXlrInBoardId(uint8_t channel) {
 	}
 
 	return -1;
-}
-
-//  ######     ###    ########  ########  
-// ##    ##   ## ##   ##     ## ##     ## 
-// ##        ##   ##  ##     ## ##     ## 
-// ##       ##     ## ########  ##     ## 
-// ##       ######### ##   ##   ##     ## 
-// ##    ## ##     ## ##    ##  ##     ## 
-//  ######  ##     ## ##     ## ########  
-
-
-void Adda::Card_SendCommand(String command){
-	SendReceive(command);
-}
-
-// probed on "X-USB:A:3" card
-//
-// channelparameter (in / out)
-// 0 -> 32 / 32
-// 1 -> 16 / 16
-// 2 -> 32 / 8
-// 3 -> 8 / 32
-// 4 -> 8 / 8
-// 5 -> 2 / 2
-//
-void Adda::SetCard_XUSB_NumberOfChannels(uint8_t channelparamter) {
-	SendReceive("*8C8" + String(channelparamter) + "#");
-}
-
-void Adda::SetCard_XLIVE_NumberOfChannels(uint8_t channelparamter, bool usb) {
-
-	// "X-USB:A:3"
-	//
-	// channelparameter - in / out
-	// 0 - 32 / 32
-	// 1 - 16 / 16
-	// 2 - 32 / 8
-	// 3 - 8 / 32
-	// 4 - 8 / 8
-	// 5 - 2 / 2
-
-
-	String command = "*8C8" + String(channelparamter);
-
-	// only X-Live
-	if (usb) {
-		command += "U";
-	} else {
-		command += "C"; // Card
-	}
-	
-	command += "#";
-
-	SendReceive(command);
 }

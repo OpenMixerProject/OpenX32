@@ -347,6 +347,7 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
     lv_obj_t *setup_card_detected;
+    lv_obj_t *setup_card_channelmode;
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;

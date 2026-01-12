@@ -816,6 +816,20 @@ void create_screen_main() {
                                             objects.setup_card_detected = obj;
                                             lv_obj_set_pos(obj, 202, 82);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "-");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 76, 106);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "Channelmode:");
+                                        }
+                                        {
+                                            // setup_card_channelmode
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            objects.setup_card_channelmode = obj;
+                                            lv_obj_set_pos(obj, 202, 106);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_label_set_text(obj, "Text");
                                         }
                                     }
@@ -923,7 +937,6 @@ void create_screen_main() {
                 NULL,
             };
             lv_buttonmatrix_set_map(obj, map);
-            lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_top(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
