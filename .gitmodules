@@ -28,4 +28,4 @@
 	ignore = dirty
 [submodule "fpga/AES50"]
 	path = fpga/AES50
-	url = git@github.com:OpenMixerProject/AES50.git
+	url = https://github.com/OpenMixerProject/AES50.git
