@@ -54,8 +54,8 @@ It provides information needed to link your code. It can be used to configure me
 					</crt>
 					<ldf>
 						<propertygroup name="system_heap" value="Internal">
-							<property name="min_size" value="2"/>
 							<property name="size_units" value="kB"/>
+							<property name="min_size" value="2"/>
 							<property name="customized" value="false"/>
 						</propertygroup>
 						<propertygroup name="system_stack" value="Internal">
@@ -63,11 +63,11 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="customized" value="false"/>
 							<property name="min_size" value="2"/>
 						</propertygroup>
-						<propertygroup name="use_sdram" value="false">
-							<property name="partitioned" value="default"/>
+						<propertygroup name="use_sdram" value="true">
+							<property name="partitioned" value="custom"/>
 							<property name="size" value="16"/>
-							<property name="size_units" value="MegaBytes"/>
 							<property name="dmc_size_0" value="16"/>
+							<property name="size_units" value="MegaBytes"/>
 						</propertygroup>
 						<propertygroup name="running_from_internal_memory" value="true"/>
 						<propertygroup name="libraries" value="true">
@@ -79,8 +79,8 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="use_alt_io_lib" value="false"/>
 						</propertygroup>
 						<property name="use_eh" value="true"/>
-						<property name="user_heap_src_file" value="app_heaptab.c"/>
 						<property name="use_full_cpplib" value="false"/>
+						<property name="user_heap_src_file" value="app_heaptab.c"/>
 						<property name="use_software_modules" value="false"/>
 						<property name="use_user_mod_ldf" value="true"/>
 						<property name="use_pgo_hw" value="false"/>

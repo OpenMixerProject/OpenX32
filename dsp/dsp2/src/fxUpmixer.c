@@ -33,6 +33,13 @@
 #define UPMIX_RX_SAMPLE_COUNT	(UPMIX_WINDOW_LEN / UPMIX_FFT_HOP_VALUE) // use fine N/4 to get 75% overlap (alternatively use N/2 for 50% overlap for less computational stress)
 
 float hannWindow[UPMIX_WINDOW_LEN];
+float lowPassSubState = 0;
+float lowPassSubCoeff = 0.01609904178227480397989f; // 125Hz = 785.398163397448 / 48785.398163397448 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 125Hz) / (48000Hz + 2 * pi * 125Hz)
+//float lowPassSurroundState[2];
+//float lowPassSurroundCoeff = 0.4781604560104657892f; // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
+// constants for soft low-pass in frequency domain
+const float surroundCutoff = 7000.0f; // soft damping for surround channels starting at 7kHz
+const float bin_to_hz = 48000.0f / (float)UPMIX_WINDOW_LEN;
 
 // variables for the FFT and calculation
 float upmixInputBuffer[2][UPMIX_WINDOW_LEN]; // we need ringbuffer for the full window-size
@@ -70,6 +77,10 @@ int upmixInputBufferTail = UPMIX_RX_SAMPLE_COUNT; // start reading at index 1
 int upmixInputSampleCounter = 0; // starts always at 0
 int upmixOutputSampleCounter = 0; // starts always at 0
 
+int delayLineHead = 0;
+float delayLineBackLeft[FX_UPMIXER_BUFFER_SIZE];
+float delayLineBackRight[FX_UPMIXER_BUFFER_SIZE];
+
 void fxUpmixerInit(void) {
 	gen_hanning(&hannWindow[0], 1, UPMIX_WINDOW_LEN); // pointer to array, a (Window-spacing), N (Window-Length)
 	twidfftf(&twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
@@ -89,8 +100,10 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 	// Step 3: calculation of the interchannel-coherence
 	// Step 4: decorrelation for surround-channels
 	// Step 5: perform inverse FFT
-	// Step 6: upmixing
-	// Step 7: output
+	// Step 6: assembling by adding the newbuffer on top of the output-buffer
+	// Step 7: prepare the output
+	// Step 8: delay-line for surround-channels
+	// Step 9: Apply LowPass of 7kHz on surround-speakers and 125Hz on LFE
 
 	int arrayIdx = 0;
 
@@ -201,6 +214,7 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 			// phi = 0 -> no coherence: channel left/right are totally different
 			float phi = (2.0f * magLeftRight) / (powerLeft + powerRight + 1e-6f);
 			if (phi > 1) { phi = 1.0f; } else if (phi < 0) { phi = 0.0f; } // limit to 0..1
+			// TODO: implement transient-detection and force phi=1 on steep transients to focus this to the front
 
 			// take pan-level into account
 			// panfactor = 1 -> mono signal
@@ -336,6 +350,23 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 				reBufBR[k] = upmixFftInputBufferLR[imag][1][k] * maskAmbient[k];
 				imBufBR[k] = -upmixFftInputBufferLR[real][1][k] * maskAmbient[k];
 			#endif
+
+
+
+
+
+			// calculate soft roll-off starting at 8kHz in frequency domain
+			float freq = (float)k * bin_to_hz;
+			float surroundDamping = 1.0f;
+			// damp only when we are above the desired frequency
+			if (freq > surroundCutoff) {
+				float f_ratio = freq / surroundCutoff;
+				surroundDamping = 1.0f / sqrtf(1.0f + (f_ratio * f_ratio));
+			}
+			reBufBL[k] *= surroundDamping;
+			imBufBL[k] *= surroundDamping;
+			reBufBR[k] *= surroundDamping;
+			imBufBR[k] *= surroundDamping;
 		}
 
 
@@ -383,10 +414,6 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 
 
 
-		// TODO: use an IIR allpass for the ambience-channels to mitigate phase cancellations
-
-
-
 
 
 
@@ -429,11 +456,64 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 	memcpy(outBuf[0], &upmixOutputBuffer[0][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // left
 	memcpy(outBuf[1], &upmixOutputBuffer[1][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // right
 	memcpy(outBuf[2], &upmixOutputBuffer[2][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // center
-	memcpy(outBuf[3], &upmixOutputBuffer[3][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // back-left
-	memcpy(outBuf[4], &upmixOutputBuffer[4][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // back-right
+
+
+	// Step 8: delay-line for surround-channels
+	// ============================================================================================
+	// feed delay line with current surround_signal
+	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		delayLineBackLeft[delayLineHead] = upmixOutputBuffer[3][upmixOutputSampleCounter + s];
+		delayLineBackRight[delayLineHead] = upmixOutputBuffer[4][upmixOutputSampleCounter + s];
+		delayLineHead++;
+		if (delayLineHead == FX_UPMIXER_BUFFER_SIZE) {
+			delayLineHead = 0;
+		}
+	}
+	// read surround_signal from delay line
+	int delayLineTailLeft = delayLineHead - (FX_UPMIXER_DELAY_BACKLEFT_MS * FX_UPMIXER_SAMPLING_RATE / 1000); // here we set the delay in milliseconds
+	int delayLineTailRight = delayLineHead - (FX_UPMIXER_DELAY_BACKRIGHT_MS * FX_UPMIXER_SAMPLING_RATE / 1000); // here we set the delay in milliseconds
+	if (delayLineTailLeft < 0) { delayLineTailLeft += FX_UPMIXER_BUFFER_SIZE; } // manual wrap-around
+	if (delayLineTailRight < 0) { delayLineTailRight += FX_UPMIXER_BUFFER_SIZE; } // manual wrap-around
+	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		outBuf[3][s] = delayLineBackLeft[delayLineTailLeft++];
+		if (delayLineTailLeft == FX_UPMIXER_BUFFER_SIZE) { delayLineTailLeft = 0; }
+
+		outBuf[4][s] = delayLineBackRight[delayLineTailRight++];
+		if (delayLineTailRight == FX_UPMIXER_BUFFER_SIZE) { delayLineTailRight = 0; }
+	}
+
+
+
+
+
+
+
+
+	// Step 9: Apply LowPass of 7kHz on surround-speakers and 125Hz on LFE
+	// ============================================================================================
+	/*
+	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		for (int i_ch = 0; i_ch < 2; i_ch++) {
+			outBuf[3 + i_ch][s] = lowPassSurroundState[i_ch] + lowPassSurroundCoeff * (outBuf[3 + i_ch][s] - lowPassSurroundState[i_ch]);
+			lowPassSurroundState[i_ch] = outBuf[3 + i_ch][s];
+		}
+	}
+	*/
 
 	// calculate LFE as sum of stereo-channels with 80 Hz HighCut
-	// TODO: use data of inBuf[2] to create new mono-signal -> HighCut-Filter -> outBuf[5]
+	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		outBuf[5][s] = lowPassSubState + lowPassSubCoeff * ((inBuf[0][s] + inBuf[1][s]) * 0.5f - lowPassSubState);
+		lowPassSubState = outBuf[5][s];
+	}
+
+
+
+
+
+
+
 
 	// increase pointer for next read
 	upmixOutputSampleCounter += samples;

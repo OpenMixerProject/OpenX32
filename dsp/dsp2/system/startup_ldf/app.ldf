@@ -1,5 +1,5 @@
 /*
-** ADSP-21371 linker description file generated on Sep 11, 2025 at 16:06:41.
+** ADSP-21371 linker description file generated on Jan 13, 2026 at 17:52:16.
 */
 /*
 ** Copyright (C) 2000-2023 Analog Devices Inc., All Rights Reserved.
@@ -68,6 +68,43 @@ $OBJECTS =
 */
 $OBJS_LIBS = $OBJECTS, $LIBRARIES;
 
+/*
+** List of objects and libraries which prefer internal memory as
+** specified by prefersMem attribute.
+*/
+$OBJS_LIBS_INTERNAL = 
+
+/*$VDSG<insert-libraries-internal>                              */
+/* Text inserted between these $VDSG comments will be preserved */
+/*$VDSG<insert-libraries-internal>                              */
+
+    $OBJS_LIBS{prefersMem("internal")}
+
+/*$VDSG<insert-libraries-internal-end>                          */
+/* Text inserted between these $VDSG comments will be preserved */
+/*$VDSG<insert-libraries-internal-end>                          */
+
+   ;
+
+/*
+** List of objects and libraries which don't have a preference for
+** external memory as specified by prefersMem attribute.
+*/
+$OBJS_LIBS_NOT_EXTERNAL = 
+
+/*$VDSG<insert-libraries-not-external>                          */
+/* Text inserted between these $VDSG comments will be preserved */
+/*$VDSG<insert-libraries-not-external>                          */
+
+    $OBJS_LIBS{!prefersMem("external")}
+
+/*$VDSG<insert-libraries-not-external-end>                      */
+/* Text inserted between these $VDSG comments will be preserved */
+/*$VDSG<insert-libraries-not-external-end>                      */
+
+   ;
+
+
 /*$VDSG<customize-async-macros>                                 */
 /* This code is preserved if the LDF is re-generated.           */
 
@@ -122,6 +159,29 @@ MEMORY
    ** SRAM 0x001C0000 to 0x001C3FFF Short Word (16)
    */
    mem_block3_dm32         { TYPE(DM RAM) START(0x000E0000) END(0x000E1FFF) WIDTH(32) }
+
+   /*
+   ** -------------------------- External Memory -------------------------------
+   */
+
+   /*
+   ** Physical address (P)          0x20_0000 ... 0x3F_FFFF
+   ** DM 32-bit Logical address (L) 0x20_0000 ... 0x3F_FFFF
+   ** L=P
+   */
+   
+   /*$VDSG<customize-sdram-mem-partition>                       */
+   /* This code is preserved if the LDF is re-generated.        */
+   
+   mem_sdram_data          { TYPE(DM RAM SYNCHRONOUS) START(0x04000000) END(0x04FFFFFF) WIDTH(32) }
+
+   /*
+   ** Physical address (P)          0x40_0000 ... 0x5F_FFFF
+   ** PM 48-bit Logical address (L) 0x2A_AAAB ... 0x3F_FFFF
+   ** L=P*(2/3)
+   */
+   mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x002AAAAB) END(0x003FFFFF) WIDTH(32) }
+   /*$VDSG<customize-sdram-mem-partition>                       */
    mem_flash               { TYPE(DM RAM ASYNCHRONOUS) START(0x08000000) END(0x083FFFFF) WIDTH(8) }
    
    /*$VDSG<insert-new-memory-segments>                          */
@@ -179,6 +239,8 @@ PROCESSOR p0
          
          INPUT_SECTIONS( $OBJS_LIBS(seg_int_code) )
          INPUT_SECTIONS( $OBJS_LIBS(seg_init) )
+         INPUT_SECTIONS( $OBJS_LIBS_INTERNAL(seg_pmco) )
+         INPUT_SECTIONS( $OBJS_LIBS_NOT_EXTERNAL(seg_pmco) )
          INPUT_SECTIONS( $OBJS_LIBS(seg_pmco) )
          
          /*$VDSG<insert-input-sections-at-the-end-of-dxe_block0_code>  */
@@ -228,17 +290,64 @@ PROCESSOR p0
          
       } > mem_block1_dm32
       
-      dxe_block1_user_tables
+      dxe_block1_dm_data_prio1
       {
-         FORCE_CONTIGUITY
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_dm_data_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_dm_data_prio1>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_INTERNAL(seg_dmda seg_vtbl) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_dm_data_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_dm_data_prio1>  */
+         
       } > mem_block1_dm32
       
-      dxe_block1_cpp_ctors
+      dxe_block1_bsz_prio1 ZERO_INIT
       {
-         FORCE_CONTIGUITY
-         __ctors = .; /* __ctors points to the start of the section */
-         INPUT_SECTIONS( $OBJS_LIBS(seg_ctdm) )
-         INPUT_SECTIONS( $OBJS_LIBS(seg_ctdml) )
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_bsz_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_bsz_prio1>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_INTERNAL(.bss) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_bsz_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_bsz_prio1>  */
+         
+      } > mem_block1_dm32
+      
+      dxe_block1_dm_data_prio2
+      {
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_dm_data_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_dm_data_prio2>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_NOT_EXTERNAL(seg_dmda seg_vtbl) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_dm_data_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_dm_data_prio2>  */
+         
+      } > mem_block1_dm32
+      
+      dxe_block1_bsz_prio2 ZERO_INIT
+      {
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_bsz_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block1_bsz_prio2>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_NOT_EXTERNAL(.bss) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_bsz_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block1_bsz_prio2>  */
+         
       } > mem_block1_dm32
       
       dxe_block1_dm_data_prio3
@@ -297,17 +406,64 @@ PROCESSOR p0
          
       } > mem_block3_dm32
       
-      dxe_block3_user_tables
+      dxe_block3_dm_data_prio1
       {
-         FORCE_CONTIGUITY
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_dm_data_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_dm_data_prio1>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_INTERNAL(seg_dmda seg_vtbl) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_dm_data_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_dm_data_prio1>  */
+         
       } > mem_block3_dm32
       
-      dxe_block3_cpp_eh_gdt
+      dxe_block3_bsz_prio1 ZERO_INIT
       {
-         FORCE_CONTIGUITY
-         /* C++ exceptions data table */
-         INPUT_SECTIONS( $OBJS_LIBS(.gdt) )
-         INPUT_SECTIONS( $OBJS_LIBS(.gdtl) )
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_bsz_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_bsz_prio1>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_INTERNAL(.bss) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_bsz_prio1>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_bsz_prio1>  */
+         
+      } > mem_block3_dm32
+      
+      dxe_block3_dm_data_prio2
+      {
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_dm_data_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_dm_data_prio2>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_NOT_EXTERNAL(seg_dmda seg_vtbl) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_dm_data_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_dm_data_prio2>  */
+         
+      } > mem_block3_dm32
+      
+      dxe_block3_bsz_prio2 ZERO_INIT
+      {
+         
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_bsz_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-start-of-dxe_block3_bsz_prio2>  */
+         
+         INPUT_SECTIONS( $OBJS_LIBS_NOT_EXTERNAL(.bss) )
+         
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_bsz_prio2>  */
+         /* Text inserted between these $VDSG comments will be preserved */
+         /*$VDSG<insert-input-sections-at-the-end-of-dxe_block3_bsz_prio2>  */
+         
       } > mem_block3_dm32
       
       dxe_block3_dm_data_prio3
@@ -443,6 +599,45 @@ PROCESSOR p0
          
       } > mem_block2_pm32
       
+      
+      /*$VDSG<customize-sdram-section-partition>                */
+      /* This code is preserved if the LDF is re-generated.     */
+      
+      dxe_sdram_code
+      {
+         INPUT_SECTIONS( $OBJS_LIBS(seg_ext_code seg_pmco) )
+      } > mem_sdram_code
+      
+      dxe_sdram_cpp_ctors
+      {
+         FORCE_CONTIGUITY
+         __ctors = .;    /* points to the start of the section */
+         INPUT_SECTIONS( $OBJS_LIBS(seg_ctdm) )
+         INPUT_SECTIONS( $OBJS_LIBS(seg_ctdml) )
+      } > mem_sdram_data
+      
+      dxe_sdram_cpp_eh_gdt
+      {
+         FORCE_CONTIGUITY
+         INPUT_SECTIONS( $OBJS_LIBS(.gdt) )
+         INPUT_SECTIONS( $OBJS_LIBS(.gdtl) )
+      } > mem_sdram_data
+      
+      dxe_sdram_data
+      {
+         INPUT_SECTIONS( $OBJS_LIBS(seg_ext_data seg_sdram seg_dmda seg_vtbl .rtti .cht .edt) )
+      } > mem_sdram_data
+      
+      dxe_sdram_bsz ZERO_INIT
+      {
+         INPUT_SECTIONS( $OBJS_LIBS(.bss) )
+      } > mem_sdram_data
+      
+      dxe_sdram_stack_and_heap NO_INIT
+      {
+      } > mem_sdram_data
+      
+      /*$VDSG<customize-sdram-section-partition>                */
       
       /*$VDSG<insert-new-sections-at-the-end>                   */
       /* Text inserted between these $VDSG comments will be preserved */

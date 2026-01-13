@@ -26,7 +26,10 @@
 #include "system.h"
 #include "fx.h"
 #if FX_USE_UPMIXER == 1
-#include "fxUpmixer.h"
+	#include "fxUpmixer.h"
+#endif
+#if FX_USE_MATRIXUPMIXER == 1
+	#include "fxMatrixUpmixer.h"
 #endif
 
 /*
@@ -190,18 +193,30 @@ void audioProcessData(void) {
 	}
 
 	#if FX_USE_UPMIXER == 1
-	// perform stereo-decompositing and 5.1 upmixing
-	float* upmixInBuf[2];
-	float* upmixOutBuf[6];
-	for (int i_ch = 0; i_ch < 2; i_ch++) {
-		upmixInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
-	}
-	for (int i_ch = 0; i_ch < 6; i_ch++) {
-		upmixOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 6 output-channels (L, R, C, BL, BR, Sub)
-	}
-	fxUpmixerProcess(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
+		// perform stereo-decompositing and 5.1 upmixing
+		float* upmixInBuf[2];
+		float* upmixOutBuf[6];
+		for (int i_ch = 0; i_ch < 2; i_ch++) {
+			upmixInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
+		}
+		for (int i_ch = 0; i_ch < 6; i_ch++) {
+			upmixOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 6 output-channels (L, R, C, BL, BR, Sub)
+		}
+		fxUpmixerProcess(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
 	#endif
 
+	#if FX_USE_MATRIXUPMIXER == 1
+		// perform stereo-decompositing and 5.1 upmixing
+		float* upmixInBuf[2];
+		float* upmixOutBuf[6];
+		for (int i_ch = 0; i_ch < 2; i_ch++) {
+			upmixInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
+		}
+		for (int i_ch = 0; i_ch < 6; i_ch++) {
+			upmixOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 6 output-channels (L, R, C, BL, BR, Sub)
+		}
+		fxMatrixUpmixerProcess(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
+	#endif
 
 
 

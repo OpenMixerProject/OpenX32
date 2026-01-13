@@ -110,23 +110,22 @@ void systemExternalMemoryInit() {
 
 	// set SDRRC and enable SDRAM read optimization
 	// RDIV from datasheet: RDIV = (f_SDCLK * t_REF/NRA) - (t_RAS + t_RP)
-    // RDIV from datasheet: RDIV = (131.072MHz * 64ms/4096) - (7 + 3ns) = 2039 = 0x7F7
-    *pSDRRC = 0x7F7 | (1<<17) | SDROPT; // SDMODIFY is set to 0001 (default) and SDROPT is enabled
+	// RDIV from datasheet: RDIV = (131.072Hz * 64ms/4096) - (7 + 3ns) = 2039 = 2039 = 0x7F7
+	*pSDRRC = 0x7F7 | (1<<17) | SDROPT; // SDMODIFY is set to 0001 (default) and SDROPT is enabled
 
-    //  SDCL3     = SDRAM CAS Latency = 3 cycles
-    //  X16DE     = SDRAM external bus width = 16 bits wide
-    //  SDNOBSTOP = SDRAM No Burst Stop
-    //  SDCAW9    = SDRAM Bank Column Address Width = 9 bits
-    //  SDRAW12   = SDRAM Row Address Width = 12 bits
-    //  SDTRAS7   = SDRAM tRAS Specification = 7 cycles
-    //  SDTRP3    = SDRAM tRP Specification = 3 cycles.
-    //  SDTWR2    = SDRAM tWR Specification = 2 cycles.
-    //  SDTRCD3   = SDRAM tRCD Specification = 3 cycles.
+	//  SDCL3     = SDRAM CAS Latency = 3 cycles
+	//  X16DE     = SDRAM external bus width = 16 bits wide
+	//  SDNOBSTOP = SDRAM No Burst Stop
+	//  SDCAW9    = SDRAM Bank Column Address Width = 9 bits
+	//  SDRAW12   = SDRAM Row Address Width = 12 bits
+	//  SDTRAS7   = SDRAM tRAS Specification = 7 cycles
+	//  SDTRP3    = SDRAM tRP Specification = 3 cycles.
+	//  SDTWR2    = SDRAM tWR Specification = 2 cycles.
+	//  SDTRCD3   = SDRAM tRCD Specification = 3 cycles.
 	//  DSDCLK1   = Disable SDRAM Clock 1
 	//  SDPSS     = Start SDRAM Power up Sequence
-	
-    *pSDCTL = SDCL3 | X16DE | SDNOBSTOP | SDCAW9 | SDRAW12 | SDTRAS7 | SDTRP3 | SDTWR2 | SDTRCD3 | DSDCLK1 | SDPSS;
-    *pSDCTL &= ~DSDCTL; // enable controller
+	*pSDCTL = SDCL3 | X16DE | SDNOBSTOP | SDCAW9 | SDRAW12 | SDTRAS7 | SDTRP3 | SDTWR2 | SDTRCD3 | DSDCLK1 | SDPSS;
+	*pSDCTL &= ~DSDCTL; // enable controller
 
 	// enable SDRAM
 	*pSYSCTL |= MSEN;
@@ -143,10 +142,14 @@ void systemExternalMemoryInit() {
 	// AMIEN  = enables AMI Controller
 	// BW8    = set DataBusWidth to 8bit
 	// WS23   = 23 WaitStates
+<<<<<<< HEAD
 	*pAMICTL1 = AMIEN | BW8 | WS23;
+=======
+	*pAMICTL1 = AMIEN | BW16 | WS23; // minimum WaitState without ACK is WS2
+>>>>>>> 5c2fd72 (Fixed SDRAM-timing. Added simple Matrix-Upmixer. Added delay-lines for surround-speakers and added low-pass-filter to surround and sub.)
 
 	// dummy access to initialize the controller
-	int dummy = *(int*)0x4000000;
+	int dummy = *(int*)0x04000000;
 	NOP();
 	NOP();
 	NOP();

@@ -1,5 +1,5 @@
 /*
-** ADSP-21371 startup code generated on Sep 11, 2025 at 16:06:41.
+** ADSP-21371 startup code generated on Jan 13, 2026 at 17:52:15.
 */
 /*
 ** Copyright (C) 2000-2023 Analog Devices Inc., All Rights Reserved.

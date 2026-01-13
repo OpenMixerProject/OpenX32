@@ -4,6 +4,7 @@
 #define DSP_VERSION				0.05
 
 #define FX_USE_UPMIXER			1
+#define FX_USE_MATRIXUPMIXER	0
 
 // DSP2 receives 24 Audio-channels
 // Channel 1-8		-> FX Sends 1-8
