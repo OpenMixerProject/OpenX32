@@ -142,11 +142,7 @@ void systemExternalMemoryInit() {
 	// AMIEN  = enables AMI Controller
 	// BW8    = set DataBusWidth to 8bit
 	// WS23   = 23 WaitStates
-<<<<<<< HEAD
-	*pAMICTL1 = AMIEN | BW8 | WS23;
-=======
 	*pAMICTL1 = AMIEN | BW16 | WS23; // minimum WaitState without ACK is WS2
->>>>>>> 5c2fd72 (Fixed SDRAM-timing. Added simple Matrix-Upmixer. Added delay-lines for surround-speakers and added low-pass-filter to surround and sub.)
 
 	// dummy access to initialize the controller
 	int dummy = *(int*)0x04000000;
