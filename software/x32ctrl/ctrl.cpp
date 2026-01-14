@@ -4,6 +4,7 @@ X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
 	mixer = new Mixer(basepar);
 	surface = new Surface(basepar);
 	xremote = new XRemote(basepar);
+	lcdmenu = new LcdMenu(basepar, mixer, surface); // only used for X32Core (at the moment, maybe later for assing-section?)
 }
 
 // ###########################################################################
@@ -44,9 +45,19 @@ void X32Ctrl::Init(){
 	//#
 	//##################################################################################
 
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->Init()");
 	mixer->Init();
+
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "surface->Init()");
 	surface->Init();
+
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "xremote->Init()");
 	xremote->Init();
+
+	if (config->IsModelX32Core()) {
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "lcdmenu->Init()");
+		lcdmenu->OnInit();
+	}
 
 	//############################################################################
 	//#                                                                          #
@@ -71,15 +82,12 @@ void X32Ctrl::Init(){
 	//#     Without GUI                                                          #
 	//#                                                                          #
 	if(config->IsModelX32Core()) {
-
-			// Turn on Scene/Setup LED to give a hint of life
-			surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 1, 0);
+			// Placeholder
 	}
 	//############################################################################
 	//#                                                                          #
 	//#     Common to all                                                        #
 	//#                                                                          #
-			state->card_xusb_channelmode = CARD_CHANNELMODE_32IN_32OUT;
 			SetSelect(0, true);
 	//#                                                                          #
 	//############################################################################
@@ -99,6 +107,19 @@ void X32Ctrl::Init(){
 	} else {
 		LoadConfig();
 	}
+
+	// set brightness and contrast
+    surface->SetBrightness(0, 255); // brightness of LEDs
+    surface->SetBrightness(1, 255);
+    surface->SetBrightness(4, 255);
+    surface->SetBrightness(5, 255);
+    surface->SetBrightness(8, 255);
+
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", state->lcdcontrast);
+    surface->SetContrast(0, state->lcdcontrast); // contrast of LCDs
+    surface->SetContrast(4, state->lcdcontrast);
+    surface->SetContrast(5, state->lcdcontrast);
+    surface->SetContrast(8, state->lcdcontrast);
 
 	// trigger first sync to everywhere
 	state->SetChangeFlags(X32_MIXER_CHANGED_ALL);
@@ -200,6 +221,8 @@ void X32Ctrl::LoadConfig() {
 	{
 		string section = string("mixer");
 		state->activePage = (X32_PAGE)mixer_ini[section]["activePage"].as<int>();
+		state->lastPage = (X32_PAGE)mixer_ini[section]["lastPage"].as<int>();
+		state->lcdcontrast = mixer_ini[section]["lcdcontrast"].as<int>();
 	}
 	// VChannels
 	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)	{
@@ -272,6 +295,8 @@ void X32Ctrl::SaveConfig() {
 	{
 		string section = string("mixer");
 		mixer_ini[section]["activePage"] = (int)state->activePage;
+		mixer_ini[section]["lastPage"] = (int)state->lastPage;
+		mixer_ini[section]["lcdcontrast"] = (int)state->lcdcontrast;
 	}
 	// VChannels
 	for (uint8_t i = 0; i < MAX_VCHANNELS; i++) {
@@ -338,7 +363,9 @@ void X32Ctrl::SaveConfig() {
 void X32Ctrl::Tick10ms(void){
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "10ms");
 
-	surface->Touchcontrol();	
+	if (config->IsModelX32FullOrCompactOrProducer()) {
+		surface->Touchcontrol();	
+	}
 	mixer->dsp->ReadAndUpdateVUMeterData();
 
 	ProcessUartData();
@@ -351,7 +378,7 @@ void X32Ctrl::Tick10ms(void){
 
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Something has changed -> Sync");
 
-		syncGui();
+		syncGuiOrLcd();
 		syncSurface();
 		syncXRemote(false);
 
@@ -614,10 +641,8 @@ void X32Ctrl::UdpHandleCommunication(void) {
 //#####################################################################################################################
 
 void X32Ctrl::InitPages(){
-	if(!(config->IsModelX32FullOrCompactOrProducerOrRack())) {
-		return;
-	}
 	PageBaseParameter* pagebasepar = new PageBaseParameter(app, config, state, helper, mixer);
+	
 	pages[X32_PAGE_HOME] = new PageHome(pagebasepar);
 	pages[X32_PAGE_CONFIG] = new PageConfig(pagebasepar);
 	pages[X32_PAGE_GATE] = new PageGate(pagebasepar);
@@ -635,7 +660,7 @@ void X32Ctrl::InitPages(){
 	pages[X32_PAGE_MUTE_GRP] = new PageMutegroup(pagebasepar);
 	pages[X32_PAGE_UTILITY] = new PageUtility(pagebasepar);
 	for (const auto& [key, value] : pages) {
-    	value->Init();
+		value->Init();
 	}
 }
 
@@ -705,8 +730,18 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 
 
 // sync mixer state to GUI
-void X32Ctrl::syncGui() {
+void X32Ctrl::syncGuiOrLcd() {
+
+	//####################################
+	//#     Sync Lcd
+	//####################################
+
 	if (config->IsModelX32Core()){
+		if (state->x32core_lcdmode_setup) {
+			lcdmenu->OnChange();
+		}
+		
+		// return, because X32Core has no GUI
 		return;
 	}
 	
@@ -779,9 +814,9 @@ void X32Ctrl::syncSurface(void) {
 				surfaceSyncBoard(X32_BOARD_M);
 			}
 			surfaceSyncBoard(X32_BOARD_R);
-			
+		
+			surfaceSyncBoardExtra();
 		}
-		surfaceSyncBoardExtra();
 	}
 }
 
@@ -805,7 +840,7 @@ void X32Ctrl::surfaceSyncBoardMain() {
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "needForSync %d, fullSync %d", needForSync, fullSync);
 
 	if (needForSync){
-		if (config->IsModelX32FullOrCompactOrProducer()){
+		if (config->IsModelX32FullOrCompactOrProducer()) {
 			
 			// Phantom
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)){
@@ -886,9 +921,9 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			}
 		}
 
-		if (config->IsModelX32Rack()){			
+		if (config->IsModelX32Rack()) {			
 			if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){
-				setLedChannelIndicator();
+				setLedChannelIndicator_Rack();
 			}
 			// Solo
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
@@ -903,7 +938,37 @@ void X32Ctrl::surfaceSyncBoardMain() {
 				surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, mixer->GetVolumeDbfs(chanIndex),  mixer->GetMute(chanIndex), 0);
 			}
 		}
+
+		if (config->IsModelX32Core()) {
+
+			if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){
+				setLedChannelIndicator_Core();
+			}
+
+			if (!state->x32core_lcdmode_setup && (
+				state->HasChanged(X32_MIXER_CHANGED_SELECT)           ||
+				chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)           ||
+				chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
+				chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
+				chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
+			))
+			{
+				SetLcdFromVChannel(X32_BOARD_MAIN, 0, chanIndex);
+			}
+
+			// Volume
+			if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+				surface->SetEncoderRingDbfs(0, 0, mixer->GetVolumeDbfs(chanIndex),  mixer->GetMute(chanIndex), 0);
+			}
+
+			// Main Channel
+			VChannel* mainchan = GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
+			if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+				surface->SetEncoderRingDbfs(1, 1, mixer->GetVolumeDbfs(X32_VCHANNEL_BLOCK_MAIN),  mixer->GetMute(X32_VCHANNEL_BLOCK_MAIN), 0);
+			}
+		}
 	}
+
 
 	if (config->IsModelX32Rack()){
 		// Clear Solo
@@ -1095,6 +1160,7 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
 	delete data;
 }
 
+
 // Update all meters (Gui, Surface, xremote)
 void X32Ctrl::UpdateMeters(void) {
 
@@ -1115,7 +1181,8 @@ void X32Ctrl::UpdateMeters(void) {
 	uint8_t chanIdx = config->selectedVChannel;
 
 	if (config->IsModelX32Core()) {
-		// TODO
+		// selected channel
+		surface->SetMeterLed(X32_BOARD_MAIN, 0, mixer->dsp->rChannel[chanIdx].meter8Info);
 	}
 
 	if (config->IsModelX32Rack()) {
@@ -1258,9 +1325,8 @@ void X32Ctrl::surfaceSyncBankIndicator(void) {
 	}
 }
 
-// only X32 Rack and X32 Core
-void X32Ctrl::setLedChannelIndicator(void){
-	if (config->IsModelX32Core() || config->IsModelX32Rack()){
+// only X32 Rack
+void X32Ctrl::setLedChannelIndicator_Rack(void){
 		uint8_t chanIdx = config->selectedVChannel;
 		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
 		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
@@ -1271,7 +1337,16 @@ void X32Ctrl::setLedChannelIndicator(void){
 
 		// set 7-Segment Display
 		surface->SetX32RackDisplay(chanIdx);        
-	}
+}
+
+// only X32 Core
+void X32Ctrl::setLedChannelIndicator_Core(void){
+		uint8_t chanIdx = config->selectedVChannel;
+		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
+		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
+		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
+		surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
+		surface->SetLedByEnum(X32_LED_MTX, (chanIdx >= 70)&&(chanIdx <= 79));
 }
 
 uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
@@ -1367,7 +1442,7 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 // direction - positive or negative integer value
 void X32Ctrl::ChangeSelect(int8_t direction){
 	int16_t newSelectedVChannel = config->selectedVChannel + direction;
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d\n", config->selectedVChannel, direction, newSelectedVChannel);
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d", config->selectedVChannel, direction, newSelectedVChannel);
 	if (newSelectedVChannel < 0) {
 		newSelectedVChannel = MAX_VCHANNELS -1;
 	} else if (newSelectedVChannel >= MAX_VCHANNELS){
@@ -1755,6 +1830,9 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 				case X32_BTN_UTILITY:
 					ShowPage(X32_PAGE_UTILITY);
 					break;
+				case X32_BTN_EQ_MODE:
+					mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'T', +1);
+					break;
 				case X32_BTN_EQ_LOW:
 				case X32_BTN_EQ_LOW_MID:
 				case X32_BTN_EQ_HIGH_MID:
@@ -1893,22 +1971,36 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 				case X32_BTN_CHANNEL_MUTE: // only X32 Rack
 					mixer->ToggleMute(config->selectedVChannel);
 					break;
+				case X32_BTN_SCENE_SETUP:
+					if (config->IsModelX32Core()) {
+						state->x32core_lcdmode_setup = !state->x32core_lcdmode_setup;
+						if (state->x32core_lcdmode_setup) {
+							surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 1);
+							lcdmenu->OnShow();
+						} else {
+							surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 0);
+							// trigger switch to channel lcd
+							state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
+						}
+					}
+					break;
 				case X32_BTN_ASSIGN_3:
 					if (config->IsModelX32Core()) {
 						//mixer->adda->SetCard_XUSB_NumberOfChannels(2);
-						mixer->card->Card_SendCommand("");
+						//mixer->card->Card_SendCommand("");
 					}
 					break;
 				case X32_BTN_ASSIGN_5:
 					if (config->IsModelX32Core()) {
-						mixer->SetCardChannelMode(-1);
 					}
 					break;
 				case X32_BTN_ASSIGN_6:
 					if (config->IsModelX32Core()) {
-						mixer->SetCardChannelMode(1);
+						mixer->SetCardChannelMode(CARD_CHANNELMODE_32IN_32OUT);
+						mixer->fpga->RoutingCardAs32CHInput();
 					}
 					break;
+
 				default:
 					helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Unhandled button detected.\n");
 					break;
@@ -1950,17 +2042,24 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		switch (encoder){
-			case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core - Channel Select    TODO: Implement on Core
-				ChangeSelect(amount);
+			case X32_ENC_ASSIGN_1: // use Assing 1 temporarly on X32 Core for Channel Volume
+				mixer->ChangeVolume(config->selectedVChannel, amount);
+				break;
+			case X32_ENC_ASSIGN_2: // use Assing 2 temporarly on X32 Core for Main Volume
+				mixer->ChangeVolume(X32_VCHANNEL_BLOCK_MAIN, amount);
+				break;
+			case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core
+				if (config->IsModelX32Core() && state->x32core_lcdmode_setup) {
+					lcdmenu->OnLcdEncoderTurned(amount);
+				} else {
+					ChangeSelect(amount);
+				}
 				break;
 			case X32_ENC_MAIN_LEVEL:  // only X32 Rack
 				mixer->ChangeVolume(X32_VCHANNEL_BLOCK_MAIN, amount);
 				break;
 			case X32_ENC_CHANNEL_LEVEL:
 				mixer->ChangeVolume(config->selectedVChannel, amount);				
-				break;
-			case X32_BTN_EQ_MODE:
-				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'T', amount);
 				break;
 			case X32_ENC_GAIN:
 				mixer->ChangeGain(config->selectedVChannel, amount);

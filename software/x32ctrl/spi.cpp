@@ -835,20 +835,17 @@ int SPI::UploadBitstreamDsps(bool useCli) {
 }
 
 void SPI::ReadData(void){
-
     if (!(state->dsp_disable_readout)) {
         // continuously read data from both DSPs
-        if (!config->IsModelX32Core()) {
-            // read update-packet from DSP1
-            SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-            SendReceiveDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
+        
+        // read update-packet from DSP1
+        SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
+        SendReceiveDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
 
-            // read update-packet from DSP2
-            SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-            SendReceiveDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
-        }
+        // read update-packet from DSP2
+        SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
+        SendReceiveDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
     }
-
 }
 
 void SPI::ActivityLight(void){

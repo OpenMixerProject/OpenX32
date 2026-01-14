@@ -8,7 +8,7 @@
 #include "uart.h"
 #include "defines.h"
 #include "types.h"
-#include "lcd.h"
+#include "surface-lcd.h"
 #include "surface-event.h"
 #include "surface-message.h"
 #include "surface-fader.h"

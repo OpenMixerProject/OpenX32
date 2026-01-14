@@ -27,6 +27,8 @@
 #include "page-mutegroup.h"
 #include "page-utility.h"
 
+#include "lcd-menu.h"
+
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"
@@ -67,6 +69,7 @@ class X32Ctrl : public X32Base {
         Mixer* mixer;
         Surface* surface;
         XRemote* xremote;
+        LcdMenu* lcdmenu;
 
         sBankMode modes[3];
 
@@ -110,7 +113,7 @@ class X32Ctrl : public X32Base {
         void ShowPrevPage();
         void ShowNextPage();
 
-        void syncGui(void);
+        void syncGuiOrLcd(void);
         void syncSurface(void);
         
         void surfaceSyncBoardMain();
@@ -119,7 +122,8 @@ class X32Ctrl : public X32Base {
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void surfaceSyncBankIndicator(void);
         void UpdateMeters(void);
-        void setLedChannelIndicator(void);        
+        void setLedChannelIndicator_Rack(void);        
+        void setLedChannelIndicator_Core(void);        
         uint8_t CalcPreampMeter_FullOrCompact(uint8_t channel);
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
         void syncXRemote(bool syncAll);

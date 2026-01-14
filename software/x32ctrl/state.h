@@ -30,7 +30,10 @@ class State {
 
         uint8_t activeEQ;
 
-        uint8_t card_xusb_channelmode;
+        uint8_t card_xusb_channelmode = CARD_CHANNELMODE_32IN_32OUT;
+
+        bool x32core_lcdmode_setup;
+        uint8_t lcdcontrast = 0x38;
 
         // DEBUG
         uint8_t debugvalue = 0;

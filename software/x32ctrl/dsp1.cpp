@@ -579,8 +579,6 @@ void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
 
 void DSP1::UpdateVuMeter() {
 
-
-	
     uint8_t vuTreshLookupSize = 0;
     if (config->IsModelX32ProducerOrRack()) {
         vuTreshLookupSize = 18;
@@ -734,32 +732,35 @@ void DSP1::UpdateVuMeter() {
 	for (int i = 0; i < 40; i++) {
 		// check if current data is above stored peak-index
 
-		// Step 1: Perform Peak Hold Logic
-		uint8_t currentMeterPeak6Index;
-        currentMeterPeak6Index = GetPeak(i, 6);
-        if (currentMeterPeak6Index >= rChannel[i].meterPeak6Index) {
-			// currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
-			rChannel[i].meterPeak6Index = currentMeterPeak6Index;
-			rChannel[i].meterPeak6HoldTimer = 100; // preload to 1000ms
-		}else{
-			// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
-			if (rChannel[i].meterPeak6HoldTimer > 0) {
-				// hold current LED
-				rChannel[i].meterPeak6HoldTimer--;
-				rChannel[i].meterPeak6DecayTimer = 10; // preload
-			}else{
-				// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
-				if (rChannel[i].meterPeak6Index > currentMeterPeak6Index) {
-					if (rChannel[i].meterPeak6DecayTimer > 0) {
-						rChannel[i].meterPeak6DecayTimer--;
-					}else{
-						rChannel[i].meterPeak6Index--;
-						rChannel[i].meterPeak6DecayTimer = 10; // preload for next iteration
-					}
-				}
-			}
-		}
+        if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
+            // Step 1: Perform Peak Hold Logic
+            uint8_t currentMeterPeak6Index;
+            currentMeterPeak6Index = GetPeak(i, 6);
+            if (currentMeterPeak6Index >= rChannel[i].meterPeak6Index) {
+                // currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
+                rChannel[i].meterPeak6Index = currentMeterPeak6Index;
+                rChannel[i].meterPeak6HoldTimer = 100; // preload to 1000ms
+            }else{
+                // currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
+                if (rChannel[i].meterPeak6HoldTimer > 0) {
+                    // hold current LED
+                    rChannel[i].meterPeak6HoldTimer--;
+                    rChannel[i].meterPeak6DecayTimer = 10; // preload
+                }else{
+                    // let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
+                    if (rChannel[i].meterPeak6Index > currentMeterPeak6Index) {
+                        if (rChannel[i].meterPeak6DecayTimer > 0) {
+                            rChannel[i].meterPeak6DecayTimer--;
+                        }else{
+                            rChannel[i].meterPeak6Index--;
+                            rChannel[i].meterPeak6DecayTimer = 10; // preload for next iteration
+                        }
+                    }
+                }
+            }
+        }
 
+        // meter8 is used on every model
         uint8_t currentMeterPeak8Index;
         currentMeterPeak8Index = GetPeak(i, 8);
         if (currentMeterPeak8Index >= rChannel[i].meterPeak8Index) {
@@ -855,17 +856,21 @@ void DSP1::UpdateVuMeter() {
                 rChannel[i].meter8Info = 0b00000001;
             }
 
-		uint8_t peak6Bit = 0;
-        if (rChannel[i].meterPeak6Index > 0) peak6Bit = 1 << (rChannel[i].meterPeak6Index -1);
-		rChannel[i].meter6Info |= peak6Bit;
+        if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
+		    uint8_t peak6Bit = 0;
+            if (rChannel[i].meterPeak6Index > 0) peak6Bit = 1 << (rChannel[i].meterPeak6Index -1);
+		    rChannel[i].meter6Info |= peak6Bit;
+        }
 
         uint8_t peak8Bit = 0;
         if (rChannel[i].meterPeak8Index > 0) peak8Bit = 1 << (rChannel[i].meterPeak8Index -1);
         rChannel[i].meter8Info |= peak8Bit;
         
-		// the dynamic-information is received with the 'd' information, but we will store them here
-		if (Channel[i].gate.gain < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
-		if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
+        if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
+		    // the dynamic-information is received with the 'd' information, but we will store them here
+		    if (Channel[i].gate.gain < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
+		    if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
+        }
 
 		//Channel[i].compressor.gain = floatValues[45 + i];
 		//Channel[i].gate.gain = floatValues[85 + i];

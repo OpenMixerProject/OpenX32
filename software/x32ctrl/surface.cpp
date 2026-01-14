@@ -33,17 +33,6 @@ void Surface::Init(void) {
 
     Reset();
     InitDefinitions();
-
-    // set brightness and contrast
-    SetBrightness(0, 255); // brightness of LEDs
-    SetBrightness(1, 255);
-    SetBrightness(4, 255);
-    SetBrightness(5, 255);
-    SetBrightness(8, 255);
-    SetContrast(0, 0x24); // contrast of LCDs
-    SetContrast(4, 0x24);
-    SetContrast(5, 0x24);
-    SetContrast(8, 0x24);
 }
 
 void Surface::Reset(void) {
@@ -584,14 +573,17 @@ void Surface::InitDefinitions(void) {
 
     if (config->IsModelX32Core()){
 
-        AddButtonDefinition(X32_BTN_SCENE_SETUP,    0x0000);
-        AddButtonDefinition(X32_BTN_TALK_A,         0x0001);
-        AddButtonDefinition(X32_BTN_ASSIGN_3,       0x0002);
-        AddButtonDefinition(X32_BTN_ASSIGN_4,       0x0003);
-        AddButtonDefinition(X32_BTN_ASSIGN_5,       0x0004);
-        AddButtonDefinition(X32_BTN_ASSIGN_6,       0x0005);
-        AddButtonDefinition(X32_BTN_ENCODER1,       0x0006);
-        //AddButtonDefinition(X32_BTN_ENCODER1,       0x0006);
+        AddButtonDefinition(X32_BTN_SCENE_SETUP,     0x0000);
+        AddButtonDefinition(X32_BTN_TALK_A,          0x0001);
+        AddButtonDefinition(X32_BTN_ASSIGN_3,        0x0002);
+        AddButtonDefinition(X32_BTN_ASSIGN_4,        0x0003);
+        AddButtonDefinition(X32_BTN_ASSIGN_5,        0x0004);
+        AddButtonDefinition(X32_BTN_ASSIGN_6,        0x0005);
+        AddButtonDefinition(X32_BTN_CHANNEL_ENCODER, 0x0006, false);
+
+        AddEncoderDefinition(X32_ENC_ASSIGN_1,       0x0000);
+        AddEncoderDefinition(X32_ENC_ASSIGN_2,       0x0001);
+        AddEncoderDefinition(X32_ENC_CHANNEL_SELECT, 0x0002);
 
         // LED only
         AddLedDefinition(X32_LED_SCENE_SETUP_RED,0x0006);
@@ -843,8 +835,7 @@ void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
 }
 
 // boardId = 0, 1, 4, 5, 8
-// index = 0 ... 8
-// brightness = 0 ... 255
+// contrast = 0 ... 255
 void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
     SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId

@@ -17,12 +17,13 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
                    -Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body \
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value
 
-# normal build
 DEPFLAGS        = -MMD -MP
+
+# normal build
 CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
-#CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS)
+#CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 LDFLAGS         ?= -lm -lrt -lpthread -static
 
