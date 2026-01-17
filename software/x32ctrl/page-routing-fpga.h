@@ -37,7 +37,7 @@ class PageRoutingFpga: public Page {
         }
 
         void OnShow() override {
-            SetEncoderText("\xEF\x81\xB7 Target \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "-", "-");
+            SetEncoderLables("\xEF\x81\xB7 Target \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "-", "-");
         }
 
         void OnChange(bool force_update) override {

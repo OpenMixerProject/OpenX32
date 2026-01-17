@@ -17,7 +17,7 @@ class PageRouting: public Page {
         }
 
         void OnShow() override {
-			SetEncoderText("Default Routing", "XLR -> Channels", "Card -> Channels", "-", "-", "-");
+			SetEncoderLables("Default Routing", "XLR -> Channels", "Card -> Channels", "-", "-", "-");
 		}
 
         void OnDisplayButton(X32_BTN button, bool pressed) {

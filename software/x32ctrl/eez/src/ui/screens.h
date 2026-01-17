@@ -351,7 +351,37 @@ typedef struct _objects_t {
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;
-    lv_obj_t *display_encoders;
+    lv_obj_t *display_encoder_sliders;
+    lv_obj_t *widget1;
+    lv_obj_t *widget1__label;
+    lv_obj_t *widget1__value;
+    lv_obj_t *widget1__slider;
+    lv_obj_t *widget1__label_buttonpress;
+    lv_obj_t *widget2;
+    lv_obj_t *widget2__label;
+    lv_obj_t *widget2__value;
+    lv_obj_t *widget2__slider;
+    lv_obj_t *widget2__label_buttonpress;
+    lv_obj_t *widget3;
+    lv_obj_t *widget3__label;
+    lv_obj_t *widget3__value;
+    lv_obj_t *widget3__slider;
+    lv_obj_t *widget3__label_buttonpress;
+    lv_obj_t *widget4;
+    lv_obj_t *widget4__label;
+    lv_obj_t *widget4__value;
+    lv_obj_t *widget4__slider;
+    lv_obj_t *widget4__label_buttonpress;
+    lv_obj_t *widget5;
+    lv_obj_t *widget5__label;
+    lv_obj_t *widget5__value;
+    lv_obj_t *widget5__slider;
+    lv_obj_t *widget5__label_buttonpress;
+    lv_obj_t *widget6;
+    lv_obj_t *widget6__label;
+    lv_obj_t *widget6__value;
+    lv_obj_t *widget6__slider;
+    lv_obj_t *widget6__label_buttonpress;
 } objects_t;
 
 extern objects_t objects;
@@ -374,6 +404,12 @@ void tick_user_widget_ms_bar(int startWidgetIndex);
 
 void create_user_widget_ms_bar8(lv_obj_t *parent_obj, int startWidgetIndex);
 void tick_user_widget_ms_bar8(int startWidgetIndex);
+
+void create_user_widget_config_slider_display_encoder(lv_obj_t *parent_obj, int startWidgetIndex);
+void tick_user_widget_config_slider_display_encoder(int startWidgetIndex);
+
+void create_user_widget_config_slider(lv_obj_t *parent_obj, int startWidgetIndex);
+void tick_user_widget_config_slider(int startWidgetIndex);
 
 void tick_screen_by_id(enum ScreensEnum screenId);
 void tick_screen(int screen_index);

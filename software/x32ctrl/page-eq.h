@@ -117,7 +117,7 @@ class PageEq: public Page {
         void EncoderText(uint8_t chanIndex) {
             if (chanIndex < 40) {
                 // support EQ-channel
-                SetEncoderText("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
+                SetEncoderLables("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
                     "F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc),
                     "G: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain, 1) + " dB",
                     "Q: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q, 1),
@@ -125,7 +125,7 @@ class PageEq: public Page {
                     "PEQ: " + String(state->activeEQ + 1)
                 );
             } else {
-                SetEncoderText("-", "-", "-", "-", "-", "-");
+                SetEncoderLables("-", "-", "-", "-", "-", "-");
             }
         }
 

@@ -20,6 +20,7 @@ void remove_style_tab_nopad(lv_obj_t *obj);
 // Style: slider_fader
 lv_style_t *get_style_slider_fader_KNOB_DEFAULT();
 lv_style_t *get_style_slider_fader_INDICATOR_DEFAULT();
+lv_style_t *get_style_slider_fader_MAIN_DEFAULT();
 void add_style_slider_fader(lv_obj_t *obj);
 void remove_style_slider_fader(lv_obj_t *obj);
 
@@ -33,13 +34,26 @@ void remove_style_slider_fader_solo(lv_obj_t *obj);
 // Style: slider_fader_mute
 lv_style_t *get_style_slider_fader_mute_KNOB_DEFAULT();
 lv_style_t *get_style_slider_fader_mute_INDICATOR_DEFAULT();
+lv_style_t *get_style_slider_fader_mute_MAIN_DEFAULT();
 void add_style_slider_fader_mute(lv_obj_t *obj);
 void remove_style_slider_fader_mute(lv_obj_t *obj);
+
+// Style: slider_config
+lv_style_t *get_style_slider_config_KNOB_DEFAULT();
+lv_style_t *get_style_slider_config_INDICATOR_DEFAULT();
+lv_style_t *get_style_slider_config_MAIN_DEFAULT();
+void add_style_slider_config(lv_obj_t *obj);
+void remove_style_slider_config(lv_obj_t *obj);
 
 // Style: panel_flat_black
 lv_style_t *get_style_panel_flat_black_MAIN_DEFAULT();
 void add_style_panel_flat_black(lv_obj_t *obj);
 void remove_style_panel_flat_black(lv_obj_t *obj);
+
+// Style: label_bg_yellow
+lv_style_t *get_style_label_bg_yellow_MAIN_DEFAULT();
+void add_style_label_bg_yellow(lv_obj_t *obj);
+void remove_style_label_bg_yellow(lv_obj_t *obj);
 
 
 

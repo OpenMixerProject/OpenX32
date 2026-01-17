@@ -48,6 +48,8 @@ class Helper {
         float samplePu2Dbfs(float samplePu);
         float sample2Dbfs(uint32_t sample);
 
+        uint8_t float2percent(float value, float value_min, float value_max);
+
         long GetFileSize(const char* filename);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);
         uint32_t ReverseBitOrder_uint32(uint32_t n);

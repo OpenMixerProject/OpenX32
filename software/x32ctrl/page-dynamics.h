@@ -175,7 +175,7 @@ class PageDynamics: public Page {
 
         void EncoderText(uint8_t chanIndex) {
             if (chanIndex < 40) {
-                SetEncoderText("Thresh: " + String(mixer->dsp->Channel[chanIndex].compressor.threshold, 1) + " dB",
+                SetEncoderLables("Thresh: " + String(mixer->dsp->Channel[chanIndex].compressor.threshold, 1) + " dB",
                     "Ratio: " + String(mixer->dsp->Channel[chanIndex].compressor.ratio, 1) + ":1",
                     "Makeup: " + String(mixer->dsp->Channel[chanIndex].compressor.makeup, 1) + " dB",
                     "Attack: " + String(mixer->dsp->Channel[chanIndex].compressor.attackTime_ms, 0) + " ms",
@@ -183,7 +183,7 @@ class PageDynamics: public Page {
                     "Release: " + String(mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms, 0) + " ms"
                 );
             } else {
-                SetEncoderText("-", "-", "-", "-", "-", "-");
+                SetEncoderLables("-", "-", "-", "-", "-", "-");
             }
         }
 

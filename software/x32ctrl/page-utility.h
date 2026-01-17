@@ -12,7 +12,7 @@ class PageUtility: public Page {
 
         void OnChange(bool force_update) override {
             // TODO only update if values are changed
-            SetEncoderText("Reload DSPs", "-", "-", "-", String("D2: ") + String(state->debugvalue2), String("D1: ") + String(state->debugvalue));
+            SetEncoderLables("Reload DSPs", "-", "-", "-", String("D2: ") + String(state->debugvalue2), String("D1: ") + String(state->debugvalue));
         }
 
         void OnDisplayButton(X32_BTN button, bool pressed) override {

@@ -8,7 +8,7 @@ class PageSetupCard: public Page {
 
         void Encodertext() {
             String cardmode = String("Channelmode\n") + mixer->GetCardChannelModeString(card_channelmode);
-            SetEncoderText(cardmode, "-", "-", "-", "-", "-");
+            SetEncoderLables(cardmode, "-", "-", "-", "-", "-");
         }
 
     public:

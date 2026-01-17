@@ -54,7 +54,7 @@ class PageRoutingDsp2: public Page {
 		}
 
 		void OnShow() override {
-			SetEncoderText("\xEF\x81\xB7 Output \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
+			SetEncoderLables("\xEF\x81\xB7 Output \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
 		}
 
 		void OnChange(bool force_update) override {

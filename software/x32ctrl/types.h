@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "defines.h"
 #include "enum.h"
+#include "WString.h"
 
 // define own datatypes
 typedef union {
@@ -256,3 +257,14 @@ typedef struct {
   uint8_t meterPeak8DecayTimer;
   uint8_t meter8Info; // compatible to MeterLED on surface
 } srDspChannel;
+
+
+typedef struct {
+  String label;
+  String label_value;
+  uint8_t percent; 
+  bool slider_hidden;
+  bool slider_highlighted;
+  String label_buttonpress;
+  bool label_buttonpress_highlighted;
+} sDisplayEncoderSlider;

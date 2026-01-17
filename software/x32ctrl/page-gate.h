@@ -174,7 +174,7 @@ class PageGate: public Page {
 
         void EncoderText(uint8_t chanIndex) {
             if (chanIndex < 40) {
-                SetEncoderText(
+                SetEncoderLables(
                     "Thresh: " + String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
                     "Range: " + String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
                     "Attack: " + String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
@@ -183,7 +183,7 @@ class PageGate: public Page {
                     "-"
                 );
             }  else {
-                SetEncoderText("-", "-", "-", "-", "-", "-");
+                SetEncoderLables("-", "-", "-", "-", "-", "-");
             }
         }
 

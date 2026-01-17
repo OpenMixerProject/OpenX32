@@ -12,6 +12,8 @@
 
 using namespace std;
 
+
+
 class Page : public X32Base {
     protected:
         Mixer* mixer;
@@ -28,19 +30,21 @@ class Page : public X32Base {
         uint32_t tabIndex1 = 0;
 
         bool hideEncoders = false;
-        char displayEncoderText[6][30];
-        const char* displayEncoderButtonMap[7] = {
-            displayEncoderText[0],
-            displayEncoderText[1],
-            displayEncoderText[2],
-            displayEncoderText[3],
-            displayEncoderText[4],
-            displayEncoderText[5],
-        NULL};
+        sDisplayEncoderSlider encoderSliders[6];
+        lv_obj_t* sliders[6];
+        lv_obj_t* encoderButtonLabels[6];
 
         bool initDone = false;
 
-        void SetEncoderText(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
+        
+
+        void SetEncoderLables(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
+        void SetEncoderValues(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
+        void SetEncoderPercent(uint8_t enc1, uint8_t enc2, uint8_t enc3, uint8_t enc4, uint8_t enc5, uint8_t enc6);
+        void SetEncoderSliderHidden(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6);
+        void SetEncoderButtonLables(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
+        void SetEncoderButtonLablesHighlight(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6);
+        void SyncEncoderWidgets();
 
         virtual void OnInit();
         virtual void OnUpdateMeters();
