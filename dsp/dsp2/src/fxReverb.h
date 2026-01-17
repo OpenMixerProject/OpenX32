@@ -5,14 +5,14 @@
 
 #if FX_USE_REVERB == 1
 
-#define FX_REVERB_INT_CHAN			8	// must be a power of 2, so 2, 4, 8, 16
+#define FX_REVERB_INT_CHAN			8	// must be a power of 2, so 2, 4, 8, .... Code has optimized function for 8 parallel channels at the moment
 #define FX_REVERB_DIFFUSION_STEPS	2	// 1,2,3,4,...
 #define FX_REVERB_AVERAGE_OUTPUT	1	// 0=take fxOut as left/right directly, 1=mixdown multichannel-fxOut to stereo
 #define FX_REVERN_ALTERNATIVE_RND	0	// 0=use internal rand() function, 1=use bitshifting chaos (alternative sounds more metallic... not a good choice :-) )
 #define FX_REVERN_ALTERNATIVE_POW	0	// 0=use internal powf() function, 1=use approximation (approximation seems to be slower compared to internal powf())
 #define FX_REVERB_SAMPLING_RATE 	48000
 #define FX_REVERB_DELAY_MS_MAX		800
-#define FX_REVERB_BUFFER_SIZE 		((FX_REVERB_SAMPLING_RATE * FX_REVERB_DELAY_MS_MAX) / 1000)
+#define FX_REVERB_BUFFER_SIZE 		((FX_REVERB_SAMPLING_RATE * FX_REVERB_DELAY_MS_MAX) / 1000) // FX_REVERB_BUFFER_SIZE has to be power-of-2, to use optimized pointer-calculation
 
 // FX_REVERB_HADAMARD_SCALING = sqrtf(1.0f / FX_REVERB_INT_CHAN)
 #if FX_REVERB_INT_CHAN == 2

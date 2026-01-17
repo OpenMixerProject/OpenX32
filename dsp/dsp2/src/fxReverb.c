@@ -34,9 +34,10 @@
 float* diffusionDelayLine[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];
 float* delayLine[FX_REVERB_INT_CHAN];
 
-float fxBufInput[FX_REVERB_INT_CHAN];
 float fxBuf[FX_REVERB_INT_CHAN];
-float fxBufTemp[FX_REVERB_INT_CHAN];
+#if FX_REVERB_INT_CHAN != 8
+	float fxBufInput[FX_REVERB_INT_CHAN];
+#endif
 float fxBufOutput[FX_REVERB_INT_CHAN];
 float fxBufFeedback[FX_REVERB_INT_CHAN];
 
@@ -81,6 +82,8 @@ float fxBufFeedback[FX_REVERB_INT_CHAN];
 	}
 #endif
 
+/*
+// regular implementation of Householder-Matrix
 void householderMatrix(float* bufIn, float* bufOut) {
 	// calculate sum over all input-channels
 	float sum = 0;
@@ -92,7 +95,67 @@ void householderMatrix(float* bufIn, float* bufOut) {
 	sum = sum * (-2.0f / (float)FX_REVERB_INT_CHAN);
 	vecsaddf(&bufIn[0], sum, &bufOut[0], FX_REVERB_INT_CHAN);
 }
+*/
 
+// SIMD-optimized Householder-Matrix
+#if FX_REVERB_INT_CHAN == 8
+	static inline void householderMatrix(float* __restrict bufIn, float* __restrict bufOut) {
+	    // Step 1: load data into register
+	    float r0 = bufIn[0];
+	    float r1 = bufIn[1];
+	    float r2 = bufIn[2];
+	    float r3 = bufIn[3];
+	    float r4 = bufIn[4];
+	    float r5 = bufIn[5];
+	    float r6 = bufIn[6];
+	    float r7 = bufIn[7];
+
+	    // Step 2: calculate sum (tree-structure for better Pipelining-Latency)
+	    // instead of ((r0+r1)+r2)... we are calculating part-sums
+	    float sumA = r0 + r1;
+	    float sumB = r2 + r3;
+	    float sumC = r4 + r5;
+	    float sumD = r6 + r7;
+
+	    float sumTotal = (sumA + sumB) + (sumC + sumD);
+
+	    // Step 3: scaling-factor
+	    const float scaleFactor = -2.0f / 8.0f;
+	    float feedbackScalar = sumTotal * scaleFactor;
+
+	    // Step 4: sum and write-back
+	    bufOut[0] = r0 + feedbackScalar;
+	    bufOut[1] = r1 + feedbackScalar;
+	    bufOut[2] = r2 + feedbackScalar;
+	    bufOut[3] = r3 + feedbackScalar;
+	    bufOut[4] = r4 + feedbackScalar;
+	    bufOut[5] = r5 + feedbackScalar;
+	    bufOut[6] = r6 + feedbackScalar;
+	    bufOut[7] = r7 + feedbackScalar;
+	}
+#else
+	static inline void householderMatrix(float* __restrict bufIn, float* __restrict bufOut) {
+		float sum = 0.0f;
+
+		// calculate sum
+		#pragma loop_count(FX_REVERB_INT_CHAN)
+		for (int i = 0; i < FX_REVERB_INT_CHAN; i++) {
+			sum += bufIn[i];
+		}
+
+		// pre-calculate sclaing-factors
+		const float scale = sum * (-2.0f / (float)FX_REVERB_INT_CHAN);
+
+		// vector-add (manual instead of using vecsaddf for better pipeline-integration)
+		#pragma loop_count(FX_REVERB_INT_CHAN)
+		for (int i = 0; i < FX_REVERB_INT_CHAN; i++) {
+			bufOut[i] = bufIn[i] + scale;
+		}
+	}
+#endif
+
+/*
+// regular implementation of Hadamard-matrix
 void hadamardRecursiveUnscaled(float* buf, int size) {
 	if (size <= 1) return; // limit the recursion until we reached a single channel
 	int hSize = size / 2;
@@ -116,6 +179,104 @@ void hadamardMatrix(float* buf) {
 	vecsmltf(&buf[0], FX_REVERB_HADAMARD_SCALING, &buf[0], FX_REVERB_INT_CHAN);
 
 }
+*/
+
+// SIMD-optimized iterative Hadamard-Transformation using Fast Walsh-Hadamard Transform
+#if FX_REVERB_INT_CHAN == 8
+	static inline void hadamardMatrix(float* __restrict buf) {
+		// Step 1: preload data into register
+		float r0 = buf[0];
+		float r1 = buf[1];
+		float r2 = buf[2];
+		float r3 = buf[3];
+		float r4 = buf[4];
+		float r5 = buf[5];
+		float r6 = buf[6];
+		float r7 = buf[7];
+
+		float temp; // temporary register for exchange-operations
+
+		// ==================================================
+		// Step 2: pairs (0,1), (2,3), (4,5), (6,7)
+		// ==================================================
+		// Butterfly 0-1
+		temp = r0; r0 = temp + r1; r1 = temp - r1;
+		// Butterfly 2-3
+		temp = r2; r2 = temp + r3; r3 = temp - r3;
+		// Butterfly 4-5
+		temp = r4; r4 = temp + r5; r5 = temp - r5;
+		// Butterfly 6-7
+		temp = r6; r6 = temp + r7; r7 = temp - r7;
+
+		// ==================================================
+		// Step 3: pairs (0,2), (1,3), (4,6), (5,7)
+		// ==================================================
+		// Butterfly 0-2
+		temp = r0; r0 = temp + r2; r2 = temp - r2;
+		// Butterfly 1-3
+		temp = r1; r1 = temp + r3; r3 = temp - r3;
+		// Butterfly 4-6
+		temp = r4; r4 = temp + r6; r6 = temp - r6;
+		// Butterfly 5-7
+		temp = r5; r5 = temp + r7; r7 = temp - r7;
+
+		// ==================================================
+		// Step 4: pairs (0,4), (1,5), (2,6), (3,7)
+		// ==================================================
+		// Butterfly 0-4
+		temp = r0; r0 = temp + r4; r4 = temp - r4;
+		// Butterfly 1-5
+		temp = r1; r1 = temp + r5; r5 = temp - r5;
+		// Butterfly 2-6
+		temp = r2; r2 = temp + r6; r6 = temp - r6;
+		// Butterfly 3-7
+		temp = r3; r3 = temp + r7; r7 = temp - r7;
+
+		// ==================================================
+		// Scaling and Write-Back
+		// ==================================================
+		// Der SHARC kann Multiplikation und Store oft pipelinen
+		const float scale = FX_REVERB_HADAMARD_SCALING;
+
+		buf[0] = r0 * scale;
+		buf[1] = r1 * scale;
+		buf[2] = r2 * scale;
+		buf[3] = r3 * scale;
+		buf[4] = r4 * scale;
+		buf[5] = r5 * scale;
+		buf[6] = r6 * scale;
+		buf[7] = r7 * scale;
+	}
+#else
+	static inline void hadamardMatrix(float* __restrict buf) {
+		// Iterative Butterfly-Structure (Fast Walsh-Hadamard Transform)
+		// H1 = [1]
+		// H2 = [1  1]
+		//      [1 -1]
+
+		// stepsize increases in each loop: 1,2,4,8,...
+		for (int h = 1; h < FX_REVERB_INT_CHAN; h <<= 1) {
+			// go through vector in chunks
+			for (int i = 0; i < FX_REVERB_INT_CHAN; i += (h << 1)) {
+				// butterfly-operations within chunks
+				for (int j = i; j < i + h; j++) {
+					float x = buf[j];
+					float y = buf[j + h];
+
+					// SIMD-friendly calculation
+					buf[j]     = x + y;
+					buf[j + h] = x - y;
+				}
+			}
+		}
+
+		// scale at the end (manual loop-unrolling helps the compiler here)
+		#pragma loop_count(FX_REVERB_INT_CHAN)
+		for(int i = 0; i < FX_REVERB_INT_CHAN; i++) {
+			buf[i] *= FX_REVERB_HADAMARD_SCALING;
+		}
+	}
+#endif
 
 // ====================================================================
 // Begin of public functions for this effect
@@ -133,6 +294,20 @@ void fxReverbInit(void) {
 	for (int i = 0; i < FX_REVERB_INT_CHAN; i++) {
 		delayLine[i] = (float*)(memoryAddress);
 		memoryAddress += (FX_REVERB_BUFFER_SIZE * sizeof(float));
+	}
+
+	// initialize external memory
+	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+		for (int i = 0; i < FX_REVERB_INT_CHAN; i++) {
+			for (int b = 0; b < FX_REVERB_BUFFER_SIZE; b++) {
+				diffusionDelayLine[d][i][b] = 0.0f;
+			}
+		}
+	}
+	for (int i = 0; i < FX_REVERB_INT_CHAN; i++) {
+		for (int b = 0; b < FX_REVERB_BUFFER_SIZE; b++) {
+			delayLine[i][b] = 0.0f;
+		}
 	}
 
 	// initialize variables and the effect itself
@@ -184,60 +359,53 @@ void fxReverbSetParameters(float roomSizeMs, float rt60, float feedbackLowPassFr
 
 void fxReverbProcess(float* bufIn[2], float* bufOut[2]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		// Step 1: generate multichannel fx-input
+		// Step 1: generate multi-channel fx-input
 		// =================================
-		#if FX_REVERB_INT_CHAN >= 2
-			fxBufInput[0] = bufIn[0][s]; // left
-			fxBufInput[1] = bufIn[1][s]; // right
+		float inL = bufIn[0][s];
+		float inR = bufIn[1][s];
+		#if FX_REVERB_INT_CHAN == 8
+			fxBuf[0] = inL; fxBuf[1] = inR;
+			fxBuf[2] = inL; fxBuf[3] = inR;
+			fxBuf[4] = inL; fxBuf[5] = inR;
+			fxBuf[6] = inL; fxBuf[7] = inR;
+		#else
+			for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch+=2) {
+				fxBufInput[i_ch] = inL;
+				fxBufInput[i_ch + 1] = inR;
+			}
 		#endif
-		#if FX_REVERB_INT_CHAN >= 4
-			fxBufInput[2] = bufIn[0][s]; // left
-			fxBufInput[3] = bufIn[1][s]; // right
-		#endif
-		#if FX_REVERB_INT_CHAN >= 6
-			fxBufInput[4] = bufIn[0][s]; // left
-			fxBufInput[5] = bufIn[1][s]; // right
-		#endif
-		#if FX_REVERB_INT_CHAN >= 8
-			fxBufInput[6] = bufIn[0][s]; // left
-			fxBufInput[7] = bufIn[1][s]; // right
-		#endif
-		
-		
-		
-
-		
-		
 
 		// Step 2: diffusion-process
 		// =================================
-		// copy samples from input to internal buffer
-		memcpy(&fxBuf[0], &fxBufInput[0], FX_REVERB_INT_CHAN * sizeof(float));
-		
-		// Calculate desired amount of diffusion-steps
-		for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
-			// Diffusor #1 ... #n
-			// ---------------------------------
-			// Step 2.1: Write data to delay-line
-			for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-				diffusionDelayLine[d][i_ch][reverb.diffusionDelayLineHead] = fxBuf[i_ch];
-			}
+        for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+			// pointer to Delay-Line. Mitigates [d][i]-indirection within inner loop
+			float** currentDiffLine = diffusionDelayLine[d];
 
-			// Step 2.2: Read data from delay-line
+			// Step 2.1: Write and read data to/from delay-line
 			for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-				int diffusionDelayLineTail = reverb.diffusionDelayLineHead - reverb.diffusor[d].delayLineTailOffset[i_ch];
-				if (diffusionDelayLineTail < 0) {
-					diffusionDelayLineTail += FX_REVERB_BUFFER_SIZE;
+				#if FX_REVERB_INT_CHAN == 8
+					currentDiffLine[i_ch][reverb.diffusionDelayLineHead] = fxBuf[i_ch];
+				#else
+					currentDiffLine[i_ch][reverb.diffusionDelayLineHead] = fxBufInput[i_ch];
+				#endif
+
+				// Step 2.2: Read data from delay-line
+				//int tail = (reverb.diffusionDelayLineHead - reverb.diffusor[d].delayLineTailOffset[i_ch]) & (FX_REVERB_BUFFER_SIZE - 1); // faster version of buffersize is power of 2
+				int tail = reverb.diffusionDelayLineHead - reverb.diffusor[d].delayLineTailOffset[i_ch];
+				if (tail < 0) {
+					tail += FX_REVERB_BUFFER_SIZE;
 				}
-				fxBuf[i_ch] = diffusionDelayLine[d][i_ch][diffusionDelayLineTail];
+				fxBuf[i_ch] = currentDiffLine[i_ch][tail];
 			}
 
-			// Step 2.3: mix with Hadamard Matrix
-			hadamardMatrix(&fxBuf[0]);
+			// Step 2.2: mix with Hadamard Matrix
+			hadamardMatrix(fxBuf);
 
-			// Step 2.4: Flip some polarities
+			// Step 2.3: Flip some polarities
 			for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-				if (reverb.diffusor[d].flipPolarities[i_ch]) fxBuf[i_ch] *= -1.0f;
+				if (reverb.diffusor[d].flipPolarities[i_ch]) {
+					fxBuf[i_ch] = -fxBuf[i_ch];
+				}
 			}
 		}
 		// Increase the delay-head-pointer after last Diffusor
@@ -246,9 +414,6 @@ void fxReverbProcess(float* bufIn[2], float* bufOut[2]) {
 			reverb.diffusionDelayLineHead = 0;
 		}
 
-		// bypass the diffusor
-		//memcpy(&fxBuf[0], &fxBufInput[0], FX_REVERB_INT_CHAN * sizeof(float));
-
 
 
 
@@ -256,62 +421,109 @@ void fxReverbProcess(float* bufIn[2], float* bufOut[2]) {
 		// =================================
 		// Step 3.1: read delayed data from delay-line
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-			int delayLineTail = reverb.delay.head - reverb.delay.tailOffset[i_ch];
-			if (delayLineTail < 0) {
-				delayLineTail += FX_REVERB_BUFFER_SIZE;
+			int tail = reverb.delay.head - reverb.delay.tailOffset[i_ch];
+			if (tail < 0) {
+				tail += FX_REVERB_BUFFER_SIZE;
 			}
-			fxBufOutput[i_ch] = delayLine[i_ch][delayLineTail];
+			fxBufOutput[i_ch] = delayLine[i_ch][tail];
 		}
-		
+
 		// Step 3.2: calculate householder-matrix
 		householderMatrix(&fxBufOutput[0], &fxBufFeedback[0]);
-		// implement low-pass-filter on the feedback-line
+
+		float decayGain = reverb.feedbackDecayGain;
+		float lpCoeff = reverb.delay.lowPassDelayCoeff;
+
+		#pragma loop_count(FX_REVERB_INT_CHAN)
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-			fxBufFeedback[i_ch] = reverb.delay.lowPassDelayState[i_ch] + reverb.delay.lowPassDelayCoeff * (fxBufFeedback[i_ch] - reverb.delay.lowPassDelayState[i_ch]);
-			reverb.delay.lowPassDelayState[i_ch] = fxBufFeedback[i_ch];
+			// implement low-pass-filter on the feedback-line
+			float state = reverb.delay.lowPassDelayState[i_ch];
+			float inVal = fxBufFeedback[i_ch];
+			float filtered = state + lpCoeff * (inVal - state);
+
+			reverb.delay.lowPassDelayState[i_ch] = filtered;
+
+			// Decay & Sum in einem Rutsch
+			// fxBuf is currently the "Diffused Signal"
+			// fxBuf[i_ch] = fxBuf[i_ch] + (filtered * decayGain);
+
+			// SHARC is able to calculate MAC (Multiply-Accumulate)
+			fxBuf[i_ch] += filtered * decayGain;
 		}
-		// apply static decay to all feedback-channels and calculate sum with diffused signal
-		vecsmltf(&fxBufFeedback[0], reverb.feedbackDecayGain, &fxBufFeedback[0], FX_REVERB_INT_CHAN);
-		vecvaddf(&fxBuf[0], &fxBufFeedback[0], &fxBuf[0], FX_REVERB_INT_CHAN); // temp = diffusedSignal + feedback
-		
-		// Step 3.3: write temp-data to delay-line
+
+		// Step 3.3: write feedback-data to delay-line
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 			delayLine[i_ch][reverb.delay.head] = fxBuf[i_ch];
 		}
 		reverb.delay.head++;
-		if (reverb.delay.head == FX_REVERB_BUFFER_SIZE) {
+		if (reverb.delay.head >= FX_REVERB_BUFFER_SIZE) {
 			reverb.delay.head = 0;
 		}
 
 
+/*
+		// Test write/read to SDRAM
+		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
+			// write to SDRAM
+			delayLine[i_ch][reverb.delay.head] = fxBuf[i_ch];
 
-
+			// read from SDRAM
+			int tail = reverb.delay.head;
+			if (tail < 0) {
+				tail += FX_REVERB_BUFFER_SIZE;
+			}
+			fxBufOutput[i_ch] = delayLine[i_ch][tail];
+		}
+		reverb.delay.head++;
+		if (reverb.delay.head >= FX_REVERB_BUFFER_SIZE) {
+			reverb.delay.head = 0;
+		}
+*/
 
 
 		// Step 4: generate output-signal
 		// =================================
-		// Step 4.1: calculate wet/dry output
-		vecsmltf(&fxBufInput[0], reverb.dry, &fxBuf[0], FX_REVERB_INT_CHAN); // temp = fxInput * dry
-		vecsmltf(&fxBufOutput[0], reverb.wet, &fxBufOutput[0], FX_REVERB_INT_CHAN); // fxDelayOutput * wet
-		vecvaddf(&fxBuf[0], &fxBufOutput[0], &fxBufOutput[0], FX_REVERB_INT_CHAN); // output = dry + wet
-		
 		// Step 4.2: mix all channels back to stereo
-		#if FX_REVERB_AVERAGE_OUTPUT == 1
-			// mix multichannel effect-output back into stereo
-			bufOut[0][s] = fxBufOutput[0];
-			bufOut[1][s] = fxBufOutput[1];
-			for (int i_ch = 2; i_ch < FX_REVERB_INT_CHAN; i_ch +=2) {
-				bufOut[0][s] += fxBufOutput[i_ch];
-				bufOut[1][s] += fxBufOutput[i_ch + 1];
-			}
-			// scale output
-			float scaling = 2.0f / (float)FX_REVERB_INT_CHAN;
-			bufOut[0][s] *= scaling;
-			bufOut[1][s] *= scaling;
+		#if FX_REVERB_INT_CHAN == 8
+			#if FX_REVERB_AVERAGE_OUTPUT == 1
+				float verb0 = fxBufOutput[0];
+				float verb1 = fxBufOutput[1];
+				float verb2 = fxBufOutput[2];
+				float verb3 = fxBufOutput[3];
+				float verb4 = fxBufOutput[4];
+				float verb5 = fxBufOutput[5];
+				float verb6 = fxBufOutput[6];
+				float verb7 = fxBufOutput[7];
+				float sumL = (verb0 + verb2) + (verb4 + verb6);
+				float sumR = (verb1 + verb3) + (verb5 + verb7);
+
+				float scaledWet = reverb.wet * (2.0f / (float)FX_REVERB_INT_CHAN);
+				bufOut[0][s] = (inL * reverb.dry) + (sumL * scaledWet);
+				bufOut[1][s] = (inR * reverb.dry) + (sumR * scaledWet);
+			#else
+				// take fxOutput 1/2 as left/right-channel directly
+				bufOut[0][s] = (inL * reverb.dry) + (fxBufOutput[0] * reverb.wet);
+				bufOut[1][s] = (inR * reverb.dry) + (fxBufOutput[1] * reverb.wet);
+			#endif
 		#else
-			// take fxOutput 1/2 as left/right-channel directly
-			bufOut[0][s] = fxBufOutput[0];
-			bufOut[1][s] = fxBufOutput[1];
+			// general calculation for different amount of channels
+			#if FX_REVERB_AVERAGE_OUTPUT == 1
+				float sumL = 0.0f;
+				float sumR = 0.0f;
+				for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch+=2) {
+					// Output Calculation
+					sumL += fxBufOutput[i_ch];
+					sumR += fxBufOutput[i_ch + 1];
+				}
+
+				float scaledWet = reverb.wet * (2.0f / (float)FX_REVERB_INT_CHAN);
+				bufOut[0][s] = (inL * reverb.dry) + (sumL * scaledWet);
+				bufOut[1][s] = (inR * reverb.dry) + (sumR * scaledWet);
+			#else
+				// take fxOutput 1/2 as left/right-channel directly
+				bufOut[0][s] = (inL * dry) + (fxBufOutput[0] * wet);
+				bufOut[1][s] = (inR * dry) + (fxBufOutput[1] * wet);
+			#endif
 		#endif
 	}
 }
