@@ -716,27 +716,27 @@ void Mixer::SetGate(uint8_t vChannelIndex, char option, float value) {
             sGate* gate = &dsp->Channel[vChannelIndex].gate;
             switch (option) {
                 case 'T': // Threshold
-                    if ((value >= -80) && (value <= 0)) {
+                    if ((value >= GATE_THRESHOLD_MIN) && (value <= GATE_THRESHOLD_MAX)) {
                         gate->threshold = value;
                     }
                     break;
                 case 'R': // Range
-                    if ((value >= 3) && (value <= 60)) {
+                    if ((value >= GATE_RANGE_MIN) && (value <= GATE_RANGE_MAX)) {
                         gate->range = value;
                     }
                     break;
                 case 'A': // Attack
-                    if ((value >= 0) && (value <= 120)) {
+                    if ((value >= GATE_ATTACK_MIN) && (value <= GATE_ATTACK_MAX)) {
                         gate->attackTime_ms = value;
                     }
                     break;
                 case 'H': // Hold
-                    if ((value >= 0.02) && (value <= 2000)) {
+                    if ((value >= GATE_HOLD_MIN) && (value <= GATE_HOLD_MAX)) {
                         gate->holdTime_ms = value;
                     }
                     break;
                 case 'r': // Release
-                    if ((value >= 5) && (value <= 4000)) {
+                    if ((value >= GATE_RELEASE_MIN) && (value <= GATE_RELEASE_MAX)) {
                         gate->releaseTime_ms = value;
                     }
                     break;

@@ -26,6 +26,17 @@
 
 #define VOLUME_MIN -100.0f
 
+#define GATE_THRESHOLD_MIN  -80.0
+#define GATE_THRESHOLD_MAX  0.0
+#define GATE_RANGE_MIN  3.0
+#define GATE_RANGE_MAX  60.0 // or 48dB like in Comments?
+#define GATE_ATTACK_MIN 0.0
+#define GATE_ATTACK_MAX 120.0
+#define GATE_HOLD_MIN 0.02
+#define GATE_HOLD_MAX 2000.0
+#define GATE_RELEASE_MIN 5.0
+#define GATE_RELEASE_MAX 4000.0
+
 #define MAX_CHAN_EQS                       4
 
 #define NUM_INPUT_CHANNEL                  160 // just use a single AES50-port for now

@@ -50,8 +50,8 @@ void DSP1::Init(void) {
 
         Channel[i].lowCutFrequency = 100.0f; // Hz
 
-        Channel[i].gate.threshold = -80; // dB -> no gate
-        Channel[i].gate.range = 60; // dB -> full range
+        Channel[i].gate.threshold = GATE_THRESHOLD_MIN; // -> no gate
+        Channel[i].gate.range = GATE_RANGE_MAX; // -> full range
         Channel[i].gate.attackTime_ms = 10;
         Channel[i].gate.holdTime_ms = 50;
         Channel[i].gate.releaseTime_ms = 250;

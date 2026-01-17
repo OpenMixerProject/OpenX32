@@ -187,11 +187,11 @@ class PageGate: public Page {
                 );
 
                 SetEncoderPercent(
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.threshold, -80.0, 0.0),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.range, 3.0, 60.0),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0.0, 120.0),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 2.0, 2000.0),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 6.0, 4000.0),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.threshold, GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.range, GATE_RANGE_MIN, GATE_RANGE_MAX),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, GATE_ATTACK_MIN, GATE_ATTACK_MAX),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, GATE_HOLD_MIN, GATE_HOLD_MAX),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, GATE_RELEASE_MIN, GATE_RELEASE_MAX),
                     0                                        
                 );
             }  else {
