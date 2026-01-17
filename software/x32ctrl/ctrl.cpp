@@ -71,11 +71,6 @@ void X32Ctrl::Init(){
 
 			ResetFaderBankLayout();
 			LoadFaderBankLayout(FADER_BANK_LAYOUT_X32);
-
-			activeBank_inputFader = 0;
-			activeBank_busFader = 0;
-			state->activeEQ = 0;
-			activeBusSend = 0;
 	}
 	//############################################################################
 	//#                                                                          #
@@ -425,7 +420,7 @@ void X32Ctrl::ProcessEventsRaw(SurfaceEvent* event){
 		FaderMoved(event);
 		break;
 	  case 'b':
-		ButtonPressed(event);
+		ButtonPressedOrReleased(event);
 		break;
 	  case 'e':
 		EncoderTurned(event);
@@ -860,10 +855,10 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			}
 			// Bus sends
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS)){
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
 			}
 			// Gate
 			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
@@ -1221,7 +1216,7 @@ void X32Ctrl::UpdateMeters(void) {
 	// ########################################
 
 	if (config->IsModelX32CompactOrProducer()){
-		switch (activeBank_inputFader) {
+		switch (state->activeBank_inputFader) {
 			case 0: // Input 1-8
 				for (uint8_t i = 0; i < 8; i++) {
 					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->rChannel[i].meter6Info);
@@ -1256,7 +1251,7 @@ void X32Ctrl::UpdateMeters(void) {
 		}
 
 		// update meters on board R
-		switch (activeBank_busFader) {
+		switch (state->activeBank_busFader) {
 			case 0: // DCA1-8
 				// no meter here
 				break;
@@ -1273,7 +1268,7 @@ void X32Ctrl::UpdateMeters(void) {
 	if (config->IsModelX32Full()) {
 
 		// update meters on board L and M
-		switch (activeBank_inputFader) {
+		switch (state->activeBank_inputFader) {
 			case 0: // Input 1-16
 				for (uint8_t i = 0; i < 8; i++) {
 					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->rChannel[i].meter6Info);
@@ -1301,27 +1296,27 @@ void X32Ctrl::UpdateMeters(void) {
 void X32Ctrl::surfaceSyncBankIndicator(void) {
 	if (state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT)) {
 		if (config->IsModelX32Full()){
-			surface->SetLedByEnum(X32_BTN_CH_1_16, activeBank_inputFader == 0);
-			surface->SetLedByEnum(X32_BTN_CH_17_32, activeBank_inputFader == 1);
-			surface->SetLedByEnum(X32_BTN_AUX_IN_EFFECTS, activeBank_inputFader == 2);
-			surface->SetLedByEnum(X32_BTN_BUS_MASTER, activeBank_inputFader == 3);
+			surface->SetLedByEnum(X32_BTN_CH_1_16, state->activeBank_inputFader == 0);
+			surface->SetLedByEnum(X32_BTN_CH_17_32, state->activeBank_inputFader == 1);
+			surface->SetLedByEnum(X32_BTN_AUX_IN_EFFECTS, state->activeBank_inputFader == 2);
+			surface->SetLedByEnum(X32_BTN_BUS_MASTER, state->activeBank_inputFader == 3);
 		}
 		if (config->IsModelX32CompactOrProducer()) {
-			surface->SetLedByEnum(X32_BTN_CH_1_8, activeBank_inputFader == 0);
-			surface->SetLedByEnum(X32_BTN_CH_9_16, activeBank_inputFader == 1);
-			surface->SetLedByEnum(X32_BTN_CH_17_24, activeBank_inputFader == 2);
-			surface->SetLedByEnum(X32_BTN_CH_25_32, activeBank_inputFader == 3);
-			surface->SetLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, activeBank_inputFader == 4);
-			surface->SetLedByEnum(X32_BTN_EFFECTS_RETURNS, activeBank_inputFader == 5);
-			surface->SetLedByEnum(X32_BTN_BUS_1_8_MASTER, activeBank_inputFader == 6);
-			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, activeBank_inputFader == 7);
+			surface->SetLedByEnum(X32_BTN_CH_1_8, state->activeBank_inputFader == 0);
+			surface->SetLedByEnum(X32_BTN_CH_9_16, state->activeBank_inputFader == 1);
+			surface->SetLedByEnum(X32_BTN_CH_17_24, state->activeBank_inputFader == 2);
+			surface->SetLedByEnum(X32_BTN_CH_25_32, state->activeBank_inputFader == 3);
+			surface->SetLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, state->activeBank_inputFader == 4);
+			surface->SetLedByEnum(X32_BTN_EFFECTS_RETURNS, state->activeBank_inputFader == 5);
+			surface->SetLedByEnum(X32_BTN_BUS_1_8_MASTER, state->activeBank_inputFader == 6);
+			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, state->activeBank_inputFader == 7);
 		}
 	}
 	if (state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS)) {
-		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, activeBank_busFader == 0);
-		surface->SetLedByEnum(X32_BTN_BUS_1_8, activeBank_busFader == 1);
-		surface->SetLedByEnum(X32_BTN_BUS_9_16, activeBank_busFader == 2);
-		surface->SetLedByEnum(X32_BTN_MATRIX_MAIN_C, activeBank_busFader == 3);
+		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, state->activeBank_busFader == 0);
+		surface->SetLedByEnum(X32_BTN_BUS_1_8, state->activeBank_busFader == 1);
+		surface->SetLedByEnum(X32_BTN_BUS_9_16, state->activeBank_busFader == 2);
+		surface->SetLedByEnum(X32_BTN_MATRIX_MAIN_C, state->activeBank_busFader == 3);
 	}
 }
 
@@ -1481,25 +1476,25 @@ uint8_t X32Ctrl::SurfaceChannel2vChannel(uint8_t surfaceChannel){
 		if (config->IsModelX32Full()){
 			if (surfaceChannel <= 15){
 				// input-section
-				return modes[config->GetBankMode()].inputBanks[activeBank_inputFader].surfaceChannel2VChannel[surfaceChannel];
+				return modes[config->GetBankMode()].inputBanks[state->activeBank_inputFader].surfaceChannel2VChannel[surfaceChannel];
 			} else if (surfaceChannel == 24) {
 				// main-channel
 				return 80;
 			} else {
 				// bus-section and mainfader
-				return modes[config->GetBankMode()].busBanks[activeBank_busFader].surfaceChannel2VChannel[surfaceChannel-16];
+				return modes[config->GetBankMode()].busBanks[state->activeBank_busFader].surfaceChannel2VChannel[surfaceChannel-16];
 			}
 		}
 		if (config->IsModelX32CompactOrProducer()){
 			if (surfaceChannel <= 7){
 				// input-section
-				return modes[config->GetBankMode()].inputBanks[activeBank_inputFader].surfaceChannel2VChannel[surfaceChannel];
+				return modes[config->GetBankMode()].inputBanks[state->activeBank_inputFader].surfaceChannel2VChannel[surfaceChannel];
 			} else if (surfaceChannel == 16) {
 				// main-channel
 				return 80;
 			} else {
 				// bus-section and mainfader
-				return modes[config->GetBankMode()].busBanks[activeBank_busFader].surfaceChannel2VChannel[surfaceChannel-8];
+				return modes[config->GetBankMode()].busBanks[state->activeBank_busFader].surfaceChannel2VChannel[surfaceChannel-8];
 			}
 			return 0;
 		}
@@ -1778,73 +1773,100 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 	}
 }
 
-void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
+void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event) {
 	X32_BTN button = surface->Button2Enum[((uint16_t)event->boardId << 8) + (uint16_t)(event->value & 0x7F)];
-	bool buttonPressed = (event->value >> 7) == 1;
+	bool isButtonPressed = (event->value >> 7) == 1;
 
 	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "X32_BTN:%d", button);
 
+	// Logic for double button press
+	if (isButtonPressed) {
+		if (state->buttonPressed == X32_BTN_NONE) {
+			state->buttonPressed = button;
+		} else {
+			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DoubleButtonPress: Button1 %d, Button2 %d", state->buttonPressed, state->secondbuttonPressed);
+			state->secondbuttonPressed = button;
+		}
+	} else {
+		if (state->buttonPressed == button) {
+			state->buttonPressed = X32_BTN_NONE;
+		}
+		if (state->secondbuttonPressed == button) {
+			state->secondbuttonPressed = X32_BTN_NONE;
+		}
+	}
+
+	// Standard button assingments
+	if (isButtonPressed) {
+		switch (button) {
+			// Note: X32_BTN_UP and X32_BTN_DOWN are handled in the page classes!
+			case X32_BTN_LEFT:
+				ShowPrevPage();
+				break;
+			case X32_BTN_RIGHT:
+				ShowNextPage();
+				break;
+			case X32_BTN_HOME:
+				ShowPage(X32_PAGE_HOME);
+				break;
+			case X32_BTN_VIEW_CONFIG:
+				ShowPage(X32_PAGE_CONFIG);
+				break;
+			case X32_BTN_VIEW_GATE:
+				ShowPage(X32_PAGE_GATE);
+				break;
+			case X32_BTN_VIEW_COMPRESSOR:
+				ShowPage(X32_PAGE_COMPRESSOR);
+				break;
+			case X32_BTN_VIEW_EQ:
+				ShowPage(X32_PAGE_EQ);
+				break;
+			case X32_BTN_METERS:
+				ShowPage(X32_PAGE_METERS);
+				break;
+			case X32_BTN_ROUTING:
+				ShowPage(X32_PAGE_ROUTING);
+				break;
+			case X32_BTN_SETUP:
+				ShowPage(X32_PAGE_SETUP);
+				break;
+			case X32_BTN_LIBRARY:
+				ShowPage(X32_PAGE_LIBRARY);
+				break;
+			case X32_BTN_EFFECTS:
+				ShowPage(X32_PAGE_EFFECTS);
+				break;
+			case X32_BTN_MUTE_GRP:
+				ShowPage(X32_PAGE_MUTE_GRP);
+				break;
+			case X32_BTN_UTILITY:
+				ShowPage(X32_PAGE_UTILITY);
+				break;
+			case X32_BTN_EQ_MODE:
+				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'T', +1);
+				break;
+			case X32_BTN_EQ_LOW:
+			case X32_BTN_EQ_LOW_MID:
+			case X32_BTN_EQ_HIGH_MID:
+			case X32_BTN_EQ_HIGH:
+				BankingEQ(button);
+				break;
+			case X32_BTN_BUS_SEND_1_4:
+			case X32_BTN_BUS_SEND_5_8:
+			case X32_BTN_BUS_SEND_9_12:
+			case X32_BTN_BUS_SEND_13_16:
+				BankingSends(button);
+				break;
+			default:
+				// just here to avoid compiler warnings
+				break;
+		}
+	}
+
+
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
-		if (buttonPressed){
+		if (isButtonPressed){
 			switch (button) {
-				// Note: X32_BTN_UP and X32_BTN_DOWN are handled in the page classes!
-				case X32_BTN_LEFT:
-					ShowPrevPage();
-					break;
-				case X32_BTN_RIGHT:
-					ShowNextPage();
-					break;
-				case X32_BTN_HOME:
-					ShowPage(X32_PAGE_HOME);
-					break;
-				case X32_BTN_VIEW_CONFIG:
-					ShowPage(X32_PAGE_CONFIG);
-					break;
-				case X32_BTN_VIEW_GATE:
-					ShowPage(X32_PAGE_GATE);
-					break;
-				case X32_BTN_VIEW_COMPRESSOR:
-					ShowPage(X32_PAGE_COMPRESSOR);
-					break;
-				case X32_BTN_VIEW_EQ:
-					ShowPage(X32_PAGE_EQ);
-					break;
-				case X32_BTN_METERS:
-					ShowPage(X32_PAGE_METERS);
-					break;
-				case X32_BTN_ROUTING:
-					ShowPage(X32_PAGE_ROUTING);
-					break;
-				case X32_BTN_SETUP:
-					ShowPage(X32_PAGE_SETUP);
-					break;
-				case X32_BTN_LIBRARY:
-					ShowPage(X32_PAGE_LIBRARY);
-					break;
-				case X32_BTN_EFFECTS:
-					ShowPage(X32_PAGE_EFFECTS);
-					break;
-				case X32_BTN_MUTE_GRP:
-					ShowPage(X32_PAGE_MUTE_GRP);
-					break;
-				case X32_BTN_UTILITY:
-					ShowPage(X32_PAGE_UTILITY);
-					break;
-				case X32_BTN_EQ_MODE:
-					mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'T', +1);
-					break;
-				case X32_BTN_EQ_LOW:
-				case X32_BTN_EQ_LOW_MID:
-				case X32_BTN_EQ_HIGH_MID:
-				case X32_BTN_EQ_HIGH:
-					BankingEQ(button);
-					break;
-				case X32_BTN_BUS_SEND_1_4:
-				case X32_BTN_BUS_SEND_5_8:
-				case X32_BTN_BUS_SEND_9_12:
-				case X32_BTN_BUS_SEND_13_16:
-					BankingSends(button);
-					break;
 				case X32_BTN_CH_1_16:
 				case X32_BTN_CH_17_32:
 				case X32_BTN_AUX_IN_EFFECTS:
@@ -2020,7 +2042,7 @@ void X32Ctrl::ButtonPressed(SurfaceEvent* event) {
 			case X32_BTN_ENCODER4:		
 			case X32_BTN_ENCODER5:				
 			case X32_BTN_ENCODER6:
-				pages[state->activePage]->OnDisplayButton(button, buttonPressed);
+				pages[state->activePage]->OnDisplayButton(button, isButtonPressed);
 				break;
 			default:
 				break;
@@ -2086,16 +2108,16 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangeBalance(config->selectedVChannel, amount);
 				break;
 			case X32_ENC_BUS_SEND_1:
-				mixer->ChangeBusSend(config->selectedVChannel, 0, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 0, amount, state->activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_2:
-				mixer->ChangeBusSend(config->selectedVChannel, 1, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 1, amount, state->activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_3:
-				mixer->ChangeBusSend(config->selectedVChannel, 2, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 2, amount, state->activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_4:
-				mixer->ChangeBusSend(config->selectedVChannel, 3, amount, activeBusSend);
+				mixer->ChangeBusSend(config->selectedVChannel, 3, amount, state->activeBusSend);
 				break;
 			default:
 				// just here to avoid compiler warnings                  
@@ -2143,19 +2165,19 @@ void X32Ctrl::BankingSends(X32_BTN p_button) {
 
 	switch (p_button){
 		case X32_BTN_BUS_SEND_1_4:
-			activeBusSend = 0;
+			state->activeBusSend = 0;
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 1);
 			break;
 		case X32_BTN_BUS_SEND_5_8:
-			activeBusSend = 1;
+			state->activeBusSend = 1;
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 1);
 			break;
 		case X32_BTN_BUS_SEND_9_12:
-			activeBusSend = 2;
+			state->activeBusSend = 2;
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 1);
 			break;
 		case X32_BTN_BUS_SEND_13_16:
-			activeBusSend = 3;
+			state->activeBusSend = 3;
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 1);
 			break;
 		default:
@@ -2204,35 +2226,35 @@ void X32Ctrl::Banking(X32_BTN p_button){
 	if (config->IsModelX32Full()){
 		switch (p_button){
 			case X32_BTN_CH_1_16:
-				activeBank_inputFader = 0;
+				state->activeBank_inputFader = 0;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_17_32:
-				activeBank_inputFader = 1;
+				state->activeBank_inputFader = 1;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_AUX_IN_EFFECTS:
-				activeBank_inputFader = 2;
+				state->activeBank_inputFader = 2;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_BUS_MASTER:
-				activeBank_inputFader = 3;
+				state->activeBank_inputFader = 3;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_GROUP_DCA_1_8:
-				activeBank_busFader = 0;
+				state->activeBank_busFader = 0;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_1_8:
-				activeBank_busFader = 1;
+				state->activeBank_busFader = 1;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_9_16:
-				activeBank_busFader = 2;
+				state->activeBank_busFader = 2;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_MATRIX_MAIN_C:
-				activeBank_busFader = 3;
+				state->activeBank_busFader = 3;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			default:
@@ -2242,51 +2264,51 @@ void X32Ctrl::Banking(X32_BTN p_button){
 	if (config->IsModelX32CompactOrProducer()){
 		switch (p_button){
 			case X32_BTN_CH_1_8:
-				activeBank_inputFader = 0;
+				state->activeBank_inputFader = 0;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_9_16:
-				activeBank_inputFader = 1;
+				state->activeBank_inputFader = 1;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_17_24:
-				activeBank_inputFader = 2;
+				state->activeBank_inputFader = 2;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_CH_25_32:
-				activeBank_inputFader = 3;
+				state->activeBank_inputFader = 3;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_AUX_IN_1_6_USB_REC:
-				activeBank_inputFader = 4;
+				state->activeBank_inputFader = 4;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_EFFECTS_RETURNS:
-				activeBank_inputFader = 5;
+				state->activeBank_inputFader = 5;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_BUS_1_8_MASTER:
-				activeBank_inputFader = 6;
+				state->activeBank_inputFader = 6;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_BUS_9_16_MASTER:
-				activeBank_inputFader = 7;
+				state->activeBank_inputFader = 7;
 				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
 				break;
 			case X32_BTN_GROUP_DCA_1_8:
-				activeBank_busFader = 0;
+				state->activeBank_busFader = 0;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_1_8:
-				activeBank_busFader = 1;
+				state->activeBank_busFader = 1;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_BUS_9_16:
-				activeBank_busFader = 2;
+				state->activeBank_busFader = 2;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			case X32_BTN_MATRIX_MAIN_C:
-				activeBank_busFader = 3;
+				state->activeBank_busFader = 3;
 				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
 				break;
 			default:

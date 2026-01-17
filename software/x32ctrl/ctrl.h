@@ -76,10 +76,6 @@ class X32Ctrl : public X32Base {
         map<X32_PAGE, Page*> pages;
         //map<X32_PAGE, void (X32Ctrl::*) PAGE_FUNC_BASE > pagefunctions;
 
-        uint8_t activeBank_inputFader;
-        uint8_t activeBank_busFader;
-        uint8_t activeBusSend;
-
         sTouchControl touchcontrol;
 
         void my_handler(int s);
@@ -137,7 +133,7 @@ class X32Ctrl : public X32Base {
         uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
 
         void FaderMoved(SurfaceEvent* event);
-        void ButtonPressed(SurfaceEvent* event);
+        void ButtonPressedOrReleased(SurfaceEvent* event);
         void EncoderTurned(SurfaceEvent* event);
 
         void BankingSends(X32_BTN p_button);

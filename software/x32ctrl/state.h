@@ -16,6 +16,21 @@ class State {
     public:
         State(Helper* h);
 
+        // Surface
+
+        // currently pressed button
+        X32_BTN buttonPressed = X32_BTN_NONE;
+        // second button pressed, while first button is also pressed
+        X32_BTN secondbuttonPressed = X32_BTN_NONE;
+
+        uint8_t activeBank_inputFader = 0;
+        uint8_t activeBank_busFader = 0;
+        uint8_t activeBusSend = 0;
+
+        uint8_t activeEQ = 0;
+
+        // DSPs
+
         float dspLoad[2];
         float dspVersion[2];
 
@@ -27,8 +42,6 @@ class State {
 
         X32_PAGE lastPage = X32_PAGE_HOME;
         X32_PAGE activePage = X32_PAGE_HOME;
-
-        uint8_t activeEQ;
 
         uint8_t card_xusb_channelmode = CARD_CHANNELMODE_32IN_32OUT;
 
