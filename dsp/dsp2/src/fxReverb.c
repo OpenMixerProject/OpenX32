@@ -138,10 +138,10 @@ void fxReverbInit(void) {
 	// initialize variables and the effect itself
 	reverb.diffusionDelayLineHead = 0;
 	reverb.delay.head = 0;
-	fxReverbSetParameters(100.0f, 3.0f, 1.0f, 0.25f); // roomSizeMs, rt60, dry, wet
+	fxReverbSetParameters(100.0f, 3.0f, 14000, 1.0f, 0.25f); // roomSizeMs, rt60, feedback lowpass frequency, dry, wet
 }
 
-void fxReverbSetParameters(float roomSizeMs, float rt60, float dry, float wet) {
+void fxReverbSetParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
 	reverb.roomSizeMs = roomSizeMs;
 	reverb.loopsPerRt60 = rt60 / (roomSizeMs * 1.5f * 0.001f);
 	reverb.dbPerCycle = -60.0f / reverb.loopsPerRt60;
@@ -150,8 +150,11 @@ void fxReverbSetParameters(float roomSizeMs, float rt60, float dry, float wet) {
 		reverb.feedbackDecayGain = powf(10, reverb.dbPerCycle * 0.05f); // -1.5dB/cycle = x0.85
 	#else
 		// pow10-approximation
-		reverb.feedbackDecayGain = Pow10(reverb.dbPerCycle * 0.05f); // -1.5dB/cycle = x0.85
+		float tmp = reverb.dbPerCycle * 0.05f;
+		Pow10(&tmp);
+		reverb.feedbackDecayGain = tmp; // -1.5dB/cycle = x0.85
 	#endif
+	reverb.delay.lowPassDelayCoeff = (2.0f * M_PI * feedbackLowPassFreq) / ((float)FX_REVERB_SAMPLING_RATE + 2.0f * M_PI * feedbackLowPassFreq); // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
 	reverb.dry = dry;
 	reverb.wet = wet;
 	
@@ -262,6 +265,12 @@ void fxReverbProcess(float* bufIn[2], float* bufOut[2]) {
 		
 		// Step 3.2: calculate householder-matrix
 		householderMatrix(&fxBufOutput[0], &fxBufFeedback[0]);
+		// implement low-pass-filter on the feedback-line
+		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
+			fxBufFeedback[i_ch] = reverb.delay.lowPassDelayState[i_ch] + reverb.delay.lowPassDelayCoeff * (fxBufFeedback[i_ch] - reverb.delay.lowPassDelayState[i_ch]);
+			reverb.delay.lowPassDelayState[i_ch] = fxBufFeedback[i_ch];
+		}
+		// apply static decay to all feedback-channels and calculate sum with diffused signal
 		vecsmltf(&fxBufFeedback[0], reverb.feedbackDecayGain, &fxBufFeedback[0], FX_REVERB_INT_CHAN);
 		vecvaddf(&fxBuf[0], &fxBufFeedback[0], &fxBuf[0], FX_REVERB_INT_CHAN); // temp = diffusedSignal + feedback
 		
@@ -276,25 +285,6 @@ void fxReverbProcess(float* bufIn[2], float* bufOut[2]) {
 
 
 
-/*
-		// direct write/read to external SDRAM
-		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-			delayLine[i_ch][reverb.delay.head] = fxBuf[i_ch];
-		}
-		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-			int delayLineTail = reverb.delay.head - reverb.delay.tailOffset[i_ch];
-			if (delayLineTail < 0) {
-				delayLineTail += FX_REVERB_BUFFER_SIZE;
-			}
-			fxBufOutput[i_ch] = delayLine[i_ch][delayLineTail];
-		}
-		reverb.delay.head++;
-		if (reverb.delay.head == FX_REVERB_BUFFER_SIZE) {
-			reverb.delay.head = 0;
-		}
-*/
-		// bypass the feedback
-//		memcpy(&fxBufOutput[0], &fxBufInput[0], FX_REVERB_INT_CHAN * sizeof(float));
 
 
 

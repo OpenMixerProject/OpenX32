@@ -8,8 +8,8 @@
 #define FX_REVERB_INT_CHAN			8	// must be a power of 2, so 2, 4, 8, 16
 #define FX_REVERB_DIFFUSION_STEPS	2	// 1,2,3,4,...
 #define FX_REVERB_AVERAGE_OUTPUT	1	// 0=take fxOut as left/right directly, 1=mixdown multichannel-fxOut to stereo
-#define FX_REVERN_ALTERNATIVE_RND	0	// 0=use internal rand() function, 1=use bitshifting chaos
-#define FX_REVERN_ALTERNATIVE_POW	0	// 0=use internal powf() function, 1=use approximation
+#define FX_REVERN_ALTERNATIVE_RND	0	// 0=use internal rand() function, 1=use bitshifting chaos (alternative sounds more metallic... not a good choice :-) )
+#define FX_REVERN_ALTERNATIVE_POW	0	// 0=use internal powf() function, 1=use approximation (approximation seems to be slower compared to internal powf())
 #define FX_REVERB_SAMPLING_RATE 	48000
 #define FX_REVERB_DELAY_MS_MAX		800
 #define FX_REVERB_BUFFER_SIZE 		((FX_REVERB_SAMPLING_RATE * FX_REVERB_DELAY_MS_MAX) / 1000)
@@ -35,6 +35,8 @@ typedef struct {
 typedef struct {
 	int head;
 	int tailOffset[FX_REVERB_INT_CHAN]; // tail will be calculated relative to head: tail = (head - tailOffset)
+	float lowPassDelayCoeff;
+	float lowPassDelayState[FX_REVERB_INT_CHAN];
 } sDelay;
 
 struct {
@@ -54,8 +56,7 @@ struct {
 
 // function prototypes
 void fxReverbInit(void);
-void fxReverbSetParameters(float roomSizeMs, float rt60, float dry, float wet);
-void fxReverbSetup(float roomSizeMs, float rt60, float dry, float wet); // Size in ms, Reverberation Time to -60dB, dry, wet
+void fxReverbSetParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet); // Size in ms, Reverberation Time to -60dB, Frequency for feedback-loop, dry, wet
 void fxReverbProcess(float* bufIn[2], float* bufOut[2]);
 
 #endif

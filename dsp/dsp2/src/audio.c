@@ -197,6 +197,13 @@ void audioProcessData(void) {
 	}
 */
 
+/*
+	// direct copy from the first input-channels to the first output-channels
+	for (int i_ch = 0; i_ch < 2; i_ch++) {
+		memcpy(&audioBuffer[TAP_OUTPUT][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+	}
+*/
+
 	#if FX_USE_REVERB == 1
 		float* reverbInBuf[2];
 		float* reverbOutBuf[6];
@@ -205,9 +212,6 @@ void audioProcessData(void) {
 			reverbOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 2 output-channels (L/R)
 		}
 		fxReverbProcess(reverbInBuf, reverbOutBuf);
-
-		//memcpy(&audioBuffer[TAP_OUTPUT][0][0], &audioBuffer[TAP_INPUT][0][0], SAMPLES_IN_BUFFER * sizeof(float));
-		//memcpy(&audioBuffer[TAP_OUTPUT][1][0], &audioBuffer[TAP_INPUT][1][0], SAMPLES_IN_BUFFER * sizeof(float));
 	#endif
 
 	#if FX_USE_UPMIXER == 1
