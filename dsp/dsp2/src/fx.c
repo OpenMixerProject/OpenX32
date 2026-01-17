@@ -24,15 +24,21 @@
 
 #include "fx.h"
 
+#if FX_USE_REVERB == 1
+	#include "fxReverb.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
-
 #if FX_USE_MATRIXUPMIXER == 1
 	#include "fxMatrixUpmixer.h"
 #endif
 
 void fxInit(void) {
+	#if FX_USE_REVERB == 1
+		fxReverbInit();
+	#endif
+
 	#if FX_USE_UPMIXER == 1
 		fxUpmixerInit();
 	#endif

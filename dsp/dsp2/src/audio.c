@@ -25,6 +25,10 @@
 #include "audio.h"
 #include "system.h"
 #include "fx.h"
+
+#if FX_USE_REVERB == 1
+	#include "fxReverb.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
@@ -186,11 +190,25 @@ void audioProcessData(void) {
 */
 
 
-
+/*
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		audioBuffer[TAP_INPUT][0][s] = audioBuffer[TAP_INPUT][0][s] * 0.5f; // reduce volume on channel left to 50% for testing-purposes
 		//audioBuffer[TAP_INPUT][1][s] = audioBuffer[TAP_INPUT][1][s] * 0.5f; // reduce volume on channel right to 50% for testing-purposes
 	}
+*/
+
+	#if FX_USE_REVERB == 1
+		float* reverbInBuf[2];
+		float* reverbOutBuf[6];
+		for (int i_ch = 0; i_ch < 2; i_ch++) {
+			reverbInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
+			reverbOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 2 output-channels (L/R)
+		}
+		fxReverbProcess(reverbInBuf, reverbOutBuf);
+
+		//memcpy(&audioBuffer[TAP_OUTPUT][0][0], &audioBuffer[TAP_INPUT][0][0], SAMPLES_IN_BUFFER * sizeof(float));
+		//memcpy(&audioBuffer[TAP_OUTPUT][1][0], &audioBuffer[TAP_INPUT][1][0], SAMPLES_IN_BUFFER * sizeof(float));
+	#endif
 
 	#if FX_USE_UPMIXER == 1
 		// perform stereo-decompositing and 5.1 upmixing

@@ -20,7 +20,28 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-*/
+
+  This file implements a frequency-domain-based Stereo-to-5.1-Upmixer
+
+  First the stereo-signal is transformed into the frequency-domain using an FFT with
+  a shorter window-length. Within the frequency-domain the coherence-factor phi
+  and a pan-factor is calculated based on the stereo-signal. Based on these two
+  values, decorrelation-masks for all channels (left, right, center, back-left, back-right) are
+  calculated, while the surround-channels are damped in the higher-frequencies above 8kHz.
+
+  Afterwards all 5 channels are brought back to the time-domain using IFFT.
+
+  The back-channels are fed through a delay-line to slightly increase the room.
+
+  The LFE-channel is calculated based on the center-channel together with a lowpass
+  filter at 125Hz. All settings can be changed in the header file or down below in
+  the header of this file.
+
+  This upmixing-algorithm is based on the work of Sebastian Kraft. He published the general idea
+  in his PhD with the title "Stereo Signal Decomposition and Upmixing to Surround and 3D Audio" which can
+  be found here: https://openhsu.ub.hsu-hh.de/server/api/core/bitstreams/d2391f49-8092-4bb3-a1ad-85b558655dd7/content
+  Thank you!
+ */
 
 #include "fxUpmixer.h"
 
@@ -501,7 +522,7 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 	}
 	*/
 
-	// calculate LFE as sum of stereo-channels with 80 Hz HighCut
+	// calculate LFE as sum of stereo-channels with 125 Hz HighCut
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		outBuf[5][s] = lowPassSubState + lowPassSubCoeff * ((inBuf[0][s] + inBuf[1][s]) * 0.5f - lowPassSubState);

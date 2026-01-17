@@ -110,7 +110,7 @@ void systemExternalMemoryInit() {
 
 	// set SDRRC and enable SDRAM read optimization
 	// RDIV from datasheet: RDIV = (f_SDCLK * t_REF/NRA) - (t_RAS + t_RP)
-	// RDIV from datasheet: RDIV = (131.072Hz * 64ms/4096) - (7 + 3ns) = 2039 = 2039 = 0x7F7
+	// RDIV from datasheet: RDIV = (131.072MHz * 64ms/4096) - (7 + 3ns) = 2039 = 2039 = 0x7F7
 	*pSDRRC = 0x7F7 | (1<<17) | SDROPT; // SDMODIFY is set to 0001 (default) and SDROPT is enabled
 
 	//  SDCL3     = SDRAM CAS Latency = 3 cycles
@@ -135,7 +135,7 @@ void systemExternalMemoryInit() {
 	*pEPCTL &= ~(B0SD|B2SD|B3SD);
 
     // wait at least 8 PCLK cycles before next activity
-    for (int i=0; i<20; i++) { asm("nop;"); }
+    for (int i = 0; i < 20; i++) { asm("nop;"); }
 
 	// configure the AMI Control Register of Bank1 for the K4S281632E
 	// 1:1 mapping for 8 bits per byte
@@ -145,7 +145,7 @@ void systemExternalMemoryInit() {
 	*pAMICTL1 = AMIEN | BW16 | WS23; // minimum WaitState without ACK is WS2
 
 	// dummy access to initialize the controller
-	int dummy = *(int*)0x04000000;
+	int dummy = *(int*)SDRAM_START;
 	NOP();
 	NOP();
 	NOP();

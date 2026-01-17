@@ -10,6 +10,7 @@
 // general includes
 #include <stdio.h>     				// Get declaration of puts and definition of NULL
 #include <stdint.h>    				// Get definition of uint32_t
+#include <stdlib.h>
 #include <assert.h>    				// Get the definition of support for standard C asserts
 #include <builtins.h>  				// Get definitions of compiler built-in functions
 #include <platform_include.h>      	// System and IOP register bit and address definitions
@@ -23,9 +24,7 @@
 #include <stats.h>
 
 // include for fir, iir, biquad, fft, etc.
-#include <filter.h>                 // vectorized version
-//#include <filters.h>              // scalar version for fir, iir, biquad
-//#include <trans.h>                // scalar version for fft
+#include <filter.h>                 // vectorized version for fir, iir, biquad and more
 #include <window.h>
 #include <complex.h>
 

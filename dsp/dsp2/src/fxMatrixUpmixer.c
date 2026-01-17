@@ -20,12 +20,21 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
+
+  This file implements a simple matrix-upmixer that uses the information
+  of left and right channel to calculate the information for the center
+  by using basic math (Center = (L+R)/2). The surround-speakers are calculated using
+  basic math as well (Back = (L-R)), combined with a delay-line and a low-pass-filter
+  with a corner-frequency of 7kHz to keep the focus on the front-speakers.
+
+  The LFE-channel is calculated based on the center-channel together with a lowpass
+  filter at 120Hz. All settings can be changed in the header file or down below in
+  the header of this file.
 */
 
 #include "fxMatrixUpmixer.h"
 
 #if FX_USE_MATRIXUPMIXER == 1
-
 
 float delayLine[FX_MATRIXUPMIXER_BUFFER_SIZE];
 int delayLineHead = 0;
