@@ -36,11 +36,14 @@ class PageGate: public Page {
             // store mixer pointer in user data for use in draw callback
             lv_obj_set_user_data(objects.current_channel_gate, mixer);
             //chart-shadow: 0x7e4000
+
+			SetEncoderLables("Thresh", "Range", "Attack", "Hold", "Release", "");
+			SetEncoderSliderHidden(false, false, false, false, false, true);
         }
 
         void OnShow() override {
             DrawGate(config->selectedVChannel);
-            EncoderText(config->selectedVChannel);
+            CreateEncoderValues(config->selectedVChannel);
         }
 
         void OnChange(bool force_update) override {
@@ -49,7 +52,7 @@ class PageGate: public Page {
 
             if (chan->HasChanged(X32_VCHANNEL_CHANGED_GATE) || state->HasChanged(X32_MIXER_CHANGED_SELECT)){
                 DrawGate(chanIndex);
-                EncoderText(chanIndex);
+                CreateEncoderValues(chanIndex);
             }
         }
 
@@ -172,18 +175,28 @@ class PageGate: public Page {
             }
         }
 
-        void EncoderText(uint8_t chanIndex) {
+        void CreateEncoderValues(uint8_t chanIndex) {
             if (chanIndex < 40) {
-                SetEncoderLables(
-                    "Thresh: " + String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
-                    "Range: " + String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
-                    "Attack: " + String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
-                    "Hold: " + String(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 0) + " ms",
-                    "Release: " + String(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 0) + " ms",
-                    "-"
+                SetEncoderValues(
+                    String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
+                    String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
+                    String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
+                    String(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 0) + " ms",
+                    String(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 0) + " ms",
+                    ""
+                );
+
+                SetEncoderPercent(
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.threshold, -80.0, 0.0),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.range, 3.0, 60.0),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0.0, 120.0),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 2.0, 2000.0),
+                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 6.0, 4000.0),
+                    0                                        
                 );
             }  else {
-                SetEncoderLables("-", "-", "-", "-", "-", "-");
+                SetEncoderPercent(0, 0, 0, 0, 0, 0);
+                SetEncoderValues("", "", "", "", "", "");
             }
         }
 
