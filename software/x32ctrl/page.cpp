@@ -46,7 +46,6 @@ void Page::Init() {
     encoderButtonLabels[4] = objects.widget5__label_buttonpress;
     encoderButtonLabels[5] = objects.widget6__label_buttonpress;
 
-    SetEncoderLables("-", "-", "-", "-", "-", "-");
     OnInit();
     initDone = true;
 }
@@ -127,49 +126,54 @@ X32_BTN Page::GetLed() {
     return X32_BTN_NONE;
 }
 
-void Page::SetEncoderLables(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
-    encoderSliders[0].label = enc1;
-    encoderSliders[1].label = enc2;
-    encoderSliders[2].label = enc3;
-    encoderSliders[3].label = enc4;
-    encoderSliders[4].label = enc5;
-    encoderSliders[5].label = enc6;
+void Page::SetEncoder(uint8_t encoder, MIXERPARAMETER mp) {
+    encoderMixerparameterDefinition[encoder] = mixer->mixerparametermap[mp];
+    MixerparameterDefinition mpd = encoderMixerparameterDefinition[encoder];
+
+    encoderSliders[encoder].label = mpd.name;
+    encoderSliders[encoder].slider_hidden = !mpd.show_slider;
+
+    String uom_string;
+    if (mpd.unitOfMeasurement != MIXERPARAMETER_UOM_NONE) {
+        uom_string = helper->GetUnitOfMesaurementString(mpd.unitOfMeasurement);
+        if (uom_string != "") {
+            uom_string = " " + uom_string;
+        }
+    }
+
+    // default value
+    encoderSliders[encoder].label_buttonpress = String("Reset: ") + String(mpd.value_default, mpd.decimal_places) + uom_string;
 }
 
-void Page::SetEncoderValues(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6)  {
-    encoderSliders[0].label_value = enc1;
-    encoderSliders[1].label_value = enc2;
-    encoderSliders[2].label_value = enc3;
-    encoderSliders[3].label_value = enc4;
-    encoderSliders[4].label_value = enc5;
-    encoderSliders[5].label_value = enc6;
+void Page::SetEncoder(uint8_t encoder, MIXERPARAMETER mp, String buttonPressLabel) {
+    SetEncoder(encoder, mp);
+    encoderSliders[encoder].label_buttonpress = buttonPressLabel;
 }
 
-void Page::SetEncoderSliderHidden(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6) {
-    encoderSliders[0].slider_hidden = enc1;
-    encoderSliders[1].slider_hidden = enc2;
-    encoderSliders[2].slider_hidden = enc3;
-    encoderSliders[3].slider_hidden = enc4;
-    encoderSliders[4].slider_hidden = enc5;
-    encoderSliders[5].slider_hidden = enc6;
+void Page::SetEncoder(uint8_t encoder, String label, String buttonPressLabel){
+    encoderSliders[encoder].label = label;
+    encoderSliders[encoder].label_buttonpress = buttonPressLabel;
+    encoderSliders[encoder].slider_hidden = true;
 }
 
-void Page::SetEncoderPercent(uint8_t enc1, uint8_t enc2, uint8_t enc3, uint8_t enc4, uint8_t enc5, uint8_t enc6) {
-    encoderSliders[0].percent = enc1;
-    encoderSliders[1].percent = enc2;
-    encoderSliders[2].percent = enc3;
-    encoderSliders[3].percent = enc4;
-    encoderSliders[4].percent = enc5;
-    encoderSliders[5].percent = enc6;
+void Page::SetEncoderValue(uint8_t encoder, float enc1)  {
+    MixerparameterDefinition mpd = encoderMixerparameterDefinition[encoder];
+    String uom_string;
+    if (mpd.unitOfMeasurement != MIXERPARAMETER_UOM_NONE) {
+        uom_string = helper->GetUnitOfMesaurementString(mpd.unitOfMeasurement);
+        if (uom_string != "") {
+            uom_string = " " + uom_string;
+        }
+    }
+    encoderSliders[encoder].label_value = String(enc1, mpd.decimal_places) + uom_string;
+    encoderSliders[encoder].percent = helper->float2percent(enc1, mpd.value_min, mpd.value_max);
 }
 
-void Page::SetEncoderButtonLables(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6) {
-    encoderSliders[0].label_buttonpress = enc1;
-    encoderSliders[1].label_buttonpress = enc2;
-    encoderSliders[2].label_buttonpress = enc3;
-    encoderSliders[3].label_buttonpress = enc4;
-    encoderSliders[4].label_buttonpress = enc5;
-    encoderSliders[5].label_buttonpress = enc6;
+void Page::SetEncoderValuesEmpty(){
+    for(int8_t s = 0; s < 6; s++) {
+        encoderSliders[s].label_value = "";
+        encoderSliders[s].percent = 0;
+    }
 }
 
 void Page::SetEncoderButtonLablesHighlight(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6) {

@@ -16,7 +16,11 @@ class PageRoutingDsp1: public Page {
         }
 
 		void OnShow() override {
-			SetEncoderLables("\xEF\x81\xB7 Input \xEF\x81\xB8", "\xEF\x81\xB7 Group \xEF\x81\xB8", "\xEF\x80\xA1 Source", "\xEF\x80\xA1 Group-Source", "\xEF\x80\xA1 Tap", "-");
+			encoderSliders[0].label = "\xEF\x81\xB7 Input \xEF\x81\xB8";
+			encoderSliders[1].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
+			encoderSliders[2].label =  "\xEF\x80\xA1 Source";
+			encoderSliders[3].label =  "\xEF\x80\xA1 Group-Source";
+			encoderSliders[4].label = "\xEF\x80\xA1 Tap";
 		}
 
 		void OnInit() override {

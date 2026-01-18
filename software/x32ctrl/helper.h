@@ -49,6 +49,7 @@ class Helper {
         float sample2Dbfs(uint32_t sample);
 
         uint8_t float2percent(float value, float value_min, float value_max);
+        String GetUnitOfMesaurementString(MIXERPARAMETER_UOM uom);
 
         long GetFileSize(const char* filename);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);

@@ -37,22 +37,29 @@ class PageGate: public Page {
             lv_obj_set_user_data(objects.current_channel_gate, mixer);
             //chart-shadow: 0x7e4000
 
-			SetEncoderLables("Thresh", "Range", "Attack", "Hold", "Release", "");
-			SetEncoderSliderHidden(false, false, false, false, false, true);
-        }
-
-        void OnShow() override {
-            DrawGate(config->selectedVChannel);
-            CreateEncoderValues(config->selectedVChannel);
+            SetEncoder(0, MIXERPARAMETER_GATE_TRESHOLD);
+            SetEncoder(1, MIXERPARAMETER_GATE_RANGE);
+            SetEncoder(2, MIXERPARAMETER_GATE_ATTACK);
+            SetEncoder(3, MIXERPARAMETER_GATE_HOLD);
+            SetEncoder(4, MIXERPARAMETER_GATE_RELEASE);
         }
 
         void OnChange(bool force_update) override {
             uint8_t chanIndex = config->selectedVChannel;
             VChannel* chan = mixer->GetVChannel(chanIndex);
 
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_GATE) || state->HasChanged(X32_MIXER_CHANGED_SELECT)){
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_GATE) || state->HasChanged(X32_MIXER_CHANGED_SELECT) || force_update){
                 DrawGate(chanIndex);
-                CreateEncoderValues(chanIndex);
+
+                if (chanIndex < 40) {
+                    SetEncoderValue(0, mixer->dsp->Channel[chanIndex].gate.threshold);
+                    SetEncoderValue(1, mixer->dsp->Channel[chanIndex].gate.range);
+                    SetEncoderValue(2, mixer->dsp->Channel[chanIndex].gate.attackTime_ms);
+                    SetEncoderValue(3, mixer->dsp->Channel[chanIndex].gate.holdTime_ms);
+                    SetEncoderValue(4, mixer->dsp->Channel[chanIndex].gate.releaseTime_ms);
+                }  else {
+                    SetEncoderValuesEmpty();
+                }
             }
         }
 
@@ -74,10 +81,10 @@ class PageGate: public Page {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
-						mixer->SetGate(config->selectedVChannel, 'T', -80.0f);
+						mixer->SetGate(config->selectedVChannel, 'T', GATE_THRESHOLD_MIN);
 						break;
 					case X32_BTN_ENCODER2:
-						mixer->SetGate(config->selectedVChannel, 'R', 60.0f);
+						mixer->SetGate(config->selectedVChannel, 'R', GATE_RANGE_MAX);
 						break;
 					case X32_BTN_ENCODER3:
 						mixer->SetGate(config->selectedVChannel, 'A', 10.0f);
@@ -172,31 +179,6 @@ class PageGate: public Page {
                 } else {
                     line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
                 }
-            }
-        }
-
-        void CreateEncoderValues(uint8_t chanIndex) {
-            if (chanIndex < 40) {
-                SetEncoderValues(
-                    String(mixer->dsp->Channel[chanIndex].gate.threshold, 1) + " dB",
-                    String(mixer->dsp->Channel[chanIndex].gate.range, 1) + " dB",
-                    String(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, 0) + " ms",
-                    String(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, 0) + " ms",
-                    String(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, 0) + " ms",
-                    ""
-                );
-
-                SetEncoderPercent(
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.threshold, GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.range, GATE_RANGE_MIN, GATE_RANGE_MAX),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.attackTime_ms, GATE_ATTACK_MIN, GATE_ATTACK_MAX),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.holdTime_ms, GATE_HOLD_MIN, GATE_HOLD_MAX),
-                    helper->float2percent(mixer->dsp->Channel[chanIndex].gate.releaseTime_ms, GATE_RELEASE_MIN, GATE_RELEASE_MAX),
-                    0                                        
-                );
-            }  else {
-                SetEncoderPercent(0, 0, 0, 0, 0, 0);
-                SetEncoderValues("", "", "", "", "", "");
             }
         }
 

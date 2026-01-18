@@ -18,9 +18,12 @@ class PageConfig : public Page {
         }
 
         void OnInit() override { 
-			SetEncoderLables("Source", "Gain", "PAN/BAL", "Volume", "DEBUG: 1-32", "DEBUG: 1-16");
-			SetEncoderSliderHidden(true, false, false, false, true, true);
-			SetEncoderButtonLables("Invert", "48V", "Center", "Mute", "Phanton + 47dB", "Phanton + 47dB");
+			SetEncoder(0, "Source", "Invert");
+            SetEncoder(1, MIXERPARAMETER_CHANNEL_GAIN, "Phantom");
+            SetEncoder(2, MIXERPARAMETER_CHANNEL_PANORAMA);
+            SetEncoder(3, MIXERPARAMETER_CHANNEL_VOLUME, "Mute");
+            SetEncoder(4, "DEBUG: 1-16", "Phanton + 47dB");
+            SetEncoder(5, "DEBUG: 1-32", "Phanton + 47dB");
         }
 
         void OnChange(bool force_update) override {
@@ -42,20 +45,9 @@ class PageConfig : public Page {
             //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
             //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
-			SetEncoderValues(
-				"",
-				String(mixer->GetGain(chanIndex)) + String(" dB"),
-				String(mixer->GetBalance(chanIndex)),
-				String(mixer->GetVolumeDbfs(chanIndex)) + String(" dB"),
-				"",
-				"");
-			SetEncoderPercent(
-				0, 
-				helper->float2percent(mixer->GetGain(chanIndex), -12.0, 48.0),
-				helper->float2percent(mixer->GetBalance(chanIndex), -100.0, 100.0),
-				helper->float2percent(mixer->GetVolumeDbfs(chanIndex), -60.0, 10.0),
-				0,
-				0);
+			SetEncoderValue(1, mixer->GetGain(chanIndex));
+			SetEncoderValue(2, mixer->GetBalance(chanIndex));
+			SetEncoderValue(3, mixer->GetVolumeDbfs(chanIndex));
 
 			SetEncoderButtonLablesHighlight(
 				mixer->GetPhaseInvert(chanIndex),

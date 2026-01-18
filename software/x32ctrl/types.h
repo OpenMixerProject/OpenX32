@@ -263,8 +263,7 @@ typedef struct {
   String label;
   String label_value;
   uint8_t percent; 
-  bool slider_hidden;
-  bool slider_highlighted;
+  bool slider_hidden = true;
   String label_buttonpress;
-  bool label_buttonpress_highlighted;
+  bool label_buttonpress_highlighted = false;
 } sDisplayEncoderSlider;

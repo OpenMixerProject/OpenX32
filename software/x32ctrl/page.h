@@ -30,19 +30,18 @@ class Page : public X32Base {
         uint32_t tabIndex1 = 0;
 
         bool hideEncoders = false;
+        MixerparameterDefinition encoderMixerparameterDefinition[6];
         sDisplayEncoderSlider encoderSliders[6];
         lv_obj_t* sliders[6];
         lv_obj_t* encoderButtonLabels[6];
 
         bool initDone = false;
 
-        
-
-        void SetEncoderLables(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
-        void SetEncoderValues(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
-        void SetEncoderPercent(uint8_t enc1, uint8_t enc2, uint8_t enc3, uint8_t enc4, uint8_t enc5, uint8_t enc6);
-        void SetEncoderSliderHidden(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6);
-        void SetEncoderButtonLables(String enc1, String enc2, String enc3, String enc4, String enc5, String enc6);
+        void SetEncoder(uint8_t encoder, MIXERPARAMETER mp);
+        void SetEncoder(uint8_t encoder, MIXERPARAMETER mp, String buttonPressLabel);
+        void SetEncoder(uint8_t encoder, String label, String buttonPressLabel);
+        void SetEncoderValue(uint8_t encoder, float enc1);
+        void SetEncoderValuesEmpty();
         void SetEncoderButtonLablesHighlight(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6);
         void SyncEncoderWidgets();
 

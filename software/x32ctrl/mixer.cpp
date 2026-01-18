@@ -36,6 +36,8 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Mixer::Init() {
+    InitMixerparameters();
+
     dsp->Init();
     dsp->SendAll();
     fpga->Init();
@@ -50,8 +52,24 @@ void Mixer::Init() {
 }
 
 
+void Mixer::InitMixerparameters() {
+    mixerparametermap[MIXERPARAMETER_CHANNEL_GAIN] = MixerparameterDefinition("Gain", MIXERPARAMETER_UOM_DB, CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1, true);
+    mixerparametermap[MIXERPARAMETER_CHANNEL_PANORAMA] = MixerparameterDefinition("Pan/Bal", MIXERPARAMETER_UOM_NONE, CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0, true);
+    mixerparametermap[MIXERPARAMETER_CHANNEL_VOLUME] = MixerparameterDefinition("Volume", MIXERPARAMETER_UOM_DB, CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1, true);
 
+    mixerparametermap[MIXERPARAMETER_GATE_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0, true);
+    mixerparametermap[MIXERPARAMETER_GATE_RANGE] = MixerparameterDefinition("Range", MIXERPARAMETER_UOM_DB, GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1, true);
+    mixerparametermap[MIXERPARAMETER_GATE_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0, true);
+    mixerparametermap[MIXERPARAMETER_GATE_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0, true);
+    mixerparametermap[MIXERPARAMETER_GATE_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0, true);
 
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_RATIO] = MixerparameterDefinition("Ratio", MIXERPARAMETER_UOM_NONE, DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_MAKEUP] = MixerparameterDefinition("Makeup", MIXERPARAMETER_UOM_DB, DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0, true);
+}
 
 void Mixer::LoadVChannelLayout() {
     //##################################################################################

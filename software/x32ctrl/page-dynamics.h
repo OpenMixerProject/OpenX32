@@ -36,20 +36,32 @@ class PageDynamics: public Page {
             // store mixer pointer in user data for use in draw callback
             lv_obj_set_user_data(objects.current_channel_comp, mixer);
             //chart-shadow: 0x7e4000
-        }
 
-        void OnShow() override {
-            DrawDynamics(config->selectedVChannel);
-            EncoderText(config->selectedVChannel);
+            SetEncoder(0, MIXERPARAMETER_DYNAMICS_TRESHOLD);
+            SetEncoder(1, MIXERPARAMETER_DYNAMICS_RATIO);
+            SetEncoder(2, MIXERPARAMETER_DYNAMICS_MAKEUP);
+            SetEncoder(3, MIXERPARAMETER_DYNAMICS_ATTACK);
+            SetEncoder(4, MIXERPARAMETER_DYNAMICS_HOLD);
+            SetEncoder(5, MIXERPARAMETER_DYNAMICS_RELEASE);
         }
 
         void OnChange(bool force_update) override {
             uint8_t chanIndex = config->selectedVChannel;
             VChannel* chan = mixer->GetVChannel(chanIndex);
 
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC) || state->HasChanged(X32_MIXER_CHANGED_SELECT)){
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC) || state->HasChanged(X32_MIXER_CHANGED_SELECT) || force_update){
                 DrawDynamics(chanIndex);
-                EncoderText(chanIndex);
+
+                if (chanIndex < 40) {
+                    SetEncoderValue(0, mixer->dsp->Channel[chanIndex].compressor.threshold);
+                    SetEncoderValue(1, mixer->dsp->Channel[chanIndex].compressor.ratio);
+                    SetEncoderValue(2, mixer->dsp->Channel[chanIndex].compressor.makeup);
+                    SetEncoderValue(3, mixer->dsp->Channel[chanIndex].compressor.attackTime_ms);
+                    SetEncoderValue(4, mixer->dsp->Channel[chanIndex].compressor.holdTime_ms);
+                    SetEncoderValue(5, mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms);
+                }  else {
+                    SetEncoderValuesEmpty();
+                }
             }
         }
 
@@ -170,20 +182,6 @@ class PageDynamics: public Page {
                 } else {
                     line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
                 }
-            }
-        }
-
-        void EncoderText(uint8_t chanIndex) {
-            if (chanIndex < 40) {
-                SetEncoderLables("Thresh: " + String(mixer->dsp->Channel[chanIndex].compressor.threshold, 1) + " dB",
-                    "Ratio: " + String(mixer->dsp->Channel[chanIndex].compressor.ratio, 1) + ":1",
-                    "Makeup: " + String(mixer->dsp->Channel[chanIndex].compressor.makeup, 1) + " dB",
-                    "Attack: " + String(mixer->dsp->Channel[chanIndex].compressor.attackTime_ms, 0) + " ms",
-                    "Hold: " + String(mixer->dsp->Channel[chanIndex].compressor.holdTime_ms, 0) + " ms",
-                    "Release: " + String(mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms, 0) + " ms"
-                );
-            } else {
-                SetEncoderLables("-", "-", "-", "-", "-", "-");
             }
         }
 

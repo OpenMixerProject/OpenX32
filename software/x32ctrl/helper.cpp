@@ -416,3 +416,21 @@ uint8_t Helper::float2percent(float value, float value_min, float value_max) {
 	float onepercent = onehunderedpercent / 100.0;
 	return value_normiert / onepercent;
 }
+
+String Helper::GetUnitOfMesaurementString(MIXERPARAMETER_UOM uom) {
+	switch(uom)
+	{
+		case MIXERPARAMETER_UOM_DB:
+			return "dB";
+		case MIXERPARAMETER_UOM_DBFS:
+			return "dbFS";
+		case MIXERPARAMETER_UOM_HZ:
+			return "Hz";
+		case MIXERPARAMETER_UOM_KHZ:
+			return "kHz";
+		case MIXERPARAMETER_UOM_MS:
+			return "ms";
+		default:
+			return "";
+	}
+}

@@ -115,18 +115,16 @@ class PageEq: public Page {
         lv_chart_series_t* chartSeriesEQPhase;
 
         void EncoderText(uint8_t chanIndex) {
+            //TODO
             if (chanIndex < 40) {
                 // support EQ-channel
-                SetEncoderLables("LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency),
-                    "F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc),
-                    "G: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain, 1) + " dB",
-                    "Q: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q, 1),
-                    "M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].type),
-                    "PEQ: " + String(state->activeEQ + 1)
-                );
-            } else {
-                SetEncoderLables("-", "-", "-", "-", "-", "-");
-            }
+                encoderSliders[0].label = "LC: " + helper->freq2String(mixer->dsp->Channel[chanIndex].lowCutFrequency);
+                encoderSliders[1].label = "F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc);
+                encoderSliders[2].label = "G: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain, 1) + " dB";
+                encoderSliders[3].label = "Q: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q, 1);
+                encoderSliders[4].label = "M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].type);
+                encoderSliders[5].label = "PEQ: " + String(state->activeEQ + 1);
+            } 
         }
 
         void DrawEq(uint8_t selectedChannelIndex) {

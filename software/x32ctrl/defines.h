@@ -24,7 +24,14 @@
 #define SURFACE_MAX_PACKET_LENGTH 32
 #define MAX_PAGES 20
 
-#define VOLUME_MIN -100.0f
+#define VOLUME_MIN         -100.0f // dB
+
+#define CHANNEL_GAIN_MIN            -12.0f // dB
+#define CHANNEL_GAIN_MAX             48.0f // dB
+#define CHANNEL_PANORAMA_MIN       -100.0f // dB
+#define CHANNEL_PANORAMA_MAX        100.0f // dB
+#define CHANNEL_VOLUME_MIN         -100.0f // dB
+#define CHANNEL_VOLUME_MAX           10.0f // dB
 
 #define GATE_THRESHOLD_MIN            -80.0f // dB
 #define GATE_THRESHOLD_MAX              0.0f // dB

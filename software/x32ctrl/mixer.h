@@ -7,6 +7,7 @@
 #include "base.h"
 
 #include "helper.h"
+#include "mixerparameter.h"
 
 #include "vchannel.h"
 #include "surface.h"
@@ -29,6 +30,8 @@ class Mixer : public X32Base
         void halSendGain(uint8_t dspChannel);
         void halSendPhantomPower(uint8_t dspChannel);
         void LoadVChannelLayout();
+        
+        void InitMixerparameters();
 
     public:
         // all virtual - channels / busses / matrix / etc.
@@ -38,8 +41,12 @@ class Mixer : public X32Base
         Card* card;
         DSP1* dsp;
 
+        map<MIXERPARAMETER, MixerparameterDefinition> mixerparametermap = map<MIXERPARAMETER, MixerparameterDefinition>();
+       
         Mixer(X32BaseParameter* basepar);
         void Init();
+
+        MixerparameterDefinition GetMixerparameterDefinition(MIXERPARAMETER mp);
 
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);
