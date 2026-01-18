@@ -30,6 +30,9 @@
 #if FX_USE_OVERDRIVE == 1
 	#include "fxOverdrive.h"
 #endif
+#if FX_USE_CHORUS == 1
+	#include "fxChorus.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
@@ -44,6 +47,10 @@ void fxInit(void) {
 
 	#if FX_USE_OVERDRIVE == 1
 		fxOverdriveInit();
+	#endif
+
+	#if FX_USE_CHORUS == 1
+		fxChorusInit();
 	#endif
 
 	#if FX_USE_UPMIXER == 1

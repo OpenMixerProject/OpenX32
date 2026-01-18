@@ -32,6 +32,9 @@
 #if FX_USE_OVERDRIVE == 1
 	#include "fxOverdrive.h"
 #endif
+#if FX_USE_CHORUS == 1
+	#include "fxChorus.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
@@ -219,6 +222,16 @@ void audioProcessData(void) {
 
 	#if FX_USE_OVERDRIVE == 1
 		fxOverdriveProcess(&audioBuffer[TAP_INPUT][0][0], &audioBuffer[TAP_OUTPUT][2][0]);
+	#endif
+
+	#if FX_USE_CHORUS == 1
+		float* chorusInBuf[2];
+		float* chorusOutBuf[2];
+		chorusInBuf[0] = &audioBuffer[TAP_INPUT][0][0]; // grab the first input-channels (L/R)
+		chorusInBuf[1] = &audioBuffer[TAP_INPUT][0][0]; // grab the first input-channels (L/R)
+		chorusOutBuf[0] = &audioBuffer[TAP_OUTPUT][3][0]; // put output-data to 2 output-channels (L/R)
+		chorusOutBuf[1] = &audioBuffer[TAP_OUTPUT][4][0]; // put output-data to 2 output-channels (L/R)
+		fxChorusProcess(chorusInBuf, chorusOutBuf);
 	#endif
 
 	#if FX_USE_UPMIXER == 1
