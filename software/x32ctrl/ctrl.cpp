@@ -636,7 +636,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
 //#####################################################################################################################
 
 void X32Ctrl::InitPages(){
-	PageBaseParameter* pagebasepar = new PageBaseParameter(app, config, state, helper, mixer);
+	PageBaseParameter* pagebasepar = new PageBaseParameter(app, config, state, helper, mixer, surface);
 	
 	pages[X32_PAGE_HOME] = new PageHome(pagebasepar);
 	pages[X32_PAGE_CONFIG] = new PageConfig(pagebasepar);

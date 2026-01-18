@@ -17,6 +17,7 @@ using namespace std;
 class Page : public X32Base {
     protected:
         Mixer* mixer;
+        Surface* surface;
 
         X32_PAGE nextPage = X32_PAGE_NONE;
         X32_PAGE prevPage = X32_PAGE_NONE;

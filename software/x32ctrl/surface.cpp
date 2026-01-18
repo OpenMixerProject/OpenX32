@@ -834,6 +834,13 @@ void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
     uart->Tx(&message, true);
 }
 
+void Surface::SetContrastAllBoards(uint8_t contrast) {
+    SetContrast(X32_BOARD_MAIN, contrast);
+    SetContrast(X32_BOARD_L, contrast);
+    SetContrast(X32_BOARD_M, contrast);
+    SetContrast(X32_BOARD_R, contrast);
+}
+
 // boardId = 0, 1, 4, 5, 8
 // contrast = 0 ... 255
 void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {

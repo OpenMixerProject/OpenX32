@@ -27,6 +27,7 @@
 Page::Page(PageBaseParameter* pagebasepar) : X32Base(pagebasepar) {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::Page()");
     mixer = pagebasepar->mixer;
+    surface = pagebasepar->surface;
 }
 
 void Page::Init() {

@@ -56,6 +56,7 @@ class Surface : public X32Base
         void Tick100ms();
 
         void SetBrightness(uint8_t boardId, uint8_t brightness);
+        void SetContrastAllBoards(uint8_t contrast);
         void SetContrast(uint8_t boardId, uint8_t contrast);
         void SetFader(uint8_t boardId, uint8_t index, uint16_t position);
         void SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1);

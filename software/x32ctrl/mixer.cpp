@@ -53,6 +53,8 @@ void Mixer::Init() {
 
 
 void Mixer::InitMixerparameters() {
+    mixerparametermap[MIXERPARAMETER_LCD_CONTRAST] = MixerparameterDefinition("LCD Contrast", MIXERPARAMETER_UOM_NONE, 0.0f, 64.0f, 40.0f, 0, true);
+
     mixerparametermap[MIXERPARAMETER_CHANNEL_GAIN] = MixerparameterDefinition("Gain", MIXERPARAMETER_UOM_DB, CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1, true);
     mixerparametermap[MIXERPARAMETER_CHANNEL_PANORAMA] = MixerparameterDefinition("Pan/Bal", MIXERPARAMETER_UOM_NONE, CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0, true);
     mixerparametermap[MIXERPARAMETER_CHANNEL_VOLUME] = MixerparameterDefinition("Volume", MIXERPARAMETER_UOM_DB, CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1, true);
