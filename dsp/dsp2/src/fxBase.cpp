@@ -9,7 +9,7 @@
          |_|
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
-  Copyright 2025 OpenMixerProject
+  Copyright 2025-2026 OpenMixerProject
   https://github.com/OpenMixerProject/OpenX32
 
   This program is free software; you can redistribute it and/or
@@ -22,49 +22,31 @@
   GNU General Public License for more details.
 */
 
-#include "fx.h"
+#include "fxBase.h"
 
-#if FX_USE_REVERB == 1
-	#include "fxReverb.h"
-#endif
-#if FX_USE_OVERDRIVE == 1
-	#include "fxOverdrive.h"
-#endif
-#if FX_USE_CHORUS == 1
-	#include "fxChorus.h"
-#endif
-#if FX_USE_TRANSIENTSHAPER == 1
-	#include "fxTransientshaper.h"
-#endif
-#if FX_USE_UPMIXER == 1
-	#include "fxUpmixer.h"
-#endif
-#if FX_USE_MATRIXUPMIXER == 1
-	#include "fxMatrixUpmixer.h"
-#endif
+fx::fx() { } // we are not using the default constructor here but CCES complains when its missing
 
-void fxInit(void) {
-	#if FX_USE_REVERB == 1
-		fxReverbInit();
-	#endif
+fx::fx(int fxSlot, int channelMode) {
+	// take the memory-slot-address (we have 8 of them)
+	_fxSlot = fxSlot;
+	_channelMode = channelMode;
 
-	#if FX_USE_OVERDRIVE == 1
-		fxOverdriveInit();
-	#endif
+	// calculate the base-address in memory for this effect. We have 2MB for each channel
+	_memoryAddress = (SDRAM_START + (_fxSlot * (SDRAM_SIZE_BYTE / 8)));
 
-	#if FX_USE_CHORUS == 1
-		fxChorusInit();
-	#endif
+	_sampleRate = 48000.0f;
+}
 
-	#if FX_USE_TRANSIENTSHAPER == 1
-		fxTransientshaperInit();
-	#endif
+fx::~fx() { }
 
-	#if FX_USE_UPMIXER == 1
-		fxUpmixerInit();
-	#endif
+void fx::setSampleRate(float sampleRate) {
+	_sampleRate = sampleRate;
+}
 
-	#if FX_USE_MATRIXUPMIXER == 1
-		fxMatrixUpmixerInit();
-	#endif
+void fx::clearMemory() {
+	// initialize the memory with zeros
+    float* ptr = (float*)_memoryAddress;
+    for (int i = 0; i < (2097152 / 4); i++) {
+        ptr[i] = 0.0f;
+    }
 }

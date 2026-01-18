@@ -1,37 +1,38 @@
 #ifndef __FXCHORUS_H_
 #define __FXCHORUS_H_
 
-#include "dsp2.h"
+#include "fxBase.h"
 
-#if FX_USE_CHORUS == 1
+class fxChorus : public fx {
+    public:
+        fxChorus();
+        fxChorus(int fxSlot, int channelMode);
+        ~fxChorus();
+        void fxChorusSetParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix);
+        void rxData(float data[], int len);
+        void process(float* bufIn[], float* bufOut[]);
+    private:
+        int _delayLineLengthMaxMs;
+        int _delayLineBufferSize;
+        float* _delayLineA;
+        float* _delayLineB;
 
-#define FX_CHORUS_DELAY_MS_MAX	50
-#define FX_CHORUS_BUFFER_SIZE 	((48000 * FX_CHORUS_DELAY_MS_MAX) / 1000)
+        float _depthA;
+    	float _depthB;
+    	int _delayLineBaseLengthA;
+    	int _delayLineBaseLengthB;
 
-struct {
-	float depthA;
-	float depthB;
-	int delayLineBaseLengthA;
-	int delayLineBaseLengthB;
+    	float _mix;
 
-	float mix;
+    	int _delayLineLengthA;
+    	int _delayLineLengthB;
+    	int _delayLineHeadA;
+    	int _delayLineHeadB;
 
-	int delayLineLengthA;
-	int delayLineLengthB;
-	int delayLineHeadA;
-	int delayLineHeadB;
-
-	float lfoPhaseA;
-	float phaseIncA;
-	float lfoPhaseB;
-	float phaseIncB;
-} chorus;
-
-// function prototypes
-void fxChorusInit(void);
-void fxChorusSetParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix);
-void fxChorusProcess(float* bufIn[2], float* bufOut[2]);
-
-#endif
+    	float _lfoPhaseA;
+    	float _lfoPhaseB;
+    	float _phaseIncA;
+    	float _phaseIncB;
+};
 
 #endif /* FXCHORUS_H_ */

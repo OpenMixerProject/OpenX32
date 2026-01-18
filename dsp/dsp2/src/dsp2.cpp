@@ -26,10 +26,10 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP2 (FX DSP) v0.0.4, 09.01.2026
+  ControlSystem for DSP2 (FX DSP) v0.1.0, 19.01.2026
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
-  Copyright 2025 OpenMixerProject
+  Copyright 2025-2026 OpenMixerProject
   https://github.com/OpenMixerProject/OpenX32
 
   This program is free software; you can redistribute it and/or
@@ -45,7 +45,6 @@
 #include "dsp2.h"
 #include "system.h"
 #include "audio.h"
-#include "fx.h"
 #include "spi.h"
 #include <cycles.h>
 
@@ -55,13 +54,12 @@ static cycle_stats_t systemStats; // static limits this global variable to this 
 static uint32_t cyclesAudio; // static limits this global variable to this file
 static uint32_t cyclesMain; // static limits this global variable to this file
 uint32_t cyclesTotal;
-int memoryAddress = SDRAM_START;
+sDsp dsp;
 
 void openx32Init(void) {
 	// initialize the default samplerate with 48kHz
 	// other samplerates up to 192kHz are possible with AD and DA converters
 	dsp.samplerate = 48000;
-
 }
 
 // ISR is called once on first falling edge of FrameSync

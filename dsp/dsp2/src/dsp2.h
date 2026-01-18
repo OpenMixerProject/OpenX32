@@ -33,6 +33,10 @@
 #include <sysreg.h>
 #include <signal.h>
 
+typedef struct {
+	float samplerate;
+} sDsp;
+
 // global variables
 extern volatile int audioProcessing;
 extern volatile int audioReady;
@@ -42,19 +46,7 @@ extern int audioRx_tcb[4][BUFFER_COUNT][4];
 extern uint32_t cyclesAudio;
 extern uint32_t cyclesMain;
 extern uint32_t cyclesTotal;
-extern int memoryAddress;
-
-typedef struct {
-	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in program memory
-	float dm peqStates[2 * MAX_CHAN_EQS]; // store in data memory
-} sDspChannel;
-
-struct {
-	float samplerate;
-
-	sDspChannel dspChannel[MAX_CHAN];
-} dsp;
-
+extern sDsp dsp;
 
 enum eBufferIndex {
     TAP_INPUT,

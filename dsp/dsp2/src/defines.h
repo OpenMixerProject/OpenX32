@@ -1,14 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.06
-
-#define FX_USE_REVERB			1
-#define FX_USE_OVERDRIVE		1
-#define FX_USE_CHORUS			1
-#define FX_USE_TRANSIENTSHAPER	1
-#define FX_USE_UPMIXER			0
-#define FX_USE_MATRIXUPMIXER	0
+#define DSP_VERSION				0.10
 
 // DSP2 receives 24 Audio-channels
 // Channel 1-8		-> FX Sends 1-8
@@ -30,7 +23,10 @@
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
 #define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
-#define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
+#define SDRAM_SIZE_WORDS		0x00400000	// size of SDRAM in 32-bit words (16 MiB)
+#define SDRAM_SIZE_BYTE			(SDRAM_SIZE_WORDS * 4)	// size of SDRAM in 8-bit bytes (16 MiB)
+// we are slicing the external 16MB SDRAM into eight parts for each effect-slot
+//#define SDRAM_FX_x			(SDRAM_START + (x * (SDRAM_SIZE_BYTE / 8)))
 
 #define MAX_CHAN				24
 #define MAX_CHAN_EQS			4
@@ -46,6 +42,8 @@
 #define SPI_MAX_RX_PAYLOAD_SIZE	30  // 27 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values
+
+#define SAMPLERATE_MAX			48000
 
 // SPDIF configuration
 #define CLKA_DIVIDER			8	// provides SCLK serial clock to S/PDIF TX and SPORT0

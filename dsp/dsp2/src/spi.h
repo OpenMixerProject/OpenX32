@@ -2,7 +2,6 @@
 #define __COMMUNICATION_H__
 
 #include "dsp2.h"
-#include "comm.h"
 
 // variables and types for SPI-transmitter in Slave-Mode
 typedef struct {

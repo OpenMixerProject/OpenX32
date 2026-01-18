@@ -3,6 +3,10 @@
 
 #include "dsp2.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // function prototypes
 void systemPllInit(void);
 void systemExternalMemoryInit(void);
@@ -13,5 +17,9 @@ void systemSportInit(void);
 void systemSpdifTxInit(void);
 
 void systemCrash(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -34,26 +34,46 @@
 
 #include "fxMatrixUpmixer.h"
 
-#if FX_USE_MATRIXUPMIXER == 1
+fxMatrixUpmixer::fxMatrixUpmixer() { } // we are not using the default constructor here but CCES complains when its missing
 
-float delayLine[FX_MATRIXUPMIXER_BUFFER_SIZE];
-int delayLineHead = 0;
-float lowPassSubState = 0;
-float lowPassSubCoeff = 0.01609904178227480397989f; // 125Hz = 785.398163397448 / 48785.398163397448 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 125Hz) / (48000Hz + 2 * pi * 125Hz)
-float lowPassSurroundState = 0;
-float lowPassSurroundCoeff = 0.4781604560104657892f; // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
+fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, int channelMode) {
+	// constructor
+	// code of constructor of baseclass is called first. So add here only effect-specific things
 
-void fxMatrixUpmixerInit(void) {
+	// calculate the maximum amount of space we need in the external RAM for the maximum samplerate we are supporting
+	_delayLineLengthMaxMs = 25;
+	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
+
+	// initialize delay-lines in external memory
+	_delayLine = (float*)(_memoryAddress);
+	_memoryAddress += (_delayLineBufferSize * sizeof(float));
+
+	// set memory content to zero
+	//clearMemory(); // TODO: check if this is taking too much time
+
+	// set internal parameters
+	_delayLineHead = 0;
+
+	_lowPassSubState = 0;
+	_lowPassSubCoeff = 0.01609904178227480397989f; // 125Hz = 785.398163397448 / 48785.398163397448 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 125Hz) / (48000Hz + 2 * pi * 125Hz)
+	_lowPassSurroundState = 0;
+	_lowPassSurroundCoeff = 0.4781604560104657892f; // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
 }
 
-void fxMatrixUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
-	float temp[SAMPLES_IN_BUFFER];
+fxMatrixUpmixer::~fxMatrixUpmixer() {
+    // destructor
+}
 
+void fxMatrixUpmixer::rxData(float data[], int len) {
+	// data received from x32ctrl
+}
+
+void fxMatrixUpmixer::process(float* bufIn[], float* bufOut[]) {
 	// channel center
 	// =========================================================
 	// C = (Lin + Rin) / 2
-	vecvaddf(inBuf[0], inBuf[1], outBuf[2], SAMPLES_IN_BUFFER);
-	vecsmltf(outBuf[2], 0.5f, outBuf[2], SAMPLES_IN_BUFFER);
+	vecvaddf(bufIn[0], bufIn[1], bufOut[2], SAMPLES_IN_BUFFER);
+	vecsmltf(bufOut[2], 0.5f, bufOut[2], SAMPLES_IN_BUFFER);
 
 
 
@@ -62,11 +82,11 @@ void fxMatrixUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 	// channels left and right
 	// =========================================================
 	// first calculate C / 2
-	vecsmltf(outBuf[2], 0.5f, &temp[0], SAMPLES_IN_BUFFER);
+	vecsmltf(bufOut[2], 0.5f, &_bufTemp[0], SAMPLES_IN_BUFFER);
 	// L = Lin - (C / 2)
-	vecvsubf(inBuf[0], &temp[0], outBuf[0], SAMPLES_IN_BUFFER);
+	vecvsubf(bufIn[0], &_bufTemp[0], bufOut[0], SAMPLES_IN_BUFFER);
 	// R = Rin - (C / 2)
-	vecvsubf(inBuf[1], &temp[0], outBuf[1], SAMPLES_IN_BUFFER);
+	vecvsubf(bufIn[1], &_bufTemp[0], bufOut[1], SAMPLES_IN_BUFFER);
 
 
 
@@ -75,23 +95,23 @@ void fxMatrixUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 	// channel surroundLeft and surroundRight
 	// =========================================================
 	// calc surround-signal: surround_signal = (Lin - Rin) / 2
-	vecvsubf(inBuf[0], inBuf[1], &temp[0], SAMPLES_IN_BUFFER);
-	vecsmltf(&temp[0], 0.5f, &temp[0], SAMPLES_IN_BUFFER);
+	vecvsubf(bufIn[0], bufIn[1], &_bufTemp[0], SAMPLES_IN_BUFFER);
+	vecsmltf(&_bufTemp[0], 0.5f, &_bufTemp[0], SAMPLES_IN_BUFFER);
 
 	// feed delay line with current surround_signal
 	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		delayLine[delayLineHead++] = temp[s];
-		if (delayLineHead == FX_MATRIXUPMIXER_BUFFER_SIZE) {
-			delayLineHead = 0;
+		_delayLine[_delayLineHead++] = _bufTemp[s];
+		if (_delayLineHead == FX_MATRIXUPMIXER_BUFFER_SIZE) {
+			_delayLineHead = 0;
 		}
 	}
 	// read surround_signal from delay line
-	int delayLineTail = delayLineHead - (FX_MATRIXUPMIXER_DELAYBACK_MS * FX_MATRIXUPMIXER_SAMPLING_RATE / 1000); // here we set the delay in milliseconds
+	int delayLineTail = _delayLineHead - (FX_MATRIXUPMIXER_DELAYBACK_MS * FX_MATRIXUPMIXER_SAMPLING_RATE / 1000); // here we set the delay in milliseconds
 	if (delayLineTail < 0) {
 		delayLineTail += FX_MATRIXUPMIXER_BUFFER_SIZE;
 	}
 	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		temp[s] = delayLine[delayLineTail++];
+		_bufTemp[s] = _delayLine[delayLineTail++];
 		if (delayLineTail == FX_MATRIXUPMIXER_BUFFER_SIZE) {
 			delayLineTail = 0;
 		}
@@ -100,14 +120,14 @@ void fxMatrixUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 	// apply 7kHz low-pass-filter to surround channel
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		temp[s] = lowPassSurroundState + lowPassSurroundCoeff * (temp[s] - lowPassSurroundState);
-		lowPassSurroundState = temp[s];
+		_bufTemp[s] = _lowPassSurroundState + _lowPassSurroundCoeff * (_bufTemp[s] - _lowPassSurroundState);
+		_lowPassSurroundState = _bufTemp[s];
 	}
 
 	// sL = surround_signal
-	memcpy(outBuf[3], &temp[0], SAMPLES_IN_BUFFER);
+	memcpy(bufOut[3], &_bufTemp[0], SAMPLES_IN_BUFFER);
 	// sR = -surround_signal
-	vecsmltf(&temp[0], -1.0f, outBuf[4], SAMPLES_IN_BUFFER);
+	vecsmltf(&_bufTemp[0], -1.0f, bufOut[4], SAMPLES_IN_BUFFER);
 
 
 
@@ -119,9 +139,7 @@ void fxMatrixUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		outBuf[5][s] = lowPassSubState + lowPassSubCoeff * (outBuf[2][s] - lowPassSubState);
-		lowPassSubState = outBuf[5][s];
+		bufOut[5][s] = _lowPassSubState + _lowPassSubCoeff * (bufOut[2][s] - _lowPassSubState);
+		_lowPassSubState = bufOut[5][s];
 	}
 }
-
-#endif

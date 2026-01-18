@@ -1,31 +1,32 @@
 #ifndef __FXTRANSIENTSHAPER_H_
 #define __FXTRANSIENTSHAPER_H_
 
-#include "dsp2.h"
-
-#if FX_USE_TRANSIENTSHAPER == 1
+#include "fxBase.h"
 
 #define FX_TRANSIENTSHAPER_DELAY_MS_MAX		50
 #define FX_TRANSIENTSHAPER_BUFFER_SIZE 		((48000 * FX_TRANSIENTSHAPER_DELAY_MS_MAX) / 1000)
 
-struct {
-	float attack;
-	float sustain;
+class fxTransientshaper : public fx {
+    public:
+        fxTransientshaper();
+        fxTransientshaper(int fxSlot, int channelMode);
+        ~fxTransientshaper();
+        void fxTransientshaperSetParameters(float kFast, float kSlow, float attack, float sustain, float delayMs);
+        void rxData(float data[], int len);
+        void process(float* bufIn[], float* bufOut[]);
+    private:
+        float* _delayLine;
 
-	float kFast;
-	float kSlow;
+    	float _attack;
+    	float _sustain;
 
-	int delayLineHead;
-	int delayLineTailOffset;
-	float envelopeFast;
-	float envelopeSlow;
-} transientshaper;
+    	float _kFast;
+    	float _kSlow;
 
-// function prototypes
-void fxTransientshaperInit(void);
-void fxTransientshaperSetParameter(float kFast, float kSlow, float attack, float sustain, float delayMs);
-void fxTransientshaperProcess(float* bufIn, float* bufOut);
+    	int _delayLineHead;
+    	int _delayLineTailOffset;
+    	float _envelopeFast;
+    	float _envelopeSlow;
+};
 
-#endif
-
-#endif /* FXTRANSIENTSHAPER_H_ */
+#endif  /* FXTRANSIENTSHAPER_H_ */

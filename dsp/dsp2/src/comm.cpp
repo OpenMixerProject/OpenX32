@@ -23,11 +23,13 @@
 */
 
 #include "comm.h"
-
+#include "spi.h"
+#include "audio.h"
 
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
 	  SPI ClassIds:
+	  'f' = FX-Slots
 	  'v' = Volume
 	  'e' = PEQ
 	  'g' = Gate
@@ -55,27 +57,8 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 			}
 			break;
-		case 'v':
-			switch(index) {
-				default:
-					break;
-			}
-			break;
-		case 'e': // Equalizer/Filter
-			switch (index) {
-			case 'e': // EQ
-				if (valueCount == (MAX_CHAN_EQS * 5)) {
-					// copy biquad-coefficients
-					//memcpy(&dsp.dspChannel[channel].peqCoeffsSet[0], &floatValues[0], valueCount * sizeof(float));
-					memcpy(&dsp.dspChannel[channel].peqCoeffs[0], &floatValues[0], valueCount * sizeof(float));
-
-					// reset biquad-integrators
-					memset(&dsp.dspChannel[channel].peqStates[0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
-
-					sysreg_bit_tgl(sysreg_FLAGS, FLG7);
-				}
-				break;
-			}
+		case 'f': // Data for FX-Slots
+			audioFxData(index, floatValues, valueCount);
 			break;
 		case 'a': // Auxiliary
 			if (valueCount == 1) {

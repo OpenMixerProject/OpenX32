@@ -1,9 +1,7 @@
 #ifndef __FXREVERB_H_
 #define __FXREVERB_H_
 
-#include "dsp2.h"
-
-#if FX_USE_REVERB == 1
+#include "fxBase.h"
 
 #define FX_REVERB_INT_CHAN			8	// must be a power of 2, so 2, 4, 8, .... Code has optimized function for 8 parallel channels at the moment
 #define FX_REVERB_DIFFUSION_STEPS	2	// 1,2,3,4,...
@@ -39,26 +37,38 @@ typedef struct {
 	float lowPassDelayState[FX_REVERB_INT_CHAN];
 } sDelay;
 
-struct {
-	float roomSizeMs;
-	float feedbackDelayMs;
-	float loopsPerRt60;
-	float dbPerCycle;
-	float feedbackDecayGain;
+class fxReverb : public fx {
+    public:
+        fxReverb();
+        fxReverb(int fxSlot, int channelMode);
+        ~fxReverb();
+        void fxReverbSetParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet); // Size in ms, Reverberation Time to -60dB, Frequency for feedback-loop, dry, wet
+        void rxData(float data[], int len);
+        void process(float* bufIn[], float* bufOut[]);
+    private:
+    	float _roomSizeMs;
+    	float _feedbackDelayMs;
+    	float _loopsPerRt60;
+    	float _dbPerCycle;
+    	float _feedbackDecayGain;
 
-	sDiffusor diffusor[FX_REVERB_DIFFUSION_STEPS];
-	int diffusionDelayLineHead;
-	sDelay delay;
+    	sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS];
+    	int _diffusionDelayLineHead;
+    	sDelay _delay;
 
-	float dry;
-	float wet;
-} reverb;
+    	float _dry;
+    	float _wet;
 
-// function prototypes
-void fxReverbInit(void);
-void fxReverbSetParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet); // Size in ms, Reverberation Time to -60dB, Frequency for feedback-loop, dry, wet
-void fxReverbProcess(float* bufIn[2], float* bufOut[2]);
 
-#endif
+    	float* _diffusionDelayLine[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];
+    	float* _delayLine[FX_REVERB_INT_CHAN];
+
+    	float _fxBuf[FX_REVERB_INT_CHAN];
+    	#if FX_REVERB_INT_CHAN != 8
+    		float _fxBufInput[FX_REVERB_INT_CHAN];
+    	#endif
+    	float _fxBufOutput[FX_REVERB_INT_CHAN];
+    	float _fxBufFeedback[FX_REVERB_INT_CHAN];
+};
 
 #endif /* FXREVERB_H_ */

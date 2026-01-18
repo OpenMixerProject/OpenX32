@@ -23,6 +23,7 @@
 */
 
 #include "spi.h"
+#include "comm.h"
 
 volatile sSpiRxRingBuffer spiRxRingBuffer;
 volatile sSpiTxRingBuffer spiTxRingBuffer;

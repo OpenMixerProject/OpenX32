@@ -1,31 +1,32 @@
 #ifndef __FXOVERDRIVE_H_
 #define __FXOVERDRIVE_H_
 
-#include "dsp2.h"
+#include "fxBase.h"
 
-#if FX_USE_OVERDRIVE == 1
+#define FX_OVERDRIVE_COEFF_LENGTH 69
 
-struct {
-	float hpfInputCoef;
-	float lpfInputCoef;
-	float lpfOutputCoef;
+class fxOverdrive : public fx {
+    public:
+        fxOverdrive();
+        fxOverdrive(int fxSlot, int channelMode);
+        ~fxOverdrive();
+        void fxOverdriveSetFilters(float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
+        void fxOverdriveSetGain(float preGain, float Q);
+        void rxData(float data[], int len);
+        void process(float* bufIn[], float* bufOut[]);
+    private:
+    	float _hpfInputCoef;
+    	float _lpfInputCoef;
+    	float _lpfOutputCoef;
 
-	float hpfInputStateIn;
-	float hpfInputStateOut;
-	float lpfInputState;
-	float lpfOutputState;
+    	float _hpfInputStateIn;
+    	float _hpfInputStateOut;
+    	float _lpfInputState;
+    	float _lpfOutputState;
 
-	float preGain;
-	float Q;
-	float clipConst;
-} overdrive;
-
-// function prototypes
-void fxOverdriveInit(void);
-void fxOverdriveSetFilters(float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
-void fxOverdriveSetGain(float preGain, float Q);
-void fxOverdriveProcess(float* bufIn, float* bufOut);
-
-#endif
+    	float _preGain;
+    	float _Q;
+    	float _clipConst;
+};
 
 #endif /* FXOVERDRIVE_H_ */

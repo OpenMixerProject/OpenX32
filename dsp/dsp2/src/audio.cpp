@@ -24,26 +24,16 @@
 
 #include "audio.h"
 #include "system.h"
-#include "fx.h"
 
-#if FX_USE_REVERB == 1
-	#include "fxReverb.h"
-#endif
-#if FX_USE_OVERDRIVE == 1
-	#include "fxOverdrive.h"
-#endif
-#if FX_USE_CHORUS == 1
-	#include "fxChorus.h"
-#endif
-#if FX_USE_TRANSIENTSHAPER == 1
-	#include "fxTransientshaper.h"
-#endif
-#if FX_USE_UPMIXER == 1
-	#include "fxUpmixer.h"
-#endif
-#if FX_USE_MATRIXUPMIXER == 1
-	#include "fxMatrixUpmixer.h"
-#endif
+// include individual effects
+#include "fxBase.h"
+#include "fxDemo.h"
+#include "fxReverb.h"
+#include "fxChorus.h"
+#include "fxOverdrive.h"
+#include "fxTransientshaper.h"
+#include "fxMatrixUpmixer.h"
+#include "fxUpmixer.h"
 
 /*
 	Used Audio-Mapping:
@@ -81,6 +71,12 @@ int audioTx_tcb[4][BUFFER_COUNT][4];
 
 float time = 0;
 
+// definitions for effect-rack
+fx* fxSlots[8] = {0};
+float* fxInBuf[8][2];
+float* fxOutBuf[8][2];
+float* fxOutSurroundBuf[6];
+
 void audioInit(void) {
 	// initialize TCB-array with multi-buffering
 	int nextBuffer;
@@ -112,8 +108,65 @@ void audioInit(void) {
 	// initialize memory
 	memset(audioBuffer, 0, sizeof(audioBuffer));
 
-	// initialize effects
-	fxInit();
+	// initialize effects-rack
+	// hard-connect first two inputs to all effect-inputs
+	fxInBuf[0][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[0][1] = &audioBuffer[TAP_INPUT][1][0];
+	fxInBuf[1][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[1][1] = &audioBuffer[TAP_INPUT][1][0];
+	fxInBuf[2][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[2][1] = &audioBuffer[TAP_INPUT][1][0];
+	fxInBuf[3][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[3][1] = &audioBuffer[TAP_INPUT][1][0];
+	fxInBuf[4][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[4][1] = &audioBuffer[TAP_INPUT][1][0];
+	fxInBuf[5][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[5][1] = &audioBuffer[TAP_INPUT][1][0];
+	fxInBuf[6][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[6][1] = &audioBuffer[TAP_INPUT][1][0];
+	fxInBuf[7][0] = &audioBuffer[TAP_INPUT][0][0];
+	fxInBuf[7][1] = &audioBuffer[TAP_INPUT][1][0];
+
+	// connect each effect-output to a dedicated DSP2 output
+	fxOutBuf[0][0] = &audioBuffer[TAP_OUTPUT][0][0];
+	fxOutBuf[0][1] = &audioBuffer[TAP_OUTPUT][1][0];
+	fxOutBuf[1][0] = &audioBuffer[TAP_OUTPUT][2][0];
+	fxOutBuf[1][1] = &audioBuffer[TAP_OUTPUT][3][0];
+	fxOutBuf[2][0] = &audioBuffer[TAP_OUTPUT][4][0];
+	fxOutBuf[2][1] = &audioBuffer[TAP_OUTPUT][5][0];
+	fxOutBuf[3][0] = &audioBuffer[TAP_OUTPUT][6][0];
+	fxOutBuf[3][1] = &audioBuffer[TAP_OUTPUT][7][0];
+	fxOutBuf[4][0] = &audioBuffer[TAP_OUTPUT][8][0];
+	fxOutBuf[4][1] = &audioBuffer[TAP_OUTPUT][9][0];
+	fxOutBuf[5][0] = &audioBuffer[TAP_OUTPUT][10][0];
+	fxOutBuf[5][1] = &audioBuffer[TAP_OUTPUT][11][0];
+	fxOutBuf[6][0] = &audioBuffer[TAP_OUTPUT][12][0];
+	fxOutBuf[6][1] = &audioBuffer[TAP_OUTPUT][13][0];
+	fxOutBuf[7][0] = &audioBuffer[TAP_OUTPUT][14][0];
+	fxOutBuf[7][1] = &audioBuffer[TAP_OUTPUT][15][0];
+
+	fxOutSurroundBuf[0] = &audioBuffer[TAP_OUTPUT][8][0];
+	fxOutSurroundBuf[1] = &audioBuffer[TAP_OUTPUT][9][0];
+	fxOutSurroundBuf[2] = &audioBuffer[TAP_OUTPUT][10][0];
+	fxOutSurroundBuf[3] = &audioBuffer[TAP_OUTPUT][11][0];
+	fxOutSurroundBuf[4] = &audioBuffer[TAP_OUTPUT][12][0];
+	fxOutSurroundBuf[5] = &audioBuffer[TAP_OUTPUT][13][0];
+
+	fxSlots[0] = new fxReverb(0, 2); // EffectSlot #0, Stereo
+	fxSlots[1] = new fxChorus(1, 2); // EffectSlot #1, Stereo
+	fxSlots[2] = new fxTransientshaper(2, 2); // EffectSlot #2, Stereo
+	fxSlots[3] = new fxOverdrive(3, 1); // EffectSlot #3, Mono
+	fxSlots[4] = new fxDemo(4, 2); // EffectSlot #4, Stereo
+	//fxSlots[5] = new fxDemo(5, 2); // EffectSlot #5, Stereo
+	fxSlots[6] = new fxUpmixer(6, 6); // EffectSlot #6, Surround
+	fxSlots[7] = new fxMatrixUpmixer(7, 6); // EffectSlot #7, Surround
+}
+
+void audioFxData(int fxSlot, float* data, int len) {
+	// passthrough data to desired fx-slot
+	if (fxSlots[fxSlot] != 0) {
+		fxSlots[fxSlot]->rxData(data, len);
+	}
 }
 
 void audioProcessData(void) {
@@ -169,105 +222,74 @@ void audioProcessData(void) {
 	// dspCh   0..7 = FX0
 	// dspCh  8..15 = FX1
 	// dspCh 16..23 = AUX 1-6 + AES/EBU | AUX 1-6 + USB Play
-/*
-	// copy TAP_POST_EQ to TAP_PRE_FADER (passthrough)
-	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-		memcpy(&audioBuffer[TAP_PRE_FADER][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-	}
 
-	// calculate FX Return Volume
-	for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-		vecsmltf(&audioBuffer[TAP_PRE_FADER][i_ch][0], dsp.channelFxReturnVolume[i_ch], &audioBuffer[TAP_POST_FADER][i_ch][0], SAMPLES_IN_BUFFER);
-	}
-*/
-/*
-	// insert sinewave-audio to all channels with increasing frequency starting at 200Hz and ending at 2.5kHz
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		time += (1.0f/48000.0f); // add 20.83us
-		if (time > 10) {
-			// make sure that the float-value is not losing resolution by overflowing
-			time = 0;
+	//	 _______  __     ____            _
+	//	|  ___\ \/ /    |  _ \ __ _  ___| | __
+	//	| |_   \  /_____| |_) / _` |/ __| |/ /
+	//	|  _|  /  \_____|  _ < (_| | (__|   <
+	//	|_|   /_/\_\    |_| \_\__,_|\___|_|\_\
+	//
+	// process all effects
+	/*
+	for (int i = 0; i < 8; i++) {
+		if (fxSlots[i] != 0) {
+			fxSlots[i]->process(&fxInBuf[i][0], &fxOutBuf[i][0]);
 		}
+	}
+	*/
+	// process specific effects
+	fxSlots[0]->process(&fxInBuf[0][0], &fxOutBuf[0][0]); // reverb
+	fxSlots[1]->process(&fxInBuf[1][0], &fxOutBuf[1][0]); // chorus
+	fxSlots[2]->process(&fxInBuf[2][0], &fxOutBuf[2][0]); // transientshaper
+	fxSlots[3]->process(&fxInBuf[3][0], &fxOutBuf[3][0]); // overdrive
+	fxSlots[4]->process(&fxInBuf[4][0], &fxOutBuf[4][0]); // demo-plugin
+	//fxSlots[5]->process(&fxInBuf[5][0], &fxOutBuf[5][0]); // demo-plugin
+	//fxSlots[6]->process(&fxInBuf[6][0], &fxOutSurroundBuf[0]); // stereo-decompositing-upmixer
+	//fxSlots[7]->process(&fxInBuf[7][0], &fxOutSurroundBuf[0]); // matrix-upmixer
 
+
+
+
+	/*
+		// copy TAP_POST_EQ to TAP_PRE_FADER (passthrough)
 		for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-			// create sinewave between 200 Hz and 2500 Hz
-			//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 2147483648.0f; // scaled as 2^31 (results in 0dBfs)
-			audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
-			//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 268435456.0f; // scaled as 2^28 (results in -18dBfs)
+			memcpy(&audioBuffer[TAP_PRE_FADER][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
 		}
-	}
-*/
 
+		// calculate FX Return Volume
+		for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+			vecsmltf(&audioBuffer[TAP_PRE_FADER][i_ch][0], dsp.channelFxReturnVolume[i_ch], &audioBuffer[TAP_POST_FADER][i_ch][0], SAMPLES_IN_BUFFER);
+		}
+	*/
+	/*
+		// insert sinewave-audio to all channels with increasing frequency starting at 200Hz and ending at 2.5kHz
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			time += (1.0f/48000.0f); // add 20.83us
+			if (time > 10) {
+				// make sure that the float-value is not losing resolution by overflowing
+				time = 0;
+			}
 
-/*
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		audioBuffer[TAP_INPUT][0][s] = audioBuffer[TAP_INPUT][0][s] * 0.5f; // reduce volume on channel left to 50% for testing-purposes
-		//audioBuffer[TAP_INPUT][1][s] = audioBuffer[TAP_INPUT][1][s] * 0.5f; // reduce volume on channel right to 50% for testing-purposes
-	}
-*/
-
-/*
-	// direct copy from the first input-channels to the first output-channels
-	for (int i_ch = 0; i_ch < 2; i_ch++) {
-		memcpy(&audioBuffer[TAP_OUTPUT][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-	}
-*/
-
-	#if FX_USE_REVERB == 1
-		float* reverbInBuf[2];
-		float* reverbOutBuf[6];
+			for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
+				// create sinewave between 200 Hz and 2500 Hz
+				//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 2147483648.0f; // scaled as 2^31 (results in 0dBfs)
+				audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
+				//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 268435456.0f; // scaled as 2^28 (results in -18dBfs)
+			}
+		}
+	*/
+	/*
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			audioBuffer[TAP_INPUT][0][s] = audioBuffer[TAP_INPUT][0][s] * 0.5f; // reduce volume on channel left to 50% for testing-purposes
+			//audioBuffer[TAP_INPUT][1][s] = audioBuffer[TAP_INPUT][1][s] * 0.5f; // reduce volume on channel right to 50% for testing-purposes
+		}
+	*/
+	/*
+		// direct copy from the first input-channels to the first output-channels
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			reverbInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
-			reverbOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 2 output-channels (L/R)
+			memcpy(&audioBuffer[TAP_OUTPUT][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
 		}
-		fxReverbProcess(reverbInBuf, reverbOutBuf);
-	#endif
-
-	#if FX_USE_OVERDRIVE == 1
-		fxOverdriveProcess(&audioBuffer[TAP_INPUT][0][0], &audioBuffer[TAP_OUTPUT][2][0]);
-	#endif
-
-	#if FX_USE_CHORUS == 1
-		float* chorusInBuf[2];
-		float* chorusOutBuf[2];
-		chorusInBuf[0] = &audioBuffer[TAP_INPUT][0][0]; // grab the first input-channels (L/R)
-		chorusInBuf[1] = &audioBuffer[TAP_INPUT][0][0]; // grab the first input-channels (L/R)
-		chorusOutBuf[0] = &audioBuffer[TAP_OUTPUT][3][0]; // put output-data to 2 output-channels (L/R)
-		chorusOutBuf[1] = &audioBuffer[TAP_OUTPUT][4][0]; // put output-data to 2 output-channels (L/R)
-		fxChorusProcess(chorusInBuf, chorusOutBuf);
-	#endif
-
-	#if FX_USE_TRANSIENTSHAPER == 1
-		fxTransientshaperProcess(&audioBuffer[TAP_INPUT][0][0], &audioBuffer[TAP_OUTPUT][5][0]);
-	#endif
-
-	#if FX_USE_UPMIXER == 1
-		// perform stereo-decompositing and 5.1 upmixing
-		float* upmixInBuf[2];
-		float* upmixOutBuf[6];
-		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			upmixInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
-		}
-		for (int i_ch = 0; i_ch < 6; i_ch++) {
-			upmixOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 6 output-channels (L, R, C, BL, BR, Sub)
-		}
-		fxUpmixerProcess(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
-	#endif
-
-	#if FX_USE_MATRIXUPMIXER == 1
-		// perform stereo-decompositing and 5.1 upmixing
-		float* upmixInBuf[2];
-		float* upmixOutBuf[6];
-		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			upmixInBuf[i_ch] = &audioBuffer[TAP_INPUT][i_ch][0]; // grab the first two input-channels (L/R)
-		}
-		for (int i_ch = 0; i_ch < 6; i_ch++) {
-			upmixOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 6 output-channels (L, R, C, BL, BR, Sub)
-		}
-		fxMatrixUpmixerProcess(upmixInBuf, upmixOutBuf, SAMPLES_IN_BUFFER);
-	#endif
-
-
+	*/
 
 
 
