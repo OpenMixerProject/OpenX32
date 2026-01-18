@@ -6,6 +6,7 @@
 #define FX_USE_REVERB			1
 #define FX_USE_OVERDRIVE		1
 #define FX_USE_CHORUS			1
+#define FX_USE_TRANSIENTSHAPER	1
 #define FX_USE_UPMIXER			0
 #define FX_USE_MATRIXUPMIXER	0
 

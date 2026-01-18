@@ -33,6 +33,9 @@
 #if FX_USE_CHORUS == 1
 	#include "fxChorus.h"
 #endif
+#if FX_USE_TRANSIENTSHAPER == 1
+	#include "fxTransientshaper.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
@@ -51,6 +54,10 @@ void fxInit(void) {
 
 	#if FX_USE_CHORUS == 1
 		fxChorusInit();
+	#endif
+
+	#if FX_USE_TRANSIENTSHAPER == 1
+		fxTransientshaperInit();
 	#endif
 
 	#if FX_USE_UPMIXER == 1

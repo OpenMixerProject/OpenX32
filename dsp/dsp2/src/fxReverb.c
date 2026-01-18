@@ -284,7 +284,6 @@ void hadamardMatrix(float* buf) {
 
 void fxReverbInit(void) {
 	// map memory-pointers to desired address in external RAM (please let me know if you know a better option)
-	int memoryAddress = SDRAM_START;
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 		for (int i = 0; i < FX_REVERB_INT_CHAN; i++) {
 			diffusionDelayLine[d][i] = (float*)(memoryAddress);

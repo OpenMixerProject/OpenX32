@@ -51,10 +51,11 @@
 
 // global data
 //static volatile uint32_t timerCounter;
-static cycle_stats_t systemStats;
-uint32_t cyclesAudio;
-uint32_t cyclesMain;
+static cycle_stats_t systemStats; // static limits this global variable to this file
+static uint32_t cyclesAudio; // static limits this global variable to this file
+static uint32_t cyclesMain; // static limits this global variable to this file
 uint32_t cyclesTotal;
+int memoryAddress = SDRAM_START;
 
 void openx32Init(void) {
 	// initialize the default samplerate with 48kHz

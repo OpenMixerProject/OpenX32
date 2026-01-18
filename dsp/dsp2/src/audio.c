@@ -35,6 +35,9 @@
 #if FX_USE_CHORUS == 1
 	#include "fxChorus.h"
 #endif
+#if FX_USE_TRANSIENTSHAPER == 1
+	#include "fxTransientshaper.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
@@ -232,6 +235,10 @@ void audioProcessData(void) {
 		chorusOutBuf[0] = &audioBuffer[TAP_OUTPUT][3][0]; // put output-data to 2 output-channels (L/R)
 		chorusOutBuf[1] = &audioBuffer[TAP_OUTPUT][4][0]; // put output-data to 2 output-channels (L/R)
 		fxChorusProcess(chorusInBuf, chorusOutBuf);
+	#endif
+
+	#if FX_USE_TRANSIENTSHAPER == 1
+		fxTransientshaperProcess(&audioBuffer[TAP_INPUT][0][0], &audioBuffer[TAP_OUTPUT][5][0]);
 	#endif
 
 	#if FX_USE_UPMIXER == 1

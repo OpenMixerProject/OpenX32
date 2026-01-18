@@ -42,6 +42,7 @@ extern int audioRx_tcb[4][BUFFER_COUNT][4];
 extern uint32_t cyclesAudio;
 extern uint32_t cyclesMain;
 extern uint32_t cyclesTotal;
+extern int memoryAddress;
 
 typedef struct {
 	float pm peqCoeffs[5 * MAX_CHAN_EQS]; // store in program memory
