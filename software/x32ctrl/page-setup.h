@@ -14,12 +14,16 @@ class PageSetup: public Page {
         }
 
         void OnInit() override {
-            SetEncoder(5, MIXERPARAMETER_LCD_CONTRAST);
+            SetEncoder(DISPLAY_ENCODER_5, MIXERPARAMETER_LED_BRIGHTNESS);
+            SetEncoder(DISPLAY_ENCODER_6, MIXERPARAMETER_LCD_CONTRAST);
         }
 
         void OnChange(bool force_update) override {
+            if (state->HasChanged(X32_MIXER_CHANGED_LED_BRIGHTNESS) || force_update) {
+                SetEncoderValue(DISPLAY_ENCODER_5, state->ledbrightness);
+            }
             if (state->HasChanged(X32_MIXER_CHANGED_LCD_CONTRAST) || force_update) {
-                SetEncoderValue(5, state->lcdcontrast);
+                SetEncoderValue(DISPLAY_ENCODER_6, state->lcdcontrast);
             }
         }
 
@@ -34,6 +38,15 @@ class PageSetup: public Page {
 				case X32_ENC_ENCODER4:
 					break;
 				case X32_ENC_ENCODER5:
+                    {
+                        if (amount > 0) {
+                            state->ledbrightness += 64;
+                        } else {
+                            state->ledbrightness -= 64;
+                        }
+                        surface->SetBrightnessAllBoards(state->ledbrightness);
+                        state->SetChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS);
+                    }
 					break;
 				case X32_ENC_ENCODER6:
                     state->lcdcontrast += amount;
@@ -43,5 +56,33 @@ class PageSetup: public Page {
 				default:
 					break;
 			}
+        }
+
+        void OnDisplayButton(X32_BTN button, bool pressed) {
+            if (pressed){
+				switch (button){
+					case X32_BTN_ENCODER1:
+						break;
+					case X32_BTN_ENCODER2:
+						break;
+					case X32_BTN_ENCODER3:
+						break;
+					case X32_BTN_ENCODER4:
+						break;
+					case X32_BTN_ENCODER5:
+                        state->ledbrightness = encoderMixerparameterDefinition[DISPLAY_ENCODER_5].uint8_t_value_default;
+                        surface->SetBrightnessAllBoards(state->ledbrightness);
+                        state->SetChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS);
+						break;
+					case X32_BTN_ENCODER6:
+                        state->lcdcontrast = encoderMixerparameterDefinition[DISPLAY_ENCODER_6].uint8_t_value_default;
+                        surface->SetContrastAllBoards(state->lcdcontrast);
+                        state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST);
+						break;
+					default:
+                        // just here to avoid compiler warnings
+						break;
+				}
+            }
         }
 };

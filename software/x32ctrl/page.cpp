@@ -143,7 +143,19 @@ void Page::SetEncoder(uint8_t encoder, MIXERPARAMETER mp) {
     }
 
     // default value
-    encoderSliders[encoder].label_buttonpress = String("Reset: ") + String(mpd.value_default, mpd.decimal_places) + uom_string;
+    String valueString;
+    switch(mpd.value_type) {
+        case MIXERPARAMETER_VALUE_TYPE_FLOAT:
+            valueString = String(mpd.float_value_default, mpd.decimal_places);
+            break;
+        case MIXERPARAMETER_VALUE_TYPE_INT8:
+            valueString = String(mpd.int8_t_value_default);
+            break;
+        case MIXERPARAMETER_VALUE_TYPE_UINT8:
+            valueString = String(mpd.uint8_t_value_default);
+            break;
+    }
+    encoderSliders[encoder].label_buttonpress = String("Reset: ") + valueString + uom_string;
 }
 
 void Page::SetEncoder(uint8_t encoder, MIXERPARAMETER mp, String buttonPressLabel) {
@@ -157,8 +169,9 @@ void Page::SetEncoder(uint8_t encoder, String label, String buttonPressLabel){
     encoderSliders[encoder].slider_hidden = true;
 }
 
-void Page::SetEncoderValue(uint8_t encoder, float enc1)  {
+void Page::SetEncoderValue(uint8_t encoder, float float_value)  {
     MixerparameterDefinition mpd = encoderMixerparameterDefinition[encoder];
+
     String uom_string;
     if (mpd.unitOfMeasurement != MIXERPARAMETER_UOM_NONE) {
         uom_string = helper->GetUnitOfMesaurementString(mpd.unitOfMeasurement);
@@ -166,8 +179,36 @@ void Page::SetEncoderValue(uint8_t encoder, float enc1)  {
             uom_string = " " + uom_string;
         }
     }
-    encoderSliders[encoder].label_value = String(enc1, mpd.decimal_places) + uom_string;
-    encoderSliders[encoder].percent = helper->float2percent(enc1, mpd.value_min, mpd.value_max);
+    encoderSliders[encoder].label_value = String(float_value, mpd.decimal_places) + uom_string;
+    encoderSliders[encoder].percent = helper->value2percent(float_value, mpd.float_value_min, mpd.float_value_max);
+}
+
+void Page::SetEncoderValue(uint8_t encoder, uint8_t uint8_t_value)  {
+    MixerparameterDefinition mpd = encoderMixerparameterDefinition[encoder];
+
+    String uom_string;
+    if (mpd.unitOfMeasurement != MIXERPARAMETER_UOM_NONE) {
+        uom_string = helper->GetUnitOfMesaurementString(mpd.unitOfMeasurement);
+        if (uom_string != "") {
+            uom_string = " " + uom_string;
+        }
+    }
+    encoderSliders[encoder].label_value = String(uint8_t_value) + uom_string;
+    encoderSliders[encoder].percent = helper->value2percent(uint8_t_value, mpd.uint8_t_value_min, mpd.uint8_t_value_max);
+}
+
+void Page::SetEncoderValue(uint8_t encoder, int8_t int8_t_value)  {
+    MixerparameterDefinition mpd = encoderMixerparameterDefinition[encoder];
+
+    String uom_string;
+    if (mpd.unitOfMeasurement != MIXERPARAMETER_UOM_NONE) {
+        uom_string = helper->GetUnitOfMesaurementString(mpd.unitOfMeasurement);
+        if (uom_string != "") {
+            uom_string = " " + uom_string;
+        }
+    }
+    encoderSliders[encoder].label_value = String(int8_t_value) + uom_string;
+    encoderSliders[encoder].percent = helper->value2percent(int8_t_value, mpd.int8_t_value_min, mpd.int8_t_value_max);
 }
 
 void Page::SetEncoderValuesEmpty(){
@@ -177,13 +218,8 @@ void Page::SetEncoderValuesEmpty(){
     }
 }
 
-void Page::SetEncoderButtonLablesHighlight(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6) {
-    encoderSliders[0].label_buttonpress_highlighted = enc1;
-    encoderSliders[1].label_buttonpress_highlighted = enc2;
-    encoderSliders[2].label_buttonpress_highlighted = enc3;
-    encoderSliders[3].label_buttonpress_highlighted = enc4;
-    encoderSliders[4].label_buttonpress_highlighted = enc5;
-    encoderSliders[5].label_buttonpress_highlighted = enc6;
+void Page::SetEncoderHighlight(uint8_t encoder, bool highlight) {
+    encoderSliders[encoder].label_buttonpress_highlighted = highlight;
 }
 
 void Page::SyncEncoderWidgets() {

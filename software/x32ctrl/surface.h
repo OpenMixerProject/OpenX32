@@ -55,6 +55,7 @@ class Surface : public X32Base
         void Tick10ms();
         void Tick100ms();
 
+        void SetBrightnessAllBoards(uint8_t brightness);
         void SetBrightness(uint8_t boardId, uint8_t brightness);
         void SetContrastAllBoards(uint8_t contrast);
         void SetContrast(uint8_t boardId, uint8_t contrast);

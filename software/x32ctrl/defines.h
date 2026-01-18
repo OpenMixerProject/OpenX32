@@ -24,6 +24,24 @@
 #define SURFACE_MAX_PACKET_LENGTH 32
 #define MAX_PAGES 20
 
+#define DISPLAY_ENCODER_1   0
+#define DISPLAY_ENCODER_2   1
+#define DISPLAY_ENCODER_3   2
+#define DISPLAY_ENCODER_4   3
+#define DISPLAY_ENCODER_5   4
+#define DISPLAY_ENCODER_6   5
+
+// LCD Contrast
+#define LCD_CONTRAST_MIN 0
+#define LCD_CONTRAST_DEFAULT 40
+#define LCD_CONTRAST_MAX 64
+
+// LED Brightness
+#define LED_BRIGHTNESS_1 0x00
+#define LED_BRIGHTNESS_2 0x40
+#define LED_BRIGHTNESS_3 0x80
+#define LED_BRIGHTNESS_4 0xC0
+
 #define VOLUME_MIN         -100.0f // dB
 
 #define CHANNEL_GAIN_MIN            -12.0f // dB
@@ -68,6 +86,8 @@
 #define DSP_MAX_INTERNAL_CHANNELS          93
 #define DSP_SAMPLES_IN_BUFFER              16
 
+typedef unsigned short x32_changeflag;
+
 #define X32_VCHANNEL_CHANGED_ALL           0b1111111111111111
 #define X32_VCHANNEL_CHANGED_NONE          0b0000000000000000
 #define X32_VCHANNEL_CHANGED_VOLUME        0b0000000000000010
@@ -100,6 +120,7 @@
 #define X32_MIXER_CHANGED_METER            0b0000001000000000
 #define X32_MIXER_CHANGED_CARD             0b0000010000000000
 #define X32_MIXER_CHANGED_LCD_CONTENT      0b0000100000000000
+#define X32_MIXER_CHANGED_LED_BRIGHTNESS   0b0001000000000000
 
 #define SURFACE_COLOR_BLACK 0
 #define SURFACE_COLOR_RED 1
@@ -120,12 +141,6 @@
 #define CARD_CHANNELMODE_2IN_2OUT       5
 
 #define MAX_FADERS 25   // counted on X32 Full
-
-// LED Brightness
-#define X32_BRIGHTNESS_1 0x0
-#define X32_BRIGHTNESS_2 0x40
-#define X32_BRIGHTNESS_3 0x80
-#define X32_BRIGHTNESS_4 0xC0
 
 // Maximal mögliche Paketlänge inklusive Startbyte, Endbyte und Checksumme
 // Langes Paket: 0xFE (1) + BoardID (1) + ID (1) + Value_MSB (1) + Value_LSB (1) + 0xFE (1) + CHECKSUM (1) = 7 Bytes

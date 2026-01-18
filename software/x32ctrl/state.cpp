@@ -37,7 +37,7 @@ State::State(Helper* h){
     helper = h;
 }
 
-void State::SetChangeFlags(uint16_t p_flag){
+void State::SetChangeFlags(x32_changeflag p_flag){
     helper->DEBUG_STATE(DEBUGLEVEL_TRACE, "SetChangeFlags(0x%.4X)", p_flag);
     changed |= p_flag;
 }
@@ -50,7 +50,7 @@ bool State::HasAnyChanged(void){
     return false;
 }
 
-bool State::HasChanged(uint16_t p_flag){
+bool State::HasChanged(x32_changeflag p_flag){
     return ((changed & p_flag) == p_flag);
 }
 

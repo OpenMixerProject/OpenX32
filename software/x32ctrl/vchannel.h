@@ -9,7 +9,7 @@
 class VChannel : public X32Base {
     private:
         // indicates, which data has changed and need to get synced
-        uint16_t changed;
+        x32_changeflag changed;
     
     public:
         String name;
@@ -27,9 +27,9 @@ class VChannel : public X32Base {
 
         VChannel(X32BaseParameter* basepar);
 
-        void SetChanged(uint16_t p_flag);
+        void SetChanged(x32_changeflag p_flag);
         void ResetVChannelChangeFlags();
-        bool HasChanged(uint16_t p_flag);
+        bool HasChanged(x32_changeflag p_flag);
         bool HasAnyChanged(void);
 
         void ChangeInput(int8_t amount);

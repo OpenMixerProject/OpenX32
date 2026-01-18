@@ -266,4 +266,5 @@ typedef struct {
   bool slider_hidden = true;
   String label_buttonpress;
   bool label_buttonpress_highlighted = false;
-} sDisplayEncoderSlider;
+  void* ptr_value;
+} sDisplayEncoder;

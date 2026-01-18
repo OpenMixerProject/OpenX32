@@ -822,6 +822,13 @@ uint16_t Surface::CalcEncoderRingLedWidth(uint8_t pct) {
     return led_mask;
 }
 
+void Surface::SetBrightnessAllBoards(uint8_t brightness) {
+    SetBrightness(X32_BOARD_MAIN, brightness);
+    SetBrightness(X32_BOARD_L, brightness);
+    SetBrightness(X32_BOARD_M, brightness);
+    SetBrightness(X32_BOARD_R, brightness);
+}
+
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
 // brightness = 0 ... 255

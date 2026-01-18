@@ -32,7 +32,7 @@ class Page : public X32Base {
 
         bool hideEncoders = false;
         MixerparameterDefinition encoderMixerparameterDefinition[6];
-        sDisplayEncoderSlider encoderSliders[6];
+        sDisplayEncoder encoderSliders[6];
         lv_obj_t* sliders[6];
         lv_obj_t* encoderButtonLabels[6];
 
@@ -42,8 +42,10 @@ class Page : public X32Base {
         void SetEncoder(uint8_t encoder, MIXERPARAMETER mp, String buttonPressLabel);
         void SetEncoder(uint8_t encoder, String label, String buttonPressLabel);
         void SetEncoderValue(uint8_t encoder, float enc1);
+        void SetEncoderValue(uint8_t encoder, uint8_t enc1);
+        void SetEncoderValue(uint8_t encoder, int8_t enc1);
         void SetEncoderValuesEmpty();
-        void SetEncoderButtonLablesHighlight(bool enc1, bool enc2, bool enc3, bool enc4, bool enc5, bool enc6);
+        void SetEncoderHighlight(uint8_t encoder, bool highlight);
         void SyncEncoderWidgets();
 
         virtual void OnInit();

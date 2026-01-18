@@ -104,11 +104,12 @@ void X32Ctrl::Init(){
 	}
 
 	// set brightness and contrast
-    surface->SetBrightness(0, 255); // brightness of LEDs
-    surface->SetBrightness(1, 255);
-    surface->SetBrightness(4, 255);
-    surface->SetBrightness(5, 255);
-    surface->SetBrightness(8, 255);
+	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LED Brightness to %d", state->ledbrightness);
+    surface->SetBrightness(0, state->ledbrightness); // brightness of LEDs
+    surface->SetBrightness(1, state->ledbrightness);
+    surface->SetBrightness(4, state->ledbrightness);
+    surface->SetBrightness(5, state->ledbrightness);
+    surface->SetBrightness(8, state->ledbrightness);
 
     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", state->lcdcontrast);
     surface->SetContrast(0, state->lcdcontrast); // contrast of LCDs
@@ -117,6 +118,7 @@ void X32Ctrl::Init(){
     surface->SetContrast(8, state->lcdcontrast);
 
 	// trigger first sync to everywhere
+	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Trigger first sync -> X32_MIXER_CHANGED_ALL");
 	state->SetChangeFlags(X32_MIXER_CHANGED_ALL);
 }
 

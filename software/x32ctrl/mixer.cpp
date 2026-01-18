@@ -51,28 +51,6 @@ void Mixer::Init() {
 	}
 }
 
-
-void Mixer::InitMixerparameters() {
-    mixerparametermap[MIXERPARAMETER_LCD_CONTRAST] = MixerparameterDefinition("LCD Contrast", MIXERPARAMETER_UOM_NONE, 0.0f, 64.0f, 40.0f, 0, true);
-
-    mixerparametermap[MIXERPARAMETER_CHANNEL_GAIN] = MixerparameterDefinition("Gain", MIXERPARAMETER_UOM_DB, CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1, true);
-    mixerparametermap[MIXERPARAMETER_CHANNEL_PANORAMA] = MixerparameterDefinition("Pan/Bal", MIXERPARAMETER_UOM_NONE, CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0, true);
-    mixerparametermap[MIXERPARAMETER_CHANNEL_VOLUME] = MixerparameterDefinition("Volume", MIXERPARAMETER_UOM_DB, CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1, true);
-
-    mixerparametermap[MIXERPARAMETER_GATE_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0, true);
-    mixerparametermap[MIXERPARAMETER_GATE_RANGE] = MixerparameterDefinition("Range", MIXERPARAMETER_UOM_DB, GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1, true);
-    mixerparametermap[MIXERPARAMETER_GATE_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0, true);
-    mixerparametermap[MIXERPARAMETER_GATE_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0, true);
-    mixerparametermap[MIXERPARAMETER_GATE_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0, true);
-
-    mixerparametermap[MIXERPARAMETER_DYNAMICS_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0, true);
-    mixerparametermap[MIXERPARAMETER_DYNAMICS_RATIO] = MixerparameterDefinition("Ratio", MIXERPARAMETER_UOM_NONE, DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1, true);
-    mixerparametermap[MIXERPARAMETER_DYNAMICS_MAKEUP] = MixerparameterDefinition("Makeup", MIXERPARAMETER_UOM_DB, DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1, true);
-    mixerparametermap[MIXERPARAMETER_DYNAMICS_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0, true);
-    mixerparametermap[MIXERPARAMETER_DYNAMICS_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0, true);
-    mixerparametermap[MIXERPARAMETER_DYNAMICS_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0, true);
-}
-
 void Mixer::LoadVChannelLayout() {
     //##################################################################################
     //#
@@ -1552,4 +1530,49 @@ void Mixer::DebugPrintvChannels(void){
 	{
 	   printf(GetVChannel(i)->ToString().c_str());
 	}
+}
+
+
+void Mixer::InitMixerparameters() {
+
+    // generic
+    mixerparametermap[MIXERPARAMETER_LCD_CONTRAST] = MixerparameterDefinition("LCD Contrast", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_LCD_CONTRAST, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_LCD_CONTRAST].SetMinMaxStandard_Uint8(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT); 
+
+    mixerparametermap[MIXERPARAMETER_LED_BRIGHTNESS] = MixerparameterDefinition("LED Brightness", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_LED_BRIGHTNESS, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_LED_BRIGHTNESS].SetMinMaxStandard_Uint8(LED_BRIGHTNESS_1, LED_BRIGHTNESS_4, LED_BRIGHTNESS_4); 
+
+    // channel
+    mixerparametermap[MIXERPARAMETER_CHANNEL_GAIN] = MixerparameterDefinition("Gain", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_NONE, X32_VCHANNEL_CHANGED_GAIN, true);
+    mixerparametermap[MIXERPARAMETER_CHANNEL_GAIN].SetMinMaxStandard_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
+    mixerparametermap[MIXERPARAMETER_CHANNEL_PANORAMA] = MixerparameterDefinition("Pan/Bal", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_BALANCE,true);
+    mixerparametermap[MIXERPARAMETER_CHANNEL_PANORAMA].SetMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0);
+    mixerparametermap[MIXERPARAMETER_CHANNEL_VOLUME] = MixerparameterDefinition("Volume", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_VOLUME, true);
+    mixerparametermap[MIXERPARAMETER_CHANNEL_VOLUME].SetMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+
+    // gate
+    mixerparametermap[MIXERPARAMETER_GATE_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mixerparametermap[MIXERPARAMETER_GATE_TRESHOLD].SetMinMaxStandard_Float(GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0);
+    mixerparametermap[MIXERPARAMETER_GATE_RANGE] = MixerparameterDefinition("Range", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mixerparametermap[MIXERPARAMETER_GATE_RANGE].SetMinMaxStandard_Float(GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1);
+    mixerparametermap[MIXERPARAMETER_GATE_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mixerparametermap[MIXERPARAMETER_GATE_ATTACK].SetMinMaxStandard_Float(GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0);
+    mixerparametermap[MIXERPARAMETER_GATE_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mixerparametermap[MIXERPARAMETER_GATE_HOLD].SetMinMaxStandard_Float(GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0);
+    mixerparametermap[MIXERPARAMETER_GATE_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mixerparametermap[MIXERPARAMETER_GATE_RELEASE].SetMinMaxStandard_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
+    
+    // dynamics
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_TRESHOLD].SetMinMaxStandard_Float(DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_RATIO] = MixerparameterDefinition("Ratio", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_RATIO].SetMinMaxStandard_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_MAKEUP] = MixerparameterDefinition("Makeup", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_MAKEUP].SetMinMaxStandard_Float(DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_ATTACK].SetMinMaxStandard_Float(DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_HOLD].SetMinMaxStandard_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mixerparametermap[MIXERPARAMETER_DYNAMICS_RELEASE].SetMinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
 }

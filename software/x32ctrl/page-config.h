@@ -18,12 +18,12 @@ class PageConfig : public Page {
         }
 
         void OnInit() override { 
-			SetEncoder(0, "Source", "Invert");
-            SetEncoder(1, MIXERPARAMETER_CHANNEL_GAIN, "Phantom");
-            SetEncoder(2, MIXERPARAMETER_CHANNEL_PANORAMA);
-            SetEncoder(3, MIXERPARAMETER_CHANNEL_VOLUME, "Mute");
-            SetEncoder(4, "DEBUG: 1-16", "Phanton + 47dB");
-            SetEncoder(5, "DEBUG: 1-32", "Phanton + 47dB");
+			SetEncoder(DISPLAY_ENCODER_1, "Source", "Invert");
+            SetEncoder(DISPLAY_ENCODER_2, MIXERPARAMETER_CHANNEL_GAIN, "Phantom");
+            SetEncoder(DISPLAY_ENCODER_3, MIXERPARAMETER_CHANNEL_PANORAMA);
+            SetEncoder(DISPLAY_ENCODER_4, MIXERPARAMETER_CHANNEL_VOLUME, "Mute");
+            SetEncoder(DISPLAY_ENCODER_5, "DEBUG: 1-16", "Phanton + 47dB");
+            SetEncoder(DISPLAY_ENCODER_6, "DEBUG: 1-32", "Phanton + 47dB");
         }
 
         void OnChange(bool force_update) override {
@@ -45,17 +45,15 @@ class PageConfig : public Page {
             //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
             //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
 
-			SetEncoderValue(1, mixer->GetGain(chanIndex));
-			SetEncoderValue(2, mixer->GetBalance(chanIndex));
-			SetEncoderValue(3, mixer->GetVolumeDbfs(chanIndex));
+			SetEncoderHighlight(DISPLAY_ENCODER_1, mixer->GetPhaseInvert(chanIndex));
 
-			SetEncoderButtonLablesHighlight(
-				mixer->GetPhaseInvert(chanIndex),
-				mixer->GetPhantomPower(chanIndex),
-				false,
-				mixer->GetMute(chanIndex),
-				false,
-				false);
+			SetEncoderValue(DISPLAY_ENCODER_2, mixer->GetGain(chanIndex));
+			SetEncoderHighlight(DISPLAY_ENCODER_2, mixer->GetPhantomPower(chanIndex));
+			
+			SetEncoderValue(DISPLAY_ENCODER_3, mixer->GetBalance(chanIndex));
+			
+			SetEncoderValue(DISPLAY_ENCODER_4, mixer->GetVolumeDbfs(chanIndex));
+			SetEncoderHighlight(DISPLAY_ENCODER_4, mixer->GetMute(chanIndex));
         }
 
         void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {

@@ -48,7 +48,9 @@ class Helper {
         float samplePu2Dbfs(float samplePu);
         float sample2Dbfs(uint32_t sample);
 
-        uint8_t float2percent(float value, float value_min, float value_max);
+        uint8_t value2percent(float value, float value_min, float value_max);
+        uint8_t value2percent(uint8_t value, uint8_t value_min, uint8_t value_max);
+        uint8_t value2percent(int8_t value, int8_t value_min, int8_t value_max);
         String GetUnitOfMesaurementString(MIXERPARAMETER_UOM uom);
 
         long GetFileSize(const char* filename);

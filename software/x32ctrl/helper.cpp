@@ -410,10 +410,24 @@ void Helper::stoptimer(uint8_t timer, const char* description) {
 	printf("Timing %s: %fms\n", description, results);
 }
 
-uint8_t Helper::float2percent(float value, float value_min, float value_max) {
+uint8_t Helper::value2percent(float value, float value_min, float value_max) {
 	float onehunderedpercent = value_max - value_min;
 	float value_normiert = value - value_min;
-	float onepercent = onehunderedpercent / 100.0;
+	float onepercent = onehunderedpercent / 100.0f;
+	return value_normiert / onepercent;
+}
+
+uint8_t Helper::value2percent(uint8_t value, uint8_t value_min, uint8_t value_max) {
+	uint8_t onehunderedpercent = value_max - value_min;
+	uint8_t value_normiert = value - value_min;
+	float onepercent = onehunderedpercent / 100.0f;
+	return value_normiert / onepercent;
+}
+
+uint8_t Helper::value2percent(int8_t value, int8_t value_min, int8_t value_max) {
+	uint8_t onehunderedpercent = value_max - value_min;
+	uint8_t value_normiert = value - value_min;
+	float onepercent = onehunderedpercent / 100.0f;
 	return value_normiert / onepercent;
 }
 
