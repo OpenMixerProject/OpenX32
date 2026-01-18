@@ -29,6 +29,9 @@
 #if FX_USE_REVERB == 1
 	#include "fxReverb.h"
 #endif
+#if FX_USE_OVERDRIVE == 1
+	#include "fxOverdrive.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
@@ -212,6 +215,10 @@ void audioProcessData(void) {
 			reverbOutBuf[i_ch] = &audioBuffer[TAP_OUTPUT][i_ch][0]; // put output-data to first 2 output-channels (L/R)
 		}
 		fxReverbProcess(reverbInBuf, reverbOutBuf);
+	#endif
+
+	#if FX_USE_OVERDRIVE == 1
+		fxOverdriveProcess(&audioBuffer[TAP_INPUT][0][0], &audioBuffer[TAP_OUTPUT][2][0]);
 	#endif
 
 	#if FX_USE_UPMIXER == 1

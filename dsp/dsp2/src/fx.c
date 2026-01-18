@@ -27,6 +27,9 @@
 #if FX_USE_REVERB == 1
 	#include "fxReverb.h"
 #endif
+#if FX_USE_OVERDRIVE == 1
+	#include "fxOverdrive.h"
+#endif
 #if FX_USE_UPMIXER == 1
 	#include "fxUpmixer.h"
 #endif
@@ -37,6 +40,10 @@
 void fxInit(void) {
 	#if FX_USE_REVERB == 1
 		fxReverbInit();
+	#endif
+
+	#if FX_USE_OVERDRIVE == 1
+		fxOverdriveInit();
 	#endif
 
 	#if FX_USE_UPMIXER == 1
