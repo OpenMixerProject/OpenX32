@@ -45,13 +45,21 @@
 
 #include "fxUpmixer.h"
 
+inline float fast_inv_sqrt(float x) {
+    float y = rsqrtf(x); // hardware-estimation
+    return y * (1.5f - 0.5f * x * y * y); // one Newton-Raphson-Step for more precision
+}
+
 #if FX_USE_UPMIXER == 1
 
+#define UPMIX_WINDOW_LEN		64 		// WindowLength=64 samples takes ~32% DSP-load and has good audio-quality, WindowLength=128 takes ~60% DSP-load
+#define UPMIX_WINDOW_LEN_HALF	32
+#define UPMIX_FFT_HOP_VALUE		4		// use fine N/4 to get 75% overlap (alternatively use N/2 for 50% overlap)
+#define UPMIX_RX_SAMPLE_COUNT	(UPMIX_WINDOW_LEN / UPMIX_FFT_HOP_VALUE)
+
+// some useful defines for better readability
 #define real					0
 #define imag					1
-#define UPMIX_WINDOW_LEN		128
-#define UPMIX_FFT_HOP_VALUE		4
-#define UPMIX_RX_SAMPLE_COUNT	(UPMIX_WINDOW_LEN / UPMIX_FFT_HOP_VALUE) // use fine N/4 to get 75% overlap (alternatively use N/2 for 50% overlap for less computational stress)
 
 float hannWindow[UPMIX_WINDOW_LEN];
 float lowPassSubState = 0;
@@ -72,20 +80,20 @@ float upmixFftOutputBufferLR[2][2][UPMIX_WINDOW_LEN]; // imag/real
 float upmixFftOutputBufferC[2][UPMIX_WINDOW_LEN]; // imag/real
 #pragma align (2 * 2 * UPMIX_WINDOW_LEN)
 float upmixFftOutputBufferBackLR[2][2][UPMIX_WINDOW_LEN]; // imag/real
-#pragma align (2 * UPMIX_WINDOW_LEN/2)
-float twidtab[2][UPMIX_WINDOW_LEN/2];
+#pragma align (2 * UPMIX_WINDOW_LEN_HALF)
+float pm twidtab[2][UPMIX_WINDOW_LEN_HALF];
 #pragma align (2 * UPMIX_WINDOW_LEN)
 float upmixFftTempBuffer[2][UPMIX_WINDOW_LEN]; // imag/real
 float upmixOutputBuffer[5][UPMIX_WINDOW_LEN]; // left, right, center, back-left, back-right
 
-float maskCenter[UPMIX_WINDOW_LEN/2];
-float maskLeft[UPMIX_WINDOW_LEN/2];
-float maskRight[UPMIX_WINDOW_LEN/2];
-float maskAmbient[UPMIX_WINDOW_LEN/2];
-float maskCenter_z[UPMIX_WINDOW_LEN/2];
-float maskLeft_z[UPMIX_WINDOW_LEN/2];
-float maskRight_z[UPMIX_WINDOW_LEN/2];
-float maskAmbient_z[UPMIX_WINDOW_LEN/2];
+float maskCenter[UPMIX_WINDOW_LEN_HALF];
+float maskLeft[UPMIX_WINDOW_LEN_HALF];
+float maskRight[UPMIX_WINDOW_LEN_HALF];
+float maskAmbient[UPMIX_WINDOW_LEN_HALF];
+float maskCenter_z[UPMIX_WINDOW_LEN_HALF];
+float maskLeft_z[UPMIX_WINDOW_LEN_HALF];
+float maskRight_z[UPMIX_WINDOW_LEN_HALF];
+float maskAmbient_z[UPMIX_WINDOW_LEN_HALF];
 
 /*
 	// accessing external RAM
@@ -184,25 +192,25 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 		// Step 3 (SIMD-optimized functions): calculation of the interchannel-coherence and create mask for direct-parts
 		// ============================================================================================
 		// magnitude (out = 2 * sqrt(Re² + Im²) / fftsize)
-		float magnitude[3][UPMIX_WINDOW_LEN/2];
-		float power[2][UPMIX_WINDOW_LEN/2];
+		float magnitude[3][UPMIX_WINDOW_LEN_HALF];
+		float power[2][UPMIX_WINDOW_LEN_HALF];
 		fftf_magnitude(&upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[imag][0][0], &magnitude[0][0], UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
 		fftf_magnitude(&upmixFftInputBufferLR[real][1][0], &upmixFftInputBufferLR[imag][1][0], &magnitude[1][0], UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
 		// calculate power
-		vecvmltf(&magnitude[0][0], &magnitude[0][0], &power[0][0], UPMIX_WINDOW_LEN/2); // a, b, output, samples
-		vecvmltf(&magnitude[1][0], &magnitude[1][0], &power[1][0], UPMIX_WINDOW_LEN/2); // a, b, output, samples
+		vecvmltf(&magnitude[0][0], &magnitude[0][0], &power[0][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
+		vecvmltf(&magnitude[1][0], &magnitude[1][0], &power[1][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 
 		// cross-correlation (real-part)
-		float crossCorrellation[2][UPMIX_WINDOW_LEN/2]; // (Re(x) * Re(y) +/- Im(x) * Im(y))
-		crosscorrf(&crossCorrellation[real][0], &upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[imag][0][0], UPMIX_WINDOW_LEN/2, UPMIX_WINDOW_LEN/2); // output[lags], input_x[samples], input_y[samples], samples, lags
+		float crossCorrellation[2][UPMIX_WINDOW_LEN_HALF]; // (Re(x) * Re(y) +/- Im(x) * Im(y))
+		crosscorrf(&crossCorrellation[real][0], &upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[imag][0][0], UPMIX_WINDOW_LEN_HALF, UPMIX_WINDOW_LEN_HALF); // output[lags], input_x[samples], input_y[samples], samples, lags
 
 		// cross-correlation (imag-part)
 		// first calculate Re²
-		vecvmltf(&upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[real][0][0], &upmixFftTempBuffer[real][0], UPMIX_WINDOW_LEN/2); // a, b, output, samples
+		vecvmltf(&upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[real][0][0], &upmixFftTempBuffer[real][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 		// now calculate Im²
-		vecvmltf(&upmixFftInputBufferLR[imag][0][0], &upmixFftInputBufferLR[imag][0][0], &upmixFftTempBuffer[imag][0], UPMIX_WINDOW_LEN/2); // a, b, output, samples
+		vecvmltf(&upmixFftInputBufferLR[imag][0][0], &upmixFftInputBufferLR[imag][0][0], &upmixFftTempBuffer[imag][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 		// now calcualte Re² - Im²
-		vecvsubf(&upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &crossCorrellation[imag][0], UPMIX_WINDOW_LEN/2); // a, b, output, samples
+		vecvsubf(&upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &crossCorrellation[imag][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 
 		//magnitude Left-Right
 		fftf_magnitude(&crossCorrellation[real][0], &crossCorrellation[imag][0], &magnitude[2][0], UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
@@ -215,47 +223,60 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 
 		// Step 3: calculation of the interchannel-coherence and create mask for direct-parts
 		// ============================================================================================
-		for (int k = 0; k < (UPMIX_WINDOW_LEN/2); k++) {
+		#pragma loop_count(UPMIX_WINDOW_LEN_HALF)
+		for (int k = 0; k < UPMIX_WINDOW_LEN_HALF; k++) {
+			// get current values for left and right
+			float reL = upmixFftInputBufferLR[real][0][k];
+			float imL = upmixFftInputBufferLR[imag][0][k];
+			float reR = upmixFftInputBufferLR[real][1][k];
+			float imR = upmixFftInputBufferLR[imag][1][k];
+
 			// cross-power: power = Re² + Im²
-			float powerLeft = (upmixFftInputBufferLR[real][0][k] * upmixFftInputBufferLR[real][0][k]) + (upmixFftInputBufferLR[imag][0][k] * upmixFftInputBufferLR[imag][0][k]);
-			float powerRight = (upmixFftInputBufferLR[real][1][k] * upmixFftInputBufferLR[real][1][k]) + (upmixFftInputBufferLR[imag][1][k] * upmixFftInputBufferLR[imag][1][k]);
+			float powerL = reL*reL + imL*imL;
+			float powerR = reR*reR + imR*imR;
 
 			// magnitude = sqrt(Re² + Im²)
-			float magLeft = sqrtf(powerLeft);
-			float magRight = sqrtf(powerRight);
+			float magnitudeL = sqrtf(powerL);
+			float magnitudeR = sqrtf(powerR);
+			/*
+			// TODO: check if following code is faster compared to sqrtf()
+			// fast approximation of 1/mag
+			float invMagnitudeL = fast_inv_sqrt(powerL + 1e-6f);
+			float invMagnitudeR = fast_inv_sqrt(powerR + 1e-6f);
+			float magnitudeL = powerL * invMagnitudeL; // mag = power * (1/sqrt(power))
+			float magnitudeR = powerR * invMagnitudeR;
+			*/
 
 			// calculate magnitude of the cross-correlation
-			float realCross = (upmixFftInputBufferLR[real][0][k] * upmixFftInputBufferLR[real][1][k]) + (upmixFftInputBufferLR[imag][0][k] * upmixFftInputBufferLR[imag][1][k]);
-			float imagCross = (upmixFftInputBufferLR[imag][0][k] * upmixFftInputBufferLR[real][1][k]) - (upmixFftInputBufferLR[real][0][k] * upmixFftInputBufferLR[imag][1][k]);
-			float magLeftRight = sqrtf((realCross * realCross) + (imagCross * imagCross)); // sqrt(Re² + Im²)
+			float reCross = reL * reR + imL * imR;
+			float imCross = imL * reR - reL * imR;
+			float powerCross = reCross*reCross + imCross*imCross;
+			float magnitudeLR = sqrtf(powerCross); // sqrt(Re² + Im²) <- here we keep sqrtf()
 
 			// estimate the coherence-factor phi
 			// phi = 1 -> total coherence: channel left/right are identical
 			// phi = 0.5 -> partly coherent: lot of stereo-effect
 			// phi = 0 -> no coherence: channel left/right are totally different
-			float phi = (2.0f * magLeftRight) / (powerLeft + powerRight + 1e-6f);
+			float invSumPower = 1.0f / (powerL + powerR + 1e-6f);
+			float phi = (2.0f * magnitudeLR) * invSumPower;
 			if (phi > 1) { phi = 1.0f; } else if (phi < 0) { phi = 0.0f; } // limit to 0..1
 			// TODO: implement transient-detection and force phi=1 on steep transients to focus this to the front
 
 			// take pan-level into account
-			// panfactor = 1 -> mono signal
-			// panfactor = 0 -> hard left/right signal
-			float panFactor;
-			if (magLeft + magRight != 0) {
-				panFactor = (2.0f * fminf(magLeft, magRight)) / (magLeft + magRight);
-				if (panFactor > 1) { panFactor = 1.0f; } else if (panFactor < 0) { panFactor = 0.0f; } // limit to 0..1
-			}else{
-				panFactor = 1.0f;
-			}
+			// pan = 1 -> mono signal
+			// pan = 0 -> hard left/right signal
+			float invSumMagnitude = 1.0f / (magnitudeL + magnitudeR + 1e-6f);
+			float pan = (2.0f * fminf(magnitudeL, magnitudeR)) * invSumMagnitude;
+			if (pan > 1) { pan = 1.0f; } else if (pan < 0) { pan = 0.0f; } // limit to 0..1
 
 			// calculate masks for all channels
-			float pannedPrimaryMask = phi * (1.0f - panFactor);
-			float totalMag = magLeft + magRight + 1e-6f;
+			float pannedPrimaryMask = phi * (1.0f - pan);
+			float totalMag = magnitudeL + magnitudeR + 1e-6f;
 			float weightL;
 			float weightR;
 			if (totalMag != 0) {
-				weightL = magLeft / totalMag;
-				weightR = magRight / totalMag;
+				weightL = magnitudeL / totalMag;
+				weightR = magnitudeR / totalMag;
 			}else{
 				weightL = 1.0f;
 				weightR = 1.0f;
@@ -263,7 +284,7 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 			maskLeft[k]  = pannedPrimaryMask * weightL;
 			maskRight[k] = pannedPrimaryMask * weightR;
 
-			maskCenter[k] = phi * panFactor;
+			maskCenter[k] = phi * pan;
 			maskAmbient[k] = 1.0f - phi;
 
 			// increase the contrast between individual speaker-channels by using powf() for the channels
@@ -305,7 +326,7 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 		}
 
 		// smooth masks using out = (in - in_z) * coeff + in_z
-//		for (int k = 0; k < (UPMIX_WINDOW_LEN/2); k++) {
+//		for (int k = 0; k < (UPMIX_WINDOW_LEN_HALF); k++) {
 //			maskLeft[k] = (maskLeft[k] - maskLeft_z[k]) * 0.003f + maskLeft_z[k]; // alpha = 0.3 for faster reaction
 //			maskRight[k] = (maskRight[k] - maskRight_z[k]) * 0.0003f + maskRight_z[k]; // alpha = 0.3 for faster reaction
 //			maskCenter[k] = (maskCenter[k] - maskCenter_z[k]) * 0.3f + maskCenter_z[k]; // alpha = 0.3 for faster reaction
@@ -331,7 +352,7 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 		float *reBufBR = &upmixFftOutputBufferBackLR[real][1][0];
 		float *imBufBR = &upmixFftOutputBufferBackLR[imag][1][0];
 
-		for (int k = 0; k < (UPMIX_WINDOW_LEN/2); k++) {
+		for (int k = 0; k < (UPMIX_WINDOW_LEN_HALF); k++) {
 			#if FX_UPMIX_ADD_AMBIENCE_TO_LR == 0
 				// left: panned direct sound + 30% ambient
 				reBufL[k] = upmixFftInputBufferLR[real][0][k] * maskLeft[k];
@@ -393,7 +414,7 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 
 		// calculate the Nyquist frequency -> add 2nd half of the spectrum
 		// TODO: check if we can mitigate this or if there is a built-in-function. Maybe ifftf() can be used with different parameters
-		for (int i = 1; i < (UPMIX_WINDOW_LEN/2); i++) {
+		for (int i = 1; i < (UPMIX_WINDOW_LEN_HALF); i++) {
 			int mirrIdx = UPMIX_WINDOW_LEN - i;
 
 			reBufL[mirrIdx] = reBufL[i]; // Re=Re, Im=-Im
@@ -524,9 +545,11 @@ void fxUpmixerProcess(float* inBuf[2], float* outBuf[6], int samples) {
 
 	// calculate LFE as sum of stereo-channels with 125 Hz HighCut
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		outBuf[5][s] = lowPassSubState + lowPassSubCoeff * ((inBuf[0][s] + inBuf[1][s]) * 0.5f - lowPassSubState);
-		lowPassSubState = outBuf[5][s];
+		float inputSum = (inBuf[0][s] + inBuf[1][s]) * 0.5f; // SHARC supports Dual-MAC in a single clock-cycle
+		lowPassSubState += lowPassSubCoeff * (inputSum - lowPassSubState); // SHARC supports Dual-MAC in a single clock-cycle
+		outBuf[5][s] = lowPassSubState;
 	}
 
 

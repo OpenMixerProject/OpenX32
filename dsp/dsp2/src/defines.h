@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.05
+#define DSP_VERSION				0.06
 
 #define FX_USE_REVERB			1
 #define FX_USE_UPMIXER			0

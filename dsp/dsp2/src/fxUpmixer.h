@@ -6,7 +6,7 @@
 #if FX_USE_UPMIXER == 1
 
 #define FX_UPMIX_PHASEINVERTED_BACK_LR	1	// inverts the phase of the back-left and back-right speaker-channels
-#define FX_UPMIX_CONTRAST_ENHANCEMENT	1	// 0=Regular Mask, 1=Mask with 1.5, 2=Mask with 2 or above this as a free value. The contrast between all channels is increased by using powf() for the mask-value
+#define FX_UPMIX_CONTRAST_ENHANCEMENT	2	// 0=Regular Mask (no additional load), 1=Mask with 1.5 (+13% DSP-load), 2=Mask with 2 (+5% DSP-load), 3 and or above this as a free value: the contrast between all channels is increased by using powf() for the mask-value
 #define FX_UPMIX_ADD_AMBIENCE_TO_LR		1
 
 #define FX_UPMIXER_DELAY_BACKLEFT_MS	13	// 13ms delay to back-surround left
