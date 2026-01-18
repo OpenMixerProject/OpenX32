@@ -11,7 +11,9 @@
 struct {
 	float attack;
 	float sustain;
-	float shapeCoef;
+
+	float kFast;
+	float kSlow;
 
 	int delayLineHead;
 	int delayLineTailOffset;
@@ -21,7 +23,7 @@ struct {
 
 // function prototypes
 void fxTransientshaperInit(void);
-void fxTransientshaperSetParameter(float attack, float sustain, float shapeCoef, float delayMs);
+void fxTransientshaperSetParameter(float kFast, float kSlow, float attack, float sustain, float delayMs);
 void fxTransientshaperProcess(float* bufIn, float* bufOut);
 
 #endif

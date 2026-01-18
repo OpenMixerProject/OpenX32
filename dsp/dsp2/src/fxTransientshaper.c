@@ -43,7 +43,7 @@ void fxTransientshaperInit(void) {
 	}
 
 	// initialize parameter variables
-	fxTransientshaperSetParameter(0.15, 0.01, 1.5, 1.0); // attack, sustain, amount, delay
+	fxTransientshaperSetParameter(0.15, 0.01, 1.5, 1.5, 1.0); // kFast, kSlow, attack, sustain, delay
 
 	// internal variables
 	transientshaper.delayLineHead = 0;
@@ -51,10 +51,11 @@ void fxTransientshaperInit(void) {
 	transientshaper.envelopeSlow = 0;
 }
 
-void fxTransientshaperSetParameter(float attack, float sustain, float shapeCoef, float delayMs) {
-	transientshaper.attack = attack; // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
-	transientshaper.sustain = sustain; // sustain-envelope: 0.05 = short boost, 0.001 = wide punch
-	transientshaper.shapeCoef = shapeCoef; // amount of the effect: <1 = more sustain, 1 = Neutral, >1 = more attack
+void fxTransientshaperSetParameter(float kFast, float kSlow, float attack, float sustain, float delayMs) {
+	transientshaper.kFast = kFast; // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
+	transientshaper.kSlow = kSlow; // sustain-envelope: 0.05 = short boost, 0.001 = wide punch
+	transientshaper.attack = attack; // amount of the attack: <1 = less attack, 1 = Neutral, >1 = more attack
+	transientshaper.sustain = sustain; // amount of the sustain: <1 = less sustain, 1 = Neutral, >1 = more sustain
 
 	if (delayMs < FX_TRANSIENTSHAPER_DELAY_MS_MAX) {
 		transientshaper.delayLineTailOffset = (delayMs * dsp.samplerate * 0.001f); // 1ms
@@ -72,12 +73,23 @@ void fxTransientshaperProcess(float* bufIn, float* bufOut) {
 
 		// Step 2: calculate envelope-curve based on current sample
 		float abs_x = fabsf(bufIn[s]);
-		transientshaper.envelopeFast += transientshaper.attack * (abs_x - transientshaper.envelopeFast);
-		transientshaper.envelopeSlow += transientshaper.sustain * (abs_x - transientshaper.envelopeSlow);
+		transientshaper.envelopeFast += transientshaper.kFast * (abs_x - transientshaper.envelopeFast);
+		transientshaper.envelopeSlow += transientshaper.kSlow * (abs_x - transientshaper.envelopeSlow);
 
-		// Step 3: calculate gain-factor
+		// Step 3: calculate gain-factor via ratio
+		float finalGain = 1.0f;
 		float ratio = (transientshaper.envelopeFast + 1e-6f) / (transientshaper.envelopeSlow + 1e-6f);
-		float gain = 1.0f + (ratio - 1.0f) * (transientshaper.shapeCoef - 1.0f);
+		if (ratio > 1.0f) {
+			// ATTACK-Logic, when the signal is steeper than the average
+			finalGain += (ratio - 1.0f) * (transientshaper.attack - 1.0f);
+		} else {
+			// SUSTAIN-Logic: when signal is more silent than the average
+
+			// we are using reciprocal of ratio to boost the decay
+			// sustain > 1.0 rises level, even it is falling in reality
+			finalGain += (1.0f - ratio) * (transientshaper.sustain - 1.0f);
+		}
+		if (finalGain > 3.0f) finalGain = 3.0f; // safety-limit for sustain-boost
 
 		// Step 4: read the delayed signal from delay-line
 		int tail = transientshaper.delayLineHead - transientshaper.delayLineTailOffset;
@@ -87,7 +99,7 @@ void fxTransientshaperProcess(float* bufIn, float* bufOut) {
 		float sampleDelayed = delayLine[tail];
 
 		// Step 5: use gain on delayed sample
-		bufOut[s] = sampleDelayed * gain;
+		bufOut[s] = sampleDelayed * finalGain;
 
 		// bypass
 		//bufOut[s] = bufIn[s];
