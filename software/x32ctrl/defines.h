@@ -26,16 +26,29 @@
 
 #define VOLUME_MIN -100.0f
 
-#define GATE_THRESHOLD_MIN  -80.0
-#define GATE_THRESHOLD_MAX  0.0
-#define GATE_RANGE_MIN  3.0
-#define GATE_RANGE_MAX  60.0 // or 48dB like in Comments?
-#define GATE_ATTACK_MIN 0.0
-#define GATE_ATTACK_MAX 120.0
-#define GATE_HOLD_MIN 0.02
-#define GATE_HOLD_MAX 2000.0
-#define GATE_RELEASE_MIN 5.0
-#define GATE_RELEASE_MAX 4000.0
+#define GATE_THRESHOLD_MIN            -80.0f // dB
+#define GATE_THRESHOLD_MAX              0.0f // dB
+#define GATE_RANGE_MIN                  3.0f // dB
+#define GATE_RANGE_MAX                 60.0f // dB
+#define GATE_ATTACK_MIN                 0.0f // ms
+#define GATE_ATTACK_MAX               120.0f // ms
+#define GATE_HOLD_MIN                   0.02f // ms
+#define GATE_HOLD_MAX                2000.0f // ms
+#define GATE_RELEASE_MIN                5.0f // ms
+#define GATE_RELEASE_MAX             4000.0f // ms
+
+#define DYNAMICS_THRESHOLD_MIN            -60.0f // dB
+#define DYNAMICS_THRESHOLD_MAX              0.0f // dB
+#define DYNAMICS_RATIO_MIN             1.1f //
+#define DYNAMICS_RATIO_MAX           100.0f //
+#define DYNAMICS_MAKEUP_MIN            0.0f // dB
+#define DYNAMICS_MAKEUP_MAX           24.0f // dB
+#define DYNAMICS_ATTACK_MIN            0.0f // ms
+#define DYNAMICS_ATTACK_MAX          120.0f // ms
+#define DYNAMICS_HOLD_MIN              2.0f // ms
+#define DYNAMICS_HOLD_MAX           2000.0f // ms
+#define DYNAMICS_RELEASE_MIN          14.0f // ms
+#define DYNAMICS_RELEASE_MAX        4000.0f // ms
 
 #define MAX_CHAN_EQS                       4
 
