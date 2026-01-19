@@ -27,6 +27,12 @@
 
 #include "fxTransientshaper.h"
 
+// small helper-function that converts milliseconds to k-factor
+float ms_to_k(float ms, float fs) {
+    if (ms <= 0.0f) return 1.0f;
+    return 1.0f - expf(-1.0f / (fs * (ms / 1000.0f)));
+}
+
 fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
@@ -39,11 +45,16 @@ fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, c
 	//clearMemory(); // TODO: check if this is taking too much time
 
 	// initialize parameter variables
-	fxTransientshaperSetParameters(0.15, 0.01, 1.5, 1.5, 1.0); // kFast, kSlow, attack, sustain, delay
+	// high attack (timeFast seems be fine at delayMs/2 to move the maximum gain in the near of the real audio-peak)
+	fxTransientshaperSetParameters(0.5, 15, 150, 3, 1.0, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
+
+	// high sustain
+	//fxTransientshaperSetParameters(0.5, 15, 150, 1.0, 3, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
 
 	// internal variables
 	_delayLineHead = 0;
 	_envelopeFast = 0;
+	_envelopeMed = 0;
 	_envelopeSlow = 0;
 }
 
@@ -51,9 +62,10 @@ fxTransientshaper::~fxTransientshaper() {
     // destructor
 }
 
-void fxTransientshaper::fxTransientshaperSetParameters(float kFast, float kSlow, float attack, float sustain, float delayMs) {
-	_kFast = kFast; // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
-	_kSlow = kSlow; // sustain-envelope: 0.05 = short boost, 0.001 = wide punch
+void fxTransientshaper::fxTransientshaperSetParameters(float timeFast, float timeMed, float timeSlow, float attack, float sustain, float delayMs) {
+	_kFast = ms_to_k(timeFast, _sampleRate); // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
+	_kMed = ms_to_k(timeMed, _sampleRate);
+	_kSlow = ms_to_k(timeSlow, _sampleRate); // sustain-envelope: 0.05 = short boost, 0.001 = wide punch
 	_attack = attack; // amount of the attack: <1 = less attack, 1 = Neutral, >1 = more attack
 	_sustain = sustain; // amount of the sustain: <1 = less sustain, 1 = Neutral, >1 = more sustain
 
@@ -75,37 +87,43 @@ void fxTransientshaper::process(float* bufIn[], float* bufOut[]) {
 			_delayLineHead = 0;
 		}
 
-		// Step 2: calculate envelope-curve based on current sample
+		// Step 2: calculate envelope-curve based on current sample (look-ahead as we are using a delay-line with ~1ms)
 		float abs_x = fabsf(bufIn[0][s]);
 		_envelopeFast += _kFast * (abs_x - _envelopeFast);
+		_envelopeMed  += _kMed  * (abs_x - _envelopeMed);
 		_envelopeSlow += _kSlow * (abs_x - _envelopeSlow);
 
-		// Step 3: calculate gain-factor via ratio
-		float finalGain = 1.0f;
-		float ratio = (_envelopeFast + 1e-6f) / (_envelopeSlow + 1e-6f);
-		if (ratio > 1.0f) {
-			// ATTACK-Logic, when the signal is steeper than the average
-			finalGain += (ratio - 1.0f) * (_attack - 1.0f);
-		} else {
-			// SUSTAIN-Logic: when signal is more silent than the average
+		float transientGain;
+		if ((_envelopeMed != 0) && (_envelopeSlow != 0)) {
+			// Step 2.1: attack-gain: compare fast-envelope with medium-envelope
+			// so it reacts only on the very first attack-front
+			float attackRatio = _envelopeFast / _envelopeMed;
+			float attackGain = 1.0f + (attackRatio - 1.0f) * (_attack - 1.0f);
 
-			// we are using reciprocal of ratio to boost the decay
-			// sustain > 1.0 rises level, even it is falling in reality
-			finalGain += (1.0f - ratio) * (_sustain - 1.0f);
+			// Step 2.2: sustain-gain: compares medium-envelope with slow-envelope
+			// so it reacts only on the wide decay of the sound
+			float sustainRatio = _envelopeMed / _envelopeSlow;
+			float sustainGain = 1.0f + (sustainRatio - 1.0f) * (_sustain - 1.0f);
+
+			// Step 2.3: calculate new gain-factor
+			transientGain = attackGain * sustainGain;
+		}else{
+			// backup to avoid DIV/0
+			transientGain = 1.0;
 		}
-		if (finalGain > 3.0f) finalGain = 3.0f; // safety-limit for sustain-boost
 
-		// Step 4: read the delayed signal from delay-line
+		// Step 3: read the delayed signal from delay-line
 		int tail = _delayLineHead - _delayLineTailOffset;
 		if (tail < 0) {
 			tail += FX_TRANSIENTSHAPER_BUFFER_SIZE;
 		}
 		float sampleDelayed = _delayLine[tail];
 
-		// Step 5: use gain on delayed sample
-		bufOut[0][s] = sampleDelayed * finalGain;
+		// Step 4: use gain on delayed sample
+		bufOut[0][s] = sampleDelayed * transientGain;
 
 		// bypass
-		//bufOut[s] = bufIn[s];
+		//bufOut[0][s] = bufIn[0][s];
+		//bufOut[1][s] = bufIn[1][s];
 	}
 }

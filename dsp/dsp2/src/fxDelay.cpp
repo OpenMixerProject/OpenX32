@@ -24,9 +24,9 @@
   This file implements a demo-plugin as template for new plugins
 */
 
-#include "fxDemo.h"
+#include "fxDelay.h"
 
-fxDemo::fxDemo(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxDelay::fxDelay(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
@@ -35,7 +35,7 @@ fxDemo::fxDemo(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
-	fxDemoSetParameters(350); // set delay of 350ms
+	fxDelaySetParameters(350, 250); // set delay of 450ms
 
 	// initialize delay-lines in external memory
 	_delayLineL = (float*)(_memoryAddress);
@@ -50,21 +50,24 @@ fxDemo::fxDemo(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_delayLineHead = 0;
 }
 
-fxDemo::~fxDemo() {
+fxDelay::~fxDelay() {
     // destructor
 }
 
-void fxDemo::fxDemoSetParameters(float delayMs) {
-	if (delayMs < _delayLineLengthMaxMs) {
-		_delayLineTailOffset = (delayMs * _sampleRate * 0.001f);
+void fxDelay::fxDelaySetParameters(float delayMsL, float delayMsR) {
+	if (delayMsL < _delayLineLengthMaxMs) {
+		_delayLineTailOffsetL = (delayMsL * _sampleRate * 0.001f);
+	}
+	if (delayMsR < _delayLineLengthMaxMs) {
+		_delayLineTailOffsetR = (delayMsR * _sampleRate * 0.001f);
 	}
 }
 
-void fxDemo::rxData(float data[], int len) {
+void fxDelay::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxDemo::process(float* bufIn[], float* bufOut[]) {
+void fxDelay::process(float* bufIn[], float* bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: read samples
 	    float sampleL = bufIn[0][s];
@@ -79,11 +82,15 @@ void fxDemo::process(float* bufIn[], float* bufOut[]) {
 		}
 
 	    // Step 3: read sample from delayLine
-		int tail = _delayLineHead - _delayLineTailOffset;
+		int tail = _delayLineHead - _delayLineTailOffsetL;
 		if (tail < 0) {
 			tail += _delayLineBufferSize;
 		}
 		sampleL = _delayLineL[tail];
+		tail = _delayLineHead - _delayLineTailOffsetR;
+		if (tail < 0) {
+			tail += _delayLineBufferSize;
+		}
 		sampleR = _delayLineR[tail];
 
 	    // Step 4: process delayed data
