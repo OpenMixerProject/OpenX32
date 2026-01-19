@@ -5,7 +5,6 @@
 
 class fxDemo : public fx {
     public:
-        fxDemo();
         fxDemo(int fxSlot, int channelMode);
         ~fxDemo();
         void fxDemoSetParameters(float delayMs);

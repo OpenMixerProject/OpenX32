@@ -26,9 +26,7 @@
 
 #include "fxDemo.h"
 
-fxDemo::fxDemo() { } // we are not using the default constructor here but CCES complains when its missing
-
-fxDemo::fxDemo(int fxSlot, int channelMode) {
+fxDemo::fxDemo(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 

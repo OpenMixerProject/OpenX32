@@ -5,7 +5,6 @@
 
 class fxChorus : public fx {
     public:
-        fxChorus();
         fxChorus(int fxSlot, int channelMode);
         ~fxChorus();
         void fxChorusSetParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix);

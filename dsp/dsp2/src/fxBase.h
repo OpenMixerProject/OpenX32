@@ -5,7 +5,6 @@
 
 class fx {
 	public:
-		fx(); // constructor
 		fx(int fxSlot, int channelMode); // constructor
 		void setSampleRate(float sampleRate);
 		virtual void process(float* bufIn[], float* bufOut[]) = 0;

@@ -26,9 +26,7 @@
 
 #include "fxChorus.h"
 
-fxChorus::fxChorus() { } // we are not using the default constructor here but CCES complains when its missing
-
-fxChorus::fxChorus(int fxSlot, int channelMode) {
+fxChorus::fxChorus(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 

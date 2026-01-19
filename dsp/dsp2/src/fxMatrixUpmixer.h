@@ -4,13 +4,11 @@
 #include "fxBase.h"
 
 #define FX_MATRIXUPMIXER_DELAYBACK_MS	17	// 17ms delay to back-surround
-#define FX_MATRIXUPMIXER_SAMPLING_RATE 	48000
 #define FX_MATRIXUPMIXER_DELAY_MS_MAX	25
-#define FX_MATRIXUPMIXER_BUFFER_SIZE 	((FX_MATRIXUPMIXER_SAMPLING_RATE * FX_MATRIXUPMIXER_DELAY_MS_MAX) / 1000)
+#define FX_MATRIXUPMIXER_BUFFER_SIZE 	((SAMPLERATE_MAX * FX_MATRIXUPMIXER_DELAY_MS_MAX) / 1000)
 
 class fxMatrixUpmixer : public fx {
     public:
-        fxMatrixUpmixer();
         fxMatrixUpmixer(int fxSlot, int channelMode);
         ~fxMatrixUpmixer();
         void rxData(float data[], int len);

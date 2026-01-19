@@ -50,9 +50,7 @@ inline float fast_inv_sqrt(float x) {
     return y * (1.5f - 0.5f * x * y * y); // one Newton-Raphson-Step for more precision
 }
 
-fxUpmixer::fxUpmixer() { } // we are not using the default constructor here but CCES complains when its missing
-
-fxUpmixer::fxUpmixer(int fxSlot, int channelMode) {
+fxUpmixer::fxUpmixer(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 

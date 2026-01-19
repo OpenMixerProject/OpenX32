@@ -262,9 +262,7 @@ void hadamardMatrix(float* buf) {
 	}
 #endif
 
-fxReverb::fxReverb() { } // we are not using the default constructor here but CCES complains when its missing
-
-fxReverb::fxReverb(int fxSlot, int channelMode) {
+fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
@@ -288,7 +286,11 @@ fxReverb::fxReverb(int fxSlot, int channelMode) {
 	// initialize variables and the effect itself
 	_diffusionDelayLineHead = 0;
 	_delay.head = 0;
-	fxReverbSetParameters(100.0f, 3.0f, 14000, 1.0f, 0.25f); // roomSizeMs, rt60, feedback lowpass frequency, dry, wet
+	fxReverbSetParameters(100.0f, 3.0f, 14000.0f, 1.0f, 0.25f); // roomSizeMs, rt60, feedback lowpass frequency, dry, wet
+
+	for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
+		_delay.lowPassDelayState[i_ch] = 0.0f;
+	}
 }
 
 fxReverb::~fxReverb() {
@@ -308,14 +310,14 @@ void fxReverb::fxReverbSetParameters(float roomSizeMs, float rt60, float feedbac
 		Pow10(&tmp);
 		_feedbackDecayGain = tmp; // -1.5dB/cycle = x0.85
 	#endif
-	_delay.lowPassDelayCoeff = (2.0f * M_PI * feedbackLowPassFreq) / ((float)FX_REVERB_SAMPLING_RATE + 2.0f * M_PI * feedbackLowPassFreq); // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
+	_delay.lowPassDelayCoeff = (2.0f * M_PI * feedbackLowPassFreq) / (_sampleRate + 2.0f * M_PI * feedbackLowPassFreq); // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
 	_dry = dry;
 	_wet = wet;
 
 	float diffusionMs = _roomSizeMs;
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 		diffusionMs *= 0.5f; // first element has 50% of desired roomSize, next 25%, next 12.5% and so on
-		float diffusionDelaySamplesRange = diffusionMs * (float)FX_REVERB_SAMPLING_RATE * 0.001f;
+		float diffusionDelaySamplesRange = diffusionMs * _sampleRate * 0.001f;
 
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 			float rangeLow = diffusionDelaySamplesRange * (float)i_ch / (float)FX_REVERB_INT_CHAN;
@@ -330,7 +332,7 @@ void fxReverb::fxReverbSetParameters(float roomSizeMs, float rt60, float feedbac
 	}
 
 	// calculate the delay for multichannel-feedback
-	float delayLineTailOffsetBase = (_roomSizeMs * (float)FX_REVERB_SAMPLING_RATE * 0.001f);
+	float delayLineTailOffsetBase = (_roomSizeMs * _sampleRate * 0.001f);
 	for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 		_delay.tailOffset[i_ch] = powf(2.0f, (float)i_ch / (float)FX_REVERB_INT_CHAN) * delayLineTailOffsetBase; // TODO: make sure that we are not exceeding the limits of the delay-array here
 	}
@@ -399,7 +401,6 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 
 
 
-
 		// Step 3: feedbackProcess
 		// =================================
 		// Step 3.1: read delayed data from delay-line
@@ -414,24 +415,19 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 		// Step 3.2: calculate householder-matrix
 		householderMatrix(&_fxBufOutput[0], &_fxBufFeedback[0]);
 
-		float decayGain = _feedbackDecayGain;
-		float lpCoeff = _delay.lowPassDelayCoeff;
-
 		#pragma loop_count(FX_REVERB_INT_CHAN)
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 			// implement low-pass-filter on the feedback-line
-			float state = _delay.lowPassDelayState[i_ch];
-			float inVal = _fxBufFeedback[i_ch];
-			float filtered = state + lpCoeff * (inVal - state);
-
+			// lowpass: output = zoutput + coeff * (input - zoutput)
+			float filtered = _delay.lowPassDelayState[i_ch] + _delay.lowPassDelayCoeff * (_fxBufFeedback[i_ch] - _delay.lowPassDelayState[i_ch]);
 			_delay.lowPassDelayState[i_ch] = filtered;
 
-			// Decay & Sum in einem Rutsch
+			// use MAC for Decay & Sum in a single step
 			// _fxBuf is currently the "Diffused Signal"
-			// _fxBuf[i_ch] = _fxBuf[i_ch] + (filtered * decayGain);
+			// _fxBuf[i_ch] = _fxBuf[i_ch] + (filtered * _feedbackDecayGain);
 
 			// SHARC is able to calculate MAC (Multiply-Accumulate)
-			_fxBuf[i_ch] += filtered * decayGain;
+			_fxBuf[i_ch] += filtered * _feedbackDecayGain;
 		}
 
 		// Step 3.3: write feedback-data to delay-line
@@ -442,7 +438,6 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 		if (_delay.head >= FX_REVERB_BUFFER_SIZE) {
 			_delay.head = 0;
 		}
-
 
 /*
 		// Test write/read to SDRAM
@@ -460,6 +455,12 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 		_delay.head++;
 		if (_delay.head >= FX_REVERB_BUFFER_SIZE) {
 			_delay.head = 0;
+		}
+*/
+/*
+		// Debug: copy input to output
+		for (int i = 0; i < 8; i++) {
+			_fxBufOutput[i] = _fxBuf[i];
 		}
 */
 

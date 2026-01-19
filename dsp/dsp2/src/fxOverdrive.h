@@ -7,7 +7,6 @@
 
 class fxOverdrive : public fx {
     public:
-        fxOverdrive();
         fxOverdrive(int fxSlot, int channelMode);
         ~fxOverdrive();
         void fxOverdriveSetFilters(float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);

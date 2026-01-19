@@ -4,11 +4,10 @@
 #include "fxBase.h"
 
 #define FX_TRANSIENTSHAPER_DELAY_MS_MAX		50
-#define FX_TRANSIENTSHAPER_BUFFER_SIZE 		((48000 * FX_TRANSIENTSHAPER_DELAY_MS_MAX) / 1000)
+#define FX_TRANSIENTSHAPER_BUFFER_SIZE 		((SAMPLERATE_MAX * FX_TRANSIENTSHAPER_DELAY_MS_MAX) / 1000)
 
 class fxTransientshaper : public fx {
     public:
-        fxTransientshaper();
         fxTransientshaper(int fxSlot, int channelMode);
         ~fxTransientshaper();
         void fxTransientshaperSetParameters(float kFast, float kSlow, float attack, float sustain, float delayMs);

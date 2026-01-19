@@ -27,9 +27,7 @@
 
 #include "fxTransientshaper.h"
 
-fxTransientshaper::fxTransientshaper() { } // we are not using the default constructor here but CCES complains when its missing
-
-fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) {
+fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 

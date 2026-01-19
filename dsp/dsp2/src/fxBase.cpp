@@ -24,8 +24,6 @@
 
 #include "fxBase.h"
 
-fx::fx() { } // we are not using the default constructor here but CCES complains when its missing
-
 fx::fx(int fxSlot, int channelMode) {
 	// take the memory-slot-address (we have 8 of them)
 	_fxSlot = fxSlot;

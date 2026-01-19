@@ -154,12 +154,12 @@ void audioInit(void) {
 
 	fxSlots[0] = new fxReverb(0, 2); // EffectSlot #0, Stereo
 	fxSlots[1] = new fxChorus(1, 2); // EffectSlot #1, Stereo
-	fxSlots[2] = new fxTransientshaper(2, 2); // EffectSlot #2, Stereo
+//	fxSlots[2] = new fxTransientshaper(2, 2); // EffectSlot #2, Stereo
 	fxSlots[3] = new fxOverdrive(3, 1); // EffectSlot #3, Mono
 	fxSlots[4] = new fxDemo(4, 2); // EffectSlot #4, Stereo
 	//fxSlots[5] = new fxDemo(5, 2); // EffectSlot #5, Stereo
-	fxSlots[6] = new fxUpmixer(6, 6); // EffectSlot #6, Surround
-	fxSlots[7] = new fxMatrixUpmixer(7, 6); // EffectSlot #7, Surround
+//	fxSlots[6] = new fxUpmixer(6, 6); // EffectSlot #6, Surround
+//	fxSlots[7] = new fxMatrixUpmixer(7, 6); // EffectSlot #7, Surround
 }
 
 void audioFxData(int fxSlot, float* data, int len) {
@@ -240,14 +240,17 @@ void audioProcessData(void) {
 	// process specific effects
 	fxSlots[0]->process(&fxInBuf[0][0], &fxOutBuf[0][0]); // reverb
 	fxSlots[1]->process(&fxInBuf[1][0], &fxOutBuf[1][0]); // chorus
-	fxSlots[2]->process(&fxInBuf[2][0], &fxOutBuf[2][0]); // transientshaper
+//	fxSlots[2]->process(&fxInBuf[2][0], &fxOutBuf[2][0]); // transientshaper
 	fxSlots[3]->process(&fxInBuf[3][0], &fxOutBuf[3][0]); // overdrive
 	fxSlots[4]->process(&fxInBuf[4][0], &fxOutBuf[4][0]); // demo-plugin
 	//fxSlots[5]->process(&fxInBuf[5][0], &fxOutBuf[5][0]); // demo-plugin
 	//fxSlots[6]->process(&fxInBuf[6][0], &fxOutSurroundBuf[0]); // stereo-decompositing-upmixer
 	//fxSlots[7]->process(&fxInBuf[7][0], &fxOutSurroundBuf[0]); // matrix-upmixer
 
-
+	// copy channel 1 to DSP2 AuxOut 1
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		audioBuffer[TAP_OUTPUT][16][s] = audioBuffer[TAP_INPUT][0][s]; // 0..7 = Ch1-8, 8..15 = Ch9-16, 16..23 = AuxCh1-8
+	}
 
 
 	/*

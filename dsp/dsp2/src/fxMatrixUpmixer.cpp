@@ -34,9 +34,7 @@
 
 #include "fxMatrixUpmixer.h"
 
-fxMatrixUpmixer::fxMatrixUpmixer() { } // we are not using the default constructor here but CCES complains when its missing
-
-fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, int channelMode) {
+fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
@@ -106,7 +104,7 @@ void fxMatrixUpmixer::process(float* bufIn[], float* bufOut[]) {
 		}
 	}
 	// read surround_signal from delay line
-	int delayLineTail = _delayLineHead - (FX_MATRIXUPMIXER_DELAYBACK_MS * FX_MATRIXUPMIXER_SAMPLING_RATE / 1000); // here we set the delay in milliseconds
+	int delayLineTail = _delayLineHead - (FX_MATRIXUPMIXER_DELAYBACK_MS * _sampleRate / 1000); // here we set the delay in milliseconds
 	if (delayLineTail < 0) {
 		delayLineTail += FX_MATRIXUPMIXER_BUFFER_SIZE;
 	}

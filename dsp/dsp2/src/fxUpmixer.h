@@ -9,10 +9,10 @@
 #define FX_UPMIXER_DELAY_MS_MAX			25	// maximum 8 meters
 #define FX_UPMIXER_BUFFER_SIZE 			((SAMPLERATE_MAX * FX_UPMIXER_DELAY_MS_MAX) / 1000)
 
-#define UPMIX_WINDOW_LEN		64 		// WindowLength=64 samples takes ~32% DSP-load and has good audio-quality, WindowLength=128 takes ~60% DSP-load
-#define UPMIX_WINDOW_LEN_HALF	32
-#define UPMIX_FFT_HOP_VALUE		4		// use fine N/4 to get 75% overlap (alternatively use N/2 for 50% overlap)
-#define UPMIX_RX_SAMPLE_COUNT	(UPMIX_WINDOW_LEN / UPMIX_FFT_HOP_VALUE)
+#define UPMIX_WINDOW_LEN				64 	// WindowLength=64 samples takes ~32% DSP-load and has good audio-quality, WindowLength=128 takes ~60% DSP-load
+#define UPMIX_WINDOW_LEN_HALF			32
+#define UPMIX_FFT_HOP_VALUE				4	// use fine N/4 to get 75% overlap (alternatively use N/2 for 50% overlap)
+#define UPMIX_RX_SAMPLE_COUNT			(UPMIX_WINDOW_LEN / UPMIX_FFT_HOP_VALUE)
 
 // some useful defines for better readability
 #define real					0
@@ -20,7 +20,6 @@
 
 class fxUpmixer : public fx {
     public:
-        fxUpmixer();
         fxUpmixer(int fxSlot, int channelMode);
         ~fxUpmixer();
         void fxUpmixerSetParameters(float delayMsBackLeft, float delayMsBackRight, float ambientToLR);
