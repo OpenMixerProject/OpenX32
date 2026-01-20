@@ -8,7 +8,7 @@
 #define FX_REVERB_AVERAGE_OUTPUT	1	// 0=take fxOut as left/right directly, 1=mixdown multichannel-fxOut to stereo
 #define FX_REVERN_ALTERNATIVE_RND	0	// 0=use internal rand() function, 1=use bitshifting chaos (alternative sounds more metallic... not a good choice :-) )
 #define FX_REVERN_ALTERNATIVE_POW	0	// 0=use internal powf() function, 1=use approximation (approximation seems to be slower compared to internal powf())
-#define FX_REVERB_DELAY_MS_MAX		400	// we need 4608 bytes per millisecond. 400ms -> 1843200 bytes
+#define FX_REVERB_DELAY_MS_MAX		110	// we need 4608 bytes per millisecond. 400ms -> 1843200 bytes
 #define FX_REVERB_BUFFER_SIZE 		((SAMPLERATE_MAX * FX_REVERB_DELAY_MS_MAX) / 1000) // FX_REVERB_BUFFER_SIZE has to be power-of-2, to use optimized pointer-calculation
 
 // FX_REVERB_HADAMARD_SCALING = sqrtf(1.0f / FX_REVERB_INT_CHAN)
@@ -44,7 +44,7 @@ class fxReverb : public fx {
         void rxData(float data[], int len);
         void process(float* bufIn[], float* bufOut[]);
     private:
-    	sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS];
+        sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS];
     	sDelay _delay;
 
     	float* _diffusionDelayLine[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];

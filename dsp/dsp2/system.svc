@@ -64,7 +64,7 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="min_size" value="2"/>
 						</propertygroup>
 						<propertygroup name="use_sdram" value="true">
-							<property name="partitioned" value="custom"/>
+							<property name="partitioned" value="default"/>
 							<property name="size" value="16"/>
 							<property name="size_units" value="MegaBytes"/>
 							<property name="dmc_size_0" value="16"/>
@@ -77,6 +77,12 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="use_fixed_point_io_libs" value="false"/>
 							<property name="use_fileio_libs" value="false"/>
 							<property name="use_alt_io_lib" value="false"/>
+						</propertygroup>
+						<propertygroup name="user_heap_ExtHeap" value="External">
+							<property name="min_size" value="2"/>
+							<property name="heap_name" value="ExtHeap"/>
+							<property name="size_units" value="kB"/>
+							<property name="heap_id" value="1"/>
 						</propertygroup>
 						<property name="use_eh" value="true"/>
 						<property name="user_heap_src_file" value="app_heaptab.c"/>

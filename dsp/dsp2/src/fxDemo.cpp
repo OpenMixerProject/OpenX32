@@ -26,12 +26,14 @@
 
 #include "fxDemo.h"
 
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 fxDemo::fxDemo(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
 	// calculate the maximum amount of space we need in the external RAM for the maximum samplerate we are supporting
-	_delayLineLengthMaxMs = 400;
+	_delayLineLengthMaxMs = 1000;
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
@@ -80,7 +82,7 @@ void fxDemo::process(float* bufIn[], float* bufOut[]) {
 
 	    // Step 3: read sample from delayLine
 		int tail = _delayLineHead - _delayLineTailOffset;
-		if (tail < 0) {
+		while (tail < 0) {
 			tail += _delayLineBufferSize;
 		}
 		sampleL = _delayLineL[tail];

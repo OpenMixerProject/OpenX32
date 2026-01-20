@@ -3,6 +3,8 @@
 
 #include "fxBase.h"
 
+#if FX_USE_MATRIXUPMIXER == 1
+
 #define FX_MATRIXUPMIXER_DELAYBACK_MS	17	// 17ms delay to back-surround
 #define FX_MATRIXUPMIXER_DELAY_MS_MAX	25
 #define FX_MATRIXUPMIXER_BUFFER_SIZE 	((SAMPLERATE_MAX * FX_MATRIXUPMIXER_DELAY_MS_MAX) / 1000)
@@ -26,5 +28,7 @@ class fxMatrixUpmixer : public fx {
     	float _lowPassSurroundState;
     	float _lowPassSurroundCoeff;
 };
+
+#endif
 
 #endif /* FXMATRIXUPMIXER_H_ */

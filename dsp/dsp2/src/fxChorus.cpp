@@ -26,6 +26,8 @@
 
 #include "fxChorus.h"
 
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 fxChorus::fxChorus(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things

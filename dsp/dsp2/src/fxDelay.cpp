@@ -26,16 +26,18 @@
 
 #include "fxDelay.h"
 
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 fxDelay::fxDelay(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
 	// calculate the maximum amount of space we need in the external RAM for the maximum samplerate we are supporting
-	_delayLineLengthMaxMs = 400;
+	_delayLineLengthMaxMs = 500;
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
-	fxDelaySetParameters(350, 250); // set delay of 450ms
+	fxDelaySetParameters(350, 450); // set delay of 450ms
 
 	// initialize delay-lines in external memory
 	_delayLineL = (float*)(_memoryAddress);
@@ -83,12 +85,12 @@ void fxDelay::process(float* bufIn[], float* bufOut[]) {
 
 	    // Step 3: read sample from delayLine
 		int tail = _delayLineHead - _delayLineTailOffsetL;
-		if (tail < 0) {
+		while (tail < 0) {
 			tail += _delayLineBufferSize;
 		}
 		sampleL = _delayLineL[tail];
 		tail = _delayLineHead - _delayLineTailOffsetR;
-		if (tail < 0) {
+		while (tail < 0) {
 			tail += _delayLineBufferSize;
 		}
 		sampleR = _delayLineR[tail];
@@ -97,7 +99,7 @@ void fxDelay::process(float* bufIn[], float* bufOut[]) {
 		// do something here
 
 	    // Step 5: output samples
-	    bufOut[0][s] = sampleL;
-	    bufOut[1][s] = sampleR;
+	    bufOut[0][s] = fclipf(sampleL, 2147483647.0f);
+	    bufOut[1][s] = fclipf(sampleR, 2147483647.0f);
 	}
 }

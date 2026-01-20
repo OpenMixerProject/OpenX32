@@ -12,6 +12,7 @@ extern "C" {
 // function prototypes
 void audioInit(void);
 void audioFxData(int fxSlot, float* data, int len);
+void audioFxChangeSlot(int fxSlot, int newFx, int channelCount);
 void audioProcessData(void);
 void audioRxISR(uint32_t , void *);
 void audioSpdifTxISR(uint32_t, void*);

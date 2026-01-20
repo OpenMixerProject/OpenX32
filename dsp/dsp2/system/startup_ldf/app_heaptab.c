@@ -1,5 +1,5 @@
 /*
-** ADSP-21371 user heap source file generated on Jan 13, 2026 at 17:52:16.
+** ADSP-21371 user heap source file generated on Jan 20, 2026 at 18:06:43.
 */
 /*
 ** Copyright (C) 2000-2023 Analog Devices Inc., All Rights Reserved.
@@ -34,11 +34,14 @@
 
 extern "asm" unsigned long ldf_heap_space;
 extern "asm" unsigned long ldf_heap_length;
+extern "asm" int ExtHeap_space;
+extern "asm" int ExtHeap_length;
 
-const __heap_desc_t heap_table[2] =
+const __heap_desc_t heap_table[3] =
 {
 
   { &ldf_heap_space, (unsigned long) &ldf_heap_length, 0 },
+  { &ExtHeap_space, (unsigned long) &ExtHeap_length, 1 },
 
   { (void *)0, (size_t)0, 0 } /* This terminates the table. */
 };

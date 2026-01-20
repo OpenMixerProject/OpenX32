@@ -168,6 +168,7 @@
 								</option>
 								<option id="linker.option.misrachecksrcfiles.308200581" name="-misra-no-cross-module" superClass="linker.option.misrachecksrcfiles" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="linker.option.runtimeinit.2024926075" name="Runtime initialization (-mem)" superClass="linker.option.runtimeinit" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="linker.option.gensymbolmap.1326025631" name="Generate symbol map (-map)" superClass="linker.option.gensymbolmap" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<inputType id="linker.doj.input.213605980" name="Object Files" superClass="linker.doj.input"/>
 							</tool>
 							<tool id="sharc.toolchain.archiver.1748186323" name="CrossCore SHARC Archiver" superClass="sharc.toolchain.archiver">

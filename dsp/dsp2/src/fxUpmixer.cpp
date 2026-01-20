@@ -45,6 +45,10 @@
 
 #include "fxUpmixer.h"
 
+#if FX_USE_UPMIXER == 1
+
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 inline float fast_inv_sqrt(float x) {
     float y = rsqrtf(x); // hardware-estimation
     return y * (1.5f - 0.5f * x * y * y); // one Newton-Raphson-Step for more precision
@@ -535,3 +539,5 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 		upmixOutputSampleCounter -= UPMIX_RX_SAMPLE_COUNT;
 	}
 }
+
+#endif

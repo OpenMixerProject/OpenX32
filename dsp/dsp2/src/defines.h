@@ -2,6 +2,8 @@
 #define DEFINES_H_
 
 #define DSP_VERSION				0.10
+#define FX_USE_UPMIXER			0
+#define FX_USE_MATRIXUPMIXER	0
 
 // DSP2 receives 24 Audio-channels
 // Channel 1-8		-> FX Sends 1-8
@@ -22,10 +24,10 @@
 
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
-#define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
-#define SDRAM_SIZE_WORDS		0x00400000	// size of SDRAM in 32-bit words (16 MiB)
-#define SDRAM_SIZE_BYTE			(SDRAM_SIZE_WORDS * 4)	// size of SDRAM in 8-bit bytes (16 MiB)
-// we are slicing the external 16MB SDRAM into eight parts for each effect-slot
+#define SDRAM_START  			0x04000000	// start address of system-data in SDRAM on Bank1 (nMS1)
+#define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)
+#define SDRAM_AUDIO_SIZE_BYTE	(14 * 1024 * 1024)	// we are using 2MB for system-data and 14MB for audio-data
+// we are slicing the external 16MB SDRAM into parts for each effect-slot
 //#define SDRAM_FX_x			(SDRAM_START + (x * (SDRAM_SIZE_BYTE / 8)))
 
 #define MAX_CHAN				24

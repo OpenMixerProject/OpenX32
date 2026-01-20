@@ -153,9 +153,9 @@ void systemExternalMemoryInit() {
 	NOP();
 
 /*
-	// clear memory
-    float* ptr = (float*)SDRAM_START;
-    for (int i = 0; i < ((16 * 1024 * 1024) / sizeof(float)); i++) {
+	// clear audio-memory that is used by fxRack
+    float* ptr = (float*)SDRAM_AUDIO_START;
+    for (int i = 0; i < (SDRAM_AUDIO_SIZE_BYTE / sizeof(float)); i++) {
         ptr[i] = 0.0f;
     }
 */

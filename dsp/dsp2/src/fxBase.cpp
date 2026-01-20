@@ -29,8 +29,8 @@ fx::fx(int fxSlot, int channelMode) {
 	_fxSlot = fxSlot;
 	_channelMode = channelMode;
 
-	// calculate the base-address in memory for this effect. We have 2MB for each channel
-	_memoryAddress = (SDRAM_START + (_fxSlot * (SDRAM_SIZE_BYTE / 8))); // we are using 8 fx-slots so divide by 8
+	// calculate the base-address in memory for this effect. We have 1MB for each channel
+	_memoryAddress = (SDRAM_AUDIO_START + (_fxSlot * (SDRAM_AUDIO_SIZE_BYTE / 8))); // we are using 8 fx-slots so divide by 8
 
 	_sampleRate = 48000.0f;
 }
@@ -44,7 +44,7 @@ void fx::setSampleRate(float sampleRate) {
 void fx::clearMemory() {
 	// initialize the memory with zeros
     float* ptr = (float*)_memoryAddress;
-    for (int i = 0; i < (2097152 / sizeof(float)); i++) {
+    for (int i = 0; i < ((SDRAM_AUDIO_SIZE_BYTE / 8) / sizeof(float)); i++) {
         ptr[i] = 0.0f;
     }
 }

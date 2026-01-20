@@ -28,6 +28,8 @@
 
 #include "fxOverdrive.h"
 
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 fxOverdrive::fxOverdrive(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
@@ -55,7 +57,10 @@ void fxOverdrive::fxOverdriveSetFilters(float hpfInputFreq, float lpfInputFreq, 
 void fxOverdrive::fxOverdriveSetGain(float preGain, float Q) {
 	_preGain = preGain;
 	_Q = Q;
-	_clipConst = _Q / (1.0f - expf(8.0f * _Q));
+	float denum = 1.0f - expf(8.0f * _Q);
+	if (denum != 0) {
+		_clipConst = _Q / denum;
+	}
 }
 
 void fxOverdrive::rxData(float data[], int len) {
@@ -79,8 +84,9 @@ void fxOverdrive::process(float* bufIn[], float* bufOut[]) {
 		// overdrive with asymmetrical clipping
 		signal = _preGain * signal;
 		float clipOut = _clipConst;
-		if ((signal - _Q) >= 0.00001f) {
-			clipOut += (signal - _Q) / (1.0f - expf(-8.0f * (signal - _Q)));
+		float denum = 1.0f - expf(-8.0f * (signal - _Q));
+		if (denum != 0) {
+			clipOut += (signal - _Q) / denum;
 		}
 
 		// output lowpass: output = zoutput + coeff * (input - zoutput)
@@ -89,9 +95,11 @@ void fxOverdrive::process(float* bufIn[], float* bufOut[]) {
 		_lpfOutputState = clipOut; // store zoutput
 
 		// limit output to +/-2^31
-		bufOut[0][s] = fclipf(clipOut, 2147483647.0f);
+		bufOut[0][s] = clipOut;
+		bufOut[1][s] = clipOut;
 
 		// bypass
 		//bufOut[0][s] = bufIn[0][s];
+		//bufOut[1][s] = bufIn[1][s];
 	}
 }

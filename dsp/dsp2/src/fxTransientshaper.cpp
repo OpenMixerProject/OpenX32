@@ -27,6 +27,8 @@
 
 #include "fxTransientshaper.h"
 
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 // small helper-function that converts milliseconds to k-factor
 float ms_to_k(float ms, float fs) {
     if (ms <= 0.0f) return 1.0f;
@@ -45,8 +47,8 @@ fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, c
 	//clearMemory(); // TODO: check if this is taking too much time
 
 	// initialize parameter variables
-	// high attack (timeFast seems be fine at delayMs/2 to move the maximum gain in the near of the real audio-peak)
-	fxTransientshaperSetParameters(0.5, 15, 150, 3, 1.0, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
+	// high attack (timeFast seems be fine at delayMs*2 to move the maximum gain in the near of the real audio-peak)
+	fxTransientshaperSetParameters(1, 15, 150, 3, 1.0, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
 
 	// high sustain
 	//fxTransientshaperSetParameters(0.5, 15, 150, 1.0, 3, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
@@ -114,13 +116,14 @@ void fxTransientshaper::process(float* bufIn[], float* bufOut[]) {
 
 		// Step 3: read the delayed signal from delay-line
 		int tail = _delayLineHead - _delayLineTailOffset;
-		if (tail < 0) {
+		while (tail < 0) {
 			tail += FX_TRANSIENTSHAPER_BUFFER_SIZE;
 		}
 		float sampleDelayed = _delayLine[tail];
 
 		// Step 4: use gain on delayed sample
 		bufOut[0][s] = sampleDelayed * transientGain;
+		bufOut[1][s] = sampleDelayed * transientGain;
 
 		// bypass
 		//bufOut[0][s] = bufIn[0][s];

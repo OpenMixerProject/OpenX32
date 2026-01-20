@@ -29,6 +29,8 @@
 
 #include "fxReverb.h"
 
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 #if FX_REVERN_ALTERNATIVE_POW == 1
 	// Fast power-of-10 approximation, with RMS error of 1.77%.
 	// This approximation developed by Nicol Schraudolph (Neural Computation vol 11, 1999).
@@ -344,7 +346,7 @@ void fxReverb::rxData(float data[], int len) {
 
 void fxReverb::process(float* bufIn[], float* bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		// Step 1: generate multi-channel fx-input
+		// Step 1: generate multi-channel fx-input (inL -> _fxBuf[0,2,4,6], inR -> _fxBuf[1,3,5,7])
 		// =================================
 		float inL = bufIn[0][s];
 		float inR = bufIn[1][s];
@@ -360,7 +362,9 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 			}
 		#endif
 
-		// Step 2: diffusion-process
+
+
+		// Step 2: diffusion-process (_fxBuf[] -> diffusionDelay[] -> _fxBuf[])
 		// =================================
         for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 			// pointer to Delay-Line. Mitigates [d][i]-indirection within inner loop
@@ -375,9 +379,9 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 				#endif
 
 				// Step 2.2: Read data from delay-line
-				//int tail = (_diffusionDelayLineHead - _diffusor[d].delayLineTailOffset[i_ch]) & (FX_REVERB_BUFFER_SIZE - 1); // faster version of buffersize is power of 2
+				//int tail = (_diffusionDelayLineHead - _diffusor[d].delayLineTailOffset[i_ch]) & (FX_REVERB_BUFFER_SIZE - 1); // faster version if buffersize is power of 2
 				int tail = _diffusionDelayLineHead - _diffusor[d].delayLineTailOffset[i_ch];
-				if (tail < 0) {
+				while (tail < 0) {
 					tail += FX_REVERB_BUFFER_SIZE;
 				}
 				_fxBuf[i_ch] = currentDiffLine[i_ch][tail];
@@ -401,12 +405,12 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 
 
 
-		// Step 3: feedbackProcess
+		// Step 3: feedbackProcess (_fxBuf[] + delay[] * decay -> delay[] -> _fxBufOutput[])
 		// =================================
 		// Step 3.1: read delayed data from delay-line
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 			int tail = _delay.head - _delay.tailOffset[i_ch];
-			if (tail < 0) {
+			while (tail < 0) {
 				tail += FX_REVERB_BUFFER_SIZE;
 			}
 			_fxBufOutput[i_ch] = _delayLine[i_ch][tail];
@@ -428,29 +432,36 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 
 			// SHARC is able to calculate MAC (Multiply-Accumulate)
 			_fxBuf[i_ch] += filtered * _feedbackDecayGain;
+
+			// feedback without lowpass-filter
+			//_fxBuf[i_ch] += _fxBufFeedback[i_ch] * _feedbackDecayGain;
 		}
+
 
 		// Step 3.3: write feedback-data to delay-line
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 			_delayLine[i_ch][_delay.head] = _fxBuf[i_ch];
 		}
 		_delay.head++;
-		if (_delay.head >= FX_REVERB_BUFFER_SIZE) {
+		if (_delay.head == FX_REVERB_BUFFER_SIZE) {
 			_delay.head = 0;
 		}
 
+
+
+
 /*
-		// Test write/read to SDRAM
+		// DEBUG: test write/read to SDRAM (_fxBuf[] -> delay[] -> _fxBufOutput[])
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 			// write to SDRAM
-			delayLine[i_ch][_delay.head] = _fxBuf[i_ch];
+			_delayLine[i_ch][_delay.head] = _fxBuf[i_ch];
 
 			// read from SDRAM
 			int tail = _delay.head;
-			if (tail < 0) {
+			while (tail < 0) {
 				tail += FX_REVERB_BUFFER_SIZE;
 			}
-			_fxBufOutput[i_ch] = delayLine[i_ch][tail];
+			_fxBufOutput[i_ch] = _delayLine[i_ch][tail];
 		}
 		_delay.head++;
 		if (_delay.head >= FX_REVERB_BUFFER_SIZE) {
@@ -458,8 +469,8 @@ void fxReverb::process(float* bufIn[], float* bufOut[]) {
 		}
 */
 /*
-		// Debug: copy input to output
-		for (int i = 0; i < 8; i++) {
+		// DEBUG: direct copy input to output
+		for (int i = 0; i < FX_REVERB_INT_CHAN; i++) {
 			_fxBufOutput[i] = _fxBuf[i];
 		}
 */

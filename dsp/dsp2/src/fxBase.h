@@ -9,7 +9,7 @@ class fx {
 		void setSampleRate(float sampleRate);
 		virtual void process(float* bufIn[], float* bufOut[]) = 0;
 		virtual void rxData(float data[], int len) = 0;
-		virtual ~fx(void); // destructor
+		virtual ~fx(); // destructor
 	protected:
 		int _fxSlot;
 		bool _channelMode;

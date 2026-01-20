@@ -7,7 +7,7 @@
 #define DEBUG_DISABLE_GATE		0
 #define DEBUG_DISABLE_EQ		0
 #define DEBUG_DISABLE_DYNAMICS	0
-#define DEBUG_DISABLE_EQMAIN	0
+#define DEBUG_DISABLE_EQMAIN	1
 #define DEBUG_DISABLE_MIXBUS	1
 
 #define DSP_BUF_IDX_OFF			0	// no audio
@@ -26,7 +26,7 @@
 
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
-#define SDRAM_START  			0x00200000	// start address of SDRAM
+#define SDRAM_START  			0x04000000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
 #define MAX_CHAN_FPGA			40	// total channels that are received from FPGA

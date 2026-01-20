@@ -38,9 +38,8 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 	*/
 
 	float* floatValues = (float*)values;
-	unsigned int* intValues = (unsigned int*)values;
-	float data[80];
-	float tmpValueFloat;
+	int* intValues = (int*)values;
+	float data[2];
 
 	switch (classId) {
 		case '?': // request-class
@@ -58,7 +57,20 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 			break;
 		case 'f': // Data for FX-Slots
-			audioFxData(index, floatValues, valueCount);
+			switch (channel) {
+				case 'c':
+					// new command for the individual effects
+					audioFxData(index, floatValues, valueCount);
+					break;
+				case 'r':
+					// change the rack-configuration
+					if (valueCount == 2) {
+						audioFxChangeSlot(index, intValues[0], intValues[1]); // fxSlot, fxId, channelCount
+					}
+					break;
+				default:
+					break;
+			}
 			break;
 		case 'a': // Auxiliary
 			if (valueCount == 1) {

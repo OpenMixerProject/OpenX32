@@ -34,6 +34,10 @@
 
 #include "fxMatrixUpmixer.h"
 
+#if FX_USE_MATRIXUPMIXER == 1
+
+#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+
 fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
@@ -104,14 +108,14 @@ void fxMatrixUpmixer::process(float* bufIn[], float* bufOut[]) {
 		}
 	}
 	// read surround_signal from delay line
-	int delayLineTail = _delayLineHead - (FX_MATRIXUPMIXER_DELAYBACK_MS * _sampleRate / 1000); // here we set the delay in milliseconds
-	if (delayLineTail < 0) {
-		delayLineTail += FX_MATRIXUPMIXER_BUFFER_SIZE;
+	int tail = _delayLineHead - (FX_MATRIXUPMIXER_DELAYBACK_MS * _sampleRate / 1000); // here we set the delay in milliseconds
+	while (tail < 0) {
+		tail += FX_MATRIXUPMIXER_BUFFER_SIZE;
 	}
 	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		_bufTemp[s] = _delayLine[delayLineTail++];
-		if (delayLineTail == FX_MATRIXUPMIXER_BUFFER_SIZE) {
-			delayLineTail = 0;
+		_bufTemp[s] = _delayLine[tail++];
+		if (tail == FX_MATRIXUPMIXER_BUFFER_SIZE) {
+			tail = 0;
 		}
 	}
 
@@ -141,3 +145,5 @@ void fxMatrixUpmixer::process(float* bufIn[], float* bufOut[]) {
 		_lowPassSubState = bufOut[5][s];
 	}
 }
+
+#endif
