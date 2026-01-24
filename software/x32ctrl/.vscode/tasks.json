@@ -9,6 +9,18 @@
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "openx32-build-chroot",
+            "type": "shell",
+            "command": "make -j20 && cp ../bin/x32ctrl ../../../chroot/debian-stable-root/openx32/x32ctrl",
+            "options": {
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
                 "isDefault": true
             }
         },

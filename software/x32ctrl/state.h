@@ -15,6 +15,7 @@ class State {
 
     public:
         State(Helper* h);
+        bool bodyless;
 
         // Surface
 

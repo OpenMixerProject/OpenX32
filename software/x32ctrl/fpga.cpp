@@ -26,10 +26,13 @@
 
 Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	spi = new SPI(basepar);
-    if (!spi->UploadBitstreamFpgaLattice()) {
-        spi->UploadBitstreamFpgaXilinx();
-    }
-    spi->OpenConnectionFpga();
+
+	if (!state->bodyless) {
+    	if (!spi->UploadBitstreamFpgaLattice()) {
+	        spi->UploadBitstreamFpgaXilinx();
+	    }
+	    spi->OpenConnectionFpga();
+	}
 }
 
 void Fpga::Init() {

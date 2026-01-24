@@ -36,7 +36,11 @@ void X32Ctrl::Init(){
 	helper->ReadConfig("/etc/x32.conf", "DATE=", date, 16);
 	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 	
-	config->SetModel(model);
+	if (state->bodyless) {
+		config->SetModel("X32RACK");
+	} else {
+		config->SetModel(model);
+	}
 	config->SetBankMode(X32_SURFACE_MODE_BANKING_X32);
 
 	//##################################################################################

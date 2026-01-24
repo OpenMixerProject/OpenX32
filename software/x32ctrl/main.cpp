@@ -193,7 +193,11 @@ int main(int argc, char* argv[]) {
 		->default_val<uint32_t>(48000)
 		->check(CLI::IsMember(new set<uint32_t>{41000, 48000}));
 
-	// debugging commandline option
+	// debugging commandline option	
+	app->add_flag("-b,--bodyless", state->bodyless, "Enables a special mode to run x32ctrl in a different enviroment than a X32 mixer.")
+			->configurable(false)
+			->group("Debug");
+
 	vector<string> debug_parameters;
 	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA GUI INI MIXER SPI SURFACE TIMER UART VCHANNEL X32CTRL XREMOTE")
 			->configurable(false)

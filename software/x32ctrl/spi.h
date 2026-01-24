@@ -66,6 +66,8 @@ class SPI : public X32Base {
   */
 
   private:
+    bool connected; // SPI ist ready to use
+
     uint32_t dataToRead[2];
     const unsigned int SPI_START_MARKER = 0x0000002A; // '*'
     const unsigned int SPI_END_MARKER = 0x00000023; // '#'

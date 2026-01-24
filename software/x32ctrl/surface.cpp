@@ -29,7 +29,9 @@ Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
 }
 
 void Surface::Init(void) {
-    uart->Open("/dev/ttymxc1", 115200, true);
+    if (!state->bodyless) {
+        uart->Open("/dev/ttymxc1", 115200, true);
+    }
 
     Reset();
     InitDefinitions();

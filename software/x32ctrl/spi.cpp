@@ -235,7 +235,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI...");
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spi_fd < 0) {
-        perror("Error: Could not open SPI-device");
+        perror("Error: Could not open SPI-device\n");
         return false;
     }
 
@@ -835,6 +835,8 @@ int SPI::UploadBitstreamDsps(bool useCli) {
 }
 
 void SPI::ReadData(void){
+    if (!connected) return;
+
     if (!(state->dsp_disable_readout)) {
         // continuously read data from both DSPs
         
@@ -849,6 +851,8 @@ void SPI::ReadData(void){
 }
 
 void SPI::ActivityLight(void){
+    if (!connected) return;
+
 
     if (!(state->dsp_disable_activity_light)) {
 
@@ -895,7 +899,8 @@ bool SPI::OpenConnectionDsps() {
             spiDspHandle[i] = open(SPI_DEVICE_DSP2, O_RDWR);
         }
         if (spiDspHandle[i] < 0) {
-            helper->Error("Error: Could not open SPI-device");
+            connected = false;
+            helper->Error("Error: Could not open SPI-device\n");            
             return false;
         }
 
@@ -903,10 +908,13 @@ bool SPI::OpenConnectionDsps() {
         ioctl(spiDspHandle[i], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
         ioctl(spiDspHandle[i], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
     }
+    connected = true;
     return true;
 }
 
 bool SPI::CloseConnectionDsps() {
+    if (!connected) return false;
+
     for (uint8_t i = 0; i < 2; i++) {
         if (spiDspHandle[i] >= 0) close(spiDspHandle[i]);
     }
@@ -914,6 +922,8 @@ bool SPI::CloseConnectionDsps() {
 }
 
 void SPI::ProcessRxData(uint8_t dsp) {
+    if (!connected) return;
+
     while (spiRxRingBuffer[dsp].head != spiRxRingBuffer[dsp].tail) {
         uint32_t data = spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].tail];
         spiRxRingBuffer[dsp].tail += 1;
@@ -966,6 +976,8 @@ void SPI::ProcessRxData(uint8_t dsp) {
 }
 
 void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
+    if (!connected) return;
+
     if (valueCount == 0) {
         return;
     }
@@ -1027,6 +1039,8 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
 }
 
 bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
+    if (!connected) return false;
+
     struct spi_ioc_transfer tr = {0};
 
     // configure SPI-system for this transmission
@@ -1046,6 +1060,8 @@ bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
 }
 
 bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
+    if (!connected) return false;
+
     if (valueCount == 0) {
         // dont allow empty messages
         return false;
@@ -1092,6 +1108,8 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
 }
 
 bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
+    if (!connected) return false;
+
     if (valueCount == 0) {
         // dont allow empty messages
         return false;
@@ -1145,10 +1163,14 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
 }
 
 bool SPI::SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
+    if (!connected) return false;
+
     return SendReceiveDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
 }
 
 bool SPI::HasNextEvent(void){
+    if (!connected) return false;
+
     return eventBuffer.size() > 0;
 }
 
