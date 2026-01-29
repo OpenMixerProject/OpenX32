@@ -203,25 +203,14 @@ void audioInit(void) {
 			==============================================
 		*/
 
-		// fxReverb and fxMultibandCompressor currently take a huge amount of program-memory
-		// and does not fit into block0 together with other effects until code can be executed
-		// from SDRAM
-		//
-		// the following combinations are working:
-		// fxChorus, fxTransientshaper, fxOverdrive, fxDelay
-		// fxReverb, fxChorus, fxOverdrive
-
-		fxSlots[0] = new fxReverb(0, 2); // EffectSlot #0, Stereo, Ch 9-10
-		fxSlots[1] = new fxChorus(1, 2); // EffectSlot #1, Stereo, Ch 11-12
-		//fxSlots[2] = new fxTransientshaper(2, 2); // EffectSlot #2, DualMono, Ch 13-14
-		fxSlots[3] = new fxOverdrive(3, 2); // EffectSlot #3, DualMono, Ch 15-16
-		//fxSlots[4] = new fxDelay(4, 2); // EffectSlot #4, Stereo, Ch 17-18
-		//fxSlots[5] = new fxMultibandCompressor(5, 2); // EffectSlot #5, Stereo, Ch 19-20
-		//fxSlots[6] = new fxDemo(6, 2); // EffectSlot #6, Stereo, Ch 21-22
-		//fxSlots[7] = new fxDemo(7, 2); // EffectSlot #7, Stereo, Ch 23-24
-
-		// allocate memory for class in non-standard heap
-		//fxSlots[0] = (fxReverb*)heap_malloc(0, sizeof(fxReverb)); // 0 = heapID
+		audioFxChangeSlot(0, 0, 2); // install reverb on slot 0
+		audioFxChangeSlot(1, 1, 2); // install chorus on slot 1
+		audioFxChangeSlot(2, 2, 2); // install transientshaper on slot 2
+		audioFxChangeSlot(3, 3, 2); // install overdrive on slot 3
+		audioFxChangeSlot(4, 4, 2); // install delay on slot 4
+		audioFxChangeSlot(5, 4, 2); // install delay on slot 5
+		audioFxChangeSlot(6, 6, 2); // install demo on slot 6
+		audioFxChangeSlot(7, 6, 2); // install demo on slot 7
 	#endif
 }
 
@@ -234,18 +223,10 @@ void audioFxData(int fxSlot, float* data, int len) {
 	#endif
 }
 
-void audioFxChangeSlot(int fxSlot, int newFx, int channelCount) {
-	// TODO: the following code would work, but takes lot of
-	// program-memory, so that the linker places part of our
-	// code into the external SDRAM-code-space. At the moment
-	// the DSP is not booting anymore when doing this so we first
-	// have to update the boot-kernel to initialize our external
-	// memory before we can use the fx-rack-slots dynamically
-
-	/*
+void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 	#if (FX_USE_UPMIXER == 0) && (FX_USE_MATRIXUPMIXER == 0)
-		if (channelCount < 1) return;
-		if (channelCount > 2) return;
+		if (channelMode < 1) return;
+		if (channelMode > 2) return;
 		if (fxSlot < 0) return;
 		if (fxSlot > 7) return;
 
@@ -255,34 +236,36 @@ void audioFxChangeSlot(int fxSlot, int newFx, int channelCount) {
 			fxSlots[fxSlot] = 0;
 		}
 
+		// allocate memory for class in non-standard heap
+		//fxSlots[fxSlot] = (fxReverb*)heap_malloc(0, sizeof(fxReverb)); // 0 = heapID
+
 		// set new effect
-		switch (newFx) {
+		switch (newFxId) {
 			case 0:
-				fxSlots[fxSlot] = new fxReverb(fxSlot, channelCount);
+				fxSlots[fxSlot] = new fxReverb(fxSlot, channelMode);
 				break;
 			case 1:
-				fxSlots[fxSlot] = new fxChorus(fxSlot, channelCount);
+				fxSlots[fxSlot] = new fxChorus(fxSlot, channelMode);
 				break;
 			case 2:
-				fxSlots[fxSlot] = new fxTransientshaper(fxSlot, channelCount);
+				fxSlots[fxSlot] = new fxTransientshaper(fxSlot, channelMode);
 				break;
 			case 3:
-				fxSlots[fxSlot] = new fxOverdrive(fxSlot, channelCount);
+				fxSlots[fxSlot] = new fxOverdrive(fxSlot, channelMode);
 				break;
 			case 4:
-				fxSlots[fxSlot] = new fxDelay(fxSlot, channelCount);
+				fxSlots[fxSlot] = new fxDelay(fxSlot, channelMode);
 				break;
 			case 5:
-				fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelCount);
+				fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode);
 				break;
 			case 6:
-				fxSlots[fxSlot] = new fxDemo(fxSlot, channelCount);
+				fxSlots[fxSlot] = new fxDemo(fxSlot, channelMode);
 				break;
 			default:
 				break;
 		}
 	#endif
-*/
 }
 
 void audioProcessData(void) {

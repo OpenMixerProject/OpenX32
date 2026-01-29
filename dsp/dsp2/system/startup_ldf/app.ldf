@@ -149,7 +149,8 @@ MEMORY
    ** SRAM 0x000C0000 to 0x000C1FFF Normal Word (32)
    ** SRAM 0x00180000 to 0x00183FFF Short Word (16)
    */
-   mem_block2_pm32         { TYPE(PM RAM) START(0x000C0000) END(0x000C1FFF) WIDTH(32) }
+   mem_block2_pm48         { TYPE(PM RAM) START(0x000C0000) END(0x000C0AA9) WIDTH(48) } // 50% of block2 for ProgramMemory
+   mem_block2_dm32         { TYPE(DM RAM) START(0x000C1000) END(0x000C1FFF) WIDTH(32) } // 50% of block2 for DataMemory
 
    /*
    ** -------------------------- BLOCK 3 ---------------------------------------
@@ -256,9 +257,17 @@ PROCESSOR p0
       } > mem_block0_pm48
       
       
-      /*$VDSG<insert-new-sections-at-mem_block2_pm32>           */
+      /*$VDSG<insert-new-sections-at-mem_block2_dm32>           */
       /* Text inserted between these $VDSG comments will be preserved */
-      /*$VDSG<insert-new-sections-at-mem_block2_pm32>           */
+      /*$VDSG<insert-new-sections-at-mem_block2_dm32>           */
+      
+      dxe_block2_pm_code
+      {
+         INPUT_SECTIONS( $OBJS_LIBS(seg_block2_code) )
+         INPUT_SECTIONS( $OBJS_LIBS_INTERNAL(seg_pmco) )
+         INPUT_SECTIONS( $OBJS_LIBS_NOT_EXTERNAL(seg_pmco) )
+         INPUT_SECTIONS( $OBJS_LIBS(seg_pmco) )
+      } > mem_block2_pm48
       
       dxe_block2_pm_data
       {
@@ -273,7 +282,7 @@ PROCESSOR p0
          /* Text inserted between these $VDSG comments will be preserved */
          /*$VDSG<insert-input-sections-at-the-end-of-dxe_block2_pm_data>  */
          
-      } > mem_block2_pm32
+      } > mem_block2_dm32
       
       
       /*$VDSG<insert-new-sections-at-mem_block1_dm32>           */
@@ -588,7 +597,7 @@ PROCESSOR p0
          /* Text inserted between these $VDSG comments will be preserved */
          /*$VDSG<insert-input-sections-at-the-end-of-dxe_block2_overflow_data>  */
          
-      } > mem_block2_pm32
+      } > mem_block2_dm32
       
       dxe_block2_bsz ZERO_INIT
       {
@@ -603,7 +612,7 @@ PROCESSOR p0
          /* Text inserted between these $VDSG comments will be preserved */
          /*$VDSG<insert-input-sections-at-the-end-of-dxe_block2_bsz>  */
          
-      } > mem_block2_pm32
+      } > mem_block2_dm32
       
       
       /*$VDSG<insert-new-sections-at-mem_sdram_code>            */

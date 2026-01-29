@@ -264,6 +264,7 @@ void hadamardMatrix(float* buf) {
 	}
 #endif
 
+//#pragma section("seg_block2_code")
 fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
@@ -312,6 +313,7 @@ fxReverb::~fxReverb() {
     // destructor
 }
 
+//#pragma section("seg_block2_code")
 void fxReverb::setParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
 	_roomSizeMs = roomSizeMs;
 	_loopsPerRt60 = rt60 / (roomSizeMs * 1.5f * 0.001f);
