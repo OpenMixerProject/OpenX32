@@ -45,10 +45,13 @@ fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, c
 
 	// set memory content to zero
 	//clearMemory(); // TODO: check if this is taking too much time
+	for (int i = 0; i < FX_TRANSIENTSHAPER_BUFFER_SIZE; i++) {
+		_delayLine[i] = 0.0f;
+	}
 
 	// initialize parameter variables
 	// high attack (timeFast seems be fine at delayMs*2 to move the maximum gain in the near of the real audio-peak)
-	fxTransientshaperSetParameters(1, 15, 150, 3, 1.0, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
+	setParameters(1, 15, 150, 3, 1.0, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
 
 	// high sustain
 	//fxTransientshaperSetParameters(0.5, 15, 150, 1.0, 3, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
@@ -64,7 +67,7 @@ fxTransientshaper::~fxTransientshaper() {
     // destructor
 }
 
-void fxTransientshaper::fxTransientshaperSetParameters(float timeFast, float timeMed, float timeSlow, float attack, float sustain, float delayMs) {
+void fxTransientshaper::setParameters(float timeFast, float timeMed, float timeSlow, float attack, float sustain, float delayMs) {
 	_kFast = ms_to_k(timeFast, _sampleRate); // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
 	_kMed = ms_to_k(timeMed, _sampleRate);
 	_kSlow = ms_to_k(timeSlow, _sampleRate); // sustain-envelope: 0.05 = short boost, 0.001 = wide punch
@@ -80,7 +83,7 @@ void fxTransientshaper::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxTransientshaper::process(float* bufIn[], float* bufOut[]) {
+void fxTransientshaper::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: write current sample in delay-line
 		_delayLine[_delayLineHead] = bufIn[0][s];

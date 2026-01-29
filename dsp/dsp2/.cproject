@@ -111,7 +111,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="ldr" artifactName="${ProjName}" buildArtefactType="com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr,com.analog.crosscore.managedbuilder.buildType=com.analog.crosscore.managedbuilder.buildType.release" cleanCommand="clean" description="" id="sharc.toolchain.configuration.release.376196929" name="Release" parent="sharc.toolchain.configuration.release">
+				<configuration artifactExtension="ldr" artifactName="${ProjName}" buildArtefactType="com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr,com.analog.crosscore.managedbuilder.buildType=com.analog.crosscore.managedbuilder.buildType.release" cleanCommand="clean" description="" id="sharc.toolchain.configuration.release.376196929" name="Release" parent="sharc.toolchain.configuration.release" postbuildStep="CCES_MMV.exe dsp2.map.xml">
 					<folderInfo id="sharc.toolchain.configuration.release.376196929." name="/" resourcePath="">
 						<toolChain id="sharc.toolchain.release.822053180" isAbstract="false" name="CrossCore SHARC Toolchain" superClass="sharc.toolchain" targetTool="sharc.toolchain.loader">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="sharc.platform.798725833" name="CrossCore SHARC Target Platform" osList="all" superClass="sharc.platform"/>
@@ -150,6 +150,8 @@
 								<option id="compiler.option.interprocdoptim.1187562468" name="Interprocedural optimization (-ipa)" superClass="compiler.option.interprocdoptim" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="compiler.option.processpeed.1414369674" name="Processor speed (MHz) (-D__PROCESSOR_SPEED__):" superClass="compiler.option.processpeed" useByScannerDiscovery="false" value="264" valueType="string"/>
 								<option id="compiler.option.allowmixsizes.882623174" name="Allow mixing of sizes (-double-size-any)" superClass="compiler.option.allowmixsizes" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="sharc.compiler.option.jumptables.1943265214" name="Jump tables in PM (-section switch=seg_pmda)" superClass="sharc.compiler.option.jumptables" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="compiler.option.codesize.181364400" name="Optimize for code size/speed (0 - smallest, 100 - fastest) (-Ov)" superClass="compiler.option.codesize" value="100" valueType="string"/>
 								<inputType id="compiler.inputType.1421259369" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="sharc.toolchain.linker.279780464" name="CrossCore SHARC Linker" superClass="sharc.toolchain.linker">

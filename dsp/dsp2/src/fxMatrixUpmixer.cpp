@@ -52,6 +52,9 @@ fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, int channelMode) : fx(fxSlot, chann
 
 	// set memory content to zero
 	//clearMemory(); // TODO: check if this is taking too much time
+	for (int i = 0; i < _delayLineBufferSize; i++) {
+		_delayLine[i] = 0.0f;
+	}
 
 	// set internal parameters
 	_delayLineHead = 0;
@@ -70,7 +73,7 @@ void fxMatrixUpmixer::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxMatrixUpmixer::process(float* bufIn[], float* bufOut[]) {
+void fxMatrixUpmixer::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	// channel center
 	// =========================================================
 	// C = (Lin + Rin) / 2

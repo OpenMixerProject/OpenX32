@@ -3,8 +3,6 @@ memory mapping sometimes gets overwritten. In this case the DSP wont start any m
 
 Here are the correct memory-settings:
 
-   mem_sdram_data          { TYPE(DM RAM SYNCHRONOUS) START(0x04000000) END(0x0407FFFF) WIDTH(32) } // 2MB SDRAM for system-data
-   mem_sdram_audio         { TYPE(DM RAM SYNCHRONOUS) START(0x04080000) END(0x04FFFFFF) WIDTH(32) } // 14MB SDRAM for audio-data
-
+   mem_sdram_data          { TYPE(DM RAM SYNCHRONOUS) START(0x04000000) END(0x043FFFFF) WIDTH(32) } // 16MB SDRAM = 4.2M Words for system-data
 
 Add them to the file app.ldf

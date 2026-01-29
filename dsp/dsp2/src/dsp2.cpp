@@ -55,7 +55,9 @@ static uint32_t cyclesAudio; // static limits this global variable to this file
 static uint32_t cyclesMain; // static limits this global variable to this file
 uint32_t cyclesTotal;
 sDsp dsp;
+float pm peqCoeffs[5 * 4]; // storage for IIR-coefficients in PM for biquad_trans
 
+#pragma section("seg_int_code")
 void openx32Init(void) {
 	// initialize the default samplerate with 48kHz
 	// other samplerates up to 192kHz are possible with AD and DA converters
@@ -63,6 +65,7 @@ void openx32Init(void) {
 }
 
 // ISR is called once on first falling edge of FrameSync
+#pragma section("seg_int_code")
 void misc0ISR(int sig) {
 	systemSportInit();
 
@@ -70,6 +73,7 @@ void misc0ISR(int sig) {
 	adi_int_UninstallHandler(ADI_CID_P0I);
 }
 
+#pragma section("seg_int_code")
 int main() {
 	// initialize all components
 	adi_initComponents();

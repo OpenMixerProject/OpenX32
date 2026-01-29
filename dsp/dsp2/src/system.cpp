@@ -26,6 +26,7 @@
 
 #define SDMODIFY 1
 
+#pragma section("seg_int_code")
 void systemPllSetBypass(bool bypass) {
 	int i;
 
@@ -43,6 +44,7 @@ void systemPllSetBypass(bool bypass) {
 	for (i=0; i<16; i++) { asm("nop;"); }
 }
 
+#pragma section("seg_int_code")
 void systemPllInit() {
 	/*
 	PLL is special on the SHARC...
@@ -88,6 +90,7 @@ void systemPllInit() {
 	systemPllSetBypass(false);
 }
 
+#pragma section("seg_int_code")
 void systemExternalMemoryInit() {
 	// in X32 the RAM of each DSP is a MT48LC8M16A2-6A SDRAM (2 Meg x 16 x 4 Banks)
 	// from datasheet page 1
@@ -141,7 +144,7 @@ void systemExternalMemoryInit() {
 	// 1:1 mapping for 8 bits per byte
 	// AMIEN  = enables AMI Controller
 	// BW8    = set DataBusWidth to 8bit
-	// WS23   = 23 WaitStates
+	// WS23   = 23 WaitStates (we need two cycles to read/write 32-bit values due to 16-bit databus)
 	*pAMICTL1 = AMIEN | BW16 | WS23; // minimum WaitState without ACK is WS2
 
 	// dummy access to initialize the controller
@@ -161,6 +164,7 @@ void systemExternalMemoryInit() {
 */
 }
 
+#pragma section("seg_int_code")
 void systemPcgInit(void) {
 	// configure precision clock generator (PCG)
 	// FS_DIVIDER = fixed clock divider (here 512)
@@ -175,6 +179,7 @@ void systemPcgInit(void) {
 	*pPCG_SYNC = 0;
 }
 
+#pragma section("seg_int_code")
 void systemSruInit(void) {
 	// name-convention: output/input is relative to signals peripheral
 	// _O of pinbuffer is used for internal connections of an external input pin
@@ -298,6 +303,7 @@ void systemSruInit(void) {
 	SRU(LOW, DPI_PBEN04_I); 		// set to input
 }
 
+#pragma section("seg_int_code")
 void systemSportInit() {
 	// see Processor Hardware Reference v2.2 page 7-57
 
@@ -402,6 +408,7 @@ void systemSportInit() {
 	*pSPCTL6 |= SPEN_A | SLEN32 | OPMODE | SPTRAN;
 }
 
+#pragma section("seg_int_code")
 void systemSpdifTxInit(void) {
 	// AES/EBU supports only 24-bit, so we have to set the 8 LSB to zero
 	// otherwise the channel-status-byte will contain data
@@ -413,6 +420,7 @@ void systemSpdifTxInit(void) {
 
 // endless loop for the case, that CPU-load is above 100% so that
 // new audio-data cannot be processed
+#pragma section("seg_int_code")
 void systemCrash(void) {
 	sysreg_bit_clr(sysreg_FLAGS, FLG7);
     while(1) {

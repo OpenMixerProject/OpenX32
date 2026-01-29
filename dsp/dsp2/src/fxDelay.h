@@ -7,9 +7,9 @@ class fxDelay : public fx {
     public:
         fxDelay(int fxSlot, int channelMode);
         ~fxDelay();
-        void fxDelaySetParameters(float delayMsL, float delayMsR);
+        void setParameters(float delayMsL, float delayMsR);
         void rxData(float data[], int len);
-        void process(float* bufIn[], float* bufOut[]);
+        void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         int _delayLineLengthMaxMs;
         int _delayLineBufferSize;

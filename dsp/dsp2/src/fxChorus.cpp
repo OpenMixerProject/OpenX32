@@ -37,7 +37,7 @@ fxChorus::fxChorus(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
-	fxChorusSetParameters(10, 10, 15, 20, 1.5, 1.6, 0, 0, 0.5); // depthA, depthB, delayA, delayB, freqA, freqB, phaseA, phaseB, mix
+	setParameters(10, 10, 15, 20, 1.5, 1.6, 0, 0, 0.5); // depthA, depthB, delayA, delayB, freqA, freqB, phaseA, phaseB, mix
 
 	// initialize delay-lines in external memory
 	_delayLineA = (float*)(_memoryAddress);
@@ -46,7 +46,12 @@ fxChorus::fxChorus(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
 
 	// set memory content to zero
-	//clearMemory(); // TODO: check if this is taking too much time
+	//clearMemory();
+	for (int i = 0; i < _delayLineBufferSize; i++) {
+		_delayLineA[i] = 0.0f;
+		_delayLineB[i] = 0.0f;
+	}
+
 
 	// set internal parameters
 	_delayLineHeadA = 0;
@@ -57,7 +62,7 @@ fxChorus::~fxChorus() {
     // destructor
 }
 
-void fxChorus::fxChorusSetParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix) {
+void fxChorus::setParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix) {
 	// depth of effect
 	_depthA = depthA;
 	_depthB = depthB;
@@ -82,7 +87,7 @@ void fxChorus::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxChorus::process(float* bufIn[], float* bufOut[]) {
+void fxChorus::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 	    float inL = bufIn[0][s];
 	    float inR = bufIn[1][s];

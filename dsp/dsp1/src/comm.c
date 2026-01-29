@@ -24,6 +24,8 @@
 
 #include "comm.h"
 
+float pm commData[150]; // dont use the stack-memory for this and put it into the program memory
+
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
 	  SPI ClassIds:
@@ -36,7 +38,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 	float* floatValues = (float*)values;
 	unsigned int* intValues = (unsigned int*)values;
-	float data[150];
 	float tmpValueFloat;
 
 	switch (classId) {
@@ -46,24 +47,25 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
 				case 'u': // update-packet
-					data[0] = DSP_VERSION;
-					memcpy(&data[1], &cyclesTotal, sizeof(float));
+					commData[0] = DSP_VERSION;
+					//commData[0] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+					memcpy(&commData[1], &cyclesTotal, sizeof(float));
 
 					// VU-meters of main-channels
-					data[2] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
-					data[3] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
-					data[4] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
+					commData[2] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
+					commData[3] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
+					commData[4] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
 					// VU-meters of all DSP input-channels and dynamics
 					for (int i = 0; i < 40; i++) {
-						//data[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
-						data[5 + i] = audioBuffer[TAP_INPUT][0][dsp.inputRouting[i]];
-						//data[45 + i] = dsp.compressorGain[i];
-						//data[85 + i] = dsp.gateGain[i];
+						//commData[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
+						commData[5 + i] = audioBuffer[TAP_INPUT][0][dsp.inputRouting[i]];
+						//commData[45 + i] = dsp.compressorGain[i];
+						//commData[85 + i] = dsp.gateGain[i];
 					}
 
-					spiSendArray('s', 'u', 0, 45, &data);
-					//spiSendArray('s', 'u', 0, 85, &data);
-					//spiSendArray('s', 'u', 0, 125, &data);
+					spiSendArray('s', 'u', 0, 45, &commData[0]);
+					//spiSendArray('s', 'u', 0, 85, &commData[0]);
+					//spiSendArray('s', 'u', 0, 125, &commData[0]);
 					break;
 				default:
 					break;

@@ -37,7 +37,7 @@ fxDelay::fxDelay(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
-	fxDelaySetParameters(350, 450); // set delay of 450ms
+	setParameters(350, 450); // set delay of 450ms
 
 	// initialize delay-lines in external memory
 	_delayLineL = (float*)(_memoryAddress);
@@ -47,6 +47,10 @@ fxDelay::fxDelay(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 
 	// set memory content to zero
 	//clearMemory(); // TODO: check if this is taking too much time
+	for (int i = 0; i < _delayLineBufferSize; i++) {
+		_delayLineL[i] = 0.0f;
+		_delayLineR[i] = 0.0f;
+	}
 
 	// set internal parameters
 	_delayLineHead = 0;
@@ -56,7 +60,7 @@ fxDelay::~fxDelay() {
     // destructor
 }
 
-void fxDelay::fxDelaySetParameters(float delayMsL, float delayMsR) {
+void fxDelay::setParameters(float delayMsL, float delayMsR) {
 	if (delayMsL < _delayLineLengthMaxMs) {
 		_delayLineTailOffsetL = (delayMsL * _sampleRate * 0.001f);
 	}
@@ -69,37 +73,39 @@ void fxDelay::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxDelay::process(float* bufIn[], float* bufOut[]) {
+void fxDelay::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+	int tail;
+	float delayedSampleL;
+	float delayedSampleR;
+
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		// Step 1: read samples
-	    float sampleL = bufIn[0][s];
-	    float sampleR = bufIn[1][s];
-
-	    // Step 2: write sample to delayLine
-		_delayLineL[_delayLineHead] = sampleL;
-		_delayLineR[_delayLineHead] = sampleR;
-		_delayLineHead++;
-		if (_delayLineHead >= _delayLineBufferSize) {
-			_delayLineHead = 0;
-		}
-
-	    // Step 3: read sample from delayLine
-		int tail = _delayLineHead - _delayLineTailOffsetL;
+	    // Step 1: read sample from delayLine
+		tail = _delayLineHead - _delayLineTailOffsetL;
 		while (tail < 0) {
 			tail += _delayLineBufferSize;
 		}
-		sampleL = _delayLineL[tail];
+		delayedSampleL = _delayLineL[tail];
+
 		tail = _delayLineHead - _delayLineTailOffsetR;
 		while (tail < 0) {
 			tail += _delayLineBufferSize;
 		}
-		sampleR = _delayLineR[tail];
+		delayedSampleR = _delayLineR[tail];
 
-	    // Step 4: process delayed data
-		// do something here
 
-	    // Step 5: output samples
-	    bufOut[0][s] = fclipf(sampleL, 2147483647.0f);
-	    bufOut[1][s] = fclipf(sampleR, 2147483647.0f);
+
+		// Step 2: output data
+	    bufOut[0][s] = delayedSampleL;
+	    bufOut[1][s] = delayedSampleR;
+
+
+
+	    // Step 3: write sample back to delayLine with decayed feedback
+		_delayLineL[_delayLineHead] = bufIn[0][s] + _delayLineL[_delayLineHead] * 0.3f; // _feedbackDecayGain = powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
+		_delayLineR[_delayLineHead] = bufIn[1][s] + _delayLineR[_delayLineHead] * 0.3f; // _feedbackDecayGain = powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
+		_delayLineHead++;
+		if (_delayLineHead >= _delayLineBufferSize) {
+			_delayLineHead = 0;
+		}
 	}
 }

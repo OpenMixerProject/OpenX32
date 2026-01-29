@@ -26,6 +26,8 @@
 #include "spi.h"
 #include "audio.h"
 
+float pm commData[2];
+
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
 	  SPI ClassIds:
@@ -39,7 +41,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 	float* floatValues = (float*)values;
 	int* intValues = (int*)values;
-	float data[2];
 
 	switch (classId) {
 		case '?': // request-class
@@ -48,9 +49,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
 				case 'u': // update-packet
-					data[0] = DSP_VERSION;
-					memcpy(&data[1], &cyclesTotal, sizeof(float));
-					spiSendArray('s', 'u', 0, 2, &data);
+					commData[0] = DSP_VERSION;
+					//commData[1] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+					memcpy(&commData[1], &cyclesTotal, sizeof(float));
+					spiSendArray('s', 'u', 0, 2, &commData[0]);
 					break;
 				default:
 					break;

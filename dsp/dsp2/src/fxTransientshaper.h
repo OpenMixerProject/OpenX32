@@ -10,9 +10,9 @@ class fxTransientshaper : public fx {
     public:
         fxTransientshaper(int fxSlot, int channelMode);
         ~fxTransientshaper();
-        void fxTransientshaperSetParameters(float timeFast, float timeMed, float timeSlow, float attack, float sustain, float delayMs);
+        void setParameters(float timeFast, float timeMed, float timeSlow, float attack, float sustain, float delayMs);
         void rxData(float data[], int len);
-        void process(float* bufIn[], float* bufOut[]);
+        void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         float* _delayLine;
 

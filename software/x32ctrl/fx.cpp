@@ -29,103 +29,106 @@ FX::FX(X32BaseParameter* basepar) : X32Base(basepar){}
 void FX::RecalcFilterCoefficients_PEQ(sPEQ* peq) {
   // Online-Calculator: https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3
   // Source: https://www.earlevel.com/main/2012/11/26/biquad-c-source-code
+  // Alternative Source: https://gcradix.de/an-introduction-to-biquad-filters (Caution: calculation of Notch-Coefficients is wrong)
+
   double V = pow(10.0, fabs(peq->gain)/20.0);
   double K = tan(PI * peq->fc / config->GetSamplerate());
+  double K2 = K * K;
   double norm;
 
   switch (peq->type) {
     case 0: // allpass
-      norm = 1.0 / (1.0 + K * 1.0/peq->Q + K * K);
-      peq->a[0] = (1.0 - K * 1.0/peq->Q + K * K) * norm;
-      peq->a[1] = 2.0 * (K * K - 1.0) * norm;
+      norm = 1.0 / (1.0 + K * 1.0/peq->Q + K2);
+      peq->a[0] = (1.0 - K * 1.0/peq->Q + K2) * norm;
+      peq->a[1] = 2.0 * (K2 - 1.0) * norm;
       peq->a[2] = 1.0;
       peq->b[1] = peq->a[1];
       peq->b[2] = peq->a[0];
       break;
     case 1: // peak-filter
       if (peq->gain >= 0) {
-        norm = 1.0 / (1.0 + 1.0/peq->Q * K + K * K);
-        peq->a[0] = (1.0 + V/peq->Q * K + K * K) * norm;
-        peq->a[1] = 2.0 * (K * K - 1.0) * norm;
-        peq->a[2] = (1.0 - V/peq->Q * K + K * K) * norm;
+        norm = 1.0 / (1.0 + 1.0/peq->Q * K + K2);
+        peq->a[0] = (1.0 + V/peq->Q * K + K2) * norm;
+        peq->a[1] = 2.0 * (K2 - 1.0) * norm;
+        peq->a[2] = (1.0 - V/peq->Q * K + K2) * norm;
         peq->b[1] = peq->a[1];
-        peq->b[2] = (1.0 - 1.0/peq->Q * K + K * K) * norm;
+        peq->b[2] = (1.0 - 1.0/peq->Q * K + K2) * norm;
       }else{
-        norm = 1.0 / (1.0 + V/peq->Q * K + K * K);
-        peq->a[0] = (1.0 + 1.0/peq->Q * K + K * K) * norm;
-        peq->a[1] = 2.0 * (K * K - 1.0) * norm;
-        peq->a[2] = (1.0 - 1.0/peq->Q * K + K * K) * norm;
+        norm = 1.0 / (1.0 + V/peq->Q * K + K2);
+        peq->a[0] = (1.0 + 1.0/peq->Q * K + K2) * norm;
+        peq->a[1] = 2.0 * (K2 - 1.0) * norm;
+        peq->a[2] = (1.0 - 1.0/peq->Q * K + K2) * norm;
         peq->b[1] = peq->a[1];
-        peq->b[2] = (1.0 - V/peq->Q * K + K * K) * norm;
+        peq->b[2] = (1.0 - V/peq->Q * K + K2) * norm;
       }
       break;
     case 2: // low-shelf
       if (peq->gain >= 0) {    // boost
-        norm = 1.0 / (1.0 + sqrt(2.0) * K + K * K);
-        peq->a[0] = (1.0 + sqrt(2.0*V) * K + V * K * K) * norm;
-        peq->a[1] = 2.0 * (V * K * K - 1.0) * norm;
-        peq->a[2] = (1.0 - sqrt(2.0*V) * K + V * K * K) * norm;
-        peq->b[1] = 2.0 * (K * K - 1.0) * norm;
-        peq->b[2] = (1.0 - sqrt(2.0) * K + K * K) * norm;
+        norm = 1.0 / (1.0 + sqrt(2.0) * K + K2);
+        peq->a[0] = (1.0 + sqrt(2.0*V) * K + V * K2) * norm;
+        peq->a[1] = 2.0 * (V * K2 - 1.0) * norm;
+        peq->a[2] = (1.0 - sqrt(2.0*V) * K + V * K2) * norm;
+        peq->b[1] = 2.0 * (K2 - 1.0) * norm;
+        peq->b[2] = (1.0 - sqrt(2.0) * K + K2) * norm;
       }
       else {    // cut
-        norm = 1.0 / (1.0 + sqrt(2.0*V) * K + V * K * K);
-        peq->a[0] = (1.0 + sqrt(2.0) * K + K * K) * norm;
-        peq->a[1] = 2.0 * (K * K - 1.0) * norm;
-        peq->a[2] = (1.0 - sqrt(2) * K + K * K) * norm;
-        peq->b[1] = 2.0 * (V * K * K - 1.0) * norm;
-        peq->b[2] = (1.0 - sqrt(2.0*V) * K + V * K * K) * norm;
+        norm = 1.0 / (1.0 + sqrt(2.0*V) * K + V * K2);
+        peq->a[0] = (1.0 + sqrt(2.0) * K + K2) * norm;
+        peq->a[1] = 2.0 * (K2 - 1.0) * norm;
+        peq->a[2] = (1.0 - sqrt(2.0) * K + K2) * norm;
+        peq->b[1] = 2.0 * (V * K2 - 1.0) * norm;
+        peq->b[2] = (1.0 - sqrt(2.0*V) * K + V * K2) * norm;
       }
       break;
     case 3: // high-shelf
         if (peq->gain >= 0) {    // boost
-          norm = 1.0 / (1.0 + sqrt(2.0) * K + K * K);
-          peq->a[0] = (V + sqrt(2.0*V) * K + K * K) * norm;
-          peq->a[1] = 2.0 * (K * K - V) * norm;
-          peq->a[2] = (V - sqrt(2.0*V) * K + K * K) * norm;
-          peq->b[1] = 2.0 * (K * K - 1.0) * norm;
-          peq->b[2] = (1.0 - sqrt(2.0) * K + K * K) * norm;
+          norm = 1.0 / (1.0 + sqrt(2.0) * K + K2);
+          peq->a[0] = (V + sqrt(2.0*V) * K + K2) * norm;
+          peq->a[1] = 2.0 * (K2 - V) * norm;
+          peq->a[2] = (V - sqrt(2.0*V) * K + K2) * norm;
+          peq->b[1] = 2.0 * (K2 - 1.0) * norm;
+          peq->b[2] = (1.0 - sqrt(2.0) * K + K2) * norm;
         }
         else {    // cut
-          norm = 1.0 / (V + sqrt(2.0*V) * K + K * K);
-          peq->a[0] = (1.0 + sqrt(2.0) * K + K * K) * norm;
-          peq->a[1] = 2.0 * (K * K - 1.0) * norm;
-          peq->a[2] = (1.0 - sqrt(2.0) * K + K * K) * norm;
-          peq->b[1] = 2.0 * (K * K - V) * norm;
-          peq->b[2] = (V - sqrt(2.0*V) * K + K * K) * norm;
+          norm = 1.0 / (V + sqrt(2.0*V) * K + K2);
+          peq->a[0] = (1.0 + sqrt(2.0) * K + K2) * norm;
+          peq->a[1] = 2.0 * (K2 - 1.0) * norm;
+          peq->a[2] = (1.0 - sqrt(2.0) * K + K2) * norm;
+          peq->b[1] = 2.0 * (K2 - V) * norm;
+          peq->b[2] = (V - sqrt(2.0*V) * K + K2) * norm;
         }
       break;
     case 4: // bandpass
-        norm = 1.0 / (1.0 + K / peq->Q + K * K);
+        norm = 1.0 / (1.0 + K / peq->Q + K2);
         peq->a[0] = (K / peq->Q) * norm;
         peq->a[1] = 0;
         peq->a[2] = -peq->a[0];
-        peq->b[1] = 2.0 * (K * K - 1.0) * norm;
-        peq->b[2] = (1.0 - K / peq->Q + K * K) * norm;
+        peq->b[1] = 2.0 * (K2 - 1.0) * norm;
+        peq->b[2] = (1.0 - K / peq->Q + K2) * norm;
       break;
     case 5: // notch
-        norm = 1.0 / (1.0 + K / peq->Q + K * K);
-        peq->a[0] = (1.0 + K * K) * norm;
-        peq->a[1] = 2.0 * (K * K - 1.0) * norm;
+        norm = 1.0 / (1.0 + K / peq->Q + K2);
+        peq->a[0] = (1.0 + K2) * norm;
+        peq->a[1] = 2.0 * (K2 - 1.0) * norm;
         peq->a[2] = peq->a[0];
         peq->b[1] = peq->a[1];
-        peq->b[2] = (1.0 - K / peq->Q + K * K) * norm;
+        peq->b[2] = (1.0 - K / peq->Q + K2) * norm;
       break;
     case 6: // lowpass
-        norm = 1.0 / (1.0 + K / peq->Q + K * K);
-        peq->a[0] = K * K * norm;
+        norm = 1.0 / (1.0 + K / peq->Q + K2);
+        peq->a[0] = K2 * norm;
         peq->a[1] = 2.0 * peq->a[0];
         peq->a[2] = peq->a[0];
-        peq->b[1] = 2.0 * (K * K - 1.0) * norm;
-        peq->b[2] = (1.0 - K / peq->Q + K * K) * norm;
+        peq->b[1] = 2.0 * (K2 - 1.0) * norm;
+        peq->b[2] = (1.0 - K / peq->Q + K2) * norm;
       break;
     case 7: // highpass
-        norm = 1.0 / (1.0 + K / peq->Q + K * K);
+        norm = 1.0 / (1.0 + K / peq->Q + K2);
         peq->a[0] = 1.0 * norm;
         peq->a[1] = -2.0 * peq->a[0];
         peq->a[2] = peq->a[0];
-        peq->b[1] = 2.0 * (K * K - 1.0) * norm;
-        peq->b[2] = (1.0 - K / peq->Q + K * K) * norm;
+        peq->b[1] = 2.0 * (K2 - 1.0) * norm;
+        peq->b[2] = (1.0 - K / peq->Q + K2) * norm;
       break;
   }
 }
@@ -193,28 +196,28 @@ float FX::CalcPhaseResponse_PEQ(float a0, float a1, float a2, float b0, float b1
 void FX::RecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;
-  double wc22 = 2 * wc2;
+  double wc22 = 2.0 * wc2;
   double k = wc / tan(PI * (LR12->fc / config->GetSamplerate()));
   double k2 = k * k;
-  double k22 = 2 * k2;
-  double wck2 = 2 * wc * k;
-  double norm = (k2 + wc2 + wck2);
+  double k22 = 2.0 * k2;
+  double wck2 = 2.0 * wc * k;
+  double norm = 1.0 / (k2 + wc2 + wck2);
 
   if (LR12->isHighpass) {
     // coefficients for HighPass-Filter
-    LR12->a[0] = k2 / norm;
-    LR12->a[1] = -k22 / norm;
-    LR12->a[2] = k2 / norm;
+    LR12->a[0] = k2 * norm;
+    LR12->a[1] = -k22 * norm;
+    LR12->a[2] = k2 * norm;
   }else{
     // coefficients for LowPass-Filter
-    LR12->a[0] = wc2 / norm;
-    LR12->a[1] = wc22 / norm;
-    LR12->a[2] = wc2 / norm;
+    LR12->a[0] = wc2 * norm;
+    LR12->a[1] = wc22 * norm;
+    LR12->a[2] = wc2 * norm;
   }
 
   LR12->b[0] = 0; // we are not using this coefficient but keep it to not confuse with indices
-  LR12->b[1] = (-k22 + wc22) / norm;
-  LR12->b[2] = (-wck2 + k2 + wc2) / norm;
+  LR12->b[1] = (-k22 + wc22) * norm;
+  LR12->b[2] = (-wck2 + k2 + wc2) * norm;
 }
 
 void FX::RecalcFilterCoefficients_LR24(sLR24* LR24) {
@@ -228,29 +231,29 @@ void FX::RecalcFilterCoefficients_LR24(sLR24* LR24) {
   double k4 = k2 * k2;
   double sq_tmp1 = sqrt(2.0) * wc3 * k;
   double sq_tmp2 = sqrt(2.0) * wc * k3;
-  double norm = 4.0 * wc2 * k2 + 2.0 * sq_tmp1 + k4 + 2.0 * sq_tmp2 + wc4;
+  double norm = 1.0 / (4.0 * wc2 * k2 + 2.0 * sq_tmp1 + k4 + 2.0 * sq_tmp2 + wc4);
 
   if (LR24->isHighpass) {
     // coefficients for HighPass-Filter
-    LR24->a[0] = k4 / norm;
-    LR24->a[1] = -4.0 * k4 / norm;
-    LR24->a[2] = 6.0 * k4 / norm;
+    LR24->a[0] = k4 * norm;
+    LR24->a[1] = -4.0 * k4 * norm;
+    LR24->a[2] = 6.0 * k4 * norm;
     LR24->a[3] = LR24->a[1];
     LR24->a[4] = LR24->a[0];
   }else{
     // coefficients for LowPass-Filter
-    LR24->a[0] = wc4 / norm;
-    LR24->a[1] = 4.0 * wc4 / norm;
-    LR24->a[2] = 6.0 * wc4 / norm;
+    LR24->a[0] = wc4 * norm;
+    LR24->a[1] = 4.0 * wc4 * norm;
+    LR24->a[2] = 6.0 * wc4 * norm;
     LR24->a[3] = LR24->a[1];
     LR24->a[4] = LR24->a[0];
   }
 
   LR24->b[0] = 0; // we are not using this coefficient but keep it to not confuse with indices
-  LR24->b[1] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / norm;
-  LR24->b[2] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) / norm;
-  LR24->b[3] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) / norm;
-  LR24->b[4] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / norm;
+  LR24->b[1] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) * norm;
+  LR24->b[2] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) * norm;
+  LR24->b[3] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) * norm;
+  LR24->b[4] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) * norm;
 }
 
 void FX::RecalcGate(sGate* gate) {

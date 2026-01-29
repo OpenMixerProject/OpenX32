@@ -47,59 +47,85 @@
 
 #if FX_USE_UPMIXER == 1
 
-#pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
+//inline float fast_inv_sqrt(float x) {
+//    float y = rsqrtf(x); // hardware-estimation
+//    return y * (1.5f - 0.5f * x * y * y); // one Newton-Raphson-Step for more precision
+//}
 
-inline float fast_inv_sqrt(float x) {
-    float y = rsqrtf(x); // hardware-estimation
-    return y * (1.5f - 0.5f * x * y * y); // one Newton-Raphson-Step for more precision
+float pm hannWindow[FX_UPMIX_WINDOW_LEN];
+float lowPassSubState = 0;
+float lowPassSubCoeff = 0.01609904178227480397989f; // 125Hz = 785.398163397448 / 48785.398163397448 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 125Hz) / (48000Hz + 2 * pi * 125Hz)
+//float lowPassSurroundState[2];
+//float lowPassSurroundCoeff = 0.4781604560104657892f; // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
+// constants for soft low-pass in frequency domain
+const float surroundCutoff = 7000.0f; // soft damping for surround channels starting at 7kHz
+const float bin_to_hz = 48000.0f / (float)FX_UPMIX_WINDOW_LEN;
+
+// buffers for input and output
+float pm upmixInputBuffer[2][FX_UPMIX_WINDOW_LEN]; // we need ringbuffer for the full window-size
+float pm upmixOutputBuffer[5][FX_UPMIX_WINDOW_LEN]; // left, right, center, back-left, back-right
+
+// variables for the FFT and calculation (distribute real/imag-part over data- and program-memory for higher data-throughput)
+#pragma align (2 * FX_UPMIX_WINDOW_LEN)
+float dm upmixFftInputBufferLR_real[2][FX_UPMIX_WINDOW_LEN]; // imag/real for two channels
+#pragma align (2 * FX_UPMIX_WINDOW_LEN)
+float pm upmixFftInputBufferLR_imag[2][FX_UPMIX_WINDOW_LEN]; // imag/real for two channels
+#pragma align (2 * FX_UPMIX_WINDOW_LEN)
+float dm upmixFftOutputBufferLR_real[2][FX_UPMIX_WINDOW_LEN]; // imag/real
+#pragma align (2 * FX_UPMIX_WINDOW_LEN)
+float pm upmixFftOutputBufferLR_imag[2][FX_UPMIX_WINDOW_LEN]; // imag/real
+#pragma align (FX_UPMIX_WINDOW_LEN)
+float dm upmixFftOutputBufferC_real[FX_UPMIX_WINDOW_LEN]; // imag/real
+#pragma align (FX_UPMIX_WINDOW_LEN)
+float pm upmixFftOutputBufferC_imag[FX_UPMIX_WINDOW_LEN]; // imag/real
+#pragma align (2 * FX_UPMIX_WINDOW_LEN)
+float dm upmixFftOutputBufferBackLR_real[2][FX_UPMIX_WINDOW_LEN]; // imag/real
+#pragma align (2 * FX_UPMIX_WINDOW_LEN)
+float pm upmixFftOutputBufferBackLR_imag[2][FX_UPMIX_WINDOW_LEN]; // imag/real
+#pragma align (FX_UPMIX_WINDOW_LEN_HALF)
+float dm twidtab_real[FX_UPMIX_WINDOW_LEN_HALF];
+#pragma align (FX_UPMIX_WINDOW_LEN_HALF)
+float pm twidtab_imag[FX_UPMIX_WINDOW_LEN_HALF];
+#pragma align (FX_UPMIX_WINDOW_LEN)
+float dm upmixFftTempBuffer_real[FX_UPMIX_WINDOW_LEN]; // imag/real
+#pragma align (FX_UPMIX_WINDOW_LEN)
+float pm upmixFftTempBuffer_imag[FX_UPMIX_WINDOW_LEN]; // imag/real
+
+float pm maskCenter[FX_UPMIX_WINDOW_LEN_HALF];
+float pm maskLeft[FX_UPMIX_WINDOW_LEN_HALF];
+float pm maskRight[FX_UPMIX_WINDOW_LEN_HALF];
+float pm maskAmbient[FX_UPMIX_WINDOW_LEN_HALF];
+float pm maskCenter_z[FX_UPMIX_WINDOW_LEN_HALF];
+float pm maskLeft_z[FX_UPMIX_WINDOW_LEN_HALF];
+float pm maskRight_z[FX_UPMIX_WINDOW_LEN_HALF];
+float pm maskAmbient_z[FX_UPMIX_WINDOW_LEN_HALF];
+
+/*
+	// accessing external RAM
+	typedef float fft_block_t[2][FX_UPMIX_WINDOW_LEN];
+	fft_block_t* upmixFftBuffer = (fft_block_t*)EXTERNAL_RAM_START;
+*/
+
+int upmixInputBufferHead = 0; // start writing at index 0
+int upmixInputBufferTail = FX_UPMIX_RX_SAMPLE_COUNT; // start reading at index 1
+int upmixInputSampleCounter = 0; // starts always at 0
+int upmixOutputSampleCounter = 0; // starts always at 0
+
+int delayLineHead = 0;
+float pm delayLineBackLeft[FX_UPMIXER_BUFFER_SIZE];
+float pm delayLineBackRight[FX_UPMIXER_BUFFER_SIZE];
+
+void fxUpmixerInit(void) {
+	gen_hanning(&hannWindow[0], 1, FX_UPMIX_WINDOW_LEN); // pointer to array, a (Window-spacing), N (Window-Length)
+	twidfftf(&twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
+
+	for (int i = 0; i < FX_UPMIXER_BUFFER_SIZE; i++) {
+		delayLineBackLeft[i] = 0.0f;
+		delayLineBackRight[i] = 0.0f;
+	}
 }
 
-fxUpmixer::fxUpmixer(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
-	// constructor
-	// code of constructor of baseclass is called first. So add here only effect-specific things
-
-	gen_hanning(&hannWindow[0], 1, UPMIX_WINDOW_LEN); // pointer to array, a (Window-spacing), N (Window-Length)
-	twidfftf(&twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
-
-    lowPassSubState = 0;
-    lowPassSubCoeff = 0.01609904178227480397989f; // 125Hz = 785.398163397448 / 48785.398163397448 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 125Hz) / (48000Hz + 2 * pi * 125Hz)
-    //lowPassSurroundState[2];
-    //lowPassSurroundCoeff = 0.4781604560104657892f; // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
-    // constants for soft low-pass in frequency domain
-    surroundCutoff = 7000.0f; // soft damping for surround channels starting at 7kHz;
-    bin_to_hz = _sampleRate / (float)UPMIX_WINDOW_LEN;
-
-    upmixInputBufferHead = 0; // start writing at index 0
-    upmixInputBufferTail = UPMIX_RX_SAMPLE_COUNT; // start reading at index 1
-    upmixInputSampleCounter = 0; // starts always at 0
-    upmixOutputSampleCounter = 0; // starts always at 0
-
-    delayLineHead = 0;
-
-    fxUpmixerSetParameters(13, 17, 0.3f); // delay back left, delay back right, 30% ambientToLR
-}
-
-fxUpmixer::~fxUpmixer() {
-    // destructor
-}
-
-void fxUpmixer::fxUpmixerSetParameters(float delayMsBackLeft, float delayMsBackRight, float ambientToLR) {
-	_delayMsBackLeft = delayMsBackLeft;
-	_delayMsBackRight = delayMsBackRight;
-	_ambientToLR = ambientToLR;
-}
-
-void fxUpmixer::fxUpmixerSetFilters(float lpfFreqLfe, float lpfFreqSurround) {
-    lowPassSubCoeff = (2.0f * M_PI * lpfFreqLfe) / (_sampleRate + 2.0f * M_PI * lpfFreqLfe); // 125Hz = 785.398163397448 / 48785.398163397448 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 125Hz) / (48000Hz + 2 * pi * 125Hz)
-    //lowPassSurroundCoeff = 0.4781604560104657892f; // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
-    surroundCutoff = lpfFreqSurround;
-}
-
-void fxUpmixer::rxData(float data[], int len) {
-	// data received from x32ctrl
-}
-
-void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
+void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
 	// this is the first approach on implementing an Stereo to 5.1 upmixing algorithm based on the
 	// PhD of Sebastian Kraft (https://openhsu.ub.hsu-hh.de/server/api/core/bitstreams/d2391f49-8092-4bb3-a1ad-85b558655dd7/content)
 	//
@@ -108,7 +134,7 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 	// main idea is a Mid-Side (M/S) decomposition within the frequency-domain
 	// for each frequency-band a coefficient for coherence and similarity is calculated for left and right
 	// the two coefficients represents the primary (direct) and ambience (room) sound
-	// Step 1: collect 256 SAMPLES_IN_BUFFER (16 intervals)
+	// Step 1: collect 256 samples (16 intervals)
 	// Step 2: perform FFT
 	// Step 3: calculation of the interchannel-coherence
 	// Step 4: decorrelation for surround-channels
@@ -120,35 +146,35 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 
 	int arrayIdx = 0;
 
-	// Step 1: Collect data and trigger calculation every N/4 SAMPLES_IN_BUFFER
+	// Step 1: Collect data and trigger calculation every N/4 samples
 	// ============================================================================================
 	for (int i_ch = 0; i_ch < 2; i_ch++) {
-		memcpy(&upmixInputBuffer[i_ch][upmixInputBufferHead], bufIn[i_ch], SAMPLES_IN_BUFFER * sizeof(float));
+		memcpy(&upmixInputBuffer[i_ch][upmixInputBufferHead], inBuf[i_ch], SAMPLES_IN_BUFFER * sizeof(float));
 	}
-	upmixInputSampleCounter += SAMPLES_IN_BUFFER; // keep track of received SAMPLES_IN_BUFFER
+	upmixInputSampleCounter += SAMPLES_IN_BUFFER; // keep track of received samples
 
 	// increase the head-pointer of the ringbuffer
 	upmixInputBufferHead += SAMPLES_IN_BUFFER;
-	if (upmixInputBufferHead >= UPMIX_WINDOW_LEN) {
-		upmixInputBufferHead -= UPMIX_WINDOW_LEN;
+	if (upmixInputBufferHead >= FX_UPMIX_WINDOW_LEN) {
+		upmixInputBufferHead -= FX_UPMIX_WINDOW_LEN;
 	}
 
-	// when N/2 or N/4 SAMPLES_IN_BUFFER are received we can compute the algorithm
-	if (upmixInputSampleCounter == UPMIX_RX_SAMPLE_COUNT) {
-		// we received N/4 new SAMPLES_IN_BUFFER -> process data
+	// when N/2 or N/4 samples are received we can compute the algorithm
+	if (upmixInputSampleCounter == FX_UPMIX_RX_SAMPLE_COUNT) {
+		// we received N/4 new samples -> process data
 		upmixInputSampleCounter = 0; // reset input counter
 
-		// read the last UPMIX_WINDOW_LEN SAMPLES_IN_BUFFER out of the unsorted circular-buffer into the sorted FFT-buffer
+		// read the last FX_UPMIX_WINDOW_LEN samples out of the unsorted circular-buffer into the sorted FFT-buffer
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			memcpy(&upmixFftInputBufferLR[real][i_ch][0], &upmixInputBuffer[i_ch][upmixInputBufferTail], (UPMIX_WINDOW_LEN - upmixInputBufferTail) * sizeof(float));
-			// wrap-around of the end of ring-buffer and copy remaining SAMPLES_IN_BUFFER
-			memcpy(&upmixFftInputBufferLR[real][i_ch][UPMIX_WINDOW_LEN - upmixInputBufferTail], &upmixInputBuffer[i_ch][0], upmixInputBufferTail * sizeof(float));
+			memcpy(&upmixFftInputBufferLR_real[i_ch][0], &upmixInputBuffer[i_ch][upmixInputBufferTail], (FX_UPMIX_WINDOW_LEN - upmixInputBufferTail) * sizeof(float));
+			// wrap-around of the end of ring-buffer and copy remaining samples
+			memcpy(&upmixFftInputBufferLR_real[i_ch][FX_UPMIX_WINDOW_LEN - upmixInputBufferTail], &upmixInputBuffer[i_ch][0], upmixInputBufferTail * sizeof(float));
 		}
 
-		// increase the tail-pointer of the ringbuffer by UPMIX_RX_SAMPLE_COUNT
-		upmixInputBufferTail += UPMIX_RX_SAMPLE_COUNT;
-		if (upmixInputBufferTail >= UPMIX_WINDOW_LEN) {
-			upmixInputBufferTail -= UPMIX_WINDOW_LEN;
+		// increase the tail-pointer of the ringbuffer by FX_UPMIX_RX_SAMPLE_COUNT
+		upmixInputBufferTail += FX_UPMIX_RX_SAMPLE_COUNT;
+		if (upmixInputBufferTail >= FX_UPMIX_WINDOW_LEN) {
+			upmixInputBufferTail -= FX_UPMIX_WINDOW_LEN;
 		}
 
 
@@ -161,13 +187,13 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 		// now we have a consistent and sorted sample-buffer with the oldest sample at index 0 and the newest sample at the last index
 		// apply pre-calculated Hann-Window
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			vecvmltf(&upmixFftInputBufferLR[real][i_ch][0], &hannWindow[0], &upmixFftInputBufferLR[real][i_ch][0], UPMIX_WINDOW_LEN);
+			vecvmltf(&upmixFftInputBufferLR_real[i_ch][0], &hannWindow[0], &upmixFftInputBufferLR_real[i_ch][0], FX_UPMIX_WINDOW_LEN);
 		}
 
 		// TODO: allocate different memory-location for data one compared to data two to increase performance
-		rfftf_2(&upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[imag][0][0],
-				&upmixFftInputBufferLR[real][1][0], &upmixFftInputBufferLR[imag][1][0],
-				&twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
+		rfftf_2(&upmixFftInputBufferLR_real[0][0], &upmixFftInputBufferLR_imag[0][0],
+				&upmixFftInputBufferLR_real[1][0], &upmixFftInputBufferLR_imag[1][0],
+				&twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
 
 
 
@@ -176,28 +202,28 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 		// Step 3 (SIMD-optimized functions): calculation of the interchannel-coherence and create mask for direct-parts
 		// ============================================================================================
 		// magnitude (out = 2 * sqrt(Re² + Im²) / fftsize)
-		float magnitude[3][UPMIX_WINDOW_LEN_HALF];
-		float power[2][UPMIX_WINDOW_LEN_HALF];
-		fftf_magnitude(&upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[imag][0][0], &magnitude[0][0], UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
-		fftf_magnitude(&upmixFftInputBufferLR[real][1][0], &upmixFftInputBufferLR[imag][1][0], &magnitude[1][0], UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
+		float magnitude[3][FX_UPMIX_WINDOW_LEN_HALF];
+		float power[2][FX_UPMIX_WINDOW_LEN_HALF];
+		fftf_magnitude(&upmixFftInputBufferLR_real[0][0], &upmixFftInputBufferLR_imag[0][0], &magnitude[0][0], FX_UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
+		fftf_magnitude(&upmixFftInputBufferLR_real[1][0], &upmixFftInputBufferLR_imag[1][0], &magnitude[1][0], FX_UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
 		// calculate power
-		vecvmltf(&magnitude[0][0], &magnitude[0][0], &power[0][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, SAMPLES_IN_BUFFER
-		vecvmltf(&magnitude[1][0], &magnitude[1][0], &power[1][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, SAMPLES_IN_BUFFER
+		vecvmltf(&magnitude[0][0], &magnitude[0][0], &power[0][0], FX_UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
+		vecvmltf(&magnitude[1][0], &magnitude[1][0], &power[1][0], FX_UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 
 		// cross-correlation (real-part)
-		float crossCorrellation[2][UPMIX_WINDOW_LEN_HALF]; // (Re(x) * Re(y) +/- Im(x) * Im(y))
-		crosscorrf(&crossCorrellation[real][0], &upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[imag][0][0], UPMIX_WINDOW_LEN_HALF, UPMIX_WINDOW_LEN_HALF); // output[lags], input_x[SAMPLES_IN_BUFFER], input_y[SAMPLES_IN_BUFFER], SAMPLES_IN_BUFFER, lags
+		float crossCorrellation[2][FX_UPMIX_WINDOW_LEN_HALF]; // (Re(x) * Re(y) +/- Im(x) * Im(y))
+		crosscorrf(&crossCorrellation[real][0], &upmixFftInputBufferLR_real[0][0], &upmixFftInputBufferLR_imag[0][0], FX_UPMIX_WINDOW_LEN_HALF, FX_UPMIX_WINDOW_LEN_HALF); // output[lags], input_x[samples], input_y[samples], samples, lags
 
 		// cross-correlation (imag-part)
 		// first calculate Re²
-		vecvmltf(&upmixFftInputBufferLR[real][0][0], &upmixFftInputBufferLR[real][0][0], &upmixFftTempBuffer[real][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, SAMPLES_IN_BUFFER
+		vecvmltf(&upmixFftInputBufferLR_real[0][0], &upmixFftInputBufferLR_real[0][0], &upmixFftTempBuffer_real[0], FX_UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 		// now calculate Im²
-		vecvmltf(&upmixFftInputBufferLR[imag][0][0], &upmixFftInputBufferLR[imag][0][0], &upmixFftTempBuffer[imag][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, SAMPLES_IN_BUFFER
+		vecvmltf(&upmixFftInputBufferLR_imag[0][0], &upmixFftInputBufferLR_imag[0][0], &upmixFftTempBuffer_imag[0], FX_UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 		// now calcualte Re² - Im²
-		vecvsubf(&upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &crossCorrellation[imag][0], UPMIX_WINDOW_LEN_HALF); // a, b, output, SAMPLES_IN_BUFFER
+		vecvsubf(&upmixFftTempBuffer_real[0], &upmixFftTempBuffer_imag[0], &crossCorrellation[imag][0], FX_UPMIX_WINDOW_LEN_HALF); // a, b, output, samples
 
 		//magnitude Left-Right
-		fftf_magnitude(&crossCorrellation[real][0], &crossCorrellation[imag][0], &magnitude[2][0], UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
+		fftf_magnitude(&crossCorrellation[real][0], &crossCorrellation[imag][0], &magnitude[2][0], FX_UPMIX_WINDOW_LEN, 2); // mode=2 when using data from rfftf_2()
 
 		...
 		...
@@ -207,13 +233,13 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 
 		// Step 3: calculation of the interchannel-coherence and create mask for direct-parts
 		// ============================================================================================
-		#pragma loop_count(UPMIX_WINDOW_LEN_HALF)
-		for (int k = 0; k < UPMIX_WINDOW_LEN_HALF; k++) {
+		#pragma loop_count(FX_UPMIX_WINDOW_LEN_HALF)
+		for (int k = 0; k < FX_UPMIX_WINDOW_LEN_HALF; k++) {
 			// get current values for left and right
-			float reL = upmixFftInputBufferLR[real][0][k];
-			float imL = upmixFftInputBufferLR[imag][0][k];
-			float reR = upmixFftInputBufferLR[real][1][k];
-			float imR = upmixFftInputBufferLR[imag][1][k];
+			float reL = upmixFftInputBufferLR_real[0][k];
+			float imL = upmixFftInputBufferLR_imag[0][k];
+			float reR = upmixFftInputBufferLR_real[1][k];
+			float imR = upmixFftInputBufferLR_imag[1][k];
 
 			// cross-power: power = Re² + Im²
 			float powerL = reL*reL + imL*imL;
@@ -310,7 +336,7 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 		}
 
 		// smooth masks using out = (in - in_z) * coeff + in_z
-//		for (int k = 0; k < (UPMIX_WINDOW_LEN_HALF); k++) {
+//		for (int k = 0; k < (FX_UPMIX_WINDOW_LEN_HALF); k++) {
 //			maskLeft[k] = (maskLeft[k] - maskLeft_z[k]) * 0.003f + maskLeft_z[k]; // alpha = 0.3 for faster reaction
 //			maskRight[k] = (maskRight[k] - maskRight_z[k]) * 0.0003f + maskRight_z[k]; // alpha = 0.3 for faster reaction
 //			maskCenter[k] = (maskCenter[k] - maskCenter_z[k]) * 0.3f + maskCenter_z[k]; // alpha = 0.3 for faster reaction
@@ -325,46 +351,56 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 
 		// Step 4: decorrelation for surround-channels
 		// ============================================================================================
-		float *reBufL = &upmixFftOutputBufferLR[real][0][0];
-		float *imBufL = &upmixFftOutputBufferLR[imag][0][0];
-		float *reBufR = &upmixFftOutputBufferLR[real][1][0];
-		float *imBufR = &upmixFftOutputBufferLR[imag][1][0];
-		float *reBufC = &upmixFftOutputBufferC[real][0];
-		float *imBufC = &upmixFftOutputBufferC[imag][0];
-		float *reBufBL = &upmixFftOutputBufferBackLR[real][0][0];
-		float *imBufBL = &upmixFftOutputBufferBackLR[imag][0][0];
-		float *reBufBR = &upmixFftOutputBufferBackLR[real][1][0];
-		float *imBufBR = &upmixFftOutputBufferBackLR[imag][1][0];
+		float *reBufL = &upmixFftOutputBufferLR_real[0][0];
+		float *imBufL = &upmixFftOutputBufferLR_imag[0][0];
+		float *reBufR = &upmixFftOutputBufferLR_real[1][0];
+		float *imBufR = &upmixFftOutputBufferLR_imag[1][0];
+		float *reBufC = &upmixFftOutputBufferC_real[0];
+		float *imBufC = &upmixFftOutputBufferC_imag[0];
+		float *reBufBL = &upmixFftOutputBufferBackLR_real[0][0];
+		float *imBufBL = &upmixFftOutputBufferBackLR_imag[0][0];
+		float *reBufBR = &upmixFftOutputBufferBackLR_real[1][0];
+		float *imBufBR = &upmixFftOutputBufferBackLR_imag[1][0];
 
-		for (int k = 0; k < (UPMIX_WINDOW_LEN_HALF); k++) {
-			// left: panned direct sound + x% ambient
-			reBufL[k] = upmixFftInputBufferLR[real][0][k] * (maskLeft[k] + maskAmbient[k] * _ambientToLR);
-			imBufL[k] = upmixFftInputBufferLR[imag][0][k] * (maskLeft[k] + maskAmbient[k] * _ambientToLR);
+		for (int k = 0; k < (FX_UPMIX_WINDOW_LEN_HALF); k++) {
+			#if FX_UPMIX_ADD_AMBIENCE_TO_LR == 0
+				// left: panned direct sound + 30% ambient
+				reBufL[k] = upmixFftInputBufferLR_real[0][k] * maskLeft[k];
+				imBufL[k] = upmixFftInputBufferLR_imag[0][k] * maskLeft[k];
 
-			// right: panned direct sound + x% ambient
-			reBufR[k] = upmixFftInputBufferLR[real][1][k] * (maskRight[k] + maskAmbient[k] * _ambientToLR);
-			imBufR[k] = upmixFftInputBufferLR[imag][1][k] * (maskRight[k] + maskAmbient[k] * _ambientToLR);
+				// right: panned direct sound + 30% ambient
+				reBufR[k] = upmixFftInputBufferLR_real[1][k] * maskRight[k];
+				imBufR[k] = upmixFftInputBufferLR_imag[1][k] * maskRight[k];
+			#else
+				// left: panned direct sound + 30% ambient
+				reBufL[k] = upmixFftInputBufferLR_real[0][k] * (maskLeft[k] + maskAmbient[k] * 0.3f);
+				imBufL[k] = upmixFftInputBufferLR_imag[0][k] * (maskLeft[k] + maskAmbient[k] * 0.3f);
+
+				// right: panned direct sound + 30% ambient
+				reBufR[k] = upmixFftInputBufferLR_real[1][k] * (maskRight[k] + maskAmbient[k] * 0.3f);
+				imBufR[k] = upmixFftInputBufferLR_imag[1][k] * (maskRight[k] + maskAmbient[k] * 0.3f);
+			#endif
 
 			// center: direct sound
-			reBufC[k] = (upmixFftInputBufferLR[real][0][k] + upmixFftInputBufferLR[real][1][k]) * maskCenter[k] * 0.707f; // 1/sqrt(2)
-			imBufC[k] = (upmixFftInputBufferLR[imag][0][k] + upmixFftInputBufferLR[imag][1][k]) * maskCenter[k] * 0.707f; // 1/sqrt(2)
+			reBufC[k] = (upmixFftInputBufferLR_real[0][k] + upmixFftInputBufferLR_real[1][k]) * maskCenter[k] * 0.707f; // 1/sqrt(2)
+			imBufC[k] = (upmixFftInputBufferLR_imag[0][k] + upmixFftInputBufferLR_imag[1][k]) * maskCenter[k] * 0.707f; // 1/sqrt(2)
 
 			#if FX_UPMIX_PHASEINVERTED_BACK_LR == 0
 				// backLeft: containing all uncorrelated parts
-				reBufBL[k] = upmixFftInputBufferLR[real][0][k] * maskAmbient[k];
-				imBufBL[k] = upmixFftInputBufferLR[imag][0][k] * maskAmbient[k];
+				reBufBL[k] = upmixFftInputBufferLR_real[0][k] * maskAmbient[k];
+				imBufBL[k] = upmixFftInputBufferLR_imag[0][k] * maskAmbient[k];
 
 				// backRight: containing all uncorrelated parts
-				reBufBR[k] = upmixFftInputBufferLR[real][1][k] * maskAmbient[k];
-				imBufBR[k] = upmixFftInputBufferLR[imag][1][k] * maskAmbient[k];
+				reBufBR[k] = upmixFftInputBufferLR_real[1][k] * maskAmbient[k];
+				imBufBR[k] = upmixFftInputBufferLR_imag[1][k] * maskAmbient[k];
 			#else
 				// backLeft: containing all uncorrelated parts
-				reBufBL[k] = -upmixFftInputBufferLR[imag][0][k] * maskAmbient[k];
-				imBufBL[k] = upmixFftInputBufferLR[real][0][k] * maskAmbient[k];
+				reBufBL[k] = -upmixFftInputBufferLR_imag[0][k] * maskAmbient[k];
+				imBufBL[k] = upmixFftInputBufferLR_real[0][k] * maskAmbient[k];
 
 				// backRight: containing all uncorrelated parts
-				reBufBR[k] = upmixFftInputBufferLR[imag][1][k] * maskAmbient[k];
-				imBufBR[k] = -upmixFftInputBufferLR[real][1][k] * maskAmbient[k];
+				reBufBR[k] = upmixFftInputBufferLR_imag[1][k] * maskAmbient[k];
+				imBufBR[k] = -upmixFftInputBufferLR_real[1][k] * maskAmbient[k];
 			#endif
 
 
@@ -388,8 +424,8 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 
 		// calculate the Nyquist frequency -> add 2nd half of the spectrum
 		// TODO: check if we can mitigate this or if there is a built-in-function. Maybe ifftf() can be used with different parameters
-		for (int i = 1; i < (UPMIX_WINDOW_LEN_HALF); i++) {
-			int mirrIdx = UPMIX_WINDOW_LEN - i;
+		for (int i = 1; i < (FX_UPMIX_WINDOW_LEN_HALF); i++) {
+			int mirrIdx = FX_UPMIX_WINDOW_LEN - i;
 
 			reBufL[mirrIdx] = reBufL[i]; // Re=Re, Im=-Im
 			imBufL[mirrIdx] = -imBufL[i]; // Re=Re, Im=-Im
@@ -415,18 +451,18 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 		// Step 5: perform inverse-FFT
 		// ============================================================================================
 		// TODO: allocate different memory-location for real-parts compared to imag-parts to increase performance
-		ifftf(reBufL, imBufL, &upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
-		ifftf(reBufR, imBufR, &upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
-		ifftf(reBufC, imBufC, &upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
-		ifftf(reBufBL, imBufBL, &upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
-		ifftf(reBufBR, imBufBR, &upmixFftTempBuffer[real][0], &upmixFftTempBuffer[imag][0], &twidtab[real][0], &twidtab[imag][0], UPMIX_WINDOW_LEN);
+		ifftf(reBufL, imBufL, &upmixFftTempBuffer_real[0], &upmixFftTempBuffer_imag[0], &twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
+		ifftf(reBufR, imBufR, &upmixFftTempBuffer_real[0], &upmixFftTempBuffer_imag[0], &twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
+		ifftf(reBufC, imBufC, &upmixFftTempBuffer_real[0], &upmixFftTempBuffer_imag[0], &twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
+		ifftf(reBufBL, imBufBL, &upmixFftTempBuffer_real[0], &upmixFftTempBuffer_imag[0], &twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
+		ifftf(reBufBR, imBufBR, &upmixFftTempBuffer_real[0], &upmixFftTempBuffer_imag[0], &twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
 
 		// apply pre-calculated Hann-Window again to mitigate harmonics
-		vecvmltf(reBufL, &hannWindow[0], reBufL, UPMIX_WINDOW_LEN);
-		vecvmltf(reBufR, &hannWindow[0], reBufR, UPMIX_WINDOW_LEN);
-		vecvmltf(reBufC, &hannWindow[0], reBufC, UPMIX_WINDOW_LEN);
-		vecvmltf(reBufBL, &hannWindow[0], reBufBL, UPMIX_WINDOW_LEN);
-		vecvmltf(reBufBR, &hannWindow[0], reBufBR, UPMIX_WINDOW_LEN);
+		vecvmltf(reBufL, &hannWindow[0], reBufL, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufR, &hannWindow[0], reBufR, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufC, &hannWindow[0], reBufC, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufBL, &hannWindow[0], reBufBL, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufBR, &hannWindow[0], reBufBR, FX_UPMIX_WINDOW_LEN);
 
 
 
@@ -435,25 +471,25 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 
 		// Step 6: assembling by adding the newbuffer on top of the output-buffer: upmixOutputBuffer += upmixNewBuffer
 		// ============================================================================================
-		// remove old SAMPLES_IN_BUFFER (shift array by UPMIX_RX_SAMPLE_COUNT to the left)
+		// remove old samples (shift array by FX_UPMIX_RX_SAMPLE_COUNT to the left)
 		for (int i_ch = 0; i_ch < 5; i_ch++) {
 			arrayIdx = 0;
-			for (int i = 0; i < (UPMIX_FFT_HOP_VALUE - 1); i++) {
-				// shift the SAMPLES_IN_BUFFER to the left
-				memcpy(&upmixOutputBuffer[i_ch][arrayIdx], &upmixOutputBuffer[i_ch][arrayIdx + UPMIX_RX_SAMPLE_COUNT], UPMIX_RX_SAMPLE_COUNT * sizeof(float));
+			for (int i = 0; i < (FX_UPMIX_FFT_HOP_VALUE - 1); i++) {
+				// shift the samples to the left
+				memcpy(&upmixOutputBuffer[i_ch][arrayIdx], &upmixOutputBuffer[i_ch][arrayIdx + FX_UPMIX_RX_SAMPLE_COUNT], FX_UPMIX_RX_SAMPLE_COUNT * sizeof(float));
 				// increment array index
-				arrayIdx += UPMIX_RX_SAMPLE_COUNT;
+				arrayIdx += FX_UPMIX_RX_SAMPLE_COUNT;
 			}
 			// set the last elements to zero
-			memset(&upmixOutputBuffer[i_ch][arrayIdx], 0, UPMIX_RX_SAMPLE_COUNT * sizeof(float));
+			memset(&upmixOutputBuffer[i_ch][arrayIdx], 0, FX_UPMIX_RX_SAMPLE_COUNT * sizeof(float));
 		}
 
 		// now assemble the new values for left, right, center, back-left and back-right
-		vecvaddf(&upmixOutputBuffer[0][0], reBufL, &upmixOutputBuffer[0][0], UPMIX_WINDOW_LEN);
-		vecvaddf(&upmixOutputBuffer[1][0], reBufR, &upmixOutputBuffer[1][0], UPMIX_WINDOW_LEN);
-		vecvaddf(&upmixOutputBuffer[2][0], reBufC, &upmixOutputBuffer[2][0], UPMIX_WINDOW_LEN);
-		vecvaddf(&upmixOutputBuffer[3][0], reBufBL, &upmixOutputBuffer[3][0], UPMIX_WINDOW_LEN);
-		vecvaddf(&upmixOutputBuffer[4][0], reBufBR, &upmixOutputBuffer[4][0], UPMIX_WINDOW_LEN);
+		vecvaddf(&upmixOutputBuffer[0][0], reBufL, &upmixOutputBuffer[0][0], FX_UPMIX_WINDOW_LEN);
+		vecvaddf(&upmixOutputBuffer[1][0], reBufR, &upmixOutputBuffer[1][0], FX_UPMIX_WINDOW_LEN);
+		vecvaddf(&upmixOutputBuffer[2][0], reBufC, &upmixOutputBuffer[2][0], FX_UPMIX_WINDOW_LEN);
+		vecvaddf(&upmixOutputBuffer[3][0], reBufBL, &upmixOutputBuffer[3][0], FX_UPMIX_WINDOW_LEN);
+		vecvaddf(&upmixOutputBuffer[4][0], reBufBR, &upmixOutputBuffer[4][0], FX_UPMIX_WINDOW_LEN);
 
 
 
@@ -461,17 +497,17 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 
 		// Step 7: prepare the output
 		// ============================================================================================
-		// upmixOutputBuffer contains 1024 SAMPLES_IN_BUFFER, but only the first 256 are ready to be output
-		// as we are using a 16 sample-TDM-buffer, we have to take track of the already sent SAMPLES_IN_BUFFER
+		// upmixOutputBuffer contains 1024 samples, but only the first 256 are ready to be output
+		// as we are using a 16 sample-TDM-buffer, we have to take track of the already sent samples
 		// by using the upmixOutputSampleCounter. First it has to be reset to 0 and then incremented by the
-		// number of sent (received) SAMPLES_IN_BUFFER
-		upmixOutputSampleCounter = 0; // we have calculated the next N/2 or N/4 output-SAMPLES_IN_BUFFER, so reset the read-pointer
+		// number of sent (received) samples
+		upmixOutputSampleCounter = 0; // we have calculated the next N/2 or N/4 output-samples, so reset the read-pointer
 	}
 
 	// copy data to output-buffer
-	memcpy(bufOut[0], &upmixOutputBuffer[0][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // left
-	memcpy(bufOut[1], &upmixOutputBuffer[1][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // right
-	memcpy(bufOut[2], &upmixOutputBuffer[2][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // center
+	memcpy(outBuf[0], &upmixOutputBuffer[0][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // left
+	memcpy(outBuf[1], &upmixOutputBuffer[1][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // right
+	memcpy(outBuf[2], &upmixOutputBuffer[2][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // center
 
 
 	// Step 8: delay-line for surround-channels
@@ -486,15 +522,15 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 		}
 	}
 	// read surround_signal from delay line
-	int delayLineTailLeft = delayLineHead - (_delayMsBackLeft * _sampleRate / 1000); // here we set the delay in milliseconds
-	int delayLineTailRight = delayLineHead - (_delayMsBackRight * _sampleRate / 1000); // here we set the delay in milliseconds
+	int delayLineTailLeft = delayLineHead - (FX_UPMIXER_DELAY_BACKLEFT_MS * FX_UPMIXER_SAMPLING_RATE / 1000); // here we set the delay in milliseconds
+	int delayLineTailRight = delayLineHead - (FX_UPMIXER_DELAY_BACKRIGHT_MS * FX_UPMIXER_SAMPLING_RATE / 1000); // here we set the delay in milliseconds
 	if (delayLineTailLeft < 0) { delayLineTailLeft += FX_UPMIXER_BUFFER_SIZE; } // manual wrap-around
 	if (delayLineTailRight < 0) { delayLineTailRight += FX_UPMIXER_BUFFER_SIZE; } // manual wrap-around
 	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufOut[3][s] = delayLineBackLeft[delayLineTailLeft++];
+		outBuf[3][s] = delayLineBackLeft[delayLineTailLeft++];
 		if (delayLineTailLeft == FX_UPMIXER_BUFFER_SIZE) { delayLineTailLeft = 0; }
 
-		bufOut[4][s] = delayLineBackRight[delayLineTailRight++];
+		outBuf[4][s] = delayLineBackRight[delayLineTailRight++];
 		if (delayLineTailRight == FX_UPMIXER_BUFFER_SIZE) { delayLineTailRight = 0; }
 	}
 
@@ -511,8 +547,8 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			bufOut[3 + i_ch][s] = lowPassSurroundState[i_ch] + lowPassSurroundCoeff * (bufOut[3 + i_ch][s] - lowPassSurroundState[i_ch]);
-			lowPassSurroundState[i_ch] = bufOut[3 + i_ch][s];
+			outBuf[3 + i_ch][s] = lowPassSurroundState[i_ch] + lowPassSurroundCoeff * (outBuf[3 + i_ch][s] - lowPassSurroundState[i_ch]);
+			lowPassSurroundState[i_ch] = outBuf[3 + i_ch][s];
 		}
 	}
 	*/
@@ -521,9 +557,9 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
 	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		float inputSum = (bufIn[0][s] + bufIn[1][s]) * 0.5f; // SHARC supports Dual-MAC in a single clock-cycle
+		float inputSum = (inBuf[0][s] + inBuf[1][s]) * 0.5f; // SHARC supports Dual-MAC in a single clock-cycle
 		lowPassSubState += lowPassSubCoeff * (inputSum - lowPassSubState); // SHARC supports Dual-MAC in a single clock-cycle
-		bufOut[5][s] = lowPassSubState;
+		outBuf[5][s] = lowPassSubState;
 	}
 
 
@@ -535,8 +571,8 @@ void fxUpmixer::process(float* bufIn[], float* bufOut[]) {
 
 	// increase pointer for next read
 	upmixOutputSampleCounter += SAMPLES_IN_BUFFER;
-	if (upmixOutputSampleCounter >= UPMIX_RX_SAMPLE_COUNT) {
-		upmixOutputSampleCounter -= UPMIX_RX_SAMPLE_COUNT;
+	if (upmixOutputSampleCounter >= FX_UPMIX_RX_SAMPLE_COUNT) {
+		upmixOutputSampleCounter -= FX_UPMIX_RX_SAMPLE_COUNT;
 	}
 }
 

@@ -24,8 +24,8 @@
 
 #include "spi.h"
 
-volatile sSpiRxRingBuffer spiRxRingBuffer;
-volatile sSpiTxRingBuffer spiTxRingBuffer;
+volatile pm sSpiRxRingBuffer spiRxRingBuffer;
+volatile pm sSpiTxRingBuffer spiTxRingBuffer;
 volatile bool spiNewRxDataReady = false;
 bool spiDmaMode = false;
 

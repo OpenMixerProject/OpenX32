@@ -14,7 +14,7 @@ class fxMatrixUpmixer : public fx {
         fxMatrixUpmixer(int fxSlot, int channelMode);
         ~fxMatrixUpmixer();
         void rxData(float data[], int len);
-        void process(float* bufIn[], float* bufOut[]);
+        void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
     	float _bufTemp[SAMPLES_IN_BUFFER];
 

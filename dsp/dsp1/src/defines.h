@@ -9,6 +9,7 @@
 #define DEBUG_DISABLE_DYNAMICS	0
 #define DEBUG_DISABLE_EQMAIN	1
 #define DEBUG_DISABLE_MIXBUS	1
+#define DEBUG_DISABLE_DELAYLINE	1
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
@@ -60,8 +61,13 @@
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values - must be dividable by 2!
 
+#define SAMPLERATE_MAX			48000
+#define	DELAYLINE_LENGTH_MS		500 // 500ms
+#define SAMPLES_IN_DELAYLINE	((SAMPLERATE_MAX * DELAYLINE_LENGTH_MS) / 1000)
+
 #define audioVolumeSmootherCoeff 0.01f // (30.0f / (48kHz/16 Samples)) = 0.01f
 
+#define em						section("seg_ext_data")		// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory
 #define DO_CYCLE_COUNTS				// enable cycle counter
 
 #endif /* DEFINES_H_ */

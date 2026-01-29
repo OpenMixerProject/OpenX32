@@ -135,8 +135,11 @@ struct {
 	float channelSendMixbusVolume[MAX_MIXBUS][MAX_CHAN_FPGA + MAX_DSP2_FXRETURN]; // in p.u.
 	short channelSendMixbusTapPoint[MAX_MIXBUS][MAX_CHAN_FPGA + MAX_DSP2_FXRETURN];
 
+	#pragma align 8 // align for 2 floats
 	float channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	#pragma align 8
 	float channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	#pragma align 8
 	float channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
 	float channelSendFxVolume[16][MAX_CHAN_FPGA]; // in p.u.
 

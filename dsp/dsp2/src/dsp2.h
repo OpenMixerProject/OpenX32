@@ -41,12 +41,13 @@ typedef struct {
 extern volatile int audioProcessing;
 extern volatile int audioReady;
 extern volatile bool spiNewRxDataReady;
-extern int audioTx_tcb[4][BUFFER_COUNT][4];
-extern int audioRx_tcb[4][BUFFER_COUNT][4];
+extern int pm audioTx_tcb[4][BUFFER_COUNT][4];
+extern int pm audioRx_tcb[4][BUFFER_COUNT][4];
 extern uint32_t cyclesAudio;
 extern uint32_t cyclesMain;
 extern uint32_t cyclesTotal;
 extern sDsp dsp;
+extern float pm peqCoeffs[5 * 4]; // storage for IIR-coefficients in PM for biquad_trans
 
 enum eBufferIndex {
     TAP_INPUT,

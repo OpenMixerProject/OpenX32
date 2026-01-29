@@ -37,7 +37,7 @@ fxDemo::fxDemo(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
-	fxDemoSetParameters(350); // set delay of 350ms
+	setParameters(350); // set delay of 350ms
 
 	// initialize delay-lines in external memory
 	_delayLineL = (float*)(_memoryAddress);
@@ -46,7 +46,11 @@ fxDemo::fxDemo(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
 
 	// set memory content to zero
-	//clearMemory(); // TODO: check if this is taking too much time
+	//clearMemory();
+	for (int i = 0; i < _delayLineBufferSize; i++) {
+		_delayLineL[i] = 0.0f;
+		_delayLineR[i] = 0.0f;
+	}
 
 	// set internal parameters
 	_delayLineHead = 0;
@@ -56,7 +60,7 @@ fxDemo::~fxDemo() {
     // destructor
 }
 
-void fxDemo::fxDemoSetParameters(float delayMs) {
+void fxDemo::setParameters(float delayMs) {
 	if (delayMs < _delayLineLengthMaxMs) {
 		_delayLineTailOffset = (delayMs * _sampleRate * 0.001f);
 	}
@@ -66,7 +70,7 @@ void fxDemo::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxDemo::process(float* bufIn[], float* bufOut[]) {
+void fxDemo::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: read samples
 	    float sampleL = bufIn[0][s];

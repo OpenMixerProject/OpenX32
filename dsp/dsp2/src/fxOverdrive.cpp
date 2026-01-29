@@ -35,8 +35,8 @@ fxOverdrive::fxOverdrive(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
 	// set default effect parameters
-	fxOverdriveSetFilters(300.0f, 10000.0f, 10000.0f); // hpfInput, lpfInput, lpfOutput
-	fxOverdriveSetGain(10.0f, -0.2f); // preGain, Q
+	setFilters(300.0f, 10000.0f, 10000.0f); // hpfInput, lpfInput, lpfOutput
+	setGain(10.0f, -0.2f); // preGain, Q
 
 	_hpfInputStateIn = 0;
 	_hpfInputStateOut = 0;
@@ -48,13 +48,13 @@ fxOverdrive::~fxOverdrive() {
     // destructor
 }
 
-void fxOverdrive::fxOverdriveSetFilters(float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
+void fxOverdrive::setFilters(float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
 	_hpfInputCoef = 1.0f / (1.0f + 2.0f * M_PI * hpfInputFreq * (1.0f/_sampleRate)); // 1.0f / (1.0f + 2.0f * M_PI * f_c * (1.0f/f_s))
 	_lpfInputCoef = (2.0f * M_PI * lpfInputFreq) / (_sampleRate + 2.0f * M_PI * lpfInputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
 	_lpfOutputCoef = (2.0f * M_PI * lpfOutputFreq) / (_sampleRate + 2.0f * M_PI * lpfOutputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
 }
 
-void fxOverdrive::fxOverdriveSetGain(float preGain, float Q) {
+void fxOverdrive::setGain(float preGain, float Q) {
 	_preGain = preGain;
 	_Q = Q;
 	float denum = 1.0f - expf(8.0f * _Q);
@@ -67,7 +67,7 @@ void fxOverdrive::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxOverdrive::process(float* bufIn[], float* bufOut[]) {
+void fxOverdrive::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		float signal = bufIn[0][s];
 

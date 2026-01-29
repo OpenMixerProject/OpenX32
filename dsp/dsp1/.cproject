@@ -111,7 +111,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="ldr" artifactName="${ProjName}" buildArtefactType="com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr,com.analog.crosscore.managedbuilder.buildType=com.analog.crosscore.managedbuilder.buildType.release" cleanCommand="clean" description="" id="sharc.toolchain.configuration.release.376196929" name="Release" parent="sharc.toolchain.configuration.release">
+				<configuration artifactExtension="ldr" artifactName="${ProjName}" buildArtefactType="com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.analog.crosscore.managedbuilder.core.buildArtefactType.ldr,com.analog.crosscore.managedbuilder.buildType=com.analog.crosscore.managedbuilder.buildType.release" cleanCommand="clean" description="" id="sharc.toolchain.configuration.release.376196929" name="Release" parent="sharc.toolchain.configuration.release" postbuildStep="CCES_MMV.exe dsp1.map.xml">
 					<folderInfo id="sharc.toolchain.configuration.release.376196929." name="/" resourcePath="">
 						<toolChain id="sharc.toolchain.release.822053180" isAbstract="false" name="CrossCore SHARC Toolchain" superClass="sharc.toolchain" targetTool="sharc.toolchain.loader">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="sharc.platform.798725833" name="CrossCore SHARC Target Platform" osList="all" superClass="sharc.platform"/>
@@ -174,7 +174,7 @@
 								<option id="linker.option.misrachecksrcfiles.308200581" name="-misra-no-cross-module" superClass="linker.option.misrachecksrcfiles" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="linker.option.runtimeinit.2024926075" name="Runtime initialization (-mem)" superClass="linker.option.runtimeinit" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="linker.option.threadsafelibraries.280046698" name="Link against thread-safe run-time libraries (-threads)" superClass="linker.option.threadsafelibraries" useByScannerDiscovery="false" value="false" valueType="boolean"/>
-								<option id="linker.option.gensymbolmap.316787546" name="Generate symbol map (-map)" superClass="linker.option.gensymbolmap" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="linker.option.gensymbolmap.316787546" name="Generate symbol map (-map)" superClass="linker.option.gensymbolmap" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<inputType id="linker.doj.input.213605980" name="Object Files" superClass="linker.doj.input"/>
 							</tool>
 							<tool id="sharc.toolchain.archiver.1748186323" name="CrossCore SHARC Archiver" superClass="sharc.toolchain.archiver">

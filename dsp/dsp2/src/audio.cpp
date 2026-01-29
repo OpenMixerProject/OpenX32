@@ -27,18 +27,23 @@
 
 // include individual effects
 #include "fxBase.h"
-#include "fxDemo.h"
-#include "fxReverb.h"
-#include "fxDelay.h"
-#include "fxChorus.h"
-#include "fxOverdrive.h"
-#include "fxTransientshaper.h"
 
-#if FX_USE_MATRIXUPMIXER == 1
-	#include "fxMatrixUpmixer.h"
-#endif
+// if one of the surround-upmixing-effects is used, the regular FX-Rack
+// is not available.
 #if FX_USE_UPMIXER == 1
+	// this surround-upmixer-effect takes quite a lot ressources so it
+	// is not implemented as an effect-class-member of the FX-Rack at the moment
 	#include "fxUpmixer.h"
+#elif FX_USE_MATRIXUPMIXER == 1
+	#include "fxMatrixUpmixer.h"
+#else
+	#include "fxDemo.h"
+	#include "fxReverb.h"
+	#include "fxDelay.h"
+	#include "fxChorus.h"
+	#include "fxOverdrive.h"
+	#include "fxTransientshaper.h"
+	#include "fxMultibandCompressor.h"
 #endif
 
 /*
@@ -64,23 +69,35 @@ int audioBufferOffset = 0;
 
 // audio-buffers for transmitting and receiving
 // 16 Audiosamples per channel (= 333us latency)
-int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX IN 0 1-8 | FX IN 1 1-8 | REC IN 1-8
-int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX OUT 0 1-8 | FX OUT 1 1-8 | PLAY OUT 1-8
+int pm audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX IN 0 1-8 | FX IN 1 1-8 | REC IN 1-8
+int pm audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX OUT 0 1-8 | FX OUT 1 1-8 | PLAY OUT 1-8
 
 // internal buffers for audio-samples
-float audioBuffer[5][MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
+float pm audioBuffer[5][MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
-int audioRx_tcb[4][BUFFER_COUNT][4];
-int audioTx_tcb[4][BUFFER_COUNT][4];
+int pm audioRx_tcb[4][BUFFER_COUNT][4];
+int pm audioTx_tcb[4][BUFFER_COUNT][4];
+
+// the next array is our FX-delay-memory in the external SDRAM. It is a dummy-array to display the audio-memory as "used"
+// each individual effect has full control of its memory area and can create smaller sub-arrays within this memory-area
+//float am fxDelayLine[8][2][SDRAM_AUDIO_SIZE_BYTE / (8 * 2 * 4)]; // 8 FX-Slots, 2 Channels, 229000 samples = 4.77 seconds
 
 float time = 0;
 
 // definitions for effect-rack
-fx* fxSlots[8] = {0};
-float* fxInBuf[8][2];
-float* fxOutBuf[8][2];
-//float* fxOutSurroundBuf[6];
+#if (FX_USE_UPMIXER == 1)
+	float* fxInBuf[2];
+	float* fxOutSurroundBuf[6];
+#elif (FX_USE_MATRIXUPMIXER == 1)
+	fx* fxSlots[1] = {0};
+	float* fxInBuf[2];
+	float* fxOutSurroundBuf[6];
+#else
+	fx* fxSlots[8] = {0};
+	float* fxInBuf[8][2];
+	float* fxOutBuf[8][2];
+#endif
 
 void audioInit(void) {
 	// initialize TCB-array with multi-buffering
@@ -112,110 +129,160 @@ void audioInit(void) {
 
 	// initialize memory
 	memset(audioBuffer, 0, sizeof(audioBuffer));
+	//fxDelayLine[0][0][0] = 0.0f; // dummy write to memory-area to prevent removing by compiler/linker
 
 	// initialize effects-rack
-	// route first two inputs to all effect-inputs
-	fxInBuf[0][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[0][1] = &audioBuffer[TAP_INPUT][1][0];
-	fxInBuf[1][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[1][1] = &audioBuffer[TAP_INPUT][1][0];
-	fxInBuf[2][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[2][1] = &audioBuffer[TAP_INPUT][1][0];
-	fxInBuf[3][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[3][1] = &audioBuffer[TAP_INPUT][1][0];
-	fxInBuf[4][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[4][1] = &audioBuffer[TAP_INPUT][1][0];
-	fxInBuf[5][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[5][1] = &audioBuffer[TAP_INPUT][1][0];
-	fxInBuf[6][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[6][1] = &audioBuffer[TAP_INPUT][1][0];
-	fxInBuf[7][0] = &audioBuffer[TAP_INPUT][0][0];
-	fxInBuf[7][1] = &audioBuffer[TAP_INPUT][1][0];
+	#if (FX_USE_MATRIXUPMIXER == 1) || (FX_USE_UPMIXER == 1)
+		fxInBuf[0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[1] = &audioBuffer[TAP_INPUT][1][0];
 
-	// route each effect-output to a dedicated DSP2 output
-	fxOutBuf[0][0] = &audioBuffer[TAP_OUTPUT][0][0];
-	fxOutBuf[0][1] = &audioBuffer[TAP_OUTPUT][1][0];
-	fxOutBuf[1][0] = &audioBuffer[TAP_OUTPUT][2][0];
-	fxOutBuf[1][1] = &audioBuffer[TAP_OUTPUT][3][0];
-	fxOutBuf[2][0] = &audioBuffer[TAP_OUTPUT][4][0];
-	fxOutBuf[2][1] = &audioBuffer[TAP_OUTPUT][5][0];
-	fxOutBuf[3][0] = &audioBuffer[TAP_OUTPUT][6][0];
-	fxOutBuf[3][1] = &audioBuffer[TAP_OUTPUT][7][0];
-	fxOutBuf[4][0] = &audioBuffer[TAP_OUTPUT][8][0];
-	fxOutBuf[4][1] = &audioBuffer[TAP_OUTPUT][9][0];
-	fxOutBuf[5][0] = &audioBuffer[TAP_OUTPUT][10][0];
-	fxOutBuf[5][1] = &audioBuffer[TAP_OUTPUT][11][0];
-	fxOutBuf[6][0] = &audioBuffer[TAP_OUTPUT][12][0];
-	fxOutBuf[6][1] = &audioBuffer[TAP_OUTPUT][13][0];
-	fxOutBuf[7][0] = &audioBuffer[TAP_OUTPUT][14][0];
-	fxOutBuf[7][1] = &audioBuffer[TAP_OUTPUT][15][0];
+		fxOutSurroundBuf[0] = &audioBuffer[TAP_OUTPUT][0][0];
+		fxOutSurroundBuf[1] = &audioBuffer[TAP_OUTPUT][1][0];
+		fxOutSurroundBuf[2] = &audioBuffer[TAP_OUTPUT][2][0];
+		fxOutSurroundBuf[3] = &audioBuffer[TAP_OUTPUT][3][0];
+		fxOutSurroundBuf[4] = &audioBuffer[TAP_OUTPUT][4][0];
+		fxOutSurroundBuf[5] = &audioBuffer[TAP_OUTPUT][5][0];
+	#else
+		// route first two inputs to all effect-inputs
+		fxInBuf[0][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[0][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[1][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[1][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[2][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[2][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[3][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[3][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[4][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[4][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[5][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[5][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[6][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[6][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[7][0] = &audioBuffer[TAP_INPUT][0][0];
+		fxInBuf[7][1] = &audioBuffer[TAP_INPUT][1][0];
+
+		// route each effect-output to a dedicated DSP2 output
+		fxOutBuf[0][0] = &audioBuffer[TAP_OUTPUT][0][0];
+		fxOutBuf[0][1] = &audioBuffer[TAP_OUTPUT][1][0];
+		fxOutBuf[1][0] = &audioBuffer[TAP_OUTPUT][2][0];
+		fxOutBuf[1][1] = &audioBuffer[TAP_OUTPUT][3][0];
+		fxOutBuf[2][0] = &audioBuffer[TAP_OUTPUT][4][0];
+		fxOutBuf[2][1] = &audioBuffer[TAP_OUTPUT][5][0];
+		fxOutBuf[3][0] = &audioBuffer[TAP_OUTPUT][6][0];
+		fxOutBuf[3][1] = &audioBuffer[TAP_OUTPUT][7][0];
+		fxOutBuf[4][0] = &audioBuffer[TAP_OUTPUT][8][0];
+		fxOutBuf[4][1] = &audioBuffer[TAP_OUTPUT][9][0];
+		fxOutBuf[5][0] = &audioBuffer[TAP_OUTPUT][10][0];
+		fxOutBuf[5][1] = &audioBuffer[TAP_OUTPUT][11][0];
+		fxOutBuf[6][0] = &audioBuffer[TAP_OUTPUT][12][0];
+		fxOutBuf[6][1] = &audioBuffer[TAP_OUTPUT][13][0];
+		fxOutBuf[7][0] = &audioBuffer[TAP_OUTPUT][14][0];
+		fxOutBuf[7][1] = &audioBuffer[TAP_OUTPUT][15][0];
+	#endif
 
 	// setup the fx-rack
-	fxSlots[0] = new fxReverb(0, 2); // EffectSlot #0, Stereo, Ch 9-10
-	fxSlots[1] = new fxChorus(1, 2); // EffectSlot #1, Stereo, Ch 11-12
-	fxSlots[2] = new fxTransientshaper(2, 2); // EffectSlot #2, DualMono, Ch 13-14
-	//fxSlots[3] = new fxOverdrive(3, 2); // EffectSlot #3, DualMono, Ch 15-16
-	//fxSlots[4] = new fxDelay(4, 2); // EffectSlot #4, Stereo, Ch 17-18
-	//fxSlots[5] = new fxDelay(5, 2);//new fxDemo(5, 2); // EffectSlot #5, Stereo, Ch 19-20
-	//fxSlots[6] = new fxDelay(6, 2);//new fxDemo(5, 2); // EffectSlot #6, Stereo, Ch 21-22
-	//fxSlots[7] = new fxDelay(7, 2);//new fxDemo(5, 2); // EffectSlot #7, Stereo, Ch 23-24
-	//fxSlots[6] = new fxUpmixer(6, 6); // EffectSlot #6, Surround, Ch 21-22
-	//fxSlots[7] = new fxMatrixUpmixer(7, 6); // EffectSlot #7, Surround, Ch 23-24
+	#if (FX_USE_UPMIXER == 1)
+		// initialize surround upmixing using a stereo-decompositing upmixer
+		fxUpmixerInit();
+	#elif (FX_USE_MATRIXUPMIXER == 1)
+		// surround upmixing using a simple matrix-upmixer
+		fxSlots[0] = new fxMatrixUpmixer(0, 6); // EffectSlot #0, 5.1 Surround, Ch 1-6
+	#else
+		// regular stereo-effects
+
+		/*
+			==============================================
+			Effect		| DSP-Load [%]	| Program-Memory |
+			------------|---------------|-----------------
+			Reverb		| 18 %			|				 |
+			Chorus		| 5 %			|				 |
+			TransShapr	| 2.5 %			|				 |
+			Delay		| 1.5 %			|				 |
+			Overdrive	| 2 %			|				 |
+			MltBndComp	| 6 %			|				 |
+			==============================================
+		*/
+
+		// fxReverb and fxMultibandCompressor currently take a huge amount of program-memory
+		// and does not fit into block0 together with other effects until code can be executed
+		// from SDRAM
+		//
+		// the following combinations are working:
+		// fxChorus, fxTransientshaper, fxOverdrive, fxDelay
+		// fxReverb, fxChorus, fxOverdrive
+
+		fxSlots[0] = new fxReverb(0, 2); // EffectSlot #0, Stereo, Ch 9-10
+		fxSlots[1] = new fxChorus(1, 2); // EffectSlot #1, Stereo, Ch 11-12
+		//fxSlots[2] = new fxTransientshaper(2, 2); // EffectSlot #2, DualMono, Ch 13-14
+		fxSlots[3] = new fxOverdrive(3, 2); // EffectSlot #3, DualMono, Ch 15-16
+		//fxSlots[4] = new fxDelay(4, 2); // EffectSlot #4, Stereo, Ch 17-18
+		//fxSlots[5] = new fxMultibandCompressor(5, 2); // EffectSlot #5, Stereo, Ch 19-20
+		//fxSlots[6] = new fxDemo(6, 2); // EffectSlot #6, Stereo, Ch 21-22
+		//fxSlots[7] = new fxDemo(7, 2); // EffectSlot #7, Stereo, Ch 23-24
+
+		// allocate memory for class in non-standard heap
+		//fxSlots[0] = (fxReverb*)heap_malloc(0, sizeof(fxReverb)); // 0 = heapID
+	#endif
 }
 
 void audioFxData(int fxSlot, float* data, int len) {
-	// passthrough data to desired fx-slot
-	if (fxSlots[fxSlot] != 0) {
-		fxSlots[fxSlot]->rxData(data, len);
-	}
+	#if (FX_USE_UPMIXER == 0) && (FX_USE_MATRIXUPMIXER == 0)
+		// passthrough data to desired fx-slot
+		if (fxSlots[fxSlot] != 0) {
+			fxSlots[fxSlot]->rxData(data, len);
+		}
+	#endif
 }
 
 void audioFxChangeSlot(int fxSlot, int newFx, int channelCount) {
-	// TODO: when including the following lines, the DSP will not start anymore
-	// maybe a problem with the HEAP?
+	// TODO: the following code would work, but takes lot of
+	// program-memory, so that the linker places part of our
+	// code into the external SDRAM-code-space. At the moment
+	// the DSP is not booting anymore when doing this so we first
+	// have to update the boot-kernel to initialize our external
+	// memory before we can use the fx-rack-slots dynamically
 
 	/*
-	if (channelCount < 1) return;
-	if (channelCount > 2) return;
-	if (fxSlot < 0) return;
-	if (fxSlot > 7) return;
+	#if (FX_USE_UPMIXER == 0) && (FX_USE_MATRIXUPMIXER == 0)
+		if (channelCount < 1) return;
+		if (channelCount > 2) return;
+		if (fxSlot < 0) return;
+		if (fxSlot > 7) return;
 
-	// delete old effect
-	if (fxSlots[fxSlot] != 0) {
-		delete fxSlots[fxSlot];
-		fxSlots[fxSlot] = 0;
-	}
+		// delete old effect
+		if (fxSlots[fxSlot] != 0) {
+			delete fxSlots[fxSlot];
+			fxSlots[fxSlot] = 0;
+		}
 
-	// set new effect
-	switch (newFx) {
-		case 0:
-			fxSlots[fxSlot] = new fxReverb(fxSlot, channelCount);
-			break;
-		case 1:
-			fxSlots[fxSlot] = new fxChorus(fxSlot, channelCount);
-			break;
-		case 2:
-			fxSlots[fxSlot] = new fxTransientshaper(fxSlot, channelCount);
-			break;
-		case 3:
-			fxSlots[fxSlot] = new fxOverdrive(fxSlot, channelCount);
-			break;
-		case 4:
-			fxSlots[fxSlot] = new fxDelay(fxSlot, channelCount);
-			break;
-		case 5:
-			fxSlots[fxSlot] = new fxDemo(fxSlot, channelCount);
-			break;
-		case 6:
-			fxSlots[fxSlot] = new fxUpmixer(fxSlot, channelCount);
-			break;
-		case 7:
-			fxSlots[fxSlot] = new fxMatrixUpmixer(fxSlot, channelCount);
-			break;
-		default:
-			break;
-	}
-	*/
+		// set new effect
+		switch (newFx) {
+			case 0:
+				fxSlots[fxSlot] = new fxReverb(fxSlot, channelCount);
+				break;
+			case 1:
+				fxSlots[fxSlot] = new fxChorus(fxSlot, channelCount);
+				break;
+			case 2:
+				fxSlots[fxSlot] = new fxTransientshaper(fxSlot, channelCount);
+				break;
+			case 3:
+				fxSlots[fxSlot] = new fxOverdrive(fxSlot, channelCount);
+				break;
+			case 4:
+				fxSlots[fxSlot] = new fxDelay(fxSlot, channelCount);
+				break;
+			case 5:
+				fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelCount);
+				break;
+			case 6:
+				fxSlots[fxSlot] = new fxDemo(fxSlot, channelCount);
+				break;
+			default:
+				break;
+		}
+	#endif
+*/
 }
 
 void audioProcessData(void) {
@@ -240,7 +307,7 @@ void audioProcessData(void) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		bufferSampleIndex = audioBufferOffset + sampleOffset;
 
-		// copy channels from FPGA
+		// copy channels from DSP1
 		tdmOffset = 0;
 		tdmBufferOffset = 0;
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
@@ -287,12 +354,19 @@ void audioProcessData(void) {
 	//
 	// process all effects (if fx-slot is occupied)
 
-	for (int i = 0; i < 8; i++) {
-		if (fxSlots[i] != 0) {
-			fxSlots[i]->process(&fxInBuf[i][0], &fxOutBuf[i][0]);
+	#if FX_USE_UPMIXER == 1
+		// perform stereo-decompositing and 5.1 upmixing
+		fxUpmixerProcess(&fxInBuf[0], &fxOutSurroundBuf[0]);
+	#elif (FX_USE_MATRIXUPMIXER == 1)
+		// process a 5.1 surround-effect
+		fxSlots[0]->process(&fxInBuf[0], &fxOutSurroundBuf[0]);
+	#else
+		for (int i = 0; i < 8; i++) {
+			if (fxSlots[i] != 0) {
+				fxSlots[i]->process(&fxInBuf[i][0], &fxOutBuf[i][0]);
+			}
 		}
-	}
-
+	#endif
 
 
 
@@ -359,7 +433,7 @@ void audioProcessData(void) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		bufferSampleIndex = audioBufferOffset + sampleOffset;
 
-		// copy data for FPGA
+		// copy data for DSP1
 		tdmOffset = 0;
 		tdmBufferOffset = 0;
 		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
@@ -369,7 +443,7 @@ void audioProcessData(void) {
 				dspCh = tdmOffset + i_ch;
 				bufferIndex = (bufferTdmIndex + i_ch);
 
-				// output to DSP2 as float
+				// output to DSP1 as float
 				memcpy(&audioTxBuf[bufferIndex], &audioBuffer[TAP_OUTPUT][dspCh][s], sizeof(float));
 			}
 

@@ -63,7 +63,7 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="customized" value="false"/>
 							<property name="min_size" value="2"/>
 						</propertygroup>
-						<propertygroup name="use_sdram" value="false">
+						<propertygroup name="use_sdram" value="true">
 							<property name="partitioned" value="default"/>
 							<property name="size" value="16"/>
 							<property name="size_units" value="MegaBytes"/>

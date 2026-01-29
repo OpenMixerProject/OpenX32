@@ -52,6 +52,9 @@
 #define FSA_DIVIDER				512	// provides Frame Sync to S/PDIF TX and SPORT0
 #define CLKB_DIVIDER			2 	// provides HFCLK to S/PDIF TX
 
+// some system-defines
+#define em						section("seg_ext_data")		// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory, am = AudioMemory
+#define am						section("seg_ext_audio")	// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory, am = AudioMemory
 #define DO_CYCLE_COUNTS				// enable cycle counter
 
 #endif /* DEFINES_H_ */
