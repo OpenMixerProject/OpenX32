@@ -187,6 +187,8 @@ MEMORY
    ** PM 48-bit Logical address (L) 0x2A_AAAB ... 0x3F_FFFF
    ** L=P*(2/3)
    */
+   
+   // Caution: Addressbus for program-code starts at 0x00400000 instead of 0x04000000 for external SDRAM
    //mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x002AAAAB) END(0x003FFFFF) WIDTH(32) }
    mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x00400000) END(0x0042AAAA) WIDTH(32) } // allow first 1MB of external SDRAM for Code: 0x40000 (DM-Words) * 2/3 = 0x2AAAA (PM-Words Offset)
    mem_flash               { TYPE(DM RAM ASYNCHRONOUS) START(0x08000000) END(0x083FFFFF) WIDTH(8) }

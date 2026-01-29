@@ -6,9 +6,14 @@
 #define FX_REVERB_INT_CHAN			8	// must be a power of 2, so 2, 4, 8, .... Code has optimized function for 8 parallel channels at the moment
 #define FX_REVERB_DIFFUSION_STEPS	3	// 1,2,3,4,...
 #define FX_REVERB_AVERAGE_OUTPUT	1	// 0=take fxOut as left/right directly, 1=mixdown multichannel-fxOut to stereo
-#define FX_REVERN_ALTERNATIVE_RND	0	// 0=use internal rand() function, 1=use bitshifting chaos (alternative sounds more metallic... not a good choice :-) )
-#define FX_REVERN_ALTERNATIVE_POW	0	// 0=use internal powf() function, 1=use approximation (approximation seems to be slower compared to internal powf())
-#define FX_REVERB_DELAY_MS_MAX		350	// we need 4608 bytes per millisecond. 400ms -> 1843200 bytes
+#define FX_REVERB_ALTERNATIVE_RND	0	// 0=use internal rand() function, 1=use bitshifting chaos (alternative sounds more metallic... not a good choice :-) )
+#define FX_REVERB_ALTERNATIVE_POW	0	// 0=use internal powf() function, 1=use approximation (approximation seems to be slower compared to internal powf())
+
+// we need (FX_REVERB_DIFFUSION_STEPS + 1) * FX_REVERB_INT_CHAN * 48 = (3+1) * 8 * 48 = 1536 Words = 6144 bytes per millisecond
+// we have 14MB / 8 = 1.75MB RAM available: 290ms * 6144 Bytes = 1.7 MB
+// automatic calculation of maximum DELAY:
+#define FX_REVERB_DELAY_MS_MAX		(((SDRAM_AUDIO_SIZE_BYTE / 8) / ((FX_REVERB_DIFFUSION_STEPS + 1) * FX_REVERB_INT_CHAN * 48 * 4)) - 10) // = ((1.835.008 / ((3 + 1) * 8 * 48 * 4)) - 10) = 288ms
+//#define FX_REVERB_DELAY_MS_MAX		290
 #define FX_REVERB_BUFFER_SIZE 		((SAMPLERATE_MAX * FX_REVERB_DELAY_MS_MAX) / 1000) // FX_REVERB_BUFFER_SIZE has to be power-of-2, to use optimized pointer-calculation
 
 // some hadamard-scalings for common channel-count

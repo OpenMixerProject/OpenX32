@@ -1,9 +1,9 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.10
-#define FX_USE_UPMIXER			0
-#define FX_USE_MATRIXUPMIXER	0
+#define DSP_VERSION				0.11
+#define FX_USE_UPMIXER			0	// enables a full-featured stereo-decompositing and 5.1-surround-upmixing effect (all other effects will be disabled)
+#define FX_USE_MATRIXUPMIXER	0	// enables a nice but simple stereo-to-5.1-surround matrix-upmixer (all other effects will be disabled)
 
 // DSP2 receives 24 Audio-channels
 // Channel 1-8		-> FX Sends 1-8
@@ -26,7 +26,7 @@
 
 #define SDRAM_START  			0x04000000	// start address of system-data in SDRAM on Bank1 (nMS1)
 #define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)
-#define SDRAM_AUDIO_SIZE_BYTE	(14 * 1024 * 1024)	// we are using 2MB for system-data and 14MB for audio-data
+#define SDRAM_AUDIO_SIZE_BYTE	(14 * 1024 * 1024)	// we are using 1MB for external program-code, 1MB for system-data and remaining 14MB for audio-data
 // we are slicing the external 16MB SDRAM into parts for each effect-slot
 //#define SDRAM_FX_x			(SDRAM_START + (x * (SDRAM_SIZE_BYTE / 8)))
 
@@ -45,7 +45,7 @@
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
 #define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values
 
-#define SAMPLERATE_MAX			48000
+#define SAMPLERATE_MAX			48000	// this is not the current samplerate, but the maximum supported to allocate correct amount of memory
 
 // SPDIF configuration
 #define CLKA_DIVIDER			8	// provides SCLK serial clock to S/PDIF TX and SPORT0

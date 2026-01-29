@@ -29,6 +29,8 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
+#define ONE_OVER_SQRT2			0.70710678118654752440f
+
 fxMultibandCompressor::fxMultibandCompressor(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
@@ -103,34 +105,16 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
 	// band 2..4 have two low-cuts and two high-cuts
 	// band 5 has only double low-cut and two unused IIRs again
 
+    float coeffs[5];
 	float freq[4];
     freq[0] = f0;
     freq[1] = f1;
     freq[2] = f2;
     freq[3] = f3;
 
-    float gain = 1.0f;
-    float Q = 1.0f / sqrtf(2.0f); // with Q=0.707 we achieve a nice damping so that on the cross-over-point of the 24dB/oct filter we have unity-gain
-	float V = powf(10.0f, fabsf(gain)/20.0f);
-	float K;
-	float K2;
-	float norm;
 
-	float a0;
-	float a1;
-	float a2;
-	float b1;
-	float b2;
-
-	// Band 1: calculate coeffs for high-cut
-	K = tanf(M_PI * freq[0] / dsp.samplerate);
-	K2 = K * K;
-    norm = 1.0f / (1.0f + K / Q + K2);
-    a0 = K2 * norm;
-    a1 = 2.0f * a0;
-    a2 = a0;
-    b1 = 2.0f * (K2 - 1.0f) * norm;
-    b2 = (1.0f - K / Q + K2) * norm;
+	// calculate coeffs for high-cut (low-pass)
+	helperFcn_calcBiquadCoeffs(6, freq[0], ONE_OVER_SQRT2, 1.0f, &coeffs[0], dsp.samplerate);
 
     // on even number of coeffs, they have to be placed in interleaving order
     // a0 a0 a1 a1 a2 a2 -b1 -b1 -b2 -b2 a0 a0 a1 a1 a2 a2 -b1 -b1 -b2 -b2
@@ -141,11 +125,11 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
             // odd section index
             sectionIndex += 1;
         }
-        _compressor[channel][0].coeffs[sectionIndex + 0] = a0; // zeros
-        _compressor[channel][0].coeffs[sectionIndex + 2] = a1; // zeros
-        _compressor[channel][0].coeffs[sectionIndex + 4] = a2; // zeros
-        _compressor[channel][0].coeffs[sectionIndex + 6] = -b1; // poles
-        _compressor[channel][0].coeffs[sectionIndex + 8] = -b2; // poles
+        _compressor[channel][0].coeffs[sectionIndex + 0] = coeffs[0]; // zeros
+        _compressor[channel][0].coeffs[sectionIndex + 2] = coeffs[1]; // zeros
+        _compressor[channel][0].coeffs[sectionIndex + 4] = coeffs[2]; // zeros
+        _compressor[channel][0].coeffs[sectionIndex + 6] = coeffs[3]; // poles
+        _compressor[channel][0].coeffs[sectionIndex + 8] = coeffs[4]; // poles
     }
     // for this band, we are not using the second part, so bypass the last two IIR-filters
     for (int eq = 2; eq < 4; eq++) {
@@ -175,15 +159,8 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
     for (int i = 1; i < 4; i++) {
     	// inner bands: calculate low- and high-cut
 
-    	// calculate coeffs for low-cut
-    	K = tanf(M_PI * freq[i-1] / dsp.samplerate);
-    	K2 = K * K;
-        norm = 1.0f / (1.0f + K / Q + K2);
-        a0 = 1.0f * norm;
-        a1 = -2.0f * a0;
-        a2 = a0;
-        b1 = 2.0f * (K2 - 1.0f) * norm;
-        b2 = (1.0f - K / Q + K2) * norm;
+    	// calculate coeffs for low-cut (high-pass)
+    	helperFcn_calcBiquadCoeffs(7, freq[i-1], ONE_OVER_SQRT2, 1.0f, &coeffs[0], dsp.samplerate);
 
         // on even number of coeffs, they have to be placed in interleaving order
         // a0 a0 a1 a1 a2 a2 -b1 -b1 a0 a0 a1 a1 a2 a2 -b1 -b1
@@ -194,22 +171,15 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
                 // odd section index
                 sectionIndex += 1;
             }
-            _compressor[channel][i].coeffs[sectionIndex + 0] = a0; // zeros
-            _compressor[channel][i].coeffs[sectionIndex + 2] = a1; // zeros
-            _compressor[channel][i].coeffs[sectionIndex + 4] = a2; // zeros
-            _compressor[channel][i].coeffs[sectionIndex + 6] = -b1; // poles
-            _compressor[channel][i].coeffs[sectionIndex + 8] = -b2; // poles
+            _compressor[channel][i].coeffs[sectionIndex + 0] = coeffs[0]; // zeros
+            _compressor[channel][i].coeffs[sectionIndex + 2] = coeffs[1]; // zeros
+            _compressor[channel][i].coeffs[sectionIndex + 4] = coeffs[2]; // zeros
+            _compressor[channel][i].coeffs[sectionIndex + 6] = coeffs[3]; // poles
+            _compressor[channel][i].coeffs[sectionIndex + 8] = coeffs[4]; // poles
         }
 
-    	// calculate coeffs for high-cut
-    	K = tanf(M_PI * freq[i] / dsp.samplerate);
-    	K2 = K * K;
-        norm = 1.0f / (1.0f + K / Q + K2);
-        a0 = K2 * norm;
-        a1 = 2.0f * a0;
-        a2 = a0;
-        b1 = 2.0f * (K2 - 1.0f) * norm;
-        b2 = (1.0f - K / Q + K2) * norm;
+    	// calculate coeffs for high-cut (low-pass)
+    	helperFcn_calcBiquadCoeffs(6, freq[i], ONE_OVER_SQRT2, 1.0f, &coeffs[0], dsp.samplerate);
 
         // on even number of coeffs, they have to be placed in interleaving order
         // a0 a0 a1 a1 a2 a2 -b1 -b1 a0 a0 a1 a1 a2 a2 -b1 -b1
@@ -220,26 +190,19 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
                 // odd section index
                 sectionIndex += 1;
             }
-            _compressor[channel][i].coeffs[sectionIndex + 0] = a0; // zeros
-            _compressor[channel][i].coeffs[sectionIndex + 2] = a1; // zeros
-            _compressor[channel][i].coeffs[sectionIndex + 4] = a2; // zeros
-            _compressor[channel][i].coeffs[sectionIndex + 6] = -b1; // poles
-            _compressor[channel][i].coeffs[sectionIndex + 8] = -b2; // poles
+            _compressor[channel][i].coeffs[sectionIndex + 0] = coeffs[0]; // zeros
+            _compressor[channel][i].coeffs[sectionIndex + 2] = coeffs[1]; // zeros
+            _compressor[channel][i].coeffs[sectionIndex + 4] = coeffs[2]; // zeros
+            _compressor[channel][i].coeffs[sectionIndex + 6] = coeffs[3]; // poles
+            _compressor[channel][i].coeffs[sectionIndex + 8] = coeffs[4]; // poles
         }
     }
 
 
 
 
-	// Band 5: calculate coeffs for low-cut
-	K = tanf(M_PI * freq[3] / dsp.samplerate);
-	K2 = K * K;
-    norm = 1.0f / (1.0f + K / Q + K2);
-    a0 = 1.0f * norm;
-    a1 = -2.0f * a0;
-    a2 = a0;
-    b1 = 2.0f * (K2 - 1.0f) * norm;
-    b2 = (1.0f - K / Q + K2) * norm;
+	// Band 5: calculate coeffs for low-cut (high-pass)
+	helperFcn_calcBiquadCoeffs(6, freq[3], ONE_OVER_SQRT2, 1.0f, &coeffs[0], dsp.samplerate);
 
     // on even number of coeffs, they have to be placed in interleaving order
     // a0 a0 a1 a1 a2 a2 -b1 -b1 a0 a0 a1 a1 a2 a2 -b1 -b1
@@ -250,11 +213,11 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
             // odd section index
             sectionIndex += 1;
         }
-        _compressor[channel][4].coeffs[sectionIndex + 0] = a0; // zeros
-        _compressor[channel][4].coeffs[sectionIndex + 2] = a1; // zeros
-        _compressor[channel][4].coeffs[sectionIndex + 4] = a2; // zeros
-        _compressor[channel][4].coeffs[sectionIndex + 6] = -b1; // poles
-        _compressor[channel][4].coeffs[sectionIndex + 8] = -b2; // poles
+        _compressor[channel][4].coeffs[sectionIndex + 0] = coeffs[0]; // zeros
+        _compressor[channel][4].coeffs[sectionIndex + 2] = coeffs[1]; // zeros
+        _compressor[channel][4].coeffs[sectionIndex + 4] = coeffs[2]; // zeros
+        _compressor[channel][4].coeffs[sectionIndex + 6] = coeffs[3]; // poles
+        _compressor[channel][4].coeffs[sectionIndex + 8] = coeffs[4]; // poles
     }
     // for this band, we are not using the second part, so bypass the last two IIR-filters
     for (int eq = 2; eq < 4; eq++) {
@@ -301,12 +264,12 @@ void fxMultibandCompressor::setParameters(int channel, int band, float threshold
 	// the compressor will be calculated only every "SAMPLES_IN_BUFFER" samples, so we have to take care of this
 	float samplerate = dsp.samplerate/(float)SAMPLES_IN_BUFFER;
 
-	_compressor[channel][band].value_threshold = (powf(2.0f, 31.0f) - 1.0f) * powf(10.0f, threshold/20.0f);
+	_compressor[channel][band].value_threshold = (powf(2.0f, 31.0f) - 1.0f) * helperFcn_db2lin(threshold); // powf(10.0f, threshold/20.0f);
 	_compressor[channel][band].value_ratio = ratio;
 	_compressor[channel][band].value_coeff_attack = expf(-2197.22457734f/(samplerate * attack)); // ln(10%) - ln(90%) = -2.197224577
 	_compressor[channel][band].value_hold_ticks = hold * samplerate / 1000.0f;
 	_compressor[channel][band].value_coeff_release = expf(-2197.22457734f/(samplerate * release)); // ln(10%) - ln(90%) = -2.197224577
-	_compressor[channel][band].value_makeup = powf(10.0f, makeup/20.0f);
+	_compressor[channel][band].value_makeup = helperFcn_db2lin(makeup); //powf(10.0f, makeup/20.0f);
 }
 
 void fxMultibandCompressor::rxData(float data[], int len) {

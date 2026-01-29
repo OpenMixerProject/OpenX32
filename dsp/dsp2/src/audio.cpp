@@ -44,6 +44,7 @@
 	#include "fxOverdrive.h"
 	#include "fxTransientshaper.h"
 	#include "fxMultibandCompressor.h"
+	#include "fxDynamicEQ.h"
 #endif
 
 /*
@@ -209,8 +210,8 @@ void audioInit(void) {
 		audioFxChangeSlot(3, 3, 2); // install overdrive on slot 3
 		audioFxChangeSlot(4, 4, 2); // install delay on slot 4
 		audioFxChangeSlot(5, 4, 2); // install delay on slot 5
-		audioFxChangeSlot(6, 6, 2); // install demo on slot 6
-		audioFxChangeSlot(7, 6, 2); // install demo on slot 7
+		audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
+		audioFxChangeSlot(7, 7, 2); // install demo-FX on slot 7
 	#endif
 }
 
@@ -228,7 +229,7 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 		if (channelMode < 1) return;
 		if (channelMode > 2) return;
 		if (fxSlot < 0) return;
-		if (fxSlot > 7) return;
+		if (fxSlot > 8) return;
 
 		// delete old effect
 		if (fxSlots[fxSlot] != 0) {
@@ -260,6 +261,9 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 				fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode);
 				break;
 			case 6:
+				fxSlots[fxSlot] = new fxDynamicEQ(fxSlot, channelMode);
+				break;
+			case 7:
 				fxSlots[fxSlot] = new fxDemo(fxSlot, channelMode);
 				break;
 			default:

@@ -31,7 +31,7 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-#if FX_REVERN_ALTERNATIVE_POW == 1
+#if FX_REVERB_ALTERNATIVE_POW == 1
 	// Fast power-of-10 approximation, with RMS error of 1.77%.
 	// This approximation developed by Nicol Schraudolph (Neural Computation vol 11, 1999).
 	// Adapted for 32-bit floats by Lippold Haken of Haken Audio, April 2010.
@@ -43,7 +43,7 @@
 	inline void Pow10(float *f) { *(int *)f = *f * 27866352.6f + 1064866808.0f; };
 #endif
 
-#if FX_REVERN_ALTERNATIVE_RND == 1
+#if FX_REVERB_ALTERNATIVE_RND == 1
 	// Random number generator that sounds pleasant in audio algorithms.
 	// The argument and return value is a 30-bit (positive nonzero) integer.
 	// This is Duttaro's 30-bit pseudorandom number generator, p.124 J.AES, vol 50 no 3 March 2002;
@@ -55,7 +55,7 @@
 	int rr;
 #endif
 
-#if FX_REVERN_ALTERNATIVE_RND == 0
+#if FX_REVERB_ALTERNATIVE_RND == 0
 	float randomInRange(float low, float high) {
 		float unitRand = fabsf((float)rand() / 2147483648.0f); // 2^31 = 2147483648.0f
 		return low + unitRand * (high - low);
@@ -318,9 +318,9 @@ void fxReverb::setParameters(float roomSizeMs, float rt60, float feedbackLowPass
 	_roomSizeMs = roomSizeMs;
 	_loopsPerRt60 = rt60 / (roomSizeMs * 1.5f * 0.001f);
 	_dbPerCycle = -60.0f / _loopsPerRt60;
-	#if FX_REVERN_ALTERNATIVE_POW == 0
+	#if FX_REVERB_ALTERNATIVE_POW == 0
 		// builtin-function
-		_feedbackDecayGain = powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
+		_feedbackDecayGain = helperFcn_db2lin(_dbPerCycle); //powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
 	#else
 		// pow10-approximation
 		float tmp = _dbPerCycle * 0.05f;
@@ -339,7 +339,7 @@ void fxReverb::setParameters(float roomSizeMs, float rt60, float feedbackLowPass
 		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
 			float rangeLow = diffusionDelaySamplesRange * (float)i_ch / (float)FX_REVERB_INT_CHAN;
 			float rangeHigh = diffusionDelaySamplesRange * (float)(i_ch + 1) / (float)FX_REVERB_INT_CHAN;
-			#if FX_REVERN_ALTERNATIVE_RND == 0
+			#if FX_REVERB_ALTERNATIVE_RND == 0
 				_diffusor[d].delayLineTailOffset[i_ch] = randomInRange(rangeLow, rangeHigh);
 			#else
 				_diffusor[d].delayLineTailOffset[i_ch] = randomInRangeAlt(&rr, rangeLow, rangeHigh);

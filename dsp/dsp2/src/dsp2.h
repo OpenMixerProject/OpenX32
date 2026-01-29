@@ -33,6 +33,9 @@
 #include <sysreg.h>
 #include <signal.h>
 
+// own helper-functions
+#include "helperFcn.h"
+
 typedef struct {
 	float samplerate;
 } sDsp;
