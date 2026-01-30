@@ -73,8 +73,8 @@
 void householderMatrix(float* bufIn, float* bufOut) {
 	// calculate sum over all input-channels
 	float sum = 0;
-	for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-		sum += bufIn[i_ch];
+	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+		sum += bufIn[c];
 	}
 
 	// add the scaled sum to each channel of the delay-path
@@ -272,14 +272,27 @@ fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// map memory-pointers to desired address in external RAM (please let me know if you know a better option)
 	// initialize delay-lines in external memory
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+		_diffusionDelayLineLength[d] = (int)ceilf(FX_REVERB_BUFFER_SIZE / (2 * (d + 1)));
+
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-			_diffusionDelayLine[d][c] = (float*)(_memoryAddress);
-			_memoryAddress += (FX_REVERB_BUFFER_SIZE * sizeof(float));
+			_diffusor[d][c].memory = (float*)(_memoryAddress);
+
+			// first DiffusionStep takes roomsize/2 elements
+			// second DiffusionStep takes roomsize/4 elements
+			// third DiffusionStep takes roomsize/8 elements
+			// fourth DiffusionStep takes roomsize/16 elements
+			_memoryAddress += (_diffusionDelayLineLength[d] * sizeof(float));
 		}
 	}
 	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-		_delayLine[c] = (float*)(_memoryAddress);
-		_memoryAddress += (FX_REVERB_BUFFER_SIZE * sizeof(float));
+		_delay[c].memory = (float*)(_memoryAddress);
+
+		// first channel takes roomsize elements
+		// second channel takes roomsize * 1.1 elements
+		// ...
+		// last channel takes roomsize * 1.8 elements
+		_delay[c].memoryLength = (int)ceilf(FX_REVERB_BUFFER_SIZE * powf(2.0f, (float)c / (float)FX_REVERB_INT_CHAN));
+		_memoryAddress += (_delay[c].memoryLength * sizeof(float));
 	}
 
 	// set memory content to zero
@@ -287,25 +300,28 @@ fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// we are using multiple clustered delay-lines in this effect, so we are not using the base-class-memory-clear-function
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-			for (int s = 0; s < FX_REVERB_BUFFER_SIZE; s++) {
-				_diffusionDelayLine[d][c][s] = 0.0f;
+			for (int s = 0; s < _diffusionDelayLineLength[d]; s++) {
+				_diffusor[d][c].memory[s] = 0.0f;
 			}
 		}
+
+		// initialize variables and the effect itself
+		_diffusionDelayLineHead[d] = 0;
 	}
 	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-		for (int s = 0; s < FX_REVERB_BUFFER_SIZE; s++) {
-			_delayLine[c][s] = 0.0f;
+		for (int s = 0; s < _delay[c].memoryLength; s++) {
+			_delay[c].memory[s] = 0.0f;
 		}
+
+		// initialize variables and the effect itself
+		_delay[c].head = 0;
 	}
 
 
-	// initialize variables and the effect itself
-	_diffusionDelayLineHead = 0;
-	_delay.head = 0;
 	setParameters(150.0f, 3.0f, 14000.0f, 1.0f, 0.25f); // roomSizeMs, rt60 (time to fall to -60dB), feedback lowpass frequency, dry, wet
 
-	for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-		_delay.lowPassDelayState[i_ch] = 0.0f;
+	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+		_delay[c].lowPassDelayState = 0.0f;
 	}
 }
 
@@ -327,7 +343,7 @@ void fxReverb::setParameters(float roomSizeMs, float rt60, float feedbackLowPass
 		Pow10(&tmp);
 		_feedbackDecayGain = tmp; // -1.5dB/cycle = x0.85
 	#endif
-	_delay.lowPassDelayCoeff = (2.0f * M_PI * feedbackLowPassFreq) / (_sampleRate + 2.0f * M_PI * feedbackLowPassFreq); // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
+	_delayLowPassCoeff = (2.0f * M_PI * feedbackLowPassFreq) / (_sampleRate + 2.0f * M_PI * feedbackLowPassFreq); // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
 	_dry = dry;
 	_wet = wet;
 
@@ -336,22 +352,23 @@ void fxReverb::setParameters(float roomSizeMs, float rt60, float feedbackLowPass
 		diffusionMs *= 0.5f; // first element has 50% of desired roomSize, next 25%, next 12.5% and so on
 		float diffusionDelaySamplesRange = diffusionMs * _sampleRate * 0.001f;
 
-		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-			float rangeLow = diffusionDelaySamplesRange * (float)i_ch / (float)FX_REVERB_INT_CHAN;
-			float rangeHigh = diffusionDelaySamplesRange * (float)(i_ch + 1) / (float)FX_REVERB_INT_CHAN;
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+			float rangeLow = diffusionDelaySamplesRange * (float)c / (float)FX_REVERB_INT_CHAN;
+			float rangeHigh = diffusionDelaySamplesRange * (float)(c + 1) / (float)FX_REVERB_INT_CHAN;
 			#if FX_REVERB_ALTERNATIVE_RND == 0
-				_diffusor[d].delayLineTailOffset[i_ch] = randomInRange(rangeLow, rangeHigh);
+				_diffusor[d][c].delayLineTailOffset = randomInRange(rangeLow, rangeHigh);
 			#else
-				_diffusor[d].delayLineTailOffset[i_ch] = randomInRangeAlt(&rr, rangeLow, rangeHigh);
+				_diffusor[d][c].delayLineTailOffset = randomInRangeAlt(&rr, rangeLow, rangeHigh);
 			#endif
-			_diffusor[d].flipPolarities[i_ch] = rand() % 2;
+			_diffusor[d][c].flipPolarities = rand() % 2;
 		}
 	}
 
 	// calculate the delay for multichannel-feedback
+	// distribute delay times exponentially between delayMs and delayMs*2
 	float delayLineTailOffsetBase = (_roomSizeMs * _sampleRate * 0.001f);
-	for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-		_delay.tailOffset[i_ch] = powf(2.0f, (float)i_ch / (float)FX_REVERB_INT_CHAN) * delayLineTailOffsetBase; // TODO: make sure that we are not exceeding the limits of the delay-array here
+	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+		_delay[c].tailOffset = powf(2.0f, (float)c / (float)FX_REVERB_INT_CHAN) * delayLineTailOffsetBase;
 	}
 }
 
@@ -371,9 +388,9 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 			_fxBuf[4] = inL; _fxBuf[5] = inR;
 			_fxBuf[6] = inL; _fxBuf[7] = inR;
 		#else
-			for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch+=2) {
-				_fxBufInput[i_ch] = inL;
-				_fxBufInput[i_ch + 1] = inR;
+			for (int c = 0; c < FX_REVERB_INT_CHAN; c+=2) {
+				_fxBufInput[c] = inL;
+				_fxBufInput[c + 1] = inR;
 			}
 		#endif
 
@@ -383,83 +400,83 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 		// =================================
         for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 			// pointer to Delay-Line. Mitigates [d][i]-indirection within inner loop
-			float** currentDiffLine = _diffusionDelayLine[d];
+			int* head = &_diffusionDelayLineHead[d];
 
 			// Step 2.1: Write and read data to/from delay-line
-			for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
+			for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+				sDiffusor* diffusor = &_diffusor[d][c];
+
 				#if FX_REVERB_INT_CHAN == 8
-					currentDiffLine[i_ch][_diffusionDelayLineHead] = _fxBuf[i_ch];
+					diffusor->memory[*head] = _fxBuf[c];
 				#else
-					currentDiffLine[i_ch][_diffusionDelayLineHead] = _fxBufInput[i_ch];
+					diffusor->memory[*head] = _fxBufInput[c];
 				#endif
 
 				// Step 2.2: Read data from delay-line
-				//int tail = (_diffusionDelayLineHead - _diffusor[d].delayLineTailOffset[i_ch]) & (FX_REVERB_BUFFER_SIZE - 1); // faster version if buffersize is power of 2
-				int tail = _diffusionDelayLineHead - _diffusor[d].delayLineTailOffset[i_ch];
-				while (tail < 0) {
-					tail += FX_REVERB_BUFFER_SIZE;
+				int tail = *head - diffusor->delayLineTailOffset;
+				if (tail < 0) {
+					tail += _diffusionDelayLineLength[d];
 				}
-				_fxBuf[i_ch] = currentDiffLine[i_ch][tail];
+				_fxBuf[c] = diffusor->memory[tail];
 			}
 
 			// Step 2.2: mix with Hadamard Matrix
 			hadamardMatrix(_fxBuf);
 
 			// Step 2.3: Flip some polarities
-			for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-				if (_diffusor[d].flipPolarities[i_ch]) {
-					_fxBuf[i_ch] = -_fxBuf[i_ch];
+			for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+				if (_diffusor[d][c].flipPolarities) {
+					_fxBuf[c] = -_fxBuf[c];
 				}
 			}
-		}
-		// Increase the delay-head-pointer after last Diffusor
-		_diffusionDelayLineHead++;
-		if (_diffusionDelayLineHead == FX_REVERB_BUFFER_SIZE) {
-			_diffusionDelayLineHead = 0;
-		}
+
+			// Increase the delay-head-pointer
+			*head++;
+			if (*head == _diffusionDelayLineLength[d]) {
+				*head = 0;
+			}
+        }
 
 
 
 		// Step 3: feedbackProcess (_fxBuf[] + delay[] * decay -> delay[] -> _fxBufOutput[])
 		// =================================
 		// Step 3.1: read delayed data from delay-line
-		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-			int tail = _delay.head - _delay.tailOffset[i_ch];
-			while (tail < 0) {
-				tail += FX_REVERB_BUFFER_SIZE;
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+			int tail = _delay[c].head - _delay[c].tailOffset;
+			if (tail < 0) {
+				tail += _delay[c].memoryLength;
 			}
-			_fxBufOutput[i_ch] = _delayLine[i_ch][tail];
+			_fxBufOutput[c] = _delay[c].memory[tail];
 		}
 
 		// Step 3.2: calculate householder-matrix
 		householderMatrix(&_fxBufOutput[0], &_fxBufFeedback[0]);
 
 		#pragma loop_count(FX_REVERB_INT_CHAN)
-		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
 			// implement low-pass-filter on the feedback-line
 			// lowpass: output = zoutput + coeff * (input - zoutput)
-			float filtered = _delay.lowPassDelayState[i_ch] + _delay.lowPassDelayCoeff * (_fxBufFeedback[i_ch] - _delay.lowPassDelayState[i_ch]);
-			_delay.lowPassDelayState[i_ch] = filtered;
-
-			// use MAC for Decay & Sum in a single step
-			// _fxBuf is currently the "Diffused Signal"
-			// _fxBuf[i_ch] = _fxBuf[i_ch] + (filtered * _feedbackDecayGain);
+			float filtered = _delay[c].lowPassDelayState + _delayLowPassCoeff * (_fxBufFeedback[c] - _delay[c].lowPassDelayState);
+			_delay[c].lowPassDelayState = filtered;
 
 			// SHARC is able to calculate MAC (Multiply-Accumulate)
-			_fxBuf[i_ch] += filtered * _feedbackDecayGain;
+			_fxBuf[c] += filtered * _feedbackDecayGain;
 
 			// feedback without lowpass-filter
-			//_fxBuf[i_ch] += _fxBufFeedback[i_ch] * _feedbackDecayGain;
+			//_fxBuf[c] += _fxBufFeedback[c] * _feedbackDecayGain;
 		}
 
 
 		// Step 3.3: write feedback-data to delay-line
-		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
-			_delayLine[i_ch][_delay.head] = _fxBuf[i_ch];
-		}
-		_delay.head++;
-		if (_delay.head == FX_REVERB_BUFFER_SIZE) {
-			_delay.head = 0;
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+			int* head = &_delay[c].head;
+			_delay[c].memory[*head] = _fxBuf[c];
+
+			*head++;
+			if (*head == _delay[c].memoryLength) {
+				*head = 0;
+			}
 		}
 
 
@@ -467,20 +484,23 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 
 /*
 		// DEBUG: test write/read to SDRAM (_fxBuf[] -> delay[] -> _fxBufOutput[])
-		for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch++) {
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+			int* head = &_delay.head[c];
+
 			// write to SDRAM
-			_delayLine[i_ch][_delay.head] = _fxBuf[i_ch];
+			_delayLine[c][*head] = _fxBuf[c];
 
 			// read from SDRAM
-			int tail = _delay.head;
-			while (tail < 0) {
-				tail += FX_REVERB_BUFFER_SIZE;
+			int tail = *head;
+			if (tail < 0) {
+				tail += _delayLineLength[c];
 			}
-			_fxBufOutput[i_ch] = _delayLine[i_ch][tail];
-		}
-		_delay.head++;
-		if (_delay.head >= FX_REVERB_BUFFER_SIZE) {
-			_delay.head = 0;
+			_fxBufOutput[c] = _delayLine[c][tail];
+
+			*head++;
+			if (*head >= _delayLineLength[c]) {
+				*head = 0;
+			}
 		}
 */
 /*
@@ -520,10 +540,10 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 			#if FX_REVERB_AVERAGE_OUTPUT == 1
 				float sumL = 0.0f;
 				float sumR = 0.0f;
-				for (int i_ch = 0; i_ch < FX_REVERB_INT_CHAN; i_ch+=2) {
+				for (int c = 0; c < FX_REVERB_INT_CHAN; c+=2) {
 					// Output Calculation
-					sumL += _fxBufOutput[i_ch];
-					sumR += _fxBufOutput[i_ch + 1];
+					sumL += _fxBufOutput[c];
+					sumR += _fxBufOutput[c + 1];
 				}
 
 				float scaledWet = _wet * (2.0f / (float)FX_REVERB_INT_CHAN);

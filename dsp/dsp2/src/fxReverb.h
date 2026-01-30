@@ -4,17 +4,26 @@
 #include "fxBase.h"
 
 #define FX_REVERB_INT_CHAN			8	// must be a power of 2, so 2, 4, 8, .... Code has optimized function for 8 parallel channels at the moment
-#define FX_REVERB_DIFFUSION_STEPS	3	// 1,2,3,4,...
+#define FX_REVERB_DIFFUSION_STEPS	4	// 1,2,3,4,...
 #define FX_REVERB_AVERAGE_OUTPUT	1	// 0=take fxOut as left/right directly, 1=mixdown multichannel-fxOut to stereo
 #define FX_REVERB_ALTERNATIVE_RND	0	// 0=use internal rand() function, 1=use bitshifting chaos (alternative sounds more metallic... not a good choice :-) )
 #define FX_REVERB_ALTERNATIVE_POW	0	// 0=use internal powf() function, 1=use approximation (approximation seems to be slower compared to internal powf())
 
-// we need (FX_REVERB_DIFFUSION_STEPS + 1) * FX_REVERB_INT_CHAN * 48 = (3+1) * 8 * 48 = 1536 Words = 6144 bytes per millisecond
-// we have 14MB / 8 = 1.75MB RAM available: 290ms * 6144 Bytes = 1.7 MB
-// automatic calculation of maximum DELAY:
-#define FX_REVERB_DELAY_MS_MAX		(((SDRAM_AUDIO_SIZE_BYTE / 8) / ((FX_REVERB_DIFFUSION_STEPS + 1) * FX_REVERB_INT_CHAN * 48 * 4)) - 10) // = ((1.835.008 / ((3 + 1) * 8 * 48 * 4)) - 10) = 288ms
-//#define FX_REVERB_DELAY_MS_MAX		290
-#define FX_REVERB_BUFFER_SIZE 		((SAMPLERATE_MAX * FX_REVERB_DELAY_MS_MAX) / 1000) // FX_REVERB_BUFFER_SIZE has to be power-of-2, to use optimized pointer-calculation
+// we have 14MB / 8 = 1.75MB RAM available and for an 8-channel Reverb we need the following amount of RAM:
+// 1 Diffusion-Step:	2908 Bytes per Millisecond -> maximum size = 625ms
+// 2 Diffusion-Steps:	3292 Bytes per Millisecond -> maximum size = 550ms
+// 3 Diffusion-Steps:	3548 Bytes per Millisecond -> maximum size = 500ms
+// 4 Diffusion-Steps:	3740 Bytes per Millisecond -> maximum size = 475ms
+#if FX_REVERB_DIFFUSION_STEPS == 2
+	#define FX_REVERB_DELAY_MS_MAX		550
+#elif FX_REVERB_DIFFUSION_STEPS == 3
+	#define FX_REVERB_DELAY_MS_MAX		500
+#elif FX_REVERB_DIFFUSION_STEPS == 4
+	#define FX_REVERB_DELAY_MS_MAX		475
+#else
+	#define FX_REVERB_DELAY_MS_MAX		DEFINE YOUR MAXIMUM DELAY HERE
+#endif
+#define FX_REVERB_BUFFER_SIZE 		((SAMPLERATE_MAX * FX_REVERB_DELAY_MS_MAX) / 1000)
 
 // some hadamard-scalings for common channel-count
 // FX_REVERB_HADAMARD_SCALING = sqrtf(1.0f / FX_REVERB_INT_CHAN)
@@ -31,15 +40,17 @@
 #endif
 
 typedef struct {
-	int delayLineTailOffset[FX_REVERB_INT_CHAN]; // tail will be calculated relative to head: tail = (head - tailOffset)
-	bool flipPolarities[FX_REVERB_INT_CHAN];
+	float* memory;
+	int delayLineTailOffset; // tail will be calculated relative to head: tail = (head - tailOffset)
+	bool flipPolarities;
 } sDiffusor;
 
 typedef struct {
-	int head;
-	int tailOffset[FX_REVERB_INT_CHAN]; // tail will be calculated relative to head: tail = (head - tailOffset)
-	float lowPassDelayCoeff;
-	float lowPassDelayState[FX_REVERB_INT_CHAN];
+	float* memory;
+	int memoryLength;
+	int head; // we are using different delay-line-lengths, so we have to use individual head-pointers here
+	int tailOffset; // tail will be calculated relative to head: tail = (head - tailOffset)
+	float lowPassDelayState;
 } sDelay;
 
 class fxReverb : public fx {
@@ -50,12 +61,12 @@ class fxReverb : public fx {
         void rxData(float data[], int len);
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
-        sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS];
-    	sDelay _delay;
+        sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];
+    	sDelay _delay[FX_REVERB_INT_CHAN];
 
-    	float* _diffusionDelayLine[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];
-    	float* _delayLine[FX_REVERB_INT_CHAN];
-    	int _diffusionDelayLineHead;
+    	int _diffusionDelayLineLength[FX_REVERB_DIFFUSION_STEPS];
+    	int _diffusionDelayLineHead[FX_REVERB_INT_CHAN]; // we are using different delay-line-lengths, so we have to use individual head-pointers here
+    	float _delayLowPassCoeff;
 
     	float _roomSizeMs;
     	float _feedbackDelayMs;
@@ -74,5 +85,47 @@ class fxReverb : public fx {
     	float _fxBufOutput[FX_REVERB_INT_CHAN];
     	float _fxBufFeedback[FX_REVERB_INT_CHAN];
 };
+
+
+/*
+	// this is a small program to calculate the memory-demand of this Reverb
+	#include <stdio.h>
+	#include <stdint.h>
+	#include <math.h>
+
+	#define SDRAM_AUDIO_SIZE_BYTE	(14 * 1024 * 1024) / 8
+
+	#define FX_REVERB_INT_CHAN          8
+	#define FX_REVERB_DIFFUSION_STEPS   4
+	#define SAMPLERATE_MAX              48000
+
+	#define FX_REVERB_DELAY_MS_MAX		475
+	#define FX_REVERB_BUFFER_SIZE 		((SAMPLERATE_MAX * FX_REVERB_DELAY_MS_MAX) / 1000)
+
+	int _diffusionDelayLineLength[FX_REVERB_DIFFUSION_STEPS];
+	int _delayLineLength[FX_REVERB_INT_CHAN];
+	int _memoryUsed = 0;
+
+	int main()
+	{
+		for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+			_diffusionDelayLineLength[d] = (int)ceilf(FX_REVERB_BUFFER_SIZE / (2 * (d + 1)));
+
+			_memoryUsed += _diffusionDelayLineLength[d] * FX_REVERB_INT_CHAN * sizeof(float);
+		}
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+			_delayLineLength[c] = (int)ceilf(FX_REVERB_BUFFER_SIZE * powf(2.0f, (float)c / (float)FX_REVERB_INT_CHAN));
+			_memoryUsed += (_delayLineLength[c] * sizeof(float));
+		}
+
+
+		printf("Used memory       = %d bytes\n", _memoryUsed);
+		printf("Available memory  = %d bytes\n", SDRAM_AUDIO_SIZE_BYTE);
+		printf("Free memory left  = %d bytes\n", SDRAM_AUDIO_SIZE_BYTE - _memoryUsed);
+
+		return 0;
+	}
+*/
+
 
 #endif /* FXREVERB_H_ */
