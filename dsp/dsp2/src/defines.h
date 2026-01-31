@@ -24,7 +24,7 @@
 
 #define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
 
-#define SDRAM_START  			0x04000000	// start address of system-data in SDRAM on Bank1 (nMS1)
+#define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
 #define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)
 #define SDRAM_AUDIO_SIZE_BYTE	(14 * 1024 * 1024)	// we are using 1MB for external program-code, 1MB for system-data and remaining 14MB for audio-data
 // we are slicing the external 16MB SDRAM into parts for each effect-slot
@@ -53,8 +53,14 @@
 #define CLKB_DIVIDER			2 	// provides HFCLK to S/PDIF TX
 
 // some system-defines
+#define DO_CYCLE_COUNTS				// enable cycle counter
+
+// defines for memory-access
+// our external RAM is sliced into multiple regions:
+// 1) external program-code
+// 2) external data-memory for variables  -> defined as "em" afterwards
+// 3) external data-memory for audio-data -> defined as "am" afterwards
 #define em						section("seg_ext_data")		// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory, am = AudioMemory
 #define am						section("seg_ext_audio")	// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory, am = AudioMemory
-#define DO_CYCLE_COUNTS				// enable cycle counter
 
 #endif /* DEFINES_H_ */

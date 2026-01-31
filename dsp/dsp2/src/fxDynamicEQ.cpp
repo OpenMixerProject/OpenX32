@@ -37,7 +37,7 @@ fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 
 	// set default parameters
 	#if FX_DYNAMICEQ_BANDS == 1
-		        // band type freq    maxGain  Q    Tresh  Ratio Attack Release
+		        // band type freq   maxGain  Q    Tresh  Ratio Attack Release
 		setParameters(0, 1, 1000.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
 	#elif FX_DYNAMICEQ_BANDS == 2
 		setParameters(0, 1, 1000.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
@@ -50,7 +50,7 @@ fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 
 	for (int i = 0; i < FX_DYNAMICEQ_BANDS; i++) {
 		// setup the smoothing-filter for the control-signal
-		_deq[i].smoothingCoeff = 0.1;	// coeff = 1 -> no smoothing, coeff = 0.001 -> slow response
+		_deq[i].smoothingCoeff = 0.001;	// coeff = 1 -> no smoothing, coeff = 0.001 -> slow response
 	    _deq[i].smoothedTargetGain = 0.0f;	// start-parameter
 	    _deq[i].envelope = 0.0f;
 	}
@@ -114,7 +114,7 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
 			memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
 			memcpy(&peqCoeffs[0], &_deq[band].biquadCoeffsCtrl[0], 5 * sizeof(float));
-			biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStates[i_ch][0], SAMPLES_IN_BUFFER, 1);
+			biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStatesCtrl[i_ch][0], SAMPLES_IN_BUFFER, 1);
 		}
 
 		// Step 1.2: take the first sample of the filtered control-signal and update envelope
@@ -166,13 +166,13 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 
 
 
-
 		// Step 3: update coefficients and apply biquad-filter on all samples
 		// ==============================================================
-		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].smoothedTargetGain, &peqCoeffs[0], dsp.samplerate);
-		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-			biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStates[i_ch][0], SAMPLES_IN_BUFFER, 1);
-		}
+		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].smoothedTargetGain, &peqCoeffs[5 * band], dsp.samplerate);
+	}
+
+	for (int i_ch = 0; i_ch < 2; i_ch++) {
+		memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+		biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_biquadStates[i_ch][0], SAMPLES_IN_BUFFER, FX_DYNAMICEQ_BANDS);
 	}
 }

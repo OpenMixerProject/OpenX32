@@ -47,8 +47,8 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 		// we are not using allpass here -> save some program-memory here
 		case 0: // Allpass
 		      norm = 1.0f / (1.0f + K * 1.0f/Q + K2);
-		      peqCoeffs[0] = (1.0f - K * 1.0f/Q + K2) ;
-		      peqCoeffs[1] = 2.0f * (K2 - 1.0f) ;
+		      peqCoeffs[0] = (1.0f - K * 1.0f/Q + K2);
+		      peqCoeffs[1] = 2.0f * (K2 - 1.0f);
 		      peqCoeffs[2] = 1.0f;
 		      peqCoeffs[3] = -peqCoeffs[1];
 		      peqCoeffs[4] = -peqCoeffs[0];
@@ -57,16 +57,16 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 		case 1: // Peak
 			if (gain >= 0) {
 				norm = 1.0f / (1.0f + 1.0f/Q * K + K2);
-				peqCoeffs[0] = (1.0f + V/Q * K + K2) ;
-				peqCoeffs[1] = 2.0f * (K2 - 1.0f) ;
-				peqCoeffs[2] = (1.0f - V/Q * K + K2) ;
+				peqCoeffs[0] = (1.0f + V/Q * K + K2);
+				peqCoeffs[1] = 2.0f * (K2 - 1.0f);
+				peqCoeffs[2] = (1.0f - V/Q * K + K2);
 				peqCoeffs[3] = -(peqCoeffs[1]);
 				peqCoeffs[4] = -((1.0f - 1.0f/Q * K + K2));
 			}else{
 				norm = 1.0f / (1.0f + V/Q * K + K2);
-				peqCoeffs[0] = (1.0f + 1.0f/Q * K + K2) ;
-				peqCoeffs[1] = 2.0f * (K2 - 1.0f) ;
-				peqCoeffs[2] = (1.0f - 1.0f/Q * K + K2) ;
+				peqCoeffs[0] = (1.0f + 1.0f/Q * K + K2);
+				peqCoeffs[1] = 2.0f * (K2 - 1.0f);
+				peqCoeffs[2] = (1.0f - 1.0f/Q * K + K2);
 				peqCoeffs[3] = -(peqCoeffs[1]);
 				peqCoeffs[4] = -((1.0f - V/Q * K + K2));
 			}
@@ -74,17 +74,17 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 		case 2: // Low-Shelf
 		      if (gain >= 0) {    // boost
 		        norm = 1.0f / (1.0f + sqrtf(2.0f) * K + K2);
-		        peqCoeffs[0] = (1.0f + sqrtf(2.0f * V) * K + V * K2) ;
-		        peqCoeffs[1] = 2.0f * (V * K2 - 1.0f) ;
-		        peqCoeffs[2] = (1.0f - sqrtf(2.0f * V) * K + V * K2) ;
+		        peqCoeffs[0] = (1.0f + sqrtf(2.0f * V) * K + V * K2);
+		        peqCoeffs[1] = 2.0f * (V * K2 - 1.0f);
+		        peqCoeffs[2] = (1.0f - sqrtf(2.0f * V) * K + V * K2);
 		        peqCoeffs[3] = -(2.0f * (K2 - 1.0f));
 		        peqCoeffs[4] = -((1.0f - sqrtf(2.0f) * K + K2));
 		      }
 		      else {    // cut
 		        norm = 1.0f / (1.0f + sqrtf(2.0f * V) * K + V * K2);
-		        peqCoeffs[0] = (1.0f + sqrtf(2.0f) * K + K2) ;
-		        peqCoeffs[1] = 2.0f * (K2 - 1.0f) ;
-		        peqCoeffs[2] = (1.0f - sqrtf(2.0f) * K + K2) ;
+		        peqCoeffs[0] = (1.0f + sqrtf(2.0f) * K + K2);
+		        peqCoeffs[1] = 2.0f * (K2 - 1.0f);
+		        peqCoeffs[2] = (1.0f - sqrtf(2.0f) * K + K2);
 		        peqCoeffs[3] = -(2.0f * (V * K2 - 1.0f));
 		        peqCoeffs[4] = -((1.0f - sqrtf(2.0f * V) * K + V * K2));
 		      }
@@ -92,24 +92,24 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 		case 3: // High-Shelf
 	        if (gain >= 0) {    // boost
 	          norm = 1.0f / (1.0f + sqrtf(2.0f) * K + K2);
-	          peqCoeffs[0] = (V + sqrtf(2.0f * V) * K + K2) ;
-	          peqCoeffs[1] = 2.0f * (K2 - V) ;
-	          peqCoeffs[2] = (V - sqrtf(2.0f * V) * K + K2) ;
+	          peqCoeffs[0] = (V + sqrtf(2.0f * V) * K + K2);
+	          peqCoeffs[1] = 2.0f * (K2 - V);
+	          peqCoeffs[2] = (V - sqrtf(2.0f * V) * K + K2);
 	          peqCoeffs[3] = -(2.0f * (K2 - 1.0f));
 	          peqCoeffs[4] = -((1.0f - sqrtf(2.0f) * K + K2));
 	        }
 	        else {    // cut
 	          norm = 1.0f / (V + sqrtf(2.0f * V) * K + K2);
-	          peqCoeffs[0] = (1.0f + sqrtf(2.0f) * K + K2) ;
-	          peqCoeffs[1] = 2.0f * (K2 - 1.0f) ;
-	          peqCoeffs[2] = (1.0f - sqrtf(2.0f) * K + K2) ;
+	          peqCoeffs[0] = (1.0f + sqrtf(2.0f) * K + K2);
+	          peqCoeffs[1] = 2.0f * (K2 - 1.0f);
+	          peqCoeffs[2] = (1.0f - sqrtf(2.0f) * K + K2);
 	          peqCoeffs[3] = -(2.0f * (K2 - V));
 	          peqCoeffs[4] = -((V - sqrtf(2.0f * V) * K + K2));
 	        }
 			break;
 		case 4: // Bandpass
 		    norm = 1.0f / (1.0f + K / Q + K2);
-		    peqCoeffs[0] = (K / Q) ;
+		    peqCoeffs[0] = (K / Q);
 		    peqCoeffs[1] = 0.0f;
 		    peqCoeffs[2] = -peqCoeffs[0];
 		    peqCoeffs[3] = -(2.0f * (K2 - 1.0f));
@@ -119,8 +119,8 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 		// we are not using notch here -> save some program-memory here
 		case 5: // Notch
 	        norm = 1.0f / (1.0f + K / Q + K2);
-	        peqCoeffs[0] = (1.0f + K2) ;
-	        peqCoeffs[1] = 2.0f * (K2 - 1.0f) ;
+	        peqCoeffs[0] = (1.0f + K2);
+	        peqCoeffs[1] = 2.0f * (K2 - 1.0f);
 	        peqCoeffs[2] = peqCoeffs[0];
 	        peqCoeffs[3] = -(peqCoeffs[1]);
 	        peqCoeffs[4] = -((1.0f - K / Q + K2));

@@ -23,7 +23,6 @@ typedef struct {
     float smoothedTargetGain;		// new target-gain filtered by 1st-order-low-pass
     float biquadCoeffsCtrl[5];		// coefficients for control-signal
     float biquadStatesCtrl[2][2];	// states for control-signal
-    float biquadStates[2][2];		// coefficients for left/right-signal
 } sDynamicEQ;
 
 class fxDynamicEQ : public fx {
@@ -35,6 +34,7 @@ class fxDynamicEQ : public fx {
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         sDynamicEQ _deq[FX_DYNAMICEQ_BANDS];
+        float _biquadStates[2][2 * FX_DYNAMICEQ_BANDS];	// coefficients for left/right-signal
 };
 
 #endif /* FXDYNAMICEQ_H_ */

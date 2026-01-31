@@ -272,26 +272,24 @@ fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// map memory-pointers to desired address in external RAM (please let me know if you know a better option)
 	// initialize delay-lines in external memory
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
-		_diffusionDelayLineLength[d] = (int)ceilf(FX_REVERB_BUFFER_SIZE / (2 * (d + 1)));
+		_diffusionDelayLineLength[d] = (int)ceilf((float)FX_REVERB_BUFFER_SIZE / (powf(2.0f, (float)d + 1.0f))); // d0 = 50%, d1 = 25%, d2 = 12.5% d3=6.25%
 
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-			_diffusor[d][c].memory = (float*)(_memoryAddress);
-
 			// first DiffusionStep takes roomsize/2 elements
 			// second DiffusionStep takes roomsize/4 elements
 			// third DiffusionStep takes roomsize/8 elements
 			// fourth DiffusionStep takes roomsize/16 elements
+			_diffusor[d][c].memory = (float*)(_memoryAddress);
 			_memoryAddress += (_diffusionDelayLineLength[d] * sizeof(float));
 		}
 	}
 	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-		_delay[c].memory = (float*)(_memoryAddress);
-
 		// first channel takes roomsize elements
 		// second channel takes roomsize * 1.1 elements
 		// ...
 		// last channel takes roomsize * 1.8 elements
-		_delay[c].memoryLength = (int)ceilf(FX_REVERB_BUFFER_SIZE * powf(2.0f, (float)c / (float)FX_REVERB_INT_CHAN));
+		_delay[c].memory = (float*)(_memoryAddress);
+		_delay[c].memoryLength = (int)ceilf((float)FX_REVERB_BUFFER_SIZE * powf(2.0f, (float)c / (float)FX_REVERB_INT_CHAN));
 		_memoryAddress += (_delay[c].memoryLength * sizeof(float));
 	}
 
@@ -316,7 +314,6 @@ fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 		// initialize variables and the effect itself
 		_delay[c].head = 0;
 	}
-
 
 	setParameters(150.0f, 3.0f, 14000.0f, 1.0f, 0.25f); // roomSizeMs, rt60 (time to fall to -60dB), feedback lowpass frequency, dry, wet
 
@@ -400,24 +397,25 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 		// =================================
         for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 			// pointer to Delay-Line. Mitigates [d][i]-indirection within inner loop
-			int* head = &_diffusionDelayLineHead[d];
+			int& head = _diffusionDelayLineHead[d];
 
 			// Step 2.1: Write and read data to/from delay-line
 			for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-				sDiffusor* diffusor = &_diffusor[d][c];
+	        	// pointer to Delay-Line. Mitigates [d][i]-indirection within inner loop
+				sDiffusor& diffusor = _diffusor[d][c];
 
 				#if FX_REVERB_INT_CHAN == 8
-					diffusor->memory[*head] = _fxBuf[c];
+					diffusor.memory[head] = _fxBuf[c];
 				#else
-					diffusor->memory[*head] = _fxBufInput[c];
+					diffusor.memory[head] = _fxBufInput[c];
 				#endif
 
 				// Step 2.2: Read data from delay-line
-				int tail = *head - diffusor->delayLineTailOffset;
+				int tail = head - diffusor.delayLineTailOffset;
 				if (tail < 0) {
 					tail += _diffusionDelayLineLength[d];
 				}
-				_fxBuf[c] = diffusor->memory[tail];
+				_fxBuf[c] = diffusor.memory[tail];
 			}
 
 			// Step 2.2: mix with Hadamard Matrix
@@ -430,12 +428,12 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 				}
 			}
 
-			// Increase the delay-head-pointer
-			*head++;
-			if (*head == _diffusionDelayLineLength[d]) {
-				*head = 0;
+			// Increase the delay-head-pointer after last Diffusor
+			head++;
+			if (head == _diffusionDelayLineLength[d]) {
+				head = 0;
 			}
-        }
+		}
 
 
 
@@ -470,12 +468,12 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 
 		// Step 3.3: write feedback-data to delay-line
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-			int* head = &_delay[c].head;
-			_delay[c].memory[*head] = _fxBuf[c];
+			int& head = _delay[c].head;
+			_delay[c].memory[head] = _fxBuf[c];
 
-			*head++;
-			if (*head == _delay[c].memoryLength) {
-				*head = 0;
+			head++;
+			if (head == _delay[c].memoryLength) {
+				head = 0;
 			}
 		}
 
@@ -485,21 +483,21 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 /*
 		// DEBUG: test write/read to SDRAM (_fxBuf[] -> delay[] -> _fxBufOutput[])
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-			int* head = &_delay.head[c];
+			int& head = _delay[c].head;
 
 			// write to SDRAM
-			_delayLine[c][*head] = _fxBuf[c];
+			_delay[c].memory[head] = _fxBuf[c];
 
 			// read from SDRAM
-			int tail = *head;
+			int tail = head - 1;
 			if (tail < 0) {
-				tail += _delayLineLength[c];
+				tail += _delay[c].memoryLength;
 			}
-			_fxBufOutput[c] = _delayLine[c][tail];
+			_fxBufOutput[c] = _delay[c].memory[tail];
 
-			*head++;
-			if (*head >= _delayLineLength[c]) {
-				*head = 0;
+			head++;
+			if (head >= _delay[c].memoryLength) {
+				head = 0;
 			}
 		}
 */

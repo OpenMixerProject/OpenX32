@@ -151,6 +151,8 @@ MEMORY
    */
    mem_block2_pm48         { TYPE(PM RAM) START(0x000C0000) END(0x000C0AA9) WIDTH(48) } // 50% of block2 for ProgramMemory
    mem_block2_dm32         { TYPE(DM RAM) START(0x000C1000) END(0x000C1FFF) WIDTH(32) } // 50% of block2 for DataMemory
+//   mem_block2_pm48         { TYPE(PM RAM) START(0x000C0000) END(0x000C1500) WIDTH(48) } // 95% of block2 for ProgramMemory
+//   mem_block2_dm32         { TYPE(DM RAM) START(0x000C1FF0) END(0x000C1FFF) WIDTH(32) } // 5% of block2 for DataMemory
 
    /*
    ** -------------------------- BLOCK 3 ---------------------------------------

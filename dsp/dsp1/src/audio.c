@@ -288,8 +288,6 @@ void audioProcessData(void) {
 	// vecvmltf(input_a[], input_b[], output[], sampleCount)
 	// vecsmltf(input_a[], scalar, output[], sampleCount)
 
-	// The input of the lowcut can be choosen: either the direct input or another channel
-
 	#if DEBUG_DISABLE_LOWCUT == 0
 	//				  _                            _
 	//				 | |    _____      _____ _   _| |_
@@ -299,6 +297,23 @@ void audioProcessData(void) {
 	//
 	// Single-Pole LOW-CUT: output = coeff * (zoutput + input - zinput)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		// output = coeff * (zoutput + input - zinput)
+		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+			// The input of the lowcut can be choosen: either the direct input or another channel
+			float sample = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
+
+			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = dsp.lowcutCoeff[i_ch] * (dsp.lowcutStatesOutput[i_ch] + sample - dsp.lowcutStatesInput[i_ch]);
+			dsp.lowcutStatesInput[i_ch] = sample; // zinput = input
+			dsp.lowcutStatesOutput[i_ch] = audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch]; // zoutput = output
+		}
+
+		// copy data for the non-fullfeatured channels to the TAP_PRE_EQ directly without processing
+		for (int i_ch = MAX_CHAN_FULLFEATURED; i_ch < MAX_CHAN_FPGA; i_ch++) {
+			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
+		}
+
+		/*
+		// the following code takes around 2% more DSP-ressources as the above loop
 		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
 			// here no memcpy is possible as we are performing input-routing here
 			audioTempBufferChanA[i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
@@ -313,6 +328,7 @@ void audioProcessData(void) {
 		vecvaddf(&audioTempBufferChanB[0], &dsp.lowcutStatesOutput[0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED); // temp = temp + zoutput
 		vecvmltf(&dsp.lowcutCoeff[0], &audioTempBufferChanA[0], &dsp.lowcutStatesOutput[0], MAX_CHAN_FULLFEATURED); // zoutput = coeff * temp
 		memcpy(&audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.lowcutStatesOutput[0], MAX_CHAN_FULLFEATURED * sizeof(float)); // output = zoutput
+		*/
 	}
 	#else
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
@@ -349,6 +365,7 @@ void audioProcessData(void) {
 		// the logic for the gate is relying on a single sample here. Its a compromise, but working
 		fxProcessGateLogic(i_ch, audioBuffer[TAP_PRE_EQ][0][DSP_BUF_IDX_DSPCHANNEL + i_ch]);
 	}
+
 	vecvmltf(&dsp.gateGain[0], &dsp.gateCoeff[0], &dsp.gateGain[0], MAX_CHAN_FULLFEATURED);
 	vecvaddf(&dsp.gateGain[0], &dsp.gateGainSet[0], &dsp.gateGain[0], MAX_CHAN_FULLFEATURED);
 	vecvmltf(&dsp.gateGainSet[0], &dsp.gateCoeff[0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED);
@@ -356,6 +373,7 @@ void audioProcessData(void) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		vecvmltf(&audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.gateGain[0], &audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FULLFEATURED);
 	}
+
 	#endif
 
 	#if DEBUG_DISABLE_EQ == 0
@@ -439,6 +457,7 @@ void audioProcessData(void) {
 	//				 | |  | || | /  \| |_) | |_| |___) |
 	//				 |_|  |_|___/_/\_\____/ \___/|____/
 	// calculate mixbus
+	/*
 	for (int i_mixbus = 0; i_mixbus < MAX_MIXBUS; i_mixbus++) {
 		// calculated summarized audio for each mixbus-channel
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
@@ -449,6 +468,29 @@ void audioProcessData(void) {
 		// TODO: process dynamics on mixbusses
 		// TODO: process 6-band PEQ on mixbusses
 	}
+	*/
+/*
+	// multiply mixbus-signals using SIMD-support
+	// vecdotf(...) seems to produce quite a lot of overhead, so we use simple loops for multiplication so that the compiler will
+	// translate these loops into SIMD-commands using the parallel-MAC-feature of the SHARC
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		float *src = &audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL];
+	    float sum[MAX_MIXBUS] = {0};
+
+	    //for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
+	    for (int i_ch = 0; i_ch < (32); i_ch++) {
+	    	for (int i_mixbus = 0; i_mixbus < MAX_MIXBUS; i_mixbus++) {
+	    		sum[i_mixbus] += src[i_ch] * dsp.channelSendMixbusVolume[i_mixbus][i_ch];
+	    	}
+	    }
+
+	    for (int i_mixbus = 0; i_mixbus < MAX_MIXBUS; i_mixbus++) {
+	    	audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MIXBUS + i_mixbus]  = sum[i_mixbus];
+	    }
+	}
+*/
+
+
 	// mixbus-volume
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		vecvmltf(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MIXBUS], &dsp.mixbusVolume[0], &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MIXBUS], MAX_MIXBUS);
@@ -461,11 +503,35 @@ void audioProcessData(void) {
 	//				 |_|  |_|\__,_|_|_| |_|      \___/ \__,_|\__|
 	// calculate summarized main left, right and sub. Source: 40 Channels from FPGA, 24 Channels from DSP2, 16 Channels Mixbus
 	// vecdotf(const float dm a[],	const float dm b[], int samples) -> A dot B = A0*B0 + A1*B1 + A2*B2 + ...
+/*
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINLEFT] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainLeftVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS);
 		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINRIGHT] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainRightVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS);
 		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINSUB] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainSubVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS);
 	}
+*/
+	// multiply main-signals using SIMD-support
+	// vecdotf(...) seems to produce quite a lot of overhead, so we use simple loops for multiplication so that the compiler will
+	// translate these loops into SIMD-commands using the parallel-MAC-feature of the SHARC
+	// this takes 2% less load compared to vecdotf()-function
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+	    float *src = &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL];
+	    float sumL = 0;
+		float sumR = 0;
+	    float sumS = 0;
+
+	    for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS); i_ch++) {
+	        float val = src[i_ch];
+	        sumL += val * dsp.channelSendMainLeftVolume[i_ch];
+	        sumR += val * dsp.channelSendMainRightVolume[i_ch];
+	        sumS += val * dsp.channelSendMainSubVolume[i_ch];
+	    }
+
+	    audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINLEFT]  = sumL;
+	    audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINRIGHT] = sumR;
+	    audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINSUB]   = sumS;
+	}
+
 	#else
 	//				  __  __       _              ___        _
 	//				 |  \/  | __ _(_)_ __        / _ \ _   _| |_

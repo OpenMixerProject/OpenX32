@@ -38,13 +38,13 @@
 	#include "fxMatrixUpmixer.h"
 #else
 	#include "fxDemo.h"
-	#include "fxReverb.h"
+	#include "fxReverb.h"		// takes 706 Words of program-memory
 	#include "fxDelay.h"
 	#include "fxChorus.h"
 	#include "fxOverdrive.h"
 	#include "fxTransientshaper.h"
-	#include "fxMultibandCompressor.h"
-	#include "fxDynamicEQ.h"
+	#include "fxMultibandCompressor.h"	// takes 1000 Words of program-memory (can be reduced when coefficients are calculated in iMX25)
+	#include "fxDynamicEQ.h"	// takes 381 Words of program-memory
 #endif
 
 /*
@@ -209,9 +209,9 @@ void audioInit(void) {
 		audioFxChangeSlot(2, 2, 2); // install transientshaper on slot 2
 		audioFxChangeSlot(3, 3, 2); // install overdrive on slot 3
 		audioFxChangeSlot(4, 4, 2); // install delay on slot 4
-		audioFxChangeSlot(5, 4, 2); // install delay on slot 5
+		audioFxChangeSlot(5, 5, 2); // install MultibandCompressor on slot 5
 		audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
-		audioFxChangeSlot(7, 7, 2); // install demo-FX on slot 7
+		//audioFxChangeSlot(7, 7, 2); // install demo-FX on slot 7
 	#endif
 }
 
@@ -327,12 +327,6 @@ void audioProcessData(void) {
 	// dspCh 16..23 = AUX 1-6 + AES/EBU | AUX 1-6 + USB Play
 
 
-	// DEBUG: copy input-channel 1 to DSP2 AuxOut 1
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		audioBuffer[TAP_OUTPUT][16][s] = audioBuffer[TAP_INPUT][0][s]; // 0..7 = Ch1-8, 8..15 = Ch9-16, 16..23 = AuxCh1-8
-	}
-
-
 	//	 _______  __     ____            _
 	//	|  ___\ \/ /    |  _ \ __ _  ___| | __
 	//	| |_   \  /_____| |_) / _` |/ __| |/ /
@@ -357,20 +351,6 @@ void audioProcessData(void) {
 
 
 
-
-
-
-	/*
-		// copy TAP_POST_EQ to TAP_PRE_FADER (passthrough)
-		for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-			memcpy(&audioBuffer[TAP_PRE_FADER][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-		}
-
-		// calculate FX Return Volume
-		for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-			vecsmltf(&audioBuffer[TAP_PRE_FADER][i_ch][0], dsp.channelFxReturnVolume[i_ch], &audioBuffer[TAP_POST_FADER][i_ch][0], SAMPLES_IN_BUFFER);
-		}
-	*/
 	/*
 		// insert sinewave-audio to all channels with increasing frequency starting at 200Hz and ending at 2.5kHz
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
@@ -388,20 +368,6 @@ void audioProcessData(void) {
 			}
 		}
 	*/
-	/*
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			audioBuffer[TAP_INPUT][0][s] = audioBuffer[TAP_INPUT][0][s] * 0.5f; // reduce volume on channel left to 50% for testing-purposes
-			//audioBuffer[TAP_INPUT][1][s] = audioBuffer[TAP_INPUT][1][s] * 0.5f; // reduce volume on channel right to 50% for testing-purposes
-		}
-	*/
-	/*
-		// direct copy from the first input-channels to the first output-channels
-		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			memcpy(&audioBuffer[TAP_OUTPUT][i_ch][0], &audioBuffer[TAP_INPUT][i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-		}
-	*/
-
-
 
 
 

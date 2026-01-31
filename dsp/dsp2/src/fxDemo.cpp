@@ -71,32 +71,32 @@ void fxDemo::rxData(float data[], int len) {
 }
 
 void fxDemo::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+	int tail;
+    float sampleL;
+    float sampleR;
+
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		// Step 1: read samples
-	    float sampleL = bufIn[0][s];
-	    float sampleR = bufIn[1][s];
-
-	    // Step 2: write sample to delayLine
-		_delayLineL[_delayLineHead] = sampleL;
-		_delayLineR[_delayLineHead] = sampleR;
-		_delayLineHead++;
-		if (_delayLineHead >= _delayLineBufferSize) {
-			_delayLineHead = 0;
-		}
-
-	    // Step 3: read sample from delayLine
-		int tail = _delayLineHead - _delayLineTailOffset;
+	    // Step 1: read sample from delayLine
+		tail = _delayLineHead - _delayLineTailOffset;
 		while (tail < 0) {
 			tail += _delayLineBufferSize;
 		}
 		sampleL = _delayLineL[tail];
 		sampleR = _delayLineR[tail];
 
-	    // Step 4: process delayed data
+	    // Step 2: process delayed data
 		// do something here
 
-	    // Step 5: output samples
+	    // Step 3: output samples
 	    bufOut[0][s] = sampleL;
 	    bufOut[1][s] = sampleR;
+
+	    // Step 4: write sample to delayLine
+		_delayLineL[_delayLineHead] = bufIn[0][s];
+		_delayLineR[_delayLineHead] = bufIn[1][s];
+		_delayLineHead++;
+		if (_delayLineHead >= _delayLineBufferSize) {
+			_delayLineHead = 0;
+		}
 	}
 }

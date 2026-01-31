@@ -19,7 +19,7 @@
 #elif FX_REVERB_DIFFUSION_STEPS == 3
 	#define FX_REVERB_DELAY_MS_MAX		500
 #elif FX_REVERB_DIFFUSION_STEPS == 4
-	#define FX_REVERB_DELAY_MS_MAX		475
+	#define FX_REVERB_DELAY_MS_MAX		200 // 475
 #else
 	#define FX_REVERB_DELAY_MS_MAX		DEFINE YOUR MAXIMUM DELAY HERE
 #endif
@@ -62,10 +62,10 @@ class fxReverb : public fx {
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];
-    	sDelay _delay[FX_REVERB_INT_CHAN];
+        int _diffusionDelayLineLength[FX_REVERB_DIFFUSION_STEPS];
+    	int _diffusionDelayLineHead[FX_REVERB_DIFFUSION_STEPS]; // we are using different delay-line-lengths, so we have to use individual head-pointers here
 
-    	int _diffusionDelayLineLength[FX_REVERB_DIFFUSION_STEPS];
-    	int _diffusionDelayLineHead[FX_REVERB_INT_CHAN]; // we are using different delay-line-lengths, so we have to use individual head-pointers here
+    	sDelay _delay[FX_REVERB_INT_CHAN];
     	float _delayLowPassCoeff;
 
     	float _roomSizeMs;
@@ -85,7 +85,6 @@ class fxReverb : public fx {
     	float _fxBufOutput[FX_REVERB_INT_CHAN];
     	float _fxBufFeedback[FX_REVERB_INT_CHAN];
 };
-
 
 /*
 	// this is a small program to calculate the memory-demand of this Reverb
@@ -126,6 +125,5 @@ class fxReverb : public fx {
 		return 0;
 	}
 */
-
 
 #endif /* FXREVERB_H_ */
