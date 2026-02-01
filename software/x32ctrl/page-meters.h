@@ -10,7 +10,7 @@ class PageMeters : public Page {
             tabLayer1 = objects.metertab;
             tabIndex1 = 0;
             led = X32_BTN_METERS;
-            hideEncoders = true;            
+            hideEncoders = false;            
         }
 
         void OnInit() override {
@@ -23,6 +23,9 @@ class PageMeters : public Page {
             meterBlocks[6] = objects.meters_bus_1_8;
             meterBlocks[7] = objects.meters_bus_9_16;
             meterBlocks[8] = objects.meters_matrix;
+
+            SetEncoder(DISPLAY_ENCODER_5, "XLR1 -> DSP2", "DSP2 -> Ch9..24");
+            SetEncoder(DISPLAY_ENCODER_6, "DEBUG: 1-16", "Phanton + 47dB");
         }
 
         void OnUpdateMeters() override {
@@ -188,14 +191,54 @@ class PageMeters : public Page {
                     case X32_BTN_ENCODER4:
                         break;
                     case X32_BTN_ENCODER5:
+                        {
+                            // DEBUG DATA FOR CHRIS
+
+                            // set gain for XLR-Input 1 and 2
+                            mixer->SetGain(0, 47); // XLR In 1
+                            mixer->SetGain(1, 47); // XLR In 2
+
+                            // route FX-Return-Channels 1-16 to DSP1-Input-Channels 9 to 24, set volume to 0dBfs and Panning to hard L/R
+							for (int i = 8; i < 24; i++) {
+                                mixer->dsp->SetInputRouting(i);
+                                mixer->SetVolume(i, 0); // 0dBfs
+
+                                mixer->dsp->Channel[i].input = DSP_BUF_IDX_DSP2_FX + (i - 8);
+                                mixer->dsp->Channel[i].inputTapPoint = DSP_TAP_INPUT;
+                            }
+							for (int i = 8; i < 24; i+=2) {
+                                mixer->SetBalance(i, -100); // left
+                                mixer->SetBalance(i + 1, 100); // right
+                            }
+
+                            // route XLR1 to DSP2-Send 1/2
+                            mixer->dsp->Dsp1toDsp2Routing[0].input = DSP_BUF_IDX_DSPCHANNEL; // Channel 1 from FPGA
+                            mixer->dsp->Dsp1toDsp2Routing[0].tapPoint = DSP_TAP_INPUT;
+                            mixer->dsp->Dsp1toDsp2Routing[1].input = DSP_BUF_IDX_DSPCHANNEL; // Channel 1 from FPGA
+                            mixer->dsp->Dsp1toDsp2Routing[1].tapPoint = DSP_TAP_INPUT;
+                            mixer->dsp->SetFxOutputRouting(0);
+                            mixer->dsp->SetFxOutputRouting(1);
+
+                            mixer->SetMute(0, true); // mute channel 1
+                            mixer->SetMute(10, true); // mute channel 11 (Chorus)
+                            mixer->SetMute(11, true); // mute channel 12 (Chorus)
+                            mixer->SetMute(12, true); // mute channel 13 (TransientShaper)
+                            mixer->SetMute(13, true); // mute channel 14 (TransientShaper)
+                            mixer->SetMute(14, true); // mute channel 15 (overdrive)
+                            mixer->SetMute(15, true); // mute channel 16 (overdrive)
+                            mixer->SetMute(DSP_BUF_IDX_AUX + 5, true); // mute channel A7
+                            mixer->SetMute(DSP_BUF_IDX_AUX + 6, true); // mute channel A8
+
+                            mixer->SetVolume(80, 0); // set main-volume to 0dBfs
+                        }
                         break;
                     case X32_BTN_ENCODER6:
                         {
-							for (int i =0; i < 16; i++) {
+							for (int i = 0; i < 16; i++) {
 								mixer->SetPhantom(i, true);
 								mixer->SetGain(i, 47);
 							}
-						}
+    					}
                         break;
                     default:
                         // just here to avoid compiler warnings

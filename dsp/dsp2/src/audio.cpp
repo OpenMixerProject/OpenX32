@@ -208,9 +208,9 @@ void audioInit(void) {
 		audioFxChangeSlot(1, 1, 2); // install chorus on slot 1
 		audioFxChangeSlot(2, 2, 2); // install transientshaper on slot 2
 		audioFxChangeSlot(3, 3, 2); // install overdrive on slot 3
-		audioFxChangeSlot(4, 4, 2); // install delay on slot 4
-		audioFxChangeSlot(5, 5, 2); // install MultibandCompressor on slot 5
-		audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
+		//audioFxChangeSlot(4, 4, 2); // install delay on slot 4
+		//audioFxChangeSlot(5, 5, 2); // install MultibandCompressor on slot 5
+		//audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
 		//audioFxChangeSlot(7, 7, 2); // install demo-FX on slot 7
 	#endif
 }

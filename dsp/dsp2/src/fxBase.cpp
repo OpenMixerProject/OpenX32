@@ -41,6 +41,7 @@ void fx::setSampleRate(float sampleRate) {
 	_sampleRate = sampleRate;
 }
 
+/*
 void fx::clearMemory() {
 	// initialize the memory with zeros
     float* ptr = (float*)_memoryAddress;
@@ -48,3 +49,4 @@ void fx::clearMemory() {
         ptr[i] = 0.0f;
     }
 }
+*/

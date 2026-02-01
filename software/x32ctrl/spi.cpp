@@ -835,7 +835,7 @@ int SPI::UploadBitstreamDsps(bool useCli) {
 }
 
 void SPI::ReadData(void){
-    if (!connected) return;
+//    if (!connected) return;
 
     if (!(state->dsp_disable_readout)) {
         // continuously read data from both DSPs
@@ -851,7 +851,7 @@ void SPI::ReadData(void){
 }
 
 void SPI::ActivityLight(void){
-    if (!connected) return;
+//    if (!connected) return;
 
 
     if (!(state->dsp_disable_activity_light)) {
@@ -922,7 +922,7 @@ bool SPI::CloseConnectionDsps() {
 }
 
 void SPI::ProcessRxData(uint8_t dsp) {
-    if (!connected) return;
+//    if (!connected) return;
 
     while (spiRxRingBuffer[dsp].head != spiRxRingBuffer[dsp].tail) {
         uint32_t data = spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].tail];
@@ -976,7 +976,7 @@ void SPI::ProcessRxData(uint8_t dsp) {
 }
 
 void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
-    if (!connected) return;
+//    if (!connected) return;
 
     if (valueCount == 0) {
         return;
@@ -1039,7 +1039,7 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
 }
 
 bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
-    if (!connected) return false;
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     struct spi_ioc_transfer tr = {0};
 
@@ -1060,7 +1060,7 @@ bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
 }
 
 bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
-    if (!connected) return false;
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     if (valueCount == 0) {
         // dont allow empty messages
@@ -1108,7 +1108,7 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
 }
 
 bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
-    if (!connected) return false;
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     if (valueCount == 0) {
         // dont allow empty messages
@@ -1163,13 +1163,13 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
 }
 
 bool SPI::SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
-    if (!connected) return false;
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     return SendReceiveDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
 }
 
 bool SPI::HasNextEvent(void){
-    if (!connected) return false;
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     return eventBuffer.size() > 0;
 }

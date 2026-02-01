@@ -46,7 +46,6 @@ fxDelay::fxDelay(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
 
 	// set memory content to zero
-	//clearMemory(); // TODO: check if this is taking too much time
 	for (int i = 0; i < _delayLineBufferSize; i++) {
 		_delayLineL[i] = 0.0f;
 		_delayLineR[i] = 0.0f;

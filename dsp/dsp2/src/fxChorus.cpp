@@ -46,7 +46,6 @@ fxChorus::fxChorus(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
 
 	// set memory content to zero
-	//clearMemory();
 	for (int i = 0; i < _delayLineBufferSize; i++) {
 		_delayLineA[i] = 0.0f;
 		_delayLineB[i] = 0.0f;

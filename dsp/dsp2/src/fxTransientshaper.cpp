@@ -44,7 +44,6 @@ fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, c
 	_memoryAddress += (FX_TRANSIENTSHAPER_BUFFER_SIZE * sizeof(float));
 
 	// set memory content to zero
-	//clearMemory(); // TODO: check if this is taking too much time
 	for (int i = 0; i < FX_TRANSIENTSHAPER_BUFFER_SIZE; i++) {
 		_delayLine[i] = 0.0f;
 	}

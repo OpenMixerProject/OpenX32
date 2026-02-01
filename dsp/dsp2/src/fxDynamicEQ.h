@@ -10,6 +10,7 @@ typedef struct {
 	int type;				// Supported types: LowShelf / Peak / HighShelf
 	int typeCtrl;			// LowPass / Bandpass / HighPass
     float frequency;		// center-frequency
+    float staticGain;		// the static gain of the EQ at given frequency
     float maxDynamicGain;	// the maximum gain the DEQ can reach
     float Q;				// quality
     float threshold;		// threshold in dB
@@ -29,7 +30,7 @@ class fxDynamicEQ : public fx {
     public:
         fxDynamicEQ(int fxSlot, int channelMode);
         ~fxDynamicEQ();
-        void setParameters(int band, int type, float frequency, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release);
+        void setParameters(int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release);
         void rxData(float data[], int len);
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:

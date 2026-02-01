@@ -34,7 +34,7 @@ Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
 void Adda::Init() {
 	const char serial[] = "/dev/ttymxc2";
 	const uint16_t speed = 38400;
-	if (state->bodyless) {
+	if (!state->bodyless) {
 		helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial, speed);
 		uart->Open(serial, speed, true);
 	}

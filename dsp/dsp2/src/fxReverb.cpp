@@ -294,7 +294,6 @@ fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	}
 
 	// set memory content to zero
-	//clearMemory();
 	// we are using multiple clustered delay-lines in this effect, so we are not using the base-class-memory-clear-function
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {

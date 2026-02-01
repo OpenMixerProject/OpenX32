@@ -51,7 +51,6 @@ fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, int channelMode) : fx(fxSlot, chann
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
 
 	// set memory content to zero
-	//clearMemory(); // TODO: check if this is taking too much time
 	for (int i = 0; i < _delayLineBufferSize; i++) {
 		_delayLine[i] = 0.0f;
 	}

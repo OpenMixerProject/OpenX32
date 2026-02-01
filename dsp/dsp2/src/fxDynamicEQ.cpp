@@ -32,20 +32,18 @@ fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
-	// set memory content to zero
-	//clearMemory();
-
 	// set default parameters
 	#if FX_DYNAMICEQ_BANDS == 1
-		        // band type freq   maxGain  Q    Tresh  Ratio Attack Release
-		setParameters(0, 1, 1000.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
+				//                 static  maxDyn
+		        // band type freq   Gain    Gain   Q    Tresh  Ratio Attack Release
+		setParameters(0, 1, 1000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
 	#elif FX_DYNAMICEQ_BANDS == 2
-		setParameters(0, 1, 1000.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-		setParameters(1, 1, 4000.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
+		setParameters(0, 1, 1000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
+		setParameters(1, 1, 4000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
 	#elif FX_DYNAMICEQ_BANDS == 3
-		setParameters(0, 1,  150.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-		setParameters(1, 1,  800.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-		setParameters(2, 1, 4000.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
+		setParameters(0, 1,  150.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
+		setParameters(1, 1,  800.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
+		setParameters(2, 1, 4000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
 	#endif
 
 	for (int i = 0; i < FX_DYNAMICEQ_BANDS; i++) {
@@ -60,7 +58,7 @@ fxDynamicEQ::~fxDynamicEQ() {
     // destructor
 }
 
-void fxDynamicEQ::setParameters(int band, int type, float frequency, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release) {
+void fxDynamicEQ::setParameters(int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release) {
 	_deq[band].type = type;
 
 	// set control-type
@@ -80,6 +78,7 @@ void fxDynamicEQ::setParameters(int band, int type, float frequency, float maxDy
 	}
 
 	_deq[band].frequency = frequency;
+	_deq[band].staticGain = staticGain;
     _deq[band].maxDynamicGain = maxDynamicGain;
 	_deq[band].Q = Q;
     _deq[band].threshold = threshold;
@@ -168,7 +167,7 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 
 		// Step 3: update coefficients and apply biquad-filter on all samples
 		// ==============================================================
-		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].smoothedTargetGain, &peqCoeffs[5 * band], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].smoothedTargetGain + _deq[band].staticGain, &peqCoeffs[5 * band], dsp.samplerate);
 	}
 
 	for (int i_ch = 0; i_ch < 2; i_ch++) {

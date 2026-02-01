@@ -15,7 +15,7 @@ class fx {
 		bool _channelMode;
 		int _memoryAddress;
 		float _sampleRate;
-		void clearMemory();
+		//void clearMemory();
 };
 
 #endif /* FXBASE_H_ */
