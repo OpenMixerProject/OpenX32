@@ -26,6 +26,7 @@
 
 fx::fx(int fxSlot, int channelMode) {
 	// take the memory-slot-address (we have 8 of them)
+	_startup = true;
 	_fxSlot = fxSlot;
 	_channelMode = channelMode;
 

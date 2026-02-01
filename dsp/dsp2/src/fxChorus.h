@@ -23,8 +23,6 @@ class fxChorus : public fx {
 
     	float _mix;
 
-    	int _delayLineLengthA;
-    	int _delayLineLengthB;
     	int _delayLineHeadA;
     	int _delayLineHeadB;
 

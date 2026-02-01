@@ -33,6 +33,7 @@ class State {
         // DSPs
 
         float dspLoad[2];
+        float dspFreeHeapWords[2];
         float dspVersion[2];
 
         bool page_routing_fpga_table_drawn = false;

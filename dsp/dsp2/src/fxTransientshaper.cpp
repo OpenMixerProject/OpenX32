@@ -29,12 +29,6 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-// small helper-function that converts milliseconds to k-factor
-float ms_to_k(float ms, float fs) {
-    if (ms <= 0.0f) return 1.0f;
-    return 1.0f - expf(-1.0f / (fs * (ms / 1000.0f)));
-}
-
 fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
@@ -44,16 +38,21 @@ fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, c
 	_memoryAddress += (FX_TRANSIENTSHAPER_BUFFER_SIZE * sizeof(float));
 
 	// set memory content to zero
-	for (int i = 0; i < FX_TRANSIENTSHAPER_BUFFER_SIZE; i++) {
-		_delayLine[i] = 0.0f;
-	}
+//	for (int i = 0; i < FX_TRANSIENTSHAPER_BUFFER_SIZE; i++) {
+//		_delayLine[i] = 0.0f;
+//	}
 
 	// initialize parameter variables
 	// high attack (timeFast seems be fine at delayMs*2 to move the maximum gain in the near of the real audio-peak)
-	setParameters(1, 15, 150, 3, 1.0, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
-
+	//setParameters(1, 15, 150, 3, 1.0, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
 	// high sustain
-	//fxTransientshaperSetParameters(0.5, 15, 150, 1.0, 3, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
+	//SetParameters(0.5, 15, 150, 1.0, 3, 1); // timeFast, timeMed, timeSlow, attack, sustain, delayMs
+	_kFast = 0.02061781866875983f;
+	_kMed = 0.0013879248290916f;
+	_kSlow = 0.00013887924427367f;
+	_attack = 3.0;
+	_sustain = 1.0;
+	_delayLineTailOffset = 48;
 
 	// internal variables
 	_delayLineHead = 0;
@@ -66,6 +65,12 @@ fxTransientshaper::~fxTransientshaper() {
     // destructor
 }
 
+// human-friendly parameter-settings, but more expensive for the DSP
+// small helper-function that converts milliseconds to k-factor
+float ms_to_k(float ms, float fs) {
+	if (ms <= 0.0f) return 1.0f;
+	return 1.0f - expf(-1.0f / (fs * (ms / 1000.0f)));
+}
 void fxTransientshaper::setParameters(float timeFast, float timeMed, float timeSlow, float attack, float sustain, float delayMs) {
 	_kFast = ms_to_k(timeFast, _sampleRate); // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
 	_kMed = ms_to_k(timeMed, _sampleRate);
@@ -80,9 +85,30 @@ void fxTransientshaper::setParameters(float timeFast, float timeMed, float timeS
 
 void fxTransientshaper::rxData(float data[], int len) {
 	// data received from x32ctrl
+	if (len != 6) return;
+
+	_kFast = data[0];
+	_kMed = data[1];
+	_kSlow = data[2];
+	_attack = data[3];
+	_sustain = data[4];
+	_delayLineTailOffset = data[5];
 }
 
 void fxTransientshaper::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+	if (_startup) {
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			_delayLine[_delayLineHead] = 0;
+			_delayLineHead++;
+			if (_delayLineHead >= FX_TRANSIENTSHAPER_BUFFER_SIZE) {
+				_delayLineHead = 0;
+				_startup = false;
+			}
+		}
+
+		return;
+	}
+
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: write current sample in delay-line
 		_delayLine[_delayLineHead] = bufIn[0][s];

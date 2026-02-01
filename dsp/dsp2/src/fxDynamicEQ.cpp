@@ -33,18 +33,21 @@ fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
 	// set default parameters
-	#if FX_DYNAMICEQ_BANDS == 1
-				//                 static  maxDyn
-		        // band type freq   Gain    Gain   Q    Tresh  Ratio Attack Release
-		setParameters(0, 1, 1000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-	#elif FX_DYNAMICEQ_BANDS == 2
-		setParameters(0, 1, 1000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-		setParameters(1, 1, 4000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-	#elif FX_DYNAMICEQ_BANDS == 3
-		setParameters(0, 1,  150.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-		setParameters(1, 1,  800.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-		setParameters(2, 1, 4000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
-	#endif
+	//		                     static  maxDyn
+	//           band type freq   Gain    Gain   Q    Tresh  Ratio Attack Release
+	//setParameters(0, 1, 1000.0f, 0.0f, -5.0f, 1.0f, -20.0f, 2.0f, 50.0f, 300.0f);
+	for (int band = 0; band < FX_DYNAMICEQ_BANDS; band++) {
+		_deq[band].type = 1; // Peak-Filter
+		_deq[band].typeCtrl = 4; // Band-Pass-Filter
+		_deq[band].frequency = 1000; // 1kHz
+		_deq[band].staticGain = 0; // 0dB
+		_deq[band].maxDynamicGain = -5; // -5dB
+		_deq[band].Q = 1; // Q=1
+		_deq[band].threshold = -20; // -20dB
+		_deq[band].ratio = 2; // ratio: 1:2
+		_deq[band].attack = 0.006644493744965f; // 50ms
+		_deq[band].release = 0.0011104940557206f; // 300ms
+	}
 
 	for (int i = 0; i < FX_DYNAMICEQ_BANDS; i++) {
 		// setup the smoothing-filter for the control-signal
@@ -52,12 +55,15 @@ fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 	    _deq[i].smoothedTargetGain = 0.0f;	// start-parameter
 	    _deq[i].envelope = 0.0f;
 	}
+
+	_startup = false;
 }
 
 fxDynamicEQ::~fxDynamicEQ() {
     // destructor
 }
 
+// human-friendly parameter-settings, but more expensive for the DSP
 void fxDynamicEQ::setParameters(int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release) {
 	_deq[band].type = type;
 
@@ -98,6 +104,22 @@ void fxDynamicEQ::setParameters(int band, int type, float frequency, float stati
 
 void fxDynamicEQ::rxData(float data[], int len) {
 	// data received from x32ctrl
+	if (len != 11) return;
+
+	int band = (int)data[0];
+	_deq[band].type = (int)data[1];
+	_deq[band].typeCtrl = (int)data[2];
+	_deq[band].frequency = data[3];
+	_deq[band].staticGain = data[4];
+    _deq[band].maxDynamicGain = data[5];
+	_deq[band].Q = data[6];
+    _deq[band].threshold = data[7];
+    _deq[band].ratio = data[8];
+    _deq[band].attack = data[9];
+    _deq[band].release = data[10];
+
+	// update the biquad-coefficients for the control-signal
+	helperFcn_calcBiquadCoeffs(_deq[band].typeCtrl, _deq[band].frequency, _deq[band].Q, 1.0f, &_deq[band].biquadCoeffsCtrl[0], dsp.samplerate);
 }
 
 void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[]) {

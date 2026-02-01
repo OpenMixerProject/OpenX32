@@ -904,6 +904,106 @@ uint8_t DSP1::GetPeak(int i, uint8_t steps)
     return 0;
 }
 
+void DSP1::DSP2_SetFx(int fxSlot, int fxType, int mode) {
+    int values[2];
+    values[0] = fxType; // type of the Effect
+    values[1] = mode; // mode of the effect (e.g. DualMono or Stereo)
+    spi->SendDspParameterArray(1, 'f', 'r', fxSlot, 2, (float*)values);
+
+    // TODO: store the new FX-type in the x32ctrl-parameters
+}
+
+void DSP1::DSP2_SendFxParameter(int fxSlot) {
+    int fxType = fxSlot; // TODO: load FX-type from x32ctrl-parameters. For now take the fxSlot as fxType
+
+    float values[45]; // MultibandCompressor takes a maximum of 41 float-parameters
+    int valueCount;
+
+    float depth[2];
+    float delayMs[2];
+    float phase[2];
+    float freq[4];
+
+    // take the parameters for the specific FX-Rack-Slot and the Effect from the x32ctrl-parameters
+    // and send them via SPI to DSP2
+
+    // TODO: take the effect-parameters from x32ctrl-parameters (from GUI)
+    // at the moment we have some hard-coded effect-setups for testing
+    switch(fxType) {
+        case 0: // Reverb                     roomSizeMs rt60   lpfFreq   dry  wet
+            fx->fxCalcParameters_Reverb(&values[0], 150.0f, 3.0f, 14000.0f, 1.0, 0.25f);
+            valueCount = 6;
+            break;
+        case 1: // Chorus                           depth           delay          phase          freq          mix
+            depth[0] = 10;
+            depth[1] = 10;
+            delayMs[0] = 15;
+            delayMs[1] = 20;
+            phase[0] = 0;
+            phase[0] = 0;
+            freq[0] = 1.5;
+            freq[1] = 1.6;
+            
+            fx->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, 0.5f);
+            valueCount = 9;
+            break;
+        case 2: // TransientShaper          tFastMs tMediumMs tSlowMs attack sustain delayMs
+            fx->fxCalcParameters_TransientShaper(&values[0], 1, 15, 150, 3, 1, 1);
+            valueCount = 6;
+            break;
+        case 3: // Overdrive                     preGain   Q  hpfInputFreq lpfInputFreq lpfOutputFreq
+            fx->fxCalcParameters_Overdrive(&values[0], 10.0f, -0.2f, 300, 10000, 10000);
+            valueCount = 6;
+            break;
+        case 4: // Delay
+            delayMs[0] = 350;
+            delayMs[1] = 450;
+            fx->fxCalcParameters_Delay(&values[0], delayMs);
+            valueCount = 2;
+            break;
+        case 5: // MultibandCompressor                      channel  band   threshold  ratio   attack  hold   release   makeup
+            // first send parameters for all channels and all bands
+            valueCount = 8;
+            for (int c = 0; c < 2; c++) {
+                fx->fxCalcParameters_MultibandCompressor(&values[0], c, 0, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
+                spi->SendDspParameterArray(1, 'f', 'c', fxSlot, valueCount, values);
+                fx->fxCalcParameters_MultibandCompressor(&values[0], c, 1, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
+                spi->SendDspParameterArray(1, 'f', 'c', fxSlot, valueCount, values);
+                fx->fxCalcParameters_MultibandCompressor(&values[0], c, 2, -40.0f, 10.5f, 10.0f, 100.0f, 40.0f, 0.0f);
+                spi->SendDspParameterArray(1, 'f', 'c', fxSlot, valueCount, values);
+                fx->fxCalcParameters_MultibandCompressor(&values[0], c, 3, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
+                spi->SendDspParameterArray(1, 'f', 'c', fxSlot, valueCount, values);
+                fx->fxCalcParameters_MultibandCompressor(&values[0], c, 4, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
+                spi->SendDspParameterArray(1, 'f', 'c', fxSlot, valueCount, values);
+            }
+
+            // now prepare the frequencies for both channels
+            valueCount = 41;
+            freq[0] = 80;
+            freq[1] = 350;
+            freq[2] = 1500;
+            freq[3] = 7500;
+
+            // channel left
+            fx->fxCalcParameters_MultibandCompressorFreq(&values[0], 0, freq);
+            spi->SendDspParameterArray(1, 'f', 'c', fxSlot, valueCount, values);
+
+            // channel right (will be send at the end of this function)
+            fx->fxCalcParameters_MultibandCompressorFreq(&values[0], 1, freq);
+
+            break;
+        case 6: // DynamicEQ                    band type  freq   staticGain  maxDynGain  Q  thresh  ratio  attack  release
+            fx->fxCalcParameters_DynamicEQ(&values[0], 0, 1, 1000, 0, -10, 1, -20, 2, 50, 300);
+            valueCount = 11;
+            break;
+        default:
+            break;
+    }
+
+    spi->SendDspParameterArray(1, 'f', 'c', fxSlot, valueCount, values);
+}
+
+
 void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
@@ -952,9 +1052,10 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
         case 's': // status-feedback
             switch (channel) {
                 case 'u': // Update pack
-                    if (valueCount == 2) {
+                    if (valueCount == 3) {
                         state->dspVersion[1] = floatValues[0];
                         state->dspLoad[1] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                        state->dspFreeHeapWords[1] = floatValues[2]; // free heap-space in 32-bit words
                     }
                     break;
             }

@@ -37,20 +37,23 @@ fxChorus::fxChorus(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
-	setParameters(10, 10, 15, 20, 1.5, 1.6, 0, 0, 0.5); // depthA, depthB, delayA, delayB, freqA, freqB, phaseA, phaseB, mix
+	//setParameters(10, 10, 15, 20, 1.5, 1.6, 0, 0, 0.5); // depthA, depthB, delayA, delayB, freqA, freqB, phaseA, phaseB, mix
+	_depthA = 10;
+	_depthB = 10;
+	_delayLineBaseLengthA = 720;
+	_delayLineBaseLengthB = 960;
+	_lfoPhaseA = 1.5;
+	_lfoPhaseB = 1.6;
+	_phaseIncA = 0;
+	_phaseIncB = 0;
+	_mix = 0.5;
+
 
 	// initialize delay-lines in external memory
 	_delayLineA = (float*)(_memoryAddress);
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
 	_delayLineB = (float*)(_memoryAddress);
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
-
-	// set memory content to zero
-	for (int i = 0; i < _delayLineBufferSize; i++) {
-		_delayLineA[i] = 0.0f;
-		_delayLineB[i] = 0.0f;
-	}
-
 
 	// set internal parameters
 	_delayLineHeadA = 0;
@@ -61,6 +64,7 @@ fxChorus::~fxChorus() {
     // destructor
 }
 
+// human-friendly parameter-settings, but more expensive for the DSP
 void fxChorus::setParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix) {
 	// depth of effect
 	_depthA = depthA;
@@ -82,11 +86,41 @@ void fxChorus::setParameters(float depthA, float depthB, float delayA, float del
 	_mix = mix;
 }
 
+// use precalculated values from i.MX25
 void fxChorus::rxData(float data[], int len) {
 	// data received from x32ctrl
+	if (len != 9) return;
+
+	_depthA = data[0];
+	_depthB = data[1];
+	_delayLineBaseLengthA = (int)data[2];
+	_delayLineBaseLengthB = (int)data[3];
+	_lfoPhaseA = data[4];
+	_lfoPhaseB = data[5];
+	_phaseIncA = data[6];
+	_phaseIncB = data[7];
+	_mix = data[8];
 }
 
 void fxChorus::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+	if (_startup) {
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			bufOut[0][s] = 0;
+			bufOut[1][s] = 0;
+
+			_delayLineA[_delayLineHeadA] = 0;
+			_delayLineB[_delayLineHeadA] = 0;
+			_delayLineHeadA++;
+			if (_delayLineHeadA >= _delayLineBufferSize) {
+				_delayLineHeadA = 0;
+				_delayLineHeadB = 0;
+				_startup = false;
+			}
+		}
+
+		return;
+	}
+
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 	    float inL = bufIn[0][s];
 	    float inR = bufIn[1][s];

@@ -47,7 +47,28 @@ fxMultibandCompressor::fxMultibandCompressor(int fxSlot, int channelMode) : fx(f
     //        /\         /\         /\         /\
     //       /  \       /  \       /  \       /  \
 
-	// TODO: the following lines of code and the underlying functions
+	for (int i = 0; i < 5; i++) {
+		_compressor[0][i].value_threshold = 1369560648.0f; // -5dB
+		_compressor[0][i].value_ratio = 1.5f;
+		_compressor[0][i].value_coeff_attack = 0.92937699360542739010302f; // attach = 10ms
+		_compressor[0][i].value_hold_ticks = 4800.0f; // 100ms
+		_compressor[0][i].value_coeff_release = 0.98185640853383583712187f;
+		_compressor[0][i].value_makeup = 1.0f;
+
+		// set all coefficients to direct passthrough
+		for (int c = 0; c < (5 * 4); c++) {
+			_compressor[0][i].coeffs[c] = 0;
+		}
+		_compressor[0][i].coeffs[0] = 1;
+		_compressor[0][i].coeffs[1] = 1;
+		_compressor[0][i].coeffs[10] = 1;
+		_compressor[0][i].coeffs[11] = 1;
+	}
+	// copy settings for channel 1 to channel 2
+	memcpy(&_compressor[1][0], &_compressor[0][0], sizeof(_compressor[0][0]) * 5);
+
+/*
+	// the following lines of code and the underlying functions
 	// are *really* expensive for the DSP. It is only for testing-purposes.
 	// The final design will move this code to the iMX25 so that the DSP
 	// can focus on the audio-processing instead of calculating the
@@ -81,6 +102,7 @@ fxMultibandCompressor::fxMultibandCompressor(int fxSlot, int channelMode) : fx(f
 		memcpy(&_compressor[1][3], &_compressor[0][3], sizeof(_compressor[0][3]));
 		memcpy(&_compressor[1][4], &_compressor[0][4], sizeof(_compressor[0][4]));
     }
+*/
 
     // reset PEQ- and compressor-states
     for (int i_ch = 0; i_ch < 5; i_ch++) {
@@ -93,6 +115,8 @@ fxMultibandCompressor::fxMultibandCompressor(int fxSlot, int channelMode) : fx(f
 			_compressor[i_ch][b].triggered = false;
 		}
     }
+
+    _startup = false;
 }
 
 fxMultibandCompressor::~fxMultibandCompressor() {
@@ -104,6 +128,13 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
 	// band 1 has only double high-cut and two unused IIRs
 	// band 2..4 have two low-cuts and two high-cuts
 	// band 5 has only double low-cut and two unused IIRs again
+
+    // _____  f0  _____  f1  _____  f2  _____  f3  _____
+    //      \    /     \    /     \    /     \    /
+    //   b0  \  /  b1   \  /   b2  \  /  b3   \  /   b4
+    //        \/         \/         \/         \/
+    //        /\         /\         /\         /\
+    //       /  \       /  \       /  \       /  \
 
     float coeffs[5];
 	float freq[4];
@@ -149,13 +180,6 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
 
 
     // Band 2..4: calculate coeffs for low- and high-cut
-    // _____  f0  _____  f1  _____  f2  _____  f3  _____
-    //      \    /     \    /     \    /     \    /
-    //   b0  \  /  b1   \  /   b2  \  /  b3   \  /   b4
-    //        \/         \/         \/         \/
-    //        /\         /\         /\         /\
-    //       /  \       /  \       /  \       /  \
-
     for (int i = 1; i < 4; i++) {
     	// inner bands: calculate low- and high-cut
 
@@ -258,6 +282,7 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
 
 }
 
+// human-friendly parameter-settings, but more expensive for the DSP
 void fxMultibandCompressor::setParameters(int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup) {
 	// TODO: put these calculations into i.MX25 to move calculation away from DSP
 
@@ -274,6 +299,47 @@ void fxMultibandCompressor::setParameters(int channel, int band, float threshold
 
 void fxMultibandCompressor::rxData(float data[], int len) {
 	// data received from x32ctrl
+	if (len == 8) {
+		// get new parameters
+
+		int channel = data[0];
+		int band = data[1];
+		_compressor[channel][band].value_threshold = data[2];
+		_compressor[channel][band].value_ratio = data[3];
+		_compressor[channel][band].value_coeff_attack = data[4];
+		_compressor[channel][band].value_hold_ticks = data[5];
+		_compressor[channel][band].value_coeff_release = data[6];
+		_compressor[channel][band].value_makeup = data[7];
+	}
+
+	if (len == 41) {
+		// get new set of frequency-coefficients
+		int channel = data[0];
+
+		// set pair of coefficients (we are using two 12dB/oct biquad-filters to create a 24dB/oct)
+		for (int i = 0; i < 5; i++) {
+			// band 1
+			_compressor[channel][0].coeffs[0 + (i*2)] = data[1 + i];
+			_compressor[channel][0].coeffs[1 + (i*2)] = data[1 + i];
+
+			// band 5
+			_compressor[channel][4].coeffs[0 + (i*2)] = data[36 + i];
+			_compressor[channel][4].coeffs[1 + (i*2)] = data[36 + i];
+		}
+
+		// band 2..4
+		for (int band = 1; band < 4; band++) {
+			int offset = 6 + ((band - 1) * 10);
+
+			for (int i = 0; i < 5; i++) {
+				_compressor[channel][band].coeffs[0 + (i*2)] = data[offset + i];
+				_compressor[channel][band].coeffs[1 + (i*2)] = data[offset + i];
+
+				_compressor[channel][band].coeffs[0 + (i*2) + 10] = data[offset + 5 + i];
+				_compressor[channel][band].coeffs[1 + (i*2) + 10] = data[offset + 5 + i];
+			}
+		}
+	}
 }
 
 void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict bufOut[]) {

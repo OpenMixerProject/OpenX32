@@ -19,8 +19,14 @@ class FX : X32Base {
         void RecalcFilterCoefficients_LR24(sLR24* LR24);
         void RecalcGate(sGate* gate);
         void RecalcCompressor(sCompressor* compressor);
+
+        // functions for FX-Rack
+        void fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet);
+        void fxCalcParameters_Chorus(float data[], float depth[2], float delayMs[2], float phase[2], float freq[2], float mix);
+        void fxCalcParameters_TransientShaper(float data[], float tFastMs, float tMediumMs, float tSlowMs, float attack, float sustain, float delayMs);
+        void fxCalcParameters_Overdrive(float data[], float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
+        void fxCalcParameters_Delay(float data[], float delayMs[2]);
+        void fxCalcParameters_MultibandCompressor(float data[], int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup);
+        void fxCalcParameters_MultibandCompressorFreq(float data[], int channel, float freq[4]);
+        void fxCalcParameters_DynamicEQ(float data[], int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release);
 };
-
-
-
-

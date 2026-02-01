@@ -11,6 +11,7 @@ class fx {
 		virtual void rxData(float data[], int len) = 0;
 		virtual ~fx(); // destructor
 	protected:
+		bool _startup;
 		int _fxSlot;
 		bool _channelMode;
 		int _memoryAddress;

@@ -37,19 +37,15 @@ fxDelay::fxDelay(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	_delayLineBufferSize = ((SAMPLERATE_MAX * _delayLineLengthMaxMs) / 1000);
 
 	// set default effect parameters
-	setParameters(350, 450); // set delay of 450ms
+	//setParameters(350, 450); // set delay of 450ms
+	_delayLineTailOffsetL = 16800;
+	_delayLineTailOffsetR = 21600;
 
 	// initialize delay-lines in external memory
 	_delayLineL = (float*)(_memoryAddress);
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
 	_delayLineR = (float*)(_memoryAddress);
 	_memoryAddress += (_delayLineBufferSize * sizeof(float));
-
-	// set memory content to zero
-	for (int i = 0; i < _delayLineBufferSize; i++) {
-		_delayLineL[i] = 0.0f;
-		_delayLineR[i] = 0.0f;
-	}
 
 	// set internal parameters
 	_delayLineHead = 0;
@@ -59,6 +55,7 @@ fxDelay::~fxDelay() {
     // destructor
 }
 
+// human-friendly parameter-settings, but more expensive for the DSP
 void fxDelay::setParameters(float delayMsL, float delayMsR) {
 	if (delayMsL < _delayLineLengthMaxMs) {
 		_delayLineTailOffsetL = (delayMsL * _sampleRate * 0.001f);
@@ -70,9 +67,30 @@ void fxDelay::setParameters(float delayMsL, float delayMsR) {
 
 void fxDelay::rxData(float data[], int len) {
 	// data received from x32ctrl
+	if (len != 2) return;
+
+	_delayLineTailOffsetL = data[0];
+	_delayLineTailOffsetR = data[1];
 }
 
 void fxDelay::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+	if (_startup) {
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			bufOut[0][s] = 0;
+			bufOut[1][s] = 0;
+
+			_delayLineL[_delayLineHead] = 0;
+			_delayLineR[_delayLineHead] = 0;
+			_delayLineHead++;
+			if (_delayLineHead >= _delayLineBufferSize) {
+				_delayLineHead = 0;
+				_startup = false;
+			}
+		}
+
+		return;
+	}
+
 	int tail;
 	float delayedSampleL;
 	float delayedSampleR;

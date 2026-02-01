@@ -149,31 +149,7 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 		peqCoeffs[i] *= norm;
 	}
 }
-/*
+
 void helperFcn_lowPassFilter(float input, float* output, float coeff) {
 	*output = *output + coeff * (input - *output);
 }
-
-void helperFcn_ringBufferWrite(float value, float* buffer, int bufferSize, int* head) {
-	buffer[*head] = value;
-	*head++;
-
-	if (*head == bufferSize) {
-		*head = 0;
-	}
-}
-
-float helperFcn_ringBufferRead(float* buffer, int bufferSize, int tailOffset, int head) {
-	int tail = head - tailOffset;
-	if (tail < 0) {
-		tail += bufferSize;
-	}
-	return buffer[tail];
-}
-
-float helperFcn_ringBufferReadMs(float* buffer, int bufferSize, int delayMs, int head, float samplerate) {
-	int tailOffset = delayMs * samplerate * 0.001f;
-
-	return helperFcn_ringBufferRead(buffer, bufferSize, tailOffset, head);
-}
-*/

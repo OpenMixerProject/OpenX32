@@ -269,6 +269,8 @@ fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
+	_startupCounter = 0;
+
 	// map memory-pointers to desired address in external RAM (please let me know if you know a better option)
 	// initialize delay-lines in external memory
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
@@ -293,28 +295,17 @@ fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
 		_memoryAddress += (_delay[c].memoryLength * sizeof(float));
 	}
 
-	// set memory content to zero
-	// we are using multiple clustered delay-lines in this effect, so we are not using the base-class-memory-clear-function
+	// we are using multiple clustered delay-lines in this effect
 	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
-		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-			for (int s = 0; s < _diffusionDelayLineLength[d]; s++) {
-				_diffusor[d][c].memory[s] = 0.0f;
-			}
-		}
-
-		// initialize variables and the effect itself
 		_diffusionDelayLineHead[d] = 0;
 	}
 	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-		for (int s = 0; s < _delay[c].memoryLength; s++) {
-			_delay[c].memory[s] = 0.0f;
-		}
-
-		// initialize variables and the effect itself
 		_delay[c].head = 0;
 	}
 
-	setParameters(150.0f, 3.0f, 14000.0f, 1.0f, 0.25f); // roomSizeMs, rt60 (time to fall to -60dB), feedback lowpass frequency, dry, wet
+	//setParameters(150.0f, 3.0f, 14000.0f, 1.0f, 0.25f); // roomSizeMs, rt60 (time to fall to -60dB), feedback lowpass frequency, dry, wet
+	float defaultParameter[6] = {0.595662143529010460509f, 0.64696691629948498570967f, 1.0f, 0.25f, 150.0f, 7200};
+	rxData(defaultParameter, 6);
 
 	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
 		_delay[c].lowPassDelayState = 0.0f;
@@ -326,6 +317,7 @@ fxReverb::~fxReverb() {
 }
 
 //#pragma section("seg_block2_code")
+// human-friendly parameter-settings, but more expensive for the DSP
 void fxReverb::setParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
 	_roomSizeMs = roomSizeMs;
 	_loopsPerRt60 = rt60 / (roomSizeMs * 1.5f * 0.001f);
@@ -370,9 +362,83 @@ void fxReverb::setParameters(float roomSizeMs, float rt60, float feedbackLowPass
 
 void fxReverb::rxData(float data[], int len) {
 	// data received from x32ctrl
+	if (len != 6) return;
+
+	_feedbackDecayGain = data[0];
+	_delayLowPassCoeff = data[1];
+	_dry = data[2];
+	_wet = data[3];
+
+	float diffusionMs = data[4];
+	for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+		diffusionMs *= 0.5f; // first element has 50% of desired roomSize, next 25%, next 12.5% and so on
+		float diffusionDelaySamplesRange = diffusionMs * _sampleRate * 0.001f;
+
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+			float rangeLow = diffusionDelaySamplesRange * (float)c / (float)FX_REVERB_INT_CHAN;
+			float rangeHigh = diffusionDelaySamplesRange * (float)(c + 1) / (float)FX_REVERB_INT_CHAN;
+			#if FX_REVERB_ALTERNATIVE_RND == 0
+				_diffusor[d][c].delayLineTailOffset = randomInRange(rangeLow, rangeHigh);
+			#else
+				_diffusor[d][c].delayLineTailOffset = randomInRangeAlt(&rr, rangeLow, rangeHigh);
+			#endif
+			_diffusor[d][c].flipPolarities = rand() % 2;
+		}
+	}
+
+	// calculate the delay for multichannel-feedback
+	// distribute delay times exponentially between delayMs and delayMs*2
+	for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+		_delay[c].tailOffset = powf(2.0f, (float)c / (float)FX_REVERB_INT_CHAN) * data[5];
+	}
 }
 
 void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+	if (_startup) {
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			bufOut[0][s] = 0;
+			bufOut[1][s] = 0;
+		}
+
+		// last delay-line has the longest delay, so check if this delay-line is set to 0 already
+		if (_delay[FX_REVERB_INT_CHAN - 1].head == (_delay[FX_REVERB_INT_CHAN - 1].memoryLength - 1)) {
+			for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+				_diffusionDelayLineHead[d] = 0;
+			}
+			for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+				_delay[c].head = 0;
+			}
+
+			_startup = false;
+
+			return;
+		}
+
+		for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+			for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+					_diffusor[d][c].memory[_diffusionDelayLineHead[d]] = 0.0f;
+
+					if (_diffusionDelayLineHead[d] < (_diffusionDelayLineLength[d]-1)) {
+						_diffusionDelayLineHead[d]++;
+					}
+
+				}
+			}
+		}
+		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				_delay[c].memory[_delay[c].head] = 0.0f;
+
+				if (_delay[c].head < (_delay[c].memoryLength-1)) {
+					_delay[c].head++;
+				}
+			}
+		}
+
+		return;
+	}
+
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: generate multi-channel fx-input (inL -> _fxBuf[0,2,4,6], inR -> _fxBuf[1,3,5,7])
 		// =================================

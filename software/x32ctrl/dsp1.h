@@ -84,6 +84,9 @@ class DSP1 : X32Base {
         void UpdateVuMeter();
         uint8_t GetPeak(int i, uint8_t steps);
 
+        void DSP2_SetFx(int fxSlot, int fxType, int mode);
+        void DSP2_SendFxParameter(int fxSlot);
+
         void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
         void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
 };

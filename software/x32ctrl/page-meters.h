@@ -24,6 +24,8 @@ class PageMeters : public Page {
             meterBlocks[7] = objects.meters_bus_9_16;
             meterBlocks[8] = objects.meters_matrix;
 
+            SetEncoder(DISPLAY_ENCODER_3, "FX-Rack", "Install Effects");
+            SetEncoder(DISPLAY_ENCODER_4, "FX-Rack", "Send Parameters");
             SetEncoder(DISPLAY_ENCODER_5, "XLR1 -> DSP2", "DSP2 -> Ch9..24");
             SetEncoder(DISPLAY_ENCODER_6, "DEBUG: 1-16", "Phanton + 47dB");
         }
@@ -187,8 +189,25 @@ class PageMeters : public Page {
                     case X32_BTN_ENCODER2:
                         break;
                     case X32_BTN_ENCODER3:
+                        // install effects
+                        mixer->dsp->DSP2_SetFx(0, 0, 2); // Reverb
+                        mixer->dsp->DSP2_SetFx(1, 1, 2); // Chorus
+                        mixer->dsp->DSP2_SetFx(2, 2, 2); // TransientShaper
+                        mixer->dsp->DSP2_SetFx(3, 3, 2); // Overdrive
+                        mixer->dsp->DSP2_SetFx(4, 4, 2); // Delay
+                        //mixer->dsp->DSP2_SetFx(5, 5, 2); // MultibandCompressor
+                        mixer->dsp->DSP2_SetFx(6, 6, 2); // DynamicEQ
+                        //mixer->dsp->DSP2_SetFx(7, -1, 2); // no effect
                         break;
                     case X32_BTN_ENCODER4:
+                        mixer->dsp->DSP2_SendFxParameter(0); // send parameters for fxSlot 0
+                        mixer->dsp->DSP2_SendFxParameter(1); // send parameters for fxSlot 1
+                        mixer->dsp->DSP2_SendFxParameter(2); // send parameters for fxSlot 2
+                        mixer->dsp->DSP2_SendFxParameter(3); // send parameters for fxSlot 3
+                        mixer->dsp->DSP2_SendFxParameter(4); // send parameters for fxSlot 4
+                        mixer->dsp->DSP2_SendFxParameter(5); // send parameters for fxSlot 5
+                        mixer->dsp->DSP2_SendFxParameter(6); // send parameters for fxSlot 6
+                        mixer->dsp->DSP2_SendFxParameter(7); // send parameters for fxSlot 7
                         break;
                     case X32_BTN_ENCODER5:
                         {

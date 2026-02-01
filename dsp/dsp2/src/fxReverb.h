@@ -19,7 +19,7 @@
 #elif FX_REVERB_DIFFUSION_STEPS == 3
 	#define FX_REVERB_DELAY_MS_MAX		500
 #elif FX_REVERB_DIFFUSION_STEPS == 4
-	#define FX_REVERB_DELAY_MS_MAX		200 // 475
+	#define FX_REVERB_DELAY_MS_MAX		475
 #else
 	#define FX_REVERB_DELAY_MS_MAX		DEFINE YOUR MAXIMUM DELAY HERE
 #endif
@@ -61,6 +61,8 @@ class fxReverb : public fx {
         void rxData(float data[], int len);
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
+        int _startupCounter;
+
         sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];
         int _diffusionDelayLineLength[FX_REVERB_DIFFUSION_STEPS];
     	int _diffusionDelayLineHead[FX_REVERB_DIFFUSION_STEPS]; // we are using different delay-line-lengths, so we have to use individual head-pointers here

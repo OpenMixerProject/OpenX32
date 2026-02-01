@@ -26,7 +26,7 @@
 #include "spi.h"
 #include "audio.h"
 
-float pm commData[2];
+float pm commData[3];
 
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
@@ -50,9 +50,9 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 				case 'u': // update-packet
 					commData[0] = DSP_VERSION;
-					//commData[1] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
-					memcpy(&commData[1], &cyclesTotal, sizeof(float));
-					spiSendArray('s', 'u', 0, 2, &commData[0]);
+					memcpy(&commData[1], &cyclesTotal, sizeof(uint32_t));
+					commData[2] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+					spiSendArray('s', 'u', 0, 3, &commData[0]);
 					break;
 				default:
 					break;

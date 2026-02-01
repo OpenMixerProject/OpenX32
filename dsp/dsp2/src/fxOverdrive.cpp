@@ -35,8 +35,13 @@ fxOverdrive::fxOverdrive(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 	// code of constructor of baseclass is called first. So add here only effect-specific things
 
 	// set default effect parameters
-	setFilters(300.0f, 10000.0f, 10000.0f); // hpfInput, lpfInput, lpfOutput
-	setGain(10.0f, -0.2f); // preGain, Q
+	//setParameters(10.0f, -0.2f, 300, 10000, 10000);
+	_preGain = 10.0f;
+	_Q = -0.2f;
+	_clipConst = -0.250594070204370662f;
+	_hpfInputCoef = 0.962213946674328602487f;
+	_lpfInputCoef = 0.566911509014416f;
+	_lpfOutputCoef = 0.566911509014416f;
 
 	_hpfInputStateIn = 0;
 	_hpfInputStateOut = 0;
@@ -48,23 +53,42 @@ fxOverdrive::~fxOverdrive() {
     // destructor
 }
 
-void fxOverdrive::setFilters(float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
-	_hpfInputCoef = 1.0f / (1.0f + 2.0f * M_PI * hpfInputFreq * (1.0f/_sampleRate)); // 1.0f / (1.0f + 2.0f * M_PI * f_c * (1.0f/f_s))
-	_lpfInputCoef = (2.0f * M_PI * lpfInputFreq) / (_sampleRate + 2.0f * M_PI * lpfInputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
-	_lpfOutputCoef = (2.0f * M_PI * lpfOutputFreq) / (_sampleRate + 2.0f * M_PI * lpfOutputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
-}
-
-void fxOverdrive::setGain(float preGain, float Q) {
+// human-friendly parameter-settings, but more expensive for the DSP
+void fxOverdrive::setParameters(float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
+/*
 	_preGain = preGain;
 	_Q = Q;
+	_clipConst = clipConst;
+	_hpfInputCoef = hpfInputCoef;
+	_lpfInputCoef = lpfInputCoef;
+	_lpfOutputCoef = lpfOutputCoef;
+*/
+
+	_preGain = preGain;
+	_Q = Q;
+
 	float denum = 1.0f - expf(8.0f * _Q);
 	if (denum != 0) {
 		_clipConst = _Q / denum;
 	}
+
+	_hpfInputCoef = 1.0f / (1.0f + 2.0f * M_PI * hpfInputFreq * (1.0f/_sampleRate)); // 1.0f / (1.0f + 2.0f * M_PI * f_c * (1.0f/f_s))
+	_lpfInputCoef = (2.0f * M_PI * lpfInputFreq) / (_sampleRate + 2.0f * M_PI * lpfInputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
+	_lpfOutputCoef = (2.0f * M_PI * lpfOutputFreq) / (_sampleRate + 2.0f * M_PI * lpfOutputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
+
+	_startup = false;
 }
 
 void fxOverdrive::rxData(float data[], int len) {
 	// data received from x32ctrl
+	if (len != 6) return;
+
+	_preGain = data[0];
+	_Q = data[1];
+	_clipConst = data[2];
+	_hpfInputCoef = data[3];
+	_lpfInputCoef = data[4];
+	_lpfOutputCoef = data[5];
 }
 
 void fxOverdrive::process(float* __restrict bufIn[], float* __restrict bufOut[]) {

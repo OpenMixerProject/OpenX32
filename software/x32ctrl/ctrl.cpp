@@ -407,7 +407,8 @@ void X32Ctrl::Tick100ms(void) {
 
 	if (!config->IsModelX32Core() && state->activePage == X32_PAGE_UTILITY) {
 		// read the current DSP load
-	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspVersion[1]); // show the received value (could be a bit older than the request)
+		// show the received value (could be a bit older than the request)
+	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% / Heap: %.0f Words free [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspFreeHeapWords[1], (double)state->dspVersion[1]);
 	}
 }
 

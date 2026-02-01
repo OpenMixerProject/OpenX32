@@ -9,8 +9,7 @@ class fxOverdrive : public fx {
     public:
         fxOverdrive(int fxSlot, int channelMode);
         ~fxOverdrive();
-        void setFilters(float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
-        void setGain(float preGain, float Q);
+        void setParameters(float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
         void rxData(float data[], int len);
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:

@@ -37,14 +37,14 @@
 #elif FX_USE_MATRIXUPMIXER == 1
 	#include "fxMatrixUpmixer.h"
 #else
-	#include "fxDemo.h"
-	#include "fxReverb.h"		// takes 706 Words of program-memory
-	#include "fxDelay.h"
+	//#include "fxDemo.h"
+	#include "fxReverb.h"
 	#include "fxChorus.h"
-	#include "fxOverdrive.h"
 	#include "fxTransientshaper.h"
-	#include "fxMultibandCompressor.h"	// takes 1000 Words of program-memory (can be reduced when coefficients are calculated in iMX25)
-	#include "fxDynamicEQ.h"	// takes 381 Words of program-memory
+	#include "fxOverdrive.h"
+	#include "fxDelay.h"
+	#include "fxMultibandCompressor.h"
+	#include "fxDynamicEQ.h"
 #endif
 
 /*
@@ -191,7 +191,7 @@ void audioInit(void) {
 	#else
 		// regular stereo-effects
 
-		/*
+	    /*
 			==============================================
 			Effect		| DSP-Load [%]	| Program-Memory |
 			------------|---------------|-----------------
@@ -204,10 +204,10 @@ void audioInit(void) {
 			==============================================
 		*/
 
-		audioFxChangeSlot(0, 0, 2); // install reverb on slot 0
-		audioFxChangeSlot(1, 1, 2); // install chorus on slot 1
-		audioFxChangeSlot(2, 2, 2); // install transientshaper on slot 2
-		audioFxChangeSlot(3, 3, 2); // install overdrive on slot 3
+	    //audioFxChangeSlot(0, 0, 2); // install reverb on slot 0
+		//audioFxChangeSlot(1, 1, 2); // install chorus on slot 1
+		//audioFxChangeSlot(2, 2, 2); // install transientshaper on slot 2
+		//audioFxChangeSlot(3, 3, 2); // install overdrive on slot 3
 		//audioFxChangeSlot(4, 4, 2); // install delay on slot 4
 		//audioFxChangeSlot(5, 5, 2); // install MultibandCompressor on slot 5
 		//audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
@@ -229,13 +229,14 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 		if (channelMode < 1) return;
 		if (channelMode > 2) return;
 		if (fxSlot < 0) return;
-		if (fxSlot > 8) return;
+		if (fxSlot > 7) return;
 
 		// delete old effect
 		if (fxSlots[fxSlot] != 0) {
 			delete fxSlots[fxSlot];
 			fxSlots[fxSlot] = 0;
 		}
+
 
 		// allocate memory for class in non-standard heap
 		//fxSlots[fxSlot] = (fxReverb*)heap_malloc(0, sizeof(fxReverb)); // 0 = heapID
@@ -264,7 +265,7 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 				fxSlots[fxSlot] = new fxDynamicEQ(fxSlot, channelMode);
 				break;
 			case 7:
-				fxSlots[fxSlot] = new fxDemo(fxSlot, channelMode);
+				//fxSlots[fxSlot] = new fxDemo(fxSlot, channelMode);
 				break;
 			default:
 				break;
