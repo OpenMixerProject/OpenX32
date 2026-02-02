@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Thu Jan  8 11:00:49 2026"
+-- CREATED		"Sun Feb  1 19:47:30 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -56,6 +56,7 @@ ENTITY main_lattice IS
 		aes50a_clk_a_rx_in :  IN  STD_LOGIC;
 		aes50a_clk_b_rx_in :  IN  STD_LOGIC;
 		PLL_AUX :  IN  STD_LOGIC;
+		CARD_RDY :  IN  STD_LOGIC;
 		PLL_nCS :  OUT  STD_LOGIC;
 		PLL_CCLK :  OUT  STD_LOGIC;
 		PLL_CDATA :  OUT  STD_LOGIC;
@@ -90,7 +91,6 @@ ENTITY main_lattice IS
 		AUX_DA_nCS :  OUT  STD_LOGIC;
 		DA_nRESET :  OUT  STD_LOGIC;
 		AD_nRESET :  OUT  STD_LOGIC;
-		CARD_nRESET :  OUT  STD_LOGIC;
 		PLL_IN :  OUT  STD_LOGIC;
 		SPI_MISO :  OUT  STD_LOGIC;
 		DSP_DIN0 :  OUT  STD_LOGIC;
@@ -181,6 +181,7 @@ COMPONENT uart_collector
 		 uart2_in : IN STD_LOGIC;
 		 uart3_in : IN STD_LOGIC;
 		 uart4_in : IN STD_LOGIC;
+		 card_rdy : IN STD_LOGIC;
 		 uart_out : OUT STD_LOGIC
 	);
 END COMPONENT;
@@ -594,6 +595,7 @@ PORT MAP(clk_in => clk_16MHz,
 		 uart2_in => AD0_RX,
 		 uart3_in => AD1_RX,
 		 uart4_in => CARD_RX,
+		 card_rdy => CARD_RDY,
 		 uart_out => imx25_uart3_rxd);
 
 
@@ -824,7 +826,6 @@ tdm_input(16) <= aes50a_tdm_out(2);
 tdm_input(17) <= aes50a_tdm_out(3);
 
 
-
 tdm_input(18) <= aes50a_tdm_out(4);
 
 
@@ -936,7 +937,6 @@ AUX_FSYNC <= tdm_fs;
 AUX_nRST <= online;
 DA_nRESET <= online;
 AD_nRESET <= online;
-CARD_nRESET <= online;
 PLL_IN <= clk_16MHz;
 DSP_DIN0 <= tdm_output(9);
 DSP_DIN1 <= tdm_output(10);

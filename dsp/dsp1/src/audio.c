@@ -64,7 +64,7 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 #pragma align 8 // align for 2 floats
 float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR]; // audioBuffer[TAPPOINT][SAMPLE][CHANNEL]
 float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
-float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
+//float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 float sampleBuffer[SAMPLES_IN_BUFFER]; // main channels can be calculated only after the other channels, so we can save some memory here
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
@@ -480,18 +480,35 @@ void audioProcessData(void) {
 	//				 |_|  |_|___/_/\_\____/ \___/|____/
 	// calculate mixbus
 
-	// the following code takes 30% DSP-Load for 16 Mix-Busses, so we reduce it to 8 at the moment
-	// the following code takes 15% DSP-Load for 8 Mix-Busses (obviously it scales pretty linear)
-	for (int i_mixbus = 0; i_mixbus < ACTIVE_MIX_BUSSES; i_mixbus++) {
-		// calculated summarized audio for each mixbus-channel
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			// vecdotf(const float dm a[],	const float dm b[], int samples) -> A dot B = A0*B0 + A1*B1 + A2*B2 + ...
-			audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MIXBUS + i_mixbus] = vecdotf(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMixbusVolume[i_mixbus][0], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN));
-		}
+	#if TEST_MATRIXMULTIPLICATION_MIXBUS == 1
+		// the following code takes slightly more DSP-cycles compared to the for-loop: 16% for 8 Mix-Busses
+		// but takes more RAM as we need a temporary variable of 16 * 8 = 128 floats
 
-		// TODO: process dynamics on mixbusses
-		// TODO: process 6-band PEQ on mixbusses
-	}
+		// output  = audio-output = mixbus[SAMPLES_IN_BUFFER][MIXBUSSES]
+		// input a = audio-input  = audioBuffer[TAP_PRE_FADER][SAMPLES_IN_BUFFER][CHANNEL_COUNT]
+		// input b = gain-coeff   = dsp.channelSendMixbusVolume[CHANNEL_COUNT][MIXBUSSES]
+		//                     output                                          input a                          input b                   a_rows                    a_cols                         b_cols
+		float mixbus[SAMPLES_IN_BUFFER][ACTIVE_MIX_BUSSES];
+		matmmltf(&mixbus[0][0], &audioBuffer[TAP_PRE_FADER][0][0], &dsp.channelSendMixbusVolume[0][0], SAMPLES_IN_BUFFER, MAX_CHAN_FPGA + MAX_DSP2_FXRETURN, ACTIVE_MIX_BUSSES);
+
+		// copy the samples to the desired destination
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MIXBUS], &mixbus[s][0], ACTIVE_MIX_BUSSES * sizeof(float));
+		}
+	#else
+		// the following code takes 30% DSP-Load for 16 Mix-Busses, so we reduce it to 8 at the moment
+		// the following code takes 15% DSP-Load for 8 Mix-Busses (obviously it scales pretty linear)
+		for (int i_mixbus = 0; i_mixbus < ACTIVE_MIX_BUSSES; i_mixbus++) {
+			// calculated summarized audio for each mixbus-channel
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				// vecdotf(const float dm a[],	const float dm b[], int samples) -> A dot B = A0*B0 + A1*B1 + A2*B2 + ...
+				audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MIXBUS + i_mixbus] = vecdotf(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMixbusVolume[i_mixbus][0], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN));
+			}
+
+			// TODO: process dynamics on mixbusses
+			// TODO: process 6-band PEQ on mixbusses
+		}
+	#endif
 /*
 	// the following code takes 30% DSP-Load for only 8 Mix-Busses, so vecdotf() seems to be a good choice here
 	// multiply mixbus-signals using SIMD-support

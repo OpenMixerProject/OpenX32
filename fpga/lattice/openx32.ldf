@@ -4,7 +4,7 @@
         <Option name="HDL type" value="VHDL"/>
     </Options>
     <Implementation title="impl1" dir="impl1" description="impl1" synthesis="synplify" default_strategy="Strategy1">
-        <Options def_top="wordclock" top="main_lattice"/>
+        <Options def_top="audioclk_slow" top="main_lattice"/>
         <Source name="../audioclk.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>

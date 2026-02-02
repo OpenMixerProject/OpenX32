@@ -10,6 +10,7 @@ entity uart_collector is
 		uart2_in	: in std_logic;
 		uart3_in	: in std_logic;
 		uart4_in	: in std_logic;
+		card_rdy : in std_logic;
 		
 		uart_out	: out std_logic
 	);
@@ -30,10 +31,11 @@ begin
 				uart1_missing <= not uart1_in;
 				uart2_missing <= not uart2_in;
 				uart3_missing <= not uart3_in;
-				uart4_missing <= not uart4_in;
 			end if;
 		end if;
 	end process;
+
+	uart4_missing <= not card_rdy;
 
 	uart_out <= (uart1_missing or uart1_in) and (uart2_missing or uart2_in) and (uart3_missing or uart3_in) and (uart4_missing or uart4_in);
 end Behavioral;

@@ -21,9 +21,9 @@ on the Quartus Prime software download page.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 184 160)
+	(rect 16 16 192 192)
 	(text "uart_collector" (rect 5 0 58 12)(font "Arial" ))
-	(text "inst" (rect 8 128 20 140)(font "Arial" ))
+	(text "inst" (rect 8 160 20 172)(font "Arial" ))
 	(port
 		(pt 0 32)
 		(input)
@@ -67,13 +67,20 @@ on the Quartus Prime software download page.
 		(line (pt 0 112)(pt 16 112)(line_width 1))
 	)
 	(port
-		(pt 168 32)
+		(pt 0 128)
+		(input)
+		(text "card_rdy" (rect 0 0 37 12)(font "Arial" ))
+		(text "card_rdy" (rect 21 123 58 135)(font "Arial" ))
+		(line (pt 0 128)(pt 16 128)(line_width 1))
+	)
+	(port
+		(pt 176 32)
 		(output)
 		(text "uart_out" (rect 0 0 33 12)(font "Arial" ))
-		(text "uart_out" (rect 114 27 147 39)(font "Arial" ))
-		(line (pt 168 32)(pt 152 32)(line_width 1))
+		(text "uart_out" (rect 122 27 155 39)(font "Arial" ))
+		(line (pt 176 32)(pt 160 32)(line_width 1))
 	)
 	(drawing
-		(rectangle (rect 16 16 152 128)(line_width 1))
+		(rectangle (rect 16 16 160 160)(line_width 1))
 	)
 )

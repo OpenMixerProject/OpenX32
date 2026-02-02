@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 01/09/2026 10:42:07
+-- /___/   /\     Timestamp : 02/01/2026 19:42:38
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -37,6 +37,7 @@ entity main is
           CARD_IN1        : in    std_logic; 
           CARD_IN2        : in    std_logic; 
           CARD_IN3        : in    std_logic; 
+          CARD_RDY        : in    std_logic; 
           CARD_RX         : in    std_logic; 
           DA_RX           : in    std_logic; 
           DSP_DOUTAUX     : in    std_logic; 
@@ -71,7 +72,6 @@ entity main is
           AUX_SCLK        : out   std_logic; 
           CARD_BCLK       : out   std_logic; 
           CARD_FSYNC      : out   std_logic; 
-          CARD_nRESET     : out   std_logic; 
           CARD_OUT0       : out   std_logic; 
           CARD_OUT1       : out   std_logic; 
           CARD_OUT2       : out   std_logic; 
@@ -246,6 +246,7 @@ architecture BEHAVIORAL of main is
              uart2_in : in    std_logic; 
              uart3_in : in    std_logic; 
              uart4_in : in    std_logic; 
+             card_rdy : in    std_logic; 
              uart_out : out   std_logic);
    end component;
    
@@ -427,10 +428,6 @@ begin
       port map (I=>online,
                 O=>AD_nRESET);
    
-   XLXI_575 : BUF
-      port map (I=>online,
-                O=>CARD_nRESET);
-   
    XLXI_580 : audiomatrix_ram_write
       port map (bclk=>clk_12_288MHz,
                 clk=>clk_24_576MHz,
@@ -490,7 +487,8 @@ begin
                 o_secpll_rst=>secpll_rst);
    
    XLXI_763 : uart_collector
-      port map (clk_in=>clk_16MHz,
+      port map (card_rdy=>CARD_RDY,
+                clk_in=>clk_16MHz,
                 rst_in=>rst,
                 uart1_in=>DA_RX,
                 uart2_in=>AD0_RX,

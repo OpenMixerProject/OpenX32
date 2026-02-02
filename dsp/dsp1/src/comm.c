@@ -182,7 +182,11 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				}
 
 				for (int i = 0; i < 16; i++) {
-					dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
+					#if TEST_MATRIXMULTIPLICATION_MIXBUS == 1
+						dsp.channelSendMixbusVolume[channel][i] = floatValues[i];
+					#else
+						dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
+					#endif
 				}
 			}
 			break;
