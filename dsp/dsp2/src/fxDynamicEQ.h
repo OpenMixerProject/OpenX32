@@ -3,7 +3,7 @@
 
 #include "fxBase.h"
 
-#define FX_DYNAMICEQ_BANDS	1	// 2 or 3 could be fine if we have enough program- and heap-memory available
+#define FX_DYNAMICEQ_BANDS	3	// 2 or 3 could be fine if we have enough program- and heap-memory available
 
 typedef struct {
 	// configuration-variables

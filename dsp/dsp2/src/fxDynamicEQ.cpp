@@ -39,19 +39,32 @@ fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 	for (int band = 0; band < FX_DYNAMICEQ_BANDS; band++) {
 		_deq[band].type = 1; // Peak-Filter
 		_deq[band].typeCtrl = 4; // Band-Pass-Filter
-		_deq[band].frequency = 1000; // 1kHz
-		_deq[band].staticGain = 0; // 0dB
-		_deq[band].maxDynamicGain = -5; // -5dB
+		_deq[band].maxDynamicGain = -10; // -10dB
 		_deq[band].Q = 1; // Q=1
 		_deq[band].threshold = -20; // -20dB
 		_deq[band].ratio = 2; // ratio: 1:2
 		_deq[band].attack = 0.006644493744965f; // 50ms
 		_deq[band].release = 0.0011104940557206f; // 300ms
+
+		if (band == 0) {
+			_deq[band].frequency = 300; // 300Hz
+			_deq[band].staticGain = 0; // 0dB
+		}
+		if (band == 1) {
+			_deq[band].frequency = 1000; // 1kHz
+			_deq[band].staticGain = 0; // 0dB
+		}
+		if (band == 2) {
+			_deq[band].frequency = 5000; // 5kHz
+			_deq[band].staticGain = 0; // 0dB
+		}
+
+		helperFcn_calcBiquadCoeffs(_deq[band].typeCtrl, _deq[band].frequency, 0.3, 1.0f, &_deq[band].biquadCoeffsCtrl[0], dsp.samplerate); // use a broad Q here
 	}
 
 	for (int i = 0; i < FX_DYNAMICEQ_BANDS; i++) {
 		// setup the smoothing-filter for the control-signal
-		_deq[i].smoothingCoeff = 0.001;	// coeff = 1 -> no smoothing, coeff = 0.001 -> slow response
+		_deq[i].smoothingCoeff = 0.1;	// coeff = 1 -> no smoothing, coeff = 0.001 -> slow response
 	    _deq[i].smoothedTargetGain = 0.0f;	// start-parameter
 	    _deq[i].envelope = 0.0f;
 	}
@@ -134,17 +147,21 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 		//
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
 			memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+
+			// TODO: check why the Bandpass is not working as expected...
 			memcpy(&peqCoeffs[0], &_deq[band].biquadCoeffsCtrl[0], 5 * sizeof(float));
 			biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStatesCtrl[i_ch][0], SAMPLES_IN_BUFFER, 1);
 		}
 
 		// Step 1.2: take the first sample of the filtered control-signal and update envelope
-		float ctrlSignalL = abs(bufOut[0][0]);
-		float ctrlSignalR = abs(bufOut[1][0]);
+		float ctrlSignalL = abs(bufOut[0][0]); // we are using the output-buffer as a temporary storage for the control-signal
+		float ctrlSignalR = abs(bufOut[1][0]); // we are using the output-buffer as a temporary storage for the control-signal
 		float ctrlSignal = ctrlSignalL;
 		if (ctrlSignalR > ctrlSignalL) {
 			ctrlSignal = ctrlSignalR;
 		}
+
+		ctrlSignal /= 2147483648.0f; // normalize control-signal between 0 and +1
 		if (ctrlSignal > _deq[band].envelope) {
 			_deq[band].envelope += _deq[band].attack * (ctrlSignal - _deq[band].envelope);
 		}else{
@@ -156,7 +173,7 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 
 		// Step 2: calculation of the gain-reduction
 		// ==============================================================
-		float envelope_dB = helperFcn_lin2db(_deq[band].envelope);
+		float envelope_dB = helperFcn_lin2db(_deq[band].envelope); // convert absolute value between 0 and 1 to -oodBfs and 0dBfs
 		float targetGain = 0.0f;
 
 		// if envelope is above threshold, change gain
@@ -167,7 +184,7 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 			float delta_dB = overshoot * (1.0f - (1.0f / _deq[band].ratio));
 
 			if (_deq[band].maxDynamicGain < 0) {
-				// compression-mode
+				// reduction-mode / compression-mode
 				targetGain = -delta_dB;
 
 				if (targetGain < _deq[band].maxDynamicGain) {
@@ -184,13 +201,33 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 		}
 		// Smooth the parameters with first-order low-pass
 		_deq[band].smoothedTargetGain = _deq[band].smoothedTargetGain + _deq[band].smoothingCoeff * (targetGain - _deq[band].smoothedTargetGain);
-
-
-
-		// Step 3: update coefficients and apply biquad-filter on all samples
-		// ==============================================================
-		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].smoothedTargetGain + _deq[band].staticGain, &peqCoeffs[5 * band], dsp.samplerate);
 	}
+
+
+
+	// Step 3: update coefficients and apply biquad-filter on all samples
+	// ==============================================================
+	#if FX_DYNAMICEQ_BANDS == 1
+		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].smoothedTargetGain + _deq[band].staticGain, &peqCoeffs[0], dsp.samplerate);
+	#elif FX_DYNAMICEQ_BANDS == 2
+		float peqCoeffsTmp[10];
+		helperFcn_calcBiquadCoeffs(_deq[0].type, _deq[0].frequency, _deq[0].Q, _deq[0].smoothedTargetGain + _deq[0].staticGain, &peqCoeffsTmp[0], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[1].type, _deq[1].frequency, _deq[1].Q, _deq[1].smoothedTargetGain + _deq[1].staticGain, &peqCoeffsTmp[5], dsp.samplerate);
+		for (int i = 0; i < 5; i++) {
+			peqCoeffs[i * 2] = peqCoeffsTmp[i];
+			peqCoeffs[(i * 2) + 1] = peqCoeffsTmp[5 + i];
+		}
+	#elif FX_DYNAMICEQ_BANDS == 3
+		float peqCoeffsTmp[10];
+		helperFcn_calcBiquadCoeffs(_deq[0].type, _deq[0].frequency, _deq[0].Q, _deq[0].smoothedTargetGain + _deq[0].staticGain, &peqCoeffsTmp[0], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[1].type, _deq[1].frequency, _deq[1].Q, _deq[1].smoothedTargetGain + _deq[1].staticGain, &peqCoeffsTmp[5], dsp.samplerate);
+		for (int i = 0; i < 5; i++) {
+			peqCoeffs[i * 2] = peqCoeffsTmp[i];
+			peqCoeffs[(i * 2) + 1] = peqCoeffsTmp[5 + i];
+		}
+		// last element is not interleaved
+		helperFcn_calcBiquadCoeffs(_deq[2].type, _deq[2].frequency, _deq[2].Q, _deq[2].smoothedTargetGain + _deq[2].staticGain, &peqCoeffs[10], dsp.samplerate);
+	#endif
 
 	for (int i_ch = 0; i_ch < 2; i_ch++) {
 		memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));

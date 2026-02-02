@@ -74,7 +74,7 @@ int pm audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX IN 0 1-8
 int pm audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // FX OUT 0 1-8 | FX OUT 1 1-8 | PLAY OUT 1-8
 
 // internal buffers for audio-samples
-float pm audioBuffer[5][MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
+float pm audioBuffer[2][MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 int pm audioRx_tcb[4][BUFFER_COUNT][4];
@@ -147,20 +147,20 @@ void audioInit(void) {
 		// route first two inputs to all effect-inputs
 		fxInBuf[0][0] = &audioBuffer[TAP_INPUT][0][0];
 		fxInBuf[0][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[1][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[1][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[2][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[2][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[3][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[3][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[4][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[4][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[5][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[5][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[6][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[6][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[7][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[7][1] = &audioBuffer[TAP_INPUT][1][0];
+		fxInBuf[1][0] = &audioBuffer[TAP_INPUT][2][0];
+		fxInBuf[1][1] = &audioBuffer[TAP_INPUT][3][0];
+		fxInBuf[2][0] = &audioBuffer[TAP_INPUT][4][0];
+		fxInBuf[2][1] = &audioBuffer[TAP_INPUT][5][0];
+		fxInBuf[3][0] = &audioBuffer[TAP_INPUT][6][0];
+		fxInBuf[3][1] = &audioBuffer[TAP_INPUT][7][0];
+		fxInBuf[4][0] = &audioBuffer[TAP_INPUT][8][0];
+		fxInBuf[4][1] = &audioBuffer[TAP_INPUT][9][0];
+		fxInBuf[5][0] = &audioBuffer[TAP_INPUT][10][0];
+		fxInBuf[5][1] = &audioBuffer[TAP_INPUT][11][0];
+		fxInBuf[6][0] = &audioBuffer[TAP_INPUT][12][0];
+		fxInBuf[6][1] = &audioBuffer[TAP_INPUT][13][0];
+		fxInBuf[7][0] = &audioBuffer[TAP_INPUT][14][0];
+		fxInBuf[7][1] = &audioBuffer[TAP_INPUT][15][0];
 
 		// route each effect-output to a dedicated DSP2 output
 		fxOutBuf[0][0] = &audioBuffer[TAP_OUTPUT][0][0];
@@ -212,6 +212,8 @@ void audioInit(void) {
 		//audioFxChangeSlot(5, 5, 2); // install MultibandCompressor on slot 5
 		//audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
 		//audioFxChangeSlot(7, 7, 2); // install demo-FX on slot 7
+
+		fxSlots[1] = new fxChorus(1, 2);
 	#endif
 }
 
@@ -259,7 +261,7 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 				fxSlots[fxSlot] = new fxDelay(fxSlot, channelMode);
 				break;
 			case 5:
-				fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode);
+				//fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode);
 				break;
 			case 6:
 				fxSlots[fxSlot] = new fxDynamicEQ(fxSlot, channelMode);

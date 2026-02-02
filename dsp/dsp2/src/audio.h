@@ -3,7 +3,7 @@
 
 #include "dsp2.h"
 
-extern float pm audioBuffer[5][MAX_CHAN][SAMPLES_IN_BUFFER];
+extern float pm audioBuffer[2][MAX_CHAN][SAMPLES_IN_BUFFER];
 
 #ifdef __cplusplus
 extern "C" {

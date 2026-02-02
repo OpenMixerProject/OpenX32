@@ -43,10 +43,14 @@ fxOverdrive::fxOverdrive(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 	_lpfInputCoef = 0.566911509014416f;
 	_lpfOutputCoef = 0.566911509014416f;
 
-	_hpfInputStateIn = 0;
-	_hpfInputStateOut = 0;
-	_lpfInputState = 0;
-	_lpfOutputState = 0;
+	_hpfInputStateIn[0] = 0;
+	_hpfInputStateOut[0] = 0;
+	_lpfInputState[0] = 0;
+	_lpfOutputState[0] = 0;
+	_hpfInputStateIn[1] = 0;
+	_hpfInputStateOut[1] = 0;
+	_lpfInputState[1] = 0;
+	_lpfOutputState[1] = 0;
 }
 
 fxOverdrive::~fxOverdrive() {
@@ -93,34 +97,37 @@ void fxOverdrive::rxData(float data[], int len) {
 
 void fxOverdrive::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		float signal = bufIn[0][s];
+		float signal[2];
+		signal[0] = bufIn[0][s];
+		signal[1] = bufIn[1][s];
 
-		// input lowpass: output = zoutput + coeff * (input - zoutput)
-		signal = _lpfInputState + _lpfInputCoef * (signal - _lpfInputState);
-		_lpfInputState = signal; // store zoutput
+		for (int i_ch = 0; i_ch < 2; i_ch++) {
+			// input lowpass: output = zoutput + coeff * (input - zoutput)
+			signal[i_ch] = _lpfInputState[i_ch] + _lpfInputCoef * (signal[i_ch] - _lpfInputState[i_ch]);
+			_lpfInputState[i_ch] = signal[i_ch]; // store zoutput
 
-		// input highpass: output = coeff * (zoutput + input - zinput)
-		float signalIn = signal;
-		signal = _hpfInputCoef * (_hpfInputStateOut + signal - _hpfInputStateIn);
-		_hpfInputStateOut = signal; // store zoutput
-		_hpfInputStateIn = signalIn; // store zinput
+			// input highpass: output = coeff * (zoutput + input - zinput)
+			float signalIn = signal[i_ch];
+			signal[i_ch] = _hpfInputCoef * (_hpfInputStateOut[i_ch] + signal[i_ch] - _hpfInputStateIn[i_ch]);
+			_hpfInputStateOut[i_ch] = signal[i_ch]; // store zoutput
+			_hpfInputStateIn[i_ch] = signalIn; // store zinput
 
-		// overdrive with asymmetrical clipping
-		signal = _preGain * signal;
-		float clipOut = _clipConst;
-		float denum = 1.0f - expf(-8.0f * (signal - _Q));
-		if (denum != 0) {
-			clipOut += (signal - _Q) / denum;
+			// overdrive with asymmetrical clipping
+			signal[i_ch] = _preGain * signal[i_ch];
+			float clipOut = _clipConst;
+			float denum = 1.0f - expf(-8.0f * (signal[i_ch] - _Q));
+			if (denum != 0) {
+				clipOut += (signal[i_ch] - _Q) / denum;
+			}
+
+			// output lowpass: output = zoutput + coeff * (input - zoutput)
+			// here high frequency-components after clipping will be removed
+			clipOut = _lpfOutputState[i_ch] + _lpfOutputCoef * (clipOut - _lpfOutputState[i_ch]);
+			_lpfOutputState[i_ch] = clipOut; // store zoutput
+
+			// limit output to +/-2^31
+			bufOut[i_ch][s] = fclipf(clipOut, 2147483647.0f);
 		}
-
-		// output lowpass: output = zoutput + coeff * (input - zoutput)
-		// here high frequency-components after clipping will be removed
-		clipOut = _lpfOutputState + _lpfOutputCoef * (clipOut - _lpfOutputState);
-		_lpfOutputState = clipOut; // store zoutput
-
-		// limit output to +/-2^31
-		bufOut[0][s] = clipOut;
-		bufOut[1][s] = clipOut;
 
 		// bypass
 		//bufOut[0][s] = bufIn[0][s];

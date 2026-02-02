@@ -17,10 +17,10 @@ class fxOverdrive : public fx {
     	float _lpfInputCoef;
     	float _lpfOutputCoef;
 
-    	float _hpfInputStateIn;
-    	float _hpfInputStateOut;
-    	float _lpfInputState;
-    	float _lpfOutputState;
+    	float _hpfInputStateIn[2];
+    	float _hpfInputStateOut[2];
+    	float _lpfInputState[2];
+    	float _lpfOutputState[2];
 
     	float _preGain;
     	float _Q;
