@@ -87,4 +87,9 @@ dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc > /
 echo "9/9 Creating DCP-Updater-File..."
 perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.run
 
+# Creating proper OpenX32 DCP-Image
+#mkdir -p ./imagedata/binary
+#cp /tmp/openx32.bin ./imagedata/binary/dcpapp.bin
+#dcp-tool -c ./dcp_corefs_openx32-alpha.run "OpenX32 Alpha - https://github.com/openmixerproject" imagedata
+
 echo "Done. Image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as /tmp/dcp_corefs_openx32.run"
