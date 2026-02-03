@@ -31,8 +31,6 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_comp;
     lv_obj_t *eqtab;
     lv_obj_t *current_channel_eq;
-    lv_obj_t *metertab;
-    lv_obj_t *page_meters;
     lv_obj_t *meters_1_8;
     lv_obj_t *meters_1_8__obj1;
     lv_obj_t *meters_1_8__obj1__meter;
