@@ -15,12 +15,12 @@ class FxBase : public X32Base {
         uint8_t GetParameterCount();
         MIXERPARAMETER GetParameterDefinition(uint8_t index);
 
-        void Load();
+        void InitParameters();
         
         virtual String GetName();
         
         float GetParameter(uint8_t parIdx);
-        void SetParameter(uint8_t parIdx, float value);
-        void ChangeParameter(uint8_t parIdx, int8_t amount);
-        void ResetParameter(uint8_t parIdx);
+        bool SetParameter(uint8_t parIdx, float value);
+        bool ChangeParameter(uint8_t parIdx, int8_t amount);
+        bool ResetParameter(uint8_t parIdx);
 };

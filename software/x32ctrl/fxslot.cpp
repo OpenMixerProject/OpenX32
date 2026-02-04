@@ -54,7 +54,7 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 			break;
 	}
 	if (fxToLoad != FX_TYPE_NONE) {
-		fx->Load();
+		fx->InitParameters();
 	}
 	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
 }

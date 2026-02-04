@@ -31,8 +31,8 @@ String FxBase::GetName() {
     return "";
 }
 
-void FxBase::Load() {
-    helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::Load");
+void FxBase::InitParameters() {
+    helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::InitParameters");
     
     // Load default values
     for (int p = 0; p < parameters.size(); p++) {
@@ -62,24 +62,29 @@ float FxBase::GetParameter(uint8_t parIdx) {
     return parameter_value[parIdx];
 }
 
-void FxBase::ChangeParameter(uint8_t parIdx, int8_t amount) {
+bool FxBase::ChangeParameter(uint8_t parIdx, int8_t amount) {
     if (parIdx < parameters.size()) {        
         // TODO: calculate change per amount from constant in mixerparameterdefinition
-        SetParameter(parIdx, parameter_value[parIdx] + amount);
+        return SetParameter(parIdx, parameter_value[parIdx] + amount);
     }
+    return false;
 }
 
-void FxBase::SetParameter(uint8_t parIdx, float value) {
+bool FxBase::SetParameter(uint8_t parIdx, float value) {
     if (parIdx < parameters.size()) {
         helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "%s parameterIdx=%d value=%f", GetName().c_str(), parIdx, (double)value);
                 
         parameter_value[parIdx] = value;
         state->SetChangeFlags(X32_MIXER_CHANGED_FX);
+
+        return true;
     }
+    return false;
 }
 
-void FxBase::ResetParameter(uint8_t parIdx) {
+bool FxBase::ResetParameter(uint8_t parIdx) {
     if (parIdx < parameters.size()) {
-        SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx]).float_value_default);
+        return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx]).float_value_default);
     }
+    return false;
 }

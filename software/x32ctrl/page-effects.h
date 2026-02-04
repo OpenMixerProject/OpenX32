@@ -15,19 +15,6 @@ class PageEffects: public Page {
             led = X32_BTN_EFFECTS;
         }
 
-        void OnInit() override {
-
-            // DEBUG
-            mixer->dsp->fx_slot[0]->LoadFx(FX_TYPE_REVERB);            
-            mixer->dsp->fx_slot[1]->LoadFx(FX_TYPE_CHORUS);    
-            mixer->dsp->fx_slot[2]->LoadFx(FX_TYPE_TRANSIENTSHAPER);
-            mixer->dsp->fx_slot[3]->LoadFx(FX_TYPE_DELAY);
-            mixer->dsp->fx_slot[4]->LoadFx(FX_TYPE_NONE);
-            mixer->dsp->fx_slot[5]->LoadFx(FX_TYPE_NONE);        
-            mixer->dsp->fx_slot[6]->LoadFx(FX_TYPE_NONE);        
-            mixer->dsp->fx_slot[7]->LoadFx(FX_TYPE_NONE);        
-        }
-
         void OnShow() override {
             lv_table_set_column_count(objects.fxtable, MAX_FX_SLOTS);
             for (uint8_t i = 0; i < MAX_FX_SLOTS; i++) {

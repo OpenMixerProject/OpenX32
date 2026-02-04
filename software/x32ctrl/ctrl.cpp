@@ -88,6 +88,17 @@ void X32Ctrl::Init(){
 	//#     Common to all                                                        #
 	//#                                                                          #
 			SetSelect(0, true);
+
+			// Just load a default set of FXes
+			// TODO: Save and Load
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE_REVERB, 2);
+            mixer->dsp->DSP2_SetFx(1, FX_TYPE_CHORUS, 2);
+            mixer->dsp->DSP2_SetFx(2, FX_TYPE_TRANSIENTSHAPER, 2);
+            mixer->dsp->DSP2_SetFx(3, FX_TYPE_DELAY, 2);
+            mixer->dsp->DSP2_SetFx(4, FX_TYPE_NONE, 2);
+            mixer->dsp->DSP2_SetFx(5, FX_TYPE_NONE, 2);
+            mixer->dsp->DSP2_SetFx(6, FX_TYPE_NONE, 2);
+            mixer->dsp->DSP2_SetFx(7, FX_TYPE_NONE, 2);
 	//#                                                                          #
 	//############################################################################
     //#                                                                          #
@@ -95,6 +106,8 @@ void X32Ctrl::Init(){
 	//#                                                                          #
 	//############################################################################
 	
+
+	// Config
 	if(helper->GetFileSize(X32_MIXER_CONFIGFILE) == -1)	{
 		// create new ini file
 		helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "no %s found, creating one", X32_MIXER_CONFIGFILE);

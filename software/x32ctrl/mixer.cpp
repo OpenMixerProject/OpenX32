@@ -1543,16 +1543,20 @@ void Mixer::ResetFxParameter(uint fxIdx, uint parIdx) {
     FxSlot* f = dsp->fx_slot[fxIdx];
     if (f->HasFx())
     {
-        f->fx->ResetParameter(parIdx);
+        if (f->fx->ResetParameter(parIdx)) {
+            dsp->DSP2_SendFxParameter(fxIdx);
+        }
     }
 }
 
 
 void Mixer::ChangeFxParameter(uint fxIdx, uint parIdx, int8_t amount) {
-    FxSlot* f = dsp->fx_slot[fxIdx];
-    if (f->HasFx())
+    FxSlot* slot = dsp->fx_slot[fxIdx];
+    if (slot->HasFx())
     {
-        f->fx->ChangeParameter(parIdx, amount);
+        if (slot->fx->ChangeParameter(parIdx, amount)) {
+            dsp->DSP2_SendFxParameter(fxIdx);
+        }
     }
 }
 
