@@ -985,33 +985,40 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
     float freq[4];
 
     switch(fx_slot[slotIdx]->fxType) {
-        case FX_TYPE_REVERB: //                     roomSizeMs rt60   lpfFreq   dry  wet
+        case FX_TYPE_REVERB:
             fxmath->fxCalcParameters_Reverb(&values[0], 
-                fx_slot[slotIdx]->fx->GetParameter(0),
-                fx_slot[slotIdx]->fx->GetParameter(1),
-                fx_slot[slotIdx]->fx->GetParameter(2),
-                fx_slot[slotIdx]->fx->GetParameter(3),
-                fx_slot[slotIdx]->fx->GetParameter(4)
+                fx_slot[slotIdx]->fx->GetParameter(0), // roomSizeMs
+                fx_slot[slotIdx]->fx->GetParameter(1), // rt60
+                fx_slot[slotIdx]->fx->GetParameter(2), // lpfFreq
+                fx_slot[slotIdx]->fx->GetParameter(3), // dry
+                fx_slot[slotIdx]->fx->GetParameter(4)  // wet
             );
             valueCount = 6;
             spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case FX_TYPE_CHORUS: //                           depth           delay          phase          freq          mix
-            depth[0] = 10;
-            depth[1] = 10;
-            delayMs[0] = 15;
-            delayMs[1] = 20;
-            phase[0] = 0;
-            phase[0] = 0;
-            freq[0] = 1.5;
-            freq[1] = 1.6;
+        case FX_TYPE_CHORUS:
+            depth[0] = fx_slot[slotIdx]->fx->GetParameter(0);
+            delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(1);
+            phase[0] = fx_slot[slotIdx]->fx->GetParameter(2);
+            freq[0] = fx_slot[slotIdx]->fx->GetParameter(3);
+            depth[1] = fx_slot[slotIdx]->fx->GetParameter(4);
+            delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(5);
+            phase[1] = fx_slot[slotIdx]->fx->GetParameter(6);
+            freq[1] = fx_slot[slotIdx]->fx->GetParameter(7);
             
-            fxmath->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, 0.5f);
+            fxmath->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, fx_slot[slotIdx]->fx->GetParameter(7));
             valueCount = 9;
             spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case FX_TYPE_TRANSIENTSHAPER: //          tFastMs tMediumMs tSlowMs attack sustain delayMs
-            fxmath->fxCalcParameters_TransientShaper(&values[0], 1, 15, 150, 3, 1, 1);
+        case FX_TYPE_TRANSIENTSHAPER:
+            fxmath->fxCalcParameters_TransientShaper(&values[0],
+                fx_slot[slotIdx]->fx->GetParameter(0), // tFastMs
+                fx_slot[slotIdx]->fx->GetParameter(1), // tMediumMs
+                fx_slot[slotIdx]->fx->GetParameter(2), // tSlowMs
+                fx_slot[slotIdx]->fx->GetParameter(3), // attack
+                fx_slot[slotIdx]->fx->GetParameter(4), // sustain
+                fx_slot[slotIdx]->fx->GetParameter(5)  // delayMs
+                );
             valueCount = 6;
             spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
             break;
@@ -1021,8 +1028,8 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
             spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case FX_TYPE_DELAY:
-            delayMs[0] = 350;
-            delayMs[1] = 450;
+            delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(0);
+            delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(1);
             fxmath->fxCalcParameters_Delay(&values[0], delayMs);
             valueCount = 2;
             spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
