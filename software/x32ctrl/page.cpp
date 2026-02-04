@@ -128,6 +128,14 @@ X32_BTN Page::GetLed() {
 }
 
 void Page::SetEncoder(uint8_t encoder, MIXERPARAMETER mp) {
+
+    if (mp == MIXERPARAMETER_NONE) {
+        encoderSliders[encoder].label = "";
+        encoderSliders[encoder].slider_hidden = true;
+        encoderSliders[encoder].label_buttonpress = "";
+        return;
+    }
+
     encoderMixerparameterDefinition[encoder] = mixer->mixerparametermap[mp];
     MixerparameterDefinition mpd = encoderMixerparameterDefinition[encoder];
 

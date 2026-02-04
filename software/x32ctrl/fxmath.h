@@ -5,9 +5,13 @@
 #include "base.h"
 #include "defines.h"
 
-class FX : X32Base {
+#include "fxslot.h"
+
+class FxMath : X32Base {
+
     public:
-        FX(X32BaseParameter* basepar);
+
+        FxMath(X32BaseParameter* basepar);
         void RecalcFilterCoefficients_PEQ(sPEQ* peq);
         float CalcFrequencyResponse_LC(float f, float fc, float fs);
         float CalcFrequencyResponse_HC(float f, float fc, float fs);

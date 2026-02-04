@@ -346,6 +346,7 @@ typedef struct _objects_t {
     lv_obj_t *setuptab;
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
+    lv_obj_t *fxtable;
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;
@@ -408,6 +409,9 @@ void tick_user_widget_config_slider_display_encoder(int startWidgetIndex);
 
 void create_user_widget_config_slider(lv_obj_t *parent_obj, int startWidgetIndex);
 void tick_user_widget_config_slider(int startWidgetIndex);
+
+void create_user_widget_widget_fx(lv_obj_t *parent_obj, int startWidgetIndex);
+void tick_user_widget_widget_fx(int startWidgetIndex);
 
 void tick_screen_by_id(enum ScreensEnum screenId);
 void tick_screen(int screen_index);

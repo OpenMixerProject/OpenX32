@@ -670,6 +670,9 @@ void X32Ctrl::ShowNextPage(void){
 	X32_PAGE nextPage = pages[state->activePage]->GetNextPage();
 	if (nextPage != X32_PAGE_NONE){
 	 	ShowPage(nextPage);
+	} else {
+		// if theres is no next page, send button press to page
+		pages[state->activePage]->OnDisplayButton(X32_BTN_RIGHT, true);
 	}
 }
 
@@ -677,6 +680,9 @@ void X32Ctrl::ShowPrevPage(void){
 	X32_PAGE prevPage = pages[state->activePage]->GetPrevPage();
 	if (prevPage != X32_PAGE_NONE){
 	 	ShowPage(prevPage);
+	} else {
+		// if theres is no prev page, send button press to page
+		pages[state->activePage]->OnDisplayButton(X32_BTN_LEFT, true);
 	}
 }
 

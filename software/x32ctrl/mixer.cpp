@@ -1029,7 +1029,7 @@ void Mixer::SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float va
                 }
                 break;
         }
-        dsp->fx->RecalcFilterCoefficients_PEQ(peq);
+        dsp->fxmath->RecalcFilterCoefficients_PEQ(peq);
 
         chan->SetChanged(X32_VCHANNEL_CHANGED_EQ);
     }
@@ -1533,6 +1533,19 @@ void Mixer::DebugPrintvChannels(void){
 }
 
 
+// ##     ## #### ##      ## ######## ########  ########     ###    ########     ###    ##     ## ######## ######## ######## ########  
+// ###   ###  ##   ##    ##  ##       ##     ## ##     ##   ## ##   ##     ##   ## ##   ###   ### ##          ##    ##       ##     ## 
+// #### ####  ##    ##  ##   ##       ##     ## ##     ##  ##   ##  ##     ##  ##   ##  #### #### ##          ##    ##       ##     ## 
+// ## ### ##  ##     ####    ######   ########  ########  ##     ## ########  ##     ## ## ### ## ######      ##    ######   ########  
+// ##     ##  ##    ##  ##   ##       ##   ##   ##        ######### ##   ##   ######### ##     ## ##          ##    ##       ##   ##   
+// ##     ##  ##   ##    ##  ##       ##    ##  ##        ##     ## ##    ##  ##     ## ##     ## ##          ##    ##       ##    ##  
+// ##     ## #### ##      ## ######## ##     ## ##        ##     ## ##     ## ##     ## ##     ## ########    ##    ######## ##     ## 
+
+
+MixerparameterDefinition Mixer::GetMixerparameterDefinition(MIXERPARAMETER mp){
+    return mixerparametermap[mp];
+}
+
 void Mixer::InitMixerparameters() {
 
     // generic
@@ -1575,4 +1588,22 @@ void Mixer::InitMixerparameters() {
     mixerparametermap[MIXERPARAMETER_DYNAMICS_HOLD].SetMinMaxStandard_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
     mixerparametermap[MIXERPARAMETER_DYNAMICS_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
     mixerparametermap[MIXERPARAMETER_DYNAMICS_RELEASE].SetMinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
+
+    // fx
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_ROOMSIZE] = MixerparameterDefinition("Roomsize", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_ROOMSIZE].SetMinMaxStandard_Float(FX_REVERB_ROOMSIZE_MIN, FX_REVERB_ROOMSIZE_MAX, FX_REVERB_ROOMSIZE_DEFAULT, 0);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_RT60] = MixerparameterDefinition("RT60", MIXERPARAMETER_UOM_S, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_RT60].SetMinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_LPFREQ] = MixerparameterDefinition("LowPass", MIXERPARAMETER_UOM_KHZ, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_LPFREQ].SetMinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 1);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_DRY] = MixerparameterDefinition("Dry", MIXERPARAMETER_UOM_PERCENT, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_DRY].SetMinMaxStandard_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT, 0);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_WET] = MixerparameterDefinition("Wet", MIXERPARAMETER_UOM_PERCENT, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_FX_REVERB_WET].SetMinMaxStandard_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT, 0);
+
+    mixerparametermap[MIXERPARAMETER_FX_CHORUS_DEPTH_A] = MixerparameterDefinition("Depth A", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_FX_CHORUS_DEPTH_A].SetMinMaxStandard_Float(FX_CHORUS_DEPTH_A_MIN, FX_CHORUS_DEPTH_A_MAX, FX_CHORUS_DEPTH_A_DEFAULT, 0);
+    mixerparametermap[MIXERPARAMETER_FX_CHORUS_DEPTH_B] = MixerparameterDefinition("Depth B", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mixerparametermap[MIXERPARAMETER_FX_CHORUS_DEPTH_B].SetMinMaxStandard_Float(FX_CHORUS_DEPTH_B_MIN, FX_CHORUS_DEPTH_B_MAX, FX_CHORUS_DEPTH_B_DEFAULT, 0);
+    // TODO: CHORUS and other FXes
 }

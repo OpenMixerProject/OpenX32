@@ -24,6 +24,7 @@
 #define SURFACE_MAX_PACKET_LENGTH 32
 #define MAX_PAGES 20
 
+#define MAX_DISPLAY_ENCODER 6
 #define DISPLAY_ENCODER_1   0
 #define DISPLAY_ENCODER_2   1
 #define DISPLAY_ENCODER_3   2
@@ -75,6 +76,29 @@
 #define DYNAMICS_RELEASE_MIN          14.0f // ms
 #define DYNAMICS_RELEASE_MAX        4000.0f // ms
 
+#define MAX_FX_SLOTS                    8
+
+#define FX_REVERB_ROOMSIZE_MIN         0.0f // ms
+#define FX_REVERB_ROOMSIZE_DEFAULT   150.0f // ms
+#define FX_REVERB_ROOMSIZE_MAX      1000.0f // ms
+#define FX_REVERB_RT60_MIN             0.0f // s
+#define FX_REVERB_RT60_DEFAULT         3.0f // s
+#define FX_REVERB_RT60_MAX           100.0f // s
+#define FX_REVERB_LPFREQ_MIN           0.0f // Hz
+#define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
+#define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
+#define FX_REVERB_DRY_MIN              0.0f //
+#define FX_REVERB_DRY_DEFAULT          1.0f //
+#define FX_REVERB_DRY_MAX              1.0f //
+
+#define FX_CHORUS_DEPTH_A_MIN          0.0f //
+#define FX_CHORUS_DEPTH_A_DEFAULT     10.0f //
+#define FX_CHORUS_DEPTH_A_MAX        100.0f //
+#define FX_CHORUS_DEPTH_B_MIN          0.0f //
+#define FX_CHORUS_DEPTH_B_DEFAULT     10.0f //
+#define FX_CHORUS_DEPTH_B_MAX        100.0f //
+
+
 #define MAX_CHAN_EQS                       4
 
 #define NUM_INPUT_CHANNEL                  160 // just use a single AES50-port for now
@@ -121,6 +145,7 @@ typedef unsigned short x32_changeflag;
 #define X32_MIXER_CHANGED_CARD             0b0000010000000000
 #define X32_MIXER_CHANGED_LCD_CONTENT      0b0000100000000000
 #define X32_MIXER_CHANGED_LED_BRIGHTNESS   0b0001000000000000
+#define X32_MIXER_CHANGED_FX               0b0010000000000000
 
 #define SURFACE_COLOR_BLACK 0
 #define SURFACE_COLOR_RED 1

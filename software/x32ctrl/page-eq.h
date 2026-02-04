@@ -145,12 +145,12 @@ class PageEq: public Page {
                 freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
 
                 // LowCut
-                eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_LC(freq, mixer->dsp->Channel[selectedChannelIndex].lowCutFrequency, config->GetSamplerate());
+                eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_LC(freq, mixer->dsp->Channel[selectedChannelIndex].lowCutFrequency, config->GetSamplerate());
 
                 // PEQ
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
                     peq = &mixer->dsp->Channel[config->selectedVChannel].peq[i_peq];
-                    eqValue[pixel] += mixer->dsp->fx->CalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, config->GetSamplerate());
+                    eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, config->GetSamplerate());
                 }
 
                 // draw point
@@ -163,12 +163,12 @@ class PageEq: public Page {
                 freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
                 float phase = 0.0f;
                 // LowCut
-                phase += mixer->dsp->fx->CalcPhaseResponse_LC(freq, mixer->dsp->Channel[selectedChannelIndex].lowCutFrequency);
+                phase += mixer->dsp->fxmath->CalcPhaseResponse_LC(freq, mixer->dsp->Channel[selectedChannelIndex].lowCutFrequency);
 
                 // PEQ  
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
                     peq = &mixer->dsp->Channel[config->selectedVChannel].peq[i_peq];
-                    phase += mixer->dsp->fx->CalcPhaseResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], 1.0f, peq->b[1], peq->b[2], freq, config->GetSamplerate());
+                    phase += mixer->dsp->fxmath->CalcPhaseResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], 1.0f, peq->b[1], peq->b[2], freq, config->GetSamplerate());
                 }
 
                 // limit phase to +/- PI

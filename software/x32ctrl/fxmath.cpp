@@ -22,11 +22,11 @@
   GNU General Public License for more details.
 */
 
-#include "fx.h"
+#include "fxmath.h"
 
-FX::FX(X32BaseParameter* basepar) : X32Base(basepar){}
+FxMath::FxMath(X32BaseParameter* basepar) : X32Base(basepar){ }
 
-void FX::RecalcFilterCoefficients_PEQ(sPEQ* peq) {
+void FxMath::RecalcFilterCoefficients_PEQ(sPEQ* peq) {
   // Online-Calculator: https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3
   // Source: https://www.earlevel.com/main/2012/11/26/biquad-c-source-code
   // Alternative Source: https://gcradix.de/an-introduction-to-biquad-filters (Caution: calculation of Notch-Coefficients is wrong)
@@ -133,16 +133,16 @@ void FX::RecalcFilterCoefficients_PEQ(sPEQ* peq) {
   }
 }
 
-float FX::CalcFrequencyResponse_LC(float f, float fc, float fs) {
+float FxMath::CalcFrequencyResponse_LC(float f, float fc, float fs) {
   float numerator = f / fc;
   return 10.0f * log10( numerator / sqrt(1 + numerator * numerator) );
 }
 
-float FX::CalcFrequencyResponse_HC(float f, float fc, float fs) {
+float FxMath::CalcFrequencyResponse_HC(float f, float fc, float fs) {
   return 10.0f * log10( 1.0f/sqrt( 1.0f + pow(f/fc, 2.0f) ) );
 }
 
-float FX::CalcFrequencyResponse_PEQ(float a0, float a1, float a2,  float b1, float b2, float f, float fs) {
+float FxMath::CalcFrequencyResponse_PEQ(float a0, float a1, float a2,  float b1, float b2, float f, float fs) {
   float omega = (2.0f * PI * f) / fs;
   float phi = (1.0f - cosf(omega)) * 0.5f;
   float p_phi = phi * phi;
@@ -171,16 +171,16 @@ float FX::CalcFrequencyResponse_PEQ(float a0, float a1, float a2,  float b1, flo
 */
 }
 
-float FX::CalcPhaseResponse_LC(float f, float fc) {
+float FxMath::CalcPhaseResponse_LC(float f, float fc) {
     // Phase = arctan(fc / f)
     return atan2f(fc, f);
 }
-float FX::CalcPhaseResponse_HC(float f, float fc) {
+float FxMath::CalcPhaseResponse_HC(float f, float fc) {
     // Phase = arctan(-f / fc)
     return atan2f(-f, fc);
 }
 
-float FX::CalcPhaseResponse_PEQ(float a0, float a1, float a2, float b0, float b1, float b2, float f, float fs) {
+float FxMath::CalcPhaseResponse_PEQ(float a0, float a1, float a2, float b0, float b1, float b2, float f, float fs) {
   float omega = (2.0f * PI * f) / fs;
   float sin_omega = sinf(omega);
   float cos_omega = cosf(omega);
@@ -193,7 +193,7 @@ float FX::CalcPhaseResponse_PEQ(float a0, float a1, float a2, float b0, float b1
   return atan2f(num_imag, num_real) - atan2f(den_imag, den_real);
 }
 
-void FX::RecalcFilterCoefficients_LR12(sLR12* LR12) {
+void FxMath::RecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;
   double wc22 = 2.0 * wc2;
@@ -220,7 +220,7 @@ void FX::RecalcFilterCoefficients_LR12(sLR12* LR12) {
   LR12->b[2] = (-wck2 + k2 + wc2) * norm;
 }
 
-void FX::RecalcFilterCoefficients_LR24(sLR24* LR24) {
+void FxMath::RecalcFilterCoefficients_LR24(sLR24* LR24) {
   double wc = 2.0 * PI * LR24->fc;
   double wc2 = wc * wc;
   double wc3 = wc2 * wc;
@@ -256,7 +256,7 @@ void FX::RecalcFilterCoefficients_LR24(sLR24* LR24) {
   LR24->b[4] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) * norm;
 }
 
-void FX::RecalcGate(sGate* gate) {
+void FxMath::RecalcGate(sGate* gate) {
 	float samplerate = config->GetSamplerate()/(float)DSP_SAMPLES_IN_BUFFER;
 
 	gate->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, gate->threshold/20.0f);
@@ -271,7 +271,7 @@ void FX::RecalcGate(sGate* gate) {
 	gate->value_coeff_release = exp(-2197.22457734f/(samplerate * gate->releaseTime_ms));
 }
 
-void FX::RecalcCompressor(sCompressor* compressor) {
+void FxMath::RecalcCompressor(sCompressor* compressor) {
 	float samplerate = config->GetSamplerate()/(float)DSP_SAMPLES_IN_BUFFER;
 
 	compressor->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, compressor->threshold/20.0f);
@@ -285,7 +285,7 @@ void FX::RecalcCompressor(sCompressor* compressor) {
 	compressor->value_coeff_release = exp(-2197.22457734f/(samplerate * compressor->releaseTime_ms));
 }
 
-void FX::fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
+void FxMath::fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
   float samplerate = config->GetSamplerate();
 
   data[0] = pow(10, (-60.0f / (rt60 / (roomSizeMs * 1.5f * 0.001f))) / 20.0f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
@@ -296,7 +296,7 @@ void FX::fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, flo
   data[5] = (roomSizeMs * samplerate / 1000.0f);
 }
 
-void FX::fxCalcParameters_Chorus(float data[], float depth[2], float delayMs[2], float phase[2], float freq[2], float mix) {
+void FxMath::fxCalcParameters_Chorus(float data[], float depth[2], float delayMs[2], float phase[2], float freq[2], float mix) {
   float samplerate = config->GetSamplerate();
 
   data[0] = depth[0];
@@ -310,7 +310,7 @@ void FX::fxCalcParameters_Chorus(float data[], float depth[2], float delayMs[2],
   data[8] = mix;
 }
 
-void FX::fxCalcParameters_TransientShaper(float data[], float tFastMs, float tMediumMs, float tSlowMs, float attack, float sustain, float delayMs) {
+void FxMath::fxCalcParameters_TransientShaper(float data[], float tFastMs, float tMediumMs, float tSlowMs, float attack, float sustain, float delayMs) {
   float samplerate = config->GetSamplerate();
 
 	data[0] = 1.0f - exp(-1.0f / (samplerate * (tFastMs / 1000.0f))); // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
@@ -321,7 +321,7 @@ void FX::fxCalcParameters_TransientShaper(float data[], float tFastMs, float tMe
   data[5] = (delayMs * samplerate / 1000.0f); // 1ms
 }
 
-void FX::fxCalcParameters_Overdrive(float data[], float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
+void FxMath::fxCalcParameters_Overdrive(float data[], float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
   float samplerate = config->GetSamplerate();
 
 	data[0] = preGain;
@@ -337,14 +337,14 @@ void FX::fxCalcParameters_Overdrive(float data[], float preGain, float Q, float 
 	data[5] = (2.0f * PI * lpfOutputFreq) / (samplerate + 2.0f * PI * lpfOutputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
 }
 
-void FX::fxCalcParameters_Delay(float data[], float delayMs[2]) {
+void FxMath::fxCalcParameters_Delay(float data[], float delayMs[2]) {
   float samplerate = config->GetSamplerate();
 
   data[0] = (delayMs[0] * samplerate / 1000.0f);
   data[1] = (delayMs[1] * samplerate / 1000.0f);
 }
 
-void FX::fxCalcParameters_MultibandCompressor(float data[], int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup) {
+void FxMath::fxCalcParameters_MultibandCompressor(float data[], int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup) {
   float samplerate = config->GetSamplerate() / 16.0f;
 
   data[0] = channel;
@@ -357,7 +357,7 @@ void FX::fxCalcParameters_MultibandCompressor(float data[], int channel, int ban
 	data[7] = pow(10.0f, makeup / 20.0f);
 }
 
-void FX::fxCalcParameters_MultibandCompressorFreq(float data[], int channel, float freq[4]) {
+void FxMath::fxCalcParameters_MultibandCompressorFreq(float data[], int channel, float freq[4]) {
   // Band 1: calculate coeffs for high-cut
   // Band 2..4: calculate coeffs for low- and high-cut
   // Band 5: calculate coeffs for low-cut
@@ -421,7 +421,7 @@ void FX::fxCalcParameters_MultibandCompressorFreq(float data[], int channel, flo
   data[40] = -peq.b[2];
 }
 
-void FX::fxCalcParameters_DynamicEQ(float data[], int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release) {
+void FxMath::fxCalcParameters_DynamicEQ(float data[], int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release) {
   data[0] = band;
   data[1] = type;
 

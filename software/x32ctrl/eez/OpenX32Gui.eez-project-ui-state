@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/2",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/6",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/2/childStyles/1",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/1",
     "subnavigationSelectedItems": {}
@@ -133,7 +133,8 @@
                 {
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
-                  "weight": 0.5349578312360117,
+                  "weight": 0.9596508684564427,
+                  "selected": 1,
                   "enableClose": false,
                   "children": [
                     {
@@ -165,7 +166,7 @@
                 {
                   "type": "tabset",
                   "id": "#53535229-d14c-4d96-897c-ebfec499b8c9",
-                  "weight": 1.9296693198156136,
+                  "weight": 1.5049762825951831,
                   "enableClose": false,
                   "children": [
                     {
@@ -207,10 +208,10 @@
                 {
                   "type": "tab",
                   "id": "#255e2ff2-91c1-4f6d-a2c2-ef86a1fb5d65",
-                  "name": "ms_bar",
+                  "name": "widget_fx",
                   "component": "editor",
                   "config": {
-                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/2",
+                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/6",
                     "permanent": false
                   },
                   "icon": "svg:user_widget"
@@ -977,14 +978,9 @@
       "selection": {
         "0": {
           "1": {
-            "3": {
-              "0": {
-                "0": {},
-                "1": {
-                  "1": {
-                    "$selected": true
-                  }
-                }
+            "5": {
+              "1": {
+                "$selected": true
               }
             }
           },
@@ -993,8 +989,8 @@
       },
       "transform": {
         "translate": {
-          "x": -398.0667339515013,
-          "y": -278.19463141945596
+          "x": -367.0397498245171,
+          "y": -143.56129808612275
         },
         "scale": 1
       },
@@ -1096,6 +1092,22 @@
         "secondToPx": 200,
         "scrollLeft": 0
       }
+    },
+    "[OpenX32Gui.eez-project]:/userWidgets/6[flow-state]": {
+      "selection": {},
+      "transform": {
+        "translate": {
+          "x": -400,
+          "y": -240
+        },
+        "scale": 1
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
     }
   },
   "activeOutputSection": 0,
@@ -1113,8 +1125,7 @@
   "lvglPart": "INDICATOR",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "TEXT",
-    "LINE"
+    "MISCELLANEOUS"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,

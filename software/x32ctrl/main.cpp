@@ -317,6 +317,7 @@ int main(int argc, char* argv[]) {
 	sigIntHandler.sa_flags = 0;
 	sigaction(SIGINT, &sigIntHandler, NULL);
     
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ctrl->Init()");
 	ctrl->Init();  // initialize the whole thing and load config
 
 	if (config->IsModelX32Core()){

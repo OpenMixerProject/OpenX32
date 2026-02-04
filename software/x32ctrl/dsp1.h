@@ -6,7 +6,7 @@
 
 #include "base.h"
 #include "spi.h"
-#include "fx.h"
+#include "fxmath.h"
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
@@ -48,8 +48,10 @@ class DSP1 : X32Base {
         float volumeSpecial;
         float monitorVolume;
 
-        FX* fx;
+        FxMath* fxmath;
         SPI* spi;
+
+        FxSlot* fx_slot[MAX_FX_SLOTS];
 
         DSP1(X32BaseParameter* basepar);
         void Init(void);
@@ -84,7 +86,7 @@ class DSP1 : X32Base {
         void UpdateVuMeter();
         uint8_t GetPeak(int i, uint8_t steps);
 
-        void DSP2_SetFx(int fxSlot, int fxType, int mode);
+        void DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode);
         void DSP2_SendFxParameter(int fxSlot);
 
         void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);

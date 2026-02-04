@@ -64,6 +64,7 @@ class Mixer : public X32Base
         void SetLowcut(uint8_t vChannelIndex, float lowCutFrequency);
         void SetDynamics(uint8_t vChannelIndex, char option, float value);
         void SetCardChannelMode(uint8_t mode);
+        void SetFxParameter(uint fxSlot, MIXERPARAMETER par, void* value);  
 
         void TogglePhantom(uint8_t vChannelIndex);
         void TogglePhaseInvert(uint8_t vChannelIndex);

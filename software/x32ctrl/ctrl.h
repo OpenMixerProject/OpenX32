@@ -74,7 +74,6 @@ class X32Ctrl : public X32Base {
         sBankMode modes[3];
 
         map<X32_PAGE, Page*> pages;
-        //map<X32_PAGE, void (X32Ctrl::*) PAGE_FUNC_BASE > pagefunctions;
 
         sTouchControl touchcontrol;
 
