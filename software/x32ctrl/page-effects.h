@@ -146,18 +146,13 @@ class PageEffects: public Page {
                         }
                         state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
                         break;
-                    case X32_BTN_ENCODER1:
-                        break;
+                    case X32_BTN_ENCODER1:                      
                     case X32_BTN_ENCODER2:
-                        break;
                     case X32_BTN_ENCODER3:
-                        break;
                     case X32_BTN_ENCODER4:
-                        break;
                     case X32_BTN_ENCODER5:
-                        break;
                     case X32_BTN_ENCODER6:
-                        break;
+                        mixer->ResetFxParameter(selectedFx, (banking * 6) + (button - X32_BTN_ENCODER1));
                     default:
                         // just here to avoid compiler warnings
                         break;
@@ -166,27 +161,14 @@ class PageEffects: public Page {
         }
 
         void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {
-            
-            
-
             switch (encoder){
                 case X32_ENC_ENCODER1:
-                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 0, amount);
-                    break;
                 case X32_ENC_ENCODER2:
-                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 1, amount);
-                    break;
                 case X32_ENC_ENCODER3:
-                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 2, amount);
-                    break;
                 case X32_ENC_ENCODER4:
-                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 3, amount);
-                    break;
                 case X32_ENC_ENCODER5:
-                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 4, amount);
-                    break;
                 case X32_ENC_ENCODER6:
-                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 5, amount);
+                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + (encoder - X32_ENC_ENCODER1), amount);
                     break;
                 default:  
                     // just here to avoid compiler warnings                  

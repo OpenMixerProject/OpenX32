@@ -1539,6 +1539,15 @@ void Mixer::DebugPrintvChannels(void){
 // ##        ##    ##  
 // ##       ##      ## 
 
+void Mixer::ResetFxParameter(uint fxIdx, uint parIdx) {
+    FxSlot* f = dsp->fx_slot[fxIdx];
+    if (f->HasFx())
+    {
+        f->fx->ResetParameter(parIdx);
+    }
+}
+
+
 void Mixer::ChangeFxParameter(uint fxIdx, uint parIdx, int8_t amount) {
     FxSlot* f = dsp->fx_slot[fxIdx];
     if (f->HasFx())
