@@ -672,7 +672,7 @@ void X32Ctrl::ShowNextPage(void){
 	 	ShowPage(nextPage);
 	} else {
 		// if theres is no next page, send button press to page
-		pages[state->activePage]->OnDisplayButton(X32_BTN_RIGHT, true);
+		pages[state->activePage]->DisplayButton(X32_BTN_RIGHT, true);
 	}
 }
 
@@ -682,7 +682,7 @@ void X32Ctrl::ShowPrevPage(void){
 	 	ShowPage(prevPage);
 	} else {
 		// if theres is no prev page, send button press to page
-		pages[state->activePage]->OnDisplayButton(X32_BTN_LEFT, true);
+		pages[state->activePage]->DisplayButton(X32_BTN_LEFT, true);
 	}
 }
 
@@ -2055,7 +2055,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event) {
 			case X32_BTN_ENCODER4:		
 			case X32_BTN_ENCODER5:				
 			case X32_BTN_ENCODER6:
-				pages[state->activePage]->OnDisplayButton(button, isButtonPressed);
+				pages[state->activePage]->DisplayButton(button, isButtonPressed);
 				break;
 			default:
 				break;
@@ -2148,7 +2148,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 			case X32_ENC_ENCODER4:
 			case X32_ENC_ENCODER5:
 			case X32_ENC_ENCODER6:
-				pages[state->activePage]->OnDisplayEncoderTurned(encoder, amount);
+				pages[state->activePage]->DisplayEncoderTurned(encoder, amount);
 				break;
 			default:  
 				// just here to avoid compiler warnings                  

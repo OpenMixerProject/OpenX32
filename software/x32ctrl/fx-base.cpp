@@ -24,15 +24,21 @@
 
 #include "fx-base.h"
 
-FxBase::FxBase(X32BaseParameter* basepar) : X32Base(basepar){}
+FxBase::FxBase(X32BaseParameter* basepar) : X32Base(basepar){ }
 
 
 String FxBase::GetName() {
     return "";
 }
 
-void FxBase::OnLoad() {
-
+void FxBase::Load() {
+    helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::Load");
+    
+    // Load default values
+    for (int p = 0; p < parameters.size(); p++) {
+        parameter_value.push_back(0.0f); // create parameter_value before using it
+        ResetParameter(p);
+    }
 }
 
 uint8_t FxBase::GetParameterCount() {
@@ -43,9 +49,37 @@ MIXERPARAMETER FxBase::GetParameterDefinition(uint8_t index) {
     if (index >= parameters.size()) {
         return MIXERPARAMETER_NONE;
     }
-    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "FxBase::GetParameterDefinition(%d)", index);
+
+    helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::GetParameterDefinition(%d)", index);
     return parameters[index];
 }
 
+float FxBase::GetParameter(uint8_t parIdx) {
+    if (parIdx >= parameters.size()) {        
+        return 0.0f;
+    }
 
+    return parameter_value[parIdx];
+}
 
+void FxBase::ChangeParameter(uint8_t parIdx, int8_t amount) {
+    if (parIdx < parameters.size()) {        
+        // TODO: calculate change per amount from constant in mixerparameterdefinition
+        SetParameter(parIdx, parameter_value[parIdx] + amount);
+    }
+}
+
+void FxBase::SetParameter(uint8_t parIdx, float value) {
+    if (parIdx < parameters.size()) {
+        helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "%s parameterIdx=%d value=%f", GetName().c_str(), parIdx, (double)value);
+                
+        parameter_value[parIdx] = value;
+        state->SetChangeFlags(X32_MIXER_CHANGED_FX);
+    }
+}
+
+void FxBase::ResetParameter(uint8_t parIdx) {
+    if (parIdx < parameters.size()) {
+        SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx]).float_value_default);
+    }
+}

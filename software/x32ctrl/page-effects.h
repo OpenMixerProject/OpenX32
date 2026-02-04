@@ -6,6 +6,7 @@ class PageEffects: public Page {
 
     private:
         uint8_t selectedFx = 0;
+        uint8_t banking = 0;
 
     public:
         PageEffects(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
@@ -18,10 +19,13 @@ class PageEffects: public Page {
 
             // DEBUG
             mixer->dsp->fx_slot[0]->LoadFx(FX_TYPE_REVERB);            
-            mixer->dsp->fx_slot[1]->LoadFx(FX_TYPE_CHORUS);            
-
-
-            SetEncoder(DISPLAY_ENCODER_6, "", "Change Enc1");
+            mixer->dsp->fx_slot[1]->LoadFx(FX_TYPE_CHORUS);    
+            mixer->dsp->fx_slot[2]->LoadFx(FX_TYPE_TRANSIENTSHAPER);
+            mixer->dsp->fx_slot[3]->LoadFx(FX_TYPE_DELAY);
+            mixer->dsp->fx_slot[4]->LoadFx(FX_TYPE_NONE);
+            mixer->dsp->fx_slot[5]->LoadFx(FX_TYPE_NONE);        
+            mixer->dsp->fx_slot[6]->LoadFx(FX_TYPE_NONE);        
+            mixer->dsp->fx_slot[7]->LoadFx(FX_TYPE_NONE);        
         }
 
         void OnShow() override {
@@ -47,14 +51,20 @@ class PageEffects: public Page {
                         if (i == selectedFx) {
                             lv_table_set_cell_value_fmt(objects.fxtable, 0, i, "FX%d <<<", i+1);
 
-                            // TODO: Encoder-config mit Banking
-                            // TODO2: Offset einbauen/beachten
                             if (slot->HasFx()) {
-                                //uint8_t parameterCount = slot->fx->GetParameterCount();
+
+                                // reset banking, if FX has less parameters
+                                if (slot->fx->GetParameterCount() <= (banking * 6)) {
+                                    banking = 0;
+                                }
+
                                 for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    SetEncoder(e, slot->fx->GetParameterDefinition(e));
+                                    SetEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
+                                    SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
                                 }
                             } else {
+                                banking = 0;
+
                                 for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
                                     SetEncoder(e, MIXERPARAMETER_NONE);
                                 }
@@ -68,6 +78,7 @@ class PageEffects: public Page {
 
                     if (state->HasChanged(X32_MIXER_CHANGED_FX) || force_update)
                     {
+                        // Table - without offset!
                         if (slot->HasFx()) {
 
                             // Name
@@ -78,18 +89,25 @@ class PageEffects: public Page {
                                 uint8_t row_label = (p*2) +3;
                                 uint8_t row_data = row_label +1;
 
-                                MixerparameterDefinition mpd = mixer->GetMixerparameterDefinition(slot->fx->GetParameterDefinition(p));
+                                MixerparameterDefinition mpd = helper->GetMixerparameterDefinition(slot->fx->GetParameterDefinition(p));
                                 lv_table_set_cell_value(objects.fxtable, row_label, i, mpd.name.c_str());
-                                lv_table_set_cell_value_fmt(objects.fxtable, row_data,  i, "%.1f %s", 20.4f, "ms");
+                                lv_table_set_cell_value(objects.fxtable, row_data,  i, helper->FormatValue(slot->fx->GetParameter(p), mpd).c_str());
                             }
 
+                           
                         } else {
                             for (uint8_t p=0; p < 10; p++){
                                 lv_table_set_cell_value(objects.fxtable, p+2, i, "");
                             }
                         }
 
-                        // TODO: Encoder-config
+                        // Encoders
+                        if (i == selectedFx && slot->HasFx()) {
+                            for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
+                                SetEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
+                                SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
+                            }
+                        }
                     }
                 }
             }
@@ -115,10 +133,18 @@ class PageEffects: public Page {
                         state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
                         break;
                     case X32_BTN_UP:
-                        // TODO Parameter banking
+                        if (banking>0)
+                        {
+                            banking--;
+                        }
+                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
                         break;
                     case X32_BTN_DOWN:
-                        // TODO Parameter banking
+                        if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > (((banking * 6) + 1) * 6))
+                        {
+                            banking++;
+                        }
+                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
                         break;
                     case X32_BTN_ENCODER1:
                         break;
@@ -131,16 +157,40 @@ class PageEffects: public Page {
                     case X32_BTN_ENCODER5:
                         break;
                     case X32_BTN_ENCODER6:
-                        {
-                            // DEBUG DATA FOR ALEX
-                            SetEncoder(DISPLAY_ENCODER_1, MIXERPARAMETER_FX_REVERB_RT60);
-                            state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-                        }
                         break;
                     default:
                         // just here to avoid compiler warnings
                         break;
                 }
             }
+        }
+
+        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {
+            
+            
+
+            switch (encoder){
+                case X32_ENC_ENCODER1:
+                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 0, amount);
+                    break;
+                case X32_ENC_ENCODER2:
+                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 1, amount);
+                    break;
+                case X32_ENC_ENCODER3:
+                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 2, amount);
+                    break;
+                case X32_ENC_ENCODER4:
+                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 3, amount);
+                    break;
+                case X32_ENC_ENCODER5:
+                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 4, amount);
+                    break;
+                case X32_ENC_ENCODER6:
+                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + 5, amount);
+                    break;
+                default:  
+                    // just here to avoid compiler warnings                  
+                    break;
+            }   
         }
 };

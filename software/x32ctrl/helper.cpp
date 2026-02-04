@@ -24,6 +24,10 @@
 
 #include "helper.h"
 
+Helper::Helper() {
+	InitMixerparameters();
+}
+
 void Helper::Log(const char* format, ...)
 {
 	va_list args;
@@ -431,20 +435,222 @@ uint8_t Helper::value2percent(int8_t value, int8_t value_min, int8_t value_max) 
 	return value_normiert / onepercent;
 }
 
-String Helper::GetUnitOfMesaurementString(MIXERPARAMETER_UOM uom) {
-	switch(uom)
-	{
+
+// ##     ## #### ##      ## ######## ########  ########     ###    ########     ###    ##     ## ######## ######## ######## ########  
+// ###   ###  ##   ##    ##  ##       ##     ## ##     ##   ## ##   ##     ##   ## ##   ###   ### ##          ##    ##       ##     ## 
+// #### ####  ##    ##  ##   ##       ##     ## ##     ##  ##   ##  ##     ##  ##   ##  #### #### ##          ##    ##       ##     ## 
+// ## ### ##  ##     ####    ######   ########  ########  ##     ## ########  ##     ## ## ### ## ######      ##    ######   ########  
+// ##     ##  ##    ##  ##   ##       ##   ##   ##        ######### ##   ##   ######### ##     ## ##          ##    ##       ##   ##   
+// ##     ##  ##   ##    ##  ##       ##    ##  ##        ##     ## ##    ##  ##     ## ##     ## ##          ##    ##       ##    ##  
+// ##     ## #### ##      ## ######## ##     ## ##        ##     ## ##     ## ##     ## ##     ## ########    ##    ######## ##     ## 
+
+
+
+String Helper::GetUnitOfMesaurement(MixerparameterDefinition mpd, bool spaceInFront = false) {
+	
+	String result = spaceInFront ? " " : "";
+
+	switch(mpd.unitOfMeasurement)
+		{
 		case MIXERPARAMETER_UOM_DB:
-			return "dB";
+			result += "dB";
+			break;
 		case MIXERPARAMETER_UOM_DBFS:
-			return "dbFS";
+			result += "dbFS";
+			break;
 		case MIXERPARAMETER_UOM_HZ:
-			return "Hz";
+			result += "Hz";
+			break;
 		case MIXERPARAMETER_UOM_KHZ:
-			return "kHz";
+			result += "kHz";
+			break;
 		case MIXERPARAMETER_UOM_MS:
-			return "ms";
+			result += "ms";
+			break;
 		default:
-			return "";
-	}
+			result += "";
+	}	
+
+	return result;
+}
+
+String Helper::FormatValue(float value, MixerparameterDefinition mpd) {
+	return String(value, mpd.GetDecimaPlaces()) + GetUnitOfMesaurement(mpd, true);
+}
+
+String Helper::FormatValue(uint8_t value, MixerparameterDefinition mpd) {
+	return String(value) + GetUnitOfMesaurement(mpd, true);
+}
+
+String Helper::FormatValue(int8_t value, MixerparameterDefinition mpd) {
+	return String(value) + GetUnitOfMesaurement(mpd, true);
+}
+
+
+MixerparameterDefinition Helper::GetMixerparameterDefinition(MIXERPARAMETER mp){
+    return mpm[mp];
+}
+
+void Helper::InitMixerparameters() {
+
+    // generic
+    mpm[MIXERPARAMETER_LCD_CONTRAST] = MixerparameterDefinition("LCD Contrast", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_LCD_CONTRAST, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_LCD_CONTRAST].SetMinMaxStandard_Uint8(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT); 
+
+    mpm[MIXERPARAMETER_LED_BRIGHTNESS] = MixerparameterDefinition("LED Brightness", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_LED_BRIGHTNESS, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_LED_BRIGHTNESS].SetMinMaxStandard_Uint8(LED_BRIGHTNESS_1, LED_BRIGHTNESS_4, LED_BRIGHTNESS_4); 
+
+    // channel
+    mpm[MIXERPARAMETER_CHANNEL_GAIN] = MixerparameterDefinition("Gain", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_NONE, X32_VCHANNEL_CHANGED_GAIN, true);
+    mpm[MIXERPARAMETER_CHANNEL_GAIN].SetMinMaxStandardDecimals_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
+    mpm[MIXERPARAMETER_CHANNEL_PANORAMA] = MixerparameterDefinition("Pan/Bal", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_BALANCE,true);
+    mpm[MIXERPARAMETER_CHANNEL_PANORAMA].SetMinMaxStandardDecimals_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0);
+    mpm[MIXERPARAMETER_CHANNEL_VOLUME] = MixerparameterDefinition("Volume", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_VOLUME, true);
+    mpm[MIXERPARAMETER_CHANNEL_VOLUME].SetMinMaxStandardDecimals_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+
+    // gate
+    mpm[MIXERPARAMETER_GATE_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mpm[MIXERPARAMETER_GATE_TRESHOLD].SetMinMaxStandardDecimals_Float(GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0);
+    mpm[MIXERPARAMETER_GATE_RANGE] = MixerparameterDefinition("Range", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mpm[MIXERPARAMETER_GATE_RANGE].SetMinMaxStandardDecimals_Float(GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1);
+    mpm[MIXERPARAMETER_GATE_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mpm[MIXERPARAMETER_GATE_ATTACK].SetMinMaxStandardDecimals_Float(GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0);
+    mpm[MIXERPARAMETER_GATE_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mpm[MIXERPARAMETER_GATE_HOLD].SetMinMaxStandardDecimals_Float(GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0);
+    mpm[MIXERPARAMETER_GATE_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE, true);
+    mpm[MIXERPARAMETER_GATE_RELEASE].SetMinMaxStandardDecimals_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
+    
+    // dynamics
+    mpm[MIXERPARAMETER_DYNAMICS_TRESHOLD] = MixerparameterDefinition("Threshold", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mpm[MIXERPARAMETER_DYNAMICS_TRESHOLD].SetMinMaxStandardDecimals_Float(DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0);
+    mpm[MIXERPARAMETER_DYNAMICS_RATIO] = MixerparameterDefinition("Ratio", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mpm[MIXERPARAMETER_DYNAMICS_RATIO].SetMinMaxStandardDecimals_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
+    mpm[MIXERPARAMETER_DYNAMICS_MAKEUP] = MixerparameterDefinition("Makeup", MIXERPARAMETER_UOM_DB, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mpm[MIXERPARAMETER_DYNAMICS_MAKEUP].SetMinMaxStandardDecimals_Float(DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1);
+    mpm[MIXERPARAMETER_DYNAMICS_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mpm[MIXERPARAMETER_DYNAMICS_ATTACK].SetMinMaxStandardDecimals_Float(DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0);
+    mpm[MIXERPARAMETER_DYNAMICS_HOLD] = MixerparameterDefinition("Hold", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mpm[MIXERPARAMETER_DYNAMICS_HOLD].SetMinMaxStandardDecimals_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
+    mpm[MIXERPARAMETER_DYNAMICS_RELEASE] = MixerparameterDefinition("Release", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC, true);
+    mpm[MIXERPARAMETER_DYNAMICS_RELEASE].SetMinMaxStandardDecimals_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
+
+    // FX
+
+    // reverb
+    #define FX_REVERB_ROOMSIZE_MIN         0.0f // ms
+    #define FX_REVERB_ROOMSIZE_DEFAULT   150.0f // ms
+    #define FX_REVERB_ROOMSIZE_MAX      1000.0f // ms
+    #define FX_REVERB_RT60_MIN             0.0f // s
+    #define FX_REVERB_RT60_DEFAULT         3.0f // s
+    #define FX_REVERB_RT60_MAX           100.0f // s
+    #define FX_REVERB_LPFREQ_MIN           0.0f // Hz
+    #define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
+    #define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
+    #define FX_REVERB_DRY_MIN              0.0f //
+    #define FX_REVERB_DRY_DEFAULT          1.0f //
+    #define FX_REVERB_DRY_MAX              1.0f //
+    #define FX_REVERB_WET_MIN              0.0f //
+    #define FX_REVERB_WET_DEFAULT          0.25f //
+    #define FX_REVERB_WET_MAX              1.0f //
+
+    // reverb roomsize
+    mpm[MIXERPARAMETER_FX_REVERB_ROOMSIZE] = MixerparameterDefinition("Roomsize", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_REVERB_ROOMSIZE].SetMinMaxStandardDecimals_Float(FX_REVERB_ROOMSIZE_MIN, FX_REVERB_ROOMSIZE_MAX, FX_REVERB_ROOMSIZE_DEFAULT, 0);
+    // reverb rt60
+    mpm[MIXERPARAMETER_FX_REVERB_RT60] = MixerparameterDefinition("RT60", MIXERPARAMETER_UOM_S, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_REVERB_RT60].SetMinMaxStandardDecimals_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
+    // reverb lowpass
+    mpm[MIXERPARAMETER_FX_REVERB_LPFREQ] = MixerparameterDefinition("LowPass", MIXERPARAMETER_UOM_KHZ, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_REVERB_LPFREQ].SetMinMaxStandardDecimals_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 1);
+    // reverb dry
+    mpm[MIXERPARAMETER_FX_REVERB_DRY] = MixerparameterDefinition("Dry", MIXERPARAMETER_UOM_PERCENT, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_REVERB_DRY].SetMinMaxStandardDecimals_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT, 2);
+    // reverb wet
+    mpm[MIXERPARAMETER_FX_REVERB_WET] = MixerparameterDefinition("Wet", MIXERPARAMETER_UOM_PERCENT, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_REVERB_WET].SetMinMaxStandardDecimals_Float(FX_REVERB_WET_MIN, FX_REVERB_WET_MAX, FX_REVERB_WET_DEFAULT, 2);
+
+    // chorus
+    #define FX_CHORUS_DEPTH_A_MIN          0.0f //
+    #define FX_CHORUS_DEPTH_A_DEFAULT     10.0f //
+    #define FX_CHORUS_DEPTH_A_MAX        100.0f //
+    #define FX_CHORUS_DEPTH_B_MIN          0.0f //
+    #define FX_CHORUS_DEPTH_B_DEFAULT     10.0f //
+    #define FX_CHORUS_DEPTH_B_MAX        100.0f //
+    #define FX_CHORUS_DELAY_A_MIN          0.0f // ms
+    #define FX_CHORUS_DELAY_A_DEFAULT     15.0f // ms
+    #define FX_CHORUS_DELAY_A_MAX        100.0f // ms
+    #define FX_CHORUS_DELAY_B_MIN          0.0f // ms
+    #define FX_CHORUS_DELAY_B_DEFAULT     20.0f // ms
+    #define FX_CHORUS_DELAY_B_MAX        100.0f // ms
+    #define FX_CHORUS_PHASE_A_MIN          0.0f //
+    #define FX_CHORUS_PHASE_A_DEFAULT      0.0f //
+    #define FX_CHORUS_PHASE_A_MAX        100.0f //
+    #define FX_CHORUS_PHASE_B_MIN          0.0f //
+    #define FX_CHORUS_PHASE_B_DEFAULT      0.0f //
+    #define FX_CHORUS_PHASE_B_MAX        100.0f //
+    #define FX_CHORUS_FREQ_A_MIN           0.0f //
+    #define FX_CHORUS_FREQ_A_DEFAULT       1.5f //
+    #define FX_CHORUS_FREQ_A_MAX         100.0f //
+    #define FX_CHORUS_FREQ_B_MIN           0.0f //
+    #define FX_CHORUS_FREQ_B_DEFAULT       1.6f //
+    #define FX_CHORUS_FREQ_B_MAX         100.0f //
+    #define FX_CHORUS_MIX_MIN              0.0f //
+    #define FX_CHORUS_MIX_DEFAULT          0.5f //
+    #define FX_CHORUS_MIX_MAX              1.0f //
+
+    // chorus depth
+    mpm[MIXERPARAMETER_FX_CHORUS_DEPTH_A] = MixerparameterDefinition("Depth A", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_DEPTH_A].SetMinMaxStandardDecimals_Float(FX_CHORUS_DEPTH_A_MIN, FX_CHORUS_DEPTH_A_MAX, FX_CHORUS_DEPTH_A_DEFAULT, 0);
+    mpm[MIXERPARAMETER_FX_CHORUS_DEPTH_B] = MixerparameterDefinition("Depth B", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_DEPTH_B].SetMinMaxStandardDecimals_Float(FX_CHORUS_DEPTH_B_MIN, FX_CHORUS_DEPTH_B_MAX, FX_CHORUS_DEPTH_B_DEFAULT, 0);
+    // chorus delay
+    mpm[MIXERPARAMETER_FX_CHORUS_DELAY_A] = MixerparameterDefinition("Delay A", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_DELAY_A].SetMinMaxStandardDecimals_Float(FX_CHORUS_DELAY_A_MIN, FX_CHORUS_DELAY_A_MAX, FX_CHORUS_DELAY_A_DEFAULT, 0);
+    mpm[MIXERPARAMETER_FX_CHORUS_DELAY_B] = MixerparameterDefinition("Delay B", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_DELAY_B].SetMinMaxStandardDecimals_Float(FX_CHORUS_DELAY_B_MIN, FX_CHORUS_DELAY_B_MAX, FX_CHORUS_DELAY_B_DEFAULT, 0);
+    // chorus phase
+    mpm[MIXERPARAMETER_FX_CHORUS_PHASE_A] = MixerparameterDefinition("Phase A", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_PHASE_A].SetMinMaxStandardDecimals_Float(FX_CHORUS_PHASE_A_MIN, FX_CHORUS_PHASE_A_MAX, FX_CHORUS_PHASE_A_DEFAULT, 0);
+    mpm[MIXERPARAMETER_FX_CHORUS_PHASE_B] = MixerparameterDefinition("Phase B", MIXERPARAMETER_UOM_NONE, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_PHASE_B].SetMinMaxStandardDecimals_Float(FX_CHORUS_PHASE_B_MIN, FX_CHORUS_PHASE_B_MAX, FX_CHORUS_PHASE_B_DEFAULT, 0);
+    // chorus freq
+    mpm[MIXERPARAMETER_FX_CHORUS_FREQ_A] = MixerparameterDefinition("Freq A", MIXERPARAMETER_UOM_KHZ, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_FREQ_A].SetMinMaxStandardDecimals_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT, 0);
+    mpm[MIXERPARAMETER_FX_CHORUS_FREQ_B] = MixerparameterDefinition("Freq B", MIXERPARAMETER_UOM_KHZ, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_FREQ_B].SetMinMaxStandardDecimals_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT, 0);
+    // chorus mix
+    mpm[MIXERPARAMETER_FX_CHORUS_MIX] = MixerparameterDefinition("Mix", MIXERPARAMETER_UOM_PERCENT, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_CHORUS_MIX].SetMinMaxStandardDecimals_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT, 0);
+
+    // transientshaper
+
+    // fast
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_FAST] = MixerparameterDefinition("Fast", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_FAST].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 1.0f, 0);
+    // medium
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_MEDIUM] = MixerparameterDefinition("Medium", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_MEDIUM].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 15.0f, 0);
+    // slow
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_SLOW] = MixerparameterDefinition("Slow", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_SLOW].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 150.0f, 0);
+    // attack
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_ATTACK] = MixerparameterDefinition("Attack", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_ATTACK].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 3.0f, 0);
+    // sustain
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_SUSTAIN] = MixerparameterDefinition("Sustain", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_SUSTAIN].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 1.0f, 0);
+    // delay
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_DELAY] = MixerparameterDefinition("Delay", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_TRANSIENTSHAPER_DELAY].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 1.0f, 0);
+
+    // FX_TYPE_OVERDRIVE            preGain Q hpfInputFreq lpfInputFreq lpfOutputFreq
+
+    // delay A/B
+    mpm[MIXERPARAMETER_FX_DELAY_DELAY_A] = MixerparameterDefinition("Delay A", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_DELAY_DELAY_A].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 350.0f, 0);
+    mpm[MIXERPARAMETER_FX_DELAY_DELAY_B] = MixerparameterDefinition("Delay B", MIXERPARAMETER_UOM_MS, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
+    mpm[MIXERPARAMETER_FX_DELAY_DELAY_B].SetMinMaxStandardDecimals_Float(0.0f, 1000.0f, 450.0f, 0);
+
+    // FX_TYPE_MULTIBANDCOMPRESOR   channel band threshold ratio attack  hold   release   makeup
+    // FX_TYPE_DYNAMICEQ            band type freq staticGain  maxDynGain  Q  thresh  ratio  attack  release
 }

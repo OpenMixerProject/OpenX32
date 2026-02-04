@@ -18,6 +18,7 @@
 #include "lib/plf_nanotimer.h"
 
 #include "config.h"
+#include "mixerparameter.h"
 
 #define DEBUGLEVEL_OFF -1 // No Debug
 #define DEBUGLEVEL_NORMAL 0 // General highlevel debug messages
@@ -30,10 +31,17 @@ class Helper {
     private:
         uint32_t debug_;
         uint8_t debuglevel_;
-
         map<uint8_t, plf::nanotimer*> timers;
+        map<MIXERPARAMETER, MixerparameterDefinition> mpm = map<MIXERPARAMETER, MixerparameterDefinition>();
+
+        void InitMixerparameters();
+
+        String GetUnitOfMesaurement(MixerparameterDefinition mpd, bool spaceInFront);
 
     public:
+
+        Helper();
+
         void Log(const char* format, ...);
         void Error(const char* format, ...);
         void DebugPrintMessageWithNullBytes(uint16_t debugFlag, char* message, uint16_t len);
@@ -51,7 +59,12 @@ class Helper {
         uint8_t value2percent(float value, float value_min, float value_max);
         uint8_t value2percent(uint8_t value, uint8_t value_min, uint8_t value_max);
         uint8_t value2percent(int8_t value, int8_t value_min, int8_t value_max);
-        String GetUnitOfMesaurementString(MIXERPARAMETER_UOM uom);
+        
+        uint8_t GetDecimaPlaces(MixerparameterDefinition mpd);
+        String FormatValue(float value, MixerparameterDefinition mpd);
+        String FormatValue(uint8_t value, MixerparameterDefinition mpd);
+        String FormatValue(int8_t value, MixerparameterDefinition mpd);
+        MixerparameterDefinition GetMixerparameterDefinition(MIXERPARAMETER mp);
 
         long GetFileSize(const char* filename);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);
@@ -124,6 +137,5 @@ class Helper {
         DEBUG_DEF(DEBUG_INI,      0b0001000000000000);
         DEBUG_DEF(DEBUG_STATE,    0b0010000000000000);
         DEBUG_DEF(DEBUG_TIMER,    0b0100000000000000);
-
-
+        DEBUG_DEF(DEBUG_FX,       0b1000000000000000);
 };

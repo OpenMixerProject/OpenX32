@@ -39,10 +39,30 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 			fx = new FxChorus(_basepar);
 			fxType = fxToLoad;
 			break;
-		default:
+		case FX_TYPE_TRANSIENTSHAPER:
+			fx = new FxTransientshaper(_basepar);
+			fxType = fxToLoad;
+			break;
+		case FX_TYPE_DELAY:
+			fx = new FxDelay(_basepar);
+			fxType = fxToLoad;
+			break;
+		default:	
 			helper->Error("Can not load unknown FX.");
+		case FX_TYPE_NONE:
+			ClearFx();
 			break;
 	}
+	if (fxToLoad != FX_TYPE_NONE) {
+		fx->Load();
+	}
+	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
+}
+
+void FxSlot::ClearFx() {
+	fx = nullptr;
+	fxType = FX_TYPE_NONE;
+	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
 }
 
 bool FxSlot::HasFx(){

@@ -70,12 +70,12 @@ class PageSetup: public Page {
 					case X32_BTN_ENCODER4:
 						break;
 					case X32_BTN_ENCODER5:
-                        state->ledbrightness = encoderMixerparameterDefinition[DISPLAY_ENCODER_5].uint8_t_value_default;
+                        state->ledbrightness = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_5].mp).uint8_t_value_default;
                         surface->SetBrightnessAllBoards(state->ledbrightness);
                         state->SetChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS);
 						break;
 					case X32_BTN_ENCODER6:
-                        state->lcdcontrast = encoderMixerparameterDefinition[DISPLAY_ENCODER_6].uint8_t_value_default;
+                        state->lcdcontrast = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_6].mp).uint8_t_value_default;
                         surface->SetContrastAllBoards(state->lcdcontrast);
                         state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST);
 						break;

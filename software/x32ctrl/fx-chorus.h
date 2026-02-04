@@ -10,8 +10,14 @@ class FxChorus : public FxBase {
 
             // Define parameters of this FX
             parameters.push_back(MIXERPARAMETER_FX_CHORUS_DEPTH_A);
+            parameters.push_back(MIXERPARAMETER_FX_CHORUS_DELAY_A);
+            parameters.push_back(MIXERPARAMETER_FX_CHORUS_PHASE_A);
+            parameters.push_back(MIXERPARAMETER_FX_CHORUS_FREQ_A);
             parameters.push_back(MIXERPARAMETER_FX_CHORUS_DEPTH_B);
-            // TODO restliche Parameter
+            parameters.push_back(MIXERPARAMETER_FX_CHORUS_DELAY_B);
+            parameters.push_back(MIXERPARAMETER_FX_CHORUS_PHASE_B);
+            parameters.push_back(MIXERPARAMETER_FX_CHORUS_FREQ_B);
+            parameters.push_back(MIXERPARAMETER_FX_CHORUS_MIX);
         }
 
         String GetName() override{

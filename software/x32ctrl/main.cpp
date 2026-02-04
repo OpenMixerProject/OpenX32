@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
 			->group("Debug");
 
 	vector<string> debug_parameters;
-	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA GUI INI MIXER SPI SURFACE TIMER UART VCHANNEL X32CTRL XREMOTE")
+	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA FX GUI INI MIXER STATE SPI SURFACE TIMER UART VCHANNEL X32CTRL XREMOTE")
 			->configurable(false)
 			->group("Debug")
 			->expected(1,-1)
@@ -294,6 +294,7 @@ int main(int argc, char* argv[]) {
 			if (debug_parameters[i] == "INI") { helper->DEBUG_INI(true); }
 			if (debug_parameters[i] == "STATE") { helper->DEBUG_STATE(true); }
 			if (debug_parameters[i] == "TIMER") { helper->DEBUG_TIMER(true); }
+			if (debug_parameters[i] == "FX") { helper->DEBUG_FX(true); }
 		}
 
 		if (trace) {

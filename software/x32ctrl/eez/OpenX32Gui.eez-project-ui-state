@@ -128,7 +128,7 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 9.30286290858006,
+              "weight": 11.869169917843529,
               "children": [
                 {
                   "type": "tabset",
@@ -200,14 +200,14 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 32.46378366718283,
+              "weight": 28.10115104697521,
               "selected": 1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
                 {
                   "type": "tab",
-                  "id": "#255e2ff2-91c1-4f6d-a2c2-ef86a1fb5d65",
+                  "id": "#16ab1234-a259-41cc-9eb9-438a173bbfec",
                   "name": "widget_fx",
                   "component": "editor",
                   "config": {
@@ -232,7 +232,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 12.382565670748816,
+              "weight": 14.178891281692975,
               "children": [
                 {
                   "type": "tab",
@@ -979,7 +979,7 @@
         "0": {
           "1": {
             "5": {
-              "1": {
+              "0": {
                 "$selected": true
               }
             }
@@ -989,8 +989,8 @@
       },
       "transform": {
         "translate": {
-          "x": -367.0397498245171,
-          "y": -143.56129808612275
+          "x": -407.4695896037615,
+          "y": -156.3397535218371
         },
         "scale": 1
       },
@@ -1094,11 +1094,32 @@
       }
     },
     "[OpenX32Gui.eez-project]:/userWidgets/6[flow-state]": {
+      "selection": {
+        "0": {},
+        "1": {
+          "$selected": true
+        }
+      },
+      "transform": {
+        "translate": {
+          "x": -166.1904761904762,
+          "y": -231.33333333333326
+        },
+        "scale": 1
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
+    },
+    "[OpenX32Gui.eez-project]:/userWidgets/5[flow-state]": {
       "selection": {},
       "transform": {
         "translate": {
-          "x": -400,
-          "y": -240
+          "x": -65,
+          "y": -17
         },
         "scale": 1
       },
@@ -1122,10 +1143,10 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "INDICATOR",
+  "lvglPart": "ITEMS",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "MISCELLANEOUS"
+    "PADDING"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,

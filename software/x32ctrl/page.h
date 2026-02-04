@@ -31,7 +31,6 @@ class Page : public X32Base {
         uint32_t tabIndex1 = 0;
 
         bool hideEncoders = false;
-        MixerparameterDefinition encoderMixerparameterDefinition[6];
         sDisplayEncoder encoderSliders[6];
         lv_obj_t* sliders[6];
         lv_obj_t* encoderButtonLabels[6];
@@ -45,6 +44,8 @@ class Page : public X32Base {
         void SetEncoderValue(uint8_t encoder, uint8_t enc1);
         void SetEncoderValue(uint8_t encoder, int8_t enc1);
         void SetEncoderValuesEmpty();
+        void ClearEncoders();
+        void ClearEncoder(uint8_t encoder);
         void SetEncoderHighlight(uint8_t encoder, bool highlight);
         void SyncEncoderWidgets();
 
@@ -52,6 +53,8 @@ class Page : public X32Base {
         virtual void OnUpdateMeters();
         virtual void OnShow();
         virtual void OnChange(bool force_update);
+        virtual void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount);
+        virtual void OnDisplayButton(X32_BTN button, bool pressed);
 
     public:
         Page(PageBaseParameter* pagebasepar);
@@ -61,11 +64,8 @@ class Page : public X32Base {
         void UpdateMeters();
         void Change();
 
-        // a display encoder was turned
-        virtual void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount);
-
-        // a display button was pressed
-        virtual void OnDisplayButton(X32_BTN button, bool pressed);
+        void DisplayEncoderTurned(X32_ENC encoder, int8_t amount);
+        void DisplayButton(X32_BTN button, bool pressed);
 
         X32_PAGE GetNextPage();
         X32_PAGE GetPrevPage();

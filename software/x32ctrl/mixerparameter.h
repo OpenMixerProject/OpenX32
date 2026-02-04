@@ -8,11 +8,15 @@
 
 
 class MixerparameterDefinition {
+
+    private:
+        uint8_t decimal_places;
+
     public:
         String name;
         MIXERPARAMETER_UOM unitOfMeasurement;
         MIXERPARAMETER_VALUE_TYPE value_type;
-        uint8_t decimal_places;
+        
         float float_value_min;
         float float_value_max;
         float float_value_default;
@@ -36,7 +40,7 @@ class MixerparameterDefinition {
             show_slider = _show_slider;
         }
 
-        void SetMinMaxStandard_Float(float _min, float _max, float _standard, uint8_t _decimal_places) {
+        void SetMinMaxStandardDecimals_Float(float _min, float _max, float _standard, uint8_t _decimal_places) {
             value_type = MIXERPARAMETER_VALUE_TYPE_FLOAT;
             float_value_min = _min;
             float_value_max = _max;
@@ -56,5 +60,9 @@ class MixerparameterDefinition {
             int8_t_value_min = _min;
             int8_t_value_max = _max;
             int8_t_value_default = _standard;
+        }
+
+        uint8_t GetDecimaPlaces() {
+	        return decimal_places;
         }
 };

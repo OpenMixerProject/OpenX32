@@ -31,7 +31,7 @@ class Mixer : public X32Base
         void halSendPhantomPower(uint8_t dspChannel);
         void LoadVChannelLayout();
         
-        void InitMixerparameters();
+
 
     public:
         // all virtual - channels / busses / matrix / etc.
@@ -41,12 +41,12 @@ class Mixer : public X32Base
         Card* card;
         DSP1* dsp;
 
-        map<MIXERPARAMETER, MixerparameterDefinition> mixerparametermap = map<MIXERPARAMETER, MixerparameterDefinition>();
+        
        
         Mixer(X32BaseParameter* basepar);
         void Init();
 
-        MixerparameterDefinition GetMixerparameterDefinition(MIXERPARAMETER mp);
+
 
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);
@@ -64,8 +64,7 @@ class Mixer : public X32Base
         void SetLowcut(uint8_t vChannelIndex, float lowCutFrequency);
         void SetDynamics(uint8_t vChannelIndex, char option, float value);
         void SetCardChannelMode(uint8_t mode);
-        void SetFxParameter(uint fxSlot, MIXERPARAMETER par, void* value);  
-
+        
         void TogglePhantom(uint8_t vChannelIndex);
         void TogglePhaseInvert(uint8_t vChannelIndex);
         void ToggleSolo(uint8_t vChannelIndex);
@@ -123,4 +122,7 @@ class Mixer : public X32Base
         uint8_t halGetDspInputSource(uint8_t dspChannel);
 
         void DebugPrintvChannels(void);
+
+        void ResetFxParameter(uint fxSlot, uint parIdx);  
+        void ChangeFxParameter(uint fxSlot, uint parIdx, int8_t amount); 
 };
