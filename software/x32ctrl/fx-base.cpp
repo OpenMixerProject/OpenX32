@@ -64,8 +64,8 @@ float FxBase::GetParameter(uint8_t parIdx) {
 
 bool FxBase::ChangeParameter(uint8_t parIdx, int8_t amount) {
     if (parIdx < parameters.size()) {        
-        // TODO: calculate change per amount from constant in mixerparameterdefinition
-        return SetParameter(parIdx, parameter_value[parIdx] + amount);
+        float newValue = helper->CalcNewValue(parameter_value[parIdx], amount, parameters[parIdx]);
+        return SetParameter(parIdx, newValue);
     }
     return false;
 }

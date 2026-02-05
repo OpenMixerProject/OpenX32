@@ -474,6 +474,20 @@ String Helper::GetUnitOfMesaurement(MixerparameterDefinition mpd, bool spaceInFr
 	return result;
 }
 
+float Helper::CalcNewValue(float value, int8_t amount, MIXERPARAMETER mp) {
+	MixerparameterDefinition mpd = GetMixerparameterDefinition(mp);
+
+	float newValue = value + (amount * mpd.float_stepsize);
+
+	if (newValue > mpd.float_value_max) {
+		newValue = mpd.float_value_max;
+	} else if (newValue < mpd.float_value_min) {
+		newValue = mpd.float_value_min;
+	}
+	
+	return newValue;
+}
+
 String Helper::FormatValue(float value, MixerparameterDefinition mpd) {
 	return String(value, mpd.GetDecimaPlaces()) + GetUnitOfMesaurement(mpd, true);
 }
@@ -561,7 +575,7 @@ void Helper::InitMixerparameters() {
     mpm[MIXERPARAMETER_FX_REVERB_RT60].SetMinMaxStandardDecimals_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
     // reverb lowpass
     mpm[MIXERPARAMETER_FX_REVERB_LPFREQ] = MixerparameterDefinition("LowPass", MIXERPARAMETER_UOM_KHZ, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
-    mpm[MIXERPARAMETER_FX_REVERB_LPFREQ].SetMinMaxStandardDecimals_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 1);
+    mpm[MIXERPARAMETER_FX_REVERB_LPFREQ].SetMinMaxStandardDecimals_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
     // reverb dry
     mpm[MIXERPARAMETER_FX_REVERB_DRY] = MixerparameterDefinition("Dry", MIXERPARAMETER_UOM_PERCENT, X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE, true);
     mpm[MIXERPARAMETER_FX_REVERB_DRY].SetMinMaxStandardDecimals_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT, 2);

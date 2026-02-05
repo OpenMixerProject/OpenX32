@@ -20,6 +20,7 @@ class MixerparameterDefinition {
         float float_value_min;
         float float_value_max;
         float float_value_default;
+        float float_stepsize;
         uint8_t uint8_t_value_min;
         uint8_t uint8_t_value_max;
         uint8_t uint8_t_value_default;
@@ -46,6 +47,18 @@ class MixerparameterDefinition {
             float_value_max = _max;
             float_value_default = _standard;
             decimal_places = _decimal_places;
+
+            switch (unitOfMeasurement) {
+                case MIXERPARAMETER_UOM_PERCENT:
+                    float_stepsize = 0.01f;  // percent in 1% steps
+                    break;
+                case MIXERPARAMETER_UOM_S:
+                    float_stepsize = 0.2f;  // seconds in 200ms steps
+                    break;
+                default:
+                    float_stepsize = 1.0f;
+                    break;
+            }
         }
 
         void SetMinMaxStandard_Uint8(uint8_t _min, uint8_t _max, uint8_t _standard) {

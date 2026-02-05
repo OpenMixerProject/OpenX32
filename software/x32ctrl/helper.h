@@ -61,6 +61,7 @@ class Helper {
         uint8_t value2percent(int8_t value, int8_t value_min, int8_t value_max);
         
         uint8_t GetDecimaPlaces(MixerparameterDefinition mpd);
+        float CalcNewValue(float value, int8_t amount, MIXERPARAMETER mp);
         String FormatValue(float value, MixerparameterDefinition mpd);
         String FormatValue(uint8_t value, MixerparameterDefinition mpd);
         String FormatValue(int8_t value, MixerparameterDefinition mpd);
