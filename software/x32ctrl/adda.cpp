@@ -32,12 +32,15 @@ Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Adda::Init() {
+	if (state->bodyless) {
+		return;
+	}
+
 	const char serial[] = "/dev/ttymxc2";
 	const uint16_t speed = 38400;
-	if (!state->bodyless) {
-		helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial, speed);
-		uart->Open(serial, speed, true);
-	}
+	
+	helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial, speed);
+	uart->Open(serial, speed, true);
 
 	// send identification-commands to all possible boards
 	addaBoards[ADDA_BOARD_XLR_IN_0] = SendReceive("*0I#"); // XLR IN

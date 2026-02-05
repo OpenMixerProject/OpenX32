@@ -457,6 +457,10 @@ String Fpga::GetOutputNameByIndex(uint8_t index) {
 
 // helper-function to send the audio-routing to the fpga
 void Fpga::SendRoutingToFpga(int16_t channel) {
+	if (state->bodyless) {
+		return;
+	}
+
 	uint8_t txData[2];
 	uint8_t rxData[2];
 

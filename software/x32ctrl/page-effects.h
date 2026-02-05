@@ -16,10 +16,9 @@ class PageEffects: public Page {
         }
 
         void OnShow() override {
-            lv_table_set_column_count(objects.fxtable, MAX_FX_SLOTS);
+            lv_table_set_column_count(objects.fxtable, 8);
             for (uint8_t i = 0; i < MAX_FX_SLOTS; i++) {
-                lv_table_set_column_width(objects.fxtable, i, 100);
-                // TODO table align center
+                lv_table_set_column_width(objects.fxtable, i, DISPLAY_RESOLUTION_X / 8);
             }
         }
 
@@ -33,10 +32,14 @@ class PageEffects: public Page {
 
                     FxSlot* slot = mixer->dsp->fx_slot[i];
                     
+                    // selected FX or Banking changed
                     if (state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT) || force_update)
                     {
                         if (i == selectedFx) {
-                            lv_table_set_cell_value_fmt(objects.fxtable, 0, i, "FX%d <<<", i+1);
+                            
+                            // FX number (selected)
+                            lv_table_set_cell_value_fmt(objects.fxtable, 0, i*2, "FX%d <<<", i+1);
+                            lv_table_set_selected_cell(objects.fxtable, 0, i*2);
 
                             if (slot->HasFx()) {
 
@@ -49,7 +52,10 @@ class PageEffects: public Page {
                                     SetEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
                                     SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
                                 }
+
                             } else {
+                                // slot has no FX -> show nothing
+
                                 banking = 0;
 
                                 for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
@@ -59,32 +65,29 @@ class PageEffects: public Page {
                             state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 
                         } else {
-                            lv_table_set_cell_value_fmt(objects.fxtable, 0, i, "FX%d", i+1);
+                            // FX number (not selected)
+                            lv_table_set_cell_value_fmt(objects.fxtable, 0, i*2, "FX%d", i+1);
                         }
                     }
 
+                    // FX parameter got updated or FX was changed
                     if (state->HasChanged(X32_MIXER_CHANGED_FX) || force_update)
                     {
                         // Table - without offset!
                         if (slot->HasFx()) {
-
-                            // Name
-                            lv_table_set_cell_value(objects.fxtable, 1, i, mixer->dsp->fx_slot[i]->fx->GetName().c_str());
+                            // FX Name
+                            lv_table_set_cell_value(objects.fxtable, 1, i*2, mixer->dsp->fx_slot[i]->fx->GetName().c_str());
 
                             // FX Parameters
                             for (uint8_t p=0; p < slot->fx->GetParameterCount(); p++){
-                                uint8_t row_label = (p*2) +3;
-                                uint8_t row_data = row_label +1;
-
                                 MixerparameterDefinition mpd = helper->GetMixerparameterDefinition(slot->fx->GetParameterDefinition(p));
-                                lv_table_set_cell_value(objects.fxtable, row_label, i, mpd.name.c_str());
-                                lv_table_set_cell_value(objects.fxtable, row_data,  i, helper->FormatValue(slot->fx->GetParameter(p), mpd).c_str());
+                                lv_table_set_cell_value(objects.fxtable, p + 3, i*2, mpd.name.c_str());
+                                lv_table_set_cell_value(objects.fxtable, p + 3, (i*2)+1, helper->FormatValue(slot->fx->GetParameter(p), mpd).c_str());
                             }
-
-                           
                         } else {
+                            // clear name and parameters
                             for (uint8_t p=0; p < 10; p++){
-                                lv_table_set_cell_value(objects.fxtable, p+2, i, "");
+                                lv_table_set_cell_value(objects.fxtable, p+2, i*2, "");
                             }
                         }
 
@@ -104,34 +107,16 @@ class PageEffects: public Page {
             if (pressed){
                 switch (button){
                     case X32_BTN_LEFT:
-                        if (selectedFx > 0) {
-                            selectedFx--;
-                        } else {
-                            selectedFx = MAX_FX_SLOTS-1;
-                        }
-                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
+                        prevFX();
                         break;
                     case X32_BTN_RIGHT:
-                        if (selectedFx < MAX_FX_SLOTS-1) {
-                            selectedFx++;
-                        } else {
-                            selectedFx = 0;
-                        }
-                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
+                        nextFX();
                         break;
                     case X32_BTN_UP:
-                        if (banking>0)
-                        {
-                            banking--;
-                        }
-                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
+                        prevParameterBank();
                         break;
                     case X32_BTN_DOWN:
-                        if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > (((banking * 6) + 1) * 6))
-                        {
-                            banking++;
-                        }
-                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
+                        nextParameterBank();
                         break;
                     case X32_BTN_ENCODER1:                      
                     case X32_BTN_ENCODER2:
@@ -145,6 +130,50 @@ class PageEffects: public Page {
                         break;
                 }
             }
+        }
+
+        void nextParameterBank()
+        {
+            if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > (((banking * 6) + 1) * 6))
+            {
+                banking++;
+            }
+            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
+        }
+
+        void prevParameterBank()
+        {
+            if (banking > 0)
+            {
+                banking--;
+            }
+            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
+        }
+
+        void nextFX()
+        {
+            if (selectedFx < MAX_FX_SLOTS - 1)
+            {
+                selectedFx++;
+            }
+            else
+            {
+                selectedFx = 0;
+            }
+            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
+        }
+
+        void prevFX()
+        {
+            if (selectedFx > 0)
+            {
+                selectedFx--;
+            }
+            else
+            {
+                selectedFx = MAX_FX_SLOTS - 1;
+            }
+            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
         void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {

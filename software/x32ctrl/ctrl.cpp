@@ -396,9 +396,13 @@ void X32Ctrl::Tick10ms(void){
 		syncSurface();
 		syncXRemote(false);
 
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->Sync()");
 		mixer->Sync();
+
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->card->Sync()");
 		mixer->card->Sync();
 
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "state->ResetChangeFlags()");
 		state->ResetChangeFlags();
 		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
 			mixer->GetVChannel(index)->ResetVChannelChangeFlags();
