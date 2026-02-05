@@ -440,7 +440,7 @@ typedef enum {
     MIXERPARAMETER_UOM_DB, // dB
     MIXERPARAMETER_UOM_DBFS, // dB Full Scale
     MIXERPARAMETER_UOM_MS, // Milliseconds
-    MIXERPARAMETER_UOM_S, // Seconds
+    MIXERPARAMETER_UOM_SECONDS, // Seconds
     MIXERPARAMETER_UOM_HZ, // Hertz
     MIXERPARAMETER_UOM_KHZ, // Kilohertz
     MIXERPARAMETER_UOM_PERCENT, // Percent

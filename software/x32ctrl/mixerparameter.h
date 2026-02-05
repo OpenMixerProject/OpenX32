@@ -41,7 +41,7 @@ class MixerparameterDefinition {
             show_slider = _show_slider;
         }
 
-        void SetMinMaxStandardDecimals_Float(float _min, float _max, float _standard, uint8_t _decimal_places) {
+        void SetMinMaxStandardDecimals_Float(float _min, float _max, float _standard, uint8_t _decimal_places = 0) {
             value_type = MIXERPARAMETER_VALUE_TYPE_FLOAT;
             float_value_min = _min;
             float_value_max = _max;
@@ -52,7 +52,7 @@ class MixerparameterDefinition {
                 case MIXERPARAMETER_UOM_PERCENT:
                     float_stepsize = 0.01f;  // percent in 1% steps
                     break;
-                case MIXERPARAMETER_UOM_S:
+                case MIXERPARAMETER_UOM_SECONDS:
                     float_stepsize = 0.2f;  // seconds in 200ms steps
                     break;
                 default:
