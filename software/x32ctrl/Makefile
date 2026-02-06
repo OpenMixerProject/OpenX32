@@ -20,10 +20,10 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP
 
 # normal build
-CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CFLAGS          ?= -std=c++23 -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
-#CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CFLAGS          ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 LDFLAGS         ?= -lm -lrt -lpthread -static
 

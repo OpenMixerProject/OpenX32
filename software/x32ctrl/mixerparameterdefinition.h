@@ -43,10 +43,12 @@ class MixerparameterDefinition {
             unitOfMeasurement = uom;
 
             switch (uom) {
-                case MP_UOM::PERCENT:
+                using enum MP_UOM;
+
+                case PERCENT:
                     float_stepsize = 0.01f;  // percent in 1% steps
                     break;
-                case MP_UOM::SECONDS:
+                case SECONDS:
                     float_stepsize = 0.2f;  // seconds in 200ms steps
                     break;
                 default:

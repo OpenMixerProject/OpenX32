@@ -156,13 +156,15 @@ void Page::SetEncoder(uint8_t encoder, MP_TYPE mp) {
         // default value
         String valueString;
         switch(mpd->value_type) {
-            case MP_VALUE_TYPE::FLOAT:
+            using enum MP_VALUE_TYPE;
+
+            case FLOAT:
                 valueString = helper->FormatValue(mpd->float_value_standard, mpd);
                 break;
-            case MP_VALUE_TYPE::INT:
+            case INT:
                 valueString = helper->FormatValue(mpd->int_value_standard, mpd);
                 break;
-            case MP_VALUE_TYPE::UINT:
+            case UINT:
                 valueString = helper->FormatValue(mpd->uint_value_standard, mpd);
                 break;
         }

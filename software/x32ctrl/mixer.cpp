@@ -440,28 +440,30 @@ void Mixer::SetMute(uint8_t channelIndex, bool mute){
     helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "mute channelIndex=%d %s", channelIndex, mute ? "ON": "OFF");
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL:
-        case X32_VCHANNELTYPE::AUX: {
+        using enum X32_VCHANNELTYPE;
+
+        case NORMAL:
+        case AUX: {
             chan->dspChannel->muted = mute; 
             chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
             break;
         }
-        case X32_VCHANNELTYPE::BUS: {
+        case BUS: {
             dsp->Bus[channelIndex - (uint)X32_VCHANNEL_BLOCK::BUS].muted = mute;
             chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
             break;
         }
-        case X32_VCHANNELTYPE::MATRIX: {
+        case MATRIX: {
             dsp->Matrix[channelIndex - (uint)X32_VCHANNEL_BLOCK::MATRIX].muted = mute;
             chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
             break;
         }
-        case X32_VCHANNELTYPE::MAINSUB: {
+        case MAINSUB: {
             dsp->MainChannelSub.muted = mute;
             chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
             break;
         }
-        case X32_VCHANNELTYPE::MAIN: {
+        case MAIN: {
             dsp->MainChannelLR.muted = mute;
             chan->SetChanged(X32_VCHANNEL_CHANGED_MUTE);
             break;
@@ -830,8 +832,10 @@ void Mixer::SetLowcut(uint8_t vChannelIndex, float lowCutFrequency){
     VChannel* chan = GetVChannel(vChannelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL:
-        case X32_VCHANNELTYPE::AUX: {
+        using enum X32_VCHANNELTYPE;
+
+        case NORMAL:
+        case AUX: {
             dsp->Channel[vChannelIndex].lowCutFrequency = lowCutFrequency;
             chan->SetChanged(X32_VCHANNEL_CHANGED_EQ);
             break;
@@ -870,8 +874,10 @@ void Mixer::SetDynamics(uint8_t vChannelIndex, char option, float value) {
     VChannel* chan = GetVChannel(vChannelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL:
-        case X32_VCHANNELTYPE::AUX: {
+        using enum X32_VCHANNELTYPE;
+
+        case NORMAL:
+        case AUX: {
             sCompressor* comp = &dsp->Channel[vChannelIndex].compressor;
             switch (option) {
                 case 'T': // Threshold
@@ -1316,32 +1322,34 @@ float Mixer::GetVolumeDbfs(uint8_t vChannelIndex) {
     VChannel* chan = GetVChannel(vChannelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL:
-        case X32_VCHANNELTYPE::AUX: {
+        using enum X32_VCHANNELTYPE;
+
+        case NORMAL:
+        case AUX: {
             // Normal- and AUX-Channel must always return the volume-level of the
             // current DSP-Channel regardless of the internal source of the DSP
             return dsp->Channel[vChannelIndex].volumeLR;
         }
-        case X32_VCHANNELTYPE::FXRET: {
+        case FXRET: {
             // FX return
             return dsp->volumeFxReturn[vChannelIndex - 40];
         }
-        case X32_VCHANNELTYPE::BUS: {
+        case BUS: {
             return dsp->Bus[vChannelIndex - 48].volumeLR;
         }
-        case X32_VCHANNELTYPE::MATRIX: {
+        case MATRIX: {
             return dsp->Matrix[vChannelIndex - 64].volume;
         }
-        case X32_VCHANNELTYPE::SPECIAL: {
+        case SPECIAL: {
             return dsp->volumeSpecial; 
         }
-        case X32_VCHANNELTYPE::MAINSUB: {
+        case MAINSUB: {
             return dsp->MainChannelSub.volume;
         }
-        case X32_VCHANNELTYPE::MAIN: {
+        case MAIN: {
             return dsp->MainChannelLR.volume;
         }
-        case X32_VCHANNELTYPE::DCA: {
+        case DCA: {
             return dsp->volumeDca[vChannelIndex - 72];
         }
         default: {
@@ -1387,20 +1395,22 @@ bool Mixer::GetSolo(uint8_t dspChannel) {
     VChannel* chan = GetVChannel(dspChannel);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL:
-        case X32_VCHANNELTYPE::AUX: {
+        using enum X32_VCHANNELTYPE;
+
+        case NORMAL:
+        case AUX: {
             return chan->dspChannel->solo;
         }
-        case X32_VCHANNELTYPE::BUS: {
+        case BUS: {
             return dsp->Bus[dspChannel - (uint)X32_VCHANNEL_BLOCK::BUS].solo;
         }
-        case X32_VCHANNELTYPE::MATRIX: {
+        case MATRIX: {
             return dsp->Matrix[dspChannel - (uint)X32_VCHANNEL_BLOCK::MATRIX].solo;
         }
-        case X32_VCHANNELTYPE::MAINSUB: {
+        case MAINSUB: {
             return dsp->MainChannelSub.solo;
         }
-        case X32_VCHANNELTYPE::MAIN: {
+        case MAIN: {
             return dsp->MainChannelLR.solo;
         }
     }
@@ -1412,17 +1422,19 @@ float Mixer::GetBalance(uint8_t vChannelIndex) {
     VChannel* chan = GetVChannel(vChannelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL:
-        case X32_VCHANNELTYPE::AUX: {
+        using enum X32_VCHANNELTYPE;
+
+        case NORMAL:
+        case AUX: {
             return dsp->Channel[vChannelIndex].balance;
         }
-        case X32_VCHANNELTYPE::BUS: {
+        case BUS: {
             return dsp->Bus[vChannelIndex - (uint)X32_VCHANNEL_BLOCK::BUS].balance;
         }
-        case X32_VCHANNELTYPE::MAINSUB: {
+        case MAINSUB: {
             return dsp->MainChannelSub.balance;
         }
-        case X32_VCHANNELTYPE::MAIN: {
+        case MAIN: {
             return dsp->MainChannelLR.balance;
         }
     }
@@ -1465,7 +1477,9 @@ bool Mixer::GetPhantomPower(uint8_t vChannelIndex) {
     VChannel* chan = GetVChannel(vChannelIndex);
 
     switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL: {
+        using enum X32_VCHANNELTYPE;
+
+        case NORMAL: {
 
             uint8_t channelInputSource = dsp->Channel[vChannelIndex].input;
 
