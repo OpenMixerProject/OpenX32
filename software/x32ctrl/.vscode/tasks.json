@@ -3,7 +3,8 @@
         {
             "label": "openx32-build",
             "type": "shell",
-            "command": "rm ../bin/obj/*.o && make -j20 && dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl\"",
+            "command": "make -j20 && dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl\"",
+            //"command": "make -j20 && scp ../bin/x32ctrl root@192.168.188.103:/openx32/x32ctrl",
             "options": {
             },
             "problemMatcher": ["$gcc"],
