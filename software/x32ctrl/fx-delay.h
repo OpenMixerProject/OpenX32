@@ -9,8 +9,8 @@ class FxDelay : public FxBase {
         FxDelay(X32BaseParameter* basepar) : FxBase(basepar) {
 
             // Define parameters of this FX
-            parameters.push_back(MIXERPARAMETER_FX_DELAY_DELAY_A);
-            parameters.push_back(MIXERPARAMETER_FX_DELAY_DELAY_B);
+            parameters.push_back(MP_TYPE::FX_DELAY_DELAY_A);
+            parameters.push_back(MP_TYPE::FX_DELAY_DELAY_B);
         }
 
         String GetName() override{

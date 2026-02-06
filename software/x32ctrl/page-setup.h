@@ -5,7 +5,7 @@ using namespace std;
 class PageSetup: public Page {
     public:
         PageSetup(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            nextPage = X32_PAGE_SETUP_CARD;
+            nextPage = X32_PAGE::SETUP_CARD;
             tabLayer0 = objects.maintab;
             tabIndex0 = 3;
             tabLayer1 = objects.setuptab;
@@ -14,8 +14,8 @@ class PageSetup: public Page {
         }
 
         void OnInit() override {
-            SetEncoder(DISPLAY_ENCODER_5, MIXERPARAMETER_LED_BRIGHTNESS);
-            SetEncoder(DISPLAY_ENCODER_6, MIXERPARAMETER_LCD_CONTRAST);
+            SetEncoder(DISPLAY_ENCODER_5, MP_TYPE::LED_BRIGHTNESS);
+            SetEncoder(DISPLAY_ENCODER_6, MP_TYPE::LCD_CONTRAST);
         }
 
         void OnChange(bool force_update) override {
@@ -70,12 +70,12 @@ class PageSetup: public Page {
 					case X32_BTN_ENCODER4:
 						break;
 					case X32_BTN_ENCODER5:
-                        state->ledbrightness = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_5].mp).uint8_t_value_default;
+                        state->ledbrightness = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_5].mp)->uint_value_standard;
                         surface->SetBrightnessAllBoards(state->ledbrightness);
                         state->SetChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS);
 						break;
 					case X32_BTN_ENCODER6:
-                        state->lcdcontrast = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_6].mp).uint8_t_value_default;
+                        state->lcdcontrast = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_6].mp)->uint_value_standard;
                         surface->SetContrastAllBoards(state->lcdcontrast);
                         state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST);
 						break;

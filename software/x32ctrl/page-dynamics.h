@@ -7,8 +7,8 @@ using namespace std;
 class PageDynamics: public Page {
     public:
         PageDynamics(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE_GATE;
-            nextPage = X32_PAGE_EQ;
+            prevPage = X32_PAGE::GATE;
+            nextPage = X32_PAGE::EQ;
             tabLayer0 = objects.maintab;
             tabIndex0 = 0;
             tabLayer1 = objects.hometab;
@@ -37,12 +37,12 @@ class PageDynamics: public Page {
             lv_obj_set_user_data(objects.current_channel_comp, mixer);
             //chart-shadow: 0x7e4000
 
-            SetEncoder(0, MIXERPARAMETER_DYNAMICS_TRESHOLD);
-            SetEncoder(1, MIXERPARAMETER_DYNAMICS_RATIO);
-            SetEncoder(2, MIXERPARAMETER_DYNAMICS_MAKEUP);
-            SetEncoder(3, MIXERPARAMETER_DYNAMICS_ATTACK);
-            SetEncoder(4, MIXERPARAMETER_DYNAMICS_HOLD);
-            SetEncoder(5, MIXERPARAMETER_DYNAMICS_RELEASE);
+            SetEncoder(0, MP_TYPE::DYNAMICS_TRESHOLD);
+            SetEncoder(1, MP_TYPE::DYNAMICS_RATIO);
+            SetEncoder(2, MP_TYPE::DYNAMICS_MAKEUP);
+            SetEncoder(3, MP_TYPE::DYNAMICS_ATTACK);
+            SetEncoder(4, MP_TYPE::DYNAMICS_HOLD);
+            SetEncoder(5, MP_TYPE::DYNAMICS_RELEASE);
         }
 
         void OnChange(bool force_update) override {

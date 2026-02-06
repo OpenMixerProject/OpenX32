@@ -45,9 +45,9 @@ uint8_t FxBase::GetParameterCount() {
     return parameters.size();
 }
 
-MIXERPARAMETER FxBase::GetParameterDefinition(uint8_t index) {
+MP_TYPE FxBase::GetParameterDefinition(uint8_t index) {
     if (index >= parameters.size()) {
-        return MIXERPARAMETER_NONE;
+        return MP_TYPE::NONE;
     }
 
     helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::GetParameterDefinition(%d)", index);
@@ -84,7 +84,7 @@ bool FxBase::SetParameter(uint8_t parIdx, float value) {
 
 bool FxBase::ResetParameter(uint8_t parIdx) {
     if (parIdx < parameters.size()) {
-        return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx]).float_value_default);
+        return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx])->float_value_standard);
     }
     return false;
 }

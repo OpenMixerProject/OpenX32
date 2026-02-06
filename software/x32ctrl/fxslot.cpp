@@ -31,29 +31,29 @@ FxSlot::FxSlot(X32BaseParameter* basepar) : X32Base(basepar){
 void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 	
 	switch(fxToLoad) {
-		case FX_TYPE_REVERB:
+		case FX_TYPE::REVERB:
 			fx = new FxReverb(_basepar);
 			fxType = fxToLoad;
 			break;
-    	case FX_TYPE_CHORUS:
+    	case FX_TYPE::CHORUS:
 			fx = new FxChorus(_basepar);
 			fxType = fxToLoad;
 			break;
-		case FX_TYPE_TRANSIENTSHAPER:
+		case FX_TYPE::TRANSIENTSHAPER:
 			fx = new FxTransientshaper(_basepar);
 			fxType = fxToLoad;
 			break;
-		case FX_TYPE_DELAY:
+		case FX_TYPE::DELAY:
 			fx = new FxDelay(_basepar);
 			fxType = fxToLoad;
 			break;
 		default:	
 			helper->Error("Can not load unknown FX.");
-		case FX_TYPE_NONE:
+		case FX_TYPE::NONE:
 			ClearFx();
 			break;
 	}
-	if (fxToLoad != FX_TYPE_NONE) {
+	if (fxToLoad != FX_TYPE::NONE) {
 		fx->InitParameters();
 	}
 	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
@@ -61,10 +61,10 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 
 void FxSlot::ClearFx() {
 	fx = nullptr;
-	fxType = FX_TYPE_NONE;
+	fxType = FX_TYPE::NONE;
 	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
 }
 
 bool FxSlot::HasFx(){
-	return fxType != FX_TYPE_NONE;
+	return fxType != FX_TYPE::NONE;
 }

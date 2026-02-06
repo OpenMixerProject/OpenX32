@@ -7,8 +7,8 @@ using namespace std;
 class PageRoutingDsp1: public Page {
     public:
         PageRoutingDsp1(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE_ROUTING_FPGA;
-            nextPage = X32_PAGE_ROUTING_DSP2;
+            prevPage = X32_PAGE::ROUTING_FPGA;
+            nextPage = X32_PAGE::ROUTING_DSP2;
             tabLayer0 = objects.maintab;
             tabIndex0 = 2;
             tabLayer1 = objects.routingtab;

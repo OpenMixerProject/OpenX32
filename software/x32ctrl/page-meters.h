@@ -158,7 +158,7 @@ class PageMeters : public Page {
 
                 // Main L/R
                 if (changed_vchannel) {
-                    VChannel* main = mixer->GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
+                    VChannel* main = mixer->GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
                                              
                     if (main->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || force_update) {
                         mixer->dsp->MainChannelLR.solo ? add_style_slider_fader_solo(objects.ms_main_lr__fader) : remove_style_slider_fader_solo(objects.ms_main_lr__fader);

@@ -260,7 +260,7 @@ typedef struct {
 
 
 typedef struct {
-	MIXERPARAMETER mp = MIXERPARAMETER_NONE;
+	MP_TYPE mp = MP_TYPE::NONE;
 	String label;
 	String label_value;
 	uint8_t percent; 

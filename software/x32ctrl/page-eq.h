@@ -7,8 +7,8 @@ using namespace std;
 class PageEq: public Page {
     public:
         PageEq(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE_COMPRESSOR;
-            nextPage = X32_PAGE_NONE;
+            prevPage = X32_PAGE::COMPRESSOR;
+            nextPage = X32_PAGE::NONE;
             tabLayer0 = objects.maintab;
             tabIndex0 = 0;
             tabLayer1 = objects.hometab;

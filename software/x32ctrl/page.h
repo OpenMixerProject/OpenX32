@@ -19,8 +19,8 @@ class Page : public X32Base {
         Mixer* mixer;
         Surface* surface;
 
-        X32_PAGE nextPage = X32_PAGE_NONE;
-        X32_PAGE prevPage = X32_PAGE_NONE;
+        X32_PAGE nextPage = X32_PAGE::NONE;
+        X32_PAGE prevPage = X32_PAGE::NONE;
 
         X32_BTN led = X32_BTN_NONE;
         bool noLedOnRack = false;
@@ -37,8 +37,8 @@ class Page : public X32Base {
 
         bool initDone = false;
 
-        void SetEncoder(uint8_t encoder, MIXERPARAMETER mp);
-        void SetEncoder(uint8_t encoder, MIXERPARAMETER mp, String buttonPressLabel);
+        void SetEncoder(uint8_t encoder, MP_TYPE mp);
+        void SetEncoder(uint8_t encoder, MP_TYPE mp, String buttonPressLabel);
         void SetEncoder(uint8_t encoder, String label, String buttonPressLabel);
         void SetEncoderValue(uint8_t encoder, float enc1);
         void SetEncoderValue(uint8_t encoder, uint8_t enc1);

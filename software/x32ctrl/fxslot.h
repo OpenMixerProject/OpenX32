@@ -16,7 +16,7 @@ class FxSlot : X32Base {
 
     public:
 
-        FX_TYPE fxType = FX_TYPE_NONE;
+        FX_TYPE fxType = FX_TYPE::NONE;
         FxBase* fx;
         
         FxSlot(X32BaseParameter* basepar);

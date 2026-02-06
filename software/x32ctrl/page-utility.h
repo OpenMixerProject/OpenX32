@@ -44,14 +44,14 @@ class PageUtility: public Page {
                     break;
                 case X32_BTN_ENCODER2:
                     // install effects
-                    mixer->dsp->DSP2_SetFx(0, FX_TYPE_REVERB, 2); // Reverb
-                    mixer->dsp->DSP2_SetFx(1, FX_TYPE_CHORUS, 2); // Chorus
-                    mixer->dsp->DSP2_SetFx(2, FX_TYPE_TRANSIENTSHAPER, 2); // TransientShaper
-                    mixer->dsp->DSP2_SetFx(3, FX_TYPE_OVERDRIVE, 2); // Overdrive
-                    mixer->dsp->DSP2_SetFx(4, FX_TYPE_DELAY, 2); // Delay
-                    //mixer->dsp->DSP2_SetFx(5, FX_TYPE_MULTIBANDCOMPRESOR, 2); // MultibandCompressor
-                    mixer->dsp->DSP2_SetFx(6, FX_TYPE_DYNAMICEQ, 2); // DynamicEQ
-                    //mixer->dsp->DSP2_SetFx(7, FX_TYPE_NONE, 2); // no effect
+                    mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // Reverb
+                    mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2); // Chorus
+                    mixer->dsp->DSP2_SetFx(2, FX_TYPE::TRANSIENTSHAPER, 2); // TransientShaper
+                    mixer->dsp->DSP2_SetFx(3, FX_TYPE::OVERDRIVE, 2); // Overdrive
+                    mixer->dsp->DSP2_SetFx(4, FX_TYPE::DELAY, 2); // Delay
+                    //mixer->dsp->DSP2_SetFx(5, FX_TYPE::MULTIBANDCOMPRESOR, 2); // MultibandCompressor
+                    mixer->dsp->DSP2_SetFx(6, FX_TYPE::DYNAMICEQ, 2); // DynamicEQ
+                    //mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2); // no effect
                     break;
                 case X32_BTN_ENCODER3:
                     mixer->dsp->DSP2_SendFxParameter(0); // send parameters for fxSlot 0
@@ -120,7 +120,7 @@ class PageUtility: public Page {
         }
 
         void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {
-            if (state->activePage == X32_PAGE_UTILITY) {
+            if (state->activePage == X32_PAGE::UTILITY) {
                 switch (encoder){
                     case X32_ENC_ENCODER1:
                         break;

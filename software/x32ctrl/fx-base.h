@@ -6,14 +6,14 @@
 class FxBase : public X32Base {
 
     protected:
-        vector<MIXERPARAMETER> parameters;
+        vector<MP_TYPE> parameters;
         vector<float> parameter_value;
 
     public:
         FxBase(X32BaseParameter* basepar);
 
         uint8_t GetParameterCount();
-        MIXERPARAMETER GetParameterDefinition(uint8_t index);
+        MP_TYPE GetParameterDefinition(uint8_t index);
 
         void InitParameters();
         

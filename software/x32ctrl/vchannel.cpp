@@ -29,7 +29,7 @@
     color = 0;
     icon = 0;
     selected = false;
-    vChannelType = X32_VCHANNELTYPE_NONE;
+    vChannelType = X32_VCHANNELTYPE::NONE;
 }
 
 void VChannel::SetChanged(x32_changeflag p_flag){
@@ -106,7 +106,7 @@ String VChannel::ToString(void){
     s += String(" Color: ") + String(color);
     s += String(" Icon: ") + String(icon);
     s += String(" Selected: ") + String(selected);
-    s += String(" vChannelType: ") + String(vChannelType);
+    s += String(" vChannelType: ") + String((uint)vChannelType);
     s += "\n";
     return s;
 }

@@ -141,42 +141,42 @@ X32_BTN Page::GetLed() {
     return X32_BTN_NONE;
 }
 
-void Page::SetEncoder(uint8_t encoder, MIXERPARAMETER mp) {
-    if (mp == MIXERPARAMETER_NONE) {
+void Page::SetEncoder(uint8_t encoder, MP_TYPE mp) {
+    if (mp == MP_TYPE::NONE) {
         ClearEncoder(encoder);
     }
     else 
     {
         encoderSliders[encoder].mp = mp;
 
-        MixerparameterDefinition mpd = helper->GetMixerparameterDefinition(mp);
-        encoderSliders[encoder].label = mpd.name;
-        encoderSliders[encoder].slider_hidden = !mpd.show_slider;
+        MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(mp);
+        encoderSliders[encoder].label = mpd->name;
+        encoderSliders[encoder].slider_hidden = false;
 
         // default value
         String valueString;
-        switch(mpd.value_type) {
-            case MIXERPARAMETER_VALUE_TYPE_FLOAT:
-                valueString = helper->FormatValue(mpd.float_value_default, mpd);
+        switch(mpd->value_type) {
+            case MP_VALUE_TYPE::FLOAT:
+                valueString = helper->FormatValue(mpd->float_value_standard, mpd);
                 break;
-            case MIXERPARAMETER_VALUE_TYPE_INT8:
-                valueString = helper->FormatValue(mpd.int8_t_value_default, mpd);
+            case MP_VALUE_TYPE::INT:
+                valueString = helper->FormatValue(mpd->int_value_standard, mpd);
                 break;
-            case MIXERPARAMETER_VALUE_TYPE_UINT8:
-                valueString = helper->FormatValue(mpd.uint8_t_value_default, mpd);
+            case MP_VALUE_TYPE::UINT:
+                valueString = helper->FormatValue(mpd->uint_value_standard, mpd);
                 break;
         }
         encoderSliders[encoder].label_buttonpress = String("Reset: ") + valueString;
     }
 }
 
-void Page::SetEncoder(uint8_t encoder, MIXERPARAMETER mp, String buttonPressLabel) {
+void Page::SetEncoder(uint8_t encoder, MP_TYPE mp, String buttonPressLabel) {
     SetEncoder(encoder, mp);
     encoderSliders[encoder].label_buttonpress = buttonPressLabel;
 }
 
 void Page::SetEncoder(uint8_t encoder, String label, String buttonPressLabel){
-    encoderSliders[encoder].mp = MIXERPARAMETER_NONE;
+    encoderSliders[encoder].mp = MP_TYPE::NONE;
 
     encoderSliders[encoder].label = label;
     encoderSliders[encoder].label_buttonpress = buttonPressLabel;
@@ -184,37 +184,37 @@ void Page::SetEncoder(uint8_t encoder, String label, String buttonPressLabel){
 }
 
 void Page::SetEncoderValue(uint8_t encoder, float float_value)  {
-    if (encoderSliders[encoder].mp == MIXERPARAMETER_NONE) {
+    if (encoderSliders[encoder].mp == MP_TYPE::NONE) {
         return;
     }
 
-    MixerparameterDefinition mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
+    MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
     encoderSliders[encoder].label_value = helper->FormatValue(float_value, mpd);
-    encoderSliders[encoder].percent = helper->value2percent(float_value, mpd.float_value_min, mpd.float_value_max);
+    encoderSliders[encoder].percent = helper->value2percent(float_value, mpd->float_value_min, mpd->float_value_max);
 }
 
 void Page::SetEncoderValue(uint8_t encoder, uint8_t uint8_t_value)  {
-    if (encoderSliders[encoder].mp == MIXERPARAMETER_NONE) {
+    if (encoderSliders[encoder].mp == MP_TYPE::NONE) {
         return;
     }
 
-    MixerparameterDefinition mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
+    MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
     encoderSliders[encoder].label_value = helper->FormatValue(uint8_t_value, mpd);
-    encoderSliders[encoder].percent = helper->value2percent(uint8_t_value, mpd.uint8_t_value_min, mpd.uint8_t_value_max);
+    encoderSliders[encoder].percent = helper->value2percent(uint8_t_value, mpd->uint_value_min, mpd->uint_value_max);
 }
 
 void Page::SetEncoderValue(uint8_t encoder, int8_t int8_t_value)  {
-    if (encoderSliders[encoder].mp == MIXERPARAMETER_NONE) {
+    if (encoderSliders[encoder].mp == MP_TYPE::NONE) {
         return;
     }
 
-    MixerparameterDefinition mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
+    MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
     encoderSliders[encoder].label_value = helper->FormatValue(int8_t_value, mpd);
-    encoderSliders[encoder].percent = helper->value2percent(int8_t_value, mpd.int8_t_value_min, mpd.int8_t_value_max);
+    encoderSliders[encoder].percent = helper->value2percent(int8_t_value, mpd->int_value_min, mpd->int_value_max);
 }
 
 void Page::ClearEncoder(uint8_t encoder) {
-    encoderSliders[encoder].mp = MIXERPARAMETER_NONE;
+    encoderSliders[encoder].mp = MP_TYPE::NONE;
 
     encoderSliders[encoder].label = "";
     encoderSliders[encoder].label_value = "";

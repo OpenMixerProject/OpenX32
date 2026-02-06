@@ -59,7 +59,7 @@ class PageEffects: public Page {
                                 banking = 0;
 
                                 for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    SetEncoder(e, MIXERPARAMETER_NONE);
+                                    SetEncoder(e, MP_TYPE::NONE);
                                 }
                             }
                             state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
@@ -80,8 +80,8 @@ class PageEffects: public Page {
 
                             // FX Parameters
                             for (uint8_t p=0; p < slot->fx->GetParameterCount(); p++){
-                                MixerparameterDefinition mpd = helper->GetMixerparameterDefinition(slot->fx->GetParameterDefinition(p));
-                                lv_table_set_cell_value(objects.fxtable, p + 3, i*2, mpd.name.c_str());
+                                MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(slot->fx->GetParameterDefinition(p));
+                                lv_table_set_cell_value(objects.fxtable, p + 3, i*2, mpd->name.c_str());
                                 lv_table_set_cell_value(objects.fxtable, p + 3, (i*2)+1, helper->FormatValue(slot->fx->GetParameter(p), mpd).c_str());
                             }
                         } else {

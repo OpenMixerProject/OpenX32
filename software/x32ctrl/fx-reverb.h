@@ -9,11 +9,11 @@ class FxReverb : public FxBase {
         FxReverb(X32BaseParameter* basepar) : FxBase(basepar) {
 
             // Define parameters of this FX
-            parameters.push_back(MIXERPARAMETER_FX_REVERB_ROOMSIZE);
-            parameters.push_back(MIXERPARAMETER_FX_REVERB_RT60);
-            parameters.push_back(MIXERPARAMETER_FX_REVERB_LPFREQ);
-            parameters.push_back(MIXERPARAMETER_FX_REVERB_DRY);
-            parameters.push_back(MIXERPARAMETER_FX_REVERB_WET);
+            parameters.push_back(MP_TYPE::FX_REVERB_ROOMSIZE);
+            parameters.push_back(MP_TYPE::FX_REVERB_RT60);
+            parameters.push_back(MP_TYPE::FX_REVERB_LPFREQ);
+            parameters.push_back(MP_TYPE::FX_REVERB_DRY);
+            parameters.push_back(MP_TYPE::FX_REVERB_WET);
         }
 
         String GetName() override{

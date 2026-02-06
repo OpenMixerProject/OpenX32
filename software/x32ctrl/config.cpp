@@ -3,50 +3,50 @@
 void Config::SetModel(String model){
 
     if (model == "X32CORE") {
-        _model = X32_MODEL_CORE;
+        _model = X32_MODEL::CORE;
     }else if (model == "X32RACK") {
-        _model = X32_MODEL_RACK;
+        _model = X32_MODEL::RACK;
     }else if (model == "X32Producer") {
-        _model = X32_MODEL_PRODUCER;
+        _model = X32_MODEL::PRODUCER;
     }else if (model == "X32C") {
-        _model =  X32_MODEL_COMPACT;
+        _model =  X32_MODEL::COMPACT;
     }else if (model == "X32") {
-        _model = X32_MODEL_FULL;
+        _model = X32_MODEL::FULL;
     }else{
         //x32log("ERROR: No model detected!\n");
-        _model = X32_MODEL_NONE;
+        _model = X32_MODEL::NONE;
     }
 };
 
 bool Config::IsModelX32Full() {
-    return (_model == X32_MODEL_FULL);
+    return (_model == X32_MODEL::FULL);
 }
 bool Config::IsModelX32FullOrCompactOrProducer() {
-    return ((_model == X32_MODEL_FULL) || (_model == X32_MODEL_COMPACT) || (_model == X32_MODEL_PRODUCER));
+    return ((_model == X32_MODEL::FULL) || (_model == X32_MODEL::COMPACT) || (_model == X32_MODEL::PRODUCER));
 }
 bool Config::IsModelX32FullOrCompactOrProducerOrRack() {
-    return (IsModelX32FullOrCompactOrProducer() || (_model == X32_MODEL_RACK));
+    return (IsModelX32FullOrCompactOrProducer() || (_model == X32_MODEL::RACK));
 }
 bool Config::IsModelX32CompactOrProducer() {
-    return ((_model == X32_MODEL_COMPACT) || (_model == X32_MODEL_PRODUCER));
+    return ((_model == X32_MODEL::COMPACT) || (_model == X32_MODEL::PRODUCER));
 }
 bool Config::IsModelX32Core() {
-    return (_model == X32_MODEL_CORE);
+    return (_model == X32_MODEL::CORE);
 }
 bool Config::IsModelX32Rack() {
-    return (_model == X32_MODEL_RACK);
+    return (_model == X32_MODEL::RACK);
 }
 bool Config::IsModelX32Producer() {
-    return (_model == X32_MODEL_PRODUCER);
+    return (_model == X32_MODEL::PRODUCER);
 }
 bool Config::IsModelX32Compact() {
-    return (_model == X32_MODEL_COMPACT);
+    return (_model == X32_MODEL::COMPACT);
 }
 bool Config::IsModelX32FullOrCompact() {
-    return ((_model == X32_MODEL_FULL) || (_model == X32_MODEL_COMPACT));
+    return ((_model == X32_MODEL::FULL) || (_model == X32_MODEL::COMPACT));
 }
 bool Config::IsModelX32ProducerOrRack() {
-    return ((_model == X32_MODEL_PRODUCER) || (_model == X32_MODEL_RACK));
+    return ((_model == X32_MODEL::PRODUCER) || (_model == X32_MODEL::RACK));
 }
 
 void Config::SetSamplerate(uint32_t samplerate) {

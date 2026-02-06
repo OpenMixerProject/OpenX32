@@ -7,7 +7,7 @@
 #include "base.h"
 
 #include "helper.h"
-#include "mixerparameter.h"
+#include "mixerparameterdefinition.h"
 
 #include "vchannel.h"
 #include "surface.h"
@@ -41,12 +41,13 @@ class Mixer : public X32Base
         Card* card;
         DSP1* dsp;
 
-        
-       
         Mixer(X32BaseParameter* basepar);
         void Init();
 
-
+        float Get(uint8_t parIdx);
+        bool Set(uint8_t parIdx, float value);
+        bool Change(uint8_t parIdx, int8_t amount);
+        bool Reset(uint8_t parIdx);
 
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);

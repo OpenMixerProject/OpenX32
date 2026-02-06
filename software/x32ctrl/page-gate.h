@@ -7,8 +7,8 @@ using namespace std;
 class PageGate: public Page {
     public:
         PageGate(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE_CONFIG;
-            nextPage = X32_PAGE_COMPRESSOR;
+            prevPage = X32_PAGE::CONFIG;
+            nextPage = X32_PAGE::COMPRESSOR;
             tabLayer0 = objects.maintab;
             tabIndex0 = 0;
             tabLayer1 = objects.hometab;
@@ -37,11 +37,11 @@ class PageGate: public Page {
             lv_obj_set_user_data(objects.current_channel_gate, mixer);
             //chart-shadow: 0x7e4000
 
-            SetEncoder(0, MIXERPARAMETER_GATE_TRESHOLD);
-            SetEncoder(1, MIXERPARAMETER_GATE_RANGE);
-            SetEncoder(2, MIXERPARAMETER_GATE_ATTACK);
-            SetEncoder(3, MIXERPARAMETER_GATE_HOLD);
-            SetEncoder(4, MIXERPARAMETER_GATE_RELEASE);
+            SetEncoder(0, MP_TYPE::GATE_TRESHOLD);
+            SetEncoder(1, MP_TYPE::GATE_RANGE);
+            SetEncoder(2, MP_TYPE::GATE_ATTACK);
+            SetEncoder(3, MP_TYPE::GATE_HOLD);
+            SetEncoder(4, MP_TYPE::GATE_RELEASE);
         }
 
         void OnChange(bool force_update) override {

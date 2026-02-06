@@ -18,7 +18,7 @@
 #include "lib/plf_nanotimer.h"
 
 #include "config.h"
-#include "mixerparameter.h"
+#include "mixerparameterdefinition.h"
 
 #define DEBUGLEVEL_OFF -1 // No Debug
 #define DEBUGLEVEL_NORMAL 0 // General highlevel debug messages
@@ -32,11 +32,11 @@ class Helper {
         uint32_t debug_;
         uint8_t debuglevel_;
         map<uint8_t, plf::nanotimer*> timers;
-        map<MIXERPARAMETER, MixerparameterDefinition> mpm = map<MIXERPARAMETER, MixerparameterDefinition>();
+        map<MP_TYPE, MixerparameterDefinition*> mpm = map<MP_TYPE, MixerparameterDefinition*>();
 
-        void InitMixerparameters();
+        void LoadMixerparametersdefinitions();
 
-        String GetUnitOfMesaurement(MixerparameterDefinition mpd, bool spaceInFront);
+        String GetUnitOfMesaurement(MixerparameterDefinition* mpd, bool spaceInFront);
 
     public:
 
@@ -60,12 +60,15 @@ class Helper {
         uint8_t value2percent(uint8_t value, uint8_t value_min, uint8_t value_max);
         uint8_t value2percent(int8_t value, int8_t value_min, int8_t value_max);
         
-        uint8_t GetDecimaPlaces(MixerparameterDefinition mpd);
-        float CalcNewValue(float value, int8_t amount, MIXERPARAMETER mp);
-        String FormatValue(float value, MixerparameterDefinition mpd);
-        String FormatValue(uint8_t value, MixerparameterDefinition mpd);
-        String FormatValue(int8_t value, MixerparameterDefinition mpd);
-        MixerparameterDefinition GetMixerparameterDefinition(MIXERPARAMETER mp);
+        MixerparameterDefinition* NewMPD(MP_TYPE mp_type, MP_CAT category, String name);
+        uint8_t GetDecimaPlaces(MixerparameterDefinition* mpd);
+        float CalcNewValue(float value, int8_t amount, MP_TYPE mp);
+        String FormatValue(float value, MixerparameterDefinition* mpd);
+        String FormatValue(uint value, MixerparameterDefinition* mpd);
+        String FormatValue(int value, MixerparameterDefinition* mpd);
+        
+        MixerparameterDefinition* GetMixerparameterDefinition(MP_TYPE mp);
+
 
         long GetFileSize(const char* filename);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);

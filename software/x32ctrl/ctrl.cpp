@@ -91,14 +91,14 @@ void X32Ctrl::Init(){
 
 			// Just load a default set of FXes
 			// TODO: Save and Load
-			mixer->dsp->DSP2_SetFx(0, FX_TYPE_REVERB, 2);
-            mixer->dsp->DSP2_SetFx(1, FX_TYPE_CHORUS, 2);
-            mixer->dsp->DSP2_SetFx(2, FX_TYPE_TRANSIENTSHAPER, 2);
-            mixer->dsp->DSP2_SetFx(3, FX_TYPE_DELAY, 2);
-            mixer->dsp->DSP2_SetFx(4, FX_TYPE_NONE, 2);
-            mixer->dsp->DSP2_SetFx(5, FX_TYPE_NONE, 2);
-            mixer->dsp->DSP2_SetFx(6, FX_TYPE_NONE, 2);
-            mixer->dsp->DSP2_SetFx(7, FX_TYPE_NONE, 2);
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
+            mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
+            mixer->dsp->DSP2_SetFx(2, FX_TYPE::TRANSIENTSHAPER, 2);
+            mixer->dsp->DSP2_SetFx(3, FX_TYPE::DELAY, 2);
+            mixer->dsp->DSP2_SetFx(4, FX_TYPE::NONE, 2);
+            mixer->dsp->DSP2_SetFx(5, FX_TYPE::NONE, 2);
+            mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);
+            mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2);
 	//#                                                                          #
 	//############################################################################
     //#                                                                          #
@@ -305,6 +305,7 @@ void X32Ctrl::LoadConfig() {
 //#####################################################################################################################
 
 void X32Ctrl::SaveConfig() {
+
 	// mixer config
 	{
 		string section = string("mixer");
@@ -422,7 +423,7 @@ void X32Ctrl::Tick100ms(void) {
 	surface->Blink();
 	mixer->dsp->spi->ActivityLight();
 
-	if (!config->IsModelX32Core() && state->activePage == X32_PAGE_UTILITY) {
+	if (!config->IsModelX32Core() && state->activePage == X32_PAGE::UTILITY) {
 		// read the current DSP load
 		// show the received value (could be a bit older than the request)
 	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% / Heap: %.0f Words free [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspFreeHeapWords[1], (double)state->dspVersion[1]);
@@ -662,22 +663,22 @@ void X32Ctrl::UdpHandleCommunication(void) {
 void X32Ctrl::InitPages(){
 	PageBaseParameter* pagebasepar = new PageBaseParameter(app, config, state, helper, mixer, surface);
 	
-	pages[X32_PAGE_HOME] = new PageHome(pagebasepar);
-	pages[X32_PAGE_CONFIG] = new PageConfig(pagebasepar);
-	pages[X32_PAGE_GATE] = new PageGate(pagebasepar);
-	pages[X32_PAGE_COMPRESSOR] = new PageDynamics(pagebasepar);
-	pages[X32_PAGE_EQ] = new PageEq(pagebasepar);
-	pages[X32_PAGE_METERS] = new PageMeters(pagebasepar);
-	pages[X32_PAGE_ROUTING] = new PageRouting(pagebasepar);
-	pages[X32_PAGE_ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);
-	pages[X32_PAGE_ROUTING_DSP1] = new PageRoutingDsp1(pagebasepar);
-	pages[X32_PAGE_ROUTING_DSP2] = new PageRoutingDsp2(pagebasepar);
-	pages[X32_PAGE_SETUP] = new PageSetup(pagebasepar);
-	pages[X32_PAGE_SETUP_CARD] = new PageSetupCard(pagebasepar);
-	pages[X32_PAGE_LIBRARY] = new PageLibrary(pagebasepar);
-	pages[X32_PAGE_EFFECTS] = new PageEffects(pagebasepar);
-	pages[X32_PAGE_MUTE_GRP] = new PageMutegroup(pagebasepar);
-	pages[X32_PAGE_UTILITY] = new PageUtility(pagebasepar);
+	pages[X32_PAGE::HOME] = new PageHome(pagebasepar);
+	pages[X32_PAGE::CONFIG] = new PageConfig(pagebasepar);
+	pages[X32_PAGE::GATE] = new PageGate(pagebasepar);
+	pages[X32_PAGE::COMPRESSOR] = new PageDynamics(pagebasepar);
+	pages[X32_PAGE::EQ] = new PageEq(pagebasepar);
+	pages[X32_PAGE::METERS] = new PageMeters(pagebasepar);
+	pages[X32_PAGE::ROUTING] = new PageRouting(pagebasepar);
+	pages[X32_PAGE::ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);
+	pages[X32_PAGE::ROUTING_DSP1] = new PageRoutingDsp1(pagebasepar);
+	pages[X32_PAGE::ROUTING_DSP2] = new PageRoutingDsp2(pagebasepar);
+	pages[X32_PAGE::SETUP] = new PageSetup(pagebasepar);
+	pages[X32_PAGE::SETUP_CARD] = new PageSetupCard(pagebasepar);
+	pages[X32_PAGE::LIBRARY] = new PageLibrary(pagebasepar);
+	pages[X32_PAGE::EFFECTS] = new PageEffects(pagebasepar);
+	pages[X32_PAGE::MUTE_GRP] = new PageMutegroup(pagebasepar);
+	pages[X32_PAGE::UTILITY] = new PageUtility(pagebasepar);
 	for (const auto& [key, value] : pages) {
 		value->Init();
 	}
@@ -685,7 +686,7 @@ void X32Ctrl::InitPages(){
 
 void X32Ctrl::ShowNextPage(void){
 	X32_PAGE nextPage = pages[state->activePage]->GetNextPage();
-	if (nextPage != X32_PAGE_NONE){
+	if (nextPage != X32_PAGE::NONE){
 	 	ShowPage(nextPage);
 	} else {
 		// if theres is no next page, send button press to page
@@ -695,7 +696,7 @@ void X32Ctrl::ShowNextPage(void){
 
 void X32Ctrl::ShowPrevPage(void){
 	X32_PAGE prevPage = pages[state->activePage]->GetPrevPage();
-	if (prevPage != X32_PAGE_NONE){
+	if (prevPage != X32_PAGE::NONE){
 	 	ShowPage(prevPage);
 	} else {
 		// if theres is no prev page, send button press to page
@@ -987,9 +988,9 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			}
 
 			// Main Channel
-			VChannel* mainchan = GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
+			VChannel* mainchan = GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
 			if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-				surface->SetEncoderRingDbfs(1, 1, mixer->GetVolumeDbfs(X32_VCHANNEL_BLOCK_MAIN),  mixer->GetMute(X32_VCHANNEL_BLOCK_MAIN), 0);
+				surface->SetEncoderRingDbfs(1, 1, mixer->GetVolumeDbfs((uint)X32_VCHANNEL_BLOCK::MAIN),  mixer->GetMute((uint)X32_VCHANNEL_BLOCK::MAIN), 0);
 			}
 		}
 	}
@@ -1002,9 +1003,9 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActive, soloActive);
 		}
 		// Main Channel
-		VChannel* mainchan = GetVChannel(X32_VCHANNEL_BLOCK_MAIN);
+		VChannel* mainchan = GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
 		if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, mixer->GetVolumeDbfs(X32_VCHANNEL_BLOCK_MAIN),  mixer->GetMute(X32_VCHANNEL_BLOCK_MAIN), 0);
+			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, mixer->GetVolumeDbfs((uint)X32_VCHANNEL_BLOCK::MAIN),  mixer->GetMute((uint)X32_VCHANNEL_BLOCK::MAIN), 0);
 		}
 	}
 }
@@ -1409,7 +1410,7 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 	// DEBUG
 	xremote->SetCard(10); // X-LIVE
 
-	for(uint8_t i=0; i<X32_VCHANNEL_BLOCKSIZE_NORMAL; i++) {
+	for(uint8_t i=0; i<(uint)X32_VCHANNELTYPE::NORMAL; i++) {
 		uint8_t chanindex = i;
 		VChannel* chan = mixer->GetVChannel(i);
 		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
@@ -1432,7 +1433,7 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 		// }
 	}
 
-	for(uint8_t i=X32_VCHANNEL_BLOCK_AUX; i<X32_VCHANNEL_BLOCKSIZE_AUX; i++) {
+	for(uint8_t i=(uint)X32_VCHANNEL_BLOCK::AUX; i<(uint)X32_VCHANNELTYPE::AUX; i++) {
 		uint8_t chanindex = i;
 		VChannel* chan = mixer->GetVChannel(i);
 		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
@@ -1837,40 +1838,40 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event) {
 				ShowNextPage();
 				break;
 			case X32_BTN_HOME:
-				ShowPage(X32_PAGE_HOME);
+				ShowPage(X32_PAGE::HOME);
 				break;
 			case X32_BTN_VIEW_CONFIG:
-				ShowPage(X32_PAGE_CONFIG);
+				ShowPage(X32_PAGE::CONFIG);
 				break;
 			case X32_BTN_VIEW_GATE:
-				ShowPage(X32_PAGE_GATE);
+				ShowPage(X32_PAGE::GATE);
 				break;
 			case X32_BTN_VIEW_COMPRESSOR:
-				ShowPage(X32_PAGE_COMPRESSOR);
+				ShowPage(X32_PAGE::COMPRESSOR);
 				break;
 			case X32_BTN_VIEW_EQ:
-				ShowPage(X32_PAGE_EQ);
+				ShowPage(X32_PAGE::EQ);
 				break;
 			case X32_BTN_METERS:
-				ShowPage(X32_PAGE_METERS);
+				ShowPage(X32_PAGE::METERS);
 				break;
 			case X32_BTN_ROUTING:
-				ShowPage(X32_PAGE_ROUTING);
+				ShowPage(X32_PAGE::ROUTING);
 				break;
 			case X32_BTN_SETUP:
-				ShowPage(X32_PAGE_SETUP);
+				ShowPage(X32_PAGE::SETUP);
 				break;
 			case X32_BTN_LIBRARY:
-				ShowPage(X32_PAGE_LIBRARY);
+				ShowPage(X32_PAGE::LIBRARY);
 				break;
 			case X32_BTN_EFFECTS:
-				ShowPage(X32_PAGE_EFFECTS);
+				ShowPage(X32_PAGE::EFFECTS);
 				break;
 			case X32_BTN_MUTE_GRP:
-				ShowPage(X32_PAGE_MUTE_GRP);
+				ShowPage(X32_PAGE::MUTE_GRP);
 				break;
 			case X32_BTN_UTILITY:
-				ShowPage(X32_PAGE_UTILITY);
+				ShowPage(X32_PAGE::UTILITY);
 				break;
 			case X32_BTN_EQ_MODE:
 				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'T', +1);
@@ -2098,7 +2099,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangeVolume(config->selectedVChannel, amount);
 				break;
 			case X32_ENC_ASSIGN_2: // use Assing 2 temporarly on X32 Core for Main Volume
-				mixer->ChangeVolume(X32_VCHANNEL_BLOCK_MAIN, amount);
+				mixer->ChangeVolume((uint)X32_VCHANNEL_BLOCK::MAIN, amount);
 				break;
 			case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core
 				if (config->IsModelX32Core() && state->x32core_lcdmode_setup) {
@@ -2108,7 +2109,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				}
 				break;
 			case X32_ENC_MAIN_LEVEL:  // only X32 Rack
-				mixer->ChangeVolume(X32_VCHANNEL_BLOCK_MAIN, amount);
+				mixer->ChangeVolume((uint)X32_VCHANNEL_BLOCK::MAIN, amount);
 				break;
 			case X32_ENC_CHANNEL_LEVEL:
 				mixer->ChangeVolume(config->selectedVChannel, amount);				

@@ -7,8 +7,8 @@ using namespace std;
 class PageConfig : public Page {
     public:
         PageConfig(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE_HOME;
-            nextPage = X32_PAGE_GATE;
+            prevPage = X32_PAGE::HOME;
+            nextPage = X32_PAGE::GATE;
             tabLayer0 = objects.maintab;
             tabIndex0 = 0;
             tabLayer1 = objects.hometab;
@@ -19,9 +19,9 @@ class PageConfig : public Page {
 
         void OnInit() override { 
 			SetEncoder(DISPLAY_ENCODER_1, "Source", "Invert");
-            SetEncoder(DISPLAY_ENCODER_2, MIXERPARAMETER_CHANNEL_GAIN, "Phantom");
-            SetEncoder(DISPLAY_ENCODER_3, MIXERPARAMETER_CHANNEL_PANORAMA);
-            SetEncoder(DISPLAY_ENCODER_4, MIXERPARAMETER_CHANNEL_VOLUME, "Mute");
+            SetEncoder(DISPLAY_ENCODER_2, MP_TYPE::CHANNEL_GAIN, "Phantom");
+            SetEncoder(DISPLAY_ENCODER_3, MP_TYPE::CHANNEL_PANORAMA);
+            SetEncoder(DISPLAY_ENCODER_4, MP_TYPE::CHANNEL_VOLUME, "Mute");
             SetEncoder(DISPLAY_ENCODER_5, "DEBUG: 1-16", "Phanton + 47dB");
             SetEncoder(DISPLAY_ENCODER_6, "DEBUG: 1-32", "Phanton + 47dB");
         }
