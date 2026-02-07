@@ -703,7 +703,7 @@ void Helper::LoadMixerparametersdefinitions() {
     ->MinMaxStandard_Float(0.0f, 1000.0f, 150.0f);
     // attack
     NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_ATTACK, cat, "Attack")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 3.0f);
+    ->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
     // sustain
     NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_SUSTAIN, cat, "Sustain")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
     ->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
