@@ -10,19 +10,19 @@
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
-                "isDefault": true
+                "isDefault": false
             }
         },
         {
-            "label": "openx32-build-chroot",
+            "label": "openx32-x64-SDL2",
             "type": "shell",
-            "command": "make -j20 && cp ../bin/x32ctrl ../../../chroot/debian-stable-root/openx32/x32ctrl",
+            "command": "make --file=Makefile_x64_SDL2 -j20",
             "options": {
             },
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
-                "isDefault": false
+                "isDefault": true
             }
         },
          {

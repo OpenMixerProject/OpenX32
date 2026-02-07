@@ -4,10 +4,10 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "../bin/x32ctrl",
-            "args": [],
+            "program": "${workspaceFolder}/../bin/x32ctrl",
+            "args": ["-b", "-d", "XREMOTE", "--trace"],
             "stopAtEntry": false,
-            "cwd": "../bin/",
+            "cwd": "${workspaceFolder}/../bin",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -22,7 +22,8 @@
                     "text": "-gdb-set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "preLaunchTask": "openx32-x64-SDL2"
         },
         
         {
