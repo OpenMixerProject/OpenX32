@@ -38,13 +38,21 @@ void Surface::Init(void) {
 }
 
 void Surface::Reset(void) {
-    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Reset surface ...");
-    int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
-    write(fd, "1", 1);
-    usleep(100 * 1000);
-    write(fd, "0", 1);
-    close(fd);
-    usleep(2000 * 1000);
+     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Reset surface ...");
+
+    if (state->bodyless) 
+    {
+        // TODO: integrate in Testing GUI
+    }
+        else
+    {  
+        int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
+        write(fd, "1", 1);
+        usleep(100 * 1000);
+        write(fd, "0", 1);
+        close(fd);
+        usleep(2000 * 1000);
+    }
 
     for(uint8_t faderindex=0; faderindex<MAX_FADERS; faderindex++){
         faders[faderindex].wait = 0;

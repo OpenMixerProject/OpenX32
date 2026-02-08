@@ -37,12 +37,12 @@ class PageDynamics: public Page {
             lv_obj_set_user_data(objects.current_channel_comp, mixer);
             //chart-shadow: 0x7e4000
 
-            SetEncoder(0, MP_TYPE::DYNAMICS_TRESHOLD);
-            SetEncoder(1, MP_TYPE::DYNAMICS_RATIO);
-            SetEncoder(2, MP_TYPE::DYNAMICS_MAKEUP);
-            SetEncoder(3, MP_TYPE::DYNAMICS_ATTACK);
-            SetEncoder(4, MP_TYPE::DYNAMICS_HOLD);
-            SetEncoder(5, MP_TYPE::DYNAMICS_RELEASE);
+            BindEncoder(DISPLAY_ENCODER_1, MP_ID::DYNAMICS_TRESHOLD);
+            BindEncoder(DISPLAY_ENCODER_2, MP_ID::DYNAMICS_RATIO);
+            BindEncoder(DISPLAY_ENCODER_3, MP_ID::DYNAMICS_MAKEUP);
+            BindEncoder(DISPLAY_ENCODER_4, MP_ID::DYNAMICS_ATTACK);
+            BindEncoder(DISPLAY_ENCODER_5, MP_ID::DYNAMICS_HOLD);
+            BindEncoder(DISPLAY_ENCODER_6, MP_ID::DYNAMICS_RELEASE);
         }
 
         void OnChange(bool force_update) override {
@@ -105,7 +105,7 @@ class PageDynamics: public Page {
             }
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeDynamics(config->selectedVChannel, 'T', amount);

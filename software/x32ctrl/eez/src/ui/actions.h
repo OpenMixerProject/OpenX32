@@ -7,7 +7,6 @@
 extern "C" {
 #endif
 
-extern void action_setled(lv_event_t * e);
 
 
 #ifdef __cplusplus

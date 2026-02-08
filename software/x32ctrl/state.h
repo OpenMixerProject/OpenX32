@@ -49,7 +49,6 @@ class State {
 
         bool x32core_lcdmode_setup;
         uint8_t ledbrightness = LED_BRIGHTNESS_4;
-        uint8_t lcdcontrast = LCD_CONTRAST_DEFAULT;
 
         // DEBUG
         uint8_t debugvalue = 0;
@@ -57,6 +56,8 @@ class State {
         bool dsp_disable_activity_light = false;
         bool dsp_disable_readout = false;
         bool surface_disable_lcd_update = false;
+
+        uint simulator_last_key = 0;
         // \DEBUG
 
         uint32_t fpga_spi_speed = 0;

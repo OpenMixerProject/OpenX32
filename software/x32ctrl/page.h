@@ -1,18 +1,19 @@
 #pragma once
 
+#include <map>
+
 #include "defines.h"
 #include "enum.h"
 #include "base.h"
 #include "page-baseparameter.h"
 #include "mixer.h"
+#include "page-bindings.h"
 
 #include "lv_port_linux/lvgl/lvgl.h"
 #include "eez/src/ui/screens.h"
 #include "eez/src/ui/styles.h"
 
 using namespace std;
-
-
 
 class Page : public X32Base {
     protected:
@@ -31,29 +32,34 @@ class Page : public X32Base {
         uint32_t tabIndex1 = 0;
 
         bool hideEncoders = false;
-        sDisplayEncoder encoderSliders[6];
-        lv_obj_t* sliders[6];
-        lv_obj_t* encoderButtonLabels[6];
+
+        // encoder binding
+        map<uint, PageBindingEncoder*> encoderbinding;
+       
+        // old, just here to be able to compile
+        sDisplayEncoder encoderSliders[MAX_DISPLAY_ENCODER];
 
         bool initDone = false;
 
-        void SetEncoder(uint8_t encoder, MP_TYPE mp);
-        void SetEncoder(uint8_t encoder, MP_TYPE mp, String buttonPressLabel);
-        void SetEncoder(uint8_t encoder, String label, String buttonPressLabel);
-        void SetEncoderValue(uint8_t encoder, float enc1);
-        void SetEncoderValue(uint8_t encoder, uint8_t enc1);
-        void SetEncoderValue(uint8_t encoder, int8_t enc1);
+        void BindEncoder(uint encoder, MP_ID mp_id);
+        void BindEncoder(uint encoder, MP_ID mp_id, MP_ID mp_id_button);
+        
+        void SetEncoder(uint encoder, MP_ID mp, String buttonPressLabel);
+        void SetEncoder(uint encoder, String label, String buttonPressLabel);
+        void SetEncoderValue(uint encoder, float enc1);
+        void SetEncoderValue(uint encoder, uint enc1);
+        void SetEncoderValue(uint encoder, int enc1);
         void SetEncoderValuesEmpty();
-        void ClearEncoders();
-        void ClearEncoder(uint8_t encoder);
-        void SetEncoderHighlight(uint8_t encoder, bool highlight);
+        void UnbindEncoders();
+        void UnbindEncoder(uint encoder);
+        void SetEncoderHighlight(uint encoder, bool highlight);
         void SyncEncoderWidgets();
 
         virtual void OnInit();
         virtual void OnUpdateMeters();
         virtual void OnShow();
         virtual void OnChange(bool force_update);
-        virtual void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount);
+        virtual void OnDisplayEncoderTurned(X32_ENC encoder, int amount);
         virtual void OnDisplayButton(X32_BTN button, bool pressed);
 
     public:
@@ -64,7 +70,7 @@ class Page : public X32Base {
         void UpdateMeters();
         void Change();
 
-        void DisplayEncoderTurned(X32_ENC encoder, int8_t amount);
+        void DisplayEncoderTurned(X32_ENC encoder, int amount);
         void DisplayButton(X32_BTN button, bool pressed);
 
         X32_PAGE GetNextPage();

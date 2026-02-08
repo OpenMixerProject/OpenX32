@@ -33,19 +33,13 @@ Page::Page(PageBaseParameter* pagebasepar) : X32Base(pagebasepar) {
 void Page::Init() {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::Init()");
 
-    sliders[0] = objects.widget1__slider;
-    sliders[1] = objects.widget2__slider;
-    sliders[2] = objects.widget3__slider;
-    sliders[3] = objects.widget4__slider;
-    sliders[4] = objects.widget5__slider;
-    sliders[5] = objects.widget6__slider;
-
-    encoderButtonLabels[0] = objects.widget1__label_buttonpress;
-    encoderButtonLabels[1] = objects.widget2__label_buttonpress;
-    encoderButtonLabels[2] = objects.widget3__label_buttonpress;
-    encoderButtonLabels[3] = objects.widget4__label_buttonpress;
-    encoderButtonLabels[4] = objects.widget5__label_buttonpress;
-    encoderButtonLabels[5] = objects.widget6__label_buttonpress;
+    // Prepare Encoder Bindingssystem
+    encoderbinding[DISPLAY_ENCODER_1] = new PageBindingEncoder(objects.widget1__label, objects.widget1__value, objects.widget1__slider, objects.widget1__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_2] = new PageBindingEncoder(objects.widget2__label, objects.widget2__value, objects.widget2__slider, objects.widget2__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_3] = new PageBindingEncoder(objects.widget3__label, objects.widget3__value, objects.widget3__slider, objects.widget3__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_4] = new PageBindingEncoder(objects.widget4__label, objects.widget4__value, objects.widget4__slider, objects.widget4__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_5] = new PageBindingEncoder(objects.widget5__label, objects.widget5__value, objects.widget5__slider, objects.widget5__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_6] = new PageBindingEncoder(objects.widget6__label, objects.widget6__value, objects.widget6__slider, objects.widget6__label_buttonpress);
 
     OnInit();
     initDone = true;
@@ -102,14 +96,19 @@ void Page::OnUpdateMeters() {
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::OnUpdateMeters()");
 }
 
-void Page::DisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
+void Page::DisplayEncoderTurned(X32_ENC encoder, int amount) {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::DisplayEncoderTurned()");
     if (initDone) {
+        //if (!
+        // // let page handle encoder message first (if it wants)
         OnDisplayEncoderTurned(encoder, amount);
+        //) {
+            mixer->Change(encoderbinding[encoder]->mp_id_encoder, amount);
+        //}
     }
 }
 
-void Page::OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
+void Page::OnDisplayEncoderTurned(X32_ENC encoder, int amount) {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::OnDisplayEncoderTurned()");
 }
 
@@ -141,94 +140,81 @@ X32_BTN Page::GetLed() {
     return X32_BTN_NONE;
 }
 
-void Page::SetEncoder(uint8_t encoder, MP_TYPE mp) {
-    if (mp == MP_TYPE::NONE) {
-        ClearEncoder(encoder);
+/// @brief Binds an encoder to a mixerparameter
+/// @param encoder the encoder
+/// @param mp parameter to bind to the encoder, button press resets the parameter
+void Page::BindEncoder(uint encoder, MP_ID mp_id) {
+    if (mp_id == MP_ID::NONE) {
+        UnbindEncoder(encoder);
     }
     else 
     {
-        encoderSliders[encoder].mp = mp;
-
-        MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(mp);
-        encoderSliders[encoder].label = mpd->name;
-        encoderSliders[encoder].slider_hidden = false;
-
-        // default value
-        String valueString;
-        switch(mpd->value_type) {
-            using enum MP_VALUE_TYPE;
-
-            case FLOAT:
-                valueString = helper->FormatValue(mpd->float_value_standard, mpd);
-                break;
-            case INT:
-                valueString = helper->FormatValue(mpd->int_value_standard, mpd);
-                break;
-            case UINT:
-                valueString = helper->FormatValue(mpd->uint_value_standard, mpd);
-                break;
-        }
-        encoderSliders[encoder].label_buttonpress = String("Reset: ") + valueString;
+        encoderbinding[encoder]->mp_id_encoder = mp_id;
+        encoderbinding[encoder]->mp_id_button = MP_ID::NONE;
     }
 }
 
-void Page::SetEncoder(uint8_t encoder, MP_TYPE mp, String buttonPressLabel) {
-    SetEncoder(encoder, mp);
-    encoderSliders[encoder].label_buttonpress = buttonPressLabel;
+/// @brief Binds an encoder to a mixerparameter
+/// @param encoder the encoder
+/// @param mp main parameter to bind to the encoder itself
+/// @param mp_button secondary parameter (only type bool) to bind to button press instead of a reset function
+void Page::BindEncoder(uint encoder, MP_ID mp_id, MP_ID mp_id_button) {
+    if (mp_id == MP_ID::NONE) {
+        UnbindEncoder(encoder);
+    }
+    else 
+    {
+        encoderbinding[encoder]->mp_id_encoder = mp_id;
+        encoderbinding[encoder]->mp_id_button = mp_id_button;
+    }
 }
 
-void Page::SetEncoder(uint8_t encoder, String label, String buttonPressLabel){
-    encoderSliders[encoder].mp = MP_TYPE::NONE;
+void Page::SetEncoder(uint encoder, String label, String buttonPressLabel){
+    encoderSliders[encoder].mp = MP_ID::NONE;
 
     encoderSliders[encoder].label = label;
     encoderSliders[encoder].label_buttonpress = buttonPressLabel;
     encoderSliders[encoder].slider_hidden = true;
 }
 
-void Page::SetEncoderValue(uint8_t encoder, float float_value)  {
-    if (encoderSliders[encoder].mp == MP_TYPE::NONE) {
+void Page::SetEncoderValue(uint encoder, float float_value)  {
+    if (encoderSliders[encoder].mp == MP_ID::NONE) {
         return;
     }
 
-    MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
-    encoderSliders[encoder].label_value = helper->FormatValue(float_value, mpd);
-    encoderSliders[encoder].percent = helper->value2percent(float_value, mpd->float_value_min, mpd->float_value_max);
+    // Mixerparameter* parameter = mixer->GetParameter(encoderSliders[encoder].mp);
+    // encoderSliders[encoder].label_value = parameter->getl helper->FormatValue(float_value, mpd);
+    // encoderSliders[encoder].percent = helper->value2percent(float_value, mpd->float_value_min, mpd->float_value_max);
 }
 
-void Page::SetEncoderValue(uint8_t encoder, uint8_t uint8_t_value)  {
-    if (encoderSliders[encoder].mp == MP_TYPE::NONE) {
+void Page::SetEncoderValue(uint encoder, uint uint8_t_value)  {
+    if (encoderSliders[encoder].mp == MP_ID::NONE) {
         return;
     }
 
-    MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
-    encoderSliders[encoder].label_value = helper->FormatValue(uint8_t_value, mpd);
-    encoderSliders[encoder].percent = helper->value2percent(uint8_t_value, mpd->uint_value_min, mpd->uint_value_max);
+    // Mixerparameter* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
+    // encoderSliders[encoder].label_value = helper->FormatValue(uint8_t_value, mpd);
+    // encoderSliders[encoder].percent = helper->value2percent(uint8_t_value, mpd->uint_value_min, mpd->uint_value_max);
 }
 
-void Page::SetEncoderValue(uint8_t encoder, int8_t int8_t_value)  {
-    if (encoderSliders[encoder].mp == MP_TYPE::NONE) {
+void Page::SetEncoderValue(uint encoder, int int8_t_value)  {
+    if (encoderSliders[encoder].mp == MP_ID::NONE) {
         return;
     }
 
-    MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
-    encoderSliders[encoder].label_value = helper->FormatValue(int8_t_value, mpd);
-    encoderSliders[encoder].percent = helper->value2percent(int8_t_value, mpd->int_value_min, mpd->int_value_max);
+    // Mixerparameter* mpd = helper->GetMixerparameterDefinition(encoderSliders[encoder].mp);
+    // encoderSliders[encoder].label_value = helper->FormatValue(int8_t_value, mpd);
+    // encoderSliders[encoder].percent = helper->value2percent(int8_t_value, mpd->int_value_min, mpd->int_value_max);
 }
 
-void Page::ClearEncoder(uint8_t encoder) {
-    encoderSliders[encoder].mp = MP_TYPE::NONE;
-
-    encoderSliders[encoder].label = "";
-    encoderSliders[encoder].label_value = "";
-    encoderSliders[encoder].percent = 0;
-    encoderSliders[encoder].slider_hidden = true;
-    encoderSliders[encoder].label_buttonpress = "";
-    encoderSliders[encoder].label_buttonpress_highlighted = false;
+void Page::UnbindEncoder(uint encoder) {
+    encoderbinding[encoder]->mp_id_encoder = MP_ID::NONE;
+    encoderbinding[encoder]->mp_id_button = MP_ID::NONE;
 }
 
-void Page::ClearEncoders() {
+void Page::UnbindEncoders() {
     for(int8_t s = 0; s < MAX_DISPLAY_ENCODER; s++) {
-        ClearEncoder(s);
+        UnbindEncoder(s);
     }
 }
 
@@ -239,7 +225,7 @@ void Page::SetEncoderValuesEmpty(){
     }
 }
 
-void Page::SetEncoderHighlight(uint8_t encoder, bool highlight) {
+void Page::SetEncoderHighlight(uint encoder, bool highlight) {
     encoderSliders[encoder].label_buttonpress_highlighted = highlight;
 }
 
@@ -248,39 +234,62 @@ void Page::SyncEncoderWidgets() {
         return;
     }
 
-    lv_label_set_text(objects.widget1__label, encoderSliders[0].label.c_str());
-    lv_label_set_text(objects.widget2__label, encoderSliders[1].label.c_str());
-    lv_label_set_text(objects.widget3__label, encoderSliders[2].label.c_str());
-    lv_label_set_text(objects.widget4__label, encoderSliders[3].label.c_str());
-    lv_label_set_text(objects.widget5__label, encoderSliders[4].label.c_str());
-    lv_label_set_text(objects.widget6__label, encoderSliders[5].label.c_str());
+    // TODO: Just update, if parameter has really changed (new Eventsystem)
 
-    lv_label_set_text(objects.widget1__value, encoderSliders[0].label_value.c_str());
-    lv_label_set_text(objects.widget2__value, encoderSliders[1].label_value.c_str());
-    lv_label_set_text(objects.widget3__value, encoderSliders[2].label_value.c_str());
-    lv_label_set_text(objects.widget4__value, encoderSliders[3].label_value.c_str());
-    lv_label_set_text(objects.widget5__value, encoderSliders[4].label_value.c_str());
-    lv_label_set_text(objects.widget6__value, encoderSliders[5].label_value.c_str());
+    uint8_t chanIndex = config->selectedVChannel;
 
-    for(int8_t s = 0; s < 6; s++) {
-        if (encoderSliders[s].slider_hidden) {
-            lv_obj_set_flag(sliders[s], LV_OBJ_FLAG_HIDDEN, true);
-        } else {
-            lv_obj_set_flag(sliders[s], LV_OBJ_FLAG_HIDDEN, false);
-            lv_slider_set_value(sliders[s], encoderSliders[s].percent, LV_ANIM_OFF);          
+    for(int8_t s = 0; s < MAX_DISPLAY_ENCODER; s++) {
+
+        PageBindingEncoder* binding = encoderbinding[s];
+        Mixerparameter* parameter = mixer->GetParameter(binding->mp_id_encoder);
+
+        
+        if (binding->mp_id_encoder == MP_ID::NONE ||  // encoder is not bound 
+            parameter->GetId() == MP_ID::NONE)        // parameter is not (yet) defined
+        {
+            // clear all labels and hide slider
+
+            lv_label_set_text(binding->Label, "");
+            lv_label_set_text(binding->ValueLabel, "");
+            lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
+            lv_label_set_text(binding->ButtonLabel, "");
+
+            continue;
         }
 
-        if (encoderSliders[s].label_buttonpress_highlighted) {
-            add_style_label_bg_yellow(encoderButtonLabels[s]);
+        lv_label_set_text(binding->Label, parameter->GetName(chanIndex).c_str());
+        lv_label_set_text(binding->ValueLabel, parameter->FormatValue(chanIndex).c_str());
+
+        // Hide Slider for Boolean and String
+        if (parameter->GetType() == MP_VALUE_TYPE::BOOL ||
+            parameter->GetType() == MP_VALUE_TYPE::STRING)
+        {
+            lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
         } else {
-            remove_style_label_bg_yellow(encoderButtonLabels[s]);
+            lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, false);
+            lv_slider_set_value(binding->Slider, parameter->GetPercent(chanIndex), LV_ANIM_OFF);          
+        }
+
+        if (binding->mp_id_button == MP_ID::NONE)
+        {
+            // button resets the main parameter
+
+            lv_label_set_text(binding->ButtonLabel, parameter->GetResetLabel(chanIndex).c_str());
+        }
+        else
+        {
+            // button is bound to its own parameter
+
+            Mixerparameter* parameter_button = mixer->GetParameter(binding->mp_id_button);
+
+            lv_label_set_text(binding->ButtonLabel, parameter_button->GetName(chanIndex).c_str());
+
+            // Button is highlighted if value is true
+            if (parameter_button->GetBool(chanIndex)) {
+                add_style_label_bg_yellow(binding->ButtonLabel);
+            } else {
+                remove_style_label_bg_yellow(binding->ButtonLabel);
+            }
         }
     }
-
-    lv_label_set_text(objects.widget1__label_buttonpress, encoderSliders[0].label_buttonpress.c_str());
-    lv_label_set_text(objects.widget2__label_buttonpress, encoderSliders[1].label_buttonpress.c_str());
-    lv_label_set_text(objects.widget3__label_buttonpress, encoderSliders[2].label_buttonpress.c_str());
-    lv_label_set_text(objects.widget4__label_buttonpress, encoderSliders[3].label_buttonpress.c_str());
-    lv_label_set_text(objects.widget5__label_buttonpress, encoderSliders[4].label_buttonpress.c_str());
-    lv_label_set_text(objects.widget6__label_buttonpress, encoderSliders[5].label_buttonpress.c_str());
 }

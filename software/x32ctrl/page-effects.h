@@ -49,7 +49,7 @@ class PageEffects: public Page {
                                 }
 
                                 for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    SetEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
+                                    BindEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
                                     SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
                                 }
 
@@ -59,7 +59,7 @@ class PageEffects: public Page {
                                 banking = 0;
 
                                 for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    SetEncoder(e, MP_TYPE::NONE);
+                                    UnbindEncoder(e);
                                 }
                             }
                             state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
@@ -80,9 +80,9 @@ class PageEffects: public Page {
 
                             // FX Parameters
                             for (uint8_t p=0; p < slot->fx->GetParameterCount(); p++){
-                                MixerparameterDefinition* mpd = helper->GetMixerparameterDefinition(slot->fx->GetParameterDefinition(p));
-                                lv_table_set_cell_value(objects.fxtable, p + 3, i*2, mpd->name.c_str());
-                                lv_table_set_cell_value(objects.fxtable, p + 3, (i*2)+1, helper->FormatValue(slot->fx->GetParameter(p), mpd).c_str());
+                                Mixerparameter* mp = mixer->GetParameter(slot->fx->GetParameterDefinition(p));
+                                lv_table_set_cell_value(objects.fxtable, p + 3, i*2, mp->GetName().c_str());
+                                lv_table_set_cell_value(objects.fxtable, p + 3, (i*2)+1, mp->FormatValue(p).c_str());
                             }
                         } else {
                             // clear name and parameters
@@ -94,7 +94,7 @@ class PageEffects: public Page {
                         // Encoders
                         if (i == selectedFx && slot->HasFx()) {
                             for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                SetEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
+                                BindEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
                                 SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
                             }
                         }
@@ -176,7 +176,7 @@ class PageEffects: public Page {
             state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
                 case X32_ENC_ENCODER1:
                 case X32_ENC_ENCODER2:

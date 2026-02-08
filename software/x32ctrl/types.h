@@ -260,7 +260,7 @@ typedef struct {
 
 
 typedef struct {
-	MP_TYPE mp = MP_TYPE::NONE;
+	MP_ID mp = MP_ID::NONE;
 	String label;
 	String label_value;
 	uint8_t percent; 

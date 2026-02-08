@@ -48,9 +48,16 @@
 
 #include "ctrl.h"
 
+
 X32Ctrl* ctrl;
 State* state;
 CLI::App* app;
+
+// for SDL2 on PC
+static lv_display_t *display;
+static lv_indev_t *mouse;
+static lv_indev_t *mouse_wheel;
+static lv_indev_t *keyboard;
 
 timer_t timerid_10ms;
 struct sigevent sev_10ms;
@@ -115,11 +122,21 @@ void init10msTimer_NonGUI(void) {
 }
 
 void guiInit(void) {
+
 	lv_init();
 
-	driver_backends_register();
-	char dev[] = "FBDEV";
-	driver_backends_init_backend(dev);
+	if (state->bodyless)
+	{
+		display = lv_sdl_window_create(DISPLAY_RESOLUTION_X, DISPLAY_RESOLUTION_Y);		
+	 	lv_sdl_window_set_title(display, "OpenX32 x32ctrl - bodyless mode (Development Simulator)");
+		keyboard = lv_sdl_keyboard_create();
+	} 
+	else
+	{
+		driver_backends_register();
+		char dev[] = "FBDEV";
+		driver_backends_init_backend(dev);
+	}
 
 	lv_timer_create(timer10msCallbackLvgl, 10, NULL);
 	lv_timer_create(timer50msCallbackLvgl, 50, NULL);
@@ -132,8 +149,26 @@ void guiInit(void) {
 	ctrl->InitPages();
 	ctrl->ShowPage(state->activePage);
 
-	// start endless loop
-	driver_backends_run_loop();
+	if (state->bodyless)
+	{
+		// Show keymapping for bodyless mode
+		lv_obj_set_flag(objects.bodyless_instructions, LV_OBJ_FLAG_HIDDEN, false);
+
+		uint32_t idle_time;
+
+		while (1) {
+
+			idle_time = lv_timer_handler();
+        	usleep(idle_time * 1000);
+
+			ctrl->SimulatorButton(lv_indev_get_key(keyboard));
+    	}
+	}
+	else 
+	{
+		//start endless loop	
+		driver_backends_run_loop();
+	}
 }
 
 // handle STRG-C and write config file
@@ -279,6 +314,7 @@ int main(int argc, char* argv[]) {
 
 	if (debug_parameters.size() > 0) {
 		for(uint8_t i=0; i<debug_parameters.size(); i++) {
+			if (debug_parameters[i] == "ALL") { helper->SetDebugAll(); }
 			if (debug_parameters[i] == "ADDA") { helper->DEBUG_ADDA(true); }
 			if (debug_parameters[i] == "DSP1") { helper->DEBUG_DSP1(true); }
 			if (debug_parameters[i] == "DSP2") { helper->DEBUG_DSP2(true); }

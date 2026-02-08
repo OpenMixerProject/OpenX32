@@ -109,16 +109,7 @@
     "structures": [],
     "enums": []
   },
-  "actions": [
-    {
-      "objID": "cbd76a47-9b9b-41fc-b3a5-5c27e2a83719",
-      "components": [],
-      "connectionLines": [],
-      "localVariables": [],
-      "userProperties": [],
-      "name": "setled"
-    }
-  ],
+  "actions": [],
   "userPages": [
     {
       "objID": "4b40eba7-b31a-468a-b887-11dfd0b6637f",
@@ -5029,6 +5020,50 @@
               },
               "group": "",
               "groupIndex": 0
+            },
+            {
+              "objID": "796700f6-c01b-4905-ad56-83541aa9670f",
+              "type": "LVGLLabelWidget",
+              "left": 192,
+              "top": 3,
+              "width": 475,
+              "height": 64,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "5563f9e2-f07e-4db4-88e4-ed98102b9855",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "identifier": "bodyless_instructions",
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "content",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+              "hiddenFlag": true,
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "flagScrollbarMode": "",
+              "flagScrollDirection": "",
+              "scrollSnapX": "",
+              "scrollSnapY": "",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "f1bfe9a7-9192-4657-804b-cdeab196e7b0"
+              },
+              "group": "",
+              "groupIndex": 0,
+              "text": "Bodyless Mode - Keymapping:\n1 HOME, 2 METERS, 3 ROUTING, 4 LIBRARY, 5 EFFECT\n6 SETUP, 7 MONITOR, 8 SCENES, 9 MUTE GRP, 0 UTILITY\narrow keys, Q..Z Encoder++, A..H Encoder--, Y..N Encoder Buttons",
+              "textType": "literal",
+              "longMode": "WRAP",
+              "recolor": false
             }
           ],
           "widgetFlags": "CLICKABLE|PRESS_LOCK|CLICK_FOCUSABLE|GESTURE_BUBBLE|SNAPPABLE|SCROLLABLE|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER",
@@ -7137,7 +7172,8 @@
   },
   "lvglGroups": {
     "objID": "f2f79c21-8769-ed90-c624-7405d4136ec9",
-    "groups": []
+    "groups": [],
+    "defaultGroupForKeyboardInSimulator": "inputgroup"
   },
   "fonts": [],
   "bitmaps": [

@@ -45,9 +45,9 @@ uint8_t FxBase::GetParameterCount() {
     return parameters.size();
 }
 
-MP_TYPE FxBase::GetParameterDefinition(uint8_t index) {
+MP_ID FxBase::GetParameterDefinition(uint8_t index) {
     if (index >= parameters.size()) {
-        return MP_TYPE::NONE;
+        return MP_ID::NONE;
     }
 
     helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::GetParameterDefinition(%d)", index);
@@ -63,10 +63,10 @@ float FxBase::GetParameter(uint8_t parIdx) {
 }
 
 bool FxBase::ChangeParameter(uint8_t parIdx, int8_t amount) {
-    if (parIdx < parameters.size()) {        
-        float newValue = helper->CalcNewValue(parameter_value[parIdx], amount, parameters[parIdx]);
-        return SetParameter(parIdx, newValue);
-    }
+    // if (parIdx < parameters.size()) {        
+    //     float newValue = helper->CalcNewValue(parameter_value[parIdx], amount, parameters[parIdx]);
+    //     return SetParameter(parIdx, newValue);
+    // }
     return false;
 }
 
@@ -83,8 +83,8 @@ bool FxBase::SetParameter(uint8_t parIdx, float value) {
 }
 
 bool FxBase::ResetParameter(uint8_t parIdx) {
-    if (parIdx < parameters.size()) {
-        return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx])->float_value_standard);
-    }
+    // if (parIdx < parameters.size()) {
+    //     return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx])->float_value_standard);
+    // }
     return false;
 }

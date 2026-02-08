@@ -131,6 +131,7 @@ class X32Ctrl : public X32Base {
         uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);
         uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
 
+        void SimulatorButton(uint key);
         void FaderMoved(SurfaceEvent* event);
         void ButtonPressedOrReleased(SurfaceEvent* event);
         void EncoderTurned(SurfaceEvent* event);

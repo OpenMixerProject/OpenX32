@@ -381,6 +381,7 @@ typedef struct _objects_t {
     lv_obj_t *widget6__value;
     lv_obj_t *widget6__slider;
     lv_obj_t *widget6__label_buttonpress;
+    lv_obj_t *bodyless_instructions;
 } objects_t;
 
 extern objects_t objects;

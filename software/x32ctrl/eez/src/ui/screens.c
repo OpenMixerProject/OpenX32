@@ -1000,6 +1000,15 @@ void create_screen_main() {
                 }
             }
         }
+        {
+            // bodyless_instructions
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.bodyless_instructions = obj;
+            lv_obj_set_pos(obj, 192, 3);
+            lv_obj_set_size(obj, 475, LV_SIZE_CONTENT);
+            lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text(obj, "Bodyless Mode - Keymapping:\n1 HOME, 2 METERS, 3 ROUTING, 4 LIBRARY, 5 EFFECT\n6 SETUP, 7 MONITOR, 8 SCENES, 9 MUTE GRP, 0 UTILITY\narrow keys, Q..Z Encoder++, A..H Encoder--, Y..N Encoder Buttons");
+        }
     }
     
     tick_screen_main();

@@ -38,8 +38,8 @@
 int tosc_parseMessage(tosc_message *o, char *buffer, const int len) {
   // NOTE(mhroth): if there's a comma in the address, that's weird
   int i = 0;
-  while (buffer[i] != '\0') ++i; // find the null-terimated address
-  while (buffer[i] != ',') ++i; // find the comma which starts the format string
+  while (buffer[i] != '\000') ++i; // find the null-terimated address
+  //while (buffer[i] != ',') ++i; // find the comma which starts the format string
   if (i >= len) return -1; // error while looking for format string
   // format string is null terminated
   o->format = buffer + i + 1; // format starts after comma

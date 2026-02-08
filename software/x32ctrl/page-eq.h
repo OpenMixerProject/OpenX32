@@ -75,7 +75,7 @@ class PageEq: public Page {
 			}
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder) {
 				case X32_ENC_ENCODER1:
 					mixer->ChangeLowcut(config->selectedVChannel, amount);

@@ -14,8 +14,8 @@ class PageSetup: public Page {
         }
 
         void OnInit() override {
-            SetEncoder(DISPLAY_ENCODER_5, MP_TYPE::LED_BRIGHTNESS);
-            SetEncoder(DISPLAY_ENCODER_6, MP_TYPE::LCD_CONTRAST);
+            BindEncoder(DISPLAY_ENCODER_5, MP_ID::LED_BRIGHTNESS);
+            BindEncoder(DISPLAY_ENCODER_6, MP_ID::LCD_CONTRAST);
         }
 
         void OnChange(bool force_update) override {
@@ -23,11 +23,11 @@ class PageSetup: public Page {
                 SetEncoderValue(DISPLAY_ENCODER_5, state->ledbrightness);
             }
             if (state->HasChanged(X32_MIXER_CHANGED_LCD_CONTRAST) || force_update) {
-                SetEncoderValue(DISPLAY_ENCODER_6, state->lcdcontrast);
+                SetEncoderValue(DISPLAY_ENCODER_6, mixer->GetParameter(MP_ID::LCD_CONTRAST)->GetUint());
             }
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					break;
@@ -38,27 +38,23 @@ class PageSetup: public Page {
 				case X32_ENC_ENCODER4:
 					break;
 				case X32_ENC_ENCODER5:
-                    {
-                        if (amount > 0) {
-                            state->ledbrightness += 64;
-                        } else {
-                            state->ledbrightness -= 64;
-                        }
-                        surface->SetBrightnessAllBoards(state->ledbrightness);
-                        state->SetChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS);
-                    }
+                    mixer->Change(MP_ID::LED_BRIGHTNESS, amount);
+
+                    // TODO: move to new eventsystem
+                    surface->SetBrightnessAllBoards(mixer->Get(MP_ID::LED_BRIGHTNESS));
 					break;
 				case X32_ENC_ENCODER6:
-                    state->lcdcontrast += amount;
-                    surface->SetContrastAllBoards(state->lcdcontrast);
-                    state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST);
+                    mixer->Change(MP_ID::LCD_CONTRAST, amount);
+
+                    // TODO: move to new eventsystem
+                    surface->SetContrastAllBoards(mixer->Get(MP_ID::LCD_CONTRAST));
 					break;
 				default:
 					break;
 			}
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) {
+        void OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -70,14 +66,16 @@ class PageSetup: public Page {
 					case X32_BTN_ENCODER4:
 						break;
 					case X32_BTN_ENCODER5:
-                        state->ledbrightness = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_5].mp)->uint_value_standard;
-                        surface->SetBrightnessAllBoards(state->ledbrightness);
-                        state->SetChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS);
+                        mixer->Reset(MP_ID::LED_BRIGHTNESS);
+
+                        // TODO: move to new eventsystem
+                        surface->SetBrightnessAllBoards(mixer->Get(MP_ID::LED_BRIGHTNESS));
 						break;
 					case X32_BTN_ENCODER6:
-                        state->lcdcontrast = helper->GetMixerparameterDefinition(encoderSliders[DISPLAY_ENCODER_6].mp)->uint_value_standard;
-                        surface->SetContrastAllBoards(state->lcdcontrast);
-                        state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST);
+                        mixer->Reset(MP_ID::LCD_CONTRAST);
+                        
+                        // TODO: move to new eventsystem
+                        surface->SetContrastAllBoards(mixer->Get(MP_ID::LCD_CONTRAST));
 						break;
 					default:
                         // just here to avoid compiler warnings

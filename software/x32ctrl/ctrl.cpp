@@ -128,11 +128,12 @@ void X32Ctrl::Init(){
     surface->SetBrightness(5, state->ledbrightness);
     surface->SetBrightness(8, state->ledbrightness);
 
-    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", state->lcdcontrast);
-    surface->SetContrast(0, state->lcdcontrast); // contrast of LCDs
-    surface->SetContrast(4, state->lcdcontrast);
-    surface->SetContrast(5, state->lcdcontrast);
-    surface->SetContrast(8, state->lcdcontrast);
+	Mixerparameter* parameter = mixer->GetParameter(MP_ID::LCD_CONTRAST);
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", parameter->GetUint());
+    surface->SetContrast(0, parameter->GetUint()); // contrast of LCDs
+    surface->SetContrast(4, parameter->GetUint());
+    surface->SetContrast(5, parameter->GetUint());
+    surface->SetContrast(8, parameter->GetUint());
 
 	// trigger first sync to everywhere
 	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Trigger first sync -> X32_MIXER_CHANGED_ALL");
@@ -236,7 +237,7 @@ void X32Ctrl::LoadConfig() {
 		string section = string("mixer");
 		state->activePage = (X32_PAGE)mixer_ini[section]["activePage"].as<int>();
 		state->lastPage = (X32_PAGE)mixer_ini[section]["lastPage"].as<int>();
-		state->lcdcontrast = mixer_ini[section]["lcdcontrast"].as<int>();
+		mixer->Set(MP_ID::LCD_CONTRAST, mixer_ini[section][mixer->GetParameter(MP_ID::LCD_CONTRAST)->GetConfigPrefix().c_str()].as<float>());
 	}
 	// VChannels
 	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)	{
@@ -311,7 +312,7 @@ void X32Ctrl::SaveConfig() {
 		string section = string("mixer");
 		mixer_ini[section]["activePage"] = (int)state->activePage;
 		mixer_ini[section]["lastPage"] = (int)state->lastPage;
-		mixer_ini[section]["lcdcontrast"] = (int)state->lcdcontrast;
+		mixer_ini[section][mixer->GetParameter(MP_ID::LCD_CONTRAST)->GetConfigPrefix().c_str()] = (int)mixer->Get(MP_ID::LCD_CONTRAST);
 	}
 	// VChannels
 	for (uint8_t i = 0; i < MAX_VCHANNELS; i++) {
@@ -477,10 +478,6 @@ void X32Ctrl::UdpHandleCommunication(void) {
 			address.erase(address.begin()); // delete empty element
 			string format = string(tosc_getFormat(&osc));
 
-			// TODO
-			// DEBUG_XREMOTE("XRemote data received: ");
-			// helper->DebugPrintMessageWithNullBytes(DEBUG_XREMOTE, rxData, len);
-		
 			if (address[0] == "renew") {
                 //fprintf(stdout, "Received command: %s\n", rxData);
             } else if (address[0] == "info") {
@@ -622,6 +619,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
             }else if (memcmp(rxData, "/ren", 4) == 0) {
             }else if (memcmp(rxData, "/for", 4) == 0) {
             }else{
+				//xremote->AnswerAny();
                 // ignore unused commands for now
                 //fprintf(stdout, "Received unsupported command: %s\n", rxData);
             }
@@ -2173,6 +2171,141 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				break;
 		}
 	}
+}
+
+//################################################################################
+//# 
+//#  ########   #######  ########  ##    ## ##       ########  ######   ######  
+//#  ##     ## ##     ## ##     ##  ##  ##  ##       ##       ##    ## ##    ## 
+//#  ##     ## ##     ## ##     ##   ####   ##       ##       ##       ##       
+//#  ########  ##     ## ##     ##    ##    ##       ######    ######   ######  
+//#  ##     ## ##     ## ##     ##    ##    ##       ##             ##       ## 
+//#  ##     ## ##     ## ##     ##    ##    ##       ##       ##    ## ##    ## 
+//#  ########   #######  ########     ##    ######## ########  ######   ######  
+//# 
+//################################################################################
+
+
+// Key was pressed in the bodyless mode
+void X32Ctrl::SimulatorButton(uint key)
+{
+	if (key != state->simulator_last_key)
+	{
+		printf("Simulatorbutton: %d\n", key);
+
+		switch (key)
+		{
+			using enum X32_PAGE;
+
+			case 49:
+				// HOME
+				ShowPage(HOME);
+				break;
+			case 50:
+				ShowPage(METERS);
+				break;
+			case 51:
+				ShowPage(ROUTING);
+				break;
+			case 52:
+				ShowPage(LIBRARY);
+				break;
+			case 53:
+				ShowPage(EFFECTS);
+				break;
+			case 54:
+				ShowPage(SETUP);
+				break;
+			case 55:
+				//ShowPage(MONITOR);
+				break;
+			case 56:
+				//ShowPage(SCENES);
+				break;
+			case 57:
+				ShowPage(MUTE_GRP);
+				break;
+			case 48:
+				ShowPage(UTILITY);
+				break;
+			case 17:
+				pages[state->activePage]->DisplayButton(X32_BTN_UP, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_UP, false);
+				break;
+			case 18:
+				pages[state->activePage]->DisplayButton(X32_BTN_DOWN, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_DOWN, false);
+				break;
+			case 20:
+				ShowPrevPage();
+				break;
+			case 19:
+				ShowNextPage();
+				break;
+			case 113: // Q
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, 1);
+				break;
+			case 119: // W
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, 1);
+				break;
+			case 101: // E
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, 1);
+				break;
+			case 114: // R
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, 1);
+				break;
+			case 116: // T
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, 1);
+				break;
+			case 122: // Z
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, 1);
+				break;
+			case 97: // A
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, -1);
+				break;
+			case 115: // S
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
+				break;
+			case 100: // D
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
+				break;
+			case 102: // F
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
+				break;
+			case 103: // G
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
+				break;
+			case 104: // H
+				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
+				break;
+			case 121: // Y
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER1, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER1, false);
+				break;
+			case 120: // X
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER2, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER2, false);
+				break;
+			case 99: // C
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER3, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER3, false);
+				break;
+			case 118: // V
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER4, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER4, false);
+				break;
+			case 98: // B
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER5, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER5, false);
+				break;
+			case 110: // N
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER6, true);
+				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER6, false);
+				break;
+		}
+		
+		state->simulator_last_key = key;
+	}	
 }
 
 //#####################################################################################################################

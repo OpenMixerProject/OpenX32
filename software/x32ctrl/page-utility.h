@@ -119,7 +119,7 @@ class PageUtility: public Page {
 			}
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             if (state->activePage == X32_PAGE::UTILITY) {
                 switch (encoder){
                     case X32_ENC_ENCODER1:

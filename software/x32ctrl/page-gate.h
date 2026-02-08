@@ -37,11 +37,11 @@ class PageGate: public Page {
             lv_obj_set_user_data(objects.current_channel_gate, mixer);
             //chart-shadow: 0x7e4000
 
-            SetEncoder(0, MP_TYPE::GATE_TRESHOLD);
-            SetEncoder(1, MP_TYPE::GATE_RANGE);
-            SetEncoder(2, MP_TYPE::GATE_ATTACK);
-            SetEncoder(3, MP_TYPE::GATE_HOLD);
-            SetEncoder(4, MP_TYPE::GATE_RELEASE);
+            BindEncoder(0, MP_ID::GATE_TRESHOLD);
+            BindEncoder(1, MP_ID::GATE_RANGE);
+            BindEncoder(2, MP_ID::GATE_ATTACK);
+            BindEncoder(3, MP_ID::GATE_HOLD);
+            BindEncoder(4, MP_ID::GATE_RELEASE);
         }
 
         void OnChange(bool force_update) override {
@@ -103,7 +103,7 @@ class PageGate: public Page {
 			}
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGate(config->selectedVChannel, 'T', amount);

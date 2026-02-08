@@ -18,10 +18,15 @@ class PageConfig : public Page {
         }
 
         void OnInit() override { 
-			SetEncoder(DISPLAY_ENCODER_1, "Source", "Invert");
-            SetEncoder(DISPLAY_ENCODER_2, MP_TYPE::CHANNEL_GAIN, "Phantom");
-            SetEncoder(DISPLAY_ENCODER_3, MP_TYPE::CHANNEL_PANORAMA);
-            SetEncoder(DISPLAY_ENCODER_4, MP_TYPE::CHANNEL_VOLUME, "Mute");
+
+			using enum MP_ID;
+
+			BindEncoder(DISPLAY_ENCODER_1, CHANNEL_SOURCE, CHANNEL_INVERT);
+			BindEncoder(DISPLAY_ENCODER_2, CHANNEL_GAIN);
+			BindEncoder(DISPLAY_ENCODER_3, CHANNEL_PANORAMA);
+			BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME, CHANNEL_MUTE);
+
+			// old
             SetEncoder(DISPLAY_ENCODER_5, "DEBUG: 1-16", "Phanton + 47dB");
             SetEncoder(DISPLAY_ENCODER_6, "DEBUG: 1-32", "Phanton + 47dB");
         }
@@ -44,19 +49,9 @@ class PageConfig : public Page {
             //char outputDestinationName[10] = "";
             //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
             //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
-
-			SetEncoderHighlight(DISPLAY_ENCODER_1, mixer->GetPhaseInvert(chanIndex));
-
-			SetEncoderValue(DISPLAY_ENCODER_2, mixer->GetGain(chanIndex));
-			SetEncoderHighlight(DISPLAY_ENCODER_2, mixer->GetPhantomPower(chanIndex));
-			
-			SetEncoderValue(DISPLAY_ENCODER_3, mixer->GetBalance(chanIndex));
-			
-			SetEncoderValue(DISPLAY_ENCODER_4, mixer->GetVolumeDbfs(chanIndex));
-			SetEncoderHighlight(DISPLAY_ENCODER_4, mixer->GetMute(chanIndex));
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeDspInput(config->selectedVChannel, amount);
@@ -80,7 +75,7 @@ class PageConfig : public Page {
 			}
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) {
+        void OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:

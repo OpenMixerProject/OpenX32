@@ -9,12 +9,12 @@ class FxTransientshaper : public FxBase {
         FxTransientshaper(X32BaseParameter* basepar) : FxBase(basepar) {
 
             // Define parameters of this FX
-            parameters.push_back(MP_TYPE::FX_TRANSIENTSHAPER_FAST);
-            parameters.push_back(MP_TYPE::FX_TRANSIENTSHAPER_MEDIUM);
-            parameters.push_back(MP_TYPE::FX_TRANSIENTSHAPER_SLOW);
-            parameters.push_back(MP_TYPE::FX_TRANSIENTSHAPER_ATTACK);
-            parameters.push_back(MP_TYPE::FX_TRANSIENTSHAPER_SUSTAIN);
-            parameters.push_back(MP_TYPE::FX_TRANSIENTSHAPER_DELAY);
+            parameters.push_back(MP_ID::FX_TRANSIENTSHAPER_FAST);
+            parameters.push_back(MP_ID::FX_TRANSIENTSHAPER_MEDIUM);
+            parameters.push_back(MP_ID::FX_TRANSIENTSHAPER_SLOW);
+            parameters.push_back(MP_ID::FX_TRANSIENTSHAPER_ATTACK);
+            parameters.push_back(MP_ID::FX_TRANSIENTSHAPER_SUSTAIN);
+            parameters.push_back(MP_ID::FX_TRANSIENTSHAPER_DELAY);
         }
 
         String GetName() override{

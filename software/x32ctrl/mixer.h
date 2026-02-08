@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "external.h"
 #include "defines.h"
 #include "config.h"
@@ -7,7 +9,7 @@
 #include "base.h"
 
 #include "helper.h"
-#include "mixerparameterdefinition.h"
+#include "mixerparameter.h"
 
 #include "vchannel.h"
 #include "surface.h"
@@ -23,6 +25,9 @@ using namespace std;
 class Mixer : public X32Base
 {
     private:
+
+        map<MP_ID, Mixerparameter*> mpm = map<MP_ID, Mixerparameter*>();
+
         sPreamps preamps;
         // solo is (somewhere) activated
         bool solo = false;
@@ -30,7 +35,9 @@ class Mixer : public X32Base
         void halSendGain(uint8_t dspChannel);
         void halSendPhantomPower(uint8_t dspChannel);
         void LoadVChannelLayout();
-        
+
+        void CreateMixerparameter(MP_ID mp_type); 
+        void CreateMixerparameter(MP_ID mp_type, uint index);        
 
 
     public:
@@ -43,11 +50,16 @@ class Mixer : public X32Base
 
         Mixer(X32BaseParameter* basepar);
         void Init();
+        
+        void DefineMixerparameters();
+        Mixerparameter* NewMPD(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
+        Mixerparameter* GetParameter(MP_ID mp, uint index = 0);
 
-        float Get(uint8_t parIdx);
-        bool Set(uint8_t parIdx, float value);
-        bool Change(uint8_t parIdx, int8_t amount);
-        bool Reset(uint8_t parIdx);
+        float Get(MP_ID mp, uint index = 0);
+        void Set(MP_ID mp, float value, uint index = 0);
+        void Change(MP_ID mp, int amount, uint index = 0);
+        void Toggle(MP_ID mp, uint index = 0);
+        void Reset(MP_ID mp, uint index = 0);
 
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);

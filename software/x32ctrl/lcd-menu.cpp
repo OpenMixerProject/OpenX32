@@ -67,11 +67,14 @@ void LcdMenu::OnChange() {
 void LcdMenu::OnLcdEncoderTurned(int8_t amount) {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "LcdMenu::OnLcdEncoderTurned()");
 
-    state->lcdcontrast += amount;
-    d->texts[1].text = "Contrast: " + String(state->lcdcontrast);
-    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", state->lcdcontrast);
+    Mixerparameter* parameter = mixer->GetParameter(MP_ID::LCD_CONTRAST);
 
-    surface->SetContrast(0, state->lcdcontrast);
+    parameter->Change(amount);    
+    surface->SetContrast(0, parameter->GetUint());
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set %s to %d", parameter->GetName(), parameter->GetUint());
+
+    d->texts[1].text = parameter->GetLabelAndValue().c_str();
+    
     state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST | X32_MIXER_CHANGED_LCD_CONTENT);
 
 }

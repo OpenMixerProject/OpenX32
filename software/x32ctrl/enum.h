@@ -449,7 +449,9 @@ enum class MP_UOM {
 enum class MP_VALUE_TYPE {
     FLOAT,
     UINT,
-    INT
+    INT,
+    BOOL,
+    STRING
 };
 
 enum class MP_CAT {
@@ -459,18 +461,24 @@ enum class MP_CAT {
     FX   
 };
 
-enum class MP_TYPE {
+/// @brief Mixerparameter ID
+enum class MP_ID {
     NONE,
 
     LCD_CONTRAST,
     LED_BRIGHTNESS,
     DISPLAY_BRIGHTNESS,
 
+    CHANNEL_SOURCE,
+    CHANNEL_NAME,
     CHANNEL_GAIN,
     CHANNEL_PANORAMA,
     CHANNEL_VOLUME,
+    CHANNEL_SELECTED,
     CHANNEL_MUTE,
     CHANNEL_SOLO,
+    CHANNEL_INVERT,
+    CHANNEL_PHANTOM,
 
     GATE_TRESHOLD,
     GATE_RANGE,

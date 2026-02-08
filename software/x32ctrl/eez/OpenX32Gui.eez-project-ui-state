@@ -1,7 +1,6 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/6",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/2/childStyles/1",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/1",
     "subnavigationSelectedItems": {}
@@ -25,7 +24,7 @@
           {
             "type": "border",
             "selected": 5,
-            "size": 189.5,
+            "size": 230.5,
             "location": "right",
             "children": [
               {
@@ -80,8 +79,7 @@
           },
           {
             "type": "border",
-            "selected": 3,
-            "size": 0,
+            "size": 280.5,
             "location": "bottom",
             "children": [
               {
@@ -128,13 +126,12 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 11.869169917843529,
+              "weight": 12.510777513864882,
               "children": [
                 {
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
                   "weight": 0.9596508684564427,
-                  "selected": 1,
                   "enableClose": false,
                   "children": [
                     {
@@ -200,22 +197,10 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 28.10115104697521,
-              "selected": 1,
+              "weight": 27.528728176323384,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
-                {
-                  "type": "tab",
-                  "id": "#16ab1234-a259-41cc-9eb9-438a173bbfec",
-                  "name": "widget_fx",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/6",
-                    "permanent": false
-                  },
-                  "icon": "svg:user_widget"
-                },
                 {
                   "type": "tab",
                   "id": "#dbab9156-9676-43a9-aac2-052835856f54",
@@ -232,7 +217,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 14.178891281692975,
+              "weight": 14.109706556323458,
               "children": [
                 {
                   "type": "tab",
@@ -977,20 +962,15 @@
     "[OpenX32Gui.eez-project]:/userPages/0[flow-state]": {
       "selection": {
         "0": {
-          "1": {
-            "5": {
-              "0": {
-                "$selected": true
-              }
-            }
-          },
-          "2": {}
+          "3": {
+            "$selected": true
+          }
         }
       },
       "transform": {
         "translate": {
-          "x": -407.4695896037615,
-          "y": -156.3397535218371
+          "x": -410.9695627622776,
+          "y": -205.53580301340753
         },
         "scale": 1
       },
@@ -1122,6 +1102,45 @@
           "y": -17
         },
         "scale": 1
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
+    },
+    "[OpenX32Gui.eez-project]:/userWidgets/7[flow-state]": {
+      "selection": {},
+      "transform": {
+        "translate": {
+          "x": -400,
+          "y": -240
+        },
+        "scale": 0.8
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
+    },
+    "[OpenX32Gui.eez-project]:/userPages/1[flow-state]": {
+      "selection": {
+        "0": {
+          "0": {},
+          "3": {},
+          "4": {},
+          "9": {}
+        }
+      },
+      "transform": {
+        "translate": {
+          "x": -401.4000000000001,
+          "y": -301.4
+        },
+        "scale": 0.8
       },
       "timeline": {
         "isEditorActive": false,

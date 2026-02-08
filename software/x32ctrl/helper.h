@@ -18,7 +18,7 @@
 #include "lib/plf_nanotimer.h"
 
 #include "config.h"
-#include "mixerparameterdefinition.h"
+#include "mixerparameter.h"
 
 #define DEBUGLEVEL_OFF -1 // No Debug
 #define DEBUGLEVEL_NORMAL 0 // General highlevel debug messages
@@ -32,19 +32,11 @@ class Helper {
         uint32_t debug_;
         uint8_t debuglevel_;
         map<uint8_t, plf::nanotimer*> timers;
-        map<MP_TYPE, MixerparameterDefinition*> mpm = map<MP_TYPE, MixerparameterDefinition*>();
-
-        void LoadMixerparametersdefinitions();
-
-        String GetUnitOfMesaurement(MixerparameterDefinition* mpd, bool spaceInFront);
 
     public:
 
-        Helper();
-
         void Log(const char* format, ...);
         void Error(const char* format, ...);
-        void DebugPrintMessageWithNullBytes(uint16_t debugFlag, char* message, uint16_t len);
         unsigned int Checksum(char* str);
         int ReadConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
         
@@ -60,16 +52,6 @@ class Helper {
         uint8_t value2percent(uint8_t value, uint8_t value_min, uint8_t value_max);
         uint8_t value2percent(int8_t value, int8_t value_min, int8_t value_max);
         
-        MixerparameterDefinition* NewMPD(MP_TYPE mp_type, MP_CAT category, String name);
-        uint8_t GetDecimaPlaces(MixerparameterDefinition* mpd);
-        float CalcNewValue(float value, int8_t amount, MP_TYPE mp);
-        String FormatValue(float value, MixerparameterDefinition* mpd);
-        String FormatValue(uint value, MixerparameterDefinition* mpd);
-        String FormatValue(int value, MixerparameterDefinition* mpd);
-        
-        MixerparameterDefinition* GetMixerparameterDefinition(MP_TYPE mp);
-
-
         long GetFileSize(const char* filename);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);
         uint32_t ReverseBitOrder_uint32(uint32_t n);
@@ -92,6 +74,11 @@ class Helper {
         void SetDebugLevel(uint8_t debuglevel)
         {
             debuglevel_ = debuglevel;
+        }
+
+        void SetDebugAll()
+        {
+            debug_ = 0b1111111111111111;            
         }
 
         #if BUILD_DEBUG

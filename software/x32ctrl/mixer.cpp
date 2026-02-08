@@ -36,6 +36,9 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Mixer::Init() {
+
+    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "CreateMixerparameters");
+    DefineMixerparameters();
     
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->Init()");
     dsp->Init();
@@ -61,10 +64,224 @@ void Mixer::Init() {
 }
 
 
-// Get
-// Set
-// Change
-// Reset
+//######################################################################################################################################
+//#
+//#  ##     ## #### ##      ## ######## ########  ########     ###    ########     ###    ##     ## ######## ######## ######## ########  
+//#  ###   ###  ##   ##    ##  ##       ##     ## ##     ##   ## ##   ##     ##   ## ##   ###   ### ##          ##    ##       ##     ## 
+//#  #### ####  ##    ##  ##   ##       ##     ## ##     ##  ##   ##  ##     ##  ##   ##  #### #### ##          ##    ##       ##     ## 
+//#  ## ### ##  ##     ####    ######   ########  ########  ##     ## ########  ##     ## ## ### ## ######      ##    ######   ########  
+//#  ##     ##  ##    ##  ##   ##       ##   ##   ##        ######### ##   ##   ######### ##     ## ##          ##    ##       ##   ##   
+//#  ##     ##  ##   ##    ##  ##       ##    ##  ##        ##     ## ##    ##  ##     ## ##     ## ##          ##    ##       ##    ##  
+//#  ##     ## #### ##      ## ######## ##     ## ##        ##     ## ##     ## ##     ## ##     ## ########    ##    ######## ##     ## 
+//#
+//#
+//#  ########  ######## ######## #### ##    ## #### ######## ####  #######  ##    ##  ######  
+//#  ##     ## ##       ##        ##  ###   ##  ##     ##     ##  ##     ## ###   ## ##    ## 
+//#  ##     ## ##       ##        ##  ####  ##  ##     ##     ##  ##     ## ####  ## ##       
+//#  ##     ## ######   ######    ##  ## ## ##  ##     ##     ##  ##     ## ## ## ##  ######  
+//#  ##     ## ##       ##        ##  ##  ####  ##     ##     ##  ##     ## ##  ####       ## 
+//#  ##     ## ##       ##        ##  ##   ###  ##     ##     ##  ##     ## ##   ### ##    ## 
+//#  ########  ######## ##       #### ##    ## ####    ##    ####  #######  ##    ##  ######  
+//#
+//######################################################################################################################################
+
+Mixerparameter* Mixer::NewMPD(MP_ID mp_type, MP_CAT category, String name, uint count) {
+	
+	// create it
+	Mixerparameter* newMpd = new Mixerparameter(mp_type, category, name, count);
+
+	// store in mixerparameter map (mpm)
+	mpm[mp_type] = newMpd;
+
+	// return for further definition
+	return newMpd;
+}
+
+void Mixer::DefineMixerparameters() {
+
+	using enum MP_ID;
+
+    NewMPD(NONE, MP_CAT::NONE, "");
+
+    // Settings
+	MP_CAT cat = MP_CAT::SETTING;
+
+	NewMPD(LCD_CONTRAST, cat, "LCD Contrast")->ChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Uint(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT); 
+    NewMPD(LED_BRIGHTNESS, cat, "LED Brightness")->ChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Uint(LED_BRIGHTNESS_1, LED_BRIGHTNESS_4, LED_BRIGHTNESS_4)
+        ->Stepsize(64);
+    // TODO: DISPLAY_BRIGHTNESS
+
+    // Channels
+	cat = MP_CAT::CHANNEL;
+
+	for (uint i = 0; i < MAX_VCHANNELS; i++)
+	{
+		NewMPD(CHANNEL_GAIN, cat, "Gain", i)->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_NONE, X32_VCHANNEL_CHANGED_GAIN)
+			->MinMaxStandard_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
+		NewMPD(CHANNEL_VOLUME, cat, "Volume", i)->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_VOLUME)
+			->MinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+		NewMPD(CHANNEL_SELECTED, cat, "Selected", i)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_SELECT)
+			->MinMaxStandard_Uint(0, 1, 0);
+		NewMPD(CHANNEL_SOLO, cat, "Solo", i)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_SOLO)
+			->MinMaxStandard_Uint(0, 1, 0);
+		NewMPD(CHANNEL_MUTE, cat, "Mute", i)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_MUTE)
+			->MinMaxStandard_Uint(0, 1, 0);
+		NewMPD(CHANNEL_PANORAMA, cat, "Pan/Bal", i)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_BALANCE)
+			->MinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0);
+
+		// gate
+		NewMPD(MP_ID::GATE_TRESHOLD, cat, "Threshold", i)->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
+			->MinMaxStandard_Float(GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0);
+		NewMPD(MP_ID::GATE_RANGE, cat, "Range", i)->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
+			->MinMaxStandard_Float(GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1);
+		NewMPD(MP_ID::GATE_ATTACK, cat, "Attack", i)->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
+			->MinMaxStandard_Float(GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0);
+		NewMPD(MP_ID::GATE_HOLD, cat, "Hold", i)->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
+			->MinMaxStandard_Float(GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0);
+		NewMPD(MP_ID::GATE_RELEASE, cat, "Release", i)->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
+			->MinMaxStandard_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
+		
+		// dynamics
+		NewMPD(MP_ID::DYNAMICS_TRESHOLD, cat, "Threshold", i)->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
+		->MinMaxStandard_Float(DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0);
+		NewMPD(MP_ID::DYNAMICS_RATIO, cat, "Ratio", i)->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
+		->MinMaxStandard_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
+		NewMPD(MP_ID::DYNAMICS_MAKEUP, cat, "Makeup", i)->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
+		->MinMaxStandard_Float(DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1);
+		NewMPD(MP_ID::DYNAMICS_ATTACK, cat, "Attack", i)->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
+		->MinMaxStandard_Float(DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0);
+		NewMPD(MP_ID::DYNAMICS_HOLD, cat, "Hold", i)->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
+		->MinMaxStandard_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
+		NewMPD(MP_ID::DYNAMICS_RELEASE, cat, "Release", i)->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
+		->MinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
+	}
+
+    // FX
+	cat = MP_CAT::FX;
+
+	for (uint i = 0; i < MAX_FX_SLOTS; i++)
+	{
+
+		// reverb
+		#define FX_REVERB_ROOMSIZE_MIN         0.0f // ms
+		#define FX_REVERB_ROOMSIZE_DEFAULT   150.0f // ms
+		#define FX_REVERB_ROOMSIZE_MAX      1000.0f // ms
+		#define FX_REVERB_RT60_MIN             0.0f // s
+		#define FX_REVERB_RT60_DEFAULT         3.0f // s
+		#define FX_REVERB_RT60_MAX           100.0f // s
+		#define FX_REVERB_LPFREQ_MIN           0.0f // Hz
+		#define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
+		#define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
+		#define FX_REVERB_DRY_MIN              0.0f //
+		#define FX_REVERB_DRY_DEFAULT          1.0f //
+		#define FX_REVERB_DRY_MAX              1.0f //
+		#define FX_REVERB_WET_MIN              0.0f //
+		#define FX_REVERB_WET_DEFAULT          0.25f //
+		#define FX_REVERB_WET_MAX              1.0f //
+
+		// reverb roomsize
+		NewMPD(MP_ID::FX_REVERB_ROOMSIZE, cat, "Roomsize")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_REVERB_ROOMSIZE_MIN, FX_REVERB_ROOMSIZE_MAX, FX_REVERB_ROOMSIZE_DEFAULT, 0);
+		// reverb rt60
+		NewMPD(MP_ID::FX_REVERB_RT60, cat, "RT60")->UoM(MP_UOM::SECONDS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
+		// reverb lowpass
+		NewMPD(MP_ID::FX_REVERB_LPFREQ, cat, "LowPass")->UoM(MP_UOM::KHZ)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
+		// reverb dry
+		NewMPD(MP_ID::FX_REVERB_DRY, cat, "Dry")->UoM(MP_UOM::PERCENT)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT);
+		// reverb wet
+		NewMPD(MP_ID::FX_REVERB_WET, cat, "Wet")->UoM(MP_UOM::PERCENT)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_REVERB_WET_MIN, FX_REVERB_WET_MAX, FX_REVERB_WET_DEFAULT);
+
+		// chorus
+		#define FX_CHORUS_DEPTH_A_MIN          0.0f //
+		#define FX_CHORUS_DEPTH_A_DEFAULT     10.0f //
+		#define FX_CHORUS_DEPTH_A_MAX        100.0f //
+		#define FX_CHORUS_DEPTH_B_MIN          0.0f //
+		#define FX_CHORUS_DEPTH_B_DEFAULT     10.0f //
+		#define FX_CHORUS_DEPTH_B_MAX        100.0f //
+		#define FX_CHORUS_DELAY_A_MIN          0.0f // ms
+		#define FX_CHORUS_DELAY_A_DEFAULT     15.0f // ms
+		#define FX_CHORUS_DELAY_A_MAX        100.0f // ms
+		#define FX_CHORUS_DELAY_B_MIN          0.0f // ms
+		#define FX_CHORUS_DELAY_B_DEFAULT     20.0f // ms
+		#define FX_CHORUS_DELAY_B_MAX        100.0f // ms
+		#define FX_CHORUS_PHASE_A_MIN          0.0f //
+		#define FX_CHORUS_PHASE_A_DEFAULT      0.0f //
+		#define FX_CHORUS_PHASE_A_MAX        100.0f //
+		#define FX_CHORUS_PHASE_B_MIN          0.0f //
+		#define FX_CHORUS_PHASE_B_DEFAULT      0.0f //
+		#define FX_CHORUS_PHASE_B_MAX        100.0f //
+		#define FX_CHORUS_FREQ_A_MIN           0.0f //
+		#define FX_CHORUS_FREQ_A_DEFAULT       1.5f //
+		#define FX_CHORUS_FREQ_A_MAX         100.0f //
+		#define FX_CHORUS_FREQ_B_MIN           0.0f //
+		#define FX_CHORUS_FREQ_B_DEFAULT       1.6f //
+		#define FX_CHORUS_FREQ_B_MAX         100.0f //
+
+		// chorus depth
+		NewMPD(MP_ID::FX_CHORUS_DEPTH_A, cat, "Depth A")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_DEPTH_A_MIN, FX_CHORUS_DEPTH_A_MAX, FX_CHORUS_DEPTH_A_DEFAULT);
+		NewMPD(MP_ID::FX_CHORUS_DEPTH_B, cat, "Depth B")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_DEPTH_B_MIN, FX_CHORUS_DEPTH_B_MAX, FX_CHORUS_DEPTH_B_DEFAULT);
+		// chorus delay
+		NewMPD(MP_ID::FX_CHORUS_DELAY_A, cat, "Delay A")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_DELAY_A_MIN, FX_CHORUS_DELAY_A_MAX, FX_CHORUS_DELAY_A_DEFAULT);
+		NewMPD(MP_ID::FX_CHORUS_DELAY_B, cat, "Delay B")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_DELAY_B_MIN, FX_CHORUS_DELAY_B_MAX, FX_CHORUS_DELAY_B_DEFAULT);
+		// chorus phase
+		NewMPD(MP_ID::FX_CHORUS_PHASE_A, cat, "Phase A")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_PHASE_A_MIN, FX_CHORUS_PHASE_A_MAX, FX_CHORUS_PHASE_A_DEFAULT);
+		NewMPD(MP_ID::FX_CHORUS_PHASE_B, cat, "Phase B")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_PHASE_B_MIN, FX_CHORUS_PHASE_B_MAX, FX_CHORUS_PHASE_B_DEFAULT);
+		// chorus freq
+		NewMPD(MP_ID::FX_CHORUS_FREQ_A, cat, "Freq A")->UoM(MP_UOM::KHZ)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT);
+		NewMPD(MP_ID::FX_CHORUS_FREQ_B, cat, "Freq B")->UoM(MP_UOM::KHZ)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT);
+		// chorus mix
+		NewMPD(MP_ID::FX_CHORUS_MIX, cat, "Mix")->UoM(MP_UOM::PERCENT)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1.0f, 0.5f);
+
+		// transientshaper
+
+		// fast
+		NewMPD(MP_ID::FX_TRANSIENTSHAPER_FAST, cat, "Fast")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+		// medium
+		NewMPD(MP_ID::FX_TRANSIENTSHAPER_MEDIUM, cat, "Medium")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 15.0f);
+		// slow
+		NewMPD(MP_ID::FX_TRANSIENTSHAPER_SLOW, cat, "Slow")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 150.0f);
+		// attack
+		NewMPD(MP_ID::FX_TRANSIENTSHAPER_ATTACK, cat, "Attack")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+		// sustain
+		NewMPD(MP_ID::FX_TRANSIENTSHAPER_SUSTAIN, cat, "Sustain")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+		// delay
+		NewMPD(MP_ID::FX_TRANSIENTSHAPER_DELAY, cat, "Delay")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+
+		// FX_TYPE_OVERDRIVE            preGain Q hpfInputFreq lpfInputFreq lpfOutputFreq
+
+		// delay A/B
+		NewMPD(MP_ID::FX_DELAY_DELAY_A, cat, "Delay A")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 350.0f);
+		NewMPD(MP_ID::FX_DELAY_DELAY_B, cat, "Delay B")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
+		->MinMaxStandard_Float(0.0f, 1000.0f, 450.0f);
+
+		// FX_TYPE_MULTIBANDCOMPRESOR   channel band threshold ratio attack  hold   release   makeup
+		// FX_TYPE_DYNAMICEQ            band type freq staticGain  maxDynGain  Q  thresh  ratio  attack  release
+	}
+}
+
+
 
 
 void Mixer::LoadVChannelLayout() {
@@ -114,7 +331,7 @@ void Mixer::LoadVChannelLayout() {
 
     // FX Returns 1-8
     helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up FX Returns");
-    for (uint8_t i=0; i<=7;i++){
+    for (uint i=0; i<=7;i++){
         uint8_t index = (uint)X32_VCHANNEL_BLOCK::FXRET + i;
         VChannel* chan = vchannel[index];
         chan->name = String("FX RET") + String(i+1);
@@ -310,6 +527,83 @@ void Mixer::SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag
     state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
 }
 
+//########################################################################################################################################
+//#
+//#    ######  ######## ########       ##  ######   ######## ########       ##  ######  ##     ##    ###    ##    ##  ######   ######## 
+//#   ##    ## ##          ##         ##  ##    ##  ##          ##         ##  ##    ## ##     ##   ## ##   ###   ## ##    ##  ##       
+//#   ##       ##          ##        ##   ##        ##          ##        ##   ##       ##     ##  ##   ##  ####  ## ##        ##       
+//#    ######  ######      ##       ##    ##   #### ######      ##       ##    ##       ######### ##     ## ## ## ## ##   #### ######   
+//#         ## ##          ##      ##     ##    ##  ##          ##      ##     ##       ##     ## ######### ##  #### ##    ##  ##       
+//#   ##    ## ##          ##     ##      ##    ##  ##          ##     ##      ##    ## ##     ## ##     ## ##   ### ##    ##  ##       
+//#    ######  ########    ##    ##        ######   ########    ##    ##        ######  ##     ## ##     ## ##    ##  ######   ######## 
+//#
+//########################################################################################################################################
+
+
+Mixerparameter* Mixer::GetParameter(MP_ID mp, uint index)
+{
+    if (!mpm.contains(mp))
+    {
+        return mpm[MP_ID::NONE];
+    }
+    return mpm[mp];
+}
+
+float Mixer::Get(MP_ID mp, uint index)
+{
+    return mpm[mp]->Get(index);
+}
+
+void Mixer::Set(MP_ID mp, float value, uint index)
+{
+    mpm[mp]->Set(value, index);
+
+    state->SetChangeFlags(mpm[mp]->changeflag_mixer);
+    x32_changeflag cf_vc = mpm[mp]->changeflag_vchannel;
+    if (cf_vc != X32_VCHANNEL_CHANGED_NONE)
+    {
+        vchannel[index]->SetChanged(cf_vc);
+    }
+}
+
+void Mixer::Change(MP_ID mp, int amount, uint index)
+{
+    mpm[mp]->Change(amount, index);
+
+    state->SetChangeFlags(mpm[mp]->changeflag_mixer);
+    x32_changeflag cf_vc = mpm[mp]->changeflag_vchannel;
+    if (cf_vc != X32_VCHANNEL_CHANGED_NONE)
+    {
+        vchannel[index]->SetChanged(cf_vc);
+    }
+}
+
+void Mixer::Toggle(MP_ID mp, uint index)
+{
+    mpm[mp]->Toggle(index);
+    
+    state->SetChangeFlags(mpm[mp]->changeflag_mixer);
+    x32_changeflag cf_vc = mpm[mp]->changeflag_vchannel;
+    if (cf_vc != X32_VCHANNEL_CHANGED_NONE)
+    {
+        vchannel[index]->SetChanged(cf_vc);
+    }
+}
+
+void Mixer::Reset(MP_ID mp, uint index)
+{
+    mpm[mp]->Reset(index);
+    
+    state->SetChangeFlags(mpm[mp]->changeflag_mixer);
+    x32_changeflag cf_vc = mpm[mp]->changeflag_vchannel;
+    if (cf_vc != X32_VCHANNEL_CHANGED_NONE)
+    {
+        vchannel[index]->SetChanged(cf_vc);
+    }
+}
+
+
+// oldstyle
 
 void Mixer::SetSolo(uint8_t channelIndex, bool solo){
     VChannel* chan = GetVChannel(channelIndex);

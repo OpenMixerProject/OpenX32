@@ -84,7 +84,7 @@ class PageRoutingDsp1: public Page {
 			}
 		}
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) override {
+        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGuiSelection(amount);
