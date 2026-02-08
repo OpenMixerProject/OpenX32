@@ -84,7 +84,7 @@ class PageRoutingDsp1: public Page {
 			}
 		}
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGuiSelection(amount);
@@ -119,10 +119,12 @@ class PageRoutingDsp1: public Page {
 					// just here to avoid compiler warnings                  
 					break;
 			}
+
+			return true;
         }
 
-		private:
-			char inputChannelName[25] = "";
-			char inputSourceName[25] = "";
-			char tapPointName[15] = "";
+	private:
+		char inputChannelName[25] = "";
+		char inputSourceName[25] = "";
+		char tapPointName[15] = "";
 };

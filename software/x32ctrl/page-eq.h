@@ -48,8 +48,12 @@ class PageEq: public Page {
             }
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
+            bool message_handled = false;
+
             if (pressed){
+                message_handled = true;
+
 				switch (button){
 					case X32_BTN_ENCODER1:
 						mixer->SetLowcut(config->selectedVChannel, 20); // set to 20 Hz
@@ -70,12 +74,15 @@ class PageEq: public Page {
 						mixer->dsp->ResetEq(config->selectedVChannel);
 						break;
 					default:
+                        message_handled = false;
 						break;
 				}
 			}
+
+            return message_handled;
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder) {
 				case X32_ENC_ENCODER1:
 					mixer->ChangeLowcut(config->selectedVChannel, amount);
@@ -106,8 +113,11 @@ class PageEq: public Page {
                     }
 					break;
 				default:
+                    return false;
 					break;
 			}
+
+            return true;
         }
 
     private:

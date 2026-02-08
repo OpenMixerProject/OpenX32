@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 
 #include "external.h"
 #include "defines.h"
@@ -10,6 +11,7 @@
 
 #include "helper.h"
 #include "mixerparameter.h"
+#include "mixerparameter-changed.h"
 
 #include "vchannel.h"
 #include "surface.h"
@@ -26,7 +28,8 @@ class Mixer : public X32Base
 {
     private:
 
-        map<MP_ID, Mixerparameter*> mpm = map<MP_ID, Mixerparameter*>();
+        mixerparameter_map_t* mpm = new mixerparameter_map_t();
+        mixerparameter_changed_t* mp_changedlist = new mixerparameter_changed_t();
 
         sPreamps preamps;
         // solo is (somewhere) activated
@@ -37,8 +40,9 @@ class Mixer : public X32Base
         void LoadVChannelLayout();
 
         void CreateMixerparameter(MP_ID mp_type); 
-        void CreateMixerparameter(MP_ID mp_type, uint index);        
-
+        void CreateMixerparameter(MP_ID mp_type, uint index);    
+        
+        void SetParameterChanged(MP_ID &mp, uint &index);
 
     public:
         // all virtual - channels / busses / matrix / etc.
@@ -52,11 +56,19 @@ class Mixer : public X32Base
         void Init();
         
         void DefineMixerparameters();
-        Mixerparameter* NewMPD(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
-        Mixerparameter* GetParameter(MP_ID mp, uint index = 0);
+        Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
+        Mixerparameter* GetParameter(MP_ID mp);
 
-        float Get(MP_ID mp, uint index = 0);
-        void Set(MP_ID mp, float value, uint index = 0);
+        mixerparameter_changed_t* GetChangedParameterList();
+        bool HasParameterChanged(MP_ID parameter_id, uint index = 0);
+        void ResetChangedParameterList();
+
+        float GetFloat(MP_ID mp, uint index = 0);
+        int GetInt(MP_ID mp, uint index = 0);
+        uint GetUint(MP_ID mp, uint index = 0);
+        bool GetBool(MP_ID mp, uint index = 0);
+        String GetString(MP_ID mp, uint index = 0);
+        void Set(MP_ID mp, float value, uint index = 0);        
         void Change(MP_ID mp, int amount, uint index = 0);
         void Toggle(MP_ID mp, uint index = 0);
         void Reset(MP_ID mp, uint index = 0);

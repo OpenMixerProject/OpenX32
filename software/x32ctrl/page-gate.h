@@ -37,11 +37,11 @@ class PageGate: public Page {
             lv_obj_set_user_data(objects.current_channel_gate, mixer);
             //chart-shadow: 0x7e4000
 
-            BindEncoder(0, MP_ID::GATE_TRESHOLD);
-            BindEncoder(1, MP_ID::GATE_RANGE);
-            BindEncoder(2, MP_ID::GATE_ATTACK);
-            BindEncoder(3, MP_ID::GATE_HOLD);
-            BindEncoder(4, MP_ID::GATE_RELEASE);
+            BindEncoder(DISPLAY_ENCODER_1, MP_ID::GATE_TRESHOLD);
+            BindEncoder(DISPLAY_ENCODER_2, MP_ID::GATE_RANGE);
+            BindEncoder(DISPLAY_ENCODER_3, MP_ID::GATE_ATTACK);
+            BindEncoder(DISPLAY_ENCODER_4, MP_ID::GATE_HOLD);
+            BindEncoder(DISPLAY_ENCODER_5, MP_ID::GATE_RELEASE);
         }
 
         void OnChange(bool force_update) override {
@@ -77,7 +77,7 @@ class PageGate: public Page {
             //lv_chart_refresh(objects.current_channel_gate);
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -101,9 +101,11 @@ class PageGate: public Page {
 						break;
 				}
 			}
+
+            return true;
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeGate(config->selectedVChannel, 'T', amount);
@@ -125,6 +127,8 @@ class PageGate: public Page {
 				default:
 					break;
 			}
+
+            return true;
         }
 
     private:

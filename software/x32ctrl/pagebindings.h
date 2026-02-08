@@ -6,7 +6,7 @@ using namespace std;
 
 
 
-class PageBindingEncoder {
+class PageBinding_Encoder {
     public:
 
         // Mixerparameter IDs
@@ -19,7 +19,7 @@ class PageBindingEncoder {
         lv_obj_t* Slider;
         lv_obj_t* ButtonLabel;
 
-        PageBindingEncoder(lv_obj_t* encoder_label, lv_obj_t* encoder_value_label, lv_obj_t* encoder_slider, lv_obj_t* encoder_button_label) {
+        PageBinding_Encoder(lv_obj_t* encoder_label, lv_obj_t* encoder_value_label, lv_obj_t* encoder_slider, lv_obj_t* encoder_button_label) {
             mp_id_encoder = MP_ID::NONE;
             mp_id_button = MP_ID::NONE;
             

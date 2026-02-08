@@ -7,7 +7,7 @@
 #include "base.h"
 #include "page-baseparameter.h"
 #include "mixer.h"
-#include "page-bindings.h"
+#include "pagebindings.h"
 
 #include "lv_port_linux/lvgl/lvgl.h"
 #include "eez/src/ui/screens.h"
@@ -34,7 +34,7 @@ class Page : public X32Base {
         bool hideEncoders = false;
 
         // encoder binding
-        map<uint, PageBindingEncoder*> encoderbinding;
+        map<uint, PageBinding_Encoder*> encoderbinding;
        
         // old, just here to be able to compile
         sDisplayEncoder encoderSliders[MAX_DISPLAY_ENCODER];
@@ -53,14 +53,14 @@ class Page : public X32Base {
         void UnbindEncoders();
         void UnbindEncoder(uint encoder);
         void SetEncoderHighlight(uint encoder, bool highlight);
-        void SyncEncoderWidgets();
+        void SyncEncoderWidgets(bool force);
 
         virtual void OnInit();
         virtual void OnUpdateMeters();
         virtual void OnShow();
         virtual void OnChange(bool force_update);
-        virtual void OnDisplayEncoderTurned(X32_ENC encoder, int amount);
-        virtual void OnDisplayButton(X32_BTN button, bool pressed);
+        virtual bool OnDisplayEncoderTurned(X32_ENC encoder, int amount);
+        virtual bool OnDisplayButton(X32_BTN button, bool pressed);
 
     public:
         Page(PageBaseParameter* pagebasepar);

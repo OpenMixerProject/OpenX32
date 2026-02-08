@@ -174,7 +174,7 @@ class PageMeters : public Page {
             }
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
                 switch (button){
                     case X32_BTN_ENCODER1:
@@ -200,9 +200,11 @@ class PageMeters : public Page {
                         break;
                 }
             }
+
+            return true;
         }        
 
-        private:
-            lv_obj_t* meterBlocks[9];
+    private:
+        lv_obj_t* meterBlocks[9];
 
 };

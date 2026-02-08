@@ -36,7 +36,7 @@ class PageSetupCard: public Page {
             }
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -57,9 +57,11 @@ class PageSetupCard: public Page {
 						break;
 				}
 			}
+
+            return true;
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
                 case X32_ENC_ENCODER1:
                     {
@@ -93,5 +95,7 @@ class PageSetupCard: public Page {
                     // just here to avoid compiler warnings                  
                     break;
             }
+
+            return true;
         }
 };

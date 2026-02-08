@@ -1,9 +1,17 @@
 #pragma once
 
 #include <stdint.h>
+
+#include <map>
+#include <set>
+
 #include "defines.h"
 #include "enum.h"
 #include "WString.h"
+
+#include "mixerparameter.h"
+
+using namespace std;
 
 // define own datatypes
 typedef union {
@@ -269,3 +277,6 @@ typedef struct {
 	bool label_buttonpress_highlighted = false;
 	void* ptr_value;  
 } sDisplayEncoder;
+
+typedef map<MP_ID, set<uint>>			mixerparameter_changed_t;
+typedef map<MP_ID, Mixerparameter*>		mixerparameter_map_t;

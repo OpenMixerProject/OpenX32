@@ -23,7 +23,7 @@ class PageUtility: public Page {
             encoderSliders[5].label = String("D1: ") + String(state->debugvalue);
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
         	if (pressed){
 				switch (button){
                 // DEBUG
@@ -117,9 +117,11 @@ class PageUtility: public Page {
                     break;
 				}
 			}
+
+            return true;
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             if (state->activePage == X32_PAGE::UTILITY) {
                 switch (encoder){
                     case X32_ENC_ENCODER1:
@@ -143,5 +145,7 @@ class PageUtility: public Page {
                         break;
                 }
 		    }
+
+            return true;
         }
 };

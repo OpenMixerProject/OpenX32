@@ -27,7 +27,7 @@ class PageSetup: public Page {
             }
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					break;
@@ -41,20 +41,22 @@ class PageSetup: public Page {
                     mixer->Change(MP_ID::LED_BRIGHTNESS, amount);
 
                     // TODO: move to new eventsystem
-                    surface->SetBrightnessAllBoards(mixer->Get(MP_ID::LED_BRIGHTNESS));
+                    surface->SetBrightnessAllBoards(mixer->GetFloat(MP_ID::LED_BRIGHTNESS));
 					break;
 				case X32_ENC_ENCODER6:
                     mixer->Change(MP_ID::LCD_CONTRAST, amount);
 
                     // TODO: move to new eventsystem
-                    surface->SetContrastAllBoards(mixer->Get(MP_ID::LCD_CONTRAST));
+                    surface->SetContrastAllBoards(mixer->GetFloat(MP_ID::LCD_CONTRAST));
 					break;
 				default:
 					break;
 			}
+
+            return true;
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -69,18 +71,20 @@ class PageSetup: public Page {
                         mixer->Reset(MP_ID::LED_BRIGHTNESS);
 
                         // TODO: move to new eventsystem
-                        surface->SetBrightnessAllBoards(mixer->Get(MP_ID::LED_BRIGHTNESS));
+                        surface->SetBrightnessAllBoards(mixer->GetFloat(MP_ID::LED_BRIGHTNESS));
 						break;
 					case X32_BTN_ENCODER6:
                         mixer->Reset(MP_ID::LCD_CONTRAST);
                         
                         // TODO: move to new eventsystem
-                        surface->SetContrastAllBoards(mixer->Get(MP_ID::LCD_CONTRAST));
+                        surface->SetContrastAllBoards(mixer->GetFloat(MP_ID::LCD_CONTRAST));
 						break;
 					default:
                         // just here to avoid compiler warnings
 						break;
 				}
             }
+
+            return true;
         }
 };

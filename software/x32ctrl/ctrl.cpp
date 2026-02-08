@@ -312,7 +312,7 @@ void X32Ctrl::SaveConfig() {
 		string section = string("mixer");
 		mixer_ini[section]["activePage"] = (int)state->activePage;
 		mixer_ini[section]["lastPage"] = (int)state->lastPage;
-		mixer_ini[section][mixer->GetParameter(MP_ID::LCD_CONTRAST)->GetConfigPrefix().c_str()] = (int)mixer->Get(MP_ID::LCD_CONTRAST);
+		mixer_ini[section][mixer->GetParameter(MP_ID::LCD_CONTRAST)->GetConfigPrefix().c_str()] = mixer->GetUint(MP_ID::LCD_CONTRAST);
 	}
 	// VChannels
 	for (uint8_t i = 0; i < MAX_VCHANNELS; i++) {
@@ -404,6 +404,10 @@ void X32Ctrl::Tick10ms(void){
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->card->Sync()");
 		mixer->card->Sync();
 
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset list of changed Mixerparameter.");
+		mixer->ResetChangedParameterList();
+
+		//old
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "state->ResetChangeFlags()");
 		state->ResetChangeFlags();
 		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){

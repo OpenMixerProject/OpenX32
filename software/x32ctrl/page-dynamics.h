@@ -78,8 +78,12 @@ class PageDynamics: public Page {
             //lv_chart_refresh(objects.current_channel_comp);
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
+            bool message_handled = false;
+
             if (pressed){
+                message_handled = true;
+
 				switch (button){
 					case X32_BTN_ENCODER1:
 						mixer->SetDynamics(config->selectedVChannel, 'T', 0.0f);
@@ -100,12 +104,17 @@ class PageDynamics: public Page {
 						mixer->SetDynamics(config->selectedVChannel, 'r', 150.0f);
 						break;
 					default:
+                        message_handled = false;
 						break;
 				}
             }
+
+            return message_handled;
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+            bool message_handled = true;
+
             switch (encoder){
 				case X32_ENC_ENCODER1:
 					mixer->ChangeDynamics(config->selectedVChannel, 'T', amount);
@@ -126,8 +135,11 @@ class PageDynamics: public Page {
 					mixer->ChangeDynamics(config->selectedVChannel, 'r', amount);
 					break;
 				default:
+                    message_handled = false;
 					break;
 			}
+
+            return message_handled;
         }
 
     private:

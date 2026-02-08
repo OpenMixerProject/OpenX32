@@ -72,7 +72,7 @@ class PageRoutingFpga: public Page {
             }
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
                 case X32_ENC_ENCODER1:
                     mixer->ChangeGuiSelection(amount);
@@ -106,10 +106,12 @@ class PageRoutingFpga: public Page {
                     // just here to avoid compiler warnings                  
                     break;
             }
+
+            return true;
         }
 
-        private:
-            char outputDestinationName[15] = "";
-            char inputSourceName[15] = "";
-            uint8_t routingIndex = 0;
+    private:
+        char outputDestinationName[15] = "";
+        char inputSourceName[15] = "";
+        uint8_t routingIndex = 0;
 };

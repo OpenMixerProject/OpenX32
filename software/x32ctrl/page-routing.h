@@ -22,7 +22,7 @@ class PageRouting: public Page {
 			encoderSliders[2].label = "Card -> Channels";
 		}
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
@@ -48,5 +48,7 @@ class PageRouting: public Page {
 						break;
 				}
             }
+
+			return true;
         }
 };

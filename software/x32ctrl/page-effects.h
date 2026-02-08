@@ -28,18 +28,18 @@ class PageEffects: public Page {
                 state->HasChanged(X32_MIXER_CHANGED_FX) ||
                 force_update)
             {
-                for (uint8_t i = 0; i < MAX_FX_SLOTS; i++) {
+                for (uint8_t slotIndex = 0; slotIndex < MAX_FX_SLOTS; slotIndex++) {
 
-                    FxSlot* slot = mixer->dsp->fx_slot[i];
+                    FxSlot* slot = mixer->dsp->fx_slot[slotIndex];
                     
                     // selected FX or Banking changed
                     if (state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT) || force_update)
                     {
-                        if (i == selectedFx) {
+                        if (slotIndex == selectedFx) {
                             
                             // FX number (selected)
-                            lv_table_set_cell_value_fmt(objects.fxtable, 0, i*2, "FX%d <<<", i+1);
-                            lv_table_set_selected_cell(objects.fxtable, 0, i*2);
+                            lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex*2, "FX%d <<<", slotIndex+1);
+                            lv_table_set_selected_cell(objects.fxtable, 0, slotIndex*2);
 
                             if (slot->HasFx()) {
 
@@ -66,7 +66,7 @@ class PageEffects: public Page {
 
                         } else {
                             // FX number (not selected)
-                            lv_table_set_cell_value_fmt(objects.fxtable, 0, i*2, "FX%d", i+1);
+                            lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex*2, "FX%d", slotIndex+1);
                         }
                     }
 
@@ -76,23 +76,23 @@ class PageEffects: public Page {
                         // Table - without offset!
                         if (slot->HasFx()) {
                             // FX Name
-                            lv_table_set_cell_value(objects.fxtable, 1, i*2, mixer->dsp->fx_slot[i]->fx->GetName().c_str());
+                            lv_table_set_cell_value(objects.fxtable, 1, slotIndex*2, mixer->dsp->fx_slot[slotIndex]->fx->GetName().c_str());
 
                             // FX Parameters
                             for (uint8_t p=0; p < slot->fx->GetParameterCount(); p++){
-                                Mixerparameter* mp = mixer->GetParameter(slot->fx->GetParameterDefinition(p));
-                                lv_table_set_cell_value(objects.fxtable, p + 3, i*2, mp->GetName().c_str());
-                                lv_table_set_cell_value(objects.fxtable, p + 3, (i*2)+1, mp->FormatValue(p).c_str());
+                                Mixerparameter* parameter = mixer->GetParameter(slot->fx->GetParameterDefinition(p));
+                                lv_table_set_cell_value(objects.fxtable, p + 3, slotIndex*2, parameter->GetName().c_str());
+                                lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex*2)+1, parameter->GetFormatedValue(slotIndex).c_str());
                             }
                         } else {
                             // clear name and parameters
                             for (uint8_t p=0; p < 10; p++){
-                                lv_table_set_cell_value(objects.fxtable, p+2, i*2, "");
+                                lv_table_set_cell_value(objects.fxtable, p+2, slotIndex*2, "");
                             }
                         }
 
                         // Encoders
-                        if (i == selectedFx && slot->HasFx()) {
+                        if (slotIndex == selectedFx && slot->HasFx()) {
                             for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
                                 BindEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
                                 SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
@@ -103,8 +103,12 @@ class PageEffects: public Page {
             }
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
+            bool message_handled = false;
+
             if (pressed){
+                bool message_handled = true;
+
                 switch (button){
                     case X32_BTN_LEFT:
                         prevFX();
@@ -126,10 +130,12 @@ class PageEffects: public Page {
                     case X32_BTN_ENCODER6:
                         mixer->ResetFxParameter(selectedFx, (banking * 6) + (button - X32_BTN_ENCODER1));
                     default:
-                        // just here to avoid compiler warnings
+                        bool message_handled = false;
                         break;
                 }
             }
+
+            return message_handled;
         }
 
         void nextParameterBank()
@@ -176,7 +182,9 @@ class PageEffects: public Page {
             state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+            bool message_handled = false;
+
             switch (encoder){
                 case X32_ENC_ENCODER1:
                 case X32_ENC_ENCODER2:
@@ -185,10 +193,12 @@ class PageEffects: public Page {
                 case X32_ENC_ENCODER5:
                 case X32_ENC_ENCODER6:
                     mixer->ChangeFxParameter(selectedFx, (banking * 6) + (encoder - X32_ENC_ENCODER1), amount);
+                    message_handled = true;
                     break;
                 default:  
-                    // just here to avoid compiler warnings                  
                     break;
             }   
+
+            return message_handled;
         }
 };
