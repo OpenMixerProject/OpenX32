@@ -144,6 +144,12 @@ class PageEffects: public Page {
             {
                 banking++;
             }
+
+            // temporary
+            OnChange(true);
+            SyncEncoderWidgets(true);
+
+            // old
             state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
@@ -153,6 +159,12 @@ class PageEffects: public Page {
             {
                 banking--;
             }
+
+            // temporary
+            OnChange(true);
+            SyncEncoderWidgets(true);
+
+            // old
             state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
@@ -166,6 +178,12 @@ class PageEffects: public Page {
             {
                 selectedFx = 0;
             }
+
+            // temporary
+            OnChange(true);
+            SyncEncoderWidgets(true);
+
+            // old
             state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
@@ -179,26 +197,23 @@ class PageEffects: public Page {
             {
                 selectedFx = MAX_FX_SLOTS - 1;
             }
+
+            // temporary
+            OnChange(true);
+            SyncEncoderWidgets(true);
+
+            // old
             state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
         bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-            bool message_handled = false;
 
-            switch (encoder){
-                case X32_ENC_ENCODER1:
-                case X32_ENC_ENCODER2:
-                case X32_ENC_ENCODER3:
-                case X32_ENC_ENCODER4:
-                case X32_ENC_ENCODER5:
-                case X32_ENC_ENCODER6:
-                    mixer->ChangeFxParameter(selectedFx, (banking * 6) + (encoder - X32_ENC_ENCODER1), amount);
-                    message_handled = true;
-                    break;
-                default:  
-                    break;
-            }   
-
-            return message_handled;
+            uint encoderIndex = encoder - X32_ENC_ENCODER1;
+            if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
+            {
+                mixer->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, selectedFx);
+            }
+            
+            return true;
         }
 };
