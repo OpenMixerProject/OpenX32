@@ -17,25 +17,33 @@ class PageConfig : public Page {
         }
 
         void OnInit() override { 
-			using enum MP_ID;
+            UpdateEncoderBinding(config->GetUint(MP_ID::SELECTED_CHANNEL));
+        }
 
-			BindEncoder(DISPLAY_ENCODER_1, true, CHANNEL_SOURCE, CHANNEL_PHASE_INVERT);
-			BindEncoder(DISPLAY_ENCODER_2, true, CHANNEL_GAIN, CHANNEL_PHANTOM);
-			BindEncoder(DISPLAY_ENCODER_3, true, CHANNEL_PANORAMA);
-			BindEncoder(DISPLAY_ENCODER_4, true, CHANNEL_VOLUME, CHANNEL_MUTE);
-            BindEncoder(DISPLAY_ENCODER_6, false, SELECTED_CHANNEL);
+        void UpdateEncoderBinding(uint targetindex)
+        {
+            using enum MP_ID;
+
+            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_SOURCE, CHANNEL_PHASE_INVERT, targetindex);
+            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_GAIN, CHANNEL_PHANTOM, targetindex);
+            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_PANORAMA, targetindex);
+            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME, CHANNEL_MUTE, targetindex);
+            BindEncoder(DISPLAY_ENCODER_6, SELECTED_CHANNEL);
+
+            SyncEncoderWidgets(true);
         }
 
         void OnChange(bool force_update) override {
 
             using enum MP_ID;
 
+            uint8_t chanIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
+
             if (config->HasParameterChanged(SELECTED_CHANNEL))
             {
                 force_update = true;
+                UpdateEncoderBinding(chanIndex);
             }
-
-            uint8_t chanIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
 
             // TODO implement with better string handling -> (*** stack smashing detected ***: terminated)
             // char dspSourceName[5] = "";

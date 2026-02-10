@@ -104,7 +104,7 @@ class X32Ctrl : public X32Base {
         void ProcessEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
 
-        void InitPages();
+        void InitPagesAndGUI();
         void ShowPage(X32_PAGE page);
         void ShowPrevPage();
         void ShowNextPage();

@@ -232,6 +232,7 @@ void X32Ctrl::LoadConfig() {
 	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
 	mixer_ini.load(X32_MIXER_CONFIGFILE);
 
+	// go over all known Mixerparameters and try to load them
 	for (const auto& [parameter_id, parameter] : *config->GetParameterList()) {
 
 		if (parameter->GetNoConfigfile() || parameter_id == MP_ID::NONE)
@@ -285,6 +286,7 @@ void X32Ctrl::LoadConfig() {
 
 void X32Ctrl::SaveConfig() {
 
+	// go over all known Mixerparameter an store them
 	for (const auto& [parameter_id, parameter] : *config->GetParameterList()) {
 
 		if (parameter->GetNoConfigfile() || parameter_id == MP_ID::NONE)
@@ -616,7 +618,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
 //
 //#####################################################################################################################
 
-void X32Ctrl::InitPages(){
+void X32Ctrl::InitPagesAndGUI(){
 	PageBaseParameter* pagebasepar = new PageBaseParameter(app, config, state, helper, mixer, surface);
 	
 	pages[X32_PAGE::HOME] = new PageHome(pagebasepar);
@@ -638,6 +640,12 @@ void X32Ctrl::InitPages(){
 	for (const auto& [key, value] : pages) {
 		value->Init();
 	}
+
+	// trigger first update of header
+	config->Refresh(MP_ID::SELECTED_CHANNEL);
+
+	// trigger first update on shown page
+	config->Refresh(MP_ID::ACTIVE_PAGE);	
 }
 
 void X32Ctrl::ShowNextPage(void){
@@ -1049,7 +1057,7 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 						chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
 						chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)           ||
 						chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)             ||
-						chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)           ||
+						config->HasParameterChanged(MP_ID::CHANNEL_GATE_TRESHOLD)		||
 						chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)        ||
 						chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)        ||
 						chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
@@ -1105,7 +1113,7 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
     data->texts[1].text =
 		String(mixer->GetPhantomPower(channelIndex) ? "48V " : "    ") +
 		String(mixer->GetPhaseInvert(channelIndex) ? "@ " : "  ") +
-		String(mixer->GetGate(channelIndex, 'T') > -80 ? "G " : "  ") +
+		String(config->GetFloat(MP_ID::CHANNEL_GATE_TRESHOLD, channelIndex) > -80.0f ? "G " : "  ") +
 		String(mixer->GetDynamics(channelIndex, 'T') < 0 ? "D " : "  ") +
 		// TODO String(mixer->GetEq(channelIndex) ? "E " : "  ");
 		String(true ? "E" : " ");
@@ -1351,7 +1359,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 
 		if (mixer->dsp->Channel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
 
-		float gateValue = (1.0f - mixer->dsp->Channel[channel].gate.gain) * 80.0f;
+		float gateValue = (1.0f - config->GetFloat(MP_ID::CHANNEL_GATE_GAIN, channel)) * 80.0f;
 		if (gateValue >= 2.0f)  { meterdata |= 0b00100000; }        
 		if (gateValue >= 4.0f)  { meterdata |= 0b00010000; }        
 		if (gateValue >= 6.0f)  { meterdata |= 0b00001000; }        
@@ -1359,7 +1367,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 		if (gateValue >= 18.0f) { meterdata |= 0b00000010; }        
 		if (gateValue >= 30.0f) { meterdata |= 0b00000001; }        
 
-		if (mixer->dsp->Channel[channel].gate.gain < 1.0f) { meterdata |= 0b01000000; };
+		if (config->GetFloat(MP_ID::CHANNEL_GATE_GAIN, channel) < 1.0f) { meterdata |= 0b01000000; };
 
 		return meterdata;
 	}else{
@@ -2080,7 +2088,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangeGain(config->GetUint(MP_ID::SELECTED_CHANNEL), amount);
 				break;
 			case X32_ENC_GATE:
-				mixer->ChangeGate(config->GetUint(MP_ID::SELECTED_CHANNEL), 'T', amount);
+				config->Change(MP_ID::CHANNEL_GATE_TRESHOLD, amount, config->GetUint(MP_ID::SELECTED_CHANNEL));
 				break;
 			case X32_ENC_LOWCUT:
 				mixer->ChangeLowcut(config->GetUint(MP_ID::SELECTED_CHANNEL), amount);

@@ -713,103 +713,6 @@ void Mixer::ChangeBusSend(uint8_t vChannelIndex, uint8_t encoderIndex, int8_t p_
     SetBusSend(vChannelIndex, encoderIndex, newValue);
 }
 
-void Mixer::SetGate(uint8_t vChannelIndex, char option, float value) {
-    if (vChannelIndex == VCHANNEL_NOT_SET) {
-        return;
-    }
-
-    VChannel* chan = GetVChannel(vChannelIndex);
-
-    switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL: {
-            sGate* gate = &dsp->Channel[vChannelIndex].gate;
-            switch (option) {
-                case 'T': // Threshold
-                    if ((value >= GATE_THRESHOLD_MIN) && (value <= GATE_THRESHOLD_MAX)) {
-                        gate->threshold = value;
-                    }
-                    break;
-                case 'R': // Range
-                    if ((value >= GATE_RANGE_MIN) && (value <= GATE_RANGE_MAX)) {
-                        gate->range = value;
-                    }
-                    break;
-                case 'A': // Attack
-                    if ((value >= GATE_ATTACK_MIN) && (value <= GATE_ATTACK_MAX)) {
-                        gate->attackTime_ms = value;
-                    }
-                    break;
-                case 'H': // Hold
-                    if ((value >= GATE_HOLD_MIN) && (value <= GATE_HOLD_MAX)) {
-                        gate->holdTime_ms = value;
-                    }
-                    break;
-                case 'r': // Release
-                    if ((value >= GATE_RELEASE_MIN) && (value <= GATE_RELEASE_MAX)) {
-                        gate->releaseTime_ms = value;
-                    }
-                    break;
-            }
-            chan->SetChanged(X32_VCHANNEL_CHANGED_GATE);
-            break;
-        }
-    }    
-}
-
-float Mixer::GetGate(uint8_t vChannelIndex, char option) {
-    if (vChannelIndex == VCHANNEL_NOT_SET) {
-        return -80;
-    }
-
-    VChannel* chan = GetVChannel(vChannelIndex);
-
-    if (chan->vChannelType == X32_VCHANNELTYPE::NORMAL){
-        sGate* gate = &dsp->Channel[vChannelIndex].gate;
-        switch (option) {
-            case 'T': // Threshold
-                return gate->threshold;
-            case 'R': // Range
-                return gate->range;
-            case 'A': // Attack
-                return gate->attackTime_ms;
-            case 'H': // Hold
-                return gate->holdTime_ms;
-            case 'r': // Release
-                return gate->releaseTime_ms;
-        }
-    }
-    
-    return 0;
-}
-
-void Mixer::ChangeGate(uint8_t vChannelIndex, char option, int8_t p_amount) {
-    if (vChannelIndex == VCHANNEL_NOT_SET) {
-        return;
-    }
-
-    float newValue = GetGate(vChannelIndex, option);
-
-    switch (option) {
-        case 'T': // Threshold
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.0f;
-            break;
-        case 'R': // Range
-            newValue += ((float)p_amount * abs((float)p_amount)) * 1.5f;
-            break;
-        case 'A': // Attack
-            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
-            break;
-        case 'H': // Hold
-            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
-            break;
-        case 'r': // Release
-            newValue += ((float)p_amount * abs((float)p_amount)) * 2.0f;
-            break;
-    }
-
-    SetGate(vChannelIndex, option, newValue);
-}
-
 void Mixer::SetLowcut(uint8_t vChannelIndex, float lowCutFrequency){
     if (vChannelIndex == VCHANNEL_NOT_SET) {
         return;
@@ -1117,103 +1020,108 @@ String Mixer::GetCardModelString(){
 //#########################################
 
 void Mixer::Sync(void){
-    // loop trough all vchannels and sync to hardware
+    using enum MP_ID;
 
+    // loop trough all vchannels and sync to hardware
 
     // TODO: remove loop and just loop over changed parameters
 
+    if (config->HasParametersChanged(MP_CAT::CHANNEL_GATE))
+    {        
+        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_GATE))
+        {
+            dsp->SendGate(changedIndex);
+        }
+    }
 
-    // for (int i = 0; i < MAX_VCHANNELS; i++)
-    // {
-    //     VChannel* chan = vchannel[i];
 
-    //     if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::NORMAL) ||
-    //         helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::AUX)) {
+    for (int i = 0; i < MAX_VCHANNELS; i++)
+    {
+        VChannel* chan = vchannel[i];
 
-    //         // one of the 40 DSP-channels
-    //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_INPUT)) {
-    //             dsp->SetInputRouting(i);
-    //         }
+        if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::NORMAL) ||
+            helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::AUX)) {
 
-    //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)){
-    //             halSendGain(i);
-    //         }
+            // one of the 40 DSP-channels
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_INPUT)) {
+                dsp->SetInputRouting(i);
+            }
 
-    //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)){
-    //             halSendPhantomPower(i);
-    //         }
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)){
+                halSendGain(i);
+            }
 
-    //         if ((
-    //             chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) ||
-    //             chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) ||
-    //             chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)
-    //         )){
-    //             dsp->SendChannelVolume(i);
-    //         }
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)){
+                halSendPhantomPower(i);
+            }
 
-    //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
-    //             dsp->SendGate(i);
-    //         }
+            if ((
+                chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) ||
+                chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) ||
+                chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)
+            )){
+                dsp->SendChannelVolume(i);
+            }
 
-    //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
-    //             dsp->SendEQ(i);
-    //             dsp->SendLowcut(i);
-    //         }
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
+                dsp->SendEQ(i);
+                dsp->SendLowcut(i);
+            }
 
-    //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)){
-    //             dsp->SendCompressor(i);
-    //         }
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)){
+                dsp->SendCompressor(i);
+            }
 
-    //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS)) {
-    //             dsp->SendChannelSend(i);
-    //         }
-    //     } else {
-    //         // one of the other channels like Mixbus, DCA, Main, etc.
-    //         uint8_t group = ' ';
-    //         if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::FXRET)) {
-    //             // FX Returns 1-8
-    //             group = 'f';
-    //         }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::BUS)) {
-    //             // Busmaster 1-16
-    //             group = 'b';
-    //         }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MATRIX)) {
-    //             // Matrix 1-6
-    //             group = 'x';
-    //         }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::SPECIAL)) {
-    //             // "VERY SPECIAL CHANNEL"
-    //             group = 'v';
-    //         }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MAINSUB)) {
-    //             // Mono/Sub
-    //             group = 's';
-    //         }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::DCA)) {
-    //             // DCA 1-8
-    //             group = 'd';
-    //         }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MAIN)) {
-    //             // main-LR
-    //             group = 'm';
-    //         }
+            if (chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS)) {
+                dsp->SendChannelSend(i);
+            }
+        } else {
+            // one of the other channels like Mixbus, DCA, Main, etc.
+            uint8_t group = ' ';
+            if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::FXRET)) {
+                // FX Returns 1-8
+                group = 'f';
+            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::BUS)) {
+                // Busmaster 1-16
+                group = 'b';
+            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MATRIX)) {
+                // Matrix 1-6
+                group = 'x';
+            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::SPECIAL)) {
+                // "VERY SPECIAL CHANNEL"
+                group = 'v';
+            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MAINSUB)) {
+                // Mono/Sub
+                group = 's';
+            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::DCA)) {
+                // DCA 1-8
+                group = 'd';
+            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MAIN)) {
+                // main-LR
+                group = 'm';
+            }
 
-    //         if ((
-    //             chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) ||
-    //             chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)
-    //         )){
-    //             switch (group) {
-    //                 case 'b':
-    //                     dsp->SendMixbusVolume(i - 48);
-    //                     break;
-    //                 case 'x':
-    //                     dsp->SendMatrixVolume(i - 64);
-    //                     break;
-    //                 case 'm':
-    //                     dsp->SendMainVolume();
-    //                     break;
-    //                 case 's':
-    //                     dsp->SendMainVolume();
-    //                     break;
-    //             }
-    //         }
-    //     }
-    // }
+            if ((
+                chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) ||
+                chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)
+            )){
+                switch (group) {
+                    case 'b':
+                        dsp->SendMixbusVolume(i - 48);
+                        break;
+                    case 'x':
+                        dsp->SendMatrixVolume(i - 64);
+                        break;
+                    case 'm':
+                        dsp->SendMainVolume();
+                        break;
+                    case 's':
+                        dsp->SendMainVolume();
+                        break;
+                }
+            }
+        }
+    }
 }
 
 // set the gain of the local XLR head-amp-control

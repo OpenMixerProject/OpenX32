@@ -459,6 +459,7 @@ enum class MP_CAT {
     SETTING,
     STATE,
     CHANNEL,
+    CHANNEL_GATE,
     FX
 };
 
@@ -508,6 +509,7 @@ enum class MP_ID {
     CHANNEL_GATE_ATTACK,
     CHANNEL_GATE_HOLD,
     CHANNEL_GATE_RELEASE,
+    CHANNEL_GATE_GAIN,
     
     CHANNEL_DYNAMICS_TRESHOLD,
     CHANNEL_DYNAMICS_RATIO,
@@ -675,4 +677,20 @@ enum class X32_COLOR : int {
     PINK = 5,
     CYAN = 6,
     WHITE = 7
+};
+
+enum class X32_SURFACE_MESSAGE : char {
+    Binary = 'B',
+    Control = 'C',
+    Display = 'D',
+    // E
+    Fader = 'F',
+    // G
+    // I
+    // H
+    // J
+    // K
+    LED = 'L',
+    Meter = 'M',
+    Ring = 'R',
 };

@@ -41,8 +41,8 @@ class Page : public X32Base {
 
         bool initDone = false;
 
-        void BindEncoder(uint encoder, bool dependsOnChannel, MP_ID mp_id);
-        void BindEncoder(uint encoder, bool dependsOnChannel, MP_ID mp_id, MP_ID mp_id_button);
+        void BindEncoder(uint encoder, MP_ID mp_id, uint mp_index = 0);
+        void BindEncoder(uint encoder, MP_ID mp_id, MP_ID mp_id_button, uint mp_index = 0);
         
         void SetEncoder(uint encoder, MP_ID mp, String buttonPressLabel);
         void SetEncoder(uint encoder, String label, String buttonPressLabel);
@@ -55,12 +55,17 @@ class Page : public X32Base {
         void SetEncoderHighlight(uint encoder, bool highlight);
         void SyncEncoderWidgets(bool force);
 
-        virtual void OnInit();
-        virtual void OnUpdateMeters();
-        virtual void OnShow();
-        virtual void OnChange(bool force_update);
-        virtual bool OnDisplayEncoderTurned(X32_ENC encoder, int amount);
-        virtual bool OnDisplayButton(X32_BTN button, bool pressed);
+        //###################################################
+        //# Default implementation of virtual functions,
+        //# can be overridden by pages
+        //###################################################
+
+        virtual void OnInit() {}
+        virtual void OnUpdateMeters() {}
+        virtual void OnShow() {}
+        virtual void OnChange(bool force_update) {}
+        virtual bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) { return false; }
+        virtual bool OnDisplayButton(X32_BTN button, bool pressed) { return false; }
 
     public:
         Page(PageBaseParameter* pagebasepar);

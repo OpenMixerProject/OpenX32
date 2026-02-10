@@ -90,25 +90,6 @@ typedef struct {
 
 typedef struct {
 	// user-settings
-	float threshold; // value between -80 dBfs (no gate) and 0 dBfs (full gate)
-	float range; // value between 48dB (full range) and 3dB (minimum effect)
-	float attackTime_ms;
-	float holdTime_ms;
-	float releaseTime_ms;
-
-	// filter-data
-	float value_threshold;
-	float value_gainmin;
-	float value_coeff_attack;
-	float value_hold_ticks;
-	float value_coeff_release;
-
-	// online parameter
-	float gain;
-} sGate;
-
-typedef struct {
-	// user-settings
 	float threshold; // value between 0 dBfs (no compression) and -80 dBfs (full compression)
 	float ratio; // value between 0=oo:1, 1=1:1, 2=2:1, 4=4:1, 8=8:1, 16=16:1, 32=32:1, 64=64:1
 	float makeup; // value between 0dB, 6dB, 12dB, 18dB, 24dB, 30dB, 36dB, 42dB, 48dB
@@ -134,7 +115,6 @@ typedef struct {
 	uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
 
 	float lowCutFrequency;
-	sGate gate;
 	sPEQ peq[MAX_CHAN_EQS];
 	sCompressor compressor;
 	float volumeLR; // volume in dBfs

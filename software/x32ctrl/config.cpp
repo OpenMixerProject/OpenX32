@@ -187,7 +187,7 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     
     DefParameter(CHANNEL_SELECTED, cat, group, "Selected", MAX_VCHANNELS)
-    ->DefMinMaxStandard_Uint(0, 1, 0);
+    ->DefStandard_Bool(false);
     
     DefParameter(CHANNEL_SOLO, cat, group, "Solo", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
@@ -200,6 +200,7 @@ void Config::DefineMixerparameters() {
     ->DefStepsize(2);
 
     // gate
+    cat = MP_CAT::CHANNEL_GATE;
     group = "channel_gate";
     DefParameter(CHANNEL_GATE_TRESHOLD, cat, group, "Threshold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
@@ -220,6 +221,11 @@ void Config::DefineMixerparameters() {
     DefParameter(CHANNEL_GATE_RELEASE, cat, group, "Release", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
+
+    // TODO: wait on answer from chris
+    DefParameter(CHANNEL_GATE_GAIN, cat, group, "Gain", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(0.0f, 12.0f, 0.0f);
     
     // dynamics
     group = "channel_dynamics";
@@ -399,11 +405,106 @@ mixerparameter_changed_t* Config::GetChangedParameterList()
     return mp_changedlist;
 }
 
+vector<uint> Config::GetChangedParameterIndexes(MP_CAT parameter_cat)
+{
+    vector<uint> changedIndexes;
+
+    for (auto const& [parameter_id, indexSet] : *mp_changedlist)
+    {
+        if (mpm->at(parameter_id)->GetCategory() == parameter_cat )
+        {
+            changedIndexes.insert(changedIndexes.end(), indexSet.begin(), indexSet.end());
+        }
+    }
+
+    return changedIndexes;
+}
+
+/// @brief Checks if the data of any of the Mixerparameters has changed.
+/// @param parameter_id The ids of the Mixerparameters to check.
+/// @param index The index of the Mixerparameters (usual the vchannel index or FX slot index).
+/// @return True if any data has changed.
+bool Config::HasParametersChanged(vector<MP_ID> parameter_id)
+{
+    for(uint i = 0; i < parameter_id.size(); i++)
+    {
+        if (mp_changedlist->contains(parameter_id.at(i)))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/// @brief Checks if the data of any of the Mixerparameters has changed.
+/// @param parameter_id The ids of the Mixerparameters to check.
+/// @param index The index of the Mixerparameters (usual the vchannel index or FX slot index).
+/// @return True if any data has changed.
+bool Config::HasParametersChanged(vector<MP_ID> parameter_id, uint index)
+{
+    for(uint i = 0; i < parameter_id.size(); i++)
+    {
+        if (mp_changedlist->contains(parameter_id.at(i)) &&
+            mp_changedlist->at(parameter_id.at(i)).contains(index))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/// @brief Checks if the data of any of the Mixerparameters has changed.
+/// @param parameter_cat The category of the Mixerparameters to check.
+/// @param index The index of the Mixerparameters (usual the vchannel index or FX slot index).
+/// @return True if any data has changed.
+bool Config::HasParametersChanged(MP_CAT parameter_cat)
+{
+    for (auto const& [parameter_id, indexSet] : *mp_changedlist)
+    {
+        if (mpm->at(parameter_id)->GetCategory() == parameter_cat)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/// @brief Checks if the data of any of the Mixerparameters has changed.
+/// @param parameter_cat The category of the Mixerparameters to check.
+/// @param index The index of the Mixerparameters (usual the vchannel index or FX slot index).
+/// @return True if any data has changed.
+bool Config::HasParametersChanged(MP_CAT parameter_cat, uint index)
+{
+    for (auto const& [parameter_id, indexSet] : *mp_changedlist)
+    {
+        if (mpm->at(parameter_id)->GetCategory() == parameter_cat &&
+            indexSet.contains(index))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /// @brief Checks if the data of the Mixerparameter has changed.
 /// @param parameter_id The id of the Mixerparameter to check.
 /// @param index The index of the Mixerparameter (usual the vchannel index or FX slot index).
 /// @return True if the data has changed.
-bool Config::HasParameterChanged(MP_ID parameter_id, uint index) {
+bool Config::HasParameterChanged(MP_ID parameter_id)
+{
+    return mp_changedlist->contains(parameter_id);
+}
+
+/// @brief Checks if the data of the Mixerparameter has changed.
+/// @param parameter_id The id of the Mixerparameter to check.
+/// @param index The index of the Mixerparameter (usual the vchannel index or FX slot index).
+/// @return True if the data has changed.
+bool Config::HasParameterChanged(MP_ID parameter_id, uint index)
+{
     return mp_changedlist->contains(parameter_id) &&
            mp_changedlist->at(parameter_id).contains(index);
 }
@@ -503,6 +604,11 @@ void Config::Change(MP_ID mp, int amount, uint index)
 void Config::Toggle(MP_ID mp, uint index)
 {
     mpm->at(mp)->Toggle(index);
+    SetParameterChanged(mp, index);
+}
+
+void Config::Refresh(MP_ID mp, uint index)
+{
     SetParameterChanged(mp, index);
 }
 

@@ -146,8 +146,8 @@ void guiInit(void) {
 	// initialize GUI created by EEZ
 	ui_init();
 
-	// InitPages() has to be called after ui_init()!
-	ctrl->InitPages();
+	// InitPagesAndGUI() has to be called after ui_init()!
+	ctrl->InitPagesAndGUI();
 
 	if (state->bodyless)
 	{

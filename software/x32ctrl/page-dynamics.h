@@ -37,12 +37,31 @@ class PageDynamics: public Page {
             lv_obj_set_user_data(objects.current_channel_comp, mixer);
             //chart-shadow: 0x7e4000
 
-            BindEncoder(DISPLAY_ENCODER_1, true , MP_ID::CHANNEL_DYNAMICS_TRESHOLD);
-            BindEncoder(DISPLAY_ENCODER_2, true , MP_ID::CHANNEL_DYNAMICS_RATIO);
-            BindEncoder(DISPLAY_ENCODER_3, true , MP_ID::CHANNEL_DYNAMICS_MAKEUP);
-            BindEncoder(DISPLAY_ENCODER_4, true , MP_ID::CHANNEL_DYNAMICS_ATTACK);
-            BindEncoder(DISPLAY_ENCODER_5, true , MP_ID::CHANNEL_DYNAMICS_HOLD);
-            BindEncoder(DISPLAY_ENCODER_6, true , MP_ID::CHANNEL_DYNAMICS_RELEASE);
+            UpdateEncoderBinding();
+        }
+
+        void UpdateEncoderBinding()
+        {
+            using enum MP_ID;
+
+            uint targetindex = config->GetUint(MP_ID::SELECTED_CHANNEL);
+
+            BindEncoder(DISPLAY_ENCODER_1, MP_ID::CHANNEL_DYNAMICS_TRESHOLD, targetindex);
+            BindEncoder(DISPLAY_ENCODER_2, MP_ID::CHANNEL_DYNAMICS_RATIO, targetindex);
+            BindEncoder(DISPLAY_ENCODER_3, MP_ID::CHANNEL_DYNAMICS_MAKEUP, targetindex);
+            BindEncoder(DISPLAY_ENCODER_4, MP_ID::CHANNEL_DYNAMICS_ATTACK, targetindex);
+            BindEncoder(DISPLAY_ENCODER_5, MP_ID::CHANNEL_DYNAMICS_HOLD, targetindex);
+            BindEncoder(DISPLAY_ENCODER_6, MP_ID::CHANNEL_DYNAMICS_RELEASE, targetindex);
+
+            SyncEncoderWidgets(true);
+        }
+
+        void OnChange(bool force) override 
+        {
+            if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL))
+            {
+                UpdateEncoderBinding();
+            }
         }
 
         void OnUpdateMeters() override {

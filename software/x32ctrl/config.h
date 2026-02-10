@@ -35,10 +35,16 @@ class Config {
 
         mixerparameter_map_t* GetParameterList();
         mixerparameter_changed_t* GetChangedParameterList();
-        bool HasParameterChanged(MP_ID parameter_id, uint index = 0);
+        vector<uint> GetChangedParameterIndexes(MP_CAT parameter_cat);
+        bool HasParameterChanged(MP_ID parameter_id);
+        bool HasParameterChanged(MP_ID parameter_id, uint index);
+        bool HasParametersChanged(vector<MP_ID> parameter_id);
+        bool HasParametersChanged(vector<MP_ID> parameter_id, uint index);
+        bool HasParametersChanged(MP_CAT parameter_cat);
+        bool HasParametersChanged(MP_CAT parameter_cat, uint index);
         bool HasAnyParameterChanged();
         void ResetChangedParameterList();
-
+        
         float GetFloat(MP_ID mp, uint index = 0);
         int GetInt(MP_ID mp, uint index = 0);
         uint GetUint(MP_ID mp, uint index = 0);
@@ -48,6 +54,7 @@ class Config {
         void Set(MP_ID mp, float value, uint index = 0);        
         void Change(MP_ID mp, int amount, uint index = 0);
         void Toggle(MP_ID mp, uint index = 0);
+        void Refresh(MP_ID mp, uint index = 0);
         void Reset(MP_ID mp, uint index = 0);
 
 

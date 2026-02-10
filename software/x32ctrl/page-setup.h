@@ -14,7 +14,7 @@ class PageSetup: public Page {
         }
 
         void OnInit() override {
-            BindEncoder(DISPLAY_ENCODER_5, false, MP_ID::LED_BRIGHTNESS);
-            BindEncoder(DISPLAY_ENCODER_6, false, MP_ID::LCD_CONTRAST);
+            BindEncoder(DISPLAY_ENCODER_5, MP_ID::LED_BRIGHTNESS);
+            BindEncoder(DISPLAY_ENCODER_6, MP_ID::LCD_CONTRAST);
         }
 };

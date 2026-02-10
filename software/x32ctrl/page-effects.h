@@ -5,8 +5,12 @@ using namespace std;
 class PageEffects: public Page {
 
     private:
-        uint8_t selectedFx = 0;
-        uint8_t banking = 0;
+        
+        uint selectedFx = 0;
+        uint selectedFxBefore = 0;
+
+        uint banking = 0;
+        uint bankingBefore = 0;
 
     public:
         PageEffects(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
@@ -24,81 +28,80 @@ class PageEffects: public Page {
 
         void OnChange(bool force_update) override {
 
-            if(force_update)
+            // selected FX or Banking changed
+            if(selectedFx != selectedFxBefore || banking != bankingBefore || force_update)
             {
-                for (uint8_t slotIndex = 0; slotIndex < MAX_FX_SLOTS; slotIndex++) {
+                for (uint slotIndex = 0; slotIndex < MAX_FX_SLOTS; slotIndex++) {
 
                     FxSlot* slot = mixer->dsp->fx_slot[slotIndex];
                     
-                    // selected FX or Banking changed
-                    if(force_update)
-                    {
-                        if (slotIndex == selectedFx) {
-                            
-                            // FX number (selected)
-                            lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex*2, "FX%d <<<", slotIndex+1);
-                            lv_table_set_selected_cell(objects.fxtable, 0, slotIndex*2);
+                    if (slotIndex == selectedFx) {
+                        
+                        // FX number (selected)
+                        lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex*2, "FX%d <<<", slotIndex+1);
+                        lv_table_set_selected_cell(objects.fxtable, 0, slotIndex*2);
 
-                            if (slot->HasFx()) {
-
-                                // reset banking, if FX has less parameters
-                                if (slot->fx->GetParameterCount() <= (banking * 6)) {
-                                    banking = 0;
-                                }
-
-                                for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    BindEncoder(e, false, slot->fx->GetParameterDefinition(e + (banking * 6)));
-                                    SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
-                                }
-
-                            } else {
-                                // slot has no FX -> show nothing
-
-                                banking = 0;
-
-                                for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    UnbindEncoder(e);
-                                }
-                            }
-                            state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
-
-                        } else {
-                            // FX number (not selected)
-                            lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex*2, "FX%d", slotIndex+1);
-                        }
-                    }
-
-                    // FX parameter got updated or FX was changed
-                    if (force_update)
-                    {
-                        // Table - without offset!
                         if (slot->HasFx()) {
-                            // FX Name
-                            lv_table_set_cell_value(objects.fxtable, 1, slotIndex*2, mixer->dsp->fx_slot[slotIndex]->fx->GetName().c_str());
 
-                            // FX Parameters
-                            for (uint8_t p=0; p < slot->fx->GetParameterCount(); p++){
-                                Mixerparameter* parameter = config->GetParameter(slot->fx->GetParameterDefinition(p));
-                                lv_table_set_cell_value(objects.fxtable, p + 3, slotIndex*2, parameter->GetName().c_str());
-                                lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex*2)+1, parameter->GetFormatedValue(slotIndex).c_str());
+                            // reset banking, if FX has less parameters
+                            if (slot->fx->GetParameterCount() <= (banking * 6)) {
+                                banking = 0;
                             }
-                        } else {
-                            // clear name and parameters
-                            for (uint8_t p=0; p < 10; p++){
-                                lv_table_set_cell_value(objects.fxtable, p+2, slotIndex*2, "");
-                            }
-                        }
 
-                        // Encoders
-                        if (slotIndex == selectedFx && slot->HasFx()) {
                             for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                BindEncoder(e, false, slot->fx->GetParameterDefinition(e + (banking * 6)));
-                                SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
+                                BindEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)), selectedFx);
+                            }
+
+                        } else {
+                            // slot has no FX -> show nothing
+
+                            banking = 0;
+
+                            for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
+                                UnbindEncoder(e);
                             }
                         }
+                        state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
+
+                    } else {
+                        // FX number (not selected)
+                        lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex*2, "FX%d", slotIndex+1);
                     }
+                    
+
+                    // Table
+                    if (slot->HasFx()) {
+                        // FX Name
+                        lv_table_set_cell_value(objects.fxtable, 1, slotIndex*2, mixer->dsp->fx_slot[slotIndex]->fx->GetName().c_str());
+
+                        // FX Parameters
+                        for (uint8_t p=0; p < slot->fx->GetParameterCount(); p++){
+                            Mixerparameter* parameter = config->GetParameter(slot->fx->GetParameterDefinition(p));
+                            lv_table_set_cell_value(objects.fxtable, p + 3, slotIndex*2, parameter->GetName().c_str());
+                            lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex*2)+1, parameter->GetFormatedValue(slotIndex).c_str());
+                        }
+                    } else {
+                        // clear name and parameters
+                        for (uint8_t p=0; p < 10; p++){
+                            lv_table_set_cell_value(objects.fxtable, p+2, slotIndex*2, "");
+                        }
+                    }   
                 }
+
+                selectedFxBefore = selectedFx;
+                bankingBefore = banking;
             }
+        }
+
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+
+            uint encoderIndex = encoder - X32_ENC_ENCODER1;
+            if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
+            {
+                config->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, config->GetUint(MP_ID::SELECTED_CHANNEL));
+            }
+            
+            return true;
         }
 
         bool OnDisplayButton(X32_BTN button, bool pressed) override {
@@ -199,16 +202,5 @@ class PageEffects: public Page {
             // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
-        }
-
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-
-            uint encoderIndex = encoder - X32_ENC_ENCODER1;
-            if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
-            {
-                config->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, selectedFx);
-            }
-            
-            return true;
         }
 };

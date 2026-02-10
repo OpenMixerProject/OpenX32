@@ -55,11 +55,11 @@ void DSP1::Init(void) {
 
         Channel[i].lowCutFrequency = 100.0f; // Hz
 
-        Channel[i].gate.threshold = -80.0f; // -> no gate
-        Channel[i].gate.range = 60.0f; // -> full range
-        Channel[i].gate.attackTime_ms = 10;
-        Channel[i].gate.holdTime_ms = 50;
-        Channel[i].gate.releaseTime_ms = 250;
+        //Channel[i].gate.threshold = -80.0f; // -> no gate
+        // Channel[i].gate.range = 60.0f; // -> full range
+        // Channel[i].gate.attackTime_ms = 10;
+        // Channel[i].gate.holdTime_ms = 50;
+        // Channel[i].gate.releaseTime_ms = 250;
 
         Channel[i].compressor.threshold = 0; // dB -> no compression
         Channel[i].compressor.ratio = 3.0f; // 1:3
@@ -244,17 +244,32 @@ void DSP1::SendMainVolume() {
     spi->SendReceiveDspParameterArray(0, 'v', 0, 3, 3, &values[0]);
 }
 
-void DSP1::SendGate(uint8_t chan) {
-    fxmath->RecalcGate(&Channel[chan].gate);
+void DSP1::SendGate(uint chanIndex) {
+    
+    using enum MP_ID;
 
+	float samplerate = config->GetUint(SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
     float values[5];
-    values[0] = Channel[chan].gate.value_threshold;
-    values[1] = Channel[chan].gate.value_gainmin;
-    values[2] = Channel[chan].gate.value_coeff_attack;
-    values[3] = Channel[chan].gate.value_hold_ticks;
-    values[4] = Channel[chan].gate.value_coeff_release;
 
-    spi->SendReceiveDspParameterArray(0, 'g', chan, 0, 5, &values[0]);
+    // threshold
+    values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_GATE_TRESHOLD, chanIndex)/20.0f);
+
+    // gainmin
+    // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
+    values[1] = 1.0f / pow(10.0f, config->GetFloat(CHANNEL_GATE_RANGE, chanIndex)/20.0f);
+
+    // coeff_attack
+    // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
+    // ln(10%) - ln(90%) = -2.197224577
+    values[2] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_ATTACK, chanIndex)));
+
+    // hold_ticks 
+    values[3] = config->GetFloat(CHANNEL_GATE_HOLD, chanIndex) * samplerate / 1000.0f;
+
+    // coeff_release 
+    values[4] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_RELEASE, chanIndex)));
+
+    spi->SendReceiveDspParameterArray(0, 'g', chanIndex, 0, 5, &values[0]);
 }
 
 void DSP1::SendLowcut(uint8_t chan) {
@@ -873,7 +888,7 @@ void DSP1::UpdateVuMeter() {
         
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
-		    if (Channel[i].gate.gain < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
+		    if (config->GetFloat(MP_ID::CHANNEL_GATE_GAIN, i) < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
 		    if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
         }
 

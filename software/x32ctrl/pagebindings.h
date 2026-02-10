@@ -10,17 +10,16 @@ class PageBinding_Encoder {
     public:
 
         // Mixerparameter IDs
-        MP_ID mp_id_encoder;
-        MP_ID mp_id_button;
+        MP_ID mp_id_encoder = MP_ID::NONE;
+        uint mp_index = 0;
+        MP_ID mp_id_button = MP_ID::NONE;
+
 
         // GUI Handles
         lv_obj_t* Label;
         lv_obj_t* ValueLabel;
         lv_obj_t* Slider;
         lv_obj_t* ButtonLabel;
-
-        // Mixerparameter depends on the selected channel
-        bool dependsOnSelectedChannel = false;
 
         PageBinding_Encoder(lv_obj_t* encoder_label, lv_obj_t* encoder_value_label, lv_obj_t* encoder_slider, lv_obj_t* encoder_button_label) {
             mp_id_encoder = MP_ID::NONE;

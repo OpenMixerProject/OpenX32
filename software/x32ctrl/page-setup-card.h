@@ -21,8 +21,7 @@ class PageSetupCard: public Page {
         }
 
         void OnInit() override {
-
-            BindEncoder(DISPLAY_ENCODER_1, false, MP_ID::CARD_NUMBER_OF_CHANNELS);
+            BindEncoder(DISPLAY_ENCODER_1, MP_ID::CARD_NUMBER_OF_CHANNELS);
         }
 
         void OnChange(bool force_update) override {

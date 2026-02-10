@@ -123,6 +123,9 @@ class Mixerparameter {
             if (unitOfMeasurement == MP_UOM::PERCENT) {
                value_float *= 100;
             }
+
+            
+
             return String(value_float, decimal_places) + GetUnitOfMesaurement();
         }
 
@@ -296,6 +299,13 @@ class Mixerparameter {
         MP_VALUE_TYPE GetType()
         {
             return value_type;
+        }
+
+        /// @brief Get the category of the Mixerparameter.
+        /// @return The category.
+        MP_CAT GetCategory()
+        {
+            return category;
         }
 
         uint GetDecimaPlaces()
