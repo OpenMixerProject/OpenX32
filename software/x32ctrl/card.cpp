@@ -33,8 +33,8 @@ void Card::Init() {
 }
 
 void Card::Sync() {
-    if (state->HasChanged(X32_MIXER_CHANGED_CARD)) {
-        XUSB_SetNumberOfChannels(state->card_xusb_channelmode);
+    if (config->HasParameterChanged(MP_ID::CARD_NUMBER_OF_CHANNELS)) {
+        XUSB_SetNumberOfChannels(config->GetUint(MP_ID::CARD_NUMBER_OF_CHANNELS));
     }
 }
 

@@ -263,7 +263,7 @@ void DSP1::SendLowcut(uint8_t chan) {
     // Source: https://www.dsprelated.com/showarticle/1769.php
     // alpha = 1 / (1 + 2 * pi * f_c * 1/f_s)
     // Equation for samples: output = alpha * (input + previous_output - previous_input)
-    values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/(float)config->GetSamplerate()));
+    values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/(float)config->GetUint(MP_ID::SAMPLERATE)));
 
     spi->SendReceiveDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
 }
@@ -274,7 +274,7 @@ void DSP1::SendHighcut(uint8_t chan) {
 
     // alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c)
     // Equation for samples: output = previous_output + coeff * (input - previous_output)
-    values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetSamplerate() + 2.0f * M_PI * 500.0f);
+    values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetUint(MP_ID::SAMPLERATE) + 2.0f * M_PI * 500.0f);
 
     spi->SendReceiveDspParameterArray(0, 'e', chan, 'h', 1, &values[0]);
 }

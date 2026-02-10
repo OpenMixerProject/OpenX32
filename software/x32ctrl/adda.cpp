@@ -70,8 +70,7 @@ void Adda::Init() {
 	if (HasXlrOut0()) SendReceive("*4R:W0281C0:W0800:W0280#");
 	if (HasXlrOut1()) SendReceive("*5R:W0281C0:W0800:W0280#");
 
-
-	SetSamplerate(config->GetSamplerate());
+	SetSamplerate(config->GetUint(MP_ID::SAMPLERATE));
 	
 	usleep(20000); // wait 20ms
 }

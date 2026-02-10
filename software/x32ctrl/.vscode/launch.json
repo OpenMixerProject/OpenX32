@@ -5,7 +5,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/../bin/x32ctrl",
-            "args": ["-b", "-d", "XREMOTE", "--trace"],
+            "args": ["-b", "-d", "ALL", "--verbose"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/../bin",
             "environment": [],

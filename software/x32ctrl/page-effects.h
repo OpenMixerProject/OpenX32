@@ -24,16 +24,14 @@ class PageEffects: public Page {
 
         void OnChange(bool force_update) override {
 
-            if (state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT) ||
-                state->HasChanged(X32_MIXER_CHANGED_FX) ||
-                force_update)
+            if(force_update)
             {
                 for (uint8_t slotIndex = 0; slotIndex < MAX_FX_SLOTS; slotIndex++) {
 
                     FxSlot* slot = mixer->dsp->fx_slot[slotIndex];
                     
                     // selected FX or Banking changed
-                    if (state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT) || force_update)
+                    if(force_update)
                     {
                         if (slotIndex == selectedFx) {
                             
@@ -49,7 +47,7 @@ class PageEffects: public Page {
                                 }
 
                                 for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    BindEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
+                                    BindEncoder(e, false, slot->fx->GetParameterDefinition(e + (banking * 6)));
                                     SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
                                 }
 
@@ -71,7 +69,7 @@ class PageEffects: public Page {
                     }
 
                     // FX parameter got updated or FX was changed
-                    if (state->HasChanged(X32_MIXER_CHANGED_FX) || force_update)
+                    if (force_update)
                     {
                         // Table - without offset!
                         if (slot->HasFx()) {
@@ -80,7 +78,7 @@ class PageEffects: public Page {
 
                             // FX Parameters
                             for (uint8_t p=0; p < slot->fx->GetParameterCount(); p++){
-                                Mixerparameter* parameter = mixer->GetParameter(slot->fx->GetParameterDefinition(p));
+                                Mixerparameter* parameter = config->GetParameter(slot->fx->GetParameterDefinition(p));
                                 lv_table_set_cell_value(objects.fxtable, p + 3, slotIndex*2, parameter->GetName().c_str());
                                 lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex*2)+1, parameter->GetFormatedValue(slotIndex).c_str());
                             }
@@ -94,7 +92,7 @@ class PageEffects: public Page {
                         // Encoders
                         if (slotIndex == selectedFx && slot->HasFx()) {
                             for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                BindEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)));
+                                BindEncoder(e, false, slot->fx->GetParameterDefinition(e + (banking * 6)));
                                 SetEncoderValue(e, slot->fx->GetParameter(e + (banking * 6)));
                             }
                         }
@@ -201,9 +199,6 @@ class PageEffects: public Page {
             // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
-
-            // old
-            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
         bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
@@ -211,7 +206,7 @@ class PageEffects: public Page {
             uint encoderIndex = encoder - X32_ENC_ENCODER1;
             if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
             {
-                mixer->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, selectedFx);
+                config->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, selectedFx);
             }
             
             return true;

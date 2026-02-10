@@ -55,7 +55,7 @@ void X32Ctrl::Init(){
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "surface->Init()");
 	surface->Init();
 
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "xremote->Init()");
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "xremote->Init()");
 	xremote->Init();
 
 	if (config->IsModelX32Core()) {
@@ -128,7 +128,7 @@ void X32Ctrl::Init(){
     surface->SetBrightness(5, state->ledbrightness);
     surface->SetBrightness(8, state->ledbrightness);
 
-	Mixerparameter* parameter = mixer->GetParameter(MP_ID::LCD_CONTRAST);
+	Mixerparameter* parameter = config->GetParameter(MP_ID::LCD_CONTRAST);
     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", parameter->GetUint());
     surface->SetContrast(0, parameter->GetUint()); // contrast of LCDs
     surface->SetContrast(4, parameter->GetUint());
@@ -232,65 +232,43 @@ void X32Ctrl::LoadConfig() {
 	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
 	mixer_ini.load(X32_MIXER_CONFIGFILE);
 
-	// mixer config
-	{
-		string section = string("mixer");
-		state->activePage = (X32_PAGE)mixer_ini[section]["activePage"].as<int>();
-		state->lastPage = (X32_PAGE)mixer_ini[section]["lastPage"].as<int>();
-		mixer->Set(MP_ID::LCD_CONTRAST, mixer_ini[section][mixer->GetParameter(MP_ID::LCD_CONTRAST)->GetConfigPrefix().c_str()].as<float>());
-	}
-	// VChannels
-	for (uint8_t i = 0; i < MAX_VCHANNELS; i++)	{
-		VChannel* chan = GetVChannel(i);
-		string section = (String("vchannel") + String(i)).c_str();
+	for (const auto& [parameter_id, parameter] : *config->GetParameterList()) {
 
-		chan->name = mixer_ini[section]["name"].as<string>().c_str();
-		chan->color = mixer_ini[section]["color"].as<int>();
-	}
-	// FPGA -> DSP1 Channels
-	for (uint8_t i = 0; i < MAX_FPGA_TO_DSP1_CHANNELS; i++)	{
-		string section = string("dspchannel") + to_string(i);
-		mixer->dsp->Channel[i].input = mixer_ini[section]["inputSource"].as<int>();
-		mixer->dsp->Channel[i].inputTapPoint = mixer_ini[section]["inputTapPoint"].as<int>();
-	}
-	// DSP1 -> FPGA Channels
-	for (uint8_t i = 0; i < MAX_DSP1_TO_FPGA_CHANNELS; i++) {
-		string section = string("dspoutchannel") + to_string(i);
-		mixer->dsp->Dsp1toFpga[i].input = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp1toFpga[i].tapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	// DSP1 -> DSP2 Channels
-	for (uint8_t i = 0; i < MAX_DSP1_TO_DSP2_CHANNELS; i++) {
-		string section = string("dspfxchannel") + to_string(i);
-		mixer->dsp->Dsp1toDsp2Routing[i].input = mixer_ini[section]["outputSource"].as<int>();
-		mixer->dsp->Dsp1toDsp2Routing[i].tapPoint = mixer_ini[section]["outputTapPoint"].as<int>();
-	}
-	mixer->dsp->SendAll();
+		if (parameter->GetNoConfigfile() || parameter_id == MP_ID::NONE)
+		{
+			// this Mixerparameter should not be written to config file
+			continue;
+		}
 
-	// FPGA Routing
-	{
-		string section = "fpga";
-		for (uint8_t i = 0; i < 8; i++)	{
-			mixer->fpga->fpgaRouting.aux[i] = mixer_ini[section][(String("aux") + i).c_str()].as<int>();
-		}
-		for (uint8_t i = 0; i < 16; i++) {
-			mixer->fpga->fpgaRouting.xlr[i] = mixer_ini[section][(String("xlr") + i).c_str()].as<int>();
-			mixer->fpga->fpgaRouting.p16[i] = mixer_ini[section][(String("p16") + i).c_str()].as<int>();
-		}
-		for (uint8_t i = 0; i < 32; i++) {
-			mixer->fpga->fpgaRouting.card[i] = mixer_ini[section][(String("card") + i).c_str()].as<int>();
-		}
-		for (uint8_t i = 0; i < 40; i++) {
-			mixer->fpga->fpgaRouting.dsp[i] = mixer_ini[section][(String("dsp") + i).c_str()].as<int>();
-		}
-		mixer->fpga->SendRoutingToFpga(-1);
-	}
+		for (uint index = 0; index < parameter->GetInstances(); index++)
+		{
+			String section = parameter->GetConfigGroup() + String(index);			
+			String entry = parameter->GetConfigName();
+			
+			using enum MP_VALUE_TYPE;
 
-	{
-		string section = "card";
-		state->card_xusb_channelmode = mixer_ini[section]["xusb-channelmode"].as<int>();
+			switch(parameter->GetType())
+			{
+				case FLOAT:
+					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<float>(), index);
+					break;
+				case UINT:
+					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<uint>(), index);
+					break;
+    			case INT:
+					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<int>(), index);
+					break;
+    			case BOOL:
+					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<bool>(), index);
+					break;
+    			case STRING:
+					parameter->Set(String(mixer_ini[section.c_str()][entry.c_str()].as<string>().c_str()), index);
+					break;
+				default:
+					__throw_out_of_range("SaveConfig() -> MP_VALUE_TYPE is not handled!");
+			}
+		}
 	}
-
 }
 
 //#####################################################################################################################
@@ -307,57 +285,42 @@ void X32Ctrl::LoadConfig() {
 
 void X32Ctrl::SaveConfig() {
 
-	// mixer config
-	{
-		string section = string("mixer");
-		mixer_ini[section]["activePage"] = (int)state->activePage;
-		mixer_ini[section]["lastPage"] = (int)state->lastPage;
-		mixer_ini[section][mixer->GetParameter(MP_ID::LCD_CONTRAST)->GetConfigPrefix().c_str()] = mixer->GetUint(MP_ID::LCD_CONTRAST);
-	}
-	// VChannels
-	for (uint8_t i = 0; i < MAX_VCHANNELS; i++) {
-		VChannel* chan = GetVChannel(i);
-		string section = string("vchannel") + to_string(i);
-		mixer_ini[section]["name"] = chan->name.c_str();
-		mixer_ini[section]["color"] = (int)chan->color;
-	}
-	// FPGA -> DSP1 Channels
-	for (uint8_t i = 0; i < MAX_FPGA_TO_DSP1_CHANNELS; i++)	{
-		string section = string("dspchannel") + to_string(i);
-		mixer_ini[section]["inputSource"] = (int)mixer->dsp->Channel[i].input;
-		mixer_ini[section]["inputTapPoint"] = (int)mixer->dsp->Channel[i].inputTapPoint;
-	}
-	// DSP1 -> FPGA Channels
-	for (uint8_t i = 0; i < MAX_DSP1_TO_FPGA_CHANNELS; i++) {
-		string section = string("dspoutchannel") + to_string(i);
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp1toFpga[i].input;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp1toFpga[i].tapPoint;
-	}
-	// DSP1 -> DSP2 Channels
-	for (uint8_t i = 0; i < MAX_DSP1_TO_DSP2_CHANNELS; i++) {
-		string section = string("dspfxchannel") + to_string(i);
-		mixer_ini[section]["outputSource"] = (int)mixer->dsp->Dsp1toDsp2Routing[i].input;
-		mixer_ini[section]["outputTapPoint"] = (int)mixer->dsp->Dsp1toDsp2Routing[i].tapPoint;
-	}
-	{
-		string section = "fpga";
-		for (uint8_t i = 0; i < 8; i++)	{
-			mixer_ini[section][(String("aux") + i).c_str()] = (int)mixer->fpga->fpgaRouting.aux[i];
+	for (const auto& [parameter_id, parameter] : *config->GetParameterList()) {
+
+		if (parameter->GetNoConfigfile() || parameter_id == MP_ID::NONE)
+		{
+			// this Mixerparameter should not be written to config file
+			continue;
 		}
-		for (uint8_t i = 0; i < 16; i++) {
-			mixer_ini[section][(String("xlr") + i).c_str()] = (int)mixer->fpga->fpgaRouting.xlr[i];
-			mixer_ini[section][(String("p16") + i).c_str()] = (int)mixer->fpga->fpgaRouting.p16[i];
+
+		for (uint index = 0; index < parameter->GetInstances(); index++)
+		{
+			String section = parameter->GetConfigGroup() + String(index);			
+			String entry = parameter->GetConfigName();
+			
+			using enum MP_VALUE_TYPE;
+
+			switch(parameter->GetType())
+			{
+				case FLOAT:
+					mixer_ini[section.c_str()][entry.c_str()] = (parameter->GetFloat(index));
+					break;
+				case UINT:
+					mixer_ini[section.c_str()][entry.c_str()] = (parameter->GetUint(index));
+					break;
+    			case INT:
+					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetInt(index);
+					break;
+    			case BOOL:
+					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetBool(index);
+					break;
+    			case STRING:
+					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetString(index).c_str();
+					break;
+				default:
+					__throw_out_of_range("SaveConfig() -> MP_VALUE_TYPE is not handled!");
+			}
 		}
-		for (uint8_t i = 0; i < 32; i++) {
-			mixer_ini[section][(String("card") + i).c_str()] = (int)mixer->fpga->fpgaRouting.card[i];
-		}
-		for (uint8_t i = 0; i < 40; i++) {
-			mixer_ini[section][(String("dsp") + i).c_str()] = (int)mixer->fpga->fpgaRouting.dsp[i];
-		}
-	}
-	{
-		string section = "card";
-		mixer_ini[section]["xusb-channelmode"] = (int)state->card_xusb_channelmode;
 	}
 
 	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", X32_MIXER_CONFIGFILE);
@@ -389,11 +352,9 @@ void X32Ctrl::Tick10ms(void){
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
 	UdpHandleCommunication();
 
-	// sync all state-based events
-	if (state->HasAnyChanged()){
-
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Something has changed -> Sync");
-
+	// sync if any Mixerparameter has changed
+	if (config->HasAnyParameterChanged())
+	{
 		syncGuiOrLcd();
 		syncSurface();
 		syncXRemote(false);
@@ -405,14 +366,7 @@ void X32Ctrl::Tick10ms(void){
 		mixer->card->Sync();
 
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset list of changed Mixerparameter.");
-		mixer->ResetChangedParameterList();
-
-		//old
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "state->ResetChangeFlags()");
-		state->ResetChangeFlags();
-		for(uint8_t index = 0; index < MAX_VCHANNELS; index++){
-			mixer->GetVChannel(index)->ResetVChannelChangeFlags();
-		}
+		config->ResetChangedParameterList();
 	}
 }
 
@@ -428,7 +382,7 @@ void X32Ctrl::Tick100ms(void) {
 	surface->Blink();
 	mixer->dsp->spi->ActivityLight();
 
-	if (!config->IsModelX32Core() && state->activePage == X32_PAGE::UTILITY) {
+	if (!config->IsModelX32Core() && config->GetUint(MP_ID::ACTIVE_PAGE) == (uint)X32_PAGE::UTILITY) {
 		// read the current DSP load
 		// show the received value (could be a bit older than the request)
 	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% / Heap: %.0f Words free [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspFreeHeapWords[1], (double)state->dspVersion[1]);
@@ -687,22 +641,28 @@ void X32Ctrl::InitPages(){
 }
 
 void X32Ctrl::ShowNextPage(void){
-	X32_PAGE nextPage = pages[state->activePage]->GetNextPage();
+
+	X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
+
+	X32_PAGE nextPage = pages[activePage]->GetNextPage();
 	if (nextPage != X32_PAGE::NONE){
 	 	ShowPage(nextPage);
 	} else {
 		// if theres is no next page, send button press to page
-		pages[state->activePage]->DisplayButton(X32_BTN_RIGHT, true);
+		pages[activePage]->DisplayButton(X32_BTN_RIGHT, true);
 	}
 }
 
 void X32Ctrl::ShowPrevPage(void){
-	X32_PAGE prevPage = pages[state->activePage]->GetPrevPage();
+
+	X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
+
+	X32_PAGE prevPage = pages[activePage]->GetPrevPage();
 	if (prevPage != X32_PAGE::NONE){
 	 	ShowPage(prevPage);
 	} else {
 		// if theres is no prev page, send button press to page
-		pages[state->activePage]->DisplayButton(X32_BTN_LEFT, true);
+		pages[activePage]->DisplayButton(X32_BTN_LEFT, true);
 	}
 }
 
@@ -713,8 +673,10 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 	{
 		return;
 	}
+
+	X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
 	
-	if (newPage == state->activePage) {
+	if (newPage == activePage) {
 		// operator has pressed the button of the current active page,
 		// so go back to previous page
 		newPage = state->lastPage;
@@ -722,10 +684,10 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 
 	if (pages[newPage] != nullptr) {
 
-		state->lastPage = state->activePage;
-		state->activePage = newPage;
+		state->lastPage = activePage;
+		activePage = newPage;
 		
-		Page* p = pages[state->activePage];
+		Page* p = pages[activePage];
 		Page* l = pages[state->lastPage];
 
 		// turn off led of prev page
@@ -738,7 +700,8 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 			surface->SetLedByEnum(p->GetLed(), true);
 		}
 
-		state->SetChangeFlags(X32_MIXER_CHANGED_PAGE);
+		config->Set(MP_ID::ACTIVE_PAGE, (uint)activePage);
+		
 	} else {
 		helper->Error("Page 0x%02X is not registered -> look at X32Ctrl::InitPages() to do so!\n", newPage);
 	}
@@ -761,7 +724,7 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 void X32Ctrl::syncGuiOrLcd() {
 
 	//####################################
-	//#     Sync Lcd
+	//#     X32 Core - Sync Lcd
 	//####################################
 
 	if (config->IsModelX32Core()){
@@ -777,25 +740,26 @@ void X32Ctrl::syncGuiOrLcd() {
 	//#     Show Active Page
 	//####################################
 
-	if (state->HasChanged(X32_MIXER_CHANGED_PAGE)){
-		helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page changed to: %d\n", state->activePage);
-		pages[state->activePage]->Show();
+	if (config->HasParameterChanged(MP_ID::ACTIVE_PAGE)){
+		pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->Show();
 	}
 
 	//####################################
 	//#     Update Active Page
 	//####################################
 
-	pages[state->activePage]->Change();
+	pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->Change();
 
 	//####################################
 	//#     Update General Header
 	//####################################
 
-	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)) {
-		VChannel* chan = GetSelectedvChannel();
+	if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL)) {
+
+		uint chanIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
+
 		lv_color_t color;
-		switch (chan->color){
+		switch (config->GetUint(MP_ID::CHANNEL_COLOR, chanIndex)){
 			case SURFACE_COLOR_BLACK:
 				color = lv_color_make(0, 0, 0);
 				break;
@@ -822,8 +786,8 @@ void X32Ctrl::syncGuiOrLcd() {
 				break;
 		}
 
-		lv_label_set_text_fmt(objects.current_channel_number, "%s", chan->nameIntern.c_str());
-		lv_label_set_text_fmt(objects.current_channel_name, "%s", chan->name.c_str());
+		lv_label_set_text(objects.current_channel_number, config->GetString(MP_ID::CHANNEL_NAME_INTERN, chanIndex).c_str());
+		lv_label_set_text(objects.current_channel_name, config->GetString(MP_ID::CHANNEL_NAME, chanIndex).c_str());
 		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 	}
 }
@@ -849,180 +813,183 @@ void X32Ctrl::syncSurface(void) {
 }
 
 void X32Ctrl::surfaceSyncBoardMain() {
-	bool needForSync = false;
+
+	using enum MP_ID;
+
 	bool fullSync = false;
 	VChannel* chan = GetSelectedvChannel();
-	uint8_t chanIndex = config->selectedVChannel;
+	uint8_t chanIndex = config->GetUint(SELECTED_CHANNEL);
 
-	if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
+	if (config->HasParameterChanged(SELECTED_CHANNEL)){ 
 		// channel selection has changed - do a full sync
-		needForSync=true;
 		fullSync=true; 
 	}
 
-	if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) && chan->HasAnyChanged()) {
-		// the data in the currently selected channel has changed
-		needForSync=true;
+	if (config->IsModelX32FullOrCompactOrProducer()) {
+		
+		// Phantom
+		if (config->HasParameterChanged(CHANNEL_PHANTOM) || fullSync)
+		{
+			surface->SetLedByEnum(X32_BTN_PHANTOM_48V, config->GetBool(CHANNEL_PHANTOM, chanIndex)); 
+		}
+		// Phase Invert
+		if (config->HasParameterChanged(CHANNEL_PHASE_INVERT) || fullSync)
+		{
+			surface->SetLedByEnum(X32_BTN_PHASE_INVERT, config->GetBool(CHANNEL_PHASE_INVERT, chanIndex));
+		}
+		// Gain
+		if (config->HasParameterChanged(CHANNEL_GAIN) || fullSync)
+		{
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_GAIN] & 0xFF, 0, config->GetPercent(CHANNEL_GAIN, chanIndex), 1);
+		}
+		// Balance/Panorama
+		if (config->HasParameterChanged(CHANNEL_PANORAMA) || fullSync)
+		{
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_PAN] >> 8, surface->Enum2Encoder[X32_ENC_PAN] & 0xFF, 2, (config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f)/2.0f, 1);
+		}
+		// Bus sends
+		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS))
+		{
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
+		}
+		// Gate
+		if (config->HasParameterChanged(CHANNEL_GATE_TRESHOLD) || fullSync)
+		{
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GATE] >> 8, surface->Enum2Encoder[X32_ENC_GATE] & 0xFF, 4, 100.0f - ((config->GetFloat(CHANNEL_GATE_TRESHOLD, chanIndex) + 80.0f)/0.8f), 1);
+		}
+		// Dynamics
+		if (config->HasParameterChanged(CHANNEL_DYNAMICS_TRESHOLD) || fullSync)
+		{
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_DYNAMICS] >> 8, surface->Enum2Encoder[X32_ENC_DYNAMICS] & 0xFF, 4, 100.0f - ((config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex) + 60.0f)/0.6f), 1);
+		}
+		// EQ
+		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_EQ))
+		{
+			if (chanIndex < 40) {
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc - 20.0f)/199.8f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain + 15.0f)/0.3f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q) + 0.3f)/0.097f, 1);
+				
+				// EQ-LEDS
+				surface->SetLedByEnum(X32_LED_EQ_HCUT, false);
+				surface->SetLedByEnum(X32_LED_EQ_HSHV, false);
+				surface->SetLedByEnum(X32_LED_EQ_LCUT, false);
+				surface->SetLedByEnum(X32_LED_EQ_LSHV, false);
+				surface->SetLedByEnum(X32_LED_EQ_PEQ, false);
+				surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
+
+				switch (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].type) {
+					case 0: // Allpass
+						break;
+					case 1: // Peak
+						surface->SetLedByEnum(X32_LED_EQ_PEQ, true);
+						break;
+					case 2: // LowShelf
+						surface->SetLedByEnum(X32_LED_EQ_LSHV, true);
+						break;
+					case 3: // HighShelf
+						surface->SetLedByEnum(X32_LED_EQ_HSHV, true);
+						break;
+					case 4: // Bandpass
+						break;
+					case 5: // Notch
+						break;
+					case 6: // LowPass
+						surface->SetLedByEnum(X32_LED_EQ_HCUT, true);
+						break;
+					case 7: // HighPass
+						surface->SetLedByEnum(X32_LED_EQ_LCUT, true);
+						break;
+				}
+
+				surface->SetLedByEnum(X32_BTN_EQ_LOW, state->activeEQ == 0);
+				surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, state->activeEQ == 1);
+				surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, state->activeEQ == 2);
+				surface->SetLedByEnum(X32_BTN_EQ_HIGH, state->activeEQ == 3);
+			}
+		}
 	}
 
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "needForSync %d, fullSync %d", needForSync, fullSync);
+	if (config->IsModelX32Rack()) {			
+		if (config->HasParameterChanged(SELECTED_CHANNEL)){
+			setLedChannelIndicator_Rack();
+		}
+		// Solo
+		if (config->HasParameterChanged(CHANNEL_SOLO) || fullSync){
+			surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, config->GetBool(CHANNEL_SOLO, chanIndex)); 
+		}
+		// Mute
+		if (config->HasParameterChanged(CHANNEL_MUTE) || fullSync){
+			surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, config->GetBool(CHANNEL_MUTE, chanIndex)); 
+		}
+		// Volume
+		if (config->HasParameterChanged(CHANNEL_VOLUME) || config->HasParameterChanged(CHANNEL_MUTE) ||fullSync){
+			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
+		}
+	}
 
-	if (needForSync){
-		if (config->IsModelX32FullOrCompactOrProducer()) {
-			
-			// Phantom
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_PHANTOM)){
-				surface->SetLedByEnum(X32_BTN_PHANTOM_48V, mixer->GetPhantomPower(chanIndex)); 
-			}
-			// Phase Invert
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_PHASE_INVERT)){
-				surface->SetLedByEnum(X32_BTN_PHASE_INVERT, mixer->GetPhaseInvert(chanIndex));
-			}
-			// Gain
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)){
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_GAIN] & 0xFF, 0, (mixer->GetGain(chanIndex) + 12.0f)/0.72f, 1);
-			}
-			// Balance/Panorama
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_PAN] >> 8, surface->Enum2Encoder[X32_ENC_PAN] & 0xFF, 2, (mixer->GetBalance(chanIndex) + 100.0f)/2.0f, 1);
-			}
-			// Bus sends
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS)){
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
-			}
-			// Gate
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_GATE)){
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GATE] >> 8, surface->Enum2Encoder[X32_ENC_GATE] & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].gate.threshold + 80.0f)/0.8f), 1);
-			}
-			// Dynamics
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)){
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_DYNAMICS] >> 8, surface->Enum2Encoder[X32_ENC_DYNAMICS] & 0xFF, 4, 100.0f - ((mixer->dsp->Channel[chanIndex].compressor.threshold + 60.0f)/0.6f), 1);
-			}
-			// EQ
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
-				if (chanIndex < 40) {
-					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].lowCutFrequency - 20.0f)/3.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc - 20.0f)/199.8f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain + 15.0f)/0.3f, 1);
-					surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q) + 0.3f)/0.097f, 1);
-					
-					// EQ-LEDS
-					surface->SetLedByEnum(X32_LED_EQ_HCUT, false);
-					surface->SetLedByEnum(X32_LED_EQ_HSHV, false);
-					surface->SetLedByEnum(X32_LED_EQ_LCUT, false);
-					surface->SetLedByEnum(X32_LED_EQ_LSHV, false);
-					surface->SetLedByEnum(X32_LED_EQ_PEQ, false);
-					surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
+	if (config->IsModelX32Core()) {
 
-					switch (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].type) {
-						case 0: // Allpass
-							break;
-						case 1: // Peak
-							surface->SetLedByEnum(X32_LED_EQ_PEQ, true);
-							break;
-						case 2: // LowShelf
-							surface->SetLedByEnum(X32_LED_EQ_LSHV, true);
-							break;
-						case 3: // HighShelf
-							surface->SetLedByEnum(X32_LED_EQ_HSHV, true);
-							break;
-						case 4: // Bandpass
-							break;
-						case 5: // Notch
-							break;
-						case 6: // LowPass
-							surface->SetLedByEnum(X32_LED_EQ_HCUT, true);
-							break;
-						case 7: // HighPass
-							surface->SetLedByEnum(X32_LED_EQ_LCUT, true);
-							break;
-					}
-
-					surface->SetLedByEnum(X32_BTN_EQ_LOW, state->activeEQ == 0);
-					surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, state->activeEQ == 1);
-					surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, state->activeEQ == 2);
-					surface->SetLedByEnum(X32_BTN_EQ_HIGH, state->activeEQ == 3);
-				}
-			}
+		if (config->HasParameterChanged(SELECTED_CHANNEL)){
+			setLedChannelIndicator_Core();
 		}
 
-		if (config->IsModelX32Rack()) {			
-			if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){
-				setLedChannelIndicator_Rack();
-			}
-			// Solo
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-				surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, mixer->GetSolo(chanIndex)); 
-			}
-			// Mute
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-				surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, mixer->GetMute(chanIndex)); 
-			}
-			// Volume
-			if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-				surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, mixer->GetVolumeDbfs(chanIndex),  mixer->GetMute(chanIndex), 0);
-			}
+		if (!state->x32core_lcdmode_setup && (
+			config->HasParameterChanged(SELECTED_CHANNEL)           ||
+			chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)           ||
+			chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
+			chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
+			chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
+		))
+		{
+			SetLcdFromVChannel(X32_BOARD_MAIN, 0, chanIndex);
 		}
 
-		if (config->IsModelX32Core()) {
+		// Volume
+		if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+			surface->SetEncoderRingDbfs(0, 0, mixer->GetVolumeDbfs(chanIndex),  mixer->GetMute(chanIndex), 0);
+		}
 
-			if (state->HasChanged(X32_MIXER_CHANGED_SELECT)){
-				setLedChannelIndicator_Core();
-			}
-
-			if (!state->x32core_lcdmode_setup && (
-				state->HasChanged(X32_MIXER_CHANGED_SELECT)           ||
-				chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)           ||
-				chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
-				chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
-				chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
-			))
-			{
-				SetLcdFromVChannel(X32_BOARD_MAIN, 0, chanIndex);
-			}
-
-			// Volume
-			if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-				surface->SetEncoderRingDbfs(0, 0, mixer->GetVolumeDbfs(chanIndex),  mixer->GetMute(chanIndex), 0);
-			}
-
-			// Main Channel
-			VChannel* mainchan = GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
-			if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-				surface->SetEncoderRingDbfs(1, 1, mixer->GetVolumeDbfs((uint)X32_VCHANNEL_BLOCK::MAIN),  mixer->GetMute((uint)X32_VCHANNEL_BLOCK::MAIN), 0);
-			}
+		// Main Channel
+		VChannel* mainchan = GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
+		if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+			surface->SetEncoderRingDbfs(1, 1, mixer->GetVolumeDbfs((uint)X32_VCHANNEL_BLOCK::MAIN),  mixer->GetMute((uint)X32_VCHANNEL_BLOCK::MAIN), 0);
 		}
 	}
 
 
 	if (config->IsModelX32Rack()){
 		// Clear Solo
-		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)){
+		if (config->HasParameterChanged(MP_ID::CHANNEL_SOLO)){
 			bool soloActive = mixer->IsSoloActivated();
 			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActive, soloActive);
 		}
 		// Main Channel
-		VChannel* mainchan = GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
-		if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, mixer->GetVolumeDbfs((uint)X32_VCHANNEL_BLOCK::MAIN),  mixer->GetMute((uint)X32_VCHANNEL_BLOCK::MAIN), 0);
+		uint mainchanIndex = (uint)X32_VCHANNEL_BLOCK::MAIN;
+		if (config->HasParameterChanged(MP_ID::CHANNEL_VOLUME, mainchanIndex) || config->HasParameterChanged(MP_ID::CHANNEL_MUTE, mainchanIndex)){
+			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, config->GetFloat(MP_ID::CHANNEL_VOLUME, mainchanIndex), config->GetBool(MP_ID::CHANNEL_MUTE, mainchanIndex), 0);
 		}
 	}
 }
 
 void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
+
+	using enum MP_ID;
+
 	bool fullSync = false;
 
 	if (config->IsModelX32Full()){
-		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT) && ((p_board == X32_BOARD_L) || (p_board == X32_BOARD_M))){ fullSync=true; }
-		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS) && p_board == X32_BOARD_R){ fullSync=true; }
+		if (config->HasParameterChanged(BANKING_INPUT) && ((p_board == X32_BOARD_L) || (p_board == X32_BOARD_M))){ fullSync=true; }
+		if (config->HasParameterChanged(BANKING_BUS) && p_board == X32_BOARD_R){ fullSync=true; }
 	}
 
 	if (config->IsModelX32CompactOrProducer()){
-		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT) && p_board == X32_BOARD_L){ fullSync=true; }
-		if (state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS) && p_board == X32_BOARD_R){ fullSync=true; }
+		if (config->HasParameterChanged(BANKING_INPUT) && p_board == X32_BOARD_L){ fullSync=true; }
+		if (config->HasParameterChanged(BANKING_BUS) && p_board == X32_BOARD_R){ fullSync=true; }
 	}
 	
 	uint8_t offset = 0;
@@ -1099,7 +1066,7 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 
 	if (p_board == X32_BOARD_R){
 		// Clear Solo
-		if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL)) { 
+		if (config->HasParameterChanged(CHANNEL_SOLO)) { 
 			bool soloActivated = mixer->IsSoloActivated();
 			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActivated, soloActivated); 
 		}
@@ -1194,7 +1161,7 @@ void X32Ctrl::UpdateMeters(void) {
 
 	if (config->IsModelX32FullOrCompactOrProducerOrRack())
 	{
-		pages[state->activePage]->UpdateMeters();
+		pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->UpdateMeters();
 	}
 
 
@@ -1206,7 +1173,7 @@ void X32Ctrl::UpdateMeters(void) {
 	//
 	// ########################################
 
-	uint8_t chanIdx = config->selectedVChannel;
+	uint8_t chanIdx = config->GetUint(MP_ID::SELECTED_CHANNEL); //config->selectedVChannel;
 
 	if (config->IsModelX32Core()) {
 		// selected channel
@@ -1327,7 +1294,7 @@ void X32Ctrl::UpdateMeters(void) {
 }
 
 void X32Ctrl::surfaceSyncBankIndicator(void) {
-	if (state->HasChanged(X32_MIXER_CHANGED_BANKING_INPUT)) {
+	if (config->HasParameterChanged(MP_ID::BANKING_INPUT)) {
 		if (config->IsModelX32Full()){
 			surface->SetLedByEnum(X32_BTN_CH_1_16, state->activeBank_inputFader == 0);
 			surface->SetLedByEnum(X32_BTN_CH_17_32, state->activeBank_inputFader == 1);
@@ -1345,7 +1312,7 @@ void X32Ctrl::surfaceSyncBankIndicator(void) {
 			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, state->activeBank_inputFader == 7);
 		}
 	}
-	if (state->HasChanged(X32_MIXER_CHANGED_BANKING_BUS)) {
+	if (config->HasParameterChanged(MP_ID::BANKING_BUS)) {
 		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, state->activeBank_busFader == 0);
 		surface->SetLedByEnum(X32_BTN_BUS_1_8, state->activeBank_busFader == 1);
 		surface->SetLedByEnum(X32_BTN_BUS_9_16, state->activeBank_busFader == 2);
@@ -1355,7 +1322,7 @@ void X32Ctrl::surfaceSyncBankIndicator(void) {
 
 // only X32 Rack
 void X32Ctrl::setLedChannelIndicator_Rack(void){
-		uint8_t chanIdx = config->selectedVChannel;
+		uint8_t chanIdx = config->GetUint(MP_ID::SELECTED_CHANNEL);
 		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
 		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
 		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
@@ -1369,7 +1336,7 @@ void X32Ctrl::setLedChannelIndicator_Rack(void){
 
 // only X32 Core
 void X32Ctrl::setLedChannelIndicator_Core(void){
-		uint8_t chanIdx = config->selectedVChannel;
+		uint8_t chanIdx = config->GetUint(MP_ID::SELECTED_CHANNEL);
 		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
 		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
 		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
@@ -1404,7 +1371,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 void X32Ctrl::syncXRemote(bool syncAll) {
 	bool fullSync = false;
 
-	if (syncAll || state->HasChanged(X32_MIXER_CHANGED_SELECT)){ 
+	if (syncAll || config->HasParameterChanged(MP_ID::SELECTED_CHANNEL)){ 
 		// channel selection has changed - do a full sync
 		fullSync=true; 
 	}
@@ -1469,27 +1436,27 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 
 // direction - positive or negative integer value
 void X32Ctrl::ChangeSelect(int8_t direction){
-	int16_t newSelectedVChannel = config->selectedVChannel + direction;
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d", config->selectedVChannel, direction, newSelectedVChannel);
+	int16_t newSelectedVChannel = config->GetUint(MP_ID::SELECTED_CHANNEL) + direction;
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d", config->GetUint(MP_ID::SELECTED_CHANNEL), direction, newSelectedVChannel);
 	if (newSelectedVChannel < 0) {
 		newSelectedVChannel = MAX_VCHANNELS -1;
 	} else if (newSelectedVChannel >= MAX_VCHANNELS){
 		newSelectedVChannel = 0;
 	}
 
-	SetSelect(newSelectedVChannel, true);
+	config->Set(MP_ID::SELECTED_CHANNEL, newSelectedVChannel);
 }
 
 void X32Ctrl::SetSelect(uint8_t vChannelIndex, bool select){
-	for(uint8_t i=0; i<MAX_VCHANNELS;i++){
-		mixer->vchannel[i]->selected = false;
-		mixer->vchannel[i]->SetChanged(X32_VCHANNEL_CHANGED_SELECT);
-	}
-	mixer->vchannel[vChannelIndex]->selected = select;
-	mixer->vchannel[vChannelIndex]->SetChanged(X32_VCHANNEL_CHANGED_SELECT);
+	// for(uint8_t i=0; i<MAX_VCHANNELS;i++){
+	// 	mixer->vchannel[i]->selected = false;
+	// 	mixer->vchannel[i]->SetChanged(X32_VCHANNEL_CHANGED_SELECT);
+	// }
+	// mixer->vchannel[vChannelIndex]->selected = select;
+	// mixer->vchannel[vChannelIndex]->SetChanged(X32_VCHANNEL_CHANGED_SELECT);
 
-	config->selectedVChannel = vChannelIndex;
-	state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
+	// config->selectedVChannel = vChannelIndex;
+	// state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
 }
 
 void X32Ctrl::ToggleSelect(uint8_t vChannelIndex){
@@ -1497,7 +1464,7 @@ void X32Ctrl::ToggleSelect(uint8_t vChannelIndex){
 }
 
 VChannel* X32Ctrl::GetSelectedvChannel() {
-	return mixer->vchannel[config->selectedVChannel];
+	return mixer->vchannel[config->GetUint(MP_ID::SELECTED_CHANNEL)];
 }
 
 VChannel* X32Ctrl::GetVChannel(uint8_t VChannelIndex){
@@ -1876,7 +1843,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event) {
 				ShowPage(X32_PAGE::UTILITY);
 				break;
 			case X32_BTN_EQ_MODE:
-				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'T', +1);
+				mixer->ChangePeq(config->GetUint(MP_ID::SELECTED_CHANNEL), state->activeEQ, 'T', +1);
 				break;
 			case X32_BTN_EQ_LOW:
 			case X32_BTN_EQ_LOW_MID:
@@ -2015,16 +1982,16 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event) {
 					mixer->ClearSolo();
 					break;
 				case X32_BTN_PHANTOM_48V:
-					mixer->TogglePhantom(config->selectedVChannel);
+					mixer->TogglePhantom(config->GetUint(MP_ID::SELECTED_CHANNEL));
 					break;
 				case X32_BTN_PHASE_INVERT:
-					mixer->TogglePhaseInvert(config->selectedVChannel);
+					mixer->TogglePhaseInvert(config->GetUint(MP_ID::SELECTED_CHANNEL));
 					break;
 				case X32_BTN_CHANNEL_SOLO: // only X32 Rack
-					mixer->ToggleSolo(config->selectedVChannel);
+					mixer->ToggleSolo(config->GetUint(MP_ID::SELECTED_CHANNEL));
 					break;
 				case X32_BTN_CHANNEL_MUTE: // only X32 Rack
-					mixer->ToggleMute(config->selectedVChannel);
+					mixer->ToggleMute(config->GetUint(MP_ID::SELECTED_CHANNEL));
 					break;
 				case X32_BTN_SCENE_SETUP:
 					if (config->IsModelX32Core()) {
@@ -2040,22 +2007,15 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event) {
 					}
 					break;
 				case X32_BTN_ASSIGN_3:
-					if (config->IsModelX32Core()) {
-						//mixer->adda->SetCard_XUSB_NumberOfChannels(2);
-						//mixer->card->Card_SendCommand("");
-					}
 					break;
 				case X32_BTN_ASSIGN_5:
-					if (config->IsModelX32Core()) {
-					}
 					break;
 				case X32_BTN_ASSIGN_6:
 					if (config->IsModelX32Core()) {
-						mixer->SetCardChannelMode(CARD_CHANNELMODE_32IN_32OUT);
+						config->Set(MP_ID::CARD_NUMBER_OF_CHANNELS, CARD_CHANNELMODE_32IN_32OUT);
 						mixer->fpga->RoutingCardAs32CHInput();
 					}
 					break;
-
 				default:
 					helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Unhandled button detected.\n");
 					break;
@@ -2075,7 +2035,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event) {
 			case X32_BTN_ENCODER4:		
 			case X32_BTN_ENCODER5:				
 			case X32_BTN_ENCODER6:
-				pages[state->activePage]->DisplayButton(button, isButtonPressed);
+				pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->DisplayButton(button, isButtonPressed);
 				break;
 			default:
 				break;
@@ -2098,7 +2058,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 	if (config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) {
 		switch (encoder){
 			case X32_ENC_ASSIGN_1: // use Assing 1 temporarly on X32 Core for Channel Volume
-				mixer->ChangeVolume(config->selectedVChannel, amount);
+				mixer->ChangeVolume(config->GetUint(MP_ID::SELECTED_CHANNEL), amount);
 				break;
 			case X32_ENC_ASSIGN_2: // use Assing 2 temporarly on X32 Core for Main Volume
 				mixer->ChangeVolume((uint)X32_VCHANNEL_BLOCK::MAIN, amount);
@@ -2114,43 +2074,43 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 				mixer->ChangeVolume((uint)X32_VCHANNEL_BLOCK::MAIN, amount);
 				break;
 			case X32_ENC_CHANNEL_LEVEL:
-				mixer->ChangeVolume(config->selectedVChannel, amount);				
+				mixer->ChangeVolume(config->GetUint(MP_ID::SELECTED_CHANNEL), amount);				
 				break;
 			case X32_ENC_GAIN:
-				mixer->ChangeGain(config->selectedVChannel, amount);
+				mixer->ChangeGain(config->GetUint(MP_ID::SELECTED_CHANNEL), amount);
 				break;
 			case X32_ENC_GATE:
-				mixer->ChangeGate(config->selectedVChannel, 'T', amount);
+				mixer->ChangeGate(config->GetUint(MP_ID::SELECTED_CHANNEL), 'T', amount);
 				break;
 			case X32_ENC_LOWCUT:
-				mixer->ChangeLowcut(config->selectedVChannel, amount);
+				mixer->ChangeLowcut(config->GetUint(MP_ID::SELECTED_CHANNEL), amount);
 				break;
 			case X32_ENC_DYNAMICS:
-				mixer->ChangeDynamics(config->selectedVChannel, 'T', amount);
+				mixer->ChangeDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'T', amount);
 				break;
 			case X32_ENC_EQ_Q:
-				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'Q', amount);
+				mixer->ChangePeq(config->GetUint(MP_ID::SELECTED_CHANNEL), state->activeEQ, 'Q', amount);
 				break;
 			case X32_ENC_EQ_FREQ:
-				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'F', amount);
+				mixer->ChangePeq(config->GetUint(MP_ID::SELECTED_CHANNEL), state->activeEQ, 'F', amount);
 				break;
 			case X32_ENC_EQ_GAIN:
-				mixer->ChangePeq(config->selectedVChannel, state->activeEQ, 'G', amount);
+				mixer->ChangePeq(config->GetUint(MP_ID::SELECTED_CHANNEL), state->activeEQ, 'G', amount);
 				break;
 			case X32_ENC_PAN:
-				mixer->ChangeBalance(config->selectedVChannel, amount);
+				mixer->ChangeBalance(config->GetUint(MP_ID::SELECTED_CHANNEL), amount);
 				break;
 			case X32_ENC_BUS_SEND_1:
-				mixer->ChangeBusSend(config->selectedVChannel, 0, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(MP_ID::SELECTED_CHANNEL), 0, amount, state->activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_2:
-				mixer->ChangeBusSend(config->selectedVChannel, 1, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(MP_ID::SELECTED_CHANNEL), 1, amount, state->activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_3:
-				mixer->ChangeBusSend(config->selectedVChannel, 2, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(MP_ID::SELECTED_CHANNEL), 2, amount, state->activeBusSend);
 				break;
 			case X32_ENC_BUS_SEND_4:
-				mixer->ChangeBusSend(config->selectedVChannel, 3, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(MP_ID::SELECTED_CHANNEL), 3, amount, state->activeBusSend);
 				break;
 			default:
 				// just here to avoid compiler warnings                  
@@ -2168,7 +2128,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event) {
 			case X32_ENC_ENCODER4:
 			case X32_ENC_ENCODER5:
 			case X32_ENC_ENCODER6:
-				pages[state->activePage]->DisplayEncoderTurned(encoder, amount);
+				pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->DisplayEncoderTurned(encoder, amount);
 				break;
 			default:  
 				// just here to avoid compiler warnings                  
@@ -2196,6 +2156,8 @@ void X32Ctrl::SimulatorButton(uint key)
 	if (key != state->simulator_last_key)
 	{
 		printf("Simulatorbutton: %d\n", key);
+
+		X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
 
 		switch (key)
 		{
@@ -2233,12 +2195,12 @@ void X32Ctrl::SimulatorButton(uint key)
 				ShowPage(UTILITY);
 				break;
 			case 17:
-				pages[state->activePage]->DisplayButton(X32_BTN_UP, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_UP, false);
+				pages[activePage]->DisplayButton(X32_BTN_UP, true);
+				pages[activePage]->DisplayButton(X32_BTN_UP, false);
 				break;
 			case 18:
-				pages[state->activePage]->DisplayButton(X32_BTN_DOWN, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_DOWN, false);
+				pages[activePage]->DisplayButton(X32_BTN_DOWN, true);
+				pages[activePage]->DisplayButton(X32_BTN_DOWN, false);
 				break;
 			case 20:
 				ShowPrevPage();
@@ -2247,64 +2209,64 @@ void X32Ctrl::SimulatorButton(uint key)
 				ShowNextPage();
 				break;
 			case 113: // Q
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, 1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, 1);
 				break;
 			case 119: // W
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, 1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, 1);
 				break;
 			case 101: // E
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, 1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, 1);
 				break;
 			case 114: // R
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, 1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, 1);
 				break;
 			case 116: // T
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, 1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, 1);
 				break;
 			case 122: // Z
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, 1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, 1);
 				break;
 			case 97: // A
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, -1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, -1);
 				break;
 			case 115: // S
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
 				break;
 			case 100: // D
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
 				break;
 			case 102: // F
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
 				break;
 			case 103: // G
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
 				break;
 			case 104: // H
-				pages[state->activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
+				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
 				break;
 			case 121: // Y
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER1, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER1, false);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER1, true);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER1, false);
 				break;
 			case 120: // X
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER2, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER2, false);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER2, true);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER2, false);
 				break;
 			case 99: // C
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER3, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER3, false);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER3, true);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER3, false);
 				break;
 			case 118: // V
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER4, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER4, false);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER4, true);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER4, false);
 				break;
 			case 98: // B
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER5, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER5, false);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER5, true);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER5, false);
 				break;
 			case 110: // N
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER6, true);
-				pages[state->activePage]->DisplayButton(X32_BTN_ENCODER6, false);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER6, true);
+				pages[activePage]->DisplayButton(X32_BTN_ENCODER6, false);
 				break;
 		}
 		
@@ -2361,21 +2323,23 @@ void X32Ctrl::BankingEQ(X32_BTN p_button){
 	surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, 0);
 	surface->SetLedByEnum(X32_BTN_EQ_HIGH, 0);
 
+	uint newBankingEq;
+
 	switch (p_button){
 		case X32_BTN_EQ_LOW:
-			state->activeEQ = 0;
+			newBankingEq = 0;
 			surface->SetLedByEnum(X32_BTN_EQ_LOW, 1);
 			break;
 		case X32_BTN_EQ_LOW_MID:
-			state->activeEQ = 1;
+			newBankingEq = 1;
 			surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, 1);
 			break;
 		case X32_BTN_EQ_HIGH_MID:
-			state->activeEQ = 2;
+			newBankingEq = 2;
 			surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, 1);
 			break;
 		case X32_BTN_EQ_HIGH:
-			state->activeEQ = 3;
+			newBankingEq = 3;
 			surface->SetLedByEnum(X32_BTN_EQ_HIGH, 1);
 			break;
 		// TODO: implement LOW2 and HIGH2
@@ -2383,8 +2347,7 @@ void X32Ctrl::BankingEQ(X32_BTN p_button){
 			break;
 	}
 
-	state->SetChangeFlags(X32_VCHANNEL_CHANGED_EQ);
-	state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
+	config->Set(MP_ID::BANKING_EQ, newBankingEq);
 }
 
 void X32Ctrl::Banking(X32_BTN p_button){

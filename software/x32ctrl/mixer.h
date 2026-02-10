@@ -10,8 +10,6 @@
 #include "base.h"
 
 #include "helper.h"
-#include "mixerparameter.h"
-#include "mixerparameter-changed.h"
 
 #include "vchannel.h"
 #include "surface.h"
@@ -28,9 +26,6 @@ class Mixer : public X32Base
 {
     private:
 
-        mixerparameter_map_t* mpm = new mixerparameter_map_t();
-        mixerparameter_changed_t* mp_changedlist = new mixerparameter_changed_t();
-
         sPreamps preamps;
         // solo is (somewhere) activated
         bool solo = false;
@@ -38,11 +33,6 @@ class Mixer : public X32Base
         void halSendGain(uint8_t dspChannel);
         void halSendPhantomPower(uint8_t dspChannel);
         void LoadVChannelLayout();
-
-        void CreateMixerparameter(MP_ID mp_type); 
-        void CreateMixerparameter(MP_ID mp_type, uint index);    
-        
-        void SetParameterChanged(MP_ID &mp, uint &index);
 
     public:
         // all virtual - channels / busses / matrix / etc.
@@ -55,24 +45,6 @@ class Mixer : public X32Base
         Mixer(X32BaseParameter* basepar);
         void Init();
         
-        void DefineMixerparameters();
-        Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
-        Mixerparameter* GetParameter(MP_ID mp);
-
-        mixerparameter_changed_t* GetChangedParameterList();
-        bool HasParameterChanged(MP_ID parameter_id, uint index = 0);
-        void ResetChangedParameterList();
-
-        float GetFloat(MP_ID mp, uint index = 0);
-        int GetInt(MP_ID mp, uint index = 0);
-        uint GetUint(MP_ID mp, uint index = 0);
-        bool GetBool(MP_ID mp, uint index = 0);
-        String GetString(MP_ID mp, uint index = 0);
-        void Set(MP_ID mp, float value, uint index = 0);        
-        void Change(MP_ID mp, int amount, uint index = 0);
-        void Toggle(MP_ID mp, uint index = 0);
-        void Reset(MP_ID mp, uint index = 0);
-
         void SetVChannelChangeFlagsFromIndex(uint8_t vChannelIndex, uint16_t p_flag);
         void SetBalance(uint8_t vChannelIndex, float p_balance);
         void SetPhantom(uint8_t vChannelIndex, bool p_phantom);
@@ -88,7 +60,6 @@ class Mixer : public X32Base
         void SetGate(uint8_t vChannelIndex, char option, float value);
         void SetLowcut(uint8_t vChannelIndex, float lowCutFrequency);
         void SetDynamics(uint8_t vChannelIndex, char option, float value);
-        void SetCardChannelMode(uint8_t mode);
         
         void TogglePhantom(uint8_t vChannelIndex);
         void TogglePhaseInvert(uint8_t vChannelIndex);
@@ -96,7 +67,6 @@ class Mixer : public X32Base
         void ToggleMute(uint8_t vChannelIndex);
 
         void ChangeVChannel(int8_t amount);
-        void ChangeGuiSelection(int8_t amount);
         void ChangeHardwareInput(uint8_t outputIndex, int8_t amount);
 	    void ChangeDspInput(uint8_t vChannelIndex, int8_t amount);
         void ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount);
@@ -130,9 +100,6 @@ class Mixer : public X32Base
         float GetGate(uint8_t vChannelIndex, char option);
         float GetLowcut(uint8_t vChannelIndex);
         float GetDynamics(uint8_t vChannelIndex, char option);
-        uint8_t GetCardChannelMode();
-        String GetCardChannelModeString();
-        String GetCardChannelModeString(uint8_t mode);
         String GetCardModelString();
 
         void ResetVChannelChangeFlags(VChannel p_chan);

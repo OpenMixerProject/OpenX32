@@ -5,6 +5,16 @@
 using namespace std;
 
 class PageRoutingDsp1: public Page {
+
+	private:
+		char inputChannelName[25] = "";
+		char inputSourceName[25] = "";
+		char tapPointName[15] = "";
+
+		uint gui_selected_item = 0;
+		uint gui_selected_item_before = 0;
+        bool page_routing_dsp1_table_drawn = false;
+
     public:
         PageRoutingDsp1(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::ROUTING_FPGA;
@@ -24,10 +34,10 @@ class PageRoutingDsp1: public Page {
 		}
 
 		void OnInit() override {
-			if (state->gui_selected_item >= MAX_FPGA_TO_DSP1_CHANNELS) {
-				state->gui_selected_item = 0;
-			}else if (state->gui_selected_item < 0) {
-				state->gui_selected_item = MAX_FPGA_TO_DSP1_CHANNELS - 1;
+			if (gui_selected_item >= MAX_FPGA_TO_DSP1_CHANNELS) {
+				gui_selected_item = 0;
+			}else if (gui_selected_item < 0) {
+				gui_selected_item = MAX_FPGA_TO_DSP1_CHANNELS - 1;
 			}
 
 			lv_table_set_row_count(objects.table_routing_dsp_input, MAX_FPGA_TO_DSP1_CHANNELS); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
@@ -47,57 +57,60 @@ class PageRoutingDsp1: public Page {
 				lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, i, 4, "%s", tapPointName);
 			}
 
-			lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-			lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
+			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_LEFT);
+			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_LEFT);
 		}
 
 		void OnChange(bool force_update) override {
-			if(state->HasChanged(X32_MIXER_CHANGED_GUI_SELECT)) {
-				if (state->gui_selected_item >= MAX_FPGA_TO_DSP1_CHANNELS) {
-					state->gui_selected_item = 0;
-				}else if (state->gui_selected_item < 0) {
-					state->gui_selected_item = MAX_FPGA_TO_DSP1_CHANNELS - 1;
+
+
+			if(gui_selected_item_before != gui_selected_item) {
+
+				if (gui_selected_item >= MAX_FPGA_TO_DSP1_CHANNELS) {
+					gui_selected_item = 0;
+				}else if (gui_selected_item < 0) {
+					gui_selected_item = MAX_FPGA_TO_DSP1_CHANNELS - 1;
 				}
 
-				if (state->gui_selected_item != state->gui_old_selected_item ) {
-					// remove old indicator
-					lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_old_selected_item, 1, " ");
-					lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_old_selected_item, 3, " ");
-					
-					// display new indicator
-					lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 1, LV_SYMBOL_LEFT);
-					lv_table_set_cell_value(objects.table_routing_dsp_input, state->gui_selected_item, 3, LV_SYMBOL_LEFT);
-					
-					// set select to scroll table
-					lv_table_set_selected_cell(objects.table_routing_dsp_input, state->gui_selected_item, 2);
-					
-					state->gui_old_selected_item = state->gui_selected_item;
-				}
+				// remove old indicator
+				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 1, " ");
+				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 3, " ");
+				
+				// display new indicator
+				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_LEFT);
+				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_LEFT);
+				
+				// set select to scroll table
+				lv_table_set_selected_cell(objects.table_routing_dsp_input, gui_selected_item, 2);
+				
+				gui_selected_item_before = gui_selected_item;
 			} 
 			
-			if(state->HasChanged(X32_MIXER_CHANGED_ROUTING)){
-				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[state->gui_selected_item].input, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[state->gui_selected_item].input - 1]);
-				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[state->gui_selected_item].inputTapPoint);
+			if(config->HasParameterChanged(MP_ID::ROUTING_TODO)){
+				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[gui_selected_item].input, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[gui_selected_item].input - 1]);
+				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[gui_selected_item].inputTapPoint);
 
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, state->gui_selected_item, 2, "%s", inputSourceName);
-				lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, state->gui_selected_item, 4, "%s", tapPointName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, gui_selected_item, 2, "%s", inputSourceName);
+				lv_table_set_cell_value_fmt(objects.table_routing_dsp_input, gui_selected_item, 4, "%s", tapPointName);
 			}
 		}
 
         bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
 				case X32_ENC_ENCODER1:
-					mixer->ChangeGuiSelection(amount);
+					gui_selected_item += amount;
+					OnChange(false);
 					break;
 				case X32_ENC_ENCODER2:
 					if (amount < 0) {
-						mixer->ChangeGuiSelection(-8);
+						gui_selected_item -= 8;
 					}else{
-						mixer->ChangeGuiSelection(8);
+						gui_selected_item += 8;
 					}
+					OnChange(false);
 					break;
 				case X32_ENC_ENCODER3:
-					mixer->ChangeDspInput(state->gui_selected_item, amount);
+					mixer->ChangeDspInput(gui_selected_item, amount);
 					break;
 				case X32_ENC_ENCODER4:
 					int8_t absoluteChange;
@@ -106,12 +119,12 @@ class PageRoutingDsp1: public Page {
 					}else{
 						absoluteChange = 8;
 					}
-					for (uint8_t i=state->gui_selected_item; i<(state->gui_selected_item+8); i++) {
+					for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++) {
 						mixer->ChangeDspInput(i, absoluteChange);
 					}
 					break;
 				case X32_ENC_ENCODER5:
-					mixer->ChangeDspInputTapPoint(state->gui_selected_item, amount);
+					mixer->ChangeDspInputTapPoint(gui_selected_item, amount);
 					break;
 				case X32_ENC_ENCODER6:
 					break;
@@ -122,9 +135,4 @@ class PageRoutingDsp1: public Page {
 
 			return true;
         }
-
-	private:
-		char inputChannelName[25] = "";
-		char inputSourceName[25] = "";
-		char tapPointName[15] = "";
 };

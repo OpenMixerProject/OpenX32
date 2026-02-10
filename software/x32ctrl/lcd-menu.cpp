@@ -52,22 +52,22 @@ void LcdMenu::OnInit() {
 
 
 void LcdMenu::OnShow() {
-    state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTENT);
+    //state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTENT);
     OnChange();
 }
 
 void LcdMenu::OnChange() {
     if (initDone) {
-        if (state->HasChanged(X32_MIXER_CHANGED_LCD_CONTENT)) {
-            surface->SetLcdX(d, 2);
-        }
+        // if (config->HasParameterChanged(MP_ID::LCD_CONTENT_CHANGED)) {
+        //     surface->SetLcdX(d, 2);
+        // }
     }
 }
 
 void LcdMenu::OnLcdEncoderTurned(int8_t amount) {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "LcdMenu::OnLcdEncoderTurned()");
 
-    Mixerparameter* parameter = mixer->GetParameter(MP_ID::LCD_CONTRAST);
+    Mixerparameter* parameter = config->GetParameter(MP_ID::LCD_CONTRAST);
 
     parameter->Change(amount);    
     surface->SetContrast(0, parameter->GetUint());
@@ -75,7 +75,7 @@ void LcdMenu::OnLcdEncoderTurned(int8_t amount) {
 
     d->texts[1].text = parameter->GetLabelAndValue().c_str();
     
-    state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST | X32_MIXER_CHANGED_LCD_CONTENT);
+    //state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST | X32_MIXER_CHANGED_LCD_CONTENT);
 
 }
 

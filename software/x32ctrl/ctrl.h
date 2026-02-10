@@ -97,6 +97,7 @@ class X32Ctrl : public X32Base {
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
         void SaveConfig();
+        void writeConfigEntry(Mixerparameter *const &parameter, uint index);
         void Tick10ms(void);
         void Tick50ms(void);
         void Tick100ms(void);

@@ -109,7 +109,11 @@ void Page::DisplayEncoderTurned(X32_ENC encoder, int amount) {
             uint encoderIndex = encoder - X32_ENC_ENCODER1;
             if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
             {
-                mixer->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, config->selectedVChannel);
+                config->Change(
+                    encoderbinding[encoderIndex]->mp_id_encoder,
+                    amount,
+                    encoderbinding[encoderIndex]->dependsOnSelectedChannel ?
+                        config->GetUint(MP_ID::SELECTED_CHANNEL) : 0);
             }
         }
     }
@@ -141,12 +145,16 @@ void Page::DisplayButton(X32_BTN button, bool pressed) {
                         if (encoderbinding[encoderIndex]->mp_id_button == MP_ID::NONE) 
                         {
                             // reset data of encoder bound Mixerparameter
-                            mixer->Reset(encoderbinding[encoderIndex]->mp_id_encoder, config->selectedVChannel);
+                            config->Reset(
+                                encoderbinding[encoderIndex]->mp_id_encoder,
+                                encoderbinding[encoderIndex]->dependsOnSelectedChannel ? config->GetUint(MP_ID::SELECTED_CHANNEL) : 0);
                         }
                         else 
                         {
                             // toggle data of button bound Mixerparameter
-                            mixer->Toggle(encoderbinding[encoderIndex]->mp_id_button, config->selectedVChannel);
+                            config->Toggle(
+                                encoderbinding[encoderIndex]->mp_id_button,
+                                encoderbinding[encoderIndex]->dependsOnSelectedChannel ? config->GetUint(MP_ID::SELECTED_CHANNEL) : 0);
                         }
                     }
                 }
@@ -178,41 +186,45 @@ X32_BTN Page::GetLed() {
     return X32_BTN_NONE;
 }
 
-/// @brief Binds an encoder to a mixerparameter
-/// @param encoder the encoder
-/// @param mp parameter to bind to the encoder, button press resets the parameter
-void Page::BindEncoder(uint encoder, MP_ID mp_id) {
+/// @brief Binds an encoder automagically to a Mixerparameter.
+/// @param encoder The encoder, e.g. DISPLAY_ENCODER_1.
+/// @param dependsOnChannel The Encoder depends on the selected channel (e.g. Channel Volume) or is independend (e.g. LED Brightness).
+/// @param mp_id Mixerparameter to bind to the encoder, pressing the encoder button resets the parameter to its standard value.
+void Page::BindEncoder(uint encoder, bool dependsOnChannel, MP_ID mp_id) {
     if (mp_id == MP_ID::NONE) {
         UnbindEncoder(encoder);
     }
     else 
     {
+        encoderbinding[encoder]->dependsOnSelectedChannel = dependsOnChannel;
         encoderbinding[encoder]->mp_id_encoder = mp_id;
         encoderbinding[encoder]->mp_id_button = MP_ID::NONE;
     }
 }
 
-/// @brief Binds an encoder to a mixerparameter
-/// @param encoder the encoder
-/// @param mp main parameter to bind to the encoder itself
-/// @param mp_button secondary parameter (only type bool) to bind to button press instead of a reset function
-void Page::BindEncoder(uint encoder, MP_ID mp_id, MP_ID mp_id_button) {
+/// @brief Binds an encoder automagically to a Mixerparameter.
+/// @param encoder The encoder, e.g. DISPLAY_ENCODER_1.
+/// @param dependsOnChannel The Encoder depends on the selected channel (e.g. Channel Volume) or is independend (e.g. LED Brightness).
+/// @param mp_id Main parameter to bind to the encoder.
+/// @param mp_id_button Secondary parameter (only type bool!) to bind to the button of the encoder instead of a reset function.
+void Page::BindEncoder(uint encoder, bool dependsOnChannel, MP_ID mp_id, MP_ID mp_id_button) {
     if (mp_id == MP_ID::NONE) {
         UnbindEncoder(encoder);
     }
     else 
     {
+        encoderbinding[encoder]->dependsOnSelectedChannel = dependsOnChannel;
         encoderbinding[encoder]->mp_id_encoder = mp_id;
         encoderbinding[encoder]->mp_id_button = mp_id_button;
     }
 }
 
 void Page::SetEncoder(uint encoder, String label, String buttonPressLabel){
-    encoderSliders[encoder].mp = MP_ID::NONE;
+    // encoderSliders[encoder].mp = MP_ID::NONE;
 
-    encoderSliders[encoder].label = label;
-    encoderSliders[encoder].label_buttonpress = buttonPressLabel;
-    encoderSliders[encoder].slider_hidden = true;
+    // encoderSliders[encoder].label = label;
+    // encoderSliders[encoder].label_buttonpress = buttonPressLabel;
+    // encoderSliders[encoder].slider_hidden = true;
 }
 
 void Page::SetEncoderValue(uint encoder, float float_value)  {
@@ -220,7 +232,7 @@ void Page::SetEncoderValue(uint encoder, float float_value)  {
         return;
     }
 
-    // Mixerparameter* parameter = mixer->GetParameter(encoderSliders[encoder].mp);
+    // Mixerparameter* parameter = config->GetParameter(encoderSliders[encoder].mp);
     // encoderSliders[encoder].label_value = parameter->getl helper->FormatValue(float_value, mpd);
     // encoderSliders[encoder].percent = helper->value2percent(float_value, mpd->float_value_min, mpd->float_value_max);
 }
@@ -246,6 +258,7 @@ void Page::SetEncoderValue(uint encoder, int int8_t_value)  {
 }
 
 void Page::UnbindEncoder(uint encoder) {
+    encoderbinding[encoder]->dependsOnSelectedChannel = false;
     encoderbinding[encoder]->mp_id_encoder = MP_ID::NONE;
     encoderbinding[encoder]->mp_id_button = MP_ID::NONE;
 }
@@ -272,7 +285,12 @@ void Page::SyncEncoderWidgets(bool force) {
         return;
     }
 
-    uint8_t chanIndex = config->selectedVChannel;
+    if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL))
+    {
+        force = true;
+    }
+
+    uint8_t chanIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
 
     for(int8_t s = 0; s < MAX_DISPLAY_ENCODER; s++) {
 
@@ -291,17 +309,17 @@ void Page::SyncEncoderWidgets(bool force) {
             continue;
         }
     
-        if (mixer->HasParameterChanged(binding->mp_id_encoder, chanIndex) || force) 
+        if (config->HasParameterChanged(binding->mp_id_encoder, binding->dependsOnSelectedChannel ? chanIndex : 0) || force) 
         {
-            Mixerparameter* parameter = mixer->GetParameter(binding->mp_id_encoder);
+            Mixerparameter* parameter = config->GetParameter(binding->mp_id_encoder);
 
             if (parameter->GetId() == MP_ID::NONE)
             {
                 __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(binding->mp_id_encoder)) + String(" is not defined!")).c_str());
             }        
 
-            lv_label_set_text(binding->Label, parameter->GetName(chanIndex).c_str());
-            lv_label_set_text(binding->ValueLabel, parameter->GetFormatedValue(chanIndex).c_str());
+            lv_label_set_text(binding->Label, parameter->GetName(binding->dependsOnSelectedChannel ? chanIndex : 0).c_str());
+            lv_label_set_text(binding->ValueLabel, parameter->GetFormatedValue(binding->dependsOnSelectedChannel ? chanIndex : 0).c_str());
 
             // Hide Slider for Boolean and String
             if (parameter->GetType() == MP_VALUE_TYPE::BOOL ||
@@ -310,29 +328,29 @@ void Page::SyncEncoderWidgets(bool force) {
                 lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
             } else {
                 lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, false);
-                lv_slider_set_value(binding->Slider, parameter->GetPercent(chanIndex), LV_ANIM_OFF);          
+                lv_slider_set_value(binding->Slider, parameter->GetPercent(binding->dependsOnSelectedChannel ? chanIndex : 0), LV_ANIM_OFF);          
             }
 
             if (binding->mp_id_button == MP_ID::NONE)
             {
                 // button resets the main parameter
 
-                lv_label_set_text(binding->ButtonLabel, parameter->GetResetLabel(chanIndex).c_str());
+                lv_label_set_text(binding->ButtonLabel, parameter->GetResetLabel(binding->dependsOnSelectedChannel ? chanIndex : 0).c_str());
             }
         }
 
-        if (mixer->HasParameterChanged(binding->mp_id_button, chanIndex) || force)
+        if (config->HasParameterChanged(binding->mp_id_button, binding->dependsOnSelectedChannel ? chanIndex : 0) || force)
         {
             if (binding->mp_id_button != MP_ID::NONE)
             {
                 // button is bound to its own parameter
 
-                Mixerparameter* parameter_button = mixer->GetParameter(binding->mp_id_button);
+                Mixerparameter* parameter_button = config->GetParameter(binding->mp_id_button);
 
-                lv_label_set_text(binding->ButtonLabel, parameter_button->GetName(chanIndex).c_str());
+                lv_label_set_text(binding->ButtonLabel, parameter_button->GetName(binding->dependsOnSelectedChannel ? chanIndex : 0).c_str());
 
                 // Button is highlighted if value is true
-                if (parameter_button->GetBool(chanIndex)) {
+                if (parameter_button->GetBool(binding->dependsOnSelectedChannel ? chanIndex : 0)) {
                     add_style_label_bg_yellow(binding->ButtonLabel);
                 } else {
                     remove_style_label_bg_yellow(binding->ButtonLabel);

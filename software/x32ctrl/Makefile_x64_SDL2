@@ -81,8 +81,8 @@ $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
 	@echo "AS  $<"
 
 copy:
-	@if ! diff -q lv_conf.h lv_port_linux/lv_conf.h >/dev/null 2>&1; then \
-		cp lv_conf.h lv_port_linux/lv_conf.h; \
+	@if ! diff -q lv_conf_SDL2.h lv_port_linux/lv_conf.h >/dev/null 2>&1; then \
+		cp lv_conf_SDL2.h lv_port_linux/lv_conf.h; \
 		echo "Update lv_port_linux/lv_conf.h (changed content)"; \
 	else \
 		echo "lv_conf.h is up to date."; \

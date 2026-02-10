@@ -372,7 +372,7 @@ enum class X32_MODEL {
     CORE
 };
 
-enum class X32_PAGE {
+enum class X32_PAGE :int {
     NONE,
     HOME,
         // sub-pages of home
@@ -409,7 +409,7 @@ enum class X32_VCHANNELTYPE {
     SPECIAL
 };
 
-enum class X32_VCHANNEL_BLOCK {
+enum class X32_VCHANNEL_BLOCK : int {
     NONE = -1,
     NORMAL = 0,
     AUX = 32,
@@ -422,7 +422,7 @@ enum class X32_VCHANNEL_BLOCK {
     MAIN = 80    
 };
 
-enum class X32_VCHANNEL_BLOCK_SIZE {
+enum class X32_VCHANNEL_BLOCK_SIZE : int {
     NONE = 0,
     NORMAL = 32,
     AUX = 8,
@@ -457,21 +457,43 @@ enum class MP_VALUE_TYPE {
 enum class MP_CAT {
     NONE,
     SETTING,
+    STATE,
     CHANNEL,
-    FX   
+    FX
 };
 
 /// @brief Mixerparameter ID
 enum class MP_ID {
     NONE,
 
+    // Settings
+
     LCD_CONTRAST,
     LED_BRIGHTNESS,
     DISPLAY_BRIGHTNESS,
+    SAMPLERATE,
+    CARD_NUMBER_OF_CHANNELS,
+
+    // Routing
+
+    // TODO: Define Routingparameter
+    ROUTING_TODO,
+
+    // State
+
+    SELECTED_CHANNEL,
+    ACTIVE_PAGE,
+    BANKING_EQ,
+    BANKING_INPUT,
+    BANKING_BUS,
+
+    // Channel
 
     CHANNEL_SOURCE,
     CHANNEL_NAME,
     CHANNEL_NAME_INTERN,
+    CHANNEL_COLOR,
+    CHANNEL_COLOR_INVERTED,
     CHANNEL_GAIN,
     CHANNEL_PANORAMA,
     CHANNEL_VOLUME,
@@ -481,18 +503,23 @@ enum class MP_ID {
     CHANNEL_PHASE_INVERT,
     CHANNEL_PHANTOM,
 
-    GATE_TRESHOLD,
-    GATE_RANGE,
-    GATE_ATTACK,
-    GATE_HOLD,
-    GATE_RELEASE,
+    CHANNEL_GATE_TRESHOLD,
+    CHANNEL_GATE_RANGE,
+    CHANNEL_GATE_ATTACK,
+    CHANNEL_GATE_HOLD,
+    CHANNEL_GATE_RELEASE,
     
-    DYNAMICS_TRESHOLD,
-    DYNAMICS_RATIO,
-    DYNAMICS_MAKEUP,
-    DYNAMICS_ATTACK,
-    DYNAMICS_HOLD,
-    DYNAMICS_RELEASE,
+    CHANNEL_DYNAMICS_TRESHOLD,
+    CHANNEL_DYNAMICS_RATIO,
+    CHANNEL_DYNAMICS_MAKEUP,
+    CHANNEL_DYNAMICS_ATTACK,
+    CHANNEL_DYNAMICS_HOLD,
+    CHANNEL_DYNAMICS_RELEASE,
+
+    // TODO define EQ Mixerparamters
+    CHANNEL_EQ_TODO,
+
+    // FX
 
     FX_REVERB_ROOMSIZE,
     FX_REVERB_RT60,
@@ -628,7 +655,7 @@ enum class MP_ID {
     FX_DYNAMICEQ_BAND3_RELEASE
 };
 
-enum class FX_TYPE {
+enum class FX_TYPE : int {
     NONE = -1,
     REVERB = 0,
     CHORUS = 1,
@@ -637,4 +664,15 @@ enum class FX_TYPE {
     DELAY = 4,
     MULTIBANDCOMPRESOR = 5,
     DYNAMICEQ = 6
+};
+
+enum class X32_COLOR : int {
+    BLACK = 0,
+    RED = 1,
+    GREEN = 2,
+    YELLOW = 3,
+    BLUE = 4,
+    PINK = 5,
+    CYAN = 6,
+    WHITE = 7
 };

@@ -41,8 +41,8 @@ class Page : public X32Base {
 
         bool initDone = false;
 
-        void BindEncoder(uint encoder, MP_ID mp_id);
-        void BindEncoder(uint encoder, MP_ID mp_id, MP_ID mp_id_button);
+        void BindEncoder(uint encoder, bool dependsOnChannel, MP_ID mp_id);
+        void BindEncoder(uint encoder, bool dependsOnChannel, MP_ID mp_id, MP_ID mp_id_button);
         
         void SetEncoder(uint encoder, MP_ID mp, String buttonPressLabel);
         void SetEncoder(uint encoder, String label, String buttonPressLabel);

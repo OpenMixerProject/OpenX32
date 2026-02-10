@@ -17,8 +17,10 @@
 
 #include "lib/plf_nanotimer.h"
 
-#include "config.h"
-#include "mixerparameter.h"
+#include "defines.h"
+#include "enum.h"
+#include "WString.h"
+
 
 #define DEBUGLEVEL_OFF -1 // No Debug
 #define DEBUGLEVEL_NORMAL 0 // General highlevel debug messages

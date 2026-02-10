@@ -1,5 +1,12 @@
 #include "config.h"
 
+Config::Config(Helper* h)
+{
+    this->helper = h;
+
+    DefineMixerparameters();
+}
+
 void Config::SetModel(String model){
 
     if (model == "X32CORE") {
@@ -49,18 +56,458 @@ bool Config::IsModelX32ProducerOrRack() {
     return ((_model == X32_MODEL::PRODUCER) || (_model == X32_MODEL::RACK));
 }
 
-void Config::SetSamplerate(uint32_t samplerate) {
-    _samplerate = samplerate;
-}
-
-uint32_t Config::GetSamplerate() {
-    return _samplerate;
-}
-
 void Config::SetBankMode(X32_SURFACE_MODE_BANKING mode) {
     _activeBankMode = mode;
 }
 
 X32_SURFACE_MODE_BANKING Config::GetBankMode() {
     return _activeBankMode;
+}
+
+
+//######################################################################################################################################
+//#
+//#  ##     ## #### ##      ## ######## ########  ########     ###    ########     ###    ##     ## ######## ######## ######## ########  
+//#  ###   ###  ##   ##    ##  ##       ##     ## ##     ##   ## ##   ##     ##   ## ##   ###   ### ##          ##    ##       ##     ## 
+//#  #### ####  ##    ##  ##   ##       ##     ## ##     ##  ##   ##  ##     ##  ##   ##  #### #### ##          ##    ##       ##     ## 
+//#  ## ### ##  ##     ####    ######   ########  ########  ##     ## ########  ##     ## ## ### ## ######      ##    ######   ########  
+//#  ##     ##  ##    ##  ##   ##       ##   ##   ##        ######### ##   ##   ######### ##     ## ##          ##    ##       ##   ##   
+//#  ##     ##  ##   ##    ##  ##       ##    ##  ##        ##     ## ##    ##  ##     ## ##     ## ##          ##    ##       ##    ##  
+//#  ##     ## #### ##      ## ######## ##     ## ##        ##     ## ##     ## ##     ## ##     ## ########    ##    ######## ##     ## 
+//#
+//#
+//#  ########  ######## ######## #### ##    ## #### ######## ####  #######  ##    ##  ######  
+//#  ##     ## ##       ##        ##  ###   ##  ##     ##     ##  ##     ## ###   ## ##    ## 
+//#  ##     ## ##       ##        ##  ####  ##  ##     ##     ##  ##     ## ####  ## ##       
+//#  ##     ## ######   ######    ##  ## ## ##  ##     ##     ##  ##     ## ## ## ##  ######  
+//#  ##     ## ##       ##        ##  ##  ####  ##     ##     ##  ##     ## ##  ####       ## 
+//#  ##     ## ##       ##        ##  ##   ###  ##     ##     ##  ##     ## ##   ### ##    ## 
+//#  ########  ######## ##       #### ##    ## ####    ##    ####  #######  ##    ##  ######  
+//#
+//######################################################################################################################################
+
+Mixerparameter* Config::DefParameter(MP_ID parameter_id, MP_CAT category, String group, String name, uint count) {
+	
+	// create it
+	Mixerparameter* newMpd = new Mixerparameter(parameter_id, category, group, name, count);
+
+	// store in mixerparameter map (mpm)
+	mpm->insert({parameter_id, newMpd});
+
+	// return for further definition
+	return newMpd;
+}
+
+void Config::DefineMixerparameters() {
+
+	using enum MP_ID;
+
+    DefParameter(NONE, MP_CAT::NONE, "", "");
+
+    // ############
+    // # Settings
+    // ###########
+
+	MP_CAT cat = MP_CAT::SETTING;
+    String group = "setting";
+
+	DefParameter(LCD_CONTRAST, cat, group, "LCD Contrast")
+	->DefMinMaxStandard_Uint(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT);
+    
+    DefParameter(LED_BRIGHTNESS, cat, group, "LED Brightness")
+	->DefMinMaxStandard_Uint(LED_BRIGHTNESS_1, LED_BRIGHTNESS_4, LED_BRIGHTNESS_4)
+    ->DefStepsize(64);
+
+    // TODO: DISPLAY_BRIGHTNESS
+
+    DefParameter(SAMPLERATE, cat, group, "Samplerate")
+    ->DefMinMaxStandard_Uint(44100, 48000, 48000);
+
+    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, group, "Card Channels")
+    ->DefMinMaxStandard_Uint(0, 5, 0);
+
+    // ###########
+    // # State
+    // ###########
+
+    cat = MP_CAT::STATE;
+    group = "state";
+
+    DefParameter(SELECTED_CHANNEL, cat, group, "Selected Channel")
+    ->DefMinMaxStandard_Uint(0, MAX_VCHANNELS - 1, 0);
+
+    DefParameter(ACTIVE_PAGE, cat, group, "Active Page")
+    ->DefMinMaxStandard_Uint(0, 255, (uint)X32_PAGE::HOME);
+
+    DefParameter(BANKING_EQ, cat, group, "Banking EQ")
+    ->DefMinMaxStandard_Uint(0, 3, 0);
+
+    DefParameter(BANKING_INPUT, cat, group, "Banking Input Section")
+    ->DefMinMaxStandard_Uint(0, 7, 0);
+
+    DefParameter(BANKING_BUS, cat, group, "Banking Bus Section")
+    ->DefMinMaxStandard_Uint(0, 3, 0);
+
+    // ###########
+    // # Channels
+    // ###########
+
+	cat = MP_CAT::CHANNEL;
+    group = "channel";
+
+    DefParameter(CHANNEL_NAME_INTERN, cat, group, "Channelname Intern", MAX_VCHANNELS)->DefNameShort("Internalname")
+    ->DefStandard_String("CH")
+    ->DefReadonly()
+    ->DefNoConfigfile();
+    
+    DefParameter(CHANNEL_NAME, cat, group, "Channelname", MAX_VCHANNELS)
+    ->DefStandard_String("Kanal");
+
+    DefParameter(CHANNEL_COLOR, cat, group, "Channelcolor", MAX_VCHANNELS)
+    ->DefMinMaxStandard_Uint((uint)X32_COLOR::BLACK, (uint)X32_COLOR::WHITE, (uint)X32_COLOR::YELLOW);
+
+    DefParameter(CHANNEL_COLOR_INVERTED, cat, group, "Channelcolor Inverted", MAX_VCHANNELS)
+    ->DefStandard_Bool(false);
+    
+    DefParameter(CHANNEL_SOURCE, cat, group, "Source", MAX_VCHANNELS)
+    ->DefMinMaxStandard_Int(-1, MAX_FPGA_TO_DSP1_CHANNELS, -1);
+    
+    DefParameter(CHANNEL_PHASE_INVERT, cat, group, "Phase Inverted", MAX_VCHANNELS)->DefNameShort("Inverted")
+    ->DefStandard_Bool(false);
+    
+    DefParameter(CHANNEL_PHANTOM, cat, group, "Phantom", MAX_VCHANNELS)->DefNameShort("48V")
+    ->DefStandard_Bool(false);
+    
+    DefParameter(CHANNEL_GAIN, cat, group, "Gain", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
+    
+    DefParameter(CHANNEL_VOLUME, cat, group, "Volume", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+    
+    DefParameter(CHANNEL_SELECTED, cat, group, "Selected", MAX_VCHANNELS)
+    ->DefMinMaxStandard_Uint(0, 1, 0);
+    
+    DefParameter(CHANNEL_SOLO, cat, group, "Solo", MAX_VCHANNELS)
+    ->DefStandard_Bool(false);
+    
+    DefParameter(CHANNEL_MUTE, cat, group, "Mute", MAX_VCHANNELS)
+    ->DefStandard_Bool(false);
+    
+    DefParameter(CHANNEL_PANORAMA, cat, group, "Pan/Bal", MAX_VCHANNELS)
+    ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0)
+    ->DefStepsize(2);
+
+    // gate
+    group = "channel_gate";
+    DefParameter(CHANNEL_GATE_TRESHOLD, cat, group, "Threshold", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0);
+    
+    DefParameter(CHANNEL_GATE_RANGE, cat, group, "Range", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1);
+    
+    DefParameter(CHANNEL_GATE_ATTACK, cat, group, "Attack", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0);
+    
+    DefParameter(CHANNEL_GATE_HOLD, cat, group, "Hold", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0);
+    
+    DefParameter(CHANNEL_GATE_RELEASE, cat, group, "Release", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
+    
+    // dynamics
+    group = "channel_dynamics";
+
+    DefParameter(CHANNEL_DYNAMICS_TRESHOLD, cat, group, "Threshold", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0);
+    
+    DefParameter(CHANNEL_DYNAMICS_RATIO, cat, group, "Ratio", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::NONE)
+    ->DefMinMaxStandard_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
+    
+    DefParameter(CHANNEL_DYNAMICS_MAKEUP, cat, group, "Makeup", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1);
+    
+    DefParameter(CHANNEL_DYNAMICS_ATTACK, cat, group, "Attack", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0);
+    
+    DefParameter(CHANNEL_DYNAMICS_HOLD, cat, group, "Hold", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
+    
+    DefParameter(CHANNEL_DYNAMICS_RELEASE, cat, group, "Release", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
+
+    // ###########
+    // # FX
+    // ###########
+	cat = MP_CAT::FX;
+
+    // reverb
+    group = "fx_reverb";
+
+    #define FX_REVERB_ROOMSIZE_MIN         0.0f // ms
+    #define FX_REVERB_ROOMSIZE_DEFAULT   150.0f // ms
+    #define FX_REVERB_ROOMSIZE_MAX      1000.0f // ms
+    #define FX_REVERB_RT60_MIN             0.0f // s
+    #define FX_REVERB_RT60_DEFAULT         3.0f // s
+    #define FX_REVERB_RT60_MAX           100.0f // s
+    #define FX_REVERB_LPFREQ_MIN           0.0f // Hz
+    #define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
+    #define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
+    #define FX_REVERB_DRY_MIN              0.0f //
+    #define FX_REVERB_DRY_DEFAULT          1.0f //
+    #define FX_REVERB_DRY_MAX              1.0f //
+    #define FX_REVERB_WET_MIN              0.0f //
+    #define FX_REVERB_WET_DEFAULT          0.25f //
+    #define FX_REVERB_WET_MAX              1.0f //
+
+    // reverb roomsize
+    DefParameter(FX_REVERB_ROOMSIZE, cat, group, "Roomsize", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(FX_REVERB_ROOMSIZE_MIN, FX_REVERB_ROOMSIZE_MAX, FX_REVERB_ROOMSIZE_DEFAULT, 0);
+    // reverb rt60
+    DefParameter(FX_REVERB_RT60, cat, group, "RT60", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::SECONDS)
+    ->DefMinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
+    // reverb lowpass
+    DefParameter(FX_REVERB_LPFREQ, cat, group, "LowPass", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::KHZ)
+    ->DefMinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
+    // reverb dry
+    DefParameter(FX_REVERB_DRY, cat, group, "Dry", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::PERCENT)
+    ->DefMinMaxStandard_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT);
+    // reverb wet
+    DefParameter(FX_REVERB_WET, cat, group, "Wet", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::PERCENT)
+    ->DefMinMaxStandard_Float(FX_REVERB_WET_MIN, FX_REVERB_WET_MAX, FX_REVERB_WET_DEFAULT);
+
+    // chorus
+    group = "fx_chorus";
+    #define FX_CHORUS_DEPTH_A_MIN          0.0f //
+    #define FX_CHORUS_DEPTH_A_DEFAULT     10.0f //
+    #define FX_CHORUS_DEPTH_A_MAX        100.0f //
+    #define FX_CHORUS_DEPTH_B_MIN          0.0f //
+    #define FX_CHORUS_DEPTH_B_DEFAULT     10.0f //
+    #define FX_CHORUS_DEPTH_B_MAX        100.0f //
+    #define FX_CHORUS_DELAY_A_MIN          0.0f // ms
+    #define FX_CHORUS_DELAY_A_DEFAULT     15.0f // ms
+    #define FX_CHORUS_DELAY_A_MAX        100.0f // ms
+    #define FX_CHORUS_DELAY_B_MIN          0.0f // ms
+    #define FX_CHORUS_DELAY_B_DEFAULT     20.0f // ms
+    #define FX_CHORUS_DELAY_B_MAX        100.0f // ms
+    #define FX_CHORUS_PHASE_A_MIN          0.0f //
+    #define FX_CHORUS_PHASE_A_DEFAULT      0.0f //
+    #define FX_CHORUS_PHASE_A_MAX        100.0f //
+    #define FX_CHORUS_PHASE_B_MIN          0.0f //
+    #define FX_CHORUS_PHASE_B_DEFAULT      0.0f //
+    #define FX_CHORUS_PHASE_B_MAX        100.0f //
+    #define FX_CHORUS_FREQ_A_MIN           0.0f //
+    #define FX_CHORUS_FREQ_A_DEFAULT       1.5f //
+    #define FX_CHORUS_FREQ_A_MAX         100.0f //
+    #define FX_CHORUS_FREQ_B_MIN           0.0f //
+    #define FX_CHORUS_FREQ_B_DEFAULT       1.6f //
+    #define FX_CHORUS_FREQ_B_MAX         100.0f //
+
+    // chorus depth
+    DefParameter(FX_CHORUS_DEPTH_A, cat, group, "Depth A", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::NONE)
+    ->DefMinMaxStandard_Float(FX_CHORUS_DEPTH_A_MIN, FX_CHORUS_DEPTH_A_MAX, FX_CHORUS_DEPTH_A_DEFAULT);
+    DefParameter(FX_CHORUS_DEPTH_B, cat, group, "Depth B", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::NONE)
+    ->DefMinMaxStandard_Float(FX_CHORUS_DEPTH_B_MIN, FX_CHORUS_DEPTH_B_MAX, FX_CHORUS_DEPTH_B_DEFAULT);
+    // chorus delay
+    DefParameter(FX_CHORUS_DELAY_A, cat, group, "Delay A", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(FX_CHORUS_DELAY_A_MIN, FX_CHORUS_DELAY_A_MAX, FX_CHORUS_DELAY_A_DEFAULT);
+    DefParameter(FX_CHORUS_DELAY_B, cat, group, "Delay B", MAX_FX_SLOTS)
+    ->DefUOM(MP_UOM::MS)
+    ->DefMinMaxStandard_Float(FX_CHORUS_DELAY_B_MIN, FX_CHORUS_DELAY_B_MAX, FX_CHORUS_DELAY_B_DEFAULT);
+    // chorus phase
+    DefParameter(FX_CHORUS_PHASE_A, cat, group, "Phase A", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_A_MIN, FX_CHORUS_PHASE_A_MAX, FX_CHORUS_PHASE_A_DEFAULT);
+    DefParameter(FX_CHORUS_PHASE_B, cat, group, "Phase B", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_B_MIN, FX_CHORUS_PHASE_B_MAX, FX_CHORUS_PHASE_B_DEFAULT);
+    // chorus freq
+    DefParameter(FX_CHORUS_FREQ_A, cat, group, "Freq A", MAX_FX_SLOTS)->DefUOM(MP_UOM::KHZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT);
+    DefParameter(FX_CHORUS_FREQ_B, cat, group, "Freq B", MAX_FX_SLOTS)->DefUOM(MP_UOM::KHZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT);
+    // chorus mix
+    DefParameter(FX_CHORUS_MIX, cat, group, "Mix", MAX_FX_SLOTS)->DefUOM(MP_UOM::PERCENT)->DefMinMaxStandard_Float(0.0f, 1.0f, 0.5f);
+
+    // transientshaper
+    group = "fx_transientshaper";
+
+    // fast
+    DefParameter(FX_TRANSIENTSHAPER_FAST, cat, group, "Fast", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+    // medium
+    DefParameter(FX_TRANSIENTSHAPER_MEDIUM, cat, group, "Medium", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 15.0f);
+    // slow
+    DefParameter(FX_TRANSIENTSHAPER_SLOW, cat, group, "Slow", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 150.0f);
+    // attack
+    DefParameter(FX_TRANSIENTSHAPER_ATTACK, cat, group, "Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+    // sustain
+    DefParameter(FX_TRANSIENTSHAPER_SUSTAIN, cat, group, "Sustain", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+    // delay
+    DefParameter(FX_TRANSIENTSHAPER_DELAY, cat, group, "Delay", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+
+    // FX_TYPE_OVERDRIVE            preGain Q hpfInputFreq lpfInputFreq lpfOutputFreq
+    group = "fx_overdrive";
+
+    // delay A/B
+    group = "fx_delay";
+    DefParameter(FX_DELAY_DELAY_A, cat, group, "Delay A", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 350.0f);
+    DefParameter(FX_DELAY_DELAY_B, cat, group, "Delay B", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 450.0f);
+
+    // FX_TYPE_MULTIBANDCOMPRESOR   channel band threshold ratio attack  hold   release   makeup
+    group = "fx_multibandcompressor";
+
+    // FX_TYPE_DYNAMICEQ            band type freq staticGain  maxDynGain  Q  thresh  ratio  attack  release
+    group = "fx_dynamiceq";
+
+}
+
+
+//########################################################################################################################################
+//#
+//#    ######  ######## ########       ##  ######   ######## ########       ##  ######  ##     ##    ###    ##    ##  ######   ######## 
+//#   ##    ## ##          ##         ##  ##    ##  ##          ##         ##  ##    ## ##     ##   ## ##   ###   ## ##    ##  ##       
+//#   ##       ##          ##        ##   ##        ##          ##        ##   ##       ##     ##  ##   ##  ####  ## ##        ##       
+//#    ######  ######      ##       ##    ##   #### ######      ##       ##    ##       ######### ##     ## ## ## ## ##   #### ######   
+//#         ## ##          ##      ##     ##    ##  ##          ##      ##     ##       ##     ## ######### ##  #### ##    ##  ##       
+//#   ##    ## ##          ##     ##      ##    ##  ##          ##     ##      ##    ## ##     ## ##     ## ##   ### ##    ##  ##       
+//#    ######  ########    ##    ##        ######   ########    ##    ##        ######  ##     ## ##     ## ##    ##  ######   ######## 
+//#
+//########################################################################################################################################
+
+
+mixerparameter_map_t* Config::GetParameterList()
+{
+    return mpm;
+}
+
+mixerparameter_changed_t* Config::GetChangedParameterList()
+{
+    return mp_changedlist;
+}
+
+/// @brief Checks if the data of the Mixerparameter has changed.
+/// @param parameter_id The id of the Mixerparameter to check.
+/// @param index The index of the Mixerparameter (usual the vchannel index or FX slot index).
+/// @return True if the data has changed.
+bool Config::HasParameterChanged(MP_ID parameter_id, uint index) {
+    return mp_changedlist->contains(parameter_id) &&
+           mp_changedlist->at(parameter_id).contains(index);
+}
+
+/// @brief Checks if any data in the Mixerparameters has changed.
+/// @return True if the data in any Mixerparameter has changed.
+bool Config::HasAnyParameterChanged()
+{
+    return mp_changedlist->size() > 0;
+}
+
+void Config::ResetChangedParameterList()
+{
+    mp_changedlist->clear();
+}
+
+Mixerparameter* Config::GetParameter(MP_ID mp)
+{
+    if (!mpm->contains(mp))
+    {
+        return mpm->at(MP_ID::NONE);
+    }
+    return mpm->at(mp);
+}
+
+float Config::GetFloat(MP_ID mp, uint index)
+{
+    return mpm->at(mp)->GetFloat(index);
+}
+
+int Config::GetInt(MP_ID mp, uint index)
+{
+    return mpm->at(mp)->GetInt(index);
+}
+
+uint Config::GetUint(MP_ID mp, uint index)
+{
+    return mpm->at(mp)->GetUint(index);
+}
+
+bool Config::GetBool(MP_ID mp, uint index)
+{
+    return mpm->at(mp)->GetBool(index);
+}
+
+String Config::GetString(MP_ID mp, uint index)
+{
+    return mpm->at(mp)->GetString(index);
+}
+
+uint Config::GetPercent(MP_ID mp, uint index)
+{
+    return mpm->at(mp)->GetPercent(index);
+}
+
+void Config::Set(MP_ID mp, float value, uint index)
+{
+    mpm->at(mp)->Set(value, index);
+
+    SetParameterChanged(mp, index);
+}
+
+void Config::SetParameterChanged(MP_ID mp, uint index)
+{
+    if (mp_changedlist->contains(mp))
+    {
+        mp_changedlist->at(mp).insert(index);
+    }
+    else
+    {
+        mp_changedlist->insert({mp, {index}});
+    }
+
+    if (helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE))
+    {
+        Mixerparameter* parameter = GetParameter(mp);
+
+        String message = "Mixerparameter \"" + parameter->GetName(index) + "\" ";
+        
+        if (parameter->GetInstances() > 1)
+        {
+            message += String(index) + " ";
+        }
+        
+        message += "has changed to: " + parameter->GetFormatedValue(index) + "\n";
+
+        helper->Log(message.c_str());
+    }
+}
+
+void Config::Change(MP_ID mp, int amount, uint index)
+{
+    mpm->at(mp)->Change(amount, index);
+    SetParameterChanged(mp, index);
+}
+
+void Config::Toggle(MP_ID mp, uint index)
+{
+    mpm->at(mp)->Toggle(index);
+    SetParameterChanged(mp, index);
+}
+
+void Config::Reset(MP_ID mp, uint index)
+{
+    mpm->at(mp)->Reset(index);
+    SetParameterChanged(mp, index);
 }

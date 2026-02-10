@@ -122,7 +122,7 @@ class PageUtility: public Page {
         }
 
         bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-            if (state->activePage == X32_PAGE::UTILITY) {
+            if ((X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE) == X32_PAGE::UTILITY) {
                 switch (encoder){
                     case X32_ENC_ENCODER1:
                         break;

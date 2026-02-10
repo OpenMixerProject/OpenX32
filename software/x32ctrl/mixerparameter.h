@@ -20,7 +20,7 @@ class Mixerparameter {
 
         String _name;            // complete long name
         String _name_short;      // short name for thight spaces
-        String _config_prefix;   // prefix (or name) in config files
+        String _name_group;      // logical group the parameter belongs to, e.g. "input" or "bus" for channels, "reverb" or "transientshaper" for fx
 
         MP_UOM unitOfMeasurement = MP_UOM::NONE;
 
@@ -31,7 +31,7 @@ class Mixerparameter {
         String value_string_standard;
 
         /// @brief How many instances this Mixerparameter has.
-        uint size = 0;
+        uint instances = 0;
         
         vector<float> value;
         vector<String> value_string;
@@ -51,9 +51,9 @@ class Mixerparameter {
         /// @throws std::out_of_range
         void CheckIndex(uint index)
         {
-            if (index >= size)
+            if (index >= instances)
             {
-                __throw_out_of_range((String("The index ") + String(index) + String(" is bigger than the specified size of ") + String(size) + String(" (zero based!) of the Mixerparameter ") + GetName() + String(".")).c_str());
+                __throw_out_of_range((String("The index ") + String(index) + String(" is bigger than the specified instances of ") + String(instances) + String(" (zero based!) of the Mixerparameter ") + GetName() + String(".")).c_str());
             }
         }
 
@@ -131,23 +131,17 @@ class Mixerparameter {
         x32_changeflag changeflag_mixer;
         x32_changeflag changeflag_vchannel;
 
-        Mixerparameter (MP_ID mp, MP_CAT cat, String name, uint count)
+        Mixerparameter (MP_ID mp, MP_CAT cat, String group, String name, uint count)
         {
             parameter_id = mp;
             category = cat;
 
+            _name_group = group;
             _name = name;
 
             DefNameShort(name);
 
-            _config_prefix = name;
-            _config_prefix.replace(" ", "_");
-            _config_prefix.replace("/", "_");
-            _config_prefix.replace("\\", "_");
-            _config_prefix.replace(".", "_");
-            _config_prefix.toLowerCase();
-
-            size = count;
+            instances = count;
         }
 
         Mixerparameter* DefNameShort(String name_short) 
@@ -197,7 +191,7 @@ class Mixerparameter {
             decimal_places = decimals;
 
             // fill with default values
-            for (uint i = 0; i < size; i++)
+            for (uint i = 0; i < instances; i++)
             {
                 value.push_back(value_standard);
             }
@@ -205,7 +199,7 @@ class Mixerparameter {
             return this;
         }
 
-        Mixerparameter* DefMinMaxStandard_Uint(uint8_t min, uint8_t max, uint8_t standard) {
+        Mixerparameter* DefMinMaxStandard_Uint(uint min, uint max, uint standard) {
             value_type = MP_VALUE_TYPE::UINT;       
             value_min = min;
             value_max = max;
@@ -213,7 +207,7 @@ class Mixerparameter {
             decimal_places = 0;
 
             // fill with default values
-            for (uint i = 0; i < size; i++)
+            for (uint i = 0; i < instances; i++)
             {
                 value.push_back(value_standard);
             }
@@ -221,7 +215,7 @@ class Mixerparameter {
             return this;
         }
 
-        Mixerparameter* DefMinMaxStandard_Int(int8_t min, int8_t max, int8_t standard) {
+        Mixerparameter* DefMinMaxStandard_Int(int min, int max, int standard) {
             value_type = MP_VALUE_TYPE::INT;
             value_min = min;
             value_max = max;
@@ -229,7 +223,7 @@ class Mixerparameter {
             decimal_places = 0;
 
             // fill with default values
-            for (uint i = 0; i < size; i++)
+            for (uint i = 0; i < instances; i++)
             {
                 value.push_back(value_standard);
             }
@@ -245,7 +239,7 @@ class Mixerparameter {
             decimal_places = 0;
 
             // fill with default values
-            for (uint i = 0; i < size; i++)
+            for (uint i = 0; i < instances; i++)
             {
                 value.push_back(value_standard);
             }
@@ -260,7 +254,7 @@ class Mixerparameter {
             value_string_autoincrement_zerobased = autoincrement_zerobased;
 
             // fill with default values
-            for (uint i = 0; i < size; i++)
+            for (uint i = 0; i < instances; i++)
             {
                 value_string.push_back(value_string_standard + String(autoincrement_zerobased ? i : i+1));
             }
@@ -344,6 +338,65 @@ class Mixerparameter {
             value[index] = newValue;
         }
 
+        /// @brief Sets a new value to the Mixerparameter.
+        /// @param newValue The new value.
+        /// @param index The index of the parameter (usual the vchannel index or FX slot index).
+        void Set(uint newValue, uint index = 0)
+        {
+            CheckIndex(index);
+            CheckNotReadonly();
+
+            if (newValue > value_max) {
+                newValue = value_max;
+            } else if (newValue < value_min) {
+                newValue = value_min;
+            }
+            value[index] = newValue;
+        }
+
+        /// @brief Sets a new value to the Mixerparameter.
+        /// @param newValue The new value.
+        /// @param index The index of the parameter (usual the vchannel index or FX slot index).
+        void Set(int newValue, uint index = 0)
+        {
+            CheckIndex(index);
+            CheckNotReadonly();
+
+            if (newValue > value_max) {
+                newValue = value_max;
+            } else if (newValue < value_min) {
+                newValue = value_min;
+            }
+            value[index] = newValue;
+        }
+
+        /// @brief Sets a new value to the Mixerparameter.
+        /// @param newValue The new value.
+        /// @param index The index of the parameter (usual the vchannel index or FX slot index).
+        void Set(bool newValue, uint index = 0)
+        {
+            CheckIndex(index);
+            CheckNotReadonly();
+
+            if (newValue > value_max) {
+                newValue = value_max;
+            } else if (newValue < value_min) {
+                newValue = value_min;
+            }
+            value[index] = newValue;
+        }
+
+        /// @brief Sets a new value to the Mixerparameter.
+        /// @param newValue The new value.
+        /// @param index The index of the parameter (usual the vchannel index or FX slot index).
+        void Set(String newValue, uint index = 0)
+        {
+            CheckIndex(index);
+            CheckNotReadonly();
+
+            value_string[index] = newValue;
+        }
+
         float Get(uint index = 0)
         {
             CheckIndex(index);
@@ -425,16 +478,37 @@ class Mixerparameter {
             return false;
         }
 
-        String GetConfigPrefix(uint index = 0)
-        {
-            CheckIndex(index);
-            
-            if (size == 1)
-            {
-                return _config_prefix;
-            } else {
-                return _config_prefix + String(index);
-            }
+        /// @brief How many instances (Channels or FX-Slots) this parameter has.
+        /// @return The number of instances.
+        uint GetInstances()
+        {        
+            return instances;
+        }
+
+        String GetConfigGroup()
+        { 
+            String config_group = _name_group;
+
+            config_group.replace(" ", "_");
+            config_group.replace("/", "_");
+            config_group.replace("\\", "_");
+            config_group.replace(".", "_");
+            config_group.toLowerCase();
+
+            return config_group;
+        }
+
+        String GetConfigName()
+        {            
+            String config_name = _name;
+
+            config_name.replace(" ", "_");
+            config_name.replace("/", "_");
+            config_name.replace("\\", "_");
+            config_name.replace(".", "_");
+            config_name.toLowerCase();
+        
+            return config_name;
         }
 
         String GetName(uint index = 0)

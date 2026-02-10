@@ -127,6 +127,7 @@ void guiInit(void) {
 
 	if (state->bodyless)
 	{
+		// TODO do not use if build for arm
 		display = lv_sdl_window_create(DISPLAY_RESOLUTION_X, DISPLAY_RESOLUTION_Y);		
 	 	lv_sdl_window_set_title(display, "OpenX32 x32ctrl - bodyless mode (Development Simulator)");
 		keyboard = lv_sdl_keyboard_create();
@@ -147,7 +148,6 @@ void guiInit(void) {
 
 	// InitPages() has to be called after ui_init()!
 	ctrl->InitPages();
-	ctrl->ShowPage(state->activePage);
 
 	if (state->bodyless)
 	{
@@ -171,6 +171,8 @@ void guiInit(void) {
 	}
 }
 
+
+
 // handle STRG-C and write config file
 void my_handler(int s){
     printf("Caught signal %d\n",s);
@@ -184,7 +186,9 @@ void my_handler(int s){
 	}
 
 	// write mixer settings to ini
+	printf("Save config...");
 	ctrl->SaveConfig();
+	printf("DONE\n");
 
     exit(0); 
 }
@@ -193,7 +197,7 @@ int main(int argc, char* argv[]) {
 	srand(time(NULL));
 
     Helper* helper = new Helper();
-    Config* config = new Config();
+    Config* config = new Config(helper);
     state = new State(helper);
 
 	app = new CLI::App();
@@ -310,7 +314,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	config->SetSamplerate(app->get_option("--samplerate")->as<uint32_t>());
+	config->Set(MP_ID::SAMPLERATE, app->get_option("--samplerate")->as<uint32_t>());
 
 	if (debug_parameters.size() > 0) {
 		for(uint8_t i=0; i<debug_parameters.size(); i++) {
@@ -333,9 +337,9 @@ int main(int argc, char* argv[]) {
 			if (debug_parameters[i] == "FX") { helper->DEBUG_FX(true); }
 		}
 
-		if (trace) {
+		if (trace  == true) {
 			helper->SetDebugLevel(DEBUGLEVEL_TRACE);
-		} else if (verbose) {
+		} else if (verbose == true) {
 			helper->SetDebugLevel(DEBUGLEVEL_VERBOSE);
 		} else {
 			helper->SetDebugLevel(DEBUGLEVEL_NORMAL);
