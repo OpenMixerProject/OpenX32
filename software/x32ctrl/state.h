@@ -11,7 +11,7 @@ class State {
 
     public:
 
-        bool bodyless;
+        bool bodyless = false;
 
         // Surface
 
