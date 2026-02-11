@@ -457,6 +457,7 @@ enum class MP_VALUE_TYPE {
 enum class MP_CAT {
     NONE,
     SETTING,
+    ROUTING,
     STATE,
     CHANNEL,
     CHANNEL_GATE,
@@ -466,6 +467,7 @@ enum class MP_CAT {
 /// @brief Mixerparameter ID
 enum class MP_ID {
     NONE,
+    PAGE_CUSTOM_ENCODER,
 
     // Settings
 
@@ -478,7 +480,9 @@ enum class MP_ID {
     // Routing
 
     // TODO: Define Routingparameter
-    ROUTING_TODO,
+    ROUTING_FPGA,
+    ROUTING_DSP1,
+    ROUTING_DSP2,
 
     // State
 
@@ -498,11 +502,14 @@ enum class MP_ID {
     CHANNEL_GAIN,
     CHANNEL_PANORAMA,
     CHANNEL_VOLUME,
+    CHANNEL_VOLUME_SUB,
     CHANNEL_SELECTED,
     CHANNEL_MUTE,
     CHANNEL_SOLO,
     CHANNEL_PHASE_INVERT,
     CHANNEL_PHANTOM,
+
+    CHANNEL_LOWCUT,
 
     CHANNEL_GATE_TRESHOLD,
     CHANNEL_GATE_RANGE,

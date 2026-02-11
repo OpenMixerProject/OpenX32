@@ -10,17 +10,26 @@ class PageUtility: public Page {
             led = X32_BTN_UTILITY;
         }
 
-        void OnShow() override {
-            SetEncoder(DISPLAY_ENCODER_2, "FX-Rack", "Install Effects");
-            SetEncoder(DISPLAY_ENCODER_3, "FX-Rack", "Send Parameters");
-            SetEncoder(DISPLAY_ENCODER_4, "XLR1 -> DSP2", "DSP2 -> Ch9..24");
+        void OnShow() override
+        {
+            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
+
+            custom_encoder[DISPLAY_ENCODER_1].label = "Reload DSPs";
+            custom_encoder[DISPLAY_ENCODER_2].label = "FX: Install Effects";
+            custom_encoder[DISPLAY_ENCODER_3].label = "FX: Send Parameters";
+            custom_encoder[DISPLAY_ENCODER_4].label = "XLR1 -> DSP2, DSP2 -> Ch9..24";
         }
 
-        void OnChange(bool force_update) override {
+        void OnChange(bool force_update) override
+        {
             // TODO only update if values are changed
-            encoderSliders[0].label = "Reload DSPs";
-            encoderSliders[4].label = String("D2: ") + String(state->debugvalue2);
-            encoderSliders[5].label = String("D1: ") + String(state->debugvalue);
+            custom_encoder[DISPLAY_ENCODER_5].label = String("D2: ") + String(state->debugvalue2);
+            custom_encoder[DISPLAY_ENCODER_6].label = String("D1: ") + String(state->debugvalue);
         }
 
         bool OnDisplayButton(X32_BTN button, bool pressed) override {
@@ -68,20 +77,20 @@ class PageUtility: public Page {
                         // DEBUG DATA FOR CHRIS
 
                         // set gain for XLR-Input 1 and 2
-                        mixer->SetGain(0, 47); // XLR In 1
-                        mixer->SetGain(1, 47); // XLR In 2
+                        config->Set(MP_ID::CHANNEL_GAIN, 47.0f, 0);
+                        config->Set(MP_ID::CHANNEL_GAIN, 47.0f, 1);
 
                         // route FX-Return-Channels 1-16 to DSP1-Input-Channels 9 to 24, set volume to 0dBfs and Panning to hard L/R
                         for (int i = 8; i < 24; i++) {
                             mixer->dsp->SetInputRouting(i);
-                            mixer->SetVolume(i, 0); // 0dBfs
+                            config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, i); // 0dBfs
 
                             mixer->dsp->Channel[i].input = DSP_BUF_IDX_DSP2_FX + (i - 8);
                             mixer->dsp->Channel[i].inputTapPoint = DSP_TAP_INPUT;
                         }
                         for (int i = 8; i < 24; i+=2) {
-                            mixer->SetBalance(i, -100); // left
-                            mixer->SetBalance(i + 1, 100); // right
+                            config->Set(MP_ID::CHANNEL_PANORAMA, -100.0f, i);  // left
+                            config->Set(MP_ID::CHANNEL_PANORAMA, 100.0f, i+1); // right
                         }
 
                         // route XLR1 to DSP2-Send 1/2
@@ -92,17 +101,17 @@ class PageUtility: public Page {
                         mixer->dsp->SetFxOutputRouting(0);
                         mixer->dsp->SetFxOutputRouting(1);
 
-                        mixer->SetMute(0, true); // mute channel 1
-                        mixer->SetMute(10, true); // mute channel 11 (Chorus)
-                        mixer->SetMute(11, true); // mute channel 12 (Chorus)
-                        mixer->SetMute(12, true); // mute channel 13 (TransientShaper)
-                        mixer->SetMute(13, true); // mute channel 14 (TransientShaper)
-                        mixer->SetMute(14, true); // mute channel 15 (overdrive)
-                        mixer->SetMute(15, true); // mute channel 16 (overdrive)
-                        mixer->SetMute(DSP_BUF_IDX_AUX + 5, true); // mute channel A7
-                        mixer->SetMute(DSP_BUF_IDX_AUX + 6, true); // mute channel A8
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 0); // mute channel 1
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 10); // mute channel 11 (Chorus)
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 11); // mute channel 12 (Chorus)
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 12); // mute channel 13 (TransientShaper)
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 13); // mute channel 14 (TransientShaper)
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 14); // mute channel 15 (overdrive)
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 15); // mute channel 16 (overdrive)
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, DSP_BUF_IDX_AUX + 5); // mute channel A7
+                        config->Set(MP_ID::CHANNEL_MUTE, 1.0f, DSP_BUF_IDX_AUX + 6); // mute channel A8
 
-                        mixer->SetVolume(80, 0); // set main-volume to 0dBfs
+                        config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, 80); // Main 0dBfs
                     }
                     break;
                 case X32_BTN_ENCODER5:

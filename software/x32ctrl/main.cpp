@@ -127,13 +127,18 @@ void guiInit(void) {
 
 	if (state->bodyless)
 	{
-		// TODO do not use if build for arm
+		printf("bodyless mode (Development Simulator) startet\n");
+
+		#ifdef BODYLESS_SDL2
 		display = lv_sdl_window_create(DISPLAY_RESOLUTION_X, DISPLAY_RESOLUTION_Y);		
 	 	lv_sdl_window_set_title(display, "OpenX32 x32ctrl - bodyless mode (Development Simulator)");
 		keyboard = lv_sdl_keyboard_create();
+		#endif
 	} 
 	else
 	{
+		printf("FBDEV mode\n");
+
 		driver_backends_register();
 		char dev[] = "FBDEV";
 		driver_backends_init_backend(dev);
@@ -198,7 +203,7 @@ int main(int argc, char* argv[]) {
 
     Helper* helper = new Helper();
     Config* config = new Config(helper);
-    state = new State(helper);
+    state = new State();
 
 	app = new CLI::App();
 	app->description("OpenX32 Main Control");

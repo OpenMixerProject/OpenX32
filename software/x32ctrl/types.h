@@ -114,16 +114,11 @@ typedef struct {
 	uint8_t input; // controls the 40 audio-channels into the DSP
 	uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
 
-	float lowCutFrequency;
 	sPEQ peq[MAX_CHAN_EQS];
 	sCompressor compressor;
-	float volumeLR; // volume in dBfs
-	float volumeSub; // volume in dBfs
-	float balance;
+
 	float sendMixbus[16];
 	uint8_t sendMixbusTapPoint[16];
-	bool muted;
-	bool solo;
 } sDspChannel;
 
 typedef struct {

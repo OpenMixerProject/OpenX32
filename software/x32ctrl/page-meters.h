@@ -1,8 +1,11 @@
 #pragma once
 #include "page.h"
-using namespace std;
 
-class PageMeters : public Page {
+using namespace std;
+using enum MP_ID;
+
+class PageMeters : public Page 
+{
     public:
         PageMeters(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             tabLayer0 = objects.maintab;
@@ -67,113 +70,113 @@ class PageMeters : public Page {
 
         void OnChange(bool force_update) override {
 
+            
+
+
+
             // TODO: Implement with loop over changed Mixerparameter
 
-            // if (state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) || force_update)
-            // {
-            //     bool changed_vchannel = state->HasChanged(X32_MIXER_CHANGED_VCHANNEL) || force_update;
+            if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}) || force_update)
+            {
+                for(int m = 0; m < 9; m++) {
+                    lv_obj_t* parent = meterBlocks[m];
+                    for(int i = 0; i < lv_obj_get_child_count(parent); i++) {
 
-            //     for(int m = 0; m < 9; m++) {
-            //         lv_obj_t* parent = meterBlocks[m];
-            //         for(int i = 0; i < lv_obj_get_child_count(parent); i++) {
+                        uint8_t index = i+(m*8);
+                        lv_obj_t * strip = lv_obj_get_child(parent, i);
+                        lv_obj_t * fader = lv_obj_get_child(strip, 2);   
 
-            //             uint8_t index = i+(m*8);
-            //             lv_obj_t * strip = lv_obj_get_child(parent, i);
-            //             lv_obj_t * fader = lv_obj_get_child(strip, 2);   
-
-            //             // CH1-32 + AUX
-            //             if (m < 5) { 
-            //                 if (changed_vchannel) {
-            //                     VChannel* chan = mixer->GetVChannel(index);
-
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || force_update) {
-            //                         mixer->dsp->Channel[index].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
-            //                     }
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || force_update) {
-            //                         mixer->dsp->Channel[index].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
-            //                     } 
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
-            //                         lv_slider_set_value(fader, mixer->dsp->Channel[index].volumeLR, LV_ANIM_OFF);
-            //                     } 
-            //                 }
-            //             } else 
-
-            //             // FX Ret
-            //             if (m == 5) {
-            //                 if (changed_vchannel) {
-            //                     VChannel* chan = mixer->GetVChannel(index);
-
-            //                     // if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)) {
-            //                     //     mixer->dsp->Channel[index].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
-            //                     // }
-            //                     // if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)) {
-            //                     //     mixer->dsp->Channel[index].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
-            //                     // } 
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
-            //                         lv_slider_set_value(fader, mixer->dsp->volumeFxReturn[i], LV_ANIM_OFF);
-            //                     } 
-            //                 }
-            //             } else 
+                        // CH1-32 + AUX
+                        if (m < 5) { 
+                            if (config->HasParameterChanged(CHANNEL_SOLO, index) || force_update) {
+                                config->GetBool(CHANNEL_SOLO, index) ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                            }
+                            if (config->HasParameterChanged(CHANNEL_MUTE, index) || force_update) {
+                                config->GetBool(CHANNEL_MUTE, index) ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                            } 
+                            if (config->HasParameterChanged(CHANNEL_VOLUME, index) || force_update) {
+                                lv_slider_set_value(fader, config->GetFloat(CHANNEL_VOLUME, index), LV_ANIM_OFF);
+                            } 
+                        } 
                         
-            //             // Bus 1-16
-            //             if ((m == 6) || (m == 7)) {
-            //                 if (changed_vchannel) {
-            //                     VChannel* chan = mixer->GetVChannel(index);
-            //                     int8_t channelindex = (m == 6) ? i : i + 8;
+                        //else 
 
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
-            //                         lv_slider_set_value(fader, mixer->dsp->Bus[channelindex].volumeLR, LV_ANIM_OFF);
-            //                     }                          
-            //                 }
-            //             } else
+                        // // FX Ret
+                        // if (m == 5) {
+                        //     if (changed_vchannel) {
+                        //         VChannel* chan = mixer->GetVChannel(index);
+
+                        //         // if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)) {
+                        //         //     mixer->dsp->Channel[index].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                        //         // }
+                        //         // if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)) {
+                        //         //     mixer->dsp->Channel[index].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                        //         // } 
+                        //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
+                        //             lv_slider_set_value(fader, mixer->dsp->volumeFxReturn[i], LV_ANIM_OFF);
+                        //         } 
+                        //     }
+                        // } else 
                         
-            //             // Matrix
-            //             if (m == 8) {
-            //                 if (changed_vchannel) {
-            //                     VChannel* chan = mixer->GetVChannel(index);
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || force_update) {
-            //                         if (i < 6) {
-            //                             mixer->dsp->Matrix[i].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
-            //                         } else if (i == 7) {
-            //                             mixer->dsp->MainChannelSub.solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
-            //                         } 
-            //                     }
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || force_update) {
-            //                         if (i < 6) {
-            //                             mixer->dsp->Matrix[i].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
-            //                         } else if (i == 7) {
-            //                             mixer->dsp->MainChannelSub.muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
-            //                         } 
-            //                     }
-            //                     if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
-            //                         if (i < 6) {
-            //                             lv_slider_set_value(fader, mixer->dsp->Matrix[i].volume, LV_ANIM_OFF);
-            //                         } else if (i == 7) {
-            //                             lv_slider_set_value(fader, mixer->dsp->MainChannelSub.volume, LV_ANIM_OFF);
-            //                         } 
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     }  
+                        // // Bus 1-16
+                        // if ((m == 6) || (m == 7)) {
+                        //     if (changed_vchannel) {
+                        //         VChannel* chan = mixer->GetVChannel(index);
+                        //         int8_t channelindex = (m == 6) ? i : i + 8;
+
+                        //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
+                        //             lv_slider_set_value(fader, mixer->dsp->Bus[channelindex].volumeLR, LV_ANIM_OFF);
+                        //         }                          
+                        //     }
+                        // } else
+                        
+                        // // Matrix
+                        // if (m == 8) {
+                        //     if (changed_vchannel) {
+                        //         VChannel* chan = mixer->GetVChannel(index);
+                        //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || force_update) {
+                        //             if (i < 6) {
+                        //                 mixer->dsp->Matrix[i].solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                        //             } else if (i == 7) {
+                        //                 mixer->dsp->MainChannelSub.solo ? add_style_slider_fader_solo(fader) : remove_style_slider_fader_solo(fader);
+                        //             } 
+                        //         }
+                        //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || force_update) {
+                        //             if (i < 6) {
+                        //                 mixer->dsp->Matrix[i].muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                        //             } else if (i == 7) {
+                        //                 mixer->dsp->MainChannelSub.muted ? add_style_slider_fader_mute(fader) : remove_style_slider_fader_mute(fader);
+                        //             } 
+                        //         }
+                        //         if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
+                        //             if (i < 6) {
+                        //                 lv_slider_set_value(fader, mixer->dsp->Matrix[i].volume, LV_ANIM_OFF);
+                        //             } else if (i == 7) {
+                        //                 lv_slider_set_value(fader, mixer->dsp->MainChannelSub.volume, LV_ANIM_OFF);
+                        //             } 
+                        //         }
+                        //     }
+                        // }
+                    }
+                }  
                 
 
-            //     // Main L/R
-            //     if (changed_vchannel) {
-            //         VChannel* main = mixer->GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
+                // // Main L/R
+                // if (changed_vchannel) {
+                //     VChannel* main = mixer->GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
                                              
-            //         if (main->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || force_update) {
-            //             mixer->dsp->MainChannelLR.solo ? add_style_slider_fader_solo(objects.ms_main_lr__fader) : remove_style_slider_fader_solo(objects.ms_main_lr__fader);
-            //         }
+                //     if (main->HasChanged(X32_VCHANNEL_CHANGED_SOLO) || force_update) {
+                //         mixer->dsp->MainChannelLR.solo ? add_style_slider_fader_solo(objects.ms_main_lr__fader) : remove_style_slider_fader_solo(objects.ms_main_lr__fader);
+                //     }
                     
-            //         if (main->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || force_update) {
-            //             mixer->dsp->MainChannelLR.muted ? add_style_slider_fader_mute(objects.ms_main_lr__fader) : remove_style_slider_fader_mute(objects.ms_main_lr__fader);
-            //         }
-            //         if (main->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
-            //             lv_slider_set_value(objects.ms_main_lr__fader, mixer->dsp->MainChannelLR.volume, LV_ANIM_OFF);
-            //         }
-            //     }
-            // }
+                //     if (main->HasChanged(X32_VCHANNEL_CHANGED_MUTE) || force_update) {
+                //         mixer->dsp->MainChannelLR.muted ? add_style_slider_fader_mute(objects.ms_main_lr__fader) : remove_style_slider_fader_mute(objects.ms_main_lr__fader);
+                //     }
+                //     if (main->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || force_update) {
+                //         lv_slider_set_value(objects.ms_main_lr__fader, mixer->dsp->MainChannelLR.volume, LV_ANIM_OFF);
+                //     }
+                // }
+            }
         }
 
         bool OnDisplayButton(X32_BTN button, bool pressed) override {
@@ -192,8 +195,8 @@ class PageMeters : public Page {
                     case X32_BTN_ENCODER6:
                         {
 							for (int i = 0; i < 16; i++) {
-								mixer->SetPhantom(i, true);
-								mixer->SetGain(i, 47);
+                                config->Set(MP_ID::CHANNEL_PHANTOM, 1.0f, i);
+                                config->Set(MP_ID::CHANNEL_GAIN, 47.0f, i);
 							}
     					}
                         break;

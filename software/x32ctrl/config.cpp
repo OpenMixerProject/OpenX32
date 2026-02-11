@@ -126,6 +126,25 @@ void Config::DefineMixerparameters() {
     DefParameter(CARD_NUMBER_OF_CHANNELS, cat, group, "Card Channels")
     ->DefMinMaxStandard_Uint(0, 5, 0);
 
+    // ################
+    // # Routing TODO
+    // ################
+
+    cat = MP_CAT::ROUTING;
+    group = "routing";
+
+    DefParameter(ROUTING_FPGA, cat, group, "Routing FPGA")
+    ->DefMinMaxStandard_Uint(0, 160, 0)
+    ->DefNoConfigfile();
+
+    DefParameter(ROUTING_DSP1, cat, group, "Routing DSP1")
+    ->DefMinMaxStandard_Uint(0, 160, 0)
+    ->DefNoConfigfile();
+
+
+    DefParameter(ROUTING_DSP2, cat, group, "Routing DSP2")
+    ->DefNoConfigfile();
+
     // ###########
     // # State
     // ###########
@@ -185,6 +204,10 @@ void Config::DefineMixerparameters() {
     DefParameter(CHANNEL_VOLUME, cat, group, "Volume", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+
+    DefParameter(CHANNEL_VOLUME_SUB, cat, group, "Sub", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     
     DefParameter(CHANNEL_SELECTED, cat, group, "Selected", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
@@ -196,8 +219,12 @@ void Config::DefineMixerparameters() {
     ->DefStandard_Bool(false);
     
     DefParameter(CHANNEL_PANORAMA, cat, group, "Pan/Bal", MAX_VCHANNELS)
-    ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0)
+    ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f)
     ->DefStepsize(2);
+
+    DefParameter(CHANNEL_LOWCUT, cat, group, "Lowcut", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::KHZ)
+    ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20000.0f);
 
     // gate
     cat = MP_CAT::CHANNEL_GATE;
@@ -412,6 +439,23 @@ vector<uint> Config::GetChangedParameterIndexes(MP_CAT parameter_cat)
     for (auto const& [parameter_id, indexSet] : *mp_changedlist)
     {
         if (mpm->at(parameter_id)->GetCategory() == parameter_cat )
+        {
+            changedIndexes.insert(changedIndexes.end(), indexSet.begin(), indexSet.end());
+        }
+    }
+
+    return changedIndexes;
+}
+
+vector<uint> Config::GetChangedParameterIndexes(vector<MP_ID> filter_ids)
+{
+    vector<uint> changedIndexes;
+    
+    // go over the list of changed Mixerparameter
+    for (auto const& [parameter_id, indexSet] : *mp_changedlist)
+    {
+        // changed Mixerparameter matches to filter
+        if (find(filter_ids.begin(), filter_ids.end(), parameter_id) != filter_ids.end())
         {
             changedIndexes.insert(changedIndexes.end(), indexSet.begin(), indexSet.end());
         }

@@ -8,7 +8,7 @@ class PageSetupCard: public Page {
 
         void Encodertext() {
             String cardmode = String("Channelmode\n"); // TODO: + mixer->GetCardChannelModeString(card_channelmode);
-            encoderSliders[0].label = cardmode;
+            custom_encoder[0].label = cardmode;
         }
 
     public:

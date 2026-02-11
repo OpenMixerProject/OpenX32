@@ -45,22 +45,6 @@ void DSP1::Init(void) {
 
     for (uint8_t i = 0; i < 40; i++) {
 
-        Channel[i].muted = false;
-        Channel[i].solo = false;
-
-        Channel[i].volumeLR = 0; // dbFS
-        Channel[i].volumeSub = VOLUME_MIN;
-        Channel[i].balance = 0; // Center
-
-
-        Channel[i].lowCutFrequency = 100.0f; // Hz
-
-        //Channel[i].gate.threshold = -80.0f; // -> no gate
-        // Channel[i].gate.range = 60.0f; // -> full range
-        // Channel[i].gate.attackTime_ms = 10;
-        // Channel[i].gate.holdTime_ms = 50;
-        // Channel[i].gate.releaseTime_ms = 250;
-
         Channel[i].compressor.threshold = 0; // dB -> no compression
         Channel[i].compressor.ratio = 3.0f; // 1:3
         Channel[i].compressor.makeup = 0; // dB -> no makeup
@@ -157,12 +141,12 @@ void DSP1::ReadAndUpdateVUMeterData(void) {
 // set the general volume of one of the 40 DSP-channels
 void DSP1::SendChannelVolume(uint8_t chan) {
     // set value to interal struct
-    float balanceLeft = helper->Saturate(100.0f - Channel[chan].balance, 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(Channel[chan].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
-    float volumeLR = Channel[chan].volumeLR;
-    float volumeSub = Channel[chan].volumeSub;
+    float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chan), 0.0f, 100.0f) / 100.0f;
+    float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chan) + 100.0f, 0.0f, 100.0f) / 100.0f;
+    float volumeLR = config->GetFloat(CHANNEL_VOLUME, chan);
+    float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chan);
 
-    if (Channel[chan].muted) {
+    if (config->GetBool(CHANNEL_MUTE, chan)) {
         volumeLR = -100; // dB
         volumeSub = -100; // dB
     }
@@ -278,7 +262,7 @@ void DSP1::SendLowcut(uint8_t chan) {
     // Source: https://www.dsprelated.com/showarticle/1769.php
     // alpha = 1 / (1 + 2 * pi * f_c * 1/f_s)
     // Equation for samples: output = alpha * (input + previous_output - previous_input)
-    values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/(float)config->GetUint(MP_ID::SAMPLERATE)));
+    values[0] = 1.0f / (1.0f + 2.0f * M_PI * config->GetFloat(CHANNEL_LOWCUT, chan) * (1.0f/(float)config->GetUint(SAMPLERATE)));
 
     spi->SendReceiveDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
 }
@@ -289,7 +273,7 @@ void DSP1::SendHighcut(uint8_t chan) {
 
     // alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c)
     // Equation for samples: output = previous_output + coeff * (input - previous_output)
-    values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetUint(MP_ID::SAMPLERATE) + 2.0f * M_PI * 500.0f);
+    values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetUint(SAMPLERATE) + 2.0f * M_PI * 500.0f);
 
     spi->SendReceiveDspParameterArray(0, 'e', chan, 'h', 1, &values[0]);
 }
@@ -888,7 +872,7 @@ void DSP1::UpdateVuMeter() {
         
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
-		    if (config->GetFloat(MP_ID::CHANNEL_GATE_GAIN, i) < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
+		    if (config->GetFloat(CHANNEL_GATE_GAIN, i) < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
 		    if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
         }
 
@@ -926,7 +910,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP1(DEBUGLEVEL_VERBOSE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback
@@ -1108,7 +1092,7 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP2(DEBUGLEVEL_VERBOSE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    helper->DEBUG_DSP2(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback

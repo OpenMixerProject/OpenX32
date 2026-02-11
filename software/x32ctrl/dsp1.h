@@ -30,6 +30,8 @@
 
 class DSP1 : X32Base {
 
+    using enum MP_ID;
+
     private:
         uint8_t monitorTapPoint;
 

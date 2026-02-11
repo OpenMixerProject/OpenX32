@@ -4,7 +4,9 @@
 
 using namespace std;
 
-class PageRoutingFpga: public Page {
+class PageRoutingFpga: public Page
+{
+    using enum MP_ID;
 
     private:
         char outputDestinationName[15] = "";
@@ -44,21 +46,30 @@ class PageRoutingFpga: public Page {
             }
             lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item, 1, LV_SYMBOL_LEFT);
             page_routing_fpga_table_drawn = true;
+
+            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
+            BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
         }
 
         void OnShow() override {
-            encoderSliders[0].label = "\xEF\x81\xB7 Target \xEF\x81\xB8";
-			encoderSliders[1].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
-			encoderSliders[2].label =  "\xEF\x80\xA1 Source";
-			encoderSliders[3].label =  "\xEF\x80\xA1 Group-Source";
+            custom_encoder[0].label = "\xEF\x81\xB7 Target \xEF\x81\xB8";
+			custom_encoder[1].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
+			custom_encoder[2].label =  "\xEF\x80\xA1 Source";
+			custom_encoder[3].label =  "\xEF\x80\xA1 Group-Source";
         }
 
-        void OnChange(bool force_update) override {
-            
-            if(gui_selected_item_before != gui_selected_item) {
-                if (gui_selected_item >= NUM_OUTPUT_CHANNEL) {
+        void OnChange(bool force_update) override
+        {
+            if(gui_selected_item_before != gui_selected_item)
+            {
+                if (gui_selected_item >= NUM_OUTPUT_CHANNEL)
+                {
                     gui_selected_item = 0;
-                }else if (gui_selected_item < 0) {
+                }
+                else if (gui_selected_item < 0)
+                {
                     gui_selected_item = NUM_OUTPUT_CHANNEL - 1;
                 }
 
@@ -74,7 +85,8 @@ class PageRoutingFpga: public Page {
 				gui_selected_item_before = gui_selected_item;
             } 
             
-            if(config->HasParameterChanged(MP_ID::ROUTING_TODO)){
+            if(config->HasParameterChanged(ROUTING_FPGA))
+            {
                 routingIndex = mixer->fpga->GetOutputByIndex(gui_selected_item+1);
                 lv_table_set_cell_value_fmt(objects.table_routing_fpga, gui_selected_item, 2, "%s", mixer->fpga->GetInputNameByIndex(routingIndex).c_str());
             }

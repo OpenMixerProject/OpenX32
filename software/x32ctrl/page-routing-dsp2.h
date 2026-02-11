@@ -3,9 +3,10 @@
 #include "page.h"
 
 using namespace std;
+using enum MP_ID;
 
-class PageRoutingDsp2: public Page {
-
+class PageRoutingDsp2: public Page
+{
 	private:
 		char outputChannelName[25] = "";
 		char outputSourceName[25] = "";
@@ -64,11 +65,11 @@ class PageRoutingDsp2: public Page {
 		}
 
 		void OnShow() override {
-			encoderSliders[0].label = "\xEF\x81\xB7 Output \xEF\x81\xB8";
-			encoderSliders[1].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
-			encoderSliders[2].label =  "\xEF\x80\xA1 Source";
-			encoderSliders[3].label =  "\xEF\x80\xA1 Group-Source";
-			encoderSliders[4].label = "\xEF\x80\xA1 Tap";
+			custom_encoder[0].label = "\xEF\x81\xB7 Output \xEF\x81\xB8";
+			custom_encoder[1].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
+			custom_encoder[2].label =  "\xEF\x80\xA1 Source";
+			custom_encoder[3].label =  "\xEF\x80\xA1 Group-Source";
+			custom_encoder[4].label = "\xEF\x80\xA1 Tap";
 		}
 
 		void OnChange(bool force_update) override {
@@ -95,7 +96,8 @@ class PageRoutingDsp2: public Page {
 				gui_selected_item_before = gui_selected_item;
 			} 
 			
-			if(config->HasParameterChanged(MP_ID::ROUTING_TODO)){
+			if(config->HasParameterChanged(ROUTING_DSP2))
+			{
 				if (gui_selected_item < MAX_DSP1_TO_FPGA_CHANNELS) {
 					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toFpga[gui_selected_item].input, mixer->dsp->Channel[gui_selected_item].input);
 					mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Dsp1toFpga[gui_selected_item].tapPoint);

@@ -5,6 +5,8 @@
 using namespace std;
 
 class PageDynamics: public Page {
+    using enum MP_ID;
+
     public:
         PageDynamics(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::GATE;
@@ -42,32 +44,31 @@ class PageDynamics: public Page {
 
         void UpdateEncoderBinding()
         {
-            using enum MP_ID;
+            uint targetindex = config->GetUint(SELECTED_CHANNEL);
 
-            uint targetindex = config->GetUint(MP_ID::SELECTED_CHANNEL);
-
-            BindEncoder(DISPLAY_ENCODER_1, MP_ID::CHANNEL_DYNAMICS_TRESHOLD, targetindex);
-            BindEncoder(DISPLAY_ENCODER_2, MP_ID::CHANNEL_DYNAMICS_RATIO, targetindex);
-            BindEncoder(DISPLAY_ENCODER_3, MP_ID::CHANNEL_DYNAMICS_MAKEUP, targetindex);
-            BindEncoder(DISPLAY_ENCODER_4, MP_ID::CHANNEL_DYNAMICS_ATTACK, targetindex);
-            BindEncoder(DISPLAY_ENCODER_5, MP_ID::CHANNEL_DYNAMICS_HOLD, targetindex);
-            BindEncoder(DISPLAY_ENCODER_6, MP_ID::CHANNEL_DYNAMICS_RELEASE, targetindex);
+            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_DYNAMICS_TRESHOLD, targetindex);
+            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_DYNAMICS_RATIO, targetindex);
+            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_DYNAMICS_MAKEUP, targetindex);
+            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_DYNAMICS_ATTACK, targetindex);
+            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_DYNAMICS_HOLD, targetindex);
+            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_DYNAMICS_RELEASE, targetindex);
 
             SyncEncoderWidgets(true);
         }
 
-        void OnChange(bool force) override 
+        void OnChange(bool force) override
         {
-            if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL))
+            if (config->HasParameterChanged(SELECTED_CHANNEL))
             {
                 UpdateEncoderBinding();
             }
         }
 
-        void OnUpdateMeters() override {
+        void OnUpdateMeters() override
+        {
             int32_t compValueAudioDbfs = -120;
 
-            uint8_t selectedChannelIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
+            uint8_t selectedChannelIndex = config->GetUint(SELECTED_CHANNEL);
             if (selectedChannelIndex < 40) {
                 compValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
             }
@@ -75,70 +76,6 @@ class PageDynamics: public Page {
             // add new value to chart
             lv_chart_set_next_value(objects.current_channel_comp, chartSeriesCompressorAudio, compValueAudioDbfs);
             //lv_chart_refresh(objects.current_channel_comp);
-        }
-
-        bool OnDisplayButton(X32_BTN button, bool pressed) override {
-            bool message_handled = false;
-
-            if (pressed){
-                message_handled = true;
-
-				switch (button){
-					case X32_BTN_ENCODER1:
-						mixer->SetDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'T', 0.0f);
-						break;
-					case X32_BTN_ENCODER2:
-						mixer->SetDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'R', 60.0f);
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'M', 0.0f);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->SetDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'A', 10.0f);
-						break;
-					case X32_BTN_ENCODER5:
-						mixer->SetDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'H', 10.0f);
-						break;
-					case X32_BTN_ENCODER6:
-						mixer->SetDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'r', 150.0f);
-						break;
-					default:
-                        message_handled = false;
-						break;
-				}
-            }
-
-            return message_handled;
-        }
-
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-            bool message_handled = true;
-
-            switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'T', amount);
-					break;
-				case X32_ENC_ENCODER2:
-					mixer->ChangeDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'R', amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'M', amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangeDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'A', amount);
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangeDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'H', amount);
-					break;
-				case X32_ENC_ENCODER6:
-					mixer->ChangeDynamics(config->GetUint(MP_ID::SELECTED_CHANNEL), 'r', amount);
-					break;
-				default:
-                    message_handled = false;
-					break;
-			}
-
-            return message_handled;
         }
 
     private:
@@ -208,7 +145,7 @@ class PageDynamics: public Page {
 
             memset(&compValue[0], 0, sizeof(compValue));
 
-            sCompressor* comp = &mixer->dsp->Channel[config->GetUint(MP_ID::SELECTED_CHANNEL)].compressor;
+            sCompressor* comp = &mixer->dsp->Channel[config->GetUint(SELECTED_CHANNEL)].compressor;
 
             for (uint16_t pixel = 0; pixel < 200; pixel++) {
                 inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB

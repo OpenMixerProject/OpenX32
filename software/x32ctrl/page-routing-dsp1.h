@@ -4,7 +4,9 @@
 
 using namespace std;
 
-class PageRoutingDsp1: public Page {
+class PageRoutingDsp1: public Page
+{
+	using enum MP_ID;
 
 	private:
 		char inputChannelName[25] = "";
@@ -26,11 +28,11 @@ class PageRoutingDsp1: public Page {
         }
 
 		void OnShow() override {
-			encoderSliders[0].label = "\xEF\x81\xB7 Input \xEF\x81\xB8";
-			encoderSliders[1].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
-			encoderSliders[2].label =  "\xEF\x80\xA1 Source";
-			encoderSliders[3].label =  "\xEF\x80\xA1 Group-Source";
-			encoderSliders[4].label = "\xEF\x80\xA1 Tap";
+			custom_encoder[0].label = "\xEF\x81\xB7 Input \xEF\x81\xB8";
+			custom_encoder[1].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
+			custom_encoder[2].label =  "\xEF\x80\xA1 Source";
+			custom_encoder[3].label =  "\xEF\x80\xA1 Group-Source";
+			custom_encoder[4].label = "\xEF\x80\xA1 Tap";
 		}
 
 		void OnInit() override {
@@ -86,7 +88,8 @@ class PageRoutingDsp1: public Page {
 				gui_selected_item_before = gui_selected_item;
 			} 
 			
-			if(config->HasParameterChanged(MP_ID::ROUTING_TODO)){
+			if(config->HasParameterChanged(ROUTING_DSP1))
+			{
 				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[gui_selected_item].input, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[gui_selected_item].input - 1]);
 				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[gui_selected_item].inputTapPoint);
 

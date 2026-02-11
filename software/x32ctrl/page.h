@@ -32,12 +32,11 @@ class Page : public X32Base {
         uint32_t tabIndex1 = 0;
 
         bool hideEncoders = false;
+        bool encoder_binding = false;
 
         // encoder binding
         map<uint, PageBinding_Encoder*> encoderbinding;
-       
-        // old, just here to be able to compile
-        sDisplayEncoder encoderSliders[MAX_DISPLAY_ENCODER];
+        sDisplayEncoder custom_encoder[MAX_DISPLAY_ENCODER];
 
         bool initDone = false;
 

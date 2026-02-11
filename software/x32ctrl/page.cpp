@@ -218,16 +218,14 @@ void Page::SyncEncoderWidgets(bool force) {
         return;
     }
 
-    if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL))
-    {
-        force = true;
-    }
+    // if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL))
+    // {
+    //     force = true;
+    // }
 
-    uint8_t chanIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
+    for(int8_t encoder_index = 0; encoder_index < MAX_DISPLAY_ENCODER; encoder_index++) {
 
-    for(int8_t s = 0; s < MAX_DISPLAY_ENCODER; s++) {
-
-        PageBinding_Encoder* binding = encoderbinding[s];
+        PageBinding_Encoder* binding = encoderbinding[encoder_index];
         uint targetIndex = binding->mp_index;
                 
         // encoder is not bound
@@ -239,59 +237,64 @@ void Page::SyncEncoderWidgets(bool force) {
             lv_label_set_text(binding->ValueLabel, "");
             lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
             lv_label_set_text(binding->ButtonLabel, "");
-
-            continue;
         }
-    
-        if (config->HasParameterChanged(binding->mp_id_encoder, targetIndex) || force) 
+        // encoder is handled entirely by page
+        else if (binding->mp_id_encoder == MP_ID::PAGE_CUSTOM_ENCODER)
         {
-            Mixerparameter* parameter = config->GetParameter(binding->mp_id_encoder);
-
-            if (parameter->GetId() == MP_ID::NONE)
+            lv_label_set_text(binding->Label, custom_encoder[encoder_index].label.c_str());
+        }
+        else
+        {    
+            if (config->HasParameterChanged(binding->mp_id_encoder, targetIndex) || force) 
             {
-                __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(binding->mp_id_encoder)) + String(" is not defined!")).c_str());
-            }        
+                Mixerparameter* parameter = config->GetParameter(binding->mp_id_encoder);
 
-            lv_label_set_text(binding->Label, parameter->GetName(targetIndex).c_str());
-            lv_label_set_text(binding->ValueLabel, parameter->GetFormatedValue(targetIndex).c_str());
+                if (parameter->GetId() == MP_ID::NONE)
+                {
+                    __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(binding->mp_id_encoder)) + String(" is not defined!")).c_str());
+                }        
 
-            // Hide Slider for Boolean and String
-            if (parameter->GetType() == MP_VALUE_TYPE::BOOL ||
-                parameter->GetType() == MP_VALUE_TYPE::STRING)
-            {
-                lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
-            } else {
-                lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, false);
-                lv_slider_set_value(binding->Slider, parameter->GetPercent(targetIndex), LV_ANIM_OFF);          
+                lv_label_set_text(binding->Label, parameter->GetName(targetIndex).c_str());
+                lv_label_set_text(binding->ValueLabel, parameter->GetFormatedValue(targetIndex).c_str());
+
+                // Hide Slider for Boolean and String
+                if (parameter->GetType() == MP_VALUE_TYPE::BOOL ||
+                    parameter->GetType() == MP_VALUE_TYPE::STRING)
+                {
+                    lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
+                } else {
+                    lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, false);
+                    lv_slider_set_value(binding->Slider, parameter->GetPercent(targetIndex), LV_ANIM_OFF);          
+                }
+
+                if (binding->mp_id_button == MP_ID::NONE)
+                {
+                    // button resets the main parameter
+
+                    lv_label_set_text(binding->ButtonLabel, parameter->GetResetLabel(targetIndex).c_str());
+                }
             }
 
-            if (binding->mp_id_button == MP_ID::NONE)
+            
+            if (config->HasParameterChanged(binding->mp_id_button, targetIndex) || force)
             {
-                // button resets the main parameter
+                if (binding->mp_id_button != MP_ID::NONE)
+                {
+                    // button is bound to its own parameter
 
-                lv_label_set_text(binding->ButtonLabel, parameter->GetResetLabel(targetIndex).c_str());
-            }
-        }
+                    Mixerparameter* parameter_button = config->GetParameter(binding->mp_id_button);
 
-        
-        if (config->HasParameterChanged(binding->mp_id_button, targetIndex) || force)
-        {
-            if (binding->mp_id_button != MP_ID::NONE)
-            {
-                // button is bound to its own parameter
+                    lv_label_set_text(binding->ButtonLabel, parameter_button->GetName(targetIndex).c_str());
 
-                Mixerparameter* parameter_button = config->GetParameter(binding->mp_id_button);
-
-                lv_label_set_text(binding->ButtonLabel, parameter_button->GetName(targetIndex).c_str());
-
-                // Button is highlighted if value is true
-                if (parameter_button->GetBool(targetIndex)) {
-                    add_style_label_bg_yellow(binding->ButtonLabel);
+                    // Button is highlighted if value is true
+                    if (parameter_button->GetBool(targetIndex)) {
+                        add_style_label_bg_yellow(binding->ButtonLabel);
+                    } else {
+                        remove_style_label_bg_yellow(binding->ButtonLabel);
+                    }
                 } else {
                     remove_style_label_bg_yellow(binding->ButtonLabel);
                 }
-            } else {
-                remove_style_label_bg_yellow(binding->ButtonLabel);
             }
         }
     }

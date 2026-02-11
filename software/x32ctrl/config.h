@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include "types.h"
 #include "WString.h"
 
@@ -36,6 +38,7 @@ class Config {
         mixerparameter_map_t* GetParameterList();
         mixerparameter_changed_t* GetChangedParameterList();
         vector<uint> GetChangedParameterIndexes(MP_CAT parameter_cat);
+        vector<uint> GetChangedParameterIndexes(vector<MP_ID> filter_ids);
         bool HasParameterChanged(MP_ID parameter_id);
         bool HasParameterChanged(MP_ID parameter_id, uint index);
         bool HasParametersChanged(vector<MP_ID> parameter_id);
