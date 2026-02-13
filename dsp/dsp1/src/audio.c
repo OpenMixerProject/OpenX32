@@ -82,6 +82,7 @@ int audioTx_tcb[8][BUFFER_COUNT][4];
 
 void audioInit(void) {
 	// initialize TCB-array with multi-buffering
+	// caution: chain-pointer registers must point to the LAST location in the TCB, hence tcb_address + 3
 	int nextBuffer;
 	for (int i_buf = 0; i_buf < BUFFER_COUNT; i_buf++) {
 		// calc index of next buffer with wrap around at the end

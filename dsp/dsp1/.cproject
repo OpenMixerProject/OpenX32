@@ -155,6 +155,7 @@
 								<option id="compiler.option.processpeed.434301771" name="Processor speed (MHz) (-D__PROCESSOR_SPEED__):" superClass="compiler.option.processpeed" useByScannerDiscovery="false" value="264" valueType="string"/>
 								<option id="compiler.option.compilerprofiling.1401197926" name="Enable compiler instrumented profiling (-p)" superClass="compiler.option.compilerprofiling" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="sharc.compiler.option.jumptables.123749344" name="Jump tables in PM (-section switch=seg_pmda)" superClass="sharc.compiler.option.jumptables" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="compiler.option.codesize.698936" name="Optimize for code size/speed (0 - smallest, 100 - fastest) (-Ov)" superClass="compiler.option.codesize" useByScannerDiscovery="false" value="100" valueType="string"/>
 								<inputType id="compiler.inputType.1421259369" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="sharc.toolchain.linker.279780464" name="CrossCore SHARC Linker" superClass="sharc.toolchain.linker">

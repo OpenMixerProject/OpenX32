@@ -4,6 +4,14 @@
 #include "dsp1.h"
 #include "comm.h"
 
+#if USE_SPI_TXD_MODE == 0
+	extern float pm spiCommData[150];
+#elif USE_SPI_TXD_MODE == 1
+	extern float pm spiCommData[50];
+#elif USE_SPI_TXD_MODE == 2
+	extern float pm spiCommData[8];
+#endif
+
 // variables and types for SPI-transmitter in Slave-Mode
 typedef struct {
 	unsigned int buffer[SPI_RX_BUFFER_SIZE];
@@ -18,7 +26,7 @@ typedef struct {
 
 void spiInit(void);
 void spiStop(void);
-void spiDmaBegin(bool receive, int len);
+void spiDmaBegin(unsigned int* buffer, int len, bool receive);
 void spiDmaEnd(void);
 void spiISR(int sig);
 void spiProcessRxData(void);

@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.35
+#define DSP_VERSION				0.43
 
 #define DEBUG_DISABLE_LOWCUT	0
 #define DEBUG_DISABLE_GATE		0
@@ -29,7 +29,7 @@
 #define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
 #define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
-#define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
+#define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 
 #define SDRAM_START  			0x04000000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)

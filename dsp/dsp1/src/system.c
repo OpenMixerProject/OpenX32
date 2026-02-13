@@ -427,7 +427,7 @@ void systemSportInit() {
 // new audio-data cannot be processed
 void systemCrash(void) {
 	sysreg_bit_clr(sysreg_FLAGS, FLG7);
-    while(1) {
+    //while(1) {
     	NOP();
-    }
+    //}
 }
