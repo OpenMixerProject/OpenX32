@@ -1360,6 +1360,7 @@ void X32Ctrl::setLedChannelIndicator_Rack(void){
 		surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
 		surface->SetLedByEnum(X32_LED_MAIN, (chanIdx >= 70)&&(chanIdx <= 71));
 		surface->SetLedByEnum(X32_LED_MATRIX, (chanIdx >= 72)&&(chanIdx <= 79));
+		surface->SetLedByEnum(X32_LED_MAIN, (chanIdx == 80));
 
 		// set 7-Segment Display
 		surface->SetX32RackDisplay(chanIdx);        
