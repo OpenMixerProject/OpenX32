@@ -128,7 +128,11 @@ void Page::DisplayButton(X32_BTN button, bool pressed) {
 
                     if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
                     {
-                        if (encoderbinding[encoderIndex]->mp_id_button == MP_ID::NONE) 
+                        if (config->GetParameter(encoderbinding[encoderIndex]->mp_id_encoder)->GetHideEncoderReset())
+                        {
+                            // do nothing
+                        }
+                        else if (encoderbinding[encoderIndex]->mp_id_button == MP_ID::NONE) 
                         {
                             // reset data of encoder bound Mixerparameter
                             config->Reset(
@@ -257,9 +261,8 @@ void Page::SyncEncoderWidgets(bool force) {
                 lv_label_set_text(binding->Label, parameter->GetName(targetIndex).c_str());
                 lv_label_set_text(binding->ValueLabel, parameter->GetFormatedValue(targetIndex).c_str());
 
-                // Hide Slider for Boolean and String
-                if (parameter->GetType() == MP_VALUE_TYPE::BOOL ||
-                    parameter->GetType() == MP_VALUE_TYPE::STRING)
+                // Hide or Show Slider 
+                if (parameter->GetHideEncoderSlider())
                 {
                     lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
                 } else {
@@ -267,7 +270,12 @@ void Page::SyncEncoderWidgets(bool force) {
                     lv_slider_set_value(binding->Slider, parameter->GetPercent(targetIndex), LV_ANIM_OFF);          
                 }
 
-                if (binding->mp_id_button == MP_ID::NONE)
+                if (parameter->GetHideEncoderReset())
+                {
+                    // empty reset label
+                    lv_label_set_text(binding->ButtonLabel, "");
+                } 
+                else if (binding->mp_id_button == MP_ID::NONE)
                 {
                     // button resets the main parameter
 

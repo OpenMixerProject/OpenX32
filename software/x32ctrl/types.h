@@ -58,18 +58,6 @@ typedef struct{
 
 typedef struct {
 	// user-settings
-	int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
-	float fc; // center-frequency of PEQ
-	float Q; // Quality of PEQ (bandwidth)
-	float gain; // gain of PEQ
-
-	// filter-coefficients
-	float a[3];
-	float b[3];
-} sPEQ;
-
-typedef struct {
-	// user-settings
 	float fc; // cutoff-frequency for high- or lowpass
 	bool isHighpass; // choose if Highpass or Lowpass
 
@@ -114,7 +102,6 @@ typedef struct {
 	uint8_t input; // controls the 40 audio-channels into the DSP
 	uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
 
-	sPEQ peq[MAX_CHAN_EQS];
 	sCompressor compressor;
 
 	float sendMixbus[16];
@@ -137,7 +124,6 @@ typedef struct {
 } sDsp2AuxChannel;
 
 typedef struct {
-	sPEQ peq[MAX_CHAN_EQS];
 	sCompressor compressor;
 	float volumeLR;
 	float volumeSub;
@@ -149,7 +135,6 @@ typedef struct {
 } sMixbusChannel;
 
 typedef struct {
-	sPEQ peq[MAX_CHAN_EQS];
 	sCompressor compressor;
 	float volume;
 	bool muted;

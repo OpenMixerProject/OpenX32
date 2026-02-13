@@ -56,13 +56,11 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 	if (fxToLoad != FX_TYPE::NONE) {
 		fx->InitParameters();
 	}
-	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
 }
 
 void FxSlot::ClearFx() {
 	fx = nullptr;
 	fxType = FX_TYPE::NONE;
-	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
 }
 
 bool FxSlot::HasFx(){

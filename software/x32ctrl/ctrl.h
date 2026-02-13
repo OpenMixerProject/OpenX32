@@ -62,7 +62,10 @@ using namespace std;
 #define PAGE_FUNC_DEF(pagename) void pagename PAGE_FUNC_BASE
 #define PAGE_FUNC_IMPL(pagename) void X32Ctrl:: pagename PAGE_FUNC_BASE
 
-class X32Ctrl : public X32Base {
+class X32Ctrl : public X32Base
+{
+    using enum MP_ID;
+
     private:
         ini::IniFile mixer_ini;
 
@@ -74,8 +77,15 @@ class X32Ctrl : public X32Base {
         sBankMode modes[3];
 
         map<X32_PAGE, Page*> pages;
+        X32_PAGE lastPage = X32_PAGE::HOME;
 
         sTouchControl touchcontrol;
+
+        // currently pressed button
+        X32_BTN buttonPressed = X32_BTN_NONE;
+        
+        // second button pressed, while first button is also pressed
+        X32_BTN secondbuttonPressed = X32_BTN_NONE;
 
         void my_handler(int s);
 
@@ -86,7 +96,7 @@ class X32Ctrl : public X32Base {
 
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;
-        char surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
+        uint8_t surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
         char surfaceBufferUart[256]; // buffer for UART-readings
         uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
         void ProcessUartData();
@@ -125,10 +135,6 @@ class X32Ctrl : public X32Base {
         void syncXRemote(bool syncAll);
 
         void ChangeSelect(int8_t direction);
-        void SetSelect(uint8_t vChannelIndex, bool solo);
-        void ToggleSelect(uint8_t vChannelIndex);
-        VChannel* GetSelectedvChannel(void);
-        VChannel* GetVChannel(uint8_t VChannelIndex);
         uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);
         uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
 
@@ -140,7 +146,4 @@ class X32Ctrl : public X32Base {
         void BankingSends(X32_BTN p_button);
         void BankingEQ(X32_BTN p_button);
         void Banking(X32_BTN p_button);
-
-        void DebugPrintBank(uint8_t bank);
-        void DebugPrintBusBank(uint8_t bank);
 }; 

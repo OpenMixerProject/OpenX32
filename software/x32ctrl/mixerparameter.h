@@ -46,6 +46,12 @@ class Mixerparameter {
         /// @brief This Mixerparameter must not be included in configfile.
         bool no_config = false;
 
+        /// @brief Hide slider on display encoder.
+        bool hide_encoder_slider = false;        
+
+        /// @brief Hide reset label and function on display encoder.
+        bool hide_encoder_reset = false;  
+
         /// @brief Checks if the index is within the specified size of the Mixerparameter.
         /// @param index The index to check. 
         /// @throws std::out_of_range
@@ -78,7 +84,7 @@ class Mixerparameter {
             }
         }
 
-        String GetUnitOfMesaurement(bool spaceInFront = false)
+        String GetUnitOfMesaurement(bool spaceInFront, uint index = 0)
         {
             String result = spaceInFront ? " " : "";
 
@@ -107,6 +113,38 @@ class Mixerparameter {
                 case SECONDS:
                     result += "s";
                     break;
+                case EQ_TYPE:
+                    switch ((uint)value[index])
+                    {
+                        case 0:
+                            result += "Allpass";
+                            break;
+                        case 1:
+                            result += "PEQ";
+                            break;
+                        case 2:
+                            result += "LShv";
+                            break;
+                        case 3:
+                            result += "HShv";
+                            break;
+                        case 4:
+                            result += "Bandp";
+                            break;
+                        case 5:
+                            result += "Notch";
+                            break;
+                        case 6:
+                            result += "HCut";
+                            break;
+                        case 7:
+                            result += "LCut";
+                            break;
+                        default:
+                            result += "???";
+                            break;
+                    }
+                    break;
                 default:
                     result += "";
             }	
@@ -116,24 +154,29 @@ class Mixerparameter {
 
         String FormatValue_Intern(float value_float)
         {
-            if (unitOfMeasurement == MP_UOM::KHZ) {
-                value_float /= 1000;
+            using enum MP_UOM;
+
+            if (unitOfMeasurement == KHZ) {
+                value_float /= 1000.0f;
             }
 
-            if (unitOfMeasurement == MP_UOM::PERCENT) {
-               value_float *= 100;
+            if (unitOfMeasurement == PERCENT) {
+               value_float *= 100.0f;
             }
 
-            
-
-            return String(value_float, decimal_places) + GetUnitOfMesaurement();
+            switch (unitOfMeasurement)
+            {
+                case EQ_TYPE:
+                    return GetUnitOfMesaurement(false);
+                case CHANNEL:
+                    return String(value_float + 1, 0);
+                default:
+                    return String(value_float, decimal_places) + GetUnitOfMesaurement(false);
+            }            
         }
 
     public:
  
-        x32_changeflag changeflag_mixer;
-        x32_changeflag changeflag_vchannel;
-
         Mixerparameter (MP_ID mp, MP_CAT cat, String group, String name, uint count)
         {
             parameter_id = mp;
@@ -166,6 +209,7 @@ class Mixerparameter {
 
                 case PERCENT:
                     stepsize = 0.01f;  // percent in 1% steps
+                    decimal_places = 1;
                     break;
                 case SECONDS:
                     stepsize = 0.2f;  // seconds in 200ms steps
@@ -174,14 +218,6 @@ class Mixerparameter {
                     stepsize = 1.0f;
                     break;
             }
-
-            return this;
-        }
-
-        Mixerparameter* DefChangeFlags(x32_changeflag cf_mixer, x32_changeflag cf_vchannel) 
-        {
-            changeflag_mixer = cf_mixer;
-            changeflag_vchannel = cf_vchannel;
 
             return this;
         }
@@ -240,6 +276,7 @@ class Mixerparameter {
             value_max = 1;
             value_standard = standard;
             decimal_places = 0;
+            hide_encoder_slider = true;
 
             // fill with default values
             for (uint i = 0; i < instances; i++)
@@ -255,6 +292,8 @@ class Mixerparameter {
             
             value_string_standard = standard;
             value_string_autoincrement_zerobased = autoincrement_zerobased;
+            hide_encoder_slider = true;
+            hide_encoder_reset = true;
 
             // fill with default values
             for (uint i = 0; i < instances; i++)
@@ -274,6 +313,20 @@ class Mixerparameter {
         /// @brief The data of this Mixerparameter can not be changed, it is readonly.
         Mixerparameter* DefReadonly() {
             readonly = true;
+
+            return this;
+        }
+
+        /// @brief Hide the slider on display encoders if this Mixerparameter is bound.
+        Mixerparameter* DefHideEncoderSlider() {
+            hide_encoder_slider = true;
+
+            return this;
+        }
+
+        /// @brief Hide the reset on display encoders if this Mixerparameter is bound.
+        Mixerparameter* DefHideEncoderReset() {
+            hide_encoder_reset = true;
 
             return this;
         }
@@ -300,6 +353,18 @@ class Mixerparameter {
         {
             return value_type;
         }
+
+        bool GetHideEncoderSlider()
+        {
+            return hide_encoder_slider;
+        }
+
+
+        bool GetHideEncoderReset()
+        {
+            return hide_encoder_reset;
+        }
+
 
         /// @brief Get the category of the Mixerparameter.
         /// @return The category.

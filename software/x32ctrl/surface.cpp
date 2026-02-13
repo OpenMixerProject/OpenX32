@@ -29,7 +29,41 @@ Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
 }
 
 void Surface::Init(void) {
-    if (!state->bodyless) {
+    if (state->bodyless) {
+
+        /* 
+        
+        How to connect x32ctrl bodyless mode to a X32 runnig Linux:
+
+        Developer PC
+        ############
+
+        // create two virtual serial ports and connect them together as bridge
+        # socat -d -d pty,raw,link=/tmp/ttyLocal,echo=0 pty,raw,link=/tmp/ttyRemote,echo=0
+
+        // start netcat server on port 10000
+        # nc -l 10000 </tmp/ttyRemote >/tmp/ttyRemote
+
+        X32
+        ###
+        
+        // set serial to 115200 baud
+        # stty -F /dev/ttymxc1 115200 raw -echo -echoe -echok
+
+        // start netcat client to transmit/receive serial from/to devloper pc
+        # nc <ip of Developer PC> 10000 </dev/ttymxc1 >/dev/ttymxc1
+
+        Developer PC
+        ############        
+        
+        // start x32ctrl with bodyless commandline parameter "-b"
+        # x32ctrl -b
+        
+        */
+
+        uart->Open("/tmp/ttyLocal", 115200, true);
+    }
+    else {
         uart->Open("/dev/ttymxc1", 115200, true);
     }
 
@@ -44,7 +78,7 @@ void Surface::Reset(void) {
     {
         // TODO: integrate in Testing GUI
     }
-        else
+    else
     {  
         int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
         write(fd, "1", 1);
@@ -899,14 +933,16 @@ void Surface::SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1){
 void Surface::SetX32RackDisplay(uint8_t vChannelIndex){
     uint8_t vChannelNumber = vChannelIndex + 1;
     if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::NORMAL)) {
-        SetX32RackDisplayRaw(int2segment((uint8_t)(vChannelNumber/10)), int2segment(vChannelNumber % 10));
+        uint8_t segment_l = vChannelNumber < 10 ? 0 : int2segment((uint8_t)(vChannelNumber/10));
+        
+        SetX32RackDisplayRaw(segment_l, int2segment(vChannelNumber % 10));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::AUX)) {
         SetX32RackDisplayRaw(int2segment('A'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::AUX));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::FXRET)) {
         SetX32RackDisplayRaw(int2segment('F'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::FXRET));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::BUS)) {
         uint8_t number = vChannelNumber - (uint)X32_VCHANNEL_BLOCK::BUS;
-        SetX32RackDisplayRaw(int2segment((uint8_t)(number/10)), int2segment(number % 10)+128);
+        SetX32RackDisplayRaw(int2segment((uint8_t)(number/10)), int2segment(number % 10));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::MATRIX)) {
         SetX32RackDisplayRaw(int2segment('M'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::MATRIX));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::DCA)) {

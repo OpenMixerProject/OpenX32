@@ -34,121 +34,42 @@ class PageEq: public Page {
             lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQ, lv_color_hex(0xef7900));
             lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQPhase, lv_color_hex(0x008000));
             //chart-shadow: 0x7e4000
+
+            BindEncoder(DISPLAY_ENCODER_6, BANKING_EQ);
         }
 
         void OnShow() override {
             DrawEq();
-            EncoderText();
         }
 
         void OnChange(bool force_update) override {
             using enum MP_ID;
 
-            if (config->HasParameterChanged(SELECTED_CHANNEL))
+            if (config->HasParametersChanged({BANKING_EQ, SELECTED_CHANNEL}) || force_update)
             {
-                BindEncoder(DISPLAY_ENCODER_1, CHANNEL_LOWCUT, config->GetUint(SELECTED_CHANNEL));
+                uint chanIndex = config->GetUint(SELECTED_CHANNEL);
+
+                BindEncoder(DISPLAY_ENCODER_1, CHANNEL_LOWCUT, chanIndex);
+                BindEncoder(DISPLAY_ENCODER_2, (MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ)), chanIndex);
+                BindEncoder(DISPLAY_ENCODER_3, (MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ)), chanIndex);
+                BindEncoder(DISPLAY_ENCODER_4, (MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ)), chanIndex);
+                BindEncoder(DISPLAY_ENCODER_5, (MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ)), chanIndex);
             }
 
-            if (config->HasParameterChanged(CHANNEL_EQ_TODO) /* TODO: implement HasParameterChanges with array argument to check multiple Mixerparameters at once */ ||
-                config->HasParameterChanged(SELECTED_CHANNEL))
+            if (config->HasParameterChanged(CHANNEL_LOWCUT) ||
+                config->HasParametersChanged({MP_CAT::CHANNEL_EQ}) ||
+                config->HasParametersChanged({BANKING_EQ, SELECTED_CHANNEL}) ||
+                force_update
+            )
             {
                 DrawEq();
-                EncoderText();
+                SyncEncoderWidgets(true);
             }
-        }
-
-        bool OnDisplayButton(X32_BTN button, bool pressed) override
-        {
-            using enum MP_ID;
-
-            bool message_handled = false;
-
-            if (pressed){
-                message_handled = true;
-
-				switch (button){
-					case X32_BTN_ENCODER2:
-						mixer->SetPeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'F', 3000);
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetPeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'G', 0);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->SetPeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'Q', 2);
-						break;
-					case X32_BTN_ENCODER5:
-						mixer->SetPeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'T', 1);
-						break;
-					case X32_BTN_ENCODER6:
-						mixer->dsp->ResetEq(config->GetUint(SELECTED_CHANNEL));
-						break;
-					default:
-                        message_handled = false;
-						break;
-				}
-			}
-
-            return message_handled;
-        }
-
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override
-        {
-            using enum MP_ID;
-
-            switch (encoder) {
-				case X32_ENC_ENCODER2:
-					mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'F', amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'G', amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'Q', amount);
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'T', amount);
-					break;
-				case X32_ENC_ENCODER6:
-                    {
-                        int8_t newValue = state->activeEQ + amount;
-                        if (newValue < 0) {
-                            state->activeEQ = 0;
-                        }else if(newValue >= MAX_CHAN_EQS) {
-                            state->activeEQ = MAX_CHAN_EQS - 1;
-                        }else{
-                            state->activeEQ = newValue;
-                        }
-                        mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'T', 0);
-                    }
-					break;
-				default:
-                    return false;
-					break;
-			}
-
-            return true;
         }
 
     private:
         lv_chart_series_t* chartSeriesEQ;
         lv_chart_series_t* chartSeriesEQPhase;
-
-        void EncoderText() {
-            
-            uint chanIndex = config->GetUint(SELECTED_CHANNEL);
-
-            // TODO: move to encoderbinding
-
-            if (chanIndex < 40) {
-                // support EQ-channel
-                custom_encoder[0].label = "LC: " + helper->freq2String(config->GetFloat(CHANNEL_LOWCUT, chanIndex));
-                custom_encoder[1].label = "F: " + helper->freq2String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc);
-                custom_encoder[2].label = "G: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain, 1) + " dB";
-                custom_encoder[3].label = "Q: " + String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q, 1);
-                custom_encoder[4].label = "M: " + helper->eqType2String(mixer->dsp->Channel[chanIndex].peq[state->activeEQ].type);
-                custom_encoder[5].label = "PEQ: " + String(state->activeEQ + 1);
-            } 
-        }
 
         void DrawEq() {
 
@@ -175,8 +96,10 @@ class PageEq: public Page {
                 eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_LC(freq, config->GetFloat(CHANNEL_LOWCUT, selectedChannelIndex), config->GetUint(SAMPLERATE));
 
                 // PEQ
-                for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
-                    peq = &mixer->dsp->Channel[config->GetUint(SELECTED_CHANNEL)].peq[i_peq];
+                for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)
+                {
+                    peq = config->GetPEQ(i_peq, config->GetUint(SELECTED_CHANNEL));
+                    mixer->dsp->fxmath->RecalcFilterCoefficients_PEQ(peq);
                     eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, config->GetUint(SAMPLERATE));
                 }
 
@@ -193,8 +116,9 @@ class PageEq: public Page {
                 phase += mixer->dsp->fxmath->CalcPhaseResponse_LC(freq, config->GetFloat(CHANNEL_LOWCUT, selectedChannelIndex));
 
                 // PEQ  
-                for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
-                    peq = &mixer->dsp->Channel[config->GetUint(SELECTED_CHANNEL)].peq[i_peq];
+                for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)
+                {
+                    peq = config->GetPEQ(i_peq, config->GetUint(SELECTED_CHANNEL));
                     phase += mixer->dsp->fxmath->CalcPhaseResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], 1.0f, peq->b[1], peq->b[2], freq, config->GetUint(SAMPLERATE));
                 }
 

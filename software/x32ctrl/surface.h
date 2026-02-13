@@ -14,8 +14,6 @@
 #include "surface-fader.h"
 #include "surface-button.h"
 #include "helper.h"
-#include "vchannel.h"
-
 
 using namespace std;
 

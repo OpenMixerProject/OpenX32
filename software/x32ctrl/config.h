@@ -8,8 +8,11 @@
 #include "helper.h"
 
 #include "mixerparameter.h"
+#include "peq.h"
 
-class Config {
+class Config
+{
+    using enum MP_ID;
 
     private:
 
@@ -54,6 +57,7 @@ class Config {
         bool GetBool(MP_ID mp, uint index = 0);
         String GetString(MP_ID mp, uint index = 0);
         uint GetPercent(MP_ID mp, uint index = 0);
+        sPEQ* GetPEQ(uint peqIndex, uint index = 0);
         void Set(MP_ID mp, float value, uint index = 0);        
         void Change(MP_ID mp, int amount, uint index = 0);
         void Toggle(MP_ID mp, uint index = 0);

@@ -96,7 +96,7 @@ class PageRoutingDsp2: public Page
 				gui_selected_item_before = gui_selected_item;
 			} 
 			
-			if(config->HasParameterChanged(ROUTING_DSP2))
+			if(config->HasParameterChanged(ROUTING_DSP2_SOURCE))
 			{
 				if (gui_selected_item < MAX_DSP1_TO_FPGA_CHANNELS) {
 					mixer->dsp->RoutingGetTapNameByIndex(&outputSourceName[0], mixer->dsp->Dsp1toFpga[gui_selected_item].input, mixer->dsp->Channel[gui_selected_item].input);

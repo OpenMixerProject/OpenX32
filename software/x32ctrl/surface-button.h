@@ -12,7 +12,6 @@
 #include "surface-message.h"
 #include "surface-fader.h"
 #include "helper.h"
-#include "vchannel.h"
 
 using namespace std;
 

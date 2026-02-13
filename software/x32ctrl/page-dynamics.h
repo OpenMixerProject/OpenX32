@@ -125,11 +125,12 @@ class PageDynamics: public Page {
                 int32_t value = y_array[point_id];
 
                 Mixer* mixer = (Mixer*)lv_obj_get_user_data(obj);
-                if (value >= mixer->dsp->Channel[mixer->GetSelectedVChannelIndex()].compressor.threshold * 100.0f) {
-                    line_dsc->color = lv_palette_main(LV_PALETTE_ORANGE);
-                } else {
-                    line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
-                }
+                // TODO
+                // if (value >= mixer->dsp->Channel[mixer->GetSelectedVChannelIndex()].compressor.threshold * 100.0f) {
+                //     line_dsc->color = lv_palette_main(LV_PALETTE_ORANGE);
+                // } else {
+                //     line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
+                // }
             }
         }
 

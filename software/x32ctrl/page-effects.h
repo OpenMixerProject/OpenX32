@@ -66,7 +66,6 @@ class PageEffects: public Page {
                                     UnbindEncoder(e);
                                 }
                             }
-                            state->SetChangeFlags(X32_MIXER_CHANGED_GUI);
 
                         } else {
                             // FX number (not selected)
@@ -158,9 +157,6 @@ class PageEffects: public Page {
             // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
-
-            // old
-            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
         void prevParameterBank()
@@ -173,9 +169,6 @@ class PageEffects: public Page {
             // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
-
-            // old
-            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
         void nextFX()
@@ -192,9 +185,6 @@ class PageEffects: public Page {
             // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
-
-            // old
-            state->SetChangeFlags(X32_MIXER_CHANGED_GUI_SELECT);
         }
 
         void prevFX()

@@ -37,38 +37,8 @@ DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
     }
 };
 
-void DSP1::Init(void) {
-    MainChannelLR.volume = VOLUME_MIN; // dB
-    MainChannelLR.balance = 0; // -100 .. 0 .. +100
-    MainChannelSub.volume = VOLUME_MIN; // dB
-    MainChannelSub.balance = 0; // -100 .. 0 .. +100
-
-    for (uint8_t i = 0; i < 40; i++) {
-
-        Channel[i].compressor.threshold = 0; // dB -> no compression
-        Channel[i].compressor.ratio = 3.0f; // 1:3
-        Channel[i].compressor.makeup = 0; // dB -> no makeup
-        Channel[i].compressor.attackTime_ms = 10;
-        Channel[i].compressor.holdTime_ms = 10;
-        Channel[i].compressor.releaseTime_ms = 150;
-
-        for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++) {
-            Channel[i].peq[peq].type = 1; // PEQ
-            Channel[i].peq[peq].fc = 3000; // Hz
-            Channel[i].peq[peq].Q = 2.0;
-            Channel[i].peq[peq].gain = 0; // dB
-        }
-
-        for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-            Channel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
-            Channel[i].sendMixbusTapPoint[i_mixbus] = DSP_TAP_PRE_FADER;
-        }
-
-        monitorVolume = 0; // dBfs
-        monitorTapPoint = DSP_TAP_INPUT;
-
-    }
-
+void DSP1::Init(void)
+{
     LoadRouting_X32Default();
 }
 
@@ -279,7 +249,7 @@ void DSP1::SendHighcut(uint8_t chan) {
 }
 */
 
-void DSP1::SendEQ(uint8_t chan) {
+void DSP1::SendEQ(uint chanIndex) {
     // biquad_trans() needs the coeffs in the following order
     // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
     // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
@@ -287,46 +257,49 @@ void DSP1::SendEQ(uint8_t chan) {
 
     float values[MAX_CHAN_EQS * 5];
 
-    for (int peq = 0; peq < MAX_CHAN_EQS; peq++) {
-        fxmath->RecalcFilterCoefficients_PEQ(&Channel[chan].peq[peq]);
+    for (uint peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
+    {
+        sPEQ* peq = config->GetPEQ(peqIndex, chanIndex);
+
+        fxmath->RecalcFilterCoefficients_PEQ(peq);
 
 /*
         // send coeffiecients without interleaving for biquad() function
         int sectionIndex = peq * 5;
-        values[sectionIndex + 0] = -dspChannel[chan].peq[peq].b[2]; // -b2 (poles)
-        values[sectionIndex + 1] = -dspChannel[chan].peq[peq].b[1]; // -b1 (poles)
-        values[sectionIndex + 2] = dspChannel[chan].peq[peq].a[2]; // a2 (zeros)
-        values[sectionIndex + 3] = dspChannel[chan].peq[peq].a[1]; // a1 (zeros)
-        values[sectionIndex + 4] = dspChannel[chan].peq[peq].a[0]; // a0 (zeros)
+        values[sectionIndex + 0] = -peq->b[2]; // -b2 (poles)
+        values[sectionIndex + 1] = -peq->b[1]; // -b1 (poles)
+        values[sectionIndex + 2] = peq->a[2]; // a2 (zeros)
+        values[sectionIndex + 3] = peq->a[1]; // a1 (zeros)
+        values[sectionIndex + 4] = peq->a[0]; // a0 (zeros)
 */
 
         // interleave coefficients for biquad_trans()
-        if (((MAX_CHAN_EQS % 2) == 0) || (peq < (MAX_CHAN_EQS - 1))) {
+        if (((MAX_CHAN_EQS % 2) == 0) || (peqIndex < (MAX_CHAN_EQS - 1))) {
             // we have even number of PEQ-sections
             // or we have odd number but we are still below the last section
             // store data with interleaving
-            int sectionIndex = ((peq / 2) * 2) * 5;
-            if ((peq % 2) != 0) {
+            int sectionIndex = ((peqIndex / 2) * 2) * 5;
+            if ((peqIndex % 2) != 0) {
                 // odd section index
                 sectionIndex += 1;
             }
-            values[sectionIndex + 0] = Channel[chan].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 2] = Channel[chan].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 4] = Channel[chan].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 6] = -Channel[chan].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 8] = -Channel[chan].peq[peq].b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = peq->a[0]; // a0 (zeros)
+            values[sectionIndex + 2] = peq->a[1]; // a1 (zeros)
+            values[sectionIndex + 4] = peq->a[2]; // a2 (zeros)
+            values[sectionIndex + 6] = -peq->b[1]; // -b1 (poles)
+            values[sectionIndex + 8] = -peq->b[2]; // -b2 (poles)
         }else{
             // last section: store without interleaving
             int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-            values[sectionIndex + 0] = Channel[chan].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 1] = Channel[chan].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 2] = Channel[chan].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 3] = -Channel[chan].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 4] = -Channel[chan].peq[peq].b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = peq->a[0]; // a0 (zeros)
+            values[sectionIndex + 1] = peq->a[1]; // a1 (zeros)
+            values[sectionIndex + 2] = peq->a[2]; // a2 (zeros)
+            values[sectionIndex + 3] = -peq->b[1]; // -b1 (poles)
+            values[sectionIndex + 4] = -peq->b[2]; // -b2 (poles)
         }
     }
 
-    spi->SendReceiveDspParameterArray(0, 'e', chan, 'e', MAX_CHAN_EQS * 5, &values[0]);
+    spi->SendReceiveDspParameterArray(0, 'e', chanIndex, 'e', MAX_CHAN_EQS * 5, &values[0]);
 }
 
 void DSP1::ResetEq(uint8_t chan) {

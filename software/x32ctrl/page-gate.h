@@ -51,11 +51,11 @@ class PageGate: public Page {
             SyncEncoderWidgets(true);
         }
 
-        void OnChange(bool force_update) override {
+        void OnChange(bool force_update) override
+        {
             using enum MP_ID;
 
             uint chanIndex = config->GetUint(SELECTED_CHANNEL);
-            VChannel* chan = mixer->GetVChannel(chanIndex);
 
             if (config->HasParametersChanged({CHANNEL_GATE_ATTACK, CHANNEL_GATE_HOLD, CHANNEL_GATE_RANGE, CHANNEL_GATE_RELEASE, CHANNEL_GATE_TRESHOLD}, chanIndex) ||
                 config->HasParameterChanged(SELECTED_CHANNEL) ||

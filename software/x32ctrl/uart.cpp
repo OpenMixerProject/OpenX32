@@ -46,10 +46,7 @@ uint8_t Uart::calculateChecksum(const char* data, uint16_t len) {
 
 
 int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
-    if (state->bodyless) {
-        return 0;
-    }
-
+    
     struct termios tty;
 
     fd = open(ttydev, O_RDWR | O_NOCTTY | O_NDELAY);
@@ -144,9 +141,7 @@ int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
 }
 
 int Uart::TxRaw(MessageBase* message) {
-    if (state->bodyless) {
-        return 0;
-    }
+
 
 
     if (fd < 0) {
@@ -197,9 +192,7 @@ int Uart::Tx(MessageBase* message, bool addChecksum) {
 
 
 int Uart::Rx(char* buf, uint16_t bufLen) {
-    if (state->bodyless) {
-        return 0;
-    }
+
 
 
     int bytesRead;

@@ -443,7 +443,9 @@ enum class MP_UOM {
     SECONDS, // Seconds
     HZ, // Hertz
     KHZ, // Kilohertz
-    PERCENT // Percent
+    PERCENT, // Percent
+    EQ_TYPE,
+    CHANNEL,
 };
 
 enum class MP_VALUE_TYPE {
@@ -459,8 +461,12 @@ enum class MP_CAT {
     SETTING,
     ROUTING,
     STATE,
+    GLOBAL,
     CHANNEL,
     CHANNEL_GATE,
+    CHANNEL_EQ,
+    CHANNEL_DYNAMICS,
+    CHANNEL_SENDS,
     FX
 };
 
@@ -479,10 +485,11 @@ enum class MP_ID {
 
     // Routing
 
-    // TODO: Define Routingparameter
     ROUTING_FPGA,
-    ROUTING_DSP1,
-    ROUTING_DSP2,
+    ROUTING_DSP1_SOURCE,
+    ROUTING_DSP1_TAPPOINT,
+    ROUTING_DSP2_SOURCE,
+    ROUTING_DSP2_TAPPOINT,
 
     // State
 
@@ -491,6 +498,12 @@ enum class MP_ID {
     BANKING_EQ,
     BANKING_INPUT,
     BANKING_BUS,
+    BANKING_BUS_SENDS,
+
+    // Global
+
+    MONITOR_VOLUME,
+    MONITOR_TAPPOINT,
 
     // Channel
 
@@ -525,8 +538,22 @@ enum class MP_ID {
     CHANNEL_DYNAMICS_HOLD,
     CHANNEL_DYNAMICS_RELEASE,
 
-    // TODO define EQ Mixerparamters
-    CHANNEL_EQ_TODO,
+    CHANNEL_EQ_TYPE1,
+    CHANNEL_EQ_TYPE2,
+    CHANNEL_EQ_TYPE3,
+    CHANNEL_EQ_TYPE4,
+    CHANNEL_EQ_FREQ1,
+    CHANNEL_EQ_FREQ2,
+    CHANNEL_EQ_FREQ3,
+    CHANNEL_EQ_FREQ4,
+    CHANNEL_EQ_GAIN1,
+    CHANNEL_EQ_GAIN2,
+    CHANNEL_EQ_GAIN3,
+    CHANNEL_EQ_GAIN4,
+    CHANNEL_EQ_Q1,
+    CHANNEL_EQ_Q2,
+    CHANNEL_EQ_Q3,
+    CHANNEL_EQ_Q4,
 
     // FX
 

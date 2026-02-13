@@ -461,6 +461,13 @@ void Fpga::SendRoutingToFpga(int16_t channel) {
 		return;
 	}
 
+	// copy Mixerparameter -> routing struct
+
+	
+	
+
+
+
 	uint8_t txData[2];
 	uint8_t rxData[2];
 

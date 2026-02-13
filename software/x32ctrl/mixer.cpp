@@ -28,11 +28,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     fpga = new Fpga(basepar);
     dsp = new DSP1(basepar);
     adda = new Adda(basepar);
-    card = new Card(basepar, adda);
-
-    for(int v=0;v<MAX_VCHANNELS;v++) {
-        vchannel[v] = new VChannel(basepar);
-    }    
+    card = new Card(basepar, adda);   
 }
 
 void Mixer::Init() {
@@ -54,10 +50,6 @@ void Mixer::Init() {
 
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "LoadVChannelLayout()");
     LoadVChannelLayout();
-
-    if(helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE)) {
-		DebugPrintvChannels();
-	}
 }
 
 
@@ -65,114 +57,114 @@ void Mixer::Init() {
 
 
 void Mixer::LoadVChannelLayout() {
-    //##################################################################################
-    //#
-    //#   create default vchannels (what the user is refering to as "mixer channel")
-    //#
-    //#   0   -  31  Main DSP-Channels
-    //#   32  -  39  AUX 1-6 / USB
-    //#   40  -  47  FX Returns
-    //#   48  -  63  Bus 1-16
-    //#
-    //#   64  -  71  Matrix 1-6 / Special / Main Center
-    //#   72  -  79  DCA
-    //#   80         Main Left/Right
-    //#
-    //##################################################################################
+    // //##################################################################################
+    // //#
+    // //#   create default vchannels (what the user is refering to as "mixer channel")
+    // //#
+    // //#   0   -  31  Main DSP-Channels
+    // //#   32  -  39  AUX 1-6 / USB
+    // //#   40  -  47  FX Returns
+    // //#   48  -  63  Bus 1-16
+    // //#
+    // //#   64  -  71  Matrix 1-6 / Special / Main Center
+    // //#   72  -  79  DCA
+    // //#   80         Main Left/Right
+    // //#
+    // //##################################################################################
     
-    for (int i=0; i<=31; i++) {
-        VChannel* chan = vchannel[i];
-        chan->dspChannel =  &dsp->Channel[i];
-        chan->name = String("Kanal ") + String(i+1);
-        chan->nameIntern = String("CH") + String(i+1);
-        chan->color = SURFACE_COLOR_YELLOW;
-        chan->vChannelType = X32_VCHANNELTYPE::NORMAL;
-    }
+    // for (int i=0; i<=31; i++) {
+    //     VChannel* chan = vchannel[i];
+    //     chan->dspChannel =  &dsp->Channel[i];
+    //     chan->name = String("Kanal ") + String(i+1);
+    //     chan->nameIntern = String("CH") + String(i+1);
+    //     chan->color = SURFACE_COLOR_YELLOW;
+    //     chan->vChannelType = X32_VCHANNELTYPE::NORMAL;
+    // }
 
-    // AUX 1-6 / USB
-    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up AUX");
-    for (uint8_t i=0; i<=7;i++){
-        uint8_t index = (uint)X32_VCHANNEL_BLOCK::AUX + i;
+    // // AUX 1-6 / USB
+    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up AUX");
+    // for (uint8_t i=0; i<=7;i++){
+    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::AUX + i;
 
-        VChannel* chan = vchannel[index];
-        chan->dspChannel = &dsp->Channel[index];
+    //     VChannel* chan = vchannel[index];
+    //     chan->dspChannel = &dsp->Channel[index];
 
-        if(i <=5){
-            chan->name = String("AUX") + String(i+1);
-            chan->nameIntern = chan->name;
-            chan->color = SURFACE_COLOR_GREEN;
-        } else {
-            chan->name = String("USB");
-            chan->nameIntern = chan->name;
-            chan->color = SURFACE_COLOR_YELLOW;
-        }
-        chan->vChannelType = X32_VCHANNELTYPE::AUX;
-    }
+    //     if(i <=5){
+    //         chan->name = String("AUX") + String(i+1);
+    //         chan->nameIntern = chan->name;
+    //         chan->color = SURFACE_COLOR_GREEN;
+    //     } else {
+    //         chan->name = String("USB");
+    //         chan->nameIntern = chan->name;
+    //         chan->color = SURFACE_COLOR_YELLOW;
+    //     }
+    //     chan->vChannelType = X32_VCHANNELTYPE::AUX;
+    // }
 
-    // FX Returns 1-8
-    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up FX Returns");
-    for (uint i=0; i<=7;i++){
-        uint8_t index = (uint)X32_VCHANNEL_BLOCK::FXRET + i;
-        VChannel* chan = vchannel[index];
-        chan->name = String("FX RET") + String(i+1);
-        chan->nameIntern = chan->name;
-        chan->color = SURFACE_COLOR_BLUE;
-        chan->vChannelType = X32_VCHANNELTYPE::FXRET;
-    }
+    // // FX Returns 1-8
+    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up FX Returns");
+    // for (uint i=0; i<=7;i++){
+    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::FXRET + i;
+    //     VChannel* chan = vchannel[index];
+    //     chan->name = String("FX RET") + String(i+1);
+    //     chan->nameIntern = chan->name;
+    //     chan->color = SURFACE_COLOR_BLUE;
+    //     chan->vChannelType = X32_VCHANNELTYPE::FXRET;
+    // }
 
-    // Bus 1-16
-    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Busses");
-    for (uint8_t i=0; i<=15;i++){
-        uint8_t index = (uint)X32_VCHANNEL_BLOCK::BUS + i;
-        VChannel* chan = vchannel[index];
-        chan->name = String("BUS") + String(i+1);
-        chan->nameIntern = chan->name;
-        chan->color = SURFACE_COLOR_CYAN;
-        chan->vChannelType = X32_VCHANNELTYPE::BUS;
-    }
+    // // Bus 1-16
+    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Busses");
+    // for (uint8_t i=0; i<=15;i++){
+    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::BUS + i;
+    //     VChannel* chan = vchannel[index];
+    //     chan->name = String("BUS") + String(i+1);
+    //     chan->nameIntern = chan->name;
+    //     chan->color = SURFACE_COLOR_CYAN;
+    //     chan->vChannelType = X32_VCHANNELTYPE::BUS;
+    // }
 
-    // Matrix 1-6 / Special / SUB
-    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Matrix / SPECIAL / SUB");
-    for (uint8_t i=0; i<=7;i++){
-        uint8_t index = (uint)X32_VCHANNEL_BLOCK::MATRIX + i;
-        VChannel* chan = vchannel[index];
-        if(i <=5){
-            chan->name = String("MATRIX") + String(i+1);
-            chan->nameIntern = chan->name;
-            chan->color =  SURFACE_COLOR_PINK;
-            chan->vChannelType = X32_VCHANNELTYPE::MATRIX;
-        } else if (i == 6){
-            chan->name = String("SPECIAL");
-            chan->nameIntern = chan->name;
-            chan->color =  SURFACE_COLOR_RED;
-            chan->vChannelType = X32_VCHANNELTYPE::SPECIAL;
-        } else if (i == 7){
-            chan->name = String("M/C");
-            chan->nameIntern = chan->name;
-            chan->color =  SURFACE_COLOR_WHITE;
-            chan->vChannelType = X32_VCHANNELTYPE::MAINSUB;
-        };
-    }
+    // // Matrix 1-6 / Special / SUB
+    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Matrix / SPECIAL / SUB");
+    // for (uint8_t i=0; i<=7;i++){
+    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::MATRIX + i;
+    //     VChannel* chan = vchannel[index];
+    //     if(i <=5){
+    //         chan->name = String("MATRIX") + String(i+1);
+    //         chan->nameIntern = chan->name;
+    //         chan->color =  SURFACE_COLOR_PINK;
+    //         chan->vChannelType = X32_VCHANNELTYPE::MATRIX;
+    //     } else if (i == 6){
+    //         chan->name = String("SPECIAL");
+    //         chan->nameIntern = chan->name;
+    //         chan->color =  SURFACE_COLOR_RED;
+    //         chan->vChannelType = X32_VCHANNELTYPE::SPECIAL;
+    //     } else if (i == 7){
+    //         chan->name = String("M/C");
+    //         chan->nameIntern = chan->name;
+    //         chan->color =  SURFACE_COLOR_WHITE;
+    //         chan->vChannelType = X32_VCHANNELTYPE::MAINSUB;
+    //     };
+    // }
 
-    // DCA 1-8
-    helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up DCA");
-    for (uint8_t i=0; i<=7;i++){
-        uint8_t index = (uint)X32_VCHANNEL_BLOCK::DCA + i;
-        VChannel* chan = vchannel[index];
-        chan->name = String("DCA") + String(i+1);
-        chan->nameIntern = chan->name;
-        chan->color = SURFACE_COLOR_PINK;
-        chan->vChannelType = X32_VCHANNELTYPE::DCA;;
-    }
+    // // DCA 1-8
+    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up DCA");
+    // for (uint8_t i=0; i<=7;i++){
+    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::DCA + i;
+    //     VChannel* chan = vchannel[index];
+    //     chan->name = String("DCA") + String(i+1);
+    //     chan->nameIntern = chan->name;
+    //     chan->color = SURFACE_COLOR_PINK;
+    //     chan->vChannelType = X32_VCHANNELTYPE::DCA;;
+    // }
 
-    // Main Channel
-    {
-        VChannel* chan = vchannel[(uint)X32_VCHANNEL_BLOCK::MAIN];
-        chan->name = String("MAIN");
-        chan->nameIntern = chan->name;
-        chan->color = SURFACE_COLOR_WHITE;
-        chan->vChannelType = X32_VCHANNELTYPE::MAIN;
-    }
+    // // Main Channel
+    // {
+    //     VChannel* chan = vchannel[(uint)X32_VCHANNEL_BLOCK::MAIN];
+    //     chan->name = String("MAIN");
+    //     chan->nameIntern = chan->name;
+    //     chan->color = SURFACE_COLOR_WHITE;
+    //     chan->vChannelType = X32_VCHANNELTYPE::MAIN;
+    // }
 }
 
 
@@ -202,9 +194,6 @@ void Mixer::ChangeHardwareInput(uint8_t outputIndex, int8_t amount) {
     fpga->ConnectByIndex(newValue, outputIndex + 1);
     fpga->SendRoutingToFpga(outputIndex);
     config->Refresh(ROUTING_FPGA);
-
-    // old
-    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
@@ -219,7 +208,6 @@ void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
 
     dsp->Channel[vChannelIndex].input = newValue;
     dsp->SetInputRouting(vChannelIndex);
-    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount) {
@@ -234,7 +222,6 @@ void Mixer::ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount) {
 
     dsp->Channel[vChannelIndex].inputTapPoint = newValue;
     dsp->SetInputRouting(vChannelIndex);
-    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
@@ -249,7 +236,7 @@ void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
 
     dsp->Dsp1toFpga[channel].input = newValue;
     dsp->SetOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
+
 }
 
 void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
@@ -263,8 +250,7 @@ void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
     }
 
     dsp->Dsp1toFpga[channel].tapPoint = newValue;
-    dsp->SetOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
+    dsp->SetOutputRouting(channel);;
 }
 
 void Mixer::ChangeDspFxOutput(uint8_t channel, int8_t amount) {
@@ -279,7 +265,6 @@ void Mixer::ChangeDspFxOutput(uint8_t channel, int8_t amount) {
 
     dsp->Dsp1toDsp2Routing[channel].input = newValue;
     dsp->SetFxOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
 void Mixer::ChangeDspFxOutputTapPoint(uint8_t channel, int8_t amount) {
@@ -294,13 +279,8 @@ void Mixer::ChangeDspFxOutputTapPoint(uint8_t channel, int8_t amount) {
 
     dsp->Dsp1toDsp2Routing[channel].tapPoint = newValue;
     dsp->SetFxOutputRouting(channel);
-    state->SetChangeFlags(X32_MIXER_CHANGED_ROUTING);
 }
 
-void Mixer::SetVChannelChangeFlagsFromIndex(uint8_t p_chanIndex, uint16_t p_flag){
-    vchannel[p_chanIndex]->SetChanged(p_flag);
-    state->SetChangeFlags(X32_MIXER_CHANGED_VCHANNEL);
-}
 
 void Mixer::ClearSolo(void){
     if (IsSoloActivated()){
@@ -314,51 +294,50 @@ void Mixer::ClearSolo(void){
 // oldstyle
 
 void Mixer::SetBusSend(uint8_t vChannelIndex, uint8_t index, float value) {
-    if (vChannelIndex == VCHANNEL_NOT_SET) {
-        return;
-    }
+    // if (vChannelIndex == VCHANNEL_NOT_SET) {
+    //     return;
+    // }
     
-    float newValue = value;
-    if (value > 10) {
-        newValue = 10;
-    }else if (value < -100) {
-        newValue = -100;
-    }
+    // float newValue = value;
+    // if (value > 10) {
+    //     newValue = 10;
+    // }else if (value < -100) {
+    //     newValue = -100;
+    // }
 
-    VChannel* chan = GetVChannel(vChannelIndex);
 
-    switch(chan->vChannelType){
-        case X32_VCHANNELTYPE::NORMAL:
-        case X32_VCHANNELTYPE::AUX: {
-            dsp->Channel[vChannelIndex].sendMixbus[index] = newValue;
-            chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-            break;
-        }
-        case X32_VCHANNELTYPE::BUS: {
-            // we have only 6 matrices -> check it
-            if (index < 6) {
-                dsp->Bus[vChannelIndex].sendMatrix[index] = newValue;
-            }
-            chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-            break;
-        }
-        case X32_VCHANNELTYPE::MAINSUB: {
-            // we have only 6 matrices -> check it
-            if (index < 6) {
-                dsp->MainChannelSub.sendMatrix[index] = newValue;
-            }
-            chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-            break;
-        }
-        case X32_VCHANNELTYPE::MAIN: {
-            // we have only 6 matrices -> check it
-            if (index < 6) {
-                dsp->MainChannelLR.sendMatrix[index] = newValue;
-            }
-            chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-            break;
-        }
-    }
+    // switch(chan->vChannelType){
+    //     case X32_VCHANNELTYPE::NORMAL:
+    //     case X32_VCHANNELTYPE::AUX: {
+    //         dsp->Channel[vChannelIndex].sendMixbus[index] = newValue;
+    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
+    //         break;
+    //     }
+    //     case X32_VCHANNELTYPE::BUS: {
+    //         // we have only 6 matrices -> check it
+    //         if (index < 6) {
+    //             dsp->Bus[vChannelIndex].sendMatrix[index] = newValue;
+    //         }
+    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
+    //         break;
+    //     }
+    //     case X32_VCHANNELTYPE::MAINSUB: {
+    //         // we have only 6 matrices -> check it
+    //         if (index < 6) {
+    //             dsp->MainChannelSub.sendMatrix[index] = newValue;
+    //         }
+    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
+    //         break;
+    //     }
+    //     case X32_VCHANNELTYPE::MAIN: {
+    //         // we have only 6 matrices -> check it
+    //         if (index < 6) {
+    //             dsp->MainChannelLR.sendMatrix[index] = newValue;
+    //         }
+    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
+    //         break;
+    //     }
+    // }
 }
 
 void Mixer::ChangeBusSend(uint8_t vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend){
@@ -374,107 +353,6 @@ void Mixer::ChangeBusSend(uint8_t vChannelIndex, uint8_t encoderIndex, int8_t p_
         newValue = -100;
     }
     SetBusSend(vChannelIndex, encoderIndex, newValue);
-}
-
-void Mixer::SetPeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, float value){
-    if (pChannelIndex == VCHANNEL_NOT_SET) {
-        return;
-    }
-    if (eqIndex >= MAX_CHAN_EQS) {
-        return;
-    }
-
-    VChannel* chan = GetVChannel(pChannelIndex);
-
-    sPEQ* peq = nullptr;
-
-    if (pChannelIndex < 40) {
-        peq = &dsp->Channel[pChannelIndex].peq[eqIndex];
-    }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
-        peq = &dsp->Bus[pChannelIndex - 48].peq[eqIndex];
-    }else if ((pChannelIndex >= 64) && (pChannelIndex <= 69)) {
-        peq = &dsp->Channel[pChannelIndex - 64].peq[eqIndex];
-    }
-
-    if (peq != nullptr) {
-        switch (option) {
-            case 'Q':
-                if (value < 0.3) {
-                    peq->Q = 0.3;
-                }else if (value > 10) {
-                    peq->Q = 10;
-                }else{
-                    peq->Q = value;
-                }
-                break;
-            case 'F':
-                if (value < 20) {
-                    peq->fc = 20;
-                }else if (value > 20000) {
-                    peq->fc = 20000;
-                }else{
-                    peq->fc = value;
-                }
-                break;
-            case 'G':
-                if (value < -15) {
-                    peq->gain = -15;
-                }else if (value > 15) {
-                    peq->gain = 15;
-                }else{
-                    peq->gain = value;
-                }
-                break;
-            case 'T':
-                if (value > 7) {
-                    peq->type = 7;
-                }else if (value < 0){
-                    peq->type = 0;
-                }else{
-                    peq->type = value;
-                }
-                break;
-        }
-        dsp->fxmath->RecalcFilterCoefficients_PEQ(peq);
-
-        chan->SetChanged(X32_VCHANNEL_CHANGED_EQ);
-    }
-}
-
-void Mixer::ChangePeq(uint8_t pChannelIndex, uint8_t eqIndex, char option, int8_t p_amount){
-    if (pChannelIndex == VCHANNEL_NOT_SET) {
-        return;
-    }
-    if (eqIndex >= MAX_CHAN_EQS) {
-        return;
-    }
-
-    sPEQ* peq = nullptr;
-
-    if (pChannelIndex < 40) {
-        peq = &dsp->Channel[pChannelIndex].peq[eqIndex];
-    }else if ((pChannelIndex >= 48) && (pChannelIndex <= 63)) {
-        peq = &dsp->Bus[pChannelIndex - 48].peq[eqIndex];
-    }else if ((pChannelIndex >= 64) && (pChannelIndex <= 69)) {
-        peq = &dsp->Channel[pChannelIndex - 64].peq[eqIndex];
-    }
-
-    if (peq != nullptr) {
-        switch (option) {
-            case 'Q':
-                SetPeq(pChannelIndex, eqIndex, option, peq->Q + ((float)p_amount * abs((float)p_amount))/10.0f);
-                break;
-            case 'F':
-                SetPeq(pChannelIndex, eqIndex, option, pow(10.0f, log10(peq->fc) + (float)p_amount * 0.01f));
-                break;
-            case 'G':
-                SetPeq(pChannelIndex, eqIndex, option, peq->gain + ((float)p_amount * abs((float)p_amount)) * 0.1f);
-                break;
-            case 'T':
-                SetPeq(pChannelIndex, eqIndex, option, peq->type + p_amount);
-                break;
-        }
-    }
 }
 
 bool Mixer::IsSoloActivated(void){
@@ -512,10 +390,44 @@ void Mixer::Sync(void){
     {        
         for (auto const& changedIndex : config->GetChangedParameterIndexes(filter))
         {
-            dsp->SendChannelVolume(changedIndex);
+            if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX))
+            {
+                dsp->SendChannelVolume(changedIndex);
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::BUS))
+            {
+                dsp->SendMixbusVolume(changedIndex - 48);
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MATRIX))
+            {
+                dsp->SendMatrixVolume(changedIndex - 64);
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAINSUB)) {
+                dsp->SendMainVolume();
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAIN)) {
+                dsp->SendMainVolume();
+            }                                  
         }
     }
 
+    if (config->HasParameterChanged(CHANNEL_SOURCE))
+    { 
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({CHANNEL_SOURCE}))
+        {
+            dsp->SetInputRouting(changedIndex);
+        }
+    }
+
+    if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS))
+    { 
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({CHANNEL_SOURCE}))
+        {
+            dsp->SendChannelSend(changedIndex);
+
+        }
+    }
 
     if (config->HasParametersChanged(MP_CAT::CHANNEL_GATE))
     {        
@@ -533,86 +445,28 @@ void Mixer::Sync(void){
         }
     }
 
-
-    // loop trough all vchannels and sync to hardware
-
-    for (int i = 0; i < MAX_VCHANNELS; i++)
+    if (config->HasParameterChanged(CHANNEL_GAIN))
     {
-        VChannel* chan = vchannel[i];
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({CHANNEL_GAIN}))
+        {
+            halSendGain(changedIndex);
+        }
+    }
 
-        if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::NORMAL) ||
-            helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::AUX)) {
+    if (config->HasParametersChanged(MP_CAT::CHANNEL_EQ))
+    {
+        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_EQ))
+        {
+            dsp->SendEQ(changedIndex);
+            dsp->SendLowcut(changedIndex);
+        }
+    }
 
-            // one of the 40 DSP-channels
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_INPUT)) {
-                dsp->SetInputRouting(i);
-            }
-
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_GAIN)){
-                halSendGain(i);
-            }
-
-
-
-
-
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_EQ)){
-                dsp->SendEQ(i);
-                dsp->SendLowcut(i);
-            }
-
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC)){
-                dsp->SendCompressor(i);
-            }
-
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS)) {
-                dsp->SendChannelSend(i);
-            }
-        } else {
-            // one of the other channels like Mixbus, DCA, Main, etc.
-            uint8_t group = ' ';
-            if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::FXRET)) {
-                // FX Returns 1-8
-                group = 'f';
-            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::BUS)) {
-                // Busmaster 1-16
-                group = 'b';
-            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MATRIX)) {
-                // Matrix 1-6
-                group = 'x';
-            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::SPECIAL)) {
-                // "VERY SPECIAL CHANNEL"
-                group = 'v';
-            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MAINSUB)) {
-                // Mono/Sub
-                group = 's';
-            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::DCA)) {
-                // DCA 1-8
-                group = 'd';
-            }else if (helper->IsInChannelBlock(i, X32_VCHANNEL_BLOCK::MAIN)) {
-                // main-LR
-                group = 'm';
-            }
-
-            if ((
-                chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) ||
-                chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)
-            )){
-                switch (group) {
-                    case 'b':
-                        dsp->SendMixbusVolume(i - 48);
-                        break;
-                    case 'x':
-                        dsp->SendMatrixVolume(i - 64);
-                        break;
-                    case 'm':
-                        dsp->SendMainVolume();
-                        break;
-                    case 's':
-                        dsp->SendMainVolume();
-                        break;
-                }
-            }
+    if (config->HasParametersChanged(MP_CAT::CHANNEL_DYNAMICS))
+    {
+        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_DYNAMICS))
+        {
+            dsp->SendCompressor(changedIndex);
         }
     }
 }
@@ -690,14 +544,6 @@ uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
     }
 }
 
-uint16_t Mixer::GetSelectedVChannelIndex(void) {
-    return config->GetUint(MP_ID::SELECTED_CHANNEL);
-}
-
-VChannel* Mixer::GetVChannel(uint8_t vCHannelIndex){
-    return vchannel[vCHannelIndex];
-}
-
 float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
     if (dspChannel < 40) {
         return dsp->Channel[dspChannel].sendMixbus[index];
@@ -719,13 +565,6 @@ float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
     }
 
     return 0;
-}
-
-void Mixer::DebugPrintvChannels(void){
-	for (int i = 0; i < MAX_VCHANNELS; i++)
-	{
-	   printf(GetVChannel(i)->ToString().c_str());
-	}
 }
 
 // ######## ##      ## 

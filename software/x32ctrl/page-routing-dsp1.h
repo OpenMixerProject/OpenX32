@@ -88,7 +88,7 @@ class PageRoutingDsp1: public Page
 				gui_selected_item_before = gui_selected_item;
 			} 
 			
-			if(config->HasParameterChanged(ROUTING_DSP1))
+			if(config->HasParameterChanged(ROUTING_DSP1_SOURCE))
 			{
 				mixer->dsp->RoutingGetTapNameByIndex(&inputSourceName[0], mixer->dsp->Channel[gui_selected_item].input, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[gui_selected_item].input - 1]);
 				mixer->dsp->RoutingGetTapPositionName(&tapPointName[0], mixer->dsp->Channel[gui_selected_item].inputTapPoint);

@@ -134,16 +134,22 @@ void Config::DefineMixerparameters() {
     group = "routing";
 
     DefParameter(ROUTING_FPGA, cat, group, "Routing FPGA")
-    ->DefMinMaxStandard_Uint(0, 160, 0)
-    ->DefNoConfigfile();
+    ->DefMinMaxStandard_Uint(0, 160, 0);
 
-    DefParameter(ROUTING_DSP1, cat, group, "Routing DSP1")
-    ->DefMinMaxStandard_Uint(0, 160, 0)
-    ->DefNoConfigfile();
+    DefParameter(CHANNEL_SOURCE, cat, group, "Source", MAX_VCHANNELS)
+    ->DefMinMaxStandard_Int(-1, MAX_FPGA_TO_DSP1_CHANNELS, -1);
 
+    DefParameter(ROUTING_DSP1_SOURCE, cat, group, "Routing DSP1")
+    ->DefMinMaxStandard_Uint(0, 160, 0);
 
-    DefParameter(ROUTING_DSP2, cat, group, "Routing DSP2")
-    ->DefNoConfigfile();
+    DefParameter(ROUTING_DSP1_TAPPOINT, cat, group, "Routing DSP1 Tappoint")
+    ->DefMinMaxStandard_Uint(0, 160, 0);
+
+    DefParameter(ROUTING_DSP1_SOURCE, cat, group, "Routing DSP2")
+    ->DefMinMaxStandard_Uint(0, 160, 0);
+
+    DefParameter(ROUTING_DSP1_TAPPOINT, cat, group, "Routing DSP2 Tappoint")
+    ->DefMinMaxStandard_Uint(0, 160, 0);
 
     // ###########
     // # State
@@ -153,19 +159,42 @@ void Config::DefineMixerparameters() {
     group = "state";
 
     DefParameter(SELECTED_CHANNEL, cat, group, "Selected Channel")
+    ->DefUOM(MP_UOM::CHANNEL)
+    ->DefHideEncoderSlider()
+    ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, MAX_VCHANNELS - 1, 0);
 
     DefParameter(ACTIVE_PAGE, cat, group, "Active Page")
+    ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, 255, (uint)X32_PAGE::HOME);
 
     DefParameter(BANKING_EQ, cat, group, "Banking EQ")
+    ->DefHideEncoderSlider()
+    ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
     DefParameter(BANKING_INPUT, cat, group, "Banking Input Section")
+    ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, 7, 0);
 
     DefParameter(BANKING_BUS, cat, group, "Banking Bus Section")
+    ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, 3, 0);
+
+    // ###########
+    // # Global
+    // ###########
+
+	cat = MP_CAT::GLOBAL;
+    group = "global";
+
+    DefParameter(MONITOR_VOLUME, cat, group, "Monitor Volume")
+    ->DefNameShort("Mon")
+    ->DefUOM(MP_UOM::DB)
+    ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+
+    DefParameter(MONITOR_TAPPOINT, cat, group, "Monitor Tappoint")
+    ->DefMinMaxStandard_Uint(0, 81, 0);
 
     // ###########
     // # Channels
@@ -187,9 +216,6 @@ void Config::DefineMixerparameters() {
 
     DefParameter(CHANNEL_COLOR_INVERTED, cat, group, "Channelcolor Inverted", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
-    
-    DefParameter(CHANNEL_SOURCE, cat, group, "Source", MAX_VCHANNELS)
-    ->DefMinMaxStandard_Int(-1, MAX_FPGA_TO_DSP1_CHANNELS, -1);
     
     DefParameter(CHANNEL_PHASE_INVERT, cat, group, "Phase Inverted", MAX_VCHANNELS)->DefNameShort("Inverted")
     ->DefStandard_Bool(false);
@@ -223,12 +249,21 @@ void Config::DefineMixerparameters() {
     ->DefStepsize(2);
 
     DefParameter(CHANNEL_LOWCUT, cat, group, "Lowcut", MAX_VCHANNELS)
-    ->DefUOM(MP_UOM::KHZ)
-    ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20000.0f);
+    ->DefUOM(MP_UOM::HZ)
+    ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20.0f);
+
+    // Sends
+
+    // TODO
+    // for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
+    //     Channel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
+    //     Channel[i].sendMixbusTapPoint[i_mixbus] = DSP_TAP_PRE_FADER;
+    // }
 
     // gate
     cat = MP_CAT::CHANNEL_GATE;
     group = "channel_gate";
+
     DefParameter(CHANNEL_GATE_TRESHOLD, cat, group, "Threshold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0);
@@ -256,6 +291,7 @@ void Config::DefineMixerparameters() {
     
     // dynamics
     group = "channel_dynamics";
+    cat = MP_CAT::CHANNEL_DYNAMICS;
 
     DefParameter(CHANNEL_DYNAMICS_TRESHOLD, cat, group, "Threshold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
@@ -280,6 +316,39 @@ void Config::DefineMixerparameters() {
     DefParameter(CHANNEL_DYNAMICS_RELEASE, cat, group, "Release", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
+
+    // EQ
+    group = "channel_eq";
+    cat = MP_CAT::CHANNEL_EQ;
+
+    for(auto const& parameter_id : {CHANNEL_EQ_TYPE1, CHANNEL_EQ_TYPE2, CHANNEL_EQ_TYPE3, CHANNEL_EQ_TYPE4} )
+    {
+        DefParameter(parameter_id, cat, group, "Type", MAX_VCHANNELS)
+        ->DefUOM(MP_UOM::EQ_TYPE)
+        ->DefHideEncoderReset()
+        ->DefMinMaxStandard_Uint(0, 7, 1);
+    }
+
+    for(auto const& parameter_id : {CHANNEL_EQ_FREQ1, CHANNEL_EQ_FREQ2, CHANNEL_EQ_FREQ3, CHANNEL_EQ_FREQ4} )
+    {
+        DefParameter(parameter_id, cat, group, "Frequenz", MAX_VCHANNELS)
+        ->DefUOM(MP_UOM::HZ)
+        ->DefMinMaxStandard_Float(20.0f, 20000.0f, 3000.0f);
+    }
+
+    for(auto const& parameter_id : {CHANNEL_EQ_GAIN1, CHANNEL_EQ_GAIN2, CHANNEL_EQ_GAIN3, CHANNEL_EQ_GAIN4} )
+    {
+        DefParameter(parameter_id, cat, group, "Gain", MAX_VCHANNELS)
+        ->DefUOM(MP_UOM::DB)
+        ->DefMinMaxStandard_Float(-15.0f, 15.0f, 2.0f, 1);
+    }
+
+    for(auto const& parameter_id : {CHANNEL_EQ_Q1, CHANNEL_EQ_Q2, CHANNEL_EQ_Q3, CHANNEL_EQ_Q4} )
+    {
+        DefParameter(parameter_id, cat, group, "Q", MAX_VCHANNELS)
+        ->DefStepsize(0.1f)
+        ->DefMinMaxStandard_Float(0.3f, 10.0f, 0.0f, 1);
+    }
 
     // ###########
     // # FX
@@ -602,6 +671,17 @@ String Config::GetString(MP_ID mp, uint index)
 uint Config::GetPercent(MP_ID mp, uint index)
 {
     return mpm->at(mp)->GetPercent(index);
+}
+
+sPEQ* Config::GetPEQ(uint peqIndex, uint index)
+{
+    sPEQ* peq = new sPEQ();
+    peq->type = GetUint((MP_ID)((uint)CHANNEL_EQ_TYPE1 + peqIndex), index);
+    peq->fc = GetUint((MP_ID)((uint)CHANNEL_EQ_FREQ1 + peqIndex), index);
+    peq->Q = GetUint((MP_ID)((uint)CHANNEL_EQ_Q1 + peqIndex), index);
+    peq->gain = GetUint((MP_ID)((uint)CHANNEL_EQ_GAIN1 + peqIndex), index);
+
+    return peq;
 }
 
 void Config::Set(MP_ID mp, float value, uint index)

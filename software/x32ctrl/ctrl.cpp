@@ -87,7 +87,6 @@ void X32Ctrl::Init(){
 	//#                                                                          #
 	//#     Common to all                                                        #
 	//#                                                                          #
-			SetSelect(0, true);
 
 			// Just load a default set of FXes
 			// TODO: Save and Load
@@ -134,10 +133,6 @@ void X32Ctrl::Init(){
     surface->SetContrast(4, parameter->GetUint());
     surface->SetContrast(5, parameter->GetUint());
     surface->SetContrast(8, parameter->GetUint());
-
-	// trigger first sync to everywhere
-	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Trigger first sync -> X32_MIXER_CHANGED_ALL");
-	state->SetChangeFlags(X32_MIXER_CHANGED_ALL);
 }
 
 // Load a Fader bank layout, e.g. LAYOUT_X32 or LAYOUT_USER
@@ -352,7 +347,7 @@ void X32Ctrl::Tick10ms(void){
 	ProcessUartData();
 
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
-	UdpHandleCommunication();
+	//UdpHandleCommunication();
 
 	// sync if any Mixerparameter has changed
 	if (config->HasAnyParameterChanged())
@@ -687,16 +682,16 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 	if (newPage == activePage) {
 		// operator has pressed the button of the current active page,
 		// so go back to previous page
-		newPage = state->lastPage;
+		newPage = lastPage;
 	}
 
 	if (pages[newPage] != nullptr) {
 
-		state->lastPage = activePage;
+		lastPage = activePage;
 		activePage = newPage;
 		
 		Page* p = pages[activePage];
-		Page* l = pages[state->lastPage];
+		Page* l = pages[lastPage];
 
 		// turn off led of prev page
 		if (l->GetLed() != X32_BTN_NONE) {
@@ -825,7 +820,6 @@ void X32Ctrl::surfaceSyncBoardMain() {
 	using enum MP_ID;
 
 	bool fullSync = false;
-	VChannel* chan = GetSelectedvChannel();
 	uint8_t chanIndex = config->GetUint(SELECTED_CHANNEL);
 
 	if (config->HasParameterChanged(SELECTED_CHANNEL)){ 
@@ -856,12 +850,12 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_PAN] >> 8, surface->Enum2Encoder[X32_ENC_PAN] & 0xFF, 2, (config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f)/2.0f, 1);
 		}
 		// Bus sends
-		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SENDS))
+		if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS) || fullSync)
 		{
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 0)/20.0f) * 100.0f, 1);
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 1)/20.0f) * 100.0f, 1);
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 2)/20.0f) * 100.0f, 1);
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, state->activeBusSend * 4 + 3)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 0)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 1)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 2)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 3)/20.0f) * 100.0f, 1);
 		}
 		// Gate
 		if (config->HasParameterChanged(CHANNEL_GATE_TRESHOLD) || fullSync)
@@ -874,50 +868,30 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_DYNAMICS] >> 8, surface->Enum2Encoder[X32_ENC_DYNAMICS] & 0xFF, 4, 100.0f - ((config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex) + 60.0f)/0.6f), 1);
 		}
 		// EQ
-		if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_EQ))
+		if (config->HasParametersChanged(MP_CAT::CHANNEL_EQ) || fullSync)
 		{
 			if (chanIndex < 40) {
 				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (config->GetFloat(CHANNEL_LOWCUT, chanIndex) - 20.0f)/3.8f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].fc - 20.0f)/199.8f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].gain + 15.0f)/0.3f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - mixer->dsp->Channel[chanIndex].peq[state->activeEQ].Q) + 0.3f)/0.097f, 1);
+				
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (config->GetFloat((MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ, chanIndex))) - 20.0f)/199.8f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (config->GetFloat((MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ, chanIndex))) + 15.0f)/0.3f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - config->GetFloat((MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ, chanIndex)))) + 0.3f)/0.097f, 1);
 				
 				// EQ-LEDS
-				surface->SetLedByEnum(X32_LED_EQ_HCUT, false);
-				surface->SetLedByEnum(X32_LED_EQ_HSHV, false);
-				surface->SetLedByEnum(X32_LED_EQ_LCUT, false);
-				surface->SetLedByEnum(X32_LED_EQ_LSHV, false);
-				surface->SetLedByEnum(X32_LED_EQ_PEQ, false);
+				uint eq_type = config->GetUint((MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ, chanIndex)), chanIndex);
+
+				surface->SetLedByEnum(X32_LED_EQ_HCUT, eq_type == 6); // LowPass
+				surface->SetLedByEnum(X32_LED_EQ_HSHV, eq_type == 3); // HighShelf
+				surface->SetLedByEnum(X32_LED_EQ_LCUT, eq_type == 7); // HighPass
+				surface->SetLedByEnum(X32_LED_EQ_LSHV, eq_type == 2); // LowShelf
+				surface->SetLedByEnum(X32_LED_EQ_PEQ, eq_type == 1); // PEQ
 				surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
 
-				switch (mixer->dsp->Channel[chanIndex].peq[state->activeEQ].type) {
-					case 0: // Allpass
-						break;
-					case 1: // Peak
-						surface->SetLedByEnum(X32_LED_EQ_PEQ, true);
-						break;
-					case 2: // LowShelf
-						surface->SetLedByEnum(X32_LED_EQ_LSHV, true);
-						break;
-					case 3: // HighShelf
-						surface->SetLedByEnum(X32_LED_EQ_HSHV, true);
-						break;
-					case 4: // Bandpass
-						break;
-					case 5: // Notch
-						break;
-					case 6: // LowPass
-						surface->SetLedByEnum(X32_LED_EQ_HCUT, true);
-						break;
-					case 7: // HighPass
-						surface->SetLedByEnum(X32_LED_EQ_LCUT, true);
-						break;
-				}
-
-				surface->SetLedByEnum(X32_BTN_EQ_LOW, state->activeEQ == 0);
-				surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, state->activeEQ == 1);
-				surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, state->activeEQ == 2);
-				surface->SetLedByEnum(X32_BTN_EQ_HIGH, state->activeEQ == 3);
+				uint activeEQ = config->GetUint(BANKING_EQ);
+				surface->SetLedByEnum(X32_BTN_EQ_LOW, activeEQ == 0);
+				surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, activeEQ == 1);
+				surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, activeEQ == 2);
+				surface->SetLedByEnum(X32_BTN_EQ_HIGH, activeEQ == 3);
 			}
 		}
 	}
@@ -935,7 +909,7 @@ void X32Ctrl::surfaceSyncBoardMain() {
 			surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, config->GetBool(CHANNEL_MUTE, chanIndex)); 
 		}
 		// Volume
-		if (config->HasParameterChanged(CHANNEL_VOLUME) || config->HasParameterChanged(CHANNEL_MUTE) ||fullSync){
+		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}) ||fullSync){
 			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
 		}
 	}
@@ -947,24 +921,26 @@ void X32Ctrl::surfaceSyncBoardMain() {
 		}
 
 		if (!state->x32core_lcdmode_setup && (
-			config->HasParameterChanged(SELECTED_CHANNEL)           ||
-			chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)           ||
-			chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)         ||
-			chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)          ||
-			chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)
-		))
+			config->HasParametersChanged({
+				SELECTED_CHANNEL,
+				CHANNEL_SOLO,
+				CHANNEL_MUTE,
+				CHANNEL_COLOR,
+				CHANNEL_NAME
+			})))
 		{
 			SetLcdFromVChannel(X32_BOARD_MAIN, 0, chanIndex);
 		}
 
 		// Volume
-		if (chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, chanIndex))
+		{
 			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
 		}
 
 		// Main Channel
-		VChannel* mainchan = GetVChannel((uint)X32_VCHANNEL_BLOCK::MAIN);
-		if (mainchan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME) || mainchan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, (uint)X32_VCHANNEL_BLOCK::MAIN))
+		{
 			surface->SetEncoderRingDbfs(1, 1, config->GetFloat(MP_ID::CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::MAIN), config->GetBool(MP_ID::CHANNEL_MUTE, (uint)X32_VCHANNEL_BLOCK::MAIN), 1);
 		}
 	}
@@ -1049,16 +1025,18 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 			if(!state->surface_disable_lcd_update)
 			{
 				if (config->HasParametersChanged({
-					CHANNEL_PHASE_INVERT,
-					CHANNEL_VOLUME,
-					CHANNEL_GAIN,
-					CHANNEL_EQ_TODO,
-					CHANNEL_GATE_TRESHOLD,
-					CHANNEL_DYNAMICS_TRESHOLD,
-					CHANNEL_PHANTOM,
-					CHANNEL_COLOR,
-					CHANNEL_NAME}) ||
-					fullSync
+						CHANNEL_PHASE_INVERT,
+						CHANNEL_VOLUME,
+						CHANNEL_GAIN,
+						CHANNEL_GATE_TRESHOLD,
+						CHANNEL_DYNAMICS_TRESHOLD,
+						CHANNEL_PHANTOM,
+						CHANNEL_COLOR,
+						CHANNEL_NAME
+					}) || config->HasParametersChanged({
+						MP_CAT::CHANNEL_EQ
+					}) ||
+						fullSync
 				)
 				{
 					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "LCD");
@@ -1094,10 +1072,9 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
 	using enum MP_ID;
 
     LcdData* data = new LcdData();
-	VChannel* chan = GetVChannel(channelIndex);
 
     data->boardId = p_boardId;
-    data->color = chan->color;
+    data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex);
     data->lcdIndex = lcdIndex;
     data->icon.icon = 0;
     data->icon.x = 0;
@@ -1153,7 +1130,7 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
     data->texts[2].y = 30;
 
     // vChannel Name
-    data->texts[3].text = chan->name;
+    data->texts[3].text = config->GetFloat(CHANNEL_NAME, channelIndex);
     data->texts[3].size = 0;
     data->texts[3].x = 0;
     data->texts[3].y = 48;
@@ -1224,7 +1201,7 @@ void X32Ctrl::UpdateMeters(void) {
 	// ########################################
 
 	if (config->IsModelX32CompactOrProducer()){
-		switch (state->activeBank_inputFader) {
+		switch (config->GetUint(BANKING_INPUT)) {
 			case 0: // Input 1-8
 				for (uint8_t i = 0; i < 8; i++) {
 					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->rChannel[i].meter6Info);
@@ -1259,7 +1236,7 @@ void X32Ctrl::UpdateMeters(void) {
 		}
 
 		// update meters on board R
-		switch (state->activeBank_busFader) {
+		switch (config->GetUint(BANKING_BUS)) {
 			case 0: // DCA1-8
 				// no meter here
 				break;
@@ -1276,7 +1253,7 @@ void X32Ctrl::UpdateMeters(void) {
 	if (config->IsModelX32Full()) {
 
 		// update meters on board L and M
-		switch (state->activeBank_inputFader) {
+		switch (config->GetUint(BANKING_INPUT)) {
 			case 0: // Input 1-16
 				for (uint8_t i = 0; i < 8; i++) {
 					surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->rChannel[i].meter6Info);
@@ -1302,29 +1279,29 @@ void X32Ctrl::UpdateMeters(void) {
 }
 
 void X32Ctrl::surfaceSyncBankIndicator(void) {
-	if (config->HasParameterChanged(MP_ID::BANKING_INPUT)) {
+	if (config->HasParameterChanged(BANKING_INPUT)) {
 		if (config->IsModelX32Full()){
-			surface->SetLedByEnum(X32_BTN_CH_1_16, state->activeBank_inputFader == 0);
-			surface->SetLedByEnum(X32_BTN_CH_17_32, state->activeBank_inputFader == 1);
-			surface->SetLedByEnum(X32_BTN_AUX_IN_EFFECTS, state->activeBank_inputFader == 2);
-			surface->SetLedByEnum(X32_BTN_BUS_MASTER, state->activeBank_inputFader == 3);
+			surface->SetLedByEnum(X32_BTN_CH_1_16, config->GetUint(BANKING_INPUT) == 0);
+			surface->SetLedByEnum(X32_BTN_CH_17_32, config->GetUint(BANKING_INPUT) == 1);
+			surface->SetLedByEnum(X32_BTN_AUX_IN_EFFECTS, config->GetUint(BANKING_INPUT) == 2);
+			surface->SetLedByEnum(X32_BTN_BUS_MASTER, config->GetUint(BANKING_INPUT) == 3);
 		}
 		if (config->IsModelX32CompactOrProducer()) {
-			surface->SetLedByEnum(X32_BTN_CH_1_8, state->activeBank_inputFader == 0);
-			surface->SetLedByEnum(X32_BTN_CH_9_16, state->activeBank_inputFader == 1);
-			surface->SetLedByEnum(X32_BTN_CH_17_24, state->activeBank_inputFader == 2);
-			surface->SetLedByEnum(X32_BTN_CH_25_32, state->activeBank_inputFader == 3);
-			surface->SetLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, state->activeBank_inputFader == 4);
-			surface->SetLedByEnum(X32_BTN_EFFECTS_RETURNS, state->activeBank_inputFader == 5);
-			surface->SetLedByEnum(X32_BTN_BUS_1_8_MASTER, state->activeBank_inputFader == 6);
-			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, state->activeBank_inputFader == 7);
+			surface->SetLedByEnum(X32_BTN_CH_1_8, config->GetUint(BANKING_INPUT) == 0);
+			surface->SetLedByEnum(X32_BTN_CH_9_16, config->GetUint(BANKING_INPUT) == 1);
+			surface->SetLedByEnum(X32_BTN_CH_17_24, config->GetUint(BANKING_INPUT) == 2);
+			surface->SetLedByEnum(X32_BTN_CH_25_32, config->GetUint(BANKING_INPUT) == 3);
+			surface->SetLedByEnum(X32_BTN_AUX_IN_1_6_USB_REC, config->GetUint(BANKING_INPUT) == 4);
+			surface->SetLedByEnum(X32_BTN_EFFECTS_RETURNS, config->GetUint(BANKING_INPUT) == 5);
+			surface->SetLedByEnum(X32_BTN_BUS_1_8_MASTER, config->GetUint(BANKING_INPUT) == 6);
+			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, config->GetUint(BANKING_INPUT) == 7);
 		}
 	}
 	if (config->HasParameterChanged(MP_ID::BANKING_BUS)) {
-		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, state->activeBank_busFader == 0);
-		surface->SetLedByEnum(X32_BTN_BUS_1_8, state->activeBank_busFader == 1);
-		surface->SetLedByEnum(X32_BTN_BUS_9_16, state->activeBank_busFader == 2);
-		surface->SetLedByEnum(X32_BTN_MATRIX_MAIN_C, state->activeBank_busFader == 3);
+		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, config->GetUint(BANKING_BUS) == 0);
+		surface->SetLedByEnum(X32_BTN_BUS_1_8, config->GetUint(BANKING_BUS) == 1);
+		surface->SetLedByEnum(X32_BTN_BUS_9_16, config->GetUint(BANKING_BUS) == 2);
+		surface->SetLedByEnum(X32_BTN_MATRIX_MAIN_C, config->GetUint(BANKING_BUS) == 3);
 	}
 }
 
@@ -1389,7 +1366,7 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 
 	for(uint8_t i=0; i<(uint)X32_VCHANNELTYPE::NORMAL; i++) {
 		uint8_t chanindex = i;
-		VChannel* chan = mixer->GetVChannel(i);
+		//VChannel* chan = mixer->GetVChannel(i);
 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
 		// 	xremote->SetFader(String("ch"), chanindex, mixer->GetVolumeOscvalue(chanindex));
 		// }
@@ -1412,7 +1389,7 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 
 	for(uint8_t i=(uint)X32_VCHANNEL_BLOCK::AUX; i<(uint)X32_VCHANNELTYPE::AUX; i++) {
 		uint8_t chanindex = i;
-		VChannel* chan = mixer->GetVChannel(i);
+		//VChannel* chan = mixer->GetVChannel(i);
 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
 		// 	xremote->SetFader(String("auxin"), chanindex, mixer->GetVolumeOscvalue(chanindex));
 		// }
@@ -1455,54 +1432,31 @@ void X32Ctrl::ChangeSelect(int8_t direction){
 	config->Set(MP_ID::SELECTED_CHANNEL, newSelectedVChannel);
 }
 
-void X32Ctrl::SetSelect(uint8_t vChannelIndex, bool select){
-	// for(uint8_t i=0; i<MAX_VCHANNELS;i++){
-	// 	mixer->vchannel[i]->selected = false;
-	// 	mixer->vchannel[i]->SetChanged(X32_VCHANNEL_CHANGED_SELECT);
-	// }
-	// mixer->vchannel[vChannelIndex]->selected = select;
-	// mixer->vchannel[vChannelIndex]->SetChanged(X32_VCHANNEL_CHANGED_SELECT);
-
-	// config->selectedVChannel = vChannelIndex;
-	// state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
-}
-
-void X32Ctrl::ToggleSelect(uint8_t vChannelIndex){
-	SetSelect(vChannelIndex, !mixer->vchannel[vChannelIndex]->selected);
-}
-
-VChannel* X32Ctrl::GetSelectedvChannel() {
-	return mixer->vchannel[config->GetUint(MP_ID::SELECTED_CHANNEL)];
-}
-
-VChannel* X32Ctrl::GetVChannel(uint8_t VChannelIndex){
-	return mixer->vchannel[VChannelIndex];
-}
 
 uint8_t X32Ctrl::SurfaceChannel2vChannel(uint8_t surfaceChannel){
 	if ((config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) || (config->GetBankMode() == X32_SURFACE_MODE_BANKING_USER)){
 		if (config->IsModelX32Full()){
 			if (surfaceChannel <= 15){
 				// input-section
-				return modes[config->GetBankMode()].inputBanks[state->activeBank_inputFader].surfaceChannel2VChannel[surfaceChannel];
+				return modes[config->GetBankMode()].inputBanks[config->GetUint(BANKING_INPUT)].surfaceChannel2VChannel[surfaceChannel];
 			} else if (surfaceChannel == 24) {
 				// main-channel
 				return 80;
 			} else {
 				// bus-section and mainfader
-				return modes[config->GetBankMode()].busBanks[state->activeBank_busFader].surfaceChannel2VChannel[surfaceChannel-16];
+				return modes[config->GetBankMode()].busBanks[config->GetUint(BANKING_BUS)].surfaceChannel2VChannel[surfaceChannel-16];
 			}
 		}
 		if (config->IsModelX32CompactOrProducer()){
 			if (surfaceChannel <= 7){
 				// input-section
-				return modes[config->GetBankMode()].inputBanks[state->activeBank_inputFader].surfaceChannel2VChannel[surfaceChannel];
+				return modes[config->GetBankMode()].inputBanks[config->GetUint(BANKING_INPUT)].surfaceChannel2VChannel[surfaceChannel];
 			} else if (surfaceChannel == 16) {
 				// main-channel
 				return 80;
 			} else {
 				// bus-section and mainfader
-				return modes[config->GetBankMode()].busBanks[state->activeBank_busFader].surfaceChannel2VChannel[surfaceChannel-8];
+				return modes[config->GetBankMode()].busBanks[config->GetUint(BANKING_BUS)].surfaceChannel2VChannel[surfaceChannel-8];
 			}
 			return 0;
 		}
@@ -1662,7 +1616,7 @@ void X32Ctrl::ProcessUartData() {
         for (int package=0; package < packagesToPrint; package++) {
             printf("surfaceProcessUartData(): Package %d: ", package);
             for (uint8_t i = 0; i<6; i++){
-                printf("%02X ", surfacePacketBuffer[package][i]);
+                printf("%02X ", (uint8_t)surfacePacketBuffer[package][i]);
             }
             if (surfacePacketBuffer[package][0] == 0xFE){
                 printf("  <--- Board %d", surfacePacketBuffer[package][1] & 0x7F);
@@ -1688,17 +1642,29 @@ void X32Ctrl::ProcessUartData() {
                     receivedBoardId = receivedBoardIdtemp;
                     break;
             }
-        } else {
-            receivedClass = surfacePacketBuffer[package][0];
+        } else
+		{   
+			receivedClass = surfacePacketBuffer[package][0];
             receivedIndex = surfacePacketBuffer[package][1];
-            if (surfacePacketBuffer[package][3] == 0xFE){
-                // short package
-                receivedValue = surfacePacketBuffer[package][2];
-                //receivedChecksum = surfacePacketBuffer[package][4];
-            } else if (surfacePacketBuffer[package][4] == 0xFE){
-                // long package
+            
+			if ((uint8_t)(surfacePacketBuffer[package][3]) == 0xFE)
+			{
+                // short package - uint8_t !!
+
+                receivedValue = (uint16_t)surfacePacketBuffer[package][2];
+                
+				// TODO: Check checksum
+				//receivedChecksum = surfacePacketBuffer[package][4];
+            }
+			else if ((uint8_t)(surfacePacketBuffer[package][4]) == 0xFE)
+			{
+                // long package - uint16_t !!
+				// for example: fader value
+
                 receivedValue = ((uint16_t)surfacePacketBuffer[package][3] << 8) | (uint16_t)surfacePacketBuffer[package][2];
-                //receivedChecksum = surfacePacketBuffer[package][5];
+                
+				// TODO: Check checksum
+				//receivedChecksum = surfacePacketBuffer[package][5];
             }
         
 
@@ -1790,18 +1756,18 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 
 	// Logic for double button press
 	if (isButtonPressed) {
-		if (state->buttonPressed == X32_BTN_NONE) {
-			state->buttonPressed = button;
+		if (buttonPressed == X32_BTN_NONE) {
+			buttonPressed = button;
 		} else {
-			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DoubleButtonPress: Button1 %d, Button2 %d", state->buttonPressed, state->secondbuttonPressed);
-			state->secondbuttonPressed = button;
+			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DoubleButtonPress: Button1 %d, Button2 %d", buttonPressed, secondbuttonPressed);
+			secondbuttonPressed = button;
 		}
 	} else {
-		if (state->buttonPressed == button) {
-			state->buttonPressed = X32_BTN_NONE;
+		if (buttonPressed == button) {
+			buttonPressed = X32_BTN_NONE;
 		}
-		if (state->secondbuttonPressed == button) {
-			state->secondbuttonPressed = X32_BTN_NONE;
+		if (secondbuttonPressed == button) {
+			secondbuttonPressed = X32_BTN_NONE;
 		}
 	}
 
@@ -1852,7 +1818,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				ShowPage(X32_PAGE::UTILITY);
 				break;
 			case X32_BTN_EQ_MODE:
-				mixer->ChangePeq(config->GetUint(MP_ID::SELECTED_CHANNEL), state->activeEQ, 'T', +1);
+				config->Change(((MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ))), +1, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_BTN_EQ_LOW:
 			case X32_BTN_EQ_LOW_MID:
@@ -1902,7 +1868,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				case X32_BTN_BOARD_L_CH_6_SELECT:
 				case X32_BTN_BOARD_L_CH_7_SELECT:
 				case X32_BTN_BOARD_L_CH_8_SELECT:
-					ToggleSelect(GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_L_CH_1_SELECT));
+					config->Toggle(CHANNEL_SELECTED, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_L_CH_1_SELECT));
 					break;
 				case X32_BTN_BOARD_M_CH_1_SELECT:
 				case X32_BTN_BOARD_M_CH_2_SELECT:
@@ -1912,7 +1878,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				case X32_BTN_BOARD_M_CH_6_SELECT:
 				case X32_BTN_BOARD_M_CH_7_SELECT:
 				case X32_BTN_BOARD_M_CH_8_SELECT:
-					ToggleSelect(GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_M_CH_1_SELECT));
+					config->Toggle(CHANNEL_SELECTED, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_M_CH_1_SELECT));
 					break;
 				case X32_BTN_BOARD_R_CH_1_SELECT:
 				case X32_BTN_BOARD_R_CH_2_SELECT:
@@ -1923,7 +1889,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				case X32_BTN_BOARD_R_CH_7_SELECT:
 				case X32_BTN_BOARD_R_CH_8_SELECT:
 				case X32_BTN_MAIN_SELECT:
-					ToggleSelect(GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_R_CH_1_SELECT));
+					config->Toggle(CHANNEL_SELECTED, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_R_CH_1_SELECT));
 					break;
 				case X32_BTN_BOARD_L_CH_1_SOLO:
 				case X32_BTN_BOARD_L_CH_2_SOLO:
@@ -2011,7 +1977,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 						} else {
 							surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 0);
 							// trigger switch to channel lcd
-							state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
+							//state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
 						}
 					}
 					break;
@@ -2101,28 +2067,28 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 				config->Change(CHANNEL_DYNAMICS_TRESHOLD, amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_EQ_Q:
-				mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'Q', amount);
+				config->Change(((MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ))), amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_EQ_FREQ:
-				mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'F', amount);
+				config->Change(((MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ))), amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_EQ_GAIN:
-				mixer->ChangePeq(config->GetUint(SELECTED_CHANNEL), state->activeEQ, 'G', amount);
+				config->Change(((MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ))), amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_PAN:
 				config->Change(CHANNEL_PANORAMA, amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_BUS_SEND_1:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 0, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 0, amount, config->GetUint(BANKING_BUS_SENDS));
 				break;
 			case X32_ENC_BUS_SEND_2:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 1, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 1, amount, config->GetUint(BANKING_BUS_SENDS));
 				break;
 			case X32_ENC_BUS_SEND_3:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 2, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 2, amount, config->GetUint(BANKING_BUS_SENDS));
 				break;
 			case X32_ENC_BUS_SEND_4:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 3, amount, state->activeBusSend);
+				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 3, amount, config->GetUint(BANKING_BUS_SENDS));
 				break;
 			default:
 				// just here to avoid compiler warnings                  
@@ -2307,26 +2273,24 @@ void X32Ctrl::BankingSends(X32_BTN p_button) {
 
 	switch (p_button){
 		case X32_BTN_BUS_SEND_1_4:
-			state->activeBusSend = 0;
+			config->Set(BANKING_BUS_SENDS, 0);
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 1);
 			break;
 		case X32_BTN_BUS_SEND_5_8:
-			state->activeBusSend = 1;
+			config->Set(BANKING_BUS_SENDS, 1);
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 1);
 			break;
 		case X32_BTN_BUS_SEND_9_12:
-			state->activeBusSend = 2;
+			config->Set(BANKING_BUS_SENDS, 2);
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 1);
 			break;
 		case X32_BTN_BUS_SEND_13_16:
-			state->activeBusSend = 3;
+			config->Set(BANKING_BUS_SENDS, 3);
 			surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 1);
 			break;
 		default:
 			break;
 	}
-
-	state->SetChangeFlags(X32_VCHANNEL_CHANGED_SENDS);
 }
 
 void X32Ctrl::BankingEQ(X32_BTN p_button){
@@ -2362,43 +2326,33 @@ void X32Ctrl::BankingEQ(X32_BTN p_button){
 	config->Set(MP_ID::BANKING_EQ, newBankingEq);
 }
 
-void X32Ctrl::Banking(X32_BTN p_button){
-	uint16_t changeflag = X32_MIXER_CHANGED_NONE;
-
-
+void X32Ctrl::Banking(X32_BTN p_button)
+{
 	if (config->IsModelX32Full()){
 		switch (p_button){
 			case X32_BTN_CH_1_16:
-				state->activeBank_inputFader = 0;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 0);
 				break;
 			case X32_BTN_CH_17_32:
-				state->activeBank_inputFader = 1;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 1);
 				break;
 			case X32_BTN_AUX_IN_EFFECTS:
-				state->activeBank_inputFader = 2;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 2);
 				break;
 			case X32_BTN_BUS_MASTER:
-				state->activeBank_inputFader = 3;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 3);
 				break;
 			case X32_BTN_GROUP_DCA_1_8:
-				state->activeBank_busFader = 0;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 0);
 				break;
 			case X32_BTN_BUS_1_8:
-				state->activeBank_busFader = 1;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 1);
 				break;
 			case X32_BTN_BUS_9_16:
-				state->activeBank_busFader = 2;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 2);
 				break;
 			case X32_BTN_MATRIX_MAIN_C:
-				state->activeBank_busFader = 3;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 3);
 				break;
 			default:
 				break;
@@ -2407,88 +2361,43 @@ void X32Ctrl::Banking(X32_BTN p_button){
 	if (config->IsModelX32CompactOrProducer()){
 		switch (p_button){
 			case X32_BTN_CH_1_8:
-				state->activeBank_inputFader = 0;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 0);
 				break;
 			case X32_BTN_CH_9_16:
-				state->activeBank_inputFader = 1;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 1);
 				break;
 			case X32_BTN_CH_17_24:
-				state->activeBank_inputFader = 2;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 2);
 				break;
 			case X32_BTN_CH_25_32:
-				state->activeBank_inputFader = 3;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 3);
 				break;
 			case X32_BTN_AUX_IN_1_6_USB_REC:
-				state->activeBank_inputFader = 4;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 4);
 				break;
 			case X32_BTN_EFFECTS_RETURNS:
-				state->activeBank_inputFader = 5;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 5);
 				break;
 			case X32_BTN_BUS_1_8_MASTER:
-				state->activeBank_inputFader = 6;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 6);
 				break;
 			case X32_BTN_BUS_9_16_MASTER:
-				state->activeBank_inputFader = 7;
-				changeflag = X32_MIXER_CHANGED_BANKING_INPUT;
+				config->Set(BANKING_INPUT, 7);
 				break;
 			case X32_BTN_GROUP_DCA_1_8:
-				state->activeBank_busFader = 0;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 0);
 				break;
 			case X32_BTN_BUS_1_8:
-				state->activeBank_busFader = 1;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 1);
 				break;
 			case X32_BTN_BUS_9_16:
-				state->activeBank_busFader = 2;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 2);
 				break;
 			case X32_BTN_MATRIX_MAIN_C:
-				state->activeBank_busFader = 3;
-				changeflag = X32_MIXER_CHANGED_BANKING_BUS;
+				config->Set(BANKING_BUS, 3);
 				break;
 			default:
 				break;
 		}
 	}
-
-	state->SetChangeFlags(changeflag);
-}
-
-//####################################################################
-// 
-// ########  ######## ########  ##     ##  ######   
-// ##     ## ##       ##     ## ##     ## ##    ##  
-// ##     ## ##       ##     ## ##     ## ##        
-// ##     ## ######   ########  ##     ## ##   #### 
-// ##     ## ##       ##     ## ##     ## ##    ##  
-// ##     ## ##       ##     ## ##     ## ##    ##  
-// ########  ######## ########   #######   ######   
-//
-//####################################################################
-
-
-void X32Ctrl::DebugPrintBank(uint8_t bank)
-{
-	printf("################# BANK%d ###################\n", bank);
-	for (uint8_t i=0;i<35;i++){
-		printf("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].inputBanks[bank].surfaceChannel2VChannel[i]);
-	}
-	printf("END ############# BANK%d ############### END\n", bank);
-}
-
-void X32Ctrl::DebugPrintBusBank(uint8_t bank)
-{
-	printf("################# BUS BANK%d ###################\n", bank);
-	for (uint8_t i=0;i<35;i++){
-		printf("surfaceChannel%d -> vChannel%d\n", i, modes[X32_SURFACE_MODE_BANKING_X32].busBanks[bank].surfaceChannel2VChannel[i]);
-	}
-	printf("END ############# BUS BANK%d ############### END\n", bank);
 }

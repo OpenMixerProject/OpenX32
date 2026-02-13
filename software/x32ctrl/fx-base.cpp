@@ -75,8 +75,6 @@ bool FxBase::SetParameter(uint8_t parIdx, float value) {
         helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "%s parameterIdx=%d value=%f", GetName().c_str(), parIdx, (double)value);
                 
         parameter_value[parIdx] = value;
-        state->SetChangeFlags(X32_MIXER_CHANGED_FX);
-
         return true;
     }
     return false;
