@@ -24,6 +24,7 @@
 
 #include "audio.h"
 #include "system.h"
+#include "rta.h"
 
 // include individual effects
 #include "fxBase.h"
@@ -215,6 +216,8 @@ void audioInit(void) {
 
 		fxSlots[1] = new fxChorus(1, 2);
 	#endif
+
+	rtaInit();
 }
 
 void audioFxData(int fxSlot, float* data, int len) {
@@ -352,6 +355,9 @@ void audioProcessData(void) {
 		}
 	#endif
 
+
+	// RTA (use AUX channel 8 (index 23) for this)
+	rtaProcess(&audioBuffer[TAP_INPUT][23][0]);
 
 
 	/*

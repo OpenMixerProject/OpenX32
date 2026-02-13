@@ -132,6 +132,29 @@ void spiInit(void) {
 	spiRxRingBuffer.tail = 0;
 }
 
+void spiCoreRxBegin() {
+    // disable SPI-port
+    *pSPICTL &= ~SPIEN;
+
+	// disable DMA-chain
+	*pIISPI = 0;
+	*pCPSPI = 0;
+
+	// reset all registers
+	*pSPIFLG = DS0EN; // Enable SRU2 output for SPI device-select-0
+	*pSPIDMAC = 0; // spi-dma-register
+
+	spiRxRingBuffer.head = 0;
+	spiRxRingBuffer.tail = 0;
+
+	spiDmaMode = false; // switch internal processing to SPI-core-mode
+
+	// reconfigure for CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
+	*pSPICTL = ISSEN | MSBF | WL32; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit
+	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
+	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
+}
+
 void spiDmaBegin(unsigned int* buffer, int len, bool receive) {
 	// more information in SHARC Processor Hardware Reference 12-36
 
@@ -188,26 +211,8 @@ void spiDmaEnd(void) {
     while (!(SPIF & *pSPISTAT)) {
        NOP();
     }
-    // disable SPI-port
-    *pSPICTL &= ~SPIEN;
 
-	// disable DMA-chain
-	*pIISPI = 0;
-	*pCPSPI = 0;
-
-	// reset all registers
-	*pSPIFLG = DS0EN; // Enable SRU2 output for SPI device-select-0
-	*pSPIDMAC = 0; // spi-dma-register
-
-	spiRxRingBuffer.head = 0;
-	spiRxRingBuffer.tail = 0;
-
-	spiDmaMode = false; // switch internal processing to SPI-core-mode
-
-	// reconfigure for CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
-	*pSPICTL = ISSEN | MSBF | WL32; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit
-	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
-	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
+    spiCoreRxBegin();
 }
 
 void spiISR(int sig) {

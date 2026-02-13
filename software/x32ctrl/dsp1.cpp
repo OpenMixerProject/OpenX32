@@ -1153,10 +1153,56 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
         case 's': // status-feedback
             switch (channel) {
                 case 'u': // Update pack
-                    if (valueCount == 3) {
+                    if (valueCount == (3 + 64)) {
                         state->dspVersion[1] = floatValues[0];
                         state->dspLoad[1] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
                         state->dspFreeHeapWords[1] = floatValues[2]; // free heap-space in 32-bit words
+
+                        // direct copy of RTA-data
+                        memcpy(&rtaData[0], &floatValues[3], 64 * sizeof(float));
+/*
+                        // optimize the data and convert linear frequency axis to logarithmic axis
+                        float attack = 1.0f;  // fast rise
+                        float release = 0.75f; // slower decay
+                        uint8_t RTA_BINS = 128;
+                        uint8_t DISPLAY_BANDS = 64;
+                        float* rta_rspectrum = &floatValues[3];
+
+                        // k defines the bowing of the logarithmic curve
+                        // a value of around 0.05 to 0.1 should be fine for 64 display-bands
+                        const float k = 0.07f; 
+                        const float denom = expf(k * (float)(DISPLAY_BANDS - 1)) - 1.0f;
+
+                        for (int i = 0; i < DISPLAY_BANDS; i++) {
+                            // Step 1: logarithmix map-equation
+                            // calculate the Bar-index i to the FFT-Bin-Index
+                            float logIndex = (float)(RTA_BINS - 1) * (expf(k * (float)i) - 1.0f) / denom;
+                            
+                            // security check for all arrays
+                            int idxLo = (int)logIndex;
+                            if (idxLo < 0) idxLo = 0;
+                            int idxHi = idxLo + 1;
+                            
+                            // limit to the array-borders
+                            if (idxHi >= RTA_BINS) {
+                                idxHi = RTA_BINS - 1;
+                                idxLo = idxHi - 1;
+                                if(idxLo < 0) idxLo = 0;
+                            }
+                            
+                            float frac = logIndex - (float)idxLo;
+                            
+                            // linear interpolation between two Bins
+                            float targetVal = rta_rspectrum[idxLo] + frac * (rta_rspectrum[idxHi] - rta_rspectrum[idxLo]);
+
+                            // Step 2: temporal smoothing (Ballistic)
+                            if (targetVal > rtaData[i]) {
+                                rtaData[i] += attack * (targetVal - rtaData[i]);
+                            } else {
+                                rtaData[i] += release * (targetVal - rtaData[i]);
+                            }
+                        }      
+*/                  
                     }
                     break;
             }

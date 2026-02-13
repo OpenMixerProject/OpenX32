@@ -48,6 +48,7 @@ class DSP1 : X32Base {
 
         float volumeSpecial;
         float monitorVolume;
+        float rtaData[64];
 
         FxMath* fxmath;
         SPI* spi;

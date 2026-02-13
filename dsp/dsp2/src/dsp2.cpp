@@ -56,6 +56,7 @@ static uint32_t cyclesMain; // static limits this global variable to this file
 uint32_t cyclesTotal;
 sDsp dsp;
 float pm peqCoeffs[5 * 4]; // storage for IIR-coefficients in PM for biquad_trans
+uint32_t spiTimeoutCounter = 0;
 
 #pragma section("seg_int_code")
 void openx32Init(void) {
@@ -118,10 +119,14 @@ int main() {
 			cyclesAudio = systemStats._cycles;
 			cyclesTotal = cyclesAudio + cyclesMain;
 			CYCLES_RESET(systemStats);
+
+			spiTimeoutCounter++; // will be incremented every 333 microseconds
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
+			spiTimeoutCounter = 0; // reset SPI counter
+
 			CYCLES_START(systemStats);
 
 			spiProcessRxData();
@@ -129,6 +134,15 @@ int main() {
 			CYCLES_STOP(systemStats);
 			cyclesMain = systemStats._cycles;
 			CYCLES_RESET(systemStats);
+		}
+
+		// check if we have received some data over SPI within the last 250ms
+		// we are receiving audio every 333 microseconds. 750 * 0.333us = 250ms
+		if (spiTimeoutCounter >= 750) {
+			// we ran into a SPI-timeout -> reset SPI system
+			spiCoreRxBegin();
+
+			spiTimeoutCounter = 0;
 		}
 	}
 }

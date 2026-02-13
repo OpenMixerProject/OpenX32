@@ -775,6 +775,16 @@ void create_screen_main() {
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Setup");
                                     add_style_tab_nopad(obj);
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // rta_chart
+                                            lv_obj_t *obj = lv_chart_create(parent_obj);
+                                            objects.rta_chart = obj;
+                                            lv_obj_set_pos(obj, 78, 8);
+                                            lv_obj_set_size(obj, 640, 300);
+                                        }
+                                    }
                                 }
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Card");
@@ -926,7 +936,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 344);
+                    create_user_widget_config_slider_display_encoder(obj, 345);
                 }
                 {
                     // widget2
@@ -940,7 +950,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 349);
+                    create_user_widget_config_slider_display_encoder(obj, 350);
                 }
                 {
                     // widget3
@@ -954,7 +964,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 354);
+                    create_user_widget_config_slider_display_encoder(obj, 355);
                 }
                 {
                     // widget4
@@ -968,7 +978,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 359);
+                    create_user_widget_config_slider_display_encoder(obj, 360);
                 }
                 {
                     // widget5
@@ -982,7 +992,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 364);
+                    create_user_widget_config_slider_display_encoder(obj, 365);
                 }
                 {
                     // widget6
@@ -996,7 +1006,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 369);
+                    create_user_widget_config_slider_display_encoder(obj, 370);
                 }
             }
         }
@@ -1016,12 +1026,12 @@ void tick_screen_main() {
     tick_user_widget_ms_bar8(255);
     tick_user_widget_ms_bar8(288);
     tick_user_widget_ms_bar(321);
-    tick_user_widget_config_slider_display_encoder(344);
-    tick_user_widget_config_slider_display_encoder(349);
-    tick_user_widget_config_slider_display_encoder(354);
-    tick_user_widget_config_slider_display_encoder(359);
-    tick_user_widget_config_slider_display_encoder(364);
-    tick_user_widget_config_slider_display_encoder(369);
+    tick_user_widget_config_slider_display_encoder(345);
+    tick_user_widget_config_slider_display_encoder(350);
+    tick_user_widget_config_slider_display_encoder(355);
+    tick_user_widget_config_slider_display_encoder(360);
+    tick_user_widget_config_slider_display_encoder(365);
+    tick_user_widget_config_slider_display_encoder(370);
 }
 
 void create_user_widget_8meters(lv_obj_t *parent_obj, int startWidgetIndex) {

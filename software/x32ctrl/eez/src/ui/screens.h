@@ -344,6 +344,7 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_input;
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
+    lv_obj_t *rta_chart;
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *fxtable;

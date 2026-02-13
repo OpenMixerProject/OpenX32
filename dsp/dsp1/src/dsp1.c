@@ -55,6 +55,7 @@ cycle_stats_t systemStats;
 uint32_t cyclesAudio;
 uint32_t cyclesMain;
 uint32_t cyclesTotal;
+uint32_t spiTimeoutCounter = 0;
 
 /*
 #pragma optimize_for_speed // interrupt handlers usually need to be optimized
@@ -152,10 +153,14 @@ int main() {
 			cyclesAudio = systemStats._cycles;
 			cyclesTotal = cyclesAudio + cyclesMain;
 			CYCLES_RESET(systemStats);
+
+			spiTimeoutCounter++; // will be incremented every 333 microseconds
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
+			spiTimeoutCounter = 0; // reset SPI counter
+
 			CYCLES_START(systemStats);
 
 			spiProcessRxData();
@@ -163,6 +168,15 @@ int main() {
 			CYCLES_STOP(systemStats);
 			cyclesMain = systemStats._cycles;
 			CYCLES_RESET(systemStats);
+		}
+
+		// check if we have received some data over SPI within the last 250ms
+		// we are receiving audio every 333 microseconds. 750 * 0.333us = 250ms
+		if (spiTimeoutCounter >= 750) {
+			// we ran into a SPI-timeout -> reset SPI system
+			spiCoreRxBegin();
+
+			spiTimeoutCounter = 0;
 		}
 	}
 }

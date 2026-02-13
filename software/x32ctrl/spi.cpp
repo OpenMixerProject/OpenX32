@@ -1036,7 +1036,7 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
             if (dsp == 0) {
                 dataToRead[dsp] = 2 + 40 + 8 + 8 + 3; // DSP1: DspVersion, DspLoad, VolumeDspChan, VolumeFxReturn, VolumeMixBus, VolumeMainLRS
             }else{
-                dataToRead[dsp] = 3; // DSP2: DspVersion, DspHeapSpace, DspLoad
+                dataToRead[dsp] = 3 + 64; // DSP2: DspVersion, DspHeapSpace, DspLoad, RTA-Data
             }
             break;
         default:

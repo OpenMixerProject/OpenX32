@@ -26,6 +26,7 @@ typedef struct {
 
 void spiInit(void);
 void spiStop(void);
+void spiCoreRxBegin(void);
 void spiDmaBegin(unsigned int* buffer, int len, bool receive);
 void spiDmaEnd(void);
 void spiISR(int sig);

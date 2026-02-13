@@ -3896,7 +3896,48 @@
                           "topUnit": "px",
                           "widthUnit": "px",
                           "heightUnit": "px",
-                          "children": [],
+                          "children": [
+                            {
+                              "objID": "71351ac8-aad9-4d7f-d5aa-c21f22846141",
+                              "type": "LVGLChartWidget",
+                              "left": 78,
+                              "top": 8,
+                              "width": 640,
+                              "height": 300,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "89d2083b-a635-4fd7-e4d2-9b59dc3a98d1",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rta_chart",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "6b95ed00-b4ed-4055-dfc8-83b74d8da45d"
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            }
+                          ],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
                           "hiddenFlagType": "literal",
                           "clickableFlag": true,
@@ -4366,7 +4407,7 @@
                   "left": 0,
                   "top": 0,
                   "width": 800,
-                  "height": 336,
+                  "height": 402,
                   "customInputs": [],
                   "customOutputs": [],
                   "style": {
