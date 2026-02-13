@@ -135,25 +135,6 @@ void DSP1::LoadRouting_X32Default()
     }
 }
 
-void DSP1::ReadAndUpdateVUMeterData(void) {
-    spi->ReadData();
-
-    // process SPI-Data
-    while (spi->HasNextEvent()) {
-        SpiEvent* spiEvent = spi->GetNextEvent();
-
-        if (spiEvent->dsp == 0) {
-            callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
-        } else {
-            callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
-        }
-    }
-
-    // recalculate peak-hold and VU with decay
-    UpdateVuMeter();
-}
-
-
 // set the general volume of one of the 40 DSP-channels
 void DSP1::SendChannelVolume(uint8_t chan) {
     // set value to interal struct
@@ -582,7 +563,10 @@ void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
     }
 }
 
-void DSP1::UpdateVuMeter() {
+void DSP1::UpdateVuMeter(uint8_t intervalMs) {
+    uint8_t preloadPeakHold = 1000 / intervalMs; // 50ms * 20 = 1000ms
+    uint8_t preloadPeakDecay = 50 / intervalMs; // 50ms * 1 = 50ms
+    uint8_t coefficientDecay = 250 / intervalMs; // 50ms * 5 = 250ms
 
     uint8_t vuTreshLookupSize = 0;
     if (config->IsModelX32ProducerOrRack()) {
@@ -617,13 +601,13 @@ void DSP1::UpdateVuMeter() {
 	// MainLeft
 	if (currentMeterPeakIndexMain[0] >= MainChannelLR.meterPeakIndex[0]) {
 		MainChannelLR.meterPeakIndex[0] = currentMeterPeakIndexMain[0];
-		MainChannelLR.meterPeakHoldTimer[0] = 100; // preload to 1000ms
+		MainChannelLR.meterPeakHoldTimer[0] = preloadPeakHold; // preload to 1000ms
 	}else{
 		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 		if (MainChannelLR.meterPeakHoldTimer[0] > 0) {
 			// hold current LED
 			MainChannelLR.meterPeakHoldTimer[0]--;
-			MainChannelLR.meterPeakDecayTimer[0] = 10; // preload to 100ms
+			MainChannelLR.meterPeakDecayTimer[0] = preloadPeakDecay; // preload to 100ms
 		}else{
 			// let peak LED fall down every 100ms. It takes a maximum of 2400ms to let the peak fall down over all 24 LEDs
 			if (MainChannelLR.meterPeakIndex[0] > currentMeterPeakIndexMain[0]) {
@@ -631,7 +615,7 @@ void DSP1::UpdateVuMeter() {
 					MainChannelLR.meterPeakDecayTimer[0]--;
 				}else{
 					MainChannelLR.meterPeakIndex[0]--;
-					MainChannelLR.meterPeakDecayTimer[0] = 10; // preload for next iteration
+					MainChannelLR.meterPeakDecayTimer[0] = preloadPeakDecay; // preload for next iteration
 				}
 			}
 		}
@@ -639,13 +623,13 @@ void DSP1::UpdateVuMeter() {
 	// MainRight
 	if (currentMeterPeakIndexMain[1] >= MainChannelLR.meterPeakIndex[1]) {
 		MainChannelLR.meterPeakIndex[1] = currentMeterPeakIndexMain[1];
-		MainChannelLR.meterPeakHoldTimer[1] = 100; // preload to 1000ms
+		MainChannelLR.meterPeakHoldTimer[1] = preloadPeakHold; // preload to 1000ms
 	}else{
 		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 		if (MainChannelLR.meterPeakHoldTimer[1] > 0) {
 			// hold current LED
 			MainChannelLR.meterPeakHoldTimer[1]--;
-			MainChannelLR.meterPeakDecayTimer[1] = 10; // preload to 100ms
+			MainChannelLR.meterPeakDecayTimer[1] = preloadPeakDecay; // preload to 100ms
 		}else{
 			// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
 			if (MainChannelLR.meterPeakIndex[1] > currentMeterPeakIndexMain[1]) {
@@ -653,7 +637,7 @@ void DSP1::UpdateVuMeter() {
 					MainChannelLR.meterPeakDecayTimer[1]--;
 				}else{
 					MainChannelLR.meterPeakIndex[1]--;
-					MainChannelLR.meterPeakDecayTimer[1] = 10; // preload for next iteration
+					MainChannelLR.meterPeakDecayTimer[1] = preloadPeakDecay; // preload for next iteration
 				}
 			}
 		}
@@ -661,13 +645,13 @@ void DSP1::UpdateVuMeter() {
 	// Sub
 	if (currentMeterPeakIndexMain[2] >= MainChannelSub.meterPeakIndex[0]) {
 		MainChannelSub.meterPeakIndex[0] = currentMeterPeakIndexMain[2];
-		MainChannelSub.meterPeakHoldTimer[0] = 100; // preload to 1000ms
+		MainChannelSub.meterPeakHoldTimer[0] = preloadPeakHold; // preload to 1000ms
 	}else{
 		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 		if (MainChannelSub.meterPeakHoldTimer[0] > 0) {
 			// hold current LED
 			MainChannelSub.meterPeakHoldTimer[0]--;
-			MainChannelSub.meterPeakDecayTimer[0] = 10; // preload to 100ms
+			MainChannelSub.meterPeakDecayTimer[0] = preloadPeakDecay; // preload to 100ms
 		}else{
 			// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
 			if (MainChannelSub.meterPeakIndex[0] > currentMeterPeakIndexMain[2]) {
@@ -675,7 +659,7 @@ void DSP1::UpdateVuMeter() {
 					MainChannelSub.meterPeakDecayTimer[0]--;
 				}else{
 					MainChannelSub.meterPeakIndex[0]--;
-					MainChannelSub.meterPeakDecayTimer[0] = 10; // preload for next iteration
+					MainChannelSub.meterPeakDecayTimer[0] = preloadPeakDecay; // preload for next iteration
 				}
 			}
 		}
@@ -688,7 +672,7 @@ void DSP1::UpdateVuMeter() {
 		MainChannelLR.meterDecay[0] = MainChannelLR.meter[0];
 	}else{
 		// current value is below -> afterglow
-		MainChannelLR.meterDecay[0] -= (MainChannelLR.meterDecay[0] / 10);
+		MainChannelLR.meterDecay[0] -= (MainChannelLR.meterDecay[0] / coefficientDecay);
 	}
 	// MainRight
 	if (MainChannelLR.meter[1] > MainChannelLR.meterDecay[1]) {
@@ -696,7 +680,7 @@ void DSP1::UpdateVuMeter() {
 		MainChannelLR.meterDecay[1] = MainChannelLR.meter[1];
 	}else{
 		// current value is below -> afterglow
-		MainChannelLR.meterDecay[1] -= (MainChannelLR.meterDecay[1] / 10);
+		MainChannelLR.meterDecay[1] -= (MainChannelLR.meterDecay[1] / coefficientDecay);
 	}
 	// MainSub
 	if (MainChannelSub.meter[0] > MainChannelSub.meterDecay[0]) {
@@ -704,7 +688,7 @@ void DSP1::UpdateVuMeter() {
 		MainChannelSub.meterDecay[0] = MainChannelSub.meter[0];
 	}else{
 		// current value is below -> afterglow
-		MainChannelSub.meterDecay[0] -= (MainChannelSub.meterDecay[0] / 10);
+		MainChannelSub.meterDecay[0] -= (MainChannelSub.meterDecay[0] / coefficientDecay);
 	}
 
 	// Step 3: Calculate real LEDs to switch on
@@ -744,13 +728,13 @@ void DSP1::UpdateVuMeter() {
             if (currentMeterPeak6Index >= rChannel[i].meterPeak6Index) {
                 // currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
                 rChannel[i].meterPeak6Index = currentMeterPeak6Index;
-                rChannel[i].meterPeak6HoldTimer = 100; // preload to 1000ms
+                rChannel[i].meterPeak6HoldTimer = preloadPeakHold; // preload to 1000ms
             }else{
                 // currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
                 if (rChannel[i].meterPeak6HoldTimer > 0) {
                     // hold current LED
                     rChannel[i].meterPeak6HoldTimer--;
-                    rChannel[i].meterPeak6DecayTimer = 10; // preload
+                    rChannel[i].meterPeak6DecayTimer = preloadPeakDecay; // preload
                 }else{
                     // let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
                     if (rChannel[i].meterPeak6Index > currentMeterPeak6Index) {
@@ -758,7 +742,7 @@ void DSP1::UpdateVuMeter() {
                             rChannel[i].meterPeak6DecayTimer--;
                         }else{
                             rChannel[i].meterPeak6Index--;
-                            rChannel[i].meterPeak6DecayTimer = 10; // preload for next iteration
+                            rChannel[i].meterPeak6DecayTimer = preloadPeakDecay; // preload for next iteration
                         }
                     }
                 }
@@ -771,13 +755,13 @@ void DSP1::UpdateVuMeter() {
         if (currentMeterPeak8Index >= rChannel[i].meterPeak8Index) {
 			// currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
 			rChannel[i].meterPeak8Index = currentMeterPeak8Index;
-			rChannel[i].meterPeak8HoldTimer = 100; // preload to 1000ms
+			rChannel[i].meterPeak8HoldTimer = preloadPeakHold; // preload to 1000ms
 		}else{
 			// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 			if (rChannel[i].meterPeak8HoldTimer > 0) {
 				// hold current LED
 				rChannel[i].meterPeak8HoldTimer--;
-				rChannel[i].meterPeak8DecayTimer = 10; // preload
+				rChannel[i].meterPeak8DecayTimer = preloadPeakDecay; // preload
 			}else{
 				// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
 				if (rChannel[i].meterPeak8Index > currentMeterPeak8Index) {
@@ -785,7 +769,7 @@ void DSP1::UpdateVuMeter() {
 						rChannel[i].meterPeak8DecayTimer--;
 					}else{
 						rChannel[i].meterPeak8Index--;
-						rChannel[i].meterPeak8DecayTimer = 10; // preload for next iteration
+						rChannel[i].meterPeak8DecayTimer = preloadPeakDecay; // preload for next iteration
 					}
 				}
 			}
@@ -798,7 +782,7 @@ void DSP1::UpdateVuMeter() {
 		}else{
 			// current value is below -> afterglow
 			// this function is called every 10ms. A Decay-Rate of 6dB/second would be ideal, but we do a rought estimation here
-			rChannel[i].meterDecay -= (rChannel[i].meterDecay / 10);
+			rChannel[i].meterDecay -= (rChannel[i].meterDecay / coefficientDecay);
 		}
 
 		// Step 3: Calculate real LEDs to switch on
@@ -905,6 +889,40 @@ uint8_t DSP1::GetPeak(int i, uint8_t steps)
     }
 
     return 0;
+}
+
+// this function is called every 10ms
+// readState is incremented every step
+// on step 0 new data is requested from both DSPs followed by 1 wait-state
+// on step 2 the data is read followed by 2 wait-states
+// after step 4 the statemachine resets to step 4
+void DSP1::ReadStateMachine() {
+    if (readState == 0) {
+        // request new data from both DSPs
+    	spi->RequestData();
+
+    }else if (readState == 2) {
+        // read data from DSP (20ms after request)
+        spi->ReadData();
+
+        // process received SPI-Data
+        while (spi->HasNextEvent()) {
+            SpiEvent* spiEvent = spi->GetNextEvent();
+
+            if (spiEvent->dsp == 0) {
+                callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+            } else {
+                callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+            }
+        }
+
+    	UpdateVuMeter(50);
+    }
+    
+    readState++;
+    if (readState == 5) {
+        readState = 0;
+    }
 }
 
 void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {

@@ -38,6 +38,14 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 	unsigned int* intValues = (unsigned int*)values;
 	float tmpValueFloat;
 
+	#if USE_SPI_TXD_MODE == 1
+		unsigned int parameter;
+		unsigned int _classId;
+		unsigned int _channel;
+		unsigned int _index;
+		unsigned int _valueCount;
+	#endif
+
 	switch (classId) {
 		case '?': // request-class
 			switch (channel) {
@@ -71,28 +79,29 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						_classId = 's';
 						_channel = 'u';
 						_index = 0;
-						_valueCount = 45;
+						_valueCount = 2 + 40 + 8 + 8 + 3;
 						parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
 						memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
 						parameter = 0x00000023; // #
-						memcpy(&spiCommData[45 + 2], &parameter, sizeof(uint32_t));
+						memcpy(&spiCommData[63], &parameter, sizeof(uint32_t));
 
 
 						spiCommData[2] = DSP_VERSION;
 						//spiCommData[0] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
 						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
 
-						// VU-meters of main-channels
-						spiCommData[4] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
-						spiCommData[5] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
-						spiCommData[6] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
 						// VU-meters of all DSP input-channels and dynamics
-						for (int i = 0; i < 40; i++) {
-							//spiCommData[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
-							spiCommData[7 + i] = audioBuffer[TAP_INPUT][0][dsp.inputRouting[i]];
-							//spiCommData[45 + i] = dsp.compressorGain[i];
-							//spiCommData[85 + i] = dsp.gateGain[i];
+						for (int i = 0; i < 48; i++) {
+							spiCommData[4 + i] = audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_DSPCHANNEL + i];
 						}
+						for (int i = 0; i < 8; i++) {
+							spiCommData[52 + i] = audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_MIXBUS];
+						}
+
+						// VU-meters of main-channels
+						spiCommData[60] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
+						spiCommData[61] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
+						spiCommData[62] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
 
 						spiDmaBegin((unsigned int*)&spiCommData[0], _valueCount + 3, false);
 					#elif USE_SPI_TXD_MODE == 2

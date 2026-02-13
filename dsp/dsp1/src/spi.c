@@ -29,7 +29,7 @@ pm sSpiRxRingBuffer spiRxRingBuffer;
 	float pm spiCommData[150]; // dont use the stack-memory for this and put it into the program memory
 	pm sSpiTxRingBuffer spiTxRingBuffer;
 #elif USE_SPI_TXD_MODE == 1
-	float pm spiCommData[50];
+	float pm spiCommData[65];
 #elif USE_SPI_TXD_MODE == 2
 	float pm spiCommData[8];
 	// setup DMA-chaining
@@ -94,6 +94,9 @@ void spiInit(void) {
 		spiTx_tcb[3][2] = 1; // IMSPI internal modifier
 		spiTx_tcb[3][3] = (int)&dsp.gateGain[0]; // IISPI internal index
 */
+		spiTx_tcb[2][1] = 0;
+		spiTx_tcb[3][1] = 0;
+
 		// closing data (audio-data of main-busses and final "#")
 		spiTx_tcb[4][0] = 0; // CPSPI chain-pointer ("0" ends DMA-chain)
 		spiTx_tcb[4][1] = 4; // ICSPI internal count
@@ -116,13 +119,13 @@ void spiInit(void) {
 		_channel = 'u';
 		_index = 0;
 		//_valueCount = 2 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + MAX_CHAN_FULLFEATURED + MAX_CHAN_FULLFEATURED + 3;
-		_valueCount = 2 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + 3;
+		//_valueCount = 2 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + 3;
+		_valueCount = 2 + spiTx_tcb[0][1] + spiTx_tcb[1][1] + spiTx_tcb[2][1] + spiTx_tcb[3][1] + 3;
 		parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
 		memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
 
 		parameter = 0x00000023; // #
 		memcpy(&spiCommData[7], &parameter, sizeof(uint32_t));
-
 	#endif
 	spiRxRingBuffer.head = 0;
 	spiRxRingBuffer.tail = 0;
@@ -131,9 +134,9 @@ void spiInit(void) {
 void spiDmaBegin(unsigned int* buffer, int len, bool receive) {
 	// more information in SHARC Processor Hardware Reference 12-36
 
-    // Step 1: disable SPI-port directly as we only received data previously
+	// Step 1: disable SPI-port directly as we only received data previously
 	*pSPICTL &= ~SPIEN;
-
+	spiDmaMode = true; // switch our processing to DMA-mode
 
 	// Step 2: Write to SPICTL-register to setup DMA-transfer. Important: Enable SPI before enabling DMA
 	*pSPICTL = ISSEN | MSBF | WL32 | TIMOD2; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | DMA-TransferMode
@@ -163,8 +166,6 @@ void spiDmaBegin(unsigned int* buffer, int len, bool receive) {
 			*pSPIDMAC = INTEN | SPIDEN | SPICHEN; // Interrupts enabled | DMA enabled
 		}
 	#endif
-
-	spiDmaMode = true; // switch our processing to DMA-mode
 
 	#if USE_SPI_TXD_MODE == 2
 		// begin the DMA-chain by writing the chain-pointer for the second DMA
@@ -197,15 +198,15 @@ void spiDmaEnd(void) {
 	*pSPIFLG = DS0EN; // Enable SRU2 output for SPI device-select-0
 	*pSPIDMAC = 0; // spi-dma-register
 
-	// reconfigure for CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
-	*pSPICTL = ISSEN | MSBF | WL32; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit
-	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
-	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
-
 	spiRxRingBuffer.head = 0;
 	spiRxRingBuffer.tail = 0;
 
 	spiDmaMode = false; // switch internal processing to SPI-core-mode
+
+	// reconfigure for CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
+	*pSPICTL = ISSEN | MSBF | WL32; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit
+	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
+	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
 }
 
 void spiISR(int sig) {

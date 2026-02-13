@@ -381,7 +381,8 @@ void X32Ctrl::Tick10ms(void){
 	if (config->IsModelX32FullOrCompactOrProducer()) {
 		surface->Touchcontrol();	
 	}
-	mixer->dsp->ReadAndUpdateVUMeterData();
+
+	mixer->dsp->ReadStateMachine();
 
 	ProcessUartData();
 
@@ -413,7 +414,6 @@ void X32Ctrl::Tick10ms(void){
 
 void X32Ctrl::Tick50ms(void) {
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "50ms");
-
 	UpdateMeters();
 }
 
@@ -421,7 +421,7 @@ void X32Ctrl::Tick100ms(void) {
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "100ms");
 
 	surface->Blink();
-	mixer->dsp->spi->ActivityLight();
+	//mixer->dsp->spi->ActivityLight();
 
 	if (!config->IsModelX32Core() && state->activePage == X32_PAGE::UTILITY) {
 		// read the current DSP load

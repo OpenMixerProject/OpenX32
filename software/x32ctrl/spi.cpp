@@ -834,20 +834,29 @@ int SPI::UploadBitstreamDsps(bool useCli) {
     return 0;
 }
 
-void SPI::ReadData(void){
+void SPI::RequestData(void){
 //    if (!connected) return;
 
     if (!(state->dsp_disable_readout)) {
-        // continuously read data from both DSPs
-        
         // read update-packet from DSP1
         SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-        //usleep(1000);
-        ReadDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
 
         // read update-packet from DSP2
         SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-        //usleep(1000);
+    }
+}
+
+void SPI::ReadData(void) {
+    //    if (!connected) return;
+
+    if (!(state->dsp_disable_readout)) {
+        // at the moment we are not using the ring-buffer-system, so this is just a simple buffer at the moment
+        spiRxRingBuffer[0].head = 0;
+        spiRxRingBuffer[0].tail = 0;
+        spiRxRingBuffer[1].head = 0;
+        spiRxRingBuffer[1].tail = 0;
+
+        ReadDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
         ReadDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
     }
 }
@@ -859,8 +868,8 @@ void SPI::ActivityLight(void){
     if (!(state->dsp_disable_activity_light)) {
 
    	    // toggle the LED on DSP1 and DSP2 to show some activity
-//	    SendDspParameter_uint32(0, 'a', 42, 0, 2);
-//	    SendDspParameter_uint32(1, 'a', 42, 0, 2);
+	    SendDspParameter_uint32(0, 'a', 42, 0, 2);
+	    SendDspParameter_uint32(1, 'a', 42, 0, 2);
     }
 
 }
@@ -1032,9 +1041,9 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
     switch (channel) {
         case 'u': // update-packet
             if (dsp == 0) {
-                dataToRead[dsp] = 2 + 89 + 10; // DSP1
+                dataToRead[dsp] = 2 + 40 + 8 + 8 + 3; // DSP1: DspVersion, DspLoad, VolumeDspChan, VolumeFxReturn, VolumeMixBus, VolumeMainLRS
             }else{
-                dataToRead[dsp] = 3 + 10; // DSP2
+                dataToRead[dsp] = 3; // DSP2: DspVersion, DspHeapSpace, DspLoad
             }
             break;
         default:

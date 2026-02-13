@@ -7,7 +7,7 @@
 #if USE_SPI_TXD_MODE == 0
 	extern float pm spiCommData[150];
 #elif USE_SPI_TXD_MODE == 1
-	extern float pm spiCommData[50];
+	extern float pm spiCommData[65];
 #elif USE_SPI_TXD_MODE == 2
 	extern float pm spiCommData[8];
 #endif
