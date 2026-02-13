@@ -44,7 +44,6 @@ void DSP1::Init(void) {
     MainChannelSub.balance = 0; // -100 .. 0 .. +100
 
     for (uint8_t i = 0; i < 40; i++) {
-
         Channel[i].muted = false;
         Channel[i].solo = false;
 
@@ -76,13 +75,17 @@ void DSP1::Init(void) {
         }
 
         for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-            Channel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
+            Channel[i].sendMixbus[i_mixbus] = 0.0; //VOLUME_MIN;
             Channel[i].sendMixbusTapPoint[i_mixbus] = DSP_TAP_PRE_FADER;
         }
 
         monitorVolume = 0; // dBfs
         monitorTapPoint = DSP_TAP_INPUT;
+    }
 
+    for (uint8_t i = 0; i < 16; i++) {
+        this->Bus[i].volumeLR = 0.0f; // 0dBfs
+        this->Bus[i].balance = 0; // center
     }
 
     LoadRouting_X32Default();
@@ -360,10 +363,14 @@ void DSP1::SendAll() {
             SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
         }
     }
+
+    /*
     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
         SendMatrixVolume(matrixChannel);
         SetMainSendTapPoints(matrixChannel, MainChannelLR.sendMatrixTapPoint[matrixChannel]);
     }
+    */
+
     SendMainVolume();
     SendMonitorVolume();
 }
@@ -718,7 +725,7 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs) {
 
 	// Now calculate the VU Meter LEDs for each channel
 	// leds Channel = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-	for (int i = 0; i < 40; i++) {
+	for (int i = 0; i < (40 + 8 + 8); i++) {
 		// check if current data is above stored peak-index
 
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
@@ -854,15 +861,15 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs) {
         uint8_t peak8Bit = 0;
         if (rChannel[i].meterPeak8Index > 0) peak8Bit = 1 << (rChannel[i].meterPeak8Index -1);
         rChannel[i].meter8Info |= peak8Bit;
-        
+    }
+
+    // only the first 32 full-featured channels have dynamic-information for compressor and gate
+    for (int i = 0; i < 32; i++) {
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
 		    if (Channel[i].gate.gain < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
 		    if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
         }
-
-		//Channel[i].compressor.gain = floatValues[45 + i];
-		//Channel[i].gate.gain = floatValues[85 + i];
 	}
 }
 
@@ -891,34 +898,47 @@ uint8_t DSP1::GetPeak(int i, uint8_t steps)
     return 0;
 }
 
-// this function is called every 10ms
-// readState is incremented every step
-// on step 0 new data is requested from both DSPs followed by 1 wait-state
-// on step 2 the data is read followed by 2 wait-states
-// after step 4 the statemachine resets to step 4
-void DSP1::ReadStateMachine() {
-    if (readState == 0) {
-        // request new data from both DSPs
-    	spi->RequestData();
+void DSP1::CallbackStateMachine() {
+    // each step is called with 10ms delay
+    // so we make sure that we have enough time between the individual SPI-transmissions
+    // and the DSP has enough time to switch between SPI Core Read and SPI DMA Chain Transmission
 
-    }else if (readState == 2) {
-        // read data from DSP (20ms after request)
-        spi->ReadData();
+    switch (readState) {
+        case 0:
+            // request new data from DSP1
+            spi->RequestData(0);
+           break;
+        case 1:
+            // request new data from DSP2
+            spi->RequestData(1);
+            break;
+        case 2:
+            // read data from DSP1
+            spi->ReadData(0);
+            break;
+        case 3:
+            // request new data from DSP2
+            spi->ReadData(1);
+            break;
+        case 4:
+            // process received SPI-Data
+            while (spi->HasNextEvent()) {
+                SpiEvent* spiEvent = spi->GetNextEvent();
 
-        // process received SPI-Data
-        while (spi->HasNextEvent()) {
-            SpiEvent* spiEvent = spi->GetNextEvent();
-
-            if (spiEvent->dsp == 0) {
-                callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
-            } else {
-                callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+                if (spiEvent->dsp == 0) {
+                    callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+                } else {
+                    callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+                }
             }
-        }
 
-    	UpdateVuMeter(50);
+            UpdateVuMeter(50);
+            break;
+        default:
+            break;
     }
     
+    // increment readState up to 4 and reset to 0 to get 50ms cycles
     readState++;
     if (readState == 5) {
         readState = 0;
@@ -954,8 +974,11 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                         // DSP-Load calculation: number of used CPU-cycles for processing divided by the core-clock-frequency based on the 333us timebase
                         state->dspLoad[0] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
 
-                        // copy meter-info to channel-struct
-                        for (int i = 0; i < 40; i++) {
+                        // copy meter-info to channel-struct (regular DSP-channels)
+                        for (int i = 0; i < (40 + 8 + 8); i++) {
+                            // channel 1-40 -> DSP-channels
+                            // channel 41-48 -> FX-return-channels
+                            // channel 49-56 -> Mixbus 1-8
                             rChannel[i].meter = abs(floatValues[2 + i]); // convert 32-bit audio-value
                             rChannel[i].meterPu = abs(floatValues[2 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         }

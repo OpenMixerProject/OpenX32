@@ -80,7 +80,8 @@ void spiInit(void) {
 		spiTx_tcb[1][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
 		spiTx_tcb[1][1] = ACTIVE_MIX_BUSSES; // ICSPI internal count
 		spiTx_tcb[1][2] = 1; // IMSPI internal modifier
-		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_MIXBUS]; // IISPI internal index
+		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_INPUT][0][DSP_BUF_IDX_MIXBUS]; // IISPI internal index
+
 /*
 		// compressor gains
 		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3); // CPSPI chain-pointer

@@ -166,7 +166,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 		case 'v': // volume
 			switch (index) {
 				case 0: // DSP-Channels
-					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS)) {
 						return;
 					}
 
@@ -184,10 +184,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					}
 
 					if (valueCount == 4) {
-						dsp.mixbusVolume[channel] = floatValues[0];
-						dsp.mixbusSendMainLeftVolume[channel] = floatValues[1];
-						dsp.mixbusSendMainRightVolume[channel] = floatValues[2];
-						dsp.mixbusSendMainSubVolume[channel] = floatValues[3];
+						dsp.channelVolumeSet[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[0];
+						dsp.channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[1];
+						dsp.channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[2];
+						dsp.channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[3];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
@@ -212,17 +212,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
-				case 5: // FX-Send-Volume
-					// Valid for DSP-Channels 1-40
-					if (channel >= (MAX_CHAN_FPGA)) {
-						return;
-					}
-
-					if (valueCount == 16) {
-						for (int i = 0; i < 16; i++) {
-							dsp.channelSendFxVolume[i][channel] = floatValues[i];
-						}
-					}
+				default:
 					break;
 			}
 			break;

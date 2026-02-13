@@ -834,36 +834,29 @@ int SPI::UploadBitstreamDsps(bool useCli) {
     return 0;
 }
 
-void SPI::RequestData(void){
+void SPI::RequestData(uint8_t dsp){
 //    if (!connected) return;
 
     if (!(state->dsp_disable_readout)) {
-        // read update-packet from DSP1
-        SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-
-        // read update-packet from DSP2
-        SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
+        // request update-packet from DSP
+        SendDspParameter_uint32(dsp, '?', 'u', 0, 0);
     }
 }
 
-void SPI::ReadData(void) {
+void SPI::ReadData(uint8_t dsp) {
     //    if (!connected) return;
 
     if (!(state->dsp_disable_readout)) {
         // at the moment we are not using the ring-buffer-system, so this is just a simple buffer at the moment
-        spiRxRingBuffer[0].head = 0;
-        spiRxRingBuffer[0].tail = 0;
-        spiRxRingBuffer[1].head = 0;
-        spiRxRingBuffer[1].tail = 0;
+        spiRxRingBuffer[dsp].head = 0;
+        spiRxRingBuffer[dsp].tail = 0;
 
-        ReadDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
-        ReadDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
+        ReadDspParameterArray(dsp, '?', 0, 0, dataToRead[dsp], NULL); // read the answer from DSP
     }
 }
 
 void SPI::ActivityLight(void){
 //    if (!connected) return;
-
 
     if (!(state->dsp_disable_activity_light)) {
 

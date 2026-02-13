@@ -126,6 +126,32 @@ void audioInit(void) {
 
 	// initialize variables
 	dsp.monitorTapPoint = TAP_INPUT;
+
+	// FX-Returns (0dBfs and set left/right to main)
+	for (int i = 40; i < (40 + 8); i += 2) {
+		dsp.channelVolumeSet[i] = 1.0f;
+		dsp.channelSendMainLeftVolume[i] = 1.0f;
+		dsp.channelSendMainRightVolume[i] = 0.0f;
+		dsp.channelSendMainSubVolume[i] = 0.0f;
+
+		dsp.channelVolumeSet[i + 1] = 1.0f;
+		dsp.channelSendMainLeftVolume[i + 1] = 0.0f;
+		dsp.channelSendMainRightVolume[i + 1] = 1.0f;
+		dsp.channelSendMainSubVolume[i + 1] = 0.0f;
+	}
+
+	// Mixbusse (silent)
+	for (int i = 48; i < (40 + 8 + 8); i += 2) {
+		dsp.channelVolumeSet[i] = 0.0f;
+		dsp.channelSendMainLeftVolume[i] = 0.0f;
+		dsp.channelSendMainRightVolume[i] = 0.0f;
+		dsp.channelSendMainSubVolume[i] = 0.0f;
+
+		dsp.channelVolumeSet[i + 1] = 0.0f;
+		dsp.channelSendMainLeftVolume[i + 1] = 0.0f;
+		dsp.channelSendMainRightVolume[i + 1] = 0.0f;
+		dsp.channelSendMainSubVolume[i + 1] = 0.0f;
+	}
 }
 
 void audioSmoothVolume(void) {
@@ -133,9 +159,9 @@ void audioSmoothVolume(void) {
 	// out = (volumeSet - volume) * coeff + volume
 
 	// smooth audio-volume for individual channels and FX-returns
-	vecvsubf(&dsp.channelVolumeSet[0], &dsp.channelVolume[0], &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // temp = (volumeSet - volume)
-	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // temp = temp * coeff
-	vecvaddf(&dsp.channelVolume[0], &audioTempBufferChanA[0], &dsp.channelVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // volume = volume + temp
+	vecvsubf(&dsp.channelVolumeSet[0], &dsp.channelVolume[0], &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // temp = (volumeSet - volume)
+	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // temp = temp * coeff
+	vecvaddf(&dsp.channelVolume[0], &audioTempBufferChanA[0], &dsp.channelVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // volume = volume + temp
 
 	// smooth audio-volume for mains
 	vecvsubf(&dsp.mainVolumeSet[0], &dsp.mainVolume[0], &audioTempBufferChanA[0], 3); // temp = (volumeSet - volume)
@@ -540,7 +566,7 @@ void audioProcessData(void) {
 	*/
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		float* src = &audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MIXBUS];
-		float* gain = &dsp.mixbusVolume[0];
+		float* gain = &dsp.channelVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN];
 		float* dst = &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MIXBUS];
 		for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
 			dst[i_ch] = src[i_ch] * gain[i_ch];

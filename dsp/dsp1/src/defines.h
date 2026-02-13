@@ -62,7 +62,7 @@
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
 #define SPI_MAX_RX_PAYLOAD_SIZE	30  // 27 int-values + * + # + parameter
-#define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
+#define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 2)  // store up to 2 payload-sets
 #define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values - must be dividable by 2!
 
 #define SAMPLERATE_MAX			48000

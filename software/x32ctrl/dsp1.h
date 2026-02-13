@@ -35,7 +35,7 @@ class DSP1 : X32Base {
         uint8_t readState;
 
     public:
-        srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS];  // values used only during runtime
+        srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS + 8 + 8];  // values used only during runtime
         sDspChannel Channel[MAX_FPGA_TO_DSP1_CHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
         sMatrixChannel Matrix[6];
@@ -89,7 +89,7 @@ class DSP1 : X32Base {
         void DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode);
         void DSP2_SendFxParameter(int fxSlot);
 
-        void ReadStateMachine();
+        void CallbackStateMachine();
         void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
         void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
 };

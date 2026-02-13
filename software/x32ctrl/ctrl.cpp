@@ -382,7 +382,7 @@ void X32Ctrl::Tick10ms(void){
 		surface->Touchcontrol();	
 	}
 
-	mixer->dsp->ReadStateMachine();
+	mixer->dsp->CallbackStateMachine();
 
 	ProcessUartData();
 

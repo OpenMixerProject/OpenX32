@@ -41,14 +41,19 @@ class PageMeters : public Page {
 
                     // FX Ret
                     if (m == 5) {
-                        // TODO Meter
+                        lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
                     } else 
                     
-                    // Bus 1-16
-                    if ((m == 6) || (m == 7)) {
-                        // TODO Meter
+                    // Bus 1-8
+                    if (m == 6) {
+                        lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
                     } else
                     
+                    // Bus 9-16
+                    if (m == 7) {
+                        // not implemented yet
+                    } else
+
                     // Matrix
                     if (m == 8) {
                         if (i < 6) {

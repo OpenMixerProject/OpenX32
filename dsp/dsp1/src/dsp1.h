@@ -130,8 +130,8 @@ struct {
 	float dm peqStates[CHANNELS_WITH_4BD_EQ][2 * MAX_CHAN_EQS]; // store in data memory
 
 	// volume-settings
-	float channelVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN]; // in p.u.
-	float channelVolumeSet[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN]; // in p.u.
+	float channelVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
+	float channelVolumeSet[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
 	#if TEST_MATRIXMULTIPLICATION_MIXBUS == 1
 		float channelSendMixbusVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN][MAX_MIXBUS]; // in p.u.
 	#else
@@ -145,12 +145,7 @@ struct {
 	float pm channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
 	#pragma align 8
 	float pm channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
-	float channelSendFxVolume[16][MAX_CHAN_FPGA]; // in p.u.
 
-	float mixbusVolume[MAX_MIXBUS];
-	float mixbusSendMainLeftVolume[MAX_MIXBUS];
-	float mixbusSendMainRightVolume[MAX_MIXBUS];
-	float mixbusSendMainSubVolume[MAX_MIXBUS];
 
 /*
 	float sendMatrixVolume[MAX_MATRIX][MAX_MIXBUS + 3]; // Mixbus and MainLRS can be sent to matrix
