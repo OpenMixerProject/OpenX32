@@ -72,32 +72,28 @@ void spiInit(void) {
 		// caution: chain-pointer registers must point to the LAST location in the TCB, hence tcb_address + 3
 
 		// audio-data of main-DSP-channels and FX-return
-		spiTx_tcb[0][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
+		spiTx_tcb[0][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer <- DEBUG: jump to main-bus-audio-data directly without mixbusses and gains
 		spiTx_tcb[0][1] = (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // ICSPI internal count
 		spiTx_tcb[0][2] = 1; // IMSPI internal modifier
 		spiTx_tcb[0][3] = (int)&audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_DSPCHANNEL]; // IISPI internal index
 
 		// audio-data of 8 mixbusses
 		spiTx_tcb[1][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
-		spiTx_tcb[1][1] = ACTIVE_MIX_BUSSES; // ICSPI internal count
+		spiTx_tcb[1][1] = ACTIVE_MIX_BUSSES * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these volume-information. DSP will take to long
 		spiTx_tcb[1][2] = 1; // IMSPI internal modifier
 		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_INPUT][0][DSP_BUF_IDX_MIXBUS]; // IISPI internal index
 
-/*
 		// compressor gains
 		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3); // CPSPI chain-pointer
-		spiTx_tcb[2][1] = MAX_CHAN_FULLFEATURED; // ICSPI internal count
+		spiTx_tcb[2][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
 		spiTx_tcb[2][2] = 1; // IMSPI internal modifier
 		spiTx_tcb[2][3] = (int)&dsp.compressorGain[0]; // IISPI internal index
 
 		// gate-gains
 		spiTx_tcb[3][0] = ((int)&spiTx_tcb[4][0] + 3); // CPSPI chain-pointer
-		spiTx_tcb[3][1] = MAX_CHAN_FULLFEATURED; // ICSPI internal count
+		spiTx_tcb[3][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
 		spiTx_tcb[3][2] = 1; // IMSPI internal modifier
 		spiTx_tcb[3][3] = (int)&dsp.gateGain[0]; // IISPI internal index
-*/
-		spiTx_tcb[2][1] = 0;
-		spiTx_tcb[3][1] = 0;
 
 		// closing data (audio-data of main-busses and final "#")
 		spiTx_tcb[4][0] = 0; // CPSPI chain-pointer ("0" ends DMA-chain)
