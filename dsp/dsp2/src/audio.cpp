@@ -67,6 +67,7 @@ volatile int audioReady = 0;
 volatile int audioProcessing = 0;
 volatile int spdifSamplePointer = 0;
 volatile bool spdifLeftChannel = true;
+volatile uint32_t audioGlitchCounter = 0;
 int audioBufferOffset = 0;
 
 // audio-buffers for transmitting and receiving
@@ -430,6 +431,8 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
 	// we received new audio-data
 	// check if we are still processing the data, which means >100% CPU Load -> Crash System
     if (audioProcessing) {
+    	audioGlitchCounter++;
+
     	// this is not nice but without a debugger and profiling tools this is the easiest method to check if the algorithms are within the timing
     	systemCrash();
     }

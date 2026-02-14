@@ -940,7 +940,7 @@ void DSP1::CallbackStateMachine() {
     
     // increment readState up to 4 and reset to 0 to get 50ms cycles
     readState++;
-    if (readState == 5) {
+    if (readState >= 5) {
         readState = 0;
     }
 }
@@ -955,13 +955,14 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
         case 's': // status-feedback
             switch (channel) {
                 case 'u': // Update pack
-                    if (valueCount == 61) {
+                    if (valueCount == (3 + 40 + 8 + 0 + 3)) {
                         // idx 0 = dspVersion
                         // idx 1 = CPU-cycles
-                        // idx 2..41 = volume 40 DSP-channels
-                        // idx 42.. = volume 8 DSP2 FX-return channels
-                        // idx 50.. = volume 8 MixBusses
-                        // idx 58..60 = volume 3 main-bus (L, R, C)
+                        // idx 2 = Audio Glitch Counter
+                        // idx 3..52 = volume 40 DSP-channels
+                        // idx 43.. = volume 8 DSP2 FX-return channels
+                        // idx 51.. = volume 8 MixBusses
+                        // idx 59..61 = volume 3 main-bus (L, R, C)
 
                         // future options:
                                 // idx 58.. = gain of 32 compressors
@@ -973,23 +974,24 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                         // we are receiving 16 samples with 20.83us each resulting in 16*20.83us = 333us per interrupt
                         // DSP-Load calculation: number of used CPU-cycles for processing divided by the core-clock-frequency based on the 333us timebase
                         state->dspLoad[0] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                        state->dspAudioGlitchCounter[0] = floatValues[2]; // audio-glitch-counter
 
                         // copy meter-info to channel-struct (regular DSP-channels)
-                        for (int i = 0; i < (40 + 8 + 8); i++) {
+                        for (int i = 0; i < (40 + 8 + 0); i++) {
                             // channel 1-40 -> DSP-channels
                             // channel 41-48 -> FX-return-channels
                             // channel 49-56 -> Mixbus 1-8
-                            rChannel[i].meter = abs(floatValues[2 + i]); // convert 32-bit audio-value
-                            rChannel[i].meterPu = abs(floatValues[2 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                            rChannel[i].meter = abs(floatValues[3 + i]); // convert 32-bit audio-value
+                            rChannel[i].meterPu = abs(floatValues[3 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         }
 
-                        MainChannelLR.meter[0] = abs(floatValues[58]); // convert 32-bit audio-value
-                        MainChannelLR.meter[1] = abs(floatValues[59]); // convert 32-bit audio-value
-                        MainChannelSub.meter[0] = abs(floatValues[60]); // convert 32-bit audio-value
+                        MainChannelLR.meter[0] = abs(floatValues[59-8]); // convert 32-bit audio-value
+                        MainChannelLR.meter[1] = abs(floatValues[60-8]); // convert 32-bit audio-value
+                        MainChannelSub.meter[0] = abs(floatValues[61-8]); // convert 32-bit audio-value
 
-                        MainChannelLR.meterPu[0] = abs(floatValues[58])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
-                        MainChannelLR.meterPu[1] = abs(floatValues[59])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
-                        MainChannelSub.meterPu[0] = abs(floatValues[60])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        MainChannelLR.meterPu[0] = abs(floatValues[59-8])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        MainChannelLR.meterPu[1] = abs(floatValues[60-8])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        MainChannelSub.meterPu[0] = abs(floatValues[61-8])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                     }
                     break;
             }
@@ -1153,13 +1155,14 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
         case 's': // status-feedback
             switch (channel) {
                 case 'u': // Update pack
-                    if (valueCount == (3 + 64)) {
+                    if (valueCount == (4 + 64)) {
                         state->dspVersion[1] = floatValues[0];
                         state->dspLoad[1] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
                         state->dspFreeHeapWords[1] = floatValues[2]; // free heap-space in 32-bit words
+                        state->dspAudioGlitchCounter[1] = floatValues[3]; // audio-glitch-counter
 
                         // direct copy of RTA-data
-                        memcpy(&rtaData[0], &floatValues[3], 64 * sizeof(float));
+                        memcpy(&rtaData[0], &floatValues[4], 64 * sizeof(float));
 /*
                         // optimize the data and convert linear frequency axis to logarithmic axis
                         float attack = 1.0f;  // fast rise

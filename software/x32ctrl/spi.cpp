@@ -818,7 +818,17 @@ int SPI::UploadBitstreamDsps(bool useCli) {
                     last_progress = current_progress;
                 }
             }else{
-                // TODO: use UI to show progress
+                // use UI to show progress
+                totalBytesSent += bytesRead;
+                current_progress = (totalBytesSent * 100) / file_size[i];
+                if ((current_progress > (last_progress + 5)) || (totalBytesSent == file_size[i])) {
+                    int progress = (int)((float)totalBytesSent / file_size[i] * 100);
+
+                    lv_bar_set_value(objects.testbar, progress, LV_ANIM_OFF);
+                    lv_obj_invalidate(lv_scr_act());
+
+                    last_progress = current_progress;
+                }
             }
         }
         
@@ -1034,9 +1044,9 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
     switch (channel) {
         case 'u': // update-packet
             if (dsp == 0) {
-                dataToRead[dsp] = 2 + 40 + 8 + 8 + 3; // DSP1: DspVersion, DspLoad, VolumeDspChan, VolumeFxReturn, VolumeMixBus, VolumeMainLRS
+                dataToRead[dsp] = (3 + 40 + 8 + 0 + 3); // DSP1: DspVersion, DspLoad, VolumeDspChan, VolumeFxReturn, VolumeMixBus, VolumeMainLRS
             }else{
-                dataToRead[dsp] = 3 + 64; // DSP2: DspVersion, DspHeapSpace, DspLoad, RTA-Data
+                dataToRead[dsp] = 4 + 64; // DSP2: DspVersion, DspHeapSpace, DspLoad, audioGlitchCounter, RTA-Data
             }
             break;
         default:

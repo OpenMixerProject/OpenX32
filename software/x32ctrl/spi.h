@@ -11,6 +11,7 @@
 #include "state.h"
 #include "spi-event.h"
 
+#include "eez/src/ui/screens.h"
 
 
 // defines for FPGA-configuration via SPI

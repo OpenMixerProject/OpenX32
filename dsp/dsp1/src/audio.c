@@ -53,6 +53,7 @@
 
 volatile int audioReady = 0;
 volatile int audioProcessing = 0;
+volatile uint32_t audioGlitchCounter = 0;
 int audioBufferOffset = 0;
 
 // audio-buffers for transmitting and receiving
@@ -159,14 +160,24 @@ void audioSmoothVolume(void) {
 	// out = (volumeSet - volume) * coeff + volume
 
 	// smooth audio-volume for individual channels and FX-returns
+	/*
 	vecvsubf(&dsp.channelVolumeSet[0], &dsp.channelVolume[0], &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // temp = (volumeSet - volume)
 	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // temp = temp * coeff
 	vecvaddf(&dsp.channelVolume[0], &audioTempBufferChanA[0], &dsp.channelVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // volume = volume + temp
+	*/
+	for (int i = 0; i < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); i++) {
+		dsp.channelVolume[i] = dsp.channelVolume[i] + ((dsp.channelVolumeSet[i] - dsp.channelVolume[i]) * audioVolumeSmootherCoeff);
+	}
 
 	// smooth audio-volume for mains
+	/*
 	vecvsubf(&dsp.mainVolumeSet[0], &dsp.mainVolume[0], &audioTempBufferChanA[0], 3); // temp = (volumeSet - volume)
 	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], 3); // temp = temp * coeff
 	vecvaddf(&dsp.mainVolume[0], &audioTempBufferChanA[0], &dsp.mainVolume[0], 3); // volume = volume + temp
+	*/
+	for (int i = 0; i < 3; i++) {
+		dsp.mainVolume[i] = dsp.mainVolume[i] + ((dsp.mainVolumeSet[i] - dsp.mainVolume[i]) * audioVolumeSmootherCoeff);
+	}
 }
 
 void audioProcessData(void) {
@@ -455,10 +466,16 @@ void audioProcessData(void) {
 		// the logic for the compressor is relying on a single sample here. Its a compromise, but working
 		fxProcessCompressorLogic(i_ch, audioBuffer[TAP_POST_EQ][0][DSP_BUF_IDX_DSPCHANNEL + i_ch]);
 	}
+	/*
 	vecvmltf(&dsp.compressorGain[0], &dsp.compressorCoeff[0], &dsp.compressorGain[0], MAX_CHAN_FULLFEATURED);
 	vecvaddf(&dsp.compressorGain[0], &dsp.compressorGainSet[0], &dsp.compressorGain[0], MAX_CHAN_FULLFEATURED);
 	vecvmltf(&dsp.compressorGainSet[0], &dsp.compressorCoeff[0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED);
 	vecvsubf(&dsp.compressorGain[0], &audioTempBufferChanA[0], &dsp.compressorGain[0], MAX_CHAN_FULLFEATURED);
+	*/
+	for (int i = 0; i < MAX_CHAN_FULLFEATURED; i++) {
+		dsp.compressorGain[i] = (dsp.compressorGain[i] * dsp.compressorCoeff[i]) + dsp.compressorGainSet[i] - (dsp.compressorGainSet[i] * dsp.compressorCoeff[i]);
+	}
+
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		vecvmltf(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.compressorGain[0], &audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FULLFEATURED);
 		vecvmltf(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.compressorMakeup[0], &audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FULLFEATURED);
@@ -873,6 +890,8 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
 	// we received new audio-data
 	// check if we are still processing the data, which means >100% CPU Load -> Crash System
     if (audioProcessing) {
+    	audioGlitchCounter++;
+
     	// this is not nice but without a debugger and profiling tools this is the easiest method to check if the algorithms are within the timing
     	systemCrash();
     }

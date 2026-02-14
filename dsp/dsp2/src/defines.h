@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.11
+#define DSP_VERSION				0.2
 #define FX_USE_UPMIXER			0	// enables a full-featured stereo-decompositing and 5.1-surround-upmixing effect (all other effects will be disabled)
 #define FX_USE_MATRIXUPMIXER	0	// enables a nice but simple stereo-to-5.1-surround matrix-upmixer (all other effects will be disabled)
 

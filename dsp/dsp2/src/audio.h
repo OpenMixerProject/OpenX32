@@ -9,6 +9,8 @@ extern float pm audioBuffer[2][MAX_CHAN][SAMPLES_IN_BUFFER];
 extern "C" {
 #endif
 
+extern volatile uint32_t audioGlitchCounter;
+
 // function prototypes
 void audioInit(void);
 void audioFxData(int fxSlot, float* data, int len);

@@ -74,8 +74,9 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						spiCommData[2] = DSP_VERSION;
 						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
 						spiCommData[4] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+						spiCommData[5] = audioGlitchCounter;
 
-						spiDmaBegin((unsigned int*)&spiCommData[0], 5, false); // start DMA-transmission and transmit the first 4 elements of spiCommData
+						spiDmaBegin((unsigned int*)&spiCommData[0], 6, false); // start DMA-transmission and transmit the first 4 elements of spiCommData
 						// after this the DMA-chain will switch to the next spi_tcb
 					#endif
 					break;

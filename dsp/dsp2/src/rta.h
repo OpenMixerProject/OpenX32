@@ -4,8 +4,8 @@
 #include "dsp2.h"
 
 // configure the FFT
-#define RTA_FFT_SIZE		1024
-#define RTA_FFT_SIZE_HALF	512
+#define RTA_FFT_SIZE		512
+#define RTA_FFT_SIZE_HALF	256
 #define RTA_DISPLAY_BANDS	64
 
 #define RTA_FFT_FFT_MODE	1 // 0 = rfft(), 1 = rfftN

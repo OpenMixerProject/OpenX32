@@ -8,7 +8,7 @@
 #elif USE_SPI_TXD_MODE == 1
 	extern float pm spiCommData[3];
 #elif USE_SPI_TXD_MODE == 2
-	extern float pm spiCommData[6];
+	extern float pm spiCommData[7];
 #endif
 
 // variables and types for SPI-transmitter in Slave-Mode
@@ -24,7 +24,7 @@ typedef struct {
 } sSpiTxRingBuffer;
 
 void spiInit(void);
-void spiStop(void);
+void spiCallback(void);
 void spiCoreRxBegin(void);
 void spiDmaBegin(unsigned int* buffer, int len, bool receive);
 void spiDmaEnd(void);

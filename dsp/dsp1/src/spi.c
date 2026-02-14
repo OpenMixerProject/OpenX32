@@ -31,12 +31,13 @@ pm sSpiRxRingBuffer spiRxRingBuffer;
 #elif USE_SPI_TXD_MODE == 1
 	float pm spiCommData[65];
 #elif USE_SPI_TXD_MODE == 2
-	float pm spiCommData[8];
+	float pm spiCommData[9];
 	// setup DMA-chaining
 	int spiTx_tcb[5][4]; // 5 buffers for AudioSamples, CompressorGain, GateGain and additional data
 #endif
 volatile bool spiNewRxDataReady = false;
 bool spiDmaMode = false;
+volatile bool spiDesiredMode = 0;
 
 typedef enum {
 	LOOKING_FOR_START_MARKER,
@@ -71,7 +72,7 @@ void spiInit(void) {
 		// caution: chain-pointer registers must point to the LAST location in the TCB, hence tcb_address + 3
 
 		// audio-data of main-DSP-channels and FX-return
-		spiTx_tcb[0][0] = ((int)&spiTx_tcb[1][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
+		spiTx_tcb[0][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
 		spiTx_tcb[0][1] = (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // ICSPI internal count
 		spiTx_tcb[0][2] = 1; // IMSPI internal modifier
 		spiTx_tcb[0][3] = (int)&audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_DSPCHANNEL]; // IISPI internal index
@@ -102,7 +103,7 @@ void spiInit(void) {
 		spiTx_tcb[4][0] = 0; // CPSPI chain-pointer ("0" ends DMA-chain)
 		spiTx_tcb[4][1] = 4; // ICSPI internal count
 		spiTx_tcb[4][2] = 1; // IMSPI internal modifier
-		spiTx_tcb[4][3] = (int)&spiCommData[4]; // IISPI internal index
+		spiTx_tcb[4][3] = (int)&spiCommData[5]; // IISPI internal index
 
 
 
@@ -119,17 +120,35 @@ void spiInit(void) {
 		_classId = 's';
 		_channel = 'u';
 		_index = 0;
-		//_valueCount = 2 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + MAX_CHAN_FULLFEATURED + MAX_CHAN_FULLFEATURED + 3;
-		//_valueCount = 2 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + 3;
-		_valueCount = 2 + spiTx_tcb[0][1] + spiTx_tcb[1][1] + spiTx_tcb[2][1] + spiTx_tcb[3][1] + 3;
+		//_valueCount = 3 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + MAX_CHAN_FULLFEATURED + MAX_CHAN_FULLFEATURED + 3;
+		//_valueCount = 3 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + 3;
+		_valueCount = 3 + spiTx_tcb[0][1] + spiTx_tcb[1][1] + spiTx_tcb[2][1] + spiTx_tcb[3][1] + 3;
 		parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
 		memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
 
 		parameter = 0x00000023; // #
-		memcpy(&spiCommData[7], &parameter, sizeof(uint32_t));
+		memcpy(&spiCommData[8], &parameter, sizeof(uint32_t));
 	#endif
 	spiRxRingBuffer.head = 0;
 	spiRxRingBuffer.tail = 0;
+}
+
+void spiCallback(void) {
+	if ((spiDesiredMode == 0) && (spiDmaMode)) {
+		// try to switch to SpiCoreMode
+
+		#if USE_SPI_TXD_MODE == 1
+			spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
+		#elif USE_SPI_TXD_MODE == 2
+			// check if chain-loading still in progress
+			if (!(SPICHS & *pSPIDMAC)) {
+				spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
+			}
+		#endif
+
+	}else if ((spiDesiredMode == 1) && (!spiDmaMode)) {
+		// try to switch to SpiDmaMode
+	}
 }
 
 void spiCoreRxBegin() {
@@ -157,6 +176,8 @@ void spiCoreRxBegin() {
 
 void spiDmaBegin(unsigned int* buffer, int len, bool receive) {
 	// more information in SHARC Processor Hardware Reference 12-36
+
+	spiDesiredMode = 1;
 
 	// Step 1: disable SPI-port directly as we only received data previously
 	*pSPICTL &= ~SPIEN;
@@ -200,16 +221,16 @@ void spiDmaBegin(unsigned int* buffer, int len, bool receive) {
 void spiDmaEnd(void) {
 	// stop SPI and flush remaining data
 	// wait for complete DMA-transfer
-	while ((SPIS0 | SPIS1) & *pSPIDMAC) {
-       NOP();
+	if ((SPIS0 | SPIS1) & *pSPIDMAC) {
+       return;
     }
 	// wait for TX-buffer to be emptied into shift-register
-    while ((TXS & *pSPISTAT)) {
-       NOP();
+	if ((TXS & *pSPISTAT)) {
+		return;
     }
     // wait for the SPI-shift-register to finish shifting out
-    while (!(SPIF & *pSPISTAT)) {
-       NOP();
+	if (!(SPIF & *pSPISTAT)) {
+		return;
     }
 
     spiCoreRxBegin();
@@ -222,14 +243,7 @@ void spiISR(int sig) {
 	// check if our system is in DMA-processing-mode
 	if (spiDmaMode) {
 		// interrupt because last DMA-Transmission has completed
-		#if USE_SPI_TXD_MODE == 1
-			spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
-		#elif USE_SPI_TXD_MODE == 2
-			// check if chain-loading still in progress
-			if (!(SPICHS & *pSPIDMAC)) {
-				spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
-			}
-		#endif
+		spiDesiredMode = 0;
 	}else{
 		// a new word has been received -> put it in the Rx Ring-Buffer
 

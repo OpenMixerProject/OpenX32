@@ -26,7 +26,7 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP2 (FX DSP) v0.1.0, 19.01.2026
+  ControlSystem for DSP2 (FX DSP) v0.2.0, 14.02.2026
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
   Copyright 2025-2026 OpenMixerProject
@@ -86,14 +86,14 @@ int main() {
 	audioInit();
 
 	// initialize hardware-peripherals for AES3-output
-	systemPcgInit();
-	systemSpdifTxInit();
+//	systemPcgInit();
+//	systemSpdifTxInit();
 
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
 	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
 	//adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
 	adi_int_InstallHandler(ADI_CID_P4I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT3 Interrupt (called on new audio-data)
-	adi_int_InstallHandler(ADI_CID_P16I, (ADI_INT_HANDLER_PTR)audioSpdifTxISR, 0, true); // SPORT6 Interrupt (called when new data for SPDIF is requested)
+//	adi_int_InstallHandler(ADI_CID_P16I, (ADI_INT_HANDLER_PTR)audioSpdifTxISR, 0, true); // SPORT6 Interrupt (called when new data for SPDIF is requested)
 	//adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
 	adi_int_InstallHandler(ADI_CID_P0I, (ADI_INT_HANDLER_PTR)misc0ISR, 0, true); // MISCA0 Interrupt on P0I or P12I
 
@@ -144,5 +144,7 @@ int main() {
 
 			spiTimeoutCounter = 0;
 		}
+
+		spiCallback();
 	}
 }
