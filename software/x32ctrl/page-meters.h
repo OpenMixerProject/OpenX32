@@ -101,7 +101,7 @@ class PageMeters : public Page
                 } 
                 
                 // Main L/R
-                if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}, (uint)X32_VCHANNEL_BLOCK::MAIN))
+                if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}, (uint)X32_VCHANNEL_BLOCK::MAIN) || force_update)
                 {
                     UpdateSlider((uint)X32_VCHANNEL_BLOCK::MAIN, force_update, objects.ms_main_lr__fader);
                 }

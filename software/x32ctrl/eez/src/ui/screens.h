@@ -340,8 +340,11 @@ typedef struct _objects_t {
     lv_obj_t *routing_input;
     lv_obj_t *routing_input_1;
     lv_obj_t *dsp;
+    lv_obj_t *table_routing_fpga_header;
     lv_obj_t *table_routing_fpga;
+    lv_obj_t *table_routing_dsp_input_header;
     lv_obj_t *table_routing_dsp_input;
+    lv_obj_t *table_routing_dsp_output_header;
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
     lv_obj_t *setup_card_detected;

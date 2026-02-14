@@ -81,7 +81,6 @@ class PageEq: public Page {
             }
 
             // calculate the filter-response between 20 Hz and 20 kHz for all 4 PEQs
-            sPEQ* peq;
             float eqValue[200];
             float freq;
 
@@ -98,9 +97,16 @@ class PageEq: public Page {
                 // PEQ
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)
                 {
-                    peq = config->GetPEQ(i_peq, config->GetUint(SELECTED_CHANNEL));
-                    mixer->dsp->fxmath->RecalcFilterCoefficients_PEQ(peq);
-                    eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], peq->b[1], peq->b[2], freq, config->GetUint(SAMPLERATE));
+                    mixer->dsp->fxmath->RecalcFilterCoefficients_PEQ(&mixer->dsp->Channel[selectedChannelIndex].peq[i_peq]);
+                    eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_PEQ(
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[0],
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[1],
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[2],
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[1],
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[2],
+                        freq,
+                        config->GetUint(SAMPLERATE)
+                    );
                 }
 
                 // draw point
@@ -118,8 +124,15 @@ class PageEq: public Page {
                 // PEQ  
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)
                 {
-                    peq = config->GetPEQ(i_peq, config->GetUint(SELECTED_CHANNEL));
-                    phase += mixer->dsp->fxmath->CalcPhaseResponse_PEQ(peq->a[0], peq->a[1], peq->a[2], 1.0f, peq->b[1], peq->b[2], freq, config->GetUint(SAMPLERATE));
+                    phase += mixer->dsp->fxmath->CalcPhaseResponse_PEQ(
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[0],
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[1],
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[2],
+                        1.0f,
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[1],
+                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[2],
+                        freq,
+                        config->GetUint(SAMPLERATE));
                 }
 
                 // limit phase to +/- PI

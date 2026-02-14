@@ -63,10 +63,10 @@ class PageUtility: public Page {
                         mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // Reverb
                         mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2); // Chorus
                         mixer->dsp->DSP2_SetFx(2, FX_TYPE::TRANSIENTSHAPER, 2); // TransientShaper
-                        mixer->dsp->DSP2_SetFx(3, FX_TYPE::OVERDRIVE, 2); // Overdrive
+                        //mixer->dsp->DSP2_SetFx(3, FX_TYPE::OVERDRIVE, 2); // Overdrive
                         mixer->dsp->DSP2_SetFx(4, FX_TYPE::DELAY, 2); // Delay
                         //mixer->dsp->DSP2_SetFx(5, FX_TYPE::MULTIBANDCOMPRESOR, 2); // MultibandCompressor
-                        mixer->dsp->DSP2_SetFx(6, FX_TYPE::DYNAMICEQ, 2); // DynamicEQ
+                        //mixer->dsp->DSP2_SetFx(6, FX_TYPE::DYNAMICEQ, 2); // DynamicEQ
                         //mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2); // no effect
                         break;
                     case X32_BTN_ENCODER3:
@@ -89,11 +89,11 @@ class PageUtility: public Page {
 
                             // route FX-Return-Channels 1-16 to DSP1-Input-Channels 9 to 24, set volume to 0dBfs and Panning to hard L/R
                             for (int i = 8; i < 24; i++) {
-                                mixer->dsp->SetInputRouting(i);
+                                mixer->dsp->SetChannelRouting(i);
                                 config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, i); // 0dBfs
 
-                                mixer->dsp->Channel[i].input = DSP_BUF_IDX_DSP2_FX + (i - 8);
-                                mixer->dsp->Channel[i].inputTapPoint = DSP_TAP_INPUT;
+                                config->Set(ROUTING_DSP_CHANNEL, DSP_BUF_IDX_DSP2_FX + (i - 8), i);
+                                config->Set(ROUTING_DSP_CHANNEL_TAPPOINT, to_underlying(DSP_TAP::INPUT), i);
                             }
                             for (int i = 8; i < 24; i+=2) {
                                 config->Set(MP_ID::CHANNEL_PANORAMA, -100.0f, i);  // left
@@ -101,12 +101,10 @@ class PageUtility: public Page {
                             }
 
                             // route XLR1 to DSP2-Send 1/2
-                            mixer->dsp->Dsp1toDsp2Routing[0].input = DSP_BUF_IDX_DSPCHANNEL; // Channel 1 from FPGA
-                            mixer->dsp->Dsp1toDsp2Routing[0].tapPoint = DSP_TAP_INPUT;
-                            mixer->dsp->Dsp1toDsp2Routing[1].input = DSP_BUF_IDX_DSPCHANNEL; // Channel 1 from FPGA
-                            mixer->dsp->Dsp1toDsp2Routing[1].tapPoint = DSP_TAP_INPUT;
-                            mixer->dsp->SetFxOutputRouting(0);
-                            mixer->dsp->SetFxOutputRouting(1);
+                            config->Set(ROUTING_DSP, DSP_BUF_IDX_DSPCHANNEL, 40);
+                            config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::INPUT), 0);
+                            config->Set(ROUTING_DSP, DSP_BUF_IDX_DSPCHANNEL, 41);
+                            config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::INPUT), 1);
 
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 0); // mute channel 1
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 10); // mute channel 11 (Chorus)

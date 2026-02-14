@@ -39,6 +39,17 @@ DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
 
 void DSP1::Init(void)
 {
+    for (uint8_t chanIndex = 0; chanIndex < 40; chanIndex++)
+    {
+         for (uint8_t peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
+         {
+            Channel[chanIndex].peq[peqIndex].type = config->GetUint((MP_ID)(to_underlying(CHANNEL_EQ_TYPE1) + peqIndex));
+            Channel[chanIndex].peq[peqIndex].fc = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_FREQ1) + peqIndex));
+            Channel[chanIndex].peq[peqIndex].Q = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_Q1) + peqIndex));
+            Channel[chanIndex].peq[peqIndex].gain = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_GAIN1) + peqIndex));
+        }
+    }
+
     LoadRouting_X32Default();
 }
 
@@ -46,7 +57,6 @@ void DSP1::LoadRouting_X32Default()
 {
     for (uint8_t i = 0; i < 40; i++)
     {
-
         // DSP1 Routing Sources
         //
         // 0:       OFF
@@ -65,27 +75,29 @@ void DSP1::LoadRouting_X32Default()
         // 69..92:  DSP2 Return 1-24 (from DSP2)
 
         // connect FPGA2DSP-Source 1-40 to all 40 Mixing Channels (1-32 + AUX 1-8)
-        Channel[i].input = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
-        Channel[i].inputTapPoint = DSP_TAP_INPUT;
-
-        // Volumes, Balance and Mute/Solo is setup in mixerInit()
+        config->Set(ROUTING_DSP_CHANNEL, DSP_BUF_IDX_DSPCHANNEL + i, i);
+        config->Set(ROUTING_DSP_CHANNEL_TAPPOINT, to_underlying(DSP_TAP::INPUT), i);
     }
 
+    // connect all 16 mixbus-channels to DSP2 Channels 1-16
     for (uint8_t i = 0; i < 16; i++)
     {
-        Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2 Channels 1-16
-        Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
+        config->Set(ROUTING_DSP, 41 + i, 40 + i);
+        config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 40 + i);
     }
+
+    // connect inputs 1-8 to DSP2 Channels 17-24
     for (uint8_t i = 16; i < 24; i++)
     {
-        Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Channels 17-24
-        Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
+        config->Set(ROUTING_DSP, DSP_BUF_IDX_DSPCHANNEL + i, i);
+        config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
     }
+
+    // connect MainLeft on even and MainRight on odd channels as PostFader
     for (uint8_t i = 0; i < 40; i++)
     {
-        // connect MainLeft on even and MainRight on odd channels as PostFader
-        Dsp1toFpga[i].input = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
-        Dsp1toFpga[i].tapPoint = DSP_TAP_POST_FADER;
+        config->Set(ROUTING_DSP, 63 + (i % 2), i);
+        config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
     }
 }
 
@@ -259,18 +271,16 @@ void DSP1::SendEQ(uint chanIndex) {
 
     for (uint peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
     {
-        sPEQ* peq = config->GetPEQ(peqIndex, chanIndex);
-
-        fxmath->RecalcFilterCoefficients_PEQ(peq);
+        fxmath->RecalcFilterCoefficients_PEQ(&(Channel[chanIndex].peq[peqIndex]));
 
 /*
         // send coeffiecients without interleaving for biquad() function
         int sectionIndex = peq * 5;
-        values[sectionIndex + 0] = -peq->b[2]; // -b2 (poles)
-        values[sectionIndex + 1] = -peq->b[1]; // -b1 (poles)
-        values[sectionIndex + 2] = peq->a[2]; // a2 (zeros)
-        values[sectionIndex + 3] = peq->a[1]; // a1 (zeros)
-        values[sectionIndex + 4] = peq->a[0]; // a0 (zeros)
+        values[sectionIndex + 0] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
+        values[sectionIndex + 1] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+        values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+        values[sectionIndex + 3] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+        values[sectionIndex + 4] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
 */
 
         // interleave coefficients for biquad_trans()
@@ -283,19 +293,19 @@ void DSP1::SendEQ(uint chanIndex) {
                 // odd section index
                 sectionIndex += 1;
             }
-            values[sectionIndex + 0] = peq->a[0]; // a0 (zeros)
-            values[sectionIndex + 2] = peq->a[1]; // a1 (zeros)
-            values[sectionIndex + 4] = peq->a[2]; // a2 (zeros)
-            values[sectionIndex + 6] = -peq->b[1]; // -b1 (poles)
-            values[sectionIndex + 8] = -peq->b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
+            values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+            values[sectionIndex + 4] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+            values[sectionIndex + 6] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+            values[sectionIndex + 8] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
         }else{
             // last section: store without interleaving
             int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-            values[sectionIndex + 0] = peq->a[0]; // a0 (zeros)
-            values[sectionIndex + 1] = peq->a[1]; // a1 (zeros)
-            values[sectionIndex + 2] = peq->a[2]; // a2 (zeros)
-            values[sectionIndex + 3] = -peq->b[1]; // -b1 (poles)
-            values[sectionIndex + 4] = -peq->b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
+            values[sectionIndex + 1] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+            values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+            values[sectionIndex + 3] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+            values[sectionIndex + 4] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
         }
     }
 
@@ -329,7 +339,7 @@ void DSP1::SendAll() {
         SendGate(chan);
         SendEQ(chan);
         SendCompressor(chan);
-        SetInputRouting(chan);
+        SetChannelRouting(chan);
         SendChannelVolume(chan);
         SendChannelSend(chan);
         for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
@@ -337,12 +347,8 @@ void DSP1::SendAll() {
         }
     }
     // configuration for 40 DSP-outputs to FPGA (16x output, 16x UltraNet, 8x Aux)
-    for (uint8_t chan = 0; chan <= 39; chan++) {
-        SetOutputRouting(chan);
-    }
-    // configuration for 24 channels sends to DSP2 (16x FX, 8x AUX)
-    for (uint8_t fxchan = 0; fxchan <= 23; fxchan++) {
-        SetFxOutputRouting(fxchan);
+    for (uint8_t chan = 0; chan < 40 + 24; chan++) {
+        SetDSP1Routing(chan);
     }
 
     for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
@@ -359,25 +365,18 @@ void DSP1::SendAll() {
     SendMonitorVolume();
 }
 
-void DSP1::SetInputRouting(uint8_t chan) {
+void DSP1::SetChannelRouting(uint chanIndex) {
     uint32_t values[2];
-    values[0] = Channel[chan].input;
-    values[1] = Channel[chan].inputTapPoint;
-    spi->SendReceiveDspParameterArray(0, 'r', chan, 0, 2, (float*)&values[0]);
+    values[0] = config->GetUint(ROUTING_DSP_CHANNEL, chanIndex);
+    values[1] = config->GetUint(ROUTING_DSP_CHANNEL_TAPPOINT, chanIndex);
+    spi->SendReceiveDspParameterArray(0, 'r', chanIndex, 0, 2, (float*)&values[0]);
 }
 
-void DSP1::SetOutputRouting(uint8_t chan) {
+void DSP1::SetDSP1Routing(uint chanIndex) {
     uint32_t values[2];
-    values[0] = Dsp1toFpga[chan].input;
-    values[1] = Dsp1toFpga[chan].tapPoint;
-    spi->SendReceiveDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
-}
-
-void DSP1::SetFxOutputRouting(uint8_t fxchan) {
-    uint32_t values[2];
-    values[0] = Dsp1toDsp2Routing[fxchan].input;
-    values[1] = Dsp1toDsp2Routing[fxchan].tapPoint;
-    spi->SendReceiveDspParameterArray(0, 'r', (MAX_DSP1_TO_FPGA_CHANNELS + fxchan), 1, 2, (float*)&values[0]);
+    values[0] = config->GetUint(ROUTING_DSP, chanIndex);
+    values[1] = config->GetUint(ROUTING_DSP_TAPPOINT, chanIndex);
+    spi->SendReceiveDspParameterArray(0, 'r', chanIndex, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
@@ -410,7 +409,7 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
 void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
     if (dspChannel < 40) {
         // we have a DSP-channel
-        uint8_t channelInputSource = Channel[dspChannel].input;
+        uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, dspChannel);
 
         RoutingGetTapNameByIndex(p_nameBuffer, channelInputSource, dspInputSource);
     }else{
@@ -419,22 +418,7 @@ void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInpu
     }
 }
 
-void DSP1::RoutingGetInputNameByIndex(char* p_nameBuffer, uint8_t index) {
-/*
-    // DSP-input-channels:
-    // 0-31		Full-Featured DSP-Channels
-    // 32-39	Aux-Channel
-*/
-    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
-        sprintf(p_nameBuffer, "DSP-Ch %02d", index);
-    }else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
-        sprintf(p_nameBuffer, "DSP-Aux %02d", index - 32);
-    }else{
-        sprintf(p_nameBuffer, "???");
-    }
-}
-
-void DSP1::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
+String DSP1::RoutingGetOutputNameByIndex(uint8_t index) {
 /*
     // DSP-output-channels:
     // 0-31		Main-Output to FPGA
@@ -442,17 +426,24 @@ void DSP1::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
     // 40-56	FX-Sends 1-16 to DSP2
     // 57-64	FX-Aux to DSP2
 */
-    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
-        sprintf(p_nameBuffer, "DSP-Out %02d", index);
-    }else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
-        sprintf(p_nameBuffer, "DSP-AuxOut %02d", index - 32);
-    }else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
-        sprintf(p_nameBuffer, "FX-SendOut %02d", index - 40);
-    }else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 24))) {
-        sprintf(p_nameBuffer, "FX-AuxOut %02d", index - 56);
-    }else{
-        sprintf(p_nameBuffer, "???");
+    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32)))
+    {
+        return String("DSP-Out ") + index;
     }
+    else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) 
+    {
+        return String("DSP-AuxOut ") + (index - 32);
+    }
+    else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) 
+    {
+        return String("FX-SendOut ") + (index - 40);
+    }
+    else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 24)))
+    {
+        return String("FX-AuxOut ") + (index - 56);
+    }
+
+    return "???";
 }
 
 void DSP1::RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source) {
@@ -532,20 +523,20 @@ void DSP1::RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t s
 }
 
 void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
-    switch(position) {
-        case DSP_TAP_INPUT:
+    switch((DSP_TAP)position) {
+        case DSP_TAP::INPUT:
             sprintf(p_nameBuffer, "Input");
             break;
-        case DSP_TAP_PRE_EQ:
+        case DSP_TAP::PRE_EQ:
             sprintf(p_nameBuffer, "Pre-EQ");
             break;
-        case DSP_TAP_POST_EQ:
+        case DSP_TAP::POST_EQ:
             sprintf(p_nameBuffer, "Post-EQ");
             break;
-        case DSP_TAP_PRE_FADER:
+        case DSP_TAP::PRE_FADER:
             sprintf(p_nameBuffer, "Pre-Fader");
             break;
-        case DSP_TAP_POST_FADER:
+        case DSP_TAP::POST_FADER:
             sprintf(p_nameBuffer, "Post-Fader");
             break;
         default:

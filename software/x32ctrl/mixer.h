@@ -47,15 +47,6 @@ class Mixer : public X32Base
         
         void SetBusSend(uint8_t vChannelIndex, uint8_t index, float value);
         
-        void ChangeHardwareInput(uint8_t outputIndex, int8_t amount);
-	    void ChangeDspInput(uint8_t vChannelIndex, int8_t amount);
-        void ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount);
-        void ChangeDspOutput(uint8_t channel, int8_t amount);
-        void ChangeDspOutputTapPoint(uint8_t channel, int8_t amount);
-        void ChangeDspFxOutput(uint8_t channel, int8_t amount);
-        void ChangeDspFxOutputTapPoint(uint8_t channel, int8_t amount);
-        void ChangeDspAuxOutput(uint8_t channel, int8_t amount);
-        void ChangeDspAuxOutputTapPoint(uint8_t channel, int8_t amount);
         void ChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend);
 
 

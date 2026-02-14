@@ -97,12 +97,26 @@ typedef struct {
 	float gain;
 } sCompressor;
 
+
+typedef struct {
+	// user-settings
+	int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
+	float fc; // center-frequency of PEQ
+	float Q; // Quality of PEQ (bandwidth)
+	float gain; // gain of PEQ
+
+	// filter-coefficients
+	float a[3];
+	float b[3];
+} sPEQ;
+
 // values stored in config
 typedef struct {
-	uint8_t input; // controls the 40 audio-channels into the DSP
-	uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
+	//uint8_t input; // controls the 40 audio-channels into the DSP
+	//DSP_TAP inputTapPoint; // controls the tap-point (pre/post fader/eq)
 
 	sCompressor compressor;
+	sPEQ peq[MAX_CHAN_EQS];
 
 	float sendMixbus[16];
 	uint8_t sendMixbusTapPoint[16];
@@ -110,12 +124,12 @@ typedef struct {
 
 typedef struct {
 	uint8_t input; // controls the 40 audio-channels out of the DSP
-	uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
+	DSP_TAP tapPoint; // controls the tap-point (pre/post fader/eq)
 } sDspOutchannel;
 
 typedef struct {
 	uint8_t input; // controls which channel should be routed to DSP2 (FX)
-	uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
+	DSP_TAP tapPoint; // controls the tap-point (pre/post fader/eq)
 } sFxChannel;
 
 typedef struct {
@@ -157,19 +171,6 @@ typedef struct {
 	uint8_t meterPeakDecayTimer[2];
 	uint32_t meterInfo[2];
 } sMainChannel;
-
-#pragma pack(push, 1)
-// size of sRouting must be multiplier of 8 to fit into 64-bit-value
-typedef struct __attribute__((packed,aligned(1))) {
-	uint8_t xlr[16];
-	uint8_t p16[16];
-	uint8_t card[32];
-	uint8_t aux[8];
-	uint8_t dsp[40];
-	uint8_t aes50a[48]; // not used in FPGA at the moment
-	uint8_t aes50b[48]; // not used in FPGA at the moment
-} sFpgaRouting;
-#pragma pack(pop)
 
 typedef struct {
 	float gainXlr[32];

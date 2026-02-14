@@ -445,6 +445,9 @@ enum class MP_UOM {
     KHZ, // Kilohertz
     PERCENT, // Percent
     EQ_TYPE,
+    FPGA_ROUTING,
+    DSP_ROUTING,
+    TAPPOINT,
     CHANNEL,
 };
 
@@ -486,10 +489,10 @@ enum class MP_ID {
     // Routing
 
     ROUTING_FPGA,
-    ROUTING_DSP1_SOURCE,
-    ROUTING_DSP1_TAPPOINT,
-    ROUTING_DSP2_SOURCE,
-    ROUTING_DSP2_TAPPOINT,
+    ROUTING_DSP_CHANNEL,
+    ROUTING_DSP_CHANNEL_TAPPOINT,
+    ROUTING_DSP,
+    ROUTING_DSP_TAPPOINT,
 
     // State
 
@@ -507,7 +510,6 @@ enum class MP_ID {
 
     // Channel
 
-    CHANNEL_SOURCE,
     CHANNEL_NAME,
     CHANNEL_NAME_INTERN,
     CHANNEL_COLOR,
@@ -727,4 +729,13 @@ enum class X32_SURFACE_MESSAGE : char {
     LED = 'L',
     Meter = 'M',
     Ring = 'R',
+};
+
+enum class DSP_TAP : int
+{
+    INPUT = 0,
+    PRE_EQ = 1,
+    POST_EQ = 2,
+    PRE_FADER = 3,
+    POST_FADER = 4,
 };

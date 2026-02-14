@@ -133,22 +133,27 @@ void Config::DefineMixerparameters() {
     cat = MP_CAT::ROUTING;
     group = "routing";
 
-    DefParameter(ROUTING_FPGA, cat, group, "Routing FPGA")
+    DefParameter(ROUTING_FPGA, cat, group, "Routing FPGA", 208)  // 208 -> size of fpga routing struct!
+    ->DefUOM(MP_UOM::FPGA_ROUTING)
+    ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, 160, 0);
 
-    DefParameter(CHANNEL_SOURCE, cat, group, "Source", MAX_VCHANNELS)
-    ->DefMinMaxStandard_Int(-1, MAX_FPGA_TO_DSP1_CHANNELS, -1);
+    DefParameter(ROUTING_DSP_CHANNEL, cat, group, "Routing DSP-Channel", 40)
+    ->DefUOM(MP_UOM::DSP_ROUTING)
+    ->DefHideEncoderSlider()
+    ->DefMinMaxStandard_Uint(0, 68, 0); // 68 Talkback
 
-    DefParameter(ROUTING_DSP1_SOURCE, cat, group, "Routing DSP1")
+    DefParameter(ROUTING_DSP_CHANNEL_TAPPOINT, cat, group, "Routing DSP-Channel Tappoint", 40)
+    ->DefUOM(MP_UOM::TAPPOINT)
+    ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
+
+    DefParameter(ROUTING_DSP, cat, group, "Routing DSP", 64)
+    ->DefUOM(MP_UOM::DSP_ROUTING)
+    ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, 160, 0);
 
-    DefParameter(ROUTING_DSP1_TAPPOINT, cat, group, "Routing DSP1 Tappoint")
-    ->DefMinMaxStandard_Uint(0, 160, 0);
-
-    DefParameter(ROUTING_DSP1_SOURCE, cat, group, "Routing DSP2")
-    ->DefMinMaxStandard_Uint(0, 160, 0);
-
-    DefParameter(ROUTING_DSP1_TAPPOINT, cat, group, "Routing DSP2 Tappoint")
+    DefParameter(ROUTING_DSP_TAPPOINT, cat, group, "Routing DSP Tappoint", 64)
+    ->DefUOM(MP_UOM::TAPPOINT)
     ->DefMinMaxStandard_Uint(0, 160, 0);
 
     // ###########
@@ -673,20 +678,16 @@ uint Config::GetPercent(MP_ID mp, uint index)
     return mpm->at(mp)->GetPercent(index);
 }
 
-sPEQ* Config::GetPEQ(uint peqIndex, uint index)
-{
-    sPEQ* peq = new sPEQ();
-    peq->type = GetUint((MP_ID)((uint)CHANNEL_EQ_TYPE1 + peqIndex), index);
-    peq->fc = GetUint((MP_ID)((uint)CHANNEL_EQ_FREQ1 + peqIndex), index);
-    peq->Q = GetUint((MP_ID)((uint)CHANNEL_EQ_Q1 + peqIndex), index);
-    peq->gain = GetUint((MP_ID)((uint)CHANNEL_EQ_GAIN1 + peqIndex), index);
-
-    return peq;
-}
-
 void Config::Set(MP_ID mp, float value, uint index)
 {
     mpm->at(mp)->Set(value, index);
+
+    SetParameterChanged(mp, index);
+}
+
+void Config::Set(MP_ID mp, String value_string, uint index)
+{
+    mpm->at(mp)->Set(value_string, index);
 
     SetParameterChanged(mp, index);
 }

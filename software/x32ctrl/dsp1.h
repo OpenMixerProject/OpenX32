@@ -22,11 +22,7 @@
 #define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
 #define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
-#define DSP_TAP_INPUT           0
-#define DSP_TAP_PRE_EQ          1
-#define DSP_TAP_POST_EQ         2
-#define DSP_TAP_PRE_FADER       3
-#define DSP_TAP_POST_FADER      4
+
 
 class DSP1 : X32Base {
 
@@ -40,10 +36,10 @@ class DSP1 : X32Base {
         sDspChannel Channel[MAX_FPGA_TO_DSP1_CHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
         sMatrixChannel Matrix[6];
-        sFxChannel Dsp1toDsp2Routing[MAX_DSP1_TO_DSP2_CHANNELS];
+        //sFxChannel Dsp1toDsp2Routing[MAX_DSP1_TO_DSP2_CHANNELS];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
-        sDspOutchannel Dsp1toFpga[MAX_DSP1_TO_FPGA_CHANNELS];
+        sDspOutchannel Dsp1Routing[MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS];
         float volumeFxReturn[8];
         float volumeDca[8];
 
@@ -74,16 +70,14 @@ class DSP1 : X32Base {
         void SendCompressor(uint8_t chan);
         void SendAll();
 
-        void SetInputRouting(uint8_t dspChannel);
-        void SetOutputRouting(uint8_t dspChannel);
-        void SetFxOutputRouting(uint8_t fxChannel);
+        void SetChannelRouting(uint dspChannel);
+        void SetDSP1Routing(uint dspChannel);
         void SetAuxOutputRouting(uint8_t auxChannel);
         void SetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8_t tapPoint);
         void SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
         void SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);
         void GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource);
-        void RoutingGetInputNameByIndex(char* p_nameBuffer, uint8_t index);
-        void RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index);
+        String RoutingGetOutputNameByIndex(uint8_t index);
         void RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source);
         void RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position);
         void UpdateVuMeter();

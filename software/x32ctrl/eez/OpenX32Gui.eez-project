@@ -3208,12 +3208,71 @@
                           "heightUnit": "px",
                           "children": [
                             {
-                              "objID": "f59becb6-f3bf-49e2-f6af-a906499a74cb",
+                              "objID": "953ad340-24e4-4d92-f7ab-84df74652f0b",
                               "type": "LVGLTableWidget",
                               "left": 0,
                               "top": 0,
                               "width": 100,
-                              "height": 322,
+                              "height": 30,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "ac88d016-0036-4a3e-b0a8-dd5387cd6c6f",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_fpga_header",
+                              "leftUnit": "%",
+                              "topUnit": "%",
+                              "widthUnit": "%",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "5e0fdb04-b0ee-4b8e-90d6-b5ddbd67d6ad",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 0,
+                                      "pad_bottom": 0,
+                                      "pad_left": 0,
+                                      "pad_right": 0,
+                                      "pad_row": 0,
+                                      "pad_column": 0,
+                                      "text_font": "MONTSERRAT_16",
+                                      "bg_color": "#5a5a5a"
+                                    }
+                                  },
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#5a5a5a"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            },
+                            {
+                              "objID": "f59becb6-f3bf-49e2-f6af-a906499a74cb",
+                              "type": "LVGLTableWidget",
+                              "left": 0,
+                              "top": 30,
+                              "width": 100,
+                              "height": 292,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -3227,7 +3286,7 @@
                               "eventHandlers": [],
                               "identifier": "table_routing_fpga",
                               "leftUnit": "%",
-                              "topUnit": "%",
+                              "topUnit": "px",
                               "widthUnit": "%",
                               "heightUnit": "px",
                               "children": [],
@@ -3303,12 +3362,64 @@
                           "heightUnit": "px",
                           "children": [
                             {
-                              "objID": "23c70335-a0c4-4a1f-a831-4d7562f1fffc",
+                              "objID": "49146d0d-0c12-4df2-8b88-7d4be7bbcd1c",
                               "type": "LVGLTableWidget",
                               "left": 0,
                               "top": 0,
                               "width": 100,
-                              "height": 322,
+                              "height": 30,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "3b88c659-5e86-490f-db1c-d05e7ef7ff0d",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_input_header",
+                              "leftUnit": "%",
+                              "topUnit": "%",
+                              "widthUnit": "%",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "ce8ea446-3a31-4e7a-d31e-156a1cb01476",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 2,
+                                      "pad_bottom": 2,
+                                      "pad_left": 2,
+                                      "pad_right": 2,
+                                      "pad_row": 2,
+                                      "pad_column": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            },
+                            {
+                              "objID": "23c70335-a0c4-4a1f-a831-4d7562f1fffc",
+                              "type": "LVGLTableWidget",
+                              "left": 0,
+                              "top": 30,
+                              "width": 100,
+                              "height": 292,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -3322,7 +3433,7 @@
                               "eventHandlers": [],
                               "identifier": "table_routing_dsp_input",
                               "leftUnit": "%",
-                              "topUnit": "%",
+                              "topUnit": "px",
                               "widthUnit": "%",
                               "heightUnit": "px",
                               "children": [],
@@ -3372,7 +3483,7 @@
                           },
                           "group": "",
                           "groupIndex": 0,
-                          "tabName": "Input-Routing (DSP)",
+                          "tabName": "Channel Routing (DSP)",
                           "tabNameType": "literal"
                         },
                         {
@@ -3398,12 +3509,64 @@
                           "heightUnit": "px",
                           "children": [
                             {
-                              "objID": "3d67e1eb-8b1c-455e-e422-180b44717bce",
+                              "objID": "cb2e2926-2a69-472e-ebfe-e1721e6e6b95",
                               "type": "LVGLTableWidget",
                               "left": 0,
                               "top": 0,
                               "width": 100,
-                              "height": 322,
+                              "height": 30,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "a09e206a-f266-4a88-df1b-d13cb95b8ccc",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_output_header",
+                              "leftUnit": "%",
+                              "topUnit": "%",
+                              "widthUnit": "%",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "5f33375f-e6a2-4646-c871-5a8aabb416a7",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 2,
+                                      "pad_bottom": 2,
+                                      "pad_left": 2,
+                                      "pad_right": 2,
+                                      "pad_row": 2,
+                                      "pad_column": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            },
+                            {
+                              "objID": "3d67e1eb-8b1c-455e-e422-180b44717bce",
+                              "type": "LVGLTableWidget",
+                              "left": 0,
+                              "top": 30,
+                              "width": 100,
+                              "height": 292,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -3417,7 +3580,7 @@
                               "eventHandlers": [],
                               "identifier": "table_routing_dsp_output",
                               "leftUnit": "%",
-                              "topUnit": "%",
+                              "topUnit": "px",
                               "widthUnit": "%",
                               "heightUnit": "px",
                               "children": [],

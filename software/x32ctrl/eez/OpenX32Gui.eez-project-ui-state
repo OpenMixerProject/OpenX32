@@ -212,8 +212,7 @@
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
@@ -228,7 +227,8 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ]
+              ],
+              "active": true
             }
           ]
         }
@@ -963,14 +963,15 @@
       "selection": {
         "0": {
           "1": {
-            "0": {
+            "2": {
               "0": {
                 "1": {
                   "0": {
                     "$selected": true
                   }
                 },
-                "2": {}
+                "2": {},
+                "3": {}
               }
             }
           },
@@ -1175,7 +1176,7 @@
   "lvglPart": "ITEMS",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "PADDING"
+    "BACKGROUND"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,

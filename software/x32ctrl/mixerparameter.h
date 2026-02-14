@@ -84,7 +84,7 @@ class Mixerparameter {
             }
         }
 
-        String GetUnitOfMesaurement(bool spaceInFront, uint index = 0)
+        String GetUnitOfMesaurement(bool spaceInFront, uint index)
         {
             String result = spaceInFront ? " " : "";
 
@@ -145,6 +145,106 @@ class Mixerparameter {
                             break;
                     }
                     break;
+                case FPGA_ROUTING:
+                    {
+                        uint chan = (uint)value[index];
+                        switch (chan)
+                        {
+                            case 0:
+                                result += "OFF";
+                                break;
+                            case 1 ... 32:
+                                result += String("XLR In ") + chan;
+                                break;
+                            case 33 ... 64:
+                                result += String("Card In ") + (chan - 32) ;
+                                break;
+                            case 65 ... 70:
+                                result += String("AUX In ") + (chan - 64);
+                                break;
+                            case 71:
+                                result += String("Talkback Internal");
+                                break;
+                            case 72:
+                                result += String("Talkback External");
+                                break;
+                            case 73 ... 112:
+                                result += String("DSP1 Return ") + (chan - 72);
+                                break;
+                            case 113 ... 160:
+                                result += String("AES50A In ") + (chan - 112);
+                                break;
+                            case 161 ... 208:
+                                result += String("AES50B In ") + (chan - 160);
+                                break;
+                            default:
+                                result += "???";
+                        }
+                    }
+                    break;
+                case DSP_ROUTING:
+                    {
+                        uint chan = (uint)value[index];
+                        switch (chan)
+                        {
+                            case 0:
+                                result += "OFF";
+                                break;
+                            case 1 ... 40:
+                                result += String("FPGA->DSP ") + chan;
+                                break;
+                            // case 33 ... 40:
+                            //     result += String("Aux ") + (chan - 32);
+                            //     break;
+                            case 41 ... 56:
+                                result += String("Mixbus ") + (chan - 40);
+                                break;
+                            case 57 ... 62:
+                                result += String("Matrix ") + (chan - 56);
+                                break;
+                            case 63:
+                                result += String("Main L");
+                                break;
+                            case 64:
+                                result += String("Main R");
+                                break;
+                            case 65:
+                                result += String("Sub");
+                                break;
+                            case 66:
+                                result += String("Monitor L");
+                                break;
+                            case 67:
+                                result += String("Monitor R");
+                                break;
+                            case 68:
+                                result += String("Talkback");
+                                break;
+                            default:
+                                result += "???";
+                        }
+                    }
+                    break;
+                case TAPPOINT:
+                    switch ((DSP_TAP)value[index])
+                    {
+                        case DSP_TAP::INPUT:
+                            result += "Input";
+                            break;
+                        case DSP_TAP::POST_EQ:
+                            result += "Post EQ";
+                            break;
+                        case DSP_TAP::POST_FADER:
+                            result += "Post Fader";
+                            break;
+                        case DSP_TAP::PRE_EQ:
+                            result += "Pre EQ";
+                            break;
+                        case DSP_TAP::PRE_FADER:
+                            result += "Pre Fader";
+                            break;
+                    }
+                    break;
                 default:
                     result += "";
             }	
@@ -152,7 +252,7 @@ class Mixerparameter {
 	    return result;
         }
 
-        String FormatValue_Intern(float value_float)
+        String FormatValue_Intern(float value_float, uint index)
         {
             using enum MP_UOM;
 
@@ -166,12 +266,15 @@ class Mixerparameter {
 
             switch (unitOfMeasurement)
             {
+                case TAPPOINT:
                 case EQ_TYPE:
-                    return GetUnitOfMesaurement(false);
+                case FPGA_ROUTING:
+                case DSP_ROUTING:
+                    return GetUnitOfMesaurement(false, index);
                 case CHANNEL:
                     return String(value_float + 1, 0);
                 default:
-                    return String(value_float, decimal_places) + GetUnitOfMesaurement(false);
+                    return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index);
             }            
         }
 
@@ -474,56 +577,75 @@ class Mixerparameter {
 
         float Get(uint index = 0)
         {
-            CheckIndex(index);
-            
-            return GetFloat(index);
+            if (index < instances)
+            {
+                return GetFloat(index);
+            }
+
+            return 0;
         }
 
         float GetFloat(uint index = 0)
         {
-            CheckIndex(index);
-            
-            return value[index];
+            if (index < instances)
+            {
+                return value[index];
+            }
+
+            return 0.0f;
         }
 
         int GetInt(uint index = 0)
         {
-            CheckIndex(index);
-            
-            return (int)value[index];
+            if (index < instances)
+            {            
+                return (int)value[index];
+            }
+
+            return 0;
         }
 
         uint GetUint(uint index = 0)
         {
-            CheckIndex(index);
-            
-            return (uint)value[index];
+            if (index < instances)
+            {
+                return (uint)value[index];
+            }
+
+            return 0;
         }
 
         String GetString(uint index = 0)
         {
-            CheckIndex(index);
-            CheckDatatype(MP_VALUE_TYPE::STRING);
-            
-            return value_string[index];
+            if (index < instances && value_type == MP_VALUE_TYPE::STRING)
+            {
+                return value_string[index];
+            }
+
+            return "";
         }
 
         uint GetPercent(uint index = 0)
         {
-            CheckIndex(index);
-            
-            float onehunderedpercent = value_max - value_min;
-	        float value_normiert = value[index] - value_min;
-	        float onepercent = onehunderedpercent / 100.0f;
-	        return (uint)(value_normiert / onepercent);
+            if (index < instances)
+            {
+                float onehunderedpercent = value_max - value_min;
+                float value_normiert = value[index] - value_min;
+                float onepercent = onehunderedpercent / 100.0f;
+                return (uint)(value_normiert / onepercent);
+            }
+
+            return 0;
         }
 
         bool GetBool(uint index = 0)
         {
-            CheckIndex(index);
-            CheckDatatype(MP_VALUE_TYPE::BOOL);
-            
-            return (bool)value[index];
+            if (index < instances && value_type == MP_VALUE_TYPE::BOOL)
+            {
+                return (bool)value[index];
+            }
+
+            return false;
         }
 
         void Change(int amount, uint index = 0)
@@ -588,44 +710,69 @@ class Mixerparameter {
 
         String GetName(uint index = 0)
         {
-            CheckIndex(index);
+            if (index < instances)
+            {
+                return _name;
+            }
             
-            return _name;            
+            return "";
         }
 
         String GetNameShort(uint index = 0)
         {
-            CheckIndex(index);
+            if (index < instances)
+            {
+                return _name_short;
+            }
             
-            return _name_short;
+            return "";
         }
 
         String GetLabelAndValue(uint index = 0)
         {
-            CheckIndex(index);
-            
-            return GetName(index) + String(": ") + GetFormatedValue(index);
+            if (index < instances)
+            {
+                return GetName(index) + String(": ") + GetFormatedValue(index);
+            }
+
+            return "";
         }
 
         String GetShortLabelAndValue(uint index = 0)
         {
-            CheckIndex(index);
-            
-            return GetNameShort(index) + String(": ") + GetFormatedValue(index);
+            if (index < instances)
+            {
+               return GetNameShort(index) + String(": ") + GetFormatedValue(index);
+            }
+
+            return "";
         }
 
         String GetResetLabel(uint index = 0)
         {
-            CheckIndex(index);
-            
-            return String("Reset: ") + FormatValue_Intern(value_standard);
+            if (index < instances)
+            {
+                return String("Reset: ") + FormatValue_Intern(value_standard, index);
+            }
+
+            return "";
         }
 
         String GetFormatedValue(uint index = 0)
         {
-            CheckIndex(index);
+            if (index < instances)
+            {
+                if (value_type == MP_VALUE_TYPE::STRING)
+                {
+                    return value_string[index];
+                }
+                else
+                {
+                    return FormatValue_Intern(value[index], index);
+                }
+            }
             
-            return FormatValue_Intern(value[index]);
+            return "";
         }
 
         /// @brief Get wether this Mixerparameter must not be in configfile.

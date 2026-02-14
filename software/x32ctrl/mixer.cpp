@@ -72,34 +72,24 @@ void Mixer::LoadVChannelLayout() {
     // //#
     // //##################################################################################
     
-    // for (int i=0; i<=31; i++) {
-    //     VChannel* chan = vchannel[i];
-    //     chan->dspChannel =  &dsp->Channel[i];
-    //     chan->name = String("Kanal ") + String(i+1);
-    //     chan->nameIntern = String("CH") + String(i+1);
-    //     chan->color = SURFACE_COLOR_YELLOW;
-    //     chan->vChannelType = X32_VCHANNELTYPE::NORMAL;
-    // }
+    for (int i=0; i<=31; i++)
+    {
+        config->Set(CHANNEL_COLOR, SURFACE_COLOR_YELLOW, i);
+    }
 
-    // // AUX 1-6 / USB
-    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up AUX");
-    // for (uint8_t i=0; i<=7;i++){
-    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::AUX + i;
+    // AUX 1-6 / USB
+    for (uint8_t i=0; i<=7;i++)
+    {
+        uint8_t index = (uint)X32_VCHANNEL_BLOCK::AUX + i;
 
-    //     VChannel* chan = vchannel[index];
-    //     chan->dspChannel = &dsp->Channel[index];
-
-    //     if(i <=5){
-    //         chan->name = String("AUX") + String(i+1);
-    //         chan->nameIntern = chan->name;
-    //         chan->color = SURFACE_COLOR_GREEN;
-    //     } else {
-    //         chan->name = String("USB");
-    //         chan->nameIntern = chan->name;
-    //         chan->color = SURFACE_COLOR_YELLOW;
-    //     }
-    //     chan->vChannelType = X32_VCHANNELTYPE::AUX;
-    // }
+        if(i <=5){
+            config->Set(CHANNEL_NAME, String("AUX") + String(i+1), index);
+            config->Set(CHANNEL_COLOR, SURFACE_COLOR_GREEN, index);
+        } else {
+            config->Set(CHANNEL_NAME, String("USB"), index);
+            config->Set(CHANNEL_COLOR, SURFACE_COLOR_YELLOW, index);
+        }
+    }
 
     // // FX Returns 1-8
     // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up FX Returns");
@@ -157,14 +147,11 @@ void Mixer::LoadVChannelLayout() {
     //     chan->vChannelType = X32_VCHANNELTYPE::DCA;;
     // }
 
-    // // Main Channel
-    // {
-    //     VChannel* chan = vchannel[(uint)X32_VCHANNEL_BLOCK::MAIN];
-    //     chan->name = String("MAIN");
-    //     chan->nameIntern = chan->name;
-    //     chan->color = SURFACE_COLOR_WHITE;
-    //     chan->vChannelType = X32_VCHANNELTYPE::MAIN;
-    // }
+    // Main Channel
+    {
+        config->Set(CHANNEL_NAME, String("Main"),(uint)X32_VCHANNEL_BLOCK::MAIN);
+        config->Set(CHANNEL_COLOR, SURFACE_COLOR_WHITE, (uint)X32_VCHANNEL_BLOCK::MAIN);
+    }
 }
 
 
@@ -176,110 +163,6 @@ void Mixer::LoadVChannelLayout() {
 // #
 // ###################################################################
 
-
-void Mixer::ChangeHardwareInput(uint8_t outputIndex, int8_t amount) {
-    // get current routingIndex
-    uint8_t currentRouting = fpga->GetOutputByIndex(outputIndex + 1);
-    int16_t newValue = currentRouting + amount;
-
-    if (newValue > NUM_INPUT_CHANNEL) {
-        newValue -= (NUM_INPUT_CHANNEL + 1);
-    }
-    if (newValue < 0) {
-        newValue += (NUM_INPUT_CHANNEL + 1); // we allow 208 input channels plus a single "OFF" channel
-    }
-
-    helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Change! %d -> %d", currentRouting, newValue);
-
-    fpga->ConnectByIndex(newValue, outputIndex + 1);
-    fpga->SendRoutingToFpga(outputIndex);
-    config->Refresh(ROUTING_FPGA);
-}
-
-void Mixer::ChangeDspInput(uint8_t vChannelIndex, int8_t amount) {
-    int16_t newValue = dsp->Channel[vChannelIndex].input + amount;
-
-    if (newValue >= DSP_MAX_INTERNAL_CHANNELS) {
-        newValue -= DSP_MAX_INTERNAL_CHANNELS;
-    }
-    if (newValue < 0) {
-        newValue += DSP_MAX_INTERNAL_CHANNELS;
-    }
-
-    dsp->Channel[vChannelIndex].input = newValue;
-    dsp->SetInputRouting(vChannelIndex);
-}
-
-void Mixer::ChangeDspInputTapPoint(uint8_t vChannelIndex, int8_t amount) {
-    int16_t newValue = dsp->Channel[vChannelIndex].inputTapPoint + amount;
-
-    if (newValue > 4) {
-        newValue = 0;
-    }
-    if (newValue < 0) {
-        newValue = 4;
-    }
-
-    dsp->Channel[vChannelIndex].inputTapPoint = newValue;
-    dsp->SetInputRouting(vChannelIndex);
-}
-
-void Mixer::ChangeDspOutput(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toFpga[channel].input + amount;
-
-    if (newValue >= DSP_MAX_INTERNAL_CHANNELS) {
-        newValue -= DSP_MAX_INTERNAL_CHANNELS;
-    }
-    if (newValue < 0) {
-        newValue += DSP_MAX_INTERNAL_CHANNELS;
-    }
-
-    dsp->Dsp1toFpga[channel].input = newValue;
-    dsp->SetOutputRouting(channel);
-
-}
-
-void Mixer::ChangeDspOutputTapPoint(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toFpga[channel].tapPoint + amount;
-
-    if (newValue > 4) {
-        newValue = 0;
-    }
-    if (newValue < 0) {
-        newValue = 4;
-    }
-
-    dsp->Dsp1toFpga[channel].tapPoint = newValue;
-    dsp->SetOutputRouting(channel);;
-}
-
-void Mixer::ChangeDspFxOutput(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toDsp2Routing[channel].input + amount;
-
-    if (newValue >= DSP_MAX_INTERNAL_CHANNELS) {
-        newValue -= DSP_MAX_INTERNAL_CHANNELS;
-    }
-    if (newValue < 0) {
-        newValue += DSP_MAX_INTERNAL_CHANNELS;
-    }
-
-    dsp->Dsp1toDsp2Routing[channel].input = newValue;
-    dsp->SetFxOutputRouting(channel);
-}
-
-void Mixer::ChangeDspFxOutputTapPoint(uint8_t channel, int8_t amount) {
-    int16_t newValue = dsp->Dsp1toDsp2Routing[channel].tapPoint + amount;
-
-    if (newValue > 4) {
-        newValue = 0;
-    }
-    if (newValue < 0) {
-        newValue = 4;
-    }
-
-    dsp->Dsp1toDsp2Routing[channel].tapPoint = newValue;
-    dsp->SetFxOutputRouting(channel);
-}
 
 
 void Mixer::ClearSolo(void){
@@ -412,17 +295,33 @@ void Mixer::Sync(void){
         }
     }
 
-    if (config->HasParameterChanged(CHANNEL_SOURCE))
+    if (config->HasParameterChanged(ROUTING_FPGA))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({CHANNEL_SOURCE}))
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_FPGA}))
         {
-            dsp->SetInputRouting(changedIndex);
+            fpga->SendRoutingToFpga(changedIndex);
+        }
+    }
+
+    if (config->HasParametersChanged({ROUTING_DSP, ROUTING_DSP_TAPPOINT}))
+    { 
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP, ROUTING_DSP_TAPPOINT}))
+        {
+            dsp->SetDSP1Routing(changedIndex);
+        }
+    }
+
+    if (config->HasParametersChanged({ROUTING_DSP_CHANNEL, ROUTING_DSP_CHANNEL_TAPPOINT}))
+    { 
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP_CHANNEL, ROUTING_DSP_CHANNEL_TAPPOINT}))
+        {
+            dsp->SetChannelRouting(changedIndex);
         }
     }
 
     if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({CHANNEL_SOURCE}))
+        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS))
         {
             dsp->SendChannelSend(changedIndex);
 
@@ -457,6 +356,15 @@ void Mixer::Sync(void){
     {
         for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_EQ))
         {
+            // copy values fromm Mixerparameter
+            for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++)
+            {
+                dsp->Channel[changedIndex].peq[peq].type = config->GetUint((MP_ID)(to_underlying(CHANNEL_EQ_TYPE1) + peq));
+                dsp->Channel[changedIndex].peq[peq].fc = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_FREQ1) + peq));
+                dsp->Channel[changedIndex].peq[peq].Q = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_Q1) + peq));
+                dsp->Channel[changedIndex].peq[peq].gain = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_GAIN1) + peq));
+            }
+    
             dsp->SendEQ(changedIndex);
             dsp->SendLowcut(changedIndex);
         }
@@ -473,14 +381,14 @@ void Mixer::Sync(void){
 
 // set the gain of the local XLR head-amp-control
 void Mixer::halSendGain(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].input;
+    uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, dspChannel);
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
         // we are connected to one of the DSP-inputs
 
         // check if we are connected to a channel with gain
-        uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
+        uint8_t dspInputSource = config->GetUint(ROUTING_FPGA, channelInputSource - 1);
         if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
             // XLR-input
 
@@ -504,14 +412,14 @@ void Mixer::halSendGain(uint8_t dspChannel) {
 
 // enable or disable phatom-power of local XLR-inputs
 void Mixer::halSendPhantomPower(uint8_t chanIndex) {
-    uint8_t channelInputSource = config->GetUint(CHANNEL_SOURCE, chanIndex);
+    uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, chanIndex);
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
     if ((channelInputSource >= 1) && (channelInputSource <= MAX_FPGA_TO_DSP1_CHANNELS)) {
         // we are connected to one of the DSP-inputs
 
         // check if we are connected to a channel with gain
-        uint8_t dspInputSource = fpga->fpgaRouting.dsp[channelInputSource - 1];
+        uint8_t dspInputSource = config->GetUint(ROUTING_FPGA, channelInputSource - 1);
         if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
             // XLR-input
 
@@ -532,17 +440,17 @@ void Mixer::halSendPhantomPower(uint8_t chanIndex) {
     }
 }
 
-uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
-    uint8_t channelInputSource = dsp->Channel[dspChannel].input;
+// uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
+//     uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, dspChannel);
 
-    // check if we are using one of the FPGA-routed channels
-    if ((channelInputSource >= 1) && (channelInputSource < 40)) {
-        return fpga->fpgaRouting.dsp[channelInputSource - 1];
-    }else{
-        // DSP is not using one of the FPGA-routed channels
-        return 0;
-    }
-}
+//     // check if we are using one of the FPGA-routed channels
+//     if ((channelInputSource >= 1) && (channelInputSource < 40)) {
+//         return fpga->fpgaRouting.dsp[channelInputSource - 1];
+//     }else{
+//         // DSP is not using one of the FPGA-routed channels
+//         return 0;
+//     }
+// }
 
 float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
     if (dspChannel < 40) {

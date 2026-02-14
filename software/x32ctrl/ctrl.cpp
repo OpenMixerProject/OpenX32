@@ -624,8 +624,8 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::METERS] = new PageMeters(pagebasepar);
 	pages[X32_PAGE::ROUTING] = new PageRouting(pagebasepar);
 	pages[X32_PAGE::ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);
-	pages[X32_PAGE::ROUTING_DSP1] = new PageRoutingDsp1(pagebasepar);
-	pages[X32_PAGE::ROUTING_DSP2] = new PageRoutingDsp2(pagebasepar);
+	pages[X32_PAGE::ROUTING_DSP1] = new PageRoutingChannels(pagebasepar);
+	pages[X32_PAGE::ROUTING_DSP2] = new PageRoutingDsp(pagebasepar);
 	pages[X32_PAGE::SETUP] = new PageSetup(pagebasepar);
 	pages[X32_PAGE::SETUP_CARD] = new PageSetupCard(pagebasepar);
 	pages[X32_PAGE::LIBRARY] = new PageLibrary(pagebasepar);
@@ -1988,7 +1988,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				case X32_BTN_ASSIGN_6:
 					if (config->IsModelX32Core()) {
 						config->Set(CARD_NUMBER_OF_CHANNELS, CARD_CHANNELMODE_32IN_32OUT);
-						mixer->fpga->RoutingCardAs32CHInput();
+						//mixer->fpga->RoutingCardAs32CHInput();
 					}
 					break;
 				default:
