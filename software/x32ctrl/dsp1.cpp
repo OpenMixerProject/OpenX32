@@ -217,7 +217,7 @@ void DSP1::SendGate(uint chanIndex) {
     // coeff_release 
     values[4] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_RELEASE, chanIndex)));
 
-    spi->SendDspParameterArray(0, 'g', chan, 0, 5, &values[0]);
+    spi->SendDspParameterArray(0, 'g', chanIndex, 0, 5, &values[0]);
 }
 
 void DSP1::SendLowcut(uint8_t chan) {
@@ -291,7 +291,7 @@ void DSP1::SendEQ(uint chanIndex) {
         }
     }
 
-    spi->SendReceiveDspParameterArray(0, 'e', chanIndex, 'e', MAX_CHAN_EQS * 5, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chanIndex, 'e', MAX_CHAN_EQS * 5, &values[0]);
 }
 
 void DSP1::ResetEq(uint8_t chan) {
@@ -355,14 +355,14 @@ void DSP1::SetChannelRouting(uint chanIndex) {
     uint32_t values[2];
     values[0] = config->GetUint(ROUTING_DSP_CHANNEL, chanIndex);
     values[1] = config->GetUint(ROUTING_DSP_CHANNEL_TAPPOINT, chanIndex);
-    spi->SendReceiveDspParameterArray(0, 'r', chanIndex, 0, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 'r', chanIndex, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetDSP1Routing(uint chanIndex) {
     uint32_t values[2];
     values[0] = config->GetUint(ROUTING_DSP, chanIndex);
     values[1] = config->GetUint(ROUTING_DSP_TAPPOINT, chanIndex);
-    spi->SendReceiveDspParameterArray(0, 'r', chanIndex, 1, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 'r', chanIndex, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {

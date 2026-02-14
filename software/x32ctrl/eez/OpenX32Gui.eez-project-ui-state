@@ -1,6 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/4",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/2/childStyles/1",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/1",
     "subnavigationSelectedItems": {}
@@ -132,6 +133,7 @@
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
                   "weight": 0.9596508684564427,
+                  "selected": 1,
                   "enableClose": false,
                   "children": [
                     {
@@ -201,6 +203,17 @@
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
+                {
+                  "type": "tab",
+                  "id": "#75a7be30-358a-43de-89f4-2f3fe2e6ef7e",
+                  "name": "config_slider_display_encoder",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/4",
+                    "permanent": false
+                  },
+                  "icon": "svg:user_widget"
+                },
                 {
                   "type": "tab",
                   "id": "#dbab9156-9676-43a9-aac2-052835856f54",
@@ -1152,6 +1165,22 @@
           "y": -301.4
         },
         "scale": 0.8
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
+    },
+    "[OpenX32Gui.eez-project]:/userWidgets/4[flow-state]": {
+      "selection": {},
+      "transform": {
+        "translate": {
+          "x": -65,
+          "y": -25
+        },
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
