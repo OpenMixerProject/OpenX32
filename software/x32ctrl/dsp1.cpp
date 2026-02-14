@@ -96,29 +96,11 @@ void DSP1::LoadRouting_X32Default()
     // connect MainLeft on even and MainRight on odd channels as PostFader
     for (uint8_t i = 0; i < 40; i++)
     {
+        // connect MainLeft on even and MainRight on odd channels as PostFader
         config->Set(ROUTING_DSP, 63 + (i % 2), i);
         config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
     }
 }
-
-void DSP1::ReadAndUpdateVUMeterData(void) {
-    spi->ReadData();
-
-    // process SPI-Data
-    while (spi->HasNextEvent()) {
-        SpiEvent* spiEvent = spi->GetNextEvent();
-
-        if (spiEvent->dsp == 0) {
-            callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
-        } else {
-            callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
-        }
-    }
-
-    // recalculate peak-hold and VU with decay
-    UpdateVuMeter();
-}
-
 
 // set the general volume of one of the 40 DSP-channels
 void DSP1::SendChannelVolume(uint8_t chan) {
@@ -142,7 +124,7 @@ void DSP1::SendChannelVolume(uint8_t chan) {
 
     helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "SendChannelVolume: %f, %f, %f, %f", (double)values[0], (double)values[1], (double)values[2], (double)values[3]);
 
-    spi->SendReceiveDspParameterArray(0, 'v', chan, 0, 4, &values[0]);
+    spi->SendDspParameterArray(0, 'v', chan, 0, 4, &values[0]);
 }
 
 // send BusSends
@@ -153,7 +135,7 @@ void DSP1::SendChannelSend(uint8_t chan) {
         values[i_mixbus] = pow(10.0f, Channel[chan].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
     }
 
-    spi->SendReceiveDspParameterArray(0, 's', chan, 0, 16, &values[0]);
+    spi->SendDspParameterArray(0, 's', chan, 0, 16, &values[0]);
 }
 
 void DSP1::SendMixbusVolume(uint8_t bus) {
@@ -167,7 +149,7 @@ void DSP1::SendMixbusVolume(uint8_t bus) {
     values[2] = balanceRight; // 0  .. 100 .. 100
     values[3] = pow(10.0f, Bus[bus].volumeSub/20.0f); // subwoofer
 
-    spi->SendReceiveDspParameterArray(0, 'v', bus, 1, 4, &values[0]);
+    spi->SendDspParameterArray(0, 'v', bus, 1, 4, &values[0]);
 }
 
 void DSP1::SendMatrixVolume(uint8_t matrix) {
@@ -176,7 +158,7 @@ void DSP1::SendMatrixVolume(uint8_t matrix) {
 
     values[0] = pow(10.0f, Matrix[matrix].volume/20.0f); // volume of this specific channel
 
-    spi->SendReceiveDspParameterArray(0, 'v', matrix, 2, 1, &values[0]);
+    spi->SendDspParameterArray(0, 'v', matrix, 2, 1, &values[0]);
 }
 
 void DSP1::SendMonitorVolume() {
@@ -185,7 +167,7 @@ void DSP1::SendMonitorVolume() {
     
     values[0] = pow(10.0f, monitorVolume/20.0f); // volume of this specific channel
 
-    spi->SendReceiveDspParameterArray(0, 'v', 0, 4, 1, &values[0]);
+    spi->SendDspParameterArray(0, 'v', 0, 4, 1, &values[0]);
 }
 
 void DSP1::SendMainVolume() {
@@ -207,7 +189,7 @@ void DSP1::SendMainVolume() {
     values[1] = volumeRight;
     values[2] = volumeSub;
 
-    spi->SendReceiveDspParameterArray(0, 'v', 0, 3, 3, &values[0]);
+    spi->SendDspParameterArray(0, 'v', 0, 3, 3, &values[0]);
 }
 
 void DSP1::SendGate(uint chanIndex) {
@@ -235,7 +217,7 @@ void DSP1::SendGate(uint chanIndex) {
     // coeff_release 
     values[4] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_RELEASE, chanIndex)));
 
-    spi->SendReceiveDspParameterArray(0, 'g', chanIndex, 0, 5, &values[0]);
+    spi->SendDspParameterArray(0, 'g', chan, 0, 5, &values[0]);
 }
 
 void DSP1::SendLowcut(uint8_t chan) {
@@ -246,7 +228,7 @@ void DSP1::SendLowcut(uint8_t chan) {
     // Equation for samples: output = alpha * (input + previous_output - previous_input)
     values[0] = 1.0f / (1.0f + 2.0f * M_PI * config->GetFloat(CHANNEL_LOWCUT, chan) * (1.0f/(float)config->GetUint(SAMPLERATE)));
 
-    spi->SendReceiveDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
 }
 
 /*
@@ -257,7 +239,7 @@ void DSP1::SendHighcut(uint8_t chan) {
     // Equation for samples: output = previous_output + coeff * (input - previous_output)
     values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetUint(SAMPLERATE) + 2.0f * M_PI * 500.0f);
 
-    spi->SendReceiveDspParameterArray(0, 'e', chan, 'h', 1, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chan, 'h', 1, &values[0]);
 }
 */
 
@@ -315,7 +297,7 @@ void DSP1::SendEQ(uint chanIndex) {
 void DSP1::ResetEq(uint8_t chan) {
     float values[1];
     values[0] = 0;
-    spi->SendReceiveDspParameterArray(0, 'e', chan, 'r', 1, &values[0]);
+    spi->SendDspParameterArray(0, 'e', chan, 'r', 1, &values[0]);
 }
 
 void DSP1::SendCompressor(uint8_t chan) {
@@ -329,7 +311,7 @@ void DSP1::SendCompressor(uint8_t chan) {
     values[4] = Channel[chan].compressor.value_hold_ticks;
     values[5] = Channel[chan].compressor.value_coeff_release;
 
-    spi->SendReceiveDspParameterArray(0, 'c', chan, 0, 6, &values[0]);
+    spi->SendDspParameterArray(0, 'c', chan, 0, 6, &values[0]);
 }
 
 void DSP1::SendAll() {
@@ -357,10 +339,14 @@ void DSP1::SendAll() {
             SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
         }
     }
+
+    /*
     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
         SendMatrixVolume(matrixChannel);
         SetMainSendTapPoints(matrixChannel, MainChannelLR.sendMatrixTapPoint[matrixChannel]);
     }
+    */
+
     SendMainVolume();
     SendMonitorVolume();
 }
@@ -385,7 +371,7 @@ void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t 
     uint32_t values[2];
     values[0] = mixbusChannel;
     values[1] = tapPoint;
-    spi->SendReceiveDspParameterArray(0, 't', chan, 0, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 't', chan, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint) {
@@ -394,7 +380,7 @@ void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, 
     uint32_t values[2];
     values[0] = matrixChannel;
     values[1] = tapPoint;
-    spi->SendReceiveDspParameterArray(0, 't', mixbusChannel, 1, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 't', mixbusChannel, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
@@ -403,7 +389,7 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
     uint32_t values[2];
     values[0] = matrixChannel;
     values[1] = tapPoint;
-    spi->SendReceiveDspParameterArray(0, 't', 0, 2, 2, (float*)&values[0]);
+    spi->SendDspParameterArray(0, 't', 0, 2, 2, (float*)&values[0]);
 }
 
 void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
@@ -545,7 +531,10 @@ void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
     }
 }
 
-void DSP1::UpdateVuMeter() {
+void DSP1::UpdateVuMeter(uint8_t intervalMs) {
+    uint8_t preloadPeakHold = 1000 / intervalMs; // 50ms * 20 = 1000ms
+    uint8_t preloadPeakDecay = 50 / intervalMs; // 50ms * 1 = 50ms
+    uint8_t coefficientDecay = 250 / intervalMs; // 50ms * 5 = 250ms
 
     uint8_t vuTreshLookupSize = 0;
     if (config->IsModelX32ProducerOrRack()) {
@@ -580,13 +569,13 @@ void DSP1::UpdateVuMeter() {
 	// MainLeft
 	if (currentMeterPeakIndexMain[0] >= MainChannelLR.meterPeakIndex[0]) {
 		MainChannelLR.meterPeakIndex[0] = currentMeterPeakIndexMain[0];
-		MainChannelLR.meterPeakHoldTimer[0] = 100; // preload to 1000ms
+		MainChannelLR.meterPeakHoldTimer[0] = preloadPeakHold; // preload to 1000ms
 	}else{
 		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 		if (MainChannelLR.meterPeakHoldTimer[0] > 0) {
 			// hold current LED
 			MainChannelLR.meterPeakHoldTimer[0]--;
-			MainChannelLR.meterPeakDecayTimer[0] = 10; // preload to 100ms
+			MainChannelLR.meterPeakDecayTimer[0] = preloadPeakDecay; // preload to 100ms
 		}else{
 			// let peak LED fall down every 100ms. It takes a maximum of 2400ms to let the peak fall down over all 24 LEDs
 			if (MainChannelLR.meterPeakIndex[0] > currentMeterPeakIndexMain[0]) {
@@ -594,7 +583,7 @@ void DSP1::UpdateVuMeter() {
 					MainChannelLR.meterPeakDecayTimer[0]--;
 				}else{
 					MainChannelLR.meterPeakIndex[0]--;
-					MainChannelLR.meterPeakDecayTimer[0] = 10; // preload for next iteration
+					MainChannelLR.meterPeakDecayTimer[0] = preloadPeakDecay; // preload for next iteration
 				}
 			}
 		}
@@ -602,13 +591,13 @@ void DSP1::UpdateVuMeter() {
 	// MainRight
 	if (currentMeterPeakIndexMain[1] >= MainChannelLR.meterPeakIndex[1]) {
 		MainChannelLR.meterPeakIndex[1] = currentMeterPeakIndexMain[1];
-		MainChannelLR.meterPeakHoldTimer[1] = 100; // preload to 1000ms
+		MainChannelLR.meterPeakHoldTimer[1] = preloadPeakHold; // preload to 1000ms
 	}else{
 		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 		if (MainChannelLR.meterPeakHoldTimer[1] > 0) {
 			// hold current LED
 			MainChannelLR.meterPeakHoldTimer[1]--;
-			MainChannelLR.meterPeakDecayTimer[1] = 10; // preload to 100ms
+			MainChannelLR.meterPeakDecayTimer[1] = preloadPeakDecay; // preload to 100ms
 		}else{
 			// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
 			if (MainChannelLR.meterPeakIndex[1] > currentMeterPeakIndexMain[1]) {
@@ -616,7 +605,7 @@ void DSP1::UpdateVuMeter() {
 					MainChannelLR.meterPeakDecayTimer[1]--;
 				}else{
 					MainChannelLR.meterPeakIndex[1]--;
-					MainChannelLR.meterPeakDecayTimer[1] = 10; // preload for next iteration
+					MainChannelLR.meterPeakDecayTimer[1] = preloadPeakDecay; // preload for next iteration
 				}
 			}
 		}
@@ -624,13 +613,13 @@ void DSP1::UpdateVuMeter() {
 	// Sub
 	if (currentMeterPeakIndexMain[2] >= MainChannelSub.meterPeakIndex[0]) {
 		MainChannelSub.meterPeakIndex[0] = currentMeterPeakIndexMain[2];
-		MainChannelSub.meterPeakHoldTimer[0] = 100; // preload to 1000ms
+		MainChannelSub.meterPeakHoldTimer[0] = preloadPeakHold; // preload to 1000ms
 	}else{
 		// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 		if (MainChannelSub.meterPeakHoldTimer[0] > 0) {
 			// hold current LED
 			MainChannelSub.meterPeakHoldTimer[0]--;
-			MainChannelSub.meterPeakDecayTimer[0] = 10; // preload to 100ms
+			MainChannelSub.meterPeakDecayTimer[0] = preloadPeakDecay; // preload to 100ms
 		}else{
 			// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
 			if (MainChannelSub.meterPeakIndex[0] > currentMeterPeakIndexMain[2]) {
@@ -638,7 +627,7 @@ void DSP1::UpdateVuMeter() {
 					MainChannelSub.meterPeakDecayTimer[0]--;
 				}else{
 					MainChannelSub.meterPeakIndex[0]--;
-					MainChannelSub.meterPeakDecayTimer[0] = 10; // preload for next iteration
+					MainChannelSub.meterPeakDecayTimer[0] = preloadPeakDecay; // preload for next iteration
 				}
 			}
 		}
@@ -651,7 +640,7 @@ void DSP1::UpdateVuMeter() {
 		MainChannelLR.meterDecay[0] = MainChannelLR.meter[0];
 	}else{
 		// current value is below -> afterglow
-		MainChannelLR.meterDecay[0] -= (MainChannelLR.meterDecay[0] / 10);
+		MainChannelLR.meterDecay[0] -= (MainChannelLR.meterDecay[0] / coefficientDecay);
 	}
 	// MainRight
 	if (MainChannelLR.meter[1] > MainChannelLR.meterDecay[1]) {
@@ -659,7 +648,7 @@ void DSP1::UpdateVuMeter() {
 		MainChannelLR.meterDecay[1] = MainChannelLR.meter[1];
 	}else{
 		// current value is below -> afterglow
-		MainChannelLR.meterDecay[1] -= (MainChannelLR.meterDecay[1] / 10);
+		MainChannelLR.meterDecay[1] -= (MainChannelLR.meterDecay[1] / coefficientDecay);
 	}
 	// MainSub
 	if (MainChannelSub.meter[0] > MainChannelSub.meterDecay[0]) {
@@ -667,7 +656,7 @@ void DSP1::UpdateVuMeter() {
 		MainChannelSub.meterDecay[0] = MainChannelSub.meter[0];
 	}else{
 		// current value is below -> afterglow
-		MainChannelSub.meterDecay[0] -= (MainChannelSub.meterDecay[0] / 10);
+		MainChannelSub.meterDecay[0] -= (MainChannelSub.meterDecay[0] / coefficientDecay);
 	}
 
 	// Step 3: Calculate real LEDs to switch on
@@ -697,7 +686,7 @@ void DSP1::UpdateVuMeter() {
 
 	// Now calculate the VU Meter LEDs for each channel
 	// leds Channel = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-	for (int i = 0; i < 40; i++) {
+	for (int i = 0; i < (40 + 8 + 8); i++) {
 		// check if current data is above stored peak-index
 
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
@@ -707,13 +696,13 @@ void DSP1::UpdateVuMeter() {
             if (currentMeterPeak6Index >= rChannel[i].meterPeak6Index) {
                 // currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
                 rChannel[i].meterPeak6Index = currentMeterPeak6Index;
-                rChannel[i].meterPeak6HoldTimer = 100; // preload to 1000ms
+                rChannel[i].meterPeak6HoldTimer = preloadPeakHold; // preload to 1000ms
             }else{
                 // currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
                 if (rChannel[i].meterPeak6HoldTimer > 0) {
                     // hold current LED
                     rChannel[i].meterPeak6HoldTimer--;
-                    rChannel[i].meterPeak6DecayTimer = 10; // preload
+                    rChannel[i].meterPeak6DecayTimer = preloadPeakDecay; // preload
                 }else{
                     // let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
                     if (rChannel[i].meterPeak6Index > currentMeterPeak6Index) {
@@ -721,7 +710,7 @@ void DSP1::UpdateVuMeter() {
                             rChannel[i].meterPeak6DecayTimer--;
                         }else{
                             rChannel[i].meterPeak6Index--;
-                            rChannel[i].meterPeak6DecayTimer = 10; // preload for next iteration
+                            rChannel[i].meterPeak6DecayTimer = preloadPeakDecay; // preload for next iteration
                         }
                     }
                 }
@@ -734,13 +723,13 @@ void DSP1::UpdateVuMeter() {
         if (currentMeterPeak8Index >= rChannel[i].meterPeak8Index) {
 			// currentMeterPeakIndex is above current LED -> set peakHold LED to highest value
 			rChannel[i].meterPeak8Index = currentMeterPeak8Index;
-			rChannel[i].meterPeak8HoldTimer = 100; // preload to 1000ms
+			rChannel[i].meterPeak8HoldTimer = preloadPeakHold; // preload to 1000ms
 		}else{
 			// currentMeterPeakIndex is below current LED -> check if we have to hold the peak LED
 			if (rChannel[i].meterPeak8HoldTimer > 0) {
 				// hold current LED
 				rChannel[i].meterPeak8HoldTimer--;
-				rChannel[i].meterPeak8DecayTimer = 10; // preload
+				rChannel[i].meterPeak8DecayTimer = preloadPeakDecay; // preload
 			}else{
 				// let peak LED fall down every 100ms. It takes a maximum of 400ms to let the peak fall down
 				if (rChannel[i].meterPeak8Index > currentMeterPeak8Index) {
@@ -748,7 +737,7 @@ void DSP1::UpdateVuMeter() {
 						rChannel[i].meterPeak8DecayTimer--;
 					}else{
 						rChannel[i].meterPeak8Index--;
-						rChannel[i].meterPeak8DecayTimer = 10; // preload for next iteration
+						rChannel[i].meterPeak8DecayTimer = preloadPeakDecay; // preload for next iteration
 					}
 				}
 			}
@@ -761,7 +750,7 @@ void DSP1::UpdateVuMeter() {
 		}else{
 			// current value is below -> afterglow
 			// this function is called every 10ms. A Decay-Rate of 6dB/second would be ideal, but we do a rought estimation here
-			rChannel[i].meterDecay -= (rChannel[i].meterDecay / 10);
+			rChannel[i].meterDecay -= (rChannel[i].meterDecay / coefficientDecay);
 		}
 
 		// Step 3: Calculate real LEDs to switch on
@@ -833,15 +822,15 @@ void DSP1::UpdateVuMeter() {
         uint8_t peak8Bit = 0;
         if (rChannel[i].meterPeak8Index > 0) peak8Bit = 1 << (rChannel[i].meterPeak8Index -1);
         rChannel[i].meter8Info |= peak8Bit;
-        
+    }
+
+    // only the first 32 full-featured channels have dynamic-information for compressor and gate
+    for (int i = 0; i < 32; i++) {
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
 		    if (config->GetFloat(CHANNEL_GATE_GAIN, i) < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
 		    if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
         }
-
-		//Channel[i].compressor.gain = floatValues[45 + i];
-		//Channel[i].gate.gain = floatValues[85 + i];
 	}
 }
 
@@ -870,6 +859,53 @@ uint8_t DSP1::GetPeak(int i, uint8_t steps)
     return 0;
 }
 
+void DSP1::CallbackStateMachine() {
+    // each step is called with 10ms delay
+    // so we make sure that we have enough time between the individual SPI-transmissions
+    // and the DSP has enough time to switch between SPI Core Read and SPI DMA Chain Transmission
+
+    switch (readState) {
+        case 0:
+            // request new data from DSP1
+            spi->RequestData(0);
+           break;
+        case 1:
+            // request new data from DSP2
+            spi->RequestData(1);
+            break;
+        case 2:
+            // read data from DSP1
+            spi->ReadData(0);
+            break;
+        case 3:
+            // request new data from DSP2
+            spi->ReadData(1);
+            break;
+        case 4:
+            // process received SPI-Data
+            while (spi->HasNextEvent()) {
+                SpiEvent* spiEvent = spi->GetNextEvent();
+
+                if (spiEvent->dsp == 0) {
+                    callbackDsp1(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+                } else {
+                    callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
+                }
+            }
+
+            UpdateVuMeter(50);
+            break;
+        default:
+            break;
+    }
+    
+    // increment readState up to 4 and reset to 0 to get 50ms cycles
+    readState++;
+    if (readState >= 5) {
+        readState = 0;
+    }
+}
+
 void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
@@ -880,25 +916,43 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
         case 's': // status-feedback
             switch (channel) {
                 case 'u': // Update pack
-                    if (valueCount == 45) {
+                    if (valueCount == (3 + 40 + 8 + 0 + 3)) {
+                        // idx 0 = dspVersion
+                        // idx 1 = CPU-cycles
+                        // idx 2 = Audio Glitch Counter
+                        // idx 3..52 = volume 40 DSP-channels
+                        // idx 43.. = volume 8 DSP2 FX-return channels
+                        // idx 51.. = volume 8 MixBusses
+                        // idx 59..61 = volume 3 main-bus (L, R, C)
+
+                        // future options:
+                                // idx 58.. = gain of 32 compressors
+                                // idx 90.. = gain of 32 gates
+                                // idx 122.. = volume of 3 main-busses
+
                         state->dspVersion[0] = floatValues[0];
 
                         // we are receiving 16 samples with 20.83us each resulting in 16*20.83us = 333us per interrupt
                         // DSP-Load calculation: number of used CPU-cycles for processing divided by the core-clock-frequency based on the 333us timebase
                         state->dspLoad[0] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
+                        state->dspAudioGlitchCounter[0] = floatValues[2]; // audio-glitch-counter
 
-                        // copy meter-info to channel-struct
-                        MainChannelLR.meter[0] = abs(floatValues[2]); // convert 32-bit audio-value
-                        MainChannelLR.meter[1] = abs(floatValues[3]); // convert 32-bit audio-value
-                        MainChannelSub.meter[0] = abs(floatValues[4]); // convert 32-bit audio-value
-
-                        MainChannelLR.meterPu[0] = abs(floatValues[2])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
-                        MainChannelLR.meterPu[1] = abs(floatValues[3])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
-                        MainChannelSub.meterPu[0] = abs(floatValues[4])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
-                        for (int i = 0; i < 40; i++) {
-                            rChannel[i].meter = abs(floatValues[5 + i]); // convert 32-bit audio-value
-                            rChannel[i].meterPu = abs(floatValues[5 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        // copy meter-info to channel-struct (regular DSP-channels)
+                        for (int i = 0; i < (40 + 8 + 0); i++) {
+                            // channel 1-40 -> DSP-channels
+                            // channel 41-48 -> FX-return-channels
+                            // channel 49-56 -> Mixbus 1-8
+                            rChannel[i].meter = abs(floatValues[3 + i]); // convert 32-bit audio-value
+                            rChannel[i].meterPu = abs(floatValues[3 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         }
+
+                        MainChannelLR.meter[0] = abs(floatValues[59-8]); // convert 32-bit audio-value
+                        MainChannelLR.meter[1] = abs(floatValues[60-8]); // convert 32-bit audio-value
+                        MainChannelSub.meter[0] = abs(floatValues[61-8]); // convert 32-bit audio-value
+
+                        MainChannelLR.meterPu[0] = abs(floatValues[59-8])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        MainChannelLR.meterPu[1] = abs(floatValues[60-8])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
+                        MainChannelSub.meterPu[0] = abs(floatValues[61-8])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                     }
                     break;
             }
@@ -1062,10 +1116,57 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
         case 's': // status-feedback
             switch (channel) {
                 case 'u': // Update pack
-                    if (valueCount == 3) {
+                    if (valueCount == (4 + 64)) {
                         state->dspVersion[1] = floatValues[0];
                         state->dspLoad[1] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
                         state->dspFreeHeapWords[1] = floatValues[2]; // free heap-space in 32-bit words
+                        state->dspAudioGlitchCounter[1] = floatValues[3]; // audio-glitch-counter
+
+                        // direct copy of RTA-data
+                        memcpy(&rtaData[0], &floatValues[4], 64 * sizeof(float));
+/*
+                        // optimize the data and convert linear frequency axis to logarithmic axis
+                        float attack = 1.0f;  // fast rise
+                        float release = 0.75f; // slower decay
+                        uint8_t RTA_BINS = 128;
+                        uint8_t DISPLAY_BANDS = 64;
+                        float* rta_rspectrum = &floatValues[3];
+
+                        // k defines the bowing of the logarithmic curve
+                        // a value of around 0.05 to 0.1 should be fine for 64 display-bands
+                        const float k = 0.07f; 
+                        const float denom = expf(k * (float)(DISPLAY_BANDS - 1)) - 1.0f;
+
+                        for (int i = 0; i < DISPLAY_BANDS; i++) {
+                            // Step 1: logarithmix map-equation
+                            // calculate the Bar-index i to the FFT-Bin-Index
+                            float logIndex = (float)(RTA_BINS - 1) * (expf(k * (float)i) - 1.0f) / denom;
+                            
+                            // security check for all arrays
+                            int idxLo = (int)logIndex;
+                            if (idxLo < 0) idxLo = 0;
+                            int idxHi = idxLo + 1;
+                            
+                            // limit to the array-borders
+                            if (idxHi >= RTA_BINS) {
+                                idxHi = RTA_BINS - 1;
+                                idxLo = idxHi - 1;
+                                if(idxLo < 0) idxLo = 0;
+                            }
+                            
+                            float frac = logIndex - (float)idxLo;
+                            
+                            // linear interpolation between two Bins
+                            float targetVal = rta_rspectrum[idxLo] + frac * (rta_rspectrum[idxHi] - rta_rspectrum[idxLo]);
+
+                            // Step 2: temporal smoothing (Ballistic)
+                            if (targetVal > rtaData[i]) {
+                                rtaData[i] += attack * (targetVal - rtaData[i]);
+                            } else {
+                                rtaData[i] += release * (targetVal - rtaData[i]);
+                            }
+                        }      
+*/                  
                     }
                     break;
             }

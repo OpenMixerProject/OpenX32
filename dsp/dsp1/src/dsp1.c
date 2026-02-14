@@ -26,10 +26,10 @@
                              .#@@%%*-.    .:=+**##***+.
                                   .-+%%%%%%#***=-.
 
-  ControlSystem for DSP1 (MainDSP) v0.3.5, 09.01.2026
+  ControlSystem for DSP1 (MainDSP) v0.4.3, 14.02.2026
 
   OpenX32 - The OpenSource Operating System for the Behringer X32 Audio Mixing Console
-  Copyright 2025 OpenMixerProject
+  Copyright 2025-2026 OpenMixerProject
   https://github.com/OpenMixerProject/OpenX32
 
   This program is free software; you can redistribute it and/or
@@ -55,6 +55,7 @@ cycle_stats_t systemStats;
 uint32_t cyclesAudio;
 uint32_t cyclesMain;
 uint32_t cyclesTotal;
+uint32_t spiTimeoutCounter = 0;
 
 /*
 #pragma optimize_for_speed // interrupt handlers usually need to be optimized
@@ -152,10 +153,14 @@ int main() {
 			cyclesAudio = systemStats._cycles;
 			cyclesTotal = cyclesAudio + cyclesMain;
 			CYCLES_RESET(systemStats);
+
+			spiTimeoutCounter++; // will be incremented every 333 microseconds
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady) {
+			spiTimeoutCounter = 0; // reset SPI counter
+
 			CYCLES_START(systemStats);
 
 			spiProcessRxData();
@@ -164,5 +169,16 @@ int main() {
 			cyclesMain = systemStats._cycles;
 			CYCLES_RESET(systemStats);
 		}
+
+		// check if we have received some data over SPI within the last 250ms
+		// we are receiving audio every 333 microseconds. 750 * 0.333us = 250ms
+		if (spiTimeoutCounter >= 750) {
+			// we ran into a SPI-timeout -> reset SPI system
+			spiCoreRxBegin();
+
+			spiTimeoutCounter = 0;
+		}
+
+		spiCallback();
 	}
 }

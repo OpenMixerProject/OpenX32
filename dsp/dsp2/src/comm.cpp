@@ -26,8 +26,6 @@
 #include "spi.h"
 #include "audio.h"
 
-float pm commData[3];
-
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
 	  SPI ClassIds:
@@ -49,10 +47,38 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
 				case 'u': // update-packet
-					commData[0] = DSP_VERSION;
-					memcpy(&commData[1], &cyclesTotal, sizeof(uint32_t));
-					commData[2] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
-					spiSendArray('s', 'u', 0, 3, &commData[0]);
+					#if USE_SPI_TXD_MODE == 0
+						spiCommData[0] = DSP_VERSION;
+						memcpy(&spiCommData[1], &cyclesTotal, sizeof(uint32_t));
+						spiCommData[2] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+						spiSendArray('s', 'u', 0, 3, &spiCommData[0]);
+					#elif USE_SPI_TXD_MODE == 1
+						parameter = 0x0000002A; // *
+						memcpy(&spiCommData[0], &parameter, sizeof(uint32_t));
+
+						_classId = 's';
+						_channel = 'u';
+						_index = 0;
+						_valueCount = 3;
+						parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
+						memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
+						parameter = 0x00000023; // #
+						memcpy(&spiCommData[5], &parameter, sizeof(uint32_t));
+
+						spiCommData[2] = DSP_VERSION;
+						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
+						spiCommData[4] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+
+						spiDmaBegin((unsigned int*)&spiCommData[0], _valueCount + 3, false);
+					#elif USE_SPI_TXD_MODE == 2
+						spiCommData[2] = DSP_VERSION;
+						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
+						spiCommData[4] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+						spiCommData[5] = audioGlitchCounter;
+
+						spiDmaBegin((unsigned int*)&spiCommData[0], 6, false); // start DMA-transmission and transmit the first 4 elements of spiCommData
+						// after this the DMA-chain will switch to the next spi_tcb
+					#endif
 					break;
 				default:
 					break;

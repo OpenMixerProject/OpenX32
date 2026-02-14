@@ -342,7 +342,8 @@ void X32Ctrl::Tick10ms(void){
 	if (config->IsModelX32FullOrCompactOrProducer()) {
 		surface->Touchcontrol();	
 	}
-	mixer->dsp->ReadAndUpdateVUMeterData();
+
+	mixer->dsp->CallbackStateMachine();
 
 	ProcessUartData();
 
@@ -369,7 +370,6 @@ void X32Ctrl::Tick10ms(void){
 
 void X32Ctrl::Tick50ms(void) {
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "50ms");
-
 	UpdateMeters();
 }
 
@@ -377,12 +377,13 @@ void X32Ctrl::Tick100ms(void) {
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "100ms");
 
 	surface->Blink();
-	mixer->dsp->spi->ActivityLight();
+	//mixer->dsp->spi->ActivityLight();
 
 	if (!config->IsModelX32Core() && config->GetUint(MP_ID::ACTIVE_PAGE) == (uint)X32_PAGE::UTILITY) {
 		// read the current DSP load
 		// show the received value (could be a bit older than the request)
-	 	lv_label_set_text_fmt(objects.debugtext, "DSP1: %.2f %% [v%.2f] | DSP2: %.2f %% / Heap: %.0f Words free [v%.2f]", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspLoad[1], (double)state->dspFreeHeapWords[1], (double)state->dspVersion[1]);
+	 	lv_label_set_text_fmt(objects.debugtext,  "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
+	 	lv_label_set_text_fmt(objects.debugtext2, "DSP2: Load: %.1f %% | Version: v%.2f | Glitches: %.0f | Heap: %.0f Words free", (double)state->dspLoad[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1]);
 	}
 }
 
@@ -1314,6 +1315,7 @@ void X32Ctrl::setLedChannelIndicator_Rack(void){
 		surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
 		surface->SetLedByEnum(X32_LED_MAIN, (chanIdx >= 70)&&(chanIdx <= 71));
 		surface->SetLedByEnum(X32_LED_MATRIX, (chanIdx >= 72)&&(chanIdx <= 79));
+		surface->SetLedByEnum(X32_LED_MAIN, (chanIdx == 80));
 
 		// set 7-Segment Display
 		surface->SetX32RackDisplay(chanIdx);        

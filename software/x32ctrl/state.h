@@ -17,6 +17,7 @@ class State {
 
         float dspLoad[2];
         float dspFreeHeapWords[2];
+        float dspAudioGlitchCounter[2];
         float dspVersion[2];
 
         bool x32core_lcdmode_setup;

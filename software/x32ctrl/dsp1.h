@@ -30,9 +30,10 @@ class DSP1 : X32Base {
 
     private:
         uint8_t monitorTapPoint;
+        uint8_t readState;
 
     public:
-        srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS];  // values used only during runtime
+        srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS + 8 + 8];  // values used only during runtime
         sDspChannel Channel[MAX_FPGA_TO_DSP1_CHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
         sMatrixChannel Matrix[6];
@@ -45,6 +46,7 @@ class DSP1 : X32Base {
 
         float volumeSpecial;
         float monitorVolume;
+        float rtaData[64];
 
         FxMath* fxmath;
         SPI* spi;
@@ -54,7 +56,6 @@ class DSP1 : X32Base {
         DSP1(X32BaseParameter* basepar);
         void Init(void);
         void LoadRouting_X32Default();
-        void ReadAndUpdateVUMeterData(void);
 
         void SendChannelVolume(uint8_t chan);
         void SendChannelSend(uint8_t chan);
@@ -80,12 +81,13 @@ class DSP1 : X32Base {
         String RoutingGetOutputNameByIndex(uint8_t index);
         void RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source);
         void RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position);
-        void UpdateVuMeter();
+        void UpdateVuMeter(uint8_t intervalMs);
         uint8_t GetPeak(int i, uint8_t steps);
 
         void DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode);
         void DSP2_SendFxParameter(int fxSlot);
 
+        void CallbackStateMachine();
         void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
         void callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);
 };

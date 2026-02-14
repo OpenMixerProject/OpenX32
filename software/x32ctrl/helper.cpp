@@ -338,33 +338,41 @@ bool Helper::IsInChannelBlock(uint8_t index, X32_VCHANNEL_BLOCK block){
 		}
 	case X32_VCHANNEL_BLOCK::AUX: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::AUX;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::AUX;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::FXRET: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::FXRET;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::FXRET;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::BUS: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::BUS;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::BUS;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::MATRIX: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MATRIX;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MATRIX;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::SPECIAL: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::SPECIAL;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::SPECIAL;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::MAINSUB: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAINSUB;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAINSUB;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::DCA: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::DCA;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::DCA;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::MAIN: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAIN;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAIN;
 			break;
 		}

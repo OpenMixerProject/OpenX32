@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.35
+#define DSP_VERSION				0.43
 
 #define DEBUG_DISABLE_LOWCUT	0
 #define DEBUG_DISABLE_GATE		0
@@ -29,7 +29,7 @@
 #define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
 #define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
-#define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
+#define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 
 #define SDRAM_START  			0x04000000	// start address of SDRAM
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
@@ -62,7 +62,7 @@
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
 #define SPI_MAX_RX_PAYLOAD_SIZE	30  // 27 int-values + * + # + parameter
-#define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 3)  // store up to 3 payload-sets
+#define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 2)  // store up to 2 payload-sets
 #define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values - must be dividable by 2!
 
 #define SAMPLERATE_MAX			48000

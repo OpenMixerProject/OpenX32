@@ -148,7 +148,6 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
 			memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
 
-			// TODO: check why the Bandpass is not working as expected...
 			memcpy(&peqCoeffs[0], &_deq[band].biquadCoeffsCtrl[0], 5 * sizeof(float));
 			biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStatesCtrl[i_ch][0], SAMPLES_IN_BUFFER, 1);
 		}

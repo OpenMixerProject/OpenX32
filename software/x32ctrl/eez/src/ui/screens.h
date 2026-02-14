@@ -347,12 +347,14 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output_header;
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
+    lv_obj_t *rta_chart;
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *fxtable;
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
     lv_obj_t *debugtext;
+    lv_obj_t *debugtext2;
     lv_obj_t *display_encoder_sliders;
     lv_obj_t *widget1;
     lv_obj_t *widget1__label;

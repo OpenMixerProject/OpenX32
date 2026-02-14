@@ -24,6 +24,7 @@
 
 #include "audio.h"
 #include "system.h"
+#include "rta.h"
 
 // include individual effects
 #include "fxBase.h"
@@ -66,6 +67,7 @@ volatile int audioReady = 0;
 volatile int audioProcessing = 0;
 volatile int spdifSamplePointer = 0;
 volatile bool spdifLeftChannel = true;
+volatile uint32_t audioGlitchCounter = 0;
 int audioBufferOffset = 0;
 
 // audio-buffers for transmitting and receiving
@@ -215,6 +217,8 @@ void audioInit(void) {
 
 		fxSlots[1] = new fxChorus(1, 2);
 	#endif
+
+	rtaInit();
 }
 
 void audioFxData(int fxSlot, float* data, int len) {
@@ -353,6 +357,9 @@ void audioProcessData(void) {
 	#endif
 
 
+	// RTA (use AUX channel 8 (index 23) for this)
+	rtaProcess(&audioBuffer[TAP_INPUT][23][0]);
+
 
 	/*
 		// insert sinewave-audio to all channels with increasing frequency starting at 200Hz and ending at 2.5kHz
@@ -424,6 +431,8 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
 	// we received new audio-data
 	// check if we are still processing the data, which means >100% CPU Load -> Crash System
     if (audioProcessing) {
+    	audioGlitchCounter++;
+
     	// this is not nice but without a debugger and profiling tools this is the easiest method to check if the algorithms are within the timing
     	systemCrash();
     }

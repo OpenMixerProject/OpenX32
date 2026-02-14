@@ -775,6 +775,16 @@ void create_screen_main() {
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Setup");
                                     add_style_tab_nopad(obj);
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            // rta_chart
+                                            lv_obj_t *obj = lv_chart_create(parent_obj);
+                                            objects.rta_chart = obj;
+                                            lv_obj_set_pos(obj, 78, 8);
+                                            lv_obj_set_size(obj, 640, 300);
+                                        }
+                                    }
                                 }
                                 {
                                     lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Card");
@@ -876,8 +886,8 @@ void create_screen_main() {
                             // testbar
                             lv_obj_t *obj = lv_bar_create(parent_obj);
                             objects.testbar = obj;
-                            lv_obj_set_pos(obj, 3, 61);
-                            lv_obj_set_size(obj, 691, 33);
+                            lv_obj_set_pos(obj, 15, 61);
+                            lv_obj_set_size(obj, 773, 33);
                             {
                                 lv_obj_t *parent_obj = obj;
                                 {
@@ -896,7 +906,16 @@ void create_screen_main() {
                             // debugtext
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.debugtext = obj;
-                            lv_obj_set_pos(obj, 3, 128);
+                            lv_obj_set_pos(obj, 15, 129);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text(obj, "...");
+                        }
+                        {
+                            // debugtext2
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            objects.debugtext2 = obj;
+                            lv_obj_set_pos(obj, 15, 168);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_label_set_text(obj, "...");
@@ -999,6 +1018,15 @@ void create_screen_main() {
                     create_user_widget_config_slider_display_encoder(obj, 372);
                 }
             }
+        }
+        {
+            // bodyless_instructions
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.bodyless_instructions = obj;
+            lv_obj_set_pos(obj, 192, 3);
+            lv_obj_set_size(obj, 475, LV_SIZE_CONTENT);
+            lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text(obj, "Bodyless Mode - Keymapping:\n1 HOME, 2 METERS, 3 ROUTING, 4 LIBRARY, 5 EFFECT\n6 SETUP, 7 MONITOR, 8 SCENES, 9 MUTE GRP, 0 UTILITY\narrow keys, Q..Z Encoder++, A..H Encoder--, Y..N Encoder Buttons");
         }
         {
             // bodyless_instructions

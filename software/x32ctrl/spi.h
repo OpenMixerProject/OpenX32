@@ -11,6 +11,7 @@
 #include "state.h"
 #include "spi-event.h"
 
+#include "eez/src/ui/screens.h"
 
 
 // defines for FPGA-configuration via SPI
@@ -92,7 +93,8 @@ class SPI : public X32Base {
     int UploadBitstreamFpgaXilinx();
     bool UploadBitstreamFpgaLattice();
     int UploadBitstreamDsps(bool useCli);
-    void ReadData(void);
+    void RequestData(uint8_t dsp);
+    void ReadData(uint8_t dsp);
     void ActivityLight(void);
     bool OpenConnectionFpga();
     bool CloseConnectionFpga();
@@ -103,7 +105,7 @@ class SPI : public X32Base {
     void PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]);
     bool SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len);
     bool SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
-    bool SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
+    bool ReadDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
     bool SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value);
 
     bool HasNextEvent(void);

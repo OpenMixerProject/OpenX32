@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.11
+#define DSP_VERSION				0.2
 #define FX_USE_UPMIXER			0	// enables a full-featured stereo-decompositing and 5.1-surround-upmixing effect (all other effects will be disabled)
 #define FX_USE_MATRIXUPMIXER	0	// enables a nice but simple stereo-to-5.1-surround matrix-upmixer (all other effects will be disabled)
 
@@ -22,7 +22,7 @@
 #define DSP_BUF_IDX_IMX_LEFT	19  // iMX25-Audio Left
 #define DSP_BUF_IDX_IMX_RIGHT	20  // iMX25-Audio Right
 
-#define USE_SPI_TXD_MODE		0 // 0 = CoreWrite, 1 = DMA
+#define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 
 #define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
 #define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)

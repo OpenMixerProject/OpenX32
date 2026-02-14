@@ -818,7 +818,17 @@ int SPI::UploadBitstreamDsps(bool useCli) {
                     last_progress = current_progress;
                 }
             }else{
-                // TODO: use UI to show progress
+                // use UI to show progress
+                totalBytesSent += bytesRead;
+                current_progress = (totalBytesSent * 100) / file_size[i];
+                if ((current_progress > (last_progress + 5)) || (totalBytesSent == file_size[i])) {
+                    int progress = (int)((float)totalBytesSent / file_size[i] * 100);
+
+                    lv_bar_set_value(objects.testbar, progress, LV_ANIM_OFF);
+                    lv_obj_invalidate(lv_scr_act());
+
+                    last_progress = current_progress;
+                }
             }
         }
         
@@ -834,25 +844,29 @@ int SPI::UploadBitstreamDsps(bool useCli) {
     return 0;
 }
 
-void SPI::ReadData(void){
+void SPI::RequestData(uint8_t dsp){
 //    if (!connected) return;
 
     if (!(state->dsp_disable_readout)) {
-        // continuously read data from both DSPs
-        
-        // read update-packet from DSP1
-        SendDspParameter_uint32(0, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-        SendReceiveDspParameterArray(0, '?', 0, 0, dataToRead[0], NULL); // read the answer from DSP1
+        // request update-packet from DSP
+        SendDspParameter_uint32(dsp, '?', 'u', 0, 0);
+    }
+}
 
-        // read update-packet from DSP2
-        SendDspParameter_uint32(1, '?', 'u', 0, 0); // non-blocking request of DSP-Load-parameter
-        SendReceiveDspParameterArray(1, '?', 0, 0, dataToRead[1], NULL); // read the answer from DSP2
+void SPI::ReadData(uint8_t dsp) {
+    //    if (!connected) return;
+
+    if (!(state->dsp_disable_readout)) {
+        // at the moment we are not using the ring-buffer-system, so this is just a simple buffer at the moment
+        spiRxRingBuffer[dsp].head = 0;
+        spiRxRingBuffer[dsp].tail = 0;
+
+        ReadDspParameterArray(dsp, '?', 0, 0, dataToRead[dsp], NULL); // read the answer from DSP
     }
 }
 
 void SPI::ActivityLight(void){
 //    if (!connected) return;
-
 
     if (!(state->dsp_disable_activity_light)) {
 
@@ -989,7 +1003,7 @@ void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values
             next_head -= SPI_RX_BUFFER_SIZE;
         }
         if (next_head != spiRxRingBuffer[dsp].tail) {
-            // no overlow -> store data
+            // no overflow -> store data
             spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].head] = values[i];
             spiRxRingBuffer[dsp].head = next_head;
 
@@ -1021,21 +1035,23 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
         return;
     }
 
-    // we want to read data from DSP, so check how many bytes we should receive
+    // channel == 0 is a dummy-option and will not be handled here
+    if (channel == 0) {
+        return;
+    }
+
+    // we want to read data from DSP, so check how many bytes we should receive (only payload, without header and tail)
     switch (channel) {
-        case 0:
-            // dummy-channel to read data. Dont change dataToRead-value here
-            break;
         case 'u': // update-packet
             if (dsp == 0) {
-                dataToRead[dsp] += 45; // DSP1
+                dataToRead[dsp] = (3 + 40 + 8 + 0 + 3); // DSP1: DspVersion, DspLoad, VolumeDspChan, VolumeFxReturn, VolumeMixBus, VolumeMainLRS
             }else{
-                dataToRead[dsp] += 2; // DSP2
+                dataToRead[dsp] = 4 + 64; // DSP2: DspVersion, DspHeapSpace, DspLoad, audioGlitchCounter, RTA-Data
             }
             break;
+        default:
+            break;
     }
-    // add some more data for overhead: '*', parameter and '#'
-    dataToRead[dsp] += 3;
 }
 
 bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
@@ -1074,7 +1090,7 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
     // configure SPI-system for this transmission
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = 0; // we dont want to receive
-    tr.bits_per_word = 32; // Linux seems to ignore this and transmits with 8-bit
+    tr.bits_per_word = 32;
     tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
     tr.cs_change = 0; // disable CS between two messages
     tr.len = sizeof(spiTxDataRaw);
@@ -1103,11 +1119,13 @@ bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, u
         printf("\n");
     }
 
+    UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
+
     int ret = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
     return (ret >= 0);
 }
 
-bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
+bool SPI::ReadDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
 //    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     if (valueCount == 0) {
@@ -1123,7 +1141,7 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
     // configure SPI-system for this transmission
     tr.tx_buf = (unsigned long)spiTxDataRaw;
     tr.rx_buf = (unsigned long)spiRxDataRaw;
-    tr.bits_per_word = 32; // Linux seems to ignore this and transmits with 8-bit
+    tr.bits_per_word = 32;
     tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
     tr.cs_change = 0; // disable CS between two messages
     tr.len = sizeof(spiTxDataRaw);
@@ -1142,7 +1160,7 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
     memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
     
     if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
-        printf("SendReceiveDspParameterArray: ");
+        printf("ReadDspParameterArray: ");
         for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
             printf("0x%.2X ", spiTxDataRaw[v]);
             if (!((v+1) % 4)) {
@@ -1152,12 +1170,10 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
         printf("\n");
     }
 
-    UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
-
     int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
 
     //helper->DEBUG_SPI(DEBUGLEVEL_TRACE, "DSP%d, %d Bytes received", dsp+1, bytesRead);
-    PushValuesToRxBuffer(dsp, bytesRead/4, (uint32_t*)spiRxDataRaw);
+    PushValuesToRxBuffer(dsp, bytesRead/sizeof(uint32_t), (uint32_t*)spiRxDataRaw);
 
     return (bytesRead > 0);
 }
@@ -1165,7 +1181,7 @@ bool SPI::SendReceiveDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t cha
 bool SPI::SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
 //    if (!connected) return false; // this line prevents SPI-communication at the moment
 
-    return SendReceiveDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
+    return SendDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
 }
 
 bool SPI::HasNextEvent(void){

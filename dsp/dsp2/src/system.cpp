@@ -422,8 +422,8 @@ void systemSpdifTxInit(void) {
 // new audio-data cannot be processed
 #pragma section("seg_int_code")
 void systemCrash(void) {
-	sysreg_bit_clr(sysreg_FLAGS, FLG7);
-    while(1) {
-    	NOP();
-    }
+	//sysreg_bit_clr(sysreg_FLAGS, FLG7);
+    //while(1) {
+    //	NOP();
+    //}
 }

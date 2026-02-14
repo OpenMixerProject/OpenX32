@@ -24,10 +24,20 @@
 
 #include "spi.h"
 
-volatile pm sSpiRxRingBuffer spiRxRingBuffer;
-volatile pm sSpiTxRingBuffer spiTxRingBuffer;
+pm sSpiRxRingBuffer spiRxRingBuffer;
+#if USE_SPI_TXD_MODE == 0
+	float pm spiCommData[150]; // dont use the stack-memory for this and put it into the program memory
+	pm sSpiTxRingBuffer spiTxRingBuffer;
+#elif USE_SPI_TXD_MODE == 1
+	float pm spiCommData[65];
+#elif USE_SPI_TXD_MODE == 2
+	float pm spiCommData[9];
+	// setup DMA-chaining
+	int spiTx_tcb[5][4]; // 5 buffers for AudioSamples, CompressorGain, GateGain and additional data
+#endif
 volatile bool spiNewRxDataReady = false;
 bool spiDmaMode = false;
+volatile bool spiDesiredMode = 0;
 
 typedef enum {
 	LOOKING_FOR_START_MARKER,
@@ -54,79 +64,172 @@ void spiInit(void) {
 	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
 	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
 
-	spiTxRingBuffer.head = 0;
-	spiTxRingBuffer.tail = 0;
+	#if USE_SPI_TXD_MODE == 0
+		spiTxRingBuffer.head = 0;
+		spiTxRingBuffer.tail = 0;
+	#elif USE_SPI_TXD_MODE == 2
+		// setup DMA-chaining
+		// caution: chain-pointer registers must point to the LAST location in the TCB, hence tcb_address + 3
+
+		// audio-data of main-DSP-channels and FX-return
+		spiTx_tcb[0][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer <- DEBUG: jump to main-bus-audio-data directly without mixbusses and gains
+		spiTx_tcb[0][1] = (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // ICSPI internal count
+		spiTx_tcb[0][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[0][3] = (int)&audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_DSPCHANNEL]; // IISPI internal index
+
+		// audio-data of 8 mixbusses
+		spiTx_tcb[1][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
+		spiTx_tcb[1][1] = ACTIVE_MIX_BUSSES * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these volume-information. DSP will take to long
+		spiTx_tcb[1][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_INPUT][0][DSP_BUF_IDX_MIXBUS]; // IISPI internal index
+
+		// compressor gains
+		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3); // CPSPI chain-pointer
+		spiTx_tcb[2][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
+		spiTx_tcb[2][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[2][3] = (int)&dsp.compressorGain[0]; // IISPI internal index
+
+		// gate-gains
+		spiTx_tcb[3][0] = ((int)&spiTx_tcb[4][0] + 3); // CPSPI chain-pointer
+		spiTx_tcb[3][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
+		spiTx_tcb[3][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[3][3] = (int)&dsp.gateGain[0]; // IISPI internal index
+
+		// closing data (audio-data of main-busses and final "#")
+		spiTx_tcb[4][0] = 0; // CPSPI chain-pointer ("0" ends DMA-chain)
+		spiTx_tcb[4][1] = 4; // ICSPI internal count
+		spiTx_tcb[4][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[4][3] = (int)&spiCommData[5]; // IISPI internal index
+
+
+
+		// configure the spiCommData-struct (header and tail of the protocol)
+		unsigned int parameter;
+		unsigned int _classId;
+		unsigned int _channel;
+		unsigned int _index;
+		unsigned int _valueCount;
+
+		parameter = 0x0000002A; // *
+		memcpy(&spiCommData[0], &parameter, sizeof(uint32_t));
+
+		_classId = 's';
+		_channel = 'u';
+		_index = 0;
+		//_valueCount = 3 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + MAX_CHAN_FULLFEATURED + MAX_CHAN_FULLFEATURED + 3;
+		//_valueCount = 3 + (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) + ACTIVE_MIX_BUSSES + 3;
+		_valueCount = 3 + spiTx_tcb[0][1] + spiTx_tcb[1][1] + spiTx_tcb[2][1] + spiTx_tcb[3][1] + 3;
+		parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
+		memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
+
+		parameter = 0x00000023; // #
+		memcpy(&spiCommData[8], &parameter, sizeof(uint32_t));
+	#endif
 	spiRxRingBuffer.head = 0;
 	spiRxRingBuffer.tail = 0;
 }
 
-void spiStop(void) {
-	// stop and flush SPI
-	*pSPIDMAC = 0;
-	*pSPICTL = (TXFLSH | RXFLSH);
-    while (!(SPIF & *pSPISTAT)) {
-       NOP();
-    }
-    while (!(SPIFE & *pSPISTAT)) {
-       NOP();
-    }
+void spiCallback(void) {
+	if ((spiDesiredMode == 0) && (spiDmaMode)) {
+		// try to switch to SpiCoreMode
+
+		#if USE_SPI_TXD_MODE == 1
+			spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
+		#elif USE_SPI_TXD_MODE == 2
+			// check if chain-loading still in progress
+			if (!(SPICHS & *pSPIDMAC)) {
+				spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
+			}
+		#endif
+
+	}else if ((spiDesiredMode == 1) && (!spiDmaMode)) {
+		// try to switch to SpiDmaMode
+	}
 }
 
-void spiDmaBegin(bool receive, int len) {
-	// stop and flush SPI
-	*pSPICTL &= ~SPIEN;
-	/*
-	*pSPICTL |= (TXFLSH | RXFLSH);
-    while (!(SPIF & *pSPISTAT)) {
-       NOP();
-    }
-    while (!(SPIFE & *pSPISTAT)) {
-       NOP();
-    }
-    */
+void spiCoreRxBegin() {
+    // disable SPI-port
+    *pSPICTL &= ~SPIEN;
 
+	// disable DMA-chain
+	*pIISPI = 0;
+	*pCPSPI = 0;
+
+	// reset all registers
+	*pSPIFLG = DS0EN; // Enable SRU2 output for SPI device-select-0
+	*pSPIDMAC = 0; // spi-dma-register
+
+	spiRxRingBuffer.head = 0;
+	spiRxRingBuffer.tail = 0;
+
+	spiDmaMode = false; // switch internal processing to SPI-core-mode
+
+	// reconfigure for CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
+	*pSPICTL = ISSEN | MSBF | WL32; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit
+	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
+	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
+}
+
+void spiDmaBegin(unsigned int* buffer, int len, bool receive) {
+	// more information in SHARC Processor Hardware Reference 12-36
+
+	spiDesiredMode = 1;
+
+	// Step 1: disable SPI-port directly as we only received data previously
+	*pSPICTL &= ~SPIEN;
+	spiDmaMode = true; // switch our processing to DMA-mode
+
+	// Step 2: Write to SPICTL-register to setup DMA-transfer. Important: Enable SPI before enabling DMA
+	*pSPICTL = ISSEN | MSBF | WL32 | TIMOD2; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | DMA-TransferMode
+	*pSPICTL |= CPHASE | CLKPL; // set SPI_MODE_3
+	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
+
+
+	// Step 3: define DMA receive/transmit parameters
 	// reconfigure SPI for DMA-TransferMode
-    if (receive) {
-    	*pIISPI = (unsigned int)&spiRxRingBuffer.buffer[0]; // Internal memory DMA address
-    	*pCSPI = len; // words to be read via SPI and DMA to buffer
-    }else{
-    	*pIISPI = (unsigned int)&spiTxRingBuffer.buffer[0]; // Internal memory DMA address
-    	*pCSPI = spiTxRingBuffer.head; // Contains number of 32-bit words in DMA transfers remaining data
-    }
+	*pIISPI = (unsigned int)buffer; // pointer to (first) buffer
+	*pCSPI = len; // number of 32-bit words to transmit from (first) buffer
 	*pIMSPI = 1; // Internal memory DMA access modifier
 	//*pSPIBAUD = 0; // only for SPI-Master: SPICLK baud rate = PCLK /(4 x BAUDR) = 264MHz / (4 x 5MHz) = 13.2 = 13
 
-	if (receive) {
-		*pSPIDMAC = SPIRCV | INTEN | SPIDEN; // Receiver enabled | Interrupts enabled | DMA enabled
-	}else{
-		*pSPIDMAC = INTEN | SPIDEN; // Interrupts enabled | DMA enabled
-	}
 
-	*pSPICTL = ISSEN | MSBF | WL32 | OPD | TIMOD2; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled | DMA-TransferMode
-	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
+	// Step 4: write to SPIDMAC-register to enable SPI DMA engine
+	#if USE_SPI_TXD_MODE == 1
+		if (receive) {
+			*pSPIDMAC = SPIRCV | INTEN | SPIDEN; // Receiver enabled | Interrupts enabled | DMA enabled
+		}else{
+			*pSPIDMAC = INTEN | SPIDEN; // Interrupts enabled | DMA enabled
+		}
+	#elif USE_SPI_TXD_MODE == 2
+		if (receive) {
+			*pSPIDMAC = SPIRCV | INTEN | SPIDEN | SPICHEN; // Receiver enabled | Interrupts enabled | DMA enabled
+		}else{
+			*pSPIDMAC = INTEN | SPIDEN | SPICHEN; // Interrupts enabled | DMA enabled
+		}
+	#endif
 
-	spiDmaMode = true; // switch our processing to DMA-mode
+	#if USE_SPI_TXD_MODE == 2
+		// begin the DMA-chain by writing the chain-pointer for the second DMA
+		*pCPSPI = ((unsigned int)&spiTx_tcb[0][0] + 3) & OFFSET_MASK;
+	#endif
 }
 
 void spiDmaEnd(void) {
 	// stop SPI and flush remaining data
-	*pSPICTL &= ~SPIEN; // disable SPI
-	/*
-	*pSPICTL |= (TXFLSH | RXFLSH); // flush Rx and Tx
-    while (!(SPIF & *pSPISTAT)) { // wait for SPI Transmit Transfer Complere
-       NOP();
+	// wait for complete DMA-transfer
+	if ((SPIS0 | SPIS1) & *pSPIDMAC) {
+       return;
     }
-    while (!(SPIFE & *pSPISTAT)) { // wait for SPI Transaction Complete
-       NOP();
+	// wait for TX-buffer to be emptied into shift-register
+	if ((TXS & *pSPISTAT)) {
+		return;
     }
-	*/
+    // wait for the SPI-shift-register to finish shifting out
+	if (!(SPIF & *pSPISTAT)) {
+		return;
+    }
 
-	// reconfigure for CoreWrite-TransferMode (Init Transfer by read of receive-buffer, ISR when buffer is full)
-	*pSPIDMAC = 0; // clear SPI DMA control register
-	*pSPICTL = ISSEN | MSBF | WL32 | OPD; // InputSlaveSelect | MostSignificantBit First | WordLength=32bit | OpenDrainOutputEnabled
-	*pSPICTL |= SPIEN; // enable SPI-interface after one clock-cycle
-
-	spiDmaMode = false; // switch internal processing to SPI-core-mode
+    spiCoreRxBegin();
 }
 
 void spiISR(int sig) {
@@ -136,9 +239,7 @@ void spiISR(int sig) {
 	// check if our system is in DMA-processing-mode
 	if (spiDmaMode) {
 		// interrupt because last DMA-Transmission has completed
-
-		spiTxRingBuffer.head = 0; // reset tx-buffer-pointer to first element again
-		spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
+		spiDesiredMode = 0;
 	}else{
 		// a new word has been received -> put it in the Rx Ring-Buffer
 
@@ -249,18 +350,20 @@ void spiProcessRxData(void) {
 }
 
 void spiPushValueToTxBuffer(unsigned int value) {
-	// check for buffer-overflow
-	int next_head = spiTxRingBuffer.head + 1;
-	if (next_head >= SPI_TX_BUFFER_SIZE) {
-		next_head -= SPI_TX_BUFFER_SIZE;
-	}
-	if (next_head != spiTxRingBuffer.tail) {
-		// no overlow -> store data
-		spiTxRingBuffer.buffer[spiTxRingBuffer.head] = value;
-		spiTxRingBuffer.head = next_head;
-	}else{
-		// buffer-overflow -> reject new data
-	}
+	#if USE_SPI_TXD_MODE == 0
+		// check for buffer-overflow
+		int next_head = spiTxRingBuffer.head + 1;
+		if (next_head >= SPI_TX_BUFFER_SIZE) {
+			next_head -= SPI_TX_BUFFER_SIZE;
+		}
+		if (next_head != spiTxRingBuffer.tail) {
+			// no overlow -> store data
+			spiTxRingBuffer.buffer[spiTxRingBuffer.head] = value;
+			spiTxRingBuffer.head = next_head;
+		}else{
+			// buffer-overflow -> reject new data
+		}
+	#endif
 }
 
 // following code can be used to send data in SPI-Core-Mode
@@ -272,11 +375,6 @@ void spiSendArray(unsigned short classId, unsigned short channel, unsigned short
 		spiPushValueToTxBuffer(((unsigned int*)values)[i]);
 	}
 	spiPushValueToTxBuffer(SPI_END_MARKER); // EndMarker = '#'
-
-	#if USE_SPI_TXD_MODE == 1
-		// enable SPI-DMA-Mode to transmit data to i.MX253
-		spiDmaBegin(false, 0);
-	#endif
 }
 
 void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, float value) {

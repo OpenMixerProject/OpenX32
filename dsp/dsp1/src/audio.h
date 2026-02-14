@@ -4,6 +4,7 @@
 #include "dsp1.h"
 
 extern float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MAIN + MAX_MATRIX + MAX_MONITOR];
+extern volatile uint32_t audioGlitchCounter;
 
 // function prototypes
 void audioInit(void);

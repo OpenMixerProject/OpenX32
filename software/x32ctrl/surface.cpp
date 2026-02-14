@@ -947,6 +947,12 @@ void Surface::SetX32RackDisplay(uint8_t vChannelIndex){
         SetX32RackDisplayRaw(int2segment('M'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::MATRIX));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::DCA)) {
         SetX32RackDisplayRaw(int2segment('D'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::DCA));
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::MAIN)) {
+        SetX32RackDisplayRaw(int2segment('M'), int2segment(' '));
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::MAINSUB)) {
+        SetX32RackDisplayRaw(int2segment('M'), int2segment(5));
+    } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::SPECIAL)) {
+        SetX32RackDisplayRaw(int2segment(5), int2segment(' '));
     }
 }
 
@@ -987,6 +993,8 @@ uint8_t Surface::int2segment(int8_t p_value){
         case 'm':
         case 'M':
             return 55;
+        case ' ':
+            return 0;
         default:
             return 0;
     }

@@ -24,8 +24,6 @@
 
 #include "comm.h"
 
-float pm commData[150]; // dont use the stack-memory for this and put it into the program memory
-
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
 	  SPI ClassIds:
@@ -40,6 +38,14 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 	unsigned int* intValues = (unsigned int*)values;
 	float tmpValueFloat;
 
+	#if USE_SPI_TXD_MODE == 1
+		unsigned int parameter;
+		unsigned int _classId;
+		unsigned int _channel;
+		unsigned int _index;
+		unsigned int _valueCount;
+	#endif
+
 	switch (classId) {
 		case '?': // request-class
 			switch (channel) {
@@ -47,25 +53,71 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
 				case 'u': // update-packet
-					commData[0] = DSP_VERSION;
-					//commData[0] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
-					memcpy(&commData[1], &cyclesTotal, sizeof(float));
+					#if USE_SPI_TXD_MODE == 0
+						spiCommData[0] = DSP_VERSION;
+						//spiCommData[0] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+						memcpy(&spiCommData[1], &cyclesTotal, sizeof(float));
 
-					// VU-meters of main-channels
-					commData[2] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
-					commData[3] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
-					commData[4] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
-					// VU-meters of all DSP input-channels and dynamics
-					for (int i = 0; i < 40; i++) {
-						//commData[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
-						commData[5 + i] = audioBuffer[TAP_INPUT][0][dsp.inputRouting[i]];
-						//commData[45 + i] = dsp.compressorGain[i];
-						//commData[85 + i] = dsp.gateGain[i];
-					}
+						// VU-meters of main-channels
+						spiCommData[2] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
+						spiCommData[3] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
+						spiCommData[4] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
+						// VU-meters of all DSP input-channels and dynamics
+						for (int i = 0; i < 40; i++) {
+							//spiCommData[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
+							spiCommData[5 + i] = audioBuffer[TAP_INPUT][0][dsp.inputRouting[i]];
+							//spiCommData[45 + i] = dsp.compressorGain[i];
+							//spiCommData[85 + i] = dsp.gateGain[i];
+						}
+						spiSendArray('s', 'u', 0, 45, &spiCommData[0]);
+						//spiSendArray('s', 'u', 0, 85, &spiCommData[0]);
+						//spiSendArray('s', 'u', 0, 125, &spiCommData[0]);
+					#elif USE_SPI_TXD_MODE == 1
+						parameter = 0x0000002A; // *
+						memcpy(&spiCommData[0], &parameter, sizeof(uint32_t));
 
-					spiSendArray('s', 'u', 0, 45, &commData[0]);
-					//spiSendArray('s', 'u', 0, 85, &commData[0]);
-					//spiSendArray('s', 'u', 0, 125, &commData[0]);
+						_classId = 's';
+						_channel = 'u';
+						_index = 0;
+						_valueCount = 2 + 40 + 8 + 8 + 3;
+						parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
+						memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
+						parameter = 0x00000023; // #
+						memcpy(&spiCommData[63], &parameter, sizeof(uint32_t));
+
+
+						spiCommData[2] = DSP_VERSION;
+						//spiCommData[0] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
+
+						// VU-meters of all DSP input-channels and dynamics
+						for (int i = 0; i < 48; i++) {
+							spiCommData[4 + i] = audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_DSPCHANNEL + i];
+						}
+						for (int i = 0; i < 8; i++) {
+							spiCommData[52 + i] = audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_MIXBUS];
+						}
+
+						// VU-meters of main-channels
+						spiCommData[60] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
+						spiCommData[61] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
+						spiCommData[62] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
+
+						spiDmaBegin((unsigned int*)&spiCommData[0], _valueCount + 3, false);
+					#elif USE_SPI_TXD_MODE == 2
+						spiCommData[2] = DSP_VERSION;
+						//spiCommData[3] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
+						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
+						spiCommData[4] = audioGlitchCounter;
+
+						spiCommData[5] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
+						spiCommData[6] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
+						spiCommData[7] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
+
+						spiDmaBegin((unsigned int*)&spiCommData[0], 5, false); // start DMA-transmission and transmit the first 5 elements of spiCommData
+						// after this the DMA-chain will switch to the next spi_tcb
+					#endif
+
 					break;
 				default:
 					break;
@@ -115,7 +167,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 		case 'v': // volume
 			switch (index) {
 				case 0: // DSP-Channels
-					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS)) {
 						return;
 					}
 
@@ -133,10 +185,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					}
 
 					if (valueCount == 4) {
-						dsp.mixbusVolume[channel] = floatValues[0];
-						dsp.mixbusSendMainLeftVolume[channel] = floatValues[1];
-						dsp.mixbusSendMainRightVolume[channel] = floatValues[2];
-						dsp.mixbusSendMainSubVolume[channel] = floatValues[3];
+						dsp.channelVolumeSet[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[0];
+						dsp.channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[1];
+						dsp.channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[2];
+						dsp.channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[3];
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
@@ -161,17 +213,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
-				case 5: // FX-Send-Volume
-					// Valid for DSP-Channels 1-40
-					if (channel >= (MAX_CHAN_FPGA)) {
-						return;
-					}
-
-					if (valueCount == 16) {
-						for (int i = 0; i < 16; i++) {
-							dsp.channelSendFxVolume[i][channel] = floatValues[i];
-						}
-					}
+				default:
 					break;
 			}
 			break;
