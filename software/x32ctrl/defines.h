@@ -17,7 +17,7 @@
 #define MHz * 1000000
 #define SPI_FPGA_SPEED_HZ       8 MHz
 #define SPI_DSP_CONF_SPEED_HZ   8 MHz
-#define SPI_DSP_SPEED_HZ        16 MHz // 16 MHz is the regular SPI-clock on the original X32
+#define SPI_DSP_SPEED_HZ        8 MHz // 16 MHz is the regular SPI-clock on the original X32
 
 #define PI 3.14159265358979323846f
 #define MAX_NAME_LENGTH 30 + 1 // null termination!

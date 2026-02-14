@@ -844,39 +844,6 @@ int SPI::UploadBitstreamDsps(bool useCli) {
     return 0;
 }
 
-void SPI::RequestData(uint8_t dsp){
-//    if (!connected) return;
-
-    if (!(state->dsp_disable_readout)) {
-        // request update-packet from DSP
-        SendDspParameter_uint32(dsp, '?', 'u', 0, 0);
-    }
-}
-
-void SPI::ReadData(uint8_t dsp) {
-    //    if (!connected) return;
-
-    if (!(state->dsp_disable_readout)) {
-        // at the moment we are not using the ring-buffer-system, so this is just a simple buffer at the moment
-        spiRxRingBuffer[dsp].head = 0;
-        spiRxRingBuffer[dsp].tail = 0;
-
-        ReadDspParameterArray(dsp, '?', 0, 0, dataToRead[dsp], NULL); // read the answer from DSP
-    }
-}
-
-void SPI::ActivityLight(void){
-//    if (!connected) return;
-
-    if (!(state->dsp_disable_activity_light)) {
-
-   	    // toggle the LED on DSP1 and DSP2 to show some activity
-	    SendDspParameter_uint32(0, 'a', 42, 0, 2);
-	    SendDspParameter_uint32(1, 'a', 42, 0, 2);
-    }
-
-}
-
 bool SPI::OpenConnectionFpga() {
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 8; // we are using standard 8-bit-mode here for communication
@@ -922,6 +889,18 @@ bool SPI::OpenConnectionDsps() {
         ioctl(spiDspHandle[i], SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
         ioctl(spiDspHandle[i], SPI_IOC_WR_MAX_SPEED_HZ, &spiSpeed);
     }
+
+    // reset RingBuffer-elements
+    spiRxRingBuffer[0].head = 0;
+    spiRxRingBuffer[0].tail = 0;
+    spiRxRingBuffer[1].head = 0;
+    spiRxRingBuffer[1].tail = 0;
+
+    spiTxRingBuffer[0].head = 0;
+    spiTxRingBuffer[0].level = 0;
+    spiTxRingBuffer[1].head = 0;
+    spiTxRingBuffer[1].level = 0;
+
     connected = true;
     return true;
 }
@@ -933,6 +912,253 @@ bool SPI::CloseConnectionDsps() {
         if (spiDspHandle[i] >= 0) close(spiDspHandle[i]);
     }
     return true;
+}
+
+bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
+
+    struct spi_ioc_transfer tr = {0};
+
+    // configure SPI-system for this transmission
+    tr.tx_buf = (unsigned long)txData;
+    tr.rx_buf = (unsigned long)rxData;
+    tr.bits_per_word = 8;
+    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
+    tr.cs_change = 0; // disable CS between two messages
+    tr.len = len;
+    tr.speed_hz = SPI_FPGA_SPEED_HZ;
+
+    setFpgaChipSelectPin(true); // assert ChipSelect
+    int ret = ioctl(spiFpgaHandle, SPI_IOC_MESSAGE(1), &tr); // send via SPI
+	setFpgaChipSelectPin(false); // deassert ChipSelect
+
+    return (ret >= 0);
+}
+
+void SPI::QueueDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
+/*
+    // check if our ringbuffer has at least one element left
+    if (spiTxRingBuffer[dsp].level == SPI_TX_BUFFER_SIZE) {
+        // fatal error: ringbuffer is full -> throw this message away
+        helper->Error("BufferOverflow in DspTxQueue!\n");
+        return;
+    }
+*/
+    if (valueCount > 25) {
+        // fatal error: 25 is our maximum at the moment
+        helper->Error("Attempt to write more than 25 values into DspTxQueue!\n");
+        return;
+    }
+
+    // queue element to the buffer
+    sSpiTxBufferElement* buffer = &spiTxRingBuffer[dsp].buffer[spiTxRingBuffer[dsp].head];
+    buffer->classId = classId;
+    buffer->channel = channel;
+    buffer->index = index;
+    buffer->valueCount = valueCount;
+    memcpy(&buffer->values[0], &values[0], valueCount * sizeof(float));
+    
+    // increment level and head
+    spiTxRingBuffer[dsp].level++;
+    spiTxRingBuffer[dsp].head++;
+    if (spiTxRingBuffer[dsp].head == SPI_TX_BUFFER_SIZE) {
+        spiTxRingBuffer[dsp].head = 0;
+    }
+}
+
+uint32_t SPI::GetDspTxQueueLength(uint8_t dsp) {
+    return spiTxRingBuffer[dsp].level;
+}
+
+void SPI::ProcessDspTxQueue(uint8_t dsp) {
+    // this function is called every 10ms, except once when we are reading from DSP via DMA-Access
+    if (spiTxRingBuffer[dsp].level == 0) {
+        // nothing to do here
+        return;
+    }
+
+    int messagesToSend = spiTxRingBuffer[dsp].level;
+    // we must not exceed 5ms. Each message can have up to 25 Words with each 32bits
+    // so a single message takes a maximum of (1/8MHz) * 25 * 32bit = 0.1ms. So we should
+    // not transmit more than 50 messages at once and leave the rest for another timeslot
+    // to stay safe, we transmit a maximum of 40 messages per interval
+    if (messagesToSend > 40) {
+        messagesToSend = 40;
+    }
+
+    int tail = spiTxRingBuffer[dsp].head - spiTxRingBuffer[dsp].level;
+    if (tail < 0) {
+        tail += SPI_TX_BUFFER_SIZE;
+    }
+    for (int i = 0; i < messagesToSend; i++) {
+        SendDspData(dsp, &spiTxRingBuffer[dsp].buffer[tail]);
+        tail++;
+        if (tail == SPI_TX_BUFFER_SIZE) {
+            tail = 0;
+        }
+    }
+    spiTxRingBuffer[dsp].level -= messagesToSend;
+}
+
+bool SPI::SendDspData(uint8_t dsp, sSpiTxBufferElement* buffer) {
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
+
+    if (buffer->valueCount == 0) {
+        // dont allow empty messages
+        return false;
+    }
+
+    struct spi_ioc_transfer tr = {0};
+    uint32_t spiTxData[buffer->valueCount + 3]; // '*' + parameter + values + '#'
+    uint8_t spiTxDataRaw[(buffer->valueCount + 3) * sizeof(uint32_t)];
+
+    // configure SPI-system for this transmission
+    tr.tx_buf = (unsigned long)spiTxDataRaw;
+    tr.rx_buf = 0; // we dont want to receive
+    tr.bits_per_word = 32;
+    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
+    tr.cs_change = 0; // disable CS between two messages
+    tr.len = sizeof(spiTxDataRaw);
+
+    // prepare TxBuffer
+    spiTxData[0] = SPI_START_MARKER; // add StartMarker = '*'
+    spiTxData[1] = ((uint32_t)buffer->valueCount << 24) + ((uint32_t)buffer->index << 16) + ((uint32_t)buffer->channel << 8) + (uint32_t)buffer->classId; // some header-information
+    memcpy(&spiTxData[2], &buffer->values[0], buffer->valueCount * sizeof(uint32_t));
+    spiTxData[(buffer->valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
+    memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
+
+    if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
+        printf("SendDspData: ");
+        for(int v = 0; v < ((buffer->valueCount + 3) * sizeof(uint32_t)); v++) {
+            printf("0x%.2X ", spiTxDataRaw[v]);
+            if (!((v+1) % 4)) {
+                printf("| ");
+            }
+        }
+        printf("\n");
+    }
+
+    UpdateNumberOfExpectedReadBytes(dsp, buffer->classId, buffer->channel, buffer->index);
+
+    int ret = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+    return (ret >= 0);
+}
+
+void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index) {
+    // we expect only read-class here
+    if (classId != '?') {
+        return;
+    }
+
+    // channel == 0 is a dummy-option and will not be handled here
+    if (channel == 0) {
+        return;
+    }
+
+    // we want to read data from DSP, so check how many bytes we should receive (only payload, without header and tail)
+    switch (channel) {
+        case 'u': // update-packet
+            if (dsp == 0) {
+                dataToRead[dsp] = (3 + 40 + 8 + 0 + 3); // DSP1: DspVersion, DspLoad, VolumeDspChan, VolumeFxReturn, VolumeMixBus, VolumeMainLRS
+            }else{
+                dataToRead[dsp] = 4 + 64; // DSP2: DspVersion, DspHeapSpace, DspLoad, audioGlitchCounter, RTA-Data
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+bool SPI::ReadDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index) {
+//    if (!connected) return false; // this line prevents SPI-communication at the moment
+
+    // at the moment we are not using the ring-buffer-system, so this is just a simple buffer at the moment
+    spiRxRingBuffer[dsp].head = 0;
+    spiRxRingBuffer[dsp].tail = 0;
+    uint32_t valueCount = dataToRead[dsp];
+
+    if (valueCount == 0) {
+        // dont allow empty messages
+        return false;
+    }
+
+    struct spi_ioc_transfer tr = {0};
+    uint32_t spiTxData[valueCount + 3]; // '*' + parameter + values + '#'
+    uint8_t spiTxDataRaw[(valueCount + 3) * sizeof(uint32_t)];
+    uint8_t spiRxDataRaw[sizeof(spiTxDataRaw)];
+
+    // configure SPI-system for this transmission
+    tr.tx_buf = (unsigned long)spiTxDataRaw;
+    tr.rx_buf = (unsigned long)spiRxDataRaw;
+    tr.bits_per_word = 32;
+    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
+    tr.cs_change = 0; // disable CS between two messages
+    tr.len = sizeof(spiTxDataRaw);
+
+    // prepare TxBuffer
+    spiTxData[0] = SPI_START_MARKER; // add StartMarker = '*'
+    spiTxData[1] = ((uint32_t)valueCount << 24) + ((uint32_t)index << 16) + ((uint32_t)channel << 8) + (uint32_t)classId; // some header-information
+    memset(&spiTxData[2], 0, valueCount * sizeof(uint32_t)); // we are sending zeros, so set the buffer to zero
+    spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
+    memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw));
+    
+    if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
+        printf("ReadDspData: ");
+        for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
+            printf("0x%.2X ", spiTxDataRaw[v]);
+            if (!((v+1) % 4)) {
+                printf("| ");
+            }
+        }
+        printf("\n");
+    }
+
+    int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
+
+    //helper->DEBUG_SPI(DEBUGLEVEL_TRACE, "DSP%d, %d Bytes received", dsp+1, bytesRead);
+    PushValuesToRxBuffer(dsp, bytesRead/sizeof(uint32_t), (uint32_t*)spiRxDataRaw);
+
+    return (bytesRead > 0);
+}
+
+void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
+//    if (!connected) return;
+
+    if (valueCount == 0) {
+        return;
+    }
+
+    for (int i = 0; i < valueCount; i++) {
+        // check for buffer-overflow
+        int next_head = spiRxRingBuffer[dsp].head + 1;
+        if (next_head > SPI_RX_BUFFER_SIZE) {
+            next_head -= SPI_RX_BUFFER_SIZE;
+        }
+        if (next_head != spiRxRingBuffer[dsp].tail) {
+            // no overflow -> store data
+            spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].head] = values[i];
+            spiRxRingBuffer[dsp].head = next_head;
+
+            // check for EndMarker '#'
+            if (values[i] == SPI_END_MARKER) {
+                ProcessRxData(dsp);
+            }
+        }else{
+            // buffer-overflow -> reject new data
+            // clear buffer (we receive 0x000000 if no data is sent)
+            helper->Log("DSP%d: buffer-overflow -> reject new data", dsp);
+            spiRxRingBuffer[dsp].head = 0;
+            spiRxRingBuffer[dsp].tail = 0;
+            spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER;
+        }
+    }
+
+    // reduce or reset dataToRead-counter
+    if (dataToRead[dsp] >= valueCount) {
+        dataToRead[dsp] -= valueCount;
+    }else{
+        dataToRead[dsp] = 0;
+    }
 }
 
 void SPI::ProcessRxData(uint8_t dsp) {
@@ -987,201 +1213,6 @@ void SPI::ProcessRxData(uint8_t dsp) {
                 break;
         }
     }
-}
-
-void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
-//    if (!connected) return;
-
-    if (valueCount == 0) {
-        return;
-    }
-
-    for (int i = 0; i < valueCount; i++) {
-        // check for buffer-overflow
-        int next_head = spiRxRingBuffer[dsp].head + 1;
-        if (next_head > SPI_RX_BUFFER_SIZE) {
-            next_head -= SPI_RX_BUFFER_SIZE;
-        }
-        if (next_head != spiRxRingBuffer[dsp].tail) {
-            // no overflow -> store data
-            spiRxRingBuffer[dsp].buffer[spiRxRingBuffer[dsp].head] = values[i];
-            spiRxRingBuffer[dsp].head = next_head;
-
-            // check for EndMarker '#'
-            if (values[i] == SPI_END_MARKER) {
-                ProcessRxData(dsp);
-            }
-        }else{
-            // buffer-overflow -> reject new data
-            // clear buffer (we receive 0x000000 if no data is sent)
-            helper->Log("DSP%d: buffer-overflow -> reject new data", dsp);
-            spiRxRingBuffer[dsp].head = 0;
-            spiRxRingBuffer[dsp].tail = 0;
-            spiRxRingBuffer[dsp].state = LOOKING_FOR_START_MARKER;
-        }
-    }
-
-    // reduce or reset dataToRead-counter
-    if (dataToRead[dsp] >= valueCount) {
-        dataToRead[dsp] -= valueCount;
-    }else{
-        dataToRead[dsp] = 0;
-    }
-}
-
-void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index) {
-    // we expect only read-class here
-    if (classId != '?') {
-        return;
-    }
-
-    // channel == 0 is a dummy-option and will not be handled here
-    if (channel == 0) {
-        return;
-    }
-
-    // we want to read data from DSP, so check how many bytes we should receive (only payload, without header and tail)
-    switch (channel) {
-        case 'u': // update-packet
-            if (dsp == 0) {
-                dataToRead[dsp] = (3 + 40 + 8 + 0 + 3); // DSP1: DspVersion, DspLoad, VolumeDspChan, VolumeFxReturn, VolumeMixBus, VolumeMainLRS
-            }else{
-                dataToRead[dsp] = 4 + 64; // DSP2: DspVersion, DspHeapSpace, DspLoad, audioGlitchCounter, RTA-Data
-            }
-            break;
-        default:
-            break;
-    }
-}
-
-bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
-//    if (!connected) return false; // this line prevents SPI-communication at the moment
-
-    struct spi_ioc_transfer tr = {0};
-
-    // configure SPI-system for this transmission
-    tr.tx_buf = (unsigned long)txData;
-    tr.rx_buf = (unsigned long)rxData;
-    tr.bits_per_word = 8;
-    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
-    tr.cs_change = 0; // disable CS between two messages
-    tr.len = len;
-    tr.speed_hz = SPI_FPGA_SPEED_HZ;
-
-    setFpgaChipSelectPin(true); // assert ChipSelect
-    int ret = ioctl(spiFpgaHandle, SPI_IOC_MESSAGE(1), &tr); // send via SPI
-	setFpgaChipSelectPin(false); // deassert ChipSelect
-
-    return (ret >= 0);
-}
-
-bool SPI::SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
-//    if (!connected) return false; // this line prevents SPI-communication at the moment
-
-    if (valueCount == 0) {
-        // dont allow empty messages
-        return false;
-    }
-
-    struct spi_ioc_transfer tr = {0};
-    uint32_t spiTxData[valueCount + 3]; // '*' + parameter + values + '#'
-    uint8_t spiTxDataRaw[(valueCount + 3) * sizeof(uint32_t)];
-
-    // configure SPI-system for this transmission
-    tr.tx_buf = (unsigned long)spiTxDataRaw;
-    tr.rx_buf = 0; // we dont want to receive
-    tr.bits_per_word = 32;
-    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
-    tr.cs_change = 0; // disable CS between two messages
-    tr.len = sizeof(spiTxDataRaw);
-
-    // prepare TxBuffer
-    spiTxData[0] = SPI_START_MARKER; // add StartMarker = '*'
-    spiTxData[1] = ((uint32_t)valueCount << 24) + ((uint32_t)index << 16) + ((uint32_t)channel << 8) + (uint32_t)classId; // some header-information
-    if (values != NULL) {
-        // copy uint32_t data to uint8_t-buffer
-        memcpy(&spiTxData[2], &values[0], valueCount * sizeof(uint32_t));
-    }else{
-        // we are sending zeros, so set the buffer to zero
-        memset(&spiTxData[2], 0, valueCount * sizeof(uint32_t));
-    }
-    spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
-    memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
-
-    if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
-        printf("SendDspParameterArray: ");
-        for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
-            printf("0x%.2X ", spiTxDataRaw[v]);
-            if (!((v+1) % 4)) {
-                printf("| ");
-            }
-        }
-        printf("\n");
-    }
-
-    UpdateNumberOfExpectedReadBytes(dsp, classId, channel, index);
-
-    int ret = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-    return (ret >= 0);
-}
-
-bool SPI::ReadDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]) {
-//    if (!connected) return false; // this line prevents SPI-communication at the moment
-
-    if (valueCount == 0) {
-        // dont allow empty messages
-        return false;
-    }
-
-    struct spi_ioc_transfer tr = {0};
-    uint32_t spiTxData[valueCount + 3]; // '*' + parameter + values + '#'
-    uint8_t spiTxDataRaw[(valueCount + 3) * sizeof(uint32_t)];
-    uint8_t spiRxDataRaw[sizeof(spiTxDataRaw)];
-
-    // configure SPI-system for this transmission
-    tr.tx_buf = (unsigned long)spiTxDataRaw;
-    tr.rx_buf = (unsigned long)spiRxDataRaw;
-    tr.bits_per_word = 32;
-    tr.delay_usecs = 0; // microseconds to delay after this transfer before (optionally) changing the chipselect status
-    tr.cs_change = 0; // disable CS between two messages
-    tr.len = sizeof(spiTxDataRaw);
-
-    // prepare TxBuffer
-    spiTxData[0] = SPI_START_MARKER; // add StartMarker = '*'
-    spiTxData[1] = ((uint32_t)valueCount << 24) + ((uint32_t)index << 16) + ((uint32_t)channel << 8) + (uint32_t)classId; // some header-information
-    if (values != NULL) {
-        // copy uint32_t data to uint8_t-buffer
-        memcpy(&spiTxData[2], &values[0], valueCount * sizeof(uint32_t));
-    }else{
-        // we are sending zeros, so set the buffer to zero
-        memset(&spiTxData[2], 0, valueCount * sizeof(uint32_t));
-    }
-    spiTxData[(valueCount + 3) - 1] = SPI_END_MARKER; // add EndMarker = '#'
-    memcpy(&spiTxDataRaw[0], &spiTxData[0], sizeof(spiTxDataRaw)); // TODO: check if we can omit the spiTxDataRaw buffer and use only the spiTxData-buffer
-    
-    if (helper->DEBUG_SPI(DEBUGLEVEL_TRACE)) {
-        printf("ReadDspParameterArray: ");
-        for(int v = 0; v < ((valueCount + 3) * sizeof(uint32_t)); v++) {
-            printf("0x%.2X ", spiTxDataRaw[v]);
-            if (!((v+1) % 4)) {
-                printf("| ");
-            }
-        }
-        printf("\n");
-    }
-
-    int32_t bytesRead = ioctl(spiDspHandle[dsp], SPI_IOC_MESSAGE(1), &tr); // send via SPI
-
-    //helper->DEBUG_SPI(DEBUGLEVEL_TRACE, "DSP%d, %d Bytes received", dsp+1, bytesRead);
-    PushValuesToRxBuffer(dsp, bytesRead/sizeof(uint32_t), (uint32_t*)spiRxDataRaw);
-
-    return (bytesRead > 0);
-}
-
-bool SPI::SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value) {
-//    if (!connected) return false; // this line prevents SPI-communication at the moment
-
-    return SendDspParameterArray(dsp, classId, channel, index, 1, (float*)&value);
 }
 
 bool SPI::HasNextEvent(void){

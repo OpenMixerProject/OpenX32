@@ -160,7 +160,7 @@ void DSP1::SendChannelVolume(uint8_t chan) {
 
     helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "SendChannelVolume: %f, %f, %f, %f", (double)values[0], (double)values[1], (double)values[2], (double)values[3]);
 
-    spi->SendDspParameterArray(0, 'v', chan, 0, 4, &values[0]);
+    spi->QueueDspData(0, 'v', chan, 0, 4, &values[0]);
 }
 
 // send BusSends
@@ -171,7 +171,7 @@ void DSP1::SendChannelSend(uint8_t chan) {
         values[i_mixbus] = pow(10.0f, Channel[chan].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
     }
 
-    spi->SendDspParameterArray(0, 's', chan, 0, 16, &values[0]);
+    spi->QueueDspData(0, 's', chan, 0, 16, &values[0]);
 }
 
 void DSP1::SendMixbusVolume(uint8_t bus) {
@@ -185,7 +185,7 @@ void DSP1::SendMixbusVolume(uint8_t bus) {
     values[2] = balanceRight; // 0  .. 100 .. 100
     values[3] = pow(10.0f, Bus[bus].volumeSub/20.0f); // subwoofer
 
-    spi->SendDspParameterArray(0, 'v', bus, 1, 4, &values[0]);
+    spi->QueueDspData(0, 'v', bus, 1, 4, &values[0]);
 }
 
 void DSP1::SendMatrixVolume(uint8_t matrix) {
@@ -194,7 +194,7 @@ void DSP1::SendMatrixVolume(uint8_t matrix) {
 
     values[0] = pow(10.0f, Matrix[matrix].volume/20.0f); // volume of this specific channel
 
-    spi->SendDspParameterArray(0, 'v', matrix, 2, 1, &values[0]);
+    spi->QueueDspData(0, 'v', matrix, 2, 1, &values[0]);
 }
 
 void DSP1::SendMonitorVolume() {
@@ -203,7 +203,7 @@ void DSP1::SendMonitorVolume() {
     
     values[0] = pow(10.0f, monitorVolume/20.0f); // volume of this specific channel
 
-    spi->SendDspParameterArray(0, 'v', 0, 4, 1, &values[0]);
+    spi->QueueDspData(0, 'v', 0, 4, 1, &values[0]);
 }
 
 void DSP1::SendMainVolume() {
@@ -225,7 +225,7 @@ void DSP1::SendMainVolume() {
     values[1] = volumeRight;
     values[2] = volumeSub;
 
-    spi->SendDspParameterArray(0, 'v', 0, 3, 3, &values[0]);
+    spi->QueueDspData(0, 'v', 0, 3, 3, &values[0]);
 }
 
 void DSP1::SendGate(uint8_t chan) {
@@ -238,7 +238,7 @@ void DSP1::SendGate(uint8_t chan) {
     values[3] = Channel[chan].gate.value_hold_ticks;
     values[4] = Channel[chan].gate.value_coeff_release;
 
-    spi->SendDspParameterArray(0, 'g', chan, 0, 5, &values[0]);
+    spi->QueueDspData(0, 'g', chan, 0, 5, &values[0]);
 }
 
 void DSP1::SendLowcut(uint8_t chan) {
@@ -249,7 +249,7 @@ void DSP1::SendLowcut(uint8_t chan) {
     // Equation for samples: output = alpha * (input + previous_output - previous_input)
     values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/(float)config->GetSamplerate()));
 
-    spi->SendDspParameterArray(0, 'e', chan, 'l', 1, &values[0]);
+    spi->QueueDspData(0, 'e', chan, 'l', 1, &values[0]);
 }
 
 /*
@@ -260,7 +260,7 @@ void DSP1::SendHighcut(uint8_t chan) {
     // Equation for samples: output = previous_output + coeff * (input - previous_output)
     values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetSamplerate() + 2.0f * M_PI * 500.0f);
 
-    spi->SendDspParameterArray(0, 'e', chan, 'h', 1, &values[0]);
+    spi->QueueDspData(0, 'e', chan, 'h', 1, &values[0]);
 }
 */
 
@@ -311,13 +311,13 @@ void DSP1::SendEQ(uint8_t chan) {
         }
     }
 
-    spi->SendDspParameterArray(0, 'e', chan, 'e', MAX_CHAN_EQS * 5, &values[0]);
+    spi->QueueDspData(0, 'e', chan, 'e', MAX_CHAN_EQS * 5, &values[0]);
 }
 
 void DSP1::ResetEq(uint8_t chan) {
     float values[1];
     values[0] = 0;
-    spi->SendDspParameterArray(0, 'e', chan, 'r', 1, &values[0]);
+    spi->QueueDspData(0, 'e', chan, 'r', 1, &values[0]);
 }
 
 void DSP1::SendCompressor(uint8_t chan) {
@@ -331,7 +331,7 @@ void DSP1::SendCompressor(uint8_t chan) {
     values[4] = Channel[chan].compressor.value_hold_ticks;
     values[5] = Channel[chan].compressor.value_coeff_release;
 
-    spi->SendDspParameterArray(0, 'c', chan, 0, 6, &values[0]);
+    spi->QueueDspData(0, 'c', chan, 0, 6, &values[0]);
 }
 
 void DSP1::SendAll() {
@@ -379,21 +379,21 @@ void DSP1::SetInputRouting(uint8_t chan) {
     uint32_t values[2];
     values[0] = Channel[chan].input;
     values[1] = Channel[chan].inputTapPoint;
-    spi->SendDspParameterArray(0, 'r', chan, 0, 2, (float*)&values[0]);
+    spi->QueueDspData(0, 'r', chan, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetOutputRouting(uint8_t chan) {
     uint32_t values[2];
     values[0] = Dsp1toFpga[chan].input;
     values[1] = Dsp1toFpga[chan].tapPoint;
-    spi->SendDspParameterArray(0, 'r', chan, 1, 2, (float*)&values[0]);
+    spi->QueueDspData(0, 'r', chan, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetFxOutputRouting(uint8_t fxchan) {
     uint32_t values[2];
     values[0] = Dsp1toDsp2Routing[fxchan].input;
     values[1] = Dsp1toDsp2Routing[fxchan].tapPoint;
-    spi->SendDspParameterArray(0, 'r', (MAX_DSP1_TO_FPGA_CHANNELS + fxchan), 1, 2, (float*)&values[0]);
+    spi->QueueDspData(0, 'r', (MAX_DSP1_TO_FPGA_CHANNELS + fxchan), 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
@@ -402,7 +402,7 @@ void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t 
     uint32_t values[2];
     values[0] = mixbusChannel;
     values[1] = tapPoint;
-    spi->SendDspParameterArray(0, 't', chan, 0, 2, (float*)&values[0]);
+    spi->QueueDspData(0, 't', chan, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint) {
@@ -411,7 +411,7 @@ void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, 
     uint32_t values[2];
     values[0] = matrixChannel;
     values[1] = tapPoint;
-    spi->SendDspParameterArray(0, 't', mixbusChannel, 1, 2, (float*)&values[0]);
+    spi->QueueDspData(0, 't', mixbusChannel, 1, 2, (float*)&values[0]);
 }
 
 void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
@@ -420,7 +420,7 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
     uint32_t values[2];
     values[0] = matrixChannel;
     values[1] = tapPoint;
-    spi->SendDspParameterArray(0, 't', 0, 2, 2, (float*)&values[0]);
+    spi->QueueDspData(0, 't', 0, 2, 2, (float*)&values[0]);
 }
 
 void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
@@ -899,28 +899,34 @@ uint8_t DSP1::GetPeak(int i, uint8_t steps)
 }
 
 void DSP1::CallbackStateMachine() {
+    if (state->dsp_disable_readout) {
+        return;
+    }
+
+    float value;
+
     // each step is called with 10ms delay
     // so we make sure that we have enough time between the individual SPI-transmissions
     // and the DSP has enough time to switch between SPI Core Read and SPI DMA Chain Transmission
-
     switch (readState) {
         case 0:
             // request new data from DSP1
-            spi->RequestData(0);
-           break;
+            value = 0;
+            spi->QueueDspData(0, '?', 'u', 0, 1, &value);
+            break;
         case 1:
+            // read data from DSP1 via DMA
+            spi->ReadDspData(0, '?', 0, 0); // read the answer from DSP
+
             // request new data from DSP2
-            spi->RequestData(1);
+            value = 0;
+            spi->QueueDspData(1, '?', 'u', 0, 1, &value);
             break;
         case 2:
-            // read data from DSP1
-            spi->ReadData(0);
+            // request new data from DSP2
+            spi->ReadDspData(1, '?', 0, 0); // read the answer from DSP
             break;
         case 3:
-            // request new data from DSP2
-            spi->ReadData(1);
-            break;
-        case 4:
             // process received SPI-Data
             while (spi->HasNextEvent()) {
                 SpiEvent* spiEvent = spi->GetNextEvent();
@@ -931,13 +937,24 @@ void DSP1::CallbackStateMachine() {
                     callbackDsp2(spiEvent->classId, spiEvent->channel, spiEvent->index, spiEvent->valueCount, spiEvent->values);
                 }
             }
-
             UpdateVuMeter(50);
+            break;
+        case 4:
+            // wait-state
             break;
         default:
             break;
     }
-    
+
+    // write to DSP1 every 10ms, but only when not within a DMA-Read-Cycle
+    if (readState != 1) {
+        spi->ProcessDspTxQueue(0);
+    }
+    // write to DSP2 every 10ms, but only when not within a DMA-Read-Cycle
+    if (readState != 2) {
+        spi->ProcessDspTxQueue(1);
+    }
+
     // increment readState up to 4 and reset to 0 to get 50ms cycles
     readState++;
     if (readState >= 5) {
@@ -1022,7 +1039,7 @@ void DSP1::DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode) {
     int values[2];
     values[0] = (int)fxType; // type of the Effect
     values[1] = (int)mode; // mode of the effect (e.g. DualMono or Stereo)
-    spi->SendDspParameterArray(1, 'f', 'r', fxSlot, 2, (float*)values);
+    spi->QueueDspData(1, 'f', 'r', fxSlot, 2, (float*)values);
     
     DSP2_SendFxParameter(fxSlot);
 }
@@ -1052,7 +1069,7 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
                 fx_slot[slotIdx]->fx->GetParameter(4)  // wet
             );
             valueCount = 6;
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case CHORUS:
             depth[0] = fx_slot[slotIdx]->fx->GetParameter(0);
@@ -1066,7 +1083,7 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
             
             fxmath->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, fx_slot[slotIdx]->fx->GetParameter(7));
             valueCount = 9;
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case TRANSIENTSHAPER:
             fxmath->fxCalcParameters_TransientShaper(&values[0],
@@ -1078,34 +1095,34 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
                 fx_slot[slotIdx]->fx->GetParameter(5)  // delayMs
                 );
             valueCount = 6;
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case OVERDRIVE: //                    preGain   Q  hpfInputFreq lpfInputFreq lpfOutputFreq
             fxmath->fxCalcParameters_Overdrive(&values[0], 10.0f, -0.2f, 300, 10000, 10000);
             valueCount = 6;
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case DELAY:
             delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(0);
             delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(1);
             fxmath->fxCalcParameters_Delay(&values[0], delayMs);
             valueCount = 2;
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case MULTIBANDCOMPRESOR: //                       channel  band   threshold  ratio   attack  hold   release   makeup
             // first send parameters for all channels and all bands
             valueCount = 8;
             for (int c = 0; c < 2; c++) {
                 fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 0, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
                 fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 1, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
                 fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 2, -40.0f, 10.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
                 fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 3, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
                 fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 4, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             }
 
             // now prepare the frequencies for both channels
@@ -1117,11 +1134,11 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
 
             // channel left
             fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], 0, freq);
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
 
             // channel right
             fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], 1, freq);
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
 
             break;
         case DYNAMICEQ: //                       band type  freq   staticGain  maxDynGain  Q  thresh  ratio  attack  release
@@ -1129,15 +1146,15 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
 
             // send band 1
             fxmath->fxCalcParameters_DynamicEQ(&values[0], 0, 1, 300, 0, -10, 1, -20, 2, 50, 300);
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
 
             // send band 2
             fxmath->fxCalcParameters_DynamicEQ(&values[0], 1, 1, 1000, 0, -10, 1, -20, 2, 50, 300);
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
 
             // send band 3
             fxmath->fxCalcParameters_DynamicEQ(&values[0], 2, 1, 5000, 0, -10, 1, -20, 2, 50, 300);
-            spi->SendDspParameterArray(1, 'f', 'c', slotIdx, valueCount, values);
+            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         default:
             break;
