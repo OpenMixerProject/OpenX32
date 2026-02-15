@@ -353,8 +353,9 @@ typedef struct _objects_t {
     lv_obj_t *fxtable;
     lv_obj_t *testbar;
     lv_obj_t *testbartext;
-    lv_obj_t *debugtext;
-    lv_obj_t *debugtext2;
+    lv_obj_t *debugtext_dsp1;
+    lv_obj_t *debugtext_dsp2;
+    lv_obj_t *debugtext_x32ctrl;
     lv_obj_t *display_encoder_sliders;
     lv_obj_t *widget1;
     lv_obj_t *widget1__label;

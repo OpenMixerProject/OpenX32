@@ -38,6 +38,7 @@
 // defines for SPI-communication with DSPs
 #define SPI_MAX_RX_PAYLOAD_SIZE 200 // 197 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE      (SPI_MAX_RX_PAYLOAD_SIZE * 3) // store up to 3 payload-sets
+#define SPI_TX_BUFFER_SIZE      3000
 typedef enum {
 	LOOKING_FOR_START_MARKER,
 	COLLECTING_PAYLOAD,
@@ -46,14 +47,28 @@ typedef enum {
 
 typedef struct {
 	uint32_t buffer[SPI_RX_BUFFER_SIZE];
-    int head;
-    int tail;
+  int head;
+  int tail;
 
-    spiParserState state = LOOKING_FOR_START_MARKER;
-    uint32_t payload[SPI_MAX_RX_PAYLOAD_SIZE];
-    int payloadIdx;
-    int payloadLength;
+  spiParserState state = LOOKING_FOR_START_MARKER;
+  uint32_t payload[SPI_MAX_RX_PAYLOAD_SIZE];
+  int payloadIdx;
+  int payloadLength;
 } sSpiRxRingBuffer;
+
+typedef struct {
+  uint8_t classId;
+  uint8_t channel;
+  uint8_t index;
+  uint8_t valueCount;
+  float values[25];
+} sSpiTxBufferElement;
+
+typedef struct {
+  sSpiTxBufferElement buffer[SPI_TX_BUFFER_SIZE];
+  int head;
+  int level; // tail will be calculated based on the level
+} sSpiTxRingBuffer;
 
 class SPI : public X32Base {
 
@@ -73,6 +88,7 @@ class SPI : public X32Base {
     const unsigned int SPI_START_MARKER = 0x0000002A; // '*'
     const unsigned int SPI_END_MARKER = 0x00000023; // '#'
     sSpiRxRingBuffer spiRxRingBuffer[2]; // for both DSPs
+    sSpiTxRingBuffer spiTxRingBuffer[2]; // for both DSPs
     int spiDspHandle[2];
     int spiFpgaHandle;
     std::list<SpiEvent*> eventBuffer;
@@ -90,23 +106,28 @@ class SPI : public X32Base {
 
   public:
     SPI(X32BaseParameter* basepar);
+
+    // functions for configuring FPGA and DSPs
     int UploadBitstreamFpgaXilinx();
     bool UploadBitstreamFpgaLattice();
     int UploadBitstreamDsps(bool useCli);
-    void RequestData(uint8_t dsp);
-    void ReadData(uint8_t dsp);
-    void ActivityLight(void);
+
+    // functions for general communication
     bool OpenConnectionFpga();
     bool CloseConnectionFpga();
     bool OpenConnectionDsps();
     bool CloseConnectionDsps();
-    void ProcessRxData(uint8_t dsp);
-    void UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index);
-    void PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]);
+
     bool SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len);
-    bool SendDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
-    bool ReadDspParameterArray(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
-    bool SendDspParameter_uint32(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint32_t value);
+
+    void QueueDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, float values[]);
+    void ProcessDspTxQueue(uint8_t dsp);
+    uint32_t GetDspTxQueueLength(uint8_t dsp);
+    bool SendDspData(uint8_t dsp, sSpiTxBufferElement* buffer);
+    void UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index);
+    bool ReadDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index);
+    void PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]);
+    void ProcessRxData(uint8_t dsp);
 
     bool HasNextEvent(void);
     SpiEvent* GetNextEvent(void);

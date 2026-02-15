@@ -343,6 +343,7 @@ void X32Ctrl::Tick10ms(void){
 		surface->Touchcontrol();	
 	}
 
+	// this stateMachine handles the read and write to and from the two DSPs
 	mixer->dsp->CallbackStateMachine();
 
 	ProcessUartData();
@@ -377,13 +378,20 @@ void X32Ctrl::Tick100ms(void) {
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "100ms");
 
 	surface->Blink();
-	//mixer->dsp->spi->ActivityLight();
+
+    if (!(state->dsp_disable_activity_light)) {
+   	    // toggle the LED on DSP1 and DSP2 to show some activity
+        uint32_t value = 2;
+		mixer->dsp->spi->QueueDspData(0, 'a', 42, 0, 1, (float*)&value);
+        mixer->dsp->spi->QueueDspData(1, 'a', 42, 0, 1, (float*)&value);
+    }
 
 	if (!config->IsModelX32Core() && config->GetUint(MP_ID::ACTIVE_PAGE) == (uint)X32_PAGE::UTILITY) {
 		// read the current DSP load
 		// show the received value (could be a bit older than the request)
-	 	lv_label_set_text_fmt(objects.debugtext,  "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
-	 	lv_label_set_text_fmt(objects.debugtext2, "DSP2: Load: %.1f %% | Version: v%.2f | Glitches: %.0f | Heap: %.0f Words free", (double)state->dspLoad[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1]);
+	 	lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
+	 	lv_label_set_text_fmt(objects.debugtext_dsp2, "DSP2: Load: %.1f %% | Version: v%.2f | Glitches: %.0f | Heap: %.0f Words free", (double)state->dspLoad[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1]);
+		lv_label_set_text_fmt(objects.debugtext_x32ctrl, "DSP1-TxQueue: %d | DSP2-TxQueue: %d", mixer->dsp->spi->GetDspTxQueueLength(0), mixer->dsp->spi->GetDspTxQueueLength(1)); 
 	}
 }
 

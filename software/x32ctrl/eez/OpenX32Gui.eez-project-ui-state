@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/4",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/0",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/2/childStyles/1",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/1",
     "subnavigationSelectedItems": {}
@@ -80,6 +80,7 @@
           },
           {
             "type": "border",
+            "selected": 0,
             "size": 280.5,
             "location": "bottom",
             "children": [
@@ -205,12 +206,23 @@
               "children": [
                 {
                   "type": "tab",
-                  "id": "#75a7be30-358a-43de-89f4-2f3fe2e6ef7e",
-                  "name": "config_slider_display_encoder",
+                  "id": "#eba2bce0-2a22-4783-b713-7a2ea7547ac3",
+                  "name": "8meters",
                   "component": "editor",
                   "config": {
-                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/4",
+                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/0",
                     "permanent": false
+                  },
+                  "icon": "svg:user_widget"
+                },
+                {
+                  "type": "tab",
+                  "id": "#75a7be30-358a-43de-89f4-2f3fe2e6ef7e",
+                  "name": "config_slider",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/5",
+                    "permanent": true
                   },
                   "icon": "svg:user_widget"
                 },
@@ -1019,9 +1031,7 @@
     },
     "[OpenX32Gui.eez-project]:/userWidgets/0[flow-state]": {
       "selection": {
-        "0": {
-          "$selected": true
-        }
+        "0": {}
       },
       "transform": {
         "translate": {
@@ -1088,7 +1098,7 @@
           "x": -248.09523809523813,
           "y": -288
         },
-        "scale": 4
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
