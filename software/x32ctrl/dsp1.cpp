@@ -182,7 +182,7 @@ void DSP1::SendGate(uint chanIndex) {
     
     using enum MP_ID;
 
-	float samplerate = config->GetUint(SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
+	float samplerate = (float)config->GetUint(SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
     float values[5];
 
     // threshold

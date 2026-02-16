@@ -32,7 +32,7 @@ void FxMath::RecalcFilterCoefficients_PEQ(sPEQ* peq) {
   // Alternative Source: https://gcradix.de/an-introduction-to-biquad-filters (Caution: calculation of Notch-Coefficients is wrong)
 
   double V = pow(10.0, fabs(peq->gain)/20.0);
-  double K = tan(PI * peq->fc / config->GetUint(MP_ID::SAMPLERATE));
+  double K = tan(PI * peq->fc / (float)config->GetUint(MP_ID::SAMPLERATE));
   double K2 = K * K;
   double norm;
 
@@ -197,7 +197,7 @@ void FxMath::RecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;
   double wc22 = 2.0 * wc2;
-  double k = wc / tan(PI * (LR12->fc / config->GetUint(MP_ID::SAMPLERATE)));
+  double k = wc / tan(PI * (LR12->fc / (float)config->GetUint(MP_ID::SAMPLERATE)));
   double k2 = k * k;
   double k22 = 2.0 * k2;
   double wck2 = 2.0 * wc * k;
@@ -225,7 +225,7 @@ void FxMath::RecalcFilterCoefficients_LR24(sLR24* LR24) {
   double wc2 = wc * wc;
   double wc3 = wc2 * wc;
   double wc4 = wc2 * wc2;
-  double k = wc / tan(PI * (LR24->fc / config->GetUint(MP_ID::SAMPLERATE)));
+  double k = wc / tan(PI * (LR24->fc / (float)config->GetUint(MP_ID::SAMPLERATE)));
   double k2 = k * k;
   double k3 = k2 * k;
   double k4 = k2 * k2;
@@ -257,7 +257,7 @@ void FxMath::RecalcFilterCoefficients_LR24(sLR24* LR24) {
 }
 
 void FxMath::RecalcCompressor(sCompressor* compressor) {
-	float samplerate = config->GetUint(MP_ID::SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
+	float samplerate = (float)config->GetUint(MP_ID::SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
 
 	compressor->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, compressor->threshold/20.0f);
         compressor->value_ratio = compressor->ratio;
@@ -330,7 +330,7 @@ void FxMath::fxCalcParameters_Delay(float data[], float delayMs[2]) {
 }
 
 void FxMath::fxCalcParameters_MultibandCompressor(float data[], int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup) {
-  float samplerate = config->GetUint(MP_ID::SAMPLERATE) / 16.0f;
+  float samplerate = (float)config->GetUint(MP_ID::SAMPLERATE) / 16.0f;
 
   data[0] = channel;
   data[1] = band;
@@ -433,7 +433,7 @@ void FxMath::fxCalcParameters_DynamicEQ(float data[], int band, int type, float 
   data[7] = threshold;
   data[8] = ratio;
 
-  float fs = config->GetUint(MP_ID::SAMPLERATE)/(16.0f); // 16 samples per buffer
+  float fs = (float)config->GetUint(MP_ID::SAMPLERATE)/(16.0f); // 16 samples per buffer
   data[9] = 1.0f - exp(-1000.0f / (fs * attack)); // convert ms to coeff
   data[10] = 1.0f - exp(-1000.0f / (fs * release)); // convert ms to coeff
 }
