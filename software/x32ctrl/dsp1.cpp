@@ -212,7 +212,7 @@ void DSP1::SendLowcut(uint8_t chan) {
     // Source: https://www.dsprelated.com/showarticle/1769.php
     // alpha = 1 / (1 + 2 * pi * f_c * 1/f_s)
     // Equation for samples: output = alpha * (input + previous_output - previous_input)
-    values[0] = 1.0f / (1.0f + 2.0f * M_PI * config->GetFloat(CHANNEL_LOWCUT, chan) * (1.0f/(float)config->GetUint(SAMPLERATE)));
+    values[0] = 1.0f / (1.0f + 2.0f * M_PI * config->GetFloat(CHANNEL_LOWCUT_FREQ, chan) * (1.0f/(float)config->GetUint(SAMPLERATE)));
 
     spi->QueueDspData(0, 'e', chan, 'l', 1, &values[0]);
 }

@@ -253,7 +253,7 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f)
     ->DefStepsize(2);
 
-    DefParameter(CHANNEL_LOWCUT, cat, group, "Lowcut", MAX_VCHANNELS)
+    DefParameter(CHANNEL_LOWCUT_FREQ, cat, group, "LowcutFreq", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::HZ)
     ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20.0f);
 

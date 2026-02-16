@@ -49,14 +49,14 @@ class PageEq: public Page {
             {
                 uint chanIndex = config->GetUint(SELECTED_CHANNEL);
 
-                BindEncoder(DISPLAY_ENCODER_1, CHANNEL_LOWCUT, chanIndex);
+                BindEncoder(DISPLAY_ENCODER_1, CHANNEL_LOWCUT_FREQ, chanIndex);
                 BindEncoder(DISPLAY_ENCODER_2, (MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ)), chanIndex);
                 BindEncoder(DISPLAY_ENCODER_3, (MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ)), chanIndex);
                 BindEncoder(DISPLAY_ENCODER_4, (MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ)), chanIndex);
                 BindEncoder(DISPLAY_ENCODER_5, (MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ)), chanIndex);
             }
 
-            if (config->HasParameterChanged(CHANNEL_LOWCUT) ||
+            if (config->HasParameterChanged(CHANNEL_LOWCUT_FREQ) ||
                 config->HasParametersChanged({MP_CAT::CHANNEL_EQ}) ||
                 config->HasParametersChanged({BANKING_EQ, SELECTED_CHANNEL}) ||
                 force_update
@@ -92,7 +92,7 @@ class PageEq: public Page {
                 freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
 
                 // LowCut
-                eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_LC(freq, config->GetFloat(CHANNEL_LOWCUT, selectedChannelIndex), config->GetUint(SAMPLERATE));
+                eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_LC(freq, config->GetFloat(CHANNEL_LOWCUT_FREQ, selectedChannelIndex), config->GetUint(SAMPLERATE));
 
                 // PEQ
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)
@@ -119,7 +119,7 @@ class PageEq: public Page {
                 freq = 20.0f * powf(1000.0f, ((float)pixel/199.0f));
                 float phase = 0.0f;
                 // LowCut
-                phase += mixer->dsp->fxmath->CalcPhaseResponse_LC(freq, config->GetFloat(CHANNEL_LOWCUT, selectedChannelIndex));
+                phase += mixer->dsp->fxmath->CalcPhaseResponse_LC(freq, config->GetFloat(CHANNEL_LOWCUT_FREQ, selectedChannelIndex));
 
                 // PEQ  
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)

@@ -880,7 +880,7 @@ void X32Ctrl::surfaceSyncBoardMain() {
 		if (config->HasParametersChanged(MP_CAT::CHANNEL_EQ) || fullSync)
 		{
 			if (chanIndex < 40) {
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (config->GetFloat(CHANNEL_LOWCUT, chanIndex) - 20.0f)/3.8f, 1);
+				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (config->GetFloat(CHANNEL_LOWCUT_FREQ, chanIndex) - 20.0f)/3.8f, 1);
 				
 				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (config->GetFloat((MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ, chanIndex))) - 20.0f)/199.8f, 1);
 				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (config->GetFloat((MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ, chanIndex))) + 15.0f)/0.3f, 1);
@@ -1090,7 +1090,7 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
     data->icon.y = 0;
 
     // Gain / Lowcut
-    data->texts[0].text = String(config->GetFloat(CHANNEL_GAIN, channelIndex), 1) + String("dB ") + String(config->GetFloat(CHANNEL_LOWCUT, channelIndex), 0) + String("Hz");
+    data->texts[0].text = String(config->GetFloat(CHANNEL_GAIN, channelIndex), 1) + String("dB ") + String(config->GetFloat(CHANNEL_LOWCUT_FREQ, channelIndex), 0) + String("Hz");
     data->texts[0].size = 0;
     data->texts[0].x = 3;
     data->texts[0].y = 0;
@@ -2071,7 +2071,7 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 				config->Change(CHANNEL_GATE_TRESHOLD, amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_LOWCUT:
-				config->Change(CHANNEL_LOWCUT, amount, config->GetUint(SELECTED_CHANNEL));
+				config->Change(CHANNEL_LOWCUT_FREQ, amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_DYNAMICS:
 				config->Change(CHANNEL_DYNAMICS_TRESHOLD, amount, config->GetUint(SELECTED_CHANNEL));
