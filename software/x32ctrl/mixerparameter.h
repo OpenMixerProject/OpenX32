@@ -251,6 +251,17 @@ class Mixerparameter {
                             break;
                     }
                     break;
+                case CHANNEL_LCD_MODE:
+                    switch((uint)value[index])
+                    {
+                        case 0:
+                            result += "Lite";
+                            break;
+                        case 1:
+                            result += "Detail";
+                            break;
+                    }
+                    break;
                 default:
                     result += "";
             }	
@@ -276,6 +287,7 @@ class Mixerparameter {
                 case EQ_TYPE:
                 case FPGA_ROUTING:
                 case DSP_ROUTING:
+                case CHANNEL_LCD_MODE:
                     return GetUnitOfMesaurement(false, index);
                 case CHANNEL:
                     return String(value_float + 1, 0);

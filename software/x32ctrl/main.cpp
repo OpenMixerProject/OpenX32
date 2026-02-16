@@ -121,7 +121,7 @@ void init10msTimer_NonGUI(void) {
 	}
 }
 
-void guiInit(void) {
+void guiInit(Config* config) {
 
 	lv_init();
 
@@ -153,6 +153,17 @@ void guiInit(void) {
 
 	// InitPagesAndGUI() has to be called after ui_init()!
 	ctrl->InitPagesAndGUI();
+
+	// trigger first update of display header
+	config->Refresh(MP_ID::SELECTED_CHANNEL);
+
+	// trigger first update on shown page	
+	ctrl->ShowPage((X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE));
+
+	// sync the Surface
+	ctrl->syncSurface(true);
+
+
 
 	if (state->bodyless)
 	{
@@ -295,6 +306,11 @@ int main(int argc, char* argv[]) {
 		->configurable(false)
 		->group(catDebugSurface)
 		->expected(0,1);
+
+	app->add_flag("--surface-disable-meter-update", state->surface_disable_meter_update, "Disable VU-Meter update")
+		->configurable(false)
+		->group(catDebugSurface)
+		->expected(0,1);
 	
 	app->get_config_formatter_base()->quoteCharacter('"', '"');
 
@@ -377,7 +393,7 @@ int main(int argc, char* argv[]) {
 		}
 	} else {
 		helper->Log("Initializing GUI...\n");
-		guiInit(); // initializes LVGL, FBDEV and starts endless loop
+		guiInit(config); // initializes LVGL, FBDEV and starts endless loop
 	}
 
     exit(0);

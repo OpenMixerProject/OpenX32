@@ -449,6 +449,7 @@ enum class MP_UOM {
     DSP_ROUTING,
     TAPPOINT,
     CHANNEL,
+    CHANNEL_LCD_MODE, // Displaymode of Channel LCDs
 };
 
 enum class MP_VALUE_TYPE {
@@ -485,6 +486,7 @@ enum class MP_ID {
     DISPLAY_BRIGHTNESS,
     SAMPLERATE,
     CARD_NUMBER_OF_CHANNELS,
+    CHANNEL_LCD_MODE,
 
     // Routing
 
@@ -690,7 +692,9 @@ enum class MP_ID {
     FX_DYNAMICEQ_BAND3_ATTACK,
     FX_DYNAMICEQ_BAND1_RELEASE,
     FX_DYNAMICEQ_BAND2_RELEASE,
-    FX_DYNAMICEQ_BAND3_RELEASE
+    FX_DYNAMICEQ_BAND3_RELEASE,
+
+    __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 
 enum class FX_TYPE : int {

@@ -37,7 +37,7 @@ void X32Ctrl::Init(){
 	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
 	if (state->bodyless) {
-		config->SetModel("X32RACK");
+		config->SetModel("X32C");
 	} else {
 		config->SetModel(model);
 	}
@@ -127,7 +127,7 @@ void X32Ctrl::Init(){
     surface->SetBrightness(5, state->ledbrightness);
     surface->SetBrightness(8, state->ledbrightness);
 
-	Mixerparameter* parameter = config->GetParameter(MP_ID::LCD_CONTRAST);
+	Mixerparameter* parameter = config->GetParameter(LCD_CONTRAST);
     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", parameter->GetUint());
     surface->SetContrast(0, parameter->GetUint()); // contrast of LCDs
     surface->SetContrast(4, parameter->GetUint());
@@ -228,9 +228,17 @@ void X32Ctrl::LoadConfig() {
 	mixer_ini.load(X32_MIXER_CONFIGFILE);
 
 	// go over all known Mixerparameters and try to load them
-	for (const auto& [parameter_id, parameter] : *config->GetParameterList()) {
+	#ifdef MPM_AS_ARRAY
+	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+	{
+		Mixerparameter* parameter = config->GetParameterList()[i];
+		MP_ID parameter_id = (MP_ID)i;
+	#else
+	for (const auto& [parameter_id, parameter] : *config->GetParameterList())
+	{
+	#endif
 
-		if (parameter->GetNoConfigfile() || parameter_id == MP_ID::NONE)
+		if (parameter->GetNoConfigfile() || parameter_id == NONE)
 		{
 			// this Mixerparameter should not be written to config file
 			continue;
@@ -261,7 +269,7 @@ void X32Ctrl::LoadConfig() {
 					parameter->Set(String(mixer_ini[section.c_str()][entry.c_str()].as<string>().c_str()), index);
 					break;
 				default:
-					__throw_out_of_range("SaveConfig() -> MP_VALUE_TYPE is not handled!");
+					__throw_out_of_range("LoadConfig() -> MP_VALUE_TYPE is not handled!");
 			}
 		}
 	}
@@ -282,9 +290,17 @@ void X32Ctrl::LoadConfig() {
 void X32Ctrl::SaveConfig() {
 
 	// go over all known Mixerparameter an store them
-	for (const auto& [parameter_id, parameter] : *config->GetParameterList()) {
+	#ifdef MPM_AS_ARRAY
+	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+	{
+		Mixerparameter* parameter = config->GetParameterList()[i];
+		MP_ID parameter_id = (MP_ID)i;
+	#else
+	for (const auto& [parameter_id, parameter] : *config->GetParameterList())
+	{
+	#endif
 
-		if (parameter->GetNoConfigfile() || parameter_id == MP_ID::NONE)
+		if (parameter->GetNoConfigfile() || parameter_id == NONE)
 		{
 			// this Mixerparameter should not be written to config file
 			continue;
@@ -355,8 +371,8 @@ void X32Ctrl::Tick10ms(void){
 	if (config->HasAnyParameterChanged())
 	{
 		syncGuiOrLcd();
-		syncSurface();
-		syncXRemote(false);
+		syncSurface(false);
+		//syncXRemote(false);
 
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->Sync()");
 		mixer->Sync();
@@ -386,7 +402,7 @@ void X32Ctrl::Tick100ms(void) {
         mixer->dsp->spi->QueueDspData(1, 'a', 42, 0, 1, (float*)&value);
     }
 
-	if (!config->IsModelX32Core() && config->GetUint(MP_ID::ACTIVE_PAGE) == (uint)X32_PAGE::UTILITY) {
+	if (!config->IsModelX32Core() && config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::UTILITY) {
 		// read the current DSP load
 		// show the received value (could be a bit older than the request)
 	 	lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
@@ -643,18 +659,12 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::UTILITY] = new PageUtility(pagebasepar);
 	for (const auto& [key, value] : pages) {
 		value->Init();
-	}
-
-	// trigger first update of header
-	config->Refresh(MP_ID::SELECTED_CHANNEL);
-
-	// trigger first update on shown page
-	config->Refresh(MP_ID::ACTIVE_PAGE);	
+	}	
 }
 
 void X32Ctrl::ShowNextPage(void){
 
-	X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
+	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
 	X32_PAGE nextPage = pages[activePage]->GetNextPage();
 	if (nextPage != X32_PAGE::NONE){
@@ -667,7 +677,7 @@ void X32Ctrl::ShowNextPage(void){
 
 void X32Ctrl::ShowPrevPage(void){
 
-	X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
+	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
 	X32_PAGE prevPage = pages[activePage]->GetPrevPage();
 	if (prevPage != X32_PAGE::NONE){
@@ -686,7 +696,7 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 		return;
 	}
 
-	X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
+	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 	
 	if (newPage == activePage) {
 		// operator has pressed the button of the current active page,
@@ -712,7 +722,7 @@ void X32Ctrl::ShowPage(X32_PAGE newPage) {
 			surface->SetLedByEnum(p->GetLed(), true);
 		}
 
-		config->Set(MP_ID::ACTIVE_PAGE, (uint)activePage);
+		config->Set(ACTIVE_PAGE, (uint)activePage);
 		
 	} else {
 		helper->Error("Page 0x%02X is not registered -> look at X32Ctrl::InitPages() to do so!\n", newPage);
@@ -752,26 +762,32 @@ void X32Ctrl::syncGuiOrLcd() {
 	//#     Show Active Page
 	//####################################
 
-	if (config->HasParameterChanged(MP_ID::ACTIVE_PAGE)){
-		pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->Show();
+	if (config->HasParameterChanged(ACTIVE_PAGE)){
+		pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->Show();
 	}
 
 	//####################################
 	//#     Update Active Page
 	//####################################
 
-	pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->Change();
+	pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->Change();
 
 	//####################################
 	//#     Update General Header
 	//####################################
 
-	if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL)) {
-
-		uint chanIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
-
+	uint chanIndex = config->GetUint(SELECTED_CHANNEL);
+	if (config->HasParameterChanged(SELECTED_CHANNEL) ||
+		config->HasParametersChanged({
+			SELECTED_CHANNEL,
+			CHANNEL_NAME,
+			CHANNEL_COLOR}, chanIndex)
+		)
+	{
 		lv_color_t color;
-		switch (config->GetUint(MP_ID::CHANNEL_COLOR, chanIndex)){
+
+		switch (config->GetUint(CHANNEL_COLOR, chanIndex))
+		{
 			case SURFACE_COLOR_BLACK:
 				color = lv_color_make(0, 0, 0);
 				break;
@@ -798,37 +814,36 @@ void X32Ctrl::syncGuiOrLcd() {
 				break;
 		}
 
-		lv_label_set_text(objects.current_channel_number, config->GetString(MP_ID::CHANNEL_NAME_INTERN, chanIndex).c_str());
-		lv_label_set_text(objects.current_channel_name, config->GetString(MP_ID::CHANNEL_NAME, chanIndex).c_str());
+		lv_label_set_text(objects.current_channel_number, config->GetString(CHANNEL_NAME_INTERN, chanIndex).c_str());
+		lv_label_set_text(objects.current_channel_name, config->GetString(CHANNEL_NAME, chanIndex).c_str());
 		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 	}
 }
 
 // sync mixer state to Surface
-void X32Ctrl::syncSurface(void) {
+void X32Ctrl::syncSurface(bool fullSync) {
 	if ((config->GetBankMode() == X32_SURFACE_MODE_BANKING_X32) || (config->GetBankMode() == X32_SURFACE_MODE_BANKING_USER))
 	{
-		surfaceSyncBoardMain();
+		surfaceSyncBoardMain(fullSync);
 
 		if (config->IsModelX32FullOrCompactOrProducer()){   
-			surfaceSyncBankIndicator();
+			surfaceSyncBankIndicator(fullSync);
 
-			surfaceSyncBoard(X32_BOARD_L);
+			surfaceSyncBoard(X32_BOARD_L, fullSync);
 			if (config->IsModelX32Full()){
-				surfaceSyncBoard(X32_BOARD_M);
+				surfaceSyncBoard(X32_BOARD_M, fullSync);
 			}
-			surfaceSyncBoard(X32_BOARD_R);
+			surfaceSyncBoard(X32_BOARD_R, fullSync);
 		
-			surfaceSyncBoardExtra();
+			surfaceSyncBoardExtra(fullSync);
 		}
 	}
 }
 
-void X32Ctrl::surfaceSyncBoardMain() {
-
+void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
+{
 	using enum MP_ID;
 
-	bool fullSync = false;
 	uint8_t chanIndex = config->GetUint(SELECTED_CHANNEL);
 
 	if (config->HasParameterChanged(SELECTED_CHANNEL)){ 
@@ -950,30 +965,28 @@ void X32Ctrl::surfaceSyncBoardMain() {
 		// Main Channel
 		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, (uint)X32_VCHANNEL_BLOCK::MAIN))
 		{
-			surface->SetEncoderRingDbfs(1, 1, config->GetFloat(MP_ID::CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::MAIN), config->GetBool(MP_ID::CHANNEL_MUTE, (uint)X32_VCHANNEL_BLOCK::MAIN), 1);
+			surface->SetEncoderRingDbfs(1, 1, config->GetFloat(CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::MAIN), config->GetBool(CHANNEL_MUTE, (uint)X32_VCHANNEL_BLOCK::MAIN), 1);
 		}
 	}
 
 
 	if (config->IsModelX32Rack()){
 		// Clear Solo
-		if (config->HasParameterChanged(MP_ID::CHANNEL_SOLO)){
+		if (config->HasParameterChanged(CHANNEL_SOLO)){
 			bool soloActive = mixer->IsSoloActivated();
 			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActive, soloActive);
 		}
 		// Main Channel
 		uint mainchanIndex = (uint)X32_VCHANNEL_BLOCK::MAIN;
-		if (config->HasParameterChanged(MP_ID::CHANNEL_VOLUME, mainchanIndex) || config->HasParameterChanged(MP_ID::CHANNEL_MUTE, mainchanIndex)){
-			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, config->GetFloat(MP_ID::CHANNEL_VOLUME, mainchanIndex), config->GetBool(MP_ID::CHANNEL_MUTE, mainchanIndex), 0);
+		if (config->HasParameterChanged(CHANNEL_VOLUME, mainchanIndex) || config->HasParameterChanged(CHANNEL_MUTE, mainchanIndex)){
+			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, config->GetFloat(CHANNEL_VOLUME, mainchanIndex), config->GetBool(CHANNEL_MUTE, mainchanIndex), 0);
 		}
 	}
 }
 
-void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
-
+void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board, bool fullSync)
+{
 	using enum MP_ID;
-
-	bool fullSync = false;
 
 	if (config->IsModelX32Full()){
 		if (config->HasParameterChanged(BANKING_INPUT) && ((p_board == X32_BOARD_L) || (p_board == X32_BOARD_M))){ fullSync=true; }
@@ -1033,25 +1046,34 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 
 			if(!state->surface_disable_lcd_update)
 			{
-				if (config->HasParametersChanged({
-						CHANNEL_PHASE_INVERT,
-						CHANNEL_VOLUME,
-						CHANNEL_GAIN,
-						CHANNEL_GATE_TRESHOLD,
-						CHANNEL_DYNAMICS_TRESHOLD,
-						CHANNEL_PHANTOM,
-						CHANNEL_COLOR,
-						CHANNEL_NAME
-					}) || config->HasParametersChanged({
-						MP_CAT::CHANNEL_EQ
-					}) ||
-						fullSync
-				)
+				switch(config->GetUint(CHANNEL_LCD_MODE))
 				{
-					helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "LCD");
+					case 0:
+						if (config->HasParametersChanged({CHANNEL_PANORAMA, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED	}, channelIndex) ||
+							config->HasParameterChanged(CHANNEL_LCD_MODE) ||
+							fullSync
+						)
+						{
+							SetLcdFromChannel(p_board, i, channelIndex);
+						}
+						break;
+					case 1:
+						if (config->HasParametersChanged({CHANNEL_PHASE_INVERT, CHANNEL_VOLUME, CHANNEL_PANORAMA, CHANNEL_GAIN,	CHANNEL_GATE_TRESHOLD,
+								CHANNEL_DYNAMICS_TRESHOLD, CHANNEL_PHANTOM, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED }, channelIndex) ||
+							config->HasParametersChanged({MP_CAT::CHANNEL_EQ}, channelIndex) || 
+							config->HasParameterChanged(CHANNEL_LCD_MODE) ||
+							fullSync
+						)
+						{
+							helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "LCD");
 
-					SetLcdFromVChannel(p_board, i, channelIndex);
+							SetLcdFromVChannel(p_board, i, channelIndex);
+						}
+						break;
+
 				}
+
+				
 			}
 		}
 	}
@@ -1065,8 +1087,10 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board) {
 	}
 }
 
-void X32Ctrl::surfaceSyncBoardExtra() {
-	if (config->IsModelX32Full()) {
+void X32Ctrl::surfaceSyncBoardExtra(bool fullSync) {
+	
+	if (config->IsModelX32Full())
+	{
 		// TODO
 		surface->SetLcd(0, 0, 7, 0, 0, 0xA0, 0x20, 5, 5, "OpenX32", 0, 0, 0, "");
 		surface->SetLcd(0, 1, 7, 0, 0, 0xA0, 0x20, 5, 5, "is a", 0, 0, 0, "");
@@ -1075,6 +1099,65 @@ void X32Ctrl::surfaceSyncBoardExtra() {
 	}
 }
 
+void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex)
+{
+	using enum MP_ID;
+
+    LcdData* data = new LcdData();
+	uint textIndex = 0;
+
+    data->boardId = p_boardId;
+    data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED);
+    data->lcdIndex = lcdIndex;
+    data->icon.icon = 0;
+    data->icon.x = 0;
+    data->icon.y = 0;
+
+    // Volume / Panorama
+
+    float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
+    
+    char balanceText[8] = "-------";
+    if (balance < -70){
+        balanceText[0] = '|';
+    } else if (balance < -40){
+        balanceText[1] = '|';
+    } else if (balance < -10){
+        balanceText[2] = '|';
+    } else if (balance > 70){
+        balanceText[6] = '|';
+    } else if (balance > 40){
+        balanceText[5] = '|';
+    } else if (balance > 10){
+        balanceText[4] = '|';
+    } else {
+        balanceText[3] = '|';
+    }
+	data->texts[textIndex].text = balanceText;    
+    data->texts[textIndex].size = 0;
+    data->texts[textIndex].x = 0;
+    data->texts[textIndex].y = 0;
+
+	textIndex++;
+
+    // Channel Name
+    data->texts[textIndex].text = config->GetString(CHANNEL_NAME, channelIndex);
+    data->texts[textIndex].size = 0x20;
+    data->texts[textIndex].x = 0;
+    data->texts[textIndex].y = 20;
+
+	textIndex++;
+
+    // Channel Internal Name
+    data->texts[textIndex].text = config->GetString(CHANNEL_NAME_INTERN, channelIndex);
+    data->texts[textIndex].size = 0;
+    data->texts[textIndex].x = 35;
+    data->texts[textIndex].y = 51;
+
+    surface->SetLcdX(data, textIndex + 1);
+
+	delete data;
+}
 
 void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex)
 {
@@ -1083,7 +1166,7 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
     LcdData* data = new LcdData();
 
     data->boardId = p_boardId;
-    data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex);
+    data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED );
     data->lcdIndex = lcdIndex;
     data->icon.icon = 0;
     data->icon.x = 0;
@@ -1139,7 +1222,7 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
     data->texts[2].y = 30;
 
     // vChannel Name
-    data->texts[3].text = config->GetFloat(CHANNEL_NAME, channelIndex);
+    data->texts[3].text = config->GetString(CHANNEL_NAME, channelIndex);
     data->texts[3].size = 0;
     data->texts[3].x = 0;
     data->texts[3].y = 48;
@@ -1153,13 +1236,19 @@ void X32Ctrl::SetLcdFromVChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t ch
 // Update all meters (Gui, Surface, xremote)
 void X32Ctrl::UpdateMeters(void) {
 
-	if (config->IsModelX32FullOrCompactOrProducerOrRack())
+	if (state->surface_disable_meter_update)
 	{
-		pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)]->UpdateMeters();
+		return;
 	}
 
 
-	xremote->UpdateMeter(mixer);
+	if (config->IsModelX32FullOrCompactOrProducerOrRack())
+	{
+		pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->UpdateMeters();
+	}
+
+
+	//xremote->UpdateMeter(mixer);
 
 	// ########################################
 	//
@@ -1167,7 +1256,7 @@ void X32Ctrl::UpdateMeters(void) {
 	//
 	// ########################################
 
-	uint8_t chanIdx = config->GetUint(MP_ID::SELECTED_CHANNEL); //config->selectedVChannel;
+	uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL); //config->selectedVChannel;
 
 	if (config->IsModelX32Core()) {
 		// selected channel
@@ -1287,8 +1376,10 @@ void X32Ctrl::UpdateMeters(void) {
 	}
 }
 
-void X32Ctrl::surfaceSyncBankIndicator(void) {
-	if (config->HasParameterChanged(BANKING_INPUT)) {
+void X32Ctrl::surfaceSyncBankIndicator(bool fullSync)
+{
+	if (config->HasParameterChanged(BANKING_INPUT) || fullSync)
+	{
 		if (config->IsModelX32Full()){
 			surface->SetLedByEnum(X32_BTN_CH_1_16, config->GetUint(BANKING_INPUT) == 0);
 			surface->SetLedByEnum(X32_BTN_CH_17_32, config->GetUint(BANKING_INPUT) == 1);
@@ -1306,7 +1397,8 @@ void X32Ctrl::surfaceSyncBankIndicator(void) {
 			surface->SetLedByEnum(X32_BTN_BUS_9_16_MASTER, config->GetUint(BANKING_INPUT) == 7);
 		}
 	}
-	if (config->HasParameterChanged(MP_ID::BANKING_BUS)) {
+	if (config->HasParameterChanged(BANKING_BUS) || fullSync)
+	{
 		surface->SetLedByEnum(X32_BTN_GROUP_DCA_1_8, config->GetUint(BANKING_BUS) == 0);
 		surface->SetLedByEnum(X32_BTN_BUS_1_8, config->GetUint(BANKING_BUS) == 1);
 		surface->SetLedByEnum(X32_BTN_BUS_9_16, config->GetUint(BANKING_BUS) == 2);
@@ -1316,7 +1408,7 @@ void X32Ctrl::surfaceSyncBankIndicator(void) {
 
 // only X32 Rack
 void X32Ctrl::setLedChannelIndicator_Rack(void){
-		uint8_t chanIdx = config->GetUint(MP_ID::SELECTED_CHANNEL);
+		uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL);
 		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
 		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
 		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
@@ -1331,7 +1423,7 @@ void X32Ctrl::setLedChannelIndicator_Rack(void){
 
 // only X32 Core
 void X32Ctrl::setLedChannelIndicator_Core(void){
-		uint8_t chanIdx = config->GetUint(MP_ID::SELECTED_CHANNEL);
+		uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL);
 		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
 		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
 		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
@@ -1346,7 +1438,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 
 		if (mixer->dsp->Channel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
 
-		float gateValue = (1.0f - config->GetFloat(MP_ID::CHANNEL_GATE_GAIN, channel)) * 80.0f;
+		float gateValue = (1.0f - config->GetFloat(CHANNEL_GATE_GAIN, channel)) * 80.0f;
 		if (gateValue >= 2.0f)  { meterdata |= 0b00100000; }        
 		if (gateValue >= 4.0f)  { meterdata |= 0b00010000; }        
 		if (gateValue >= 6.0f)  { meterdata |= 0b00001000; }        
@@ -1354,7 +1446,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 		if (gateValue >= 18.0f) { meterdata |= 0b00000010; }        
 		if (gateValue >= 30.0f) { meterdata |= 0b00000001; }        
 
-		if (config->GetFloat(MP_ID::CHANNEL_GATE_GAIN, channel) < 1.0f) { meterdata |= 0b01000000; };
+		if (config->GetFloat(CHANNEL_GATE_GAIN, channel) < 1.0f) { meterdata |= 0b01000000; };
 
 		return meterdata;
 	}else{
@@ -1366,7 +1458,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 void X32Ctrl::syncXRemote(bool syncAll) {
 	bool fullSync = false;
 
-	if (syncAll || config->HasParameterChanged(MP_ID::SELECTED_CHANNEL)){ 
+	if (syncAll || config->HasParameterChanged(SELECTED_CHANNEL)){ 
 		// channel selection has changed - do a full sync
 		fullSync=true; 
 	}
@@ -1431,15 +1523,15 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 
 // direction - positive or negative integer value
 void X32Ctrl::ChangeSelect(int8_t direction){
-	int16_t newSelectedVChannel = config->GetUint(MP_ID::SELECTED_CHANNEL) + direction;
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d", config->GetUint(MP_ID::SELECTED_CHANNEL), direction, newSelectedVChannel);
+	int16_t newSelectedVChannel = config->GetUint(SELECTED_CHANNEL) + direction;
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d", config->GetUint(SELECTED_CHANNEL), direction, newSelectedVChannel);
 	if (newSelectedVChannel < 0) {
 		newSelectedVChannel = MAX_VCHANNELS -1;
 	} else if (newSelectedVChannel >= MAX_VCHANNELS){
 		newSelectedVChannel = 0;
 	}
 
-	config->Set(MP_ID::SELECTED_CHANNEL, newSelectedVChannel);
+	config->Set(SELECTED_CHANNEL, newSelectedVChannel);
 }
 
 
@@ -1750,7 +1842,7 @@ void X32Ctrl::FaderMoved(SurfaceEvent* event){
 		}
 
 		vchannelIndex = SurfaceChannel2vChannel(event->index + offset);
-		config->Set(MP_ID::CHANNEL_VOLUME, helper->Fadervalue2dBfs(event->value), vchannelIndex);
+		config->Set(CHANNEL_VOLUME, helper->Fadervalue2dBfs(event->value), vchannelIndex);
 		surface->FaderMoved(event);
 	}
 }
@@ -2145,7 +2237,7 @@ void X32Ctrl::SimulatorButton(uint key)
 	{
 		printf("Simulatorbutton: %d\n", key);
 
-		X32_PAGE activePage = (X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE);
+		X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
 		switch (key)
 		{
@@ -2333,7 +2425,7 @@ void X32Ctrl::BankingEQ(X32_BTN p_button){
 			break;
 	}
 
-	config->Set(MP_ID::BANKING_EQ, newBankingEq);
+	config->Set(BANKING_EQ, newBankingEq);
 }
 
 void X32Ctrl::Banking(X32_BTN p_button)

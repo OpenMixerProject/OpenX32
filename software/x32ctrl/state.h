@@ -29,6 +29,7 @@ class State {
         bool dsp_disable_activity_light = false;
         bool dsp_disable_readout = false;
         bool surface_disable_lcd_update = false;
+        bool surface_disable_meter_update = false;
 
         uint simulator_last_key = 0;
         // \DEBUG

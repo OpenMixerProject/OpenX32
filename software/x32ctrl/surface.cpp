@@ -1266,24 +1266,18 @@ void Surface::FaderMoved(SurfaceEvent* event){
     faders[faderindex].wait = 10; // wait 100x 10ms
 }
 
-uint8_t Surface::GetFaderIndex(uint8_t boardId, uint8_t index) {
-    if (boardId == X32_BOARD_L) {
-        return index;
-    } 
-
-    if(config->IsModelX32Full()) {
-        if (boardId == X32_BOARD_M) {
+uint8_t Surface::GetFaderIndex(uint8_t boardId, uint8_t index)
+{
+    switch (boardId)
+    {
+        case X32_BOARD_L:
+            return index;
+        case X32_BOARD_M: // only X32 Full
             return index + 8;
-        }
-        if (boardId == X32_BOARD_R) {
-            return index + 16;
-        }
-    }
-
-    if(config->IsModelX32CompactOrProducer()) {
-        if (boardId == X32_BOARD_R) {
-            return index + 8;
-        }
+        case X32_BOARD_R:
+            return index + (config->IsModelX32Full() ? 16 : 8);  // 16 - X32 Full, 8 - X32 Compact/Producer
+        default:
+            return 0;
     }
 }
 

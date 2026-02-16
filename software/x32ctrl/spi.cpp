@@ -1124,6 +1124,12 @@ bool SPI::ReadDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t ind
 void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
 //    if (!connected) return;
 
+    if (state->bodyless)
+    {
+        return;
+    }
+
+
     if (valueCount == 0) {
         return;
     }

@@ -17,7 +17,7 @@ class Config
 
         Helper* helper;
 
-        mixerparameter_map_t* mpm = new mixerparameter_map_t();
+        Mixerparameter* mpm[(uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE];
         mixerparameter_changed_t* mp_changedlist = new mixerparameter_changed_t();
 
         void CreateMixerparameter(MP_ID mp_type); 
@@ -37,7 +37,11 @@ class Config
         Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String group, String name, uint count = 1);
         Mixerparameter* GetParameter(MP_ID mp);
 
+        #ifdef MPM_AS_ARRAY
+        Mixerparameter** GetParameterList();
+        #else
         mixerparameter_map_t* GetParameterList();
+        #endif
         mixerparameter_changed_t* GetChangedParameterList();
         vector<uint> GetChangedParameterIndexes(MP_CAT parameter_cat);
         vector<uint> GetChangedParameterIndexes(vector<MP_ID> filter_ids);

@@ -2,7 +2,10 @@
 #include "page.h"
 using namespace std;
 
-class PageSetup: public Page {
+class PageSetup: public Page
+{
+    using enum MP_ID;
+
     public:
         PageSetup(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             nextPage = X32_PAGE::SETUP_CARD;
@@ -14,8 +17,11 @@ class PageSetup: public Page {
         }
 
         void OnInit() override {
-            BindEncoder(DISPLAY_ENCODER_5, MP_ID::LED_BRIGHTNESS);
-            BindEncoder(DISPLAY_ENCODER_6, MP_ID::LCD_CONTRAST);
+                       
+
+            BindEncoder(DISPLAY_ENCODER_4, LED_BRIGHTNESS);
+            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_LCD_MODE);
+            BindEncoder(DISPLAY_ENCODER_6, LCD_CONTRAST);
         
 
             // setup bar-graph for RTA-analyzer
@@ -28,6 +34,15 @@ class PageSetup: public Page {
             chartSeriesRta = lv_chart_add_series(objects.rta_chart, lv_color_hex(0xff0000), LV_CHART_AXIS_PRIMARY_Y);
             lv_obj_add_event_cb(objects.rta_chart, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.rta_chart, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+        }
+
+        void OnChange(bool forceUpdate)
+        {
+            if (config->HasParameterChanged(SELECTED_CHANNEL) || forceUpdate)
+            {
+                BindEncoder(DISPLAY_ENCODER_1, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED, config->GetUint(SELECTED_CHANNEL));
+            }
+            
         }
 
         void OnUpdateMeters() override {

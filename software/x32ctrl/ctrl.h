@@ -120,13 +120,14 @@ class X32Ctrl : public X32Base
         void ShowNextPage();
 
         void syncGuiOrLcd(void);
-        void syncSurface(void);
+        void syncSurface(bool fullSync);
         
-        void surfaceSyncBoardMain();
-        void surfaceSyncBoard(X32_BOARD board);
-        void surfaceSyncBoardExtra();
+        void surfaceSyncBoardMain(bool fullSync);
+        void surfaceSyncBoard(X32_BOARD board, bool fullSync);
+        void surfaceSyncBoardExtra(bool fullSync);
+        void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
-        void surfaceSyncBankIndicator(void);
+        void surfaceSyncBankIndicator(bool fullSync);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        
         void setLedChannelIndicator_Core(void);        
