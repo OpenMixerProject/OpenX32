@@ -75,30 +75,16 @@ void DSP1::LoadRouting_X32Default()
         // 69..92:  DSP2 Return 1-24 (from DSP2)
 
         // connect FPGA2DSP-Source 1-40 to all 40 Mixing Channels (1-32 + AUX 1-8)
-        config->Set(ROUTING_DSP_CHANNEL, DSP_BUF_IDX_DSPCHANNEL + i, i);
-        config->Set(ROUTING_DSP_CHANNEL_TAPPOINT, to_underlying(DSP_TAP::INPUT), i);
-    }
-
-    // connect all 16 mixbus-channels to DSP2 Channels 1-16
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        config->Set(ROUTING_DSP, 41 + i, 40 + i);
-        config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 40 + i);
-    }
-
-    // connect inputs 1-8 to DSP2 Channels 17-24
-    for (uint8_t i = 16; i < 24; i++)
-    {
-        config->Set(ROUTING_DSP, DSP_BUF_IDX_DSPCHANNEL + i, i);
-        config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
+        config->Set(ROUTING_DSP_INPUT, DSP_BUF_IDX_DSPCHANNEL + i, i);
+        config->Set(ROUTING_DSP_INPUT_TAPPOINT, to_underlying(DSP_TAP::INPUT), i);
     }
 
     // connect MainLeft on even and MainRight on odd channels as PostFader
     for (uint8_t i = 0; i < 40; i++)
     {
         // connect MainLeft on even and MainRight on odd channels as PostFader
-        config->Set(ROUTING_DSP, 63 + (i % 2), i);
-        config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
+        config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MAINLEFT + (i % 2), i);
+        config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
     }
 }
 
@@ -321,7 +307,7 @@ void DSP1::SendAll() {
         SendGate(chan);
         SendEQ(chan);
         SendCompressor(chan);
-        SetChannelRouting(chan);
+        SetInputRouting(chan);
         SendChannelVolume(chan);
         SendChannelSend(chan);
         for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
@@ -330,7 +316,7 @@ void DSP1::SendAll() {
     }
     // configuration for 40 DSP-outputs to FPGA (16x output, 16x UltraNet, 8x Aux)
     for (uint8_t chan = 0; chan < 40 + 24; chan++) {
-        SetDSP1Routing(chan);
+        SetOutputRouting(chan);
     }
 
     for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
@@ -351,17 +337,17 @@ void DSP1::SendAll() {
     SendMonitorVolume();
 }
 
-void DSP1::SetChannelRouting(uint chanIndex) {
+void DSP1::SetInputRouting(uint chanIndex) {
     uint32_t values[2];
-    values[0] = config->GetUint(ROUTING_DSP_CHANNEL, chanIndex);
-    values[1] = config->GetUint(ROUTING_DSP_CHANNEL_TAPPOINT, chanIndex);
+    values[0] = config->GetUint(ROUTING_DSP_INPUT, chanIndex);
+    values[1] = config->GetUint(ROUTING_DSP_INPUT_TAPPOINT, chanIndex);
     spi->QueueDspData(0, 'r', chanIndex, 0, 2, (float*)&values[0]);
 }
 
-void DSP1::SetDSP1Routing(uint chanIndex) {
+void DSP1::SetOutputRouting(uint chanIndex) {
     uint32_t values[2];
-    values[0] = config->GetUint(ROUTING_DSP, chanIndex);
-    values[1] = config->GetUint(ROUTING_DSP_TAPPOINT, chanIndex);
+    values[0] = config->GetUint(ROUTING_DSP_OUTPUT, chanIndex);
+    values[1] = config->GetUint(ROUTING_DSP_OUTPUT_TAPPOINT, chanIndex);
     spi->QueueDspData(0, 'r', chanIndex, 1, 2, (float*)&values[0]);
 }
 
@@ -395,7 +381,7 @@ void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
 void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
     if (dspChannel < 40) {
         // we have a DSP-channel
-        uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, dspChannel);
+        uint8_t channelInputSource = config->GetUint(ROUTING_DSP_INPUT, dspChannel);
 
         RoutingGetTapNameByIndex(p_nameBuffer, channelInputSource, dspInputSource);
     }else{
@@ -414,19 +400,19 @@ String DSP1::RoutingGetOutputNameByIndex(uint8_t index) {
 */
     if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32)))
     {
-        return String("DSP-Out ") + index;
+        return String("DSP Out ") + index;
     }
     else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) 
     {
-        return String("DSP-AuxOut ") + (index - 32);
+        return String("DSP AuxOut ") + (index - 32);
     }
     else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) 
     {
-        return String("FX-SendOut ") + (index - 40);
+        return String("FX SendOut ") + (index - 40);
     }
     else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 24)))
     {
-        return String("FX-AuxOut ") + (index - 56);
+        return String("FX AuxOut ") + (index - 56);
     }
 
     return "???";
@@ -453,26 +439,26 @@ void DSP1::RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t s
         // we are connected to one of the FPGA-DSP-inputs
         // source is set by FPGA
         //uint8_t source = mixer->fpga->Routing.dsp[index - 1];
-        if (source == 0) {
+        if (source == FPGA_INPUT_IDX_OFF) {
             sprintf(p_nameBuffer, "DSP-Ch %02d (Off)", index);
-        }else if ((source >= 1) && (source <= 32)) {
+        }else if ((source >= FPGA_INPUT_IDX_XLR) && (source < FPGA_INPUT_IDX_CARD)) {
             // XLR-input
             sprintf(p_nameBuffer, "DSP-Ch %02d (XLR%02d)", index, source);
-        }else if ((source >= 33) && (source <= 64)) {
+        }else if ((source >= FPGA_INPUT_IDX_CARD) && (source < FPGA_INPUT_IDX_AUX)) {
             // Card input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (C%02d)", index, source - 32);
-        }else if ((source >= 65) && (source <= 72)) {
+            sprintf(p_nameBuffer, "DSP-Ch %02d (C%02d)", index, source - FPGA_INPUT_IDX_CARD + 1);
+        }else if ((source >= FPGA_INPUT_IDX_AUX) && (source < FPGA_INPUT_IDX_DSP_RETURN)) {
             // Aux input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (Aux%02d)", index, source - 64);
-        }else if ((source >= 73) && (source <= 112)) {
+            sprintf(p_nameBuffer, "DSP-Ch %02d (Aux%02d)", index, source - FPGA_INPUT_IDX_AUX + 1);
+        }else if ((source >= FPGA_INPUT_IDX_DSP_RETURN) && (source < FPGA_INPUT_IDX_AES50A)) {
             // DSP input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (In%02d)", index, source - 72);
-        }else if ((source >= 113) && (source <= 160)) {
+            sprintf(p_nameBuffer, "DSP-Ch %02d (In%02d)", index, source - FPGA_INPUT_IDX_DSP_RETURN + 1);
+        }else if ((source >= FPGA_INPUT_IDX_AES50A) && (source < FPGA_INPUT_IDX_AES50B)) {
             // AES50A input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (A%02d)", index, source - 112);
-        }else if ((source >= 161) && (source <= 208)) {
+            sprintf(p_nameBuffer, "DSP-Ch %02d (A%02d)", index, source - FPGA_INPUT_IDX_AES50A + 1);
+        }else if ((source >= FPGA_INPUT_IDX_AES50B) && (source < (FPGA_INPUT_IDX_AES50B + 48))) {
             // AES50B input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (B%02d)", index, source - 160);
+            sprintf(p_nameBuffer, "DSP-Ch %02d (B%02d)", index, source - FPGA_INPUT_IDX_AES50B + 1);
         }else{
             sprintf(p_nameBuffer, "???");
         }

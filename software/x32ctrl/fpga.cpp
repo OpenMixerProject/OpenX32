@@ -311,7 +311,7 @@ String Fpga::GetOutputName(uint8_t group, uint8_t channel) {
 			}
 			break;
 		case 'd':
-			return "DSP1 In " + String(channel);
+			return "DSP In " + String(channel);
 		case 'A':
 			return "AES50A Out " + String(channel);
 		case 'B':

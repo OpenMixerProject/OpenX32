@@ -133,28 +133,28 @@ void Config::DefineMixerparameters() {
     cat = MP_CAT::ROUTING;
     group = "routing";
 
-    DefParameter(ROUTING_FPGA, cat, group, "Routing FPGA", 208)  // 208 -> size of fpga routing struct!
+    DefParameter(ROUTING_FPGA, cat, group, "Routing FPGA", 208)  // 208 -> size of fpga routing struct! (prepared for both AES50-ports, but only 160 are used at the moment)
     ->DefUOM(MP_UOM::FPGA_ROUTING)
     ->DefHideEncoderSlider()
-    ->DefMinMaxStandard_Uint(0, 160, 0);
+    ->DefMinMaxStandard_Uint(0, NUM_INPUT_CHANNEL, 0); // 161 = OFF + 160 channels
 
-    DefParameter(ROUTING_DSP_CHANNEL, cat, group, "Routing DSP-Channel", 40)
+    DefParameter(ROUTING_DSP_INPUT, cat, group, "Routing DSP-Input", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
     ->DefUOM(MP_UOM::DSP_ROUTING)
     ->DefHideEncoderSlider()
-    ->DefMinMaxStandard_Uint(0, 68, 0); // 68 Talkback
+    ->DefMinMaxStandard_Uint(0, DSP_MAX_INTERNAL_CHANNELS - 1, 0); // 0=OFF, 92=Talkback
 
-    DefParameter(ROUTING_DSP_CHANNEL_TAPPOINT, cat, group, "Routing DSP-Channel Tappoint", 40)
+    DefParameter(ROUTING_DSP_INPUT_TAPPOINT, cat, group, "Routing DSP-Input Tappoint", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
     ->DefUOM(MP_UOM::TAPPOINT)
     ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
 
-    DefParameter(ROUTING_DSP, cat, group, "Routing DSP", 64)
+    DefParameter(ROUTING_DSP_OUTPUT, cat, group, "Routing DSP-Output", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
     ->DefUOM(MP_UOM::DSP_ROUTING)
     ->DefHideEncoderSlider()
-    ->DefMinMaxStandard_Uint(0, 160, 0);
+    ->DefMinMaxStandard_Uint(0, DSP_MAX_INTERNAL_CHANNELS - 1, 0); // 0=OFF, 92=Talkback
 
-    DefParameter(ROUTING_DSP_TAPPOINT, cat, group, "Routing DSP Tappoint", 64)
+    DefParameter(ROUTING_DSP_OUTPUT_TAPPOINT, cat, group, "Routing DSP-Output Tappoint", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
     ->DefUOM(MP_UOM::TAPPOINT)
-    ->DefMinMaxStandard_Uint(0, 160, 0);
+    ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::POST_FADER);
 
     // ###########
     // # State

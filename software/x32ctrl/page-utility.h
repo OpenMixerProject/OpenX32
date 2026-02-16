@@ -87,25 +87,26 @@ class PageUtility: public Page {
                             config->Set(MP_ID::CHANNEL_GAIN, 47.0f, 0);
                             config->Set(MP_ID::CHANNEL_GAIN, 47.0f, 1);
 
-                            // route FX-Return-Channels 1-16 to DSP1-Input-Channels 9 to 24, set volume to 0dBfs and Panning to hard L/R
-                            for (int i = 8; i < 24; i++) {
-                                mixer->dsp->SetChannelRouting(i);
-                                config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, i); // 0dBfs
+                            // route FPGA-Channel 1 to DSP-Channel 1
+                            config->Set(ROUTING_DSP_INPUT, DSP_BUF_IDX_DSPCHANNEL, 0);
+                            config->Set(ROUTING_DSP_INPUT_TAPPOINT, to_underlying(DSP_TAP::INPUT), 0);
+                            mixer->dsp->SetInputRouting(0);
 
-                                config->Set(ROUTING_DSP_CHANNEL, DSP_BUF_IDX_DSP2_FX + (i - 8), i);
-                                config->Set(ROUTING_DSP_CHANNEL_TAPPOINT, to_underlying(DSP_TAP::INPUT), i);
+                            // route DSP-Input Channel 1 to DSP2-Send 1-8
+                            for (int i = 0; i < 7; i++) {
+                                config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_DSPCHANNEL, 40 + i);
+                                config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::INPUT), 0);
+                                mixer->dsp->SetOutputRouting(i);
                             }
-                            for (int i = 8; i < 24; i+=2) {
-                                config->Set(MP_ID::CHANNEL_PANORAMA, -100.0f, i);  // left
-                                config->Set(MP_ID::CHANNEL_PANORAMA, 100.0f, i+1); // right
-                            }
-
-                            // route XLR1 to DSP2-Send 1/2
-                            config->Set(ROUTING_DSP, DSP_BUF_IDX_DSPCHANNEL, 40);
-                            config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::INPUT), 0);
-                            config->Set(ROUTING_DSP, DSP_BUF_IDX_DSPCHANNEL, 41);
-                            config->Set(ROUTING_DSP_TAPPOINT, to_underlying(DSP_TAP::INPUT), 1);
-
+                            // route MainL/R to DSP-Outputs 39 and 40
+                            config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MAINLEFT, 38);
+                            config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::INPUT), 0);
+                            config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MAINRIGHT, 39);
+                            config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::INPUT), 0);
+                            mixer->dsp->SetOutputRouting(38);
+                            mixer->dsp->SetOutputRouting(39);
+                            
+                            /*
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 0); // mute channel 1
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 10); // mute channel 11 (Chorus)
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 11); // mute channel 12 (Chorus)
@@ -115,6 +116,7 @@ class PageUtility: public Page {
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 15); // mute channel 16 (overdrive)
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, DSP_BUF_IDX_AUX + 5); // mute channel A7
                             config->Set(MP_ID::CHANNEL_MUTE, 1.0f, DSP_BUF_IDX_AUX + 6); // mute channel A8
+                            */
 
                             config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, 80); // Main 0dBfs
                         }

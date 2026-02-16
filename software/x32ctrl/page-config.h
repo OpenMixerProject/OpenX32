@@ -24,7 +24,7 @@ class PageConfig : public Page {
         {
             using enum MP_ID;
 
-            BindEncoder(DISPLAY_ENCODER_1, ROUTING_DSP_CHANNEL, CHANNEL_PHASE_INVERT, targetindex);
+            BindEncoder(DISPLAY_ENCODER_1, ROUTING_DSP_INPUT, CHANNEL_PHASE_INVERT, targetindex);
             BindEncoder(DISPLAY_ENCODER_2, CHANNEL_GAIN, CHANNEL_PHANTOM, targetindex);
             BindEncoder(DISPLAY_ENCODER_3, CHANNEL_PANORAMA, targetindex);
             BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME, CHANNEL_MUTE, targetindex);

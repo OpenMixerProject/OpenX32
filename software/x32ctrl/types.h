@@ -172,20 +172,6 @@ typedef struct {
 	uint32_t meterInfo[2];
 } sMainChannel;
 
-typedef struct {
-	float gainXlr[32];
-	float gainAes50a[48];
-	float gainAes50b[48];
-
-	bool phantomPowerXlr[32];
-	bool phantomPowerAes50a[48];
-	bool phantomPowerAes50b[48];
-
-	bool phaseInvertXlr[32];
-	bool phaseAes50a[32];
-	bool phaseAes50b[32];
-} sPreamps;
-
 typedef struct{
     char name[MAX_NAME_LENGTH];
 

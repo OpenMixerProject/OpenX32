@@ -303,19 +303,19 @@ void Mixer::Sync(void){
         }
     }
 
-    if (config->HasParametersChanged({ROUTING_DSP, ROUTING_DSP_TAPPOINT}))
+    if (config->HasParametersChanged({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP, ROUTING_DSP_TAPPOINT}))
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}))
         {
-            dsp->SetDSP1Routing(changedIndex);
+            dsp->SetOutputRouting(changedIndex);
         }
     }
 
-    if (config->HasParametersChanged({ROUTING_DSP_CHANNEL, ROUTING_DSP_CHANNEL_TAPPOINT}))
+    if (config->HasParametersChanged({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP_CHANNEL, ROUTING_DSP_CHANNEL_TAPPOINT}))
+        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}))
         {
-            dsp->SetChannelRouting(changedIndex);
+            dsp->SetInputRouting(changedIndex);
         }
     }
 
@@ -381,29 +381,30 @@ void Mixer::Sync(void){
 
 // set the gain of the local XLR head-amp-control
 void Mixer::halSendGain(uint8_t dspChannel) {
-    uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, dspChannel);
+    // get the channel-number of the internal DSP-routing
+    uint8_t internalDspSourceIndex = config->GetUint(ROUTING_DSP_INPUT, dspChannel);
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-    if ((channelInputSource >= 1) && (channelInputSource <= 40)) {
-        // we are connected to one of the DSP-inputs
+    if ((internalDspSourceIndex >= 1) && (internalDspSourceIndex <= 40)) {
+        // we are connected to one of the DSP-inputs from FPGA
 
         // check if we are connected to a channel with gain
-        uint8_t dspInputSource = config->GetUint(ROUTING_FPGA, channelInputSource - 1);
-        if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
+        uint8_t externalDspSourceIndex = config->GetUint(ROUTING_FPGA, (FPGA_OUTPUT_IDX_DSP - 1) + (internalDspSourceIndex - 1));
+        if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_XLR) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_XLR + 32))) {
             // XLR-input
 
             // send value to adda-board
-            uint8_t boardId = adda->GetXlrInBoardId(dspInputSource);
+            uint8_t boardId = adda->GetXlrInBoardId(externalDspSourceIndex);
             if (boardId >= 0 && boardId < 4) {
-                uint8_t addaChannel = dspInputSource;
+                uint8_t addaChannel = externalDspSourceIndex;
                 while (addaChannel > 8) {
                     addaChannel -= 8;
                 }
-                adda->SetGain(boardId, addaChannel, preamps.gainXlr[dspInputSource - 1], preamps.phantomPowerXlr[dspInputSource - 1]);
+                adda->SetGain(boardId, addaChannel, config->GetFloat(CHANNEL_GAIN,  dspChannel), config->GetFloat(CHANNEL_PHANTOM,  dspChannel));
             }
-        }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
+        }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50A) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50A + 48))) {
             // AES50A input
-        }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
+        }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50B) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50B + 48))) {
             // AES50B input
         }
     }
@@ -411,37 +412,40 @@ void Mixer::halSendGain(uint8_t dspChannel) {
 
 
 // enable or disable phatom-power of local XLR-inputs
-void Mixer::halSendPhantomPower(uint8_t chanIndex) {
-    uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, chanIndex);
+void Mixer::halSendPhantomPower(uint8_t dspChannel) {
+    // get the channel-number of the internal DSP-routing
+    uint8_t internalDspSourceIndex = config->GetUint(ROUTING_DSP_INPUT, dspChannel);
 
     // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-    if ((channelInputSource >= 1) && (channelInputSource <= MAX_FPGA_TO_DSP1_CHANNELS)) {
+    if ((internalDspSourceIndex >= 1) && (internalDspSourceIndex <= MAX_FPGA_TO_DSP1_CHANNELS)) {
         // we are connected to one of the DSP-inputs
 
         // check if we are connected to a channel with gain
-        uint8_t dspInputSource = config->GetUint(ROUTING_FPGA, channelInputSource - 1);
-        if ((dspInputSource >= 1) && (dspInputSource <= 32)) {
+        uint8_t externalDspSourceIndex = config->GetUint(ROUTING_FPGA, (FPGA_OUTPUT_IDX_DSP - 1) + (internalDspSourceIndex - 1));
+
+        if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_XLR) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_XLR + 32))) {
             // XLR-input
 
             // send value to adda-board
-            uint8_t boardId = adda->GetXlrInBoardId(dspInputSource);
+            uint8_t boardId = adda->GetXlrInBoardId(externalDspSourceIndex);
+
             if (boardId >= 0 && boardId < 4) {
-                uint8_t addaChannel = dspInputSource;
+                uint8_t addaChannel = externalDspSourceIndex;
                 while (addaChannel > 8) {
                     addaChannel -= 8;
                 }
-                adda->SetGain(boardId, addaChannel, preamps.gainXlr[dspInputSource - 1], preamps.phantomPowerXlr[dspInputSource - 1]);
+                adda->SetGain(boardId, addaChannel, config->GetFloat(CHANNEL_GAIN,  dspChannel), config->GetFloat(CHANNEL_PHANTOM,  dspChannel));
             }
-        }else if ((dspInputSource >= 113) && (dspInputSource <= 160)) {
+        }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50A) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50A + 48))) {
             // AES50A input
-        }else if ((dspInputSource >= 161) && (dspInputSource <= 208)) {
+        }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50B) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50B + 48))) {
             // AES50B input
         }
     }
 }
 
 // uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
-//     uint8_t channelInputSource = config->GetUint(ROUTING_DSP_CHANNEL, dspChannel);
+//     uint8_t channelInputSource = config->GetUint(ROUTING_DSP_INPUT, dspChannel);
 
 //     // check if we are using one of the FPGA-routed channels
 //     if ((channelInputSource >= 1) && (channelInputSource < 40)) {

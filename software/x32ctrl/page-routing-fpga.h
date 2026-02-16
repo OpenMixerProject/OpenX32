@@ -10,8 +10,8 @@ class PageRoutingFpga: public Page
 
     private:
 
-        uint gui_selected_item = 0;
-		uint gui_selected_item_before = 0;
+        int gui_selected_item = 0;
+		int gui_selected_item_before = 0;
         bool page_routing_fpga_table_drawn = false;
 
     public:
@@ -56,20 +56,23 @@ class PageRoutingFpga: public Page
         }
 
         void OnShow() override {
-            custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_UP) + "Destination" + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_UP) + "Group" + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_REFRESH) + "Source";
-			custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_REFRESH) + "Group-Source";
+            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_UP) + " Select " + LV_SYMBOL_DOWN;
+			custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_UP) + " Select (Group) " + LV_SYMBOL_DOWN;
+			custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_REFRESH) + " Source";
+			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + " Source (Group)";
         }
 
         void OnChange(bool force_update) override
         {
             if(gui_selected_item_before != gui_selected_item)
             {
-                if (gui_selected_item >= NUM_OUTPUT_CHANNEL)
-                {
-                    gui_selected_item = NUM_OUTPUT_CHANNEL -1;
-                }
+				if (gui_selected_item < 0) {
+					// limit list at the top
+					gui_selected_item = 0;
+				}else if (gui_selected_item >= NUM_OUTPUT_CHANNEL) {
+					// limit list at the bottom
+					gui_selected_item = NUM_OUTPUT_CHANNEL - 1;
+				}
 
                 // remove old indicator
                 lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item_before, 1, " ");
@@ -95,9 +98,21 @@ class PageRoutingFpga: public Page
         bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
                 case X32_ENC_ENCODER1:
-                    config->Change(ROUTING_FPGA, amount, gui_selected_item);
+                    gui_selected_item += amount;
+					OnChange(false);
                     break;
                 case X32_ENC_ENCODER2:
+                    if (amount < 0) {
+						gui_selected_item -= 8;
+					}else{
+						gui_selected_item += 8;
+					}
+					OnChange(false);
+                    break;
+                case X32_ENC_ENCODER3:
+                    config->Change(ROUTING_FPGA, amount, gui_selected_item);
+                    break;
+                case X32_ENC_ENCODER4:
 					int8_t absoluteChange;
                     if (amount < 0) {
                         absoluteChange = -8;
@@ -106,20 +121,8 @@ class PageRoutingFpga: public Page
                     }
                     for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++)
                     {
-                        config->Change(ROUTING_FPGA, amount, i);
+                        config->Change(ROUTING_FPGA, absoluteChange, i);
                     }
-                    break;
-                case X32_ENC_ENCODER3:
-                    gui_selected_item += amount;
-					OnChange(false);
-                    break;
-                case X32_ENC_ENCODER4:
-                    if (amount < 0) {
-						gui_selected_item -= 8;
-					}else{
-						gui_selected_item += 8;
-					}
-					OnChange(false);
                     break;
                 case X32_ENC_ENCODER5:
                     break;

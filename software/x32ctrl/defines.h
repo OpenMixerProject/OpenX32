@@ -112,6 +112,39 @@
 #define DSP_MAX_INTERNAL_CHANNELS          93
 #define DSP_SAMPLES_IN_BUFFER              16
 
+#define FPGA_INPUT_IDX_OFF				0
+#define FPGA_INPUT_IDX_XLR				1
+#define FPGA_INPUT_IDX_CARD				33
+#define FPGA_INPUT_IDX_AUX				65
+#define FPGA_INPUT_IDX_TALKBACK_INT		71
+#define FPGA_INPUT_IDX_TALKBACK_EXT		72
+#define FPGA_INPUT_IDX_DSP_RETURN		73
+#define FPGA_INPUT_IDX_AES50A			113
+#define FPGA_INPUT_IDX_AES50B			161
+
+#define FPGA_OUTPUT_IDX_OFF				0
+#define FPGA_OUTPUT_IDX_XLR				1
+#define FPGA_OUTPUT_IDX_ULTRANET		17
+#define FPGA_OUTPUT_IDX_CARD			33
+#define FPGA_OUTPUT_IDX_AUX				65
+#define FPGA_OUTPUT_IDX_DSP     		73
+#define FPGA_OUTPUT_IDX_AES50A			113
+#define FPGA_OUTPUT_IDX_AES50B			161
+
+#define DSP_BUF_IDX_OFF			0	// no audio
+#define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
+#define DSP_BUF_IDX_AUX			33	// Aux-Channel 1-8
+#define DSP_BUF_IDX_DSP2_FX		41  // FXDSP2 FX-Channel 1-16
+#define DSP_BUF_IDX_MIXBUS		57	// Mixbus 1-16
+#define DSP_BUF_IDX_MAINLEFT	73	// main left
+#define DSP_BUF_IDX_MAINRIGHT	74	// main right
+#define DSP_BUF_IDX_MAINSUB		75	// main sub
+#define DSP_BUF_IDX_MATRIX		76	// Matrix 1-6
+#define DSP_BUF_IDX_DSP2_AUX	82	// FXDSP2 AUX-Channel 1-8
+#define DSP_BUF_IDX_MONLEFT		90	// Monitor Left
+#define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
+#define DSP_BUF_IDX_TALKBACK	92	// Talkback
+
 #define SURFACE_COLOR_BLACK 0
 #define SURFACE_COLOR_RED 1
 #define SURFACE_COLOR_GREEN 2

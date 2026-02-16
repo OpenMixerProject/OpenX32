@@ -26,8 +26,6 @@ class Mixer : public X32Base
     using enum MP_ID;
 
     private:
-
-        sPreamps preamps;
         // solo is (somewhere) activated
         bool solo = false;
 

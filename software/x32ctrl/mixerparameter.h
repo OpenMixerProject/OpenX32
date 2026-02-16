@@ -150,32 +150,32 @@ class Mixerparameter {
                         uint chan = (uint)value[index];
                         switch (chan)
                         {
-                            case 0:
+                            case FPGA_INPUT_IDX_OFF:
                                 result += "OFF";
                                 break;
-                            case 1 ... 32:
+                            case FPGA_INPUT_IDX_XLR ... (FPGA_INPUT_IDX_CARD - 1):
                                 result += String("XLR In ") + chan;
                                 break;
-                            case 33 ... 64:
-                                result += String("Card In ") + (chan - 32) ;
+                            case FPGA_INPUT_IDX_CARD ... (FPGA_INPUT_IDX_AUX - 1):
+                                result += String("Card In ") + (chan - FPGA_INPUT_IDX_CARD + 1) ;
                                 break;
-                            case 65 ... 70:
-                                result += String("AUX In ") + (chan - 64);
+                            case FPGA_INPUT_IDX_AUX ... (FPGA_INPUT_IDX_TALKBACK_INT - 1):
+                                result += String("AUX In ") + (chan - FPGA_INPUT_IDX_AUX + 1);
                                 break;
-                            case 71:
+                            case FPGA_INPUT_IDX_TALKBACK_INT:
                                 result += String("Talkback Internal");
                                 break;
-                            case 72:
+                            case FPGA_INPUT_IDX_TALKBACK_EXT:
                                 result += String("Talkback External");
                                 break;
-                            case 73 ... 112:
-                                result += String("DSP1 Return ") + (chan - 72);
+                            case FPGA_INPUT_IDX_DSP_RETURN ... (FPGA_INPUT_IDX_AES50A - 1):
+                                result += String("DSP Return ") + (chan - FPGA_INPUT_IDX_DSP_RETURN + 1);
                                 break;
-                            case 113 ... 160:
-                                result += String("AES50A In ") + (chan - 112);
+                            case FPGA_INPUT_IDX_AES50A ... (FPGA_INPUT_IDX_AES50B - 1):
+                                result += String("AES50A In ") + (chan - FPGA_INPUT_IDX_AES50A + 1);
                                 break;
-                            case 161 ... 208:
-                                result += String("AES50B In ") + (chan - 160);
+                            case FPGA_INPUT_IDX_AES50B ... (FPGA_INPUT_IDX_AES50B + 48 - 1):
+                                result += String("AES50B In ") + (chan - FPGA_INPUT_IDX_AES50B + 1);
                                 break;
                             default:
                                 result += "???";
@@ -187,37 +187,43 @@ class Mixerparameter {
                         uint chan = (uint)value[index];
                         switch (chan)
                         {
-                            case 0:
+                            case DSP_BUF_IDX_OFF:
                                 result += "OFF";
                                 break;
-                            case 1 ... 40:
-                                result += String("FPGA->DSP ") + chan;
+                            case DSP_BUF_IDX_DSPCHANNEL ... (DSP_BUF_IDX_AUX - 1):
+                                result += String("FPGA -> DSP In ") + chan;
                                 break;
-                            // case 33 ... 40:
-                            //     result += String("Aux ") + (chan - 32);
-                            //     break;
-                            case 41 ... 56:
-                                result += String("Mixbus ") + (chan - 40);
+                            case DSP_BUF_IDX_AUX ... (DSP_BUF_IDX_DSP2_FX - 1):
+                                result += String("FPGA -> DSP In ") + chan;
                                 break;
-                            case 57 ... 62:
-                                result += String("Matrix ") + (chan - 56);
+                            case DSP_BUF_IDX_DSP2_FX ... (DSP_BUF_IDX_MIXBUS - 1):
+                                result += String("DSP2 -> FX Return ") + (chan - DSP_BUF_IDX_DSP2_FX + 1);
                                 break;
-                            case 63:
+                            case DSP_BUF_IDX_MIXBUS ... (DSP_BUF_IDX_MAINLEFT - 1):
+                                result += String("Mixbus ") + (chan - DSP_BUF_IDX_MIXBUS + 1);
+                                break;
+                            case DSP_BUF_IDX_MAINLEFT:
                                 result += String("Main L");
                                 break;
-                            case 64:
+                            case DSP_BUF_IDX_MAINRIGHT:
                                 result += String("Main R");
                                 break;
-                            case 65:
+                            case DSP_BUF_IDX_MAINSUB:
                                 result += String("Sub");
                                 break;
-                            case 66:
+                            case DSP_BUF_IDX_MATRIX ... (DSP_BUF_IDX_DSP2_AUX - 1):
+                                result += String("Matrix ") + (chan - DSP_BUF_IDX_MATRIX + 1);
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX ... (DSP_BUF_IDX_MONLEFT - 1):
+                                result += String("DSP2 -> FX Aux ") + (chan - DSP_BUF_IDX_DSP2_AUX + 1);
+                                break;
+                            case DSP_BUF_IDX_MONLEFT:
                                 result += String("Monitor L");
                                 break;
-                            case 67:
+                            case DSP_BUF_IDX_MONRIGHT:
                                 result += String("Monitor R");
                                 break;
-                            case 68:
+                            case DSP_BUF_IDX_TALKBACK:
                                 result += String("Talkback");
                                 break;
                             default:

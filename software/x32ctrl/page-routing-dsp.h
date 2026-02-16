@@ -9,8 +9,8 @@ class PageRoutingDsp: public Page
 {
 	private:
 
-		uint gui_selected_item = 0;
-		uint gui_selected_item_before = 0;
+		int gui_selected_item = 0;
+		int gui_selected_item_before = 0;
         bool page_routing_dsp2_table_drawn = false;
 
     public:
@@ -24,22 +24,22 @@ class PageRoutingDsp: public Page
         }
 
 		void OnInit() override {
-			if (gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)) {
+			if (gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) {
 				gui_selected_item = 0;
 			}
 
 			lv_table_set_row_count(objects.table_routing_dsp_output, (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
 			lv_table_set_column_count(objects.table_routing_dsp_output, 5); // Input | # | Source | # | Tap | #
-			lv_table_set_column_width(objects.table_routing_dsp_output, 0, 200);
+			lv_table_set_column_width(objects.table_routing_dsp_output, 0, 300);
 			lv_table_set_column_width(objects.table_routing_dsp_output, 1, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_output, 2, 200);
 			lv_table_set_column_width(objects.table_routing_dsp_output, 3, 50);
-			lv_table_set_column_width(objects.table_routing_dsp_output, 4, 100);
+			lv_table_set_column_width(objects.table_routing_dsp_output, 4, 200);
 			for (uint8_t i=0; i < MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS; i++)
 			{
+				lv_table_set_cell_value(objects.table_routing_dsp_output, i, 0, config->GetParameter(ROUTING_DSP_OUTPUT)->GetFormatedValue(i).c_str());
+				lv_table_set_cell_value(objects.table_routing_dsp_output, i, 2, config->GetParameter(ROUTING_DSP_OUTPUT_TAPPOINT)->GetFormatedValue(i).c_str());
 				lv_table_set_cell_value(objects.table_routing_dsp_output, i, 4, mixer->dsp->RoutingGetOutputNameByIndex(i+1).c_str());
-				lv_table_set_cell_value(objects.table_routing_dsp_output, i, 0, config->GetParameter(ROUTING_DSP)->GetFormatedValue(i).c_str());
-				lv_table_set_cell_value(objects.table_routing_dsp_output, i, 2, config->GetParameter(ROUTING_DSP_TAPPOINT)->GetFormatedValue(i).c_str());
 			}
 
 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 1, LV_SYMBOL_RIGHT);
@@ -53,19 +53,22 @@ class PageRoutingDsp: public Page
 		}
 
 		void OnShow() override {
-			custom_encoder[DISPLAY_ENCODER_4].label = "\xEF\x81\xB7 Output \xEF\x81\xB8";
-			custom_encoder[DISPLAY_ENCODER_5].label = "\xEF\x81\xB7 Group \xEF\x81\xB8";
-			custom_encoder[DISPLAY_ENCODER_1].label =  "\xEF\x80\xA1 Source";
-			custom_encoder[DISPLAY_ENCODER_2].label =  "\xEF\x80\xA1 Group-Source";
-			custom_encoder[DISPLAY_ENCODER_3].label = "\xEF\x80\xA1 Tap";
+			custom_encoder[DISPLAY_ENCODER_1].label = "\xEF\x81\xB7 Select \xEF\x81\xB8";
+			custom_encoder[DISPLAY_ENCODER_2].label = "\xEF\x81\xB7 Select (Group) \xEF\x81\xB8";
+			custom_encoder[DISPLAY_ENCODER_3].label = "\xEF\x80\xA1 Source";
+			custom_encoder[DISPLAY_ENCODER_4].label = "\xEF\x80\xA1 Source (Group)";
+			custom_encoder[DISPLAY_ENCODER_5].label = "\xEF\x80\xA1 Tap";
 		}
 
 		void OnChange(bool force_update) override
 		{
 			if(gui_selected_item_before != gui_selected_item)
 			{
-				if (gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS))
-				{
+				if (gui_selected_item < 0) {
+					// limit list at the top
+					gui_selected_item = 0;
+				}else if (gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)) {
+					// limit list at the bottom
 					gui_selected_item = (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS) - 1;
 				}
 
@@ -83,23 +86,29 @@ class PageRoutingDsp: public Page
 				gui_selected_item_before = gui_selected_item;
 			} 
 			
-			if(config->HasParametersChanged({ROUTING_DSP, ROUTING_DSP_TAPPOINT}) || force_update)
+			if(config->HasParametersChanged({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}) || force_update)
 			{
-				for(auto const& index : config->GetChangedParameterIndexes({ROUTING_DSP, ROUTING_DSP_TAPPOINT}))
+				for(auto const& index : config->GetChangedParameterIndexes({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}))
                 {
-					lv_table_set_cell_value(objects.table_routing_dsp_output, index, 0, config->GetParameter(ROUTING_DSP)->GetFormatedValue(index).c_str());
-					lv_table_set_cell_value(objects.table_routing_dsp_output, index, 2, config->GetParameter(ROUTING_DSP_TAPPOINT)->GetFormatedValue(index).c_str());
+					if ((config->GetUint(ROUTING_DSP_OUTPUT, index) >= 1) && (config->GetUint(ROUTING_DSP_OUTPUT, index) <= 40)) {
+						// external signal from FPGA
+						lv_table_set_cell_value(objects.table_routing_dsp_output, index, 0, (config->GetParameter(ROUTING_FPGA)->GetFormatedValue(FPGA_OUTPUT_IDX_DSP - 1 + config->GetUint(ROUTING_DSP_OUTPUT, index) - 1) + " -> " + config->GetParameter(ROUTING_DSP_OUTPUT)->GetFormatedValue(index)).c_str());
+					}else{
+						// internal signal within DSP
+						lv_table_set_cell_value(objects.table_routing_dsp_output, index, 0, config->GetParameter(ROUTING_DSP_OUTPUT)->GetFormatedValue(index).c_str());
+					}
+					lv_table_set_cell_value(objects.table_routing_dsp_output, index, 2, config->GetParameter(ROUTING_DSP_OUTPUT_TAPPOINT)->GetFormatedValue(index).c_str());
 				}
 			}
 		}
 
         bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
             switch (encoder){
-				case X32_ENC_ENCODER4:
+				case X32_ENC_ENCODER1:
 					gui_selected_item += amount;
 					OnChange(false);
 					break;
-				case X32_ENC_ENCODER5:
+				case X32_ENC_ENCODER2:
 					if (amount < 0) {
 						gui_selected_item -= 8;
 					}else{
@@ -107,10 +116,10 @@ class PageRoutingDsp: public Page
 					}
 					OnChange(false);
 					break;
-				case X32_ENC_ENCODER1:
-					config->Change(ROUTING_DSP, amount, gui_selected_item);
+				case X32_ENC_ENCODER3:
+					config->Change(ROUTING_DSP_OUTPUT, amount, gui_selected_item);
 					break;
-				case X32_ENC_ENCODER2:
+				case X32_ENC_ENCODER4:
 					int8_t absoluteChange;
 					if (amount < 0) {
 						absoluteChange = -8;
@@ -118,11 +127,11 @@ class PageRoutingDsp: public Page
 						absoluteChange = 8;
 					}
 					for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++) {
-						config->Change(ROUTING_DSP, amount, i);
+						config->Change(ROUTING_DSP_OUTPUT, absoluteChange, i);
 					}
 					break;
-				case X32_ENC_ENCODER3:
-					config->Change(ROUTING_DSP_TAPPOINT, amount, gui_selected_item);
+				case X32_ENC_ENCODER5:
+					config->Change(ROUTING_DSP_OUTPUT_TAPPOINT, amount, gui_selected_item);
 					break;
 				case X32_ENC_ENCODER6:
 					break;
