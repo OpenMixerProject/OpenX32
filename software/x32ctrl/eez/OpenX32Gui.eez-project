@@ -3251,14 +3251,7 @@
                                       "pad_left": 0,
                                       "pad_right": 0,
                                       "pad_row": 0,
-                                      "pad_column": 0,
-                                      "text_font": "MONTSERRAT_16",
-                                      "bg_color": "#5a5a5a"
-                                    }
-                                  },
-                                  "MAIN": {
-                                    "DEFAULT": {
-                                      "bg_color": "#5a5a5a"
+                                      "pad_column": 0
                                     }
                                   }
                                 }
