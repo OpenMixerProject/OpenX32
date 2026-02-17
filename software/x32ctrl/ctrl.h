@@ -16,6 +16,7 @@
 #include "page-gate.h"
 #include "page-dynamics.h"
 #include "page-eq.h"
+#include "page-sends.h"
 #include "page-routing.h"
 #include "page-routing-fpga.h"
 #include "page-routing-channels.h"

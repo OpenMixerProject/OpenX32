@@ -646,6 +646,7 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::GATE] = new PageGate(pagebasepar);
 	pages[X32_PAGE::COMPRESSOR] = new PageDynamics(pagebasepar);
 	pages[X32_PAGE::EQ] = new PageEq(pagebasepar);
+	pages[X32_PAGE::SENDS] = new PageSends(pagebasepar);
 	pages[X32_PAGE::METERS] = new PageMeters(pagebasepar);
 	pages[X32_PAGE::ROUTING] = new PageRouting(pagebasepar);
 	pages[X32_PAGE::ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);
@@ -1924,6 +1925,9 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				break;
 			case X32_BTN_VIEW_EQ:
 				ShowPage(X32_PAGE::EQ);
+				break;
+			case X32_BTN_VIEW_MIX_BUS_SENDS:
+				ShowPage(X32_PAGE::SENDS);
 				break;
 			case X32_BTN_METERS:
 				ShowPage(X32_PAGE::METERS);

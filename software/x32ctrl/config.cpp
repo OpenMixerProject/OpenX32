@@ -277,13 +277,15 @@ void Config::DefineMixerparameters() {
     // Sends
     cat = MP_CAT::CHANNEL_SENDS;
 
-    for(auto const& parameter_id : {
+    vector<MP_ID> channel_send_busses = {
         CHANNEL_BUS_SEND01, CHANNEL_BUS_SEND02, CHANNEL_BUS_SEND03, CHANNEL_BUS_SEND04, CHANNEL_BUS_SEND05, CHANNEL_BUS_SEND06,
         CHANNEL_BUS_SEND07, CHANNEL_BUS_SEND08, CHANNEL_BUS_SEND09, CHANNEL_BUS_SEND10, CHANNEL_BUS_SEND11, CHANNEL_BUS_SEND12,
         CHANNEL_BUS_SEND11, CHANNEL_BUS_SEND13, CHANNEL_BUS_SEND14, CHANNEL_BUS_SEND15, CHANNEL_BUS_SEND16
-    } )
+    };
+
+    for (uint i = 0; i < channel_send_busses.size(); i++)
     {
-        DefParameter(parameter_id, cat, group, String("Bus Send"), MAX_VCHANNELS)
+        DefParameter(channel_send_busses.at(i), cat, group, String("Bus Send ") + i, MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     }

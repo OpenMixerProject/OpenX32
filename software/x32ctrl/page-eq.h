@@ -11,7 +11,7 @@ class PageEq: public Page {
     public:
         PageEq(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::COMPRESSOR;
-            nextPage = X32_PAGE::NONE;
+            nextPage = X32_PAGE::SENDS;
             tabLayer0 = objects.maintab;
             tabIndex0 = 0;
             tabLayer1 = objects.hometab;

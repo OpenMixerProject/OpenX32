@@ -378,8 +378,9 @@ enum class X32_PAGE :int {
         // sub-pages of home
         CONFIG,
         GATE,
-        EQ,
         COMPRESSOR,
+        EQ,
+        SENDS,
     METERS,
         // sub-pages of meters?
     ROUTING,
