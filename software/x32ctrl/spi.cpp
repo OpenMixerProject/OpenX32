@@ -824,8 +824,10 @@ int SPI::UploadBitstreamDsps(bool useCli) {
                 if ((current_progress > (last_progress + 5)) || (totalBytesSent == file_size[i])) {
                     int progress = (int)((float)totalBytesSent / file_size[i] * 100);
 
+					//pthread_mutex_lock(&lvgl_mutex);
                     lv_bar_set_value(objects.testbar, progress, LV_ANIM_OFF);
-                    lv_obj_invalidate(lv_scr_act());
+					//pthread_mutex_unlock(&lvgl_mutex);
+					lv_timer_handler(); // allow LVGL to handle UI
 
                     last_progress = current_progress;
                 }
