@@ -141,9 +141,9 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Uint(0, 1, 0);
     
 
-    // ################
-    // # Routing TODO
-    // ################
+    // ##########
+    // # Routing 
+    // ##########
 
     cat = MP_CAT::ROUTING;
     group = "routing";
@@ -171,9 +171,9 @@ void Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::TAPPOINT)
     ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::POST_FADER);
 
-    // ###########
+    // ########
     // # State
-    // ###########
+    // ########
 
     cat = MP_CAT::STATE;
     group = "state";
@@ -507,10 +507,9 @@ void Config::DefineMixerparameters() {
 
 
     #ifdef MPM_AS_ARRAY
-    //#########################################
-    //#  Finalize Parameter Definition
-    //#########################################
-
+    //#####################################################
+    //#  fill all empty parameter indexes with MP_ID::NONE
+    //#####################################################
     for (uint i = 0; i < (uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
     {
         if (mpm[i] == 0)

@@ -56,7 +56,4 @@ class Mixer : public X32Base
 
         void Sync(void);
         uint8_t halGetDspInputSource(uint8_t dspChannel);
-
-        void ResetFxParameter(uint fxSlot, uint parIdx);  
-        void ChangeFxParameter(uint fxSlot, uint parIdx, int8_t amount); 
 };

@@ -991,7 +991,8 @@ void DSP1::DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode) {
     DSP2_SendFxParameter(fxSlot);
 }
 
-void DSP1::DSP2_SendFxParameter(int slotIdx) {
+void DSP1::DSP2_SendFxParameter(int slotIdx)
+{
     if (!fx_slot[slotIdx]->HasFx()) {
         return;
     }
@@ -1004,40 +1005,43 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
     float phase[2];
     float freq[4];
 
-    switch(fx_slot[slotIdx]->fxType) {
+    FxBase* fx = fx_slot[slotIdx]->fx;
+
+    switch(fx_slot[slotIdx]->fxType)
+    {
         case FX_TYPE::REVERB:
             fxmath->fxCalcParameters_Reverb(&values[0], 
-                fx_slot[slotIdx]->fx->GetParameter(0), // roomSizeMs
-                fx_slot[slotIdx]->fx->GetParameter(1), // rt60
-                fx_slot[slotIdx]->fx->GetParameter(2), // lpfFreq
-                fx_slot[slotIdx]->fx->GetParameter(3), // dry
-                fx_slot[slotIdx]->fx->GetParameter(4)  // wet
+                config->GetFloat(fx->GetParameterDefinition(0), slotIdx), // roomSizeMs
+                config->GetFloat(fx->GetParameterDefinition(1), slotIdx), // rt60
+                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // lpfFreq
+                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // dry
+                config->GetFloat(fx->GetParameterDefinition(4), slotIdx)  // wet
             );
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case FX_TYPE::CHORUS:
-            depth[0] = fx_slot[slotIdx]->fx->GetParameter(0);
-            delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(1);
-            phase[0] = fx_slot[slotIdx]->fx->GetParameter(2);
-            freq[0] = fx_slot[slotIdx]->fx->GetParameter(3);
-            depth[1] = fx_slot[slotIdx]->fx->GetParameter(4);
-            delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(5);
-            phase[1] = fx_slot[slotIdx]->fx->GetParameter(6);
-            freq[1] = fx_slot[slotIdx]->fx->GetParameter(7);
+            depth[0] = config->GetFloat(fx->GetParameterDefinition(0), slotIdx);
+            delayMs[0] = config->GetFloat(fx->GetParameterDefinition(1), slotIdx);
+            phase[0] = config->GetFloat(fx->GetParameterDefinition(2), slotIdx);
+            freq[0] = config->GetFloat(fx->GetParameterDefinition(3), slotIdx);
+            depth[1] = config->GetFloat(fx->GetParameterDefinition(4), slotIdx);
+            delayMs[1] = config->GetFloat(fx->GetParameterDefinition(5), slotIdx);
+            phase[1] = config->GetFloat(fx->GetParameterDefinition(6), slotIdx);
+            freq[1] = config->GetFloat(fx->GetParameterDefinition(7), slotIdx);
             
-            fxmath->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, fx_slot[slotIdx]->fx->GetParameter(7));
+            fxmath->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, config->GetFloat(fx->GetParameterDefinition(8), slotIdx));
             valueCount = 9;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case FX_TYPE::TRANSIENTSHAPER:
             fxmath->fxCalcParameters_TransientShaper(&values[0],
-                fx_slot[slotIdx]->fx->GetParameter(0), // tFastMs
-                fx_slot[slotIdx]->fx->GetParameter(1), // tMediumMs
-                fx_slot[slotIdx]->fx->GetParameter(2), // tSlowMs
-                fx_slot[slotIdx]->fx->GetParameter(3), // attack
-                fx_slot[slotIdx]->fx->GetParameter(4), // sustain
-                fx_slot[slotIdx]->fx->GetParameter(5)  // delayMs
+                config->GetFloat(fx->GetParameterDefinition(0), slotIdx), // tFastMs
+                config->GetFloat(fx->GetParameterDefinition(1), slotIdx), // tMediumMs
+                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // tSlowMs
+                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // attack
+                config->GetFloat(fx->GetParameterDefinition(4), slotIdx), // sustain
+                config->GetFloat(fx->GetParameterDefinition(5), slotIdx)  // delayMs
                 );
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
@@ -1048,8 +1052,8 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
         case FX_TYPE::DELAY:
-            delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(0);
-            delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(1);
+            delayMs[0] = config->GetFloat(fx->GetParameterDefinition(0), slotIdx);
+            delayMs[1] = config->GetFloat(fx->GetParameterDefinition(1), slotIdx);
             fxmath->fxCalcParameters_Delay(&values[0], delayMs);
             valueCount = 2;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);

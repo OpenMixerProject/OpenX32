@@ -7,20 +7,13 @@ class FxBase : public X32Base {
 
     protected:
         vector<MP_ID> parameters;
-        vector<float> parameter_value;
+        //vector<float> parameter_value;
 
     public:
         FxBase(X32BaseParameter* basepar);
 
         uint8_t GetParameterCount();
         MP_ID GetParameterDefinition(uint8_t index);
-
-        void InitParameters();
         
-        virtual String GetName();
-        
-        float GetParameter(uint8_t parIdx);
-        bool SetParameter(uint8_t parIdx, float value);
-        bool ChangeParameter(uint8_t parIdx, int8_t amount);
-        bool ResetParameter(uint8_t parIdx);
+        virtual String GetName();    
 };

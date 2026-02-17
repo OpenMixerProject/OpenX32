@@ -53,9 +53,6 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 			ClearFx();
 			break;
 	}
-	if (fxToLoad != FX_TYPE::NONE) {
-		fx->InitParameters();
-	}
 }
 
 void FxSlot::ClearFx() {

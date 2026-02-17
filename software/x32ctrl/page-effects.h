@@ -116,7 +116,7 @@ class PageEffects: public Page {
             bool message_handled = false;
 
             if (pressed){
-                bool message_handled = true;
+                message_handled = true;
 
                 switch (button){
                     case X32_BTN_LEFT:
@@ -131,15 +131,8 @@ class PageEffects: public Page {
                     case X32_BTN_DOWN:
                         nextParameterBank();
                         break;
-                    case X32_BTN_ENCODER1:                      
-                    case X32_BTN_ENCODER2:
-                    case X32_BTN_ENCODER3:
-                    case X32_BTN_ENCODER4:
-                    case X32_BTN_ENCODER5:
-                    case X32_BTN_ENCODER6:
-                        mixer->ResetFxParameter(selectedFx, (banking * 6) + (button - X32_BTN_ENCODER1));
                     default:
-                        bool message_handled = false;
+                        message_handled = false;
                         break;
                 }
             }
@@ -154,7 +147,6 @@ class PageEffects: public Page {
                 banking++;
             }
 
-            // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
         }
@@ -166,7 +158,6 @@ class PageEffects: public Page {
                 banking--;
             }
 
-            // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
         }
@@ -182,7 +173,6 @@ class PageEffects: public Page {
                 selectedFx = 0;
             }
 
-            // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
         }
@@ -198,7 +188,6 @@ class PageEffects: public Page {
                 selectedFx = MAX_FX_SLOTS - 1;
             }
 
-            // temporary
             OnChange(true);
             SyncEncoderWidgets(true);
         }

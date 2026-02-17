@@ -377,6 +377,14 @@ void Mixer::Sync(void){
             dsp->SendCompressor(changedIndex);
         }
     }
+
+    if (config->HasParametersChanged(MP_CAT::FX))
+    {
+        for (auto const& fxSlot : config->GetChangedParameterIndexes(MP_CAT::FX))
+        {
+            dsp->DSP2_SendFxParameter(fxSlot);
+        }
+    }
 }
 
 // set the gain of the local XLR head-amp-control
@@ -478,36 +486,3 @@ float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
 
     return 0;
 }
-
-// ######## ##      ## 
-// ##        ##    ##  
-// ##         ##  ##   
-// ######      ####    
-// ##         ##  ##   
-// ##        ##    ##  
-// ##       ##      ## 
-
-void Mixer::ResetFxParameter(uint fxIdx, uint parIdx) {
-    FxSlot* f = dsp->fx_slot[fxIdx];
-    if (f->HasFx())
-    {
-        if (f->fx->ResetParameter(parIdx)) {
-            dsp->DSP2_SendFxParameter(fxIdx);
-        }
-    }
-}
-
-
-void Mixer::ChangeFxParameter(uint fxIdx, uint parIdx, int8_t amount) {
-    FxSlot* slot = dsp->fx_slot[fxIdx];
-    if (slot->HasFx())
-    {
-        if (slot->fx->ChangeParameter(parIdx, amount)) {
-            dsp->DSP2_SendFxParameter(fxIdx);
-        }
-    }
-}
-
-
-
-

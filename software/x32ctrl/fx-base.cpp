@@ -31,15 +31,6 @@ String FxBase::GetName() {
     return "";
 }
 
-void FxBase::InitParameters() {
-    helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::InitParameters");
-    
-    // Load default values
-    for (int p = 0; p < parameters.size(); p++) {
-        parameter_value.push_back(0.0f); // create parameter_value before using it
-        ResetParameter(p);
-    }
-}
 
 uint8_t FxBase::GetParameterCount() {
     return parameters.size();
@@ -52,42 +43,4 @@ MP_ID FxBase::GetParameterDefinition(uint8_t index) {
 
     helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "FxBase::GetParameterDefinition(%d)", index);
     return parameters[index];
-}
-
-float FxBase::GetParameter(uint8_t parIdx) {
-    if (parIdx >= parameters.size()) {        
-        return 0.0f;
-    }
-
-    return parameter_value[parIdx];
-}
-
-bool FxBase::ChangeParameter(uint8_t parIdx, int8_t amount) {
-    // if (parIdx < parameters.size()) {        
-    //     float newValue = helper->CalcNewValue(parameter_value[parIdx], amount, parameters[parIdx]);
-    //     return SetParameter(parIdx, newValue);
-    // }
-
-    // TODO: implement ChangeParameter for each parameter based on its type
-
-    return false;
-}
-
-bool FxBase::SetParameter(uint8_t parIdx, float value) {
-    if (parIdx < parameters.size()) {
-        helper->DEBUG_FX(DEBUGLEVEL_VERBOSE, "%s parameterIdx=%d value=%f", GetName().c_str(), parIdx, (double)value);
-                
-        parameter_value[parIdx] = value;
-        return true;
-    }
-    return false;
-}
-
-bool FxBase::ResetParameter(uint8_t parIdx) {
-    if (parIdx < parameters.size()) {
-        //return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx])->float_value_standard);
-        
-        // TODO: implement reset to default value for each parameter
-    }
-    return false;
 }
