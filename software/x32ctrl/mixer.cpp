@@ -39,38 +39,42 @@ void Mixer::Init() {
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->SendAll()");
     dsp->SendAll();
 
-    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "fpga->Init()");
-    fpga->Init();
-
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "adda->Init()");
     adda->Init();
 
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "card->Init()");
     card->Init();
 
-    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "LoadVChannelLayout()");
+    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Load Default Channel Layout");
     LoadVChannelLayout();
+
+    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Load Default Routing");
+    LoadRoutingDefault();
 }
 
-
-
+// #################################################################################################################################
+//
+// ########  ######## ########    ###    ##     ## ##       ######## 
+// ##     ## ##       ##         ## ##   ##     ## ##          ##    
+// ##     ## ##       ##        ##   ##  ##     ## ##          ##    
+// ##     ## ######   ######   ##     ## ##     ## ##          ##    
+// ##     ## ##       ##       ######### ##     ## ##          ##    
+// ##     ## ##       ##       ##     ## ##     ## ##          ##    
+// ########  ######## ##       ##     ##  #######  ########    ##    
+//
+//
+//  ######  ##     ##    ###    ##    ## ##    ## ######## ##       ##          ###    ##    ##  #######  ##     ## ######## 
+// ##    ## ##     ##   ## ##   ###   ## ###   ## ##       ##       ##         ## ##    ##  ##  ##     ## ##     ##    ##    
+// ##       ##     ##  ##   ##  ####  ## ####  ## ##       ##       ##        ##   ##    ####   ##     ## ##     ##    ##    
+// ##       ######### ##     ## ## ## ## ## ## ## ######   ##       ##       ##     ##    ##    ##     ## ##     ##    ##    
+// ##       ##     ## ######### ##  #### ##  #### ##       ##       ##       #########    ##    ##     ## ##     ##    ##    
+// ##    ## ##     ## ##     ## ##   ### ##   ### ##       ##       ##       ##     ##    ##    ##     ## ##     ##    ##    
+//  ######  ##     ## ##     ## ##    ## ##    ## ######## ######## ######## ##     ##    ##     #######   #######     ##    
+//
+// #################################################################################################################################
 
 
 void Mixer::LoadVChannelLayout() {
-    // //##################################################################################
-    // //#
-    // //#   create default vchannels (what the user is refering to as "mixer channel")
-    // //#
-    // //#   0   -  31  Main DSP-Channels
-    // //#   32  -  39  AUX 1-6 / USB
-    // //#   40  -  47  FX Returns
-    // //#   48  -  63  Bus 1-16
-    // //#
-    // //#   64  -  71  Matrix 1-6 / Special / Main Center
-    // //#   72  -  79  DCA
-    // //#   80         Main Left/Right
-    // //#
-    // //##################################################################################
     
     for (int i=0; i<=31; i++)
     {
@@ -91,61 +95,54 @@ void Mixer::LoadVChannelLayout() {
         }
     }
 
-    // // FX Returns 1-8
-    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up FX Returns");
-    // for (uint i=0; i<=7;i++){
-    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::FXRET + i;
-    //     VChannel* chan = vchannel[index];
-    //     chan->name = String("FX RET") + String(i+1);
-    //     chan->nameIntern = chan->name;
-    //     chan->color = SURFACE_COLOR_BLUE;
-    //     chan->vChannelType = X32_VCHANNELTYPE::FXRET;
-    // }
+    // FX Returns 1-8
+    for (uint i=0; i<=7;i++)
+    {
+        uint8_t index = (uint)X32_VCHANNEL_BLOCK::FXRET + i;
+        
+        config->Set(CHANNEL_NAME, String("FX RET") + String(i+1), index);
+        config->Set(CHANNEL_COLOR, SURFACE_COLOR_BLUE, index);
+    }
 
-    // // Bus 1-16
-    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Busses");
-    // for (uint8_t i=0; i<=15;i++){
-    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::BUS + i;
-    //     VChannel* chan = vchannel[index];
-    //     chan->name = String("BUS") + String(i+1);
-    //     chan->nameIntern = chan->name;
-    //     chan->color = SURFACE_COLOR_CYAN;
-    //     chan->vChannelType = X32_VCHANNELTYPE::BUS;
-    // }
+    // Bus 1-16
+    for (uint8_t i=0; i<=15;i++)
+    {
+        uint8_t index = (uint)X32_VCHANNEL_BLOCK::BUS + i;
+    
+        config->Set(CHANNEL_NAME, String("BUS") + String(i+1), index);
+        config->Set(CHANNEL_COLOR, SURFACE_COLOR_CYAN, index);
+    }
 
-    // // Matrix 1-6 / Special / SUB
-    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up Matrix / SPECIAL / SUB");
-    // for (uint8_t i=0; i<=7;i++){
-    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::MATRIX + i;
-    //     VChannel* chan = vchannel[index];
-    //     if(i <=5){
-    //         chan->name = String("MATRIX") + String(i+1);
-    //         chan->nameIntern = chan->name;
-    //         chan->color =  SURFACE_COLOR_PINK;
-    //         chan->vChannelType = X32_VCHANNELTYPE::MATRIX;
-    //     } else if (i == 6){
-    //         chan->name = String("SPECIAL");
-    //         chan->nameIntern = chan->name;
-    //         chan->color =  SURFACE_COLOR_RED;
-    //         chan->vChannelType = X32_VCHANNELTYPE::SPECIAL;
-    //     } else if (i == 7){
-    //         chan->name = String("M/C");
-    //         chan->nameIntern = chan->name;
-    //         chan->color =  SURFACE_COLOR_WHITE;
-    //         chan->vChannelType = X32_VCHANNELTYPE::MAINSUB;
-    //     };
-    // }
+    // Matrix 1-6 / Special / SUB
+    for (uint8_t i=0; i<=7;i++)
+    {
+        uint8_t index = (uint)X32_VCHANNEL_BLOCK::MATRIX + i;
+        
+        if(i <=5)
+        {
+            config->Set(CHANNEL_NAME, String("MATRIX") + String(i+1), index);
+            config->Set(CHANNEL_COLOR, SURFACE_COLOR_PINK, index);
+        }
+        else if (i == 6)
+        {
+            config->Set(CHANNEL_NAME, String("SPECIAL"), index);
+            config->Set(CHANNEL_COLOR, SURFACE_COLOR_RED, index);
+        }
+        else if (i == 7)
+        {
+            config->Set(CHANNEL_NAME, String("M/C"), index);
+            config->Set(CHANNEL_COLOR, SURFACE_COLOR_RED, index);
+        };
+    }
 
-    // // DCA 1-8
-    // helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE, "Setting up DCA");
-    // for (uint8_t i=0; i<=7;i++){
-    //     uint8_t index = (uint)X32_VCHANNEL_BLOCK::DCA + i;
-    //     VChannel* chan = vchannel[index];
-    //     chan->name = String("DCA") + String(i+1);
-    //     chan->nameIntern = chan->name;
-    //     chan->color = SURFACE_COLOR_PINK;
-    //     chan->vChannelType = X32_VCHANNELTYPE::DCA;;
-    // }
+    // DCA 1-8
+    for (uint8_t i=0; i<=7;i++)
+    {
+        uint8_t index = (uint)X32_VCHANNEL_BLOCK::DCA + i;
+
+        config->Set(CHANNEL_NAME, String("DCA") + String(i+1), index);
+        config->Set(CHANNEL_COLOR, SURFACE_COLOR_PINK, index);
+    }
 
     // Main Channel
     {
@@ -154,16 +151,101 @@ void Mixer::LoadVChannelLayout() {
     }
 }
 
+// #################################################################################################################################
+//
+// ########  ######## ########    ###    ##     ## ##       ######## 
+// ##     ## ##       ##         ## ##   ##     ## ##          ##    
+// ##     ## ##       ##        ##   ##  ##     ## ##          ##    
+// ##     ## ######   ######   ##     ## ##     ## ##          ##    
+// ##     ## ##       ##       ######### ##     ## ##          ##    
+// ##     ## ##       ##       ##     ## ##     ## ##          ##    
+// ########  ######## ##       ##     ##  #######  ########    ##    
+//
+//
+// ########   #######  ##     ## ######## #### ##    ##  ######   
+// ##     ## ##     ## ##     ##    ##     ##  ###   ## ##    ##  
+// ##     ## ##     ## ##     ##    ##     ##  ####  ## ##        
+// ########  ##     ## ##     ##    ##     ##  ## ## ## ##   #### 
+// ##   ##   ##     ## ##     ##    ##     ##  ##  #### ##    ##  
+// ##    ##  ##     ## ##     ##    ##     ##  ##   ### ##    ##  
+// ##     ##  #######   #######     ##    #### ##    ##  ######   
+//
+// #################################################################################################################################
 
-// ####################################################################
-// #
-// #
-// #        Routing + Hardware channel assignment
-// #
-// #
-// ###################################################################
+void Mixer::LoadRoutingDefault()
+{
+    // FPGA	
 
+	// XLR-inputs 1-32 -> DSP-inputs 1-32
+	for (uint8_t ch = 0; ch < 32; ch++) {
+		config->Set(ROUTING_FPGA, ch + 1, ch + 72);
+	}
+	// AUX-inputs 1-8 -> DSP-inputs 33-40
+	for (uint8_t ch = 0; ch < 8; ch++) {
+		config->Set(ROUTING_FPGA, ch + 65, ch + 104);
+	}
 
+	// ---------------------------------------------
+
+	// DSP Return 1-16 -> XLR-outputs 1-16
+	for (uint8_t ch = 0; ch < 16; ch++) {
+		config->Set(ROUTING_FPGA, ch + 72 + 1, ch);
+	}
+	// DSP Return 17-32 -> P16-output 1-16
+	for (uint8_t ch = 0; ch < 16; ch++) {
+		config->Set(ROUTING_FPGA, ch + 72 + 16 + 1, ch + 16);
+	}
+	// DSP Return 33-40 -> AUX-outputs 1-6 + ControlRoom L/R
+	for (uint8_t ch = 0; ch < 8 ; ch++) {
+		config->Set(ROUTING_FPGA, ch + 72 + 32 + 1, ch + 64);
+	}
+
+	// ---------------------------------------------
+
+	// XLR-inputs 1-32 -> Card 1-32
+	for (uint8_t ch = 0; ch < 32; ch++) {
+		config->Set(ROUTING_FPGA, ch + 1, ch + 32);
+	}
+
+    // DSP1
+
+    for (uint8_t i = 0; i < 40; i++)
+    {
+        // DSP1 Routing Sources
+        //
+        // 0:       OFF
+        // 1..32:   Input 1-32 (from FPGA)
+        // 33..38:  AuxIn 1-6 (from FPGA)
+        // 39:      Talkback intern (from FPGA)
+        // 40:      Talkback extern (from FPGA)
+        // 41..56:  MixBus 1-16
+        // 57..62:  Matrix 1-6
+        // 63:      MainL
+        // 64:      MainR
+        // 65:      MainSub
+        // 66:      Monitor L
+        // 67:      Monitor R
+        // 68:      TalkBack
+        // 69..92:  DSP2 Return 1-24 (from DSP2)
+
+        // connect FPGA2DSP-Source 1-40 to all 40 Mixing Channels (1-32 + AUX 1-8)
+        config->Set(ROUTING_DSP_INPUT, DSP_BUF_IDX_DSPCHANNEL + i, i);
+        config->Set(ROUTING_DSP_INPUT_TAPPOINT, to_underlying(DSP_TAP::INPUT), i);
+    }
+
+    // connect MainLeft on even and MainRight on odd channels as PostFader
+    for (uint8_t i = 0; i < 40; i++)
+    {
+        // connect MainLeft on even and MainRight on odd channels as PostFader
+        config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MAINLEFT + (i % 2), i);
+        config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
+    }
+
+    // connect MainLeft to RTA
+    uint indexRTA = (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS) - 1;
+    config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MAINLEFT, indexRTA) ;
+    config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), indexRTA);
+}
 
 void Mixer::ClearSolo(void){
     if (IsSoloActivated()){
@@ -173,70 +255,6 @@ void Mixer::ClearSolo(void){
     }
 }
 
-
-// oldstyle
-
-void Mixer::SetBusSend(uint8_t vChannelIndex, uint8_t index, float value) {
-    // if (vChannelIndex == VCHANNEL_NOT_SET) {
-    //     return;
-    // }
-    
-    // float newValue = value;
-    // if (value > 10) {
-    //     newValue = 10;
-    // }else if (value < -100) {
-    //     newValue = -100;
-    // }
-
-
-    // switch(chan->vChannelType){
-    //     case X32_VCHANNELTYPE::NORMAL:
-    //     case X32_VCHANNELTYPE::AUX: {
-    //         dsp->Channel[vChannelIndex].sendMixbus[index] = newValue;
-    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-    //         break;
-    //     }
-    //     case X32_VCHANNELTYPE::BUS: {
-    //         // we have only 6 matrices -> check it
-    //         if (index < 6) {
-    //             dsp->Bus[vChannelIndex].sendMatrix[index] = newValue;
-    //         }
-    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-    //         break;
-    //     }
-    //     case X32_VCHANNELTYPE::MAINSUB: {
-    //         // we have only 6 matrices -> check it
-    //         if (index < 6) {
-    //             dsp->MainChannelSub.sendMatrix[index] = newValue;
-    //         }
-    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-    //         break;
-    //     }
-    //     case X32_VCHANNELTYPE::MAIN: {
-    //         // we have only 6 matrices -> check it
-    //         if (index < 6) {
-    //             dsp->MainChannelLR.sendMatrix[index] = newValue;
-    //         }
-    //         //chan->SetChanged(X32_VCHANNEL_CHANGED_VOLUME);
-    //         break;
-    //     }
-    // }
-}
-
-void Mixer::ChangeBusSend(uint8_t vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend){
-    if (vChannelIndex == VCHANNEL_NOT_SET) {
-        return;
-    }
-    
-    float newValue = GetBusSend(vChannelIndex, encoderIndex)  + pow((float)p_amount, 3.0f);
-
-    if (newValue > 10) {
-        newValue = 10;
-    }else if (newValue < -100) {
-        newValue = -100;
-    }
-    SetBusSend(vChannelIndex, encoderIndex, newValue);
-}
 
 bool Mixer::IsSoloActivated(void){
     for (uint8_t i=0; i < MAX_VCHANNELS; i++)
@@ -280,11 +298,11 @@ void Mixer::Sync(void){
             }
             else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::BUS))
             {
-                dsp->SendMixbusVolume(changedIndex - 48);
+                dsp->SendMixbusVolume(changedIndex);
             }
             else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MATRIX))
             {
-                dsp->SendMatrixVolume(changedIndex - 64);
+                dsp->SendMatrixVolume(changedIndex);
             }
             else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAINSUB)) {
                 dsp->SendMainVolume();
@@ -450,39 +468,4 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
             // AES50B input
         }
     }
-}
-
-// uint8_t Mixer::halGetDspInputSource(uint8_t dspChannel) {
-//     uint8_t channelInputSource = config->GetUint(ROUTING_DSP_INPUT, dspChannel);
-
-//     // check if we are using one of the FPGA-routed channels
-//     if ((channelInputSource >= 1) && (channelInputSource < 40)) {
-//         return fpga->fpgaRouting.dsp[channelInputSource - 1];
-//     }else{
-//         // DSP is not using one of the FPGA-routed channels
-//         return 0;
-//     }
-// }
-
-float Mixer::GetBusSend(uint8_t dspChannel, uint8_t index) {
-    if (dspChannel < 40) {
-        return dsp->Channel[dspChannel].sendMixbus[index];
-    }else if ((dspChannel >= 48) && (dspChannel < 63)) {
-        // we have only 6 matrices -> check it
-        if (index < 6) {
-            return dsp->Bus[dspChannel].sendMatrix[index];
-        }
-    }else if (dspChannel == 71) {
-        // we have only 6 matrices -> check it
-        if (index < 6) {
-            return dsp->MainChannelSub.sendMatrix[index];
-        }
-    }else if (dspChannel == 80) {
-        // we have only 6 matrices -> check it
-        if (index < 6) {
-            return dsp->MainChannelLR.sendMatrix[index];
-        }
-    }
-
-    return 0;
 }

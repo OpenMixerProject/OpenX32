@@ -49,48 +49,13 @@ void DSP1::Init(void)
             Channel[chanIndex].peq[peqIndex].gain = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_GAIN1) + peqIndex));
         }
     }
-
-    LoadRouting_X32Default();
 }
 
-void DSP1::LoadRouting_X32Default()
-{
-    for (uint8_t i = 0; i < 40; i++)
-    {
-        // DSP1 Routing Sources
-        //
-        // 0:       OFF
-        // 1..32:   Input 1-32 (from FPGA)
-        // 33..38:  AuxIn 1-6 (from FPGA)
-        // 39:      Talkback intern (from FPGA)
-        // 40:      Talkback extern (from FPGA)
-        // 41..56:  MixBus 1-16
-        // 57..62:  Matrix 1-6
-        // 63:      MainL
-        // 64:      MainR
-        // 65:      MainSub
-        // 66:      Monitor L
-        // 67:      Monitor R
-        // 68:      TalkBack
-        // 69..92:  DSP2 Return 1-24 (from DSP2)
 
-        // connect FPGA2DSP-Source 1-40 to all 40 Mixing Channels (1-32 + AUX 1-8)
-        config->Set(ROUTING_DSP_INPUT, DSP_BUF_IDX_DSPCHANNEL + i, i);
-        config->Set(ROUTING_DSP_INPUT_TAPPOINT, to_underlying(DSP_TAP::INPUT), i);
-    }
-
-    // connect MainLeft on even and MainRight on odd channels as PostFader
-    for (uint8_t i = 0; i < 40; i++)
-    {
-        // connect MainLeft on even and MainRight on odd channels as PostFader
-        config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MAINLEFT + (i % 2), i);
-        config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
-    }
-}
 
 // set the general volume of one of the 40 DSP-channels
-void DSP1::SendChannelVolume(uint8_t chan) {
-    // set value to interal struct
+void DSP1::SendChannelVolume(uint chan)
+{
     float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chan), 0.0f, 100.0f) / 100.0f;
     float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chan) + 100.0f, 0.0f, 100.0f) / 100.0f;
     float volumeLR = config->GetFloat(CHANNEL_VOLUME, chan);
@@ -114,52 +79,59 @@ void DSP1::SendChannelVolume(uint8_t chan) {
 }
 
 // send BusSends
-void DSP1::SendChannelSend(uint8_t chan) {
+void DSP1::SendChannelSend(uint chanIndex)
+{
     float values[16];
 
-    for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-        values[i_mixbus] = pow(10.0f, Channel[chan].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
+    for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++)
+    {
+        float sendVol = config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + i_mixbus), chanIndex);
+        values[i_mixbus] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
     }
 
-    spi->QueueDspData(0, 's', chan, 0, 16, &values[0]);
+    spi->QueueDspData(0, 's', chanIndex, 0, 16, &values[0]);
 }
 
-void DSP1::SendMixbusVolume(uint8_t bus) {
-    float balanceLeft = helper->Saturate(100.0f - Bus[bus].balance, 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(Bus[bus].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
+void DSP1::SendMixbusVolume(uint chanIndex)
+{
+    float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chanIndex), 0.0f, 100.0f) / 100.0f;
+    float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f, 0.0f, 100.0f) / 100.0f;
+    float volumeLR = config->GetFloat(CHANNEL_VOLUME, chanIndex);
+    float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex);
 
     // send volume to DSP via SPI
     float values[4];
-    values[0] = pow(10.0f, Bus[bus].volumeLR/20.0f); // volume of this specific channel
+    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
     values[1] = balanceLeft; // 100 .. 100 ..  0
     values[2] = balanceRight; // 0  .. 100 .. 100
-    values[3] = pow(10.0f, Bus[bus].volumeSub/20.0f); // subwoofer
+    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
 
-    spi->QueueDspData(0, 'v', bus, 1, 4, &values[0]);
+    spi->QueueDspData(0, 'v', chanIndex, 1, 4, &values[0]);
 }
 
-void DSP1::SendMatrixVolume(uint8_t matrix) {
+void DSP1::SendMatrixVolume(uint chanIndex) {
     // send volume to DSP via spi->
     float values[1];
 
-    values[0] = pow(10.0f, Matrix[matrix].volume/20.0f); // volume of this specific channel
+    values[0] = pow(10.0f, config->GetFloat(CHANNEL_VOLUME, chanIndex)/20.0f); // volume of this specific channel
 
-    spi->QueueDspData(0, 'v', matrix, 2, 1, &values[0]);
+    spi->QueueDspData(0, 'v', chanIndex, 2, 1, &values[0]);
 }
 
 void DSP1::SendMonitorVolume() {
     // send volume to DSP via spi
     float values[1];
     
-    values[0] = pow(10.0f, monitorVolume/20.0f); // volume of this specific channel
+    values[0] = pow(10.0f, config->GetFloat(MONITOR_VOLUME)/20.0f); // volume of this specific channel
 
     spi->QueueDspData(0, 'v', 0, 4, 1, &values[0]);
 }
 
-void DSP1::SendMainVolume() {
-    float volumeLeft = (helper->Saturate(100.0f - MainChannelLR.balance, 0.0f, 100.0f) / 100.0f) * pow(10.0f, MainChannelLR.volume/20.0f);
-    float volumeRight = (helper->Saturate(MainChannelLR.balance + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, MainChannelLR.volume/20.0f);
-    float volumeSub = pow(10.0f, MainChannelSub.volume/20.0f);
+void DSP1::SendMainVolume()
+{
+    float volumeLeft = (helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, DSP_BUF_IDX_MAINLEFT), 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, DSP_BUF_IDX_MAINLEFT)/20.0f);
+    float volumeRight = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, DSP_BUF_IDX_MAINRIGHT) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, DSP_BUF_IDX_MAINRIGHT)/20.0f);
+    float volumeSub = pow(10.0f, config->GetFloat(CHANNEL_VOLUME, DSP_BUF_IDX_MAINSUB)/20.0f);
 
     if (MainChannelLR.muted) {
         volumeLeft = 0; // p.u.
@@ -311,7 +283,7 @@ void DSP1::SendAll() {
         SendChannelVolume(chan);
         SendChannelSend(chan);
         for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
-            SetChannelSendTapPoints(chan, mixbusChannel, Channel[chan].sendMixbusTapPoint[mixbusChannel]);
+            ChannelSendTapPoints(chan, mixbusChannel);
         }
     }
     // configuration for 40 DSP-outputs to FPGA (16x output, 16x UltraNet, 8x Aux)
@@ -351,13 +323,13 @@ void DSP1::SetOutputRouting(uint chanIndex) {
     spi->QueueDspData(0, 'r', chanIndex, 1, 2, (float*)&values[0]);
 }
 
-void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
-    Channel[chan].sendMixbusTapPoint[mixbusChannel] = tapPoint;
-
+void DSP1::ChannelSendTapPoints(uint chanIndex, uint mixbusChannel)
+{
     uint32_t values[2];
     values[0] = mixbusChannel;
-    values[1] = tapPoint;
-    spi->QueueDspData(0, 't', chan, 0, 2, (float*)&values[0]);
+    values[1] = config->GetUint((MP_ID)((uint)CHANNEL_BUS_SEND01_TAPPOINT + mixbusChannel), chanIndex);
+
+    spi->QueueDspData(0, 't', chanIndex, 0, 2, (float*)&values[0]);
 }
 
 void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint) {

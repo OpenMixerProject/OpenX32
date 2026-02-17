@@ -20,9 +20,6 @@ class Fpga : public X32Base
 
         Fpga(X32BaseParameter* basepar);
 
-        void Init();
-        void RoutingDefaultConfig();
-
         uint8_t GetInputIndex(uint8_t group, uint8_t channel);
         uint8_t GetOutputIndex(uint8_t group, uint8_t channel);
         void GetInputGroupAndChannelByIndex(uint8_t sourceIndex, uint8_t* group, uint8_t* channel);

@@ -31,6 +31,7 @@ class Mixer : public X32Base
 
         void halSendGain(uint8_t dspChannel);
         void halSendPhantomPower(uint8_t dspChannel);
+        void LoadRoutingDefault();
         void LoadVChannelLayout();
 
     public:
@@ -43,12 +44,7 @@ class Mixer : public X32Base
         Mixer(X32BaseParameter* basepar);
         void Init();
         
-        void SetBusSend(uint8_t vChannelIndex, uint8_t index, float value);
-        
-        void ChangeBusSend(uint8_t p_vChannelIndex, uint8_t encoderIndex, int8_t p_amount, uint8_t activeBusSend);
-
-
-        float GetBusSend(uint8_t dspChannel, uint8_t index);
+        void SetBusSend(uint8_t vChannelIndex, uint8_t index, float value);        
         String GetCardModelString();
 
         void ClearSolo(void);

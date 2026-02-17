@@ -876,10 +876,33 @@ void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
 		// Bus sends
 		if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS) || fullSync)
 		{
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 0)/20.0f) * 100.0f, 1);
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 1)/20.0f) * 100.0f, 1);
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 2)/20.0f) * 100.0f, 1);
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8, surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF, 0, pow(10.0f, mixer->GetBusSend(chanIndex, config->GetUint(BANKING_BUS_SENDS) * 4 + 3)/20.0f) * 100.0f, 1);
+			surface->SetEncoderRing(
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8,
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF,
+				0,
+				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 0)), chanIndex)/20.0f) * 100.0f,
+				1);
+
+			surface->SetEncoderRing(
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8,
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF,
+				0,
+				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND02 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 1)), chanIndex)/20.0f) * 100.0f,
+				1);
+
+			surface->SetEncoderRing(
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8,
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF,
+				0,
+				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND03 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 2)), chanIndex)/20.0f) * 100.0f,
+				1);
+
+			surface->SetEncoderRing(
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8,
+				surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF,
+				0,
+				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND04 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 3)), chanIndex)/20.0f) * 100.0f,
+				1);
 		}
 		// Gate
 		if (config->HasParameterChanged(CHANNEL_GATE_TRESHOLD) || fullSync)
@@ -2182,16 +2205,16 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 				config->Change(CHANNEL_PANORAMA, amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_BUS_SEND_1:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 0, amount, config->GetUint(BANKING_BUS_SENDS));
+				config->Change((MP_ID)((uint)CHANNEL_BUS_SEND01 + config->GetUint(BANKING_BUS_SENDS) * 4 + 0), amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_BUS_SEND_2:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 1, amount, config->GetUint(BANKING_BUS_SENDS));
+				config->Change((MP_ID)((uint)CHANNEL_BUS_SEND02 + config->GetUint(BANKING_BUS_SENDS) * 4 + 1), amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_BUS_SEND_3:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 2, amount, config->GetUint(BANKING_BUS_SENDS));
+				config->Change((MP_ID)((uint)CHANNEL_BUS_SEND03 + config->GetUint(BANKING_BUS_SENDS) * 4 + 2), amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			case X32_ENC_BUS_SEND_4:
-				mixer->ChangeBusSend(config->GetUint(SELECTED_CHANNEL), 3, amount, config->GetUint(BANKING_BUS_SENDS));
+				config->Change((MP_ID)((uint)CHANNEL_BUS_SEND04 + config->GetUint(BANKING_BUS_SENDS) * 4 + 3), amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			default:
 				// just here to avoid compiler warnings                  

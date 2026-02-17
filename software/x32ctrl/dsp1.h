@@ -39,12 +39,11 @@ class DSP1 : X32Base {
 
         DSP1(X32BaseParameter* basepar);
         void Init(void);
-        void LoadRouting_X32Default();
 
-        void SendChannelVolume(uint8_t chan);
-        void SendChannelSend(uint8_t chan);
-        void SendMixbusVolume(uint8_t bus);
-        void SendMatrixVolume(uint8_t matrix);
+        void SendChannelVolume(uint chanIndex);
+        void SendChannelSend(uint chanIndex);
+        void SendMixbusVolume(uint chanIndex);
+        void SendMatrixVolume(uint chanIndex);
         void SendMonitorVolume();
         void SendMainVolume();
         void SendGate(uint chan);
@@ -56,7 +55,7 @@ class DSP1 : X32Base {
 
         void SetInputRouting(uint dspChannel);
         void SetOutputRouting(uint dspChannel);
-        void SetChannelSendTapPoints(uint8_t dspChannel, uint8_t mixbusChannel, uint8_t tapPoint);
+        void ChannelSendTapPoints(uint chanIndex, uint mixbusChannel);
         void SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
         void SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);
         void GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource);

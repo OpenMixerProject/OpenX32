@@ -35,51 +35,6 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	}
 }
 
-void Fpga::Init() {
-	// reset routing-configuration and dsp-configuration
-	RoutingDefaultConfig();
-}
-
-// set a default configuration for the audio-routing-matrix
-void Fpga::RoutingDefaultConfig() {
-	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "RoutingDefaultConfig()");
-
-	// XLR-inputs 1-32 -> DSP-inputs 1-32
-	for (uint8_t ch = 0; ch < 32; ch++) {
-		config->Set(ROUTING_FPGA, ch + 1, ch + 72);
-	}
-	// AUX-inputs 1-8 -> DSP-inputs 33-40
-	for (uint8_t ch = 0; ch < 8; ch++) {
-		config->Set(ROUTING_FPGA, ch + 65, ch + 104);
-	}
-
-	// ---------------------------------------------
-
-	// DSP Return 1-16 -> XLR-outputs 1-16
-	for (uint8_t ch = 0; ch < 16; ch++) {
-		config->Set(ROUTING_FPGA, ch + 72 + 1, ch);
-	}
-	// DSP Return 17-32 -> P16-output 1-16
-	for (uint8_t ch = 0; ch < 16; ch++) {
-		config->Set(ROUTING_FPGA, ch + 72 + 16 + 1, ch + 16);
-	}
-	// DSP Return 33-40 -> AUX-outputs 1-6 + ControlRoom L/R
-	for (uint8_t ch = 0; ch < 8 ; ch++) {
-		config->Set(ROUTING_FPGA, ch + 72 + 32 + 1, ch + 64);
-	}
-
-	// ---------------------------------------------
-
-	// XLR-inputs 1-32 -> Card 1-32
-	for (uint8_t ch = 0; ch < 32; ch++) {
-		config->Set(ROUTING_FPGA, ch + 1, ch + 32);
-	}
-
-	// transmit routing-configuration to FPGA
-	SendRoutingToFpga(-1);
-}
-
-
 // get the absolute input-source (global channel-number)
 uint8_t Fpga::GetInputIndex(uint8_t group, uint8_t channel) {
 	// input-sources:

@@ -278,12 +278,43 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20.0f);
 
     // Sends
+    cat = MP_CAT::CHANNEL_SENDS;
 
-    // TODO
-    // for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-    //     Channel[i].sendMixbus[i_mixbus] = VOLUME_MIN;
-    //     Channel[i].sendMixbusTapPoint[i_mixbus] = DSP_TAP_PRE_FADER;
-    // }
+    for(auto const& parameter_id : {
+        CHANNEL_BUS_SEND01, CHANNEL_BUS_SEND02, CHANNEL_BUS_SEND03, CHANNEL_BUS_SEND04, CHANNEL_BUS_SEND05, CHANNEL_BUS_SEND06,
+        CHANNEL_BUS_SEND07, CHANNEL_BUS_SEND08, CHANNEL_BUS_SEND09, CHANNEL_BUS_SEND10, CHANNEL_BUS_SEND11, CHANNEL_BUS_SEND12,
+        CHANNEL_BUS_SEND11, CHANNEL_BUS_SEND13, CHANNEL_BUS_SEND14, CHANNEL_BUS_SEND15, CHANNEL_BUS_SEND16
+    } )
+    {
+        DefParameter(parameter_id, cat, group, String("Bus Send"), MAX_VCHANNELS)
+        ->DefUOM(MP_UOM::DB)
+        ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+    }
+
+    for(auto const& parameter_id : {
+        CHANNEL_BUS_SEND01_TAPPOINT,
+        CHANNEL_BUS_SEND02_TAPPOINT,
+        CHANNEL_BUS_SEND03_TAPPOINT,
+        CHANNEL_BUS_SEND04_TAPPOINT,
+        CHANNEL_BUS_SEND05_TAPPOINT,
+        CHANNEL_BUS_SEND06_TAPPOINT,
+        CHANNEL_BUS_SEND07_TAPPOINT,
+        CHANNEL_BUS_SEND08_TAPPOINT,
+        CHANNEL_BUS_SEND09_TAPPOINT,
+        CHANNEL_BUS_SEND10_TAPPOINT,
+        CHANNEL_BUS_SEND11_TAPPOINT,
+        CHANNEL_BUS_SEND12_TAPPOINT,
+        CHANNEL_BUS_SEND13_TAPPOINT,
+        CHANNEL_BUS_SEND14_TAPPOINT,
+        CHANNEL_BUS_SEND15_TAPPOINT,
+        CHANNEL_BUS_SEND16_TAPPOINT
+    } )
+    {
+        DefParameter(parameter_id, cat, group, "Bus Send Tappoint", MAX_VCHANNELS)
+        ->DefUOM(MP_UOM::TAPPOINT)
+        ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
+    }    
+
 
     // gate
     cat = MP_CAT::CHANNEL_GATE;
