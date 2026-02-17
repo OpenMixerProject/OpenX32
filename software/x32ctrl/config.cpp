@@ -393,7 +393,7 @@ void Config::DefineMixerparameters() {
     #define FX_REVERB_RT60_MIN             0.0f // s
     #define FX_REVERB_RT60_DEFAULT         3.0f // s
     #define FX_REVERB_RT60_MAX           100.0f // s
-    #define FX_REVERB_LPFREQ_MIN           0.0f // Hz
+    #define FX_REVERB_LPFREQ_MIN          20.0f // Hz
     #define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
     #define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
     #define FX_REVERB_DRY_MIN              0.0f //
@@ -412,7 +412,7 @@ void Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::SECONDS)
     ->DefMinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
     // reverb lowpass
-    DefParameter(FX_REVERB_LPFREQ, cat, group, "LowPass", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_LPFREQ, cat, group, "LowPassFreq", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::KHZ)
     ->DefMinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
     // reverb dry

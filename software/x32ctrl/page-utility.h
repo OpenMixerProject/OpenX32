@@ -63,8 +63,8 @@ class PageUtility: public Page {
                         mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // Reverb
                         mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2); // Chorus
                         mixer->dsp->DSP2_SetFx(2, FX_TYPE::TRANSIENTSHAPER, 2); // TransientShaper
-                        //mixer->dsp->DSP2_SetFx(3, FX_TYPE::OVERDRIVE, 2); // Overdrive
-                        mixer->dsp->DSP2_SetFx(4, FX_TYPE::DELAY, 2); // Delay
+                        mixer->dsp->DSP2_SetFx(3, FX_TYPE::DELAY, 2); // Delay
+                        //mixer->dsp->DSP2_SetFx(4, FX_TYPE::OVERDRIVE, 2); // Overdrive
                         //mixer->dsp->DSP2_SetFx(5, FX_TYPE::MULTIBANDCOMPRESOR, 2); // MultibandCompressor
                         //mixer->dsp->DSP2_SetFx(6, FX_TYPE::DYNAMICEQ, 2); // DynamicEQ
                         //mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2); // no effect

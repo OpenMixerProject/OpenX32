@@ -273,7 +273,7 @@ void FxMath::RecalcCompressor(sCompressor* compressor) {
 void FxMath::fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
   float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 
-  data[0] = pow(10, (-60.0f / (rt60 / (roomSizeMs * 1.5f * 0.001f))) / 20.0f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
+  data[0] = pow(10.0f, (-60.0f / (rt60 / (roomSizeMs * 1.5f * 0.001f))) / 20.0f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
 	data[1] = (2.0f * PI * feedbackLowPassFreq) / (samplerate + 2.0f * PI * feedbackLowPassFreq); // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
 	data[2] = dry;
 	data[3] = wet;

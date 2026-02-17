@@ -1005,9 +1005,7 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
     float freq[4];
 
     switch(fx_slot[slotIdx]->fxType) {
-        using enum FX_TYPE;
-
-        case REVERB:
+        case FX_TYPE::REVERB:
             fxmath->fxCalcParameters_Reverb(&values[0], 
                 fx_slot[slotIdx]->fx->GetParameter(0), // roomSizeMs
                 fx_slot[slotIdx]->fx->GetParameter(1), // rt60
@@ -1018,7 +1016,7 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case CHORUS:
+        case FX_TYPE::CHORUS:
             depth[0] = fx_slot[slotIdx]->fx->GetParameter(0);
             delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(1);
             phase[0] = fx_slot[slotIdx]->fx->GetParameter(2);
@@ -1032,7 +1030,7 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
             valueCount = 9;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case TRANSIENTSHAPER:
+        case FX_TYPE::TRANSIENTSHAPER:
             fxmath->fxCalcParameters_TransientShaper(&values[0],
                 fx_slot[slotIdx]->fx->GetParameter(0), // tFastMs
                 fx_slot[slotIdx]->fx->GetParameter(1), // tMediumMs
@@ -1044,19 +1042,19 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case OVERDRIVE: //                    preGain   Q  hpfInputFreq lpfInputFreq lpfOutputFreq
+        case FX_TYPE::OVERDRIVE: //                    preGain   Q  hpfInputFreq lpfInputFreq lpfOutputFreq
             fxmath->fxCalcParameters_Overdrive(&values[0], 10.0f, -0.2f, 300, 10000, 10000);
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case DELAY:
+        case FX_TYPE::DELAY:
             delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(0);
             delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(1);
             fxmath->fxCalcParameters_Delay(&values[0], delayMs);
             valueCount = 2;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case MULTIBANDCOMPRESOR: //                       channel  band   threshold  ratio   attack  hold   release   makeup
+        case FX_TYPE::MULTIBANDCOMPRESOR: //                       channel  band   threshold  ratio   attack  hold   release   makeup
             // first send parameters for all channels and all bands
             valueCount = 8;
             for (int c = 0; c < 2; c++) {
@@ -1088,7 +1086,7 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
 
             break;
-        case DYNAMICEQ: //                       band type  freq   staticGain  maxDynGain  Q  thresh  ratio  attack  release
+        case FX_TYPE::DYNAMICEQ: //                       band type  freq   staticGain  maxDynGain  Q  thresh  ratio  attack  release
             valueCount = 11;
 
             // send band 1

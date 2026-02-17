@@ -91,7 +91,7 @@
 #define FX_REVERB_RT60_MIN             0.0f // s
 #define FX_REVERB_RT60_DEFAULT         3.0f // s
 #define FX_REVERB_RT60_MAX           100.0f // s
-#define FX_REVERB_LPFREQ_MIN           0.0f // Hz
+#define FX_REVERB_LPFREQ_MIN          20.0f // Hz
 #define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
 #define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
 #define FX_REVERB_DRY_MIN              0.0f //

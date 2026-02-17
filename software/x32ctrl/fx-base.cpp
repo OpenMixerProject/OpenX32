@@ -67,6 +67,9 @@ bool FxBase::ChangeParameter(uint8_t parIdx, int8_t amount) {
     //     float newValue = helper->CalcNewValue(parameter_value[parIdx], amount, parameters[parIdx]);
     //     return SetParameter(parIdx, newValue);
     // }
+
+    // TODO: implement ChangeParameter for each parameter based on its type
+
     return false;
 }
 
@@ -81,8 +84,10 @@ bool FxBase::SetParameter(uint8_t parIdx, float value) {
 }
 
 bool FxBase::ResetParameter(uint8_t parIdx) {
-    // if (parIdx < parameters.size()) {
-    //     return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx])->float_value_standard);
-    // }
+    if (parIdx < parameters.size()) {
+        //return SetParameter(parIdx, helper->GetMixerparameterDefinition(parameters[parIdx])->float_value_standard);
+        
+        // TODO: implement reset to default value for each parameter
+    }
     return false;
 }
