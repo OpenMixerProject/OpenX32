@@ -1033,6 +1033,9 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board, bool fullSync)
 	if ((p_board == X32_BOARD_R) && config->IsModelX32FullOrCompactOrProducer()) {
 		maxChannel = 8; // include main-channel
 	}
+
+	uint selectedChannel = config->GetUint(SELECTED_CHANNEL);
+
 	for(int i=0; i<=maxChannel; i++){
 		uint8_t channelIndex = SurfaceChannel2vChannel(i+offset);
 
@@ -1048,9 +1051,9 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board, bool fullSync)
 
 		} else {
 			
-			if (config->HasParameterChanged(CHANNEL_SELECTED) || fullSync)
+			if (config->HasParameterChanged(SELECTED_CHANNEL) || fullSync)
 			{ 
-				surface->SetLed(p_board, 0x20+i, config->GetBool(CHANNEL_SELECTED, channelIndex));
+				surface->SetLed(p_board, 0x20+i, channelIndex == selectedChannel);
 			}
 			if (config->HasParameterChanged(CHANNEL_SOLO) || fullSync)
 			{
@@ -1994,7 +1997,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				case X32_BTN_BOARD_L_CH_6_SELECT:
 				case X32_BTN_BOARD_L_CH_7_SELECT:
 				case X32_BTN_BOARD_L_CH_8_SELECT:
-					config->Toggle(CHANNEL_SELECTED, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_L_CH_1_SELECT));
+					config->Set(SELECTED_CHANNEL, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_L_CH_1_SELECT));
 					break;
 				case X32_BTN_BOARD_M_CH_1_SELECT:
 				case X32_BTN_BOARD_M_CH_2_SELECT:
@@ -2004,7 +2007,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				case X32_BTN_BOARD_M_CH_6_SELECT:
 				case X32_BTN_BOARD_M_CH_7_SELECT:
 				case X32_BTN_BOARD_M_CH_8_SELECT:
-					config->Toggle(CHANNEL_SELECTED, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_M_CH_1_SELECT));
+					config->Set(SELECTED_CHANNEL, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_M_CH_1_SELECT));
 					break;
 				case X32_BTN_BOARD_R_CH_1_SELECT:
 				case X32_BTN_BOARD_R_CH_2_SELECT:
@@ -2015,7 +2018,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				case X32_BTN_BOARD_R_CH_7_SELECT:
 				case X32_BTN_BOARD_R_CH_8_SELECT:
 				case X32_BTN_MAIN_SELECT:
-					config->Toggle(CHANNEL_SELECTED, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_R_CH_1_SELECT));
+					config->Set(SELECTED_CHANNEL, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_R_CH_1_SELECT));
 					break;
 				case X32_BTN_BOARD_L_CH_1_SOLO:
 				case X32_BTN_BOARD_L_CH_2_SOLO:

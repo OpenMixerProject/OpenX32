@@ -260,9 +260,6 @@ void Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     
-    DefParameter(CHANNEL_SELECTED, cat, group, "Selected", MAX_VCHANNELS)
-    ->DefStandard_Bool(false);
-    
     DefParameter(CHANNEL_SOLO, cat, group, "Solo", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
     
