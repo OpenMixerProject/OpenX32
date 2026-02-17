@@ -1438,7 +1438,8 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 
 		if (mixer->dsp->Channel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
 
-		float gateValue = (1.0f - config->GetFloat(CHANNEL_GATE_GAIN, channel)) * 80.0f;
+/*
+		float gateValue = (1.0f - !!RECEIVED_CHANNEL_GAIN!!) * 80.0f;
 		if (gateValue >= 2.0f)  { meterdata |= 0b00100000; }        
 		if (gateValue >= 4.0f)  { meterdata |= 0b00010000; }        
 		if (gateValue >= 6.0f)  { meterdata |= 0b00001000; }        
@@ -1446,8 +1447,8 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 		if (gateValue >= 18.0f) { meterdata |= 0b00000010; }        
 		if (gateValue >= 30.0f) { meterdata |= 0b00000001; }        
 
-		if (config->GetFloat(CHANNEL_GATE_GAIN, channel) < 1.0f) { meterdata |= 0b01000000; };
-
+		if (!!RECEIVED_CHANNEL_GAIN!! < 1.0f) { meterdata |= 0b01000000; };
+*/
 		return meterdata;
 	}else{
 		return 0; // no dynamic-data for other channels at the moment

@@ -53,7 +53,7 @@
 #define VOLUME_MIN         -100.0f // dB
 
 #define CHANNEL_GAIN_MIN            -12.0f // dB
-#define CHANNEL_GAIN_MAX             48.0f // dB
+#define CHANNEL_GAIN_MAX             60.0f // dB
 #define CHANNEL_PANORAMA_MIN       -100.0f // dB
 #define CHANNEL_PANORAMA_MAX        100.0f // dB
 #define CHANNEL_VOLUME_MIN         -100.0f // dB
@@ -78,9 +78,9 @@
 #define DYNAMICS_MAKEUP_MAX           24.0f // dB
 #define DYNAMICS_ATTACK_MIN            0.0f // ms
 #define DYNAMICS_ATTACK_MAX          120.0f // ms
-#define DYNAMICS_HOLD_MIN              2.0f // ms
+#define DYNAMICS_HOLD_MIN              0.2f // ms
 #define DYNAMICS_HOLD_MAX           2000.0f // ms
-#define DYNAMICS_RELEASE_MIN          14.0f // ms
+#define DYNAMICS_RELEASE_MIN          5.0f // ms
 #define DYNAMICS_RELEASE_MAX        4000.0f // ms
 
 #define MAX_FX_SLOTS                    8

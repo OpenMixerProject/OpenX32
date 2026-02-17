@@ -309,11 +309,6 @@ void Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
 
-    // TODO: wait on answer from chris
-    DefParameter(CHANNEL_GATE_GAIN, cat, group, "Gain", MAX_VCHANNELS)
-    ->DefUOM(MP_UOM::DB)
-    ->DefMinMaxStandard_Float(0.0f, 12.0f, 0.0f);
-    
     // dynamics
     group = "channel_dynamics";
     cat = MP_CAT::CHANNEL_DYNAMICS;
@@ -354,25 +349,34 @@ void Config::DefineMixerparameters() {
         ->DefMinMaxStandard_Uint(0, 7, 1);
     }
 
-    for(auto const& parameter_id : {CHANNEL_EQ_FREQ1, CHANNEL_EQ_FREQ2, CHANNEL_EQ_FREQ3, CHANNEL_EQ_FREQ4} )
-    {
-        DefParameter(parameter_id, cat, group, "Frequenz", MAX_VCHANNELS)
-        ->DefUOM(MP_UOM::HZ)
-        ->DefMinMaxStandard_Float(20.0f, 20000.0f, 3000.0f);
-    }
+	DefParameter(CHANNEL_EQ_FREQ1, cat, group, "Frequenz", MAX_VCHANNELS)
+	->DefUOM(MP_UOM::HZ)
+	->DefMinMaxStandard_Float(20.0f, 20000.0f, 125.0f);
+
+	DefParameter(CHANNEL_EQ_FREQ2, cat, group, "Frequenz", MAX_VCHANNELS)
+	->DefUOM(MP_UOM::HZ)
+	->DefMinMaxStandard_Float(20.0f, 20000.0f, 500.0f);
+
+	DefParameter(CHANNEL_EQ_FREQ3, cat, group, "Frequenz", MAX_VCHANNELS)
+	->DefUOM(MP_UOM::HZ)
+	->DefMinMaxStandard_Float(20.0f, 20000.0f, 2000.0f);
+
+	DefParameter(CHANNEL_EQ_FREQ4, cat, group, "Frequenz", MAX_VCHANNELS)
+	->DefUOM(MP_UOM::HZ)
+	->DefMinMaxStandard_Float(20.0f, 20000.0f, 10000.0f);
 
     for(auto const& parameter_id : {CHANNEL_EQ_GAIN1, CHANNEL_EQ_GAIN2, CHANNEL_EQ_GAIN3, CHANNEL_EQ_GAIN4} )
     {
         DefParameter(parameter_id, cat, group, "Gain", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
-        ->DefMinMaxStandard_Float(-15.0f, 15.0f, 2.0f, 1);
+        ->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
     }
 
     for(auto const& parameter_id : {CHANNEL_EQ_Q1, CHANNEL_EQ_Q2, CHANNEL_EQ_Q3, CHANNEL_EQ_Q4} )
     {
         DefParameter(parameter_id, cat, group, "Q", MAX_VCHANNELS)
         ->DefStepsize(0.1f)
-        ->DefMinMaxStandard_Float(0.3f, 10.0f, 0.0f, 1);
+        ->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
     }
 
     // ###########
