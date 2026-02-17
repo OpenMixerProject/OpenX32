@@ -666,6 +666,16 @@ class Mixerparameter {
             return false;
         }
 
+        float GetMin()
+        {
+            return value_min;
+        }
+
+        float GetMax()
+        {
+            return value_max;
+        }
+
         void Change(int amount, uint index = 0)
         {
             CheckIndex(index);
