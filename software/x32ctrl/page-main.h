@@ -23,16 +23,20 @@ class PageMain : public Page
             noLedOnRack = true;
         }
 
-        void OnInit() override { 
-            UpdateEncoderBinding(config->GetUint(SELECTED_CHANNEL));
+        void OnChange(bool forceUpdate) override
+        {
+            if (config->HasParameterChanged(SELECTED_CHANNEL) || forceUpdate)
+            {
+                UpdateEncoderBinding(config->GetUint(SELECTED_CHANNEL));
+            }
         }
 
         void UpdateEncoderBinding(uint targetindex)
         {
-            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_VOLUME, config->GetUint(SELECTED_CHANNEL));
+            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_VOLUME, CHANNEL_SEND_LR, config->GetUint(SELECTED_CHANNEL));
             BindEncoder(DISPLAY_ENCODER_2, CHANNEL_PANORAMA, config->GetUint(SELECTED_CHANNEL));
 
-            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME_SUB, config->GetUint(SELECTED_CHANNEL));
+            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME_SUB, CHANNEL_SEND_SUB, config->GetUint(SELECTED_CHANNEL));
             
             SyncEncoderWidgets(true);
         }

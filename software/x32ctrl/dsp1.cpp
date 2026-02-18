@@ -61,9 +61,11 @@ void DSP1::SendChannelVolume(uint chan)
     float volumeLR = config->GetFloat(CHANNEL_VOLUME, chan);
     float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chan);
 
-    if (config->GetBool(CHANNEL_MUTE, chan)) {
-        volumeLR = -100; // dB
-        volumeSub = -100; // dB
+    if (!config->GetBool(CHANNEL_SEND_LR, chan)) {
+        volumeLR = VOLUME_MIN; // dB
+    }
+    if (!config->GetBool(CHANNEL_SEND_SUB, chan)) {
+        volumeSub = VOLUME_MIN; // dB
     }
 
     // send volume to DSP via SPI
@@ -82,10 +84,16 @@ void DSP1::SendChannelVolume(uint chan)
 void DSP1::SendChannelSend(uint chanIndex)
 {
     float values[16];
-
     for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++)
     {
-        float sendVol = config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + i_mixbus), chanIndex);
+        float sendVol = VOLUME_MIN;
+
+        // only set volume if channel is not muted
+        if (!config->GetBool(CHANNEL_MUTE, chanIndex))
+        {
+            sendVol = config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + i_mixbus), chanIndex);
+        }
+
         values[i_mixbus] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
     }
 
@@ -98,6 +106,12 @@ void DSP1::SendMixbusVolume(uint chanIndex)
     float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f, 0.0f, 100.0f) / 100.0f;
     float volumeLR = config->GetFloat(CHANNEL_VOLUME, chanIndex);
     float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex);
+
+    if (config->GetBool(CHANNEL_MUTE, chanIndex))
+    {
+         volumeLR = VOLUME_MIN; // dB
+         volumeSub = VOLUME_MIN; // dB
+    }
 
     // send volume to DSP via SPI
     float values[4];
@@ -112,9 +126,14 @@ void DSP1::SendMixbusVolume(uint chanIndex)
 void DSP1::SendMatrixVolume(uint chanIndex) {
     // send volume to DSP via spi->
     float values[1];
+    float sendVol = VOLUME_MIN;
 
-    values[0] = pow(10.0f, config->GetFloat(CHANNEL_VOLUME, chanIndex)/20.0f); // volume of this specific channel
+    if (!config->GetBool(CHANNEL_MUTE, chanIndex))
+    {
+        sendVol = config->GetFloat(CHANNEL_VOLUME, chanIndex);
+    }
 
+    values[0] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
     spi->QueueDspData(0, 'v', chanIndex, 2, 1, &values[0]);
 }
 
@@ -135,11 +154,13 @@ void DSP1::SendMainVolume()
     float volumeRight = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
     float volumeSub = pow(10.0f, config->GetFloat(CHANNEL_VOLUME, subChannelIndex)/20.0f);
 
-    if (MainChannelLR.muted) {
+    if (config->GetBool(CHANNEL_MUTE, DSP_BUF_IDX_MAINLEFT))
+    {
         volumeLeft = 0; // p.u.
         volumeRight = 0; // p.u.
     }
-    if (MainChannelSub.muted) {
+    if (config->GetBool(CHANNEL_MUTE, DSP_BUF_IDX_MAINSUB))
+    {
         volumeSub = 0; // p.u.
     }
 

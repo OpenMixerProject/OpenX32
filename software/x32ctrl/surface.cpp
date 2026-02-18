@@ -345,7 +345,7 @@ void Surface::InitDefinitions(void) {
         AddEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
         AddEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
 
-        AddEncoderDefinition(X32_ENC_MAIN, 0x010B);
+        AddEncoderDefinition(X32_ENC_LEVEL_SUB, 0x010B);
         AddEncoderDefinition(X32_ENC_PAN, 0x010C);
 
         AddEncoderDefinition(X32_ENC_ENCODER1, 0x010D);
@@ -544,7 +544,7 @@ void Surface::InitDefinitions(void) {
         AddEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
         AddEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
 
-        AddEncoderDefinition(X32_ENC_MAIN, 0x0107);
+        AddEncoderDefinition(X32_ENC_LEVEL_SUB, 0x0107);
         AddEncoderDefinition(X32_ENC_PAN, 0x0108);
 
         AddEncoderDefinition(X32_ENC_ENCODER1, 0x0109);
@@ -727,7 +727,7 @@ uint16_t Surface::CalcEncoderRingLedPosition(uint8_t pct) {
 uint16_t Surface::CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition) {
     uint16_t led_mask = 0;
 
-    if (config->IsModelX32Rack()){
+   // if (config->IsModelX32Rack()){
         // X32Rack: Channel Level, Mail LR Level
 
         // LEDs dBfs
@@ -770,14 +770,14 @@ uint16_t Surface::CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition) {
             }
         } 
 
-    } else {
+   // } else {
     
         // led_index = (uint8_t)(((float)pct / 100.0f) * 12.0f + 0.5f); // +0.5f für Rundung
 
         // if (led_index > 12) {
         //     led_index = 12;
         // }
-    }
+    //}
 
     return led_mask;
 }
