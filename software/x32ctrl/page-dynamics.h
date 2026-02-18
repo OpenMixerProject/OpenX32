@@ -35,8 +35,8 @@ class PageDynamics: public Page {
             lv_obj_add_event_cb(objects.current_channel_comp, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.current_channel_comp, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
-            // store mixer pointer in user data for use in draw callback
-            lv_obj_set_user_data(objects.current_channel_comp, mixer);
+            // store config pointer in user data for use in draw callback
+            lv_obj_set_user_data(objects.current_channel_comp, config);
             //chart-shadow: 0x7e4000
         }
 
@@ -125,13 +125,13 @@ class PageDynamics: public Page {
                 int32_t* y_array = lv_chart_get_series_y_array(chart, series); //lv_chart_get_y_array
                 int32_t value = y_array[point_id];
 
-                Mixer* mixer = (Mixer*)lv_obj_get_user_data(obj);
-                // TODO
-                // if (value >= mixer->dsp->Channel[mixer->GetSelectedVChannelIndex()].compressor.threshold * 100.0f) {
-                //     line_dsc->color = lv_palette_main(LV_PALETTE_ORANGE);
-                // } else {
-                //     line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
-                // }
+                Config* config = (Config*)lv_obj_get_user_data(obj);
+
+                if (value >= config->GetFloat(MP_ID::CHANNEL_DYNAMICS_TRESHOLD, config->GetUint(SELECTED_CHANNEL)) * 100.0f) {
+                    line_dsc->color = lv_palette_main(LV_PALETTE_ORANGE);
+                } else {
+                    line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
+                }
             }
         }
 

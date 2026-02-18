@@ -946,9 +946,9 @@ void SPI::QueueDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t in
         return;
     }
 */
-    if (valueCount > 25) {
-        // fatal error: 25 is our maximum at the moment
-        helper->Error("Attempt to write more than 25 values into DspTxQueue!\n");
+    if (valueCount > SPI_TX_MAX_WORD_COUNT) {
+        // fatal error: SPI_TX_MAX_WORD_COUNT is our maximum at the moment
+        helper->Error("Attempt to write more than %d values into DspTxQueue!\n", SPI_TX_MAX_WORD_COUNT);
         return;
     }
 
@@ -980,12 +980,17 @@ void SPI::ProcessDspTxQueue(uint8_t dsp) {
     }
 
     int messagesToSend = spiTxRingBuffer[dsp].level;
-    // we must not exceed 5ms. Each message can have up to 25 Words with each 32bits
-    // so a single message takes a maximum of (1/8MHz) * 25 * 32bit = 0.1ms. So we should
-    // not transmit more than 50 messages at once and leave the rest for another timeslot
-    // to stay safe, we transmit a maximum of 40 messages per interval
-    if (messagesToSend > 40) {
-        messagesToSend = 40;
+    // we must not exceed 5ms. Each message can have up to 50 Words with each 32bits
+    // so a single message takes a maximum of (1/8MHz) * 50 * 32bit = 0.2ms. So we should
+    // not transmit more than 25 messages at once and leave the rest for another timeslot
+    // to stay safe, we transmit a maximum of 20 messages per interval
+
+    // calculate how many messages we can transmit in 5ms
+    // 1/5ms = 200
+    // 8Mhz / 32bit / 50 Words = 5000 Hz -> 0.2ms per message -> max. 25 messages in 5ms
+    int maxMessages = (((SPI_DSP_SPEED_HZ / SPI_TX_MAX_WORD_COUNT) / 32) / 200);
+    if (messagesToSend > maxMessages) {
+        messagesToSend = maxMessages;
     }
 
     int tail = spiTxRingBuffer[dsp].head - spiTxRingBuffer[dsp].level;

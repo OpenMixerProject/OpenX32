@@ -90,10 +90,23 @@ void X32Ctrl::Init(){
 
 			// Just load a default set of FXes
 			// TODO: Save and Load
+			/*
+			// available FX types:
+			========================
+			NONE = -1,
+			REVERB = 0,
+			CHORUS = 1,
+			TRANSIENTSHAPER = 2,
+			OVERDRIVE = 3,
+			DELAY = 4,
+			MULTIBANDCOMPRESOR = 5,
+			DYNAMICEQ = 6
+			*/
+
 			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
             mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
-            mixer->dsp->DSP2_SetFx(2, FX_TYPE::TRANSIENTSHAPER, 2);
-            mixer->dsp->DSP2_SetFx(3, FX_TYPE::DELAY, 2);
+            mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
+            mixer->dsp->DSP2_SetFx(3, FX_TYPE::DYNAMICEQ, 2);
             mixer->dsp->DSP2_SetFx(4, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(5, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);

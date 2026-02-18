@@ -60,11 +60,11 @@ class PageUtility: public Page {
                         break;
                     case X32_BTN_ENCODER2:
                         // install effects
-                        mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // Reverb
-                        mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2); // Chorus
-                        mixer->dsp->DSP2_SetFx(2, FX_TYPE::TRANSIENTSHAPER, 2); // TransientShaper
-                        mixer->dsp->DSP2_SetFx(3, FX_TYPE::DELAY, 2); // Delay
-                        //mixer->dsp->DSP2_SetFx(4, FX_TYPE::OVERDRIVE, 2); // Overdrive
+                        //mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // Reverb
+                        //mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2); // Chorus
+                        //mixer->dsp->DSP2_SetFx(2, FX_TYPE::TRANSIENTSHAPER, 2); // TransientShaper
+                        //mixer->dsp->DSP2_SetFx(2, FX_TYPE::OVERDRIVE, 2); // Overdrive
+                        //mixer->dsp->DSP2_SetFx(3, FX_TYPE::DELAY, 2); // Delay
                         //mixer->dsp->DSP2_SetFx(5, FX_TYPE::MULTIBANDCOMPRESOR, 2); // MultibandCompressor
                         //mixer->dsp->DSP2_SetFx(6, FX_TYPE::DYNAMICEQ, 2); // DynamicEQ
                         //mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2); // no effect
@@ -84,8 +84,10 @@ class PageUtility: public Page {
                             // DEBUG DATA FOR CHRIS
 
                             // set gain for XLR-Input 1 and 2
-                            config->Set(MP_ID::CHANNEL_GAIN, 47.0f, 0);
-                            config->Set(MP_ID::CHANNEL_GAIN, 47.0f, 1);
+                            config->Set(MP_ID::CHANNEL_GAIN, 45.0f, 0);
+                            config->Set(MP_ID::CHANNEL_GAIN, 45.0f, 1);
+                            config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, 0);
+                            config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, 1);
 
                             // route FPGA-Channel 1 to DSP-Channel 1
                             config->Set(ROUTING_DSP_INPUT, DSP_BUF_IDX_DSPCHANNEL, 0);
@@ -106,18 +108,6 @@ class PageUtility: public Page {
                             mixer->dsp->SetOutputRouting(38);
                             mixer->dsp->SetOutputRouting(39);
                             
-                            /*
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 0); // mute channel 1
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 10); // mute channel 11 (Chorus)
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 11); // mute channel 12 (Chorus)
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 12); // mute channel 13 (TransientShaper)
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 13); // mute channel 14 (TransientShaper)
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 14); // mute channel 15 (overdrive)
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, 15); // mute channel 16 (overdrive)
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, DSP_BUF_IDX_AUX + 5); // mute channel A7
-                            config->Set(MP_ID::CHANNEL_MUTE, 1.0f, DSP_BUF_IDX_AUX + 6); // mute channel A8
-                            */
-
                             config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, 80); // Main 0dBfs
                         }
                         break;

@@ -39,6 +39,7 @@
 #define SPI_MAX_RX_PAYLOAD_SIZE 200 // 197 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE      (SPI_MAX_RX_PAYLOAD_SIZE * 3) // store up to 3 payload-sets
 #define SPI_TX_BUFFER_SIZE      3000
+#define SPI_TX_MAX_WORD_COUNT   50  // multiband-compressor sends 41 values at once, so set to 50 to be safe
 typedef enum {
 	LOOKING_FOR_START_MARKER,
 	COLLECTING_PAYLOAD,
@@ -61,7 +62,7 @@ typedef struct {
   uint8_t channel;
   uint8_t index;
   uint8_t valueCount;
-  float values[25];
+  float values[SPI_TX_MAX_WORD_COUNT];
 } sSpiTxBufferElement;
 
 typedef struct {

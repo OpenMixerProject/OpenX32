@@ -1056,8 +1056,14 @@ void DSP1::DSP2_SendFxParameter(int slotIdx)
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case FX_TYPE::OVERDRIVE: //                    preGain   Q  hpfInputFreq lpfInputFreq lpfOutputFreq
-            fxmath->fxCalcParameters_Overdrive(&values[0], 10.0f, -0.2f, 300, 10000, 10000);
+        case FX_TYPE::OVERDRIVE:
+            fxmath->fxCalcParameters_Overdrive(&values[0],
+                config->GetFloat(fx->GetParameterDefinition(0), slotIdx), // preGain
+                config->GetFloat(fx->GetParameterDefinition(1), slotIdx), // Q
+                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // hpfInputFreq
+                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // lpfInputFreq
+                config->GetFloat(fx->GetParameterDefinition(4), slotIdx)  // lpfOutputFreq
+            );
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
@@ -1070,50 +1076,47 @@ void DSP1::DSP2_SendFxParameter(int slotIdx)
             break;
         case FX_TYPE::MULTIBANDCOMPRESOR: //                       channel  band   threshold  ratio   attack  hold   release   makeup
             // first send parameters for all channels and all bands
-            valueCount = 8;
             for (int c = 0; c < 2; c++) {
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 0, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
+                // now prepare the frequencies for both channels
+                freq[0] = config->GetFloat(fx->GetParameterDefinition(34 * c + 0), slotIdx);
+                freq[1] = config->GetFloat(fx->GetParameterDefinition(34 * c + 1), slotIdx);
+                freq[2] = config->GetFloat(fx->GetParameterDefinition(34 * c + 2), slotIdx);
+                freq[3] = config->GetFloat(fx->GetParameterDefinition(34 * c + 3), slotIdx);
+                fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], c, freq);
+                valueCount = 41;
                 spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 1, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 2, -40.0f, 10.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 3, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 4, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+
+                for (int band = 0; band < 5; band++) {
+                    fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, band, 
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 4 + band * 6), slotIdx), // threshold
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 5 + band * 6), slotIdx), // ratio
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 6 + band * 6), slotIdx), // attack
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 7 + band * 6), slotIdx), // hold
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 8 + band * 6), slotIdx), // release
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 9 + band * 6), slotIdx)  // makepu
+                    );
+                    valueCount = 8;
+                    spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+                }
             }
-
-            // now prepare the frequencies for both channels
-            valueCount = 41;
-            freq[0] = 80;
-            freq[1] = 350;
-            freq[2] = 1500;
-            freq[3] = 7500;
-
-            // channel left
-            fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], 0, freq);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-
-            // channel right
-            fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], 1, freq);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
 
             break;
         case FX_TYPE::DYNAMICEQ: //                       band type  freq   staticGain  maxDynGain  Q  thresh  ratio  attack  release
-            valueCount = 11;
-
-            // send band 1
-            fxmath->fxCalcParameters_DynamicEQ(&values[0], 0, 1, 300, 0, -10, 1, -20, 2, 50, 300);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-
-            // send band 2
-            fxmath->fxCalcParameters_DynamicEQ(&values[0], 1, 1, 1000, 0, -10, 1, -20, 2, 50, 300);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-
-            // send band 3
-            fxmath->fxCalcParameters_DynamicEQ(&values[0], 2, 1, 5000, 0, -10, 1, -20, 2, 50, 300);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+            for (int band = 0; band < 3; band++) {
+                fxmath->fxCalcParameters_DynamicEQ(&values[0], band,
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 0), slotIdx), // type
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 1), slotIdx), // freq
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 2), slotIdx), // staticGain
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 3), slotIdx), // maxDynGain
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 4), slotIdx), // Q
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 5), slotIdx), // threshold
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 6), slotIdx), // ratio
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 7), slotIdx), // attack
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 8), slotIdx)  // release
+                );
+                valueCount = 11;
+                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+            }
             break;
         default:
             break;

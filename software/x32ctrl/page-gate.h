@@ -184,7 +184,7 @@ class PageGate: public Page {
                 if (value >= config->GetFloat(MP_ID::CHANNEL_GATE_TRESHOLD, config->GetUint(MP_ID::SELECTED_CHANNEL)) * 100.0f) {
                     line_dsc->color = lv_palette_main(LV_PALETTE_GREEN);
                 } else {
-                    line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
+                    line_dsc->color = lv_palette_main(LV_PALETTE_RED);
                 }
             }
         }
