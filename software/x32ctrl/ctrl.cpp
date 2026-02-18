@@ -856,68 +856,90 @@ void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
 	if (config->IsModelX32FullOrCompactOrProducer()) {
 		
 		// Phantom
-		if (config->HasParameterChanged(CHANNEL_PHANTOM) || fullSync)
+		if (config->HasParameterChanged(CHANNEL_PHANTOM, chanIndex) || fullSync)
 		{
 			surface->SetLedByEnum(X32_BTN_PHANTOM_48V, config->GetBool(CHANNEL_PHANTOM, chanIndex)); 
 		}
 		// Phase Invert
-		if (config->HasParameterChanged(CHANNEL_PHASE_INVERT) || fullSync)
+		if (config->HasParameterChanged(CHANNEL_PHASE_INVERT, chanIndex) || fullSync)
 		{
 			surface->SetLedByEnum(X32_BTN_PHASE_INVERT, config->GetBool(CHANNEL_PHASE_INVERT, chanIndex));
 		}
 		// Gain
-		if (config->HasParameterChanged(CHANNEL_GAIN) || fullSync)
+		if (config->HasParameterChanged(CHANNEL_GAIN, chanIndex) || fullSync)
 		{
 			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_GAIN] & 0xFF, 0, config->GetPercent(CHANNEL_GAIN, chanIndex), 1);
 		}
 		// Balance/Panorama
-		if (config->HasParameterChanged(CHANNEL_PANORAMA) || fullSync)
+		if (config->HasParameterChanged(CHANNEL_PANORAMA, chanIndex) || fullSync)
 		{
 			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_PAN] >> 8, surface->Enum2Encoder[X32_ENC_PAN] & 0xFF, 2, (config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f)/2.0f, 1);
 		}
+
 		// Bus sends
-		if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS) || fullSync)
+		if (config->IsModelX32Full())
 		{
-			surface->SetEncoderRing(
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8,
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF,
-				0,
-				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 0)), chanIndex)/20.0f) * 100.0f,
-				1);
+			if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS, chanIndex) || fullSync)
+			{
+				surface->SetEncoderRing(
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8,
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF,
+					0,
+					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 0)), chanIndex)/20.0f) * 100.0f,
+					1);
 
-			surface->SetEncoderRing(
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8,
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF,
-				0,
-				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND02 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 1)), chanIndex)/20.0f) * 100.0f,
-				1);
+				surface->SetEncoderRing(
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8,
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF,
+					0,
+					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND02 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 1)), chanIndex)/20.0f) * 100.0f,
+					1);
 
-			surface->SetEncoderRing(
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8,
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF,
-				0,
-				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND03 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 2)), chanIndex)/20.0f) * 100.0f,
-				1);
+				surface->SetEncoderRing(
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8,
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF,
+					0,
+					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND03 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 2)), chanIndex)/20.0f) * 100.0f,
+					1);
 
-			surface->SetEncoderRing(
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8,
-				surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF,
-				0,
-				pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND04 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 3)), chanIndex)/20.0f) * 100.0f,
-				1);
+				surface->SetEncoderRing(
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8,
+					surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF,
+					0,
+					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND04 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 3)), chanIndex)/20.0f) * 100.0f,
+					1);
+			}
 		}
+		// Main Bus
+		// "Stereo Bus"
+		if(config->HasParameterChanged(CHANNEL_SEND_LR, chanIndex) || fullSync)
+		{
+			surface->SetLedByEnum(X32_BTN_MAIN_LR_BUS, config->GetBool(CHANNEL_SEND_LR, chanIndex));
+		}
+		// Sub "Level"
+		if (config->HasParameterChanged(CHANNEL_VOLUME_SUB, chanIndex) || fullSync)
+		{
+			surface->SetEncoderRingDbfs(surface->Enum2Encoder[X32_ENC_LEVEL_SUB] >> 8, surface->Enum2Encoder[X32_ENC_LEVEL_SUB] & 0xFF,
+				config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex), false, true);
+		}
+		// "Mono Bus"
+		if(config->HasParameterChanged(CHANNEL_SEND_SUB, chanIndex) || fullSync)
+		{
+			surface->SetLedByEnum(X32_BTN_MONO_BUS, config->GetBool(CHANNEL_SEND_SUB, chanIndex));
+		}
+
 		// Gate
-		if (config->HasParameterChanged(CHANNEL_GATE_TRESHOLD) || fullSync)
+		if (config->HasParameterChanged(CHANNEL_GATE_TRESHOLD, chanIndex) || fullSync)
 		{
 			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GATE] >> 8, surface->Enum2Encoder[X32_ENC_GATE] & 0xFF, 4, 100.0f - ((config->GetFloat(CHANNEL_GATE_TRESHOLD, chanIndex) + 80.0f)/0.8f), 1);
 		}
 		// Dynamics
-		if (config->HasParameterChanged(CHANNEL_DYNAMICS_TRESHOLD) || fullSync)
+		if (config->HasParameterChanged(CHANNEL_DYNAMICS_TRESHOLD,chanIndex) || fullSync)
 		{
 			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_DYNAMICS] >> 8, surface->Enum2Encoder[X32_ENC_DYNAMICS] & 0xFF, 4, 100.0f - ((config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex) + 60.0f)/0.6f), 1);
 		}
 		// EQ
-		if (config->HasParametersChanged(MP_CAT::CHANNEL_EQ) || fullSync)
+		if (config->HasParametersChanged(MP_CAT::CHANNEL_EQ, chanIndex) || fullSync)
 		{
 			if (chanIndex < 40) {
 				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (config->GetFloat(CHANNEL_LOWCUT_FREQ, chanIndex) - 20.0f)/3.8f, 1);
@@ -950,15 +972,15 @@ void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
 			setLedChannelIndicator_Rack();
 		}
 		// Solo
-		if (config->HasParameterChanged(CHANNEL_SOLO) || fullSync){
+		if (config->HasParameterChanged(CHANNEL_SOLO, chanIndex) || fullSync){
 			surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, config->GetBool(CHANNEL_SOLO, chanIndex)); 
 		}
 		// Mute
-		if (config->HasParameterChanged(CHANNEL_MUTE) || fullSync){
+		if (config->HasParameterChanged(CHANNEL_MUTE, chanIndex) || fullSync){
 			surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, config->GetBool(CHANNEL_MUTE, chanIndex)); 
 		}
 		// Volume
-		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}) ||fullSync){
+		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, chanIndex) ||fullSync){
 			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
 		}
 	}
@@ -976,7 +998,7 @@ void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
 				CHANNEL_MUTE,
 				CHANNEL_COLOR,
 				CHANNEL_NAME
-			})))
+			}, chanIndex)))
 		{
 			SetLcdFromVChannel(X32_BOARD_MAIN, 0, chanIndex);
 		}
@@ -1930,6 +1952,9 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			case X32_BTN_VIEW_MIX_BUS_SENDS:
 				ShowPage(X32_PAGE::SENDS);
 				break;
+			case X32_BTN_VIEW_MAIN:
+				ShowPage(X32_PAGE::MAIN);
+				break;
 			case X32_BTN_METERS:
 				ShowPage(X32_PAGE::METERS);
 				break;
@@ -1965,6 +1990,12 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			case X32_BTN_BUS_SEND_9_12:
 			case X32_BTN_BUS_SEND_13_16:
 				BankingSends(button);
+				break;
+			case X32_BTN_MONO_BUS:
+				config->Toggle(CHANNEL_SEND_SUB, config->GetUint(SELECTED_CHANNEL));
+				break;
+			case X32_BTN_MAIN_LR_BUS:
+				config->Toggle(CHANNEL_SEND_LR, config->GetUint(SELECTED_CHANNEL));
 				break;
 			default:
 				// just here to avoid compiler warnings
@@ -2223,6 +2254,9 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 				break;
 			case X32_ENC_BUS_SEND_4:
 				config->Change((MP_ID)((uint)CHANNEL_BUS_SEND04 + config->GetUint(BANKING_BUS_SENDS) * 4 + 3), amount, config->GetUint(SELECTED_CHANNEL));
+				break;
+			case X32_ENC_LEVEL_SUB:
+				config->Change(CHANNEL_VOLUME_SUB, amount, config->GetUint(SELECTED_CHANNEL));
 				break;
 			default:
 				// just here to avoid compiler warnings                  
