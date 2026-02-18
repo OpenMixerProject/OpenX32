@@ -315,6 +315,13 @@ void Config::DefineMixerparameters() {
         ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
     }    
 
+    DefParameter(CHANNEL_SEND_LR, cat, group, "LR", MAX_VCHANNELS)
+    ->DefStandard_Bool(true);
+
+    DefParameter(CHANNEL_SEND_SUB, cat, group, "SUB", MAX_VCHANNELS)
+    ->DefStandard_Bool(false);
+
+
 
     // gate
     cat = MP_CAT::CHANNEL_GATE;
