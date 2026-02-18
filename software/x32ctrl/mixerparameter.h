@@ -84,7 +84,7 @@ class Mixerparameter {
             }
         }
 
-        String GetUnitOfMesaurement(bool spaceInFront, uint index)
+        String GetUnitOfMesaurement(bool spaceInFront, uint index, bool isResetLabel)
         {
             String result = spaceInFront ? " " : "";
 
@@ -114,7 +114,7 @@ class Mixerparameter {
                     result += "s";
                     break;
                 case EQ_TYPE:
-                    switch ((uint)value[index])
+                    switch ((uint) (isResetLabel ? value_standard : value[index]))
                     {
                         case 0:
                             result += "Allpass";
@@ -147,7 +147,7 @@ class Mixerparameter {
                     break;
                 case FPGA_ROUTING:
                     {
-                        uint chan = (uint)value[index];
+                        uint chan = (uint) (isResetLabel ? value_standard : value[index]);
                         switch (chan)
                         {
                             case FPGA_INPUT_IDX_OFF:
@@ -184,7 +184,7 @@ class Mixerparameter {
                     break;
                 case DSP_ROUTING:
                     {
-                        uint chan = (uint)value[index];
+                        uint chan = (uint) (isResetLabel ? value_standard : value[index]);
                         switch (chan)
                         {
                             case DSP_BUF_IDX_OFF:
@@ -232,7 +232,7 @@ class Mixerparameter {
                     }
                     break;
                 case TAPPOINT:
-                    switch ((DSP_TAP)value[index])
+                    switch ((DSP_TAP) (isResetLabel ? value_standard : value[index]))
                     {
                         case DSP_TAP::INPUT:
                             result += "Input";
@@ -252,7 +252,7 @@ class Mixerparameter {
                     }
                     break;
                 case CHANNEL_LCD_MODE:
-                    switch((uint)value[index])
+                    switch((uint) (isResetLabel ? value_standard : value[index]))
                     {
                         case 0:
                             result += "Lite";
@@ -269,7 +269,7 @@ class Mixerparameter {
 	    return result;
         }
 
-        String FormatValue_Intern(float value_float, uint index)
+        String FormatValue_Intern(float value_float, uint index, bool isResetLabel)
         {
             using enum MP_UOM;
 
@@ -288,11 +288,11 @@ class Mixerparameter {
                 case FPGA_ROUTING:
                 case DSP_ROUTING:
                 case CHANNEL_LCD_MODE:
-                    return GetUnitOfMesaurement(false, index);
+                    return GetUnitOfMesaurement(false, index, isResetLabel);
                 case CHANNEL:
                     return String(value_float + 1, 0);
                 default:
-                    return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index);
+                    return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
             }            
         }
 
@@ -780,7 +780,7 @@ class Mixerparameter {
         {
             if (index < instances)
             {
-                return String("Reset: ") + FormatValue_Intern(value_standard, index);
+                return String("Reset: ") + FormatValue_Intern(value_standard, index, true);
             }
 
             return "";
@@ -796,7 +796,7 @@ class Mixerparameter {
                 }
                 else
                 {
-                    return FormatValue_Intern(value[index], index);
+                    return FormatValue_Intern(value[index], index, false);
                 }
             }
             
