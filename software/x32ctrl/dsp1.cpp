@@ -154,12 +154,12 @@ void DSP1::SendMainVolume()
     float volumeRight = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
     float volumeSub = pow(10.0f, config->GetFloat(CHANNEL_VOLUME, subChannelIndex)/20.0f);
 
-    if (config->GetBool(CHANNEL_MUTE, DSP_BUF_IDX_MAINLEFT))
+    if (config->GetBool(CHANNEL_MUTE, mainChannelIndex))
     {
         volumeLeft = 0; // p.u.
         volumeRight = 0; // p.u.
     }
-    if (config->GetBool(CHANNEL_MUTE, DSP_BUF_IDX_MAINSUB))
+    if (config->GetBool(CHANNEL_MUTE, subChannelIndex))
     {
         volumeSub = 0; // p.u.
     }
