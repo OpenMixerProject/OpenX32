@@ -270,6 +270,8 @@ void Config::DefineMixerparameters() {
 
     DefParameter(CHANNEL_LOWCUT_FREQ, cat, group, "LowcutFreq", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::HZ)
+    ->DefStepmode(1) // frequency mode
+    ->DefStepsize(1)
     ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20.0f);
 
     // Sends
@@ -348,6 +350,7 @@ void Config::DefineMixerparameters() {
     
     DefParameter(CHANNEL_DYNAMICS_RATIO, cat, group, "Ratio", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::NONE)
+    ->DefStepmode(1)
     ->DefMinMaxStandard_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
     
     DefParameter(CHANNEL_DYNAMICS_MAKEUP, cat, group, "Makeup", MAX_VCHANNELS)
@@ -380,18 +383,22 @@ void Config::DefineMixerparameters() {
 
 	DefParameter(CHANNEL_EQ_FREQ1, cat, group, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
+    ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 125.0f);
 
 	DefParameter(CHANNEL_EQ_FREQ2, cat, group, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
+    ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 500.0f);
 
 	DefParameter(CHANNEL_EQ_FREQ3, cat, group, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
+    ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 2000.0f);
 
 	DefParameter(CHANNEL_EQ_FREQ4, cat, group, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
+    ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 10000.0f);
 
     for(auto const& parameter_id : {CHANNEL_EQ_GAIN1, CHANNEL_EQ_GAIN2, CHANNEL_EQ_GAIN3, CHANNEL_EQ_GAIN4} )
@@ -442,7 +449,8 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
     // reverb lowpass
     DefParameter(FX_REVERB_LPFREQ, cat, group, "LowPassFreq", MAX_FX_SLOTS)
-    ->DefUOM(MP_UOM::KHZ)
+    ->DefUOM(MP_UOM::HZ)
+    ->DefStepmode(1) // frequency mode
     ->DefMinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
     // reverb dry
     DefParameter(FX_REVERB_DRY, cat, group, "Dry", MAX_FX_SLOTS)
@@ -473,12 +481,12 @@ void Config::DefineMixerparameters() {
     #define FX_CHORUS_PHASE_B_MIN          0.0f //
     #define FX_CHORUS_PHASE_B_DEFAULT      0.0f //
     #define FX_CHORUS_PHASE_B_MAX        100.0f //
-    #define FX_CHORUS_FREQ_A_MIN           0.0f //
+    #define FX_CHORUS_FREQ_A_MIN          0.05f //
     #define FX_CHORUS_FREQ_A_DEFAULT       1.5f //
-    #define FX_CHORUS_FREQ_A_MAX         100.0f //
-    #define FX_CHORUS_FREQ_B_MIN           0.0f //
+    #define FX_CHORUS_FREQ_A_MAX          10.0f //
+    #define FX_CHORUS_FREQ_B_MIN          0.05f //
     #define FX_CHORUS_FREQ_B_DEFAULT       1.6f //
-    #define FX_CHORUS_FREQ_B_MAX         100.0f //
+    #define FX_CHORUS_FREQ_B_MAX          10.0f //
 
     // chorus depth
     DefParameter(FX_CHORUS_DEPTH_A, cat, group, "Depth A", MAX_FX_SLOTS)
@@ -498,8 +506,8 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_CHORUS_PHASE_A, cat, group, "Phase A", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_A_MIN, FX_CHORUS_PHASE_A_MAX, FX_CHORUS_PHASE_A_DEFAULT);
     DefParameter(FX_CHORUS_PHASE_B, cat, group, "Phase B", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_B_MIN, FX_CHORUS_PHASE_B_MAX, FX_CHORUS_PHASE_B_DEFAULT);
     // chorus freq
-    DefParameter(FX_CHORUS_FREQ_A, cat, group, "Freq A", MAX_FX_SLOTS)->DefUOM(MP_UOM::KHZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT);
-    DefParameter(FX_CHORUS_FREQ_B, cat, group, "Freq B", MAX_FX_SLOTS)->DefUOM(MP_UOM::KHZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT);
+    DefParameter(FX_CHORUS_FREQ_A, cat, group, "Freq A", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT, 2)->DefStepmode(1);
+    DefParameter(FX_CHORUS_FREQ_B, cat, group, "Freq B", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT, 2)->DefStepmode(1);
     // chorus mix
     DefParameter(FX_CHORUS_MIX, cat, group, "Mix", MAX_FX_SLOTS)->DefUOM(MP_UOM::PERCENT)->DefMinMaxStandard_Float(0.0f, 1.0f, 0.5f);
 

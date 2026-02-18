@@ -1464,7 +1464,7 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 	if (channel < 40) {
 		uint32_t meterdata = 0;
 
-		if (mixer->dsp->Channel[channel].compressor.gain < 1.0f) { meterdata |= 0b10000000; };
+		//if (!!RECEIVED_CHANNEL_COMPRESSOR!! < 1.0f) { meterdata |= 0b10000000; };
 
 /*
 		float gateValue = (1.0f - !!RECEIVED_CHANNEL_GAIN!!) * 80.0f;

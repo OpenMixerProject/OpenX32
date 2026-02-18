@@ -78,28 +78,6 @@ typedef struct {
 
 typedef struct {
 	// user-settings
-	float threshold; // value between 0 dBfs (no compression) and -80 dBfs (full compression)
-	float ratio; // value between 0=oo:1, 1=1:1, 2=2:1, 4=4:1, 8=8:1, 16=16:1, 32=32:1, 64=64:1
-	float makeup; // value between 0dB, 6dB, 12dB, 18dB, 24dB, 30dB, 36dB, 42dB, 48dB
-	float attackTime_ms;
-	float holdTime_ms;
-	float releaseTime_ms;
-
-	// filter-data
-	float value_threshold;
-	float value_ratio;
-	float value_makeup;
-	float value_coeff_attack;
-	float value_hold_ticks;
-	float value_coeff_release;
-
-	// online parameter
-	float gain;
-} sCompressor;
-
-
-typedef struct {
-	// user-settings
 	int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
 	float fc; // center-frequency of PEQ
 	float Q; // Quality of PEQ (bandwidth)
@@ -115,9 +93,7 @@ typedef struct {
 	//uint8_t input; // controls the 40 audio-channels into the DSP
 	//DSP_TAP inputTapPoint; // controls the tap-point (pre/post fader/eq)
 
-	sCompressor compressor;
 	sPEQ peq[MAX_CHAN_EQS];
-
 	float sendMixbus[16];
 	uint8_t sendMixbusTapPoint[16];
 } sDspChannel;
@@ -138,7 +114,6 @@ typedef struct {
 } sDsp2AuxChannel;
 
 typedef struct {
-	sCompressor compressor;
 	float volumeLR;
 	float volumeSub;
 	float balance;
@@ -149,7 +124,6 @@ typedef struct {
 } sMixbusChannel;
 
 typedef struct {
-	sCompressor compressor;
 	float volume;
 	bool muted;
 	bool solo;

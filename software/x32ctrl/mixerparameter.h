@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <vector>
 #include "WString.h"
+#include "math.h"
 
 #include "defines.h"
 #include "enum.h"
@@ -37,6 +38,7 @@ class Mixerparameter {
         vector<String> value_string;
 
         uint decimal_places = 0;
+        uint stepmode = 0; // 0: linear, 1: frequency, 2: boolean toggle between 0 and 1
         float stepsize = 1;
 
         bool value_string_autoincrement_zerobased = false;
@@ -99,19 +101,16 @@ class Mixerparameter {
                     result += "dbFS";
                     break;
                 case HZ:
-                    result += "Hz";
-                    break;
-                case KHZ:
-                    result += "kHz";
-                    break;
-                case MS:
-                    result += "ms";
+                    result += "Hz"; // this will automatically be converted to kHz for values >= 1000 in FormatValue_Intern()
                     break;
                 case PERCENT:
                     result += "%";
                     break;
+                case MS:
+                    result += "ms";
+                    break;
                 case SECONDS:
-                    result += "s";
+                    result += "s"; // this will automatically be converted to ms or minutes
                     break;
                 case EQ_TYPE:
                     switch ((uint) (isResetLabel ? value_standard : value[index]))
@@ -273,10 +272,6 @@ class Mixerparameter {
         {
             using enum MP_UOM;
 
-            if (unitOfMeasurement == KHZ) {
-                value_float /= 1000.0f;
-            }
-
             if (unitOfMeasurement == PERCENT) {
                value_float *= 100.0f;
             }
@@ -291,6 +286,20 @@ class Mixerparameter {
                     return GetUnitOfMesaurement(false, index, isResetLabel);
                 case ZERO_BASED_INDEX__START_BY_ONE:
                     return String(value_float + 1, 0);
+                case HZ:
+                    if (value_float >= 1000.0f) {
+                        return String(value_float/1000.0f, 2) + " kHz";
+                    }else{
+                        return String(value_float, decimal_places) + " Hz";
+                    }
+                case SECONDS:
+                    if (value_float >= 60.0f) {
+                        return String(value_float/60.0f, 0) + " min " + String(fmod(value_float, 60.0f), 0) + " s";
+                    }else if (value_float >= 1.0f) {
+                        return String(value_float, 0) + " s";
+                    }else{
+                        return String(value_float * 1000.0f, 0) + " ms";
+                    }
                 default:
                     return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
             }            
@@ -427,6 +436,12 @@ class Mixerparameter {
 
         Mixerparameter* DefStepsize(float steps) {
             stepsize = steps;
+
+            return this;
+        }
+
+        Mixerparameter* DefStepmode(uint mode) {
+            stepmode = mode;
 
             return this;
         }
@@ -685,8 +700,24 @@ class Mixerparameter {
             {
                 __throw_logic_error((String("Stepsize of Mixerparameter ") + GetName() + String(" is 0, so no change can happen!")).c_str());
             }
+
+            float newValue;
+            switch (stepmode)
+            {
+                case 0: // linear
+                    newValue = value[index] + (amount * stepsize);
+                    break;
+                case 1: // frequency
+                    newValue = value[index] * powf(2.0f, (amount * stepsize) / 12.0f); // semitone steps
+                    break;
+                case 2: // boolean toggle
+                    newValue = (amount > 0) ? 1.0f : 0.0f;
+                    break;
+                default:
+                    newValue = value[index] + (amount * stepsize);
+                    break;
+            }
             
-            float newValue = value[index] + (amount * stepsize);
             Set(newValue, index);            
         }
 

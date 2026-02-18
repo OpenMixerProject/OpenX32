@@ -31,36 +31,37 @@ class PageDynamics: public Page {
             lv_chart_set_point_count(objects.current_channel_comp, 200); // with incoming audio every 10ms we see 2 seconds of audio-history
             lv_chart_set_series_color(objects.current_channel_comp, chartSeriesCompressor, lv_color_hex(0xef7900));
 
-            // register draw event callback to change color of audio level depending on gate threshold
+            // register draw event callback to change color of audio level depending on compressor threshold
             lv_obj_add_event_cb(objects.current_channel_comp, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.current_channel_comp, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
             // store mixer pointer in user data for use in draw callback
             lv_obj_set_user_data(objects.current_channel_comp, mixer);
             //chart-shadow: 0x7e4000
-
-            UpdateEncoderBinding();
         }
 
-        void UpdateEncoderBinding()
+        void UpdateEncoderBinding(uint chanindex)
         {
-            uint targetindex = config->GetUint(SELECTED_CHANNEL);
-
-            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_DYNAMICS_TRESHOLD, targetindex);
-            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_DYNAMICS_RATIO, targetindex);
-            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_DYNAMICS_MAKEUP, targetindex);
-            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_DYNAMICS_ATTACK, targetindex);
-            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_DYNAMICS_HOLD, targetindex);
-            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_DYNAMICS_RELEASE, targetindex);
+            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_DYNAMICS_TRESHOLD, chanindex);
+            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_DYNAMICS_RATIO, chanindex);
+            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_DYNAMICS_MAKEUP, chanindex);
+            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_DYNAMICS_ATTACK, chanindex);
+            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_DYNAMICS_HOLD, chanindex);
+            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_DYNAMICS_RELEASE, chanindex);
 
             SyncEncoderWidgets(true);
         }
 
-        void OnChange(bool force) override
+        void OnChange(bool force_update) override
         {
-            if (config->HasParameterChanged(SELECTED_CHANNEL))
+            uint chanIndex = config->GetUint(SELECTED_CHANNEL);
+
+            if (config->HasParametersChanged({CHANNEL_DYNAMICS_ATTACK, CHANNEL_DYNAMICS_HOLD, CHANNEL_DYNAMICS_RATIO, CHANNEL_DYNAMICS_RELEASE, CHANNEL_DYNAMICS_TRESHOLD}, chanIndex) ||
+                config->HasParameterChanged(SELECTED_CHANNEL) ||
+                force_update)
             {
-                UpdateEncoderBinding();
+                DrawDynamics(chanIndex);
+                UpdateEncoderBinding(chanIndex);
             }
         }
 
@@ -113,7 +114,7 @@ class PageDynamics: public Page {
 
             lv_draw_line_dsc_t* line_dsc = lv_draw_task_get_line_dsc(draw_task);
             if (line_dsc) {
-                // change color depending on gate threshold
+                // change color depending on compressor threshold
 
                 // find the first point (left) of chart and add 199 to get the last point (right) being drawn
                 uint32_t point_id = lv_chart_get_x_start_point(chart, series) + lv_chart_get_point_count(chart) - 1;
@@ -145,18 +146,19 @@ class PageDynamics: public Page {
             float outputLevel;
 
             memset(&compValue[0], 0, sizeof(compValue));
-
-            sCompressor* comp = &mixer->dsp->Channel[config->GetUint(SELECTED_CHANNEL)].compressor;
+            
+            float threshold = config->GetFloat(MP_ID::CHANNEL_DYNAMICS_TRESHOLD, selectedChannelIndex);
+            float ratio = config->GetFloat(MP_ID::CHANNEL_DYNAMICS_RATIO, selectedChannelIndex);
 
             for (uint16_t pixel = 0; pixel < 200; pixel++) {
                 inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
 
-                if (inputLevel < comp->threshold) {
+                if (inputLevel < threshold) {
                     // below threshold
                     outputLevel = inputLevel;
                 }else{
                     // above threshold -> calculate overshoot (inputLevel - comp->threshold) and take ratio into account
-                    outputLevel = comp->threshold + ((inputLevel - comp->threshold) / comp->ratio);
+                    outputLevel = threshold + ((inputLevel - threshold) / ratio);
                 }
 
                 // scale outputLevel to -6000 .. 0

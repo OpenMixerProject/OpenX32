@@ -256,20 +256,6 @@ void FxMath::RecalcFilterCoefficients_LR24(sLR24* LR24) {
   LR24->b[4] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) * norm;
 }
 
-void FxMath::RecalcCompressor(sCompressor* compressor) {
-	float samplerate = (float)config->GetUint(MP_ID::SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
-
-	compressor->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, compressor->threshold/20.0f);
-        compressor->value_ratio = compressor->ratio;
-	compressor->value_makeup = pow(10.0f, compressor->makeup/20.0f);
-
-        // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
-        // ln(10%) - ln(90%) = -2.197224577
-	compressor->value_coeff_attack = exp(-2197.22457734f/(samplerate * compressor->attackTime_ms));
-	compressor->value_hold_ticks = compressor->holdTime_ms * samplerate / 1000.0f;
-	compressor->value_coeff_release = exp(-2197.22457734f/(samplerate * compressor->releaseTime_ms));
-}
-
 void FxMath::fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
   float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 

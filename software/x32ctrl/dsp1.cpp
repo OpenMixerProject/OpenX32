@@ -129,9 +129,11 @@ void DSP1::SendMonitorVolume() {
 
 void DSP1::SendMainVolume()
 {
-    float volumeLeft = (helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, DSP_BUF_IDX_MAINLEFT), 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, DSP_BUF_IDX_MAINLEFT)/20.0f);
-    float volumeRight = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, DSP_BUF_IDX_MAINRIGHT) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, DSP_BUF_IDX_MAINRIGHT)/20.0f);
-    float volumeSub = pow(10.0f, config->GetFloat(CHANNEL_VOLUME, DSP_BUF_IDX_MAINSUB)/20.0f);
+    uint mainChannelIndex = 80;
+    uint subChannelIndex = 71;
+    float volumeLeft = (helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex), 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
+    float volumeRight = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
+    float volumeSub = pow(10.0f, config->GetFloat(CHANNEL_VOLUME, subChannelIndex)/20.0f);
 
     if (MainChannelLR.muted) {
         volumeLeft = 0; // p.u.
@@ -258,18 +260,33 @@ void DSP1::ResetEq(uint8_t chan) {
     spi->QueueDspData(0, 'e', chan, 'r', 1, &values[0]);
 }
 
-void DSP1::SendCompressor(uint8_t chan) {
-    fxmath->RecalcCompressor(&Channel[chan].compressor);
+void DSP1::SendCompressor(uint8_t chanIndex) {
+
+    using enum MP_ID;
 
     float values[6];
-    values[0] = Channel[chan].compressor.value_threshold;
-    values[1] = Channel[chan].compressor.value_ratio;
-    values[2] = Channel[chan].compressor.value_makeup;
-    values[3] = Channel[chan].compressor.value_coeff_attack;
-    values[4] = Channel[chan].compressor.value_hold_ticks;
-    values[5] = Channel[chan].compressor.value_coeff_release;
 
-    spi->QueueDspData(0, 'c', chan, 0, 6, &values[0]);
+	float samplerate = (float)config->GetUint(SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
+
+    // threshold
+	values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex)/20.0f);
+
+    // ratio
+    values[1] = config->GetFloat(CHANNEL_DYNAMICS_RATIO, chanIndex);
+
+    // makeup
+	values[2] = pow(10.0f, config->GetFloat(CHANNEL_DYNAMICS_MAKEUP, chanIndex)/20.0f);
+
+    // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
+    // ln(10%) - ln(90%) = -2.197224577
+    // attack
+	values[3] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_ATTACK, chanIndex)));
+    // hold
+	values[4] = config->GetFloat(CHANNEL_DYNAMICS_HOLD, chanIndex) * samplerate / 1000.0f;
+    // release
+	values[5] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_RELEASE, chanIndex)));
+
+    spi->QueueDspData(0, 'c', chanIndex, 0, 6, &values[0]);
 }
 
 void DSP1::SendAll() {
@@ -787,7 +804,7 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs) {
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
 		    //if (!!RECEIVED_CHANNEL_GAIN!! < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
-		    if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
+		    //if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
         }
 	}
 }

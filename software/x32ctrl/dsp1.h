@@ -46,11 +46,11 @@ class DSP1 : X32Base {
         void SendMatrixVolume(uint chanIndex);
         void SendMonitorVolume();
         void SendMainVolume();
-        void SendGate(uint chan);
+        void SendGate(uint chanIndex);
         void SendLowcut(uint8_t chan);
         void SendEQ(uint chan);
         void ResetEq(uint8_t chan);
-        void SendCompressor(uint8_t chan);
+        void SendCompressor(uint8_t chanIndex);
         void SendAll();
 
         void SetInputRouting(uint dspChannel);
