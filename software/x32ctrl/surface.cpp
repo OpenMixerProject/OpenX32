@@ -183,7 +183,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_VIEW_MIX_BUS_SENDS, 0x010F);
         AddButtonDefinition(X32_BTN_MONO_BUS, 0x0115);
         AddButtonDefinition(X32_BTN_MAIN_LR_BUS, 0x0116);
-        AddButtonDefinition(X32_BTN_VIEW_BUS_MIXES, 0x0114);
+        AddButtonDefinition(X32_BTN_VIEW_MAIN, 0x0114);
         AddButtonDefinition(X32_BTN_BUS_SEND_1_4, 0x0110);
         AddButtonDefinition(X32_BTN_BUS_SEND_5_8, 0x0111);
         AddButtonDefinition(X32_BTN_BUS_SEND_9_12, 0x0112);
@@ -388,7 +388,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_VIEW_MIX_BUS_SENDS, 0x0114);
         AddButtonDefinition(X32_BTN_MONO_BUS, 0x0115);
         AddButtonDefinition(X32_BTN_MAIN_LR_BUS, 0x0116);
-        AddButtonDefinition(X32_BTN_VIEW_BUS_MIXES, 0x0117);
+        AddButtonDefinition(X32_BTN_VIEW_MAIN, 0x0117);
 
         AddButtonDefinition(X32_BTN_ENCODER1, 0x0118);
         AddButtonDefinition(X32_BTN_ENCODER2, 0x0119);

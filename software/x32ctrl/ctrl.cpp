@@ -647,6 +647,7 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::COMPRESSOR] = new PageDynamics(pagebasepar);
 	pages[X32_PAGE::EQ] = new PageEq(pagebasepar);
 	pages[X32_PAGE::SENDS] = new PageSends(pagebasepar);
+	pages[X32_PAGE::MAIN] = new PageMain(pagebasepar);
 	pages[X32_PAGE::METERS] = new PageMeters(pagebasepar);
 	pages[X32_PAGE::ROUTING] = new PageRouting(pagebasepar);
 	pages[X32_PAGE::ROUTING_FPGA] = new PageRoutingFpga(pagebasepar);

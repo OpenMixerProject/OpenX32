@@ -54,7 +54,7 @@ typedef enum  {
     X32_BTN_VIEW_MIX_BUS_SENDS,
     X32_BTN_MONO_BUS,
     X32_BTN_MAIN_LR_BUS,
-    X32_BTN_VIEW_BUS_MIXES,
+    X32_BTN_VIEW_MAIN,
     X32_BTN_BUS_SEND_1_4,
     X32_BTN_BUS_SEND_5_8,
     X32_BTN_BUS_SEND_9_12,
@@ -381,6 +381,7 @@ enum class X32_PAGE :int {
         COMPRESSOR,
         EQ,
         SENDS,
+        MAIN,
     METERS,
         // sub-pages of meters?
     ROUTING,

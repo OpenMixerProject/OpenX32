@@ -215,14 +215,7 @@ typedef struct {
 
 
 typedef struct {
-	MP_ID mp = MP_ID::NONE;
-	String label;
-	String label_value;
-	uint8_t percent; 
-	bool slider_hidden = true;
-	String label_buttonpress;
-	bool label_buttonpress_highlighted = false;
-	void* ptr_value;  
+	String label;	
 } sDisplayEncoder;
 
 typedef map<MP_ID, set<uint>>			mixerparameter_changed_t;
