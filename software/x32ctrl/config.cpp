@@ -180,7 +180,6 @@ void Config::DefineMixerparameters() {
 
     DefParameter(SELECTED_CHANNEL, cat, group, "Selected Channel")
     ->DefUOM(MP_UOM::CHANNEL)
-    ->DefHideEncoderSlider()
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, MAX_VCHANNELS - 1, 0);
 
@@ -189,20 +188,19 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Uint(0, 255, (uint)X32_PAGE::HOME);
 
     DefParameter(BANKING_EQ, cat, group, "Banking EQ")
-    ->DefHideEncoderSlider()
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
     DefParameter(BANKING_INPUT, cat, group, "Banking Input Section")
-    ->DefHideEncoderSlider()
+    ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 7, 0);
 
     DefParameter(BANKING_BUS, cat, group, "Banking Bus Section")
-    ->DefHideEncoderSlider()
+    ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
-    DefParameter(BANKING_BUS_SENDS, cat, group, "Banking Bus Section")
-    ->DefHideEncoderSlider()
+    DefParameter(BANKING_BUS_SENDS, cat, group, "Banking Bus Sends")
+    ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
 
@@ -280,12 +278,12 @@ void Config::DefineMixerparameters() {
     vector<MP_ID> channel_send_busses = {
         CHANNEL_BUS_SEND01, CHANNEL_BUS_SEND02, CHANNEL_BUS_SEND03, CHANNEL_BUS_SEND04, CHANNEL_BUS_SEND05, CHANNEL_BUS_SEND06,
         CHANNEL_BUS_SEND07, CHANNEL_BUS_SEND08, CHANNEL_BUS_SEND09, CHANNEL_BUS_SEND10, CHANNEL_BUS_SEND11, CHANNEL_BUS_SEND12,
-        CHANNEL_BUS_SEND11, CHANNEL_BUS_SEND13, CHANNEL_BUS_SEND14, CHANNEL_BUS_SEND15, CHANNEL_BUS_SEND16
+        CHANNEL_BUS_SEND13, CHANNEL_BUS_SEND14, CHANNEL_BUS_SEND15, CHANNEL_BUS_SEND16
     };
 
     for (uint i = 0; i < channel_send_busses.size(); i++)
     {
-        DefParameter(channel_send_busses.at(i), cat, group, String("Bus Send ") + i, MAX_VCHANNELS)
+        DefParameter(channel_send_busses.at(i), cat, group, String("Send ") + i, MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     }
@@ -309,7 +307,7 @@ void Config::DefineMixerparameters() {
         CHANNEL_BUS_SEND16_TAPPOINT
     } )
     {
-        DefParameter(parameter_id, cat, group, "Bus Send Tappoint", MAX_VCHANNELS)
+        DefParameter(parameter_id, cat, group, "Send Tap", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::TAPPOINT)
         ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
     }    
