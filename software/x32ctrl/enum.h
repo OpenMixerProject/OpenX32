@@ -449,7 +449,7 @@ enum class MP_UOM {
     FPGA_ROUTING,
     DSP_ROUTING,
     TAPPOINT,
-    CHANNEL,
+    ZERO_BASED_INDEX__START_BY_ONE,
     CHANNEL_LCD_MODE, // Displaymode of Channel LCDs
 };
 

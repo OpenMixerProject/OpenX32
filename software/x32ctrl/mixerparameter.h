@@ -289,7 +289,7 @@ class Mixerparameter {
                 case DSP_ROUTING:
                 case CHANNEL_LCD_MODE:
                     return GetUnitOfMesaurement(false, index, isResetLabel);
-                case CHANNEL:
+                case ZERO_BASED_INDEX__START_BY_ONE:
                     return String(value_float + 1, 0);
                 default:
                     return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);

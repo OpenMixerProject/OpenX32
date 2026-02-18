@@ -179,7 +179,7 @@ void Config::DefineMixerparameters() {
     group = "state";
 
     DefParameter(SELECTED_CHANNEL, cat, group, "Selected Channel")
-    ->DefUOM(MP_UOM::CHANNEL)
+    ->DefUOM(MP_UOM::ZERO_BASED_INDEX__START_BY_ONE)
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, MAX_VCHANNELS - 1, 0);
 
@@ -283,12 +283,12 @@ void Config::DefineMixerparameters() {
 
     for (uint i = 0; i < channel_send_busses.size(); i++)
     {
-        DefParameter(channel_send_busses.at(i), cat, group, String("Send ") + i, MAX_VCHANNELS)
+        DefParameter(channel_send_busses.at(i), cat, group, String("Send ") + (i + 1), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     }
 
-    for(auto const& parameter_id : {
+    vector<MP_ID> channel_send_busses_tappoints = {
         CHANNEL_BUS_SEND01_TAPPOINT,
         CHANNEL_BUS_SEND02_TAPPOINT,
         CHANNEL_BUS_SEND03_TAPPOINT,
@@ -304,10 +304,11 @@ void Config::DefineMixerparameters() {
         CHANNEL_BUS_SEND13_TAPPOINT,
         CHANNEL_BUS_SEND14_TAPPOINT,
         CHANNEL_BUS_SEND15_TAPPOINT,
-        CHANNEL_BUS_SEND16_TAPPOINT
-    } )
+        CHANNEL_BUS_SEND16_TAPPOINT};
+    
+    for (uint i = 0; i < channel_send_busses_tappoints.size(); i++)
     {
-        DefParameter(parameter_id, cat, group, "Send Tap", MAX_VCHANNELS)
+        DefParameter(channel_send_busses_tappoints.at(i), cat, group, String("Send ")  + (i + 1) + " Tap", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::TAPPOINT)
         ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
     }    
