@@ -256,6 +256,7 @@ void Page::SyncEncoderWidgets(bool force) {
         {
             lv_label_set_text(binding->Label, custom_encoder[encoder_index].label.c_str());
         }
+        // encoder is handled by this:
         else
         {    
             if (config->HasParameterChanged(binding->mp_id_encoder, targetIndex) || force) 
