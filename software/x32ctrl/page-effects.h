@@ -142,7 +142,7 @@ class PageEffects: public Page {
 
         void nextParameterBank()
         {
-            if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > (((banking * 6) + 1) * 6))
+            if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > ((banking + 1) * 6))
             {
                 banking++;
             }
