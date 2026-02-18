@@ -24,16 +24,20 @@
 
 #include "page.h"
 
-Page::Page(PageBaseParameter* pagebasepar) : X32Base(pagebasepar) {
+Page::Page(PageBaseParameter* pagebasepar) : X32Base(pagebasepar)
+{
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::Page()");
+
     mixer = pagebasepar->mixer;
     surface = pagebasepar->surface;
 }
 
-void Page::Init() {
+void Page::Init()
+{
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::Init()");
 
     // Prepare Encoder Bindingssystem
+    // -> put labels and sliders in binding struct
     encoderbinding[DISPLAY_ENCODER_1] = new PageBinding_Encoder(objects.widget1__label, objects.widget1__value, objects.widget1__slider, objects.widget1__label_buttonpress);
     encoderbinding[DISPLAY_ENCODER_2] = new PageBinding_Encoder(objects.widget2__label, objects.widget2__value, objects.widget2__slider, objects.widget2__label_buttonpress);
     encoderbinding[DISPLAY_ENCODER_3] = new PageBinding_Encoder(objects.widget3__label, objects.widget3__value, objects.widget3__slider, objects.widget3__label_buttonpress);
@@ -45,38 +49,46 @@ void Page::Init() {
     initDone = true;
 }
 
-void Page::Show() {
+void Page::Show()
+{
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::Show()");
 
     // open tab on Layer0
-	if (tabLayer0 != nullptr) {
+	if (tabLayer0 != nullptr)
+    {
 		lv_tabview_set_active(tabLayer0, tabIndex0, LV_ANIM_OFF);
 	}
 
 	// open tab on Layer1
-	if (tabLayer1 != nullptr) {
+	if (tabLayer1 != nullptr)
+    {
 		lv_tabview_set_active(tabLayer1, tabIndex1, LV_ANIM_OFF);
 	}
 
+    // clear encoders from previous page
+    for (uint i = 0; i < MAX_DISPLAY_ENCODER; i++)
+    {
+        ClearEncoder(encoderbinding[i]);
+    }
+
+    // hide encoders if wanted
     lv_obj_set_flag(objects.display_encoder_sliders, LV_OBJ_FLAG_HIDDEN, hideEncoders);
 
-    // Show Page and trigger a complete update
+    // show page and trigger a complete update
     OnShow();
     OnChange(true);
     SyncEncoderWidgets(true);
 }
 
-
-
-void Page::Change() {
+void Page::Change()
+{
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::Change()");
+
     if (initDone) {
         OnChange(false);
         SyncEncoderWidgets(false);
     }
 }
-
-
 
 void Page::UpdateMeters() {
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::UpdateMeters()");
@@ -84,8 +96,6 @@ void Page::UpdateMeters() {
         OnUpdateMeters();
     }
 }
-
-
 
 void Page::DisplayEncoderTurned(X32_ENC encoder, int amount) 
 {
@@ -101,6 +111,7 @@ void Page::DisplayEncoderTurned(X32_ENC encoder, int amount)
             uint encoderIndex = encoder - X32_ENC_ENCODER1;
             if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
             {
+                // save encoder change to Mixerparameter
                 config->Change(
                     encoderbinding[encoderIndex]->mp_id_encoder,
                     amount,
@@ -110,9 +121,10 @@ void Page::DisplayEncoderTurned(X32_ENC encoder, int amount)
     }
 }
 
-
-void Page::DisplayButton(X32_BTN button, bool pressed) {
+void Page::DisplayButton(X32_BTN button, bool pressed)
+{
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::DisplayButton()");
+
     if (initDone) {
         
         // let page handle button message
@@ -130,18 +142,18 @@ void Page::DisplayButton(X32_BTN button, bool pressed) {
                     {
                         if (config->GetParameter(encoderbinding[encoderIndex]->mp_id_encoder)->GetHideEncoderReset())
                         {
-                            // do nothing
+                            // encoder reset funtion is hidden -> do nothing
                         }
                         else if (encoderbinding[encoderIndex]->mp_id_button == MP_ID::NONE) 
                         {
-                            // reset data of encoder bound Mixerparameter
+                            // reset data of the Mixerparameter
                             config->Reset(
                                 encoderbinding[encoderIndex]->mp_id_encoder,
                                 encoderbinding[encoderIndex]->mp_index);
                         }
                         else 
                         {
-                            // toggle data of button bound Mixerparameter
+                            // toggle data of the Mixerparameter
                             config->Toggle(
                                 encoderbinding[encoderIndex]->mp_id_button,
                                 encoderbinding[encoderIndex]->mp_index);
@@ -237,10 +249,7 @@ void Page::SyncEncoderWidgets(bool force) {
         {
             // clear all labels and hide slider
 
-            lv_label_set_text(binding->Label, "");
-            lv_label_set_text(binding->ValueLabel, "");
-            lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
-            lv_label_set_text(binding->ButtonLabel, "");
+            ClearEncoder(binding);
         }
         // encoder is handled entirely by page
         else if (binding->mp_id_encoder == MP_ID::PAGE_CUSTOM_ENCODER)
@@ -308,6 +317,13 @@ void Page::SyncEncoderWidgets(bool force) {
     }
 }
 
+void Page::ClearEncoder(PageBinding_Encoder *binding)
+{
+    lv_label_set_text(binding->Label, "");
+    lv_label_set_text(binding->ValueLabel, "");
+    lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
+    lv_label_set_text(binding->ButtonLabel, "");
+}
 
 // old
 void Page::SetEncoderHighlight(uint encoder, bool highlight) { }

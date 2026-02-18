@@ -54,6 +54,8 @@ class Page : public X32Base {
         void SetEncoderHighlight(uint encoder, bool highlight);
         void SyncEncoderWidgets(bool force);
 
+        void ClearEncoder(PageBinding_Encoder *binding);
+
         //###################################################
         //# Default implementation of virtual functions,
         //# can be overridden by pages
