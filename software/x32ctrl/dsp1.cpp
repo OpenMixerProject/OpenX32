@@ -54,17 +54,17 @@ void DSP1::Init(void)
 
 
 // set the general volume of one of the 40 DSP-channels
-void DSP1::SendChannelVolume(uint chan)
+void DSP1::SendChannelVolume(uint chanIndex)
 {
-    float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chan), 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chan) + 100.0f, 0.0f, 100.0f) / 100.0f;
-    float volumeLR = config->GetFloat(CHANNEL_VOLUME, chan);
-    float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chan);
+    float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chanIndex), 0.0f, 100.0f) / 100.0f;
+    float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f, 0.0f, 100.0f) / 100.0f;
+    float volumeLR = config->GetFloat(CHANNEL_VOLUME, chanIndex);
+    float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex);
 
-    if (!config->GetBool(CHANNEL_SEND_LR, chan)) {
+    if (!config->GetBool(CHANNEL_SEND_LR, chanIndex) || config->GetBool(CHANNEL_MUTE, chanIndex)) {
         volumeLR = VOLUME_MIN; // dB
     }
-    if (!config->GetBool(CHANNEL_SEND_SUB, chan)) {
+    if (!config->GetBool(CHANNEL_SEND_SUB, chanIndex) || config->GetBool(CHANNEL_MUTE, chanIndex)) {
         volumeSub = VOLUME_MIN; // dB
     }
 
@@ -77,7 +77,7 @@ void DSP1::SendChannelVolume(uint chan)
 
     helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "SendChannelVolume: %f, %f, %f, %f", (double)values[0], (double)values[1], (double)values[2], (double)values[3]);
 
-    spi->QueueDspData(0, 'v', chan, 0, 4, &values[0]);
+    spi->QueueDspData(0, 'v', chanIndex, 0, 4, &values[0]);
 }
 
 // send BusSends
