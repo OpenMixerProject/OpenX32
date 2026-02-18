@@ -324,6 +324,7 @@ void Page::ClearEncoder(PageBinding_Encoder *binding)
     lv_label_set_text(binding->ValueLabel, "");
     lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
     lv_label_set_text(binding->ButtonLabel, "");
+    remove_style_label_bg_yellow(binding->ButtonLabel);
 }
 
 // old
