@@ -28,7 +28,7 @@ FxBase::FxBase(X32BaseParameter* basepar) : X32Base(basepar){ }
 
 
 String FxBase::GetName() {
-    return "";
+    return "No FX";
 }
 
 

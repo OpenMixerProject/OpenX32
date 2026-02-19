@@ -72,6 +72,10 @@ void FxSlot::ClearFx() {
 	fxType = FX_TYPE::NONE;
 }
 
+FX_TYPE FxSlot::GetFxType() {
+	return fxType;
+}
+
 bool FxSlot::HasFx(){
 	return fxType != FX_TYPE::NONE;
 }

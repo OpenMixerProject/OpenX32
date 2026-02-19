@@ -26,5 +26,6 @@ class FxSlot : X32Base {
 
         void LoadFx(FX_TYPE fxToLoad);
         void ClearFx();
+        FX_TYPE GetFxType();
         bool HasFx();
 };

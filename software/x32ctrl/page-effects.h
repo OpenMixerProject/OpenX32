@@ -20,6 +20,10 @@ class PageEffects: public Page {
         }
 
         void OnShow() override {
+            // encoder 1
+            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER, MP_ID::NONE);
+            custom_encoder[DISPLAY_ENCODER_1].label = "Select FX";
+
             lv_table_set_column_count(objects.fxtable, 8);
             for (uint8_t i = 0; i < MAX_FX_SLOTS; i++) {
                 lv_table_set_column_width(objects.fxtable, i, DISPLAY_RESOLUTION_X / 8);
@@ -49,12 +53,12 @@ class PageEffects: public Page {
                             if (slot->HasFx()) {
 
                                 // reset banking, if FX has less parameters
-                                if (slot->fx->GetParameterCount() <= (banking * 6)) {
+                                if (slot->fx->GetParameterCount() <= (banking * 5)) {
                                     banking = 0;
                                 }
 
-                                for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    BindEncoder(e, slot->fx->GetParameterDefinition(e + (banking * 6)), selectedFx);
+                                for (uint8_t e = 0; e < (MAX_DISPLAY_ENCODER - 1); e++){
+                                    BindEncoder(DISPLAY_ENCODER_2 + e, slot->fx->GetParameterDefinition(e + (banking * 5)), selectedFx);
                                 }
 
                             } else {
@@ -62,14 +66,14 @@ class PageEffects: public Page {
 
                                 banking = 0;
 
-                                for (uint8_t e=0; e < MAX_DISPLAY_ENCODER; e++){
-                                    UnbindEncoder(e);
+                                for (uint8_t e = 0; e < (MAX_DISPLAY_ENCODER - 1); e++){
+                                    UnbindEncoder(DISPLAY_ENCODER_2 + e);
                                 }
                             }
 
                         } else {
                             // FX number (not selected)
-                            lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex*2, "FX%d", slotIndex+1);
+                            lv_table_set_cell_value_fmt(objects.fxtable, 0, slotIndex * 2, "FX%d", slotIndex+1);
                         }
                     }
                     
@@ -84,13 +88,17 @@ class PageEffects: public Page {
                             for (uint8_t p = 0; p < slot->fx->GetParameterCount(); p++)
                             {
                                 Mixerparameter *parameter = config->GetParameter(slot->fx->GetParameterDefinition(p));
-                                lv_table_set_cell_value(objects.fxtable, p + 3, slotIndex * 2, parameter->GetName().c_str());
+                                lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex * 2), parameter->GetName().c_str());
                                 lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex * 2) + 1, parameter->GetFormatedValue(slotIndex).c_str());
                             }
                         } else {
+                            // FX Name
+                            lv_table_set_cell_value(objects.fxtable, 1, slotIndex * 2, "No FX");
+
                             // clear name and parameters
-                            for (uint8_t p=0; p < 10; p++){
-                                lv_table_set_cell_value(objects.fxtable, p+2, slotIndex*2, "");
+                            for (uint8_t p = 0; p < 12; p++){
+                                lv_table_set_cell_value(objects.fxtable, p + 2, (slotIndex * 2), "");
+                                lv_table_set_cell_value(objects.fxtable, p + 2, (slotIndex * 2) + 1, "");
                             }
                         }   
                     }
@@ -103,10 +111,32 @@ class PageEffects: public Page {
 
         bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
 
-            uint encoderIndex = encoder - X32_ENC_ENCODER1;
-            if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
-            {
-                config->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, selectedFx);
+            if (encoder == X32_ENC_ENCODER1) {
+                // ENCODER 1 -> select new FX
+                // get the selected FX-slot
+                FxSlot* slot = mixer->dsp->fx_slot[selectedFx];
+
+                // calculate new FX-Type based on current FX-Type and encoder turn amount
+                FX_TYPE newFxType = (FX_TYPE)((int)slot->GetFxType() + amount);
+                if (newFxType < FX_TYPE::NONE) {
+                    newFxType = (FX_TYPE)((int)FX_TYPE::FX_COUNT - 1);
+                }else if (newFxType >= FX_TYPE::FX_COUNT) {
+                    newFxType = FX_TYPE::NONE;
+                }
+
+                // install new effect
+                mixer->dsp->DSP2_SetFx(selectedFx, newFxType, 2);
+
+                // update UI
+                OnChange(true);
+                SyncEncoderWidgets(true);
+            }else{
+                // ENCODER 2 ... 6 -> change parameter of selected FX
+                uint encoderIndex = encoder - X32_ENC_ENCODER1; // must be X32_ENC_ENCODER1 here to calculate correct index for encoderbinding
+                if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
+                {
+                    config->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, selectedFx);
+                }
             }
             
             return true;
@@ -119,6 +149,9 @@ class PageEffects: public Page {
                 message_handled = true;
 
                 switch (button){
+                    case X32_ENC_ENCODER1:
+                        // do nothing when encoder 1 is pressed
+                        break;
                     case X32_BTN_LEFT:
                         prevFX();
                         break;
@@ -142,7 +175,7 @@ class PageEffects: public Page {
 
         void nextParameterBank()
         {
-            if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > ((banking + 1) * 6))
+            if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > ((banking + 1) * 5))
             {
                 banking++;
             }
