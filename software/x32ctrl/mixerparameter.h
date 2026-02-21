@@ -754,24 +754,12 @@ class Mixerparameter {
 
         String GetConfigGroup()
         { 
-            String config_group = _config_section;
-
-
-
-            return config_group;
+            return _config_section;
         }
 
-        String GetConfigName()
+        String GetConfigEntry()
         {            
-            String config_name = _name;
-
-            config_name.replace(" ", "_");
-            config_name.replace("/", "_");
-            config_name.replace("\\", "_");
-            config_name.replace(".", "_");
-            config_name.toLowerCase();
-        
-            return config_name;
+            return _config_entry;
         }
 
         String GetName(uint index = 0)

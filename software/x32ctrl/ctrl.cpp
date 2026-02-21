@@ -263,14 +263,14 @@ void X32Ctrl::LoadConfig() {
 		}
 
 		for (uint index = 0; index < parameter->GetInstances(); index++)
-		{
-			String section = parameter->GetConfigGroup() + String(index);			
-			String entry = parameter->GetConfigName();
+		{						
+			String section = parameter->GetConfigGroup() + String("_") + String(index);
+			String entry = parameter->GetConfigEntry();
 			
-			using enum MP_VALUE_TYPE;
-
 			try
 			{
+				using enum MP_VALUE_TYPE;
+
 				switch(parameter->GetType())
 				{
 					case FLOAT:
@@ -347,8 +347,8 @@ void X32Ctrl::SaveConfig() {
 
 		for (uint index = 0; index < parameter->GetInstances(); index++)
 		{
-			String section = parameter->GetConfigGroup() + String(index);			
-			String entry = parameter->GetConfigName();
+			String section = parameter->GetConfigGroup() + String("_") + String(index);
+			String entry = parameter->GetConfigEntry();
 			
 			using enum MP_VALUE_TYPE;
 
