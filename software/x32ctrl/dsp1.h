@@ -61,7 +61,6 @@ class DSP1 : X32Base {
         void GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource);
         String RoutingGetOutputNameByIndex(uint8_t index);
         void RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source);
-        void RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position);
         void UpdateVuMeter(uint8_t intervalMs);
         uint8_t GetPeak(int i, uint8_t steps);
 

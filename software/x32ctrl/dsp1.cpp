@@ -507,29 +507,6 @@ void DSP1::RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t s
     }
 }
 
-void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
-    switch((DSP_TAP)position) {
-        case DSP_TAP::INPUT:
-            sprintf(p_nameBuffer, "Input");
-            break;
-        case DSP_TAP::PRE_EQ:
-            sprintf(p_nameBuffer, "Pre-EQ");
-            break;
-        case DSP_TAP::POST_EQ:
-            sprintf(p_nameBuffer, "Post-EQ");
-            break;
-        case DSP_TAP::PRE_FADER:
-            sprintf(p_nameBuffer, "Pre-Fader");
-            break;
-        case DSP_TAP::POST_FADER:
-            sprintf(p_nameBuffer, "Post-Fader");
-            break;
-        default:
-            sprintf(p_nameBuffer, "???");
-            break;
-    }
-}
-
 void DSP1::UpdateVuMeter(uint8_t intervalMs) {
     uint8_t preloadPeakHold = 1000 / intervalMs; // 50ms * 20 = 1000ms
     uint8_t preloadPeakDecay = 50 / intervalMs; // 50ms * 1 = 50ms
