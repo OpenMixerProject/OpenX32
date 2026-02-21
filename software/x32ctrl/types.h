@@ -88,55 +88,18 @@ typedef struct {
 	float b[3];
 } sPEQ;
 
-// values stored in config
-typedef struct {
-	//uint8_t input; // controls the 40 audio-channels into the DSP
-	//DSP_TAP inputTapPoint; // controls the tap-point (pre/post fader/eq)
 
+typedef struct {
 	sPEQ peq[MAX_CHAN_EQS];
-	float sendMixbus[16];
-	uint8_t sendMixbusTapPoint[16];
 } sDspChannel;
 
-typedef struct {
-	uint8_t input; // controls the 40 audio-channels out of the DSP
-	DSP_TAP tapPoint; // controls the tap-point (pre/post fader/eq)
-} sDspOutchannel;
 
 typedef struct {
-	uint8_t input; // controls which channel should be routed to DSP2 (FX)
-	DSP_TAP tapPoint; // controls the tap-point (pre/post fader/eq)
-} sFxChannel;
-
-typedef struct {
-	uint8_t outputSource; // controls which channel should be routed to DSP2 (FX)
-	uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
-} sDsp2AuxChannel;
-
-typedef struct {
-	float volumeLR;
-	float volumeSub;
-	float balance;
-	float sendMatrix[6];
 	uint8_t sendMatrixTapPoint[6];
-	bool muted;
-	bool solo;
 } sMixbusChannel;
 
-typedef struct {
-	float volume;
-	bool muted;
-	bool solo;
-} sMatrixChannel;
 
 typedef struct {
-	float volume;
-	float balance;
-	float sendMatrix[6];
-	uint8_t sendMatrixTapPoint[6];
-	bool muted;
-	bool solo;
-
 	float meterPu[2]; // meter information in p.u.
 	uint32_t meter[2];
 	uint32_t meterDecay[2]; // meter information with decay
@@ -147,7 +110,6 @@ typedef struct {
 } sMainChannel;
 
 typedef struct{
-    char name[MAX_NAME_LENGTH];
 
     // assing surfaceChannel to VChannel
     //
@@ -193,5 +155,3 @@ typedef struct {
 } sDisplayEncoder;
 
 typedef map<MP_ID, set<uint>>			mixerparameter_changed_t;
-//typedef map<MP_ID, Mixerparameter*>		mixerparameter_map_t;
-//typedef Mixerparameter[]*		mixerparameter_map_t;

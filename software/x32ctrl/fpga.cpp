@@ -300,6 +300,9 @@ void Fpga::SendRoutingToFpga(int channel) {
 
 		txData[0] = (uint8_t)config->GetUint(ROUTING_FPGA, channel);
 		txData[1] = channel;
+
+		helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "SendRoutingToFpga() channelindex %d: %d", channel, txData[0]);
+
 		spi->SendFpgaData(&txData[0], &rxData[0], 2);
 
 		if ((rxData[0] != txData[0]) || (rxData[1] != txData[1]))

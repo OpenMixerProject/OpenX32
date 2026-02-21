@@ -159,24 +159,24 @@ void Config::DefineMixerparameters() {
     ->DefConfig(group, "fpga")
     ->DefMinMaxStandard_Uint(0, NUM_INPUT_CHANNEL, 0); // 161 = OFF + 160 channels
 
-    DefParameter(ROUTING_DSP_INPUT, cat, "Routing DSP-Input", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
+    DefParameter(ROUTING_DSP_INPUT, cat, "Input", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
     ->DefUOM(MP_UOM::DSP_ROUTING)
     ->DefHideEncoderSlider()
     ->DefConfig(group, "dsp_input")
     ->DefMinMaxStandard_Uint(0, DSP_MAX_INTERNAL_CHANNELS - 1, 0); // 0=OFF, 92=Talkback
 
-    DefParameter(ROUTING_DSP_INPUT_TAPPOINT, cat, "Routing DSP-Input Tappoint", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
+    DefParameter(ROUTING_DSP_INPUT_TAPPOINT, cat, "Tappoint", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
     ->DefUOM(MP_UOM::TAPPOINT)
     ->DefConfig(group, "dsp_input_tappoint")
     ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
 
-    DefParameter(ROUTING_DSP_OUTPUT, cat, "Routing DSP-Output", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
+    DefParameter(ROUTING_DSP_OUTPUT, cat, "Output", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
     ->DefUOM(MP_UOM::DSP_ROUTING)
     ->DefHideEncoderSlider()
     ->DefConfig(group, "dsp_output")
     ->DefMinMaxStandard_Uint(0, DSP_MAX_INTERNAL_CHANNELS - 1, 0); // 0=OFF, 92=Talkback
 
-    DefParameter(ROUTING_DSP_OUTPUT_TAPPOINT, cat, "Routing DSP-Output Tappoint", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
+    DefParameter(ROUTING_DSP_OUTPUT_TAPPOINT, cat, "Tappoint", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
     ->DefUOM(MP_UOM::TAPPOINT)
     ->DefConfig(group, "dsp_output_tappoint")
     ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::POST_FADER);
@@ -295,12 +295,13 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f)
     ->DefStepsize(2);
 
-    DefParameter(CHANNEL_LOWCUT_FREQ, cat, "LowcutFreq", MAX_VCHANNELS)
-    ->DefConfig(group, "lowcut_freq")
-    ->DefUOM(MP_UOM::HZ)
-    ->DefStepmode(1) // frequency mode
-    ->DefStepsize(1)
-    ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20.0f);
+    DefParameter(CHANNEL_SEND_LR, cat, "LR", MAX_VCHANNELS)
+    ->DefConfig(group, "send_lr")
+    ->DefStandard_Bool(true);
+
+    DefParameter(CHANNEL_SEND_SUB, cat, "SUB", MAX_VCHANNELS)
+    ->DefConfig(group, "send_sub")
+    ->DefStandard_Bool(false);
 
     // Sends
     cat = MP_CAT::CHANNEL_SENDS;
@@ -344,16 +345,6 @@ void Config::DefineMixerparameters() {
         ->DefConfig(group, "bus_send_tappoint" + String(i))
         ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
     }    
-
-    DefParameter(CHANNEL_SEND_LR, cat, "LR", MAX_VCHANNELS)
-    ->DefConfig(group, "send_lr")
-    ->DefStandard_Bool(true);
-
-    DefParameter(CHANNEL_SEND_SUB, cat, "SUB", MAX_VCHANNELS)
-    ->DefConfig(group, "send_sub")
-    ->DefStandard_Bool(false);
-
-
 
     // gate
     cat = MP_CAT::CHANNEL_GATE;
@@ -419,6 +410,13 @@ void Config::DefineMixerparameters() {
 
     // EQ
     cat = MP_CAT::CHANNEL_EQ;
+
+    DefParameter(CHANNEL_LOWCUT_FREQ, cat, "LowcutFreq", MAX_VCHANNELS)
+    ->DefConfig(group, "lowcut_freq")
+    ->DefUOM(MP_UOM::HZ)
+    ->DefStepmode(1) // frequency mode
+    ->DefStepsize(1)
+    ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20.0f);
 
     uint channel_eq_count = 4;
     float channel_eq_freq[4] = {125.0f, 500.0f, 2000.0f, 10000.0f};

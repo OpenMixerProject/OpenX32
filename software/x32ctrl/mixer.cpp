@@ -36,8 +36,8 @@ void Mixer::Init() {
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->Init()");
     dsp->Init();
 
-    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->SendAll()");
-    dsp->SendAll();
+    //helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->SendAll()");
+    //dsp->SendAll();
 
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "adda->Init()");
     adda->Init();
@@ -74,8 +74,9 @@ void Mixer::Init() {
 // #################################################################################################################################
 
 
-void Mixer::LoadVChannelLayout() {
-    
+void Mixer::LoadVChannelLayout()
+{
+    // Channel 1-32
     for (int i=0; i<=31; i++)
     {
         config->Set(CHANNEL_COLOR, SURFACE_COLOR_YELLOW, i);
@@ -286,17 +287,10 @@ String Mixer::GetCardModelString(){
 
 void Mixer::Sync(void){
 
-    vector<MP_ID> filter = {CHANNEL_VOLUME, CHANNEL_MUTE, CHANNEL_PANORAMA};
-    if (
-        config->HasParametersChanged(filter) ||
-        config->HasParametersChanged(MP_CAT::CHANNEL_SENDS)
-    )
+    vector<MP_ID> filter = {CHANNEL_VOLUME, CHANNEL_VOLUME_SUB, CHANNEL_MUTE, CHANNEL_PANORAMA, CHANNEL_SEND_LR, CHANNEL_SEND_SUB};
+    if (config->HasParametersChanged(filter))
     {    
-        vector<uint> changedIndexes = config->GetChangedParameterIndexes(filter);
-        vector<uint> changedIndexes2 = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS);
-        changedIndexes.insert(changedIndexes.end(), changedIndexes2.begin(), changedIndexes2.end());
-        
-        for (auto const& changedIndex : changedIndexes)
+        for (auto const& changedIndex : config->GetChangedParameterIndexes(filter))
         {
             if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
                 helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX))
@@ -316,7 +310,16 @@ void Mixer::Sync(void){
             }
             else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAIN)) {
                 dsp->SendMainVolume();
-            }                                  
+            }  
+        }
+    }
+
+    if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS))
+    { 
+        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS))
+        {
+            dsp->SendChannelSend(changedIndex);
+            dsp->ChannelSendTapPoints(changedIndex);
         }
     }
 

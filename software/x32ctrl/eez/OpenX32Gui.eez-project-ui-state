@@ -25,7 +25,7 @@
           {
             "type": "border",
             "selected": 5,
-            "size": 230.5,
+            "size": 167.5,
             "location": "right",
             "children": [
               {
@@ -128,12 +128,12 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 12.510777513864882,
+              "weight": 14.168782161957502,
               "children": [
                 {
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
-                  "weight": 1.2153745573055266,
+                  "weight": 0.6831938684023293,
                   "enableClose": false,
                   "children": [
                     {
@@ -165,7 +165,7 @@
                 {
                   "type": "tabset",
                   "id": "#53535229-d14c-4d96-897c-ebfec499b8c9",
-                  "weight": 1.249252593746099,
+                  "weight": 1.9890904814421986,
                   "enableClose": false,
                   "children": [
                     {
@@ -176,13 +176,12 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
                   "id": "#0f260a68-eb21-4467-898f-292455a2cb4e",
-                  "weight": 0.5353728489483748,
+                  "weight": 0.3277156501554722,
                   "enableClose": false,
                   "children": [
                     {
@@ -200,7 +199,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 30.22568840387239,
+              "weight": 28.567683755779743,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -215,7 +214,8 @@
                   },
                   "icon": "svg:page"
                 }
-              ]
+              ],
+              "active": true
             },
             {
               "type": "tabset",
@@ -965,7 +965,12 @@
       "selection": {
         "0": {
           "1": {
-            "$selected": true
+            "0": {},
+            "1": {
+              "0": {
+                "1": {}
+              }
+            }
           },
           "3": {}
         }

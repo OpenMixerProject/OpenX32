@@ -55,8 +55,8 @@ class PageUtility: public Page {
                         mixer->dsp->spi->UploadBitstreamDsps(false); // use UI to show progress
                         mixer->dsp->spi->OpenConnectionDsps();
                         usleep(50000); // wait 50ms
-                        mixer->dsp->SendAll();
-                        mixer->dsp->SendAll(); // currently we need to send the data twice. Maybe a bug in the SPI-connection or a timing-issue?
+                        //mixer->dsp->SendAll();
+                        //mixer->dsp->SendAll(); // currently we need to send the data twice. Maybe a bug in the SPI-connection or a timing-issue?
                         break;
                     case X32_BTN_ENCODER2:
                         // install effects

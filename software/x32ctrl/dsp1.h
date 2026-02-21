@@ -20,11 +20,8 @@ class DSP1 : X32Base {
         srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS + 8 + 8];  // values used only during runtime
         sDspChannel Channel[MAX_FPGA_TO_DSP1_CHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
-        sMatrixChannel Matrix[6];
-        //sFxChannel Dsp1toDsp2Routing[MAX_DSP1_TO_DSP2_CHANNELS];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
-        sDspOutchannel Dsp1Routing[MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS];
         float volumeFxReturn[8];
         float volumeDca[8];
 
@@ -51,16 +48,12 @@ class DSP1 : X32Base {
         void SendEQ(uint chan);
         void ResetEq(uint8_t chan);
         void SendCompressor(uint8_t chanIndex);
-        void SendAll();
 
         void SetInputRouting(uint dspChannel);
         void SetOutputRouting(uint dspChannel);
-        void ChannelSendTapPoints(uint chanIndex, uint mixbusChannel);
-        void SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint);
+        void ChannelSendTapPoints(uint chanIndex);
         void SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint);
-        void GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource);
         String RoutingGetOutputNameByIndex(uint8_t index);
-        void RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source);
         void UpdateVuMeter(uint8_t intervalMs);
         uint8_t GetPeak(int i, uint8_t steps);
 
