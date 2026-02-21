@@ -55,8 +55,6 @@ lv_style_t *get_style_label_bg_yellow_MAIN_DEFAULT();
 void add_style_label_bg_yellow(lv_obj_t *obj);
 void remove_style_label_bg_yellow(lv_obj_t *obj);
 
-
-
 #ifdef __cplusplus
 }
 #endif

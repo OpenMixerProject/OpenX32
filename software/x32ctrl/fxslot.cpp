@@ -43,26 +43,37 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 			fx = new FxTransientshaper(_basepar);
 			fxType = fxToLoad;
 			break;
+		case FX_TYPE::OVERDRIVE:
+			fx = new FxOverdrive(_basepar);
+			fxType = fxToLoad;
+			break;
 		case FX_TYPE::DELAY:
 			fx = new FxDelay(_basepar);
 			fxType = fxToLoad;
 			break;
-		default:	
+		case FX_TYPE::MULTIBANDCOMPRESOR:
+			fx = new FxMultibandCompressor(_basepar);
+			fxType = fxToLoad;
+			break;
+		case FX_TYPE::DYNAMICEQ:
+			fx = new FxDynamicEQ(_basepar);
+			fxType = fxToLoad;
+			break;
+		default:
 			helper->Error("Can not load unknown FX.");
 		case FX_TYPE::NONE:
 			ClearFx();
 			break;
 	}
-	if (fxToLoad != FX_TYPE::NONE) {
-		fx->InitParameters();
-	}
-	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
 }
 
 void FxSlot::ClearFx() {
 	fx = nullptr;
 	fxType = FX_TYPE::NONE;
-	state->SetChangeFlags(X32_MIXER_CHANGED_FX);
+}
+
+FX_TYPE FxSlot::GetFxType() {
+	return fxType;
 }
 
 bool FxSlot::HasFx(){

@@ -37,301 +37,18 @@ DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
     }
 };
 
-void DSP1::Init(void) {
-    MainChannelLR.volume = VOLUME_MIN; // dB
-    MainChannelLR.balance = 0; // -100 .. 0 .. +100
-    MainChannelSub.volume = VOLUME_MIN; // dB
-    MainChannelSub.balance = 0; // -100 .. 0 .. +100
-
-    for (uint8_t i = 0; i < 40; i++) {
-        Channel[i].muted = false;
-        Channel[i].solo = false;
-
-        Channel[i].volumeLR = 0; // dbFS
-        Channel[i].volumeSub = VOLUME_MIN;
-        Channel[i].balance = 0; // Center
-
-
-        Channel[i].lowCutFrequency = 100.0f; // Hz
-
-        Channel[i].gate.threshold = -80.0f; // -> no gate
-        Channel[i].gate.range = 60.0f; // -> full range
-        Channel[i].gate.attackTime_ms = 10;
-        Channel[i].gate.holdTime_ms = 50;
-        Channel[i].gate.releaseTime_ms = 250;
-
-        Channel[i].compressor.threshold = 0; // dB -> no compression
-        Channel[i].compressor.ratio = 3.0f; // 1:3
-        Channel[i].compressor.makeup = 0; // dB -> no makeup
-        Channel[i].compressor.attackTime_ms = 10;
-        Channel[i].compressor.holdTime_ms = 10;
-        Channel[i].compressor.releaseTime_ms = 150;
-
-        for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++) {
-            Channel[i].peq[peq].type = 1; // PEQ
-            Channel[i].peq[peq].fc = 3000; // Hz
-            Channel[i].peq[peq].Q = 2.0;
-            Channel[i].peq[peq].gain = 0; // dB
-        }
-
-        for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-            Channel[i].sendMixbus[i_mixbus] = 0.0; //VOLUME_MIN;
-            Channel[i].sendMixbusTapPoint[i_mixbus] = DSP_TAP_PRE_FADER;
-        }
-
-        monitorVolume = 0; // dBfs
-        monitorTapPoint = DSP_TAP_INPUT;
-    }
-
-    for (uint8_t i = 0; i < 16; i++) {
-        this->Bus[i].volumeLR = 0.0f; // 0dBfs
-        this->Bus[i].balance = 0; // center
-    }
-
-    LoadRouting_X32Default();
-}
-
-void DSP1::LoadRouting_X32Default()
+void DSP1::Init(void)
 {
-    for (uint8_t i = 0; i < 40; i++)
+    for (uint8_t chanIndex = 0; chanIndex < 40; chanIndex++)
     {
-
-        // DSP1 Routing Sources
-        //
-        // 0:       OFF
-        // 1..32:   Input 1-32 (from FPGA)
-        // 33..38:  AuxIn 1-6 (from FPGA)
-        // 39:      Talkback intern (from FPGA)
-        // 40:      Talkback extern (from FPGA)
-        // 41..56:  MixBus 1-16
-        // 57..62:  Matrix 1-6
-        // 63:      MainL
-        // 64:      MainR
-        // 65:      MainSub
-        // 66:      Monitor L
-        // 67:      Monitor R
-        // 68:      TalkBack
-        // 69..92:  DSP2 Return 1-24 (from DSP2)
-
-        // connect FPGA2DSP-Source 1-40 to all 40 Mixing Channels (1-32 + AUX 1-8)
-        Channel[i].input = DSP_BUF_IDX_DSPCHANNEL + i; // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback
-        Channel[i].inputTapPoint = DSP_TAP_INPUT;
-
-        // Volumes, Balance and Mute/Solo is setup in mixerInit()
-    }
-
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_MIXBUS; // connect all 16 mixbus-channels to DSP2 Channels 1-16
-        Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
-    }
-    for (uint8_t i = 16; i < 24; i++)
-    {
-        Dsp1toDsp2Routing[i].input = DSP_BUF_IDX_DSPCHANNEL; // connect inputs 1-8 to DSP2 Channels 17-24
-        Dsp1toDsp2Routing[i].tapPoint = DSP_TAP_POST_FADER;
-    }
-    for (uint8_t i = 0; i < 40; i++)
-    {
-        // connect MainLeft on even and MainRight on odd channels as PostFader
-        Dsp1toFpga[i].input = DSP_BUF_IDX_MAINLEFT + (i % 2); // 0=OFF, 1..32=DSP-Channel, 33..40=Aux, 41..56=Mixbus, 57..62=Matrix, 63=MainL, 64=MainR, 65=MainSub, 66..68=MonL,MonR,Talkback, 69..84=FX-Return, 85..92=DSP2AUX
-        Dsp1toFpga[i].tapPoint = DSP_TAP_POST_FADER;
-    }
-}
-
-// set the general volume of one of the 40 DSP-channels
-void DSP1::SendChannelVolume(uint8_t chan) {
-    // set value to interal struct
-    float balanceLeft = helper->Saturate(100.0f - Channel[chan].balance, 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(Channel[chan].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
-    float volumeLR = Channel[chan].volumeLR;
-    float volumeSub = Channel[chan].volumeSub;
-
-    if (Channel[chan].muted) {
-        volumeLR = -100; // dB
-        volumeSub = -100; // dB
-    }
-
-    // send volume to DSP via SPI
-    float values[4];
-    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
-    values[1] = balanceLeft; // 1 .. 1 ..  0
-    values[2] = balanceRight; // 0  .. 1 .. 1
-    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
-
-    helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "SendChannelVolume: %f, %f, %f, %f", (double)values[0], (double)values[1], (double)values[2], (double)values[3]);
-
-    spi->QueueDspData(0, 'v', chan, 0, 4, &values[0]);
-}
-
-// send BusSends
-void DSP1::SendChannelSend(uint8_t chan) {
-    float values[16];
-
-    for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++) {
-        values[i_mixbus] = pow(10.0f, Channel[chan].sendMixbus[i_mixbus]/20.0f); // volume of this specific channel
-    }
-
-    spi->QueueDspData(0, 's', chan, 0, 16, &values[0]);
-}
-
-void DSP1::SendMixbusVolume(uint8_t bus) {
-    float balanceLeft = helper->Saturate(100.0f - Bus[bus].balance, 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(Bus[bus].balance + 100.0f, 0.0f, 100.0f) / 100.0f;
-
-    // send volume to DSP via SPI
-    float values[4];
-    values[0] = pow(10.0f, Bus[bus].volumeLR/20.0f); // volume of this specific channel
-    values[1] = balanceLeft; // 100 .. 100 ..  0
-    values[2] = balanceRight; // 0  .. 100 .. 100
-    values[3] = pow(10.0f, Bus[bus].volumeSub/20.0f); // subwoofer
-
-    spi->QueueDspData(0, 'v', bus, 1, 4, &values[0]);
-}
-
-void DSP1::SendMatrixVolume(uint8_t matrix) {
-    // send volume to DSP via spi->
-    float values[1];
-
-    values[0] = pow(10.0f, Matrix[matrix].volume/20.0f); // volume of this specific channel
-
-    spi->QueueDspData(0, 'v', matrix, 2, 1, &values[0]);
-}
-
-void DSP1::SendMonitorVolume() {
-    // send volume to DSP via spi
-    float values[1];
-    
-    values[0] = pow(10.0f, monitorVolume/20.0f); // volume of this specific channel
-
-    spi->QueueDspData(0, 'v', 0, 4, 1, &values[0]);
-}
-
-void DSP1::SendMainVolume() {
-    float volumeLeft = (helper->Saturate(100.0f - MainChannelLR.balance, 0.0f, 100.0f) / 100.0f) * pow(10.0f, MainChannelLR.volume/20.0f);
-    float volumeRight = (helper->Saturate(MainChannelLR.balance + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, MainChannelLR.volume/20.0f);
-    float volumeSub = pow(10.0f, MainChannelSub.volume/20.0f);
-
-    if (MainChannelLR.muted) {
-        volumeLeft = 0; // p.u.
-        volumeRight = 0; // p.u.
-    }
-    if (MainChannelSub.muted) {
-        volumeSub = 0; // p.u.
-    }
-
-    // send volume to DSP via spi->
-    float values[3];
-    values[0] = volumeLeft;
-    values[1] = volumeRight;
-    values[2] = volumeSub;
-
-    spi->QueueDspData(0, 'v', 0, 3, 3, &values[0]);
-}
-
-void DSP1::SendGate(uint8_t chan) {
-    fxmath->RecalcGate(&Channel[chan].gate);
-
-    float values[5];
-    values[0] = Channel[chan].gate.value_threshold;
-    values[1] = Channel[chan].gate.value_gainmin;
-    values[2] = Channel[chan].gate.value_coeff_attack;
-    values[3] = Channel[chan].gate.value_hold_ticks;
-    values[4] = Channel[chan].gate.value_coeff_release;
-
-    spi->QueueDspData(0, 'g', chan, 0, 5, &values[0]);
-}
-
-void DSP1::SendLowcut(uint8_t chan) {
-    float values[1];
-
-    // Source: https://www.dsprelated.com/showarticle/1769.php
-    // alpha = 1 / (1 + 2 * pi * f_c * 1/f_s)
-    // Equation for samples: output = alpha * (input + previous_output - previous_input)
-    values[0] = 1.0f / (1.0f + 2.0f * M_PI * Channel[chan].lowCutFrequency * (1.0f/(float)config->GetSamplerate()));
-
-    spi->QueueDspData(0, 'e', chan, 'l', 1, &values[0]);
-}
-
-/*
-void DSP1::SendHighcut(uint8_t chan) {
-    float values[1];
-
-    // alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c)
-    // Equation for samples: output = previous_output + coeff * (input - previous_output)
-    values[0] = (2.0f * M_PI * Channel[chan].highCutFrequency) / ((float)config->GetSamplerate() + 2.0f * M_PI * 500.0f);
-
-    spi->QueueDspData(0, 'e', chan, 'h', 1, &values[0]);
-}
-*/
-
-void DSP1::SendEQ(uint8_t chan) {
-    // biquad_trans() needs the coeffs in the following order
-    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
-    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
-    // a0 a1 a2 b1 b2 (section 4)
-
-    float values[MAX_CHAN_EQS * 5];
-
-    for (int peq = 0; peq < MAX_CHAN_EQS; peq++) {
-        fxmath->RecalcFilterCoefficients_PEQ(&Channel[chan].peq[peq]);
-
-/*
-        // send coeffiecients without interleaving for biquad() function
-        int sectionIndex = peq * 5;
-        values[sectionIndex + 0] = -dspChannel[chan].peq[peq].b[2]; // -b2 (poles)
-        values[sectionIndex + 1] = -dspChannel[chan].peq[peq].b[1]; // -b1 (poles)
-        values[sectionIndex + 2] = dspChannel[chan].peq[peq].a[2]; // a2 (zeros)
-        values[sectionIndex + 3] = dspChannel[chan].peq[peq].a[1]; // a1 (zeros)
-        values[sectionIndex + 4] = dspChannel[chan].peq[peq].a[0]; // a0 (zeros)
-*/
-
-        // interleave coefficients for biquad_trans()
-        if (((MAX_CHAN_EQS % 2) == 0) || (peq < (MAX_CHAN_EQS - 1))) {
-            // we have even number of PEQ-sections
-            // or we have odd number but we are still below the last section
-            // store data with interleaving
-            int sectionIndex = ((peq / 2) * 2) * 5;
-            if ((peq % 2) != 0) {
-                // odd section index
-                sectionIndex += 1;
-            }
-            values[sectionIndex + 0] = Channel[chan].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 2] = Channel[chan].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 4] = Channel[chan].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 6] = -Channel[chan].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 8] = -Channel[chan].peq[peq].b[2]; // -b2 (poles)
-        }else{
-            // last section: store without interleaving
-            int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-            values[sectionIndex + 0] = Channel[chan].peq[peq].a[0]; // a0 (zeros)
-            values[sectionIndex + 1] = Channel[chan].peq[peq].a[1]; // a1 (zeros)
-            values[sectionIndex + 2] = Channel[chan].peq[peq].a[2]; // a2 (zeros)
-            values[sectionIndex + 3] = -Channel[chan].peq[peq].b[1]; // -b1 (poles)
-            values[sectionIndex + 4] = -Channel[chan].peq[peq].b[2]; // -b2 (poles)
+         for (uint8_t peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
+         {
+            Channel[chanIndex].peq[peqIndex].type = config->GetUint((MP_ID)(to_underlying(CHANNEL_EQ_TYPE1) + peqIndex));
+            Channel[chanIndex].peq[peqIndex].fc = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_FREQ1) + peqIndex));
+            Channel[chanIndex].peq[peqIndex].Q = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_Q1) + peqIndex));
+            Channel[chanIndex].peq[peqIndex].gain = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_GAIN1) + peqIndex));
         }
     }
-
-    spi->QueueDspData(0, 'e', chan, 'e', MAX_CHAN_EQS * 5, &values[0]);
-}
-
-void DSP1::ResetEq(uint8_t chan) {
-    float values[1];
-    values[0] = 0;
-    spi->QueueDspData(0, 'e', chan, 'r', 1, &values[0]);
-}
-
-void DSP1::SendCompressor(uint8_t chan) {
-    fxmath->RecalcCompressor(&Channel[chan].compressor);
-
-    float values[6];
-    values[0] = Channel[chan].compressor.value_threshold;
-    values[1] = Channel[chan].compressor.value_ratio;
-    values[2] = Channel[chan].compressor.value_makeup;
-    values[3] = Channel[chan].compressor.value_coeff_attack;
-    values[4] = Channel[chan].compressor.value_hold_ticks;
-    values[5] = Channel[chan].compressor.value_coeff_release;
-
-    spi->QueueDspData(0, 'c', chan, 0, 6, &values[0]);
 }
 
 void DSP1::SendAll() {
@@ -344,25 +61,21 @@ void DSP1::SendAll() {
         SetInputRouting(chan);
         SendChannelVolume(chan);
         SendChannelSend(chan);
-        for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
-            SetChannelSendTapPoints(chan, mixbusChannel, Channel[chan].sendMixbusTapPoint[mixbusChannel]);
-        }
+        // for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
+        //     ChannelSendTapPoints(chan, mixbusChannel);
+        // }
     }
     // configuration for 40 DSP-outputs to FPGA (16x output, 16x UltraNet, 8x Aux)
-    for (uint8_t chan = 0; chan <= 39; chan++) {
+    for (uint8_t chan = 0; chan < 40 + 24; chan++) {
         SetOutputRouting(chan);
     }
-    // configuration for 24 channels sends to DSP2 (16x FX, 8x AUX)
-    for (uint8_t fxchan = 0; fxchan <= 23; fxchan++) {
-        SetFxOutputRouting(fxchan);
-    }
 
-    for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
-        SendMixbusVolume(mixbusChannel);
-        for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
-            SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
-        }
-    }
+    // for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
+    //     SendMixbusVolume(mixbusChannel);
+    //     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
+    //         SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
+    //     }
+    // }
 
     /*
     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
@@ -375,82 +88,321 @@ void DSP1::SendAll() {
     SendMonitorVolume();
 }
 
-void DSP1::SetInputRouting(uint8_t chan) {
-    uint32_t values[2];
-    values[0] = Channel[chan].input;
-    values[1] = Channel[chan].inputTapPoint;
-    spi->QueueDspData(0, 'r', chan, 0, 2, (float*)&values[0]);
+
+// set the general volume of one of the 40 DSP-channels
+void DSP1::SendChannelVolume(uint chanIndex)
+{
+    float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chanIndex), 0.0f, 100.0f) / 100.0f;
+    float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f, 0.0f, 100.0f) / 100.0f;
+    float volumeLR = config->GetFloat(CHANNEL_VOLUME, chanIndex);
+    float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex);
+
+    if (!config->GetBool(CHANNEL_SEND_LR, chanIndex) || config->GetBool(CHANNEL_MUTE, chanIndex)) {
+        volumeLR = VOLUME_MIN; // dB
+    }
+    if (!config->GetBool(CHANNEL_SEND_SUB, chanIndex) || config->GetBool(CHANNEL_MUTE, chanIndex)) {
+        volumeSub = VOLUME_MIN; // dB
+    }
+
+    // send volume to DSP via SPI
+    float values[4];
+    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
+    values[1] = balanceLeft; // 1 .. 1 ..  0
+    values[2] = balanceRight; // 0  .. 1 .. 1
+    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
+
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendChannelVolume() channelindex %d: %f, %f, %f, %f", chanIndex, (double)values[0], (double)values[1], (double)values[2], (double)values[3]);
+
+    spi->QueueDspData(0, 'v', chanIndex, 0, 4, &values[0]);
 }
 
-void DSP1::SetOutputRouting(uint8_t chan) {
-    uint32_t values[2];
-    values[0] = Dsp1toFpga[chan].input;
-    values[1] = Dsp1toFpga[chan].tapPoint;
-    spi->QueueDspData(0, 'r', chan, 1, 2, (float*)&values[0]);
+// send BusSends
+void DSP1::SendChannelSend(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendChannelSend() channelindex %d", chanIndex);
+
+    float values[16];
+    for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++)
+    {
+        float sendVol = config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + i_mixbus), chanIndex);
+
+        values[i_mixbus] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
+    }
+
+    spi->QueueDspData(0, 's', chanIndex, 0, 16, &values[0]);
 }
 
-void DSP1::SetFxOutputRouting(uint8_t fxchan) {
-    uint32_t values[2];
-    values[0] = Dsp1toDsp2Routing[fxchan].input;
-    values[1] = Dsp1toDsp2Routing[fxchan].tapPoint;
-    spi->QueueDspData(0, 'r', (MAX_DSP1_TO_FPGA_CHANNELS + fxchan), 1, 2, (float*)&values[0]);
-}
+void DSP1::ChannelSendTapPoints(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "ChannelSendTapPoints() for channelindex %d", chanIndex);
 
-void DSP1::SetChannelSendTapPoints(uint8_t chan, uint8_t mixbusChannel, uint8_t tapPoint) {
-    Channel[chan].sendMixbusTapPoint[mixbusChannel] = tapPoint;
+    for (uint8_t sendChannel = 0; sendChannel < 16; sendChannel++)
+    {
+        uint32_t values[2];
+        uint dspindex = 0;
+        values[0] = sendChannel;
+        values[1] = config->GetUint((MP_ID)((uint)CHANNEL_BUS_SEND01_TAPPOINT + sendChannel), chanIndex);
 
-    uint32_t values[2];
-    values[0] = mixbusChannel;
-    values[1] = tapPoint;
-    spi->QueueDspData(0, 't', chan, 0, 2, (float*)&values[0]);
-}
+        // Mixbus
+        if (chanIndex >= 48) // Mixbus
+        {
+            // Mixbus has only 6 sends to matrix
+            if (sendChannel > 5)
+            {
+                return;
+            }
 
-void DSP1::SetMixbusSendTapPoints(uint8_t mixbusChannel, uint8_t matrixChannel, uint8_t tapPoint) {
-    this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel] = tapPoint;
+            dspindex = 1;
+            chanIndex = chanIndex - 48;
+        }
 
-    uint32_t values[2];
-    values[0] = matrixChannel;
-    values[1] = tapPoint;
-    spi->QueueDspData(0, 't', mixbusChannel, 1, 2, (float*)&values[0]);
-}
-
-void DSP1::SetMainSendTapPoints(uint8_t matrixChannel, uint8_t tapPoint) {
-    MainChannelLR.sendMatrixTapPoint[matrixChannel] = tapPoint;
-
-    uint32_t values[2];
-    values[0] = matrixChannel;
-    values[1] = tapPoint;
-    spi->QueueDspData(0, 't', 0, 2, 2, (float*)&values[0]);
-}
-
-void DSP1::GetSourceName(char* p_nameBuffer, uint8_t dspChannel, uint8_t dspInputSource) {
-    if (dspChannel < 40) {
-        // we have a DSP-channel
-        uint8_t channelInputSource = Channel[dspChannel].input;
-
-        RoutingGetTapNameByIndex(p_nameBuffer, channelInputSource, dspInputSource);
-    }else{
-        // we have a non-DSP-channel -> no source available
-        sprintf(p_nameBuffer, "<Intern>");
+        spi->QueueDspData(0, 't', chanIndex, dspindex, 2, (float*)&values[0]);
     }
 }
 
-void DSP1::RoutingGetInputNameByIndex(char* p_nameBuffer, uint8_t index) {
+// send Mixbus
+void DSP1::SendMixbusVolume(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMixbusVolume() channelindex %d", chanIndex);
+
+    float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chanIndex), 0.0f, 100.0f) / 100.0f;
+    float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f, 0.0f, 100.0f) / 100.0f;
+    float volumeLR = config->GetFloat(CHANNEL_VOLUME, chanIndex);
+    float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex);
+
+    if (config->GetBool(CHANNEL_MUTE, chanIndex))
+    {
+         volumeLR = VOLUME_MIN; // dB
+         volumeSub = VOLUME_MIN; // dB
+    }
+
+    // send volume to DSP via SPI
+    float values[4];
+    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
+    values[1] = balanceLeft; // 100 .. 100 ..  0
+    values[2] = balanceRight; // 0  .. 100 .. 100
+    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
+
+    spi->QueueDspData(0, 'v', chanIndex, 1, 4, &values[0]);
+}
+
+void DSP1::SendMatrixVolume(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMatrixVolume() channelindex %d", chanIndex);
+
+    // send volume to DSP via spi->
+    float values[1];
+    float sendVol = VOLUME_MIN;
+
+    if (!config->GetBool(CHANNEL_MUTE, chanIndex))
+    {
+        sendVol = config->GetFloat(CHANNEL_VOLUME, chanIndex);
+    }
+
+    values[0] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
+    spi->QueueDspData(0, 'v', chanIndex, 2, 1, &values[0]);
+}
+
+void DSP1::SendMonitorVolume() {
+    // send volume to DSP via spi
+    float values[1];
+    
+    values[0] = pow(10.0f, config->GetFloat(MONITOR_VOLUME)/20.0f); // volume of this specific channel
+
+    spi->QueueDspData(0, 'v', 0, 4, 1, &values[0]);
+}
+
+void DSP1::SendMainVolume()
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMainVolume()");
+
+    uint mainChannelIndex = 80;
+    uint subChannelIndex = 71;
+    float volumeLeft = (helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex), 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
+    float volumeRight = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
+    float volumeSub = pow(10.0f, config->GetFloat(CHANNEL_VOLUME_SUB, subChannelIndex)/20.0f);
+
+    if (config->GetBool(CHANNEL_MUTE, mainChannelIndex))
+    {
+        volumeLeft = 0; // p.u.
+        volumeRight = 0; // p.u.
+    }
+    if (config->GetBool(CHANNEL_MUTE, subChannelIndex))
+    {
+        volumeSub = 0; // p.u.
+    }
+
+    // send volume to DSP via spi->
+    float values[3];
+    values[0] = volumeLeft;
+    values[1] = volumeRight;
+    values[2] = volumeSub;
+
+    spi->QueueDspData(0, 'v', 0, 3, 3, &values[0]);
+}
+
+void DSP1::SendGate(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendGate() channelindex %d", chanIndex);
+    
+    using enum MP_ID;
+
+	float samplerate = (float)config->GetUint(SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
+    float values[5];
+
+    // threshold
+    values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_GATE_TRESHOLD, chanIndex)/20.0f);
+
+    // gainmin
+    // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
+    values[1] = 1.0f / pow(10.0f, config->GetFloat(CHANNEL_GATE_RANGE, chanIndex)/20.0f);
+
+    // coeff_attack
+    // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
+    // ln(10%) - ln(90%) = -2.197224577
+    values[2] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_ATTACK, chanIndex)));
+
+    // hold_ticks 
+    values[3] = config->GetFloat(CHANNEL_GATE_HOLD, chanIndex) * samplerate / 1000.0f;
+
+    // coeff_release 
+    values[4] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_RELEASE, chanIndex)));
+
+    spi->QueueDspData(0, 'g', chanIndex, 0, 5, &values[0]);
+}
+
+void DSP1::SendLowcut(uint8_t chan)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendLowcut() channelindex %d", chan);
+
+    float values[1];
+
+    // Source: https://www.dsprelated.com/showarticle/1769.php
+    // alpha = 1 / (1 + 2 * pi * f_c * 1/f_s)
+    // Equation for samples: output = alpha * (input + previous_output - previous_input)
+    values[0] = 1.0f / (1.0f + 2.0f * M_PI * config->GetFloat(CHANNEL_LOWCUT_FREQ, chan) * (1.0f/(float)config->GetUint(SAMPLERATE)));
+
+    spi->QueueDspData(0, 'e', chan, 'l', 1, &values[0]);
+}
+
+void DSP1::SendEQ(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendEQ() channelindex %d", chanIndex);
+
+    // biquad_trans() needs the coeffs in the following order
+    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
+    // a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
+    // a0 a1 a2 b1 b2 (section 4)
+
+    float values[MAX_CHAN_EQS * 5];
+
+    for (uint peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
+    {
+        fxmath->RecalcFilterCoefficients_PEQ(&(Channel[chanIndex].peq[peqIndex]));
+
 /*
-    // DSP-input-channels:
-    // 0-31		Full-Featured DSP-Channels
-    // 32-39	Aux-Channel
+        // send coeffiecients without interleaving for biquad() function
+        int sectionIndex = peq * 5;
+        values[sectionIndex + 0] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
+        values[sectionIndex + 1] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+        values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+        values[sectionIndex + 3] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+        values[sectionIndex + 4] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
 */
-    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
-        sprintf(p_nameBuffer, "DSP-Ch %02d", index);
-    }else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
-        sprintf(p_nameBuffer, "DSP-Aux %02d", index - 32);
-    }else{
-        sprintf(p_nameBuffer, "???");
+
+        // interleave coefficients for biquad_trans()
+        if (((MAX_CHAN_EQS % 2) == 0) || (peqIndex < (MAX_CHAN_EQS - 1))) {
+            // we have even number of PEQ-sections
+            // or we have odd number but we are still below the last section
+            // store data with interleaving
+            int sectionIndex = ((peqIndex / 2) * 2) * 5;
+            if ((peqIndex % 2) != 0) {
+                // odd section index
+                sectionIndex += 1;
+            }
+            values[sectionIndex + 0] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
+            values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+            values[sectionIndex + 4] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+            values[sectionIndex + 6] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+            values[sectionIndex + 8] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
+        }else{
+            // last section: store without interleaving
+            int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
+            values[sectionIndex + 0] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
+            values[sectionIndex + 1] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+            values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+            values[sectionIndex + 3] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+            values[sectionIndex + 4] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
+        }
     }
+
+    spi->QueueDspData(0, 'e', chanIndex, 'e', MAX_CHAN_EQS * 5, &values[0]);
 }
 
-void DSP1::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
+void DSP1::ResetEq(uint8_t chan)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "ResetEq() channelindex %d", chan);
+
+    float values[1];
+    values[0] = 0;
+    spi->QueueDspData(0, 'e', chan, 'r', 1, &values[0]);
+}
+
+void DSP1::SendCompressor(uint8_t chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendCompressor() channelindex %d", chanIndex);
+
+    using enum MP_ID;
+
+    float values[6];
+
+	float samplerate = (float)config->GetUint(SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
+
+    // threshold
+	values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex)/20.0f);
+
+    // ratio
+    values[1] = config->GetFloat(CHANNEL_DYNAMICS_RATIO, chanIndex);
+
+    // makeup
+	values[2] = pow(10.0f, config->GetFloat(CHANNEL_DYNAMICS_MAKEUP, chanIndex)/20.0f);
+
+    // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
+    // ln(10%) - ln(90%) = -2.197224577
+    // attack
+	values[3] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_ATTACK, chanIndex)));
+    // hold
+	values[4] = config->GetFloat(CHANNEL_DYNAMICS_HOLD, chanIndex) * samplerate / 1000.0f;
+    // release
+	values[5] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_RELEASE, chanIndex)));
+
+    spi->QueueDspData(0, 'c', chanIndex, 0, 6, &values[0]);
+}
+
+
+
+void DSP1::SetInputRouting(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "Hardware: DSP Input Routing for channelindex %d", chanIndex);
+
+    uint32_t values[2];
+    values[0] = config->GetUint(ROUTING_DSP_INPUT, chanIndex);
+    values[1] = config->GetUint(ROUTING_DSP_INPUT_TAPPOINT, chanIndex);
+    spi->QueueDspData(0, 'r', chanIndex, 0, 2, (float*)&values[0]);
+}
+
+void DSP1::SetOutputRouting(uint chanIndex) {
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "Hardware: DSP Output Routing for channelindex %d", chanIndex);
+
+    uint32_t values[2];
+    values[0] = config->GetUint(ROUTING_DSP_OUTPUT, chanIndex);
+    values[1] = config->GetUint(ROUTING_DSP_OUTPUT_TAPPOINT, chanIndex);
+    spi->QueueDspData(0, 'r', chanIndex, 1, 2, (float*)&values[0]);
+}
+
+
+
+String DSP1::RoutingGetOutputNameByIndex(uint8_t index) {
 /*
     // DSP-output-channels:
     // 0-31		Main-Output to FPGA
@@ -458,119 +410,31 @@ void DSP1::RoutingGetOutputNameByIndex(char* p_nameBuffer, uint8_t index) {
     // 40-56	FX-Sends 1-16 to DSP2
     // 57-64	FX-Aux to DSP2
 */
-    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
-        sprintf(p_nameBuffer, "DSP-Out %02d", index);
-    }else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
-        sprintf(p_nameBuffer, "DSP-AuxOut %02d", index - 32);
-    }else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
-        sprintf(p_nameBuffer, "FX-SendOut %02d", index - 40);
-    }else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 24))) {
-        sprintf(p_nameBuffer, "FX-AuxOut %02d", index - 56);
-    }else{
-        sprintf(p_nameBuffer, "???");
+    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32)))
+    {
+        return String("DSP Out ") + index;
     }
+    else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) 
+    {
+        return String("DSP AuxOut ") + (index - 32);
+    }
+    else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) 
+    {
+        return String("FX SendOut ") + (index - 40);
+    }
+    else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 23)))
+    {
+        return String("FX AuxOut ") + (index - 56);
+    } else if (index == DSP_BUF_IDX_DSP2_FX + 23)
+    {
+        return String("RTA Source");
+    }
+
+    return "???";
 }
 
-void DSP1::RoutingGetTapNameByIndex(char* p_nameBuffer, uint8_t index, uint8_t source) {
-/*
-    // dspSource-Signals
-    // 0		DSP_BUF_IDX_OFF
-    // 1-33		DSP-Input 1-32 from FPGA
-    // 33-40	AUX-Input 1-8 from FPGA
-    // 41-56	FX-Return 1-8 from DSP2
-    // 57-72	Mixbus 1-16 (internal)
-    // 73-75	Main Left, Right, Sub (internal)
-    // 76-81	Matrix 1-6 (internal)
-    // 82-89	FX-Aux-Channel 1-8 from DSP2
-    // 90-92	Monitor Left, Right, Talkback (internal)
-*/
-    // check if we are using an external signal (possibly with gain) or DSP-internal (no gain)
-    if (index == 0) {
-        // OFF
-        sprintf(p_nameBuffer, "Off");
-    }else if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 40))) {
-        // we are connected to one of the FPGA-DSP-inputs
-        // source is set by FPGA
-        //uint8_t source = mixer->fpga->Routing.dsp[index - 1];
-        if (source == 0) {
-            sprintf(p_nameBuffer, "DSP-Ch %02d (Off)", index);
-        }else if ((source >= 1) && (source <= 32)) {
-            // XLR-input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (XLR%02d)", index, source);
-        }else if ((source >= 33) && (source <= 64)) {
-            // Card input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (C%02d)", index, source - 32);
-        }else if ((source >= 65) && (source <= 72)) {
-            // Aux input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (Aux%02d)", index, source - 64);
-        }else if ((source >= 73) && (source <= 112)) {
-            // DSP input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (In%02d)", index, source - 72);
-        }else if ((source >= 113) && (source <= 160)) {
-            // AES50A input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (A%02d)", index, source - 112);
-        }else if ((source >= 161) && (source <= 208)) {
-            // AES50B input
-            sprintf(p_nameBuffer, "DSP-Ch %02d (B%02d)", index, source - 160);
-        }else{
-            sprintf(p_nameBuffer, "???");
-        }
-    }else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 8))) {
-        // FX Return 1-8 from DSP2
-        sprintf(p_nameBuffer, "FX %02d", index - DSP_BUF_IDX_DSP2_FX + 1);
-    }else if ((index >= (DSP_BUF_IDX_DSP2_FX + 8)) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
-        // FX Return 9-16 from DSP2
-        sprintf(p_nameBuffer, "FX %02d", index - DSP_BUF_IDX_DSP2_FX + 1);
-    }else if ((index >= DSP_BUF_IDX_MIXBUS) && (index < (DSP_BUF_IDX_MIXBUS + 16))) {
-        // Mixbus 1-16
-        sprintf(p_nameBuffer, "Bus %02d", index - DSP_BUF_IDX_MIXBUS + 1);
-    }else if (index == DSP_BUF_IDX_MAINLEFT) {
-        sprintf(p_nameBuffer, "Main L");
-    }else if (index == DSP_BUF_IDX_MAINRIGHT) {
-        sprintf(p_nameBuffer, "Main R");
-    }else if (index == DSP_BUF_IDX_MAINSUB) {
-        sprintf(p_nameBuffer, "Main C");
-    }else if ((index >= DSP_BUF_IDX_MATRIX) && (index < (DSP_BUF_IDX_MATRIX + 6))) {
-        // Matrix 1-6
-        sprintf(p_nameBuffer, "Mtx %02d", index - DSP_BUF_IDX_MATRIX + 1);
-    }else if ((index >= DSP_BUF_IDX_DSP2_AUX) && (index < (DSP_BUF_IDX_DSP2_AUX + 8))) {
-        // DSP2 Aux Return 1-8
-        sprintf(p_nameBuffer, "DSP2 Aux %02d", index - DSP_BUF_IDX_DSP2_AUX + 1);
-    }else if (index == DSP_BUF_IDX_MONLEFT) {
-        sprintf(p_nameBuffer, "Mon L");
-    }else if (index == DSP_BUF_IDX_MONRIGHT) {
-        sprintf(p_nameBuffer, "Mon R");
-    }else if (index == DSP_BUF_IDX_TALKBACK) {
-        sprintf(p_nameBuffer, "Talkback");
-    }else{
-        sprintf(p_nameBuffer, "???");
-    }
-}
-
-void DSP1::RoutingGetTapPositionName(char* p_nameBuffer, uint8_t position) {
-    switch(position) {
-        case DSP_TAP_INPUT:
-            sprintf(p_nameBuffer, "Input");
-            break;
-        case DSP_TAP_PRE_EQ:
-            sprintf(p_nameBuffer, "Pre-EQ");
-            break;
-        case DSP_TAP_POST_EQ:
-            sprintf(p_nameBuffer, "Post-EQ");
-            break;
-        case DSP_TAP_PRE_FADER:
-            sprintf(p_nameBuffer, "Pre-Fader");
-            break;
-        case DSP_TAP_POST_FADER:
-            sprintf(p_nameBuffer, "Post-Fader");
-            break;
-        default:
-            sprintf(p_nameBuffer, "???");
-            break;
-    }
-}
-
-void DSP1::UpdateVuMeter(uint8_t intervalMs) {
+void DSP1::UpdateVuMeter(uint8_t intervalMs)
+{
     uint8_t preloadPeakHold = 1000 / intervalMs; // 50ms * 20 = 1000ms
     uint8_t preloadPeakDecay = 50 / intervalMs; // 50ms * 1 = 50ms
     uint8_t coefficientDecay = 250 / intervalMs; // 50ms * 5 = 250ms
@@ -867,8 +731,8 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs) {
     for (int i = 0; i < 32; i++) {
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
-		    if (Channel[i].gate.gain < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
-		    if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
+		    //if (!!RECEIVED_CHANNEL_GAIN!! < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
+		    //if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
         }
 	}
 }
@@ -966,7 +830,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP1(DEBUGLEVEL_VERBOSE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback
@@ -1032,7 +896,9 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
 //#################################################
 
 
-void DSP1::DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode) {
+void DSP1::DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode)
+{
+    helper->DEBUG_DSP2(DEBUGLEVEL_NORMAL, "DSP2_SetFx() fxslot %d type %d mode %d", fxSlot, to_underlying(fxType), mode);
 
     fx_slot[fxSlot]->LoadFx(fxType);
 
@@ -1044,10 +910,13 @@ void DSP1::DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode) {
     DSP2_SendFxParameter(fxSlot);
 }
 
-void DSP1::DSP2_SendFxParameter(int slotIdx) {
+void DSP1::DSP2_SendFxParameter(int slotIdx)
+{
     if (!fx_slot[slotIdx]->HasFx()) {
         return;
     }
+
+    helper->DEBUG_DSP2(DEBUGLEVEL_NORMAL, "DSP2_SendFxParameter() fxslot %d", slotIdx);
 
     float values[45]; // MultibandCompressor takes a maximum of 41 float-parameters
     int valueCount;
@@ -1057,104 +926,108 @@ void DSP1::DSP2_SendFxParameter(int slotIdx) {
     float phase[2];
     float freq[4];
 
-    switch(fx_slot[slotIdx]->fxType) {
-        using enum FX_TYPE;
+    FxBase* fx = fx_slot[slotIdx]->fx;
 
-        case REVERB:
+    switch(fx_slot[slotIdx]->fxType)
+    {
+        case FX_TYPE::REVERB:
             fxmath->fxCalcParameters_Reverb(&values[0], 
-                fx_slot[slotIdx]->fx->GetParameter(0), // roomSizeMs
-                fx_slot[slotIdx]->fx->GetParameter(1), // rt60
-                fx_slot[slotIdx]->fx->GetParameter(2), // lpfFreq
-                fx_slot[slotIdx]->fx->GetParameter(3), // dry
-                fx_slot[slotIdx]->fx->GetParameter(4)  // wet
+                config->GetFloat(fx->GetParameterDefinition(0), slotIdx), // roomSizeMs
+                config->GetFloat(fx->GetParameterDefinition(1), slotIdx), // rt60
+                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // lpfFreq
+                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // dry
+                config->GetFloat(fx->GetParameterDefinition(4), slotIdx)  // wet
             );
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case CHORUS:
-            depth[0] = fx_slot[slotIdx]->fx->GetParameter(0);
-            delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(1);
-            phase[0] = fx_slot[slotIdx]->fx->GetParameter(2);
-            freq[0] = fx_slot[slotIdx]->fx->GetParameter(3);
-            depth[1] = fx_slot[slotIdx]->fx->GetParameter(4);
-            delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(5);
-            phase[1] = fx_slot[slotIdx]->fx->GetParameter(6);
-            freq[1] = fx_slot[slotIdx]->fx->GetParameter(7);
+        case FX_TYPE::CHORUS:
+            depth[0] = config->GetFloat(fx->GetParameterDefinition(0), slotIdx);
+            delayMs[0] = config->GetFloat(fx->GetParameterDefinition(1), slotIdx);
+            phase[0] = config->GetFloat(fx->GetParameterDefinition(2), slotIdx);
+            freq[0] = config->GetFloat(fx->GetParameterDefinition(3), slotIdx);
+            depth[1] = config->GetFloat(fx->GetParameterDefinition(4), slotIdx);
+            delayMs[1] = config->GetFloat(fx->GetParameterDefinition(5), slotIdx);
+            phase[1] = config->GetFloat(fx->GetParameterDefinition(6), slotIdx);
+            freq[1] = config->GetFloat(fx->GetParameterDefinition(7), slotIdx);
             
-            fxmath->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, fx_slot[slotIdx]->fx->GetParameter(7));
+            fxmath->fxCalcParameters_Chorus(&values[0], depth, delayMs, phase, freq, config->GetFloat(fx->GetParameterDefinition(8), slotIdx));
             valueCount = 9;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case TRANSIENTSHAPER:
+        case FX_TYPE::TRANSIENTSHAPER:
             fxmath->fxCalcParameters_TransientShaper(&values[0],
-                fx_slot[slotIdx]->fx->GetParameter(0), // tFastMs
-                fx_slot[slotIdx]->fx->GetParameter(1), // tMediumMs
-                fx_slot[slotIdx]->fx->GetParameter(2), // tSlowMs
-                fx_slot[slotIdx]->fx->GetParameter(3), // attack
-                fx_slot[slotIdx]->fx->GetParameter(4), // sustain
-                fx_slot[slotIdx]->fx->GetParameter(5)  // delayMs
+                config->GetFloat(fx->GetParameterDefinition(0), slotIdx), // tFastMs
+                config->GetFloat(fx->GetParameterDefinition(1), slotIdx), // tMediumMs
+                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // tSlowMs
+                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // attack
+                config->GetFloat(fx->GetParameterDefinition(4), slotIdx), // sustain
+                config->GetFloat(fx->GetParameterDefinition(5), slotIdx)  // delayMs
                 );
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case OVERDRIVE: //                    preGain   Q  hpfInputFreq lpfInputFreq lpfOutputFreq
-            fxmath->fxCalcParameters_Overdrive(&values[0], 10.0f, -0.2f, 300, 10000, 10000);
+        case FX_TYPE::OVERDRIVE:
+            fxmath->fxCalcParameters_Overdrive(&values[0],
+                config->GetFloat(fx->GetParameterDefinition(0), slotIdx), // preGain
+                config->GetFloat(fx->GetParameterDefinition(1), slotIdx), // Q
+                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // hpfInputFreq
+                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // lpfInputFreq
+                config->GetFloat(fx->GetParameterDefinition(4), slotIdx)  // lpfOutputFreq
+            );
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case DELAY:
-            delayMs[0] = fx_slot[slotIdx]->fx->GetParameter(0);
-            delayMs[1] = fx_slot[slotIdx]->fx->GetParameter(1);
+        case FX_TYPE::DELAY:
+            delayMs[0] = config->GetFloat(fx->GetParameterDefinition(0), slotIdx);
+            delayMs[1] = config->GetFloat(fx->GetParameterDefinition(1), slotIdx);
             fxmath->fxCalcParameters_Delay(&values[0], delayMs);
             valueCount = 2;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             break;
-        case MULTIBANDCOMPRESOR: //                       channel  band   threshold  ratio   attack  hold   release   makeup
+        case FX_TYPE::MULTIBANDCOMPRESOR: //                       channel  band   threshold  ratio   attack  hold   release   makeup
             // first send parameters for all channels and all bands
-            valueCount = 8;
             for (int c = 0; c < 2; c++) {
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 0, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
+                // now prepare the frequencies for both channels
+                freq[0] = config->GetFloat(fx->GetParameterDefinition(34 * c + 0), slotIdx);
+                freq[1] = config->GetFloat(fx->GetParameterDefinition(34 * c + 1), slotIdx);
+                freq[2] = config->GetFloat(fx->GetParameterDefinition(34 * c + 2), slotIdx);
+                freq[3] = config->GetFloat(fx->GetParameterDefinition(34 * c + 3), slotIdx);
+                fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], c, freq);
+                valueCount = 41;
                 spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 1, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 2, -40.0f, 10.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 3, -20.0f, 5.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-                fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, 4, -5.0f, 1.5f, 10.0f, 100.0f, 40.0f, 0.0f);
-                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+
+                for (int band = 0; band < 5; band++) {
+                    fxmath->fxCalcParameters_MultibandCompressor(&values[0], c, band, 
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 4 + band * 6), slotIdx), // threshold
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 5 + band * 6), slotIdx), // ratio
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 6 + band * 6), slotIdx), // attack
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 7 + band * 6), slotIdx), // hold
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 8 + band * 6), slotIdx), // release
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 9 + band * 6), slotIdx)  // makepu
+                    );
+                    valueCount = 8;
+                    spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+                }
             }
 
-            // now prepare the frequencies for both channels
-            valueCount = 41;
-            freq[0] = 80;
-            freq[1] = 350;
-            freq[2] = 1500;
-            freq[3] = 7500;
-
-            // channel left
-            fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], 0, freq);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-
-            // channel right
-            fxmath->fxCalcParameters_MultibandCompressorFreq(&values[0], 1, freq);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-
             break;
-        case DYNAMICEQ: //                       band type  freq   staticGain  maxDynGain  Q  thresh  ratio  attack  release
-            valueCount = 11;
-
-            // send band 1
-            fxmath->fxCalcParameters_DynamicEQ(&values[0], 0, 1, 300, 0, -10, 1, -20, 2, 50, 300);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-
-            // send band 2
-            fxmath->fxCalcParameters_DynamicEQ(&values[0], 1, 1, 1000, 0, -10, 1, -20, 2, 50, 300);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
-
-            // send band 3
-            fxmath->fxCalcParameters_DynamicEQ(&values[0], 2, 1, 5000, 0, -10, 1, -20, 2, 50, 300);
-            spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+        case FX_TYPE::DYNAMICEQ: //                       band type  freq   staticGain  maxDynGain  Q  thresh  ratio  attack  release
+            for (int band = 0; band < 3; band++) {
+                fxmath->fxCalcParameters_DynamicEQ(&values[0], band,
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 0), slotIdx), // type
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 1), slotIdx), // freq
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 2), slotIdx), // staticGain
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 3), slotIdx), // maxDynGain
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 4), slotIdx), // Q
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 5), slotIdx), // threshold
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 6), slotIdx), // ratio
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 7), slotIdx), // attack
+                    config->GetFloat(fx->GetParameterDefinition(9 * band + 8), slotIdx)  // release
+                );
+                valueCount = 11;
+                spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
+            }
             break;
         default:
             break;
@@ -1166,7 +1039,7 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP2(DEBUGLEVEL_VERBOSE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    helper->DEBUG_DSP2(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback

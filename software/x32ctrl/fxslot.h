@@ -7,7 +7,10 @@
 #include "fx-reverb.h"
 #include "fx-chorus.h"
 #include "fx-transientshaper.h"
+#include "fx-overdrive.h"
 #include "fx-delay.h"
+#include "fx-multibandcompressor.h"
+#include "fx-dynamiceq.h"
 
 class FxSlot : X32Base {
 
@@ -23,5 +26,6 @@ class FxSlot : X32Base {
 
         void LoadFx(FX_TYPE fxToLoad);
         void ClearFx();
+        FX_TYPE GetFxType();
         bool HasFx();
 };

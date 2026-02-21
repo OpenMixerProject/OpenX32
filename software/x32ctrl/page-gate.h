@@ -33,40 +33,43 @@ class PageGate: public Page {
             lv_obj_add_event_cb(objects.current_channel_gate, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.current_channel_gate, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
-            // store mixer pointer in user data for use in draw callback
-            lv_obj_set_user_data(objects.current_channel_gate, mixer);
+            // store config pointer in user data for use in draw callback
+            lv_obj_set_user_data(objects.current_channel_gate, config);
             //chart-shadow: 0x7e4000
-
-            SetEncoder(0, MP_TYPE::GATE_TRESHOLD);
-            SetEncoder(1, MP_TYPE::GATE_RANGE);
-            SetEncoder(2, MP_TYPE::GATE_ATTACK);
-            SetEncoder(3, MP_TYPE::GATE_HOLD);
-            SetEncoder(4, MP_TYPE::GATE_RELEASE);
         }
 
-        void OnChange(bool force_update) override {
-            uint8_t chanIndex = config->selectedVChannel;
-            VChannel* chan = mixer->GetVChannel(chanIndex);
+        void UpdateEncoderBinding(uint chanindex) 
+        {
+            using enum MP_ID;
 
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_GATE) || state->HasChanged(X32_MIXER_CHANGED_SELECT) || force_update){
+            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_GATE_TRESHOLD, chanindex);
+            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_GATE_RANGE, chanindex);
+            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_GATE_ATTACK, chanindex);
+            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_GATE_HOLD, chanindex);
+            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_GATE_RELEASE, chanindex);
+
+            SyncEncoderWidgets(true);
+        }
+
+        void OnChange(bool force_update) override
+        {
+            using enum MP_ID;
+
+            uint chanIndex = config->GetUint(SELECTED_CHANNEL);
+
+            if (config->HasParametersChanged({CHANNEL_GATE_ATTACK, CHANNEL_GATE_HOLD, CHANNEL_GATE_RANGE, CHANNEL_GATE_RELEASE, CHANNEL_GATE_TRESHOLD}, chanIndex) ||
+                config->HasParameterChanged(SELECTED_CHANNEL) ||
+                force_update)
+            {
                 DrawGate(chanIndex);
-
-                if (chanIndex < 40) {
-                    SetEncoderValue(0, mixer->dsp->Channel[chanIndex].gate.threshold);
-                    SetEncoderValue(1, mixer->dsp->Channel[chanIndex].gate.range);
-                    SetEncoderValue(2, mixer->dsp->Channel[chanIndex].gate.attackTime_ms);
-                    SetEncoderValue(3, mixer->dsp->Channel[chanIndex].gate.holdTime_ms);
-                    SetEncoderValue(4, mixer->dsp->Channel[chanIndex].gate.releaseTime_ms);
-                }  else {
-                    SetEncoderValuesEmpty();
-                }
+                UpdateEncoderBinding(chanIndex);
             }
         }
 
         void OnUpdateMeters() override {
             int32_t gateValueAudioDbfs = -120;
 
-            uint8_t selectedChannelIndex = config->selectedVChannel;
+            uint8_t selectedChannelIndex = config->GetUint(MP_ID::SELECTED_CHANNEL);
             if (selectedChannelIndex < 40) {
                 gateValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
             }
@@ -77,55 +80,59 @@ class PageGate: public Page {
             //lv_chart_refresh(objects.current_channel_gate);
         }
 
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
-            if (pressed){
-				switch (button){
-					case X32_BTN_ENCODER1:
-						mixer->SetGate(config->selectedVChannel, 'T', GATE_THRESHOLD_MIN);
-						break;
-					case X32_BTN_ENCODER2:
-						mixer->SetGate(config->selectedVChannel, 'R', GATE_RANGE_MAX);
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetGate(config->selectedVChannel, 'A', 10.0f);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->SetGate(config->selectedVChannel, 'H', 50.0f);
-						break;
-					case X32_BTN_ENCODER5:
-						mixer->SetGate(config->selectedVChannel, 'r', 250.0f);
-						break;
-					case X32_BTN_ENCODER6:
-						break;
-					default:
-						break;
-				}
-			}
-        }
+        // bool OnDisplayButton(X32_BTN button, bool pressed) override {
+        //     if (pressed){
+		// 		switch (button){
+		// 			case X32_BTN_ENCODER1:
+		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'T', GATE_THRESHOLD_MIN);
+		// 				break;
+		// 			case X32_BTN_ENCODER2:
+		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'R', GATE_RANGE_MAX);
+		// 				break;
+		// 			case X32_BTN_ENCODER3:
+		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'A', 10.0f);
+		// 				break;
+		// 			case X32_BTN_ENCODER4:
+		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'H', 50.0f);
+		// 				break;
+		// 			case X32_BTN_ENCODER5:
+		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'r', 250.0f);
+		// 				break;
+		// 			case X32_BTN_ENCODER6:
+		// 				break;
+		// 			default:
+		// 				break;
+		// 		}
+		// 	}
 
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
-            switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeGate(config->selectedVChannel, 'T', amount);
-					break;
-				case X32_ENC_ENCODER2:
-					mixer->ChangeGate(config->selectedVChannel, 'R', amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeGate(config->selectedVChannel, 'A', amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangeGate(config->selectedVChannel, 'H', amount);
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangeGate(config->selectedVChannel, 'r', amount);
-					break;
-				case X32_ENC_ENCODER6:
-					break;
-				default:
-					break;
-			}
-        }
+        //     return true;
+        // }
+
+        // bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
+        //     switch (encoder){
+		// 		case X32_ENC_ENCODER1:
+		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'T', amount);
+		// 			break;
+		// 		case X32_ENC_ENCODER2:
+		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'R', amount);
+		// 			break;
+		// 		case X32_ENC_ENCODER3:
+		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'A', amount);
+		// 			break;
+		// 		case X32_ENC_ENCODER4:
+		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'H', amount);
+		// 			break;
+		// 		case X32_ENC_ENCODER5:
+		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'r', amount);
+		// 			break;
+		// 		case X32_ENC_ENCODER6:
+		// 			break;
+		// 		default:
+		// 			break;
+		// 	}
+
+        //     return false;
+        // }
 
     private:
         lv_chart_series_t* chartSeriesGate;
@@ -173,11 +180,11 @@ class PageGate: public Page {
                 int32_t* y_array = lv_chart_get_series_y_array(chart, series); //lv_chart_get_y_array
                 int32_t value = y_array[point_id];
 
-                Mixer* mixer = (Mixer*)lv_obj_get_user_data(obj);
-                if (value >= mixer->dsp->Channel[mixer->GetSelectedVChannelIndex()].gate.threshold * 100.0f) {
+                Config* config = (Config*)lv_obj_get_user_data(obj);
+                if (value >= config->GetFloat(MP_ID::CHANNEL_GATE_TRESHOLD, config->GetUint(MP_ID::SELECTED_CHANNEL)) * 100.0f) {
                     line_dsc->color = lv_palette_main(LV_PALETTE_GREEN);
                 } else {
-                    line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
+                    line_dsc->color = lv_palette_main(LV_PALETTE_RED);
                 }
             }
         }
@@ -194,17 +201,15 @@ class PageGate: public Page {
 
             memset(&gateValue[0], 0, sizeof(gateValue));
 
-            sGate* gate = &mixer->dsp->Channel[config->selectedVChannel].gate;
-
             for (uint16_t pixel = 0; pixel < 200; pixel++) {
                 inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
 
-                if (inputLevel >= gate->threshold) {
+                if (inputLevel >= config->GetFloat(MP_ID::CHANNEL_GATE_TRESHOLD)) {
                     // above threshold
                     outputLevel = inputLevel;
                 }else{
                     // below threshold -> apply reduction
-                    outputLevel = inputLevel - gate->range;
+                    outputLevel = inputLevel - config->GetFloat(MP_ID::CHANNEL_GATE_RANGE);
                 }
 
                 // scale outputLevel to -6000 .. 0

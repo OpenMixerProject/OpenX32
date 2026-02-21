@@ -18,7 +18,6 @@ class Card : X32Base {
         void Init();
         void Sync();
 
-        String Card_GetChannelModeText(uint8_t card_channelmode);
         void Card_SendCommand(String command);
         
 };

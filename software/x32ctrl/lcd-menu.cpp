@@ -52,28 +52,29 @@ void LcdMenu::OnInit() {
 
 
 void LcdMenu::OnShow() {
-    state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTENT);
     OnChange();
 }
 
 void LcdMenu::OnChange() {
     if (initDone) {
-        if (state->HasChanged(X32_MIXER_CHANGED_LCD_CONTENT)) {
-            surface->SetLcdX(d, 2);
-        }
+        
+        // TODO
+        // if (config->HasParameterChanged(MP_ID::LCD_CONTENT_CHANGED)) {
+        //     surface->SetLcdX(d, 2);
+        // }
     }
 }
 
 void LcdMenu::OnLcdEncoderTurned(int8_t amount) {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "LcdMenu::OnLcdEncoderTurned()");
 
-    state->lcdcontrast += amount;
-    d->texts[1].text = "Contrast: " + String(state->lcdcontrast);
-    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", state->lcdcontrast);
+    Mixerparameter* parameter = config->GetParameter(MP_ID::LCD_CONTRAST);
 
-    surface->SetContrast(0, state->lcdcontrast);
-    state->SetChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST | X32_MIXER_CHANGED_LCD_CONTENT);
+    parameter->Change(amount);    
+    surface->SetContrast(0, parameter->GetUint());
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set %s to %d", parameter->GetName(), parameter->GetUint());
 
+    d->texts[1].text = parameter->GetLabelAndValue().c_str();
 }
 
 void LcdMenu::OnLcdButton(bool pressed) {

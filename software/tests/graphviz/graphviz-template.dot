@@ -1,0 +1,489 @@
+digraph {
+
+    # FPGA Inputs
+    {
+        node [shape=rarrow, label="Input\n\N"]
+
+        XLR01
+        XLR02
+        XLR03
+        XLR04
+        XLR05
+        XLR06
+        XLR07
+        XLR08
+        XLR09
+        XLR10
+        XLR11
+        XLR12
+        XLR13
+        XLR14
+        XLR15
+        XLR16
+        XLR17
+        XLR18
+        XLR19
+        XLR20
+        XLR21
+        XLR22
+        XLR23
+        XLR24
+        XLR25
+        XLR26
+        XLR27
+        XLR28
+        XLR29
+        XLR30
+        XLR31
+        XLR32
+
+        node [shape=note, label="Playback\n\N"]
+
+        CARD01
+        CARD02
+        CARD03
+        CARD04
+        CARD05
+        CARD06
+        CARD07
+        CARD08
+        CARD09
+        CARD10
+        CARD11
+        CARD12
+        CARD13
+        CARD14
+        CARD15
+        CARD16
+        CARD17
+        CARD18
+        CARD19
+        CARD20
+        CARD21
+        CARD22
+        CARD23
+        CARD24
+        CARD25
+        CARD26
+        CARD27
+        CARD28
+        CARD29
+        CARD30
+        CARD31
+        CARD32
+
+        node [shape=rarrow, label="Input\n\N"]
+
+        AUX01
+        AUX02
+        AUX03
+        AUX04
+        AUX05
+        AUX06
+        TALKBACK_INT [shape=ellipse, label="Internal\nTalkback Mic"]
+        TALKBACK_EXT [label="External\nTalkback Mic"]
+
+        node [shape=ellipse, label="\N"]
+
+        DSPR01
+        DSPR02
+        DSPR03
+        DSPR04
+        DSPR05
+        DSPR06
+        DSPR07
+        DSPR08
+        DSPR09
+        DSPR10
+        DSPR11
+        DSPR12
+        DSPR13
+        DSPR14
+        DSPR15
+        DSPR16
+        DSPR17
+        DSPR18
+        DSPR19
+        DSPR20
+        DSPR21
+        DSPR22
+        DSPR23
+        DSPR24
+        DSPR25
+        DSPR26
+        DSPR27
+        DSPR28
+        DSPR29
+        DSPR30
+        DSPR31
+        DSPR32
+        DSPR33
+        DSPR34
+        DSPR35
+        DSPR36
+        DSPR37
+        DSPR38
+        DSPR39
+        DSPR40
+
+        node [shape=rarrow, label="Input\n\N"]
+
+        AES50A01
+        AES50A02
+        AES50A03
+        AES50A04
+        AES50A05
+        AES50A06
+        AES50A07
+        AES50A08
+        AES50A09
+        AES50A10
+        AES50A11
+        AES50A12
+        AES50A13
+        AES50A14
+        AES50A15
+        AES50A16
+        AES50A17
+        AES50A18
+        AES50A19
+        AES50A20
+        AES50A21
+        AES50A22
+        AES50A23
+        AES50A24
+        AES50A25
+        AES50A26
+        AES50A27
+        AES50A28
+        AES50A29
+        AES50A30
+        AES50A31
+        AES50A32
+        AES50A33
+        AES50A34
+        AES50A35
+        AES50A36
+        AES50A37
+        AES50A38
+        AES50A39
+        AES50A40
+        AES50A41
+        AES50A42
+        AES50A43
+        AES50A44
+        AES50A45
+        AES50A46
+        AES50A47
+        AES50A48
+    }
+
+    #FPGA Outputs
+    {
+        node [shape=larrow, label="Output\n\N"]
+
+        XLROUT01
+        XLROUT02
+        XLROUT03
+        XLROUT04
+        XLROUT05
+        XLROUT06
+        XLROUT07
+        XLROUT08
+        XLROUT09
+        XLROUT10
+        XLROUT11
+        XLROUT12
+        XLROUT13
+        XLROUT14
+        XLROUT15
+        XLROUT16
+
+        "P16-1"
+        "P16-2"
+        "P16-3"
+        "P16-4"
+        "P16-5"
+        "P16-6"
+        "P16-7"
+        "P16-8"
+        "P16-9"
+        "P16-10"
+        "P16-11"
+        "P16-12"
+        "P16-13"
+        "P16-14"
+        "P16-15"
+        "P16-16"
+
+        {
+            node [shape=note, label="Record\n\N"]
+            CARDR01
+            CARDR02
+            CARDR03
+            CARDR04
+            CARDR05
+            CARDR06
+            CARDR07
+            CARDR08
+            CARDR09
+            CARDR10
+            CARDR11
+            CARDR12
+            CARDR13
+            CARDR14
+            CARDR15
+            CARDR16
+            CARDR17
+            CARDR18
+            CARDR19
+            CARDR20
+            CARDR21
+            CARDR22
+            CARDR23
+            CARDR24
+            CARDR25
+            CARDR26
+            CARDR27
+            CARDR28
+            CARDR29
+            CARDR30
+            CARDR31
+            CARDR32
+        }
+
+        {
+            AUXOUT01
+            AUXOUT02
+            AUXOUT03
+            AUXOUT04
+            AUXOUT05
+            AUXOUT06
+            MON_L
+            MON_R
+        }
+
+
+    }
+
+    {
+        node [style=filled, fillcolor=yellow]
+    
+        CH01 [label="Sax 1\nCH 1"]
+        CH02 [label="Sax 2\nCH 2"]
+        CH03 [label="Sax 3\nCH 3"]
+        CH04 [label="Sax 4\nCH 4"]
+        CH05 [label="Bariton\nCH 5"]
+        CH06 [label="Poasune 1\nCH 6"]
+
+    }
+
+
+   
+    {
+        node [style=filled, fillcolor=lightgreen]
+        CH33 [label="AUX01\n\N"]
+        CH34 [label="AUX02\n\N"]
+        CH35 [label="AUX03\n\N"]
+        CH36 [label="AUX04\n\N"]
+        CH37 [label="AUX05\n\N"]
+        CH38 [label="AUX06\n\N"]
+    }
+
+    CH39_INPUT  [label="USB R\nCH 39"]
+    CH40_INPUT  [label="USB L\nCH 40"]
+
+
+    {
+        # FPGA Routing
+        edge [color=blue]
+
+        XLR01	->	DSP01
+        XLR02	->	DSP02
+        XLR03	->	DSP03
+        XLR04	->	DSP04
+        XLR05	->	DSP05
+        XLR06	->	DSP06
+        XLR07	->	DSP07
+        XLR08	->	DSP08
+        XLR09	->	DSP09
+        XLR10	->	DSP10
+        XLR11	->	DSP11
+        XLR12	->	DSP12
+        XLR13	->	DSP13
+        XLR14	->	DSP14
+        XLR15	->	DSP15
+        XLR16	->	DSP16
+        XLR17	->	DSP17
+        XLR18	->	DSP18
+        XLR19	->	DSP19
+        XLR20	->	DSP20
+        XLR21	->	DSP21
+        XLR22	->	DSP22
+        XLR23	->	DSP23
+        XLR24	->	DSP24
+        XLR25	->	DSP25
+        XLR26	->	DSP26
+        XLR27	->	DSP27
+        XLR28	->	DSP28
+        XLR29	->	DSP29
+        XLR30	->	DSP30
+        XLR31	->	DSP31
+        XLR32	->	DSP32
+        AUX01	->	DSP33
+        AUX02	->	DSP34
+        AUX03	->	DSP35
+        AUX04	->	DSP36
+        AUX05	->	DSP37
+        AUX06	->	DSP38
+        TALKBACK_INT	->	DSP39
+        TALKBACK_EXT	->	DSP40
+
+
+        DSPR01	->	XLROUT01
+        DSPR02	->	XLROUT02
+        DSPR03	->	XLROUT03
+        DSPR04	->	XLROUT04
+        DSPR05	->	XLROUT05
+        DSPR06	->	XLROUT06
+        DSPR07	->	XLROUT07
+        DSPR08	->	XLROUT08
+        DSPR09	->	XLROUT09
+        DSPR10	->	XLROUT10
+        DSPR11	->	XLROUT11
+        DSPR12	->	XLROUT12
+        DSPR13	->	XLROUT13
+        DSPR14	->	XLROUT14
+        DSPR15	->	XLROUT15
+        DSPR16	->	XLROUT16
+        DSPR17	->	"P16-1"
+        DSPR18	->	"P16-2"
+        DSPR19	->	"P16-3"
+        DSPR20	->	"P16-4"
+        DSPR21	->	"P16-5"
+        DSPR22	->	"P16-6"
+        DSPR23	->	"P16-7"
+        DSPR24	->	"P16-8"
+        DSPR25	->	"P16-9"
+        DSPR26	->	"P16-10"
+        DSPR27	->	"P16-11"
+        DSPR28	->	"P16-12"
+        DSPR29	->	"P16-13"
+        DSPR30	->	"P16-14"
+        DSPR31	->	"P16-15"
+        DSPR32	->	"P16-16"
+
+
+        DSPR39 -> MON_L
+        DSPR40 -> MON_R
+
+        XLR01	->	CARDR01
+        XLR02	->	CARDR02
+        XLR03	->	CARDR03
+        XLR04	->	CARDR04
+        XLR05	->	CARDR05
+        XLR06	->	CARDR06
+        XLR07	->	CARDR07
+        XLR08	->	CARDR08
+        XLR09	->	CARDR09
+        XLR10	->	CARDR10
+        XLR11	->	CARDR11
+        XLR12	->	CARDR12
+        XLR13	->	CARDR13
+        XLR14	->	CARDR14
+        XLR15	->	CARDR15
+        XLR16	->	CARDR16
+        XLR17	->	CARDR17
+        XLR18	->	CARDR18
+        XLR19	->	CARDR19
+        XLR20	->	CARDR20
+        XLR21	->	CARDR21
+        XLR22	->	CARDR22
+        XLR23	->	CARDR23
+        XLR24	->	CARDR24
+        XLR25	->	CARDR25
+        XLR26	->	CARDR26
+        XLR27	->	CARDR27
+        XLR28	->	CARDR28
+        XLR29	->	CARDR29
+        XLR30	->	CARDR30
+        XLR31	->	CARDR31
+        XLR32	->	CARDR32
+
+    }
+
+
+    # DSP Channel Routing
+    edge [color=blueviolet]
+
+    DSP01 -> CH01
+    DSP02 -> CH02
+    DSP03 -> CH03
+    DSP04 -> CH04
+    DSP05 -> CH05
+    DSP06 -> CH06
+    DSP07 -> CH07
+    DSP08 -> CH08
+
+    DSP39 -> BUS04
+    DSP40 -> BUS04
+
+    # DSP Routing
+    edge [color=rosybrown]
+
+    LR -> DSPR15
+    LR -> DSPR16
+
+    BUS04 -> DSPR06
+
+    # Moitoring
+    edge [color=darkgoldenrod]
+
+    LR -> MON
+
+    # "solid connections"
+    edge [color=black]
+
+    {
+        edge [weight=0] 
+
+        CH01 -> LR [taillabel="-2.0 dB"]
+        CH02 -> LR [taillabel="-1.9 dB"]
+        CH03 -> LR [taillabel="-3.0 dB"]
+        CH04 -> LR [taillabel="-2.0 dB"]
+        CH05 -> LR [taillabel="-5.0 dB"]
+        CH06	-> LR
+        CH07	-> LR
+        CH08	-> LR
+        CH09	-> LR
+        CH10	-> LR
+        CH11	-> LR
+        CH12	-> LR
+        CH13	-> LR
+        CH14	-> LR
+        CH15	-> LR
+        CH16	-> LR
+        CH17	-> LR
+        CH18	-> LR
+        CH19	-> LR
+        CH20	-> LR
+        CH21	-> LR
+        CH22	-> LR
+        CH23	-> LR
+        CH24	-> LR
+        CH25	-> LR
+        CH26	-> LR
+        CH27	-> LR
+        CH28	-> LR
+        CH29	-> LR
+        CH30	-> LR
+        CH31	-> LR
+        CH32	-> LR
+    }
+
+
+
+    MON -> DSPR39
+    MON -> DSPR40
+
+}

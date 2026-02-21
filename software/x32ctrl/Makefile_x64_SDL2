@@ -17,7 +17,7 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
                    -Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body \
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value
 
-DEPFLAGS        = -MMD -MP
+DEPFLAGS        = -MMD -MP -D=BODYLESS_SDL2
 
 # normal build
 #CFLAGS          ?= -std=c++23 -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
@@ -81,8 +81,8 @@ $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
 	@echo "AS  $<"
 
 copy:
-	@if ! diff -q lv_conf.h lv_port_linux/lv_conf.h >/dev/null 2>&1; then \
-		cp lv_conf.h lv_port_linux/lv_conf.h; \
+	@if ! diff -q lv_conf_SDL2.h lv_port_linux/lv_conf.h >/dev/null 2>&1; then \
+		cp lv_conf_SDL2.h lv_port_linux/lv_conf.h; \
 		echo "Update lv_port_linux/lv_conf.h (changed content)"; \
 	else \
 		echo "lv_conf.h is up to date."; \

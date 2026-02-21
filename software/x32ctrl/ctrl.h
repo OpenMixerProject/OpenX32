@@ -11,15 +11,18 @@
 
 #include "page.h"
 #include "page-meters.h"
+#include "page-rta.h"
 #include "page-home.h"
 #include "page-config.h"
 #include "page-gate.h"
 #include "page-dynamics.h"
 #include "page-eq.h"
+#include "page-sends.h"
+#include "page-main.h"
 #include "page-routing.h"
 #include "page-routing-fpga.h"
-#include "page-routing-dsp1.h"
-#include "page-routing-dsp2.h"
+#include "page-routing-channels.h"
+#include "page-routing-dsp.h"
 #include "page-library.h"
 #include "page-effects.h"
 #include "page-setup.h"
@@ -62,7 +65,10 @@ using namespace std;
 #define PAGE_FUNC_DEF(pagename) void pagename PAGE_FUNC_BASE
 #define PAGE_FUNC_IMPL(pagename) void X32Ctrl:: pagename PAGE_FUNC_BASE
 
-class X32Ctrl : public X32Base {
+class X32Ctrl : public X32Base
+{
+    using enum MP_ID;
+
     private:
         ini::IniFile mixer_ini;
 
@@ -74,8 +80,15 @@ class X32Ctrl : public X32Base {
         sBankMode modes[3];
 
         map<X32_PAGE, Page*> pages;
+        X32_PAGE lastPage = X32_PAGE::HOME;
 
         sTouchControl touchcontrol;
+
+        // currently pressed button
+        X32_BTN buttonPressed = X32_BTN_NONE;
+        
+        // second button pressed, while first button is also pressed
+        X32_BTN secondbuttonPressed = X32_BTN_NONE;
 
         void my_handler(int s);
 
@@ -86,7 +99,7 @@ class X32Ctrl : public X32Base {
 
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;
-        char surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
+        uint8_t surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
         char surfaceBufferUart[256]; // buffer for UART-readings
         uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
         void ProcessUartData();
@@ -97,25 +110,27 @@ class X32Ctrl : public X32Base {
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
         void SaveConfig();
+        void writeConfigEntry(Mixerparameter *const &parameter, uint index);
         void Tick10ms(void);
         void Tick50ms(void);
         void Tick100ms(void);
         void ProcessEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
 
-        void InitPages();
+        void InitPagesAndGUI();
         void ShowPage(X32_PAGE page);
         void ShowPrevPage();
         void ShowNextPage();
 
         void syncGuiOrLcd(void);
-        void syncSurface(void);
+        void syncSurface(bool fullSync);
         
-        void surfaceSyncBoardMain();
-        void surfaceSyncBoard(X32_BOARD board);
-        void surfaceSyncBoardExtra();
+        void surfaceSyncBoardMain(bool fullSync);
+        void surfaceSyncBoard(X32_BOARD board, bool fullSync);
+        void surfaceSyncBoardExtra(bool fullSync);
+        void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
-        void surfaceSyncBankIndicator(void);
+        void surfaceSyncBankIndicator(bool fullSync);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        
         void setLedChannelIndicator_Core(void);        
@@ -124,13 +139,10 @@ class X32Ctrl : public X32Base {
         void syncXRemote(bool syncAll);
 
         void ChangeSelect(int8_t direction);
-        void SetSelect(uint8_t vChannelIndex, bool solo);
-        void ToggleSelect(uint8_t vChannelIndex);
-        VChannel* GetSelectedvChannel(void);
-        VChannel* GetVChannel(uint8_t VChannelIndex);
         uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);
         uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
 
+        void SimulatorButton(uint key);
         void FaderMoved(SurfaceEvent* event);
         void ButtonPressedOrReleased(SurfaceEvent* event);
         void EncoderTurned(SurfaceEvent* event);
@@ -138,7 +150,4 @@ class X32Ctrl : public X32Base {
         void BankingSends(X32_BTN p_button);
         void BankingEQ(X32_BTN p_button);
         void Banking(X32_BTN p_button);
-
-        void DebugPrintBank(uint8_t bank);
-        void DebugPrintBusBank(uint8_t bank);
 }; 

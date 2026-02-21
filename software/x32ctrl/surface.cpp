@@ -29,7 +29,41 @@ Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
 }
 
 void Surface::Init(void) {
-    if (!state->bodyless) {
+    if (state->bodyless) {
+
+        /* 
+        
+        How to connect x32ctrl bodyless mode to a X32 runnig Linux:
+
+        Developer PC
+        ############
+
+        // create two virtual serial ports and connect them together as bridge
+        # socat -d -d pty,raw,link=/tmp/ttyLocal,echo=0 pty,raw,link=/tmp/ttyRemote,echo=0
+
+        // start netcat server on port 10000
+        # nc -l 10000 </tmp/ttyRemote >/tmp/ttyRemote
+
+        X32
+        ###
+        
+        // set serial to 115200 baud
+        # stty -F /dev/ttymxc1 115200 raw -echo -echoe -echok
+
+        // start netcat client to transmit/receive serial from/to devloper pc
+        # nc <ip of Developer PC> 10000 </dev/ttymxc1 >/dev/ttymxc1
+
+        Developer PC
+        ############        
+        
+        // start x32ctrl with bodyless commandline parameter "-b"
+        # x32ctrl -b
+        
+        */
+
+        uart->Open("/tmp/ttyLocal", 115200, true);
+    }
+    else {
         uart->Open("/dev/ttymxc1", 115200, true);
     }
 
@@ -38,13 +72,21 @@ void Surface::Init(void) {
 }
 
 void Surface::Reset(void) {
-    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Reset surface ...");
-    int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
-    write(fd, "1", 1);
-    usleep(100 * 1000);
-    write(fd, "0", 1);
-    close(fd);
-    usleep(2000 * 1000);
+     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Reset surface ...");
+
+    if (state->bodyless) 
+    {
+        // TODO: integrate in Testing GUI
+    }
+    else
+    {  
+        int fd = open("/sys/class/leds/reset_surface/brightness", O_WRONLY);
+        write(fd, "1", 1);
+        usleep(100 * 1000);
+        write(fd, "0", 1);
+        close(fd);
+        usleep(2000 * 1000);
+    }
 
     for(uint8_t faderindex=0; faderindex<MAX_FADERS; faderindex++){
         faders[faderindex].wait = 0;
@@ -141,7 +183,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_VIEW_MIX_BUS_SENDS, 0x010F);
         AddButtonDefinition(X32_BTN_MONO_BUS, 0x0115);
         AddButtonDefinition(X32_BTN_MAIN_LR_BUS, 0x0116);
-        AddButtonDefinition(X32_BTN_VIEW_BUS_MIXES, 0x0114);
+        AddButtonDefinition(X32_BTN_VIEW_MAIN, 0x0114);
         AddButtonDefinition(X32_BTN_BUS_SEND_1_4, 0x0110);
         AddButtonDefinition(X32_BTN_BUS_SEND_5_8, 0x0111);
         AddButtonDefinition(X32_BTN_BUS_SEND_9_12, 0x0112);
@@ -303,7 +345,7 @@ void Surface::InitDefinitions(void) {
         AddEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
         AddEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
 
-        AddEncoderDefinition(X32_ENC_MAIN, 0x010B);
+        AddEncoderDefinition(X32_ENC_LEVEL_SUB, 0x010B);
         AddEncoderDefinition(X32_ENC_PAN, 0x010C);
 
         AddEncoderDefinition(X32_ENC_ENCODER1, 0x010D);
@@ -346,7 +388,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_VIEW_MIX_BUS_SENDS, 0x0114);
         AddButtonDefinition(X32_BTN_MONO_BUS, 0x0115);
         AddButtonDefinition(X32_BTN_MAIN_LR_BUS, 0x0116);
-        AddButtonDefinition(X32_BTN_VIEW_BUS_MIXES, 0x0117);
+        AddButtonDefinition(X32_BTN_VIEW_MAIN, 0x0117);
 
         AddButtonDefinition(X32_BTN_ENCODER1, 0x0118);
         AddButtonDefinition(X32_BTN_ENCODER2, 0x0119);
@@ -502,7 +544,7 @@ void Surface::InitDefinitions(void) {
         AddEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
         AddEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
 
-        AddEncoderDefinition(X32_ENC_MAIN, 0x0107);
+        AddEncoderDefinition(X32_ENC_LEVEL_SUB, 0x0107);
         AddEncoderDefinition(X32_ENC_PAN, 0x0108);
 
         AddEncoderDefinition(X32_ENC_ENCODER1, 0x0109);
@@ -685,7 +727,7 @@ uint16_t Surface::CalcEncoderRingLedPosition(uint8_t pct) {
 uint16_t Surface::CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition) {
     uint16_t led_mask = 0;
 
-    if (config->IsModelX32Rack()){
+   // if (config->IsModelX32Rack()){
         // X32Rack: Channel Level, Mail LR Level
 
         // LEDs dBfs
@@ -728,14 +770,14 @@ uint16_t Surface::CalcEncoderRingLedDbfs(float dbfs, bool onlyPosition) {
             }
         } 
 
-    } else {
+   // } else {
     
         // led_index = (uint8_t)(((float)pct / 100.0f) * 12.0f + 0.5f); // +0.5f für Rundung
 
         // if (led_index > 12) {
         //     led_index = 12;
         // }
-    }
+    //}
 
     return led_mask;
 }
@@ -891,14 +933,16 @@ void Surface::SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1){
 void Surface::SetX32RackDisplay(uint8_t vChannelIndex){
     uint8_t vChannelNumber = vChannelIndex + 1;
     if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::NORMAL)) {
-        SetX32RackDisplayRaw(int2segment((uint8_t)(vChannelNumber/10)), int2segment(vChannelNumber % 10));
+        uint8_t segment_l = vChannelNumber < 10 ? 0 : int2segment((uint8_t)(vChannelNumber/10));
+        
+        SetX32RackDisplayRaw(segment_l, int2segment(vChannelNumber % 10));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::AUX)) {
         SetX32RackDisplayRaw(int2segment('A'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::AUX));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::FXRET)) {
         SetX32RackDisplayRaw(int2segment('F'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::FXRET));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::BUS)) {
         uint8_t number = vChannelNumber - (uint)X32_VCHANNEL_BLOCK::BUS;
-        SetX32RackDisplayRaw(int2segment((uint8_t)(number/10)), int2segment(number % 10)+128);
+        SetX32RackDisplayRaw(int2segment((uint8_t)(number/10)), int2segment(number % 10));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::MATRIX)) {
         SetX32RackDisplayRaw(int2segment('M'), int2segment(vChannelNumber - (uint)X32_VCHANNEL_BLOCK::MATRIX));
     } else if (helper->IsInChannelBlock(vChannelIndex, X32_VCHANNEL_BLOCK::DCA)) {
@@ -1222,24 +1266,18 @@ void Surface::FaderMoved(SurfaceEvent* event){
     faders[faderindex].wait = 10; // wait 100x 10ms
 }
 
-uint8_t Surface::GetFaderIndex(uint8_t boardId, uint8_t index) {
-    if (boardId == X32_BOARD_L) {
-        return index;
-    } 
-
-    if(config->IsModelX32Full()) {
-        if (boardId == X32_BOARD_M) {
+uint8_t Surface::GetFaderIndex(uint8_t boardId, uint8_t index)
+{
+    switch (boardId)
+    {
+        case X32_BOARD_L:
+            return index;
+        case X32_BOARD_M: // only X32 Full
             return index + 8;
-        }
-        if (boardId == X32_BOARD_R) {
-            return index + 16;
-        }
-    }
-
-    if(config->IsModelX32CompactOrProducer()) {
-        if (boardId == X32_BOARD_R) {
-            return index + 8;
-        }
+        case X32_BOARD_R:
+            return index + (config->IsModelX32Full() ? 16 : 8);  // 16 - X32 Full, 8 - X32 Compact/Producer
+        default:
+            return 0;
     }
 }
 

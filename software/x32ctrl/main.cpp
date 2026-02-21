@@ -48,9 +48,16 @@
 
 #include "ctrl.h"
 
+
 X32Ctrl* ctrl;
 State* state;
 CLI::App* app;
+
+// for SDL2 on PC
+static lv_display_t *display;
+static lv_indev_t *mouse;
+static lv_indev_t *mouse_wheel;
+static lv_indev_t *keyboard;
 
 timer_t timerid_10ms;
 struct sigevent sev_10ms;
@@ -114,12 +121,28 @@ void init10msTimer_NonGUI(void) {
 	}
 }
 
-void guiInit(void) {
+void guiInit(Config* config) {
+
 	lv_init();
 
-	driver_backends_register();
-	char dev[] = "FBDEV";
-	driver_backends_init_backend(dev);
+	if (state->bodyless)
+	{
+		printf("bodyless mode (Development Simulator) startet\n");
+
+		#ifdef BODYLESS_SDL2
+		display = lv_sdl_window_create(DISPLAY_RESOLUTION_X, DISPLAY_RESOLUTION_Y);		
+	 	lv_sdl_window_set_title(display, "OpenX32 x32ctrl - bodyless mode (Development Simulator)");
+		keyboard = lv_sdl_keyboard_create();
+		#endif
+	} 
+	else
+	{
+		printf("FBDEV mode\n");
+
+		driver_backends_register();
+		char dev[] = "FBDEV";
+		driver_backends_init_backend(dev);
+	}
 
 	lv_timer_create(timer10msCallbackLvgl, 10, NULL);
 	lv_timer_create(timer50msCallbackLvgl, 50, NULL);
@@ -128,13 +151,43 @@ void guiInit(void) {
 	// initialize GUI created by EEZ
 	ui_init();
 
-	// InitPages() has to be called after ui_init()!
-	ctrl->InitPages();
-	ctrl->ShowPage(state->activePage);
+	// InitPagesAndGUI() has to be called after ui_init()!
+	ctrl->InitPagesAndGUI();
 
-	// start endless loop
-	driver_backends_run_loop();
+	// trigger first update of display header
+	config->Refresh(MP_ID::SELECTED_CHANNEL);
+
+	// trigger first update on shown page	
+	ctrl->ShowPage((X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE));
+
+	// sync the Surface
+	ctrl->syncSurface(true);
+
+
+
+	if (state->bodyless)
+	{
+		// Show keymapping for bodyless mode
+		lv_obj_set_flag(objects.bodyless_instructions, LV_OBJ_FLAG_HIDDEN, false);
+
+		uint32_t idle_time;
+
+		while (1) {
+
+			idle_time = lv_timer_handler();
+        	usleep(idle_time * 1000);
+
+			ctrl->SimulatorButton(lv_indev_get_key(keyboard));
+    	}
+	}
+	else 
+	{
+		//start endless loop	
+		driver_backends_run_loop();
+	}
 }
+
+
 
 // handle STRG-C and write config file
 void my_handler(int s){
@@ -149,7 +202,9 @@ void my_handler(int s){
 	}
 
 	// write mixer settings to ini
+	printf("Save config...");
 	ctrl->SaveConfig();
+	printf("DONE\n");
 
     exit(0); 
 }
@@ -158,8 +213,8 @@ int main(int argc, char* argv[]) {
 	srand(time(NULL));
 
     Helper* helper = new Helper();
-    Config* config = new Config();
-    state = new State(helper);
+    Config* config = new Config(helper);
+    state = new State();
 
 	app = new CLI::App();
 	app->description("OpenX32 Main Control");
@@ -251,6 +306,11 @@ int main(int argc, char* argv[]) {
 		->configurable(false)
 		->group(catDebugSurface)
 		->expected(0,1);
+
+	app->add_flag("--surface-disable-meter-update", state->surface_disable_meter_update, "Disable VU-Meter update")
+		->configurable(false)
+		->group(catDebugSurface)
+		->expected(0,1);
 	
 	app->get_config_formatter_base()->quoteCharacter('"', '"');
 
@@ -275,10 +335,11 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	config->SetSamplerate(app->get_option("--samplerate")->as<uint32_t>());
+	config->Set(MP_ID::SAMPLERATE, app->get_option("--samplerate")->as<uint32_t>());
 
 	if (debug_parameters.size() > 0) {
 		for(uint8_t i=0; i<debug_parameters.size(); i++) {
+			if (debug_parameters[i] == "ALL") { helper->SetDebugAll(); }
 			if (debug_parameters[i] == "ADDA") { helper->DEBUG_ADDA(true); }
 			if (debug_parameters[i] == "DSP1") { helper->DEBUG_DSP1(true); }
 			if (debug_parameters[i] == "DSP2") { helper->DEBUG_DSP2(true); }
@@ -297,9 +358,9 @@ int main(int argc, char* argv[]) {
 			if (debug_parameters[i] == "FX") { helper->DEBUG_FX(true); }
 		}
 
-		if (trace) {
+		if (trace  == true) {
 			helper->SetDebugLevel(DEBUGLEVEL_TRACE);
-		} else if (verbose) {
+		} else if (verbose == true) {
 			helper->SetDebugLevel(DEBUGLEVEL_VERBOSE);
 		} else {
 			helper->SetDebugLevel(DEBUGLEVEL_NORMAL);
@@ -332,7 +393,7 @@ int main(int argc, char* argv[]) {
 		}
 	} else {
 		helper->Log("Initializing GUI...\n");
-		guiInit(); // initializes LVGL, FBDEV and starts endless loop
+		guiInit(config); // initializes LVGL, FBDEV and starts endless loop
 	}
 
     exit(0);

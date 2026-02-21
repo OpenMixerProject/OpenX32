@@ -5,6 +5,8 @@
 using namespace std;
 
 class PageDynamics: public Page {
+    using enum MP_ID;
+
     public:
         PageDynamics(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::GATE;
@@ -29,46 +31,45 @@ class PageDynamics: public Page {
             lv_chart_set_point_count(objects.current_channel_comp, 200); // with incoming audio every 10ms we see 2 seconds of audio-history
             lv_chart_set_series_color(objects.current_channel_comp, chartSeriesCompressor, lv_color_hex(0xef7900));
 
-            // register draw event callback to change color of audio level depending on gate threshold
+            // register draw event callback to change color of audio level depending on compressor threshold
             lv_obj_add_event_cb(objects.current_channel_comp, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.current_channel_comp, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
-            // store mixer pointer in user data for use in draw callback
-            lv_obj_set_user_data(objects.current_channel_comp, mixer);
+            // store config pointer in user data for use in draw callback
+            lv_obj_set_user_data(objects.current_channel_comp, config);
             //chart-shadow: 0x7e4000
-
-            SetEncoder(0, MP_TYPE::DYNAMICS_TRESHOLD);
-            SetEncoder(1, MP_TYPE::DYNAMICS_RATIO);
-            SetEncoder(2, MP_TYPE::DYNAMICS_MAKEUP);
-            SetEncoder(3, MP_TYPE::DYNAMICS_ATTACK);
-            SetEncoder(4, MP_TYPE::DYNAMICS_HOLD);
-            SetEncoder(5, MP_TYPE::DYNAMICS_RELEASE);
         }
 
-        void OnChange(bool force_update) override {
-            uint8_t chanIndex = config->selectedVChannel;
-            VChannel* chan = mixer->GetVChannel(chanIndex);
+        void UpdateEncoderBinding(uint chanindex)
+        {
+            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_DYNAMICS_TRESHOLD, chanindex);
+            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_DYNAMICS_RATIO, chanindex);
+            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_DYNAMICS_MAKEUP, chanindex);
+            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_DYNAMICS_ATTACK, chanindex);
+            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_DYNAMICS_HOLD, chanindex);
+            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_DYNAMICS_RELEASE, chanindex);
 
-            if (chan->HasChanged(X32_VCHANNEL_CHANGED_DYNAMIC) || state->HasChanged(X32_MIXER_CHANGED_SELECT) || force_update){
+            SyncEncoderWidgets(true);
+        }
+
+        void OnChange(bool force_update) override
+        {
+            uint chanIndex = config->GetUint(SELECTED_CHANNEL);
+
+            if (config->HasParametersChanged({CHANNEL_DYNAMICS_ATTACK, CHANNEL_DYNAMICS_HOLD, CHANNEL_DYNAMICS_RATIO, CHANNEL_DYNAMICS_RELEASE, CHANNEL_DYNAMICS_TRESHOLD}, chanIndex) ||
+                config->HasParameterChanged(SELECTED_CHANNEL) ||
+                force_update)
+            {
                 DrawDynamics(chanIndex);
-
-                if (chanIndex < 40) {
-                    SetEncoderValue(0, mixer->dsp->Channel[chanIndex].compressor.threshold);
-                    SetEncoderValue(1, mixer->dsp->Channel[chanIndex].compressor.ratio);
-                    SetEncoderValue(2, mixer->dsp->Channel[chanIndex].compressor.makeup);
-                    SetEncoderValue(3, mixer->dsp->Channel[chanIndex].compressor.attackTime_ms);
-                    SetEncoderValue(4, mixer->dsp->Channel[chanIndex].compressor.holdTime_ms);
-                    SetEncoderValue(5, mixer->dsp->Channel[chanIndex].compressor.releaseTime_ms);
-                }  else {
-                    SetEncoderValuesEmpty();
-                }
+                UpdateEncoderBinding(chanIndex);
             }
         }
 
-        void OnUpdateMeters() override {
+        void OnUpdateMeters() override
+        {
             int32_t compValueAudioDbfs = -120;
 
-            uint8_t selectedChannelIndex = config->selectedVChannel;
+            uint8_t selectedChannelIndex = config->GetUint(SELECTED_CHANNEL);
             if (selectedChannelIndex < 40) {
                 compValueAudioDbfs = helper->sample2Dbfs(mixer->dsp->rChannel[selectedChannelIndex].meterDecay) * 100.0f;
             }
@@ -76,58 +77,6 @@ class PageDynamics: public Page {
             // add new value to chart
             lv_chart_set_next_value(objects.current_channel_comp, chartSeriesCompressorAudio, compValueAudioDbfs);
             //lv_chart_refresh(objects.current_channel_comp);
-        }
-
-        void OnDisplayButton(X32_BTN button, bool pressed) override {
-            if (pressed){
-				switch (button){
-					case X32_BTN_ENCODER1:
-						mixer->SetDynamics(config->selectedVChannel, 'T', 0.0f);
-						break;
-					case X32_BTN_ENCODER2:
-						mixer->SetDynamics(config->selectedVChannel, 'R', 60.0f);
-						break;
-					case X32_BTN_ENCODER3:
-						mixer->SetDynamics(config->selectedVChannel, 'M', 0.0f);
-						break;
-					case X32_BTN_ENCODER4:
-						mixer->SetDynamics(config->selectedVChannel, 'A', 10.0f);
-						break;
-					case X32_BTN_ENCODER5:
-						mixer->SetDynamics(config->selectedVChannel, 'H', 10.0f);
-						break;
-					case X32_BTN_ENCODER6:
-						mixer->SetDynamics(config->selectedVChannel, 'r', 150.0f);
-						break;
-					default:
-						break;
-				}
-            }
-        }
-
-        void OnDisplayEncoderTurned(X32_ENC encoder, int8_t amount) {
-            switch (encoder){
-				case X32_ENC_ENCODER1:
-					mixer->ChangeDynamics(config->selectedVChannel, 'T', amount);
-					break;
-				case X32_ENC_ENCODER2:
-					mixer->ChangeDynamics(config->selectedVChannel, 'R', amount);
-					break;
-				case X32_ENC_ENCODER3:
-					mixer->ChangeDynamics(config->selectedVChannel, 'M', amount);
-					break;
-				case X32_ENC_ENCODER4:
-					mixer->ChangeDynamics(config->selectedVChannel, 'A', amount);
-					break;
-				case X32_ENC_ENCODER5:
-					mixer->ChangeDynamics(config->selectedVChannel, 'H', amount);
-					break;
-				case X32_ENC_ENCODER6:
-					mixer->ChangeDynamics(config->selectedVChannel, 'r', amount);
-					break;
-				default:
-					break;
-			}
         }
 
     private:
@@ -165,7 +114,7 @@ class PageDynamics: public Page {
 
             lv_draw_line_dsc_t* line_dsc = lv_draw_task_get_line_dsc(draw_task);
             if (line_dsc) {
-                // change color depending on gate threshold
+                // change color depending on compressor threshold
 
                 // find the first point (left) of chart and add 199 to get the last point (right) being drawn
                 uint32_t point_id = lv_chart_get_x_start_point(chart, series) + lv_chart_get_point_count(chart) - 1;
@@ -176,8 +125,9 @@ class PageDynamics: public Page {
                 int32_t* y_array = lv_chart_get_series_y_array(chart, series); //lv_chart_get_y_array
                 int32_t value = y_array[point_id];
 
-                Mixer* mixer = (Mixer*)lv_obj_get_user_data(obj);
-                if (value >= mixer->dsp->Channel[mixer->GetSelectedVChannelIndex()].compressor.threshold * 100.0f) {
+                Config* config = (Config*)lv_obj_get_user_data(obj);
+
+                if (value >= config->GetFloat(MP_ID::CHANNEL_DYNAMICS_TRESHOLD, config->GetUint(SELECTED_CHANNEL)) * 100.0f) {
                     line_dsc->color = lv_palette_main(LV_PALETTE_ORANGE);
                 } else {
                     line_dsc->color = lv_palette_main(LV_PALETTE_BLUE_GREY);
@@ -196,18 +146,19 @@ class PageDynamics: public Page {
             float outputLevel;
 
             memset(&compValue[0], 0, sizeof(compValue));
-
-            sCompressor* comp = &mixer->dsp->Channel[config->selectedVChannel].compressor;
+            
+            float threshold = config->GetFloat(MP_ID::CHANNEL_DYNAMICS_TRESHOLD, selectedChannelIndex);
+            float ratio = config->GetFloat(MP_ID::CHANNEL_DYNAMICS_RATIO, selectedChannelIndex);
 
             for (uint16_t pixel = 0; pixel < 200; pixel++) {
                 inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
 
-                if (inputLevel < comp->threshold) {
+                if (inputLevel < threshold) {
                     // below threshold
                     outputLevel = inputLevel;
                 }else{
                     // above threshold -> calculate overshoot (inputLevel - comp->threshold) and take ratio into account
-                    outputLevel = comp->threshold + ((inputLevel - comp->threshold) / comp->ratio);
+                    outputLevel = threshold + ((inputLevel - threshold) / ratio);
                 }
 
                 // scale outputLevel to -6000 .. 0

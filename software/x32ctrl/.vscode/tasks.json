@@ -3,26 +3,26 @@
         {
             "label": "openx32-build",
             "type": "shell",
-            "command": "make -j20 && dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl\"",
+            "command": "make -j14 && dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl\"",
             //"command": "make -j20 && scp ../bin/x32ctrl root@192.168.188.103:/openx32/x32ctrl",
             "options": {
             },
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
-                "isDefault": false
+                "isDefault": true
             }
         },
         {
             "label": "openx32-x64-SDL2",
             "type": "shell",
-            "command": "make --file=Makefile_x64_SDL2 -j20",
+            "command": "make --file=Makefile_x64_SDL2 -j14",
             "options": {
             },
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
-                "isDefault": true
+                "isDefault": false
             }
         },
          {

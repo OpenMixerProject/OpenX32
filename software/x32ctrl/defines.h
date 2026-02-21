@@ -6,6 +6,11 @@
 #define X32_CTRL_CONFIGFILE "x32ctrl.cfg"
 #define X32_MIXER_CONFIGFILE "mixer.ini"
 
+// Implementation of the Mixerparameter Map
+// 0 = Implemented as std::map
+// 1 = Implemented as plain array - should be faster!
+#define MPM_AS_ARRAY 1  
+
 #define TIMER_1MS 1000000 // 1ms = 1000000ns
 #define TIMER_100MS 100 * TIMER_1MS 
 #define TIMER_50MS   50 * TIMER_1MS
@@ -22,7 +27,6 @@
 #define PI 3.14159265358979323846f
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
 #define SURFACE_MAX_PACKET_LENGTH 32
-#define MAX_PAGES 20
 
 #define DISPLAY_RESOLUTION_X 800
 #define DISPLAY_RESOLUTION_Y 480
@@ -49,7 +53,7 @@
 #define VOLUME_MIN         -100.0f // dB
 
 #define CHANNEL_GAIN_MIN            -12.0f // dB
-#define CHANNEL_GAIN_MAX             48.0f // dB
+#define CHANNEL_GAIN_MAX             60.0f // dB
 #define CHANNEL_PANORAMA_MIN       -100.0f // dB
 #define CHANNEL_PANORAMA_MAX        100.0f // dB
 #define CHANNEL_VOLUME_MIN         -100.0f // dB
@@ -74,9 +78,9 @@
 #define DYNAMICS_MAKEUP_MAX           24.0f // dB
 #define DYNAMICS_ATTACK_MIN            0.0f // ms
 #define DYNAMICS_ATTACK_MAX          120.0f // ms
-#define DYNAMICS_HOLD_MIN              2.0f // ms
+#define DYNAMICS_HOLD_MIN              0.2f // ms
 #define DYNAMICS_HOLD_MAX           2000.0f // ms
-#define DYNAMICS_RELEASE_MIN          14.0f // ms
+#define DYNAMICS_RELEASE_MIN          5.0f // ms
 #define DYNAMICS_RELEASE_MAX        4000.0f // ms
 
 #define MAX_FX_SLOTS                    8
@@ -87,7 +91,7 @@
 #define FX_REVERB_RT60_MIN             0.0f // s
 #define FX_REVERB_RT60_DEFAULT         3.0f // s
 #define FX_REVERB_RT60_MAX           100.0f // s
-#define FX_REVERB_LPFREQ_MIN           0.0f // Hz
+#define FX_REVERB_LPFREQ_MIN          20.0f // Hz
 #define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
 #define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
 #define FX_REVERB_DRY_MIN              0.0f //
@@ -105,7 +109,7 @@
 #define MAX_CHAN_EQS                       4
 
 #define NUM_INPUT_CHANNEL                  160 // just use a single AES50-port for now
-#define NUM_OUTPUT_CHANNEL                 160 // just use a single AES50-port for now
+#define NUM_OUTPUT_CHANNEL                 NUM_INPUT_CHANNEL
 #define MAX_FPGA_TO_DSP1_CHANNELS          40
 #define MAX_DSP1_TO_FPGA_CHANNELS          40
 #define MAX_DSP1_TO_DSP2_CHANNELS          24
@@ -113,42 +117,38 @@
 #define DSP_MAX_INTERNAL_CHANNELS          93
 #define DSP_SAMPLES_IN_BUFFER              16
 
-typedef unsigned short x32_changeflag;
+#define FPGA_INPUT_IDX_OFF				0
+#define FPGA_INPUT_IDX_XLR				1
+#define FPGA_INPUT_IDX_CARD				33
+#define FPGA_INPUT_IDX_AUX				65
+#define FPGA_INPUT_IDX_TALKBACK_INT		71
+#define FPGA_INPUT_IDX_TALKBACK_EXT		72
+#define FPGA_INPUT_IDX_DSP_RETURN		73
+#define FPGA_INPUT_IDX_AES50A			113
+#define FPGA_INPUT_IDX_AES50B			161
 
-#define X32_VCHANNEL_CHANGED_ALL           0b1111111111111111
-#define X32_VCHANNEL_CHANGED_NONE          0b0000000000000000
-#define X32_VCHANNEL_CHANGED_VOLUME        0b0000000000000010
-#define X32_VCHANNEL_CHANGED_SELECT        0b0000000000000100
-#define X32_VCHANNEL_CHANGED_SOLO          0b0000000000001000
-#define X32_VCHANNEL_CHANGED_MUTE          0b0000000000010000
-#define X32_VCHANNEL_CHANGED_PHANTOM       0b0000000000100000
-#define X32_VCHANNEL_CHANGED_PHASE_INVERT  0b0000000001000000
-#define X32_VCHANNEL_CHANGED_COLOR         0b0000000010000000
-#define X32_VCHANNEL_CHANGED_NAME          0b0000000100000000
-#define X32_VCHANNEL_CHANGED_INPUT         0b0000001000000000
-#define X32_VCHANNEL_CHANGED_GAIN          0b0000010000000000
-#define X32_VCHANNEL_CHANGED_GATE          0b0000100000000000
-#define X32_VCHANNEL_CHANGED_EQ            0b0001000000000000
-#define X32_VCHANNEL_CHANGED_DYNAMIC       0b0010000000000000
-#define X32_VCHANNEL_CHANGED_SENDS         0b0100000000000000
-#define X32_VCHANNEL_CHANGED_BALANCE       0b1000000000000000
+#define FPGA_OUTPUT_IDX_OFF				0
+#define FPGA_OUTPUT_IDX_XLR				1
+#define FPGA_OUTPUT_IDX_ULTRANET		17
+#define FPGA_OUTPUT_IDX_CARD			33
+#define FPGA_OUTPUT_IDX_AUX				65
+#define FPGA_OUTPUT_IDX_DSP     		73
+#define FPGA_OUTPUT_IDX_AES50A			113
+#define FPGA_OUTPUT_IDX_AES50B			161
 
-#define X32_MIXER_CHANGED_ALL              0b1111111111111111
-#define X32_MIXER_CHANGED_NONE             0b0000000000000000
-#define X32_MIXER_CHANGED_SELECT           0b0000000000000001
-#define X32_MIXER_CHANGED_ROUTING          0b0000000000000010
-#define X32_MIXER_CHANGED_BANKING_INPUT    0b0000000000000100
-#define X32_MIXER_CHANGED_LCD_CONTRAST     0b0000000000001000
-#define X32_MIXER_CHANGED_VCHANNEL         0b0000000000010000
-#define X32_MIXER_CHANGED_PAGE             0b0000000000100000
-#define X32_MIXER_CHANGED_GUI              0b0000000001000000
-#define X32_MIXER_CHANGED_GUI_SELECT       0b0000000010000000
-#define X32_MIXER_CHANGED_BANKING_BUS      0b0000000100000000
-#define X32_MIXER_CHANGED_METER            0b0000001000000000
-#define X32_MIXER_CHANGED_CARD             0b0000010000000000
-#define X32_MIXER_CHANGED_LCD_CONTENT      0b0000100000000000
-#define X32_MIXER_CHANGED_LED_BRIGHTNESS   0b0001000000000000
-#define X32_MIXER_CHANGED_FX               0b0010000000000000
+#define DSP_BUF_IDX_OFF			0	// no audio
+#define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
+#define DSP_BUF_IDX_AUX			33	// Aux-Channel 1-8
+#define DSP_BUF_IDX_DSP2_FX		41  // FXDSP2 FX-Channel 1-16
+#define DSP_BUF_IDX_MIXBUS		57	// Mixbus 1-16
+#define DSP_BUF_IDX_MAINLEFT	73	// main left
+#define DSP_BUF_IDX_MAINRIGHT	74	// main right
+#define DSP_BUF_IDX_MAINSUB		75	// main sub
+#define DSP_BUF_IDX_MATRIX		76	// Matrix 1-6
+#define DSP_BUF_IDX_DSP2_AUX	82	// FXDSP2 AUX-Channel 1-8
+#define DSP_BUF_IDX_MONLEFT		90	// Monitor Left
+#define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
+#define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
 #define SURFACE_COLOR_BLACK 0
 #define SURFACE_COLOR_RED 1

@@ -33,28 +33,11 @@ void Card::Init() {
 }
 
 void Card::Sync() {
-    if (state->HasChanged(X32_MIXER_CHANGED_CARD)) {
-        XUSB_SetNumberOfChannels(state->card_xusb_channelmode);
+    if (config->HasParameterChanged(MP_ID::CARD_NUMBER_OF_CHANNELS)) {
+        XUSB_SetNumberOfChannels(config->GetUint(MP_ID::CARD_NUMBER_OF_CHANNELS));
     }
 }
 
-
-String Card::Card_GetChannelModeText(uint8_t card_channelmode) {
-	switch (card_channelmode) {
-		case CARD_CHANNELMODE_32IN_32OUT:
-			return "32/32";
-		case CARD_CHANNELMODE_16IN_16OUT:
-			return "16/16";
-		case CARD_CHANNELMODE_32IN_8OUT:
-			return "32/8";
-		case CARD_CHANNELMODE_8IN_32OUT:
-			return "8/32";
-		case CARD_CHANNELMODE_8IN_8OUT:
-			return "8/8";
-		case CARD_CHANNELMODE_2IN_2OUT:
-			return "2/2";
-	}
-}
 
 void Card::Card_SendCommand(String command){
 	adda->SendReceive(command);

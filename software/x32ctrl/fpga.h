@@ -10,23 +10,15 @@
 #define FPGA_IDX_ROUTING   0    // reserve 200 slots
 #define FPGA_IDX_CH_VOL    200  // here we need 40 values here
 
-class Fpga : public X32Base {
+class Fpga : public X32Base
+{
+    using enum MP_ID;
+
     public:
-        sFpgaRouting fpgaRouting;
 
         SPI* spi;
 
         Fpga(X32BaseParameter* basepar);
-
-        void Init();
-        void RoutingDefaultConfig();
-        void RoutingXlrAs32CHInput();
-        void RoutingCardAs32CHInput();
-
-        void Connect(uint8_t inputIndex, uint8_t group, uint8_t channel);
-        void ConnectByIndex(uint8_t inputIndex, uint8_t outputIndex);
-        uint8_t GetOutput(uint8_t group, uint8_t channel);
-        uint8_t GetOutputByIndex(uint8_t outputIndex);
 
         uint8_t GetInputIndex(uint8_t group, uint8_t channel);
         uint8_t GetOutputIndex(uint8_t group, uint8_t channel);
@@ -39,5 +31,5 @@ class Fpga : public X32Base {
         String GetOutputName(uint8_t group, uint8_t p_chan);
         String GetOutputNameByIndex(uint8_t index);
 
-        void SendRoutingToFpga(int16_t channel);
+        void SendRoutingToFpga(int channel);
 };

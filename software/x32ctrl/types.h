@@ -1,9 +1,17 @@
 #pragma once
 
 #include <stdint.h>
+
+#include <map>
+#include <set>
+
 #include "defines.h"
 #include "enum.h"
 #include "WString.h"
+
+#include "mixerparameter.h"
+
+using namespace std;
 
 // define own datatypes
 typedef union {
@@ -50,18 +58,6 @@ typedef struct{
 
 typedef struct {
 	// user-settings
-	int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
-	float fc; // center-frequency of PEQ
-	float Q; // Quality of PEQ (bandwidth)
-	float gain; // gain of PEQ
-
-	// filter-coefficients
-	float a[3];
-	float b[3];
-} sPEQ;
-
-typedef struct {
-	// user-settings
 	float fc; // cutoff-frequency for high- or lowpass
 	bool isHighpass; // choose if Highpass or Lowpass
 
@@ -82,105 +78,28 @@ typedef struct {
 
 typedef struct {
 	// user-settings
-	float threshold; // value between -80 dBfs (no gate) and 0 dBfs (full gate)
-	float range; // value between 48dB (full range) and 3dB (minimum effect)
-	float attackTime_ms;
-	float holdTime_ms;
-	float releaseTime_ms;
+	int type; // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
+	float fc; // center-frequency of PEQ
+	float Q; // Quality of PEQ (bandwidth)
+	float gain; // gain of PEQ
 
-	// filter-data
-	float value_threshold;
-	float value_gainmin;
-	float value_coeff_attack;
-	float value_hold_ticks;
-	float value_coeff_release;
+	// filter-coefficients
+	float a[3];
+	float b[3];
+} sPEQ;
 
-	// online parameter
-	float gain;
-} sGate;
 
 typedef struct {
-	// user-settings
-	float threshold; // value between 0 dBfs (no compression) and -80 dBfs (full compression)
-	float ratio; // value between 0=oo:1, 1=1:1, 2=2:1, 4=4:1, 8=8:1, 16=16:1, 32=32:1, 64=64:1
-	float makeup; // value between 0dB, 6dB, 12dB, 18dB, 24dB, 30dB, 36dB, 42dB, 48dB
-	float attackTime_ms;
-	float holdTime_ms;
-	float releaseTime_ms;
-
-	// filter-data
-	float value_threshold;
-	float value_ratio;
-	float value_makeup;
-	float value_coeff_attack;
-	float value_hold_ticks;
-	float value_coeff_release;
-
-	// online parameter
-	float gain;
-} sCompressor;
-
-// values stored in config
-typedef struct {
-	uint8_t input; // controls the 40 audio-channels into the DSP
-	uint8_t inputTapPoint; // controls the tap-point (pre/post fader/eq)
-
-	float lowCutFrequency;
-	sGate gate;
 	sPEQ peq[MAX_CHAN_EQS];
-	sCompressor compressor;
-	float volumeLR; // volume in dBfs
-	float volumeSub; // volume in dBfs
-	float balance;
-	float sendMixbus[16];
-	uint8_t sendMixbusTapPoint[16];
-	bool muted;
-	bool solo;
 } sDspChannel;
 
-typedef struct {
-	uint8_t input; // controls the 40 audio-channels out of the DSP
-	uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
-} sDspOutchannel;
 
 typedef struct {
-	uint8_t input; // controls which channel should be routed to DSP2 (FX)
-	uint8_t tapPoint; // controls the tap-point (pre/post fader/eq)
-} sFxChannel;
-
-typedef struct {
-	uint8_t outputSource; // controls which channel should be routed to DSP2 (FX)
-	uint8_t outputTapPoint; // controls the tap-point (pre/post fader/eq)
-} sDsp2AuxChannel;
-
-typedef struct {
-	sPEQ peq[MAX_CHAN_EQS];
-	sCompressor compressor;
-	float volumeLR;
-	float volumeSub;
-	float balance;
-	float sendMatrix[6];
 	uint8_t sendMatrixTapPoint[6];
-	bool muted;
-	bool solo;
 } sMixbusChannel;
 
-typedef struct {
-	sPEQ peq[MAX_CHAN_EQS];
-	sCompressor compressor;
-	float volume;
-	bool muted;
-	bool solo;
-} sMatrixChannel;
 
 typedef struct {
-	float volume;
-	float balance;
-	float sendMatrix[6];
-	uint8_t sendMatrixTapPoint[6];
-	bool muted;
-	bool solo;
-
 	float meterPu[2]; // meter information in p.u.
 	uint32_t meter[2];
 	uint32_t meterDecay[2]; // meter information with decay
@@ -190,35 +109,7 @@ typedef struct {
 	uint32_t meterInfo[2];
 } sMainChannel;
 
-#pragma pack(push, 1)
-// size of sRouting must be multiplier of 8 to fit into 64-bit-value
-typedef struct __attribute__((packed,aligned(1))) {
-	uint8_t xlr[16];
-	uint8_t p16[16];
-	uint8_t card[32];
-	uint8_t aux[8];
-	uint8_t dsp[40];
-	uint8_t aes50a[48]; // not used in FPGA at the moment
-	uint8_t aes50b[48]; // not used in FPGA at the moment
-} sFpgaRouting;
-#pragma pack(pop)
-
-typedef struct {
-	float gainXlr[32];
-	float gainAes50a[48];
-	float gainAes50b[48];
-
-	bool phantomPowerXlr[32];
-	bool phantomPowerAes50a[48];
-	bool phantomPowerAes50b[48];
-
-	bool phaseInvertXlr[32];
-	bool phaseAes50a[32];
-	bool phaseAes50b[32];
-} sPreamps;
-
 typedef struct{
-    char name[MAX_NAME_LENGTH];
 
     // assing surfaceChannel to VChannel
     //
@@ -260,12 +151,7 @@ typedef struct {
 
 
 typedef struct {
-	MP_TYPE mp = MP_TYPE::NONE;
-	String label;
-	String label_value;
-	uint8_t percent; 
-	bool slider_hidden = true;
-	String label_buttonpress;
-	bool label_buttonpress_highlighted = false;
-	void* ptr_value;  
+	String label;	
 } sDisplayEncoder;
+
+typedef map<MP_ID, set<uint>>			mixerparameter_changed_t;

@@ -17,22 +17,22 @@ class PageRouting: public Page {
         }
 
         void OnShow() override {
-			encoderSliders[0].label = "Default Routing";
-			encoderSliders[1].label = "XLR -> Channels";
-			encoderSliders[2].label = "Card -> Channels";
+			custom_encoder[0].label = "Default Routing";
+			custom_encoder[1].label = "XLR -> Channels";
+			custom_encoder[2].label = "Card -> Channels";
 		}
 
-        void OnDisplayButton(X32_BTN button, bool pressed) {
+        bool OnDisplayButton(X32_BTN button, bool pressed) override {
             if (pressed){
 				switch (button){
 					case X32_BTN_ENCODER1:
-						mixer->dsp->LoadRouting_X32Default();
+						//mixer->dsp->LoadRouting_X32Default();
 						break;
 					case X32_BTN_ENCODER2:
-					    mixer->fpga->RoutingXlrAs32CHInput();                    
+					    //mixer->fpga->RoutingXlrAs32CHInput();                    
 						break;
 					case X32_BTN_ENCODER3:
-						mixer->fpga->RoutingCardAs32CHInput();
+						//mixer->fpga->RoutingCardAs32CHInput();
 						break;
 					case X32_BTN_ENCODER4:
 						
@@ -48,5 +48,7 @@ class PageRouting: public Page {
 						break;
 				}
             }
+
+			return true;
         }
 };

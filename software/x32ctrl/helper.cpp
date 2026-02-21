@@ -24,10 +24,6 @@
 
 #include "helper.h"
 
-Helper::Helper() {
-	LoadMixerparametersdefinitions();
-}
-
 void Helper::Log(const char* format, ...)
 {
 	va_list args;
@@ -336,39 +332,47 @@ String Helper::getIpAddress() {
 bool Helper::IsInChannelBlock(uint8_t index, X32_VCHANNEL_BLOCK block){
   uint8_t blocksize = 0;
   switch(block){
-	case X32_VCHANNEL_BLOCK::NORMAL: {
+		case X32_VCHANNEL_BLOCK::NORMAL: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::NORMAL;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::AUX: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::AUX;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::AUX;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::FXRET: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::FXRET;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::FXRET;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::BUS: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::BUS;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::BUS;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::MATRIX: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MATRIX;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MATRIX;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::SPECIAL: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::SPECIAL;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::SPECIAL;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::MAINSUB: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAINSUB;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAINSUB;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::DCA: {
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::DCA;
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::DCA;
 			break;
 		}
 	case X32_VCHANNEL_BLOCK::MAIN: {
+	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAIN;
 	  		blocksize = (uint)X32_VCHANNEL_BLOCK_SIZE::MAIN;
 			break;
 		}
@@ -433,292 +437,4 @@ uint8_t Helper::value2percent(int8_t value, int8_t value_min, int8_t value_max) 
 	uint8_t value_normiert = value - value_min;
 	float onepercent = onehunderedpercent / 100.0f;
 	return value_normiert / onepercent;
-}
-
-//######################################################################################################################################
-//#
-//#  ##     ## #### ##      ## ######## ########  ########     ###    ########     ###    ##     ## ######## ######## ######## ########  
-//#  ###   ###  ##   ##    ##  ##       ##     ## ##     ##   ## ##   ##     ##   ## ##   ###   ### ##          ##    ##       ##     ## 
-//#  #### ####  ##    ##  ##   ##       ##     ## ##     ##  ##   ##  ##     ##  ##   ##  #### #### ##          ##    ##       ##     ## 
-//#  ## ### ##  ##     ####    ######   ########  ########  ##     ## ########  ##     ## ## ### ## ######      ##    ######   ########  
-//#  ##     ##  ##    ##  ##   ##       ##   ##   ##        ######### ##   ##   ######### ##     ## ##          ##    ##       ##   ##   
-//#  ##     ##  ##   ##    ##  ##       ##    ##  ##        ##     ## ##    ##  ##     ## ##     ## ##          ##    ##       ##    ##  
-//#  ##     ## #### ##      ## ######## ##     ## ##        ##     ## ##     ## ##     ## ##     ## ########    ##    ######## ##     ## 
-//#
-//#
-//#  ########  ######## ######## #### ##    ## #### ######## ####  #######  ##    ##  ######  
-//#  ##     ## ##       ##        ##  ###   ##  ##     ##     ##  ##     ## ###   ## ##    ## 
-//#  ##     ## ##       ##        ##  ####  ##  ##     ##     ##  ##     ## ####  ## ##       
-//#  ##     ## ######   ######    ##  ## ## ##  ##     ##     ##  ##     ## ## ## ##  ######  
-//#  ##     ## ##       ##        ##  ##  ####  ##     ##     ##  ##     ## ##  ####       ## 
-//#  ##     ## ##       ##        ##  ##   ###  ##     ##     ##  ##     ## ##   ### ##    ## 
-//#  ########  ######## ##       #### ##    ## ####    ##    ####  #######  ##    ##  ######  
-//#
-//######################################################################################################################################
-
-
-String Helper::GetUnitOfMesaurement(MixerparameterDefinition* mpd, bool spaceInFront = false) {
-	
-	String result = spaceInFront ? " " : "";
-
-	switch(mpd->unitOfMeasurement)
-	{
-		using enum MP_UOM;
-		
-		case DB:
-			result += "dB";
-			break;
-		case DBFS:
-			result += "dbFS";
-			break;
-		case HZ:
-			result += "Hz";
-			break;
-		case KHZ:
-			result += "kHz";
-			break;
-		case MS:
-			result += "ms";
-			break;
-		case PERCENT:
-			result += "%";
-			break;
-		case SECONDS:
-			result += "s";
-			break;
-		default:
-			result += "";
-	}	
-
-	return result;
-}
-
-float Helper::CalcNewValue(float value, int8_t amount, MP_TYPE mp) {
-	MixerparameterDefinition* mpd = GetMixerparameterDefinition(mp);
-
-	float newValue = value + (amount * mpd->float_stepsize);
-
-	if (newValue > mpd->float_value_max) {
-		newValue = mpd->float_value_max;
-	} else if (newValue < mpd->float_value_min) {
-		newValue = mpd->float_value_min;
-	}
-	
-	return newValue;
-}
-
-String Helper::FormatValue(float value, MixerparameterDefinition* mpd) {
-
-	if (mpd->unitOfMeasurement == MP_UOM::KHZ) {
-		value /= 1000;
-	}
-
-	if (mpd->unitOfMeasurement == MP_UOM::PERCENT) {
-		value *= 100;
-	}
-
-
-	return String(value, mpd->GetDecimaPlaces()) + GetUnitOfMesaurement(mpd);
-}
-
-String Helper::FormatValue(uint value, MixerparameterDefinition* mpd) {
-	return String(value) + GetUnitOfMesaurement(mpd);
-}
-
-String Helper::FormatValue(int value, MixerparameterDefinition* mpd) {
-	return String(value) + GetUnitOfMesaurement(mpd);
-}
-
-MixerparameterDefinition* Helper::GetMixerparameterDefinition(MP_TYPE mp){
-    return mpm[mp];
-}
-
-MixerparameterDefinition* Helper::NewMPD(MP_TYPE mp_type, MP_CAT category, String name) {
-	
-	// create it
-	MixerparameterDefinition* newMpd = new MixerparameterDefinition();
-
-	newMpd->name = name;
-
-	newMpd->name_short = name;
-	if (newMpd->name_short.length() > 10) {
-		newMpd->name_short.substring(0, 9);
-	}
-
-	newMpd->config_prefix = name;
-    newMpd->config_prefix.replace(" ", "_");
-	newMpd->config_prefix.replace("/", "_");
-	newMpd->config_prefix.replace("\\", "_");
-	newMpd->config_prefix.replace(".", "_");
-	newMpd->config_prefix.toLowerCase();
-
-	// store in mixerparameter map (mpm)
-	mpm[mp_type] = newMpd;
-
-	// return for further definition
-	return newMpd;
-}
-
-void Helper::LoadMixerparametersdefinitions() {
-
-    // Settings
-	MP_CAT cat = MP_CAT::SETTING;
-
-	NewMPD(MP_TYPE::LCD_CONTRAST, cat, "LCD Contrast")->ChangeFlags(X32_MIXER_CHANGED_LCD_CONTRAST, X32_VCHANNEL_CHANGED_NONE)
-		->MinMaxStandard_Uint(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT); 
-    NewMPD(MP_TYPE::LED_BRIGHTNESS, cat, "LED Brightness")->ChangeFlags(X32_MIXER_CHANGED_LED_BRIGHTNESS, X32_VCHANNEL_CHANGED_NONE)
-		->MinMaxStandard_Uint(LED_BRIGHTNESS_1, LED_BRIGHTNESS_4, LED_BRIGHTNESS_4); 
-
-    // Channel
-	cat = MP_CAT::CHANNEL;
-
-    NewMPD(MP_TYPE::CHANNEL_GAIN, cat, "Gain")->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_NONE, X32_VCHANNEL_CHANGED_GAIN)
-		->MinMaxStandard_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
-	NewMPD(MP_TYPE::CHANNEL_PANORAMA, cat, "Pan/Bal")->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_BALANCE)
-		->MinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f, 0);
-    NewMPD(MP_TYPE::CHANNEL_VOLUME, cat, "Volume")->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_VOLUME)
-    	->MinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
-
-    // gate
-    NewMPD(MP_TYPE::GATE_TRESHOLD, cat, "Threshold")->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
-    	->MinMaxStandard_Float(GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0);
-    NewMPD(MP_TYPE::GATE_RANGE, cat, "Range")->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
-    	->MinMaxStandard_Float(GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1);
-    NewMPD(MP_TYPE::GATE_ATTACK, cat, "Attack")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
-    	->MinMaxStandard_Float(GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0);
-    NewMPD(MP_TYPE::GATE_HOLD, cat, "Hold")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
-    	->MinMaxStandard_Float(GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0);
-    NewMPD(MP_TYPE::GATE_RELEASE, cat, "Release")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_GATE)
-    	->MinMaxStandard_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
-    
-    // dynamics
-    NewMPD(MP_TYPE::DYNAMICS_TRESHOLD, cat, "Threshold")->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
-    ->MinMaxStandard_Float(DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0);
-    NewMPD(MP_TYPE::DYNAMICS_RATIO, cat, "Ratio")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
-    ->MinMaxStandard_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
-    NewMPD(MP_TYPE::DYNAMICS_MAKEUP, cat, "Makeup")->UoM(MP_UOM::DB)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
-    ->MinMaxStandard_Float(DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1);
-    NewMPD(MP_TYPE::DYNAMICS_ATTACK, cat, "Attack")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
-    ->MinMaxStandard_Float(DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0);
-    NewMPD(MP_TYPE::DYNAMICS_HOLD, cat, "Hold")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
-    ->MinMaxStandard_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
-    NewMPD(MP_TYPE::DYNAMICS_RELEASE, cat, "Release")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_VCHANNEL, X32_VCHANNEL_CHANGED_DYNAMIC)
-    ->MinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
-
-    // FX
-
-    // reverb
-    #define FX_REVERB_ROOMSIZE_MIN         0.0f // ms
-    #define FX_REVERB_ROOMSIZE_DEFAULT   150.0f // ms
-    #define FX_REVERB_ROOMSIZE_MAX      1000.0f // ms
-    #define FX_REVERB_RT60_MIN             0.0f // s
-    #define FX_REVERB_RT60_DEFAULT         3.0f // s
-    #define FX_REVERB_RT60_MAX           100.0f // s
-    #define FX_REVERB_LPFREQ_MIN           0.0f // Hz
-    #define FX_REVERB_LPFREQ_DEFAULT   14000.0f // Hz
-    #define FX_REVERB_LPFREQ_MAX       20000.0f // Hz
-    #define FX_REVERB_DRY_MIN              0.0f //
-    #define FX_REVERB_DRY_DEFAULT          1.0f //
-    #define FX_REVERB_DRY_MAX              1.0f //
-    #define FX_REVERB_WET_MIN              0.0f //
-    #define FX_REVERB_WET_DEFAULT          0.25f //
-    #define FX_REVERB_WET_MAX              1.0f //
-
-    // reverb roomsize
-    NewMPD(MP_TYPE::FX_REVERB_ROOMSIZE, cat, "Roomsize")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_REVERB_ROOMSIZE_MIN, FX_REVERB_ROOMSIZE_MAX, FX_REVERB_ROOMSIZE_DEFAULT, 0);
-    // reverb rt60
-    NewMPD(MP_TYPE::FX_REVERB_RT60, cat, "RT60")->UoM(MP_UOM::SECONDS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
-    // reverb lowpass
-    NewMPD(MP_TYPE::FX_REVERB_LPFREQ, cat, "LowPass")->UoM(MP_UOM::KHZ)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
-    // reverb dry
-    NewMPD(MP_TYPE::FX_REVERB_DRY, cat, "Dry")->UoM(MP_UOM::PERCENT)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT);
-    // reverb wet
-    NewMPD(MP_TYPE::FX_REVERB_WET, cat, "Wet")->UoM(MP_UOM::PERCENT)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_REVERB_WET_MIN, FX_REVERB_WET_MAX, FX_REVERB_WET_DEFAULT);
-
-    // chorus
-    #define FX_CHORUS_DEPTH_A_MIN          0.0f //
-    #define FX_CHORUS_DEPTH_A_DEFAULT     10.0f //
-    #define FX_CHORUS_DEPTH_A_MAX        100.0f //
-    #define FX_CHORUS_DEPTH_B_MIN          0.0f //
-    #define FX_CHORUS_DEPTH_B_DEFAULT     10.0f //
-    #define FX_CHORUS_DEPTH_B_MAX        100.0f //
-    #define FX_CHORUS_DELAY_A_MIN          0.0f // ms
-    #define FX_CHORUS_DELAY_A_DEFAULT     15.0f // ms
-    #define FX_CHORUS_DELAY_A_MAX        100.0f // ms
-    #define FX_CHORUS_DELAY_B_MIN          0.0f // ms
-    #define FX_CHORUS_DELAY_B_DEFAULT     20.0f // ms
-    #define FX_CHORUS_DELAY_B_MAX        100.0f // ms
-    #define FX_CHORUS_PHASE_A_MIN          0.0f //
-    #define FX_CHORUS_PHASE_A_DEFAULT      0.0f //
-    #define FX_CHORUS_PHASE_A_MAX        100.0f //
-    #define FX_CHORUS_PHASE_B_MIN          0.0f //
-    #define FX_CHORUS_PHASE_B_DEFAULT      0.0f //
-    #define FX_CHORUS_PHASE_B_MAX        100.0f //
-    #define FX_CHORUS_FREQ_A_MIN           0.0f //
-    #define FX_CHORUS_FREQ_A_DEFAULT       1.5f //
-    #define FX_CHORUS_FREQ_A_MAX         100.0f //
-    #define FX_CHORUS_FREQ_B_MIN           0.0f //
-    #define FX_CHORUS_FREQ_B_DEFAULT       1.6f //
-    #define FX_CHORUS_FREQ_B_MAX         100.0f //
-
-    // chorus depth
-    NewMPD(MP_TYPE::FX_CHORUS_DEPTH_A, cat, "Depth A")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_DEPTH_A_MIN, FX_CHORUS_DEPTH_A_MAX, FX_CHORUS_DEPTH_A_DEFAULT);
-    NewMPD(MP_TYPE::FX_CHORUS_DEPTH_B, cat, "Depth B")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_DEPTH_B_MIN, FX_CHORUS_DEPTH_B_MAX, FX_CHORUS_DEPTH_B_DEFAULT);
-    // chorus delay
-    NewMPD(MP_TYPE::FX_CHORUS_DELAY_A, cat, "Delay A")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_DELAY_A_MIN, FX_CHORUS_DELAY_A_MAX, FX_CHORUS_DELAY_A_DEFAULT);
-    NewMPD(MP_TYPE::FX_CHORUS_DELAY_B, cat, "Delay B")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_DELAY_B_MIN, FX_CHORUS_DELAY_B_MAX, FX_CHORUS_DELAY_B_DEFAULT);
-    // chorus phase
-    NewMPD(MP_TYPE::FX_CHORUS_PHASE_A, cat, "Phase A")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_PHASE_A_MIN, FX_CHORUS_PHASE_A_MAX, FX_CHORUS_PHASE_A_DEFAULT);
-    NewMPD(MP_TYPE::FX_CHORUS_PHASE_B, cat, "Phase B")->UoM(MP_UOM::NONE)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_PHASE_B_MIN, FX_CHORUS_PHASE_B_MAX, FX_CHORUS_PHASE_B_DEFAULT);
-    // chorus freq
-    NewMPD(MP_TYPE::FX_CHORUS_FREQ_A, cat, "Freq A")->UoM(MP_UOM::KHZ)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT);
-    NewMPD(MP_TYPE::FX_CHORUS_FREQ_B, cat, "Freq B")->UoM(MP_UOM::KHZ)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT);
-    // chorus mix
-    NewMPD(MP_TYPE::FX_CHORUS_MIX, cat, "Mix")->UoM(MP_UOM::PERCENT)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1.0f, 0.5f);
-
-    // transientshaper
-
-    // fast
-    NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_FAST, cat, "Fast")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
-    // medium
-    NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_MEDIUM, cat, "Medium")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 15.0f);
-    // slow
-    NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_SLOW, cat, "Slow")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 150.0f);
-    // attack
-    NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_ATTACK, cat, "Attack")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
-    // sustain
-    NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_SUSTAIN, cat, "Sustain")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
-    // delay
-    NewMPD(MP_TYPE::FX_TRANSIENTSHAPER_DELAY, cat, "Delay")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
-
-    // FX_TYPE_OVERDRIVE            preGain Q hpfInputFreq lpfInputFreq lpfOutputFreq
-
-    // delay A/B
-    NewMPD(MP_TYPE::FX_DELAY_DELAY_A, cat, "Delay A")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 350.0f);
-    NewMPD(MP_TYPE::FX_DELAY_DELAY_B, cat, "Delay B")->UoM(MP_UOM::MS)->ChangeFlags(X32_MIXER_CHANGED_FX, X32_VCHANNEL_CHANGED_NONE)
-    ->MinMaxStandard_Float(0.0f, 1000.0f, 450.0f);
-
-    // FX_TYPE_MULTIBANDCOMPRESOR   channel band threshold ratio attack  hold   release   makeup
-    // FX_TYPE_DYNAMICEQ            band type freq staticGain  maxDynGain  Q  thresh  ratio  attack  release
 }

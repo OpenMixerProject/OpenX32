@@ -53,5 +53,6 @@
         "iostream": "cpp",
         "constants.h": "c",
         "ratio": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

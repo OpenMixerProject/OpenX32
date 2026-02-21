@@ -31,16 +31,57 @@ Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
 	addaPacketBufLen = 0;
 }
 
-void Adda::Init() {
+void Adda::Init()
+{
+	const uint16_t speed = 38400;
+	String serial;
+	
 	if (state->bodyless) {
-		return;
+
+		/* 
+        
+        How to connect x32ctrl bodyless mode to a X32 runnig Linux:
+
+        Developer PC
+        ############
+
+        // create two virtual serial ports and connect them together as bridge
+        # socat -d -d pty,raw,link=/tmp/ttyLocalAdda,echo=0 pty,raw,link=/tmp/ttyRemoteAdda,echo=0
+
+        // start netcat server on port 10001
+        # nc -l 10000 </tmp/ttyRemoteAdda >/tmp/ttyRemoteAdda
+
+        X32
+        ###
+
+		// Load FPGA-Bitstream to enable the serial ADDA communication
+		# x32ctrl --X xilinx.bit
+		// stop x23ctrl after that to free the serial ports!
+        
+        // set serial to 38400 baud
+        # stty -F /dev/ttymxc2 38400 raw -echo -echoe -echok
+
+        // start netcat client to transmit/receive serial from/to devloper pc
+        # nc <ip of Developer PC> 10001 </dev/ttymxc2 >/dev/ttymxc2
+
+        Developer PC
+        ############        
+        
+        // start x32ctrl with bodyless commandline parameter "-b"
+        # x32ctrl -b
+        
+        */
+
+
+		serial = "/tmp/ttyLocalAdda";
+	}
+	else
+	{
+		serial = "/dev/ttymxc2";	
 	}
 
-	const char serial[] = "/dev/ttymxc2";
-	const uint16_t speed = 38400;
-	
-	helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial, speed);
-	uart->Open(serial, speed, true);
+	helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial.c_str(), speed);
+	uart->Open(serial.c_str(), speed, true);
 
 	// send identification-commands to all possible boards
 	addaBoards[ADDA_BOARD_XLR_IN_0] = SendReceive("*0I#"); // XLR IN
@@ -70,8 +111,7 @@ void Adda::Init() {
 	if (HasXlrOut0()) SendReceive("*4R:W0281C0:W0800:W0280#");
 	if (HasXlrOut1()) SendReceive("*5R:W0281C0:W0800:W0280#");
 
-
-	SetSamplerate(config->GetSamplerate());
+	SetSamplerate(config->GetUint(MP_ID::SAMPLERATE));
 	
 	usleep(20000); // wait 20ms
 }

@@ -1,20 +1,73 @@
 #pragma once
 
+#include <algorithm>
+
 #include "types.h"
 #include "WString.h"
 
-class Config {
+#include "helper.h"
+
+#include "mixerparameter.h"
+
+class Config
+{
+    using enum MP_ID;
 
     private:
+
+        Helper* helper;
+
+        Mixerparameter* mpm[(uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE];
+        mixerparameter_changed_t* mp_changedlist = new mixerparameter_changed_t();
+
+        void CreateMixerparameter(MP_ID mp_type); 
+        void CreateMixerparameter(MP_ID mp_type, uint index);    
+        
+        void SetParameterChanged(MP_ID mp, uint index);
+
+        // old
         X32_MODEL _model;
-        uint32_t _samplerate;
         X32_SURFACE_MODE_BANKING _activeBankMode;
 
     public:
 
-        uint8_t selectedVChannel;
+        Config(Helper* h);
 
-        int ReadConfig(const char* filename, const char* key, char* value_buffer, size_t buffer_size);
+        void DefineMixerparameters();
+        Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
+        Mixerparameter* GetParameter(MP_ID mp);
+
+        #ifdef MPM_AS_ARRAY
+        Mixerparameter** GetParameterList();
+        #else
+        mixerparameter_map_t* GetParameterList();
+        #endif
+        mixerparameter_changed_t* GetChangedParameterList();
+        vector<uint> GetChangedParameterIndexes(MP_CAT parameter_cat);
+        vector<uint> GetChangedParameterIndexes(vector<MP_ID> filter_ids);
+        bool HasParameterChanged(MP_ID parameter_id);
+        bool HasParameterChanged(MP_ID parameter_id, uint index);
+        bool HasParametersChanged(vector<MP_ID> parameter_id);
+        bool HasParametersChanged(vector<MP_ID> parameter_id, uint index);
+        bool HasParametersChanged(MP_CAT parameter_cat);
+        bool HasParametersChanged(MP_CAT parameter_cat, uint index);
+        bool HasAnyParameterChanged();
+        void ResetChangedParameterList();
+        
+        float GetFloat(MP_ID mp, uint index = 0);
+        int GetInt(MP_ID mp, uint index = 0);
+        uint GetUint(MP_ID mp, uint index = 0);
+        bool GetBool(MP_ID mp, uint index = 0);
+        String GetString(MP_ID mp, uint index = 0);
+        uint GetPercent(MP_ID mp, uint index = 0);
+        void Set(MP_ID mp, float value, uint index = 0);    
+        void Set(MP_ID mp, String value_string, uint index = 0
+        );
+        void Change(MP_ID mp, int amount, uint index = 0);
+        void Toggle(MP_ID mp, uint index = 0);
+        void Refresh(MP_ID mp, uint index = 0);
+        void Reset(MP_ID mp, uint index = 0);
+
 
         void SetModel(String model);
         bool IsModelX32Full();
@@ -27,9 +80,6 @@ class Config {
         bool IsModelX32Rack();
         bool IsModelX32Producer();
         bool IsModelX32Compact();
-
-        void SetSamplerate(uint32_t samplerate);
-        uint32_t GetSamplerate();
 
         void SetBankMode(X32_SURFACE_MODE_BANKING mode);
         X32_SURFACE_MODE_BANKING GetBankMode();

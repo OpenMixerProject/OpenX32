@@ -32,7 +32,7 @@ void FxMath::RecalcFilterCoefficients_PEQ(sPEQ* peq) {
   // Alternative Source: https://gcradix.de/an-introduction-to-biquad-filters (Caution: calculation of Notch-Coefficients is wrong)
 
   double V = pow(10.0, fabs(peq->gain)/20.0);
-  double K = tan(PI * peq->fc / config->GetSamplerate());
+  double K = tan(PI * peq->fc / (float)config->GetUint(MP_ID::SAMPLERATE));
   double K2 = K * K;
   double norm;
 
@@ -197,7 +197,7 @@ void FxMath::RecalcFilterCoefficients_LR12(sLR12* LR12) {
   double wc = 2.0 * PI * LR12->fc;
   double wc2 = wc * wc;
   double wc22 = 2.0 * wc2;
-  double k = wc / tan(PI * (LR12->fc / config->GetSamplerate()));
+  double k = wc / tan(PI * (LR12->fc / (float)config->GetUint(MP_ID::SAMPLERATE)));
   double k2 = k * k;
   double k22 = 2.0 * k2;
   double wck2 = 2.0 * wc * k;
@@ -225,7 +225,7 @@ void FxMath::RecalcFilterCoefficients_LR24(sLR24* LR24) {
   double wc2 = wc * wc;
   double wc3 = wc2 * wc;
   double wc4 = wc2 * wc2;
-  double k = wc / tan(PI * (LR24->fc / config->GetSamplerate()));
+  double k = wc / tan(PI * (LR24->fc / (float)config->GetUint(MP_ID::SAMPLERATE)));
   double k2 = k * k;
   double k3 = k2 * k;
   double k4 = k2 * k2;
@@ -256,39 +256,10 @@ void FxMath::RecalcFilterCoefficients_LR24(sLR24* LR24) {
   LR24->b[4] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) * norm;
 }
 
-void FxMath::RecalcGate(sGate* gate) {
-	float samplerate = config->GetSamplerate()/(float)DSP_SAMPLES_IN_BUFFER;
-
-	gate->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, gate->threshold/20.0f);
-
-        // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
-	gate->value_gainmin = 1.0f / pow(10.0f, gate->range/20.0f);
-
-        // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
-        // ln(10%) - ln(90%) = -2.197224577
-	gate->value_coeff_attack = exp(-2197.22457734f/(samplerate * gate->attackTime_ms));
-	gate->value_hold_ticks = gate->holdTime_ms * samplerate / 1000.0f;
-	gate->value_coeff_release = exp(-2197.22457734f/(samplerate * gate->releaseTime_ms));
-}
-
-void FxMath::RecalcCompressor(sCompressor* compressor) {
-	float samplerate = config->GetSamplerate()/(float)DSP_SAMPLES_IN_BUFFER;
-
-	compressor->value_threshold = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, compressor->threshold/20.0f);
-        compressor->value_ratio = compressor->ratio;
-	compressor->value_makeup = pow(10.0f, compressor->makeup/20.0f);
-
-        // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
-        // ln(10%) - ln(90%) = -2.197224577
-	compressor->value_coeff_attack = exp(-2197.22457734f/(samplerate * compressor->attackTime_ms));
-	compressor->value_hold_ticks = compressor->holdTime_ms * samplerate / 1000.0f;
-	compressor->value_coeff_release = exp(-2197.22457734f/(samplerate * compressor->releaseTime_ms));
-}
-
 void FxMath::fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet) {
-  float samplerate = config->GetSamplerate();
+  float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 
-  data[0] = pow(10, (-60.0f / (rt60 / (roomSizeMs * 1.5f * 0.001f))) / 20.0f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
+  data[0] = pow(10.0f, (-60.0f / (rt60 / (roomSizeMs * 1.5f * 0.001f))) / 20.0f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
 	data[1] = (2.0f * PI * feedbackLowPassFreq) / (samplerate + 2.0f * PI * feedbackLowPassFreq); // 7kHz = 43982,297150257105338477007365913 / 91982,297150257105338477007365913 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 7000Hz) / (48000Hz + 2 * pi * 7000Hz)
 	data[2] = dry;
 	data[3] = wet;
@@ -297,7 +268,7 @@ void FxMath::fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60,
 }
 
 void FxMath::fxCalcParameters_Chorus(float data[], float depth[2], float delayMs[2], float phase[2], float freq[2], float mix) {
-  float samplerate = config->GetSamplerate();
+  float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 
   data[0] = depth[0];
   data[1] = depth[1];
@@ -311,7 +282,7 @@ void FxMath::fxCalcParameters_Chorus(float data[], float depth[2], float delayMs
 }
 
 void FxMath::fxCalcParameters_TransientShaper(float data[], float tFastMs, float tMediumMs, float tSlowMs, float attack, float sustain, float delayMs) {
-  float samplerate = config->GetSamplerate();
+  float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 
 	data[0] = 1.0f - exp(-1.0f / (samplerate * (tFastMs / 1000.0f))); // attack-envelope: 0.05 = softer response, 0.2 = fast on steep edges
 	data[1] = 1.0f - exp(-1.0f / (samplerate * (tMediumMs / 1000.0f)));
@@ -322,7 +293,7 @@ void FxMath::fxCalcParameters_TransientShaper(float data[], float tFastMs, float
 }
 
 void FxMath::fxCalcParameters_Overdrive(float data[], float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
-  float samplerate = config->GetSamplerate();
+  float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 
 	data[0] = preGain;
 	data[1] = Q;
@@ -338,14 +309,14 @@ void FxMath::fxCalcParameters_Overdrive(float data[], float preGain, float Q, fl
 }
 
 void FxMath::fxCalcParameters_Delay(float data[], float delayMs[2]) {
-  float samplerate = config->GetSamplerate();
+  float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 
   data[0] = (delayMs[0] * samplerate / 1000.0f);
   data[1] = (delayMs[1] * samplerate / 1000.0f);
 }
 
 void FxMath::fxCalcParameters_MultibandCompressor(float data[], int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup) {
-  float samplerate = config->GetSamplerate() / 16.0f;
+  float samplerate = (float)config->GetUint(MP_ID::SAMPLERATE) / 16.0f;
 
   data[0] = channel;
   data[1] = band;
@@ -373,7 +344,7 @@ void FxMath::fxCalcParameters_MultibandCompressorFreq(float data[], int channel,
   sPEQ peq;
   peq.Q = 1.0 / sqrt(2.0); // we take 0.707 as Q-factor to have zero gain at the crossover-point
   peq.gain = 1.0;
-  float samplerate = config->GetSamplerate();
+  float samplerate = config->GetUint(MP_ID::SAMPLERATE);
   data[0] = channel;
 
   // calculate coeffs for high-cut (low-pass)
@@ -448,7 +419,7 @@ void FxMath::fxCalcParameters_DynamicEQ(float data[], int band, int type, float 
   data[7] = threshold;
   data[8] = ratio;
 
-  float fs = config->GetSamplerate()/(16.0f); // 16 samples per buffer
+  float fs = (float)config->GetUint(MP_ID::SAMPLERATE)/(16.0f); // 16 samples per buffer
   data[9] = 1.0f - exp(-1000.0f / (fs * attack)); // convert ms to coeff
   data[10] = 1.0f - exp(-1000.0f / (fs * release)); // convert ms to coeff
 }

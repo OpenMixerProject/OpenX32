@@ -7,6 +7,14 @@
 extern "C" {
 #endif
 
+// Screens
+
+enum ScreensEnum {
+    _SCREEN_ID_FIRST = 1,
+    SCREEN_ID_MAIN = 1,
+    _SCREEN_ID_LAST = 1
+};
+
 typedef struct _objects_t {
     lv_obj_t *main;
     lv_obj_t *channel_box;
@@ -20,17 +28,18 @@ typedef struct _objects_t {
     lv_obj_t *openx32logo_1;
     lv_obj_t *warning_1;
     lv_obj_t *configtab;
-    lv_obj_t *source_panel;
     lv_obj_t *current_channel_source;
     lv_obj_t *current_channel_gain;
     lv_obj_t *current_channel_phantom;
     lv_obj_t *current_channel_invert;
     lv_obj_t *current_channel_pan_bal;
     lv_obj_t *current_channel_volume;
+    lv_obj_t *current_channel_mute;
     lv_obj_t *current_channel_gate;
     lv_obj_t *current_channel_comp;
     lv_obj_t *eqtab;
     lv_obj_t *current_channel_eq;
+    lv_obj_t *meterstab;
     lv_obj_t *meters_1_8;
     lv_obj_t *meters_1_8__obj1;
     lv_obj_t *meters_1_8__obj1__meter;
@@ -332,6 +341,9 @@ typedef struct _objects_t {
     lv_obj_t *ms_main_lr__meter;
     lv_obj_t *ms_main_lr__obj0;
     lv_obj_t *ms_main_lr__fader;
+    lv_obj_t *configtab_1;
+    lv_obj_t *obj0;
+    lv_obj_t *rta_chart;
     lv_obj_t *routingtab;
     lv_obj_t *hw_inputs;
     lv_obj_t *hw_outputs;
@@ -340,11 +352,13 @@ typedef struct _objects_t {
     lv_obj_t *routing_input;
     lv_obj_t *routing_input_1;
     lv_obj_t *dsp;
+    lv_obj_t *table_routing_fpga_header;
     lv_obj_t *table_routing_fpga;
+    lv_obj_t *table_routing_dsp_input_header;
     lv_obj_t *table_routing_dsp_input;
+    lv_obj_t *table_routing_dsp_output_header;
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
-    lv_obj_t *rta_chart;
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *fxtable;
@@ -384,13 +398,10 @@ typedef struct _objects_t {
     lv_obj_t *widget6__value;
     lv_obj_t *widget6__slider;
     lv_obj_t *widget6__label_buttonpress;
+    lv_obj_t *bodyless_instructions;
 } objects_t;
 
 extern objects_t objects;
-
-enum ScreensEnum {
-    SCREEN_ID_MAIN = 1,
-};
 
 void create_screen_main();
 void tick_screen_main();
@@ -420,7 +431,6 @@ void tick_screen_by_id(enum ScreensEnum screenId);
 void tick_screen(int screen_index);
 
 void create_screens();
-
 
 #ifdef __cplusplus
 }
