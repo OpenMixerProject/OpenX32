@@ -19,9 +19,11 @@ class Mixerparameter {
         MP_CAT category;        // category of parameter, e.g. setting, channel, fx
         MP_VALUE_TYPE value_type;
 
-        String _name;            // complete long name
-        String _name_short;      // short name for thight spaces
-        String _name_group;      // logical group the parameter belongs to, e.g. "input" or "bus" for channels, "reverb" or "transientshaper" for fx
+        String _name;           // complete long name
+        String _name_short;     // short name for thight spaces
+
+        String _config_section;   // logical group the parameter belongs to, e.g. "input" or "bus" for channels, "reverb" or "transientshaper" for fx
+        String _config_entry;   // the entry in that group
 
         MP_UOM unitOfMeasurement = MP_UOM::NONE;
 
@@ -44,9 +46,6 @@ class Mixerparameter {
         bool value_string_autoincrement_zerobased = false;
 
         bool readonly = false;
-
-        /// @brief This Mixerparameter must not be included in configfile.
-        bool no_config = false;
 
         /// @brief Hide slider on display encoder.
         bool hide_encoder_slider = false;        
@@ -307,12 +306,11 @@ class Mixerparameter {
 
     public:
  
-        Mixerparameter (MP_ID mp, MP_CAT cat, String group, String name, uint count)
+        Mixerparameter (MP_ID mp, MP_CAT cat, String name, uint count)
         {
             parameter_id = mp;
             category = cat;
 
-            _name_group = group;
             _name = name;
 
             DefNameShort(name);
@@ -467,9 +465,22 @@ class Mixerparameter {
             return this;
         }
 
-        /// @brief This Mixerparameter must not be included in configfile.
-        Mixerparameter* DefNoConfigfile() {
-            no_config = true;
+        /// @brief This Mixerparameter is included in the configfile.
+        Mixerparameter* DefConfig(String section, String entry)
+        {
+            _config_section = section;
+            _config_section.replace(" ", "_");
+            _config_section.replace("/", "_");
+            _config_section.replace("\\", "_");
+            _config_section.replace(".", "_");
+            _config_section.toLowerCase();
+
+            _config_entry = entry;
+            _config_entry.replace(" ", "_");
+            _config_entry.replace("/", "_");
+            _config_entry.replace("\\", "_");
+            _config_entry.replace(".", "_");
+            _config_entry.toLowerCase();
 
             return this;
         }
@@ -743,13 +754,9 @@ class Mixerparameter {
 
         String GetConfigGroup()
         { 
-            String config_group = _name_group;
+            String config_group = _config_section;
 
-            config_group.replace(" ", "_");
-            config_group.replace("/", "_");
-            config_group.replace("\\", "_");
-            config_group.replace(".", "_");
-            config_group.toLowerCase();
+
 
             return config_group;
         }
@@ -836,8 +843,13 @@ class Mixerparameter {
 
         /// @brief Get wether this Mixerparameter must not be in configfile.
         /// @return True if this Mixerparameter must not be in configfile. 
-        bool GetNoConfigfile()
+        bool IsNoConfig()
         {            
-            return no_config;
+            return _config_section == "" || _config_entry == "";
+        }
+
+        bool IsReadonly()
+        {
+            return readonly;
         }
 };

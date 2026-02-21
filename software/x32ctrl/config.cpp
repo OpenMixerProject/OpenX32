@@ -86,10 +86,10 @@ X32_SURFACE_MODE_BANKING Config::GetBankMode() {
 //#
 //######################################################################################################################################
 
-Mixerparameter* Config::DefParameter(MP_ID parameter_id, MP_CAT category, String group, String name, uint count) {
+Mixerparameter* Config::DefParameter(MP_ID parameter_id, MP_CAT category, String name, uint count) {
 	
 	// create it
-	Mixerparameter* newMpd = new Mixerparameter(parameter_id, category, group, name, count);
+	Mixerparameter* newMpd = new Mixerparameter(parameter_id, category, name, count);
 
 	// store in mixerparameter map (mpm)
     #ifdef MPM_AS_ARRAY
@@ -110,8 +110,8 @@ void Config::DefineMixerparameters() {
     // # Special Parameters
     // #####################
 
-    DefParameter(NONE, MP_CAT::NONE, "", "")->DefNoConfigfile();
-    DefParameter(PAGE_CUSTOM_ENCODER, MP_CAT::NONE, "", "")->DefNoConfigfile();
+    DefParameter(NONE, MP_CAT::NONE, "");
+    DefParameter(PAGE_CUSTOM_ENCODER, MP_CAT::NONE, "");
 
     // ############
     // # Settings
@@ -120,22 +120,24 @@ void Config::DefineMixerparameters() {
 	MP_CAT cat = MP_CAT::SETTING;
     String group = "setting";
 
-	DefParameter(LCD_CONTRAST, cat, group, "LCD Contrast")
-	->DefMinMaxStandard_Uint(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT);
+	DefParameter(LCD_CONTRAST, cat, "LCD Contrast")
+	->DefMinMaxStandard_Uint(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT)
+    ->DefConfig(group, "lcd_contrast");
     
-    DefParameter(LED_BRIGHTNESS, cat, group, "LED Brightness")
+    DefParameter(LED_BRIGHTNESS, cat, "LED Brightness")
 	->DefMinMaxStandard_Uint(LED_BRIGHTNESS_1, LED_BRIGHTNESS_4, LED_BRIGHTNESS_4)
-    ->DefStepsize(64);
+    ->DefStepsize(64)
+    ->DefConfig(group, "led_brightness");
 
     // TODO: DISPLAY_BRIGHTNESS
 
-    DefParameter(SAMPLERATE, cat, group, "Samplerate")
+    DefParameter(SAMPLERATE, cat, "Samplerate")
     ->DefMinMaxStandard_Uint(44100, 48000, 48000);
 
-    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, group, "Card Channels")
+    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, "Card Channels")
     ->DefMinMaxStandard_Uint(0, 5, 0);
 
-    DefParameter(CHANNEL_LCD_MODE, cat, group, "LCD Mode")
+    DefParameter(CHANNEL_LCD_MODE, cat, "LCD Mode")
     ->DefUOM(MP_UOM::CHANNEL_LCD_MODE)
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 1, 0);
@@ -148,26 +150,26 @@ void Config::DefineMixerparameters() {
     cat = MP_CAT::ROUTING;
     group = "routing";
 
-    DefParameter(ROUTING_FPGA, cat, group, "Routing FPGA", 208)  // 208 -> size of fpga routing struct! (prepared for both AES50-ports, but only 160 are used at the moment)
+    DefParameter(ROUTING_FPGA, cat, "Routing FPGA", 208)  // 208 -> size of fpga routing struct! (prepared for both AES50-ports, but only 160 are used at the moment)
     ->DefUOM(MP_UOM::FPGA_ROUTING)
     ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, NUM_INPUT_CHANNEL, 0); // 161 = OFF + 160 channels
 
-    DefParameter(ROUTING_DSP_INPUT, cat, group, "Routing DSP-Input", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
+    DefParameter(ROUTING_DSP_INPUT, cat, "Routing DSP-Input", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
     ->DefUOM(MP_UOM::DSP_ROUTING)
     ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, DSP_MAX_INTERNAL_CHANNELS - 1, 0); // 0=OFF, 92=Talkback
 
-    DefParameter(ROUTING_DSP_INPUT_TAPPOINT, cat, group, "Routing DSP-Input Tappoint", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
+    DefParameter(ROUTING_DSP_INPUT_TAPPOINT, cat, "Routing DSP-Input Tappoint", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
     ->DefUOM(MP_UOM::TAPPOINT)
     ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
 
-    DefParameter(ROUTING_DSP_OUTPUT, cat, group, "Routing DSP-Output", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
+    DefParameter(ROUTING_DSP_OUTPUT, cat, "Routing DSP-Output", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
     ->DefUOM(MP_UOM::DSP_ROUTING)
     ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, DSP_MAX_INTERNAL_CHANNELS - 1, 0); // 0=OFF, 92=Talkback
 
-    DefParameter(ROUTING_DSP_OUTPUT_TAPPOINT, cat, group, "Routing DSP-Output Tappoint", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
+    DefParameter(ROUTING_DSP_OUTPUT_TAPPOINT, cat, "Routing DSP-Output Tappoint", (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)) // 40 routable DSP-output-channels to FPGA and 24 routable DSP-output-channels to DSP2
     ->DefUOM(MP_UOM::TAPPOINT)
     ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::POST_FADER);
 
@@ -178,28 +180,28 @@ void Config::DefineMixerparameters() {
     cat = MP_CAT::STATE;
     group = "state";
 
-    DefParameter(SELECTED_CHANNEL, cat, group, "Selected Channel")
+    DefParameter(SELECTED_CHANNEL, cat, "Selected Channel")
     ->DefUOM(MP_UOM::ZERO_BASED_INDEX__START_BY_ONE)
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, MAX_VCHANNELS - 1, 0);
 
-    DefParameter(ACTIVE_PAGE, cat, group, "Active Page")
+    DefParameter(ACTIVE_PAGE, cat, "Active Page")
     ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, 255, (uint)X32_PAGE::HOME);
 
-    DefParameter(BANKING_EQ, cat, group, "Banking EQ")
+    DefParameter(BANKING_EQ, cat, "Banking EQ")
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
-    DefParameter(BANKING_INPUT, cat, group, "Banking Input Section")
+    DefParameter(BANKING_INPUT, cat, "Banking Input Section")
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 7, 0);
 
-    DefParameter(BANKING_BUS, cat, group, "Banking Bus Section")
+    DefParameter(BANKING_BUS, cat, "Banking Bus Section")
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
-    DefParameter(BANKING_BUS_SENDS, cat, group, "Banking Bus Sends")
+    DefParameter(BANKING_BUS_SENDS, cat, "Banking Bus Sends")
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
@@ -211,12 +213,12 @@ void Config::DefineMixerparameters() {
 	cat = MP_CAT::GLOBAL;
     group = "global";
 
-    DefParameter(MONITOR_VOLUME, cat, group, "Monitor Volume")
+    DefParameter(MONITOR_VOLUME, cat, "Monitor Volume")
     ->DefNameShort("Mon")
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
 
-    DefParameter(MONITOR_TAPPOINT, cat, group, "Monitor Tappoint")
+    DefParameter(MONITOR_TAPPOINT, cat, "Monitor Tappoint")
     ->DefMinMaxStandard_Uint(0, 81, 0);
 
     // ###########
@@ -226,49 +228,48 @@ void Config::DefineMixerparameters() {
 	cat = MP_CAT::CHANNEL;
     group = "channel";
 
-    DefParameter(CHANNEL_NAME_INTERN, cat, group, "Channelname Intern", MAX_VCHANNELS)->DefNameShort("Internalname")
+    DefParameter(CHANNEL_NAME_INTERN, cat, "Channelname Intern", MAX_VCHANNELS)->DefNameShort("Internalname")
     ->DefStandard_String("CH")
-    ->DefReadonly()
-    ->DefNoConfigfile();
+    ->DefReadonly();
     
-    DefParameter(CHANNEL_NAME, cat, group, "Channelname", MAX_VCHANNELS)
+    DefParameter(CHANNEL_NAME, cat, "Channelname", MAX_VCHANNELS)
     ->DefStandard_String("Kanal");
 
-    DefParameter(CHANNEL_COLOR, cat, group, "Channelcolor", MAX_VCHANNELS)
+    DefParameter(CHANNEL_COLOR, cat, "Channelcolor", MAX_VCHANNELS)
     ->DefMinMaxStandard_Uint((uint)X32_COLOR::BLACK, (uint)X32_COLOR::WHITE, (uint)X32_COLOR::YELLOW);
 
-    DefParameter(CHANNEL_COLOR_INVERTED, cat, group, "Color Inverted", MAX_VCHANNELS)
+    DefParameter(CHANNEL_COLOR_INVERTED, cat, "Color Inverted", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
     
-    DefParameter(CHANNEL_PHASE_INVERT, cat, group, "Phase Inverted", MAX_VCHANNELS)->DefNameShort("Inverted")
+    DefParameter(CHANNEL_PHASE_INVERT, cat, "Phase Inverted", MAX_VCHANNELS)->DefNameShort("Inverted")
     ->DefStandard_Bool(false);
     
-    DefParameter(CHANNEL_PHANTOM, cat, group, "Phantom", MAX_VCHANNELS)->DefNameShort("48V")
+    DefParameter(CHANNEL_PHANTOM, cat, "Phantom", MAX_VCHANNELS)->DefNameShort("48V")
     ->DefStandard_Bool(false);
     
-    DefParameter(CHANNEL_GAIN, cat, group, "Gain", MAX_VCHANNELS)
+    DefParameter(CHANNEL_GAIN, cat, "Gain", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
     
-    DefParameter(CHANNEL_VOLUME, cat, group, "Volume", MAX_VCHANNELS)
+    DefParameter(CHANNEL_VOLUME, cat, "Volume", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
 
-    DefParameter(CHANNEL_VOLUME_SUB, cat, group, "Sub", MAX_VCHANNELS)
+    DefParameter(CHANNEL_VOLUME_SUB, cat, "Sub", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     
-    DefParameter(CHANNEL_SOLO, cat, group, "Solo", MAX_VCHANNELS)
+    DefParameter(CHANNEL_SOLO, cat, "Solo", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
     
-    DefParameter(CHANNEL_MUTE, cat, group, "Mute", MAX_VCHANNELS)
+    DefParameter(CHANNEL_MUTE, cat, "Mute", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
     
-    DefParameter(CHANNEL_PANORAMA, cat, group, "Pan/Bal", MAX_VCHANNELS)
+    DefParameter(CHANNEL_PANORAMA, cat, "Pan/Bal", MAX_VCHANNELS)
     ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f)
     ->DefStepsize(2);
 
-    DefParameter(CHANNEL_LOWCUT_FREQ, cat, group, "LowcutFreq", MAX_VCHANNELS)
+    DefParameter(CHANNEL_LOWCUT_FREQ, cat, "LowcutFreq", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
     ->DefStepsize(1)
@@ -285,7 +286,7 @@ void Config::DefineMixerparameters() {
 
     for (uint i = 0; i < channel_send_busses.size(); i++)
     {
-        DefParameter(channel_send_busses.at(i), cat, group, String("Send ") + (i + 1), MAX_VCHANNELS)
+        DefParameter(channel_send_busses.at(i), cat, String("Send ") + (i + 1), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     }
@@ -310,15 +311,15 @@ void Config::DefineMixerparameters() {
     
     for (uint i = 0; i < channel_send_busses_tappoints.size(); i++)
     {
-        DefParameter(channel_send_busses_tappoints.at(i), cat, group, String("Send ")  + (i + 1) + " Tap", MAX_VCHANNELS)
+        DefParameter(channel_send_busses_tappoints.at(i), cat, String("Send ")  + (i + 1) + " Tap", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::TAPPOINT)
         ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
     }    
 
-    DefParameter(CHANNEL_SEND_LR, cat, group, "LR", MAX_VCHANNELS)
+    DefParameter(CHANNEL_SEND_LR, cat, "LR", MAX_VCHANNELS)
     ->DefStandard_Bool(true);
 
-    DefParameter(CHANNEL_SEND_SUB, cat, group, "SUB", MAX_VCHANNELS)
+    DefParameter(CHANNEL_SEND_SUB, cat, "SUB", MAX_VCHANNELS)
     ->DefStandard_Bool(false);
 
 
@@ -327,23 +328,23 @@ void Config::DefineMixerparameters() {
     cat = MP_CAT::CHANNEL_GATE;
     group = "channel_gate";
 
-    DefParameter(CHANNEL_GATE_TRESHOLD, cat, group, "Threshold", MAX_VCHANNELS)
+    DefParameter(CHANNEL_GATE_TRESHOLD, cat, "Threshold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(GATE_THRESHOLD_MIN, GATE_THRESHOLD_MAX, GATE_THRESHOLD_MIN, 0);
     
-    DefParameter(CHANNEL_GATE_RANGE, cat, group, "Range", MAX_VCHANNELS)
+    DefParameter(CHANNEL_GATE_RANGE, cat, "Range", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(GATE_RANGE_MIN, GATE_RANGE_MAX, GATE_RANGE_MAX, 1);
     
-    DefParameter(CHANNEL_GATE_ATTACK, cat, group, "Attack", MAX_VCHANNELS)
+    DefParameter(CHANNEL_GATE_ATTACK, cat, "Attack", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(GATE_ATTACK_MIN, GATE_ATTACK_MAX, 10.0f, 0);
     
-    DefParameter(CHANNEL_GATE_HOLD, cat, group, "Hold", MAX_VCHANNELS)
+    DefParameter(CHANNEL_GATE_HOLD, cat, "Hold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(GATE_HOLD_MIN, GATE_HOLD_MAX, 50.0f, 0);
     
-    DefParameter(CHANNEL_GATE_RELEASE, cat, group, "Release", MAX_VCHANNELS)
+    DefParameter(CHANNEL_GATE_RELEASE, cat, "Release", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(GATE_RELEASE_MIN, GATE_RELEASE_MAX, 250.0f, 0);
 
@@ -351,28 +352,28 @@ void Config::DefineMixerparameters() {
     group = "channel_dynamics";
     cat = MP_CAT::CHANNEL_DYNAMICS;
 
-    DefParameter(CHANNEL_DYNAMICS_TRESHOLD, cat, group, "Threshold", MAX_VCHANNELS)
+    DefParameter(CHANNEL_DYNAMICS_TRESHOLD, cat, "Threshold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0);
     
-    DefParameter(CHANNEL_DYNAMICS_RATIO, cat, group, "Ratio", MAX_VCHANNELS)
+    DefParameter(CHANNEL_DYNAMICS_RATIO, cat, "Ratio", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::NONE)
     ->DefStepmode(1)
     ->DefMinMaxStandard_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
     
-    DefParameter(CHANNEL_DYNAMICS_MAKEUP, cat, group, "Makeup", MAX_VCHANNELS)
+    DefParameter(CHANNEL_DYNAMICS_MAKEUP, cat, "Makeup", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefMinMaxStandard_Float(DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1);
     
-    DefParameter(CHANNEL_DYNAMICS_ATTACK, cat, group, "Attack", MAX_VCHANNELS)
+    DefParameter(CHANNEL_DYNAMICS_ATTACK, cat, "Attack", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0);
     
-    DefParameter(CHANNEL_DYNAMICS_HOLD, cat, group, "Hold", MAX_VCHANNELS)
+    DefParameter(CHANNEL_DYNAMICS_HOLD, cat, "Hold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
     
-    DefParameter(CHANNEL_DYNAMICS_RELEASE, cat, group, "Release", MAX_VCHANNELS)
+    DefParameter(CHANNEL_DYNAMICS_RELEASE, cat, "Release", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
 
@@ -382,42 +383,42 @@ void Config::DefineMixerparameters() {
 
     for(auto const& parameter_id : {CHANNEL_EQ_TYPE1, CHANNEL_EQ_TYPE2, CHANNEL_EQ_TYPE3, CHANNEL_EQ_TYPE4} )
     {
-        DefParameter(parameter_id, cat, group, "Type", MAX_VCHANNELS)
+        DefParameter(parameter_id, cat, "Type", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::EQ_TYPE)
         ->DefHideEncoderReset()
         ->DefMinMaxStandard_Uint(0, 7, 1);
     }
 
-	DefParameter(CHANNEL_EQ_FREQ1, cat, group, "Frequenz", MAX_VCHANNELS)
+	DefParameter(CHANNEL_EQ_FREQ1, cat, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 125.0f);
 
-	DefParameter(CHANNEL_EQ_FREQ2, cat, group, "Frequenz", MAX_VCHANNELS)
+	DefParameter(CHANNEL_EQ_FREQ2, cat, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 500.0f);
 
-	DefParameter(CHANNEL_EQ_FREQ3, cat, group, "Frequenz", MAX_VCHANNELS)
+	DefParameter(CHANNEL_EQ_FREQ3, cat, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 2000.0f);
 
-	DefParameter(CHANNEL_EQ_FREQ4, cat, group, "Frequenz", MAX_VCHANNELS)
+	DefParameter(CHANNEL_EQ_FREQ4, cat, "Frequenz", MAX_VCHANNELS)
 	->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
 	->DefMinMaxStandard_Float(20.0f, 20000.0f, 10000.0f);
 
     for(auto const& parameter_id : {CHANNEL_EQ_GAIN1, CHANNEL_EQ_GAIN2, CHANNEL_EQ_GAIN3, CHANNEL_EQ_GAIN4} )
     {
-        DefParameter(parameter_id, cat, group, "Gain", MAX_VCHANNELS)
+        DefParameter(parameter_id, cat, "Gain", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
     }
 
     for(auto const& parameter_id : {CHANNEL_EQ_Q1, CHANNEL_EQ_Q2, CHANNEL_EQ_Q3, CHANNEL_EQ_Q4} )
     {
-        DefParameter(parameter_id, cat, group, "Q", MAX_VCHANNELS)
+        DefParameter(parameter_id, cat, "Q", MAX_VCHANNELS)
         ->DefStepsize(0.1f)
         ->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
     }
@@ -447,24 +448,24 @@ void Config::DefineMixerparameters() {
     #define FX_REVERB_WET_MAX              1.0f //
 
     // reverb roomsize
-    DefParameter(FX_REVERB_ROOMSIZE, cat, group, "Roomsize", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_ROOMSIZE, cat, "Roomsize", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(FX_REVERB_ROOMSIZE_MIN, FX_REVERB_ROOMSIZE_MAX, FX_REVERB_ROOMSIZE_DEFAULT, 0);
     // reverb rt60
-    DefParameter(FX_REVERB_RT60, cat, group, "RT60", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_RT60, cat, "RT60", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::SECONDS)
     ->DefMinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
     // reverb lowpass
-    DefParameter(FX_REVERB_LPFREQ, cat, group, "LowPassFreq", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_LPFREQ, cat, "LowPassFreq", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
     ->DefMinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
     // reverb dry
-    DefParameter(FX_REVERB_DRY, cat, group, "Dry", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_DRY, cat, "Dry", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::PERCENT)
     ->DefMinMaxStandard_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT);
     // reverb wet
-    DefParameter(FX_REVERB_WET, cat, group, "Wet", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_WET, cat, "Wet", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::PERCENT)
     ->DefMinMaxStandard_Float(FX_REVERB_WET_MIN, FX_REVERB_WET_MAX, FX_REVERB_WET_DEFAULT);
 
@@ -496,171 +497,171 @@ void Config::DefineMixerparameters() {
     #define FX_CHORUS_FREQ_B_MAX          10.0f //
 
     // chorus depth
-    DefParameter(FX_CHORUS_DEPTH_A, cat, group, "Depth A", MAX_FX_SLOTS)
+    DefParameter(FX_CHORUS_DEPTH_A, cat, "Depth A", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
     ->DefMinMaxStandard_Float(FX_CHORUS_DEPTH_A_MIN, FX_CHORUS_DEPTH_A_MAX, FX_CHORUS_DEPTH_A_DEFAULT);
-    DefParameter(FX_CHORUS_DEPTH_B, cat, group, "Depth B", MAX_FX_SLOTS)
+    DefParameter(FX_CHORUS_DEPTH_B, cat, "Depth B", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
     ->DefMinMaxStandard_Float(FX_CHORUS_DEPTH_B_MIN, FX_CHORUS_DEPTH_B_MAX, FX_CHORUS_DEPTH_B_DEFAULT);
     // chorus delay
-    DefParameter(FX_CHORUS_DELAY_A, cat, group, "Delay A", MAX_FX_SLOTS)
+    DefParameter(FX_CHORUS_DELAY_A, cat, "Delay A", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(FX_CHORUS_DELAY_A_MIN, FX_CHORUS_DELAY_A_MAX, FX_CHORUS_DELAY_A_DEFAULT);
-    DefParameter(FX_CHORUS_DELAY_B, cat, group, "Delay B", MAX_FX_SLOTS)
+    DefParameter(FX_CHORUS_DELAY_B, cat, "Delay B", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::MS)
     ->DefMinMaxStandard_Float(FX_CHORUS_DELAY_B_MIN, FX_CHORUS_DELAY_B_MAX, FX_CHORUS_DELAY_B_DEFAULT);
     // chorus phase
-    DefParameter(FX_CHORUS_PHASE_A, cat, group, "Phase A", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_A_MIN, FX_CHORUS_PHASE_A_MAX, FX_CHORUS_PHASE_A_DEFAULT);
-    DefParameter(FX_CHORUS_PHASE_B, cat, group, "Phase B", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_B_MIN, FX_CHORUS_PHASE_B_MAX, FX_CHORUS_PHASE_B_DEFAULT);
+    DefParameter(FX_CHORUS_PHASE_A, cat, "Phase A", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_A_MIN, FX_CHORUS_PHASE_A_MAX, FX_CHORUS_PHASE_A_DEFAULT);
+    DefParameter(FX_CHORUS_PHASE_B, cat, "Phase B", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefMinMaxStandard_Float(FX_CHORUS_PHASE_B_MIN, FX_CHORUS_PHASE_B_MAX, FX_CHORUS_PHASE_B_DEFAULT);
     // chorus freq
-    DefParameter(FX_CHORUS_FREQ_A, cat, group, "Freq A", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT, 2)->DefStepmode(1);
-    DefParameter(FX_CHORUS_FREQ_B, cat, group, "Freq B", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT, 2)->DefStepmode(1);
+    DefParameter(FX_CHORUS_FREQ_A, cat, "Freq A", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_A_MIN, FX_CHORUS_FREQ_A_MAX, FX_CHORUS_FREQ_A_DEFAULT, 2)->DefStepmode(1);
+    DefParameter(FX_CHORUS_FREQ_B, cat, "Freq B", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefMinMaxStandard_Float(FX_CHORUS_FREQ_B_MIN, FX_CHORUS_FREQ_B_MAX, FX_CHORUS_FREQ_B_DEFAULT, 2)->DefStepmode(1);
     // chorus mix
-    DefParameter(FX_CHORUS_MIX, cat, group, "Mix", MAX_FX_SLOTS)->DefUOM(MP_UOM::PERCENT)->DefMinMaxStandard_Float(0.0f, 1.0f, 0.5f);
+    DefParameter(FX_CHORUS_MIX, cat, "Mix", MAX_FX_SLOTS)->DefUOM(MP_UOM::PERCENT)->DefMinMaxStandard_Float(0.0f, 1.0f, 0.5f);
 
     // transientshaper
     group = "fx_transientshaper";
 
     // fast
-    DefParameter(FX_TRANSIENTSHAPER_FAST, cat, group, "Fast", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+    DefParameter(FX_TRANSIENTSHAPER_FAST, cat, "Fast", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
     // medium
-    DefParameter(FX_TRANSIENTSHAPER_MEDIUM, cat, group, "Medium", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 15.0f);
+    DefParameter(FX_TRANSIENTSHAPER_MEDIUM, cat, "Medium", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 15.0f);
     // slow
-    DefParameter(FX_TRANSIENTSHAPER_SLOW, cat, group, "Slow", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 150.0f);
+    DefParameter(FX_TRANSIENTSHAPER_SLOW, cat, "Slow", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 150.0f);
     // attack
-    DefParameter(FX_TRANSIENTSHAPER_ATTACK, cat, group, "Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+    DefParameter(FX_TRANSIENTSHAPER_ATTACK, cat, "Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
     // sustain
-    DefParameter(FX_TRANSIENTSHAPER_SUSTAIN, cat, group, "Sustain", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+    DefParameter(FX_TRANSIENTSHAPER_SUSTAIN, cat, "Sustain", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
     // delay
-    DefParameter(FX_TRANSIENTSHAPER_DELAY, cat, group, "Delay", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
+    DefParameter(FX_TRANSIENTSHAPER_DELAY, cat, "Delay", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
 
     // FX_TYPE_OVERDRIVE            preGain Q hpfInputFreq lpfInputFreq lpfOutputFreq
     group = "fx_overdrive";
-    DefParameter(FX_OVERDRIVE_PREGAIN, cat, group, "PreGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 10.0f);
-    DefParameter(FX_OVERDRIVE_Q, cat, group, "Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(-10.0f, 10.0f, -0.2f, 1);
-    DefParameter(FX_OVERDRIVE_HPF_INPUTFREQ, cat, group, "LC In", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 300.0f);
-    DefParameter(FX_OVERDRIVE_LPF_INPUTFREQ, cat, group, "HC In", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 10000.0f);
-    DefParameter(FX_OVERDRIVE_LPF_OUTPUTFREQ, cat, group, "HC Out", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 10000.0f);
+    DefParameter(FX_OVERDRIVE_PREGAIN, cat, "PreGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 10.0f);
+    DefParameter(FX_OVERDRIVE_Q, cat, "Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(-10.0f, 10.0f, -0.2f, 1);
+    DefParameter(FX_OVERDRIVE_HPF_INPUTFREQ, cat, "LC In", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 300.0f);
+    DefParameter(FX_OVERDRIVE_LPF_INPUTFREQ, cat, "HC In", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 10000.0f);
+    DefParameter(FX_OVERDRIVE_LPF_OUTPUTFREQ, cat, "HC Out", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 10000.0f);
 
     // delay A/B
     group = "fx_delay";
-    DefParameter(FX_DELAY_DELAY_A, cat, group, "Delay A", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 350.0f);
-    DefParameter(FX_DELAY_DELAY_B, cat, group, "Delay B", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 450.0f);
+    DefParameter(FX_DELAY_DELAY_A, cat, "Delay A", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 350.0f);
+    DefParameter(FX_DELAY_DELAY_B, cat, "Delay B", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 1000.0f, 450.0f);
 
     // FX_TYPE_MULTIBANDCOMPRESOR   channel band threshold ratio attack  hold   release   makeup
     group = "fx_multibandcompressor";
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ1, cat, group, "[1L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 80.0f);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ2, cat, group, "[2L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 350.0f);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ3, cat, group, "[3L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 1500.0f);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ4, cat, group, "[4L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 7500.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ1, cat, "[1L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 80.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ2, cat, "[2L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 350.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ3, cat, "[3L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 1500.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ4, cat, "[4L] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 7500.0f);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_THRESHOLD, cat, group, "[1L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_RATIO, cat, group, "[1L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_ATTACK, cat, group, "[1L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_HOLD, cat, group, "[1L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_RELEASE, cat, group, "[1L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_MAKEUP, cat, group, "[1L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_THRESHOLD, cat, "[1L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_RATIO, cat, "[1L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_ATTACK, cat, "[1L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_HOLD, cat, "[1L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_RELEASE, cat, "[1L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_MAKEUP, cat, "[1L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_THRESHOLD, cat, group, "[2L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_RATIO, cat, group, "[2L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_ATTACK, cat, group, "[2L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_HOLD, cat, group, "[2L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_RELEASE, cat, group, "[2L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_MAKEUP, cat, group, "[2L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_THRESHOLD, cat, "[2L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_RATIO, cat, "[2L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_ATTACK, cat, "[2L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_HOLD, cat, "[2L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_RELEASE, cat, "[2L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_MAKEUP, cat, "[2L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_THRESHOLD, cat, group, "[3L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_RATIO, cat, group, "[3L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_ATTACK, cat, group, "[3L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_HOLD, cat, group, "[3L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_RELEASE, cat, group, "[3L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_MAKEUP, cat, group, "[3L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_THRESHOLD, cat, "[3L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_RATIO, cat, "[3L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_ATTACK, cat, "[3L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_HOLD, cat, "[3L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_RELEASE, cat, "[3L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_MAKEUP, cat, "[3L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_THRESHOLD, cat, group, "[4L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_RATIO, cat, group, "[4L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_ATTACK, cat, group, "[4L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_HOLD, cat, group, "[4L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_RELEASE, cat, group, "[4L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_MAKEUP, cat, group, "[4L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_THRESHOLD, cat, "[4L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_RATIO, cat, "[4L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_ATTACK, cat, "[4L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_HOLD, cat, "[4L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_RELEASE, cat, "[4L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_MAKEUP, cat, "[4L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_THRESHOLD, cat, group, "[5L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_RATIO, cat, group, "[5L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_ATTACK, cat, group, "[5L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_HOLD, cat, group, "[5L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_RELEASE, cat, group, "[5L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_MAKEUP, cat, group, "[5L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_THRESHOLD, cat, "[5L] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_RATIO, cat, "[5L] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_ATTACK, cat, "[5L] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_HOLD, cat, "[5L] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_RELEASE, cat, "[5L] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_MAKEUP, cat, "[5L] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ1, cat, group, "[1R] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 80.0f);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ2, cat, group, "[2R] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 350.0f);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ3, cat, group, "[3R] Frequency ", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 1500.0f);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ4, cat, group, "[4R] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 7500.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ1, cat, "[1R] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 80.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ2, cat, "[2R] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 350.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ3, cat, "[3R] Frequency ", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 1500.0f);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_FREQ4, cat, "[4R] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 7500.0f);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_THRESHOLD, cat, group, "[1R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_RATIO, cat, group, "[1R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_ATTACK, cat, group, "[1R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_HOLD, cat, group, "[1R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_RELEASE, cat, group, "[1R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_MAKEUP, cat, group, "[1R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_THRESHOLD, cat, "[1R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_RATIO, cat, "[1R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_ATTACK, cat, "[1R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_HOLD, cat, "[1R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_RELEASE, cat, "[1R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_MAKEUP, cat, "[1R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_THRESHOLD, cat, group, "[2R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_RATIO, cat, group, "[2R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_ATTACK, cat, group, "[2R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_HOLD, cat, group, "[2R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_RELEASE, cat, group, "[2R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_MAKEUP, cat, group, "[2R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_THRESHOLD, cat, "[2R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_RATIO, cat, "[2R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_ATTACK, cat, "[2R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_HOLD, cat, "[2R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_RELEASE, cat, "[2R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_MAKEUP, cat, "[2R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_THRESHOLD, cat, group, "[3R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_RATIO, cat, group, "[3R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_ATTACK, cat, group, "[3R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_HOLD, cat, group, "[3R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_RELEASE, cat, group, "[3R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_MAKEUP, cat, group, "[3R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_THRESHOLD, cat, "[3R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_RATIO, cat, "[3R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_ATTACK, cat, "[3R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_HOLD, cat, "[3R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_RELEASE, cat, "[3R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_MAKEUP, cat, "[3R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_THRESHOLD, cat, group, "[4R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_RATIO, cat, group, "[4R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_ATTACK, cat, group, "[4R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_HOLD, cat, group, "[4R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_RELEASE, cat, group, "[4R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_MAKEUP, cat, group, "[4R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_THRESHOLD, cat, "[4R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_RATIO, cat, "[4R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_ATTACK, cat, "[4R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_HOLD, cat, "[4R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_RELEASE, cat, "[4R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_MAKEUP, cat, "[4R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_THRESHOLD, cat, group, "[5R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_RATIO, cat, group, "[5R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_ATTACK, cat, group, "[5R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_HOLD, cat, group, "[5R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_RELEASE, cat, group, "[5R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
-    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_MAKEUP, cat, group, "[5R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_THRESHOLD, cat, "[5R] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, -5.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_RATIO, cat, "[5R] Ratio", MAX_FX_SLOTS)->DefUOM(MP_UOM::NONE)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 1.5f, 1);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_ATTACK, cat, "[5R] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 10.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_HOLD, cat, "[5R] Hold", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.2f, 2000.0f, 100.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_RELEASE, cat, "[5R] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 4000.0f, 40.0f, 0);
+    DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_MAKEUP, cat, "[5R] Makeup", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
     // FX_TYPE_DYNAMICEQ            band type freq staticGain  maxDynGain  Q  thresh  ratio  attack  release
     group = "fx_dynamiceq";
-    DefParameter(FX_DYNAMICEQ_BAND1_TYPE, cat, group, "[1] Type", MAX_FX_SLOTS)->DefUOM(MP_UOM::EQ_TYPE)->DefHideEncoderReset()->DefMinMaxStandard_Uint(0, 7, 1);
-    DefParameter(FX_DYNAMICEQ_BAND1_FREQ, cat, group, "[1] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 300.0f);
-    DefParameter(FX_DYNAMICEQ_BAND1_STATICGAIN, cat, group, "[1] StaticGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND1_MAXDYNGAIN, cat, group, "[1] DynamicGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND1_Q, cat, group, "[1] Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND1_THRESHOLD, cat, group, "[1] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 0);
-    DefParameter(FX_DYNAMICEQ_BAND1_RATIO, cat, group, "[1] Ratio", MAX_FX_SLOTS)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 3, 1);
-    DefParameter(FX_DYNAMICEQ_BAND1_ATTACK, cat, group, "[1] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 50.0f, 0);
-    DefParameter(FX_DYNAMICEQ_BAND1_RELEASE, cat, group, "[1] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
+    DefParameter(FX_DYNAMICEQ_BAND1_TYPE, cat, "[1] Type", MAX_FX_SLOTS)->DefUOM(MP_UOM::EQ_TYPE)->DefHideEncoderReset()->DefMinMaxStandard_Uint(0, 7, 1);
+    DefParameter(FX_DYNAMICEQ_BAND1_FREQ, cat, "[1] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 300.0f);
+    DefParameter(FX_DYNAMICEQ_BAND1_STATICGAIN, cat, "[1] StaticGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND1_MAXDYNGAIN, cat, "[1] DynamicGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND1_Q, cat, "[1] Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND1_THRESHOLD, cat, "[1] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 0);
+    DefParameter(FX_DYNAMICEQ_BAND1_RATIO, cat, "[1] Ratio", MAX_FX_SLOTS)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 3, 1);
+    DefParameter(FX_DYNAMICEQ_BAND1_ATTACK, cat, "[1] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 50.0f, 0);
+    DefParameter(FX_DYNAMICEQ_BAND1_RELEASE, cat, "[1] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
     
-    DefParameter(FX_DYNAMICEQ_BAND2_TYPE, cat, group, "[2] Type", MAX_FX_SLOTS)->DefUOM(MP_UOM::EQ_TYPE)->DefHideEncoderReset()->DefMinMaxStandard_Uint(0, 7, 1);
-    DefParameter(FX_DYNAMICEQ_BAND2_FREQ, cat, group, "[2] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 1000.0f);
-    DefParameter(FX_DYNAMICEQ_BAND2_STATICGAIN, cat, group, "[2] StaticGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND2_MAXDYNGAIN, cat, group, "[2] DynamicGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND2_Q, cat, group, "[2] Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND2_THRESHOLD, cat, group, "[2] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 0);
-    DefParameter(FX_DYNAMICEQ_BAND2_RATIO, cat, group, "[2] Ratio", MAX_FX_SLOTS)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 3, 1);
-    DefParameter(FX_DYNAMICEQ_BAND2_ATTACK, cat, group, "[2] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 50.0f);
-    DefParameter(FX_DYNAMICEQ_BAND2_RELEASE, cat, group, "[2] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
+    DefParameter(FX_DYNAMICEQ_BAND2_TYPE, cat, "[2] Type", MAX_FX_SLOTS)->DefUOM(MP_UOM::EQ_TYPE)->DefHideEncoderReset()->DefMinMaxStandard_Uint(0, 7, 1);
+    DefParameter(FX_DYNAMICEQ_BAND2_FREQ, cat, "[2] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 1000.0f);
+    DefParameter(FX_DYNAMICEQ_BAND2_STATICGAIN, cat, "[2] StaticGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND2_MAXDYNGAIN, cat, "[2] DynamicGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND2_Q, cat, "[2] Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND2_THRESHOLD, cat, "[2] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 0);
+    DefParameter(FX_DYNAMICEQ_BAND2_RATIO, cat, "[2] Ratio", MAX_FX_SLOTS)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 3, 1);
+    DefParameter(FX_DYNAMICEQ_BAND2_ATTACK, cat, "[2] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 50.0f);
+    DefParameter(FX_DYNAMICEQ_BAND2_RELEASE, cat, "[2] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
 
-    DefParameter(FX_DYNAMICEQ_BAND3_TYPE, cat, group, "[3] Type", MAX_FX_SLOTS)->DefUOM(MP_UOM::EQ_TYPE)->DefHideEncoderReset()->DefMinMaxStandard_Uint(0, 7, 1);
-    DefParameter(FX_DYNAMICEQ_BAND3_FREQ, cat, group, "[3] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 5000.0f);
-    DefParameter(FX_DYNAMICEQ_BAND3_STATICGAIN, cat, group, "[3] StaticGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND3_MAXDYNGAIN, cat, group, "[3] DynamicGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND3_Q, cat, group, "[3] Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
-    DefParameter(FX_DYNAMICEQ_BAND3_THRESHOLD, cat, group, "[3] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 0);
-    DefParameter(FX_DYNAMICEQ_BAND3_RATIO, cat, group, "[3] Ratio", MAX_FX_SLOTS)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 3, 1);
-    DefParameter(FX_DYNAMICEQ_BAND3_ATTACK, cat, group, "[3] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 50.0f);
-    DefParameter(FX_DYNAMICEQ_BAND3_RELEASE, cat, group, "[3] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
+    DefParameter(FX_DYNAMICEQ_BAND3_TYPE, cat, "[3] Type", MAX_FX_SLOTS)->DefUOM(MP_UOM::EQ_TYPE)->DefHideEncoderReset()->DefMinMaxStandard_Uint(0, 7, 1);
+    DefParameter(FX_DYNAMICEQ_BAND3_FREQ, cat, "[3] Frequency", MAX_FX_SLOTS)->DefUOM(MP_UOM::HZ)->DefStepmode(1)->DefMinMaxStandard_Float(20.0f, 24000.0f, 5000.0f);
+    DefParameter(FX_DYNAMICEQ_BAND3_STATICGAIN, cat, "[3] StaticGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND3_MAXDYNGAIN, cat, "[3] DynamicGain", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND3_Q, cat, "[3] Q", MAX_FX_SLOTS)->DefStepsize(0.1f)->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
+    DefParameter(FX_DYNAMICEQ_BAND3_THRESHOLD, cat, "[3] Threshold", MAX_FX_SLOTS)->DefUOM(MP_UOM::DB)->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 0);
+    DefParameter(FX_DYNAMICEQ_BAND3_RATIO, cat, "[3] Ratio", MAX_FX_SLOTS)->DefStepmode(1)->DefMinMaxStandard_Float(1.1f, 100.0f, 3, 1);
+    DefParameter(FX_DYNAMICEQ_BAND3_ATTACK, cat, "[3] Attack", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(0.0f, 120.0f, 50.0f);
+    DefParameter(FX_DYNAMICEQ_BAND3_RELEASE, cat, "[3] Release", MAX_FX_SLOTS)->DefUOM(MP_UOM::MS)->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
 
 
     #ifdef MPM_AS_ARRAY

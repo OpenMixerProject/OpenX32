@@ -34,7 +34,7 @@ class Config
         Config(Helper* h);
 
         void DefineMixerparameters();
-        Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String group, String name, uint count = 1);
+        Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
         Mixerparameter* GetParameter(MP_ID mp);
 
         #ifdef MPM_AS_ARRAY

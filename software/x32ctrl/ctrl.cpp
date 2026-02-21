@@ -244,16 +244,21 @@ void X32Ctrl::LoadConfig() {
 	#ifdef MPM_AS_ARRAY
 	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
 	{
-		Mixerparameter* parameter = config->GetParameterList()[i];
 		MP_ID parameter_id = (MP_ID)i;
+		Mixerparameter* parameter = config->GetParameter(parameter_id);
 	#else
 	for (const auto& [parameter_id, parameter] : *config->GetParameterList())
 	{
 	#endif
 
-		if (parameter->GetNoConfigfile() || parameter_id == NONE)
+		if (			
+			parameter->GetId() == NONE ||
+			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
+			parameter->IsNoConfig() ||
+			parameter->IsReadonly()
+		)
 		{
-			// this Mixerparameter should not be written to config file
+			// this Mixerparameter should not be loaded from config file
 			continue;
 		}
 
@@ -264,25 +269,41 @@ void X32Ctrl::LoadConfig() {
 			
 			using enum MP_VALUE_TYPE;
 
-			switch(parameter->GetType())
+			try
 			{
-				case FLOAT:
-					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<float>(), index);
-					break;
-				case UINT:
-					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<uint>(), index);
-					break;
-    			case INT:
-					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<int>(), index);
-					break;
-    			case BOOL:
-					parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<bool>(), index);
-					break;
-    			case STRING:
-					parameter->Set(String(mixer_ini[section.c_str()][entry.c_str()].as<string>().c_str()), index);
-					break;
-				default:
-					__throw_out_of_range("LoadConfig() -> MP_VALUE_TYPE is not handled!");
+				switch(parameter->GetType())
+				{
+					case FLOAT:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<float>(), index);
+						break;
+					case UINT:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<uint>(), index);
+						break;
+					case INT:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<int>(), index);
+						break;
+					case BOOL:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<bool>(), index);
+						break;
+					case STRING:
+						parameter->Set(String(mixer_ini[section.c_str()][entry.c_str()].as<string>().c_str()), index);
+						break;
+					default:
+						__throw_out_of_range("LoadConfig() -> MP_VALUE_TYPE is not handled!");
+				}
+			}
+			catch (exception ex)
+			{
+				// show the error message
+				helper->Error("Load %s: [%s] -> %s: %s\n",
+					X32_MIXER_CONFIGFILE,
+					section.c_str(),
+					entry.c_str(),
+					ex.what()
+				);
+
+				// load standard value as workaround
+				parameter->Reset(index);
 			}
 		}
 	}
@@ -313,7 +334,12 @@ void X32Ctrl::SaveConfig() {
 	{
 	#endif
 
-		if (parameter->GetNoConfigfile() || parameter_id == NONE)
+		if (
+			parameter->GetId() == NONE ||
+			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
+			parameter->IsNoConfig() ||
+			parameter->IsReadonly()
+		)
 		{
 			// this Mixerparameter should not be written to config file
 			continue;
