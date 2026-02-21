@@ -36,8 +36,8 @@ void Mixer::Init() {
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->Init()");
     dsp->Init();
 
-    //helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->SendAll()");
-    //dsp->SendAll();
+    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->SendAll()");
+    dsp->SendAll();
 
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "adda->Init()");
     adda->Init();

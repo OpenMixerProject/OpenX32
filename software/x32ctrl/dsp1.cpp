@@ -51,6 +51,42 @@ void DSP1::Init(void)
     }
 }
 
+void DSP1::SendAll() {
+    // configuration for 40 DSP-main-channel-inputs
+    for (uint8_t chan = 0; chan <= 39; chan++) {
+        SendLowcut(chan);
+        SendGate(chan);
+        SendEQ(chan);
+        SendCompressor(chan);
+        SetInputRouting(chan);
+        SendChannelVolume(chan);
+        SendChannelSend(chan);
+        // for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
+        //     ChannelSendTapPoints(chan, mixbusChannel);
+        // }
+    }
+    // configuration for 40 DSP-outputs to FPGA (16x output, 16x UltraNet, 8x Aux)
+    for (uint8_t chan = 0; chan < 40 + 24; chan++) {
+        SetOutputRouting(chan);
+    }
+
+    // for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
+    //     SendMixbusVolume(mixbusChannel);
+    //     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
+    //         SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
+    //     }
+    // }
+
+    /*
+    for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
+        SendMatrixVolume(matrixChannel);
+        SetMainSendTapPoints(matrixChannel, MainChannelLR.sendMatrixTapPoint[matrixChannel]);
+    }
+    */
+
+    SendMainVolume();
+    SendMonitorVolume();
+}
 
 
 // set the general volume of one of the 40 DSP-channels
