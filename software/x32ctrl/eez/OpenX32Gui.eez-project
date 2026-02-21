@@ -7,7 +7,7 @@
       "objID": "fd434352-2277-c4a8-e87e-e96cfcbf2305",
       "projectVersion": "v3",
       "projectType": "lvgl",
-      "lvglVersion": "9.0",
+      "lvglVersion": "9.2.2",
       "extensions": [],
       "imports": [],
       "flowSupport": false,
@@ -18,7 +18,8 @@
       "colorFormat": "BGR",
       "resourceFiles": [],
       "hiddenWidgetLines": "dimmed",
-      "dimmedLinesOpacity": "20"
+      "dimmedLinesOpacity": "20",
+      "embedFonts": true
     },
     "build": {
       "objID": "72794a43-a0fc-13c2-7eb5-67dd952141a4",
@@ -97,6 +98,7 @@
       "fileSystemPath": "",
       "lvglInclude": "lvgl/lvgl.h",
       "screensLifetimeSupport": false,
+      "useDockerDesktop": true,
       "generateSourceCodeForEezFramework": false,
       "compressFlowDefinition": false,
       "executionQueueSize": 1000,
@@ -587,7 +589,8 @@
                               "pivotY": 0,
                               "zoom": 100,
                               "angle": 0,
-                              "innerAlign": "CENTER"
+                              "innerAlign": "CENTER",
+                              "sizeMode": "VIRTUAL"
                             },
                             {
                               "objID": "f14f6b66-3397-4ad0-8bcc-b144337ac294",
@@ -1372,7 +1375,9 @@
                       "group": "",
                       "groupIndex": 0,
                       "tabviewPosition": "TOP",
-                      "tabviewSize": 20
+                      "tabviewSize": 20,
+                      "selectedTab": 0,
+                      "selectedTabType": "literal"
                     }
                   ],
                   "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
@@ -2772,12 +2777,67 @@
                           "heightUnit": "px",
                           "children": [
                             {
+                              "objID": "f1e514d1-a917-4834-fbb1-3e410161dfd1",
+                              "type": "LVGLScaleWidget",
+                              "left": 78,
+                              "top": 295,
+                              "width": 640,
+                              "height": 26,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "12d0f099-34fa-420c-c8b1-d53c4feb8906",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "6d7550c4-4f43-4227-abd3-c75f3dac6b1b"
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "scaleMode": "HORIZONTAL_BOTTOM",
+                              "minValue": 10,
+                              "minValueType": "literal",
+                              "maxValue": 40,
+                              "maxValueType": "literal",
+                              "angleRange": 270,
+                              "rotation": 135,
+                              "rotationType": "literal",
+                              "totalTickCount": 25,
+                              "majorTickEvery": 6,
+                              "postDraw": false,
+                              "drawTicksOnTop": false,
+                              "showLabels": true,
+                              "labelTexts": "0 Hz, 600 Hz, 2.5 kHz, 8 kHz, 20 kHz",
+                              "sections": [],
+                              "mainArcRounded": false
+                            },
+                            {
                               "objID": "71351ac8-aad9-4d7f-d5aa-c21f22846141",
                               "type": "LVGLChartWidget",
                               "left": 78,
                               "top": 12,
                               "width": 640,
-                              "height": 300,
+                              "height": 275,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -2851,7 +2911,9 @@
                       "group": "",
                       "groupIndex": 0,
                       "tabviewPosition": "TOP",
-                      "tabviewSize": 20
+                      "tabviewSize": 20,
+                      "selectedTab": 0,
+                      "selectedTabType": "literal"
                     }
                   ],
                   "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
@@ -3819,7 +3881,9 @@
                       "group": "",
                       "groupIndex": 0,
                       "tabviewPosition": "TOP",
-                      "tabviewSize": 20
+                      "tabviewSize": 20,
+                      "selectedTab": 0,
+                      "selectedTabType": "literal"
                     }
                   ],
                   "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
@@ -4169,7 +4233,9 @@
                       "group": "",
                       "groupIndex": 0,
                       "tabviewPosition": "TOP",
-                      "tabviewSize": 20
+                      "tabviewSize": 20,
+                      "selectedTab": 0,
+                      "selectedTabType": "literal"
                     }
                   ],
                   "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
@@ -4817,7 +4883,9 @@
               "group": "",
               "groupIndex": 0,
               "tabviewPosition": "TOP",
-              "tabviewSize": 0
+              "tabviewSize": 0,
+              "selectedTab": 0,
+              "selectedTabType": "literal"
             },
             {
               "objID": "b4d734b7-dd9a-487b-8464-6474848d3afc",
@@ -5206,6 +5274,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "Main",
       "left": 0,
@@ -5647,6 +5716,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "8meters",
       "left": 0,
@@ -6028,6 +6098,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "meter_strip",
       "left": 0,
@@ -6209,6 +6280,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "ms_bar",
       "left": 0,
@@ -6577,6 +6649,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "ms_bar8",
       "left": 0,
@@ -6801,6 +6874,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "config_slider_display_encoder",
       "left": 0,
@@ -6973,6 +7047,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "config_slider",
       "left": 0,
@@ -7096,6 +7171,7 @@
       ],
       "connectionLines": [],
       "localVariables": [],
+      "componentGroups": [],
       "userProperties": [],
       "name": "widget_fx",
       "left": 0,
