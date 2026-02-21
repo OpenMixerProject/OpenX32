@@ -46,8 +46,8 @@ class PageRta : public Page
             lv_chart_set_type(objects.rta_chart, LV_CHART_TYPE_BAR);
             lv_chart_set_point_count(objects.rta_chart, 64);
             lv_chart_set_range(objects.rta_chart, LV_CHART_AXIS_PRIMARY_Y, -1200, 0);
-            lv_obj_set_style_pad_column(objects.rta_chart, -10, LV_PART_MAIN);
-            lv_obj_set_style_pad_column(objects.rta_chart, -10, LV_PART_ITEMS);
+            lv_obj_set_style_pad_column(objects.rta_chart, -1, LV_PART_MAIN);
+            lv_obj_set_style_pad_column(objects.rta_chart, -1, LV_PART_ITEMS);
             lv_obj_set_size(objects.rta_chart, 640, 275);
 
             chartSeriesRta = lv_chart_add_series(objects.rta_chart, lv_color_hex(0xff0000), LV_CHART_AXIS_PRIMARY_Y);
