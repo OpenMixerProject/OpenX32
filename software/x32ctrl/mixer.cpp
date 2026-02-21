@@ -286,10 +286,17 @@ String Mixer::GetCardModelString(){
 
 void Mixer::Sync(void){
 
-    vector<MP_ID> filter = { CHANNEL_VOLUME, CHANNEL_MUTE, CHANNEL_PANORAMA };
-    if (config->HasParametersChanged(filter))
-    {        
-        for (auto const& changedIndex : config->GetChangedParameterIndexes(filter))
+    vector<MP_ID> filter = {CHANNEL_VOLUME, CHANNEL_MUTE, CHANNEL_PANORAMA};
+    if (
+        config->HasParametersChanged(filter) ||
+        config->HasParametersChanged(MP_CAT::CHANNEL_SENDS)
+    )
+    {    
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(filter);
+        vector<uint> changedIndexes2 = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS);
+        changedIndexes.insert(changedIndexes.end(), changedIndexes2.begin(), changedIndexes2.end());
+        
+        for (auto const& changedIndex : changedIndexes)
         {
             if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
                 helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX))
