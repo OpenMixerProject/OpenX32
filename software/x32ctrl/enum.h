@@ -453,6 +453,7 @@ enum class MP_UOM {
     TAPPOINT,
     ZERO_BASED_INDEX__START_BY_ONE,
     CHANNEL_LCD_MODE, // Displaymode of Channel LCDs
+    CARD_NUMBER_OF_CHANNELS,
 };
 
 enum class MP_VALUE_TYPE {

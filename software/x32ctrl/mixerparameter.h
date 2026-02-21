@@ -260,6 +260,29 @@ class Mixerparameter
                             break;
                     }
                     break;
+                case CARD_NUMBER_OF_CHANNELS:
+                    switch((uint) (isResetLabel ? value_standard : value[index]))
+                    {
+                        case CARD_CHANNELMODE_32IN_32OUT:
+                            result += String("32/32");
+                            break;
+                        case CARD_CHANNELMODE_16IN_16OUT:
+                            result += String("16/16");
+                            break;
+                        case CARD_CHANNELMODE_32IN_8OUT:
+                            result += String("32/8");
+                            break;
+                        case CARD_CHANNELMODE_8IN_32OUT:
+                            result += String("8/32");
+                            break;
+                        case CARD_CHANNELMODE_8IN_8OUT:
+                            result += String("8/8");
+                            break;
+                        case CARD_CHANNELMODE_2IN_2OUT:
+                            result += String("2/2");
+                            break;
+                    }
+                    break;
                 default:
                     result += "";
             }	
@@ -282,6 +305,7 @@ class Mixerparameter
                 case FPGA_ROUTING:
                 case DSP_ROUTING:
                 case CHANNEL_LCD_MODE:
+                case CARD_NUMBER_OF_CHANNELS:
                     return GetUnitOfMesaurement(false, index, isResetLabel);
                 case ZERO_BASED_INDEX__START_BY_ONE:
                     return String(value_float + 1, 0);

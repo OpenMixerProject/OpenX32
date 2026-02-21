@@ -39,23 +39,6 @@ void Card::Sync() {
 }
 
 
-String Card::Card_GetChannelModeText(uint8_t card_channelmode) {
-	switch (card_channelmode) {
-		case CARD_CHANNELMODE_32IN_32OUT:
-			return "32/32";
-		case CARD_CHANNELMODE_16IN_16OUT:
-			return "16/16";
-		case CARD_CHANNELMODE_32IN_8OUT:
-			return "32/8";
-		case CARD_CHANNELMODE_8IN_32OUT:
-			return "8/32";
-		case CARD_CHANNELMODE_8IN_8OUT:
-			return "8/8";
-		case CARD_CHANNELMODE_2IN_2OUT:
-			return "2/2";
-	}
-}
-
 void Card::Card_SendCommand(String command){
 	adda->SendReceive(command);
 }

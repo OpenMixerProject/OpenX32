@@ -135,8 +135,9 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Uint(44100, 48000, 48000)
     ->DefConfig(group, "samplerate");
 
-    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, "Card Channels")
+    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, "Channels")
     ->DefMinMaxStandard_Uint(0, 5, 0)
+    ->DefUOM(MP_UOM::CARD_NUMBER_OF_CHANNELS)
     ->DefConfig(group, "card_channels");
 
     DefParameter(CHANNEL_LCD_MODE, cat, "LCD Mode")

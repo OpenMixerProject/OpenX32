@@ -22,17 +22,15 @@ class PageSetupCard: public Page {
 
         void OnInit() override {
             BindEncoder(DISPLAY_ENCODER_1, MP_ID::CARD_NUMBER_OF_CHANNELS);
+
+            lv_label_set_text_fmt(objects.setup_card_detected, "%s", mixer->GetCardModelString().c_str());
         }
 
-        void OnChange(bool force_update) override {
-
-            // TODO: Implement new
-
-            // if (state->HasChanged(X32_MIXER_CHANGED_CARD) || force_update)
-            // {
-            //     lv_label_set_text_fmt(objects.setup_card_detected, "%s", mixer->GetCardModelString().c_str());
-            //     lv_label_set_text_fmt(objects.setup_card_channelmode, "%s", mixer->GetCardChannelModeString().c_str());
-            //     Encodertext();
-            // }
+        void OnChange(bool force_update) override
+        {
+            if (config->HasParameterChanged(CARD_NUMBER_OF_CHANNELS) || force_update)
+            {
+                lv_label_set_text(objects.setup_card_channelmode, config->GetParameter(CARD_NUMBER_OF_CHANNELS)->GetFormatedValue().c_str());
+            }
         }
 };
