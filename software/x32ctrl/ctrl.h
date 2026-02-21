@@ -11,6 +11,7 @@
 
 #include "page.h"
 #include "page-meters.h"
+#include "page-rta.h"
 #include "page-home.h"
 #include "page-config.h"
 #include "page-gate.h"

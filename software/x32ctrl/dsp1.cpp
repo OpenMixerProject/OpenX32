@@ -420,9 +420,12 @@ String DSP1::RoutingGetOutputNameByIndex(uint8_t index) {
     {
         return String("FX SendOut ") + (index - 40);
     }
-    else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 24)))
+    else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 23)))
     {
         return String("FX AuxOut ") + (index - 56);
+    } else if (index == DSP_BUF_IDX_DSP2_FX + 23)
+    {
+        return String("RTA Source");
     }
 
     return "???";

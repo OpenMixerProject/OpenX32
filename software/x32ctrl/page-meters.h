@@ -7,9 +7,13 @@ using enum MP_ID;
 class PageMeters : public Page 
 {
     public:
-        PageMeters(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+        PageMeters(PageBaseParameter* pagebasepar) : Page(pagebasepar)
+        {
+            nextPage = X32_PAGE::RTA;
             tabLayer0 = objects.maintab;
             tabIndex0 = 1;
+            tabLayer1 = objects.meterstab;
+            tabIndex1 = 0;
             led = X32_BTN_METERS;
             hideEncoders = true;            
         }

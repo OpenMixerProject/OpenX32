@@ -31,6 +31,7 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_comp;
     lv_obj_t *eqtab;
     lv_obj_t *current_channel_eq;
+    lv_obj_t *meterstab;
     lv_obj_t *meters_1_8;
     lv_obj_t *meters_1_8__obj1;
     lv_obj_t *meters_1_8__obj1__meter;
@@ -332,6 +333,8 @@ typedef struct _objects_t {
     lv_obj_t *ms_main_lr__meter;
     lv_obj_t *ms_main_lr__obj0;
     lv_obj_t *ms_main_lr__fader;
+    lv_obj_t *configtab_1;
+    lv_obj_t *rta_chart;
     lv_obj_t *routingtab;
     lv_obj_t *hw_inputs;
     lv_obj_t *hw_outputs;
@@ -347,7 +350,6 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output_header;
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
-    lv_obj_t *rta_chart;
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *fxtable;

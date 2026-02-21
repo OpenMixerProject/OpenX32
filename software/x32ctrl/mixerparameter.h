@@ -11,8 +11,8 @@
 using namespace std;
 
 /// @brief Mixerparameter contains data and many metadata about a mixer parameter. Def*-functions define, Get*-functions retrieve data, Set*/Change*/Toggle*-functions manipulate data.
-class Mixerparameter {
-
+class Mixerparameter
+{
     private:
 
         MP_ID parameter_id;
@@ -766,6 +766,11 @@ class Mixerparameter {
         {
             if (index < instances)
             {
+                if (parameter_id == MP_ID::ROUTING_DSP_OUTPUT && index == MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS - 1)
+                {
+                    return "RTA Source";
+                }
+
                 return _name;
             }
             
