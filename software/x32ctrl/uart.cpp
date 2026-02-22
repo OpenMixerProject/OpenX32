@@ -47,6 +47,11 @@ uint8_t Uart::calculateChecksum(const char* data, uint16_t len) {
 
 int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
     
+    if (state->bodyless && !state->bodyless_with_surface_and_adda)
+    {
+        return 0;
+    }
+
     struct termios tty;
 
     fd = open(ttydev, O_RDWR | O_NOCTTY | O_NDELAY);
@@ -162,6 +167,12 @@ int Uart::TxRaw(MessageBase* message) {
     	
         printf("\n");
 	}
+
+    // only write in bodyless mode when surface and adda are connected
+    if (state->bodyless && !state->bodyless_with_surface_and_adda)
+    {
+        return 0;
+    }
 
     int bytes_written = write(fd, message->buffer, message->current_length);
 

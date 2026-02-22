@@ -1008,7 +1008,11 @@ void SPI::ProcessDspTxQueue(uint8_t dsp) {
 }
 
 bool SPI::SendDspData(uint8_t dsp, sSpiTxBufferElement* buffer) {
-//    if (!connected) return false; // this line prevents SPI-communication at the moment
+
+    if (state->bodyless)
+    {
+        return false;
+    }
 
     if (buffer->valueCount == 0) {
         // dont allow empty messages

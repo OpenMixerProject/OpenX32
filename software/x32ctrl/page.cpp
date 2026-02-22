@@ -109,7 +109,8 @@ void Page::DisplayEncoderTurned(X32_ENC encoder, int amount)
             // page did not want it, so handle it here
             
             uint encoderIndex = encoder - X32_ENC_ENCODER1;
-            if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
+            MP_ID encoder_mp_id = encoderbinding[encoderIndex]->mp_id_encoder;
+            if (encoder_mp_id != NONE && encoder_mp_id != PAGE_CUSTOM_ENCODER)
             {
                 // save encoder change to Mixerparameter
                 config->Change(
@@ -137,8 +138,9 @@ void Page::DisplayButton(X32_BTN button, bool pressed)
                 if (button >= X32_BTN_ENCODER1 && button <= X32_BTN_ENCODER6)
                 {
                     uint encoderIndex = button - X32_BTN_ENCODER1;
+                    MP_ID encoder_mp_id = encoderbinding[encoderIndex]->mp_id_encoder;
 
-                    if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
+                    if (encoder_mp_id != NONE && encoder_mp_id != PAGE_CUSTOM_ENCODER)
                     {
                         if (config->GetParameter(encoderbinding[encoderIndex]->mp_id_encoder)->GetHideEncoderReset())
                         {
@@ -233,11 +235,6 @@ void Page::SyncEncoderWidgets(bool force) {
     if (hideEncoders) {
         return;
     }
-
-    // if (config->HasParameterChanged(MP_ID::SELECTED_CHANNEL))
-    // {
-    //     force = true;
-    // }
 
     for(int8_t encoder_index = 0; encoder_index < MAX_DISPLAY_ENCODER; encoder_index++) {
 

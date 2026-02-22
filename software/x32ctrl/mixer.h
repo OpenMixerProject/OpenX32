@@ -19,13 +19,16 @@
 #include "adda.h"
 #include "card.h"
 
+// ini parser
+#include "inicpp.h"
+
 using namespace std;
+using enum MP_ID;
 
 class Mixer : public X32Base
 {
-    using enum MP_ID;
-
     private:
+
         // solo is (somewhere) activated
         bool solo = false;
 
@@ -43,6 +46,9 @@ class Mixer : public X32Base
 
         Mixer(X32BaseParameter* basepar);
         void Init();
+
+        bool LoadConfig(uint scene);
+        void SaveConfig(uint scene);
         
         void SetBusSend(uint8_t vChannelIndex, uint8_t index, float value);        
         String GetCardModelString();

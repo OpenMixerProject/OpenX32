@@ -176,7 +176,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -214,8 +215,7 @@
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
@@ -1059,8 +1059,8 @@
       },
       "transform": {
         "translate": {
-          "x": -412.9695627622776,
-          "y": -247.53580301340753
+          "x": -401.98146752418234,
+          "y": -171.27389825150277
         },
         "scale": 1
       },
@@ -1074,14 +1074,12 @@
       "selectionBack": {
         "0": {
           "1": {
-            "0": {},
-            "1": {
+            "0": {
               "0": {
-                "1": {
-                  "1": {}
-                }
+                "0": {}
               }
-            }
+            },
+            "$selected": true
           }
         }
       }

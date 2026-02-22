@@ -2,9 +2,6 @@
 
 #include <stdint.h>
 
-#include <map>
-#include <set>
-
 #include "defines.h"
 #include "enum.h"
 #include "WString.h"
@@ -153,5 +150,3 @@ typedef struct {
 typedef struct {
 	String label;	
 } sDisplayEncoder;
-
-typedef map<MP_ID, set<uint>>			mixerparameter_changed_t;

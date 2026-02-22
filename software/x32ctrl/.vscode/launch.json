@@ -5,7 +5,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/../bin/x32ctrl",
-            "args": ["-b"],
+            "args": ["-b", "-d", "MIXER"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/../bin",
             "environment": [],
@@ -25,7 +25,6 @@
             ],
             "preLaunchTask": "openx32-x64-SDL2"
         },
-        
         {
             "type": "gdb",
             "request": "attach",
@@ -36,7 +35,7 @@
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText",
             "gdbpath": "/usr/bin/gdb-multiarch", 
-        },
+        }
     ],
     "version": "2.0.0"
 }

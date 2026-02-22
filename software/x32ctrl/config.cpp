@@ -92,11 +92,7 @@ Mixerparameter* Config::DefParameter(MP_ID parameter_id, MP_CAT category, String
 	Mixerparameter* newMpd = new Mixerparameter(parameter_id, category, name, count);
 
 	// store in mixerparameter map (mpm)
-    #ifdef MPM_AS_ARRAY
     mpm[(uint)parameter_id] = newMpd;
-    #else
-	mpm->insert({parameter_id, newMpd});
-    #endif
 
 	// return for further definition
 	return newMpd;
@@ -119,6 +115,10 @@ void Config::DefineMixerparameters() {
 
 	MP_CAT cat = MP_CAT::SETTING;
     String group = "setting";
+
+    DefParameter(DEBUG, cat, "DEBUG")
+    ->DefConfig(group, "debug")
+    ->DefStandard_Bool(true);
 
 	DefParameter(LCD_CONTRAST, cat, "LCD Contrast")
 	->DefMinMaxStandard_Uint(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT)
@@ -188,6 +188,10 @@ void Config::DefineMixerparameters() {
 
     cat = MP_CAT::STATE;
     group = "state";
+
+    DefParameter(ACTIVE_SCENE, cat, "Active Scene")
+    ->DefConfig(group, "active_scene")
+    ->DefMinMaxStandard_Uint(0, 99, 0);
 
     DefParameter(SELECTED_CHANNEL, cat, "Selected Channel")
     ->DefUOM(MP_UOM::ZERO_BASED_INDEX__START_BY_ONE)
@@ -1178,7 +1182,6 @@ void Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
 
 
-    #ifdef MPM_AS_ARRAY
     //#####################################################
     //#  fill all empty parameter indexes with MP_ID::NONE
     //#####################################################
@@ -1189,7 +1192,6 @@ void Config::DefineMixerparameters() {
             mpm[i] = mpm[(uint)MP_ID::NONE];
         }
     }
-    #endif
 }
 
 
@@ -1205,16 +1207,12 @@ void Config::DefineMixerparameters() {
 //#
 //########################################################################################################################################
 
-#ifdef MPM_AS_ARRAY
 Mixerparameter** Config::GetParameterList()
-#else
-mixerparameter_map_t* Config::GetParameterList()
-#endif
 {
     return mpm;
 }
 
-mixerparameter_changed_t* Config::GetChangedParameterList()
+map<MP_ID, set<uint>>* Config::GetChangedParameterList()
 {
     return mp_changedlist;
 }
@@ -1225,16 +1223,15 @@ vector<uint> Config::GetChangedParameterIndexes(MP_CAT parameter_cat)
 
     for (auto const& [parameter_id, indexSet] : *mp_changedlist)
     {
-        if (
-            #ifdef MPM_AS_ARRAY
-            mpm[(uint)parameter_id]
-            #else
-            mpm->at(parameter_id)
-            #endif
-            ->GetCategory() == parameter_cat
-        )
+        if (mpm[(uint)parameter_id]->GetCategory() == parameter_cat)
         {
-            changedIndexes.insert(changedIndexes.end(), indexSet.begin(), indexSet.end());
+            for (auto const& index : indexSet)
+            {
+                if (std::find(changedIndexes.begin(), changedIndexes.end(), index) == changedIndexes.end())
+                {
+                    changedIndexes.push_back(index);
+                } 
+            }
         }
     }
 
@@ -1251,7 +1248,13 @@ vector<uint> Config::GetChangedParameterIndexes(vector<MP_ID> filter_ids)
         // changed Mixerparameter matches to filter
         if (find(filter_ids.begin(), filter_ids.end(), parameter_id) != filter_ids.end())
         {
-            changedIndexes.insert(changedIndexes.end(), indexSet.begin(), indexSet.end());
+            for (auto const& index : indexSet)
+            {
+                if (find(changedIndexes.begin(), changedIndexes.end(), index) == changedIndexes.end())
+                {
+                    changedIndexes.push_back(index);
+                } 
+            }
         }
     }
 
@@ -1301,13 +1304,7 @@ bool Config::HasParametersChanged(MP_CAT parameter_cat)
 {
     for (auto const& [parameter_id, indexSet] : *mp_changedlist)
     {
-        if (
-            #ifdef MPM_AS_ARRAY
-            mpm[(uint)parameter_id]
-            #else
-            mpm->at(parameter_id)
-            #endif
-            ->GetCategory() == parameter_cat)
+        if (mpm[(uint)parameter_id]->GetCategory() == parameter_cat)
         {
             return true;
         }
@@ -1324,14 +1321,7 @@ bool Config::HasParametersChanged(MP_CAT parameter_cat, uint index)
 {
     for (auto const& [parameter_id, indexSet] : *mp_changedlist)
     {
-        if (
-            #ifdef MPM_AS_ARRAY
-            mpm[(uint)parameter_id]
-            #else
-            mpm->at(parameter_id)
-            #endif
-            ->GetCategory() == parameter_cat &&
-            indexSet.contains(index))
+        if (mpm[(uint)parameter_id]->GetCategory() == parameter_cat && indexSet.contains(index))
         {
             return true;
         }
@@ -1373,91 +1363,49 @@ void Config::ResetChangedParameterList()
 
 Mixerparameter* Config::GetParameter(MP_ID mp)
 {
-    #ifdef MPM_AS_ARRAY
     return mpm[(uint)mp];
-    #else
-    if (!mpm->contains(mp))
-    {
-        return mpm->at(MP_ID::NONE);
-    }
-    return mpm->at(mp);
-    #endif
 }
 
 float Config::GetFloat(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
     return mpm[(uint)mp]->GetFloat(index);
-    #else
-    return mpm->at(mp)->GetFloat(index);
-    #endif
 }
 
 int Config::GetInt(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
     return mpm[(uint)mp]->GetInt(index);
-    #else
-    return mpm->at(mp)->GetInt(index);
-    #endif
 }
 
 uint Config::GetUint(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
     return mpm[(uint)mp]->GetUint(index);
-    #else
-    return mpm->at(mp)->GetUint(index);
-    #endif
 }
 
 bool Config::GetBool(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
     return mpm[(uint)mp]->GetBool(index);
-    #else
-    return mpm->at(mp)->GetBool(index);
-    #endif
 }
 
 String Config::GetString(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
     return mpm[(uint)mp]->GetString(index);
-    #else
-    return mpm->at(mp)->GetString(index);
-    #endif
 }
 
 uint Config::GetPercent(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
     return mpm[(uint)mp]->GetPercent(index);
-    #else
-    return mpm->at(mp)->GetPercent(index);
-    #endif
 }
 
 void Config::Set(MP_ID mp, float value, uint index)
 {
-    #ifdef MPM_AS_ARRAY
-    mpm[(uint)mp]
-    #else
-    mpm->at(mp)
-    #endif
-    ->Set(value, index);
+    mpm[(uint)mp]->Set(value, index);
 
     SetParameterChanged(mp, index);
 }
 
 void Config::Set(MP_ID mp, String value_string, uint index)
 {
-    #ifdef MPM_AS_ARRAY
-    mpm[(uint)mp]
-    #else
-    mpm->at(mp)
-    #endif
-    ->Set(value_string, index);
+    mpm[(uint)mp]->Set(value_string, index);
 
     SetParameterChanged(mp, index);
 }
@@ -1492,23 +1440,15 @@ void Config::SetParameterChanged(MP_ID mp, uint index)
 
 void Config::Change(MP_ID mp, int amount, uint index)
 {
-    #ifdef MPM_AS_ARRAY
-    mpm[(uint)mp]
-    #else
-    mpm->at(mp)
-    #endif
-    ->Change(amount, index);
+    mpm[(uint)mp]->Change(amount, index);
+
     SetParameterChanged(mp, index);
 }
 
 void Config::Toggle(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
-    mpm[(uint)mp]
-    #else
-    mpm->at(mp)
-    #endif
-    ->Toggle(index);
+    mpm[(uint)mp]->Toggle(index);
+
     SetParameterChanged(mp, index);
 }
 
@@ -1519,11 +1459,7 @@ void Config::Refresh(MP_ID mp, uint index)
 
 void Config::Reset(MP_ID mp, uint index)
 {
-    #ifdef MPM_AS_ARRAY
-    mpm[(uint)mp]
-    #else
-    mpm->at(mp)
-    #endif
-    ->Reset(index);
+    mpm[(uint)mp]->Reset(index);
+    
     SetParameterChanged(mp, index);
 }

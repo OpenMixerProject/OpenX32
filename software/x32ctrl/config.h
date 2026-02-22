@@ -1,6 +1,8 @@
 #pragma once
 
 #include <algorithm>
+#include <map>
+#include <set>
 
 #include "types.h"
 #include "WString.h"
@@ -18,7 +20,7 @@ class Config
         Helper* helper;
 
         Mixerparameter* mpm[(uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE];
-        mixerparameter_changed_t* mp_changedlist = new mixerparameter_changed_t();
+        map<MP_ID, set<uint>>* mp_changedlist = new map<MP_ID, set<uint>>();
 
         void CreateMixerparameter(MP_ID mp_type); 
         void CreateMixerparameter(MP_ID mp_type, uint index);    
@@ -37,12 +39,9 @@ class Config
         Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
         Mixerparameter* GetParameter(MP_ID mp);
 
-        #ifdef MPM_AS_ARRAY
         Mixerparameter** GetParameterList();
-        #else
-        mixerparameter_map_t* GetParameterList();
-        #endif
-        mixerparameter_changed_t* GetChangedParameterList();
+        map<MP_ID, set<uint>>* GetChangedParameterList();
+        
         vector<uint> GetChangedParameterIndexes(MP_CAT parameter_cat);
         vector<uint> GetChangedParameterIndexes(vector<MP_ID> filter_ids);
         bool HasParameterChanged(MP_ID parameter_id);

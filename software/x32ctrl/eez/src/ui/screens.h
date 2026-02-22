@@ -27,6 +27,7 @@ typedef struct _objects_t {
     lv_obj_t *warning_2;
     lv_obj_t *openx32logo_1;
     lv_obj_t *warning_1;
+    lv_obj_t *bodyless_instructions;
     lv_obj_t *configtab;
     lv_obj_t *current_channel_source;
     lv_obj_t *current_channel_gain;
@@ -362,11 +363,6 @@ typedef struct _objects_t {
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *fxtable;
-    lv_obj_t *testbar;
-    lv_obj_t *testbartext;
-    lv_obj_t *debugtext_dsp1;
-    lv_obj_t *debugtext_dsp2;
-    lv_obj_t *debugtext_x32ctrl;
     lv_obj_t *display_encoder_sliders;
     lv_obj_t *widget1;
     lv_obj_t *widget1__label;
@@ -398,7 +394,11 @@ typedef struct _objects_t {
     lv_obj_t *widget6__value;
     lv_obj_t *widget6__slider;
     lv_obj_t *widget6__label_buttonpress;
-    lv_obj_t *bodyless_instructions;
+    lv_obj_t *debugtext_dsp1;
+    lv_obj_t *debugtext_dsp2;
+    lv_obj_t *debugtext_x32ctrl;
+    lv_obj_t *testbar;
+    lv_obj_t *testbartext;
 } objects_t;
 
 extern objects_t objects;

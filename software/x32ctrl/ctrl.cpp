@@ -120,16 +120,12 @@ void X32Ctrl::Init(){
 	
 
 	// Config
-	if(helper->GetFileSize(X32_MIXER_CONFIGFILE) == -1)	{
+	if(!mixer->LoadConfig(0))
+	{
 		// create new ini file
-		helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "no %s found, creating one", X32_MIXER_CONFIGFILE);
-		ofstream outfile (X32_MIXER_CONFIGFILE);
-		outfile << endl;
-		outfile.close();
-
-		SaveConfig();		
-	} else {
-		LoadConfig();
+		helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "no default configfile found, creating one");
+		
+		mixer->SaveConfig(0);
 	}
 
 	// set brightness and contrast
@@ -224,160 +220,7 @@ void X32Ctrl::ResetFaderBankLayout() {
 	}
 }
 
-//#####################################################################################################################
-//
-// ##        #######     ###    ########  
-// ##       ##     ##   ## ##   ##     ## 
-// ##       ##     ##  ##   ##  ##     ## 
-// ##       ##     ## ##     ## ##     ## 
-// ##       ##     ## ######### ##     ## 
-// ##       ##     ## ##     ## ##     ## 
-// ########  #######  ##     ## ########  
-//
-//#####################################################################################################################
 
-void X32Ctrl::LoadConfig() {
-	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", X32_MIXER_CONFIGFILE);
-	mixer_ini.load(X32_MIXER_CONFIGFILE);
-
-	// go over all known Mixerparameters and try to load them
-	#ifdef MPM_AS_ARRAY
-	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
-	{
-		MP_ID parameter_id = (MP_ID)i;
-		Mixerparameter* parameter = config->GetParameter(parameter_id);
-	#else
-	for (const auto& [parameter_id, parameter] : *config->GetParameterList())
-	{
-	#endif
-
-		if (			
-			parameter->GetId() == NONE ||
-			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
-			parameter->IsNoConfig() ||
-			parameter->IsReadonly()
-		)
-		{
-			// this Mixerparameter should not be loaded from config file
-			continue;
-		}
-
-		for (uint index = 0; index < parameter->GetInstances(); index++)
-		{						
-			String section = parameter->GetConfigGroup() + String("_") + String(index);
-			String entry = parameter->GetConfigEntry();
-			
-			try
-			{
-				using enum MP_VALUE_TYPE;
-
-				switch(parameter->GetType())
-				{
-					case FLOAT:
-						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<float>(), index);
-						break;
-					case UINT:
-						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<uint>(), index);
-						break;
-					case INT:
-						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<int>(), index);
-						break;
-					case BOOL:
-						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<bool>(), index);
-						break;
-					case STRING:
-						parameter->Set(String(mixer_ini[section.c_str()][entry.c_str()].as<string>().c_str()), index);
-						break;
-					default:
-						__throw_out_of_range("LoadConfig() -> MP_VALUE_TYPE is not handled!");
-				}
-			}
-			catch (exception ex)
-			{
-				// show the error message
-				helper->Error("Load %s: [%s] -> %s: %s\n",
-					X32_MIXER_CONFIGFILE,
-					section.c_str(),
-					entry.c_str(),
-					ex.what()
-				);
-
-				// load standard value as workaround
-				parameter->Reset(index);
-			}
-		}
-	}
-}
-
-//#####################################################################################################################
-//
-//  ######     ###    ##     ## ######## 
-// ##    ##   ## ##   ##     ## ##       
-// ##        ##   ##  ##     ## ##       
-//  ######  ##     ## ##     ## ######   
-//       ## #########  ##   ##  ##       
-// ##    ## ##     ##   ## ##   ##       
-//  ######  ##     ##    ###    ######## 
-//
-//#####################################################################################################################
-
-void X32Ctrl::SaveConfig() {
-
-	// go over all known Mixerparameter an store them
-	#ifdef MPM_AS_ARRAY
-	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
-	{
-		Mixerparameter* parameter = config->GetParameterList()[i];
-		MP_ID parameter_id = (MP_ID)i;
-	#else
-	for (const auto& [parameter_id, parameter] : *config->GetParameterList())
-	{
-	#endif
-
-		if (
-			parameter->GetId() == NONE ||
-			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
-			parameter->IsNoConfig() ||
-			parameter->IsReadonly()
-		)
-		{
-			// this Mixerparameter should not be written to config file
-			continue;
-		}
-
-		for (uint index = 0; index < parameter->GetInstances(); index++)
-		{
-			String section = parameter->GetConfigGroup() + String("_") + String(index);
-			String entry = parameter->GetConfigEntry();
-			
-			using enum MP_VALUE_TYPE;
-
-			switch(parameter->GetType())
-			{
-				case FLOAT:
-					mixer_ini[section.c_str()][entry.c_str()] = (parameter->GetFloat(index));
-					break;
-				case UINT:
-					mixer_ini[section.c_str()][entry.c_str()] = (parameter->GetUint(index));
-					break;
-    			case INT:
-					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetInt(index);
-					break;
-    			case BOOL:
-					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetBool(index);
-					break;
-    			case STRING:
-					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetString(index).c_str();
-					break;
-				default:
-					__throw_out_of_range("SaveConfig() -> MP_VALUE_TYPE is not handled!");
-			}
-		}
-	}
-
-	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", X32_MIXER_CONFIGFILE);
-	mixer_ini.save(X32_MIXER_CONFIGFILE);
-}
 
 //#####################################################################################################################
 //
@@ -421,6 +264,7 @@ void X32Ctrl::Tick10ms(void){
 
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset list of changed Mixerparameter.");
 		config->ResetChangedParameterList();
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset Done!");
 	}
 }
 
@@ -441,7 +285,8 @@ void X32Ctrl::Tick100ms(void) {
         mixer->dsp->spi->QueueDspData(1, 'a', 42, 0, 1, (float*)&value);
     }
 
-	if (!config->IsModelX32Core() && config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::UTILITY) {
+	if (config->GetBool(DEBUG) && !config->IsModelX32Core())
+	{
 		// read the current DSP load
 		// show the received value (could be a bit older than the request)
 	 	lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
@@ -699,6 +544,7 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::EFFECTS] = new PageEffects(pagebasepar);
 	pages[X32_PAGE::MUTE_GRP] = new PageMutegroup(pagebasepar);
 	pages[X32_PAGE::UTILITY] = new PageUtility(pagebasepar);
+	pages[X32_PAGE::SCENES] = new PageScenes(pagebasepar);
 	for (const auto& [key, value] : pages) {
 		value->Init();
 	}	
@@ -2016,6 +1862,10 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			case X32_BTN_UTILITY:
 				ShowPage(X32_PAGE::UTILITY);
 				break;
+			case X32_BTN_VIEW_SCENES:
+			case X32_BTN_SCENE_SETUP:
+				ShowPage(X32_PAGE::SCENES);
+				break;
 			case X32_BTN_EQ_MODE:
 				config->Change(((MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ))), +1, config->GetUint(SELECTED_CHANNEL));
 				break;
@@ -2229,7 +2079,6 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 
 	X32_ENC encoder = surface->Encoder2Enum[((uint16_t)event->boardId << 8) + (uint16_t)(event->index)];
 	int8_t amount = 0;
-	int8_t newValue;
 
 	if (event->value > 0 && event->value < 128){
 		amount = (uint8_t)event->value;
@@ -2337,11 +2186,11 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 
 
 // Key was pressed in the bodyless mode
-void X32Ctrl::SimulatorButton(uint key)
+void X32Ctrl::SimulatorButton(uint32_t key)
 {
 	if (key != state->simulator_last_key)
 	{
-		printf("Simulatorbutton: %d\n", key);
+		printf("Simulatorbutton: %X\n", key);
 
 		X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
@@ -2453,6 +2302,9 @@ void X32Ctrl::SimulatorButton(uint key)
 			case 110: // N
 				pages[activePage]->DisplayButton(X32_BTN_ENCODER6, true);
 				pages[activePage]->DisplayButton(X32_BTN_ENCODER6, false);
+				break;
+			case 0xFFFFFF9F:
+				ShowPage(SCENES);
 				break;
 		}
 		

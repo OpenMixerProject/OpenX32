@@ -36,9 +36,6 @@ void Mixer::Init() {
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->Init()");
     dsp->Init();
 
-    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->SendAll()");
-    dsp->SendAll();
-
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "adda->Init()");
     adda->Init();
 
@@ -285,12 +282,23 @@ String Mixer::GetCardModelString(){
 //#
 //#########################################
 
-void Mixer::Sync(void){
+void Mixer::Sync(void)
+{
+    if (helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL))
+    {
+        uint changedParameterCount = 0;
+        for (auto const& [parameter_id, indexSet] : *(config->GetChangedParameterList()))
+        {
+            changedParameterCount += indexSet.size();
+        }
+        helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Sync %d changed Parameters.", changedParameterCount);
+    }
 
     vector<MP_ID> filter = {CHANNEL_VOLUME, CHANNEL_VOLUME_SUB, CHANNEL_MUTE, CHANNEL_PANORAMA, CHANNEL_SEND_LR, CHANNEL_SEND_SUB};
     if (config->HasParametersChanged(filter))
-    {    
-        for (auto const& changedIndex : config->GetChangedParameterIndexes(filter))
+    {
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(filter);
+        for (auto const& changedIndex : changedIndexes)
         {
             if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
                 helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX))
@@ -316,7 +324,8 @@ void Mixer::Sync(void){
 
     if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS);
+        for (auto const& changedIndex : changedIndexes)
         {
             dsp->SendChannelSend(changedIndex);
             dsp->ChannelSendTapPoints(changedIndex);
@@ -325,7 +334,8 @@ void Mixer::Sync(void){
 
     if (config->HasParameterChanged(ROUTING_FPGA))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_FPGA}))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({ROUTING_FPGA});
+        for (auto const& changedIndex : changedIndexes)
         {
             fpga->SendRoutingToFpga(changedIndex);
         }
@@ -333,7 +343,8 @@ void Mixer::Sync(void){
 
     if (config->HasParametersChanged({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT});
+        for (auto const& changedIndex : changedIndexes)
         {
             dsp->SetOutputRouting(changedIndex);
         }
@@ -341,7 +352,8 @@ void Mixer::Sync(void){
 
     if (config->HasParametersChanged({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT});
+        for (auto const& changedIndex : changedIndexes)
         {
             dsp->SetInputRouting(changedIndex);
         }
@@ -349,16 +361,17 @@ void Mixer::Sync(void){
 
     if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS))
     { 
-        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS);
+        for (auto const& changedIndex : changedIndexes)
         {
             dsp->SendChannelSend(changedIndex);
-
         }
     }
 
     if (config->HasParametersChanged(MP_CAT::CHANNEL_GATE))
     {        
-        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_GATE))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_GATE);
+        for (auto const& changedIndex : changedIndexes)
         {
             dsp->SendGate(changedIndex);
         }
@@ -366,7 +379,8 @@ void Mixer::Sync(void){
 
     if (config->HasParameterChanged(CHANNEL_PHANTOM))
     {
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({CHANNEL_PHANTOM}))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({CHANNEL_PHANTOM});
+        for (auto const& changedIndex : changedIndexes)
         {
             halSendPhantomPower(changedIndex);
         }
@@ -374,7 +388,8 @@ void Mixer::Sync(void){
 
     if (config->HasParameterChanged(CHANNEL_GAIN))
     {
-        for (auto const& changedIndex : config->GetChangedParameterIndexes({CHANNEL_GAIN}))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({CHANNEL_GAIN});
+        for (auto const& changedIndex : changedIndexes)
         {
             halSendGain(changedIndex);
         }
@@ -382,8 +397,15 @@ void Mixer::Sync(void){
 
     if (config->HasParametersChanged(MP_CAT::CHANNEL_EQ))
     {
-        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_EQ))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_EQ);
+        for (auto const& changedIndex : changedIndexes)
         {
+            // dsp->Channel holds only 40 Elements
+            if (changedIndex > 39)
+            {
+                continue;
+            }
+
             // copy values fromm Mixerparameter
             for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++)
             {
@@ -400,7 +422,8 @@ void Mixer::Sync(void){
 
     if (config->HasParametersChanged(MP_CAT::CHANNEL_DYNAMICS))
     {
-        for (auto const& changedIndex : config->GetChangedParameterIndexes(MP_CAT::CHANNEL_DYNAMICS))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_DYNAMICS);
+        for (auto const& changedIndex : changedIndexes)
         {
             dsp->SendCompressor(changedIndex);
         }
@@ -408,7 +431,8 @@ void Mixer::Sync(void){
 
     if (config->HasParametersChanged(MP_CAT::FX))
     {
-        for (auto const& fxSlot : config->GetChangedParameterIndexes(MP_CAT::FX))
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(MP_CAT::FX);
+        for (auto const& fxSlot : changedIndexes)
         {
             dsp->DSP2_SendFxParameter(fxSlot);
         }
@@ -431,7 +455,7 @@ void Mixer::halSendGain(uint8_t dspChannel) {
 
             // send value to adda-board
             uint8_t boardId = adda->GetXlrInBoardId(externalDspSourceIndex);
-            if (boardId >= 0 && boardId < 4) {
+            if (boardId < 4) {
                 uint8_t addaChannel = externalDspSourceIndex;
                 while (addaChannel > 8) {
                     addaChannel -= 8;
@@ -465,7 +489,7 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
             // send value to adda-board
             uint8_t boardId = adda->GetXlrInBoardId(externalDspSourceIndex);
 
-            if (boardId >= 0 && boardId < 4) {
+            if (boardId < 4) {
                 uint8_t addaChannel = externalDspSourceIndex;
                 while (addaChannel > 8) {
                     addaChannel -= 8;
@@ -478,4 +502,170 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
             // AES50B input
         }
     }
+}
+
+//#####################################################################################################################
+//
+// ##        #######     ###    ########  
+// ##       ##     ##   ## ##   ##     ## 
+// ##       ##     ##  ##   ##  ##     ## 
+// ##       ##     ## ##     ## ##     ## 
+// ##       ##     ## ######### ##     ## 
+// ##       ##     ## ##     ## ##     ## 
+// ########  #######  ##     ## ########  
+//
+//#####################################################################################################################
+
+bool Mixer::LoadConfig(uint scene)
+{
+    String loadFile = String(scene) + String(X32_MIXER_CONFIGFILE);
+
+    // no file found
+	if (helper->GetFileSize(loadFile.c_str()) == -1)
+    {
+        return false;
+    }
+
+    if (access(loadFile.c_str(), F_OK) == -1)
+    {
+        helper->Error("Can not load Config. File %s does not exist.", loadFile.c_str());
+    }
+
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", loadFile.c_str());
+	ini::IniFile mixer_ini;
+    mixer_ini.load(loadFile.c_str());
+
+	// go over all known Mixerparameters and try to load them
+	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+	{
+		MP_ID parameter_id = (MP_ID)i;
+		Mixerparameter* parameter = config->GetParameter(parameter_id);
+
+		if (			
+			parameter->GetId() == NONE ||
+			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
+			parameter->IsNoConfig() ||
+			parameter->IsReadonly()
+		)
+		{
+			// this Mixerparameter should not be loaded from config file
+			continue;
+		}
+
+		for (uint index = 0; index < parameter->GetInstances(); index++)
+		{						
+			String section = parameter->GetConfigGroup() + String("_") + String(index);
+			String entry = parameter->GetConfigEntry();
+			
+			try
+			{
+				using enum MP_VALUE_TYPE;
+
+				switch(parameter->GetType())
+				{
+					case FLOAT:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<float>(), index);
+						break;
+					case UINT:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<uint>(), index);
+						break;
+					case INT:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<int>(), index);
+						break;
+					case BOOL:
+						parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<bool>(), index);
+						break;
+					case STRING:
+						parameter->Set(String(mixer_ini[section.c_str()][entry.c_str()].as<string>().c_str()), index);
+						break;
+					default:
+						__throw_out_of_range("LoadConfig() -> MP_VALUE_TYPE is not handled!");
+				}
+
+                config->Refresh(parameter->GetId(), index);
+			}
+			catch (exception ex)
+			{
+				// show the error message
+				helper->Error("Load %s: [%s] -> %s: %s\n",
+					loadFile.c_str(),
+					section.c_str(),
+					entry.c_str(),
+					ex.what()
+				);
+
+				// load standard value as workaround
+				parameter->Reset(index);
+			}
+		}
+	}
+
+    return true;
+}
+
+//#####################################################################################################################
+//
+//  ######     ###    ##     ## ######## 
+// ##    ##   ## ##   ##     ## ##       
+// ##        ##   ##  ##     ## ##       
+//  ######  ##     ## ##     ## ######   
+//       ## #########  ##   ##  ##       
+// ##    ## ##     ##   ## ##   ##       
+//  ######  ##     ##    ###    ######## 
+//
+//#####################################################################################################################
+
+void Mixer::SaveConfig(uint scene)
+{
+    ini::IniFile mixer_ini;
+
+	// go over all known Mixerparameter an store them
+	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+	{
+		Mixerparameter* parameter = config->GetParameter((MP_ID)i);
+
+		if (
+			parameter->GetId() == NONE ||
+			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
+			parameter->IsNoConfig() ||
+			parameter->IsReadonly()
+		)
+		{
+			// this Mixerparameter should not be written to config file
+			continue;
+		}
+
+		for (uint index = 0; index < parameter->GetInstances(); index++)
+		{
+			String section = parameter->GetConfigGroup() + String("_") + String(index);
+			String entry = parameter->GetConfigEntry();
+			
+			using enum MP_VALUE_TYPE;
+
+			switch(parameter->GetType())
+			{
+				case FLOAT:
+					mixer_ini[section.c_str()][entry.c_str()] = (parameter->GetFloat(index));
+					break;
+				case UINT:
+					mixer_ini[section.c_str()][entry.c_str()] = (parameter->GetUint(index));
+					break;
+    			case INT:
+					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetInt(index);
+					break;
+    			case BOOL:
+					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetBool(index);
+					break;
+    			case STRING:
+					mixer_ini[section.c_str()][entry.c_str()] = parameter->GetString(index).c_str();
+					break;
+				default:
+					__throw_out_of_range("SaveConfig() -> MP_VALUE_TYPE is not handled!");
+			}
+		}
+	}
+
+    String saveFile = String(scene) + String(X32_MIXER_CONFIGFILE);
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", saveFile.c_str());
+	mixer_ini.save(saveFile.c_str());
 }

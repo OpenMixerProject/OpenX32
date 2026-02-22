@@ -4,10 +4,10 @@
             "label": "openx32-build",
             "type": "shell",
             "command": "make -j14 && dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl\"",
-            //"command": "make -j20 && scp ../bin/x32ctrl root@192.168.188.103:/openx32/x32ctrl",
-            "options": {
-            },
-            "problemMatcher": ["$gcc"],
+            "options": {},
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -17,20 +17,20 @@
             "label": "openx32-x64-SDL2",
             "type": "shell",
             "command": "make --file=Makefile_x64_SDL2 -j14",
-            "options": {
-            },
-            "problemMatcher": ["$gcc"],
+            "options": {},
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": false
             }
         },
-         {
+        {
             "label": "openx32-launch",
             "type": "shell",
             "command": "dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.104 \"dd of=/root/x32ctrl  && /root/gdbserver 129.168.188.104:10001 /root/x32ctrl \"; sleep 1",
-            "options": {                
-            },
+            "options": {},
             "group": {
                 "kind": "none",
                 "isDefault": false
@@ -40,13 +40,12 @@
             "label": "openx32-kill",
             "type": "shell",
             "command": "ssh root@192.168.188.104 \"killall gdbserver\"",
-            "options": {
-            },
+            "options": {},
             "group": {
                 "kind": "none",
                 "isDefault": false
             }
-        }
+        },
     ],
     "version": "2.0.0"
 }

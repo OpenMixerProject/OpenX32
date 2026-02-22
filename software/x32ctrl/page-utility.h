@@ -25,13 +25,6 @@ class PageUtility: public Page {
             custom_encoder[DISPLAY_ENCODER_4].label = "XLR1 -> DSP2, DSP2 -> Ch9..24";
         }
 
-        void OnChange(bool force_update) override
-        {
-            // TODO only update if values are changed
-            custom_encoder[DISPLAY_ENCODER_5].label = String("D2: ") + String(state->debugvalue2);
-            custom_encoder[DISPLAY_ENCODER_6].label = String("D1: ") + String(state->debugvalue);
-        }
-
         bool OnDisplayButton(X32_BTN button, bool pressed) override
         {
             bool handled = false;

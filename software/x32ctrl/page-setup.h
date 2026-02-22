@@ -18,6 +18,7 @@ class PageSetup: public Page
 
         void OnInit() override {
 
+            BindEncoder(DISPLAY_ENCODER_1, DEBUG);
             BindEncoder(DISPLAY_ENCODER_4, LED_BRIGHTNESS);
             BindEncoder(DISPLAY_ENCODER_5, CHANNEL_LCD_MODE);
             BindEncoder(DISPLAY_ENCODER_6, LCD_CONTRAST);
@@ -27,7 +28,7 @@ class PageSetup: public Page
         {
             if (config->HasParameterChanged(SELECTED_CHANNEL) || forceUpdate)
             {
-                BindEncoder(DISPLAY_ENCODER_1, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED, config->GetUint(SELECTED_CHANNEL));
+                BindEncoder(DISPLAY_ENCODER_2, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED, config->GetUint(SELECTED_CHANNEL));
             }
             
         }

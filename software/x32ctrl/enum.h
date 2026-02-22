@@ -396,7 +396,8 @@ enum class X32_PAGE :int {
     LIBRARY,
     EFFECTS,
     MUTE_GRP,
-    UTILITY
+    UTILITY,
+    SCENES
 };
 
 enum class X32_VCHANNELTYPE {
@@ -485,6 +486,7 @@ enum class MP_ID {
 
     // Settings
 
+    DEBUG,
     LCD_CONTRAST,
     LED_BRIGHTNESS,
     DISPLAY_BRIGHTNESS,
@@ -502,6 +504,7 @@ enum class MP_ID {
 
     // State
 
+    ACTIVE_SCENE,
     SELECTED_CHANNEL,
     ACTIVE_PAGE,
     BANKING_EQ,

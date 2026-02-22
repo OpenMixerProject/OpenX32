@@ -29,15 +29,13 @@
 #include "page-setup-card.h"
 #include "page-mutegroup.h"
 #include "page-utility.h"
+#include "page-scenes.h"
 
 #include "lcd-menu.h"
 
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"
-
-// ini parser
-#include "inicpp.h"
 
 // includes for lvgl
 #include "lv_port_linux/lvgl/lvgl.h"
@@ -70,8 +68,7 @@ class X32Ctrl : public X32Base
     using enum MP_ID;
 
     private:
-        ini::IniFile mixer_ini;
-
+        
         Mixer* mixer;
         Surface* surface;
         XRemote* xremote;
@@ -95,8 +92,6 @@ class X32Ctrl : public X32Base
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);
 
-        void LoadConfig();
-
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;
         uint8_t surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
@@ -109,7 +104,6 @@ class X32Ctrl : public X32Base
     public:
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
-        void SaveConfig();
         void writeConfigEntry(Mixerparameter *const &parameter, uint index);
         void Tick10ms(void);
         void Tick50ms(void);

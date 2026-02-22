@@ -14,8 +14,10 @@
 #include "eez/src/ui/styles.h"
 
 using namespace std;
+using enum MP_ID;
 
-class Page : public X32Base {
+class Page : public X32Base
+{
     protected:
         Mixer* mixer;
         Surface* surface;

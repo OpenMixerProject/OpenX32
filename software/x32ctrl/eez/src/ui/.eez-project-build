@@ -1,0 +1,18 @@
+{
+  "files": [
+    "actions.h",
+    "fonts.h",
+    "images.c",
+    "images.h",
+    "screens.c",
+    "screens.h",
+    "structs.h",
+    "styles.c",
+    "styles.h",
+    "ui.c",
+    "ui.h",
+    "ui_image_meterbridge.c",
+    "ui_image_openx32logo.c",
+    "vars.h"
+  ]
+}
