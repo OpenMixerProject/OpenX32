@@ -252,19 +252,19 @@ void X32Ctrl::Tick10ms(void){
 	// sync if any Mixerparameter has changed
 	if (config->HasAnyParameterChanged())
 	{
-		syncGuiOrLcd();
-		syncSurface(false);
-		//syncXRemote(false);
-
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->Sync()");
 		mixer->Sync();
 
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->card->Sync()");
 		mixer->card->Sync();
 
+		// sync GUI(s) last, to get visual response after the hardware is synced!
+		syncSurface(false);
+		syncGuiOrLcd();
+		//syncXRemote(false);
+
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset list of changed Mixerparameter.");
 		config->ResetChangedParameterList();
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset Done!");
 	}
 }
 

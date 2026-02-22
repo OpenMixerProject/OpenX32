@@ -406,6 +406,7 @@ void Mixer::Sync(void)
                 continue;
             }
 
+            // TODO: Implement EQ without old Channel struct!
             // copy values fromm Mixerparameter
             for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++)
             {
