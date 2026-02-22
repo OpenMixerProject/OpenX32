@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Sun Feb  1 19:47:30 2026"
+-- CREATED		"Sun Feb 22 22:51:24 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -353,6 +353,15 @@ COMPONENT aes50_consts
 	);
 END COMPONENT;
 
+COMPONENT aes50_rmii_txd
+	PORT(refclk : IN STD_LOGIC;
+		 reset : IN STD_LOGIC;
+		 data : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+		 clkout : OUT STD_LOGIC;
+		 dout : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+	);
+END COMPONENT;
+
 COMPONENT aes50_top
 	PORT(clk50_i : IN STD_LOGIC;
 		 clk100_i : IN STD_LOGIC;
@@ -443,7 +452,8 @@ SIGNAL	aes50_phy_clk :  STD_LOGIC_VECTOR(0 TO 0);
 SIGNAL	aes50_phy_clk_data :  STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL	aes50_sys_mode :  STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL	aes50a_rmii_rxd :  STD_LOGIC_VECTOR(1 DOWNTO 0);
-SIGNAL	aes50a_rmii_txd :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+SIGNAL	aes50a_rmii_txd :  STD_LOGIC_VECTOR(2 DOWNTO 0);
+SIGNAL	aes50a_rmii_txd_out :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50a_tdm_in :  STD_LOGIC_VECTOR(6 DOWNTO 0);
 SIGNAL	aes50a_tdm_out :  STD_LOGIC_VECTOR(6 DOWNTO 0);
 SIGNAL	audio_output :  STD_LOGIC_VECTOR(479 DOWNTO 0);
@@ -826,6 +836,13 @@ tdm_input(16) <= aes50a_tdm_out(2);
 tdm_input(17) <= aes50a_tdm_out(3);
 
 
+
+b2v_inst6 : aes50_rmii_txd
+PORT MAP(refclk => clk_50MHz,
+		 reset => rst,
+		 data => aes50a_rmii_txd,
+		 dout => aes50a_rmii_txd_out);
+
 tdm_input(18) <= aes50a_tdm_out(4);
 
 
@@ -860,13 +877,13 @@ PORT MAP(clk50_i => clk_50MHz,
 		 tdm_i => aes50a_tdm_in,
 		 wd_aes_clk_timeout_i => SYNTHESIZED_WIRE_57,
 		 wd_aes_rx_dv_timeout_i => SYNTHESIZED_WIRE_58,
-		 rmii_tx_en_o => aes50a_rmii_tx_en_out,
+		 rmii_tx_en_o => aes50a_rmii_txd(0),
 		 phy_rst_n_o => aes50a_phy_rst_n_out,
 		 aes50_clk_a_tx_o => aes50a_clk_a_tx_out,
 		 aes50_clk_a_tx_en_o => aes50a_clk_a_tx_en_out,
 		 aes50_clk_b_tx_o => aes50a_clk_b_tx_out,
 		 aes50_clk_b_tx_en_o => aes50a_clk_b_tx_en_out,
-		 rmii_txd_o => aes50a_rmii_txd,
+		 rmii_txd_o => aes50a_rmii_txd(2 DOWNTO 1),
 		 tdm_o => aes50a_tdm_out);
 
 
@@ -950,8 +967,9 @@ CARD_OUT3 <= tdm_output(7);
 AUX_DA <= tdm_output(8);
 DA_DATA1 <= tdm_output(0);
 DA_DATA0 <= tdm_output(1);
-aes50a_rmii_txd_1_out <= aes50a_rmii_txd(1);
-aes50a_rmii_txd_0_out <= aes50a_rmii_txd(0);
+aes50a_rmii_tx_en_out <= aes50a_rmii_txd_out(0);
+aes50a_rmii_txd_1_out <= aes50a_rmii_txd_out(2);
+aes50a_rmii_txd_0_out <= aes50a_rmii_txd_out(1);
 aes50a_rmii_clk_out <= aes50_phy_clk(0);
 
 aes50_fs_mode(0) <= '1';

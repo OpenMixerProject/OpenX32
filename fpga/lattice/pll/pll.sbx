@@ -64,6 +64,42 @@
                     </spirit:vendorExtensions>
                 </spirit:port>
                 <spirit:port>
+                    <spirit:name>aes50_rmii_txd_clkout</spirit:name>
+                    <spirit:displayName>aes50_rmii_txd_clkout</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>out</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.clkout</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>aes50_rmii_txd_refclk</spirit:name>
+                    <spirit:displayName>aes50_rmii_txd_refclk</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>in</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.refclk</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>aes50_rmii_txd_reset</spirit:name>
+                    <spirit:displayName>aes50_rmii_txd_reset</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>in</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.reset</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
                     <spirit:name>lattice_pll_CLKI</spirit:name>
                     <spirit:displayName>lattice_pll_CLKI</spirit:displayName>
                     <spirit:wire>
@@ -191,13 +227,45 @@
                         </lattice:attributes>
                     </spirit:vendorExtensions>
                 </spirit:port>
+                <spirit:port>
+                    <spirit:name>aes50_rmii_txd_data</spirit:name>
+                    <spirit:displayName>aes50_rmii_txd_data</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>in</spirit:direction>
+                        <spirit:vector>
+                            <spirit:left>2</spirit:left>
+                            <spirit:right>0</spirit:right>
+                        </spirit:vector>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.data</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>aes50_rmii_txd_dout</spirit:name>
+                    <spirit:displayName>aes50_rmii_txd_dout</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>out</spirit:direction>
+                        <spirit:vector>
+                            <spirit:left>2</spirit:left>
+                            <spirit:right>0</spirit:right>
+                        </spirit:vector>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.dout</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
             </spirit:ports>
         </spirit:model>
         <spirit:vendorExtensions>
             <lattice:device>LFE5U-25F-6BG381C</lattice:device>
             <lattice:synthesis>synplify</lattice:synthesis>
             <lattice:date>2026-01-04.19:33:32</lattice:date>
-            <lattice:modified>2026-01-06.01:56:57</lattice:modified>
+            <lattice:modified>2026-02-22.22:43:13</lattice:modified>
             <lattice:diamond>3.14.0.75.2</lattice:diamond>
             <lattice:language>Verilog</lattice:language>
             <lattice:attributes>
@@ -329,7 +397,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-01-06.01:56:57</lattice:modified>
+                        <lattice:modified>2026-02-22.22:43:13</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -702,6 +770,274 @@
                 </spirit:componentRef>
             </spirit:componentInstance>
             <spirit:componentInstance>
+                <spirit:instanceName>aes50_rmii_txd</spirit:instanceName>
+                <spirit:componentRef>
+                    <spirit:vendor>Lattice Semiconductor Corporation</spirit:vendor>
+                    <spirit:library>LEGACY</spirit:library>
+                    <spirit:name>SDR</spirit:name>
+                    <spirit:version>6.0</spirit:version>
+                    <spirit:fileSets>
+                        <spirit:fileset>
+                            <spirit:name>Diamond_Simulation</spirit:name>
+                            <spirit:group>simulation</spirit:group>
+                            <spirit:file>
+                                <spirit:name>./aes50_rmii_txd/aes50_rmii_txd.v</spirit:name>
+                                <spirit:fileType>verilogSource</spirit:fileType>
+                            </spirit:file>
+                        </spirit:fileset>
+                        <spirit:fileset>
+                            <spirit:name>Diamond_Synthesis</spirit:name>
+                            <spirit:group>synthesis</spirit:group>
+                            <spirit:file>
+                                <spirit:name>./aes50_rmii_txd/aes50_rmii_txd.v</spirit:name>
+                                <spirit:fileType>verilogSource</spirit:fileType>
+                            </spirit:file>
+                        </spirit:fileset>
+                    </spirit:fileSets>
+                    <spirit:componentGenerators>
+                        <spirit:componentGenerator spirit:hidden="true" spirit:scope="instance">
+                            <spirit:name>Configuration</spirit:name>
+                            <spirit:apiType>none</spirit:apiType>
+                            <spirit:generatorExe>${sbp_path}/${instance}/generate_core.tcl</spirit:generatorExe>
+                            <spirit:group>CONFIG</spirit:group>
+                        </spirit:componentGenerator>
+                        <spirit:componentGenerator spirit:hidden="true" spirit:scope="instance">
+                            <spirit:name>CreateNGD</spirit:name>
+                            <spirit:apiType>none</spirit:apiType>
+                            <spirit:generatorExe>${sbp_path}/${instance}/generate_ngd.tcl</spirit:generatorExe>
+                            <spirit:group>CONFIG</spirit:group>
+                        </spirit:componentGenerator>
+                    </spirit:componentGenerators>
+                    <spirit:model>
+                        <spirit:views/>
+                        <spirit:ports>
+                            <spirit:port>
+                                <spirit:name>clkout</spirit:name>
+                                <spirit:displayName>clkout</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>out</spirit:direction>
+                                </spirit:wire>
+                                <spirit:vendorExtensions>
+                                    <lattice:attributes>
+                                        <lattice:attribute lattice:name="PadPin">true</lattice:attribute>
+                                    </lattice:attributes>
+                                </spirit:vendorExtensions>
+                            </spirit:port>
+                            <spirit:port>
+                                <spirit:name>refclk</spirit:name>
+                                <spirit:displayName>refclk</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>in</spirit:direction>
+                                </spirit:wire>
+                            </spirit:port>
+                            <spirit:port>
+                                <spirit:name>reset</spirit:name>
+                                <spirit:displayName>reset</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>in</spirit:direction>
+                                </spirit:wire>
+                            </spirit:port>
+                            <spirit:port>
+                                <spirit:name>data</spirit:name>
+                                <spirit:displayName>data</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>in</spirit:direction>
+                                    <spirit:vector>
+                                        <spirit:left>2</spirit:left>
+                                        <spirit:right>0</spirit:right>
+                                    </spirit:vector>
+                                </spirit:wire>
+                            </spirit:port>
+                            <spirit:port>
+                                <spirit:name>dout</spirit:name>
+                                <spirit:displayName>dout</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>out</spirit:direction>
+                                    <spirit:vector>
+                                        <spirit:left>2</spirit:left>
+                                        <spirit:right>0</spirit:right>
+                                    </spirit:vector>
+                                </spirit:wire>
+                                <spirit:vendorExtensions>
+                                    <lattice:attributes>
+                                        <lattice:attribute lattice:name="PadPin">true</lattice:attribute>
+                                    </lattice:attributes>
+                                </spirit:vendorExtensions>
+                            </spirit:port>
+                        </spirit:ports>
+                    </spirit:model>
+                    <spirit:vendorExtensions>
+                        <lattice:synthesis>synplify</lattice:synthesis>
+                        <lattice:modified>2026-02-22.22:43:13</lattice:modified>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
+                            <lattice:attribute lattice:name="BBox">false</lattice:attribute>
+                            <lattice:attribute lattice:name="Change4to5">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeConfig">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeConnect">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeDevice">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeLocate">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangePack">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangePart">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeSynthesis">false</lattice:attribute>
+                            <lattice:attribute lattice:name="CoreType">LPM</lattice:attribute>
+                            <lattice:attribute lattice:name="DCU_RXREFCLK">PRIMARY</lattice:attribute>
+                            <lattice:attribute lattice:name="DCU_TXREFCLK">PRIMARY</lattice:attribute>
+                            <lattice:attribute lattice:name="Migrate">false</lattice:attribute>
+                            <lattice:attribute lattice:name="RemovedComponent">false</lattice:attribute>
+                        </lattice:attributes>
+                        <lattice:elements/>
+                        <lattice:lpc>
+                            <lattice:lpcsection lattice:name="Device"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Family</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">ecp5u</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>OperatingCondition</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">COM</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Package</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">CABGA381</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PartName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LFE5U-25F-6BG381C</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PartType</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LFE5U-25F</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>SpeedGrade</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">6</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Status</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">S</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcsection lattice:name="IP"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">SDR</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreRevision</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">6.0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreStatus</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Demo</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreType</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LPM</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Date</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">02/22/2026</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ModuleName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">aes50_rmii_txd</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ParameterFileVersion</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1.0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>SourceFormat</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">verilog</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Time</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">22:43:06</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>VendorName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Lattice Semiconductor Corporation</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcsection lattice:name="Parameters"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Destination</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Synplicity</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>EDIF</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Expression</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">BusA(0 to 7)</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>IO</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Order</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">[MSB:LSB]</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>VHDL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Verilog</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>bandwidth</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">600</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>del</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Bypass</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>fdel</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant"></lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>freq_in</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">200</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>interface</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">GOREG_TX.SCLK</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>io_type</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LVCMOS33</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>mode</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Transmit</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>negedge</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>trioddr</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>width</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">3</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcsection lattice:name="Command"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>cmd_line</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">-w -n aes50_rmii_txd -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type iol -mode Transmit -io_type LVCMOS33 -width 3 -freq_in 200 -aligned -del -1 -gear 1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                        </lattice:lpc>
+                        <lattice:groups/>
+                    </spirit:vendorExtensions>
+                </spirit:componentRef>
+            </spirit:componentInstance>
+            <spirit:componentInstance>
                 <spirit:instanceName>lattice_pll</spirit:instanceName>
                 <spirit:componentRef>
                     <spirit:vendor>Lattice Semiconductor Corporation</spirit:vendor>
@@ -788,7 +1124,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-01-06.01:56:57</lattice:modified>
+                        <lattice:modified>2026-02-22.22:43:13</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1241,7 +1577,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-01-06.01:56:57</lattice:modified>
+                        <lattice:modified>2026-02-22.22:43:13</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1640,6 +1976,29 @@
                 <spirit:externalPortReference spirit:portRef="aes50_clk_ddr_reset"/>
             </spirit:adHocConnection>
             <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_clkout</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_clkout</spirit:displayName>
+                <spirit:vendorExtensions>
+                    <lattice:attributes>
+                        <lattice:attribute lattice:name="export">sys_yes</lattice:attribute>
+                    </lattice:attributes>
+                </spirit:vendorExtensions>
+                <spirit:internalPortReference spirit:portRef="clkout" spirit:componentRef="aes50_rmii_txd"/>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_clkout"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_refclk</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_refclk</spirit:displayName>
+                <spirit:internalPortReference spirit:portRef="refclk" spirit:componentRef="aes50_rmii_txd"/>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_refclk"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_reset</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_reset</spirit:displayName>
+                <spirit:internalPortReference spirit:portRef="reset" spirit:componentRef="aes50_rmii_txd"/>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_reset"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
                 <spirit:name>lattice_pll_CLKI</spirit:name>
                 <spirit:displayName>lattice_pll_CLKI</spirit:displayName>
                 <spirit:internalPortReference spirit:portRef="CLKI" spirit:componentRef="lattice_pll"/>
@@ -1726,6 +2085,74 @@
                 </spirit:vendorExtensions>
                 <spirit:internalPortReference spirit:portRef="dout[0]" spirit:componentRef="aes50_clk_ddr"/>
                 <spirit:externalPortReference spirit:portRef="aes50_clk_ddr_dout[0]"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_data</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_data</spirit:displayName>
+                <spirit:internalPortReference spirit:right="0" spirit:portRef="data" spirit:componentRef="aes50_rmii_txd" spirit:left="2"/>
+                <spirit:externalPortReference spirit:right="0" spirit:portRef="aes50_rmii_txd_data" spirit:left="2"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_data[0]</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_data[0]</spirit:displayName>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_data[0]"/>
+                <spirit:internalPortReference spirit:portRef="data[0]" spirit:componentRef="aes50_rmii_txd"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_data[1]</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_data[1]</spirit:displayName>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_data[1]"/>
+                <spirit:internalPortReference spirit:portRef="data[1]" spirit:componentRef="aes50_rmii_txd"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_data[2]</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_data[2]</spirit:displayName>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_data[2]"/>
+                <spirit:internalPortReference spirit:portRef="data[2]" spirit:componentRef="aes50_rmii_txd"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_dout</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_dout</spirit:displayName>
+                <spirit:vendorExtensions>
+                    <lattice:attributes>
+                        <lattice:attribute lattice:name="export">sys_yes</lattice:attribute>
+                    </lattice:attributes>
+                </spirit:vendorExtensions>
+                <spirit:internalPortReference spirit:right="0" spirit:portRef="dout" spirit:componentRef="aes50_rmii_txd" spirit:left="2"/>
+                <spirit:externalPortReference spirit:right="0" spirit:portRef="aes50_rmii_txd_dout" spirit:left="2"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_dout[0]</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_dout[0]</spirit:displayName>
+                <spirit:vendorExtensions>
+                    <lattice:attributes>
+                        <lattice:attribute lattice:name="export">sys_yes</lattice:attribute>
+                    </lattice:attributes>
+                </spirit:vendorExtensions>
+                <spirit:internalPortReference spirit:portRef="dout[0]" spirit:componentRef="aes50_rmii_txd"/>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_dout[0]"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_dout[1]</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_dout[1]</spirit:displayName>
+                <spirit:vendorExtensions>
+                    <lattice:attributes>
+                        <lattice:attribute lattice:name="export">sys_yes</lattice:attribute>
+                    </lattice:attributes>
+                </spirit:vendorExtensions>
+                <spirit:internalPortReference spirit:portRef="dout[1]" spirit:componentRef="aes50_rmii_txd"/>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_dout[1]"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>aes50_rmii_txd_dout[2]</spirit:name>
+                <spirit:displayName>aes50_rmii_txd_dout[2]</spirit:displayName>
+                <spirit:vendorExtensions>
+                    <lattice:attributes>
+                        <lattice:attribute lattice:name="export">sys_yes</lattice:attribute>
+                    </lattice:attributes>
+                </spirit:vendorExtensions>
+                <spirit:internalPortReference spirit:portRef="dout[2]" spirit:componentRef="aes50_rmii_txd"/>
+                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_dout[2]"/>
             </spirit:adHocConnection>
         </spirit:adHocConnections>
     </spirit:design>

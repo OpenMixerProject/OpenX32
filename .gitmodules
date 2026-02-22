@@ -18,10 +18,6 @@
 	path = software/x32ctrl/lv_port_linux
 	url = https://github.com/lvgl/lv_port_linux.git
 	ignore = dirty
-[submodule "software/x32ctrl-ng/lv_port_linux"]
-	path = software/x32ctrl-ng/lv_port_linux
-	url = https://github.com/lvgl/lv_port_linux.git
-	ignore = dirty
 [submodule "software/openssh-portable"]
 	path = software/openssh-portable
 	url = https://github.com/openssh/openssh-portable.git
