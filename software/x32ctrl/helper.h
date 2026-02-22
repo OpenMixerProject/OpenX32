@@ -59,9 +59,6 @@ class Helper {
         uint32_t ReverseBitOrder_uint32(uint32_t n);
         float Saturate(float value, float min, float max);
 
-        String freq2String(float freq);
-        String eqType2String(uint8_t type);
-
         String getIpAddress();
 
         bool IsInChannelBlock(uint8_t index, X32_VCHANNEL_BLOCK block);
