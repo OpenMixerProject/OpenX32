@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Sun Feb 22 22:51:24 2026"
+-- CREATED		"Mon Feb 23 10:49:27 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -153,6 +153,15 @@ COMPONENT cs2000cp_config
 		 o_address : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		 o_data : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		 o_map : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+	);
+END COMPONENT;
+
+COMPONENT aes50_rmii_rxd
+	PORT(clkin : IN STD_LOGIC;
+		 reset : IN STD_LOGIC;
+		 datain : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+		 sclk : OUT STD_LOGIC;
+		 q : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
 	);
 END COMPONENT;
 
@@ -451,7 +460,8 @@ SIGNAL	aes50_fs_mode :  STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL	aes50_phy_clk :  STD_LOGIC_VECTOR(0 TO 0);
 SIGNAL	aes50_phy_clk_data :  STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL	aes50_sys_mode :  STD_LOGIC_VECTOR(1 DOWNTO 0);
-SIGNAL	aes50a_rmii_rxd :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+SIGNAL	aes50a_rmii_rxd :  STD_LOGIC_VECTOR(2 DOWNTO 0);
+SIGNAL	aes50a_rmii_rxd_in :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50a_rmii_txd :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50a_rmii_txd_out :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50a_tdm_in :  STD_LOGIC_VECTOR(6 DOWNTO 0);
@@ -575,6 +585,13 @@ PORT MAP(clk => clk_16MHz,
 		 o_address => SYNTHESIZED_WIRE_12,
 		 o_data => SYNTHESIZED_WIRE_13,
 		 o_map => SYNTHESIZED_WIRE_14);
+
+
+b2v_inst10 : aes50_rmii_rxd
+PORT MAP(clkin => clk_50MHz,
+		 reset => rst,
+		 datain => aes50a_rmii_rxd_in,
+		 q => aes50a_rmii_rxd);
 
 
 b2v_inst11 : pcm1690dac_config
@@ -855,7 +872,7 @@ PORT MAP(clk50_i => clk_50MHz,
 		 clk100_i => clk_100MHz,
 		 rst_i => SYNTHESIZED_WIRE_45,
 		 tdm8_i2s_mode_i => SYNTHESIZED_WIRE_46,
-		 rmii_crs_dv_i => aes50a_rmii_crs_dv_in,
+		 rmii_crs_dv_i => aes50a_rmii_rxd(0),
 		 aes50_clk_a_rx_i => aes50a_clk_a_rx_in,
 		 aes50_clk_b_rx_i => aes50a_clk_b_rx_in,
 		 clk_1024xfs_from_pll_i => clk_49_152MHz,
@@ -872,7 +889,7 @@ PORT MAP(clk50_i => clk_50MHz,
 		 mdix_timer_1ms_reference_i => SYNTHESIZED_WIRE_54,
 		 mult_clk625_44k1_i => SYNTHESIZED_WIRE_55,
 		 mult_clk625_48k_i => SYNTHESIZED_WIRE_56,
-		 rmii_rxd_i => aes50a_rmii_rxd,
+		 rmii_rxd_i => aes50a_rmii_rxd(2 DOWNTO 1),
 		 sys_mode_i => aes50_sys_mode,
 		 tdm_i => aes50a_tdm_in,
 		 wd_aes_clk_timeout_i => SYNTHESIZED_WIRE_57,
@@ -974,12 +991,13 @@ aes50a_rmii_clk_out <= aes50_phy_clk(0);
 
 aes50_fs_mode(0) <= '1';
 aes50_fs_mode(1) <= '0';
-aes50_phy_clk_data(0) <= '1';
-aes50_phy_clk_data(1) <= '0';
+aes50_phy_clk_data(1) <= '1';
+aes50_phy_clk_data(0) <= '0';
 aes50_sys_mode(1) <= '1';
 aes50_sys_mode(0) <= '0';
-aes50a_rmii_rxd(1) <= aes50a_rmii_rxd_1_in;
-aes50a_rmii_rxd(0) <= aes50a_rmii_rxd_0_in;
+aes50a_rmii_rxd_in(0) <= aes50a_rmii_crs_dv_in;
+aes50a_rmii_rxd_in(1) <= aes50a_rmii_rxd_0_in;
+aes50a_rmii_rxd_in(2) <= aes50a_rmii_rxd_1_in;
 aes50a_tdm_in(6) <= '0';
 tdm_input(0) <= AD0_DATA1;
 tdm_input(1) <= AD0_DATA0;

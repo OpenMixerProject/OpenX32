@@ -1,0 +1,172 @@
+(edif aes50_rmii_rxd
+  (edifVersion 2 0 0)
+  (edifLevel 0)
+  (keywordMap (keywordLevel 0))
+  (status
+    (written
+      (timestamp 2026 2 23 11 8 2)
+      (program "SCUBA" (version "Diamond (64-bit) 3.14.0.75.2"))))
+      (comment "C:\Programme2\Lattice\Diamond\ispfpga\bin\nt64\scuba.exe -w -n aes50_rmii_rxd -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type iol -mode Receive -io_type LVCMOS33 -width 3 -freq_in 50 -del -1 -gear 1 -fdc O:/fpga/lattice/claritydesigner/aes50_rmii_rxd/aes50_rmii_rxd.fdc ")
+  (library ORCLIB
+    (edifLevel 0)
+    (technology
+      (numberDefinition))
+    (cell INV
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port A
+            (direction INPUT))
+          (port Z
+            (direction OUTPUT)))))
+    (cell IFS1P3DX
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port D
+            (direction INPUT))
+          (port SP
+            (direction INPUT))
+          (port SCLK
+            (direction INPUT))
+          (port CD
+            (direction INPUT))
+          (port Q
+            (direction OUTPUT)))))
+    (cell VHI
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell IB
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port I
+            (direction INPUT))
+          (port O
+            (direction OUTPUT)))))
+    (cell aes50_rmii_rxd
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port clkin
+            (direction INPUT))
+          (port reset
+            (direction INPUT))
+          (port sclk
+            (direction OUTPUT))
+          (port (array (rename datain "datain(2:0)") 3)
+            (direction INPUT))
+          (port (array (rename q "q(2:0)") 3)
+            (direction OUTPUT)))
+        (property NGD_DRC_MASK (integer 1))
+        (contents
+          (instance INV_0
+            (viewRef view1 
+              (cellRef INV)))
+          (instance Inst3_IB
+            (viewRef view1 
+              (cellRef IB))
+            (property IO_TYPE
+              (string "LVCMOS33")))
+          (instance Inst2_IFS1P3DX2
+            (viewRef view1 
+              (cellRef IFS1P3DX)))
+          (instance Inst2_IFS1P3DX1
+            (viewRef view1 
+              (cellRef IFS1P3DX)))
+          (instance scuba_vhi_inst
+            (viewRef view1 
+              (cellRef VHI)))
+          (instance Inst2_IFS1P3DX0
+            (viewRef view1 
+              (cellRef IFS1P3DX)))
+          (instance Inst1_IB2
+            (viewRef view1 
+              (cellRef IB))
+            (property IO_TYPE
+              (string "LVCMOS33")))
+          (instance Inst1_IB1
+            (viewRef view1 
+              (cellRef IB))
+            (property IO_TYPE
+              (string "LVCMOS33")))
+          (instance Inst1_IB0
+            (viewRef view1 
+              (cellRef IB))
+            (property IO_TYPE
+              (string "LVCMOS33")))
+          (net buf_clkin_inv
+            (joined
+              (portRef SCLK (instanceRef Inst2_IFS1P3DX0))
+              (portRef Z (instanceRef INV_0))
+              (portRef SCLK (instanceRef Inst2_IFS1P3DX2))
+              (portRef SCLK (instanceRef Inst2_IFS1P3DX1))))
+          (net scuba_vhi
+            (joined
+              (portRef Z (instanceRef scuba_vhi_inst))
+              (portRef SP (instanceRef Inst2_IFS1P3DX2))
+              (portRef SP (instanceRef Inst2_IFS1P3DX1))
+              (portRef SP (instanceRef Inst2_IFS1P3DX0))))
+          (net dataini_t2
+            (joined
+              (portRef D (instanceRef Inst2_IFS1P3DX2))
+              (portRef O (instanceRef Inst1_IB2))))
+          (net dataini_t1
+            (joined
+              (portRef D (instanceRef Inst2_IFS1P3DX1))
+              (portRef O (instanceRef Inst1_IB1))))
+          (net dataini_t0
+            (joined
+              (portRef D (instanceRef Inst2_IFS1P3DX0))
+              (portRef O (instanceRef Inst1_IB0))))
+          (net q2
+            (joined
+              (portRef (member q 0))
+              (portRef Q (instanceRef Inst2_IFS1P3DX2))))
+          (net q1
+            (joined
+              (portRef (member q 1))
+              (portRef Q (instanceRef Inst2_IFS1P3DX1))))
+          (net q0
+            (joined
+              (portRef (member q 2))
+              (portRef Q (instanceRef Inst2_IFS1P3DX0))))
+          (net datain2
+            (joined
+              (portRef (member datain 0))
+              (portRef I (instanceRef Inst1_IB2))))
+          (net datain1
+            (joined
+              (portRef (member datain 1))
+              (portRef I (instanceRef Inst1_IB1))))
+          (net datain0
+            (joined
+              (portRef (member datain 2))
+              (portRef I (instanceRef Inst1_IB0))))
+          (net sclk
+            (joined
+              (portRef sclk)
+              (portRef O (instanceRef Inst3_IB))
+              (portRef A (instanceRef INV_0))))
+          (net reset
+            (joined
+              (portRef reset)
+              (portRef CD (instanceRef Inst2_IFS1P3DX2))
+              (portRef CD (instanceRef Inst2_IFS1P3DX1))
+              (portRef CD (instanceRef Inst2_IFS1P3DX0))))
+          (net clkin
+            (joined
+              (portRef clkin)
+              (portRef I (instanceRef Inst3_IB))))))))
+  (design aes50_rmii_rxd
+    (cellRef aes50_rmii_rxd
+      (libraryRef ORCLIB)))
+)

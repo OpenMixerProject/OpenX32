@@ -1,0 +1,6 @@
+#List of actual used RTLs.
+
+File                                                                           Type     IN_PROJECT/INCLUDED/LIBRARY
+
+"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v"             verilog                      IN PROJECT
+"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v"       verilog                      IN PROJECT

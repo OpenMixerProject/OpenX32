@@ -134,19 +134,10 @@
         <Source name="../zeros_const.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="pll/pll.sbx" type="sbx" type_short="SBX">
-            <Options/>
-        </Source>
-        <Source name="pll/lattice_pll/lattice_pll.v" type="Verilog" type_short="Verilog">
-            <Options/>
-        </Source>
         <Source name="../tdm_demux.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="../aes50_rst.vhd" type="VHDL" type_short="VHDL">
-            <Options/>
-        </Source>
-        <Source name="pll/aes50_clk_ddr/aes50_clk_ddr.v" type="Verilog" type_short="Verilog">
             <Options/>
         </Source>
         <Source name="../tdm_multichan_rx.vhd" type="VHDL" type_short="VHDL">
@@ -161,7 +152,22 @@
         <Source name="../wordclock.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="pll/lattice_pll_audio/lattice_pll_audio.v" type="Verilog" type_short="Verilog">
+        <Source name="claritydesigner/claritydesigner.sbx" type="sbx" type_short="SBX">
+            <Options/>
+        </Source>
+        <Source name="claritydesigner/aes50_clk_ddr/aes50_clk_ddr.v" type="Verilog" type_short="Verilog">
+            <Options/>
+        </Source>
+        <Source name="claritydesigner/aes50_rmii_rxd/aes50_rmii_rxd.v" type="Verilog" type_short="Verilog">
+            <Options/>
+        </Source>
+        <Source name="claritydesigner/aes50_rmii_txd/aes50_rmii_txd.v" type="Verilog" type_short="Verilog">
+            <Options/>
+        </Source>
+        <Source name="claritydesigner/lattice_pll/lattice_pll.v" type="Verilog" type_short="Verilog">
+            <Options/>
+        </Source>
+        <Source name="claritydesigner/lattice_pll_audio/lattice_pll_audio.v" type="Verilog" type_short="Verilog">
             <Options/>
         </Source>
         <Source name="impl1/impl1.xcf" type="Programming Project File" type_short="Programming">

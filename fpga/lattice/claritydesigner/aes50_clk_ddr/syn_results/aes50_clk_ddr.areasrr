@@ -1,0 +1,16 @@
+----------------------------------------------------------------------
+Report for cell aes50_clk_ddr.verilog
+
+Register bits: 0 of 12096 (0%)
+PIC Latch:       0
+I/O cells:       2
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                                GSR        1       100.0
+                                 OB        2       100.0
+                            ODDRX1F        2       100.0
+                                PUR        1       100.0
+                                VHI        1       100.0
+                                VLO        1       100.0
+                            
+                         TOTAL             8           

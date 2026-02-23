@@ -422,7 +422,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 72 1208 272 1224)
+	(rect 56 1224 256 1240)
 	(text "INPUT" (rect 157 0 185 9)(font "Arial" (font_size 6)))
 	(text "aes50a_rmii_rxd_1_in" (rect 5 0 105 10)(font "DejaVu Sans Condensed" ))
 	(pt 200 8)
@@ -438,7 +438,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 72 1192 272 1208)
+	(rect 56 1208 256 1224)
 	(text "INPUT" (rect 157 0 185 9)(font "Arial" (font_size 6)))
 	(text "aes50a_rmii_rxd_0_in" (rect 5 0 105 10)(font "DejaVu Sans Condensed" ))
 	(pt 200 8)
@@ -454,7 +454,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 392 1184 592 1200)
+	(rect 56 1192 256 1208)
 	(text "INPUT" (rect 157 0 185 9)(font "Arial" (font_size 6)))
 	(text "aes50a_rmii_crs_dv_in" (rect 5 0 108 10)(font "DejaVu Sans Condensed" ))
 	(pt 200 8)
@@ -4017,6 +4017,49 @@ on the Quartus Prime software download page.
 		(rectangle (rect 16 16 160 96))
 	)
 )
+(symbol
+	(rect 184 976 352 1088)
+	(text "aes50_rmii_rxd" (rect 5 0 79 10)(font "Arial" ))
+	(text "inst10" (rect 8 96 36 106)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clkin" (rect 0 0 22 10)(font "Arial" ))
+		(text "clkin" (rect 21 27 43 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "reset" (rect 0 0 24 10)(font "Arial" ))
+		(text "reset" (rect 21 43 45 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "datain[2..0]" (rect 0 0 55 10)(font "Arial" ))
+		(text "datain[2..0]" (rect 21 59 76 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 168 32)
+		(output)
+		(text "sclk" (rect 0 0 20 10)(font "Arial" ))
+		(text "sclk" (rect 131 27 151 37)(font "Arial" ))
+		(line (pt 168 32)(pt 152 32))
+	)
+	(port
+		(pt 168 48)
+		(output)
+		(text "q[2..0]" (rect 0 0 31 10)(font "Arial" ))
+		(text "q[2..0]" (rect 121 43 152 53)(font "Arial" ))
+		(line (pt 168 48)(pt 152 48)(line_width 3))
+	)
+	(drawing
+		(rectangle (rect 16 16 152 96))
+	)
+)
 (connector
 	(pt 1672 896)
 	(pt 1744 896)
@@ -4949,12 +4992,6 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "aes50a_rmii_rxd[1..0]" (rect 498 1200 600 1210)(font "DejaVu Sans Condensed" ))
-	(pt 632 1208)
-	(pt 488 1208)
-	(bus)
-)
-(connector
 	(text "clk_49_152MHz" (rect 498 1248 569 1258)(font "DejaVu Sans Condensed" ))
 	(pt 632 1256)
 	(pt 488 1256)
@@ -4978,11 +5015,6 @@ on the Quartus Prime software download page.
 (connector
 	(pt 632 1352)
 	(pt 624 1352)
-)
-(connector
-	(text "clk_50MHz" (rect 498 1088 547 1098)(font "DejaVu Sans Condensed" ))
-	(pt 632 1096)
-	(pt 488 1096)
 )
 (connector
 	(text "clk_100MHz" (rect 498 1104 553 1114)(font "DejaVu Sans Condensed" ))
@@ -5193,20 +5225,6 @@ on the Quartus Prime software download page.
 	(pt 1376 1480)
 )
 (connector
-	(text "aes50a_rmii_rxd[1]" (rect 282 1208 371 1218)(font "DejaVu Sans Condensed" ))
-	(pt 272 1216)
-	(pt 368 1216)
-)
-(connector
-	(text "aes50a_rmii_rxd[0]" (rect 282 1192 371 1202)(font "DejaVu Sans Condensed" ))
-	(pt 272 1200)
-	(pt 368 1200)
-)
-(connector
-	(pt 592 1192)
-	(pt 632 1192)
-)
-(connector
 	(pt 592 1224)
 	(pt 632 1224)
 )
@@ -5240,16 +5258,6 @@ on the Quartus Prime software download page.
 	(pt 904 1600)
 	(pt 992 1600)
 	(bus)
-)
-(connector
-	(text "aes50_phy_clk_data[0]" (rect 490 1592 597 1602)(font "DejaVu Sans Condensed" ))
-	(pt 480 1600)
-	(pt 576 1600)
-)
-(connector
-	(text "aes50_phy_clk_data[1]" (rect 488 1624 595 1634)(font "DejaVu Sans Condensed" ))
-	(pt 488 1632)
-	(pt 576 1632)
 )
 (connector
 	(text "clk_100MHz" (rect 258 1120 313 1130)(font "DejaVu Sans Condensed" ))
@@ -5458,6 +5466,69 @@ on the Quartus Prime software download page.
 	(pt 1456 1048)
 	(pt 1584 1048)
 	(bus)
+)
+(connector
+	(text "aes50a_rmii_rxd[0]" (rect 498 1184 587 1194)(font "DejaVu Sans Condensed" ))
+	(pt 488 1192)
+	(pt 632 1192)
+)
+(connector
+	(text "aes50a_rmii_rxd[2..1]" (rect 498 1200 600 1210)(font "DejaVu Sans Condensed" ))
+	(pt 632 1208)
+	(pt 488 1208)
+	(bus)
+)
+(connector
+	(text "aes50a_rmii_rxd_in[0]" (rect 258 1192 360 1202)(font "DejaVu Sans Condensed" ))
+	(pt 256 1200)
+	(pt 352 1200)
+)
+(connector
+	(text "aes50a_rmii_rxd_in[1]" (rect 258 1208 360 1218)(font "DejaVu Sans Condensed" ))
+	(pt 256 1216)
+	(pt 352 1216)
+)
+(connector
+	(text "aes50a_rmii_rxd_in[2]" (rect 258 1224 360 1234)(font "DejaVu Sans Condensed" ))
+	(pt 256 1232)
+	(pt 352 1232)
+)
+(connector
+	(text "aes50a_rmii_rxd_in[2..0]" (rect 82 1032 197 1042)(font "DejaVu Sans Condensed" ))
+	(pt 184 1040)
+	(pt 80 1040)
+	(bus)
+)
+(connector
+	(text "clk_50MHz" (rect 82 1000 131 1010)(font "DejaVu Sans Condensed" ))
+	(pt 184 1008)
+	(pt 80 1008)
+)
+(connector
+	(text "rst" (rect 82 1016 93 1026)(font "DejaVu Sans Condensed" ))
+	(pt 184 1024)
+	(pt 80 1024)
+)
+(connector
+	(text "aes50a_rmii_rxd[2..0]" (rect 354 1016 456 1026)(font "DejaVu Sans Condensed" ))
+	(pt 352 1024)
+	(pt 472 1024)
+	(bus)
+)
+(connector
+	(text "clk_50MHz" (rect 498 1088 547 1098)(font "DejaVu Sans Condensed" ))
+	(pt 632 1096)
+	(pt 488 1096)
+)
+(connector
+	(text "aes50_phy_clk_data[1]" (rect 490 1592 597 1602)(font "DejaVu Sans Condensed" ))
+	(pt 480 1600)
+	(pt 576 1600)
+)
+(connector
+	(text "aes50_phy_clk_data[0]" (rect 488 1624 595 1634)(font "DejaVu Sans Condensed" ))
+	(pt 488 1632)
+	(pt 576 1632)
 )
 (junction (pt 1672 848))
 (junction (pt 1560 104))

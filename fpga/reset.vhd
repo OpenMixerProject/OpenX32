@@ -47,7 +47,7 @@ architecture Behavioral of reset is
 	
 	signal count_clk		: natural range 0 to 100000 := 0;
 	signal wait_a			: natural range 0 to 1000 := 0;
-	signal wait_b			: natural range 0 to 1000 := 0;
+	signal wait_b			: natural range 0 to 10000 := 0;
 begin
 	process (clk)
 	begin
@@ -168,8 +168,8 @@ begin
 				global_rst <= '0';
 				online <= '0';
 
-				-- wait for 50ms
-				if (wait_b < 800) then
+				-- wait for 500ms
+				if (wait_b < 8000) then
 					if (wait_a < 1000) then
 						wait_a <= wait_a + 1;
 					else

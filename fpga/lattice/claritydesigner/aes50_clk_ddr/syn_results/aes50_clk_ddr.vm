@@ -1,0 +1,80 @@
+//
+// Written by Synplify Pro 
+// Product Version "V-2023.09L-2"
+// Program "Synplify Pro", Mapper "map202309lat, Build 191R"
+// Mon Feb 23 11:09:02 2026
+//
+// Source file index table:
+// Object locations will have the form <file>:<line>
+// file 0 "\c:\programme2\lattice\diamond\synpbase\lib\lucent\ecp5u.v "
+// file 1 "\c:\programme2\lattice\diamond\synpbase\lib\lucent\pmi_def.v "
+// file 2 "\c:\programme2\lattice\diamond\synpbase\lib\vlog\hypermods.v "
+// file 3 "\c:\programme2\lattice\diamond\synpbase\lib\vlog\scemi_objects.v "
+// file 4 "\c:\programme2\lattice\diamond\synpbase\lib\vlog\scemi_pipes.svh "
+// file 5 "\c:\programme2\lattice\diamond\cae_library\synthesis\verilog\ecp5u.v "
+// file 6 "\c:\programme2\lattice\diamond\cae_library\synthesis\verilog\pmi_def.v "
+// file 7 "\o:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v "
+// file 8 "\c:\programme2\lattice\diamond\synpbase\lib\nlconst.dat "
+// file 9 "\o:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.fdc "
+
+`timescale 100 ps/100 ps
+(* NGD_DRC_MASK=1 *)module aes50_clk_ddr (
+  clkout,
+  refclk,
+  reset,
+  data,
+  dout
+)
+;
+output clkout ;
+input refclk ;
+input reset ;
+input [1:0] data ;
+output [0:0] dout ;
+wire clkout ;
+wire refclk ;
+wire reset ;
+wire buf_douto0 ;
+wire buf_clkout ;
+wire GND ;
+wire VCC ;
+  VLO GND_0 (
+	.Z(GND)
+);
+  VHI VCC_0 (
+	.Z(VCC)
+);
+  PUR PUR_INST (
+	.PUR(VCC)
+);
+  GSR GSR_INST (
+	.GSR(VCC)
+);
+// @7:35
+(* IO_TYPE="LVCMOS33" *)  OB Inst2_OB (
+	.I(buf_clkout),
+	.O(clkout)
+);
+// @7:38
+(* IO_TYPE="LVCMOS33" *)  OB Inst1_OB0 (
+	.I(buf_douto0),
+	.O(dout[0])
+);
+// @7:32
+  ODDRX1F Inst3_ODDRX1F (
+	.SCLK(refclk),
+	.RST(reset),
+	.D0(VCC),
+	.D1(GND),
+	.Q(buf_clkout)
+);
+// @7:25
+  ODDRX1F Inst4_ODDRX1F0 (
+	.SCLK(refclk),
+	.RST(reset),
+	.D0(data[0]),
+	.D1(data[1]),
+	.Q(buf_douto0)
+);
+endmodule /* aes50_clk_ddr */
+
