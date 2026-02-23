@@ -29,6 +29,7 @@
 #include "page-setup-card.h"
 #include "page-mutegroup.h"
 #include "page-utility.h"
+#include "page-utility-about.h"
 #include "page-scenes.h"
 
 #include "lcd-menu.h"

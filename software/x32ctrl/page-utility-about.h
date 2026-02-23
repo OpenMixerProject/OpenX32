@@ -2,7 +2,7 @@
 #include "page.h"
 using namespace std;
 
-class PageUtility: public Page {
+class PageUtilityAbout: public Page {
     public:
         PageUtilityAbout(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::UTILITY;

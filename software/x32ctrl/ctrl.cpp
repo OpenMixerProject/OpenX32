@@ -544,6 +544,7 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::EFFECTS] = new PageEffects(pagebasepar);
 	pages[X32_PAGE::MUTE_GRP] = new PageMutegroup(pagebasepar);
 	pages[X32_PAGE::UTILITY] = new PageUtility(pagebasepar);
+	pages[X32_PAGE::UTILITY_ABOUT] = new PageUtilityAbout(pagebasepar);
 	pages[X32_PAGE::SCENES] = new PageScenes(pagebasepar);
 	for (const auto& [key, value] : pages) {
 		value->Init();
