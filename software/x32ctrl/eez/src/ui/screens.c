@@ -942,10 +942,68 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            lv_obj_t *obj = lv_label_create(parent_obj);
-                            lv_obj_set_pos(obj, 15, 20);
-                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                            lv_label_set_text(obj, "Utility");
+                            // utilitytab
+                            lv_obj_t *obj = lv_tabview_create(parent_obj);
+                            objects.utilitytab = obj;
+                            lv_obj_set_pos(obj, LV_PCT(0), LV_PCT(0));
+                            lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+                            lv_tabview_set_tab_bar_position(obj, LV_DIR_TOP);
+                            lv_tabview_set_tab_bar_size(obj, 32);
+                            add_style_tabview_nopad(obj);
+                            {
+                                lv_obj_t *parent_obj = obj;
+                                {
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "Utility");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 15, 20);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "Utility");
+                                        }
+                                    }
+                                }
+                                {
+                                    lv_obj_t *obj = lv_tabview_add_tab(parent_obj, "About");
+                                    {
+                                        lv_obj_t *parent_obj = obj;
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 285, 180);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "AES50-IP-Core: Markus Noll");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 268, 150);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "FPGA and DSPs: Chris Noeding");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 261, 120);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "User-Interface: Alexander Schulz");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 188, 63);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "https://www.github.com/OpenMixerProject/OpenX32");
+                                        }
+                                        {
+                                            // openx32logo_2
+                                            lv_obj_t *obj = lv_image_create(parent_obj);
+                                            objects.openx32logo_2 = obj;
+                                            lv_obj_set_pos(obj, 177, -4);
+                                            lv_obj_set_size(obj, 402, 59);
+                                            lv_image_set_src(obj, &img_openx32logo);
+                                            lv_image_set_scale(obj, 100);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -976,7 +1034,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 349);
+                    create_user_widget_config_slider_display_encoder(obj, 351);
                 }
                 {
                     // widget2
@@ -990,7 +1048,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 354);
+                    create_user_widget_config_slider_display_encoder(obj, 356);
                 }
                 {
                     // widget3
@@ -1004,7 +1062,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 359);
+                    create_user_widget_config_slider_display_encoder(obj, 361);
                 }
                 {
                     // widget4
@@ -1018,7 +1076,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 364);
+                    create_user_widget_config_slider_display_encoder(obj, 366);
                 }
                 {
                     // widget5
@@ -1032,7 +1090,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 369);
+                    create_user_widget_config_slider_display_encoder(obj, 371);
                 }
                 {
                     // widget6
@@ -1046,7 +1104,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 374);
+                    create_user_widget_config_slider_display_encoder(obj, 376);
                 }
             }
         }
@@ -1110,12 +1168,12 @@ void tick_screen_main() {
     tick_user_widget_ms_bar8(257);
     tick_user_widget_ms_bar8(290);
     tick_user_widget_ms_bar(323);
-    tick_user_widget_config_slider_display_encoder(349);
-    tick_user_widget_config_slider_display_encoder(354);
-    tick_user_widget_config_slider_display_encoder(359);
-    tick_user_widget_config_slider_display_encoder(364);
-    tick_user_widget_config_slider_display_encoder(369);
-    tick_user_widget_config_slider_display_encoder(374);
+    tick_user_widget_config_slider_display_encoder(351);
+    tick_user_widget_config_slider_display_encoder(356);
+    tick_user_widget_config_slider_display_encoder(361);
+    tick_user_widget_config_slider_display_encoder(366);
+    tick_user_widget_config_slider_display_encoder(371);
+    tick_user_widget_config_slider_display_encoder(376);
 }
 
 void create_user_widget_8meters(lv_obj_t *parent_obj, int startWidgetIndex) {

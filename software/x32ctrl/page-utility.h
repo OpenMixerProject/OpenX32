@@ -5,8 +5,11 @@ using namespace std;
 class PageUtility: public Page {
     public:
         PageUtility(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+            nextPage = X32_PAGE::UTILITY_ABOUT;
             tabLayer0 = objects.maintab;
             tabIndex0 = 7;
+            tabLayer1 = objects.utilitytab;
+            tabIndex1 = 0;
             led = X32_BTN_UTILITY;
         }
 

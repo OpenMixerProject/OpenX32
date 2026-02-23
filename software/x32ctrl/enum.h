@@ -397,6 +397,7 @@ enum class X32_PAGE :int {
     EFFECTS,
     MUTE_GRP,
     UTILITY,
+        UTILITY_ABOUT,
     SCENES
 };
 

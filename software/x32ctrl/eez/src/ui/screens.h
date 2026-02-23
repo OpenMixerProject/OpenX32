@@ -363,6 +363,8 @@ typedef struct _objects_t {
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *fxtable;
+    lv_obj_t *utilitytab;
+    lv_obj_t *openx32logo_2;
     lv_obj_t *display_encoder_sliders;
     lv_obj_t *widget1;
     lv_obj_t *widget1__label;
