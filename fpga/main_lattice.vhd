@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Mon Feb 23 10:49:27 2026"
+-- CREATED		"Tue Feb 24 08:06:18 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -991,8 +991,8 @@ aes50a_rmii_clk_out <= aes50_phy_clk(0);
 
 aes50_fs_mode(0) <= '1';
 aes50_fs_mode(1) <= '0';
-aes50_phy_clk_data(1) <= '1';
-aes50_phy_clk_data(0) <= '0';
+aes50_phy_clk_data(0) <= '1';
+aes50_phy_clk_data(1) <= '0';
 aes50_sys_mode(1) <= '1';
 aes50_sys_mode(0) <= '0';
 aes50a_rmii_rxd_in(0) <= aes50a_rmii_crs_dv_in;

@@ -48,7 +48,7 @@
 #define VOLUME_MIN         -100.0f // dB
 
 #define CHANNEL_GAIN_MIN            -12.0f // dB
-#define CHANNEL_GAIN_MAX             60.0f // dB
+#define CHANNEL_GAIN_MAX             45.5f // dB
 #define CHANNEL_PANORAMA_MIN       -100.0f // dB
 #define CHANNEL_PANORAMA_MAX        100.0f // dB
 #define CHANNEL_VOLUME_MIN         -100.0f // dB

@@ -5521,12 +5521,12 @@ on the Quartus Prime software download page.
 	(pt 488 1096)
 )
 (connector
-	(text "aes50_phy_clk_data[1]" (rect 490 1592 597 1602)(font "DejaVu Sans Condensed" ))
+	(text "aes50_phy_clk_data[0]" (rect 490 1592 597 1602)(font "DejaVu Sans Condensed" ))
 	(pt 480 1600)
 	(pt 576 1600)
 )
 (connector
-	(text "aes50_phy_clk_data[0]" (rect 488 1624 595 1634)(font "DejaVu Sans Condensed" ))
+	(text "aes50_phy_clk_data[1]" (rect 488 1624 595 1634)(font "DejaVu Sans Condensed" ))
 	(pt 488 1632)
 	(pt 576 1632)
 )
