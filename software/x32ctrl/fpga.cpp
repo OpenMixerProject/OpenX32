@@ -294,7 +294,7 @@ void Fpga::SendRoutingToFpga(int channel) {
 	// 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
 	// |------- DATA ------||---- ADDR ----|
 
-	if (channel >= 0)
+	if ((channel >= 0) && (channel < 208))
 	{
 		// send only one routing-data to FPGA
 
@@ -328,5 +328,34 @@ void Fpga::SendRoutingToFpga(int channel) {
 				helper->Error("FPGA-Routing: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 			}
 		}
+	}
+}
+
+bool Fpga::GetDebugBit(uint8_t bitNumber) {
+	return (debugByte & (1 << bitNumber)) != 0;
+}
+
+void Fpga::SetDebugBit(uint8_t bitNumber, bool value) {
+	if (value) {
+		debugByte |= (1 << bitNumber);
+	} else {
+		debugByte &= ~(1 << bitNumber);
+	}
+
+	// send data to FPGA
+	if (state->bodyless) {
+		return;
+	}
+
+	uint8_t txData[2];
+	uint8_t rxData[2];
+	txData[0] = debugByte;
+	txData[1] = 255; // address
+	spi->SendFpgaData(&txData[0], &rxData[0], 2);
+
+	if ((rxData[0] != txData[0]) || (rxData[1] != txData[1]))
+	{
+		// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
+		helper->Error("FPGA-DebugBits: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 	}
 }

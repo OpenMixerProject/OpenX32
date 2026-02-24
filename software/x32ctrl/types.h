@@ -148,5 +148,6 @@ typedef struct {
 
 
 typedef struct {
-	String label;	
+	String label;
+	String value;
 } sDisplayEncoder;

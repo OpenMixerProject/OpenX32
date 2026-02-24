@@ -13,7 +13,7 @@ class PageUtility: public Page {
             led = X32_BTN_UTILITY;
         }
 
-        void OnShow() override
+        void OnInit() override
         {
             BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);

@@ -3557,24 +3557,6 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 456 1616 488 1648)
-	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
-	(text "inst64" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
-	(port
-		(pt 32 16)
-		(output)
-		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
-		(line (pt 24 16)(pt 32 16))
-	)
-	(drawing
-		(line (pt 24 8)(pt 16 16))
-		(line (pt 16 16)(pt 24 24))
-		(line (pt 24 8)(pt 24 24))
-	)
-	(rotate270)
-)
-(symbol
 	(rect 592 1160 624 1192)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst66" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
@@ -3645,22 +3627,6 @@ on the Quartus Prime software download page.
 		(line (pt 24 8)(pt 24 24))
 	)
 	(rotate270)
-)
-(symbol
-	(rect 464 1584 480 1616)
-	(text "VCC" (rect 0 5 9 25)(font "Arial" (font_size 6))(vertical))
-	(text "inst71" (rect 5 1 15 29)(font "DejaVu Sans Condensed" )(vertical)(invisible))
-	(port
-		(pt 16 16)
-		(output)
-		(text "1" (rect 19 7 24 18)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 7 8 18 13)(font "Courier New" (bold))(vertical)(invisible))
-		(line (pt 16 16)(pt 8 16))
-	)
-	(drawing
-		(line (pt 8 24)(pt 8 8))
-	)
-	(rotate90)
 )
 (symbol
 	(rect 672 984 688 1016)
@@ -4065,6 +4031,112 @@ on the Quartus Prime software download page.
 	)
 	(drawing
 		(rectangle (rect 16 16 144 64))
+	)
+)
+(symbol
+	(rect 2120 968 2352 1080)
+	(text "debug_data" (rect 5 0 61 10)(font "Arial" ))
+	(text "inst18" (rect 8 96 36 106)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "cfg_wr_addr[7..0]" (rect 0 0 86 10)(font "Arial" ))
+		(text "cfg_wr_addr[7..0]" (rect 21 43 107 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 3))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "cfg_wr_data[7..0]" (rect 0 0 86 10)(font "Arial" ))
+		(text "cfg_wr_data[7..0]" (rect 21 59 107 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "cfg_wr_en" (rect 0 0 50 10)(font "Arial" ))
+		(text "cfg_wr_en" (rect 21 75 71 85)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80))
+	)
+	(port
+		(pt 232 32)
+		(output)
+		(text "debugbits[7..0]" (rect 0 0 73 10)(font "Arial" ))
+		(text "debugbits[7..0]" (rect 150 27 223 37)(font "Arial" ))
+		(line (pt 232 32)(pt 216 32)(line_width 3))
+	)
+	(drawing
+		(rectangle (rect 16 16 216 96))
+	)
+)
+(symbol
+	(rect 432 1592 464 1624)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst64" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 440 1624 456 1656)
+	(text "VCC" (rect 0 5 9 25)(font "Arial" (font_size 6))(vertical))
+	(text "inst71" (rect 5 1 15 29)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 16 16)
+		(output)
+		(text "1" (rect 19 7 24 18)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 7 8 18 13)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 16 16)(pt 8 16))
+	)
+	(drawing
+		(line (pt 8 24)(pt 8 8))
+	)
+	(rotate90)
+)
+(symbol
+	(rect 736 1688 880 1768)
+	(text "clkinverter" (rect 5 0 58 10)(font "Arial" ))
+	(text "inst19" (rect 8 64 36 74)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk_i" (rect 0 0 22 10)(font "Arial" ))
+		(text "clk_i" (rect 21 27 43 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "inv_i" (rect 0 0 23 10)(font "Arial" ))
+		(text "inv_i" (rect 21 43 44 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 144 32)
+		(output)
+		(text "clk_o" (rect 0 0 25 10)(font "Arial" ))
+		(text "clk_o" (rect 102 27 127 37)(font "Arial" ))
+		(line (pt 144 32)(pt 128 32))
+	)
+	(drawing
+		(rectangle (rect 16 16 128 64))
 	)
 )
 (connector
@@ -4511,20 +4583,6 @@ on the Quartus Prime software download page.
 	(text "clk_24_576MHz" (rect 1994 768 2070 779)(font "Intel Clear" ))
 	(pt 1984 784)
 	(pt 2072 784)
-)
-(connector
-	(pt 1912 800)
-	(pt 2072 800)
-	(bus)
-)
-(connector
-	(pt 1912 816)
-	(pt 2072 816)
-	(bus)
-)
-(connector
-	(pt 1912 832)
-	(pt 2072 832)
 )
 (connector
 	(pt 2024 848)
@@ -4983,12 +5041,6 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "aes50_sys_mode[1..0]" (rect 498 1152 604 1162)(font "DejaVu Sans Condensed" ))
-	(pt 632 1160)
-	(pt 488 1160)
-	(bus)
-)
-(connector
 	(text "clk_49_152MHz" (rect 498 1248 569 1258)(font "DejaVu Sans Condensed" ))
 	(pt 632 1256)
 	(pt 488 1256)
@@ -4998,11 +5050,6 @@ on the Quartus Prime software download page.
 	(pt 632 1336)
 	(pt 488 1336)
 	(bus)
-)
-(connector
-	(text "clk_12_288MHz" (rect 498 1312 574 1323)(font "Intel Clear" ))
-	(pt 632 1320)
-	(pt 488 1320)
 )
 (connector
 	(text "tdm_fs" (rect 498 1296 531 1307)(font "Intel Clear" ))
@@ -5240,12 +5287,6 @@ on the Quartus Prime software download page.
 	(pt 616 1600)
 )
 (connector
-	(text "aes50_phy_clk_data[1..0]" (rect 616 1608 736 1618)(font "DejaVu Sans Condensed" ))
-	(pt 728 1616)
-	(pt 616 1616)
-	(bus)
-)
-(connector
 	(text "aes50_phy_clk[0]" (rect 1026 1592 1107 1602)(font "DejaVu Sans Condensed" ))
 	(pt 1016 1600)
 	(pt 1120 1600)
@@ -5269,11 +5310,6 @@ on the Quartus Prime software download page.
 (connector
 	(pt 632 1176)
 	(pt 624 1176)
-)
-(connector
-	(text "online" (rect 258 1136 286 1147)(font "Intel Clear" ))
-	(pt 312 1144)
-	(pt 248 1144)
 )
 (connector
 	(pt 992 1160)
@@ -5538,14 +5574,129 @@ on the Quartus Prime software download page.
 	(pt 800 192)
 )
 (connector
-	(text "aes50_phy_clk_data[1]" (rect 490 1592 597 1602)(font "DejaVu Sans Condensed" ))
-	(pt 480 1600)
-	(pt 576 1600)
+	(text "clk_24_576MHz" (rect 2042 984 2118 995)(font "Intel Clear" ))
+	(pt 2032 1000)
+	(pt 2120 1000)
 )
 (connector
-	(text "aes50_phy_clk_data[0]" (rect 488 1624 595 1634)(font "DejaVu Sans Condensed" ))
-	(pt 488 1632)
-	(pt 576 1632)
+	(pt 2120 1016)
+	(pt 2008 1016)
+	(bus)
+)
+(connector
+	(pt 2008 1016)
+	(pt 2008 800)
+	(bus)
+)
+(connector
+	(pt 1912 800)
+	(pt 2008 800)
+	(bus)
+)
+(connector
+	(pt 2008 800)
+	(pt 2072 800)
+	(bus)
+)
+(connector
+	(pt 2120 1032)
+	(pt 1992 1032)
+	(bus)
+)
+(connector
+	(pt 1992 1032)
+	(pt 1992 816)
+	(bus)
+)
+(connector
+	(pt 1912 816)
+	(pt 1992 816)
+	(bus)
+)
+(connector
+	(pt 1992 816)
+	(pt 2072 816)
+	(bus)
+)
+(connector
+	(pt 2120 1048)
+	(pt 1976 1048)
+)
+(connector
+	(pt 1976 1048)
+	(pt 1976 832)
+)
+(connector
+	(pt 1912 832)
+	(pt 1976 832)
+)
+(connector
+	(pt 1976 832)
+	(pt 2072 832)
+)
+(connector
+	(text "debugbits[7..0]" (rect 2362 992 2433 1002)(font "DejaVu Sans Condensed" ))
+	(pt 2352 1000)
+	(pt 2440 1000)
+	(bus)
+)
+(connector
+	(text "online" (rect 106 1144 134 1155)(font "Intel Clear" ))
+	(pt 160 1152)
+	(pt 96 1152)
+)
+(connector
+	(text "debugbits[0]" (rect 258 1136 317 1146)(font "DejaVu Sans Condensed" ))
+	(pt 312 1144)
+	(pt 248 1144)
+)
+(connector
+	(text "clk_12_288MHz" (rect 650 1712 726 1723)(font "Intel Clear" ))
+	(pt 736 1720)
+	(pt 640 1720)
+)
+(connector
+	(text "debugbits[3]" (rect 650 1728 709 1738)(font "DejaVu Sans Condensed" ))
+	(pt 736 1736)
+	(pt 640 1736)
+)
+(connector
+	(text "aes50_bclk" (rect 890 1712 941 1722)(font "DejaVu Sans Condensed" ))
+	(pt 880 1720)
+	(pt 984 1720)
+)
+(connector
+	(text "aes50_bclk" (rect 498 1312 549 1322)(font "DejaVu Sans Condensed" ))
+	(pt 632 1320)
+	(pt 488 1320)
+)
+(connector
+	(text "debugbits[2..1]" (rect 626 1608 697 1618)(font "DejaVu Sans Condensed" ))
+	(pt 728 1616)
+	(pt 616 1616)
+	(bus)
+)
+(connector
+	(text "aes50_sys_mode[1..0]" (rect 490 1056 596 1066)(font "DejaVu Sans Condensed" ))
+	(pt 624 1064)
+	(pt 480 1064)
+	(bus)
+)
+(connector
+	(text "debugbits[5..4]" (rect 498 1152 569 1162)(font "DejaVu Sans Condensed" ))
+	(pt 632 1160)
+	(pt 488 1160)
+	(bus)
+)
+(connector
+	(text "aes50_phy_clk_data[0]" (rect 464 1600 571 1610)(font "DejaVu Sans Condensed" ))
+	(pt 464 1608)
+	(pt 552 1608)
+)
+(connector
+	(text "aes50_phy_clk_data[1]" (rect 466 1632 573 1642)(font "DejaVu Sans Condensed" ))
+	(pt 456 1640)
+	(pt 552 1640)
 )
 (junction (pt 1672 848))
 (junction (pt 1560 104))
@@ -5557,6 +5708,9 @@ on the Quartus Prime software download page.
 (junction (pt 3352 272))
 (junction (pt 3352 280))
 (junction (pt 3352 288))
+(junction (pt 2008 800))
+(junction (pt 1992 816))
+(junction (pt 1976 832))
 (text "PLL Configuration" (rect 48 16 147 29)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "UART to i.MX25 (UART-Communication to Boards)" (rect 3064 16 3344 29)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "AUX Config" (rect 1784 16 1847 29)(font "Intel Clear" (color 255 0 0)(font_size 8)))

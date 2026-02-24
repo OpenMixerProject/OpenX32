@@ -32,4 +32,10 @@ class Fpga : public X32Base
         String GetOutputNameByIndex(uint8_t index);
 
         void SendRoutingToFpga(int channel);
+
+        bool GetDebugBit(uint8_t bitNumber);
+        void SetDebugBit(uint8_t bitNumber, bool value);
+    
+    private:
+        uint8_t debugByte;
 };

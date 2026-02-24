@@ -252,6 +252,7 @@ void Page::SyncEncoderWidgets(bool force) {
         else if (binding->mp_id_encoder == MP_ID::PAGE_CUSTOM_ENCODER)
         {
             lv_label_set_text(binding->Label, custom_encoder[encoder_index].label.c_str());
+            lv_label_set_text(binding->ValueLabel, custom_encoder[encoder_index].value.c_str());
         }
         // encoder is handled by this:
         else
