@@ -172,18 +172,6 @@
                     </spirit:vendorExtensions>
                 </spirit:port>
                 <spirit:port>
-                    <spirit:name>lattice_pll_CLKOS2</spirit:name>
-                    <spirit:displayName>lattice_pll_CLKOS2</spirit:displayName>
-                    <spirit:wire>
-                        <spirit:direction>out</spirit:direction>
-                    </spirit:wire>
-                    <spirit:vendorExtensions>
-                        <lattice:attributes>
-                            <lattice:attribute lattice:name="exportFrom">lattice_pll.CLKOS2</lattice:attribute>
-                        </lattice:attributes>
-                    </spirit:vendorExtensions>
-                </spirit:port>
-                <spirit:port>
                     <spirit:name>lattice_pll_RST</spirit:name>
                     <spirit:displayName>lattice_pll_RST</spirit:displayName>
                     <spirit:wire>
@@ -240,6 +228,54 @@
                     <spirit:vendorExtensions>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="exportFrom">lattice_pll_audio.RST</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>lattice_pll_phy_CLKI</spirit:name>
+                    <spirit:displayName>lattice_pll_phy_CLKI</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>in</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">lattice_pll_phy.CLKI</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>lattice_pll_phy_CLKOP</spirit:name>
+                    <spirit:displayName>lattice_pll_phy_CLKOP</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>out</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">lattice_pll_phy.CLKOP</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>lattice_pll_phy_CLKOS</spirit:name>
+                    <spirit:displayName>lattice_pll_phy_CLKOS</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>out</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">lattice_pll_phy.CLKOS</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>lattice_pll_phy_RST</spirit:name>
+                    <spirit:displayName>lattice_pll_phy_RST</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>in</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">lattice_pll_phy.RST</lattice:attribute>
                         </lattice:attributes>
                     </spirit:vendorExtensions>
                 </spirit:port>
@@ -345,7 +381,7 @@
             <lattice:device>LFE5U-25F-6BG381C</lattice:device>
             <lattice:synthesis>synplify</lattice:synthesis>
             <lattice:date>2026-01-04.19:33:32</lattice:date>
-            <lattice:modified>2026-02-23.11:09:25</lattice:modified>
+            <lattice:modified>2026-02-24.16:37:43</lattice:modified>
             <lattice:diamond>3.14.0.75.2</lattice:diamond>
             <lattice:language>Verilog</lattice:language>
             <lattice:attributes>
@@ -477,7 +513,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-23.11:09:25</lattice:modified>
+                        <lattice:modified>2026-02-24.16:37:43</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -548,7 +584,7 @@
                                     <lattice:attribute lattice:name="Block_Name">refclk_pad</lattice:attribute>
                                     <lattice:attribute lattice:name="CLK_SRC">true</lattice:attribute>
                                     <lattice:attribute lattice:name="ElementDrag">true</lattice:attribute>
-                                    <lattice:attribute lattice:name="ElementHide">false</lattice:attribute>
+                                    <lattice:attribute lattice:name="ElementHide">true</lattice:attribute>
                                     <lattice:attribute lattice:name="ElementType">IO</lattice:attribute>
                                     <lattice:attribute lattice:name="isPort">true</lattice:attribute>
                                     <lattice:attribute lattice:name="ngd">true</lattice:attribute>
@@ -948,7 +984,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-23.11:09:25</lattice:modified>
+                        <lattice:modified>2026-02-24.16:37:43</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1216,7 +1252,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-23.11:09:25</lattice:modified>
+                        <lattice:modified>2026-02-24.16:37:43</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1455,13 +1491,6 @@
                                 </spirit:wire>
                             </spirit:port>
                             <spirit:port>
-                                <spirit:name>CLKOS2</spirit:name>
-                                <spirit:displayName>CLKOS2</spirit:displayName>
-                                <spirit:wire>
-                                    <spirit:direction>out</spirit:direction>
-                                </spirit:wire>
-                            </spirit:port>
-                            <spirit:port>
                                 <spirit:name>RST</spirit:name>
                                 <spirit:displayName>RST</spirit:displayName>
                                 <spirit:wire>
@@ -1472,7 +1501,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-23.11:09:25</lattice:modified>
+                        <lattice:modified>2026-02-24.16:37:43</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1540,7 +1569,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Date</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">01/04/2026</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">02/24/2026</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>ModuleName</lattice:lpckey>
@@ -1556,7 +1585,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Time</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">21:55:45</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">16:37:08</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VendorName</lattice:lpckey>
@@ -1585,7 +1614,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">3</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">4</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_DPHASE</lattice:lpckey>
@@ -1613,7 +1642,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_ACTUAL_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">50.000000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">0.000000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_APHASE</lattice:lpckey>
@@ -1621,7 +1650,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">12</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_DPHASE</lattice:lpckey>
@@ -1629,7 +1658,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_Enable</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">ENABLED</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_FREQ</lattice:lpckey>
@@ -1693,7 +1722,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_ACTUAL_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">100.000000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">80.000000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_APHASE</lattice:lpckey>
@@ -1701,7 +1730,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">6</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">10</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_DPHASE</lattice:lpckey>
@@ -1713,7 +1742,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">100</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">80</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_MUXB</lattice:lpckey>
@@ -1825,7 +1854,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VCO_RATE</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">600.000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">800.000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VHDL</lattice:lpckey>
@@ -1838,7 +1867,7 @@
                             <lattice:lpcsection lattice:name="Command"/>
                             <lattice:lpcentry>
                                 <lattice:lpckey>cmd_line</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">-w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 100 -fclkos_tol 0.0 -phases 0 -fclkos2 50 -fclkos2_tol 0.0 -phases2 0 -phase_cntl STATIC -rst -fb_mode 1</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">-w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 80 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1</lattice:lpcvalue>
                             </lattice:lpcentry>
                         </lattice:lpc>
                         <lattice:groups/>
@@ -1925,7 +1954,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-23.11:09:25</lattice:modified>
+                        <lattice:modified>2026-02-24.16:37:43</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -2298,6 +2327,459 @@
                     </spirit:vendorExtensions>
                 </spirit:componentRef>
             </spirit:componentInstance>
+            <spirit:componentInstance>
+                <spirit:instanceName>lattice_pll_phy</spirit:instanceName>
+                <spirit:componentRef>
+                    <spirit:vendor>Lattice Semiconductor Corporation</spirit:vendor>
+                    <spirit:library>LEGACY</spirit:library>
+                    <spirit:name>PLL</spirit:name>
+                    <spirit:version>5.8</spirit:version>
+                    <spirit:fileSets>
+                        <spirit:fileset>
+                            <spirit:name>Diamond_Simulation</spirit:name>
+                            <spirit:group>simulation</spirit:group>
+                            <spirit:file>
+                                <spirit:name>./lattice_pll_phy/lattice_pll_phy.v</spirit:name>
+                                <spirit:fileType>verilogSource</spirit:fileType>
+                            </spirit:file>
+                        </spirit:fileset>
+                        <spirit:fileset>
+                            <spirit:name>Diamond_Synthesis</spirit:name>
+                            <spirit:group>synthesis</spirit:group>
+                            <spirit:file>
+                                <spirit:name>./lattice_pll_phy/lattice_pll_phy.v</spirit:name>
+                                <spirit:fileType>verilogSource</spirit:fileType>
+                            </spirit:file>
+                        </spirit:fileset>
+                    </spirit:fileSets>
+                    <spirit:componentGenerators>
+                        <spirit:componentGenerator spirit:hidden="true" spirit:scope="instance">
+                            <spirit:name>Configuration</spirit:name>
+                            <spirit:apiType>none</spirit:apiType>
+                            <spirit:generatorExe>${sbp_path}/${instance}/generate_core.tcl</spirit:generatorExe>
+                            <spirit:group>CONFIG</spirit:group>
+                        </spirit:componentGenerator>
+                        <spirit:componentGenerator spirit:hidden="true" spirit:scope="instance">
+                            <spirit:name>CreateNGD</spirit:name>
+                            <spirit:apiType>none</spirit:apiType>
+                            <spirit:generatorExe>${sbp_path}/${instance}/generate_ngd.tcl</spirit:generatorExe>
+                            <spirit:group>CONFIG</spirit:group>
+                        </spirit:componentGenerator>
+                        <spirit:componentGenerator spirit:hidden="true" spirit:scope="instance">
+                            <spirit:name>Generation</spirit:name>
+                            <spirit:apiType>none</spirit:apiType>
+                            <spirit:generatorExe>${sbp_path}/${instance}/generate_core.tcl</spirit:generatorExe>
+                            <spirit:group>GENERATE</spirit:group>
+                        </spirit:componentGenerator>
+                    </spirit:componentGenerators>
+                    <spirit:model>
+                        <spirit:views/>
+                        <spirit:ports>
+                            <spirit:port>
+                                <spirit:name>CLKI</spirit:name>
+                                <spirit:displayName>CLKI</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>in</spirit:direction>
+                                </spirit:wire>
+                            </spirit:port>
+                            <spirit:port>
+                                <spirit:name>CLKOP</spirit:name>
+                                <spirit:displayName>CLKOP</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>out</spirit:direction>
+                                </spirit:wire>
+                            </spirit:port>
+                            <spirit:port>
+                                <spirit:name>CLKOS</spirit:name>
+                                <spirit:displayName>CLKOS</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>out</spirit:direction>
+                                </spirit:wire>
+                            </spirit:port>
+                            <spirit:port>
+                                <spirit:name>RST</spirit:name>
+                                <spirit:displayName>RST</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>in</spirit:direction>
+                                </spirit:wire>
+                            </spirit:port>
+                        </spirit:ports>
+                    </spirit:model>
+                    <spirit:vendorExtensions>
+                        <lattice:synthesis>synplify</lattice:synthesis>
+                        <lattice:modified>2026-02-24.16:37:43</lattice:modified>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
+                            <lattice:attribute lattice:name="BBox">false</lattice:attribute>
+                            <lattice:attribute lattice:name="Change4to5">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeConfig">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeConnect">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeDevice">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeLocate">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangePack">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangePart">false</lattice:attribute>
+                            <lattice:attribute lattice:name="ChangeSynthesis">false</lattice:attribute>
+                            <lattice:attribute lattice:name="CoreType">LPM</lattice:attribute>
+                            <lattice:attribute lattice:name="DCU_RXREFCLK">PRIMARY</lattice:attribute>
+                            <lattice:attribute lattice:name="DCU_TXREFCLK">PRIMARY</lattice:attribute>
+                            <lattice:attribute lattice:name="Migrate">false</lattice:attribute>
+                            <lattice:attribute lattice:name="RemovedComponent">false</lattice:attribute>
+                        </lattice:attributes>
+                        <lattice:elements/>
+                        <lattice:lpc>
+                            <lattice:lpcsection lattice:name="Device"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Family</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">ecp5u</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>OperatingCondition</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">COM</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Package</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">CABGA381</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PartName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LFE5U-25F-6BG381C</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PartType</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LFE5U-25F</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>SpeedGrade</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">6</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Status</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">S</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcsection lattice:name="IP"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">PLL</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreRevision</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">5.8</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreStatus</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Demo</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CoreType</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LPM</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Date</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">02/24/2026</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ModuleName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">lattice_pll_phy</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ParameterFileVersion</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1.0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>SourceFormat</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">verilog</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Time</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">08:35:35</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>VendorName</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Lattice Semiconductor Corporation</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcsection lattice:name="Parameters"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKFB_DIV</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">25</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKI_DIV</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">2</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKI_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">16</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_ACTUAL_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">200.000000</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_APHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.00</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_DIV</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">3</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_DPHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">200</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_MUXA</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_TOL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_TRIM_DELAY</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOP_TRIM_POL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Rising</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_ACTUAL_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant"></lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_APHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.00</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_DIV</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_DPHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_Enable</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">100.00</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_MUXC</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_TOL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_TRIM_DELAY</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS2_TRIM_POL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Rising</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_ACTUAL_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant"></lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_APHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.00</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_DIV</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_DPHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_Enable</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">100.00</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_MUXD</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_TOL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_TRIM_DELAY</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS3_TRIM_POL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Rising</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_ACTUAL_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">50.000000</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_APHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.00</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_DIV</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">12</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_DPHASE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_Enable</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">ENABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_FREQ</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">50</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_MUXB</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_TOL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_TRIM_DELAY</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKOS_TRIM_POL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Rising</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>CLKSEL_ENA</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>DPHASE_SOURCE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">STATIC</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Destination</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">Synplicity</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>EDIF</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ENABLE_CLKOP</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ENABLE_CLKOS</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ENABLE_CLKOS2</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ENABLE_CLKOS3</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>ENABLE_HBW</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Expression</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">BusA(0 to 7)</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>FEEDBK_PATH</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">CLKOP</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>FRACN_DIV</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant"></lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>FRACN_ENABLE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>IO</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>IOBUF</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">LVDS</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Order</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">[MSB:LSB]</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PLLRST_ENA</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">ENABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PLL_BW</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0.917</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PLL_LOCK_MODE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PLL_LOCK_STK</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>PLL_USE_SMI</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>REFERENCE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>STDBY_ENABLE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>VCO_RATE</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">600.000</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>VHDL</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">0</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>Verilog</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                            <lattice:lpcsection lattice:name="Command"/>
+                            <lattice:lpcentry>
+                                <lattice:lpckey>cmd_line</lattice:lpckey>
+                                <lattice:lpcvalue lattice:resolve="constant">-w -n lattice_pll_phy -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16 -fclkop 200 -fclkop_tol 0.0 -fclkos 50 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1</lattice:lpcvalue>
+                            </lattice:lpcentry>
+                        </lattice:lpc>
+                        <lattice:groups/>
+                    </spirit:vendorExtensions>
+                </spirit:componentRef>
+            </spirit:componentInstance>
         </spirit:componentInstances>
         <spirit:adHocConnections>
             <spirit:adHocConnection>
@@ -2388,12 +2870,6 @@
                 <spirit:externalPortReference spirit:portRef="lattice_pll_CLKOS"/>
             </spirit:adHocConnection>
             <spirit:adHocConnection>
-                <spirit:name>lattice_pll_CLKOS2</spirit:name>
-                <spirit:displayName>lattice_pll_CLKOS2</spirit:displayName>
-                <spirit:internalPortReference spirit:portRef="CLKOS2" spirit:componentRef="lattice_pll"/>
-                <spirit:externalPortReference spirit:portRef="lattice_pll_CLKOS2"/>
-            </spirit:adHocConnection>
-            <spirit:adHocConnection>
                 <spirit:name>lattice_pll_RST</spirit:name>
                 <spirit:displayName>lattice_pll_RST</spirit:displayName>
                 <spirit:internalPortReference spirit:portRef="RST" spirit:componentRef="lattice_pll"/>
@@ -2422,6 +2898,30 @@
                 <spirit:displayName>lattice_pll_audio_RST</spirit:displayName>
                 <spirit:internalPortReference spirit:portRef="RST" spirit:componentRef="lattice_pll_audio"/>
                 <spirit:externalPortReference spirit:portRef="lattice_pll_audio_RST"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>lattice_pll_phy_CLKI</spirit:name>
+                <spirit:displayName>lattice_pll_phy_CLKI</spirit:displayName>
+                <spirit:internalPortReference spirit:portRef="CLKI" spirit:componentRef="lattice_pll_phy"/>
+                <spirit:externalPortReference spirit:portRef="lattice_pll_phy_CLKI"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>lattice_pll_phy_CLKOP</spirit:name>
+                <spirit:displayName>lattice_pll_phy_CLKOP</spirit:displayName>
+                <spirit:internalPortReference spirit:portRef="CLKOP" spirit:componentRef="lattice_pll_phy"/>
+                <spirit:externalPortReference spirit:portRef="lattice_pll_phy_CLKOP"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>lattice_pll_phy_CLKOS</spirit:name>
+                <spirit:displayName>lattice_pll_phy_CLKOS</spirit:displayName>
+                <spirit:internalPortReference spirit:portRef="CLKOS" spirit:componentRef="lattice_pll_phy"/>
+                <spirit:externalPortReference spirit:portRef="lattice_pll_phy_CLKOS"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>lattice_pll_phy_RST</spirit:name>
+                <spirit:displayName>lattice_pll_phy_RST</spirit:displayName>
+                <spirit:internalPortReference spirit:portRef="RST" spirit:componentRef="lattice_pll_phy"/>
+                <spirit:externalPortReference spirit:portRef="lattice_pll_phy_RST"/>
             </spirit:adHocConnection>
             <spirit:adHocConnection>
                 <spirit:name>aes50_clk_ddr_data</spirit:name>

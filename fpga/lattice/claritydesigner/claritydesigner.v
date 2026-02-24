@@ -13,9 +13,10 @@ module claritydesigner (aes50_clk_ddr_data, aes50_clk_ddr_dout, aes50_rmii_rxd_d
             aes50_clk_ddr_clkout, aes50_clk_ddr_refclk, aes50_clk_ddr_reset, 
             aes50_rmii_rxd_clkin, aes50_rmii_rxd_reset, aes50_rmii_rxd_sclk, 
             aes50_rmii_txd_clkout, aes50_rmii_txd_refclk, aes50_rmii_txd_reset, 
-            lattice_pll_CLKI, lattice_pll_CLKOP, lattice_pll_CLKOS, lattice_pll_CLKOS2, 
-            lattice_pll_RST, lattice_pll_audio_CLKI, lattice_pll_audio_CLKOP, 
-            lattice_pll_audio_CLKOS, lattice_pll_audio_RST) /* synthesis sbp_module=true */ ;
+            lattice_pll_CLKI, lattice_pll_CLKOP, lattice_pll_CLKOS, lattice_pll_RST, 
+            lattice_pll_audio_CLKI, lattice_pll_audio_CLKOP, lattice_pll_audio_CLKOS, 
+            lattice_pll_audio_RST, lattice_pll_phy_CLKI, lattice_pll_phy_CLKOP, 
+            lattice_pll_phy_CLKOS, lattice_pll_phy_RST) /* synthesis sbp_module=true */ ;
     input [1:0]aes50_clk_ddr_data;
     output [0:0]aes50_clk_ddr_dout;
     input [2:0]aes50_rmii_rxd_datain;
@@ -34,12 +35,15 @@ module claritydesigner (aes50_clk_ddr_data, aes50_clk_ddr_dout, aes50_rmii_rxd_d
     input lattice_pll_CLKI;
     output lattice_pll_CLKOP;
     output lattice_pll_CLKOS;
-    output lattice_pll_CLKOS2;
     input lattice_pll_RST;
     input lattice_pll_audio_CLKI;
     output lattice_pll_audio_CLKOP;
     output lattice_pll_audio_CLKOS;
     input lattice_pll_audio_RST;
+    input lattice_pll_phy_CLKI;
+    output lattice_pll_phy_CLKOP;
+    output lattice_pll_phy_CLKOS;
+    input lattice_pll_phy_RST;
     
     
     aes50_clk_ddr aes50_clk_ddr_inst (.data({aes50_clk_ddr_data}), .dout({aes50_clk_ddr_dout}), 
@@ -52,10 +56,12 @@ module claritydesigner (aes50_clk_ddr_data, aes50_clk_ddr_dout, aes50_rmii_rxd_d
             .clkout(aes50_rmii_txd_clkout), .refclk(aes50_rmii_txd_refclk), 
             .reset(aes50_rmii_txd_reset));
     lattice_pll lattice_pll_inst (.CLKI(lattice_pll_CLKI), .CLKOP(lattice_pll_CLKOP), 
-            .CLKOS(lattice_pll_CLKOS), .CLKOS2(lattice_pll_CLKOS2), .RST(lattice_pll_RST));
+            .CLKOS(lattice_pll_CLKOS), .RST(lattice_pll_RST));
     lattice_pll_audio lattice_pll_audio_inst (.CLKI(lattice_pll_audio_CLKI), 
             .CLKOP(lattice_pll_audio_CLKOP), .CLKOS(lattice_pll_audio_CLKOS), 
             .RST(lattice_pll_audio_RST));
+    lattice_pll_phy lattice_pll_phy_inst (.CLKI(lattice_pll_phy_CLKI), .CLKOP(lattice_pll_phy_CLKOP), 
+            .CLKOS(lattice_pll_phy_CLKOS), .RST(lattice_pll_phy_RST));
     
 endmodule
 

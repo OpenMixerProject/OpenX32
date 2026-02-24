@@ -1,12 +1,12 @@
-(edif lattice_pll
+(edif lattice_pll_phy
   (edifVersion 2 0 0)
   (edifLevel 0)
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2026 2 24 16 37 42)
+      (timestamp 2026 2 24 8 35 36)
       (program "SCUBA" (version "Diamond (64-bit) 3.14.0.75.2"))))
-      (comment "C:\Programme2\Lattice\Diamond\ispfpga\bin\nt64\scuba.exe -w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 80 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1 -fdc O:/fpga/lattice/claritydesigner/lattice_pll/lattice_pll.fdc ")
+      (comment "C:\Programme2\Lattice\Diamond\ispfpga\bin\nt64\scuba.exe -w -n lattice_pll_phy -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16 -fclkop 200 -fclkop_tol 0.0 -fclkos 50 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1 -fdc O:/fpga/lattice/claritydesigner/lattice_pll_phy/lattice_pll_phy.fdc ")
   (library ORCLIB
     (edifLevel 0)
     (technology
@@ -74,7 +74,7 @@
         (interface
           (port Z
             (direction OUTPUT)))))
-    (cell lattice_pll
+    (cell lattice_pll_phy
       (cellType GENERIC)
       (view view1
         (viewType NETLIST)
@@ -117,11 +117,11 @@
             (property CLKOS_FPHASE
               (string "0"))
             (property CLKOS_CPHASE
-              (string "9"))
+              (string "11"))
             (property CLKOP_FPHASE
               (string "0"))
             (property CLKOP_CPHASE
-              (string "3"))
+              (string "2"))
             (property PLL_LOCK_MODE
               (string "0"))
             (property CLKOS_TRIM_DELAY
@@ -141,7 +141,7 @@
             (property CLKOS2_ENABLE
               (string "DISABLED"))
             (property FREQUENCY_PIN_CLKOS
-              (string "80.000000"))
+              (string "50.000000"))
             (property OUTDIVIDER_MUXB
               (string "DIVB"))
             (property CLKOS_ENABLE
@@ -155,7 +155,7 @@
             (property FREQUENCY_PIN_CLKI
               (string "16.000000"))
             (property ICP_CURRENT
-              (string "7"))
+              (string "5"))
             (property LPF_RESISTOR
               (string "16"))
             (property CLKOS3_DIV
@@ -163,9 +163,9 @@
             (property CLKOS2_DIV
               (string "1"))
             (property CLKOS_DIV
-              (string "10"))
+              (string "12"))
             (property CLKOP_DIV
-              (string "4"))
+              (string "3"))
             (property CLKFB_DIV
               (string "25"))
             (property CLKI_DIV
@@ -212,7 +212,7 @@
             (joined
               (portRef CLKI)
               (portRef CLKI (instanceRef PLLInst_0))))))))
-  (design lattice_pll
-    (cellRef lattice_pll
+  (design lattice_pll_phy
+    (cellRef lattice_pll_phy
       (libraryRef ORCLIB)))
 )

@@ -25,8 +25,7 @@ module aes50_rmii_rxd (clkin, reset, sclk, datain, q)/* synthesis NGD_DRC_MASK=1
     INV INV_0 (.A(buf_clkin), .Z(buf_clkin_inv));
 
     //IB Inst3_IB (.I(clkin), .O(buf_clkin))
-	assign buf_clkin = clkin;
-             /* synthesis IO_TYPE="LVCMOS33" */;
+	 assign buf_clkin = clkin;
 
     IFS1P3DX Inst2_IFS1P3DX2 (.D(dataini_t2), .SP(scuba_vhi), .SCLK(buf_clkin_inv), 
         .CD(reset), .Q(q[2]));

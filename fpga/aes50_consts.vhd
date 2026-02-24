@@ -22,24 +22,46 @@ end entity;
 architecture behavioral of aes50_consts is
 begin
 	-- settings for 100 MHz
-	debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(1000000, 20));
-	first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(4249500, 23));
-	first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(4610800, 23));
-	wd_aes_clk_timeout <= std_logic_vector(to_unsigned(50, 6));
-	wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(15000, 15));
-	mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(100000, 17));
-	aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(1000000, 20));
-	mult_clk625_48k <= std_logic_vector(to_unsigned(8246337, 32));
-	mult_clk625_44k1 <= std_logic_vector(to_unsigned(7576322, 32));
+	--debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(1000000, 20));
+	--first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(4249500, 23));
+	--first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(4610800, 23));
+	--wd_aes_clk_timeout <= std_logic_vector(to_unsigned(50, 6));
+	--wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(15000, 15));
+	--mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(100000, 17));
+	--aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(1000000, 20));
+	--mult_clk625_48k <= std_logic_vector(to_unsigned(8246337, 32));
+	--mult_clk625_44k1 <= std_logic_vector(to_unsigned(7576322, 32));
 	
 	-- settings for 90 MHz
-	-- debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(900000, 20));
-	-- first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(3824550, 23));
-	-- first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(4149720, 23));
-	-- wd_aes_clk_timeout <= std_logic_vector(to_unsigned(45, 6));
-	-- wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(13500, 15));
-	-- mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(90000, 17));
-	-- aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(900000, 20));
-	-- mult_clk625_48k <= std_logic_vector(to_unsigned(7421703, 32));
-	-- mult_clk625_44k1 <= std_logic_vector(to_unsigned(6818670, 32));
+	--debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(900000, 20));
+	--first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(3824550, 23));
+	--first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(4149720, 23));
+	--wd_aes_clk_timeout <= std_logic_vector(to_unsigned(45, 6));
+	--wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(13500, 15));
+	--mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(90000, 17));
+	--aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(900000, 20));
+	--mult_clk625_48k <= std_logic_vector(to_unsigned(7421703, 32));
+	--mult_clk625_44k1 <= std_logic_vector(to_unsigned(6818670, 32));
+
+	-- settings for 80 MHz
+	debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(800000, 20));
+	first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(3399600, 23));
+	first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(3688640, 23));
+	wd_aes_clk_timeout <= std_logic_vector(to_unsigned(40, 6));
+	wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(12000, 15));
+	mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(80000, 17));
+	aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(800000, 20));
+	mult_clk625_48k <= std_logic_vector(to_unsigned(6597070, 32));
+	mult_clk625_44k1 <= std_logic_vector(to_unsigned(6061058, 32));
+	
+	-- settings for 75 MHz
+	--debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(750000, 20));
+	--first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(3187125, 23));
+	--first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(3458100, 23));
+	--wd_aes_clk_timeout <= std_logic_vector(to_unsigned(38, 6));
+	--wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(11250, 15));
+	--mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(75000, 17));
+	--aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(750000, 20));
+	--mult_clk625_48k <= std_logic_vector(to_unsigned(6184753, 32));
+	--mult_clk625_44k1 <= std_logic_vector(to_unsigned(5682242, 32));
 end behavioral;

@@ -47,6 +47,7 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VERILOG_FILE ../claritydesigner/lattice_pll_phy/lattice_pll_phy.v
 set_global_assignment -name VERILOG_FILE ../claritydesigner/aes50_rmii_rxd/aes50_rmii_rxd.v
 set_global_assignment -name VERILOG_FILE ../claritydesigner/aes50_rmii_txd/aes50_rmii_txd.v
 set_global_assignment -name VHDL_FILE ../../wordclock.vhd

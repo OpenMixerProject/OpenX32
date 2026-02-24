@@ -102,10 +102,13 @@ fpga/lattice/impl*/
 fpga/lattice/.floorplanner.ini
 fpga/lattice/QuartusPrime/openx32.qws
 fpga/lattice/QuartusPrime/db/
-fpga/lattice/pll/archv
-fpga/lattice/pll/aes50_clk_ddr/syn_results
-fpga/lattice/pll/lattice_pll_audio/syn_results
-fpga/lattice/pll/lattice_pll/syn_results
+fpga/lattice/claritydesigner/archv
+fpga/lattice/claritydesigner/aes50_clk_ddr/syn_results
+fpga/lattice/claritydesigner/aes50_rmii_rxd/syn_results
+fpga/lattice/claritydesigner/aes50_rmii_txd/syn_results
+fpga/lattice/claritydesigner/lattice_pll/syn_results
+fpga/lattice/claritydesigner/lattice_pll_audio/syn_results
+fpga/lattice/claritydesigner/lattice_pll_phy/syn_results
 *.dir/
 *.html
 *.xml

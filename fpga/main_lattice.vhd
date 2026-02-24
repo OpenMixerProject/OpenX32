@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Tue Feb 24 08:06:18 2026"
+-- CREATED		"Tue Feb 24 16:39:13 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -208,6 +208,22 @@ GENERIC (ADDR_WIDTH : INTEGER;
 	);
 END COMPONENT;
 
+COMPONENT audioclk
+	PORT(fs_x_1024_i : IN STD_LOGIC;
+		 fs_x_512_o : OUT STD_LOGIC;
+		 fs_x_256_o : OUT STD_LOGIC;
+		 fs_o : OUT STD_LOGIC
+	);
+END COMPONENT;
+
+COMPONENT lattice_pll_phy
+	PORT(CLKI : IN STD_LOGIC;
+		 RST : IN STD_LOGIC;
+		 CLKOP : OUT STD_LOGIC;
+		 CLKOS : OUT STD_LOGIC
+	);
+END COMPONENT;
+
 COMPONENT spi_tx
 	PORT(clk : IN STD_LOGIC;
 		 i_start : IN STD_LOGIC;
@@ -252,14 +268,6 @@ COMPONENT aes50_rst
 	PORT(clk100_i : IN STD_LOGIC;
 		 start_i : IN STD_LOGIC;
 		 rst_o : OUT STD_LOGIC
-	);
-END COMPONENT;
-
-COMPONENT lattice_pll_audio
-	PORT(CLKI : IN STD_LOGIC;
-		 RST : IN STD_LOGIC;
-		 CLKOP : OUT STD_LOGIC;
-		 CLKOS : OUT STD_LOGIC
 	);
 END COMPONENT;
 
@@ -419,18 +427,11 @@ COMPONENT aes50_top
 	);
 END COMPONENT;
 
-COMPONENT wordclock
-	PORT(i_clk : IN STD_LOGIC;
-		 o_fs : OUT STD_LOGIC
-	);
-END COMPONENT;
-
 COMPONENT lattice_pll
 	PORT(CLKI : IN STD_LOGIC;
 		 RST : IN STD_LOGIC;
 		 CLKOP : OUT STD_LOGIC;
-		 CLKOS : OUT STD_LOGIC;
-		 CLKOS2 : OUT STD_LOGIC
+		 CLKOS : OUT STD_LOGIC
 	);
 END COMPONENT;
 
@@ -470,7 +471,6 @@ SIGNAL	audio_output :  STD_LOGIC_VECTOR(479 DOWNTO 0);
 SIGNAL	clk_100MHz :  STD_LOGIC;
 SIGNAL	clk_12_288MHz :  STD_LOGIC;
 SIGNAL	clk_16MHz :  STD_LOGIC;
-SIGNAL	clk_200MHz :  STD_LOGIC;
 SIGNAL	clk_24_576MHz :  STD_LOGIC;
 SIGNAL	clk_49_152MHz :  STD_LOGIC;
 SIGNAL	clk_50MHz :  STD_LOGIC;
@@ -482,6 +482,8 @@ SIGNAL	secpll_rst :  STD_LOGIC;
 SIGNAL	tdm_fs :  STD_LOGIC;
 SIGNAL	tdm_input :  STD_LOGIC_VECTOR(19 DOWNTO 0);
 SIGNAL	tdm_output :  STD_LOGIC_VECTOR(19 DOWNTO 0);
+SIGNAL	unusedClockA :  STD_LOGIC;
+SIGNAL	unusedClockB :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_0 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_1 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_2 :  STD_LOGIC;
@@ -572,7 +574,6 @@ PORT MAP(clk => clk_24_576MHz,
 b2v_inst0 : reset
 PORT MAP(clk => clk_16MHz,
 		 o_pripll_rst => pripll_rst,
-		 o_secpll_rst => secpll_rst,
 		 o_global_rst => rst,
 		 o_online => online);
 
@@ -638,6 +639,19 @@ PORT MAP(clk => clk_24_576MHz,
 		 read_addr => SYNTHESIZED_WIRE_42);
 
 
+b2v_inst16 : audioclk
+PORT MAP(fs_x_1024_i => clk_49_152MHz,
+		 fs_x_512_o => clk_24_576MHz,
+		 fs_x_256_o => clk_12_288MHz,
+		 fs_o => tdm_fs);
+
+
+b2v_inst17 : lattice_pll_phy
+PORT MAP(CLKI => clk_16MHz,
+		 RST => pripll_rst,
+		 CLKOS => clk_50MHz);
+
+
 b2v_inst2 : spi_tx
 PORT MAP(clk => clk_16MHz,
 		 i_start => SYNTHESIZED_WIRE_11,
@@ -693,13 +707,6 @@ b2v_inst37 : aes50_rst
 PORT MAP(clk100_i => clk_100MHz,
 		 start_i => online,
 		 rst_o => SYNTHESIZED_WIRE_45);
-
-
-b2v_inst38 : lattice_pll_audio
-PORT MAP(CLKI => clk_49_152MHz,
-		 RST => secpll_rst,
-		 CLKOP => clk_24_576MHz,
-		 CLKOS => clk_12_288MHz);
 
 
 b2v_inst39 : ultranet_tx
@@ -909,11 +916,6 @@ PORT MAP(clk50_i => clk_50MHz,
 
 
 
-b2v_inst7 : wordclock
-PORT MAP(i_clk => clk_12_288MHz,
-		 o_fs => tdm_fs);
-
-
 
 
 
@@ -921,8 +923,7 @@ PORT MAP(i_clk => clk_12_288MHz,
 b2v_inst74 : lattice_pll
 PORT MAP(CLKI => clk_16MHz,
 		 RST => pripll_rst,
-		 CLKOS => clk_100MHz,
-		 CLKOS2 => clk_50MHz);
+		 CLKOS => clk_100MHz);
 
 
 
@@ -991,8 +992,8 @@ aes50a_rmii_clk_out <= aes50_phy_clk(0);
 
 aes50_fs_mode(0) <= '1';
 aes50_fs_mode(1) <= '0';
-aes50_phy_clk_data(0) <= '1';
-aes50_phy_clk_data(1) <= '0';
+aes50_phy_clk_data(0) <= '0';
+aes50_phy_clk_data(1) <= '1';
 aes50_sys_mode(1) <= '1';
 aes50_sys_mode(0) <= '0';
 aes50a_rmii_rxd_in(0) <= aes50a_rmii_crs_dv_in;

@@ -19,21 +19,25 @@ component claritydesigner is
         lattice_pll_CLKI: in std_logic;
         lattice_pll_CLKOP: out std_logic;
         lattice_pll_CLKOS: out std_logic;
-        lattice_pll_CLKOS2: out std_logic;
         lattice_pll_RST: in std_logic;
         lattice_pll_audio_CLKI: in std_logic;
         lattice_pll_audio_CLKOP: out std_logic;
         lattice_pll_audio_CLKOS: out std_logic;
-        lattice_pll_audio_RST: in std_logic
+        lattice_pll_audio_RST: in std_logic;
+        lattice_pll_phy_CLKI: in std_logic;
+        lattice_pll_phy_CLKOP: out std_logic;
+        lattice_pll_phy_CLKOS: out std_logic;
+        lattice_pll_phy_RST: in std_logic
     );
     
 end component claritydesigner; -- sbp_module=true 
-_inst: claritydesigner port map (aes50_rmii_rxd_datain => __,aes50_rmii_rxd_q => __,
-            aes50_rmii_rxd_clkin => __,aes50_rmii_rxd_reset => __,aes50_rmii_rxd_sclk => __,
+_inst: claritydesigner port map (aes50_clk_ddr_data => __,aes50_clk_ddr_dout => __,
+            aes50_clk_ddr_clkout => __,aes50_clk_ddr_refclk => __,aes50_clk_ddr_reset => __,
             aes50_rmii_txd_data => __,aes50_rmii_txd_dout => __,aes50_rmii_txd_clkout => __,
-            aes50_rmii_txd_refclk => __,aes50_rmii_txd_reset => __,aes50_clk_ddr_data => __,
-            aes50_clk_ddr_dout => __,aes50_clk_ddr_clkout => __,aes50_clk_ddr_refclk => __,
-            aes50_clk_ddr_reset => __,lattice_pll_audio_CLKI => __,lattice_pll_audio_CLKOP => __,
-            lattice_pll_audio_CLKOS => __,lattice_pll_audio_RST => __,lattice_pll_CLKI => __,
-            lattice_pll_CLKOP => __,lattice_pll_CLKOS => __,lattice_pll_CLKOS2 => __,
-            lattice_pll_RST => __);
+            aes50_rmii_txd_refclk => __,aes50_rmii_txd_reset => __,aes50_rmii_rxd_datain => __,
+            aes50_rmii_rxd_q => __,aes50_rmii_rxd_clkin => __,aes50_rmii_rxd_reset => __,
+            aes50_rmii_rxd_sclk => __,lattice_pll_CLKI => __,lattice_pll_CLKOP => __,
+            lattice_pll_CLKOS => __,lattice_pll_RST => __,lattice_pll_audio_CLKI => __,
+            lattice_pll_audio_CLKOP => __,lattice_pll_audio_CLKOS => __,lattice_pll_audio_RST => __,
+            lattice_pll_phy_CLKI => __,lattice_pll_phy_CLKOP => __,lattice_pll_phy_CLKOS => __,
+            lattice_pll_phy_RST => __);
