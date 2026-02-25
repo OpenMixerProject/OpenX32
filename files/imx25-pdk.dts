@@ -17,36 +17,29 @@
 		reg = <0x80000000 0x04000000>;
 	};
 
-	sound {
-		compatible = "simple-audio-card";
-		status = "okay";
-//		ssi-controller = <&ssi1>;
-		simple-audio-card,name = "imx25_soundcard";
-		simple-audio-card,format = "i2s";
-		simple-audio-card,bitclock-master = <&sound_master>;
-		simple-audio-card,frame-master = <&sound_master>;
-		
-//		mux-int-port = <1>;
-//		mux-ext-port = <6>;
+    sound {
+        compatible = "simple-audio-card";
+        simple-audio-card,name = "imx25-audio";
+        simple-audio-card,format = "i2s";
+        status = "okay";
 
-		simple-audio-card,routing =
-			"LINE_IN", "Audio input",
-			"Audio output", "LINE_OUT";
+        simple-audio-card,bitclock-master = <&dailink_cpu>;
+        simple-audio-card,frame-master = <&dailink_cpu>;
 
-		sound_master: simple-audio-card,cpu {
-			sound-dai = <&ssi1>;
-		};
+        dailink_cpu: simple-audio-card,cpu {
+            sound-dai = <&ssi1>;
+        };
 
-		simple-audio-card,codec {
-			sound-dai = <&dummy_codec>;
-		};
+        simple-audio-card,codec {
+            sound-dai = <&codec_dummy>;
+        };
+    };
 
-		dummy_codec: codec {
-		    compatible = "linux,snd-soc-dummy";
-		    #sound-dai-cells = <0>;
-		    status = "okay";
-		};
-	};
+    codec_dummy: audio-codec {
+        compatible = "linux,spdif-dit";
+        #sound-dai-cells = <0>;
+        status = "okay";
+    };
 
 	wvga: display {
 		model = "Innolux-AT070TN";
