@@ -57,18 +57,19 @@
 			native-mode = <&wvga_timings>;
 			wvga_timings: timing0 {
 				hactive = <800>;
-				hfront-porch = <208>;
+				hfront-porch = <208>; 
 				hback-porch = <47>;
 				hsync-len = <1>;
+
 				vactive = <480>;
-				vfront-porch = <130>;
+				vfront-porch = <20>;
 				vback-porch = <24>;
 				vsync-len = <1>;
-				clock-frequency = <40000000>;
-				//hsync-active = <0>; // asserted when LOW
-				//vsync-active = <0>; // asserted when LOW
-				de-active = <1>; // asserted when HIGH
-				pixelclk-active = <1>; // 1 = falling edge
+
+				clock-frequency = <33300000>;
+				
+				de-active = <1>;
+				pixelclk-active = <1>;
 			};
 		};
 	};
