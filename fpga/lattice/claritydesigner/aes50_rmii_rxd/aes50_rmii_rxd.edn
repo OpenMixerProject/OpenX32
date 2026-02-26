@@ -4,7 +4,7 @@
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2026 2 23 11 8 2)
+      (timestamp 2026 2 25 23 53 50)
       (program "SCUBA" (version "Diamond (64-bit) 3.14.0.75.2"))))
       (comment "C:\Programme2\Lattice\Diamond\ispfpga\bin\nt64\scuba.exe -w -n aes50_rmii_rxd -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type iol -mode Receive -io_type LVCMOS33 -width 3 -freq_in 50 -del -1 -gear 1 -fdc O:/fpga/lattice/claritydesigner/aes50_rmii_rxd/aes50_rmii_rxd.fdc ")
   (library ORCLIB

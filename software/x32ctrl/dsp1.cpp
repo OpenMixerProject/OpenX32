@@ -373,23 +373,28 @@ String DSP1::RoutingGetOutputNameByIndex(uint8_t index) {
     // 40-56	FX-Sends 1-16 to DSP2
     // 57-64	FX-Aux to DSP2
 */
-    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32)))
-    {
+    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
         return String("DSP Out ") + index;
-    }
-    else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) 
-    {
+    } else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
         return String("DSP AuxOut ") + (index - 32);
-    }
-    else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) 
-    {
+    } else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
         return String("FX SendOut ") + (index - 40);
-    }
-    else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 23)))
-    {
-        return String("FX AuxOut ") + (index - 56);
-    } else if (index == DSP_BUF_IDX_DSP2_FX + 23)
-    {
+    // the following channels are FX AUX Send 1-8 to DSP2
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 16))) {
+        return String("Linux Audio L");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 17))) {
+        return String("Linux Audio R");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 18))) {
+        return String("AES/EBU Out L");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 19))) {
+        return String("AES/EBU Out R");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 20))) {
+        return String("Unused Ch 5");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 21))) {
+        return String("Unused Ch 6");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 22))) {
+        return String("Unused Ch 7");
+    } else if (index == DSP_BUF_IDX_DSP2_FX + 23) {
         return String("RTA Source");
     }
 

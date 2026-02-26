@@ -33,6 +33,9 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	    }
 	    spi->OpenConnectionFpga();
 	}
+
+	configData = 0b00000011; // set AES50 to sys_mode 01 = AES50 Master and TDM Master and enable AES50 on Port A
+	SendConfig();
 }
 
 // get the absolute input-source (global channel-number)
@@ -331,15 +334,15 @@ void Fpga::SendRoutingToFpga(int channel) {
 	}
 }
 
-bool Fpga::GetDebugBit(uint8_t bitNumber) {
-	return (debugByte & (1 << bitNumber)) != 0;
+bool Fpga::GetConfigBit(uint8_t bitNumber) {
+	return (configData & (1 << bitNumber)) != 0;
 }
 
-void Fpga::SetDebugBit(uint8_t bitNumber, bool value) {
+void Fpga::SetConfigBit(uint8_t bitNumber, bool value) {
 	if (value) {
-		debugByte |= (1 << bitNumber);
+		configData |= (1 << bitNumber);
 	} else {
-		debugByte &= ~(1 << bitNumber);
+		configData &= ~(1 << bitNumber);
 	}
 
 	// send data to FPGA
@@ -347,15 +350,19 @@ void Fpga::SetDebugBit(uint8_t bitNumber, bool value) {
 		return;
 	}
 
+	SendConfig();
+}
+
+void Fpga::SendConfig(void) {
 	uint8_t txData[2];
 	uint8_t rxData[2];
-	txData[0] = debugByte;
+	txData[0] = configData;
 	txData[1] = 255; // address
 	spi->SendFpgaData(&txData[0], &rxData[0], 2);
 
 	if ((rxData[0] != txData[0]) || (rxData[1] != txData[1]))
 	{
 		// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
-		helper->Error("FPGA-DebugBits: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
+		helper->Error("FPGA-ConfigBits: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 	}
 }

@@ -33,9 +33,10 @@ class Fpga : public X32Base
 
         void SendRoutingToFpga(int channel);
 
-        bool GetDebugBit(uint8_t bitNumber);
-        void SetDebugBit(uint8_t bitNumber, bool value);
+        bool GetConfigBit(uint8_t bitNumber);
+        void SetConfigBit(uint8_t bitNumber, bool value);
+        void SendConfig(void);
     
     private:
-        uint8_t debugByte;
+        uint8_t configData;
 };

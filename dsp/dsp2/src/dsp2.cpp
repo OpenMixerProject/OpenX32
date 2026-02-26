@@ -65,6 +65,16 @@ void openx32Init(void) {
 	dsp.samplerate = 48000;
 }
 
+// ISR is called when SPDIF gets unconnected
+#pragma section("seg_int_code")
+void spdifConnectLossIsr(int sig) {
+	uint32_t test = *pDAI_IRPTL_H; // Reading DAI_IRPTL_H clears interrupt
+
+	// restart SPDIF PLL
+	*pDIRCTL |= DIR_PLLDIS; // disable PLL
+	*pDIRCTL &= ~DIR_PLLDIS; // re-enable PLL
+}
+
 // ISR is called once on first falling edge of FrameSync
 #pragma section("seg_int_code")
 void misc0ISR(int sig) {
@@ -72,6 +82,21 @@ void misc0ISR(int sig) {
 
 	// make sure, that this ISR is called only once
 	adi_int_UninstallHandler(ADI_CID_P0I);
+
+	// disable MISC0 interrupt
+	*pDAI_IRPTL_PRI &= ~DAI_INT_28; // DAI Interrupt Priority Register
+	*pDAI_IRPTL_FE &= ~DAI_INT_28; // DAI Rising Edge Interrupt Latch Register
+	*pDAI_IMASK_FE &= ~DAI_INT_28; // DAI Rising Edge Interrupt Latch Register
+
+
+/*
+	// install new interrupt handler to detect connection-losses of the SPDIF-input
+	adi_int_InstallHandler(ADI_CID_P0I, (ADI_INT_HANDLER_PTR)spdifConnectLossIsr, 0, true); // MISCA0 Interrupt on P0I or P12I
+	// enable regular interrupt for SPDIF-connection-loss
+	*pDAI_IRPTL_PRI |= DIR_NOSTREAM_INT; // DAI Interrupt Priority Register
+	*pDAI_IRPTL_FE |= DIR_NOSTREAM_INT; // DAI Rising Edge Interrupt Latch Register
+	*pDAI_IMASK_FE |= DIR_NOSTREAM_INT; // DAI Rising Edge Interrupt Latch Register
+*/
 }
 
 #pragma section("seg_int_code")
@@ -86,14 +111,16 @@ int main() {
 	audioInit();
 
 	// initialize hardware-peripherals for AES3-output
-//	systemPcgInit();
-//	systemSpdifTxInit();
+	systemPcgInit();
+	systemSpdifTxInit();
 
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
 	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
 	//adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
 	adi_int_InstallHandler(ADI_CID_P4I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT3 Interrupt (called on new audio-data)
-//	adi_int_InstallHandler(ADI_CID_P16I, (ADI_INT_HANDLER_PTR)audioSpdifTxISR, 0, true); // SPORT6 Interrupt (called when new data for SPDIF is requested)
+	adi_int_InstallHandler(ADI_CID_P8I, (ADI_INT_HANDLER_PTR)audioSpdifRxImxISR, 0, true); // SPORT4 Interrupt (called when new data from SPDIF is available)
+	//adi_int_InstallHandler(ADI_CID_P5I, (ADI_INT_HANDLER_PTR)audioSpdifTxImxISR, 0, true); // SPORT5 Interrupt (called when new data for SPDIF is requested)
+	//adi_int_InstallHandler(ADI_CID_P16I, (ADI_INT_HANDLER_PTR)audioSpdifTxXlrISR, 0, true); // SPORT6 Interrupt (called when new data for SPDIF is requested)
 	//adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
 	adi_int_InstallHandler(ADI_CID_P0I, (ADI_INT_HANDLER_PTR)misc0ISR, 0, true); // MISCA0 Interrupt on P0I or P12I
 

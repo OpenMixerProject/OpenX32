@@ -166,8 +166,11 @@ class Mixerparameter
                             case FPGA_INPUT_IDX_TALKBACK_EXT:
                                 result += String("Talkback External");
                                 break;
-                            case FPGA_INPUT_IDX_DSP_RETURN ... (FPGA_INPUT_IDX_AES50A - 1):
-                                result += String("DSP Return ") + (chan - FPGA_INPUT_IDX_DSP_RETURN + 1);
+                            case FPGA_INPUT_IDX_DSP_RETURN ... (FPGA_INPUT_IDX_AES50A - 8 - 1):
+                                result += String("DSP Out ") + (chan - FPGA_INPUT_IDX_DSP_RETURN + 1);
+                                break;
+                            case FPGA_INPUT_IDX_DSP_RETURN + 32 ... (FPGA_INPUT_IDX_AES50A - 1):
+                                result += String("DSP AuxOut ") + (chan - (FPGA_INPUT_IDX_DSP_RETURN + 32) + 1);
                                 break;
                             case FPGA_INPUT_IDX_AES50A ... (FPGA_INPUT_IDX_AES50B - 1):
                                 result += String("AES50A In ") + (chan - FPGA_INPUT_IDX_AES50A + 1);
@@ -212,8 +215,29 @@ class Mixerparameter
                             case DSP_BUF_IDX_MATRIX ... (DSP_BUF_IDX_DSP2_AUX - 1):
                                 result += String("Matrix ") + (chan - DSP_BUF_IDX_MATRIX + 1);
                                 break;
-                            case DSP_BUF_IDX_DSP2_AUX ... (DSP_BUF_IDX_MONLEFT - 1):
-                                result += String("DSP2 -> FX Aux ") + (chan - DSP_BUF_IDX_DSP2_AUX + 1);
+                            case DSP_BUF_IDX_DSP2_AUX:
+                                result += String("Linux Audio L");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 1:
+                                result += String("Linux Audio R");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 2:
+                                result += String("Oscillator 1");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 3:
+                                result += String("Oscillator 2");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 4:
+                                result += String("Unused DSP2 Aux 5");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 5:
+                                result += String("Unused DSP2 Aux 6");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 6:
+                                result += String("Unused DSP2 Aux 7");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 7:
+                                result += String("Unused DSP2 Aux 8");
                                 break;
                             case DSP_BUF_IDX_MONLEFT:
                                 result += String("Monitor L");
@@ -790,11 +814,6 @@ class Mixerparameter
         {
             if (index < instances)
             {
-                if (parameter_id == MP_ID::ROUTING_DSP_OUTPUT && index == MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS - 1)
-                {
-                    return "RTA Source";
-                }
-
                 return _name;
             }
             

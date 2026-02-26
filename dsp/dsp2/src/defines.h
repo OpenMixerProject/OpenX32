@@ -5,22 +5,45 @@
 #define FX_USE_UPMIXER			0	// enables a full-featured stereo-decompositing and 5.1-surround-upmixing effect (all other effects will be disabled)
 #define FX_USE_MATRIXUPMIXER	0	// enables a nice but simple stereo-to-5.1-surround matrix-upmixer (all other effects will be disabled)
 
-// DSP2 receives 24 Audio-channels
+// DSP2 receives 24 Audio-channels from DSP1
 // Channel 1-8		-> FX Sends 1-8
 // Channel 9-16		-> FX Sends 9-16
 // Channel 17-24	-> Aux 1-8
-//    Aux Ch 1-2	-> USB L/R
-//    Aux Ch 3-4	-> SPDIF L/R
-//    Aux Ch 5-6	-> i.MX25 L/R
-//    Aux Ch 7-8	-> Unused
-#define DSP_BUF_IDX_FXA			1	// FX-Sends 1-8
-#define DSP_BUF_IDX_FXB			9	// FX-Sends 9-16
-#define DSP_BUF_IDX_USB_LEFT	17  // USB-Audio Left
-#define DSP_BUF_IDX_USB_RIGHT	18  // USB-Audio Right
-#define DSP_BUF_IDX_SPDIF_LEFT	19  // SPDIF-Audio Left
-#define DSP_BUF_IDX_SPDIF_RIGHT	20  // SPDIF-Audio Right
-#define DSP_BUF_IDX_IMX_LEFT	19  // iMX25-Audio Left
-#define DSP_BUF_IDX_IMX_RIGHT	20  // iMX25-Audio Right
+//    Aux Ch 1-2	-> Output to i.MX25 L/R
+//    Aux Ch 3-4	-> Output to AES/EBU XLR L/R
+//    Aux Ch 5-6	-> Unused
+//    Aux Ch 7-8	-> Channel 7 unused / Channel 8 = RTA-Source
+
+// DSP2 sends 24 Audio-channels back to DSP1
+// Channel 1-8		-> FX-Return 1-8 of FX 1-4
+// Channel 9-16		-> FX-Return 9-16 of FX 5-8
+// Channel 17-24	-> Aux 1-8
+//	  Aux Ch 1-2	->
+//	  Aux Ch 3-4	->
+//	  Aux Ch 5-6	->
+//	  Aux Ch 7-8	->
+
+// input buffer indices
+#define DSP_BUF_IDX_FXA				0	// FX-Sends 1-8
+#define DSP_BUF_IDX_FXB				8	// FX-Sends 9-16
+#define DSP_BUF_IDX_IMXOUT_LEFT		16  // Audio to iMX25 Left
+#define DSP_BUF_IDX_IMXOUT_RIGHT	17  // Audio to iMX25 Right
+#define DSP_BUF_IDX_SPDIF_LEFT		18  // Audio to SPDIF-XLR Left
+#define DSP_BUF_IDX_SPDIF_RIGHT		19  // Audio to SPDIF-XLR Right
+//#define DSP_BUF_IDX_UNUSED		20	// unused input-channel
+//#define DSP_BUF_IDX_UNUSED		21	// unused input-channel
+//#define DSP_BUF_IDX_UNUSED		22	// unused input-channel
+#define DSP_BUF_IDX_RTA_SOURCE		23  // Audio to RTA-Analyzer
+
+// output buffer indices
+#define DSP_BUF_IDX_IMXIN_LEFT		16  // Audio from iMX25 Left
+#define DSP_BUF_IDX_IMXIN_RIGHT		17  // Audio from iMX25 Right
+#define DSP_BUF_IDX_OSC_LEFT		18  // Audio from Oscillator Left
+#define DSP_BUF_IDX_OSC_RIGHT		19  // Audio from Oscillator Right
+//#define DSP_BUF_IDX_UNUSED		20  // unused output-channel
+//#define DSP_BUF_IDX_UNUSED		21  // unused output-channel
+//#define DSP_BUF_IDX_UNUSED		22  // unused output-channel
+//#define DSP_BUF_IDX_UNUSED		23  // unused output-channel
 
 #define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 
@@ -47,10 +70,10 @@
 
 #define SAMPLERATE_MAX			48000	// this is not the current samplerate, but the maximum supported to allocate correct amount of memory
 
-// SPDIF configuration
-#define CLKA_DIVIDER			8	// provides SCLK serial clock to S/PDIF TX and SPORT0
-#define FSA_DIVIDER				512	// provides Frame Sync to S/PDIF TX and SPORT0
-#define CLKB_DIVIDER			2 	// provides HFCLK to S/PDIF TX
+// SPDIF configuration			Input-Clock is 24.576 MHz on DAI4
+#define CLKA_DIVIDER			8	// provides SCLK (3.072 MHz) serial clock to S/PDIF RX/TX and SPORTs
+#define FSA_DIVIDER				512	// provides FrameSync (48kHz) to S/PDIF RX/TX and SPORTs
+#define CLKB_DIVIDER			2 	// provides HFCLK (12.288 MHz) to S/PDIF RX/TX
 
 // some system-defines
 #define DO_CYCLE_COUNTS				// enable cycle counter

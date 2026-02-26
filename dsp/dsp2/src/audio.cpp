@@ -65,8 +65,8 @@
 
 volatile int audioReady = 0;
 volatile int audioProcessing = 0;
-volatile int spdifSamplePointer = 0;
-volatile bool spdifLeftChannel = true;
+volatile int spdifSamplePointer[3] = {0, 0, 0};
+volatile bool spdifLeftChannel[3] = {true, true, true};
 volatile uint32_t audioGlitchCounter = 0;
 int audioBufferOffset = 0;
 
@@ -323,8 +323,12 @@ void audioProcessData(void) {
 	}
 
 	// reset SPDIF-read-pointer to zero as we have new data in the buffer
-	spdifSamplePointer = 0;
-	spdifLeftChannel = true;
+	spdifSamplePointer[0] = 0;
+	spdifSamplePointer[1] = 0;
+	spdifSamplePointer[2] = 0;
+	spdifLeftChannel[0] = true;
+	spdifLeftChannel[1] = true;
+	spdifLeftChannel[2] = true;
 
 	// ========================================================
 
@@ -358,27 +362,20 @@ void audioProcessData(void) {
 
 
 	// RTA (use AUX channel 8 (index 23) for this)
-	rtaProcess(&audioBuffer[TAP_INPUT][23][0]);
+	rtaProcess(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_RTA_SOURCE][0]);
 
-
-	/*
-		// insert sinewave-audio to all channels with increasing frequency starting at 200Hz and ending at 2.5kHz
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			time += (1.0f/48000.0f); // add 20.83us
-			if (time > 10) {
-				// make sure that the float-value is not losing resolution by overflowing
-				time = 0;
-			}
-
-			for (int i_ch = 0; i_ch < MAX_CHAN; i_ch++) {
-				// create sinewave between 200 Hz and 2500 Hz
-				//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 2147483648.0f; // scaled as 2^31 (results in 0dBfs)
-				audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
-				//audioBuffer[TAP_POST_FADER][i_ch][s] = sin(2.0f * M_PI * (200.0f + (float)i_ch * 100.0f) * time) * 268435456.0f; // scaled as 2^28 (results in -18dBfs)
-			}
+	// create sinewave-audio on both oscillator-channels (takes around ~3% DSP Load)
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		time += (1.0f/48000.0f); // add 20.83us
+		if (time >= 2.0833333) {
+			// make sure that the float-value is not losing resolution by overflowing
+			time = 0;
 		}
-	*/
 
+		// create sinewaves
+		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_LEFT][s] = sin(2.0f * M_PI * 500.0f * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
+		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_RIGHT][s] = sin(2.0f * M_PI * 1000.0f * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
+	}
 
 
 
@@ -440,13 +437,39 @@ void audioRxISR(uint32_t iid, void *handlerarg) {
     audioReady = 1; // set flag, that we have new data to process
 }
 
-void audioSpdifTxISR(uint32_t iid, void* handlerarg) {
-	if (spdifLeftChannel) {
-		*pTXSP6A = (int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_SPDIF_LEFT][spdifSamplePointer];
-		spdifLeftChannel = false;
+void audioSpdifRxImxISR(uint32_t iid, void* handlerarg) {
+	// read the received sample from SPORT4A
+
+	if (spdifLeftChannel[0]) {
+		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_IMXIN_LEFT][spdifSamplePointer[0]] = (float)(*pRXSP4A & 0xFFFFFF00); // take audio-sample without status-bits and padding
+		spdifLeftChannel[0] = false;
 	}else{
-		*pTXSP6A = (int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_SPDIF_RIGHT][spdifSamplePointer];
-		spdifLeftChannel = true;
-		spdifSamplePointer++; // increase read-pointer to next sample
+		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_IMXIN_RIGHT][spdifSamplePointer[0]] = (float)(*pRXSP4A & 0xFFFFFF00); // take audio-sample without status-bits and padding
+		spdifLeftChannel[0] = true;
+		spdifSamplePointer[0]++; // increase read-pointer to next sample
+	}
+}
+
+void audioSpdifTxImxISR(uint32_t iid, void* handlerarg) {
+	// fill Tx-buffer-register of SPORT5A
+	if (spdifLeftChannel[1]) {
+		*pTXSP5A = ((int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_IMXOUT_LEFT][spdifSamplePointer[1]]) & 0xFFFFFF00;
+		spdifLeftChannel[1] = false;
+	}else{
+		*pTXSP5A = ((int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_IMXOUT_RIGHT][spdifSamplePointer[1]]) & 0xFFFFFF00;
+		spdifLeftChannel[1] = true;
+		spdifSamplePointer[1]++; // increase read-pointer to next sample
+	}
+}
+
+void audioSpdifTxXlrISR(uint32_t iid, void* handlerarg) {
+	// fill Tx-buffer-register of SPORT6A
+	if (spdifLeftChannel[2]) {
+		*pTXSP6A = ((int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_SPDIF_LEFT][spdifSamplePointer[2]]) & 0xFFFFFF00;
+		spdifLeftChannel[2] = false;
+	}else{
+		*pTXSP6A = ((int32_t)audioBuffer[TAP_INPUT][DSP_BUF_IDX_SPDIF_RIGHT][spdifSamplePointer[2]]) & 0xFFFFFF00;
+		spdifLeftChannel[2] = true;
+		spdifSamplePointer[2]++; // increase read-pointer to next sample
 	}
 }
