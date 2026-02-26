@@ -1002,6 +1002,20 @@ void DSP1::DSP2_SendFxParameter(int slotIdx)
     }
 }
 
+void DSP1::DSP2_SetOscillator(uint8_t oscIndex, float frequency, float volumedB) {
+    dsp2Oscillator[oscIndex].frequency = frequency;
+    dsp2Oscillator[oscIndex].volume = pow(10.0f, volumedB / 20.0f);
+    DSP2_SendOscillatorValues();
+}
+
+void DSP1::DSP2_SendOscillatorValues() {
+    float values[4];
+    values[0] = dsp2Oscillator[0].frequency;
+    values[1] = dsp2Oscillator[1].frequency;
+    values[2] = dsp2Oscillator[0].volume;
+    values[3] = dsp2Oscillator[1].volume;
+    spi->QueueDspData(1, 'a', 'o', 0, 4, values);
+}
 
 void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
     float* floatValues = (float*)values;

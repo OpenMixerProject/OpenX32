@@ -219,6 +219,11 @@ void audioInit(void) {
 	#endif
 
 	rtaInit();
+
+	dsp.oscillatorFreq[0] = 500;
+	dsp.oscillatorFreq[1] = 1000;
+	dsp.oscillatorVolume[0] = 0.1f * 2147483647.0f; // 50% ~ -20dBfs
+	dsp.oscillatorVolume[1] = dsp.oscillatorVolume[0]; // 50% ~ -20dBfs
 }
 
 void audioFxData(int fxSlot, float* data, int len) {
@@ -373,8 +378,8 @@ void audioProcessData(void) {
 		}
 
 		// create sinewaves
-		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_LEFT][s] = sin(2.0f * M_PI * 500.0f * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
-		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_RIGHT][s] = sin(2.0f * M_PI * 1000.0f * time) * 1073741824.0f; // scaled as 2^30 (results in -6dBfs)
+		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_LEFT][s] = sin(2.0f * M_PI * dsp.oscillatorFreq[0] * time) * dsp.oscillatorVolume[0];
+		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_RIGHT][s] = sin(2.0f * M_PI * dsp.oscillatorFreq[1] * time) * dsp.oscillatorVolume[1];
 	}
 
 

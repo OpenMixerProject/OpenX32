@@ -12,7 +12,6 @@ module aes50_rmii_rxd (clkin, reset, sclk, datain, q)/* synthesis NGD_DRC_MASK=1
     output wire sclk;
     output wire [2:0] q;
 
-    wire buf_clkin;
     wire buf_clkin_inv;
     wire scuba_vhi;
     wire dataini_t2;
@@ -22,10 +21,7 @@ module aes50_rmii_rxd (clkin, reset, sclk, datain, q)/* synthesis NGD_DRC_MASK=1
     wire buf_dataini1;
     wire buf_dataini0;
 
-    INV INV_0 (.A(buf_clkin), .Z(buf_clkin_inv));
-
-    //IB Inst3_IB (.I(clkin), .O(buf_clkin))
-	assign buf_clkin = clkin;
+    INV INV_0 (.A(clkin), .Z(buf_clkin_inv));
 
     IFS1P3DX Inst2_IFS1P3DX2 (.D(dataini_t2), .SP(scuba_vhi), .SCLK(buf_clkin_inv), 
         .CD(reset), .Q(q[2]));
@@ -47,7 +43,7 @@ module aes50_rmii_rxd (clkin, reset, sclk, datain, q)/* synthesis NGD_DRC_MASK=1
     IB Inst1_IB0 (.I(datain[0]), .O(buf_dataini0))
              /* synthesis IO_TYPE="LVCMOS33" */;
 
-    assign sclk = buf_clkin;
+    assign sclk = clkin;
     assign dataini_t2 = buf_dataini2;
     assign dataini_t1 = buf_dataini1;
     assign dataini_t0 = buf_dataini0;

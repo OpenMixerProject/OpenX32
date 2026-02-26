@@ -381,7 +381,7 @@
             <lattice:device>LFE5U-25F-6BG381C</lattice:device>
             <lattice:synthesis>synplify</lattice:synthesis>
             <lattice:date>2026-01-04.19:33:32</lattice:date>
-            <lattice:modified>2026-02-25.23:53:53</lattice:modified>
+            <lattice:modified>2026-02-26.22:44:25</lattice:modified>
             <lattice:diamond>3.14.0.75.2</lattice:diamond>
             <lattice:language>Verilog</lattice:language>
             <lattice:attributes>
@@ -513,7 +513,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-25.23:53:53</lattice:modified>
+                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -984,7 +984,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-25.23:53:53</lattice:modified>
+                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1252,7 +1252,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-25.23:53:53</lattice:modified>
+                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1501,7 +1501,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-25.23:53:53</lattice:modified>
+                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1569,7 +1569,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Date</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">02/24/2026</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">02/26/2026</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>ModuleName</lattice:lpckey>
@@ -1585,7 +1585,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Time</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">16:37:08</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">22:43:40</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VendorName</lattice:lpckey>
@@ -1614,7 +1614,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">4</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">3</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_DPHASE</lattice:lpckey>
@@ -1722,7 +1722,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_ACTUAL_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">80.000000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">100.000000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_APHASE</lattice:lpckey>
@@ -1730,7 +1730,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">10</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">6</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_DPHASE</lattice:lpckey>
@@ -1742,7 +1742,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">80</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">100</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_MUXB</lattice:lpckey>
@@ -1854,7 +1854,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VCO_RATE</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">800.000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">600.000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VHDL</lattice:lpckey>
@@ -1867,7 +1867,7 @@
                             <lattice:lpcsection lattice:name="Command"/>
                             <lattice:lpcentry>
                                 <lattice:lpckey>cmd_line</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">-w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 80 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">-w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 100 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1</lattice:lpcvalue>
                             </lattice:lpcentry>
                         </lattice:lpc>
                         <lattice:groups/>
@@ -1954,7 +1954,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-25.23:53:53</lattice:modified>
+                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -2407,7 +2407,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-25.23:53:53</lattice:modified>
+                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>

@@ -28,6 +28,7 @@ class DSP1 : X32Base {
         float volumeSpecial;
         float monitorVolume;
         float rtaData[64];
+        sDsp2Oscillator dsp2Oscillator[2];
 
         FxMath* fxmath;
         SPI* spi;
@@ -59,6 +60,8 @@ class DSP1 : X32Base {
 
         void DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode);
         void DSP2_SendFxParameter(int fxSlot);
+        void DSP2_SetOscillator(uint8_t oscIndex, float frequency, float volumedB);
+        void DSP2_SendOscillatorValues();
 
         void CallbackStateMachine();
         void callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values);

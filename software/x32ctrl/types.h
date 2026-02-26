@@ -146,6 +146,10 @@ typedef struct {
 	uint8_t meter8Info; // compatible to MeterLED on surface
 } srDspChannel;
 
+typedef struct {
+	float frequency;
+	float volume;
+} sDsp2Oscillator;
 
 typedef struct {
 	String label;

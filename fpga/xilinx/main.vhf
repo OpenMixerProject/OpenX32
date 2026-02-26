@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 02/01/2026 19:42:38
+-- /___/   /\     Timestamp : 02/26/2026 22:37:04
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -137,7 +137,6 @@ architecture BEHAVIORAL of main is
    signal XLXN_2448       : std_logic_vector (7 downto 0);
    signal XLXN_2449       : std_logic_vector (7 downto 0);
    signal XLXN_2459       : std_logic_vector (7 downto 0);
-   signal XLXN_2460       : std_logic;
    signal XLXN_2461       : std_logic_vector (7 downto 0);
    signal XLXN_2995       : std_logic_vector (479 downto 0);
    signal XLXN_2996       : std_logic_vector (23 downto 0);
@@ -159,6 +158,8 @@ architecture BEHAVIORAL of main is
    signal XLXN_3062       : std_logic_vector (23 downto 0);
    signal XLXN_3063       : std_logic_vector (23 downto 0);
    signal XLXN_3064       : std_logic_vector (23 downto 0);
+   signal XLXN_3066       : std_logic;
+   signal XLXN_3069       : std_logic_vector (7 downto 0);
    component BUF
       port ( I : in    std_logic; 
              O : out   std_logic);
@@ -342,6 +343,14 @@ architecture BEHAVIORAL of main is
              o_fs  : out   std_logic);
    end component;
    
+   component config_rxd
+      port ( clk         : in    std_logic; 
+             cfg_wr_en   : in    std_logic; 
+             cfg_wr_addr : in    std_logic_vector (7 downto 0); 
+             cfg_wr_data : in    std_logic_vector (7 downto 0); 
+             config_bits : out   std_logic_vector (7 downto 0));
+   end component;
+   
 begin
    XLXI_89 : BUF
       port map (I=>tdm_fs,
@@ -503,7 +512,7 @@ begin
    XLXI_769 : audiomatrix_routing_ram
       port map (cfg_wr_addr(7 downto 0)=>XLXN_2459(7 downto 0),
                 cfg_wr_data(7 downto 0)=>XLXN_2461(7 downto 0),
-                cfg_wr_en=>XLXN_2460,
+                cfg_wr_en=>XLXN_3066,
                 channel_idx(7 downto 0)=>XLXN_2449(7 downto 0),
                 clk=>clk_24_576MHz,
                 read_addr(7 downto 0)=>XLXN_2448(7 downto 0));
@@ -527,7 +536,7 @@ begin
                 i_spi_ncs=>SPI_nCS0,
                 o_cfg_wr_addr(7 downto 0)=>XLXN_2459(7 downto 0),
                 o_cfg_wr_data(7 downto 0)=>XLXN_2461(7 downto 0),
-                o_cfg_wr_en=>XLXN_2460);
+                o_cfg_wr_en=>XLXN_3066);
    
    XLXI_774 : BUF
       port map (I=>AUX_AD,
@@ -717,7 +726,7 @@ begin
                 O=>D_CLK);
    
    XLXI_1297 : BUFG
-      port map (I=>clk_12_288MHz,
+      port map (I=>clk_24_576MHz,
                 O=>D_CLK2);
    
    XLXI_1298 : BUFG
@@ -745,6 +754,13 @@ begin
       port map (i_clk=>clk_24_576MHz,
                 o_clk=>clk_12_288MHz,
                 o_fs=>tdm_fs);
+   
+   XLXI_1317 : config_rxd
+      port map (cfg_wr_addr(7 downto 0)=>XLXN_2459(7 downto 0),
+                cfg_wr_data(7 downto 0)=>XLXN_2461(7 downto 0),
+                cfg_wr_en=>XLXN_3066,
+                clk=>clk_24_576MHz,
+                config_bits(7 downto 0)=>XLXN_3069(7 downto 0));
    
 end BEHAVIORAL;
 

@@ -1,0 +1,8 @@
+[Inputs]
+clk
+cfg_wr_en
+=cfg_wr_addr[7:0]=
+=cfg_wr_data[7:0]=
+[Outputs]
+=config_bits[7:0]=
+[BiDir]
