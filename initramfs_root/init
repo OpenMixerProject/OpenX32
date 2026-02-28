@@ -20,7 +20,7 @@ mkdir /var/empty
 hostname -F /etc/hostname
 
 # read mac-address from SD-card and set it
-x32sdconfig
+/openx32/x32sdconfig
 
 # bring networkdevices up
 ip link set lo up
@@ -35,10 +35,13 @@ udhcpc -i eth0 -b
 echo "Starting shell for ttymxc4..."
 /sbin/getty -L 115200 ttymxc4 &
 
+
+/openx32/x32ctrl --L /openx32/lattice.bit --X /openx32/xilinx.bit --D1 /openx32/dsp1.ldr --D2 /openx32/dsp2.ldr
+
 # start a simple shell for tty0 (Display)
-echo "Booting into busybox shell..."
+#echo "Booting into busybox shell..."
 # try to make the current shell a controlling terminal
-/bin/setsid /bin/cttyhack /bin/sh
+#/bin/setsid /bin/cttyhack /bin/sh
 
 
 
