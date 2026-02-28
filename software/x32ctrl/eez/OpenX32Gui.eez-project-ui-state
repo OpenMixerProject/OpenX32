@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/0",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/2",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/2/childStyles/1",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/1",
     "subnavigationSelectedItems": {}
@@ -80,7 +80,6 @@
           },
           {
             "type": "border",
-            "selected": 0,
             "size": 141.5,
             "location": "bottom",
             "children": [
@@ -134,6 +133,7 @@
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
                   "weight": 0.6831938684023293,
+                  "selected": 1,
                   "enableClose": false,
                   "children": [
                     {
@@ -200,7 +200,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 28.567683755779743,
+              "weight": 28.543872825818795,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -220,7 +220,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 11.412746328774451,
+              "weight": 11.43655725873539,
               "children": [
                 {
                   "type": "tab",
@@ -1059,8 +1059,8 @@
       },
       "transform": {
         "translate": {
-          "x": -401.98146752418234,
-          "y": -171.27389825150277
+          "x": -397.4288784862034,
+          "y": -236.1868345867764
         },
         "scale": 1
       },
@@ -1074,12 +1074,8 @@
       "selectionBack": {
         "0": {
           "1": {
-            "7": {
-              "0": {
-                "1": {
-                  "$selected": true
-                }
-              }
+            "0": {
+              "$selected": true
             },
             "8": {}
           }
@@ -1114,7 +1110,9 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      }
+      },
+      "selectionFront": {},
+      "selectionBack": {}
     },
     "[OpenX32Gui.eez-project]:/userWidgets/1[flow-state]": {
       "selection": {
@@ -1146,8 +1144,8 @@
       },
       "transform": {
         "translate": {
-          "x": -80.04951992450468,
-          "y": -235.75256132741265
+          "x": -119.93154452446767,
+          "y": -470.55452881015367
         },
         "scale": 1
       },
@@ -1156,6 +1154,19 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
+      },
+      "selectionFront": {},
+      "selectionBack": {
+        "0": {
+          "$selected": true
+        },
+        "1": {},
+        "2": {},
+        "3": {},
+        "4": {},
+        "5": {},
+        "6": {},
+        "7": {}
       }
     },
     "[OpenX32Gui.eez-project]:/userWidgets/3[flow-state]": {
@@ -1174,7 +1185,9 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      }
+      },
+      "selectionFront": {},
+      "selectionBack": {}
     },
     "[OpenX32Gui.eez-project]:/userWidgets/6[flow-state]": {
       "selection": {
@@ -1281,9 +1294,11 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "MAIN",
+  "lvglPart": "INDICATOR",
   "lvglState": "DEFAULT",
-  "lvglExpandedPropertiesGroup": [],
+  "lvglExpandedPropertiesGroup": [
+    "BACKGROUND"
+  ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
   "flowZoom": 1,

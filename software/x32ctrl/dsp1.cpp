@@ -555,6 +555,40 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
 		MainChannelSub.meterInfo[0]  |= (1U << (MainChannelSub.meterPeakIndex[0] - 1));
 	}
 
+    // meter6info for Main LR
+    MainChannelLR.meter6Info = 0;
+    if (MainChannelLR.meterDecay[0] >= VUTRESH_00_DBFS_CLIP)  { 
+        MainChannelLR.meter6Info = 0b00111111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_06_DBFS) {
+        MainChannelLR.meter6Info = 0b00011111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_12_DBFS) {
+        MainChannelLR.meter6Info = 0b00001111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_18_DBFS) {
+        MainChannelLR.meter6Info = 0b00000111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_30_DBFS) {
+        MainChannelLR.meter6Info = 0b00000011;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_60_DBFS) {
+        MainChannelLR.meter6Info = 0b00000001;
+    }
+
+    // meter6info for Sub
+    MainChannelSub.meter6Info = 0;
+    if (MainChannelSub.meterDecay[0] >= VUTRESH_00_DBFS_CLIP)  { 
+        MainChannelSub.meter6Info = 0b00111111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_06_DBFS) {
+        MainChannelSub.meter6Info = 0b00011111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_12_DBFS) {
+        MainChannelSub.meter6Info = 0b00001111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_18_DBFS) {
+        MainChannelSub.meter6Info = 0b00000111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_30_DBFS) {
+        MainChannelSub.meter6Info = 0b00000011;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_60_DBFS) {
+        MainChannelSub.meter6Info = 0b00000001;
+    }
+
+
+
 	// Now calculate the VU Meter LEDs for each channel
 	// leds Channel = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
 	for (int i = 0; i < (40 + 8 + 8); i++) {

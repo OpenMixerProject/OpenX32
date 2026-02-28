@@ -39,21 +39,42 @@ class PageMeters : public Page
                     uint8_t index = i+(m*8);
 
                     lv_obj_t * strip = lv_obj_get_child(parent, i);
-                    lv_obj_t * meter = lv_obj_get_child(strip, 0); 
+                    lv_obj_t * panel_clip = lv_obj_get_child(strip, 0); 
+                    lv_obj_t * panel_4 = lv_obj_get_child(strip, 1); 
+                    lv_obj_t * panel_3 = lv_obj_get_child(strip, 2); 
+                    lv_obj_t * panel_2 = lv_obj_get_child(strip, 3); 
+                    lv_obj_t * panel_1 = lv_obj_get_child(strip, 4); 
+                    lv_obj_t * panel_0 = lv_obj_get_child(strip, 5); 
+                             
 
                     // CH1-32 + AUX
                     if (m < 5) { 
-                        lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
+                        lv_obj_set_flag(panel_clip, LV_OBJ_FLAG_HIDDEN, !(mixer->dsp->rChannel[index].meter6Info & 0b00100000));
+                        lv_obj_set_flag(panel_4, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00010000));
+                        lv_obj_set_flag(panel_3, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00001000));
+                        lv_obj_set_flag(panel_2, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000100));
+                        lv_obj_set_flag(panel_1, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000010));
+                        lv_obj_set_flag(panel_0, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000001));
                     } else 
 
                     // FX Ret
                     if (m == 5) {
-                        lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
+                        lv_obj_set_flag(panel_clip, LV_OBJ_FLAG_HIDDEN, !(mixer->dsp->rChannel[index].meter6Info & 0b00100000));
+                        lv_obj_set_flag(panel_4, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00010000));
+                        lv_obj_set_flag(panel_3, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00001000));
+                        lv_obj_set_flag(panel_2, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000100));
+                        lv_obj_set_flag(panel_1, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000010));
+                        lv_obj_set_flag(panel_0, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000001));
                     } else 
                     
                     // Bus 1-8
                     if (m == 6) {
-                        lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->rChannel[index].meterDecay), LV_ANIM_OFF);
+                        lv_obj_set_flag(panel_clip, LV_OBJ_FLAG_HIDDEN, !(mixer->dsp->rChannel[index].meter6Info & 0b00100000));
+                        lv_obj_set_flag(panel_4, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00010000));
+                        lv_obj_set_flag(panel_3, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00001000));
+                        lv_obj_set_flag(panel_2, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000100));
+                        lv_obj_set_flag(panel_1, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000010));
+                        lv_obj_set_flag(panel_0, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->rChannel[index].meter6Info & 0b00000001));
                     } else
                     
                     // Bus 9-16
@@ -64,9 +85,14 @@ class PageMeters : public Page
                     // Matrix
                     if (m == 8) {
                         if (i < 6) {
-                            //lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->Matrix[i]. MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
+                            //lv_bar_set_value(meter, !(mixer->dsp->Matrix[i].MainChannelSub.meter6Info), LV_ANIM_OFF);
                         } else if (i == 7) {
-                            lv_bar_set_value(meter, helper->sample2Dbfs(mixer->dsp->MainChannelSub.meterDecay[0]), LV_ANIM_OFF);
+                            lv_obj_set_flag(panel_clip, LV_OBJ_FLAG_HIDDEN, !(mixer->dsp->MainChannelSub.meter6Info & 0b00100000));
+                            lv_obj_set_flag(panel_4, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelSub.meter6Info & 0b00010000));
+                            lv_obj_set_flag(panel_3, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelSub.meter6Info & 0b00001000));
+                            lv_obj_set_flag(panel_2, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelSub.meter6Info & 0b00000100));
+                            lv_obj_set_flag(panel_1, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelSub.meter6Info & 0b00000010));
+                            lv_obj_set_flag(panel_0, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelSub.meter6Info & 0b00000001));
                         }
                     }
                 }
@@ -74,7 +100,13 @@ class PageMeters : public Page
 
             // Main L/R
             // TODO use both channels!
-            lv_bar_set_value(objects.ms_main_lr__meter, helper->sample2Dbfs(mixer->dsp->MainChannelLR.meterDecay[0]), LV_ANIM_OFF);
+            lv_obj_set_flag(objects.ms_main_lr__panel_clip, LV_OBJ_FLAG_HIDDEN, !(mixer->dsp->MainChannelLR.meter6Info & 0b00100000));
+            lv_obj_set_flag(objects.ms_main_lr__panel_4, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelLR.meter6Info & 0b00010000));
+            lv_obj_set_flag(objects.ms_main_lr__panel_3, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelLR.meter6Info & 0b00001000));
+            lv_obj_set_flag(objects.ms_main_lr__panel_2, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelLR.meter6Info & 0b00000100));
+            lv_obj_set_flag(objects.ms_main_lr__panel_1, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelLR.meter6Info & 0b00000010));
+            lv_obj_set_flag(objects.ms_main_lr__panel_0, LV_OBJ_FLAG_HIDDEN,    !(mixer->dsp->MainChannelLR.meter6Info & 0b00000001));
+
         }
 
         void OnChange(bool force_update) override
@@ -102,7 +134,7 @@ class PageMeters : public Page
                         else
                         {
                             strip = lv_obj_get_child(parent, i);
-                            fader = lv_obj_get_child(strip, 2);   
+                            fader = lv_obj_get_child(strip, 6);   
                         }
 
                         UpdateSlider(index, force_update, fader);

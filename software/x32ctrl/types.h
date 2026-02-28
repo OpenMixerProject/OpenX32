@@ -104,6 +104,7 @@ typedef struct {
 	uint8_t meterPeakHoldTimer[2]; // will be updated every 100ms. On 0 the current value will be used
 	uint8_t meterPeakDecayTimer[2];
 	uint32_t meterInfo[2];
+	uint8_t meter6Info;
 } sMainChannel;
 
 typedef struct{
