@@ -1,4 +1,5 @@
 NET "FPGACLK" LOC = T8;
+NET "FPGACLK" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "imx25_uart4_rxd" LOC = R11;
 NET "imx25_uart4_txd" LOC = T11;
 
@@ -214,11 +215,59 @@ NET "P16_B_TXM" SLEW = FAST;
 NET "P16_B_TXP" SLEW = FAST;
 NET "PLL_IN" SLEW = FAST;
 NET "SPI_MISO" SLEW = FAST;
+NET "CARD_RDY" LOC = T4;
+NET "CARD_RDY" IOSTANDARD = LVCMOS33;
+
+#Created by Constraints Editor (xc3s1400a-ft256-4) - 2026/02/28
+NET "FPGACLK" TNM_NET = "FPGACLK";
+TIMESPEC TS_FPGACLK = PERIOD "FPGACLK" 16 MHz HIGH 50 %;
+NET "PLL_OUT" TNM_NET = "PLL_OUT";
+TIMESPEC TS_PLL_OUT = PERIOD "PLL_OUT" 49.152 MHz HIGH 50 %;
+NET "XLXI_53/clk_a1" TNM_NET = XLXI_53/clk_a1;
+TIMESPEC TS_XLXI_53_clk_a1 = PERIOD "XLXI_53/clk_a1" 24.576 MHz HIGH 50 %;
+NET "XLXI_53/clk_b1" TNM_NET = XLXI_53/clk_b1;
+TIMESPEC TS_XLXI_53_clk_b1 = PERIOD "XLXI_53/clk_b1" 12.288 MHz HIGH 50 %;
+
+
+NET "aes50a_clk_a_rx_in" LOC = A12;
+NET "aes50a_clk_a_rx_nen_out" LOC = B12;
+NET "aes50a_clk_a_tx_en_out" LOC = C12;
+NET "aes50a_clk_a_tx_out" LOC = A13;
+NET "aes50a_clk_b_rx_in" LOC = C13;
+NET "aes50a_clk_b_rx_nen_out" LOC = A14;
+NET "aes50a_clk_b_tx_en_out" LOC = B14;
+NET "aes50a_clk_b_tx_out" LOC = B15;
+NET "aes50a_phy_rst_n_out" LOC = C11;
+NET "aes50a_rmii_crs_dv_in" LOC = D14;
+NET "aes50a_rmii_tx_en_out" LOC = F16;
+NET "aes50a_rmii_txd_0_out" LOC = F15;
+NET "aes50a_rmii_txd_1_out" LOC = F14;
+
+
+NET "aes50a_rmii_txd_1_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_txd_0_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_crs_dv_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_phy_rst_n_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_clk_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_rx_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_rx_in" IOSTANDARD = LVCMOS33;
+
+
+NET "aes50a_rmii_clk_out" LOC = C16;
 
 # PlanAhead Generated physical constraints 
 
-NET "CARD_RDY" LOC = T4;
+NET "aes50a_rmii_rxd_0_in" LOC = D16;
+NET "aes50a_rmii_rxd_1_in" LOC = C15;
 
 # PlanAhead Generated IO constraints 
 
-NET "CARD_RDY" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_rxd_1_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_rxd_0_in" IOSTANDARD = LVCMOS33;
