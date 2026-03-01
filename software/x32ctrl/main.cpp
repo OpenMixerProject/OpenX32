@@ -136,7 +136,7 @@ void guiInit(Config* config) {
 	 	lv_sdl_window_set_title(display, "OpenX32 x32ctrl - bodyless mode (Development Simulator)");
 		keyboard = lv_sdl_keyboard_create();
 		#endif
-	} 
+	}
 	else
 	{
 		printf("FBDEV mode\n");
@@ -158,9 +158,6 @@ void guiInit(Config* config) {
 
 	// trigger first update of display header
 	config->Refresh(MP_ID::SELECTED_CHANNEL);
-
-	// trigger first update on shown page	
-	ctrl->ShowPage((X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE));
 
 	// sync the Surface
 	ctrl->syncSurface(true);
