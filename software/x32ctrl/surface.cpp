@@ -620,33 +620,37 @@ void Surface::InitDefinitions(void) {
 
     }
 
-    if (config->IsModelX32Core()){
-
-        AddButtonDefinition(X32_BTN_SCENE_SETUP,     0x0000);
-        AddButtonDefinition(X32_BTN_TALK_A,          0x0001);
-        AddButtonDefinition(X32_BTN_ASSIGN_3,        0x0002);
-        AddButtonDefinition(X32_BTN_ASSIGN_4,        0x0003);
-        AddButtonDefinition(X32_BTN_ASSIGN_5,        0x0004);
-        AddButtonDefinition(X32_BTN_ASSIGN_6,        0x0005);
-        AddButtonDefinition(X32_BTN_CHANNEL_ENCODER, 0x0006, false);
-
-        AddEncoderDefinition(X32_ENC_ASSIGN_1,       0x0000);
-        AddEncoderDefinition(X32_ENC_ASSIGN_2,       0x0001);
-        AddEncoderDefinition(X32_ENC_CHANNEL_SELECT, 0x0002);
-
-        // LED only
-        AddLedDefinition(X32_LED_SCENE_SETUP_RED,0x0006);
-        AddLedDefinition(X32_LED_IN,             0x0007);
-        AddLedDefinition(X32_LED_AUX,            0x0008);
-        AddLedDefinition(X32_LED_BUS,            0x0009);
-        AddLedDefinition(X32_LED_MTX,            0x000A);
-        AddLedDefinition(X32_LED_DCA,            0x000B);
-        AddLedDefinition(X32_LED_AESA_GREEN,     0x000C);
-        AddLedDefinition(X32_LED_AESA_RED,       0x000D);
-        AddLedDefinition(X32_LED_AESB_GREEN,     0x000E);
-        AddLedDefinition(X32_LED_AESB_RED,       0x000F);
-
+    if (config->IsModelX32Core())
+    {
+        LoadX32CoreDefinitions();
     }
+}
+
+void Surface::LoadX32CoreDefinitions()
+{
+    AddButtonDefinition(X32_BTN_SCENE_SETUP, 0x0000);
+    AddButtonDefinition(X32_BTN_TALK_A, 0x0001);
+    AddButtonDefinition(X32_BTN_ASSIGN_3, 0x0002);
+    AddButtonDefinition(X32_BTN_ASSIGN_4, 0x0003);
+    AddButtonDefinition(X32_BTN_ASSIGN_5, 0x0004);
+    AddButtonDefinition(X32_BTN_ASSIGN_6, 0x0005);
+    AddButtonDefinition(X32_BTN_CHANNEL_ENCODER, 0x0006, false);
+
+    AddEncoderDefinition(X32_ENC_ASSIGN_1, 0x0000);
+    AddEncoderDefinition(X32_ENC_ASSIGN_2, 0x0001);
+    AddEncoderDefinition(X32_ENC_CHANNEL_SELECT, 0x0002);
+
+    // LED only
+    AddLedDefinition(X32_LED_SCENE_SETUP_RED, 0x0006);
+    AddLedDefinition(X32_LED_IN, 0x0007);
+    AddLedDefinition(X32_LED_AUX, 0x0008);
+    AddLedDefinition(X32_LED_BUS, 0x0009);
+    AddLedDefinition(X32_LED_MTX, 0x000A);
+    AddLedDefinition(X32_LED_DCA, 0x000B);
+    AddLedDefinition(X32_LED_AESA_GREEN, 0x000C);
+    AddLedDefinition(X32_LED_AESA_RED, 0x000D);
+    AddLedDefinition(X32_LED_AESB_GREEN, 0x000E);
+    AddLedDefinition(X32_LED_AESB_RED, 0x000F);
 }
 
 // bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight

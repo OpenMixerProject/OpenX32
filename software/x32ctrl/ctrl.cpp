@@ -39,7 +39,7 @@ void X32Ctrl::Init(){
 	if (state->bodyless) {
 		config->SetModel("X32C");
 	} else if (state->raspi) {
-		config->SetModel("X32CORE");
+		config->SetModel("X32RACK");
 	} else {
 		config->SetModel(model);
 	}
@@ -120,6 +120,14 @@ void X32Ctrl::Init(){
 	//#                                                                          #
 	//############################################################################
 	
+
+	// DEBUG
+	if (state->raspi)
+	{
+		// load X32 Core button definitions for DEBUG with RASPI
+		surface->LoadX32CoreDefinitions();
+	}
+
 
 	// Config
 	if(!mixer->LoadConfig(0))
@@ -2044,23 +2052,29 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 					}
 					break;
 				case X32_BTN_ASSIGN_3:
+					//DEBUG
 					{
-						config->Set(ROUTING_FPGA, 0, 70);
-						config->Set(ROUTING_FPGA, 0, 71);
+						// Set talkback to all 32 DSP Inputs
+						for (int i = 0; i < 32; i++)
+						{
+							config->Set(ROUTING_FPGA, 71, i + 72);
+						}
 					}
 					break;
 				case X32_BTN_ASSIGN_4:
+					//DEBUG	
 					{
-						config->Set(ROUTING_FPGA, 71, 70);
 					}
 					break;
 				case X32_BTN_ASSIGN_5:
+					//DEBUG
 					if (config->IsModelX32Core())
 					{
 						config->Set(ROUTING_FPGA, 71, 71);
 					}
 					break;
 				case X32_BTN_ASSIGN_6:
+					//DEBUG
 					if (config->IsModelX32Core())
 					{
 						config->Set(CARD_NUMBER_OF_CHANNELS, CARD_CHANNELMODE_32IN_32OUT);

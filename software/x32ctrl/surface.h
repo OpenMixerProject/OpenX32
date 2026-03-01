@@ -34,7 +34,7 @@ class Surface : public X32Base
         uint16_t CalcEncoderRingLedBalance(uint8_t pct);
         uint16_t CalcEncoderRingLedWidth(uint8_t pct);
 
-        void InitDefinitions(void);        
+        void InitDefinitions(void);
         void AddLedDefinition(X32_BTN led, uint16_t ledNr);
         void AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr, bool noLed);
         void AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr); 
@@ -52,6 +52,8 @@ class Surface : public X32Base
         void Reset();
         void Tick10ms();
         void Tick100ms();
+
+        void LoadX32CoreDefinitions();
 
         void SetBrightnessAllBoards(uint8_t brightness);
         void SetBrightness(uint8_t boardId, uint8_t brightness);
