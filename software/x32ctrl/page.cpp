@@ -157,7 +157,7 @@ void Page::DisplayButton(X32_BTN button, bool pressed)
                         }
                         else 
                         {
-                            // toggle data of the Mixerparameter
+                            // toggle data of the Mixerparameter (bool or any type of number)
                             config->Toggle(
                                 encoderbinding[encoderIndex]->mp_id_button,
                                 encoderbinding[encoderIndex]->mp_index);

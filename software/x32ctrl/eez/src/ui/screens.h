@@ -725,6 +725,11 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output_header;
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
+    lv_obj_t *setup_versioninfotext;
+    lv_obj_t *setup_card_debugtext;
+    lv_obj_t *setup_card_toc;
+    lv_obj_t *setup_card_progress;
+    lv_obj_t *setup_card_sourcemode;
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *openx32logo_2;

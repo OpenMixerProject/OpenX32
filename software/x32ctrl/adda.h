@@ -58,8 +58,6 @@ class Adda : public X32Base {
 
         void SetMuteAll(bool muted);
         int8_t GetXlrInBoardId(uint8_t channel);
-
-
 };
 
 

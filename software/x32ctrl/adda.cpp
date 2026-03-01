@@ -245,9 +245,12 @@ String Adda::SendReceive(String cmd) {
 	uint8_t currentByte;
 	String answer;
 
+	// flush receivebuffer
+	while (uart->Rx(&addaBufferUart[0], 1) > 0);
+
 	Send(cmd);
 
-	uint8_t waitForMessage = 10; // wait ~10 ms
+	uint8_t waitForMessage = 1000; // wait maximum timeoutMs ms
 	uint16_t readBytes = 0;
 	while (waitForMessage > 0) {
 		helper->DEBUG_ADDA(DEBUGLEVEL_TRACE, "Waiting for Message from ADDA-Boards, Counter: %d", waitForMessage);

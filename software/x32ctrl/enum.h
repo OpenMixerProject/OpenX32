@@ -457,6 +457,8 @@ enum class MP_UOM {
     ZERO_BASED_INDEX__START_BY_ONE,
     CHANNEL_LCD_MODE, // Displaymode of Channel LCDs
     CARD_NUMBER_OF_CHANNELS,
+    CARD_SOURCE,
+    CARD_AUDIO_SOURCE,
 };
 
 enum class MP_VALUE_TYPE {
@@ -494,6 +496,8 @@ enum class MP_ID {
     DISPLAY_BRIGHTNESS,
     SAMPLERATE,
     CARD_NUMBER_OF_CHANNELS,
+    CARD_SOURCE,
+    CARD_AUDIO_SOURCE,
     CHANNEL_LCD_MODE,
 
     // Routing

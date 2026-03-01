@@ -307,6 +307,28 @@ class Mixerparameter
                             break;
                     }
                     break;
+                case CARD_SOURCE:
+                    switch((uint) (isResetLabel ? value_standard : value[index]))
+                    {
+                        case 0:
+                            result += String("#1");
+                            break;
+                        case 1:
+                            result += String("#2");
+                            break;
+                    }
+                    break;
+                case CARD_AUDIO_SOURCE:
+                    switch((uint) (isResetLabel ? value_standard : value[index]))
+                    {
+                        case 0:
+                            result += String("USB");
+                            break;
+                        case 1:
+                            result += String("CARD");
+                            break;
+                    }
+                    break;
                 default:
                     result += "";
             }	
@@ -330,6 +352,8 @@ class Mixerparameter
                 case DSP_ROUTING:
                 case CHANNEL_LCD_MODE:
                 case CARD_NUMBER_OF_CHANNELS:
+                case CARD_SOURCE:
+                case CARD_AUDIO_SOURCE:
                     return GetUnitOfMesaurement(false, index, isResetLabel);
                 case ZERO_BASED_INDEX__START_BY_ONE:
                     return String(value_float + 1, 0);
@@ -787,9 +811,28 @@ class Mixerparameter
             
             if (value_type == MP_VALUE_TYPE::BOOL)
             {
+                // toggle between true and false
                 bool bool_value = value[index] != 0.0f;
                 value[index] = !bool_value;
-            }            
+            }else if (value_type == MP_VALUE_TYPE::FLOAT || value_type == MP_VALUE_TYPE::UINT || value_type == MP_VALUE_TYPE::INT)
+            {
+                // increase value until max is reached, then set to min
+                if (value[index] < value_max)
+                {
+                    if (stepsize > 0) {
+                        // increase by set stepsize
+                        Set(value[index] + stepsize, index);
+                    }else{
+                        // increase by 5%
+                        Set(value[index] + ((value_max - value_min) * 0.05f), index);
+                    }
+                }else{
+                    // wrap around to min
+                    Set(value_min, index);
+                }
+            }else{
+                // Strings or other types are not supported here
+            }
             return false;
         }
 

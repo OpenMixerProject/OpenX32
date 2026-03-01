@@ -141,6 +141,18 @@ void Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::CARD_NUMBER_OF_CHANNELS)
     ->DefConfig(group, "card_channels");
 
+    DefParameter(CARD_SOURCE, cat, "Card #")
+    ->DefConfig(group, "card_source")
+    ->DefMinMaxStandard_Uint(0, 1, 0)
+    ->DefStepsize(1)
+    ->DefUOM(MP_UOM::CARD_SOURCE);
+
+    DefParameter(CARD_AUDIO_SOURCE, cat, "Card Audio Source")
+    ->DefConfig(group, "card_audio_source")
+    ->DefMinMaxStandard_Uint(0, 1, 0)
+    ->DefStepsize(1)
+    ->DefUOM(MP_UOM::CARD_AUDIO_SOURCE);
+
     DefParameter(CHANNEL_LCD_MODE, cat, "LCD Mode")
     ->DefUOM(MP_UOM::CHANNEL_LCD_MODE)
     ->DefHideEncoderReset()

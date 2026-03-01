@@ -128,4 +128,11 @@ class Helper {
         DEBUG_DEF(DEBUG_STATE,    0b0010000000000000);
         DEBUG_DEF(DEBUG_TIMER,    0b0100000000000000);
         DEBUG_DEF(DEBUG_FX,       0b1000000000000000);
+
+        String intToHex(uint32_t val, uint8_t outputLength);
+        uint32_t hexToInt(String hexString);
+        String split(String s, char parser, int index);
+        uint getNumberOfEntries(String s, char separator);
+        String secondsToHmsHuman(uint32_t seconds);
+        String secondsToHmsTechnical(uint32_t seconds, bool withDots);
 };

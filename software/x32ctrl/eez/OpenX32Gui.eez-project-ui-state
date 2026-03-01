@@ -80,6 +80,7 @@
           },
           {
             "type": "border",
+            "selected": 0,
             "size": 141.5,
             "location": "bottom",
             "children": [
@@ -176,7 +177,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -229,8 +231,7 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ],
-              "active": true
+              ]
             }
           ]
         }
@@ -1059,8 +1060,8 @@
       },
       "transform": {
         "translate": {
-          "x": -387.71019161751644,
-          "y": -255.17774367768547
+          "x": -397.4288784862034,
+          "y": -236.1868345867764
         },
         "scale": 1
       },
@@ -1074,22 +1075,21 @@
       "selectionBack": {
         "0": {
           "1": {
+            "0": {},
             "2": {
               "0": {
                 "1": {
-                  "0": {
-                    "$selected": true
-                  }
+                  "$selected": true
                 }
               }
             },
             "3": {
               "0": {
-                "3": {},
-                "4": {}
+                "1": {
+                  "1": {}
+                }
               }
-            },
-            "7": {}
+            }
           }
         }
       }
@@ -1306,10 +1306,9 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "INDICATOR",
+  "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "BACKGROUND",
     "MISCELLANEOUS"
   ],
   "showInactiveFlowsInDebugger": true,
