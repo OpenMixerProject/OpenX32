@@ -116,7 +116,7 @@ void Config::DefineMixerparameters() {
 	MP_CAT cat = MP_CAT::SETTING;
     String group = "setting";
 
-    DefParameter(DEBUG, cat, "DEBUG")
+    DefParameter(DEBUG, cat, "DEBUG Header")
     ->DefConfig(group, "debug")
     ->DefStandard_Bool(true);
 

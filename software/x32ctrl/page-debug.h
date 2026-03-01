@@ -19,8 +19,8 @@ class PageDebug: public Page {
             BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
+            
+            BindEncoder(DISPLAY_ENCODER_6, DEBUG);
 
             custom_encoder[DISPLAY_ENCODER_1].label = "Reload DSPs";
             custom_encoder[DISPLAY_ENCODER_2].label = "FX: Install Effects";

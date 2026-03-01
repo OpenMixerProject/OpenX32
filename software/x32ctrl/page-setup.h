@@ -7,7 +7,8 @@ class PageSetup: public Page
     using enum MP_ID;
 
     public:
-        PageSetup(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+        PageSetup(PageBaseParameter* pagebasepar) : Page(pagebasepar)
+        {
             nextPage = X32_PAGE::SETUP_CARD;
             tabLayer0 = objects.maintab;
             tabIndex0 = 3;
@@ -16,9 +17,8 @@ class PageSetup: public Page
             led = X32_BTN_SETUP;
         }
 
-        void OnInit() override {
-
-            BindEncoder(DISPLAY_ENCODER_1, DEBUG);
+        void OnInit() override
+        {
             BindEncoder(DISPLAY_ENCODER_4, LED_BRIGHTNESS);
             BindEncoder(DISPLAY_ENCODER_5, CHANNEL_LCD_MODE);
             BindEncoder(DISPLAY_ENCODER_6, LCD_CONTRAST);
@@ -30,9 +30,5 @@ class PageSetup: public Page
             {
                 BindEncoder(DISPLAY_ENCODER_2, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED, config->GetUint(SELECTED_CHANNEL));
             }
-            
         }
-
-    private:
-
 };
