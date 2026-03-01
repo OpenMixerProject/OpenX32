@@ -228,7 +228,6 @@ TIMESPEC TS_XLXI_53_clk_a1 = PERIOD "XLXI_53/clk_a1" 24.576 MHz HIGH 50 %;
 NET "XLXI_53/clk_b1" TNM_NET = XLXI_53/clk_b1;
 TIMESPEC TS_XLXI_53_clk_b1 = PERIOD "XLXI_53/clk_b1" 12.288 MHz HIGH 50 %;
 
-
 NET "aes50a_clk_a_rx_in" LOC = A12;
 NET "aes50a_clk_a_rx_nen_out" LOC = B12;
 NET "aes50a_clk_a_tx_en_out" LOC = C12;
@@ -262,12 +261,27 @@ NET "aes50a_clk_a_rx_in" IOSTANDARD = LVCMOS33;
 
 NET "aes50a_rmii_clk_out" LOC = C16;
 
-# PlanAhead Generated physical constraints 
 
 NET "aes50a_rmii_rxd_0_in" LOC = D16;
 NET "aes50a_rmii_rxd_1_in" LOC = C15;
 
-# PlanAhead Generated IO constraints 
 
 NET "aes50a_rmii_rxd_1_in" IOSTANDARD = LVCMOS33;
 NET "aes50a_rmii_rxd_0_in" IOSTANDARD = LVCMOS33;
+
+# PlanAhead Generated IO constraints 
+
+NET "aes50a_rmii_txd_0_out" SLEW = FAST;
+NET "aes50a_rmii_txd_1_out" SLEW = FAST;
+NET "aes50a_rmii_tx_en_out" SLEW = FAST;
+NET "aes50a_rmii_clk_out" SLEW = FAST;
+NET "aes50a_phy_rst_n_out" SLEW = SLOW;
+NET "aes50a_clk_b_tx_out" SLEW = FAST;
+NET "aes50a_clk_b_tx_en_out" SLEW = FAST;
+NET "aes50a_clk_b_rx_nen_out" SLEW = FAST;
+NET "aes50a_clk_a_tx_out" SLEW = FAST;
+NET "aes50a_clk_a_tx_en_out" SLEW = FAST;
+NET "AD0_TX" SLEW = SLOW;
+NET "aes50a_clk_a_rx_nen_out" SLEW = FAST;
+NET "D_FS2" SLEW = SLOW;
+NET "D_FS" SLEW = SLOW;

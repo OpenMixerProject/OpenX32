@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 02/28/2026 01:17:04
+-- /___/   /\     Timestamp : 03/01/2026 15:51:10
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -135,6 +135,7 @@ architecture BEHAVIORAL of main is
    signal clk_24_576MHz           : std_logic;
    signal clk_49_152MHz           : std_logic;
    signal clk_50MHz               : std_logic;
+   signal clk_50MHz_inv           : std_logic;
    signal clk_100MHz              : std_logic;
    signal configbits              : std_logic_vector (7 downto 0);
    signal online                  : std_logic;
@@ -198,6 +199,12 @@ architecture BEHAVIORAL of main is
    signal XLXN_3115               : std_logic;
    signal XLXN_3123               : std_logic;
    signal XLXN_3287               : std_logic;
+   signal XLXN_3465               : std_logic;
+   signal XLXN_3479               : std_logic;
+   signal XLXN_3480               : std_logic;
+   signal XLXN_4443               : std_logic;
+   signal XLXN_4445               : std_logic;
+   signal XLXN_4526               : std_logic;
    component audioclk
       port ( fs_x_1024_i : in    std_logic; 
              fs_x_512_o  : out   std_logic; 
@@ -457,17 +464,21 @@ architecture BEHAVIORAL of main is
    end component;
    
    component dcm2
-      port ( CLKIN_IN   : in    std_logic; 
-             RST_IN     : in    std_logic; 
-             LOCKED_OUT : out   std_logic; 
-             CLKFX_OUT  : out   std_logic; 
-             CLK0_OUT   : out   std_logic);
+      port ( CLKIN_IN     : in    std_logic; 
+             RST_IN       : in    std_logic; 
+             LOCKED_OUT   : out   std_logic; 
+             CLKFX_OUT    : out   std_logic; 
+             CLK0_OUT     : out   std_logic; 
+             CLKFX180_OUT : out   std_logic);
    end component;
    
    component oddr_clock
-      port ( clk_in  : in    std_logic; 
-             reset   : in    std_logic; 
-             clk_out : out   std_logic);
+      port ( clk_in     : in    std_logic; 
+             clk_out    : out   std_logic; 
+             reset      : in    std_logic; 
+             d0         : in    std_logic; 
+             d1         : in    std_logic; 
+             clk_in_inv : in    std_logic);
    end component;
    
    component uart_collector
@@ -487,6 +498,15 @@ architecture BEHAVIORAL of main is
              cfg_wr_addr : in    std_logic_vector (7 downto 0); 
              cfg_wr_data : in    std_logic_vector (7 downto 0); 
              config_bits : out   std_logic_vector (7 downto 0));
+   end component;
+   
+   component iddr_clock
+      port ( clk_in     : in    std_logic; 
+             q0         : out   std_logic; 
+             q1         : out   std_logic; 
+             reset      : in    std_logic; 
+             d          : in    std_logic; 
+             clk_in_inv : in    std_logic);
    end component;
    
 begin
@@ -639,7 +659,7 @@ begin
                 O=>D_FS);
    
    XLXI_704 : BUF
-      port map (I=>clk_12_288MHz,
+      port map (I=>clk_24_576MHz,
                 O=>D_CLK2);
    
    XLXI_705 : BUF
@@ -884,7 +904,7 @@ begin
                 mult_clk625_48k_i(31 downto 0)=>XLXN_3072(31 downto 0),
                 pll_init_busy_i=>XLXN_3088,
                 pll_lock_n_i=>XLXN_3087,
-                rmii_crs_dv_i=>aes50a_rmii_crs_dv_in,
+                rmii_crs_dv_i=>XLXN_3465,
                 rmii_rxd_i(1 downto 0)=>aes50a_rmii_rxd(1 downto 0),
                 rst_i=>XLXN_3074,
                 sys_mode_i(1 downto 0)=>configbits(2 downto 1),
@@ -907,7 +927,7 @@ begin
                 phy_rst_n_o=>aes50a_phy_rst_n_out,
                 pll_mult_value_o=>open,
                 rmii_txd_o(1 downto 0)=>aes50a_rmii_txd(1 downto 0),
-                rmii_tx_en_o=>aes50a_rmii_tx_en_out,
+                rmii_tx_en_o=>XLXN_4526,
                 tdm_o(6 downto 0)=>aes50a_tdm_out(6 downto 0),
                 wclk_o=>open,
                 wclk_out_en_o=>open);
@@ -1010,11 +1030,11 @@ begin
    
    XLXI_1143 : BUF
       port map (I=>aes50a_rmii_txd(0),
-                O=>aes50a_rmii_txd_0_out);
+                O=>XLXN_4443);
    
    XLXI_1144 : BUF
       port map (I=>aes50a_rmii_txd(1),
-                O=>aes50a_rmii_txd_1_out);
+                O=>XLXN_4445);
    
    XLXI_1148 : GND
       port map (G=>aes50_fs_mode(1));
@@ -1033,11 +1053,15 @@ begin
       port map (CLKIN_IN=>clk_16MHz,
                 RST_IN=>pripll_rst,
                 CLKFX_OUT=>clk_50MHz,
+                CLKFX180_OUT=>clk_50MHz_inv,
                 CLK0_OUT=>open,
                 LOCKED_OUT=>open);
    
    XLXI_1261 : oddr_clock
       port map (clk_in=>clk_50MHz,
+                clk_in_inv=>clk_50MHz_inv,
+                d0=>XLXN_3479,
+                d1=>XLXN_3480,
                 reset=>rst,
                 clk_out=>aes50a_rmii_clk_out);
    
@@ -1063,20 +1087,66 @@ begin
       port map (I=>FPGACLK,
                 O=>PLL_IN);
    
-   XLXI_1286 : BUF
-      port map (I=>aes50a_rmii_rxd_0_in,
-                O=>aes50a_rmii_rxd(0));
-   
-   XLXI_1287 : BUF
-      port map (I=>aes50a_rmii_rxd_1_in,
-                O=>aes50a_rmii_rxd(1));
-   
    XLXI_1354 : config_rxd
       port map (cfg_wr_addr(7 downto 0)=>XLXN_2459(7 downto 0),
                 cfg_wr_data(7 downto 0)=>XLXN_2461(7 downto 0),
                 cfg_wr_en=>XLXN_3287,
                 clk=>clk_24_576MHz,
                 config_bits(7 downto 0)=>configbits(7 downto 0));
+   
+   XLXI_1388 : GND
+      port map (G=>XLXN_3480);
+   
+   XLXI_1389 : VCC
+      port map (P=>XLXN_3479);
+   
+   XLXI_1390 : oddr_clock
+      port map (clk_in=>clk_50MHz,
+                clk_in_inv=>clk_50MHz_inv,
+                d0=>XLXN_4526,
+                d1=>XLXN_4526,
+                reset=>rst,
+                clk_out=>aes50a_rmii_tx_en_out);
+   
+   XLXI_1391 : oddr_clock
+      port map (clk_in=>clk_50MHz,
+                clk_in_inv=>clk_50MHz_inv,
+                d0=>XLXN_4443,
+                d1=>XLXN_4443,
+                reset=>rst,
+                clk_out=>aes50a_rmii_txd_0_out);
+   
+   XLXI_1392 : oddr_clock
+      port map (clk_in=>clk_50MHz,
+                clk_in_inv=>clk_50MHz_inv,
+                d0=>XLXN_4445,
+                d1=>XLXN_4445,
+                reset=>rst,
+                clk_out=>aes50a_rmii_txd_1_out);
+   
+   XLXI_1440 : iddr_clock
+      port map (clk_in=>clk_50MHz_inv,
+                clk_in_inv=>clk_50MHz,
+                d=>aes50a_rmii_crs_dv_in,
+                reset=>rst,
+                q0=>XLXN_3465,
+                q1=>open);
+   
+   XLXI_1441 : iddr_clock
+      port map (clk_in=>clk_50MHz_inv,
+                clk_in_inv=>clk_50MHz,
+                d=>aes50a_rmii_rxd_0_in,
+                reset=>rst,
+                q0=>aes50a_rmii_rxd(0),
+                q1=>open);
+   
+   XLXI_1442 : iddr_clock
+      port map (clk_in=>clk_50MHz_inv,
+                clk_in_inv=>clk_50MHz,
+                d=>aes50a_rmii_rxd_1_in,
+                reset=>rst,
+                q0=>aes50a_rmii_rxd(1),
+                q1=>open);
    
 end BEHAVIORAL;
 

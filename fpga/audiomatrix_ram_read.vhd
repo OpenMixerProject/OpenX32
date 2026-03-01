@@ -71,7 +71,7 @@ entity audiomatrix_ram_read is
 	generic (
 		TDM_SENDER			: integer := 20;	-- 26 TDM8 sender are connected
 		DATA_WIDTH			: integer := 24;	-- 24-bit audio-samples
-		NUM_OUTPUT_PORTS	: integer := 160;	-- 16x Analog-Ouput, 32x Card-Output, 8x AUX-Output, 16x UltraNet-Output, 40x DSP-Input, 48x AES50A, 48x AES50B
+		NUM_OUTPUT_PORTS	: integer := 160;	-- 16x Analog-Ouput, 32x Card-Output, 8x AUX-Output, 16x UltraNet-Output, 40x DSP-Input, 48x AES50A (, 48x AES50B)
 		ADDR_WIDTH        : integer := 8    -- log2(208) = 8
 	);
 	port (
