@@ -5,7 +5,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/../bin/x32ctrl",
-            "args": ["-b", "-d", "MIXER"],
+            "args": ["-b", "-d", "ALL"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/../bin",
             "environment": [],
