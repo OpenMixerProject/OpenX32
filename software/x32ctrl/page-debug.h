@@ -6,6 +6,7 @@ class PageDebug: public Page {
     public:
         PageDebug(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::ABOUT;
+            nextPage = X32_PAGE::PROTOTYPEGUI;
             tabLayer0 = objects.maintab;
             tabIndex0 = 3;
             tabLayer1 = objects.setuptab;

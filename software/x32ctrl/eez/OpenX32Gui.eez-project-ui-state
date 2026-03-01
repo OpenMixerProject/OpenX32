@@ -176,8 +176,7 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
@@ -230,7 +229,8 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ]
+              ],
+              "active": true
             }
           ]
         }
@@ -1059,8 +1059,8 @@
       },
       "transform": {
         "translate": {
-          "x": -397.4288784862034,
-          "y": -236.1868345867764
+          "x": -387.71019161751644,
+          "y": -255.17774367768547
         },
         "scale": 1
       },
@@ -1074,10 +1074,22 @@
       "selectionBack": {
         "0": {
           "1": {
-            "0": {
-              "$selected": true
+            "2": {
+              "0": {
+                "1": {
+                  "0": {
+                    "$selected": true
+                  }
+                }
+              }
             },
-            "8": {}
+            "3": {
+              "0": {
+                "3": {},
+                "4": {}
+              }
+            },
+            "7": {}
           }
         }
       }
@@ -1297,7 +1309,8 @@
   "lvglPart": "INDICATOR",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "BACKGROUND"
+    "BACKGROUND",
+    "MISCELLANEOUS"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,

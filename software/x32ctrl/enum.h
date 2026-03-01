@@ -393,11 +393,12 @@ enum class X32_PAGE :int {
     SETUP,
         // sub-pages of setup
         SETUP_CARD,
+        ABOUT,
+        DEBUG,
+        PROTOTYPEGUI,
     LIBRARY,
     EFFECTS,
     MUTE_GRP,
-    DEBUG,
-        ABOUT,
     SCENES
 };
 

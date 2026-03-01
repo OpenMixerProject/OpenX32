@@ -552,6 +552,7 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::SETUP_CARD] = new PageSetupCard(pagebasepar);
 	pages[X32_PAGE::ABOUT] = new PageAbout(pagebasepar);
 	pages[X32_PAGE::DEBUG] = new PageDebug(pagebasepar);
+	pages[X32_PAGE::PROTOTYPEGUI] = new PagePrototypeGui(pagebasepar);
 	pages[X32_PAGE::LIBRARY] = new PageLibrary(pagebasepar);
 	pages[X32_PAGE::EFFECTS] = new PageEffects(pagebasepar);
 	pages[X32_PAGE::MUTE_GRP] = new PageMutegroup(pagebasepar);

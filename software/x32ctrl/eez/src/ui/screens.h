@@ -718,7 +718,7 @@ typedef struct _objects_t {
     lv_obj_t *routing_input;
     lv_obj_t *routing_input_1;
     lv_obj_t *dsp;
-    lv_obj_t *table_routing_fpga_header;
+    lv_obj_t *roller_routing_fpga_block;
     lv_obj_t *table_routing_fpga;
     lv_obj_t *table_routing_dsp_input_header;
     lv_obj_t *table_routing_dsp_input;
@@ -728,6 +728,8 @@ typedef struct _objects_t {
     lv_obj_t *setup_card_detected;
     lv_obj_t *setup_card_channelmode;
     lv_obj_t *openx32logo_2;
+    lv_obj_t *roller_routing_block;
+    lv_obj_t *table_routing_fpga_debug;
     lv_obj_t *fxtable;
     lv_obj_t *display_encoder_sliders;
     lv_obj_t *widget1;

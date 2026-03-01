@@ -31,7 +31,7 @@
 #include "page-debug.h"
 #include "page-about.h"
 #include "page-scenes.h"
-
+#include "page-prototypegui.h"
 #include "lcd-menu.h"
 
 
