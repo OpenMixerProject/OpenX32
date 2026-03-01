@@ -38,6 +38,7 @@ class PageRta : public Page
             tabIndex0 = 1;
             tabLayer1 = objects.meterstab;
             tabIndex1 = 1;
+            led = X32_BTN_METERS;
         }
 
         void OnInit() override

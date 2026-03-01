@@ -550,11 +550,11 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::ROUTING_DSP2] = new PageRoutingDsp(pagebasepar);
 	pages[X32_PAGE::SETUP] = new PageSetup(pagebasepar);
 	pages[X32_PAGE::SETUP_CARD] = new PageSetupCard(pagebasepar);
+	pages[X32_PAGE::ABOUT] = new PageAbout(pagebasepar);
+	pages[X32_PAGE::DEBUG] = new PageDebug(pagebasepar);
 	pages[X32_PAGE::LIBRARY] = new PageLibrary(pagebasepar);
 	pages[X32_PAGE::EFFECTS] = new PageEffects(pagebasepar);
 	pages[X32_PAGE::MUTE_GRP] = new PageMutegroup(pagebasepar);
-	pages[X32_PAGE::UTILITY] = new PageUtility(pagebasepar);
-	pages[X32_PAGE::UTILITY_ABOUT] = new PageUtilityAbout(pagebasepar);
 	pages[X32_PAGE::SCENES] = new PageScenes(pagebasepar);
 	for (const auto& [key, value] : pages) {
 		value->Init();
@@ -1868,7 +1868,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 				ShowPage(X32_PAGE::MUTE_GRP);
 				break;
 			case X32_BTN_UTILITY:
-				ShowPage(X32_PAGE::UTILITY);
+				ShowPage(X32_PAGE::DEBUG);
 				break;
 			case X32_BTN_VIEW_SCENES:
 			case X32_BTN_SCENE_SETUP:
@@ -2267,7 +2267,7 @@ void X32Ctrl::SimulatorButton(uint32_t key)
 				ShowPage(MUTE_GRP);
 				break;
 			case 48:
-				ShowPage(UTILITY);
+				ShowPage(DEBUG);
 				break;
 			case 17:
 				pages[activePage]->DisplayButton(X32_BTN_UP, true);

@@ -28,8 +28,8 @@
 #include "page-setup.h"
 #include "page-setup-card.h"
 #include "page-mutegroup.h"
-#include "page-utility.h"
-#include "page-utility-about.h"
+#include "page-debug.h"
+#include "page-about.h"
 #include "page-scenes.h"
 
 #include "lcd-menu.h"

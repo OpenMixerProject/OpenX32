@@ -21,6 +21,7 @@ class PageRoutingDsp: public Page
             tabIndex0 = 2;
             tabLayer1 = objects.routingtab;
             tabIndex1 = 3;
+			led = X32_BTN_ROUTING;
         }
 
 		void OnInit() override {

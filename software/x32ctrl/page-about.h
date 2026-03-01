@@ -2,14 +2,16 @@
 #include "page.h"
 using namespace std;
 
-class PageUtilityAbout: public Page {
+class PageAbout: public Page {
     public:
-        PageUtilityAbout(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE::UTILITY;
+        PageAbout(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+            prevPage = X32_PAGE::SETUP_CARD;
+            nextPage = X32_PAGE::DEBUG;
             tabLayer0 = objects.maintab;
-            tabIndex0 = 7;
-            tabLayer1 = objects.utilitytab;
-            tabIndex1 = 1;
+            tabIndex0 = 3;
+            tabLayer1 = objects.setuptab;
+            tabIndex1 = 2;
+            led = X32_BTN_SETUP;
         }
 
         void OnInit() override
