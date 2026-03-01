@@ -26,7 +26,7 @@
 
 DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
     spi = new SPI(basepar);
-    if (!state->bodyless) {
+    if (!state->bodyless && !state->raspi) {
         spi->UploadBitstreamDsps(true); // use CLI to show progress
         spi->OpenConnectionDsps();
     }

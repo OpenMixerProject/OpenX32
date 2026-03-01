@@ -121,6 +121,7 @@ void Config::DefineMixerparameters() {
     ->DefStandard_Bool(true);
 
 	DefParameter(LCD_CONTRAST, cat, "LCD Contrast")
+    ->DefNameShort("Contrast")
 	->DefMinMaxStandard_Uint(LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, LCD_CONTRAST_DEFAULT)
     ->DefConfig(group, "lcd_contrast");
     

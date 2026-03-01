@@ -38,6 +38,8 @@ void X32Ctrl::Init(){
 
 	if (state->bodyless) {
 		config->SetModel("X32C");
+	} else if (state->raspi) {
+		config->SetModel("X32CORE");
 	} else {
 		config->SetModel(model);
 	}
@@ -640,7 +642,7 @@ void X32Ctrl::syncGuiOrLcd() {
 
 	if (config->IsModelX32Core()){
 		if (state->x32core_lcdmode_setup) {
-			lcdmenu->OnChange();
+			lcdmenu->OnChange(false);
 		}
 		
 		// return, because X32Core has no GUI
@@ -879,13 +881,10 @@ void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
 		}
 
 		if (!state->x32core_lcdmode_setup && (
-			config->HasParametersChanged({
-				SELECTED_CHANNEL,
-				CHANNEL_SOLO,
-				CHANNEL_MUTE,
-				CHANNEL_COLOR,
-				CHANNEL_NAME
-			}, chanIndex)))
+				config->HasParametersChanged({CHANNEL_SOLO,CHANNEL_MUTE,CHANNEL_COLOR,CHANNEL_NAME}, chanIndex) ||
+				config->HasParameterChanged(SELECTED_CHANNEL)
+			)
+		)
 		{
 			SetLcdFromVChannel(X32_BOARD_MAIN, 0, chanIndex);
 		}
@@ -2033,18 +2032,44 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 						} else {
 							surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 0);
 							// trigger switch to channel lcd
-							//state->SetChangeFlags(X32_MIXER_CHANGED_SELECT);
+							config->Refresh(SELECTED_CHANNEL);
+						}
+					}
+					break;
+				case X32_BTN_CHANNEL_ENCODER:
+					if (config->IsModelX32Core()) {
+						if (state->x32core_lcdmode_setup) {
+							lcdmenu->OnLcdEncoderPressed();
 						}
 					}
 					break;
 				case X32_BTN_ASSIGN_3:
+					{
+						config->Set(ROUTING_FPGA, 0, 70);
+						config->Set(ROUTING_FPGA, 0, 71);
+					}
+					break;
+				case X32_BTN_ASSIGN_4:
+					{
+						config->Set(ROUTING_FPGA, 71, 70);
+					}
 					break;
 				case X32_BTN_ASSIGN_5:
+					if (config->IsModelX32Core())
+					{
+						config->Set(ROUTING_FPGA, 71, 71);
+					}
 					break;
 				case X32_BTN_ASSIGN_6:
-					if (config->IsModelX32Core()) {
+					if (config->IsModelX32Core())
+					{
 						config->Set(CARD_NUMBER_OF_CHANNELS, CARD_CHANNELMODE_32IN_32OUT);
-						//mixer->fpga->RoutingCardAs32CHInput();
+						
+						// Set Card 1-32 PLAYBACK to DSP INPUT 1-32
+						for (uint i = 0; i < 32; i++)
+						{
+							config->Set(ROUTING_FPGA, 33 + i , i + 72);
+						}
 					}
 					break;
 				default:

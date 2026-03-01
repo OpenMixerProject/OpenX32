@@ -40,43 +40,82 @@ void LcdMenu::OnInit() {
     d->texts[0].size = 0x20;
     d->texts[0].x = 0;
     d->texts[0].y = 0;
-    d->texts[0].text = "Setup";
+    d->texts[0].text = "";
 
     d->texts[1].size = 0;
     d->texts[1].x = 0;
     d->texts[1].y = 25;
     d->texts[1].text = "";
 
+    d->texts[2].size = 0;
+    d->texts[2].x = 0;
+    d->texts[2].y = 48;
+    d->texts[2].text = "";
+
+    // Parameters for Setup Menu
+    menuItems.push_back(LCD_CONTRAST);
+    menuItems.push_back(CHANNEL_LCD_MODE);
+    menuItems.push_back(LED_BRIGHTNESS);
+    menuItems.push_back(SAMPLERATE);
+    menuItems.push_back(CARD_NUMBER_OF_CHANNELS);
+    menuItems.push_back(MONITOR_VOLUME);
+
     initDone = true;
 }
 
 
 void LcdMenu::OnShow() {
-    OnChange();
+    OnChange(true);
 }
 
-void LcdMenu::OnChange() {
+void LcdMenu::OnChange(bool force_update)
+{
     if (initDone) {
+
+        MP_ID currentParameter = menuItems[selectedItem];
         
-        // TODO
-        // if (config->HasParameterChanged(MP_ID::LCD_CONTENT_CHANGED)) {
-        //     surface->SetLcdX(d, 2);
-        // }
+        if (config->HasParameterChanged(currentParameter) || selectedItem != selectedItemBefore || force_update)
+        {
+            d->texts[0].text = String("Setup");
+            d->texts[1].text = config->GetParameter(currentParameter)->GetName();
+            d->texts[2].text = 
+                (encoderModeSelection ? String("") : String("[")) +
+                config->GetParameter(currentParameter)->GetFormatedValue() +
+                (encoderModeSelection ? String("") : String("]"));
+            surface->SetLcdX(d, 3);
+
+            selectedItemBefore = selectedItem;
+        }
     }
 }
 
 void LcdMenu::OnLcdEncoderTurned(int8_t amount) {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "LcdMenu::OnLcdEncoderTurned()");
 
-    Mixerparameter* parameter = config->GetParameter(MP_ID::LCD_CONTRAST);
+    if (encoderModeSelection)
+    {
+        selectedItem += amount;
 
-    parameter->Change(amount);    
-    surface->SetContrast(0, parameter->GetUint());
-    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set %s to %d", parameter->GetName(), parameter->GetUint());
+        if (selectedItem > (menuItems.size() -1))
+        {
+            selectedItem = 0;
+        }
+    }
+    else
+    {
+        MP_ID currentParameter = menuItems[selectedItem];
 
-    d->texts[1].text = parameter->GetLabelAndValue().c_str();
+        config->Change(currentParameter, amount);
+    }
+
+    OnChange(false);
 }
 
-void LcdMenu::OnLcdButton(bool pressed) {
-    helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "LcdMenu::OnLcdButton()");
+void LcdMenu::OnLcdEncoderPressed()
+{
+    helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "LcdMenu::OnLcdEncoderPressed()");
+
+    encoderModeSelection = !encoderModeSelection;
+
+    OnChange(true);
 }

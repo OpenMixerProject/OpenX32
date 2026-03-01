@@ -10,6 +10,19 @@
             ],
             "group": {
                 "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "openx32-rpi",
+            "type": "shell",
+            "command": "make -j14 && dd if=../bin/x32ctrl status=progress | ssh root@192.168.188.114 \"dd of=/root/x32ctrl\"",
+            "options": {},
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
                 "isDefault": true
             }
         },

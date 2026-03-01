@@ -304,7 +304,10 @@ void Fpga::SendRoutingToFpga(int channel) {
 		txData[0] = (uint8_t)config->GetUint(ROUTING_FPGA, channel);
 		txData[1] = channel;
 
-		helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "SendRoutingToFpga() channelindex %d: %d", channel, txData[0]);
+		helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "SendRoutingToFpga() %s -> %s",
+			config->GetParameter(ROUTING_FPGA)->GetFormatedValue(channel).c_str(),
+			GetOutputNameByIndex(channel+1).c_str()
+		);
 
 		spi->SendFpgaData(&txData[0], &rxData[0], 2);
 
@@ -346,7 +349,7 @@ void Fpga::SetConfigBit(uint8_t bitNumber, bool value) {
 	}
 
 	// send data to FPGA
-	if (state->bodyless) {
+	if (state->bodyless || state->raspi) {
 		return;
 	}
 

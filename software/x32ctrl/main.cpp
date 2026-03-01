@@ -235,6 +235,10 @@ int main(int argc, char* argv[]) {
 			->configurable(false)
 			->group("Debug");
 
+	app->add_flag("-r,--raspi", state->raspi, "Enables Raspi mode.")
+			->configurable(false)
+			->group("Debug");
+
 	vector<string> debug_parameters;
 	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA FX GUI INI MIXER STATE SPI SURFACE TIMER UART VCHANNEL X32CTRL XREMOTE")
 			->configurable(false)

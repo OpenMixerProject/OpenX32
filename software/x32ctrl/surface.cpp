@@ -63,7 +63,12 @@ void Surface::Init(void) {
 
         uart->Open("/tmp/ttyLocal", 115200, true);
     }
-    else {
+    else if (state->raspi)
+    {
+        uart->Open("/dev/ttyUSB0", 115200, true);
+    }
+    else
+    {
         uart->Open("/dev/ttymxc1", 115200, true);
     }
 

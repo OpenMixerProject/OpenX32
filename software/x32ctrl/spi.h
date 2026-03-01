@@ -1,6 +1,7 @@
 #pragma once
 
 #include <linux/spi/spidev.h>
+#include <linux/gpio.h>
 #include <fcntl.h>
 #include <list>
 

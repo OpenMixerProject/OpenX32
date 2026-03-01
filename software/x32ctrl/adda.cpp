@@ -75,6 +75,11 @@ void Adda::Init()
 
 		serial = "/tmp/ttyLocalAdda";
 	}
+	else if (state->raspi)
+	{
+		//serial = "/dev/ttymxc2";
+		return;
+	}
 	else
 	{
 		serial = "/dev/ttymxc2";	
