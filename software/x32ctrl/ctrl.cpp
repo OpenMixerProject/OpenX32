@@ -254,7 +254,11 @@ void X32Ctrl::Tick10ms(void){
 	// this stateMachine handles the read and write to and from the two DSPs
 	mixer->dsp->CallbackStateMachine();
 
-	ProcessUartData();
+	// read incoming data from surface and handle it
+	ProcessUartDataSurface();
+
+	// read incoming data from adda-boards and expansion-card
+	ProcessUartDataAdda();
 
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
 	//UdpHandleCommunication();
@@ -305,6 +309,30 @@ void X32Ctrl::Tick100ms(void) {
 	}
 }
 
+void X32Ctrl::ProcessUartDataAdda() {
+	// read incoming data from adda-boards and expansion-card
+	String newCommand = mixer->adda->Receive();
+	uint seconds;
+	uint percentage;
+	
+	if (newCommand.length() > 0) {
+		helper->DEBUG_ADDA(DEBUGLEVEL_TRACE, "Received ADDA command: %s", newCommand.c_str());
+		
+		if (newCommand.indexOf("9N22") > 0) {
+			// we received current sample-position from expansion-card
+			// *9N22xxxxxxxx#
+			seconds = mixer->card->XLIVE_SampleIndexToSeconds(newCommand.substring(5, newCommand.length()-1));
+
+			// update text-fields
+			lv_label_set_text_fmt(objects.setup_card_currentposition, helper->secondsToHmsHuman(seconds).c_str());
+			lv_label_set_text_fmt(objects.setup_card_totaltime, helper->secondsToHmsHuman(mixer->card->currentSongTotalSeconds).c_str());
+
+			// update progress-bar
+			percentage = (seconds * 100) / mixer->card->currentSongTotalSeconds;
+			lv_bar_set_value(objects.setup_card_progress, percentage, LV_ANIM_OFF);
+		}
+	}
+}
 
 //#####################################################################################################################
 //#####################################################################################################################
@@ -314,7 +342,7 @@ void X32Ctrl::Tick100ms(void) {
 //#####################################################################################################################
 //#####################################################################################################################
 
-void X32Ctrl::ProcessEventsRaw(SurfaceEvent* event){
+void X32Ctrl::ProcessSurfaceEventsRaw(SurfaceEvent* event){
 	switch(event->classId){
 	  case 'f':
 		FaderMoved(event);
@@ -1539,7 +1567,7 @@ uint8_t X32Ctrl::GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint1
 //
 //############################################################################################################################## 
 
-void X32Ctrl::ProcessUartData() {
+void X32Ctrl::ProcessUartDataSurface() {
     uint8_t receivedClass = 0;
     uint8_t receivedIndex = 0;
     uint16_t receivedValue = 0;
@@ -1731,7 +1759,7 @@ void X32Ctrl::ProcessUartData() {
 
             if (valid){
                 helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback: BoardId 0x%02X, Class 0x%02X, Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedIndex, receivedValue);
-				ProcessEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
+				ProcessSurfaceEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }
     }

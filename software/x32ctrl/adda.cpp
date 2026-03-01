@@ -223,6 +223,7 @@ String Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomP
 	return SendReceive(message);
 }
 
+// send without waiting for the response of the individual component
 void Adda::Send(String cmd) {
 	AddaMessage* message = new AddaMessage();
 
@@ -241,6 +242,83 @@ void Adda::Send(String cmd) {
 	delete(message);
 }
 
+// receive without sending data (e.g. reading current state of X-LIVE-Card)
+String Adda::Receive() {
+	uint8_t currentByte;
+	String answer;
+
+	uint readBytes = uart->Rx(&addaBufferUart[0], sizeof(addaBufferUart));
+	if (readBytes > 0) {
+
+		if (helper->DEBUG_ADDA(DEBUGLEVEL_TRACE)){
+			printf("Received %d Bytes\n", readBytes); 
+
+			for (int i = 0; i < readBytes; i++) {
+				printf("%c", addaBufferUart[i]);
+			}
+			printf("\n");
+			fflush(stdout);
+		}
+
+		for (int i = 0; i < readBytes; i++) {
+			currentByte = (uint8_t)addaBufferUart[i];
+
+			// add received byte to buffer
+			if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {
+				addaPacketBuffer[addaPacketBufLen++] = currentByte;
+			} else {
+				// buffer full -> remove oldest byte
+				memmove(addaPacketBuffer, addaPacketBuffer + 1, ADDA_MAX_PACKET_LENGTH - 1);
+				addaPacketBuffer[ADDA_MAX_PACKET_LENGTH - 1] = currentByte;
+			}
+
+			int packetBegin = -1;
+			int packetEnd = -1;
+			int receivedPacketLength = 0; // length of detected packet
+
+			// check if we received enought data to process at least the shortest message (e.g. *2Y#)
+			if (addaPacketBufLen >= 3) {
+				// check if received character is end of message ('#')
+				if (addaPacketBuffer[addaPacketBufLen - 1] == '#') {
+					// we received possible end of a message
+					packetEnd = addaPacketBufLen - 1;
+
+					// now search begin of message ('*')
+					for (uint16_t j = 0; j < ADDA_MAX_PACKET_LENGTH; j++) {
+						if (addaPacketBuffer[ADDA_MAX_PACKET_LENGTH - 1 - j] == '*') {
+							// found begin of message
+							packetBegin = ADDA_MAX_PACKET_LENGTH - 1 - j;
+							break;
+						}
+					}
+
+					receivedPacketLength = (packetEnd - packetBegin + 1);
+					if ((packetBegin >= 0) && (packetEnd > 0) && (receivedPacketLength > 0)) {
+						// we found a valid message in the form "*...#"
+
+						// copy the message including * and # into a new buffer and 0-terminate it
+						char* payload = (char*)malloc(sizeof(char) * (receivedPacketLength + 1));
+						memcpy(payload, &addaPacketBuffer[packetBegin], receivedPacketLength);
+						payload[receivedPacketLength] = '\0';
+						answer = payload;
+						free(payload);
+
+						// shift remaining bytes by processed amount of data
+						memmove(addaPacketBuffer, addaPacketBuffer + receivedPacketLength, addaPacketBufLen - receivedPacketLength);
+						addaPacketBufLen -= receivedPacketLength;
+
+						//helper->DEBUG_ADDA(DEBUGLEVEL_VERBOSE, "%s --> %s", cmd.c_str(), answer.c_str());
+						return answer;
+					}
+				}
+			}
+		}
+	}
+
+	return answer;
+}
+
+// Send data and wait for the response of the individual component
 String Adda::SendReceive(String cmd) {
 	uint8_t currentByte;
 	String answer;

@@ -4152,6 +4152,99 @@
                           "heightUnit": "px",
                           "children": [
                             {
+                              "objID": "406169a4-4edc-49c4-d9d2-5d16ad38328e",
+                              "type": "LVGLLabelWidget",
+                              "left": 568,
+                              "top": 230,
+                              "width": 201,
+                              "height": 16,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "c86df694-6352-496b-9c44-1b42180777e5",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "setup_card_totaltime",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "3723aebe-05b8-4db4-96ba-03767750998e",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "...",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
+                              "objID": "ea40d29b-7ca3-493a-f2c6-c570d3aad048",
+                              "type": "LVGLLabelWidget",
+                              "left": 31,
+                              "top": 231,
+                              "width": 9,
+                              "height": 16,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "935bdfc6-4b56-473c-9130-2d5192808942",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "setup_card_currentposition",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "37debd61-7c39-444d-ad31-44563344560f"
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "...",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
                               "objID": "10be2b82-91a8-4bed-b4fa-0aa9b98ca5ef",
                               "type": "LVGLLabelWidget",
                               "left": 83,
@@ -4200,7 +4293,7 @@
                               "left": 356,
                               "top": 12,
                               "width": 400,
-                              "height": 210,
+                              "height": 179,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -4238,7 +4331,7 @@
                               "objID": "a6320ea7-0c95-4dc7-f1c7-d2501b936bad",
                               "type": "LVGLBarWidget",
                               "left": 31,
-                              "top": 233,
+                              "top": 203,
                               "width": 738,
                               "height": 22,
                               "customInputs": [],

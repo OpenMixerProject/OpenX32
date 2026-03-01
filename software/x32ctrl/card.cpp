@@ -233,9 +233,13 @@ bool Card::XLIVE_SelectSession(String session) {
     String ans = SendCommand("*9B" + session +  "#"); // maybe add #Q at this command?
 
     // ans contain the following information:
-    // *9B000003200BD1A30020ED80900# // -> zero markers
-    // *9B0000232000F4E900000000000# // two markers
+    // *9B000 00             32        0     0BD1A300 20ED80900# // -> zero markers
+    // *9B000 02             32        0     00F4E900 000000000# // two markers
     // *9B000 MARKERCOUNT CHANNELCOUNT 0 NUMBEROFTOTALSAMPLES 0 ???
+
+    //uint currentSongMarkerCount = ans.substring(6, 6+2).toInt();
+    currentSongNumberChannels = ans.substring(8, 8+2).toInt();
+    currentSongTotalSeconds = (float)helper->hexToInt(ans.substring(11, 11+8)) / (float)config->GetUint(MP_ID::SAMPLERATE);
 
     return true;
 }

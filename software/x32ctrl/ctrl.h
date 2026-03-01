@@ -98,9 +98,9 @@ class X32Ctrl : public X32Base
         uint8_t surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
         char surfaceBufferUart[256]; // buffer for UART-readings
         uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
-        void ProcessUartData();
+        void ProcessUartDataSurface();
 
-        void Blink();
+        void ProcessUartDataAdda();
 
     public:
         X32Ctrl(X32BaseParameter* basepar);
@@ -109,7 +109,7 @@ class X32Ctrl : public X32Base
         void Tick10ms(void);
         void Tick50ms(void);
         void Tick100ms(void);
-        void ProcessEventsRaw(SurfaceEvent* event);
+        void ProcessSurfaceEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
 
         void InitPagesAndGUI();

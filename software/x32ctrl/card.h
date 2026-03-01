@@ -25,6 +25,8 @@ class Card : X32Base {
         Card(X32BaseParameter* basepar, Adda* _adda);
 
         uint type; // 0 = no card, 1 = X-UF/X-USB, 2 = X-LIVE, 3 = X-ADAT, 4 = X-MADI
+        uint currentSongNumberChannels; // number of channels (e.g. 16 or 32)
+        uint currentSongTotalSeconds;
 
         void Init();
         void Sync();

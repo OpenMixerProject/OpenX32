@@ -35,6 +35,7 @@ class Adda : public X32Base {
         Adda(X32BaseParameter* basepar);
         void Init();
 
+        String Receive();
         String SendReceive(String cmd);
 
         bool HasXlrIn0();

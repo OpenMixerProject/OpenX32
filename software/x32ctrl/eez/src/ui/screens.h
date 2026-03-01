@@ -726,6 +726,8 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
     lv_obj_t *setup_versioninfotext;
+    lv_obj_t *setup_card_totaltime;
+    lv_obj_t *setup_card_currentposition;
     lv_obj_t *setup_card_debugtext;
     lv_obj_t *setup_card_toc;
     lv_obj_t *setup_card_progress;
