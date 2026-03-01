@@ -1867,9 +1867,6 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			case X32_BTN_MUTE_GRP:
 				ShowPage(X32_PAGE::MUTE_GRP);
 				break;
-			case X32_BTN_UTILITY:
-				ShowPage(X32_PAGE::DEBUG);
-				break;
 			case X32_BTN_VIEW_SCENES:
 			case X32_BTN_SCENE_SETUP:
 				ShowPage(X32_PAGE::SCENES);
@@ -2105,6 +2102,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			case X32_BTN_ENCODER4:		
 			case X32_BTN_ENCODER5:				
 			case X32_BTN_ENCODER6:
+			case X32_BTN_UTILITY:
 				pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->DisplayButton(button, isButtonPressed);
 				break;
 			default:

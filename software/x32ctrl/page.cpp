@@ -53,6 +53,8 @@ void Page::Show()
 {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::Show()");
 
+    UtilityMode(false);
+
     // open tab on Layer0
 	if (tabLayer0 != nullptr)
     {
@@ -162,12 +164,28 @@ void Page::DisplayButton(X32_BTN button, bool pressed)
                         }
                     }
                 }
+
+                if (button == X32_BTN_UTILITY)
+                {
+                    // toggle mode
+                    UtilityMode(!utilityMode);
+                }
             }
         }
     }
 }
 
+void Page::UtilityMode(bool mode)
+{
+    utilityMode = mode;
 
+    surface->SetLedByEnum(X32_BTN_UTILITY, utilityMode);
+
+    if (utilityMode)
+    {
+        // TODO
+    }
+}
 
 X32_PAGE Page::GetNextPage() {
     return nextPage;

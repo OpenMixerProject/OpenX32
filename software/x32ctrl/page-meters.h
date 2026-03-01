@@ -165,8 +165,14 @@ class PageMeters : public Page
             }
         }
 
-        bool OnDisplayButton(X32_BTN button, bool pressed) override {
-            if (pressed){
+        bool OnDisplayButton(X32_BTN button, bool pressed) override
+        {
+            bool handled = false;
+
+            if (pressed)
+            {
+                handled = true;
+
                 switch (button){
                     case X32_BTN_ENCODER1:
                         break;
@@ -187,12 +193,12 @@ class PageMeters : public Page
     					}
                         break;
                     default:
-                        // just here to avoid compiler warnings
+                        handled = false;
                         break;
                 }
             }
 
-            return true;
+            return handled;
         }        
 
     private:

@@ -41,6 +41,7 @@ class Page : public X32Base
         sDisplayEncoder custom_encoder[MAX_DISPLAY_ENCODER];
 
         bool initDone = false;
+        bool utilityMode = false;
 
         void BindEncoder(uint encoder, MP_ID mp_id, uint mp_index = 0);
         void BindEncoder(uint encoder, MP_ID mp_id, MP_ID mp_id_button, uint mp_index = 0);
@@ -80,6 +81,8 @@ class Page : public X32Base
 
         void DisplayEncoderTurned(X32_ENC encoder, int amount);
         void DisplayButton(X32_BTN button, bool pressed);
+
+        void UtilityMode(bool mode);
 
         X32_PAGE GetNextPage();
         X32_PAGE GetPrevPage();
