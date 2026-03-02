@@ -13,9 +13,61 @@ class PageRoutingChannels: public Page
 		// char inputSourceName[25] = "";
 		// char tapPointName[15] = "";
 
-		int gui_selected_item = 0;
-		int gui_selected_item_before = 0;
+		int gui_selected_item = 1;
+		int gui_selected_item_before = 1;
         bool page_routing_dsp1_table_drawn = false;
+
+        static void draw_event_cb(lv_event_t * e) {
+            lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
+            lv_draw_dsc_base_t * base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+            lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
+
+            // if the cells are drawn
+            if(base_dsc->part == LV_PART_ITEMS) {
+                uint32_t row = base_dsc->id1;
+                uint32_t col = base_dsc->id2;
+
+                // Make the texts in the first cell center aligned
+                if(row == 0) {
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+                        label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
+                    }
+                    lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+                    if(fill_draw_dsc) {
+                        fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_BLUE), fill_draw_dsc->color, LV_OPA_20);
+                        fill_draw_dsc->opa = LV_OPA_COVER;
+                    }
+                }
+                // In the first column align the texts to the right
+                else if(col == 0) {
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+                        label_draw_dsc->align = LV_TEXT_ALIGN_RIGHT;
+                    }
+                }
+
+				/*
+                // Make every 2nd row grayish
+                if((row != 0 && row % 2) == 0) {
+                    lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+                    if(fill_draw_dsc) {
+                        fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_GREY), fill_draw_dsc->color, LV_OPA_10);
+                        //fill_draw_dsc->opa = LV_OPA_COVER;
+                    }
+                }
+				*/
+
+                // highlight selected row
+                if (row == (*(int*)lv_obj_get_user_data(obj))) {
+                    lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+                    if(fill_draw_dsc) {
+                        fill_draw_dsc->color = lv_palette_main(LV_PALETTE_YELLOW);
+                        //fill_draw_dsc->opa = LV_OPA_20;
+                    }
+                }
+            }
+        }
 
     public:
         PageRoutingChannels(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
@@ -39,9 +91,9 @@ class PageRoutingChannels: public Page
 			lv_table_set_column_width(objects.table_routing_dsp_input_header, 4, 200);
             lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 0, "Source");
 			lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 2, "Tappoint");
-            lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 4, "Destination");
+            lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 4, "Channel");
 
-			lv_table_set_row_count(objects.table_routing_dsp_input, 40); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+			lv_table_set_row_count(objects.table_routing_dsp_input, 40 + 1); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
 			lv_table_set_column_count(objects.table_routing_dsp_input, 5); // Input | # | Source | # | Tap
 			lv_table_set_column_width(objects.table_routing_dsp_input, 0, 300);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 1, 50);
@@ -66,8 +118,17 @@ class PageRoutingChannels: public Page
 				lv_table_set_cell_value(objects.table_routing_dsp_input, i, 4, inputChannelName.c_str());
 			}
 
+            lv_table_set_cell_value(objects.table_routing_dsp_input, 0, 0, "Source");
+            lv_table_set_cell_value(objects.table_routing_dsp_input, 0, 2, "Tap-Point");
+            lv_table_set_cell_value(objects.table_routing_dsp_input, 0, 4, "DSP-Input");
 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_RIGHT);
 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_RIGHT);
+
+            lv_obj_add_event_cb(objects.table_routing_dsp_input, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+            lv_obj_add_flag(objects.table_routing_dsp_input, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+
+            // store config pointer in user data for use in draw callback
+            lv_obj_set_user_data(objects.table_routing_dsp_input, &gui_selected_item);
 
 			BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
@@ -86,12 +147,12 @@ class PageRoutingChannels: public Page
 
 		void OnChange(bool force_update) override {
 			if(gui_selected_item_before != gui_selected_item) {
-				if (gui_selected_item < 0) {
+				if (gui_selected_item < 1) {
 					// limit list at the top
-					gui_selected_item = 0;
-				}else if (gui_selected_item >= 40) {
+					gui_selected_item = 1;
+				}else if (gui_selected_item > 40) {
 					// limit list at the bottom
-					gui_selected_item = 40 - 1;
+					gui_selected_item = 40;
 				}
 
 				// remove old indicator
@@ -139,7 +200,7 @@ class PageRoutingChannels: public Page
 					OnChange(false);
 					break;
 				case X32_ENC_ENCODER3:
-					config->Change(ROUTING_DSP_INPUT, amount, gui_selected_item);
+					config->Change(ROUTING_DSP_INPUT, amount, gui_selected_item - 1);
 					break;
 				case X32_ENC_ENCODER4:
 					int8_t absoluteChange;
@@ -148,12 +209,12 @@ class PageRoutingChannels: public Page
 					}else{
 						absoluteChange = 8;
 					}
-					for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++) {
+					for (uint8_t i = (gui_selected_item - 1); i < (gui_selected_item - 1 + 8); i++) {
 						config->Change(ROUTING_DSP_INPUT, absoluteChange, i);
 					}
 					break;
 				case X32_ENC_ENCODER5:
-					config->Change(ROUTING_DSP_INPUT_TAPPOINT, amount, gui_selected_item);
+					config->Change(ROUTING_DSP_INPUT_TAPPOINT, amount, gui_selected_item - 1);
 					break;
 				case X32_ENC_ENCODER6:
 					break;
