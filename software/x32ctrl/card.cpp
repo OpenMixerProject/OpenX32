@@ -65,8 +65,6 @@ String Card::SendCommand(String command){
 
 void Card::XUSB_XLIVE_SetConfig(uint8_t channelparameter, uint source)
 {
-    helper->Log("CARD TYPE = %d", type);
-
     if ((type != CARD_TYPE_XUSB) && (type != CARD_TYPE_XLIVE))
     {
         // only X-LIVE and X-USB support this command

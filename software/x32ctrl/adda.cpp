@@ -191,7 +191,8 @@ bool Adda::HasExpansion()
 }
 
 
-void Adda::SetSamplerate(uint32_t samplerate) {
+void Adda::SetSamplerate(uint32_t samplerate)
+{
 	helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "Set samplerate to %d", samplerate);
 
 	if (samplerate == 44100) {
