@@ -53,9 +53,9 @@ void Card::Init() {
 
 void Card::Sync()
 {
-    if (config->HasParameterChanged(CARD_NUMBER_OF_CHANNELS) || config->HasParameterChanged(CARD_SOURCE))
+    if (config->HasParameterChanged(CARD_NUMBER_OF_CHANNELS) || config->HasParameterChanged(CARD_AUDIO_SOURCE))
     {
-        XUSB_XLIVE_SetConfig(config->GetUint(CARD_NUMBER_OF_CHANNELS), config->GetUint(CARD_SOURCE));
+        XUSB_XLIVE_SetConfig(config->GetUint(CARD_NUMBER_OF_CHANNELS), config->GetUint(CARD_AUDIO_SOURCE));
     }
 }
 
