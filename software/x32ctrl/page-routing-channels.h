@@ -13,9 +13,33 @@ class PageRoutingChannels: public Page
 		// char inputSourceName[25] = "";
 		// char tapPointName[15] = "";
 
-		int gui_selected_item = 1;
-		int gui_selected_item_before = 1;
+		int gui_selected_item = 0;
+		int gui_selected_item_before = 0;
         bool page_routing_dsp1_table_drawn = false;
+
+        static void draw_event_header_cb(lv_event_t * e) {
+            lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
+            lv_draw_dsc_base_t * base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+            lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
+
+            // if the cells are drawn
+            if(base_dsc->part == LV_PART_ITEMS) {
+                uint32_t row = base_dsc->id1;
+                uint32_t col = base_dsc->id2;
+
+                if(row == 0) {
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+                        label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
+                    }
+                    lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+                    if(fill_draw_dsc) {
+                        fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_BLUE), fill_draw_dsc->color, LV_OPA_20);
+                        fill_draw_dsc->opa = LV_OPA_COVER;
+                    }
+				}
+			}
+		}
 
         static void draw_event_cb(lv_event_t * e) {
             lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
@@ -27,7 +51,7 @@ class PageRoutingChannels: public Page
                 uint32_t row = base_dsc->id1;
                 uint32_t col = base_dsc->id2;
 
-                // Make the texts in the first cell center aligned
+				/*
                 if(row == 0) {
                     lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
                     if(label_draw_dsc) {
@@ -38,7 +62,9 @@ class PageRoutingChannels: public Page
                         fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_BLUE), fill_draw_dsc->color, LV_OPA_20);
                         fill_draw_dsc->opa = LV_OPA_COVER;
                     }
-                }
+				}
+				*/
+				/*
                 // In the first column align the texts to the right
                 else if(col == 0) {
                     lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
@@ -46,6 +72,7 @@ class PageRoutingChannels: public Page
                         label_draw_dsc->align = LV_TEXT_ALIGN_RIGHT;
                     }
                 }
+				*/
 
 				/*
                 // Make every 2nd row grayish
@@ -58,12 +85,26 @@ class PageRoutingChannels: public Page
                 }
 				*/
 
-                // highlight selected row
+				// highlight selected row
                 if (row == (*(int*)lv_obj_get_user_data(obj))) {
                     lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
                     if(fill_draw_dsc) {
                         fill_draw_dsc->color = lv_palette_main(LV_PALETTE_BLUE);
                         //fill_draw_dsc->opa = LV_OPA_20;
+                    }
+
+                    // draw all cells center-aligned
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+						label_draw_dsc->color = LV_COLOR_MAKE(0x00, 0x00, 0x00);
+                        label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
+                    }
+                }else{
+                    // draw all cells center-aligned
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+						label_draw_dsc->color = LV_COLOR_MAKE(0xFA, 0xFA, 0xFA);
+                        label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
                     }
                 }
             }
@@ -84,31 +125,35 @@ class PageRoutingChannels: public Page
 		{
 			// Header
             lv_table_set_column_count(objects.table_routing_dsp_input_header, 5);
-            lv_table_set_column_width(objects.table_routing_dsp_input_header, 0, 200);
+            lv_table_set_column_width(objects.table_routing_dsp_input_header, 0, 400);
             lv_table_set_column_width(objects.table_routing_dsp_input_header, 1, 50);
             lv_table_set_column_width(objects.table_routing_dsp_input_header, 2, 100);
 			lv_table_set_column_width(objects.table_routing_dsp_input_header, 3, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_input_header, 4, 200);
             lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 0, "Source");
 			lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 2, "Tappoint");
-            lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 4, "Channel");
+            lv_table_set_cell_value(objects.table_routing_dsp_input_header, 0, 4, "Destination");
 
-			lv_table_set_row_count(objects.table_routing_dsp_input, 40 + 1); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+            lv_obj_add_event_cb(objects.table_routing_dsp_input_header, draw_event_header_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+            lv_obj_add_flag(objects.table_routing_dsp_input_header, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+
+			// Selection-Table
+			lv_table_set_row_count(objects.table_routing_dsp_input, 40); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
 			lv_table_set_column_count(objects.table_routing_dsp_input, 5); // Input | # | Source | # | Tap
-			lv_table_set_column_width(objects.table_routing_dsp_input, 0, 300);
+			lv_table_set_column_width(objects.table_routing_dsp_input, 0, 400);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 1, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 2, 100);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 3, 50);
 			lv_table_set_column_width(objects.table_routing_dsp_input, 4, 200);
-			for (uint8_t i=0; i < 40; i++)
+			for (uint8_t i = 0; i < 40; i++)
 			{
 				String inputChannelName;				
-				if ((i+1 >= DSP_BUF_IDX_DSPCHANNEL) && (i+1 < (DSP_BUF_IDX_DSPCHANNEL + 32)))
+				if (((i + 1) >= DSP_BUF_IDX_DSPCHANNEL) && ((i + 1) < (DSP_BUF_IDX_DSPCHANNEL + 32)))
 				{
         			inputChannelName = String("Channel ") + (i + 1);
 					
 				}
-				else if ((i+1 >= DSP_BUF_IDX_AUX) && (i+1 < (DSP_BUF_IDX_AUX + 8)))
+				else if (((i + 1) >= DSP_BUF_IDX_AUX) && ((i + 1) < (DSP_BUF_IDX_AUX + 8)))
 				{
         			inputChannelName = String("Aux ") + (i + 1 - 32);
 				}
@@ -118,9 +163,6 @@ class PageRoutingChannels: public Page
 				lv_table_set_cell_value(objects.table_routing_dsp_input, i, 4, inputChannelName.c_str());
 			}
 
-            lv_table_set_cell_value(objects.table_routing_dsp_input, 0, 0, "Source");
-            lv_table_set_cell_value(objects.table_routing_dsp_input, 0, 2, "Tap-Point");
-            lv_table_set_cell_value(objects.table_routing_dsp_input, 0, 4, "DSP-Input");
 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_RIGHT);
 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_RIGHT);
 
@@ -147,12 +189,12 @@ class PageRoutingChannels: public Page
 
 		void OnChange(bool force_update) override {
 			if(gui_selected_item_before != gui_selected_item) {
-				if (gui_selected_item < 1) {
+				if (gui_selected_item < 0) {
 					// limit list at the top
-					gui_selected_item = 1;
-				}else if (gui_selected_item > 40) {
+					gui_selected_item = 0;
+				}else if (gui_selected_item >= 40) {
 					// limit list at the bottom
-					gui_selected_item = 40;
+					gui_selected_item = 40 - 1;
 				}
 
 				// remove old indicator
@@ -200,7 +242,7 @@ class PageRoutingChannels: public Page
 					OnChange(false);
 					break;
 				case X32_ENC_ENCODER3:
-					config->Change(ROUTING_DSP_INPUT, amount, gui_selected_item - 1);
+					config->Change(ROUTING_DSP_INPUT, amount, gui_selected_item);
 					break;
 				case X32_ENC_ENCODER4:
 					int8_t absoluteChange;
@@ -209,12 +251,12 @@ class PageRoutingChannels: public Page
 					}else{
 						absoluteChange = 8;
 					}
-					for (uint8_t i = (gui_selected_item - 1); i < (gui_selected_item - 1 + 8); i++) {
+					for (uint8_t i = (gui_selected_item); i < (gui_selected_item + 8); i++) {
 						config->Change(ROUTING_DSP_INPUT, absoluteChange, i);
 					}
 					break;
 				case X32_ENC_ENCODER5:
-					config->Change(ROUTING_DSP_INPUT_TAPPOINT, amount, gui_selected_item - 1);
+					config->Change(ROUTING_DSP_INPUT_TAPPOINT, amount, gui_selected_item);
 					break;
 				case X32_ENC_ENCODER6:
 					break;

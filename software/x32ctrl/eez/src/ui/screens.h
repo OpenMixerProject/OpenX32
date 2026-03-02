@@ -35,6 +35,11 @@ typedef struct _objects_t {
     lv_obj_t *home_ch_5;
     lv_obj_t *home_ch_6;
     lv_obj_t *configtab;
+    lv_obj_t *config_anim_knob;
+    lv_obj_t *config_gain_knob;
+    lv_obj_t *config_pan_knob;
+    lv_obj_t *config_volume_knob2;
+    lv_obj_t *config_volume_knob;
     lv_obj_t *current_channel_source;
     lv_obj_t *current_channel_gain;
     lv_obj_t *current_channel_phantom;
@@ -724,6 +729,7 @@ typedef struct _objects_t {
     lv_obj_t *routing_input;
     lv_obj_t *routing_input_1;
     lv_obj_t *dsp;
+    lv_obj_t *table_routing_fpga_header;
     lv_obj_t *roller_routing_fpga_block;
     lv_obj_t *table_routing_fpga;
     lv_obj_t *table_routing_dsp_input_header;
@@ -732,6 +738,7 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
     lv_obj_t *setup_versioninfotext;
+    lv_obj_t *setup_card_toc_header;
     lv_obj_t *setup_card_totaltime;
     lv_obj_t *setup_card_currentposition;
     lv_obj_t *setup_card_debugtext;
@@ -778,8 +785,6 @@ typedef struct _objects_t {
     lv_obj_t *debugtext_dsp1;
     lv_obj_t *debugtext_dsp2;
     lv_obj_t *debugtext_x32ctrl;
-    lv_obj_t *testbar;
-    lv_obj_t *testbartext;
 } objects_t;
 
 extern objects_t objects;

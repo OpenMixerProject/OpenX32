@@ -11,8 +11,19 @@
     "styles.h",
     "ui.c",
     "ui.h",
+    "ui_image_knob.c",
+    "ui_image_knob0.c",
+    "ui_image_knob1.c",
+    "ui_image_knob2.c",
+    "ui_image_knob3.c",
+    "ui_image_knob4.c",
+    "ui_image_knob5.c",
+    "ui_image_knob6.c",
+    "ui_image_knob7.c",
+    "ui_image_logo.c",
     "ui_image_meterbridge.c",
     "ui_image_openx32logo.c",
+    "ui_image_tux.c",
     "vars.h"
   ]
 }

@@ -851,6 +851,7 @@ int SPI::UploadBitstreamDsps(bool useCli) {
                     last_progress = current_progress;
                 }
             }else{
+                /*
                 // use UI to show progress
                 totalBytesSent += bytesRead;
                 current_progress = (totalBytesSent * 100) / file_size[i];
@@ -860,10 +861,12 @@ int SPI::UploadBitstreamDsps(bool useCli) {
 					//pthread_mutex_lock(&lvgl_mutex);
                     lv_bar_set_value(objects.testbar, progress, LV_ANIM_OFF);
 					//pthread_mutex_unlock(&lvgl_mutex);
-					lv_timer_handler(); // allow LVGL to handle UI
+					lv_timer_handler(); // allow LVGL to handle UI (does not work under LVGL 9.5)
+                    lv_refr_now(); // force refresh of all displays
 
                     last_progress = current_progress;
                 }
+                */
             }
         }
         

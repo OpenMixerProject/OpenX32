@@ -493,3 +493,37 @@ String Helper::secondsToHmsTechnical(uint32_t seconds, bool withDots){
     return (s_hr + s_min + s_sec);
   }
 }
+
+String Helper::intToStringTwoDigits(int value)
+{
+  String result ;
+
+  if (value < 10)
+    result = "0" + String(value);
+  else
+    result = String(value);
+
+  return result;
+}
+
+String Helper::intToHexString(int value)
+{
+  String result ;
+
+  if (value < 0x10)
+    result = '0' + String(value, HEX);
+  else
+    result = String(value, HEX);
+
+  return result;
+}
+
+float Helper::rescale(float input, float inputMin, float inputMax, float outputMin, float outputMax) {
+    // Verhindert Division durch Null, falls der Eingangsbereich ungültig ist
+    if (inputMax == inputMin) {
+        return outputMin; 
+    }
+
+    // Die eigentliche Skalierungsformel
+    return (input - inputMin) * (outputMax - outputMin) / (inputMax - inputMin) + outputMin;
+}

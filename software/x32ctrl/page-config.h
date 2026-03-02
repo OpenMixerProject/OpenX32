@@ -53,6 +53,7 @@ class PageConfig : public Page {
             if (config->HasParameterChanged(CHANNEL_GAIN, chanIndex) || force_update)
             {
                 lv_label_set_text(objects.current_channel_gain, config->GetParameter(CHANNEL_GAIN)->GetLabelAndValue(chanIndex).c_str());
+                lv_image_set_rotation(objects.config_gain_knob, helper->rescale(config->GetFloat(CHANNEL_GAIN), -12.0f, 45.5f, 0.0f, 2900.0f));
             }
 
             if (config->HasParameterChanged(CHANNEL_PHANTOM, chanIndex) || force_update)
@@ -68,11 +69,41 @@ class PageConfig : public Page {
             if (config->HasParameterChanged(CHANNEL_PANORAMA, chanIndex) || force_update)
             {
                 lv_label_set_text(objects.current_channel_pan_bal, config->GetParameter(CHANNEL_PANORAMA)->GetLabelAndValue(chanIndex).c_str());
+                lv_image_set_rotation(objects.config_pan_knob, helper->rescale(config->GetFloat(CHANNEL_PANORAMA), -100.0f, 100.0f, 0.0f, 2900.0f));
             }
 
             if (config->HasParameterChanged(CHANNEL_VOLUME, chanIndex) || force_update)
             {
                 lv_label_set_text(objects.current_channel_volume, config->GetParameter(CHANNEL_VOLUME)->GetLabelAndValue(chanIndex).c_str());
+                lv_image_set_rotation(objects.config_volume_knob, helper->rescale(config->GetFloat(CHANNEL_VOLUME), -100.0f, 10.0f, 0.0f, 2900.0f));
+
+                uint volumeTmp = helper->rescale(config->GetFloat(CHANNEL_VOLUME), -100.0f, 10.0f, 0.0f, 7.0f);
+                switch (volumeTmp) {
+                    case 0:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob0);
+                        break;
+                    case 1:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob1);
+                        break;
+                    case 2:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob2);
+                        break;
+                    case 3:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob3);
+                        break;
+                    case 4:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob4);
+                        break;
+                    case 5:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob5);
+                        break;
+                    case 6:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob6);
+                        break;
+                    case 7:
+                        lv_img_set_src(objects.config_volume_knob2, &img_knob7);
+                        break;
+                }
             }
 
             if (config->HasParameterChanged(CHANNEL_MUTE, chanIndex) || force_update)

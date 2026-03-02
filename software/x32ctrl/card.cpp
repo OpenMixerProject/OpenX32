@@ -275,7 +275,7 @@ String Card::XLIVE_SessionNameToString(String timecodeHex) {
   uint8_t minute =  (timecode & 0x7FF) >> 5;
   uint8_t second =  (timecode & 0x1F) << 1;
 
-  return String(day) + "." + String(month) + "." + String(year) + " " + String(hour) + ":" + String(minute) + ":" + String(second);
+  return helper->intToStringTwoDigits(day) + "." + helper->intToStringTwoDigits(month) + "." + String(year) + " " + helper->intToStringTwoDigits(hour) + ":" + helper->intToStringTwoDigits(minute) + ":" + helper->intToStringTwoDigits(second);
 }
 
 String Card::XLIVE_DateTimeToSessionName(uint8_t day, uint8_t month, uint16_t year, uint8_t hour, uint8_t minute, uint8_t second) {

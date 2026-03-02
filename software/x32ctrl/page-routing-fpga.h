@@ -18,6 +18,30 @@ class PageRoutingFpga: public Page
         uint gui_items_offset = 0;
         uint gui_items_count = 0;
 
+        static void draw_event_header_cb(lv_event_t * e) {
+            lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
+            lv_draw_dsc_base_t * base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+            lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
+
+            // if the cells are drawn
+            if(base_dsc->part == LV_PART_ITEMS) {
+                uint32_t row = base_dsc->id1;
+                uint32_t col = base_dsc->id2;
+
+                if(row == 0) {
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+                        label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
+                    }
+                    lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
+                    if(fill_draw_dsc) {
+                        fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_BLUE), fill_draw_dsc->color, LV_OPA_20);
+                        fill_draw_dsc->opa = LV_OPA_COVER;
+                    }
+				}
+			}
+		}
+
         static void draw_event_cb(lv_event_t * e) {
             lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
             lv_draw_dsc_base_t * base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
@@ -28,9 +52,9 @@ class PageRoutingFpga: public Page
                 uint32_t row = base_dsc->id1;
                 uint32_t col = base_dsc->id2;
 
+                /*
                 // Make the texts in the first cell center aligned
                 if(row == 0) {
-                    /*
                     lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
                     if(label_draw_dsc) {
                         label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
@@ -40,8 +64,8 @@ class PageRoutingFpga: public Page
                         fill_draw_dsc->color = lv_color_mix(lv_palette_main(LV_PALETTE_BLUE), fill_draw_dsc->color, LV_OPA_20);
                         fill_draw_dsc->opa = LV_OPA_COVER;
                     }
-                    */
                 }
+                */
                 /*
                 // In the first column align the texts to the right
                 else if(col == 0) {
@@ -70,6 +94,20 @@ class PageRoutingFpga: public Page
                         fill_draw_dsc->color = lv_palette_main(LV_PALETTE_BLUE);
                         //fill_draw_dsc->opa = LV_OPA_20;
                     }
+
+                    // draw all cells center-aligned
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+						label_draw_dsc->color = LV_COLOR_MAKE(0x00, 0x00, 0x00);
+                        label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
+                    }
+                }else{
+                    // draw all cells center-aligned
+                    lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
+                    if(label_draw_dsc) {
+						label_draw_dsc->color = LV_COLOR_MAKE(0xFA, 0xFA, 0xFA);
+                        label_draw_dsc->align = LV_TEXT_ALIGN_CENTER;
+                    }
                 }
             }
         }
@@ -89,11 +127,23 @@ class PageRoutingFpga: public Page
 
         void OnInit() override 
         {
+            // Header
+            lv_table_set_column_count(objects.table_routing_fpga_header, 3);
+            lv_table_set_column_width(objects.table_routing_fpga_header, 0, 300);
+            lv_table_set_column_width(objects.table_routing_fpga_header, 1, 50);
+            lv_table_set_column_width(objects.table_routing_fpga_header, 2, 300);
+            lv_table_set_cell_value(objects.table_routing_fpga_header, 0, 0, "Source");
+            lv_table_set_cell_value(objects.table_routing_fpga_header, 0, 2, "Destination");
+
+            lv_obj_add_event_cb(objects.table_routing_fpga_header, draw_event_header_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+            lv_obj_add_flag(objects.table_routing_fpga_header, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+
+            // Selection-Table
             lv_table_set_row_count(objects.table_routing_fpga, NUM_OUTPUT_CHANNEL); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
             lv_table_set_column_count(objects.table_routing_fpga, 3);
-            lv_table_set_column_width(objects.table_routing_fpga, 0, 200);
+            lv_table_set_column_width(objects.table_routing_fpga, 0, 300);
             lv_table_set_column_width(objects.table_routing_fpga, 1, 50);
-            lv_table_set_column_width(objects.table_routing_fpga, 2, 200);
+            lv_table_set_column_width(objects.table_routing_fpga, 2, 300);
 
             lv_obj_add_event_cb(objects.table_routing_fpga, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.table_routing_fpga, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);

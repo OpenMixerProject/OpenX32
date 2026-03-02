@@ -135,4 +135,7 @@ class Helper {
         uint getNumberOfEntries(String s, char separator);
         String secondsToHmsHuman(uint32_t seconds);
         String secondsToHmsTechnical(uint32_t seconds, bool withDots);
+        String intToStringTwoDigits(int value);
+        String intToHexString(int value);
+        float rescale(float input, float inputMin, float inputMax, float outputMin, float outputMax);
 };
