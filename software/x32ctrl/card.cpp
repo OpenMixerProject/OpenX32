@@ -51,9 +51,11 @@ void Card::Init() {
     }
 }
 
-void Card::Sync() {
-    if (config->HasParameterChanged(MP_ID::CARD_NUMBER_OF_CHANNELS) || config->HasParameterChanged(MP_ID::CARD_SOURCE)) {
-        XUSB_XLIVE_SetConfig(config->GetUint(MP_ID::CARD_NUMBER_OF_CHANNELS), config->GetUint(MP_ID::CARD_SOURCE));
+void Card::Sync()
+{
+    if (config->HasParameterChanged(CARD_NUMBER_OF_CHANNELS) || config->HasParameterChanged(CARD_SOURCE))
+    {
+        XUSB_XLIVE_SetConfig(config->GetUint(CARD_NUMBER_OF_CHANNELS), config->GetUint(CARD_SOURCE));
     }
 }
 
@@ -61,8 +63,12 @@ String Card::SendCommand(String command){
 	return adda->SendReceive(command);
 }
 
-void Card::XUSB_XLIVE_SetConfig(uint8_t channelparameter, uint source) {
-    if ((type != CARD_TYPE_XUSB) && (type != CARD_TYPE_XLIVE)) {
+void Card::XUSB_XLIVE_SetConfig(uint8_t channelparameter, uint source)
+{
+    helper->Log("CARD TYPE = %d", type);
+
+    if ((type != CARD_TYPE_XUSB) && (type != CARD_TYPE_XLIVE))
+    {
         // only X-LIVE and X-USB support this command
         return;
     }
@@ -94,7 +100,8 @@ void Card::XUSB_XLIVE_SetConfig(uint8_t channelparameter, uint source) {
 	SendCommand(command);
 }
 
-bool Card::XLIVE_Stop() {
+bool Card::XLIVE_Stop()
+{
 	SendCommand("*9F#");
     XLIVE_Recording = false;
     XLIVE_Playing = false;
@@ -239,14 +246,14 @@ bool Card::XLIVE_SelectSession(String session) {
 
     //uint currentSongMarkerCount = ans.substring(6, 6+2).toInt();
     currentSongNumberChannels = ans.substring(8, 8+2).toInt();
-    currentSongTotalSeconds = (float)helper->hexToInt(ans.substring(11, 11+8)) / (float)config->GetUint(MP_ID::SAMPLERATE);
+    currentSongTotalSeconds = (float)helper->hexToInt(ans.substring(11, 11+8)) / (float)config->GetUint(SAMPLERATE);
 
     return true;
 }
 
 String Card::XLIVE_SecondsToSampleIndex(uint seconds) {
     // X-Live works with 48kHz (or 44.1kHz) sample rate, so we can calculate the sample index from the time in seconds
-    uint32_t sampleIndex = seconds * (float)config->GetUint(MP_ID::SAMPLERATE);
+    uint32_t sampleIndex = seconds * (float)config->GetUint(SAMPLERATE);
 
     return helper->intToHex(sampleIndex, 8);
 }
@@ -255,7 +262,7 @@ uint Card::XLIVE_SampleIndexToSeconds(String sampleIndexHex) {
     uint32_t sampleIndex = helper->hexToInt(sampleIndexHex);
 
     // X-Live works with 48kHz (or 44.1kHz) sample rate, so we can calculate the time from the sample index
-    uint32_t seconds = sampleIndex / (float)config->GetUint(MP_ID::SAMPLERATE);
+    uint32_t seconds = sampleIndex / (float)config->GetUint(SAMPLERATE);
 
     return seconds;
 }

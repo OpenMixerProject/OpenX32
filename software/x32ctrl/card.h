@@ -12,7 +12,10 @@
 #define CARD_TYPE_XMADI 4
 #define CARD_TYPE_UNKNOWN 255
 
-class Card : X32Base {
+class Card : X32Base
+{
+    using enum MP_ID;
+
     private:
         Adda* adda;
 

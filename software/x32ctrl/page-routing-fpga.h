@@ -67,7 +67,7 @@ class PageRoutingFpga: public Page
                 if (row == (*(int*)lv_obj_get_user_data(obj))) {
                     lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
                     if(fill_draw_dsc) {
-                        fill_draw_dsc->color = lv_palette_main(LV_PALETTE_YELLOW);
+                        fill_draw_dsc->color = lv_palette_main(LV_PALETTE_BLUE);
                         //fill_draw_dsc->opa = LV_OPA_20;
                     }
                 }
@@ -75,6 +75,7 @@ class PageRoutingFpga: public Page
         }
 
     public:
+
         PageRoutingFpga(PageBaseParameter* pagebasepar) : Page(pagebasepar)
         {
             prevPage = X32_PAGE::ROUTING;

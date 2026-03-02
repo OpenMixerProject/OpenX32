@@ -61,7 +61,7 @@ class PageSetupCard: public Page {
                 if (row == (*(int*)lv_obj_get_user_data(obj))) {
                     lv_draw_fill_dsc_t * fill_draw_dsc = lv_draw_task_get_fill_dsc(draw_task);
                     if(fill_draw_dsc) {
-                        fill_draw_dsc->color = lv_palette_main(LV_PALETTE_YELLOW);
+                        fill_draw_dsc->color = lv_palette_main(LV_PALETTE_BLUE);
                         //fill_draw_dsc->opa = LV_OPA_20;
                     }
                 }
@@ -155,6 +155,7 @@ class PageSetupCard: public Page {
             {
                 lv_label_set_text(objects.setup_card_channelmode, config->GetParameter(CARD_NUMBER_OF_CHANNELS)->GetFormatedValue().c_str());
             }
+            
             if (config->HasParameterChanged(CARD_AUDIO_SOURCE) || force_update)
             {
                 lv_label_set_text(objects.setup_card_sourcemode, config->GetParameter(CARD_AUDIO_SOURCE)->GetFormatedValue().c_str());
