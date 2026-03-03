@@ -13,7 +13,7 @@ void Config::SetModel(String model){
         _model = X32_MODEL::CORE;
     }else if (model == "X32RACK") {
         _model = X32_MODEL::RACK;
-    }else if (model == "X32Producer") {
+    }else if (model == "X32P") {
         _model = X32_MODEL::PRODUCER;
     }else if (model == "X32C") {
         _model =  X32_MODEL::COMPACT;
