@@ -227,8 +227,12 @@ class PageRoutingChannels: public Page
 			}
 		}
 
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-            switch (encoder){
+        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override
+		{
+			bool handled = true;
+
+            switch (encoder)
+			{
 				case X32_ENC_ENCODER1:
 					gui_selected_item += amount;
 					OnChange(false);
@@ -261,10 +265,10 @@ class PageRoutingChannels: public Page
 				case X32_ENC_ENCODER6:
 					break;
 				default:  
-					// just here to avoid compiler warnings                  
+					handled = false;              
 					break;
 			}
 
-			return true;
+			return handled;
         }
 };
