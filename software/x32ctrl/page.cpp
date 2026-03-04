@@ -38,12 +38,12 @@ void Page::Init()
 
     // Prepare Encoder Bindingssystem
     // -> put labels and sliders in binding struct
-    encoderbinding[DISPLAY_ENCODER_1] = new PageBinding_Encoder(objects.widget1__label, objects.widget1__value, objects.widget1__slider, objects.widget1__label_buttonpress);
-    encoderbinding[DISPLAY_ENCODER_2] = new PageBinding_Encoder(objects.widget2__label, objects.widget2__value, objects.widget2__slider, objects.widget2__label_buttonpress);
-    encoderbinding[DISPLAY_ENCODER_3] = new PageBinding_Encoder(objects.widget3__label, objects.widget3__value, objects.widget3__slider, objects.widget3__label_buttonpress);
-    encoderbinding[DISPLAY_ENCODER_4] = new PageBinding_Encoder(objects.widget4__label, objects.widget4__value, objects.widget4__slider, objects.widget4__label_buttonpress);
-    encoderbinding[DISPLAY_ENCODER_5] = new PageBinding_Encoder(objects.widget5__label, objects.widget5__value, objects.widget5__slider, objects.widget5__label_buttonpress);
-    encoderbinding[DISPLAY_ENCODER_6] = new PageBinding_Encoder(objects.widget6__label, objects.widget6__value, objects.widget6__slider, objects.widget6__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_1] = new PageBinding_Encoder(objects.widget1__label, objects.widget1__slider, objects.widget1__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_2] = new PageBinding_Encoder(objects.widget2__label, objects.widget2__slider, objects.widget2__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_3] = new PageBinding_Encoder(objects.widget3__label, objects.widget3__slider, objects.widget3__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_4] = new PageBinding_Encoder(objects.widget4__label, objects.widget4__slider, objects.widget4__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_5] = new PageBinding_Encoder(objects.widget5__label, objects.widget5__slider, objects.widget5__label_buttonpress);
+    encoderbinding[DISPLAY_ENCODER_6] = new PageBinding_Encoder(objects.widget6__label, objects.widget6__slider, objects.widget6__label_buttonpress);
 
     OnInit();
     initDone = true;
@@ -270,7 +270,7 @@ void Page::SyncEncoderWidgets(bool force) {
         else if (binding->mp_id_encoder == MP_ID::PAGE_CUSTOM_ENCODER)
         {
             lv_label_set_text(binding->Label, custom_encoder[encoder_index].label.c_str());
-            lv_label_set_text(binding->ValueLabel, custom_encoder[encoder_index].value.c_str());
+            //lv_label_set_text(binding->ValueLabel, custom_encoder[encoder_index].value.c_str());
         }
         // encoder is handled by this:
         else
@@ -284,8 +284,9 @@ void Page::SyncEncoderWidgets(bool force) {
                     __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(binding->mp_id_encoder)) + String(" is not defined!")).c_str());
                 }        
 
-                lv_label_set_text(binding->Label, parameter->GetName(targetIndex).c_str());
-                lv_label_set_text(binding->ValueLabel, parameter->GetFormatedValue(targetIndex).c_str());
+                lv_label_set_text(binding->Label, parameter->GetLabelAndValue(targetIndex).c_str());
+                //lv_label_set_text(binding->Label, parameter->GetName(targetIndex).c_str());
+                //lv_label_set_text(binding->ValueLabel, parameter->GetFormatedValue(targetIndex).c_str());
 
                 // Hide or Show Slider 
                 if (parameter->GetHideEncoderSlider())
@@ -337,7 +338,7 @@ void Page::SyncEncoderWidgets(bool force) {
 void Page::ClearEncoder(PageBinding_Encoder *binding)
 {
     lv_label_set_text(binding->Label, "");
-    lv_label_set_text(binding->ValueLabel, "");
+    //lv_label_set_text(binding->ValueLabel, "");
     lv_obj_set_flag(binding->Slider, LV_OBJ_FLAG_HIDDEN, true);
     lv_label_set_text(binding->ButtonLabel, "");
     remove_style_label_bg_yellow(binding->ButtonLabel);
