@@ -7611,7 +7611,7 @@
                 }
               ],
               "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-              "hiddenFlag": false,
+              "hiddenFlag": true,
               "hiddenFlagType": "literal",
               "clickableFlag": true,
               "clickableFlagType": "literal",
@@ -10078,7 +10078,7 @@
                 "pad_column": 0,
                 "border_width": 0,
                 "radius": 0,
-                "bg_color": "#000000"
+                "bg_color": "#15171a"
               }
             }
           }

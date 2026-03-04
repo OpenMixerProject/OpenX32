@@ -347,7 +347,7 @@ void init_style_panel_flat_black_MAIN_DEFAULT(lv_style_t *style) {
     lv_style_set_pad_column(style, 0);
     lv_style_set_border_width(style, 0);
     lv_style_set_radius(style, 0);
-    lv_style_set_bg_color(style, lv_color_hex(0xff000000));
+    lv_style_set_bg_color(style, lv_color_hex(0xff15171a));
 };
 
 lv_style_t *get_style_panel_flat_black_MAIN_DEFAULT() {

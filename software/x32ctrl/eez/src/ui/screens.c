@@ -1447,6 +1447,7 @@ void create_screen_main() {
             objects.display_encoder_sliders = obj;
             lv_obj_set_pos(obj, 0, 425);
             lv_obj_set_size(obj, LV_PCT(100), 55);
+            lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
             add_style_panel_flat_black(obj);
             {
                 lv_obj_t *parent_obj = obj;
