@@ -25,7 +25,7 @@
           {
             "type": "border",
             "selected": 0,
-            "size": 376.5,
+            "size": 206.5,
             "location": "right",
             "children": [
               {
@@ -176,7 +176,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -199,7 +200,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 28.18100082310399,
+              "weight": 32.80365104681733,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -219,7 +220,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 14.541540757632408,
+              "weight": 9.918890533919074,
               "children": [
                 {
                   "type": "tab",
@@ -229,8 +230,7 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ],
-              "active": true
+              ]
             }
           ]
         }
@@ -1059,8 +1059,8 @@
       },
       "transform": {
         "translate": {
-          "x": -358.9642648659928,
-          "y": -209.42786967109524
+          "x": -354.3079938928478,
+          "y": -210.59379877589208
         },
         "scale": 1
       },
@@ -1075,12 +1075,11 @@
         "0": {
           "1": {
             "0": {
-              "0": {}
-            }
-          },
-          "2": {
-            "0": {
-              "$selected": true
+              "0": {
+                "0": {
+                  "$selected": true
+                }
+              }
             }
           },
           "3": {}
@@ -1094,9 +1093,7 @@
         "1": {}
       },
       "3": {},
-      "4": {
-        "$selected": true
-      },
+      "4": {},
       "5": {
         "$selected": true
       }
@@ -1280,10 +1277,10 @@
       "selection": {},
       "transform": {
         "translate": {
-          "x": -196.9493506493507,
-          "y": 12.861255411255401
+          "x": -402.38203463203615,
+          "y": -238.70526695526718
         },
-        "scale": 1
+        "scale": 5
       },
       "timeline": {
         "isEditorActive": false,
@@ -1293,9 +1290,9 @@
       },
       "selectionFront": {},
       "selectionBack": {
-        "0": {
-          "$selected": true
-        }
+        "0": {},
+        "1": {},
+        "2": {}
       }
     }
   },
@@ -1311,11 +1308,11 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "ITEMS",
+  "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
     "MISCELLANEOUS",
-    "BACKGROUND"
+    "TEXT"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
