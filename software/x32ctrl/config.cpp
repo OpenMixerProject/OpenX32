@@ -206,7 +206,7 @@ void Config::DefineMixerparameters() {
     ->DefConfig(group, "active_scene")
     ->DefMinMaxStandard_Uint(0, 99, 0);
 
-    DefParameter(SELECTED_CHANNEL, cat, "Selected Channel")
+    DefParameter(SELECTED_CHANNEL, cat, "Selected Ch")
     ->DefUOM(MP_UOM::ZERO_BASED_INDEX__START_BY_ONE)
     ->DefHideEncoderReset()
     ->DefConfig(group, "selected_channel")

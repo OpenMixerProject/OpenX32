@@ -1063,7 +1063,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
-                              "locked": false,
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "current_channel_source_1",
@@ -1118,6 +1118,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "config_vumeter",
@@ -1168,6 +1169,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "config_gain_knob",
@@ -1227,6 +1229,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "hiddenInEditor": false,
                               "timeline": [],
                               "eventHandlers": [],
@@ -1287,6 +1290,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "hiddenInEditor": false,
                               "timeline": [],
                               "eventHandlers": [],
@@ -1347,7 +1351,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
-                              "locked": false,
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "current_channel_source",
@@ -1402,7 +1406,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
-                              "locked": false,
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "",
@@ -1446,7 +1450,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
-                              "locked": false,
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "",
@@ -1490,6 +1494,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "current_channel_pan_bal",
@@ -1540,6 +1545,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "current_channel_volume",
@@ -1590,6 +1596,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "config_phantom_checkbox",
@@ -1640,6 +1647,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "config_phase_checkbox",
@@ -1690,6 +1698,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "config_mute_checkbox",
@@ -1740,6 +1749,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "",
@@ -1783,6 +1793,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "current_channel_gain",
@@ -1833,6 +1844,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "",
@@ -1883,6 +1895,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "",
@@ -1933,6 +1946,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "",
@@ -1983,6 +1997,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "openx32_demo_knob",
@@ -2033,6 +2048,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "",
@@ -2083,6 +2099,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "leftUnit": "px",
@@ -2156,6 +2173,7 @@
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
+                              "locked": true,
                               "timeline": [],
                               "eventHandlers": [],
                               "identifier": "config_phantom_button",
