@@ -1,9 +1,9 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/4",
-    "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/4",
-    "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/16",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/1",
+    "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/2/childStyles/1",
+    "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/11",
     "subnavigationSelectedItems": {}
   },
   "layoutModel": {
@@ -24,8 +24,8 @@
           },
           {
             "type": "border",
-            "selected": 2,
-            "size": 197.5,
+            "selected": 5,
+            "size": 167.5,
             "location": "right",
             "children": [
               {
@@ -128,7 +128,7 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 12.135480554842779,
+              "weight": 10.95187825584001,
               "children": [
                 {
                   "type": "tabset",
@@ -177,7 +177,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -200,7 +201,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 26.527445022377414,
+              "weight": 25.60713730917505,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -214,25 +215,13 @@
                     "permanent": true
                   },
                   "icon": "svg:page"
-                },
-                {
-                  "type": "tab",
-                  "id": "#80783bdc-4ff5-4c9c-b79d-201d7f929fa6",
-                  "name": "config_slider_display_encoder",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/4",
-                    "permanent": false
-                  },
-                  "icon": "svg:user_widget"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 15.48628666929148,
+              "weight": 17.59019668149662,
               "children": [
                 {
                   "type": "tab",
@@ -1071,7 +1060,7 @@
       },
       "transform": {
         "translate": {
-          "x": -445.51887848620316,
+          "x": -397.4288784862034,
           "y": -236.1868345867764
         },
         "scale": 1
@@ -1087,12 +1076,11 @@
         "0": {
           "1": {
             "0": {
-              "0": {
-                "1": {
-                  "10": {}
-                }
-              }
+              "0": {}
             }
+          },
+          "3": {
+            "$selected": true
           }
         }
       }
@@ -1101,10 +1089,11 @@
       "0": {},
       "1": {},
       "2": {
-        "1": {}
+        "1": {
+          "$selected": true
+        }
       },
-      "3": {},
-      "4": {
+      "3": {
         "$selected": true
       }
     },
@@ -1224,9 +1213,7 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      },
-      "selectionFront": {},
-      "selectionBack": {}
+      }
     },
     "[OpenX32Gui.eez-project]:/userWidgets/5[flow-state]": {
       "selection": {},
@@ -1242,9 +1229,7 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      },
-      "selectionFront": {},
-      "selectionBack": {}
+      }
     },
     "[OpenX32Gui.eez-project]:/userWidgets/7[flow-state]": {
       "selection": {},
@@ -1299,9 +1284,7 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      },
-      "selectionFront": {},
-      "selectionBack": {}
+      }
     }
   },
   "activeOutputSection": 0,
@@ -1316,18 +1299,16 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "MAIN",
+  "lvglPart": "ITEMS",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "IMAGE",
+    "MISCELLANEOUS",
     "TEXT",
-    "LINE",
-    "ARC",
-    "MISCELLANEOUS"
+    "POSITION AND SIZE"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
   "flowZoom": 1,
   "implementationLanguage": "C",
-  "openDialogDefaultPath": "C:\\Cloud\\Dokumente\\OpenX32_Website\\SoftwareImages\\OpenX32_Knobs_Shadow.png"
+  "openDialogDefaultPath": "C:\\Cloud\\Dokumente\\OpenX32_Website\\SoftwareImages\\sdcard_all.png"
 }

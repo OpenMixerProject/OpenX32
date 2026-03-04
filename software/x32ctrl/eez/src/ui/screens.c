@@ -1076,18 +1076,25 @@ void create_screen_main() {
                                     {
                                         lv_obj_t *parent_obj = obj;
                                         {
+                                            // current_channel_source_4
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            objects.current_channel_source_4 = obj;
+                                            lv_obj_set_pos(obj, 32, 9);
+                                            lv_obj_set_size(obj, 218, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xff264056), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_bg_opa(obj, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_top(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_bottom(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "BOARD VERSION INFO");
+                                        }
+                                        {
                                             // setup_versioninfotext
                                             lv_obj_t *obj = lv_label_create(parent_obj);
                                             objects.setup_versioninfotext = obj;
-                                            lv_obj_set_pos(obj, 25, 182);
+                                            lv_obj_set_pos(obj, 32, 47);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_label_set_text(obj, "...");
-                                        }
-                                        {
-                                            lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 25, 158);
-                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "Version information:");
                                         }
                                     }
                                 }
@@ -1169,14 +1176,6 @@ void create_screen_main() {
                                             lv_label_set_text(obj, "...");
                                         }
                                         {
-                                            // setup_card_debugtext
-                                            lv_obj_t *obj = lv_label_create(parent_obj);
-                                            objects.setup_card_debugtext = obj;
-                                            lv_obj_set_pos(obj, 31, 74);
-                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "Text");
-                                        }
-                                        {
                                             // setup_card_toc
                                             lv_obj_t *obj = lv_table_create(parent_obj);
                                             objects.setup_card_toc = obj;
@@ -1198,46 +1197,115 @@ void create_screen_main() {
                                             lv_bar_set_value(obj, 50, LV_ANIM_OFF);
                                         }
                                         {
-                                            // setup_card_sourcemode
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            objects.setup_card_sourcemode = obj;
-                                            lv_obj_set_pos(obj, 157, 49);
+                                            lv_obj_set_pos(obj, 32, 73);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "Text");
+                                            lv_label_set_text(obj, "X-Card-Source:");
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    // setup_card_sourcemode
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.setup_card_sourcemode = obj;
+                                                    lv_obj_set_pos(obj, 126, 0);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Text");
+                                                }
+                                            }
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 31, 49);
+                                            lv_obj_set_pos(obj, 32, 98);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "Card-Source:");
+                                            lv_label_set_text(obj, "X-Card-String:");
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    // setup_card_detected
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.setup_card_detected = obj;
+                                                    lv_obj_set_pos(obj, 126, 0);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "-");
+                                                }
+                                            }
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 31, 98);
-                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "Card detected:");
-                                        }
-                                        {
-                                            // setup_card_detected
-                                            lv_obj_t *obj = lv_label_create(parent_obj);
-                                            objects.setup_card_detected = obj;
-                                            lv_obj_set_pos(obj, 157, 98);
-                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "-");
-                                        }
-                                        {
-                                            lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 31, 23);
+                                            lv_obj_set_pos(obj, 32, 47);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_label_set_text(obj, "Channelmode:");
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    // setup_card_channelmode
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.setup_card_channelmode = obj;
+                                                    lv_obj_set_pos(obj, 126, 0);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Text");
+                                                }
+                                            }
                                         }
                                         {
-                                            // setup_card_channelmode
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            objects.setup_card_channelmode = obj;
-                                            lv_obj_set_pos(obj, 157, 23);
+                                            lv_obj_set_pos(obj, 32, 154);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "Text");
+                                            lv_label_set_text(obj, "SD-Card 1:");
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    // setup_card_sd1info
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.setup_card_sd1info = obj;
+                                                    lv_obj_set_pos(obj, 128, 0);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Text");
+                                                }
+                                            }
+                                        }
+                                        {
+                                            // current_channel_source_2
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            objects.current_channel_source_2 = obj;
+                                            lv_obj_set_pos(obj, 31, 122);
+                                            lv_obj_set_size(obj, 312, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xff264056), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_bg_opa(obj, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_top(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_bottom(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "SD CARD INFORMATION (X-LIVE)");
+                                        }
+                                        {
+                                            // current_channel_source_3
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            objects.current_channel_source_3 = obj;
+                                            lv_obj_set_pos(obj, 32, 9);
+                                            lv_obj_set_size(obj, 312, LV_SIZE_CONTENT);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xff264056), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_bg_opa(obj, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_top(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_bottom(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_label_set_text(obj, "EXPANSION CARD INFORMATION");
+                                        }
+                                        {
+                                            lv_obj_t *obj = lv_label_create(parent_obj);
+                                            lv_obj_set_pos(obj, 31, 174);
+                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                            lv_label_set_text(obj, "SD-Card 2:");
+                                            {
+                                                lv_obj_t *parent_obj = obj;
+                                                {
+                                                    // setup_card_sd2info
+                                                    lv_obj_t *obj = lv_label_create(parent_obj);
+                                                    objects.setup_card_sd2info = obj;
+                                                    lv_obj_set_pos(obj, 129, 0);
+                                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                                    lv_label_set_text(obj, "Text");
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -1394,7 +1462,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 742);
+                    create_user_widget_config_slider_display_encoder(obj, 746);
                 }
                 {
                     // widget2
@@ -1408,7 +1476,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 747);
+                    create_user_widget_config_slider_display_encoder(obj, 751);
                 }
                 {
                     // widget3
@@ -1422,7 +1490,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 752);
+                    create_user_widget_config_slider_display_encoder(obj, 756);
                 }
                 {
                     // widget4
@@ -1436,7 +1504,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 757);
+                    create_user_widget_config_slider_display_encoder(obj, 761);
                 }
                 {
                     // widget5
@@ -1450,7 +1518,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 762);
+                    create_user_widget_config_slider_display_encoder(obj, 766);
                 }
                 {
                     // widget6
@@ -1464,7 +1532,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 767);
+                    create_user_widget_config_slider_display_encoder(obj, 771);
                 }
             }
         }
@@ -1508,12 +1576,12 @@ void tick_screen_main() {
     tick_user_widget_ms_bar8(551);
     tick_user_widget_ms_bar8(624);
     tick_user_widget_ms_bar(697);
-    tick_user_widget_config_slider_display_encoder(742);
-    tick_user_widget_config_slider_display_encoder(747);
-    tick_user_widget_config_slider_display_encoder(752);
-    tick_user_widget_config_slider_display_encoder(757);
-    tick_user_widget_config_slider_display_encoder(762);
-    tick_user_widget_config_slider_display_encoder(767);
+    tick_user_widget_config_slider_display_encoder(746);
+    tick_user_widget_config_slider_display_encoder(751);
+    tick_user_widget_config_slider_display_encoder(756);
+    tick_user_widget_config_slider_display_encoder(761);
+    tick_user_widget_config_slider_display_encoder(766);
+    tick_user_widget_config_slider_display_encoder(771);
 }
 
 void create_user_widget_8meters(lv_obj_t *parent_obj, int startWidgetIndex) {

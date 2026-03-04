@@ -31,6 +31,10 @@ class Card : X32Base
 
         bool XLIVE_Playing = false;
         bool XLIVE_Recording = false;
+        bool XLIVE_CardPresent[2] = {false, false};
+        uint XLIVE_CardTotalSpaceMB[2] = {0, 0};
+        uint XLIVE_CardRemaingSpaceMB[2] = {0, 0};
+        uint XLIVE_CardUsedSpaceMB[2] = {0, 0};
 
         void Init();
         void Sync();
@@ -43,8 +47,8 @@ class Card : X32Base
         bool XLIVE_PlayPause();
         bool XLIVE_Seek(uint sampleIndex);
         String XLIVE_RequestToc(uint* numberOfEntries);
-        uint XLIVE_Remaining();
-        uint XLIVE_Total();
+        void XLIVE_ReadRemainingCardSpace(uint card);
+        void XLIVE_ReadTotalCardSpaceMB(uint card);
         bool XLIVE_SelectInterface(uint option, uint interface);
         bool XLIVE_DeleteSession(String session);
         bool XLIVE_RecordNewSession();

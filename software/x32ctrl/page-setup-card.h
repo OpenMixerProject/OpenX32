@@ -228,23 +228,44 @@ class PageSetupCard: public Page {
                 OnShow(); // read TOC again and reset UI as we have changed the SD-Card
             }
 
-            // logic for the icons
-            if (mixer->card->XLIVE_Playing) {
-                lv_image_set_offset_x(objects.setup_card_sdcard, (2 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
-            }else if (mixer->card->XLIVE_Recording) {
-                lv_image_set_offset_x(objects.setup_card_sdcard, (3 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
-            }else{
-                lv_image_set_offset_x(objects.setup_card_sdcard, (1 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+            if (config->HasParameterChanged(CARD_POSITION) || force_update) {
+                if (mixer->card->XLIVE_Playing) {
+                    // update text-fields and progressbar
+                    lv_label_set_text_fmt(objects.setup_card_currentposition, helper->secondsToHmsHuman(mixer->card->currentSongPositionSeconds).c_str());
+                    lv_label_set_text_fmt(objects.setup_card_totaltime, helper->secondsToHmsHuman(mixer->card->currentSongTotalSeconds).c_str());
+                    int32_t percentage = (mixer->card->currentSongPositionSeconds * 100) / mixer->card->currentSongTotalSeconds;
+                    lv_bar_set_value(objects.setup_card_progress, percentage, LV_ANIM_OFF);
+                }else{
+                    lv_bar_set_value(objects.setup_card_progress, 0, LV_ANIM_OFF);
+                }
             }
-        }
 
-        void OnUpdateMeters() override {
-            if (mixer->card->XLIVE_Playing) {
-                // update text-fields and progressbar
-                lv_label_set_text_fmt(objects.setup_card_currentposition, helper->secondsToHmsHuman(mixer->card->currentSongPositionSeconds).c_str());
-                lv_label_set_text_fmt(objects.setup_card_totaltime, helper->secondsToHmsHuman(mixer->card->currentSongTotalSeconds).c_str());
-                int32_t percentage = (mixer->card->currentSongPositionSeconds * 100) / mixer->card->currentSongTotalSeconds;
-                lv_bar_set_value(objects.setup_card_progress, percentage, LV_ANIM_OFF);
+            if (config->HasParameterChanged(CARD_STATE) || force_update) {
+                // logic for the icons
+                if (mixer->card->XLIVE_CardPresent[config->GetUint(CARD_SDCARD)]) {
+                    if (mixer->card->XLIVE_Playing) {
+                        lv_image_set_offset_x(objects.setup_card_sdcard, (2 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+                    }else if (mixer->card->XLIVE_Recording) {
+                        lv_image_set_offset_x(objects.setup_card_sdcard, (3 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+                    }else{
+                        lv_image_set_offset_x(objects.setup_card_sdcard, (1 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+                    }
+                }else{
+                    // no card on this slot -> show "X"ed card
+                    lv_image_set_offset_x(objects.setup_card_sdcard, 0);
+                }
+
+                // update card-info
+                if (mixer->card->XLIVE_CardPresent[0]) {
+                    lv_label_set_text_fmt(objects.setup_card_sd1info, "%d MB / %d MB -> Free: %d MB (%d%%)", mixer->card->XLIVE_CardUsedSpaceMB[0], mixer->card->XLIVE_CardTotalSpaceMB[0], mixer->card->XLIVE_CardRemaingSpaceMB[0], (mixer->card->XLIVE_CardRemaingSpaceMB[0] * 100) / mixer->card->XLIVE_CardTotalSpaceMB[0]);
+                }else{
+                    lv_label_set_text(objects.setup_card_sd1info, "No Card");
+                }
+                if (mixer->card->XLIVE_CardPresent[1]) {
+                    lv_label_set_text_fmt(objects.setup_card_sd2info, "%d MB / %d MB -> Free: %d MB (%d%%)", mixer->card->XLIVE_CardUsedSpaceMB[1], mixer->card->XLIVE_CardTotalSpaceMB[1], mixer->card->XLIVE_CardRemaingSpaceMB[1], (mixer->card->XLIVE_CardRemaingSpaceMB[1] * 100) / mixer->card->XLIVE_CardTotalSpaceMB[1]);
+                }else{
+                    lv_label_set_text(objects.setup_card_sd2info, "No Card");
+                }
             }
         }
 
@@ -277,7 +298,6 @@ class PageSetupCard: public Page {
                         OnChange(false);
                         break;
                     case X32_BTN_ENCODER6: // Select
-                        lv_label_set_text(objects.setup_card_debugtext, helper->split(TOC, ',', gui_selected_item).c_str());
                         mixer->card->XLIVE_SelectSession(helper->split(TOC, ',', gui_selected_item));
                         break;
                     default:

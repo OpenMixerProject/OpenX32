@@ -698,7 +698,7 @@
 
 #define LV_USE_BUTTONMATRIX  1
 
-#define LV_USE_CALENDAR   1
+#define LV_USE_CALENDAR   0
 #if LV_USE_CALENDAR
     #define LV_CALENDAR_WEEK_STARTS_MONDAY 0
     #if LV_CALENDAR_WEEK_STARTS_MONDAY
@@ -740,7 +740,7 @@
 
 #define LV_USE_LIST       1
 
-#define LV_USE_LOTTIE     1
+#define LV_USE_LOTTIE     0
 
 #define LV_USE_MENU       1
 
@@ -898,11 +898,11 @@
 #define LV_USE_LIBPNG 0
 
 /** BMP decoder library */
-#define LV_USE_BMP 1
+#define LV_USE_BMP 0
 
 /** JPG + split JPG decoder library.
  *  Split JPG is a custom format optimized for embedded systems. */
-#define LV_USE_TJPGD 1
+#define LV_USE_TJPGD 0
 
 /** libjpeg-turbo decoder library.
  *  - Supports complete JPEG specifications and high-performance JPEG decoding. */
@@ -923,10 +923,10 @@
 #define LV_USE_RLE 1
 
 /** QR code library */
-#define LV_USE_QRCODE 1
+#define LV_USE_QRCODE 0
 
 /** Barcode code library */
-#define LV_USE_BARCODE 1
+#define LV_USE_BARCODE 0
 
 /** FreeType library */
 #define LV_USE_FREETYPE 0
@@ -952,10 +952,10 @@
 
 /** Enable Vector Graphic APIs
  *  - Requires `LV_USE_MATRIX = 1` */
-#define LV_USE_VECTOR_GRAPHIC  1
+#define LV_USE_VECTOR_GRAPHIC  0
 
 /** Enable ThorVG (vector graphics library) from the src/libs folder */
-#define LV_USE_THORVG_INTERNAL 1
+#define LV_USE_THORVG_INTERNAL 0
 
 /** Enable ThorVG by assuming that its installed and linked to the project */
 #define LV_USE_THORVG_EXTERNAL 0
@@ -968,8 +968,8 @@
 
 /*SVG library
  *  - Requires `LV_USE_VECTOR_GRAPHIC = 1` */
-#define LV_USE_SVG 1
-#define LV_USE_SVG_ANIMATION 1
+#define LV_USE_SVG 0
+#define LV_USE_SVG_ANIMATION 0
 #define LV_USE_SVG_DEBUG 0
 
 /** FFmpeg library for image decoding and playing videos.

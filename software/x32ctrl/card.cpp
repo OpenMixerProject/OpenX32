@@ -66,10 +66,62 @@ String Card::SendCommand(String command){
 void Card::ProcessCommand(String command) {
 	uint percentage;
 
-    if (command.indexOf("*9N22") > -1) {
+    if (command.indexOf("*9N0") > -1){
+        // command is send when a new card on slot 1 is detected
+        // *9N0003B68500000024EB# -> empty 32GB card
+        // *9N0003B2348000002459# -> 32GB card with four files
+        // *9N0003A6D300# -> only information about the remaining space
+
+        XLIVE_CardPresent[0] = (command.substring(4, 4).toInt() == 0);
+
+        if (XLIVE_CardPresent[0]) {
+            XLIVE_CardRemaingSpaceMB[0] = helper->hexToInt(command.substring(5, 5+8)) / 2000;
+            if (command.length() == 22) {
+                // we have information about the used space as well
+                XLIVE_CardUsedSpaceMB[0] = helper->hexToInt(command.substring(13, 13+8)) / 2000;
+            }
+        }else{
+            // no card installed
+            XLIVE_CardRemaingSpaceMB[0] = 0;
+            XLIVE_CardUsedSpaceMB[0] = 0;
+        }
+
+        // estimate total size of card
+        XLIVE_CardTotalSpaceMB[0] = XLIVE_CardRemaingSpaceMB[0] + XLIVE_CardUsedSpaceMB[0];
+
+        // update card-page if currently shown
+        config->Refresh(CARD_STATE);
+    }else if (command.indexOf("*9N1") > -1){
+        // command is send when a new card on slot 2 is detected
+        XLIVE_CardPresent[1] = (command.substring(4, 4).toInt() == 0);
+        if (XLIVE_CardPresent[1]) {
+            XLIVE_CardRemaingSpaceMB[1] = helper->hexToInt(command.substring(5, 5+8)) / 2000;
+            if (command.length() == 22) {
+                // we have information about the used space as well
+                XLIVE_CardUsedSpaceMB[1] = helper->hexToInt(command.substring(13, 13+8)) / 2000;
+            }
+        }else{
+            // no card installed
+            XLIVE_CardRemaingSpaceMB[1] = 0;
+            XLIVE_CardUsedSpaceMB[1] = 0;
+        }
+
+        // estimate total size of card
+        XLIVE_CardTotalSpaceMB[1] = XLIVE_CardRemaingSpaceMB[1] + XLIVE_CardUsedSpaceMB[1];
+
+        // update card-page if currently shown
+        config->Refresh(CARD_STATE);
+    }else if (command.indexOf("*9N22") > -1) {
         // we received current sample-position from expansion-card
         // *9N22xxxxxxxx#
         currentSongPositionSeconds = XLIVE_SampleIndexToSeconds(command.substring(5, command.length()-1));
+        config->Refresh(CARD_POSITION);
+    } else if (command.indexOf("*9N24") > -1) {
+        // command after stop of recording
+    }else if (command.indexOf("*9N07") > -1){
+        // command after formatting the card
+        // *9N0700000000#
+
     }
 }
 
@@ -195,27 +247,40 @@ String Card::XLIVE_RequestToc(uint* numberOfEntries) {
 	return TOC;
 }
 
-uint Card::XLIVE_Remaining() {
-	String ans = SendCommand("*9N");
-
+void Card::XLIVE_ReadRemainingCardSpace(uint card) {
+	String ans = SendCommand("*9N" + String(card) + "#");
+    //                              cardMissing
 	// *9N" + intToHex(cardNumber, 1) + "0" + intToHex((cardSize-usedSpace)*2, 8) + intToHex(usedSpace*2, 8) + "#"
 	// *9N00xxxxxxxxyyyyyyyy#
+    // *9N0003B68500000024EB# -> empty 32GB card -> 62326272 MB total, 0 MB used
+    // *9N0003B2348000002459# -> 32GB card with four files
 
-	uint remaining = helper->hexToInt(ans.substring(5, 5+8));
-	uint used = helper->hexToInt(ans.substring(13, 13+8));
+	//uint remaining = helper->hexToInt(ans.substring(5, 5+8)) / 2;
+	//uint used = helper->hexToInt(ans.substring(13, 13+8)) / 2;
 
-	return remaining;
+    XLIVE_CardPresent[card] = (ans.substring(4, 4).toInt() == 0);
+
+    if (XLIVE_CardPresent[card]) {
+        XLIVE_CardRemaingSpaceMB[card] = helper->hexToInt(ans.substring(5, 5+8)) / 2000;
+        if (ans.length() == 22) {
+            // we have information about the used space as well
+            XLIVE_CardUsedSpaceMB[card] = helper->hexToInt(ans.substring(13, 13+8)) / 2000;
+        }
+    }else{
+        // no card installed
+        XLIVE_CardRemaingSpaceMB[card] = 0;
+        XLIVE_CardUsedSpaceMB[card] = 0;
+    }
 }
 
-uint Card::XLIVE_Total() {
-	String ans = SendCommand("*9G");
-
+void Card::XLIVE_ReadTotalCardSpaceMB(uint card) {
+	String ans = SendCommand("*9G" + String(card) + "#");
+    //                          cardMissing
 	// "*9G" + String(cardNumber) + "0" + intToHex(cardSize*2, 8) + "#"
 	// *9G00xxxxxxxx#
+    // *9G0003B70600# for a 32GB card -> 62326272 / (2*32 / 1000000) = 
 
-	uint total = helper->hexToInt(ans.substring(5, 5+8));
-	
-	return total;
+	XLIVE_CardTotalSpaceMB[card] = helper->hexToInt(ans.substring(5, 5+8)) / 2000;
 }
 
 bool Card::XLIVE_SelectInterface(uint option, uint interface) {
@@ -269,7 +334,7 @@ bool Card::XLIVE_FormatCard() {
 }
 
 bool Card::XLIVE_SelectCard(uint card) {
-	return (String("*9R00#") == SendCommand("*9R" + String(card) + "#"));
+	return (String("*9R0" + String(card) + "#") == SendCommand("*9R" + String(card) + "#"));
 }
 
 bool Card::XLIVE_SelectSession(String session) {
