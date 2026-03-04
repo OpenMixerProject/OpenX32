@@ -3,9 +3,12 @@
 #include "page.h"
 using namespace std;
 
-class PageConfig : public Page {
+class PageConfig : public Page
+{
     public:
-        PageConfig(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+
+        PageConfig(PageBaseParameter* pagebasepar) : Page(pagebasepar)
+        {
             prevPage = X32_PAGE::HOME;
             nextPage = X32_PAGE::GATE;
             tabLayer0 = objects.maintab;
@@ -16,7 +19,8 @@ class PageConfig : public Page {
             noLedOnRack = true;
         }
 
-        void OnInit() override { 
+        void OnInit() override
+        { 
             UpdateEncoderBinding(config->GetUint(MP_ID::SELECTED_CHANNEL));
         }
 
@@ -24,16 +28,17 @@ class PageConfig : public Page {
         {
             using enum MP_ID;
 
-            BindEncoder(DISPLAY_ENCODER_1, ROUTING_DSP_INPUT, CHANNEL_PHASE_INVERT, targetindex);
+            BindEncoder(DISPLAY_ENCODER_1, SELECTED_CHANNEL);
             BindEncoder(DISPLAY_ENCODER_2, CHANNEL_GAIN, CHANNEL_PHANTOM, targetindex);
-            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_PANORAMA, targetindex);
-            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME, CHANNEL_MUTE, targetindex);
-            BindEncoder(DISPLAY_ENCODER_6, SELECTED_CHANNEL);
+            BindEncoder(DISPLAY_ENCODER_3, ROUTING_DSP_INPUT, CHANNEL_PHASE_INVERT, targetindex);
+            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_VOLUME, CHANNEL_MUTE, targetindex);
+            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_PANORAMA, targetindex);
 
             SyncEncoderWidgets(true);
         }
 
-        void OnChange(bool force_update) override {
+        void OnChange(bool force_update) override
+        {
 
             using enum MP_ID;
 
@@ -44,11 +49,6 @@ class PageConfig : public Page {
                 force_update = true;
                 UpdateEncoderBinding(chanIndex);
             }
-
-            // TODO implement with better string handling -> (*** stack smashing detected ***: terminated)
-            // char dspSourceName[5] = "";
-            // mixer->dsp->GetSourceName(&dspSourceName[0], chanIndex, mixer->fpga->fpgaRouting.dsp[mixer->dsp->Channel[chanIndex].inputSource - 1]);
-            // lv_label_set_text_fmt(objects.current_channel_source, "%02d: %s", (chanIndex + 1), dspSourceName);
 
             if (config->HasParameterChanged(CHANNEL_GAIN, chanIndex) || force_update)
             {
@@ -86,13 +86,10 @@ class PageConfig : public Page {
             {
                 lv_image_set_offset_x(objects.config_mute_checkbox, config->GetUint(CHANNEL_MUTE, chanIndex) * -lv_obj_get_width(objects.config_mute_checkbox));
             }
-
-            //char outputDestinationName[10] = "";
-            //routingGetOutputName(&outputDestinationName[0], mixerGetSelectedChannel());
-            //lv_label_set_text_fmt(objects.current_channel_destination, outputDestinationName);
         }
 
-        void OnUpdateMeters() override {
+        void OnUpdateMeters() override
+        {
             float dbValue = helper->sample2Dbfs(mixer->dsp->rChannel[config->GetUint(MP_ID::SELECTED_CHANNEL)].meterDecay);
             uint imageOffset = helper->rescale(dbValue, -100.0f, 10.0f, 0.0f, 31.0f);
             lv_image_set_offset_x(objects.config_vumeter, imageOffset * -lv_obj_get_width(objects.config_vumeter));

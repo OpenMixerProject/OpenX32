@@ -230,8 +230,8 @@ void create_screen_main() {
                                             // current_channel_source_1
                                             lv_obj_t *obj = lv_label_create(parent_obj);
                                             objects.current_channel_source_1 = obj;
-                                            lv_obj_set_pos(obj, 584, 26);
-                                            lv_obj_set_size(obj, 189, LV_SIZE_CONTENT);
+                                            lv_obj_set_pos(obj, 563, 27);
+                                            lv_obj_set_size(obj, 209, LV_SIZE_CONTENT);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xff264056), LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_bg_opa(obj, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -252,7 +252,7 @@ void create_screen_main() {
                                             // config_gain_knob
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.config_gain_knob = obj;
-                                            lv_obj_set_pos(obj, 125, 174);
+                                            lv_obj_set_pos(obj, 162, 182);
                                             lv_obj_set_size(obj, 75, 75);
                                             lv_image_set_src(obj, &img_knob);
                                             lv_image_set_scale(obj, 192);
@@ -264,7 +264,7 @@ void create_screen_main() {
                                             // config_pan_knob
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.config_pan_knob = obj;
-                                            lv_obj_set_pos(obj, 698, 174);
+                                            lv_obj_set_pos(obj, 697, 184);
                                             lv_obj_set_size(obj, 75, 75);
                                             lv_image_set_src(obj, &img_knob);
                                             lv_image_set_scale(obj, 192);
@@ -276,7 +276,7 @@ void create_screen_main() {
                                             // config_volume_knob
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.config_volume_knob = obj;
-                                            lv_obj_set_pos(obj, 584, 174);
+                                            lv_obj_set_pos(obj, 563, 183);
                                             lv_obj_set_size(obj, 75, 75);
                                             lv_image_set_src(obj, &img_knob);
                                             lv_image_set_scale(obj, 192);
@@ -299,13 +299,13 @@ void create_screen_main() {
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 149, 63);
+                                            lv_obj_set_pos(obj, 149, 71);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_label_set_text(obj, "48V");
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 149, 92);
+                                            lv_obj_set_pos(obj, 149, 100);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_label_set_text(obj, "INVERT");
                                         }
@@ -313,7 +313,7 @@ void create_screen_main() {
                                             // current_channel_pan_bal
                                             lv_obj_t *obj = lv_label_create(parent_obj);
                                             objects.current_channel_pan_bal = obj;
-                                            lv_obj_set_pos(obj, 698, 154);
+                                            lv_obj_set_pos(obj, 697, 163);
                                             lv_obj_set_size(obj, 75, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text(obj, "0");
@@ -322,7 +322,7 @@ void create_screen_main() {
                                             // current_channel_volume
                                             lv_obj_t *obj = lv_label_create(parent_obj);
                                             objects.current_channel_volume = obj;
-                                            lv_obj_set_pos(obj, 584, 154);
+                                            lv_obj_set_pos(obj, 563, 163);
                                             lv_obj_set_size(obj, 75, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text(obj, "0.0dBfs");
@@ -331,7 +331,7 @@ void create_screen_main() {
                                             // config_phantom_checkbox
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.config_phantom_checkbox = obj;
-                                            lv_obj_set_pos(obj, 114, 57);
+                                            lv_obj_set_pos(obj, 114, 65);
                                             lv_obj_set_size(obj, 32, LV_SIZE_CONTENT);
                                             lv_image_set_src(obj, &img_checkbox);
                                             lv_image_set_inner_align(obj, LV_IMAGE_ALIGN_TOP_LEFT);
@@ -340,7 +340,7 @@ void create_screen_main() {
                                             // config_phase_checkbox
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.config_phase_checkbox = obj;
-                                            lv_obj_set_pos(obj, 114, 86);
+                                            lv_obj_set_pos(obj, 114, 94);
                                             lv_obj_set_size(obj, 32, LV_SIZE_CONTENT);
                                             lv_image_set_src(obj, &img_checkbox);
                                             lv_image_set_inner_align(obj, LV_IMAGE_ALIGN_TOP_LEFT);
@@ -349,14 +349,14 @@ void create_screen_main() {
                                             // config_mute_checkbox
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.config_mute_checkbox = obj;
-                                            lv_obj_set_pos(obj, 114, 115);
+                                            lv_obj_set_pos(obj, 114, 123);
                                             lv_obj_set_size(obj, 32, LV_SIZE_CONTENT);
                                             lv_image_set_src(obj, &img_checkbox);
                                             lv_image_set_inner_align(obj, LV_IMAGE_ALIGN_TOP_LEFT);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 148, 121);
+                                            lv_obj_set_pos(obj, 148, 129);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_label_set_text(obj, "MUTE");
                                         }
@@ -364,28 +364,28 @@ void create_screen_main() {
                                             // current_channel_gain
                                             lv_obj_t *obj = lv_label_create(parent_obj);
                                             objects.current_channel_gain = obj;
-                                            lv_obj_set_pos(obj, 130, 154);
+                                            lv_obj_set_pos(obj, 167, 163);
                                             lv_obj_set_size(obj, 70, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text(obj, "0.0dB");
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 114, 252);
+                                            lv_obj_set_pos(obj, 151, 260);
                                             lv_obj_set_size(obj, 97, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text(obj, "GAIN");
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 574, 252);
+                                            lv_obj_set_pos(obj, 553, 260);
                                             lv_obj_set_size(obj, 97, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text(obj, "VOLUME");
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 688, 252);
+                                            lv_obj_set_pos(obj, 687, 260);
                                             lv_obj_set_size(obj, 97, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text(obj, "PAN");
@@ -394,14 +394,14 @@ void create_screen_main() {
                                             // openx32_demo_knob
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.openx32_demo_knob = obj;
-                                            lv_obj_set_pos(obj, 426, 148);
+                                            lv_obj_set_pos(obj, 412, 170);
                                             lv_obj_set_size(obj, 111, LV_SIZE_CONTENT);
                                             lv_image_set_src(obj, &img_openx32_knob);
                                             lv_image_set_inner_align(obj, LV_IMAGE_ALIGN_TOP_LEFT);
                                         }
                                         {
                                             lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 434, 253);
+                                            lv_obj_set_pos(obj, 419, 270);
                                             lv_obj_set_size(obj, 97, LV_SIZE_CONTENT);
                                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text(obj, "OpenX32 Knob Design");
@@ -438,7 +438,7 @@ void create_screen_main() {
                                             // config_phantom_button
                                             lv_obj_t *obj = lv_image_create(parent_obj);
                                             objects.config_phantom_button = obj;
-                                            lv_obj_set_pos(obj, 223, 39);
+                                            lv_obj_set_pos(obj, 223, 47);
                                             lv_obj_set_size(obj, 80, LV_SIZE_CONTENT);
                                             lv_image_set_src(obj, &img_buttononoff);
                                             lv_image_set_inner_align(obj, LV_IMAGE_ALIGN_TOP_LEFT);
