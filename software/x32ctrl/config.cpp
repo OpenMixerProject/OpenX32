@@ -430,7 +430,7 @@ void Config::DefineMixerparameters() {
     // EQ
     cat = MP_CAT::CHANNEL_EQ;
 
-    DefParameter(CHANNEL_LOWCUT_FREQ, cat, "LowcutFreq", MAX_VCHANNELS)
+    DefParameter(CHANNEL_LOWCUT_FREQ, cat, "Lowcut", MAX_VCHANNELS)
     ->DefConfig(group, "lowcut_freq")
     ->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
