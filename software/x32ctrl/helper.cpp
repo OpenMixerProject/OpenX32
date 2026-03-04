@@ -227,6 +227,18 @@ long Helper::GetFileSize(const char* filename) {
 	return -1; // error
 }
 
+String Helper::FormatFileSize(uint sizeByte, uint digits) {
+	if (sizeByte < 1024) {
+		return String(sizeByte) + " Byte";
+	} else if (sizeByte < (1024 * 1024)) {
+		return String((float)sizeByte / 1024.0f, digits) + " kB";
+	} else if (sizeByte < (1024 * 1024 * 1024)) {
+		return String((float)sizeByte / (1024.0f * 1024.0f), digits) + " MB";
+	} else if (sizeByte < (1024 * 1024 * 1024 * 1024)) {
+		return String((float)sizeByte / (1024.0f * 1024.0f * 1024.0f), digits) + " GB";
+	}
+}
+
 void Helper::ReverseBitOrderArray(uint8_t* data, uint32_t len) {
 	// reverse bits in array
 	uint32_t* pData = (uint32_t*)data;

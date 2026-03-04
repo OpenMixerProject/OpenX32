@@ -60,4 +60,6 @@ class Card : X32Base
         
         String XLIVE_SessionNameToString(String timecodeHex);
         String XLIVE_DateTimeToSessionName(uint8_t day, uint8_t month, uint16_t year, uint8_t hour, uint8_t minute, uint8_t second);
+        String XLIVE_CardUsedSpaceToString(uint card);
+        String XLIVE_GetCardNominalSizeString(uint card);
    };

@@ -55,6 +55,7 @@ class Helper {
         uint8_t value2percent(int8_t value, int8_t value_min, int8_t value_max);
         
         long GetFileSize(const char* filename);
+        String FormatFileSize(uint sizeByte, uint digits);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);
         uint32_t ReverseBitOrder_uint32(uint32_t n);
         float Saturate(float value, float min, float max);

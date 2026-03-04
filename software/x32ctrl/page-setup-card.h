@@ -112,27 +112,7 @@ class PageSetupCard: public Page {
             }
         }
 
-    public:
-        PageSetupCard(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE::SETUP;
-            nextPage = X32_PAGE::ABOUT;
-            tabLayer0 = objects.maintab;
-            tabIndex0 = 3;
-            tabLayer1 = objects.setuptab;
-            tabIndex1 = 1;
-            led = X32_BTN_SETUP;
-        }
-
-        void OnInit() override {
-            UpdateEncoderBinding(banking);
-            lv_label_set_text_fmt(objects.setup_card_detected, "%s", mixer->GetCardModelString().c_str());
-        }
-
-        void OnShow() override {
-            // get all files from CARD
-            numberOfEntries = 0;
-            TOC = mixer->card->XLIVE_RequestToc(&numberOfEntries);
-            
+        void RefreshTOC() {
             // Header
             lv_table_set_column_count(objects.setup_card_toc_header, 3);
             lv_table_set_column_width(objects.setup_card_toc_header, 0, 25); // selection marker
@@ -162,15 +142,34 @@ class PageSetupCard: public Page {
 
             // store config pointer in user data for use in draw callback
             lv_obj_set_user_data(objects.setup_card_toc, &gui_selected_item);
+        }
 
-            // logic for the icons
-            if (mixer->card->XLIVE_Playing) {
-                lv_image_set_offset_x(objects.setup_card_sdcard, (2 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
-            }else if (mixer->card->XLIVE_Recording) {
-                lv_image_set_offset_x(objects.setup_card_sdcard, (3 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
-            }else{
-                lv_image_set_offset_x(objects.setup_card_sdcard, (1 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
-            }
+    public:
+        PageSetupCard(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+            prevPage = X32_PAGE::SETUP;
+            nextPage = X32_PAGE::ABOUT;
+            tabLayer0 = objects.maintab;
+            tabIndex0 = 3;
+            tabLayer1 = objects.setuptab;
+            tabIndex1 = 1;
+            led = X32_BTN_SETUP;
+        }
+
+        void OnInit() override {
+            UpdateEncoderBinding(banking);
+            lv_label_set_text_fmt(objects.setup_card_detected, "%s", mixer->GetCardModelString().c_str());
+        }
+
+        void OnShow() override {
+            // request card-information
+            mixer->card->XLIVE_ReadTotalCardSpaceMB(0);
+            mixer->card->XLIVE_ReadTotalCardSpaceMB(1);
+
+            // get all files from CARD
+            numberOfEntries = 0;
+            TOC = mixer->card->XLIVE_RequestToc(&numberOfEntries);
+
+            OnChange(true);
         }
 
         void UpdateEncoderBinding(uint bank) {
@@ -248,10 +247,6 @@ class PageSetupCard: public Page {
                 lv_image_set_offset_x(objects.setup_card_sdusb, config->GetUint(CARD_AUDIO_SOURCE) * -lv_obj_get_width(objects.setup_card_sdusb));
             }
 
-            if (config->HasParameterChanged(CARD_SDCARD) || force_update) {
-                OnShow(); // read TOC again and reset UI as we have changed the SD-Card
-            }
-
             if (config->HasParameterChanged(CARD_POSITION) || force_update) {
                 if (mixer->card->XLIVE_Playing) {
                     // update text-fields and progressbar
@@ -264,7 +259,11 @@ class PageSetupCard: public Page {
                 }
             }
 
-            if (config->HasParameterChanged(CARD_STATE) || force_update) {
+            if (config->HasParameterChanged(CARD_SDCARD) || force_update) {
+                RefreshTOC(); // read TOC again and reset UI as we have changed the SD-Card
+            }
+
+            if (config->HasParameterChanged(CARD_STATE) || config->HasParameterChanged(CARD_SDCARD) || force_update) {
                 // logic for the icons
                 if (mixer->card->XLIVE_CardPresent[config->GetUint(CARD_SDCARD)]) {
                     if (mixer->card->XLIVE_Playing) {
@@ -281,12 +280,12 @@ class PageSetupCard: public Page {
 
                 // update card-info
                 if (mixer->card->XLIVE_CardPresent[0]) {
-                    lv_label_set_text_fmt(objects.setup_card_sd1info, "%d MB / %d MB -> Free: %d MB (%d%%)", mixer->card->XLIVE_CardUsedSpaceMB[0], mixer->card->XLIVE_CardTotalSpaceMB[0], mixer->card->XLIVE_CardRemaingSpaceMB[0], (mixer->card->XLIVE_CardRemaingSpaceMB[0] * 100) / mixer->card->XLIVE_CardTotalSpaceMB[0]);
+                    lv_label_set_text_fmt(objects.setup_card_sd1info, "%s / %s (%d%% free)", mixer->card->XLIVE_CardUsedSpaceToString(0).c_str(), mixer->card->XLIVE_GetCardNominalSizeString(0).c_str(), (mixer->card->XLIVE_CardRemaingSpaceMB[0] * 100) / mixer->card->XLIVE_CardTotalSpaceMB[0]);
                 }else{
                     lv_label_set_text(objects.setup_card_sd1info, "No Card");
                 }
                 if (mixer->card->XLIVE_CardPresent[1]) {
-                    lv_label_set_text_fmt(objects.setup_card_sd2info, "%d MB / %d MB -> Free: %d MB (%d%%)", mixer->card->XLIVE_CardUsedSpaceMB[1], mixer->card->XLIVE_CardTotalSpaceMB[1], mixer->card->XLIVE_CardRemaingSpaceMB[1], (mixer->card->XLIVE_CardRemaingSpaceMB[1] * 100) / mixer->card->XLIVE_CardTotalSpaceMB[1]);
+                    lv_label_set_text_fmt(objects.setup_card_sd2info, "%s / %s (%d%% free)", mixer->card->XLIVE_CardUsedSpaceToString(1).c_str(), mixer->card->XLIVE_GetCardNominalSizeString(1).c_str(), (mixer->card->XLIVE_CardRemaingSpaceMB[1] * 100) / mixer->card->XLIVE_CardTotalSpaceMB[1]);
                 }else{
                     lv_label_set_text(objects.setup_card_sd2info, "No Card");
                 }
@@ -314,7 +313,7 @@ class PageSetupCard: public Page {
                                 if (mixer->card->XLIVE_Recording) {
                                     lv_delay_ms(100);
                                     mixer->card->FlushRxBuffer(); // purge all commands send by Expansion-Card (several *9N24 and *9N00 commands)
-                                    OnShow(); // refresh list as content could have changed
+                                    RefreshTOC(); // refresh list as content could have changed
                                 }
                                 break;
                             case X32_BTN_ENCODER4: // Play/Pause

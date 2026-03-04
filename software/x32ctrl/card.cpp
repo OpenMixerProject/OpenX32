@@ -89,6 +89,15 @@ void Card::ProcessCommand(String command) {
         // estimate total size of card
         XLIVE_CardTotalSpaceMB[0] = XLIVE_CardRemaingSpaceMB[0] + XLIVE_CardUsedSpaceMB[0];
 
+        // check for "no card" scenario (sure, there must be a better solution, but I'm lazy reverse-engineer more commands at the moment)
+        if ((XLIVE_CardRemaingSpaceMB[0] < 10) && (XLIVE_CardUsedSpaceMB[0] < 10)) {
+            // no card installed
+            XLIVE_CardPresent[0] = false;
+            XLIVE_CardRemaingSpaceMB[0] = 0;
+            XLIVE_CardUsedSpaceMB[0] = 0;
+            XLIVE_CardTotalSpaceMB[0] = 0;
+        }
+
         // update card-page if currently shown
         config->Refresh(CARD_STATE);
     }else if (command.indexOf("*9N1") > -1){
@@ -108,6 +117,15 @@ void Card::ProcessCommand(String command) {
 
         // estimate total size of card
         XLIVE_CardTotalSpaceMB[1] = XLIVE_CardRemaingSpaceMB[1] + XLIVE_CardUsedSpaceMB[1];
+
+        // check for "no card" scenario (sure, there must be a better solution, but I'm lazy reverse-engineer more commands at the moment)
+        if ((XLIVE_CardRemaingSpaceMB[1] < 10) && (XLIVE_CardUsedSpaceMB[1] < 10)) {
+            // no card installed
+            XLIVE_CardPresent[1] = false;
+            XLIVE_CardRemaingSpaceMB[1] = 0;
+            XLIVE_CardUsedSpaceMB[1] = 0;
+            XLIVE_CardTotalSpaceMB[1] = 0;
+        }
 
         // update card-page if currently shown
         config->Refresh(CARD_STATE);
@@ -190,6 +208,8 @@ bool Card::XLIVE_Stop()
         XLIVE_Seek(0); // jump back to beginning of track
     }
 
+    config->Refresh(CARD_STATE);
+
 	return true;
 }
 
@@ -198,10 +218,12 @@ bool Card::XLIVE_PlayPause() {
     if (XLIVE_Playing) {
         ans = SendCommand("*9E#");
         XLIVE_Playing = false;
+        config->Refresh(CARD_STATE);
         return (ans == String("*9E00#"));
     } else {
         ans = SendCommand("*9D#");
         XLIVE_Playing = true;
+        config->Refresh(CARD_STATE);
         return (ans == String("*9D00#"));
     }
 }
@@ -275,9 +297,20 @@ void Card::XLIVE_ReadRemainingCardSpace(uint card) {
         XLIVE_CardRemaingSpaceMB[card] = 0;
         XLIVE_CardUsedSpaceMB[card] = 0;
     }
+
+    if ((XLIVE_CardRemaingSpaceMB[card] < 10) && (XLIVE_CardUsedSpaceMB[card] < 10)) {
+        // no card installed
+        XLIVE_CardPresent[card] = false;
+        XLIVE_CardRemaingSpaceMB[card] = 0;
+        XLIVE_CardUsedSpaceMB[card] = 0;
+        XLIVE_CardTotalSpaceMB[card] = 0;
+    }
 }
 
 void Card::XLIVE_ReadTotalCardSpaceMB(uint card) {
+    // first update the card-state with this command (at least I guess that this command is doing this)
+    SendCommand("*9R" + String(card) + "#");
+
 	String ans = SendCommand("*9G" + String(card) + "#");
     //                          cardMissing
 	// "*9G" + String(cardNumber) + "0" + intToHex(cardSize*2, 8) + "#"
@@ -285,6 +318,12 @@ void Card::XLIVE_ReadTotalCardSpaceMB(uint card) {
     // *9G0003B70600# for a 32GB card -> 62326272 / (2*32 / 1000000) = 
 
 	XLIVE_CardTotalSpaceMB[card] = helper->hexToInt(ans.substring(5, 5+8)) / 2000;
+
+    // check if we read valid data. No card will report as 4 MB somehow...
+    if (XLIVE_CardTotalSpaceMB[card] < 10) {
+        XLIVE_CardPresent[card] = false;
+        XLIVE_CardTotalSpaceMB[card] = 0;
+    }
 }
 
 bool Card::XLIVE_SelectInterface(uint option, uint interface) {
@@ -330,7 +369,9 @@ bool Card::XLIVE_RecordNewSession() {
             break;
     }
 
-	return (String("*9Y00#") == SendCommand("*9H" + session + channelcount + "0" +  "#")); // TODO: check what the trailing zero before the "#" does
+    config->Refresh(CARD_STATE);
+
+    return (String("*9Y00#") == SendCommand("*9H" + session + channelcount + "0" +  "#")); // TODO: check what the trailing zero before the "#" does
 }
 
 bool Card::XLIVE_FormatCard() {
@@ -394,4 +435,39 @@ String Card::XLIVE_DateTimeToSessionName(uint8_t day, uint8_t month, uint16_t ye
   timecode += (uint32_t)second << 1;
 
   return helper->intToHex(timecode, 8);
+}
+
+String Card::XLIVE_CardUsedSpaceToString(uint card) {
+    uint sizeMB = XLIVE_CardUsedSpaceMB[card];
+    if (sizeMB < 1024) {
+        return String(sizeMB) + "MB";
+    }else{
+        return String((float)sizeMB / 1024.0f, 2) + "GB";
+    }
+}
+
+String Card::XLIVE_GetCardNominalSizeString(uint card) {
+    if (XLIVE_CardTotalSpaceMB[card] < 16) {
+        return "No Card";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 512) {
+        return "512 MB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 1100) {
+        return "1 GB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 2100) {
+        return "2 GB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 4200) {
+        return "4 GB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 8300) {
+        return "8 GB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 17000) {
+        return "16 GB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 33000) {
+        return "32 GB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 65000) {
+        return "64 GB";
+    }else if (XLIVE_CardTotalSpaceMB[card] < 130000) {
+        return "128 GB";
+    }else{
+        return "Unsupported Card?";
+    }
 }
