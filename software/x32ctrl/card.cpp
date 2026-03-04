@@ -166,24 +166,29 @@ void Card::XUSB_XLIVE_SetConfig(uint8_t channelparameter, uint source)
 
 bool Card::XLIVE_Stop()
 {
-	SendCommand("*9F#");
-    XLIVE_Recording = false;
-    XLIVE_Playing = false;
+    if (XLIVE_Recording) {
+        SendCommand("*9F#");
+        XLIVE_Recording = false;
+        XLIVE_Playing = false;
 
-	/*
-	Card answers with a bunch of results if recording is stopped
-	*9N24003F38D0# -> probably info-command for new entries?
+        /*
+        Card answers with a bunch of results if recording is stopped
+        *9N24003F38D0# -> probably info-command for new entries?
 
-	*9N0003A6DD80#
-	*9N0003A6D300#
+        *9N0003A6DD80#
+        *9N0003A6D300#
 
-	*9N24003F47D0#
+        *9N24003F47D0#
 
-	*9N0003A6D300#
-	*9N24003F50A0#
+        *9N0003A6D300#
+        *9N24003F50A0#
 
-	*9N24003F56D0#
-	*/
+        *9N24003F56D0#
+        */
+    }else if (XLIVE_Playing) {
+        XLIVE_PlayPause(); // pause playback
+        XLIVE_Seek(0); // jump back to beginning of track
+    }
 
 	return true;
 }
@@ -203,8 +208,7 @@ bool Card::XLIVE_PlayPause() {
 
 bool Card::XLIVE_Seek(uint sampleIndex) {
 	//*9M0009EDC0#Q#
-	String indexHex = "00000000";
-	return (SendCommand("*9M" + indexHex + "#") == String("*9M00#"));
+	return (SendCommand("*9M" + helper->intToHex(sampleIndex, 8) + "#") == String("*9M00#"));
 }
 
 String Card::XLIVE_RequestToc(uint* numberOfEntries) {
