@@ -730,8 +730,8 @@ void X32Ctrl::syncGuiOrLcd() {
 				break;
 		}
 
-		lv_label_set_text(objects.current_channel_number, config->GetString(CHANNEL_NAME_INTERN, chanIndex).c_str());
-		lv_label_set_text(objects.current_channel_name, config->GetString(CHANNEL_NAME, chanIndex).c_str());
+		lv_label_set_text(objects.current_channel_number, config->GetString(CHANNEL_NAME, chanIndex).c_str());
+		lv_label_set_text(objects.current_channel_name, config->GetString(CHANNEL_NAME_INTERN, chanIndex).c_str());
 		lv_obj_set_style_bg_color(objects.current_channel_color, color, 0);
 	}
 }
