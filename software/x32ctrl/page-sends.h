@@ -36,7 +36,7 @@ class PageSends : public Page
             BindEncoder(DISPLAY_ENCODER_4, (MP_ID)((uint)CHANNEL_BUS_SEND02 + bankingSends * 2), targetindex);
             BindEncoder(DISPLAY_ENCODER_5, (MP_ID)((uint)CHANNEL_BUS_SEND02_TAPPOINT + bankingSends * 2), targetindex);
 
-            custom_encoder[DISPLAY_ENCODER_1].label = String("Select ") + ((bankingSends * 2) + 1) + String("/") + ((bankingSends * 2) + 2);
+            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_REFRESH) + String("\nSelect ") + ((bankingSends * 2) + 1) + String("/") + ((bankingSends * 2) + 2);
 
             SyncEncoderWidgets(true);
         }
