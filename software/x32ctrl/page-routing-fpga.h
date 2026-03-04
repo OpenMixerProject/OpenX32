@@ -162,11 +162,11 @@ class PageRoutingFpga: public Page
 
         void OnShow() override {
 
-            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_UP) + " Block " + LV_SYMBOL_DOWN;            
-            custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_UP) + " Select " + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_UP) + " Select (Group) " + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + " Source";
-			custom_encoder[DISPLAY_ENCODER_5].label = String(LV_SYMBOL_REFRESH) + " Source (Group)";
+            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_UP) + "\nBlock\n" + LV_SYMBOL_DOWN;            
+            custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN;
+			custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN;
+			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + "\nSource";
+			custom_encoder[DISPLAY_ENCODER_5].label = String(LV_SYMBOL_REFRESH) + "\nSource (Group)";
         }
 
         void OnChange(bool force_update) override

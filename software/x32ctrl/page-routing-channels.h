@@ -179,12 +179,13 @@ class PageRoutingChannels: public Page
 			BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
 		}
 
-		void OnShow() override {
-			custom_encoder[DISPLAY_ENCODER_1].label = "\xEF\x81\xB7 Select \xEF\x81\xB8";
-			custom_encoder[DISPLAY_ENCODER_2].label = "\xEF\x81\xB7 Select (Group) \xEF\x81\xB8";
-			custom_encoder[DISPLAY_ENCODER_3].label = "\xEF\x80\xA1 Source";
-			custom_encoder[DISPLAY_ENCODER_4].label = "\xEF\x80\xA1 Source (Group)";
-			custom_encoder[DISPLAY_ENCODER_5].label = "\xEF\x80\xA1 Tap";
+		void OnShow() override
+		{
+			custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN;
+			custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN;
+			custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_REFRESH) + "\nSource";
+			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + "\nSource (Group)";
+			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + "\nTAP";
 		}
 
 		void OnChange(bool force_update) override {
