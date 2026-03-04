@@ -342,11 +342,3 @@ void Page::ClearEncoder(PageBinding_Encoder *binding)
     lv_label_set_text(binding->ButtonLabel, "");
     remove_style_label_bg_yellow(binding->ButtonLabel);
 }
-
-// old
-void Page::SetEncoderHighlight(uint encoder, bool highlight) { }
-void Page::SetEncoder(uint encoder, String label, String buttonPressLabel){ }
-void Page::SetEncoderValue(uint encoder, float float_value)  {}
-void Page::SetEncoderValue(uint encoder, uint uint8_t_value)  { }
-void Page::SetEncoderValue(uint encoder, int int8_t_value)  { }
-void Page::SetEncoderValuesEmpty() { }
