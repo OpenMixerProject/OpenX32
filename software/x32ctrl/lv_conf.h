@@ -955,7 +955,7 @@
 #define LV_USE_VECTOR_GRAPHIC  1
 
 /** Enable ThorVG (vector graphics library) from the src/libs folder */
-#define LV_USE_THORVG_INTERNAL 1 
+#define LV_USE_THORVG_INTERNAL 1
 
 /** Enable ThorVG by assuming that its installed and linked to the project */
 #define LV_USE_THORVG_EXTERNAL 0
@@ -968,8 +968,8 @@
 
 /*SVG library
  *  - Requires `LV_USE_VECTOR_GRAPHIC = 1` */
-#define LV_USE_SVG 0
-#define LV_USE_SVG_ANIMATION 0
+#define LV_USE_SVG 1
+#define LV_USE_SVG_ANIMATION 1
 #define LV_USE_SVG_DEBUG 0
 
 /** FFmpeg library for image decoding and playing videos.

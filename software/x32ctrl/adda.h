@@ -37,6 +37,7 @@ class Adda : public X32Base {
 
         String Receive();
         String SendReceive(String cmd);
+        void FlushRxBuffer();
 
         bool HasXlrIn0();
         bool HasXlrIn1();

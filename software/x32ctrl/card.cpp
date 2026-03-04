@@ -63,6 +63,20 @@ String Card::SendCommand(String command){
 	return adda->SendReceive(command);
 }
 
+void Card::ProcessCommand(String command) {
+	uint percentage;
+
+    if (command.indexOf("*9N22") > -1) {
+        // we received current sample-position from expansion-card
+        // *9N22xxxxxxxx#
+        currentSongPositionSeconds = XLIVE_SampleIndexToSeconds(command.substring(5, command.length()-1));
+    }
+}
+
+void Card::FlushRxBuffer() {
+    adda->FlushRxBuffer();
+}
+
 void Card::XUSB_XLIVE_SetConfig(uint8_t channelparameter, uint source)
 {
     if ((type != CARD_TYPE_XUSB) && (type != CARD_TYPE_XLIVE))
@@ -156,6 +170,7 @@ String Card::XLIVE_RequestToc(uint* numberOfEntries) {
 
     if (newEntry.indexOf("ASF") > 0) {
         // received first entry
+        // *#
         TOC += newEntry.substring(5, 5+8) + ",";
         (*numberOfEntries)++;
     }
@@ -223,7 +238,30 @@ bool Card::XLIVE_RecordNewSession() {
 
     // now start recording with this session name
     XLIVE_Recording = true;
-	return (String("*9Y00#") == SendCommand("*9H" + session +  "#"));
+
+    String channelcount;
+    switch (config->GetUint(CARD_NUMBER_OF_CHANNELS)) {
+        case 0:
+            channelcount = "32";
+            break;
+        case 1:
+            channelcount = "16";
+            break;
+        case 2:
+            channelcount = "08";
+            break;
+        case 3:
+            channelcount = "32";
+            break;
+        case 4:
+            channelcount = "08";
+            break;
+        case 5:
+            channelcount = "02";
+            break;
+    }
+
+	return (String("*9Y00#") == SendCommand("*9H" + session + channelcount + "0" +  "#")); // TODO: check what the trailing zero before the "#" does
 }
 
 bool Card::XLIVE_FormatCard() {

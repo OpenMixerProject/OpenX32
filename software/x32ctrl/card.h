@@ -19,9 +19,6 @@ class Card : X32Base
     private:
         Adda* adda;
 
-        bool XLIVE_Playing = false;
-        bool XLIVE_Recording = false;
-
         void XUSB_XLIVE_SetConfig(uint8_t channelparamter, uint source);
 
     public:
@@ -30,10 +27,16 @@ class Card : X32Base
         uint type; // 0 = no card, 1 = X-UF/X-USB, 2 = X-LIVE, 3 = X-ADAT, 4 = X-MADI
         uint currentSongNumberChannels; // number of channels (e.g. 16 or 32)
         uint currentSongTotalSeconds;
+        uint currentSongPositionSeconds;
+
+        bool XLIVE_Playing = false;
+        bool XLIVE_Recording = false;
 
         void Init();
         void Sync();
         String SendCommand(String command);
+        void ProcessCommand(String command);
+        void FlushRxBuffer();
 
         // X-LIVE specific functions
         bool XLIVE_Stop();

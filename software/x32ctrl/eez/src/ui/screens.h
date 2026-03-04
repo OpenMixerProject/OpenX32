@@ -35,18 +35,21 @@ typedef struct _objects_t {
     lv_obj_t *home_ch_5;
     lv_obj_t *home_ch_6;
     lv_obj_t *configtab;
-    lv_obj_t *config_anim_knob;
+    lv_obj_t *current_channel_source_1;
+    lv_obj_t *config_vumeter;
     lv_obj_t *config_gain_knob;
     lv_obj_t *config_pan_knob;
-    lv_obj_t *config_volume_knob2;
     lv_obj_t *config_volume_knob;
     lv_obj_t *current_channel_source;
-    lv_obj_t *current_channel_gain;
-    lv_obj_t *current_channel_phantom;
-    lv_obj_t *current_channel_invert;
     lv_obj_t *current_channel_pan_bal;
     lv_obj_t *current_channel_volume;
-    lv_obj_t *current_channel_mute;
+    lv_obj_t *config_phantom_checkbox;
+    lv_obj_t *config_phase_checkbox;
+    lv_obj_t *config_mute_checkbox;
+    lv_obj_t *current_channel_gain;
+    lv_obj_t *openx32_demo_knob;
+    lv_obj_t *obj0;
+    lv_obj_t *config_phantom_button;
     lv_obj_t *current_channel_gate;
     lv_obj_t *current_channel_comp;
     lv_obj_t *eqtab;
@@ -719,7 +722,7 @@ typedef struct _objects_t {
     lv_obj_t *ms_main_lr__fader;
     lv_obj_t *ms_main_lr__obj0;
     lv_obj_t *configtab_1;
-    lv_obj_t *obj0;
+    lv_obj_t *obj1;
     lv_obj_t *rta_chart;
     lv_obj_t *routingtab;
     lv_obj_t *hw_inputs;
@@ -738,6 +741,8 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
     lv_obj_t *setup_versioninfotext;
+    lv_obj_t *setup_card_sdcard;
+    lv_obj_t *setup_card_sdusb;
     lv_obj_t *setup_card_toc_header;
     lv_obj_t *setup_card_totaltime;
     lv_obj_t *setup_card_currentposition;
@@ -782,9 +787,9 @@ typedef struct _objects_t {
     lv_obj_t *widget6__value;
     lv_obj_t *widget6__slider;
     lv_obj_t *widget6__label_buttonpress;
-    lv_obj_t *debugtext_dsp1;
     lv_obj_t *debugtext_dsp2;
     lv_obj_t *debugtext_x32ctrl;
+    lv_obj_t *debugtext_dsp1;
 } objects_t;
 
 extern objects_t objects;

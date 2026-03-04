@@ -125,18 +125,16 @@ class PageSetupCard: public Page {
         }
 
         void OnShow() override {
-            lv_label_set_text(objects.setup_card_debugtext, ("Card Type detected: #" + String(mixer->card->type)).c_str());
-
             // get all files from CARD
             numberOfEntries = 0;
             TOC = mixer->card->XLIVE_RequestToc(&numberOfEntries);
             
             // Header
             lv_table_set_column_count(objects.setup_card_toc_header, 3);
-            lv_table_set_column_width(objects.setup_card_toc_header, 0, 50); // selection marker
-            lv_table_set_column_width(objects.setup_card_toc_header, 1, 260); // entries (HEX)
-            lv_table_set_column_width(objects.setup_card_toc_header, 2, 450); // entries (TimeCode)
-            lv_table_set_cell_value(objects.setup_card_toc_header, 0, 1, "ID");
+            lv_table_set_column_width(objects.setup_card_toc_header, 0, 25); // selection marker
+            lv_table_set_column_width(objects.setup_card_toc_header, 1, 125); // entries (HEX)
+            lv_table_set_column_width(objects.setup_card_toc_header, 2, 300); // entries (TimeCode)
+            lv_table_set_cell_value(objects.setup_card_toc_header, 0, 1, "File-ID");
             lv_table_set_cell_value(objects.setup_card_toc_header, 0, 2, "Date and Time");
 
             lv_obj_add_event_cb(objects.setup_card_toc_header, draw_event_header_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
@@ -145,9 +143,9 @@ class PageSetupCard: public Page {
             // Selection-Table
             lv_table_set_row_count(objects.setup_card_toc, numberOfEntries); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
             lv_table_set_column_count(objects.setup_card_toc, 3);
-            lv_table_set_column_width(objects.setup_card_toc, 0, 50); // selection marker
-            lv_table_set_column_width(objects.setup_card_toc, 1, 260); // entries (HEX)
-            lv_table_set_column_width(objects.setup_card_toc, 2, 450); // entries (TimeCode)
+            lv_table_set_column_width(objects.setup_card_toc, 0, 25); // selection marker
+            lv_table_set_column_width(objects.setup_card_toc, 1, 125); // entries (HEX)
+            lv_table_set_column_width(objects.setup_card_toc, 2, 300); // entries (TimeCode)
             for (uint8_t i=0; i < numberOfEntries; i++)
             {
                 lv_table_set_cell_value_fmt(objects.setup_card_toc, i, 1, "%s", helper->split(TOC, ',', i).c_str());
@@ -160,11 +158,20 @@ class PageSetupCard: public Page {
 
             // store config pointer in user data for use in draw callback
             lv_obj_set_user_data(objects.setup_card_toc, &gui_selected_item);
+
+            // logic for the icons
+            if (mixer->card->XLIVE_Playing) {
+                lv_image_set_offset_x(objects.setup_card_sdcard, (2 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+            }else if (mixer->card->XLIVE_Recording) {
+                lv_image_set_offset_x(objects.setup_card_sdcard, (3 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+            }else{
+                lv_image_set_offset_x(objects.setup_card_sdcard, (1 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+            }
         }
 
         void UpdateEncoderBinding() {
             BindEncoder(DISPLAY_ENCODER_1, MP_ID::CARD_NUMBER_OF_CHANNELS, MP_ID::CARD_AUDIO_SOURCE); // Channelnumber and Source-Mode
-            BindEncoder(DISPLAY_ENCODER_2, MP_ID::CARD_SOURCE);
+            BindEncoder(DISPLAY_ENCODER_2, MP_ID::CARD_SDCARD);
 
             BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
@@ -214,6 +221,30 @@ class PageSetupCard: public Page {
             if (config->HasParameterChanged(CARD_AUDIO_SOURCE) || force_update)
             {
                 lv_label_set_text(objects.setup_card_sourcemode, config->GetParameter(CARD_AUDIO_SOURCE)->GetFormatedValue().c_str());
+                lv_image_set_offset_x(objects.setup_card_sdusb, config->GetUint(CARD_AUDIO_SOURCE) * -lv_obj_get_width(objects.setup_card_sdusb));
+            }
+
+            if (config->HasParameterChanged(CARD_SDCARD) || force_update) {
+                OnShow(); // read TOC again and reset UI as we have changed the SD-Card
+            }
+
+            // logic for the icons
+            if (mixer->card->XLIVE_Playing) {
+                lv_image_set_offset_x(objects.setup_card_sdcard, (2 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+            }else if (mixer->card->XLIVE_Recording) {
+                lv_image_set_offset_x(objects.setup_card_sdcard, (3 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+            }else{
+                lv_image_set_offset_x(objects.setup_card_sdcard, (1 + (config->GetUint(CARD_SDCARD) * 3)) * -lv_obj_get_width(objects.setup_card_sdcard));
+            }
+        }
+
+        void OnUpdateMeters() override {
+            if (mixer->card->XLIVE_Playing) {
+                // update text-fields and progressbar
+                lv_label_set_text_fmt(objects.setup_card_currentposition, helper->secondsToHmsHuman(mixer->card->currentSongPositionSeconds).c_str());
+                lv_label_set_text_fmt(objects.setup_card_totaltime, helper->secondsToHmsHuman(mixer->card->currentSongTotalSeconds).c_str());
+                int32_t percentage = (mixer->card->currentSongPositionSeconds * 100) / mixer->card->currentSongTotalSeconds;
+                lv_bar_set_value(objects.setup_card_progress, percentage, LV_ANIM_OFF);
             }
         }
 
@@ -233,13 +264,17 @@ class PageSetupCard: public Page {
                     //    break;
                     case X32_BTN_ENCODER3: // Stop
                         mixer->card->XLIVE_Stop();
+                        lv_delay_ms(100);
+                        mixer->card->FlushRxBuffer(); // purge all commands send by Expansion-Card (several *9N24 and *9N00 commands)
                         OnShow(); // refresh list as content could have changed
                         break;
                     case X32_BTN_ENCODER4: // Play/Pause
                         mixer->card->XLIVE_PlayPause();
+                        OnChange(false);
                         break;
                     case X32_BTN_ENCODER5: // Record
                         mixer->card->XLIVE_RecordNewSession();
+                        OnChange(false);
                         break;
                     case X32_BTN_ENCODER6: // Select
                         lv_label_set_text(objects.setup_card_debugtext, helper->split(TOC, ',', gui_selected_item).c_str());

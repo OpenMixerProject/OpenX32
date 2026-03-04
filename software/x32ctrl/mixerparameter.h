@@ -307,7 +307,7 @@ class Mixerparameter
                             break;
                     }
                     break;
-                case CARD_SOURCE:
+                case CARD_SDCARD:
                     switch((uint) (isResetLabel ? value_standard : value[index]))
                     {
                         case 0:
@@ -352,7 +352,7 @@ class Mixerparameter
                 case DSP_ROUTING:
                 case CHANNEL_LCD_MODE:
                 case CARD_NUMBER_OF_CHANNELS:
-                case CARD_SOURCE:
+                case CARD_SDCARD:
                 case CARD_AUDIO_SOURCE:
                     return GetUnitOfMesaurement(false, index, isResetLabel);
                 case ZERO_BASED_INDEX__START_BY_ONE:
@@ -370,6 +370,14 @@ class Mixerparameter
                         return String(value_float, 0) + " s";
                     }else{
                         return String(value_float * 1000.0f, 0) + " ms";
+                    }
+                case PANORAMA:
+                    if (value_float < 0) {
+                        return "L" + String(abs(value_float), decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
+                    }else if (value_float > 0) {
+                        return "R" + String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
+                    }else{
+                        return "<C>";
                     }
                 default:
                     return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);

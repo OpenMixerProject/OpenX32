@@ -10,16 +10,20 @@ extern "C" {
 extern const lv_img_dsc_t img_openx32logo;
 extern const lv_img_dsc_t img_meterbridge;
 extern const lv_img_dsc_t img_knob;
-extern const lv_img_dsc_t img_knob0;
-extern const lv_img_dsc_t img_knob1;
-extern const lv_img_dsc_t img_knob2;
-extern const lv_img_dsc_t img_knob3;
-extern const lv_img_dsc_t img_knob4;
-extern const lv_img_dsc_t img_knob5;
-extern const lv_img_dsc_t img_knob6;
-extern const lv_img_dsc_t img_knob7;
 extern const lv_img_dsc_t img_logo;
 extern const lv_img_dsc_t img_tux;
+extern const lv_img_dsc_t img_buttononoff;
+extern const lv_img_dsc_t img_checkbox;
+extern const lv_img_dsc_t img_pause;
+extern const lv_img_dsc_t img_play;
+extern const lv_img_dsc_t img_playpause;
+extern const lv_img_dsc_t img_record;
+extern const lv_img_dsc_t img_sdcard;
+extern const lv_img_dsc_t img_stop;
+extern const lv_img_dsc_t img_select;
+extern const lv_img_dsc_t img_sdusb;
+extern const lv_img_dsc_t img_vumeter_colored;
+extern const lv_img_dsc_t img_openx32_knob;
 
 #ifndef EXT_IMG_DESC_T
 #define EXT_IMG_DESC_T
@@ -29,7 +33,7 @@ typedef struct _ext_img_desc_t {
 } ext_img_desc_t;
 #endif
 
-extern const ext_img_desc_t images[13];
+extern const ext_img_desc_t images[17];
 
 #ifdef __cplusplus
 }

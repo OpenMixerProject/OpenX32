@@ -141,11 +141,11 @@ void Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::CARD_NUMBER_OF_CHANNELS)
     ->DefConfig(group, "card_channels");
 
-    DefParameter(CARD_SOURCE, cat, "Card #")
+    DefParameter(CARD_SDCARD, cat, "Card #")
     ->DefConfig(group, "card_source")
     ->DefMinMaxStandard_Uint(0, 1, 0)
     ->DefStepsize(1)
-    ->DefUOM(MP_UOM::CARD_SOURCE);
+    ->DefUOM(MP_UOM::CARD_SDCARD);
 
     DefParameter(CARD_AUDIO_SOURCE, cat, "Card Audio Source")
     ->DefConfig(group, "card_audio_source")
@@ -309,6 +309,7 @@ void Config::DefineMixerparameters() {
     ->DefStandard_Bool(false);
     
     DefParameter(CHANNEL_PANORAMA, cat, "Pan/Bal", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::PANORAMA)
     ->DefConfig(group, "panorama")
     ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f)
     ->DefStepsize(2);

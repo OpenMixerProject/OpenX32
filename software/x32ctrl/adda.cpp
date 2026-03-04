@@ -344,9 +344,7 @@ String Adda::SendReceive(String cmd) {
 	uint8_t currentByte;
 	String answer;
 
-	// flush receivebuffer
-	while (uart->Rx(&addaBufferUart[0], 1) > 0);
-
+	FlushRxBuffer();
 	Send(cmd);
 
 	uint8_t waitForMessage = 1000; // wait maximum timeoutMs ms
@@ -428,6 +426,11 @@ String Adda::SendReceive(String cmd) {
 	// No Answer
 	helper->DEBUG_ADDA(DEBUGLEVEL_VERBOSE, "%s --> No Answer", cmd.c_str());
 	return "";
+}
+
+void Adda::FlushRxBuffer() {
+	// flush receivebuffer
+	while (uart->Rx(&addaBufferUart[0], 1) > 0);
 }
 
 // Mute all ADDA boards
