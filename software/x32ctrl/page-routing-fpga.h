@@ -171,7 +171,7 @@ class PageRoutingFpga: public Page
 
         void OnChange(bool force_update) override
         {
-            if(gui_selected_block != gui_selected_block_before)
+            if(gui_selected_block != gui_selected_block_before || force_update)
             {
 				if (gui_selected_block < 0) {
 					// limit list at the top
@@ -189,7 +189,7 @@ class PageRoutingFpga: public Page
                 DrawTable();
             } 
 
-            if(gui_selected_item_before != gui_selected_item)
+            if(gui_selected_item_before != gui_selected_item || force_update)
             {
 				if (gui_selected_item < 0) {
 					// limit list at the top
@@ -211,7 +211,7 @@ class PageRoutingFpga: public Page
 				gui_selected_item_before = gui_selected_item;
             } 
             
-            if(config->HasParameterChanged(ROUTING_FPGA))
+            if(config->HasParameterChanged(ROUTING_FPGA) || force_update)
             {
                 for(auto const& index : config->GetChangedParameterIndexes({ROUTING_FPGA}))
                 {
