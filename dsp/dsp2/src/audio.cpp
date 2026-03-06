@@ -214,8 +214,6 @@ void audioInit(void) {
 		//audioFxChangeSlot(5, 5, 2); // install MultibandCompressor on slot 5
 		//audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
 		//audioFxChangeSlot(7, 7, 2); // install demo-FX on slot 7
-
-		fxSlots[1] = new fxChorus(1, 2);
 	#endif
 
 	rtaInit();
@@ -229,7 +227,7 @@ void audioInit(void) {
 void audioFxData(int fxSlot, float* data, int len) {
 	#if (FX_USE_UPMIXER == 0) && (FX_USE_MATRIXUPMIXER == 0)
 		// passthrough data to desired fx-slot
-		if (fxSlots[fxSlot] != 0) {
+		if (fxSlots[fxSlot] != NULL) {
 			fxSlots[fxSlot]->rxData(data, len);
 		}
 	#endif
@@ -243,11 +241,18 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 		if (fxSlot > 7) return;
 
 		// delete old effect
-		if (fxSlots[fxSlot] != 0) {
+		if (fxSlots[fxSlot] != NULL) {
 			delete fxSlots[fxSlot];
 			fxSlots[fxSlot] = 0;
 		}
 
+		// check if we are already using a reverb. If yes, return without installing effect
+		for (int i = 0; i < 8; i++) {
+			if ((fxSlots[i] != NULL) && (fxSlots[i]->getType() == FX_REVERB)) {
+				// at the moment only one installed reverb is allowed
+				return;
+			}
+		}
 
 		// allocate memory for class in non-standard heap
 		//fxSlots[fxSlot] = (fxReverb*)heap_malloc(0, sizeof(fxReverb)); // 0 = heapID
@@ -270,7 +275,7 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 				fxSlots[fxSlot] = new fxDelay(fxSlot, channelMode);
 				break;
 			case 5:
-				//fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode);
+				//fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode); // at the moment this effect takes to much space in program
 				break;
 			case 6:
 				fxSlots[fxSlot] = new fxDynamicEQ(fxSlot, channelMode);

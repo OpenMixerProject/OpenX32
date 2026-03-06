@@ -12,6 +12,7 @@ class fxTransientshaper : public fx {
         ~fxTransientshaper();
         void setParameters(float timeFast, float timeMed, float timeSlow, float attack, float sustain, float delayMs);
         void rxData(float data[], int len);
+        fxType getType() { return FX_TRANSIENTSHAPER; };
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         float* _delayLine;

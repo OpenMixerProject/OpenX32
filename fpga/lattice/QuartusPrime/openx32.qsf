@@ -47,8 +47,11 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_aux_decoder.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_uart_tx.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/uart_tx.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_aux_rx.vhd"
 set_global_assignment -name VHDL_FILE ../../aes50_spi_continuous.vhd
-set_global_assignment -name VHDL_FILE ../../aes50_aux_decoder.vhd
 set_global_assignment -name VHDL_FILE ../../config_rxd.vhd
 set_global_assignment -name VHDL_FILE ../../audioclk.vhd
 set_global_assignment -name VERILOG_FILE ../claritydesigner/lattice_pll_phy/lattice_pll_phy.v

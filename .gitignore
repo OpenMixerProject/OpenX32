@@ -11,12 +11,11 @@
 # initramfs
 initramfs_root/bin
 initramfs_root/dev
-initramfs_root/etc
 initramfs_root/linuxrc
 initramfs_root/proc
 initramfs_root/sbin
 initramfs_root/sys
-initramfs_root/home
+initramfs_root/openx32
 
 # compiled software
 software/x32ctrl/.vscode/tasks.json

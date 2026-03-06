@@ -18,10 +18,18 @@
 	path = software/x32ctrl/lv_port_linux
 	url = https://github.com/lvgl/lv_port_linux.git
 	ignore = dirty
-[submodule "software/openssh-portable"]
-	path = software/openssh-portable
-	url = https://github.com/openssh/openssh-portable.git
+[submodule "software/dropbear"]
+	path = software/dropbear
+	url = https://github.com/mkj/dropbear.git
 	ignore = dirty
 [submodule "fpga/AES50"]
 	path = fpga/AES50
 	url = https://github.com/OpenMixerProject/AES50.git
+[submodule "software/framebuffer-vncserver"]
+	path = software/framebuffer-vncserver
+	url = https://github.com/ponty/framebuffer-vncserver.git
+	ignore = dirty
+[submodule "software/libvncserver"]
+	path = software/libvncserver
+	url = https://github.com/LibVNC/libvncserver.git
+	ignore = dirty

@@ -44,6 +44,8 @@ class Mixer : public X32Base
         Card* card;
         DSP1* dsp;
 
+        String debugText;
+
         Mixer(X32BaseParameter* basepar);
         void Init();
 

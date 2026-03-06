@@ -20,13 +20,14 @@ class PageDebug: public Page {
             BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
-            
+            BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_6, DEBUG);
 
             custom_encoder[DISPLAY_ENCODER_1].label = "Reload DSPs";
             custom_encoder[DISPLAY_ENCODER_2].label = "FX: Install Effects";
             custom_encoder[DISPLAY_ENCODER_3].label = "FX: Send Parameters";
             custom_encoder[DISPLAY_ENCODER_4].label = "XLR1 -> DSP2, DSP2 -> Ch9..24";
+            custom_encoder[DISPLAY_ENCODER_5].label = "Clear DebugLabelText";
         }
 
         bool OnDisplayButton(X32_BTN button, bool pressed) override
@@ -107,6 +108,10 @@ class PageDebug: public Page {
                             
                             config->Set(MP_ID::CHANNEL_VOLUME, 0.0f, 80); // Main 0dBfs
                         }
+                        break;
+                    case X32_BTN_ENCODER5:
+                        mixer->debugText = "";
+                        lv_label_set_text(objects.setup_debug_label, mixer->debugText.c_str());
                         break;
                     default:
                         handled = false;

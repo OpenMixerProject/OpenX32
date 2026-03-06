@@ -317,6 +317,17 @@ void X32Ctrl::ProcessUartDataAdda() {
 		helper->DEBUG_ADDA(DEBUGLEVEL_TRACE, "Received ADDA command: %s", newCommand.c_str());
 
 		if (newCommand.indexOf("*9") > -1) {
+			// we are receiving an answer from the expansion-card
+
+			// only add to debug-text when not sample-index-update
+			if (newCommand.indexOf("*9N22") == -1) {
+				mixer->debugText += mixer->debugText + "\n" + newCommand;
+				if (mixer->debugText.length() > 1000) {
+					mixer->debugText = "";
+				}
+				lv_label_set_text(objects.setup_debug_label, mixer->debugText.c_str());
+			}
+
 			mixer->card->ProcessCommand(newCommand);
 		}
 	}

@@ -72,7 +72,8 @@ void Card::ProcessCommand(String command) {
         // *9N0003B2348000002459# -> 32GB card with four files
         // *9N0003A6D300# -> only information about the remaining space
 
-        XLIVE_CardPresent[0] = (command.substring(4, 4).toInt() == 0);
+        //XLIVE_CardPresent[0] = (command.substring(4, 4).toInt() == 0); // TODO: check if this value is really the information about card-present
+        XLIVE_CardPresent[0] = true;
 
         if (XLIVE_CardPresent[0]) {
             XLIVE_CardRemaingSpaceMB[0] = helper->hexToInt(command.substring(5, 5+8)) / 2000;
@@ -102,7 +103,10 @@ void Card::ProcessCommand(String command) {
         config->Refresh(CARD_STATE);
     }else if (command.indexOf("*9N1") > -1){
         // command is send when a new card on slot 2 is detected
-        XLIVE_CardPresent[1] = (command.substring(4, 4).toInt() == 0);
+
+        //XLIVE_CardPresent[1] = (command.substring(4, 4).toInt() == 0); // TODO: check if this value is really the information about card-present
+        XLIVE_CardPresent[1] = true;
+
         if (XLIVE_CardPresent[1]) {
             XLIVE_CardRemaingSpaceMB[1] = helper->hexToInt(command.substring(5, 5+8)) / 2000;
             if (command.length() == 22) {

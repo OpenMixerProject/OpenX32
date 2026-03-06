@@ -59,6 +59,7 @@ class fxReverb : public fx {
         ~fxReverb();
         void setParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet); // Size in ms, Reverberation Time to -60dB, Frequency for feedback-loop, dry, wet
         void rxData(float data[], int len);
+        fxType getType() { return FX_REVERB; };
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         int _startupCounter;

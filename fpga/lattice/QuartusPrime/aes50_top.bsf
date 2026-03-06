@@ -332,6 +332,13 @@ on the Quartus Prime software download page.
 		(text "dbg_o[7..0]" (rect 295 299 339 311)(font "Arial" ))
 		(line (pt 360 304)(pt 344 304)(line_width 3))
 	)
+	(port
+		(pt 360 320)
+		(output)
+		(text "uart_o" (rect 0 0 25 12)(font "Arial" ))
+		(text "uart_o" (rect 314 315 339 327)(font "Arial" ))
+		(line (pt 360 320)(pt 344 320)(line_width 1))
+	)
 	(drawing
 		(rectangle (rect 16 16 344 448)(line_width 1))
 	)
