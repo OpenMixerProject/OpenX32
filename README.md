@@ -3,13 +3,17 @@
 This repository contains software to load and start the Linux-Kernel on the Behringer X32, some userland tools and x32ctrl - the main logic of our custom firmware.
 This audio-mixing-console uses a Freescale/NXP i.MX253 Microcontroller with an ARM926EJ-S core that supports booting Linux.
 
-![alt_text](Documentation/openx32_1.jpg)
-
 Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox (the picture is older, shows Kernel 6.12):
 
-![alt_text](Documentation/openx32_2.jpg)
+![alt_text](Documentation/openx32_1.jpg)
 
-More information in the related two Youtube-Videos:
+x32ctrl is the new GUI and program that controls the individual boards and devices:
+![alt_text](Documentation/openx32_home.jpg)
+
+Since the beginning in May 2025 the UI has improved a bit and some of the original X32-functions are already implemented in OpenX32:
+![alt_text](Documentation/openx32_card.jpg)
+
+You can find more information in the two related Youtube-Videos:
 [![alt text](https://img.youtube.com/vi/c5jjBm8EPsg/0.jpg)](https://www.youtube.com/watch?v=c5jjBm8EPsg)
 
 [![alt text](https://img.youtube.com/vi/6CfLC5xVy90/0.jpg)](https://www.youtube.com/watch?v=6CfLC5xVy90)
@@ -37,19 +41,19 @@ Several audio-functions are already supported:
 * [x] Support of internal 8-channel analog input- and output-cards including headamp- and phantom-power-control
 * [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438 on older revisions, M8000 on newer revisions)
 * [x] Noisegate, 4-band EQ and compressor per channel is already working within the main-DSP
+* [x] Some more advanced audio-algorithms are already implemented in DSP2
 
 The hardware-surface is working, too:
 * [x] Support of booting from SD-Card and via USB using the original DCP-Bootloader
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
 
 So the most important things (audio in/out, control-surface, display) are working already and more things are on the ToDo-list:
+* [ ] AES50 is working (almost). Receiving and sending audio is possible and the AUX-channel for headamp-control is "working" but needs more time
 * [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years; barebox already boots OpenX32 from development sd-cards)
-* [ ] Planned: Support of AES50
-* [ ] Planned: Implement advanced audio-algorithms in DSP2
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
 
-LVGL v9.3.0 is running on the X32 with a good performance (30 fps). So this will be a basis for this open-source Operating System:
+LVGL v9.5.0 is running on the X32 with a good performance (30 fps). So this will be a basis for this open-source Operating System:
 ![alt_text](Documentation/openx32_3.jpg)
 
 ![alt_text](Documentation/openx32_4.jpg)
@@ -162,5 +166,5 @@ see also: [Article in our Discourse](https://discourse.openmixerproject.de/t/mid
 * Linux in Version 6.18 (https://github.com/torvalds/linux/tree/v6.18)
 * Busybox (https://git.busybox.net/busybox)
 * pyATK in Version 0.1.0 (https://github.com/hbock/pyatk)
-* LVGL in Version 9.3.0 (https://github.com/lvgl/lv_port_linux)
-* OpenSSH Portable 8.3 (https://github.com/openssh/openssh-portable)
+* LVGL in Version 9.5.0 (https://github.com/lvgl/lv_port_linux)
+* Dropbear (https://github.com/mkj/dropbear)
