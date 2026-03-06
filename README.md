@@ -8,10 +8,10 @@ Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox (the pi
 ![alt_text](Documentation/openx32_1.jpg)
 
 x32ctrl is the new GUI and program that controls the individual boards and devices:
-![alt_text](Documentation/openx32_home.jpg)
+![alt_text](Documentation/openx32_home.png)
 
 Since the beginning in May 2025 the UI has improved a bit and some of the original X32-functions are already implemented in OpenX32:
-![alt_text](Documentation/openx32_card.jpg)
+![alt_text](Documentation/openx32_card.png)
 
 You can find more information in the two related Youtube-Videos:
 [![alt text](https://img.youtube.com/vi/c5jjBm8EPsg/0.jpg)](https://www.youtube.com/watch?v=c5jjBm8EPsg)
