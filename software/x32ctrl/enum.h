@@ -791,3 +791,12 @@ enum class DSP_TAP : int
     PRE_FADER = 3,
     POST_FADER = 4,
 };
+
+/// @brief Surface Binding Action
+enum class SB_ACTION
+{
+    NONE,
+    SET,
+    CHANGE,
+    TOGGLE,
+};

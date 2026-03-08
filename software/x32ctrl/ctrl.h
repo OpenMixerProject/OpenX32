@@ -34,6 +34,8 @@
 #include "page-prototypegui.h"
 #include "lcd-menu.h"
 
+#include "surfacebindings.h"
+
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"
@@ -75,6 +77,10 @@ class X32Ctrl : public X32Base
         XRemote* xremote;
         LcdMenu* lcdmenu;
 
+        // surface binding
+        map<uint, SurfaceBinding_Fader*> fader_binding;
+
+
         // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
         sBank inputBanks[8];
         sBank busBanks[4];
@@ -92,6 +98,9 @@ class X32Ctrl : public X32Base
 
         void my_handler(int s);
 
+        void InitSurfaceBinding();
+        void BindFader(uint fader_index, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action);
+
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);
 
@@ -105,6 +114,7 @@ class X32Ctrl : public X32Base
         void ProcessUartDataAES50();
 
     public:
+
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
         void writeConfigEntry(Mixerparameter *const &parameter, uint index);

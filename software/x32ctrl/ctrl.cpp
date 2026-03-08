@@ -50,6 +50,8 @@ void X32Ctrl::Init(){
 	//#
 	//##################################################################################
 
+	InitSurfaceBinding();
+
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->Init()");
 	mixer->Init();
 
@@ -754,6 +756,113 @@ void X32Ctrl::syncGuiOrLcd() {
 // sync mixer state to Surface
 void X32Ctrl::syncSurface(bool fullSync)
 {
+	// New "SurfaceManager" with Binding
+
+	// check, if banking was changed
+	if (config->HasParameterChanged(BANKING_INPUT) || fullSync)
+	{
+		if (config->IsModelX32Full())
+		{
+			uint offset = config->GetUint(BANKING_INPUT) * 8;
+
+			for(uint i = 0; i < 8; i++)
+			{
+				BindFader(i, CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
+			}
+		}
+		if (config->IsModelX32CompactOrProducer())
+		{
+			uint offset = config->GetUint(BANKING_INPUT) * 8;
+
+			for(uint i = 0; i < 8; i++)
+			{
+				BindFader(i, CHANNEL_VOLUME, i + offset, SB_ACTION::SET);	
+			}
+		}
+
+		// sync all after banking has changed
+		fullSync = true;
+	}
+
+	if (config->HasParameterChanged(BANKING_BUS) || fullSync)
+	{
+		uint offset = 0;
+
+		switch(config->GetUint(BANKING_BUS))
+		{
+			case 0:
+				offset = to_underlying(X32_VCHANNEL_BLOCK::DCA);
+				break;
+			case 1:
+				offset = to_underlying(X32_VCHANNEL_BLOCK::BUS);
+				break;
+			case 2:
+				offset = to_underlying(X32_VCHANNEL_BLOCK::BUS) + 8;
+				break;
+			case 3:
+				offset = to_underlying(X32_VCHANNEL_BLOCK::MATRIX);
+				break;
+		}
+
+		uint bus_fader_offset = config->IsModelX32Full() ? 16 : 8;
+
+		for(uint i = 0; i < 8; i++)
+		{
+			BindFader(i + bus_fader_offset, CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
+		}
+
+		// sync all after banking has changed
+		fullSync = true;
+	}
+
+
+	// Sync faders
+	for (auto const& [fader_index, SurfaceBinding_Fader] : fader_binding)
+    {
+		if (config->HasParameterChanged(SurfaceBinding_Fader->mp_id, SurfaceBinding_Fader->mp_index) || fullSync)
+		{
+			u_int16_t faderPosition = helper->Dbfs2Fader(config->GetFloat(SurfaceBinding_Fader->mp_id, SurfaceBinding_Fader->mp_index));
+			
+			uint board = 0;
+			uint fader_board_index = 0;
+			if (config->IsModelX32Full())
+			{
+				if (fader_index < 8)
+				{
+					board = X32_BOARD_L;
+					fader_board_index = fader_index;
+				}
+				else if (fader_index < 16)
+				{
+					board = X32_BOARD_M;
+					fader_board_index = fader_index - 8;
+				}
+				else
+				{
+					board = X32_BOARD_R;
+					fader_board_index = fader_index - 16;
+				}
+			}
+			else if (config->IsModelX32CompactOrProducer())
+			{
+				if (fader_index < 8)
+				{
+					board = X32_BOARD_L;
+					fader_board_index = fader_index;
+				}
+				else
+				{
+					board = X32_BOARD_R;
+					fader_board_index = fader_index - 8;
+				}
+			}
+
+			surface->SetFader(board, fader_board_index, faderPosition);
+		}
+	}
+
+
+	// old
 	surfaceSyncBoardMain(fullSync);
 
 	if (config->IsModelX32FullOrCompactOrProducer()){   
@@ -985,6 +1094,7 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board, bool fullSync)
 	uint selectedChannel = config->GetUint(SELECTED_CHANNEL);
 
 	for(int i=0; i<=maxChannel; i++){
+
 		uint8_t channelIndex = SurfaceChannel2vChannel(i+offset);
 
 		if (channelIndex == VCHANNEL_NOT_SET)
@@ -1010,12 +1120,6 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board, bool fullSync)
 			if (config->HasParameterChanged(CHANNEL_MUTE) || fullSync)
 			{
 				surface->SetLed(p_board, 0x40+i, config->GetBool(CHANNEL_MUTE, channelIndex)); 
-			}
-
-			if (config->HasParameterChanged(CHANNEL_VOLUME, channelIndex) || fullSync)
-			{
-				u_int16_t faderPosition = helper->Dbfs2Fader(config->GetFloat(CHANNEL_VOLUME, channelIndex));
-				surface->SetFader(p_board, i, faderPosition);
 			}
 
 			if(!state->surface_disable_lcd_update)
@@ -1784,6 +1888,52 @@ void X32Ctrl::ProcessUartDataSurface() {
     }
 }
 
+//####################################################################
+//
+//  ######  ##     ## ########  ########    ###     ######  ######## 
+// ##    ## ##     ## ##     ## ##         ## ##   ##    ## ##       
+// ##       ##     ## ##     ## ##        ##   ##  ##       ##       
+//  ######  ##     ## ########  ######   ##     ## ##       ######   
+//       ## ##     ## ##   ##   ##       ######### ##       ##       
+// ##    ## ##     ## ##    ##  ##       ##     ## ##    ## ##       
+//  ######   #######  ##     ## ##       ##     ##  ######  ######## 
+//
+//
+// ########  #### ##    ## ########  #### ##    ##  ######   
+// ##     ##  ##  ###   ## ##     ##  ##  ###   ## ##    ##  
+// ##     ##  ##  ####  ## ##     ##  ##  ####  ## ##        
+// ########   ##  ## ## ## ##     ##  ##  ## ## ## ##   #### 
+// ##     ##  ##  ##  #### ##     ##  ##  ##  #### ##    ##  
+// ##     ##  ##  ##   ### ##     ##  ##  ##   ### ##    ##  
+// ########  #### ##    ## ########  #### ##    ##  ######   
+//
+//####################################################################
+
+void X32Ctrl::InitSurfaceBinding()
+{
+	// Fader
+
+	if (config->IsModelX32CompactOrProducer())
+	{
+		// Main fader
+		BindFader(16, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
+	}
+
+	if (config->IsModelX32CompactOrProducer())
+	{
+		// Main fader
+		BindFader(24, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
+	}
+}
+
+void X32Ctrl::BindFader(uint fader_index, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action)
+{
+	fader_binding[fader_index] = new SurfaceBinding_Fader(mixerparameter, mixerparameter_index, action);
+}
+
+
+
+
 //#####################################################################################################################
 //
 //  ######  ##     ## ########  ########    ###     ######  ########      #### ##    ## ########  ##     ## ######## 
@@ -1796,27 +1946,21 @@ void X32Ctrl::ProcessUartDataSurface() {
 //
 //#####################################################################################################################
 
-void X32Ctrl::FaderMoved(SurfaceEvent* event){
-	uint8_t vchannelIndex = VCHANNEL_NOT_SET;
+void X32Ctrl::FaderMoved(SurfaceEvent* event)
+{
+	uint faderIdx = surface->GetFaderIndex(event->boardId, event->index);
+	if (fader_binding.contains(faderIdx))
+	{
+		SurfaceBinding_Fader* FaderBinding  = fader_binding[faderIdx];
 
-	uint8_t offset = 0;
-	if (event->boardId == X32_BOARD_M) { 
-		offset=8;
-	}
-	if (config->IsModelX32Full()){
-		if (event->boardId == X32_BOARD_R) { 
-			offset=16;
+		switch (FaderBinding->action)
+		{
+			case SB_ACTION::SET:
+				config->Set(FaderBinding->mp_id, helper->Fadervalue2dBfs(event->value), FaderBinding->mp_index);
+				surface->FaderMoved(event);
+				break;
 		}
 	}
-	if (config->IsModelX32CompactOrProducer()){
-		if (event->boardId == X32_BOARD_R) { 
-			offset=8;
-		}
-	}
-
-	vchannelIndex = SurfaceChannel2vChannel(event->index + offset);
-	config->Set(CHANNEL_VOLUME, helper->Fadervalue2dBfs(event->value), vchannelIndex);
-	surface->FaderMoved(event);
 }
 
 void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
