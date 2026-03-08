@@ -441,24 +441,24 @@ void Config::DefineMixerparameters() {
     float channel_eq_freq[4] = {125.0f, 500.0f, 2000.0f, 10000.0f};
     for (uint i = 0; i < channel_eq_count; i++)
     {
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_TYPE1 + i), cat, "Type", MAX_VCHANNELS)
+        DefParameter((MP_ID)((uint)CHANNEL_EQ_TYPE1 + i), cat, String("Type[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::EQ_TYPE)
         ->DefConfig(group, "eq_type_" + String(i))
         ->DefHideEncoderReset()
         ->DefMinMaxStandard_Uint(0, 7, 1);
 
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_FREQ1 + i), cat, "Frequenz", MAX_VCHANNELS)
+        DefParameter((MP_ID)((uint)CHANNEL_EQ_FREQ1 + i), cat, String("Freg[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::HZ)
         ->DefConfig(group, "eq_freq_" + String(i))
         ->DefStepmode(1) // frequency mode
         ->DefMinMaxStandard_Float(20.0f, 20000.0f, channel_eq_freq[i]);
 
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_GAIN1 + i), cat, "Gain", MAX_VCHANNELS)
+        DefParameter((MP_ID)((uint)CHANNEL_EQ_GAIN1 + i), cat, String("Gain[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefConfig(group, "eq_gain_" + String(i))
         ->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
  
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_Q1 + i), cat, "Q", MAX_VCHANNELS)
+        DefParameter((MP_ID)((uint)CHANNEL_EQ_Q1 + i), cat, String("Q[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefStepsize(0.1f)
         ->DefConfig(group, "eq_q_" + String(i))
         ->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
