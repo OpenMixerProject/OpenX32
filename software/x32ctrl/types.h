@@ -124,9 +124,7 @@ typedef struct{
 typedef struct{
     char name[MAX_NAME_LENGTH];
 
-    // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
-    sBank inputBanks[8];
-    sBank busBanks[4];
+
 } sBankMode;
 
 // values only for runtime use

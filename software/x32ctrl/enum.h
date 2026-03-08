@@ -347,23 +347,16 @@ typedef enum  {
 
 } X32_ENC;
 
-// Mode of the Banking
-typedef enum {
-    // Standard Layout like X32 Original
-    X32_SURFACE_MODE_BANKING_X32,
-
-    // User Layout
-    X32_SURFACE_MODE_BANKING_USER,
-} X32_SURFACE_MODE_BANKING;
-
-typedef enum {
+typedef enum
+{
     X32_BOARD_MAIN =    0x00,
     X32_BOARD_L =       0x04,
     X32_BOARD_M =       0x05, // only X32 Full
     X32_BOARD_R =       0x08,
 } X32_BOARD;
 
-enum class X32_MODEL {
+enum class X32_MODEL
+{
     NONE,
     FULL,
     COMPACT,
@@ -372,7 +365,8 @@ enum class X32_MODEL {
     CORE
 };
 
-enum class X32_PAGE :int {
+enum class X32_PAGE :int
+{
     NONE,
     HOME,
         // sub-pages of home

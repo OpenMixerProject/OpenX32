@@ -56,14 +56,6 @@ bool Config::IsModelX32ProducerOrRack() {
     return ((_model == X32_MODEL::PRODUCER) || (_model == X32_MODEL::RACK));
 }
 
-void Config::SetBankMode(X32_SURFACE_MODE_BANKING mode) {
-    _activeBankMode = mode;
-}
-
-X32_SURFACE_MODE_BANKING Config::GetBankMode() {
-    return _activeBankMode;
-}
-
 
 //######################################################################################################################################
 //#

@@ -75,7 +75,9 @@ class X32Ctrl : public X32Base
         XRemote* xremote;
         LcdMenu* lcdmenu;
 
-        sBankMode modes[3];
+        // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
+        sBank inputBanks[8];
+        sBank busBanks[4];
 
         map<X32_PAGE, Page*> pages;
         X32_PAGE lastPage = X32_PAGE::HOME;

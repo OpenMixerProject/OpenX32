@@ -29,7 +29,6 @@ class Config
 
         // old
         X32_MODEL _model;
-        X32_SURFACE_MODE_BANKING _activeBankMode;
 
     public:
 
@@ -79,7 +78,4 @@ class Config
         bool IsModelX32Rack();
         bool IsModelX32Producer();
         bool IsModelX32Compact();
-
-        void SetBankMode(X32_SURFACE_MODE_BANKING mode);
-        X32_SURFACE_MODE_BANKING GetBankMode();
 };

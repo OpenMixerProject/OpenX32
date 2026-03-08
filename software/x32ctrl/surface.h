@@ -20,6 +20,7 @@ using namespace std;
 class Surface : public X32Base
 {
     private:
+
         SurfaceFader faders[MAX_FADERS];
 
         bool blinkstate = false;
@@ -48,6 +49,7 @@ class Surface : public X32Base
         int SendData(MessageBase* message, bool addChecksum);
 
     public:
+    
         Surface(X32BaseParameter* basepar);
         Uart* uart;
 
