@@ -8,7 +8,8 @@ class PageHome : public Page
 
     private:
 
-        lv_obj_t* vumeters[6] = {
+        lv_obj_t* vumeters[MAX_DISPLAY_ENCODER] =
+        {
             objects.home_vumeter_1,
             objects.home_vumeter_2,
             objects.home_vumeter_3,
@@ -16,6 +17,9 @@ class PageHome : public Page
             objects.home_vumeter_5,
             objects.home_vumeter_6
         };
+
+        uint lastImageOffset[MAX_DISPLAY_ENCODER] = {0, 0, 0, 0, 0, 0};
+
 
     public:
 
@@ -58,7 +62,14 @@ class PageHome : public Page
             {
                 float dbValue = helper->sample2Dbfs(mixer->dsp->rChannel[i].meterDecay);
                 uint imageOffset = helper->rescale(dbValue, -100.0f, 10.0f, 0.0f, 31.0f);
-                lv_image_set_offset_x(vumeters[i], imageOffset * -lv_obj_get_width(vumeters[i]));
+                uint newImageOffset = imageOffset * -lv_obj_get_width(vumeters[i]);
+             
+                // only set new offset if it has changed
+                if (newImageOffset != lastImageOffset[i])
+                {
+                    lv_image_set_offset_x(vumeters[i], newImageOffset);
+                    lastImageOffset[i] = newImageOffset;
+                }
             }
         }
 };

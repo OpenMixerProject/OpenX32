@@ -5,6 +5,10 @@ using namespace std;
 
 class PageConfig : public Page
 {
+    private:
+        
+        uint lastImageOffset;
+
     public:
 
         PageConfig(PageBaseParameter* pagebasepar) : Page(pagebasepar)
@@ -92,6 +96,13 @@ class PageConfig : public Page
         {
             float dbValue = helper->sample2Dbfs(mixer->dsp->rChannel[config->GetUint(MP_ID::SELECTED_CHANNEL)].meterDecay);
             uint imageOffset = helper->rescale(dbValue, -100.0f, 10.0f, 0.0f, 31.0f);
-            lv_image_set_offset_x(objects.config_vumeter, imageOffset * -lv_obj_get_width(objects.config_vumeter));
+            uint newImageOffset = imageOffset * -lv_obj_get_width(objects.config_vumeter);
+
+            // only set new offset if it has changed
+            if (newImageOffset != lastImageOffset)
+            {
+                lv_image_set_offset_x(objects.config_vumeter, newImageOffset);
+                lastImageOffset = newImageOffset;
+            }
         }
 };
