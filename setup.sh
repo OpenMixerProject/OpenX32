@@ -8,10 +8,16 @@ sudo apt update
 sudo apt install libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf llvm fakeroot build-essential devscripts gcc-arm-none-eabi binutils-arm-none-eabi gcc-arm-linux-gnueabi g++-arm-linux-gnueabi binutils-arm-linux-gnueabi u-boot-tools bc cpio
 
 
-# install individual libraries for some tools (not used at the moment)
+# install individual libraries for some tools
 # ========================================================================
 #echo "Installing libraries for ARM..."
-#sudo dpkg --add-architecture armel
+sudo dpkg --add-architecture armel
+sudo apt update
+
+# libz required for openssh-portable
+sudo apt install zlib1g-dev:armel libz-dev:armel
+
+# libasound2 required for audio-output
 #sudo apt install libasound2:armel
 
 

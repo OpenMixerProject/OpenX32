@@ -347,23 +347,16 @@ typedef enum  {
 
 } X32_ENC;
 
-// Mode of the Banking
-typedef enum {
-    // Standard Layout like X32 Original
-    X32_SURFACE_MODE_BANKING_X32,
-
-    // User Layout
-    X32_SURFACE_MODE_BANKING_USER,
-} X32_SURFACE_MODE_BANKING;
-
-typedef enum {
+typedef enum
+{
     X32_BOARD_MAIN =    0x00,
     X32_BOARD_L =       0x04,
     X32_BOARD_M =       0x05, // only X32 Full
     X32_BOARD_R =       0x08,
 } X32_BOARD;
 
-enum class X32_MODEL {
+enum class X32_MODEL
+{
     NONE,
     FULL,
     COMPACT,
@@ -372,7 +365,8 @@ enum class X32_MODEL {
     CORE
 };
 
-enum class X32_PAGE :int {
+enum class X32_PAGE :int
+{
     NONE,
     HOME,
         // sub-pages of home
@@ -393,10 +387,13 @@ enum class X32_PAGE :int {
     SETUP,
         // sub-pages of setup
         SETUP_CARD,
+        ABOUT,
+        DEBUG,
+        PROTOTYPEGUI,
     LIBRARY,
     EFFECTS,
     MUTE_GRP,
-    UTILITY
+    SCENES
 };
 
 enum class X32_VCHANNELTYPE {
@@ -454,6 +451,9 @@ enum class MP_UOM {
     ZERO_BASED_INDEX__START_BY_ONE,
     CHANNEL_LCD_MODE, // Displaymode of Channel LCDs
     CARD_NUMBER_OF_CHANNELS,
+    CARD_SDCARD,
+    CARD_AUDIO_SOURCE,
+    PANORAMA,
 };
 
 enum class MP_VALUE_TYPE {
@@ -485,12 +485,19 @@ enum class MP_ID {
 
     // Settings
 
+    DEBUG,
     LCD_CONTRAST,
     LED_BRIGHTNESS,
     DISPLAY_BRIGHTNESS,
     SAMPLERATE,
-    CARD_NUMBER_OF_CHANNELS,
     CHANNEL_LCD_MODE,
+
+    // Card
+    CARD_NUMBER_OF_CHANNELS,
+    CARD_AUDIO_SOURCE,
+    CARD_SDCARD,
+    CARD_POSITION,
+    CARD_STATE,
 
     // Routing
 
@@ -502,6 +509,7 @@ enum class MP_ID {
 
     // State
 
+    ACTIVE_SCENE,
     SELECTED_CHANNEL,
     ACTIVE_PAGE,
     BANKING_EQ,
@@ -782,4 +790,13 @@ enum class DSP_TAP : int
     POST_EQ = 2,
     PRE_FADER = 3,
     POST_FADER = 4,
+};
+
+/// @brief Surface Binding Action
+enum class SB_ACTION
+{
+    NONE,
+    SET,
+    CHANGE,
+    TOGGLE,
 };

@@ -53,11 +53,13 @@ X32Ctrl* ctrl;
 State* state;
 CLI::App* app;
 
+#ifdef BODYLESS_SDL2
 // for SDL2 on PC
 static lv_display_t *display;
 static lv_indev_t *mouse;
 static lv_indev_t *mouse_wheel;
 static lv_indev_t *keyboard;
+#endif
 
 timer_t timerid_10ms;
 struct sigevent sev_10ms;
@@ -134,7 +136,7 @@ void guiInit(Config* config) {
 	 	lv_sdl_window_set_title(display, "OpenX32 x32ctrl - bodyless mode (Development Simulator)");
 		keyboard = lv_sdl_keyboard_create();
 		#endif
-	} 
+	}
 	else
 	{
 		printf("FBDEV mode\n");
@@ -157,9 +159,6 @@ void guiInit(Config* config) {
 	// trigger first update of display header
 	config->Refresh(MP_ID::SELECTED_CHANNEL);
 
-	// trigger first update on shown page	
-	ctrl->ShowPage((X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE));
-
 	// sync the Surface
 	ctrl->syncSurface(true);
 
@@ -167,9 +166,7 @@ void guiInit(Config* config) {
 
 	if (state->bodyless)
 	{
-		// Show keymapping for bodyless mode
-		lv_obj_set_flag(objects.bodyless_instructions, LV_OBJ_FLAG_HIDDEN, false);
-
+		#ifdef BODYLESS_SDL2
 		uint32_t idle_time;
 
 		while (1) {
@@ -179,34 +176,13 @@ void guiInit(Config* config) {
 
 			ctrl->SimulatorButton(lv_indev_get_key(keyboard));
     	}
+		#endif
 	}
 	else 
 	{
 		//start endless loop	
 		driver_backends_run_loop();
 	}
-}
-
-
-
-// handle STRG-C and write config file
-void my_handler(int s){
-    printf("Caught signal %d\n",s);
-
-	// write config to file
-	if (app){
-		ofstream myfile;
-		myfile.open(X32_CTRL_CONFIGFILE);
-		myfile << app->config_to_str(true,true);
-		myfile.close();
-	}
-
-	// write mixer settings to ini
-	printf("Save config...");
-	ctrl->SaveConfig();
-	printf("DONE\n");
-
-    exit(0); 
 }
 
 int main(int argc, char* argv[]) {
@@ -250,6 +226,10 @@ int main(int argc, char* argv[]) {
 
 	// debugging commandline option	
 	app->add_flag("-b,--bodyless", state->bodyless, "Enables a special mode to run x32ctrl in a different enviroment than a X32 mixer.")
+			->configurable(false)
+			->group("Debug");
+
+	app->add_flag("-r,--raspi", state->raspi, "Enables Raspi mode.")
 			->configurable(false)
 			->group("Debug");
 
@@ -372,13 +352,6 @@ int main(int argc, char* argv[]) {
 	X32BaseParameter* basepar = new X32BaseParameter(app, config, state, helper);
 	ctrl = new X32Ctrl(basepar);
 
-	// handle CTRL+C
-	struct sigaction sigIntHandler;
-	sigIntHandler.sa_handler = my_handler;
-	sigemptyset(&sigIntHandler.sa_mask);
-	sigIntHandler.sa_flags = 0;
-	sigaction(SIGINT, &sigIntHandler, NULL);
-    
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ctrl->Init()");
 	ctrl->Init();  // initialize the whole thing and load config
 

@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="oddr_clock">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2026-1-7T13:13:37</timestamp>
+    <timestamp>2026-3-1T13:47:12</timestamp>
     <pin polarity="Input" x="0" y="-96" name="clk_in" />
-    <pin polarity="Input" x="0" y="-32" name="reset" />
     <pin polarity="Output" x="384" y="-96" name="clk_out" />
+    <pin polarity="Input" x="0" y="32" name="reset" />
+    <pin polarity="Input" x="0" y="96" name="d0" />
+    <pin polarity="Input" x="0" y="160" name="d1" />
+    <pin polarity="Input" x="0" y="-32" name="clk_in_inv" />
     <graph>
         <attrtext style="alignment:BCENTER;fontsize:56;fontname:Arial" attrname="SymbolName" x="192" y="-136" type="symbol" />
         <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-96" type="pin clk_in" />
-        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin reset" />
         <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="312" y="-96" type="pin clk_out" />
-        <rect width="256" x="64" y="-128" height="128" />
         <line x2="0" y1="-96" y2="-96" x1="64" />
-        <line x2="0" y1="-32" y2="-32" x1="64" />
         <line x2="384" y1="-96" y2="-96" x1="320" />
+        <rect width="256" x="64" y="-128" height="320" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="32" type="pin reset" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="96" type="pin d0" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="160" type="pin d1" />
+        <line x2="0" y1="96" y2="96" x1="64" />
+        <line x2="0" y1="160" y2="160" x1="64" />
+        <line x2="0" y1="32" y2="32" x1="64" />
+        <line x2="0" y1="-32" y2="-32" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin clk_in_inv" />
     </graph>
 </symbol>

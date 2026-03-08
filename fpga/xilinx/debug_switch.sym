@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<symbol version="7" name="debug_switch">
+    <symboltype>BLOCK</symboltype>
+    <timestamp>2026-2-26T21:33:10</timestamp>
+    <pin polarity="Input" x="0" y="-800" name="card_bclk_i" />
+    <pin polarity="Input" x="0" y="-736" name="card_fsclk_i" />
+    <pin polarity="Input" x="0" y="-672" name="card_out0_i" />
+    <pin polarity="Input" x="0" y="-608" name="card_out1_i" />
+    <pin polarity="Input" x="0" y="-544" name="card_out2_i" />
+    <pin polarity="Input" x="0" y="-480" name="card_out3_i" />
+    <pin polarity="Input" x="0" y="-416" name="debug0_i" />
+    <pin polarity="Input" x="0" y="-352" name="debug1_i" />
+    <pin polarity="Input" x="0" y="-288" name="debug2_i" />
+    <pin polarity="Input" x="0" y="-224" name="debug3_i" />
+    <pin polarity="Input" x="0" y="-160" name="debug4_i" />
+    <pin polarity="Input" x="0" y="-96" name="debug5_i" />
+    <pin polarity="Input" x="0" y="-32" name="debug_signals" />
+    <pin polarity="Output" x="432" y="-800" name="card_bclk_o" />
+    <pin polarity="Output" x="432" y="-656" name="card_fsclk_o" />
+    <pin polarity="Output" x="432" y="-512" name="card_out0_o" />
+    <pin polarity="Output" x="432" y="-368" name="card_out1_o" />
+    <pin polarity="Output" x="432" y="-224" name="card_out2_o" />
+    <pin polarity="Output" x="432" y="-80" name="card_out3_o" />
+    <graph>
+        <rect width="304" x="64" y="-832" height="832" />
+        <attrtext style="alignment:BCENTER;fontsize:56;fontname:Arial" attrname="SymbolName" x="216" y="-840" type="symbol" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-800" type="pin card_bclk_i" />
+        <line x2="0" y1="-800" y2="-800" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-736" type="pin card_fsclk_i" />
+        <line x2="0" y1="-736" y2="-736" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-672" type="pin card_out0_i" />
+        <line x2="0" y1="-672" y2="-672" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-608" type="pin card_out1_i" />
+        <line x2="0" y1="-608" y2="-608" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-544" type="pin card_out2_i" />
+        <line x2="0" y1="-544" y2="-544" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-480" type="pin card_out3_i" />
+        <line x2="0" y1="-480" y2="-480" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-416" type="pin debug0_i" />
+        <line x2="0" y1="-416" y2="-416" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-352" type="pin debug1_i" />
+        <line x2="0" y1="-352" y2="-352" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-288" type="pin debug2_i" />
+        <line x2="0" y1="-288" y2="-288" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-224" type="pin debug3_i" />
+        <line x2="0" y1="-224" y2="-224" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-160" type="pin debug4_i" />
+        <line x2="0" y1="-160" y2="-160" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-96" type="pin debug5_i" />
+        <line x2="0" y1="-96" y2="-96" x1="64" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin debug_signals" />
+        <line x2="0" y1="-32" y2="-32" x1="64" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="360" y="-800" type="pin card_bclk_o" />
+        <line x2="432" y1="-800" y2="-800" x1="368" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="360" y="-656" type="pin card_fsclk_o" />
+        <line x2="432" y1="-656" y2="-656" x1="368" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="360" y="-512" type="pin card_out0_o" />
+        <line x2="432" y1="-512" y2="-512" x1="368" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="360" y="-368" type="pin card_out1_o" />
+        <line x2="432" y1="-368" y2="-368" x1="368" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="360" y="-224" type="pin card_out2_o" />
+        <line x2="432" y1="-224" y2="-224" x1="368" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="360" y="-80" type="pin card_out3_o" />
+        <line x2="432" y1="-80" y2="-80" x1="368" />
+    </graph>
+</symbol>

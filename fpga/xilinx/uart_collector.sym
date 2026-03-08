@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="uart_collector">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2026-2-1T18:39:58</timestamp>
+    <timestamp>2026-2-27T12:52:13</timestamp>
     <pin polarity="Input" x="0" y="-416" name="clk_in" />
     <pin polarity="Input" x="0" y="-352" name="rst_in" />
     <pin polarity="Input" x="0" y="-288" name="uart1_in" />

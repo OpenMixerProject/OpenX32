@@ -166,8 +166,11 @@ class Mixerparameter
                             case FPGA_INPUT_IDX_TALKBACK_EXT:
                                 result += String("Talkback External");
                                 break;
-                            case FPGA_INPUT_IDX_DSP_RETURN ... (FPGA_INPUT_IDX_AES50A - 1):
-                                result += String("DSP Return ") + (chan - FPGA_INPUT_IDX_DSP_RETURN + 1);
+                            case FPGA_INPUT_IDX_DSP_RETURN ... (FPGA_INPUT_IDX_AES50A - 8 - 1):
+                                result += String("DSP Out ") + (chan - FPGA_INPUT_IDX_DSP_RETURN + 1);
+                                break;
+                            case FPGA_INPUT_IDX_DSP_RETURN + 32 ... (FPGA_INPUT_IDX_AES50A - 1):
+                                result += String("DSP AuxOut ") + (chan - (FPGA_INPUT_IDX_DSP_RETURN + 32) + 1);
                                 break;
                             case FPGA_INPUT_IDX_AES50A ... (FPGA_INPUT_IDX_AES50B - 1):
                                 result += String("AES50A In ") + (chan - FPGA_INPUT_IDX_AES50A + 1);
@@ -212,8 +215,29 @@ class Mixerparameter
                             case DSP_BUF_IDX_MATRIX ... (DSP_BUF_IDX_DSP2_AUX - 1):
                                 result += String("Matrix ") + (chan - DSP_BUF_IDX_MATRIX + 1);
                                 break;
-                            case DSP_BUF_IDX_DSP2_AUX ... (DSP_BUF_IDX_MONLEFT - 1):
-                                result += String("DSP2 -> FX Aux ") + (chan - DSP_BUF_IDX_DSP2_AUX + 1);
+                            case DSP_BUF_IDX_DSP2_AUX:
+                                result += String("Linux Audio L");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 1:
+                                result += String("Linux Audio R");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 2:
+                                result += String("Oscillator 1");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 3:
+                                result += String("Oscillator 2");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 4:
+                                result += String("Unused DSP2 Aux 5");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 5:
+                                result += String("Unused DSP2 Aux 6");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 6:
+                                result += String("Unused DSP2 Aux 7");
+                                break;
+                            case DSP_BUF_IDX_DSP2_AUX + 7:
+                                result += String("Unused DSP2 Aux 8");
                                 break;
                             case DSP_BUF_IDX_MONLEFT:
                                 result += String("Monitor L");
@@ -283,6 +307,28 @@ class Mixerparameter
                             break;
                     }
                     break;
+                case CARD_SDCARD:
+                    switch((uint) (isResetLabel ? value_standard : value[index]))
+                    {
+                        case 0:
+                            result += String("#1");
+                            break;
+                        case 1:
+                            result += String("#2");
+                            break;
+                    }
+                    break;
+                case CARD_AUDIO_SOURCE:
+                    switch((uint) (isResetLabel ? value_standard : value[index]))
+                    {
+                        case 0:
+                            result += String("USB");
+                            break;
+                        case 1:
+                            result += String("CARD");
+                            break;
+                    }
+                    break;
                 default:
                     result += "";
             }	
@@ -306,6 +352,8 @@ class Mixerparameter
                 case DSP_ROUTING:
                 case CHANNEL_LCD_MODE:
                 case CARD_NUMBER_OF_CHANNELS:
+                case CARD_SDCARD:
+                case CARD_AUDIO_SOURCE:
                     return GetUnitOfMesaurement(false, index, isResetLabel);
                 case ZERO_BASED_INDEX__START_BY_ONE:
                     return String(value_float + 1, 0);
@@ -322,6 +370,14 @@ class Mixerparameter
                         return String(value_float, 0) + " s";
                     }else{
                         return String(value_float * 1000.0f, 0) + " ms";
+                    }
+                case PANORAMA:
+                    if (value_float < 0) {
+                        return "L" + String(abs(value_float), decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
+                    }else if (value_float > 0) {
+                        return "R" + String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
+                    }else{
+                        return "<C>";
                     }
                 default:
                     return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
@@ -763,9 +819,28 @@ class Mixerparameter
             
             if (value_type == MP_VALUE_TYPE::BOOL)
             {
+                // toggle between true and false
                 bool bool_value = value[index] != 0.0f;
                 value[index] = !bool_value;
-            }            
+            }else if (value_type == MP_VALUE_TYPE::FLOAT || value_type == MP_VALUE_TYPE::UINT || value_type == MP_VALUE_TYPE::INT)
+            {
+                // increase value until max is reached, then set to min
+                if (value[index] < value_max)
+                {
+                    if (stepsize > 0) {
+                        // increase by set stepsize
+                        Set(value[index] + stepsize, index);
+                    }else{
+                        // increase by 5%
+                        Set(value[index] + ((value_max - value_min) * 0.05f), index);
+                    }
+                }else{
+                    // wrap around to min
+                    Set(value_min, index);
+                }
+            }else{
+                // Strings or other types are not supported here
+            }
             return false;
         }
 
@@ -790,11 +865,6 @@ class Mixerparameter
         {
             if (index < instances)
             {
-                if (parameter_id == MP_ID::ROUTING_DSP_OUTPUT && index == MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS - 1)
-                {
-                    return "RTA Source";
-                }
-
                 return _name;
             }
             

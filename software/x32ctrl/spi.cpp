@@ -55,8 +55,17 @@ int SPI::UploadBitstreamFpgaXilinx(void) {
     uint32_t spiSpeed = 2 * state->fpga_spi_speed; // Linux SPI driver seems to divide speed by 2
 
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Connecting to SPI for FPGA...");
-    spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
-    if (spi_fd < 0) {
+    if (state->raspi)
+    {
+        spi_fd = open("/dev/spidev0.0", O_RDWR);
+    }
+    else
+    {
+        spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
+    }
+
+    if (spi_fd < 0)
+    {
         helper->Error("Could not open SPI-device\n");
         free(tx_buffer);
         free(rx_buffer);
@@ -438,32 +447,56 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
 }
 
 void SPI::toggleFpgaProgramnPin(uint32_t assertTime, uint32_t waitTime) {
-    int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
-    write(fd, "1", 1); // assert PROGRAMN-pin (this sets the real GPIO to LOW)
-    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to LOW for %d ms", assertTime/1000);
 
-	// we have to keep at least 25ns. So keep it 4ms asserted
-    usleep(assertTime);
+    // raspi GPIO25
+    if (state->raspi)
+    {
+        // assert PROGRAMN-pin (this sets the real GPIO to LOW)
+        system("pinctrl set 25 dl");
 
-    write(fd, "0", 1); // deassert PROGRAMN-pin (this sets the real GPIO to HIGH)
-    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to HIGH");
-    close(fd);
-	
-	// wait 50ms until FPGA is ready
-    helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "wait %d ms", waitTime/1000);
-    usleep(waitTime);
+        // we have to keep at least 25ns. So keep it 4ms asserted
+        usleep(assertTime);
+
+        // deassert PROGRAMN-pin (this sets the real GPIO to HIGH)
+        system("pinctrl set 25 dh");
+
+        // wait 50ms until FPGA is ready
+        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "wait %d ms", waitTime/1000);
+        usleep(waitTime);
+    }
+    else 
+    {
+        int fd = open("/sys/class/leds/reset_fpga/brightness", O_WRONLY);
+        write(fd, "1", 1); // assert PROGRAMN-pin (this sets the real GPIO to LOW)
+        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to LOW for %d ms", assertTime/1000);
+
+        // we have to keep at least 25ns. So keep it 4ms asserted
+        usleep(assertTime);
+
+        write(fd, "0", 1); // deassert PROGRAMN-pin (this sets the real GPIO to HIGH)
+        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "PROGRAMN-pin set to HIGH");
+        close(fd);
+        
+        // wait 50ms until FPGA is ready
+        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "wait %d ms", waitTime/1000);
+        usleep(waitTime);
+    }
 }
 
-void SPI::setFpgaChipSelectPin(bool state) {
-    int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
-    if (state) {
-        write(fd, "1", 1); // assert ChipSelect (sets the real pin to LOW)
-        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "asserted ChipSelect");
-    }else{
-        write(fd, "0", 1); // deassert ChipSelect (sets the real pin to HIGH)
-        helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "deasserted ChipSelect");
-    }
-    close(fd);
+void SPI::setFpgaChipSelectPin(bool state)
+{
+    if (!this->state->raspi)
+    {
+        int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
+        if (state) {
+            write(fd, "1", 1); // assert ChipSelect (sets the real pin to LOW)
+            helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "asserted ChipSelect");
+        }else{
+            write(fd, "0", 1); // deassert ChipSelect (sets the real pin to HIGH)
+            helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "deasserted ChipSelect");
+        }
+        close(fd);
+    }   
 }
 
 void SPI::setFpgaDonePin(bool state) {
@@ -818,6 +851,7 @@ int SPI::UploadBitstreamDsps(bool useCli) {
                     last_progress = current_progress;
                 }
             }else{
+                /*
                 // use UI to show progress
                 totalBytesSent += bytesRead;
                 current_progress = (totalBytesSent * 100) / file_size[i];
@@ -827,10 +861,12 @@ int SPI::UploadBitstreamDsps(bool useCli) {
 					//pthread_mutex_lock(&lvgl_mutex);
                     lv_bar_set_value(objects.testbar, progress, LV_ANIM_OFF);
 					//pthread_mutex_unlock(&lvgl_mutex);
-					lv_timer_handler(); // allow LVGL to handle UI
+					lv_timer_handler(); // allow LVGL to handle UI (does not work under LVGL 9.5)
+                    lv_refr_now(); // force refresh of all displays
 
                     last_progress = current_progress;
                 }
+                */
             }
         }
         
@@ -851,7 +887,15 @@ bool SPI::OpenConnectionFpga() {
     uint8_t spiBitsPerWord = 8; // we are using standard 8-bit-mode here for communication
     uint32_t spiSpeed = SPI_FPGA_SPEED_HZ;
 
-    spiFpgaHandle = open(SPI_DEVICE_FPGA, O_RDWR);
+    if (state->raspi)
+    {
+        spiFpgaHandle = open("/dev/spidev0.0", O_RDWR);
+    }
+    else
+    {
+        spiFpgaHandle = open(SPI_DEVICE_FPGA, O_RDWR);
+    }
+
     if (spiFpgaHandle < 0) {
         helper->Error("Error: Could not open SPI-device");
         return false;
@@ -1008,7 +1052,11 @@ void SPI::ProcessDspTxQueue(uint8_t dsp) {
 }
 
 bool SPI::SendDspData(uint8_t dsp, sSpiTxBufferElement* buffer) {
-//    if (!connected) return false; // this line prevents SPI-communication at the moment
+
+    if (state->bodyless || state->raspi)
+    {
+        return false;
+    }
 
     if (buffer->valueCount == 0) {
         // dont allow empty messages
@@ -1131,7 +1179,7 @@ bool SPI::ReadDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t ind
 void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
 //    if (!connected) return;
 
-    if (state->bodyless)
+    if (state->bodyless || state->raspi)
     {
         return;
     }

@@ -1,0 +1,76 @@
+--
+-- Written by Synopsys
+-- Product Version "V-2023.09L-2"
+-- Program "Synplify Pro", Mapper "map202309lat, Build 191R"
+-- Mon Feb 23 11:09:02 2026
+--
+
+--
+-- Written by Synplify Pro version Build 191R
+-- Mon Feb 23 11:09:02 2026
+--
+
+--
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+library synplify;
+use synplify.components.all;
+library pmi;
+use pmi.pmi_components.all;
+library ecp5u;
+use ecp5u.components.all;
+
+entity aes50_clk_ddr is
+port(
+  clkout :  out std_logic;
+  refclk :  in std_logic;
+  reset :  in std_logic;
+  data : in std_logic_vector(1 downto 0);
+  dout : out std_logic_vector(0 downto 0));
+end aes50_clk_ddr;
+
+architecture beh of aes50_clk_ddr is
+  signal BUF_DOUTO0 : std_logic ;
+  signal BUF_CLKOUT : std_logic ;
+  signal RESETZ : std_logic ;
+  signal GND : std_logic ;
+  signal VCC : std_logic ;
+  component ODDRX1F
+    port(
+      SCLK :  in std_logic;
+      RST :  in std_logic;
+      D0 :  in std_logic;
+      D1 :  in std_logic;
+      Q :  out std_logic  );
+  end component;
+begin
+GND_0: VLO port map (
+    Z => GND);
+VCC_0: VHI port map (
+    Z => VCC);
+PUR_INST: PUR port map (
+    PUR => VCC);
+GSR_INST: GSR port map (
+    GSR => VCC);
+RESETZ <= reset;
+INST2_OB: OB port map (
+    I => BUF_CLKOUT,
+    O => clkout);
+INST1_OB0: OB port map (
+    I => BUF_DOUTO0,
+    O => dout(0));
+INST3_ODDRX1F: ODDRX1F port map (
+    SCLK => refclk,
+    RST => RESETZ,
+    D0 => VCC,
+    D1 => GND,
+    Q => BUF_CLKOUT);
+INST4_ODDRX1F0: ODDRX1F port map (
+    SCLK => refclk,
+    RST => RESETZ,
+    D0 => data(0),
+    D1 => data(1),
+    Q => BUF_DOUTO0);
+end beh;
+

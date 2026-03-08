@@ -20,6 +20,7 @@ using namespace std;
 class Surface : public X32Base
 {
     private:
+
         SurfaceFader faders[MAX_FADERS];
 
         bool blinkstate = false;
@@ -34,17 +35,20 @@ class Surface : public X32Base
         uint16_t CalcEncoderRingLedBalance(uint8_t pct);
         uint16_t CalcEncoderRingLedWidth(uint8_t pct);
 
-        void InitDefinitions(void);        
+        void InitDefinitions(void);
         void AddLedDefinition(X32_BTN led, uint16_t ledNr);
         void AddButtonDefinition(X32_BTN p_button, uint16_t p_buttonNr, bool noLed);
         void AddEncoderDefinition(X32_ENC p_encoder, uint16_t p_encoderNr); 
 
         void SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position);
-        uint8_t GetFaderIndex(uint8_t boardId, uint8_t index);
         uint8_t GetBoardId(uint8_t faderindex);
         uint8_t GetFaderId(uint8_t faderindex);
 
+        uint8_t calculateChecksum(const char* data, uint16_t len);
+        int SendData(MessageBase* message, bool addChecksum);
+
     public:
+    
         Surface(X32BaseParameter* basepar);
         Uart* uart;
 
@@ -52,6 +56,10 @@ class Surface : public X32Base
         void Reset();
         void Tick10ms();
         void Tick100ms();
+
+        void LoadX32CoreDefinitions();
+
+        uint8_t GetFaderIndex(uint8_t boardId, uint8_t index);
 
         void SetBrightnessAllBoards(uint8_t brightness);
         void SetBrightness(uint8_t boardId, uint8_t brightness);

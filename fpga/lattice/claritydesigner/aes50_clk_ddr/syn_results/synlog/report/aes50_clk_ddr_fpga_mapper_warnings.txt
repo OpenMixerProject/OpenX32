@@ -1,0 +1,2 @@
+@W: BN161 :"o:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v":8:7:8:19|Net reset has multiple drivers .
+@W: MT246 :"o:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v":32:12:32:24|Blackbox ODDRX1F is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)

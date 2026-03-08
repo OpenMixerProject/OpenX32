@@ -63,7 +63,12 @@ void Surface::Init(void) {
 
         uart->Open("/tmp/ttyLocal", 115200, true);
     }
-    else {
+    else if (state->raspi)
+    {
+        uart->Open("/dev/ttyUSB0", 115200, true);
+    }
+    else
+    {
         uart->Open("/dev/ttymxc1", 115200, true);
     }
 
@@ -615,33 +620,37 @@ void Surface::InitDefinitions(void) {
 
     }
 
-    if (config->IsModelX32Core()){
-
-        AddButtonDefinition(X32_BTN_SCENE_SETUP,     0x0000);
-        AddButtonDefinition(X32_BTN_TALK_A,          0x0001);
-        AddButtonDefinition(X32_BTN_ASSIGN_3,        0x0002);
-        AddButtonDefinition(X32_BTN_ASSIGN_4,        0x0003);
-        AddButtonDefinition(X32_BTN_ASSIGN_5,        0x0004);
-        AddButtonDefinition(X32_BTN_ASSIGN_6,        0x0005);
-        AddButtonDefinition(X32_BTN_CHANNEL_ENCODER, 0x0006, false);
-
-        AddEncoderDefinition(X32_ENC_ASSIGN_1,       0x0000);
-        AddEncoderDefinition(X32_ENC_ASSIGN_2,       0x0001);
-        AddEncoderDefinition(X32_ENC_CHANNEL_SELECT, 0x0002);
-
-        // LED only
-        AddLedDefinition(X32_LED_SCENE_SETUP_RED,0x0006);
-        AddLedDefinition(X32_LED_IN,             0x0007);
-        AddLedDefinition(X32_LED_AUX,            0x0008);
-        AddLedDefinition(X32_LED_BUS,            0x0009);
-        AddLedDefinition(X32_LED_MTX,            0x000A);
-        AddLedDefinition(X32_LED_DCA,            0x000B);
-        AddLedDefinition(X32_LED_AESA_GREEN,     0x000C);
-        AddLedDefinition(X32_LED_AESA_RED,       0x000D);
-        AddLedDefinition(X32_LED_AESB_GREEN,     0x000E);
-        AddLedDefinition(X32_LED_AESB_RED,       0x000F);
-
+    if (config->IsModelX32Core())
+    {
+        LoadX32CoreDefinitions();
     }
+}
+
+void Surface::LoadX32CoreDefinitions()
+{
+    AddButtonDefinition(X32_BTN_SCENE_SETUP, 0x0000);
+    AddButtonDefinition(X32_BTN_TALK_A, 0x0001);
+    AddButtonDefinition(X32_BTN_ASSIGN_3, 0x0002);
+    AddButtonDefinition(X32_BTN_ASSIGN_4, 0x0003);
+    AddButtonDefinition(X32_BTN_ASSIGN_5, 0x0004);
+    AddButtonDefinition(X32_BTN_ASSIGN_6, 0x0005);
+    AddButtonDefinition(X32_BTN_CHANNEL_ENCODER, 0x0006, false);
+
+    AddEncoderDefinition(X32_ENC_ASSIGN_1, 0x0000);
+    AddEncoderDefinition(X32_ENC_ASSIGN_2, 0x0001);
+    AddEncoderDefinition(X32_ENC_CHANNEL_SELECT, 0x0002);
+
+    // LED only
+    AddLedDefinition(X32_LED_SCENE_SETUP_RED, 0x0006);
+    AddLedDefinition(X32_LED_IN, 0x0007);
+    AddLedDefinition(X32_LED_AUX, 0x0008);
+    AddLedDefinition(X32_LED_BUS, 0x0009);
+    AddLedDefinition(X32_LED_MTX, 0x000A);
+    AddLedDefinition(X32_LED_DCA, 0x000B);
+    AddLedDefinition(X32_LED_AESA_GREEN, 0x000C);
+    AddLedDefinition(X32_LED_AESA_RED, 0x000D);
+    AddLedDefinition(X32_LED_AESB_GREEN, 0x000E);
+    AddLedDefinition(X32_LED_AESB_RED, 0x000F);
 }
 
 // bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight
@@ -882,7 +891,7 @@ void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
     message.AddDataByte('C'); // class: C = Controlmessage
     message.AddDataByte('B'); // index
     message.AddDataByte(brightness);
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 void Surface::SetContrastAllBoards(uint8_t contrast) {
@@ -900,7 +909,7 @@ void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
     message.AddDataByte('C'); // class: C = Controlmessage
     message.AddDataByte('C'); // index
     message.AddDataByte(contrast & 0x3F);
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool ledState){
@@ -913,7 +922,7 @@ void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool ledState){
     }else{
         message.AddDataByte(ledId); // turn LED off
     }
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 // set 7-Segment display on X32 Rack
@@ -925,7 +934,7 @@ void Surface::SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1){
     message.AddDataByte(0x80);
     message.AddDataByte(p_value2); 
     message.AddDataByte(p_value1);
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 // set 7-Segment display on X32 Rack
@@ -1039,7 +1048,7 @@ void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds) {
   message.AddDataByte('M'); // class: M = Meter
   message.AddDataByte(index); // index
   message.AddDataByte(leds);
-  uart->Tx(&message, true);
+  SendData(&message, true);
 }
 // preamp = 8-bit bitwise (bit 0=Sig, 1=-30dB ... 6=-3dB, 7=Clip)
 // meter = 32-bit bitwise (bit 0=-45dB ... 15=-4, 16=-2, 19=Clip, 20+=unused)
@@ -1067,7 +1076,7 @@ void Surface::SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t met
     message.AddDataByte((uint8_t)(meterSolo>>4));
     message.AddDataByte((((uint8_t)(meterSolo>>12))&0b10000111) | (((uint8_t)(meterSolo>>11))&0b00110000));
     message.AddDataByte(0x00);
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 void Surface::SetMeterLedMain_Producer(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo)  {
@@ -1102,7 +1111,7 @@ void Surface::SetMeterLedMain_FullOrCompact(uint8_t preamp, uint8_t dynamics, ui
     message.AddDataByte((uint8_t)(meterSolo>>8));
     message.AddDataByte((uint8_t)(meterSolo>>16));
     message.AddDataByte(0x00);
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 // boardId = 0, 1, 4, 5, 8
@@ -1142,7 +1151,7 @@ void Surface::SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, ui
     }else{
         message.AddDataByte(((leds & 0x7F00) >> 8)); // turn backlight off
     }
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, bool muted, bool backlight) {
@@ -1161,7 +1170,7 @@ void Surface::SetEncoderRingDbfs(uint8_t boardId, uint8_t index, float dbfs, boo
     }else{
         message.AddDataByte(((leds & 0x7F00) >> 8)); // turn backlight off
     }
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 // boardId = 0, 4, 5, 8
@@ -1203,7 +1212,7 @@ void Surface::SetLcd(
     message.AddDataByte(xB);
     message.AddDataByte(yB);
     message.AddString(strB); // this is ASCII, so we can omit byte-stuffing
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
@@ -1221,7 +1230,7 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
         message.AddDataByte(p_data->texts[i].y);
         message.AddString(p_data->texts[i].text.c_str()); // this is ASCII, so we can omit byte-stuffing  
     }
-    uart->Tx(&message, true);
+    SendData(&message, true);
 }
 
 void Surface::Blink(){
@@ -1258,7 +1267,8 @@ void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
 }
 
 // Fader was physically moved (by us or by operator)
-void Surface::FaderMoved(SurfaceEvent* event){
+void Surface::FaderMoved(SurfaceEvent* event)
+{
     uint8_t faderindex = GetFaderIndex(event->boardId, event->index);
     helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Fader at index %d moved to %d", faderindex, event->value);
     faders[faderindex].position_wanted = event->value;
@@ -1365,5 +1375,36 @@ void Surface::SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position) {
 
     helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Set fader position on board %d at index %d to %d", boardId, index, position);
 
-    uart->Tx(&message, true);
+    SendData(&message, true);
+}
+
+// incoming message has the form: 0xFE 0x8i Class Index Data[] 0xFE
+// Checksum is calculated using the following equation:
+// chksum = ( 0xFE - i - class - index - sumof(data[]) - sizeof(data[]) ) and 0x7F
+uint8_t Surface::calculateChecksum(const char* data, uint16_t len) {
+  // a single message can contain up to max. 64 chars
+  int32_t sum = 0xFE;
+  for (uint8_t i = 0; i < (len-1); i++) {
+    sum -= data[i];
+  }
+  sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
+
+  // write the calculated sum to the last element of the array
+  return (sum & 0x7F);
+}
+
+int Surface::SendData(MessageBase* message, bool addChecksum) {
+    message->AddRawByte(0xFE); // Endbyte
+
+    if (addChecksum) {
+        char checksum = 0;
+        if (message->current_length >= 2) { // at least start- and end-byte
+            checksum = calculateChecksum(message->buffer, message->current_length);
+        }
+
+        // add checksum to message and send data via serial-port
+        message->AddRawByte(checksum);
+    }
+
+    return uart->Tx(message);
 }

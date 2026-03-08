@@ -1,0 +1,326 @@
+
+Copyright (C) 1994-2023 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: V-2023.09L-2
+Install: C:\Programme2\Lattice\Diamond\synpbase
+OS: Windows 10 or later
+Hostname: K4TECHNIK
+
+Implementation : syn_results
+Synopsys HDL Compiler, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
+
+@N|Running in 64-bit mode
+###########################################################[
+
+Copyright (C) 1994-2023 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: V-2023.09L-2
+Install: C:\Programme2\Lattice\Diamond\synpbase
+OS: Windows 10 or later
+Hostname: K4TECHNIK
+
+Implementation : syn_results
+Synopsys Verilog Compiler, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
+
+@N|Running in 64-bit mode
+@I::"C:\Programme2\Lattice\Diamond\synpbase\lib\lucent\ecp5u.v" (library work)
+@I::"C:\Programme2\Lattice\Diamond\synpbase\lib\lucent\pmi_def.v" (library work)
+@I::"C:\Programme2\Lattice\Diamond\synpbase\lib\vlog\hypermods.v" (library __hyper__lib__)
+@I::"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v" (library work)
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":25:36:25:48|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":31:40:31:52|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":38:43:38:55|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":46:46:46:58|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":55:37:55:49|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":62:39:62:51|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":69:39:69:51|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":81:17:81:29|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":94:44:94:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":102:44:102:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":110:48:110:60|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":119:48:119:60|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":128:48:128:60|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":137:48:137:60|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":146:40:146:52|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":153:40:153:52|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":160:44:160:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":168:44:168:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":176:44:176:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":184:44:184:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":192:53:192:65|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":202:53:202:65|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":212:57:212:69|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":223:57:223:69|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":234:57:234:69|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":245:57:245:69|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":256:49:256:61|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":265:49:265:61|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":274:31:274:43|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":278:31:278:43|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":283:33:283:45|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":288:33:288:45|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":293:51:293:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":302:51:302:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":311:51:311:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":320:51:320:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":329:46:329:58|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":337:46:337:58|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":345:46:345:58|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":353:46:353:58|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":361:38:361:50|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":367:32:367:44|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":372:45:372:57|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":379:42:379:54|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":388:45:388:57|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":398:48:398:60|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":409:51:409:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":421:54:421:66|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":434:122:434:134|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":458:43:458:55|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":465:207:465:219|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":506:57:506:69|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":516:78:516:90|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":531:35:531:47|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":537:39:537:51|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":544:42:544:54|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":552:45:552:57|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":561:35:561:47|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":567:38:567:50|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":574:41:574:53|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":582:44:582:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":591:31:591:43|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":596:38:596:50|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":602:35:602:47|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":608:37:608:49|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":614:51:614:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":623:51:623:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":632:51:632:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":641:51:641:63|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":650:38:650:50|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":656:35:656:47|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":662:38:662:50|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":669:41:669:53|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":677:44:677:56|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":686:47:686:59|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":693:29:693:41|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":698:72:698:84|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":710:56:710:68|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":719:77:719:89|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":732:61:732:73|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":742:66:742:78|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":753:37:753:49|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":757:29:757:41|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":761:29:761:41|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":765:37:765:49|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":771:40:771:52|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":778:43:778:55|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":786:46:786:58|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":795:64:795:76|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":810:36:810:48|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":816:94:816:106|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":841:39:841:51|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":848:42:848:54|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":856:45:856:57|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":880:78:880:90|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":973:69:973:81|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":1052:42:1052:54|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":1058:42:1058:54|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":1065:26:1065:38|User defined pragma syn_black_box detected
+
+@W: CG100 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":1070:37:1070:49|User defined pragma syn_black_box detected
+
+
+Only the first 100 messages of id 'CG100' are reported. To see all messages use 'report_messages -log O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synlog\aes50_clk_ddr_compiler.srr -id CG100' in the Tcl shell. To see all messages in future runs, use the command 'message_override -limit {CG100} -count unlimited' in the Tcl shell.
+@I::"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\pmi_def.v" (library work)
+@I::"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v" (library work)
+Verilog syntax check successful!
+Options changed - recompiling
+Selecting top level module aes50_clk_ddr
+@N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":1646:7:1646:13|Synthesizing module ODDRX1F in library work.
+Running optimization stage 1 on ODDRX1F .......
+Finished optimization stage 1 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+@N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":761:7:761:9|Synthesizing module VLO in library work.
+Running optimization stage 1 on VLO .......
+Finished optimization stage 1 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+@N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":757:7:757:9|Synthesizing module VHI in library work.
+Running optimization stage 1 on VHI .......
+Finished optimization stage 1 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+@N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":591:7:591:8|Synthesizing module OB in library work.
+Running optimization stage 1 on OB .......
+Finished optimization stage 1 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+@N: CG364 :"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v":8:7:8:19|Synthesizing module aes50_clk_ddr in library work.
+Running optimization stage 1 on aes50_clk_ddr .......
+Finished optimization stage 1 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Running optimization stage 2 on aes50_clk_ddr .......
+Finished optimization stage 2 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Running optimization stage 2 on OB .......
+Finished optimization stage 2 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Running optimization stage 2 on VHI .......
+Finished optimization stage 2 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Running optimization stage 2 on VLO .......
+Finished optimization stage 2 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Running optimization stage 2 on ODDRX1F .......
+Finished optimization stage 2 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+
+For a summary of runtime per design unit, please see file:
+==========================================================
+@L: O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synwork\layer0.duruntime
+
+
+
+At c_ver Exit (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:01s; Memory used current: 96MB peak: 97MB)
+
+Process took 0h:00m:03s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Mon Feb 23 11:08:47 2026
+
+###########################################################]
+###########################################################[
+
+Copyright (C) 1994-2023 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: V-2023.09L-2
+Install: C:\Programme2\Lattice\Diamond\synpbase
+OS: Windows 10 or later
+Hostname: K4TECHNIK
+
+Implementation : syn_results
+Synopsys Synopsys Netlist Linker, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
+
+@N|Running in 64-bit mode
+File O:\fpga\lattice\pll\aes50_clk_ddr\syn_results\synwork\layer0.srs changed - recompiling
+
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 92MB)
+
+Process took 0h:00m:01s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Mon Feb 23 11:08:48 2026
+
+###########################################################]
+
+For a summary of runtime and memory usage for all design units, please see file:
+==========================================================
+@L: O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synwork\aes50_clk_ddr_comp.rt.csv
+
+@END
+
+At c_hdl Exit (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:01s; Memory used current: 24MB peak: 24MB)
+
+Process took 0h:00m:04s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Mon Feb 23 11:08:48 2026
+
+###########################################################]

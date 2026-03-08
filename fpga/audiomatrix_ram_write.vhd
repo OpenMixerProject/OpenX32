@@ -57,9 +57,9 @@ use ieee.numeric_std.all;
 
 entity audiomatrix_ram_write is
 	generic (
-		TDM_RECEIVER		: integer := 20;	-- 26 TDM8 receiver are connected
+		TDM_RECEIVER		: integer := 20;	-- 26 TDM8 receiver are connected when both AES50 ports are used
 		DATA_WIDTH			: integer := 24;	-- 24-bit audio-samples
-		NUM_INPUT_PORTS	: integer := 160;	-- 32x Analog-Input, 32x Card-Input, 8x AUX-Input, 40x DSP-Output, 48x AES50A, 48x AES50B
+		NUM_INPUT_PORTS	: integer := 160;	-- 32x Analog-Input, 32x Card-Input, 8x AUX-Input, 40x DSP-Output, 48x AES50A (, 48x AES50B)
 		ADDR_WIDTH        : integer := 8    -- log2(208) = 8
 	);
 	port (

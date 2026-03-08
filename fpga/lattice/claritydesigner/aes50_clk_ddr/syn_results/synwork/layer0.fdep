@@ -1,0 +1,207 @@
+#OPTIONS:"|-layerid|0|-orig_srs|O:\\fpga\\lattice\\claritydesigner\\aes50_clk_ddr\\syn_results\\synwork\\aes50_clk_ddr_comp.srs|-top|aes50_clk_ddr|-prodtype|synplify_pro|-dspmac|-fixsmult|-infer_seqShift|-nram|-sdff_counter|-divnmod|-nostructver|-lattice|-I|O:\\fpga\\lattice\\claritydesigner\\aes50_clk_ddr\\syn_results\\|-I|C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib|-v2001|-devicelib|C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib\\lucent\\ecp5u.v|-devicelib|C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib\\lucent\\pmi_def.v|-encrypt|-pro|-ui|-fid2|-ram|-sharing|on|-ll|2000|-autosm|-lib|work|-lib|work|-lib|work"
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\synpbase\\bin64\\c_ver.exe":1727134360
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib\\lucent\\ecp5u.v":1724359699
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib\\lucent\\pmi_def.v":1727134390
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib\\vlog\\hypermods.v":1727134415
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib\\vlog\\scemi_objects.v":1727134415
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\synpbase\\lib\\vlog\\scemi_pipes.svh":1727134415
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\cae_library\\synthesis\\verilog\\ecp5u.v":1614238694
+#CUR:"C:\\Programme2\\Lattice\\Diamond\\cae_library\\synthesis\\verilog\\pmi_def.v":1727438924
+#CUR:"O:\\fpga\\lattice\\claritydesigner\\aes50_clk_ddr\\aes50_clk_ddr.v":1771841321
+#numinternalfiles:5
+#defaultlanguage:verilog
+0			"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v" verilog
+1			"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\pmi_def.v" verilog
+2			"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v" verilog
+#Dependency Lists(Uses List)
+0 -1
+1 -1
+2 0
+#Dependency Lists(Users Of)
+0 2
+1 -1
+2 -1
+#Design Unit to File Association
+module work AND2 0
+module work AND3 0
+module work AND4 0
+module work AND5 0
+module work BB 0
+module work BBPD 0
+module work BBPU 0
+module work CCU2C 0
+module work FD1P3AX 0
+module work FD1P3AY 0
+module work FD1P3BX 0
+module work FD1P3DX 0
+module work FD1P3IX 0
+module work FD1P3JX 0
+module work FD1S3AX 0
+module work FD1S3AY 0
+module work FD1S3BX 0
+module work FD1S3DX 0
+module work FD1S3IX 0
+module work FD1S3JX 0
+module work FL1P3AY 0
+module work FL1P3AZ 0
+module work FL1P3BX 0
+module work FL1P3DX 0
+module work FL1P3IY 0
+module work FL1P3JY 0
+module work FL1S3AX 0
+module work FL1S3AY 0
+module work GSR 0
+module work IB 0
+module work IBPD 0
+module work IBPU 0
+module work IFS1P3BX 0
+module work IFS1P3DX 0
+module work IFS1P3IX 0
+module work IFS1P3JX 0
+module work IFS1S1B 0
+module work IFS1S1D 0
+module work IFS1S1I 0
+module work IFS1S1J 0
+module work ILVDS 0
+module work INV 0
+module work L6MUX21 0
+module work LUT4 0
+module work LUT5 0
+module work LUT6 0
+module work LUT7 0
+module work LUT8 0
+module work MUX161 0
+module work MUX21 0
+module work MUX321 0
+module work MUX41 0
+module work MUX81 0
+module work ND2 0
+module work ND3 0
+module work ND4 0
+module work ND5 0
+module work NR2 0
+module work NR3 0
+module work NR4 0
+module work NR5 0
+module work OB 0
+module work OBCO 0
+module work OBZ 0
+module work OBZPU 0
+module work OFS1P3BX 0
+module work OFS1P3DX 0
+module work OFS1P3IX 0
+module work OFS1P3JX 0
+module work OLVDS 0
+module work OR2 0
+module work OR3 0
+module work OR4 0
+module work OR5 0
+module work PFUMX 0
+module work PUR 0
+module work ROM128X1A 0
+module work ROM16X1A 0
+module work ROM256X1A 0
+module work ROM32X1A 0
+module work ROM64X1A 0
+module work SGSR 0
+module work VHI 0
+module work VLO 0
+module work XNOR2 0
+module work XNOR3 0
+module work XNOR4 0
+module work XNOR5 0
+module work XOR11 0
+module work XOR2 0
+module work XOR21 0
+module work XOR3 0
+module work XOR4 0
+module work XOR5 0
+module work DP16KD 0
+module work PDPW16KD 0
+module work DPR16X4C 0
+module work SPR16X4C 0
+module work LVDSOB 0
+module work IMIPI 0
+module work MULT9X9C 0
+module work MULT9X9D 0
+module work MULT18X18C 0
+module work MULT18X18D 0
+module work ALU24A 0
+module work ALU54A 0
+module work ALU24B 0
+module work ALU54B 0
+module work PRADD9A 0
+module work PRADD18A 0
+module work BCINRD 0
+module work BCLVDSOB 0
+module work INRDB 0
+module work CLKDIVF 0
+module work PCSCLKDIV 0
+module work DCSC 0
+module work DCCA 0
+module work ECLKSYNCB 0
+module work ECLKBRIDGECS 0
+module work PLLREFCS 0
+module work DELAYF 0
+module work DELAYG 0
+module work START 0
+module work USRMCLK 0
+module work DQSBUFM 0
+module work DDRDLLA 0
+module work DLLDELD 0
+module work IDDRX1F 0
+module work IDDRX2F 0
+module work IDDR71B 0
+module work IDDRX2DQA 0
+module work ODDRX1F 0
+module work ODDRX2F 0
+module work ODDR71B 0
+module work OSHX2A 0
+module work TSHX2DQA 0
+module work TSHX2DQSA 0
+module work ODDRX2DQA 0
+module work ODDRX2DQSB 0
+module work EHXPLLL 0
+module work DTR 0
+module work OSCG 0
+module work EXTREFB 0
+module work JTAGG 0
+module work SEDGA 0
+module work DCUA 0
+module work pmi_distributed_dpram 1
+module work pmi_distributed_rom 1
+module work pmi_distributed_spram 1
+module work pmi_distributed_shift_reg 1
+module work pmi_constant_mult 1
+module work pmi_mult 1
+module work pmi_mac 1
+module work pmi_multaddsub 1
+module work pmi_multaddsubsum 1
+module work pmi_complex_mult 1
+module work pmi_add 1
+module work pmi_sub 1
+module work pmi_counter 1
+module work pmi_addsub 1
+module work pmi_ram_dp 1
+module work pmi_ram_dp_be 1
+module work pmi_ram_dp_true 1
+module work pmi_ram_dp_true_be 1
+module work pmi_ram_dq 1
+module work pmi_ram_dq_be 1
+module work pmi_rom 1
+module work pmi_fifo_dc 1
+module work pmi_fifo 1
+module work pmi_dsp_mac 1
+module work pmi_dsp_mult 1
+module work pmi_dsp_multaddsub 1
+module work pmi_dsp_casmultaddsub 1
+module work pmi_dsp_multaddsubsum 1
+module work pmi_dsp_preadd_slice 1
+module work pmi_pll 1
+module work pmi_pll_fp 1
+module work jtaghub16 1
+module work jtagconn16 1
+module work aes50_clk_ddr 2
+
+#identified top module
+top_module aes50_clk_ddr

@@ -1,0 +1,365 @@
+
+Copyright (C) 1994-2023 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: V-2023.09L-2
+Install: C:\Programme2\Lattice\Diamond\synpbase
+OS: Windows 10 or later
+Hostname: K4TECHNIK
+
+Implementation : syn_results
+Synopsys HDL compiler and linker, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
+
+Modified Files: 2
+FID:  path (prevtimestamp, timestamp)
+8        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41)
+7        O:\fpga\lattice\pll\aes50_clk_ddr\aes50_clk_ddr.v (2026-02-23 10:35:01, N/A)
+
+*******************************************************************
+Modules that may have changed as a result of file changes: 147
+MID:  lib.cell.view
+0        work.ALU24A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+1        work.ALU24B.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+2        work.ALU54A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+3        work.ALU54B.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+4        work.AND2.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+5        work.AND3.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+6        work.AND4.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+7        work.AND5.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+8        work.BB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+9        work.BBPD.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+10       work.BBPU.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+11       work.BCINRD.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+12       work.BCLVDSOB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+13       work.CCU2C.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+14       work.CLKDIVF.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+15       work.DCCA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+16       work.DCSC.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+17       work.DCUA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+18       work.DDRDLLA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+19       work.DELAYF.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+20       work.DELAYG.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+21       work.DLLDELD.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+22       work.DP16KD.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+23       work.DPR16X4C.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+24       work.DQSBUFM.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+25       work.DTR.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+26       work.ECLKBRIDGECS.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+27       work.ECLKSYNCB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+28       work.EHXPLLL.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+29       work.EXTREFB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+30       work.FD1P3AX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+31       work.FD1P3AY.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+32       work.FD1P3BX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+33       work.FD1P3DX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+34       work.FD1P3IX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+35       work.FD1P3JX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+36       work.FD1S3AX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+37       work.FD1S3AY.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+38       work.FD1S3BX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+39       work.FD1S3DX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+40       work.FD1S3IX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+41       work.FD1S3JX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+42       work.FL1P3AY.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+43       work.FL1P3AZ.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+44       work.FL1P3BX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+45       work.FL1P3DX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+46       work.FL1P3IY.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+47       work.FL1P3JY.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+48       work.FL1S3AX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+49       work.FL1S3AY.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+50       work.GSR.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+51       work.IB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+52       work.IBPD.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+53       work.IBPU.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+54       work.IDDR71B.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+55       work.IDDRX1F.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+56       work.IDDRX2DQA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+57       work.IDDRX2F.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+58       work.IFS1P3BX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+59       work.IFS1P3DX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+60       work.IFS1P3IX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+61       work.IFS1P3JX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+62       work.IFS1S1B.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+63       work.IFS1S1D.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+64       work.IFS1S1I.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+65       work.IFS1S1J.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+66       work.ILVDS.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+67       work.IMIPI.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+68       work.INRDB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+69       work.INV.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+70       work.JTAGG.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+71       work.L6MUX21.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+72       work.LUT4.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+73       work.LUT5.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+74       work.LUT6.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+75       work.LUT7.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+76       work.LUT8.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+77       work.LVDSOB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+78       work.MULT18X18C.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+79       work.MULT18X18D.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+80       work.MULT9X9C.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+81       work.MULT9X9D.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+82       work.MUX161.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+83       work.MUX21.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+84       work.MUX321.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+85       work.MUX41.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+86       work.MUX81.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+87       work.ND2.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+88       work.ND3.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+89       work.ND4.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+90       work.ND5.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+91       work.NR2.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+92       work.NR3.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+93       work.NR4.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+94       work.NR5.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+95       work.OB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+96       work.OBCO.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+97       work.OBZ.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+98       work.OBZPU.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+99       work.ODDR71B.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+100      work.ODDRX1F.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+101      work.ODDRX2DQA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+102      work.ODDRX2DQSB.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+103      work.ODDRX2F.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+104      work.OFS1P3BX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+105      work.OFS1P3DX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+106      work.OFS1P3IX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+107      work.OFS1P3JX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+108      work.OLVDS.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+109      work.OR2.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+110      work.OR3.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+111      work.OR4.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+112      work.OR5.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+113      work.OSCG.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+114      work.OSHX2A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+115      work.PCSCLKDIV.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+116      work.PDPW16KD.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+117      work.PFUMX.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+118      work.PLLREFCS.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+119      work.PRADD18A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+120      work.PRADD9A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+121      work.PUR.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+122      work.ROM128X1A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+123      work.ROM16X1A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+124      work.ROM256X1A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+125      work.ROM32X1A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+126      work.ROM64X1A.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+127      work.SEDGA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+128      work.SGSR.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+129      work.SPR16X4C.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+130      work.START.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+131      work.TSHX2DQA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+132      work.TSHX2DQSA.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+133      work.USRMCLK.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+134      work.VHI.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+135      work.VLO.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+136      work.XNOR2.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+137      work.XNOR3.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+138      work.XNOR4.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+139      work.XNOR5.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+140      work.XOR11.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+141      work.XOR2.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+142      work.XOR21.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+143      work.XOR3.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+144      work.XOR4.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+145      work.XOR5.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (may instantiate this module)
+146      work.aes50_clk_ddr.verilog may have changed because the following files changed:
+                        O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v (N/A, 2026-02-23 11:08:41) <-- (module definition)
+
+*******************************************************************
+Unmodified files: 7
+FID:  path (timestamp)
+0        C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v (2021-02-25 08:38:14)
+1        C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\pmi_def.v (2024-09-27 14:08:44)
+2        C:\Programme2\Lattice\Diamond\synpbase\lib\lucent\ecp5u.v (2024-08-22 22:48:19)
+3        C:\Programme2\Lattice\Diamond\synpbase\lib\lucent\pmi_def.v (2024-09-24 01:33:10)
+4        C:\Programme2\Lattice\Diamond\synpbase\lib\vlog\hypermods.v (2024-09-24 01:33:35)
+5        C:\Programme2\Lattice\Diamond\synpbase\lib\vlog\scemi_objects.v (2024-09-24 01:33:35)
+6        C:\Programme2\Lattice\Diamond\synpbase\lib\vlog\scemi_pipes.svh (2024-09-24 01:33:35)
+
+*******************************************************************
+Unchanged modules: 33
+MID:  lib.cell.view
+147      work.jtagconn16.verilog
+148      work.jtaghub16.verilog
+149      work.pmi_add.verilog
+150      work.pmi_addsub.verilog
+151      work.pmi_complex_mult.verilog
+152      work.pmi_constant_mult.verilog
+153      work.pmi_counter.verilog
+154      work.pmi_distributed_dpram.verilog
+155      work.pmi_distributed_rom.verilog
+156      work.pmi_distributed_shift_reg.verilog
+157      work.pmi_distributed_spram.verilog
+158      work.pmi_dsp_casmultaddsub.verilog
+159      work.pmi_dsp_mac.verilog
+160      work.pmi_dsp_mult.verilog
+161      work.pmi_dsp_multaddsub.verilog
+162      work.pmi_dsp_multaddsubsum.verilog
+163      work.pmi_dsp_preadd_slice.verilog
+164      work.pmi_fifo.verilog
+165      work.pmi_fifo_dc.verilog
+166      work.pmi_mac.verilog
+167      work.pmi_mult.verilog
+168      work.pmi_multaddsub.verilog
+169      work.pmi_multaddsubsum.verilog
+170      work.pmi_pll.verilog
+171      work.pmi_pll_fp.verilog
+172      work.pmi_ram_dp.verilog
+173      work.pmi_ram_dp_be.verilog
+174      work.pmi_ram_dp_true.verilog
+175      work.pmi_ram_dp_true_be.verilog
+176      work.pmi_ram_dq.verilog
+177      work.pmi_ram_dq_be.verilog
+178      work.pmi_rom.verilog
+179      work.pmi_sub.verilog

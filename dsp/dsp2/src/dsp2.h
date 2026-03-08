@@ -38,6 +38,8 @@
 
 typedef struct {
 	float samplerate;
+	float oscillatorFreq[2];
+	float oscillatorVolume[2];
 } sDsp;
 
 // global variables

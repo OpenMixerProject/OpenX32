@@ -7,7 +7,10 @@ use UNISIM.VComponents.all;
 entity oddr_clock is
     Port ( 
         clk_in  : in  STD_LOGIC;
+        clk_in_inv  : in  STD_LOGIC;
         reset   : in  STD_LOGIC;
+		  d0		 : in  STD_LOGIC;
+		  d1		 : in  STD_LOGIC;
         clk_out : out STD_LOGIC
     );
 end oddr_clock;
@@ -18,15 +21,15 @@ begin
     ODDR2_inst : ODDR2
     generic map(
         DDR_ALIGNMENT => "NONE", -- Erlaubt C0 und C1 separat zu nutzen
-        INIT => '0',             -- Initialer Ausgangszustand
-        SRTYPE => "SYNC")        -- Synchroner Reset
+        INIT => '0',
+        SRTYPE => "SYNC")
     port map (
         Q  => clk_out,
-        C0 => clk_in,            -- Der normale Takt
-        C1 => not clk_in,        -- Der invertierte Takt (lokale Invertierung im IOB)
+        C0 => clk_in,
+        C1 => clk_in_inv,
         CE => '1',
-        D0 => '1',               -- Entspricht D1 beim neueren ODDR
-        D1 => '0',               -- Entspricht D2 beim neueren ODDR
+        D0 => d0,
+        D1 => d1,
         R  => reset,
         S  => '0'
     );

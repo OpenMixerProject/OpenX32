@@ -55,12 +55,10 @@ class Helper {
         uint8_t value2percent(int8_t value, int8_t value_min, int8_t value_max);
         
         long GetFileSize(const char* filename);
+        String FormatFileSize(uint sizeByte, uint digits);
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);
         uint32_t ReverseBitOrder_uint32(uint32_t n);
         float Saturate(float value, float min, float max);
-
-        String freq2String(float freq);
-        String eqType2String(uint8_t type);
 
         String getIpAddress();
 
@@ -131,4 +129,14 @@ class Helper {
         DEBUG_DEF(DEBUG_STATE,    0b0010000000000000);
         DEBUG_DEF(DEBUG_TIMER,    0b0100000000000000);
         DEBUG_DEF(DEBUG_FX,       0b1000000000000000);
+
+        String intToHex(uint32_t val, uint8_t outputLength);
+        uint32_t hexToInt(String hexString);
+        String split(String s, char parser, int index);
+        uint getNumberOfEntries(String s, char separator);
+        String secondsToHmsHuman(uint32_t seconds);
+        String secondsToHmsTechnical(uint32_t seconds, bool withDots);
+        String intToStringTwoDigits(int value);
+        String intToHexString(int value);
+        float rescale(float input, float inputMin, float inputMax, float outputMin, float outputMax);
 };

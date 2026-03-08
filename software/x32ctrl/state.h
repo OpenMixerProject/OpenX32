@@ -12,6 +12,8 @@ class State {
     public:
 
         bool bodyless = false;
+        bool raspi = false;
+        bool bodyless_with_surface_and_adda = false;
 
         // DSPs
 

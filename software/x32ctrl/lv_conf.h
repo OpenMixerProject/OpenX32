@@ -55,7 +55,7 @@
 
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
     /** Size of memory available for `lv_malloc()` in bytes (>= 2kB) */
-    #define LV_MEM_SIZE (64 * 1024U)          /**< [bytes] */
+    #define LV_MEM_SIZE (512 * 1024U)          /**< [bytes] */
 
     /** Size of the memory expand for `lv_malloc()` in bytes */
     #define LV_MEM_POOL_EXPAND_SIZE 0
@@ -698,7 +698,7 @@
 
 #define LV_USE_BUTTONMATRIX  1
 
-#define LV_USE_CALENDAR   1
+#define LV_USE_CALENDAR   0
 #if LV_USE_CALENDAR
     #define LV_CALENDAR_WEEK_STARTS_MONDAY 0
     #if LV_CALENDAR_WEEK_STARTS_MONDAY
@@ -740,7 +740,7 @@
 
 #define LV_USE_LIST       1
 
-#define LV_USE_LOTTIE     1
+#define LV_USE_LOTTIE     0
 
 #define LV_USE_MENU       1
 
@@ -898,11 +898,11 @@
 #define LV_USE_LIBPNG 0
 
 /** BMP decoder library */
-#define LV_USE_BMP 1
+#define LV_USE_BMP 0
 
 /** JPG + split JPG decoder library.
  *  Split JPG is a custom format optimized for embedded systems. */
-#define LV_USE_TJPGD 1
+#define LV_USE_TJPGD 0
 
 /** libjpeg-turbo decoder library.
  *  - Supports complete JPEG specifications and high-performance JPEG decoding. */
@@ -923,10 +923,10 @@
 #define LV_USE_RLE 1
 
 /** QR code library */
-#define LV_USE_QRCODE 1
+#define LV_USE_QRCODE 0
 
 /** Barcode code library */
-#define LV_USE_BARCODE 1
+#define LV_USE_BARCODE 0
 
 /** FreeType library */
 #define LV_USE_FREETYPE 0
@@ -952,10 +952,10 @@
 
 /** Enable Vector Graphic APIs
  *  - Requires `LV_USE_MATRIX = 1` */
-#define LV_USE_VECTOR_GRAPHIC  1
+#define LV_USE_VECTOR_GRAPHIC  0
 
 /** Enable ThorVG (vector graphics library) from the src/libs folder */
-#define LV_USE_THORVG_INTERNAL 1 
+#define LV_USE_THORVG_INTERNAL 0
 
 /** Enable ThorVG by assuming that its installed and linked to the project */
 #define LV_USE_THORVG_EXTERNAL 0
@@ -1013,7 +1013,7 @@
      *     - Requires `LV_USE_SYSMON = 1`*/
     #define LV_USE_MEM_MONITOR 0
     #if LV_USE_MEM_MONITOR
-        #define LV_USE_MEM_MONITOR_POS LV_ALIGN_BOTTOM_LEFT
+        #define LV_USE_MEM_MONITOR_POS LV_ALIGN_TOP_LEFT
     #endif
 #endif /*LV_USE_SYSMON*/
 

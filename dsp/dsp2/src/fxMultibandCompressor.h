@@ -39,6 +39,7 @@ class fxMultibandCompressor : public fx {
         void setFrequencies(int channel, float f0, float f1, float f2, float f3);
         void setParameters(int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup);
         void rxData(float data[], int len);
+        fxType getType() { return FX_MULTIBANDCOMPRESSOR; };
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         bool _dualMono;

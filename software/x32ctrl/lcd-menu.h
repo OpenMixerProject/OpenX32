@@ -14,6 +14,13 @@ class LcdMenu : public X32Base {
         Surface* surface;
         bool initDone = false;
 
+        bool encoderModeSelection = true;
+
+        uint selectedItem = 0;
+        uint selectedItemBefore = 0;
+
+        vector<MP_ID> menuItems;
+
         LcdData* d;
 
     public:
@@ -21,11 +28,9 @@ class LcdMenu : public X32Base {
 
         void OnInit();
         void OnShow();
-        void OnChange();
+        void OnChange(bool force_update);
 
         // the encoder was turned
         void OnLcdEncoderTurned(int8_t amount);
-
-        // the encode button was pressed
-        void OnLcdButton(bool pressed);
+        void OnLcdEncoderPressed();
 };

@@ -26,7 +26,7 @@
 
 DSP1::DSP1(X32BaseParameter* basepar) : X32Base(basepar) {
     spi = new SPI(basepar);
-    if (!state->bodyless) {
+    if (!state->bodyless && !state->raspi) {
         spi->UploadBitstreamDsps(true); // use CLI to show progress
         spi->OpenConnectionDsps();
     }
@@ -50,44 +50,6 @@ void DSP1::Init(void)
         }
     }
 }
-
-void DSP1::SendAll() {
-    // configuration for 40 DSP-main-channel-inputs
-    for (uint8_t chan = 0; chan <= 39; chan++) {
-        SendLowcut(chan);
-        SendGate(chan);
-        SendEQ(chan);
-        SendCompressor(chan);
-        SetInputRouting(chan);
-        SendChannelVolume(chan);
-        SendChannelSend(chan);
-        // for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
-        //     ChannelSendTapPoints(chan, mixbusChannel);
-        // }
-    }
-    // configuration for 40 DSP-outputs to FPGA (16x output, 16x UltraNet, 8x Aux)
-    for (uint8_t chan = 0; chan < 40 + 24; chan++) {
-        SetOutputRouting(chan);
-    }
-
-    // for (uint8_t mixbusChannel = 0; mixbusChannel <= 15; mixbusChannel++) {
-    //     SendMixbusVolume(mixbusChannel);
-    //     for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
-    //         SetMixbusSendTapPoints(mixbusChannel, matrixChannel, this->Bus[mixbusChannel].sendMatrixTapPoint[matrixChannel]);
-    //     }
-    // }
-
-    /*
-    for (uint8_t matrixChannel = 0; matrixChannel <= 5; matrixChannel++) {
-        SendMatrixVolume(matrixChannel);
-        SetMainSendTapPoints(matrixChannel, MainChannelLR.sendMatrixTapPoint[matrixChannel]);
-    }
-    */
-
-    SendMainVolume();
-    SendMonitorVolume();
-}
-
 
 // set the general volume of one of the 40 DSP-channels
 void DSP1::SendChannelVolume(uint chanIndex)
@@ -273,14 +235,15 @@ void DSP1::SendGate(uint chanIndex)
 
 void DSP1::SendLowcut(uint8_t chan)
 {
-    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendLowcut() channelindex %d", chan);
-
     float values[1];
 
     // Source: https://www.dsprelated.com/showarticle/1769.php
     // alpha = 1 / (1 + 2 * pi * f_c * 1/f_s)
     // Equation for samples: output = alpha * (input + previous_output - previous_input)
     values[0] = 1.0f / (1.0f + 2.0f * M_PI * config->GetFloat(CHANNEL_LOWCUT_FREQ, chan) * (1.0f/(float)config->GetUint(SAMPLERATE)));
+
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendLowcut() channelindex %d -> %f", chan, values[0]);
+
 
     spi->QueueDspData(0, 'e', chan, 'l', 1, &values[0]);
 }
@@ -410,23 +373,28 @@ String DSP1::RoutingGetOutputNameByIndex(uint8_t index) {
     // 40-56	FX-Sends 1-16 to DSP2
     // 57-64	FX-Aux to DSP2
 */
-    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32)))
-    {
+    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
         return String("DSP Out ") + index;
-    }
-    else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) 
-    {
+    } else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
         return String("DSP AuxOut ") + (index - 32);
-    }
-    else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) 
-    {
+    } else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
         return String("FX SendOut ") + (index - 40);
-    }
-    else if ((index >= (DSP_BUF_IDX_DSP2_FX + 16)) && (index < (DSP_BUF_IDX_DSP2_FX + 23)))
-    {
-        return String("FX AuxOut ") + (index - 56);
-    } else if (index == DSP_BUF_IDX_DSP2_FX + 23)
-    {
+    // the following channels are FX AUX Send 1-8 to DSP2
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 16))) {
+        return String("Linux Audio L");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 17))) {
+        return String("Linux Audio R");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 18))) {
+        return String("AES/EBU Out L");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 19))) {
+        return String("AES/EBU Out R");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 20))) {
+        return String("Unused Ch 5");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 21))) {
+        return String("Unused Ch 6");
+    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 22))) {
+        return String("Unused Ch 7");
+    } else if (index == DSP_BUF_IDX_DSP2_FX + 23) {
         return String("RTA Source");
     }
 
@@ -586,6 +554,40 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
 	if (MainChannelSub.meterPeakIndex[0] > 0) {
 		MainChannelSub.meterInfo[0]  |= (1U << (MainChannelSub.meterPeakIndex[0] - 1));
 	}
+
+    // meter6info for Main LR
+    MainChannelLR.meter6Info = 0;
+    if (MainChannelLR.meterDecay[0] >= VUTRESH_00_DBFS_CLIP)  { 
+        MainChannelLR.meter6Info = 0b00111111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_06_DBFS) {
+        MainChannelLR.meter6Info = 0b00011111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_12_DBFS) {
+        MainChannelLR.meter6Info = 0b00001111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_18_DBFS) {
+        MainChannelLR.meter6Info = 0b00000111;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_30_DBFS) {
+        MainChannelLR.meter6Info = 0b00000011;
+    } else if (MainChannelLR.meterDecay[0] >= VUTRESH_MINUS_60_DBFS) {
+        MainChannelLR.meter6Info = 0b00000001;
+    }
+
+    // meter6info for Sub
+    MainChannelSub.meter6Info = 0;
+    if (MainChannelSub.meterDecay[0] >= VUTRESH_00_DBFS_CLIP)  { 
+        MainChannelSub.meter6Info = 0b00111111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_06_DBFS) {
+        MainChannelSub.meter6Info = 0b00011111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_12_DBFS) {
+        MainChannelSub.meter6Info = 0b00001111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_18_DBFS) {
+        MainChannelSub.meter6Info = 0b00000111;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_30_DBFS) {
+        MainChannelSub.meter6Info = 0b00000011;
+    } else if (MainChannelSub.meterDecay[0] >= VUTRESH_MINUS_60_DBFS) {
+        MainChannelSub.meter6Info = 0b00000001;
+    }
+
+
 
 	// Now calculate the VU Meter LEDs for each channel
 	// leds Channel = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
@@ -1034,6 +1036,20 @@ void DSP1::DSP2_SendFxParameter(int slotIdx)
     }
 }
 
+void DSP1::DSP2_SetOscillator(uint8_t oscIndex, float frequency, float volumedB) {
+    dsp2Oscillator[oscIndex].frequency = frequency;
+    dsp2Oscillator[oscIndex].volume = pow(10.0f, volumedB / 20.0f);
+    DSP2_SendOscillatorValues();
+}
+
+void DSP1::DSP2_SendOscillatorValues() {
+    float values[4];
+    values[0] = dsp2Oscillator[0].frequency;
+    values[1] = dsp2Oscillator[1].frequency;
+    values[2] = dsp2Oscillator[0].volume;
+    values[3] = dsp2Oscillator[1].volume;
+    spi->QueueDspData(1, 'a', 'o', 0, 4, values);
+}
 
 void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t valueCount, void* values) {
     float* floatValues = (float*)values;

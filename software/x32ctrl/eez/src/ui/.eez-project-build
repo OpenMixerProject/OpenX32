@@ -1,0 +1,33 @@
+{
+  "files": [
+    "actions.h",
+    "fonts.h",
+    "images.c",
+    "images.h",
+    "screens.c",
+    "screens.h",
+    "structs.h",
+    "styles.c",
+    "styles.h",
+    "ui.c",
+    "ui.h",
+    "ui_image_buttononoff.c",
+    "ui_image_checkbox.c",
+    "ui_image_knob.c",
+    "ui_image_logo.c",
+    "ui_image_meterbridge.c",
+    "ui_image_openx32_knob.c",
+    "ui_image_openx32logo.c",
+    "ui_image_pause.c",
+    "ui_image_play.c",
+    "ui_image_playpause.c",
+    "ui_image_record.c",
+    "ui_image_sdcard.c",
+    "ui_image_sdusb.c",
+    "ui_image_select.c",
+    "ui_image_stop.c",
+    "ui_image_tux.c",
+    "ui_image_vumeter_colored.c",
+    "vars.h"
+  ]
+}

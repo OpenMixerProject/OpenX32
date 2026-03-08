@@ -9,6 +9,7 @@ class fxDelay : public fx {
         ~fxDelay();
         void setParameters(float delayMsL, float delayMsR);
         void rxData(float data[], int len);
+        fxType getType() { return FX_DELAY; };
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         int _delayLineLengthMaxMs;

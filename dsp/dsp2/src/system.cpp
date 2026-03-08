@@ -167,16 +167,22 @@ void systemExternalMemoryInit() {
 #pragma section("seg_int_code")
 void systemPcgInit(void) {
 	// configure precision clock generator (PCG)
-	// FS_DIVIDER = fixed clock divider (here 512)
+	// fundamental clock can be CLKIN, PCLK (= CCLK/2) or a DAI-pin-input (used here)
+	// FSASOURCE = External FrameSync-Source
+	// CLKASOURCE = External Clock-Source
+	// FS_DIVIDER = fixed clock divider
 	// ENFSA  = Enable FS A
 	// ENCLKA = Enable CLK A
 	// ENCLKB = Enable CLK B
-	*pPCG_CTLA1 = CLKA_DIVIDER | 0xC00000; // align FS rising with CLK falling from PCG for I2S mode
-	*pPCG_CTLA0 = FSA_DIVIDER | ENFSA | ENCLKA ;
-	*pPCG_CTLB1 = CLKB_DIVIDER;
+	*pPCG_CTLA1 = CLKA_DIVIDER | FSASOURCE | CLKASOURCE; // align FS rising with CLK falling from PCG for I2S mode
+	*pPCG_CTLA0 = FSA_DIVIDER | ENFSA | ENCLKA;
+	*pPCG_CTLB1 = CLKB_DIVIDER | CLKBSOURCE;
 	*pPCG_CTLB0 = ENCLKB;
-	*pPCG_PW = 0;
-	*pPCG_SYNC = 0;
+	*pPCG_PW = 0; // FS Bypass | Active High FS
+
+	// PCG is used for SPDIF-outputs only, so we do not need a synchronization. But in case we want a sync use the second option
+	*pPCG_SYNC = 0; // No FS Sync | Outputs selected by CLKxSOURCE and FSxSOURCE
+	//*pPCG_SYNC = FSA_SYNC | CLKA_SYNC | CLKB_SYNC; // Sync all clocks to external LRCLK
 }
 
 #pragma section("seg_int_code")
@@ -242,6 +248,8 @@ void systemSruInit(void) {
 	// tie the pin buffer inputs LOW as these pins are input-pins and buffer is not used
 	SRU(LOW, DAI_PB01_I); // TDM FS
 	SRU(LOW, DAI_PB02_I); // TDM BCLK
+	SRU(LOW, DAI_PB03_I); // FS2
+	SRU(LOW, DAI_PB04_I); // BCLK2
 	SRU(LOW, DAI_PB05_I); // TDM FX IN0
 	SRU(LOW, DAI_PB07_I); // TDM FX IN1
 	SRU(LOW, DAI_PB09_I); // TDM REC IN
@@ -249,6 +257,8 @@ void systemSruInit(void) {
 	// tie the pin buffer enable inputs LOW to make DAI pins 1,2, 11-14 and 19 inputs
 	SRU(LOW, PBEN01_I); // TDM FS
 	SRU(LOW, PBEN02_I); // TDM BCLK
+	SRU(LOW, PBEN03_I); // FS2
+	SRU(LOW, PBEN04_I); // BCLK2
 	SRU(LOW, PBEN05_I); // TDM FX IN0
 	SRU(LOW, PBEN07_I); // TDM FX IN1
 	SRU(LOW, PBEN09_I); // TDM REC IN
@@ -268,18 +278,45 @@ void systemSruInit(void) {
 
 
 	// setup SRU for SPDIF (see Figure 13 on page 12 in EE-266)
-	SRU (PCG_CLKA_O, SPORT6_CLK_I); // connecting PCG_CLKA to SPORT6_CLK
-	SRU (PCG_CLKA_O, DIT_CLK_I); // connecting PCG_CLKA to DIT_CLK
+	// ========================================
+	// SPORT 4 is used for SPDIF Input from i.MX253
+	// SPORT 5 is used for SPDIF Output to i.MX253
+	// SPORT 6 is used for AES/EBU Output on DAI13
 
-	SRU (PCG_CLKB_O, DIT_HFCLK_I); // connecting PCG_CLKB to DIT_HFCLK
-	SRU (PCG_FSA_O, SPORT6_FS_I); // connecting PCG_FSA to SPORT6_FS
-	SRU (PCG_FSA_O, DIT_FS_I); // connecting PCG_FSA to DIT_FS
+	// Step 1: configure the SPDIF Receiver (Input) from i.MX253
+	// ----------------------------------------
+	// connecting DIR to SPORT4
+	SRU(DIR_CLK_O, SPORT4_CLK_I); // connect DIR-clock-output to SPORT4-clock-input
+	SRU(DIR_DAT_O, SPORT4_DA_I); // connect DIR-Data-output to SPORT4-data-input
+	SRU(DIR_FS_O, SPORT4_FS_I); // connect DIR-frameSync-output to SPORT4-frameSync-Input
 
-	SRU (SPORT6_DA_O, DIT_DAT_I); // connecting SPORT6_DA to DIT_DAT
+	// connecting DAI_PIN11 to DIR
+	SRU(LOW, PBEN11_I); // set DAI Pin 11 to input
+	SRU(DAI_PB11_O, DIR_I); // connect DAI-11-data-output to DIR-data-input
+
+
+	// Step 2: configure the SPDIF Transmitter (Output) to i.MX253 and XLR-connector
+	// connecting PrecisionClockGenerator to Clock-Source and SPORT5 and SPORT6
+	// ----------------------------------------
+	SRU(DAI_PB04_O, PCG_EXTA_I); // connect 24.576MHz Clock to PCG_CLKA-Input
+	SRU(DAI_PB04_O, PCG_EXTB_I); // connect 24.576MHz Clock to PCG_CLKB-Input
+	SRU(PCG_CLKA_O, SPORT5_CLK_I); // connecting PCG_CLKA to SPORT5_CLK
+	SRU(PCG_CLKA_O, SPORT6_CLK_I); // connecting PCG_CLKA to SPORT6_CLK
+	SRU(PCG_CLKA_O, DIT_CLK_I); // connecting PCG_CLKA to DIT_CLK
+	SRU(PCG_CLKB_O, DIT_HFCLK_I); // connecting PCG_CLKB to DIT_HFCLK
+	SRU(PCG_FSA_O, SPORT5_FS_I); // connecting PCG_FSA to SPORT5_FS
+	SRU(PCG_FSA_O, SPORT6_FS_I); // connecting PCG_FSA to SPORT6_FS
+	SRU(PCG_FSA_O, DIT_FS_I); // connecting PCG_FSA to DIT_FS
+	//SRU(SPORT5_DA_O, DIT_DAT_I); // connecting SPORT5_DA to DIT_DAT
+	SRU(SPORT6_DA_O, DIT_DAT_I); // connecting SPORT6_DA to DIT_DAT
+
+	// connecting DIT to DAI_PIN12
+	SRU(HIGH, PBEN12_I); // set DAI Pin 12 to output
+	SRU(DIT_O, DAI_PB12_I); // connect DIT-signal-output to DAI Pin12
 
 	// connecting DIT to DAI_PIN13
-	SRU (HIGH, PBEN13_I);
-	SRU (DIT_O, DAI_PB13_I);
+	SRU(HIGH, PBEN13_I); // set DAI Pin 13 to output
+	SRU(DIT_O, DAI_PB13_I); // connect DIT-signal-output to DAI Pin13
 
 
 
@@ -405,7 +442,9 @@ void systemSportInit() {
 	// SLEN32 = WordLength = 32 bit
 	// OPMODE = I2S mode enable
 	// SPTRAN = Transmitter
-	*pSPCTL6 |= SPEN_A | SLEN32 | OPMODE | SPTRAN;
+	*pSPCTL4 |= SPEN_A | SLEN32 | OPMODE; // SPDIF receiver from i.MX253
+	*pSPCTL5 |= SPEN_A | SLEN32 | OPMODE | SPTRAN; // SPDIF transmitter to i.MX253
+	*pSPCTL6 |= SPEN_A | SLEN32 | OPMODE | SPTRAN; // SPDIF transmitter to AES/EBU output
 }
 
 #pragma section("seg_int_code")
@@ -415,7 +454,9 @@ void systemSpdifTxInit(void) {
 
 	// DIT_EN       = Enables SPDIF transmitter
 	// DIT_SMODEIN0 = Serial Input Format: Left justified (000)
-	*pDITCTL = DIT_EN | DIT_SMODEIN0; //configuration of SPDIF TX
+	// DIT_AUTO		= Automatically Generate Block Start
+	*pDITCTL = DIT_EN | DIT_SMODEIN0 | DIT_AUTO; //configuration of SPDIF TX in automatic-mode
+	//*pDITCTL = DIT_EN | DIT_SMODEIN0; //configuration of SPDIF TX in manual-mode -> status-bits have to be set manually
 }
 
 // endless loop for the case, that CPU-load is above 100% so that

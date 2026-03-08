@@ -17,7 +17,9 @@ void audioFxData(int fxSlot, float* data, int len);
 void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode);
 void audioProcessData(void);
 void audioRxISR(uint32_t , void *);
-void audioSpdifTxISR(uint32_t, void*);
+void audioSpdifRxImxISR(uint32_t, void*);
+void audioSpdifTxImxISR(uint32_t, void*);
+void audioSpdifTxXlrISR(uint32_t, void*);
 
 #ifdef __cplusplus
 }

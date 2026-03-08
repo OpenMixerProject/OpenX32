@@ -1,9 +1,9 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/0",
-    "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/2/childStyles/1",
-    "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/1",
+    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/4",
+    "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/5",
+    "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/11",
     "subnavigationSelectedItems": {}
   },
   "layoutModel": {
@@ -25,7 +25,7 @@
           {
             "type": "border",
             "selected": 5,
-            "size": 167.5,
+            "size": 206.5,
             "location": "right",
             "children": [
               {
@@ -128,12 +128,12 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 14.168782161957502,
+              "weight": 11.42667066577527,
               "children": [
                 {
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
-                  "weight": 0.6831938684023293,
+                  "weight": 1.27387190045851,
                   "enableClose": false,
                   "children": [
                     {
@@ -165,7 +165,7 @@
                 {
                   "type": "tabset",
                   "id": "#53535229-d14c-4d96-897c-ebfec499b8c9",
-                  "weight": 1.9890904814421986,
+                  "weight": 1.398412449386018,
                   "enableClose": false,
                   "children": [
                     {
@@ -199,7 +199,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 28.567683755779743,
+              "weight": 32.80365104681733,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -220,7 +220,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 11.412746328774451,
+              "weight": 9.918890533919074,
               "children": [
                 {
                   "type": "tab",
@@ -1059,8 +1059,8 @@
       },
       "transform": {
         "translate": {
-          "x": -412.9695627622776,
-          "y": -247.53580301340753
+          "x": -354.3079938928478,
+          "y": -210.59379877589208
         },
         "scale": 1
       },
@@ -1074,15 +1074,15 @@
       "selectionBack": {
         "0": {
           "1": {
-            "0": {},
-            "1": {
+            "3": {
               "0": {
-                "1": {
-                  "1": {}
+                "3": {
+                  "0": {}
                 }
               }
             }
-          }
+          },
+          "3": {}
         }
       }
     },
@@ -1090,11 +1090,11 @@
       "0": {},
       "1": {},
       "2": {
-        "1": {
-          "$selected": true
-        }
+        "1": {}
       },
-      "3": {
+      "3": {},
+      "4": {},
+      "5": {
         "$selected": true
       }
     },
@@ -1114,7 +1114,9 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      }
+      },
+      "selectionFront": {},
+      "selectionBack": {}
     },
     "[OpenX32Gui.eez-project]:/userWidgets/1[flow-state]": {
       "selection": {
@@ -1127,14 +1129,16 @@
           "x": -163.60245310244358,
           "y": -328.81421356418633
         },
-        "scale": 9
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      }
+      },
+      "selectionFront": {},
+      "selectionBack": {}
     },
     "[OpenX32Gui.eez-project]:/userWidgets/2[flow-state]": {
       "selection": {
@@ -1146,8 +1150,8 @@
       },
       "transform": {
         "translate": {
-          "x": -80.04951992450468,
-          "y": -235.75256132741265
+          "x": -119.93154452446767,
+          "y": -470.55452881015367
         },
         "scale": 1
       },
@@ -1156,6 +1160,19 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
+      },
+      "selectionFront": {},
+      "selectionBack": {
+        "0": {
+          "$selected": true
+        },
+        "1": {},
+        "2": {},
+        "3": {},
+        "4": {},
+        "5": {},
+        "6": {},
+        "7": {}
       }
     },
     "[OpenX32Gui.eez-project]:/userWidgets/3[flow-state]": {
@@ -1174,7 +1191,9 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      }
+      },
+      "selectionFront": {},
+      "selectionBack": {}
     },
     "[OpenX32Gui.eez-project]:/userWidgets/6[flow-state]": {
       "selection": {
@@ -1211,7 +1230,9 @@
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
-      }
+      },
+      "selectionFront": {},
+      "selectionBack": {}
     },
     "[OpenX32Gui.eez-project]:/userWidgets/7[flow-state]": {
       "selection": {},
@@ -1256,16 +1277,22 @@
       "selection": {},
       "transform": {
         "translate": {
-          "x": -65,
-          "y": -25
+          "x": -402.38203463203615,
+          "y": -238.70526695526718
         },
-        "scale": 1
+        "scale": 5
       },
       "timeline": {
         "isEditorActive": false,
         "position": 0,
         "secondToPx": 200,
         "scrollLeft": 0
+      },
+      "selectionFront": {},
+      "selectionBack": {
+        "0": {},
+        "1": {},
+        "2": {}
       }
     }
   },
@@ -1283,9 +1310,13 @@
   "selectedStylePropertyName": "",
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
-  "lvglExpandedPropertiesGroup": [],
+  "lvglExpandedPropertiesGroup": [
+    "MISCELLANEOUS",
+    "TEXT"
+  ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
   "flowZoom": 1,
-  "implementationLanguage": "C"
+  "implementationLanguage": "C",
+  "openDialogDefaultPath": "C:\\Cloud\\Dokumente\\OpenX32_Website\\SoftwareImages\\sdcard_all.png"
 }

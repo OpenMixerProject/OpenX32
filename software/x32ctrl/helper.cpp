@@ -177,7 +177,6 @@ float Helper::sample2Dbfs(uint32_t sample) {
         return -120;
     }
 
-    //return (-6 * (__builtin_clz(sample) - 1));
     return (20.0f * log10f((float)sample/2147483648.0f));
 }
 
@@ -228,6 +227,18 @@ long Helper::GetFileSize(const char* filename) {
 	return -1; // error
 }
 
+String Helper::FormatFileSize(uint sizeByte, uint digits) {
+	if (sizeByte < 1024) {
+		return String(sizeByte) + " Byte";
+	} else if (sizeByte < (1024 * 1024)) {
+		return String((float)sizeByte / 1024.0f, digits) + " kB";
+	} else if (sizeByte < (1024 * 1024 * 1024)) {
+		return String((float)sizeByte / (1024.0f * 1024.0f), digits) + " MB";
+	} else if (sizeByte < (1024 * 1024 * 1024 * 1024)) {
+		return String((float)sizeByte / (1024.0f * 1024.0f * 1024.0f), digits) + " GB";
+	}
+}
+
 void Helper::ReverseBitOrderArray(uint8_t* data, uint32_t len) {
 	// reverse bits in array
 	uint32_t* pData = (uint32_t*)data;
@@ -254,47 +265,6 @@ float Helper::Saturate(float value, float min, float max) {
 	return min;
   }else{
 	return value;
-  }
-}
-
-String Helper::freq2String(float freq) {
-  if (freq < 1000) {
-	return String(freq, 1) + " Hz";
-  }else{
-	return String(freq / 1000.0f, 1) + " kHz";
-  };
-}
-
-String Helper::eqType2String(uint8_t type) {
-  // 0=allpass, 1=peak, 2=low-shelf, 3=high-shelf, 4=bandpass, 5=notch, 6=lowpass, 7=highpass
-  switch (type) {
-	case 0:
-	  return "Allpass";
-	  break;
-	case 1:
-	  return "PEQ";
-	  break;
-	case 2:
-	  return "LShv";
-	  break;
-	case 3:
-	  return "HShv";
-	  break;
-	case 4:
-	  return "Bandp";
-	  break;
-	case 5:
-	  return "Notch";
-	  break;
-	case 6:
-	  return "HCut";
-	  break;
-	case 7:
-	  return "LCut";
-	  break;
-	default:
-	  return "???";
-	  break;
   }
 }
 
@@ -437,4 +407,135 @@ uint8_t Helper::value2percent(int8_t value, int8_t value_min, int8_t value_max) 
 	uint8_t value_normiert = value - value_min;
 	float onepercent = onehunderedpercent / 100.0f;
 	return value_normiert / onepercent;
+}
+
+String Helper::intToHex(uint32_t val, uint8_t outputLength) {
+  String hexString;
+  for (int8_t shift = outputLength * sizeof(val) - 4; shift >= 0; shift -= 4) {
+    uint8_t hexDigit = (val >> shift) & 0xF;
+    hexString += String(hexDigit, HEX);
+  }
+  return hexString;
+}
+
+uint32_t Helper::hexToInt(String hexString){
+  char c[hexString.length() + 1];
+  hexString.toCharArray(c, hexString.length() + 1);
+  return strtol(c, NULL, 16); 
+}
+
+String Helper::split(String s, char parser, int index) {
+  String rs="";
+  int parserCnt=0;
+  int rFromIndex=0, rToIndex=-1;
+  while (index >= parserCnt) {
+    rFromIndex = rToIndex+1;
+    rToIndex = s.indexOf(parser,rFromIndex);
+    if (index == parserCnt) {
+      if (rToIndex == 0 || rToIndex == -1) return "";
+      return s.substring(rFromIndex,rToIndex);
+    } else parserCnt++;
+  }
+  return rs;
+}
+
+uint Helper::getNumberOfEntries(String s, char separator) {
+  uint entries = 0;
+  for (uint i=0; i<s.length(); i++) {
+    if (s[i] == separator) entries++;
+  }
+  return entries;
+}
+
+// convert seconds to string of hour, minute and seconds
+String Helper::secondsToHmsHuman(uint32_t seconds){
+  unsigned int tme=0;
+  tme = seconds;
+
+  int hr = tme/3600;                        //Number of seconds in an hour
+  int mins = (tme-hr*3600)/60;              //Remove the number of hours and calculate the minutes.
+  int sec = tme-hr*3600-mins*60;            //Remove the number of hours and minutes, leaving only seconds.
+  sec %= 60;
+  mins %= 60;
+  hr %= 24;
+
+  if (seconds < 60) {
+    // show only seconds
+    return String(sec) + "s";
+  }else if (seconds < 3600){
+    return (String(mins) + "min " + String(sec) + "s");
+  }else{
+    return (String(hr) + "h " + String(mins) + "min " + String(sec) + "s");
+  }
+}
+
+String Helper::secondsToHmsTechnical(uint32_t seconds, bool withDots){
+  unsigned int tme=0;
+  tme = seconds;
+
+  int hr = tme/3600;                        //Number of seconds in an hour
+  int mins = (tme-hr*3600)/60;              //Remove the number of hours and calculate the minutes.
+  int sec = tme-hr*3600-mins*60;            //Remove the number of hours and minutes, leaving only seconds.
+  sec %= 60;
+  mins %= 60;
+  hr %= 24;
+
+  String s_hr;
+  String s_min;
+  String s_sec;
+  if (hr<10) {
+    s_hr = "0" + String(hr);
+  }else{
+    s_hr = String(hr);
+  }
+  if (mins<10) {
+    s_min = "0" + String(mins);
+  }else{
+    s_min = String(mins);
+  }
+  if (sec<10) {
+    s_sec = "0" + String(sec);
+  }else{
+    s_sec = String(sec);
+  }
+
+  if (withDots) {
+    return (s_hr + ":" + s_min + ":" + s_sec);
+  }else{
+    return (s_hr + s_min + s_sec);
+  }
+}
+
+String Helper::intToStringTwoDigits(int value)
+{
+  String result ;
+
+  if (value < 10)
+    result = "0" + String(value);
+  else
+    result = String(value);
+
+  return result;
+}
+
+String Helper::intToHexString(int value)
+{
+  String result ;
+
+  if (value < 0x10)
+    result = '0' + String(value, HEX);
+  else
+    result = String(value, HEX);
+
+  return result;
+}
+
+float Helper::rescale(float input, float inputMin, float inputMax, float outputMin, float outputMax) {
+    // Verhindert Division durch Null, falls der Eingangsbereich ungültig ist
+    if (inputMax == inputMin) {
+        return outputMin; 
+    }
+
+    // Die eigentliche Skalierungsformel
+    return (input - inputMin) * (outputMax - outputMin) / (inputMax - inputMin) + outputMin;
 }

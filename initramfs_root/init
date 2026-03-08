@@ -13,27 +13,28 @@ mkdir -p /dev/pts
 
 # some startup-things
 # =============================
-# create additional folders
-mkdir /var/empty
-
 # set hostname
 hostname -F /etc/hostname
 
 # read mac-address from SD-card and set it
-x32sdconfig
+/openx32/x32sdconfig
 
 # bring networkdevices up
 ip link set lo up
 ip link set eth0 up
 udhcpc -i eth0 -b
 
-
-
 # start user-shells
 # =============================
 # start a shell for serial-port (MIDI-In/Out)
 echo "Starting shell for ttymxc4..."
 /sbin/getty -L 115200 ttymxc4 &
+
+# start dropbear with auto-key-creation
+/openx32/dropbear -p 22 -R > /dev/null 2>&1 &
+
+# start OpenX32 Main-Software as Shell
+/openx32/x32ctrl --L /openx32/lattice.bit --X /openx32/xilinx.bit --D1 /openx32/dsp1.ldr --D2 /openx32/dsp2.ldr
 
 # start a simple shell for tty0 (Display)
 echo "Booting into busybox shell..."

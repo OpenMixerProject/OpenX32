@@ -75,6 +75,11 @@ void Adda::Init()
 
 		serial = "/tmp/ttyLocalAdda";
 	}
+	else if (state->raspi)
+	{
+		//serial = "/dev/ttymxc2";
+		return;
+	}
 	else
 	{
 		serial = "/dev/ttymxc2";	
@@ -116,57 +121,78 @@ void Adda::Init()
 	usleep(20000); // wait 20ms
 }
 
-String Adda::GetXlrIn0(){
+String Adda::GetXlrIn0()
+{
 	return addaBoards[ADDA_BOARD_XLR_IN_0];
 }
-bool Adda::HasXlrIn0(){
+
+bool Adda::HasXlrIn0()
+{
 	return GetXlrIn0().length() > 0;
 }
 
-String Adda::GetXlrIn1(){
+String Adda::GetXlrIn1()
+{
 	return addaBoards[ADDA_BOARD_XLR_IN_1];
 }
-bool Adda::HasXlrIn1(){
+
+bool Adda::HasXlrIn1()
+{
 	return GetXlrIn1().length() > 0;
 }
 
-String Adda::GetXlrIn2(){
+String Adda::GetXlrIn2()
+{
 	return addaBoards[ADDA_BOARD_XLR_IN_2];
 }
-bool Adda::HasXlrIn2(){
+
+bool Adda::HasXlrIn2()
+{
 	return GetXlrIn2().length() > 0;
 }
 
-String Adda::GetXlrIn3(){
+String Adda::GetXlrIn3()
+{
 	return addaBoards[ADDA_BOARD_XLR_IN_3];
 }
-bool Adda::HasXlrIn3(){
+
+bool Adda::HasXlrIn3()
+{
 	return GetXlrIn3().length() > 0;
 }
 
-String Adda::GetXlrOut0(){
+String Adda::GetXlrOut0()
+{
 	return addaBoards[ADDA_BOARD_XLR_OUT_0];
 }
-bool Adda::HasXlrOut0(){
+
+bool Adda::HasXlrOut0()
+{
 	return GetXlrOut0().length() > 0;
 }
 
-String Adda::GetXlrOut1(){
+String Adda::GetXlrOut1()
+{
 	return addaBoards[ADDA_BOARD_XLR_OUT_1];
 }
+
 bool Adda::HasXlrOut1(){
 	return GetXlrOut1().length() > 0;
 }
 
-String Adda::GetExpansion(){
+String Adda::GetExpansion()
+{
 	return addaBoards[ADDA_BOARD_EXPANSION];
 }
-bool Adda::HasExpansion(){
+
+bool Adda::HasExpansion()
+{
 	return GetExpansion().length() > 0;
 }
 
 
-void Adda::SetSamplerate(uint32_t samplerate) {
+void Adda::SetSamplerate(uint32_t samplerate)
+{
 	helper->DEBUG_ADDA(DEBUGLEVEL_NORMAL, "Set samplerate to %d", samplerate);
 
 	if (samplerate == 44100) {
@@ -218,6 +244,7 @@ String Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomP
 	return SendReceive(message);
 }
 
+// send without waiting for the response of the individual component
 void Adda::Send(String cmd) {
 	AddaMessage* message = new AddaMessage();
 
@@ -231,18 +258,96 @@ void Adda::Send(String cmd) {
     	printf("\n");
 	}
 
-	uart->TxRaw(message);
+	uart->Tx(message);
 
 	delete(message);
 }
 
+// receive without sending data (e.g. reading current state of X-LIVE-Card)
+String Adda::Receive() {
+	uint8_t currentByte;
+	String answer;
+
+	uint readBytes = uart->Rx(&addaBufferUart[0], sizeof(addaBufferUart));
+	if (readBytes > 0) {
+
+		if (helper->DEBUG_ADDA(DEBUGLEVEL_TRACE)){
+			printf("Received %d Bytes\n", readBytes); 
+
+			for (int i = 0; i < readBytes; i++) {
+				printf("%c", addaBufferUart[i]);
+			}
+			printf("\n");
+			fflush(stdout);
+		}
+
+		for (int i = 0; i < readBytes; i++) {
+			currentByte = (uint8_t)addaBufferUart[i];
+
+			// add received byte to buffer
+			if (addaPacketBufLen < ADDA_MAX_PACKET_LENGTH) {
+				addaPacketBuffer[addaPacketBufLen++] = currentByte;
+			} else {
+				// buffer full -> remove oldest byte
+				memmove(addaPacketBuffer, addaPacketBuffer + 1, ADDA_MAX_PACKET_LENGTH - 1);
+				addaPacketBuffer[ADDA_MAX_PACKET_LENGTH - 1] = currentByte;
+			}
+
+			int packetBegin = -1;
+			int packetEnd = -1;
+			int receivedPacketLength = 0; // length of detected packet
+
+			// check if we received enought data to process at least the shortest message (e.g. *2Y#)
+			if (addaPacketBufLen >= 3) {
+				// check if received character is end of message ('#')
+				if (addaPacketBuffer[addaPacketBufLen - 1] == '#') {
+					// we received possible end of a message
+					packetEnd = addaPacketBufLen - 1;
+
+					// now search begin of message ('*')
+					for (uint16_t j = 0; j < ADDA_MAX_PACKET_LENGTH; j++) {
+						if (addaPacketBuffer[ADDA_MAX_PACKET_LENGTH - 1 - j] == '*') {
+							// found begin of message
+							packetBegin = ADDA_MAX_PACKET_LENGTH - 1 - j;
+							break;
+						}
+					}
+
+					receivedPacketLength = (packetEnd - packetBegin + 1);
+					if ((packetBegin >= 0) && (packetEnd > 0) && (receivedPacketLength > 0)) {
+						// we found a valid message in the form "*...#"
+
+						// copy the message including * and # into a new buffer and 0-terminate it
+						char* payload = (char*)malloc(sizeof(char) * (receivedPacketLength + 1));
+						memcpy(payload, &addaPacketBuffer[packetBegin], receivedPacketLength);
+						payload[receivedPacketLength] = '\0';
+						answer = payload;
+						free(payload);
+
+						// shift remaining bytes by processed amount of data
+						memmove(addaPacketBuffer, addaPacketBuffer + receivedPacketLength, addaPacketBufLen - receivedPacketLength);
+						addaPacketBufLen -= receivedPacketLength;
+
+						//helper->DEBUG_ADDA(DEBUGLEVEL_VERBOSE, "%s --> %s", cmd.c_str(), answer.c_str());
+						return answer;
+					}
+				}
+			}
+		}
+	}
+
+	return answer;
+}
+
+// Send data and wait for the response of the individual component
 String Adda::SendReceive(String cmd) {
 	uint8_t currentByte;
 	String answer;
 
+	FlushRxBuffer();
 	Send(cmd);
 
-	uint8_t waitForMessage = 10; // wait ~10 ms
+	uint8_t waitForMessage = 1000; // wait maximum timeoutMs ms
 	uint16_t readBytes = 0;
 	while (waitForMessage > 0) {
 		helper->DEBUG_ADDA(DEBUGLEVEL_TRACE, "Waiting for Message from ADDA-Boards, Counter: %d", waitForMessage);
@@ -321,6 +426,11 @@ String Adda::SendReceive(String cmd) {
 	// No Answer
 	helper->DEBUG_ADDA(DEBUGLEVEL_VERBOSE, "%s --> No Answer", cmd.c_str());
 	return "";
+}
+
+void Adda::FlushRxBuffer() {
+	// flush receivebuffer
+	uart->FlushRxBuffer();
 }
 
 // Mute all ADDA boards

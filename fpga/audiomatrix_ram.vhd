@@ -33,7 +33,7 @@ use ieee.numeric_std.all;
 entity audiomatrix_ram is
 	generic (
 		DATA_WIDTH				: integer := 24;	-- 24-bit audio-samples
-		RAM_DEPTH				: integer := 256; -- 32x Analog-Input, 32x Card-Input, 8x AUX-Input, 40x DSP-Output, 48x AES50A, 48x AES50B
+		RAM_DEPTH				: integer := 256; -- at least 208 = 32x Analog-Input, 32x Card-Input, 8x AUX-Input, 40x DSP-Output, 48x AES50A, 48x AES50B
 		ADDR_WIDTH         	: integer := 8    -- log2(208) = 8
 	);
 	port (

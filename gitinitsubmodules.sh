@@ -28,7 +28,7 @@ git fetch --depth 1 origin master
 git checkout master
 cd ../../../..
 
-echo "pyATK, busybox, openssh and other submodules will be cloned with full history..."
+echo "pyATK, busybox, dropbear and other submodules will be cloned with full history..."
 echo "Checking out all remaining submodules..."
 git submodule update --init --recursive
 

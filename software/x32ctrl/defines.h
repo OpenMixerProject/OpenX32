@@ -6,11 +6,6 @@
 #define X32_CTRL_CONFIGFILE "x32ctrl.cfg"
 #define X32_MIXER_CONFIGFILE "mixer.ini"
 
-// Implementation of the Mixerparameter Map
-// 0 = Implemented as std::map
-// 1 = Implemented as plain array - should be faster!
-#define MPM_AS_ARRAY 1  
-
 #define TIMER_1MS 1000000 // 1ms = 1000000ns
 #define TIMER_100MS 100 * TIMER_1MS 
 #define TIMER_50MS   50 * TIMER_1MS
@@ -53,7 +48,7 @@
 #define VOLUME_MIN         -100.0f // dB
 
 #define CHANNEL_GAIN_MIN            -12.0f // dB
-#define CHANNEL_GAIN_MAX             60.0f // dB
+#define CHANNEL_GAIN_MAX             45.5f // dB
 #define CHANNEL_PANORAMA_MIN       -100.0f // dB
 #define CHANNEL_PANORAMA_MAX        100.0f // dB
 #define CHANNEL_VOLUME_MIN         -100.0f // dB

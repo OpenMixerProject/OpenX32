@@ -21,8 +21,8 @@ class PageEffects: public Page {
 
         void OnShow() override {
             // encoder 1
-            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER, MP_ID::NONE);
-            custom_encoder[DISPLAY_ENCODER_1].label = "Select FX";
+            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER, NONE);
+            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_REFRESH) + "\nSelect FX";
 
             lv_table_set_column_count(objects.fxtable, 8);
             for (uint8_t i = 0; i < MAX_FX_SLOTS; i++) {

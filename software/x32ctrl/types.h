@@ -2,9 +2,6 @@
 
 #include <stdint.h>
 
-#include <map>
-#include <set>
-
 #include "defines.h"
 #include "enum.h"
 #include "WString.h"
@@ -107,6 +104,7 @@ typedef struct {
 	uint8_t meterPeakHoldTimer[2]; // will be updated every 100ms. On 0 the current value will be used
 	uint8_t meterPeakDecayTimer[2];
 	uint32_t meterInfo[2];
+	uint8_t meter6Info;
 } sMainChannel;
 
 typedef struct{
@@ -126,9 +124,7 @@ typedef struct{
 typedef struct{
     char name[MAX_NAME_LENGTH];
 
-    // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
-    sBank inputBanks[8];
-    sBank busBanks[4];
+
 } sBankMode;
 
 // values only for runtime use
@@ -149,9 +145,12 @@ typedef struct {
 	uint8_t meter8Info; // compatible to MeterLED on surface
 } srDspChannel;
 
+typedef struct {
+	float frequency;
+	float volume;
+} sDsp2Oscillator;
 
 typedef struct {
-	String label;	
+	String label;
+	String value;
 } sDisplayEncoder;
-
-typedef map<MP_ID, set<uint>>			mixerparameter_changed_t;

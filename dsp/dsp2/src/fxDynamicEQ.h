@@ -32,6 +32,7 @@ class fxDynamicEQ : public fx {
         ~fxDynamicEQ();
         void setParameters(int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release);
         void rxData(float data[], int len);
+        fxType getType() { return FX_DEQ; };
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         sDynamicEQ _deq[FX_DYNAMICEQ_BANDS];

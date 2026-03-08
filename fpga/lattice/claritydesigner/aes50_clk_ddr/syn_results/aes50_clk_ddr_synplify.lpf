@@ -1,0 +1,20 @@
+#
+# Logical Preferences generated for Lattice by Synplify map202309lat, Build 191R.
+#
+
+# Period Constraints 
+
+
+# Output Constraints 
+
+# Input Constraints 
+
+# Point-to-point Delay Constraints 
+
+
+
+# Block Path Constraints 
+
+BLOCK ASYNCPATHS;
+
+# End of generated Logical Preferences.

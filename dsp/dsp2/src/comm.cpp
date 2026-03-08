@@ -101,21 +101,30 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 			break;
 		case 'a': // Auxiliary
-			if (valueCount == 1) {
-				if (channel == 42) {
-					// LED Control
-					switch(intValues[0]) {
-						case 0:
-							sysreg_bit_clr(sysreg_FLAGS, FLG7);
-							break;
-						case 1:
-							sysreg_bit_set(sysreg_FLAGS, FLG7);
-							break;
-						default:
-							sysreg_bit_tgl(sysreg_FLAGS, FLG7);
-							break;
+			switch (channel) {
+				case 'o':
+					// set sine-wave-frequency for both oscillators
+					if (valueCount == 4) {
+						memcpy(&dsp.oscillatorFreq[0], &floatValues[0], 2 * sizeof(float));
+						memcpy(&dsp.oscillatorVolume[0], &floatValues[2], 2 * sizeof(float));
 					}
-				}
+					break;
+				case 42:
+					// LED Control
+					if (valueCount == 1) {
+						switch(intValues[0]) {
+							case 0:
+								sysreg_bit_clr(sysreg_FLAGS, FLG7);
+								break;
+							case 1:
+								sysreg_bit_set(sysreg_FLAGS, FLG7);
+								break;
+							default:
+								sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+								break;
+						}
+					}
+					break;
 			}
 			break;
 		default:

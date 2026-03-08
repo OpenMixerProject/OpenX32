@@ -35,7 +35,9 @@ class Adda : public X32Base {
         Adda(X32BaseParameter* basepar);
         void Init();
 
+        String Receive();
         String SendReceive(String cmd);
+        void FlushRxBuffer();
 
         bool HasXlrIn0();
         bool HasXlrIn1();
@@ -58,8 +60,6 @@ class Adda : public X32Base {
 
         void SetMuteAll(bool muted);
         int8_t GetXlrInBoardId(uint8_t channel);
-
-
 };
 
 

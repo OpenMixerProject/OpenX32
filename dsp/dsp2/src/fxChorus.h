@@ -9,6 +9,7 @@ class fxChorus : public fx {
         ~fxChorus();
         void setParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix);
         void rxData(float data[], int len);
+        fxType getType() { return FX_CHORUS; };
         void process(float* __restrict bufIn[], float* __restrict bufOut[]);
     private:
         int _delayLineLengthMaxMs;

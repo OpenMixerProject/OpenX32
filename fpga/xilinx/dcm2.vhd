@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : dcm2.vhd
--- /___/   /\     Timestamp : 01/07/2026 13:42:23
+-- /___/   /\     Timestamp : 03/01/2026 15:51:12
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -28,31 +28,30 @@ library UNISIM;
 use UNISIM.Vcomponents.ALL;
 
 entity dcm2 is
-   port ( CLKIN_IN        : in    std_logic; 
-          RST_IN          : in    std_logic; 
-          CLKFX_OUT       : out   std_logic; 
-          CLKIN_IBUFG_OUT : out   std_logic; 
-          CLK0_OUT        : out   std_logic; 
-          LOCKED_OUT      : out   std_logic);
+   port ( CLKIN_IN     : in    std_logic; 
+          RST_IN       : in    std_logic; 
+          CLKFX_OUT    : out   std_logic; 
+          CLKFX180_OUT : out   std_logic; 
+          CLK0_OUT     : out   std_logic; 
+          LOCKED_OUT   : out   std_logic);
 end dcm2;
 
 architecture BEHAVIORAL of dcm2 is
-   signal CLKFB_IN        : std_logic;
-   signal CLKFX_BUF       : std_logic;
-   signal CLKIN_IBUFG     : std_logic;
-   signal CLK0_BUF        : std_logic;
-   signal GND_BIT         : std_logic;
+   signal CLKFB_IN     : std_logic;
+   signal CLKFX_BUF    : std_logic;
+   signal CLKFX180_BUF : std_logic;
+   signal CLK0_BUF     : std_logic;
+   signal GND_BIT      : std_logic;
 begin
    GND_BIT <= '0';
-   CLKIN_IBUFG_OUT <= CLKIN_IBUFG;
    CLK0_OUT <= CLKFB_IN;
    CLKFX_BUFG_INST : BUFG
       port map (I=>CLKFX_BUF,
                 O=>CLKFX_OUT);
    
-   CLKIN_IBUFG_INST : IBUFG
-      port map (I=>CLKIN_IN,
-                O=>CLKIN_IBUFG);
+   CLKFX180_BUFG_INST : BUFG
+      port map (I=>CLKFX180_BUF,
+                O=>CLKFX180_OUT);
    
    CLK0_BUFG_INST : BUFG
       port map (I=>CLK0_BUF,
@@ -74,7 +73,7 @@ begin
             PHASE_SHIFT => 0,
             STARTUP_WAIT => FALSE)
       port map (CLKFB=>CLKFB_IN,
-                CLKIN=>CLKIN_IBUFG,
+                CLKIN=>CLKIN_IN,
                 DSSEN=>GND_BIT,
                 PSCLK=>GND_BIT,
                 PSEN=>GND_BIT,
@@ -82,7 +81,7 @@ begin
                 RST=>RST_IN,
                 CLKDV=>open,
                 CLKFX=>CLKFX_BUF,
-                CLKFX180=>open,
+                CLKFX180=>CLKFX180_BUF,
                 CLK0=>CLK0_BUF,
                 CLK2X=>open,
                 CLK2X180=>open,

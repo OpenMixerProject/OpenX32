@@ -50,10 +50,20 @@ lv_style_t *get_style_panel_flat_black_MAIN_DEFAULT();
 void add_style_panel_flat_black(lv_obj_t *obj);
 void remove_style_panel_flat_black(lv_obj_t *obj);
 
+// Style: panel_flat_bg
+lv_style_t *get_style_panel_flat_bg_MAIN_DEFAULT();
+void add_style_panel_flat_bg(lv_obj_t *obj);
+void remove_style_panel_flat_bg(lv_obj_t *obj);
+
 // Style: label_bg_yellow
 lv_style_t *get_style_label_bg_yellow_MAIN_DEFAULT();
 void add_style_label_bg_yellow(lv_obj_t *obj);
 void remove_style_label_bg_yellow(lv_obj_t *obj);
+
+// Style: display_encoder_panels
+lv_style_t *get_style_display_encoder_panels_MAIN_DEFAULT();
+void add_style_display_encoder_panels(lv_obj_t *obj);
+void remove_style_display_encoder_panels(lv_obj_t *obj);
 
 #ifdef __cplusplus
 }

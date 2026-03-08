@@ -1,5 +1,0 @@
-Port 22
-ListenAddress 0.0.0.0
-HostKey /usr/local/etc/ssh/openx32_key
-PermitRootLogin yes
-PermitEmptyPasswords yes

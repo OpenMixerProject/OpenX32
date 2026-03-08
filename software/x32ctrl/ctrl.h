@@ -28,16 +28,17 @@
 #include "page-setup.h"
 #include "page-setup-card.h"
 #include "page-mutegroup.h"
-#include "page-utility.h"
-
+#include "page-debug.h"
+#include "page-about.h"
+#include "page-scenes.h"
+#include "page-prototypegui.h"
 #include "lcd-menu.h"
+
+#include "surfacebindings.h"
 
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
 #include "CLI11.hpp"
-
-// ini parser
-#include "inicpp.h"
 
 // includes for lvgl
 #include "lv_port_linux/lvgl/lvgl.h"
@@ -70,14 +71,19 @@ class X32Ctrl : public X32Base
     using enum MP_ID;
 
     private:
-        ini::IniFile mixer_ini;
-
+        
         Mixer* mixer;
         Surface* surface;
         XRemote* xremote;
         LcdMenu* lcdmenu;
 
-        sBankMode modes[3];
+        // surface binding
+        map<uint, SurfaceBinding_Fader*> fader_binding;
+
+
+        // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
+        sBank inputBanks[8];
+        sBank busBanks[4];
 
         map<X32_PAGE, Page*> pages;
         X32_PAGE lastPage = X32_PAGE::HOME;
@@ -92,29 +98,30 @@ class X32Ctrl : public X32Base
 
         void my_handler(int s);
 
+        void InitSurfaceBinding();
+        void BindFader(uint fader_index, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action);
+
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);
-
-        void LoadConfig();
 
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;
         uint8_t surfacePacketBuffer[SURFACE_MAX_PACKET_LENGTH][6];
         char surfaceBufferUart[256]; // buffer for UART-readings
         uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
-        void ProcessUartData();
-
-        void Blink();
+        void ProcessUartDataSurface();
+        void ProcessUartDataAdda();
+        void ProcessUartDataAES50();
 
     public:
+
         X32Ctrl(X32BaseParameter* basepar);
         void Init();
-        void SaveConfig();
         void writeConfigEntry(Mixerparameter *const &parameter, uint index);
         void Tick10ms(void);
         void Tick50ms(void);
         void Tick100ms(void);
-        void ProcessEventsRaw(SurfaceEvent* event);
+        void ProcessSurfaceEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
 
         void InitPagesAndGUI();
