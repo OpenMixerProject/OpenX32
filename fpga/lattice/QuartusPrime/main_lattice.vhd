@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Thu Mar  5 23:57:40 2026"
+-- CREATED		"Sat Mar  7 23:25:09 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -416,6 +416,7 @@ COMPONENT aes50_top
 		 wclk_readback_i : IN STD_LOGIC;
 		 bclk_readback_i : IN STD_LOGIC;
 		 i2s_i : IN STD_LOGIC;
+		 uart_i : IN STD_LOGIC;
 		 aes_clk_ok_counter_reference_i : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
 		 debug_out_signal_pulse_len_i : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
 		 first_transmit_start_counter_44k1_i : IN STD_LOGIC_VECTOR(22 DOWNTO 0);
@@ -586,7 +587,6 @@ SIGNAL	SYNTHESIZED_WIRE_60 :  STD_LOGIC_VECTOR(14 DOWNTO 0);
 
 
 BEGIN 
-imx25_uart4_rxd <= imx25_uart4_txd;
 DA_TX <= imx25_uart3_txd;
 AD0_TX <= imx25_uart3_txd;
 AD1_TX <= imx25_uart3_txd;
@@ -595,6 +595,7 @@ SPI_MISO <= SPI_MOSI;
 aes50a_clk_a_rx_nen_out <= '0';
 aes50a_clk_b_rx_nen_out <= '0';
 SYNTHESIZED_WIRE_11 <= '0';
+SYNTHESIZED_WIRE_16 <= '0';
 SYNTHESIZED_WIRE_48 <= '0';
 SYNTHESIZED_WIRE_49 <= '0';
 SYNTHESIZED_WIRE_50 <= '0';
@@ -760,7 +761,6 @@ PORT MAP(bclk => clk_12_288MHz,
 		 ch8_out => SYNTHESIZED_WIRE_39);
 
 
-SYNTHESIZED_WIRE_16 <= aes50a_tdm_out(6);
 
 
 
@@ -960,6 +960,7 @@ PORT MAP(clk50_i => clk_50MHz,
 		 wclk_readback_i => tdm_fs,
 		 bclk_readback_i => clk_12_288MHz,
 		 i2s_i => SYNTHESIZED_WIRE_51,
+		 uart_i => imx25_uart4_txd,
 		 aes_clk_ok_counter_reference_i => SYNTHESIZED_WIRE_52,
 		 debug_out_signal_pulse_len_i => SYNTHESIZED_WIRE_53,
 		 first_transmit_start_counter_44k1_i => SYNTHESIZED_WIRE_54,
@@ -1030,8 +1031,9 @@ PORT MAP(bclk => clk_12_288MHz,
 		 tdm_out => tdm_output);
 
 clk_16MHz <= fpgaclk;
-AD0_MCLK <= clk_12_288MHz;
+imx25_uart4_rxd <= aes50a_uart_tx;
 clk_49_152MHz <= PLL_OUT;
+AD0_MCLK <= clk_12_288MHz;
 AD0_BCLK <= clk_12_288MHz;
 AD0_FSYNC <= tdm_fs;
 AD1_MCLK <= clk_12_288MHz;

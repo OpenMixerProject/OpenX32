@@ -99,8 +99,8 @@ class X32Ctrl : public X32Base
         char surfaceBufferUart[256]; // buffer for UART-readings
         uint8_t receivedBoardId = 0; // BoardID from last received surface event, needed for short messages!
         void ProcessUartDataSurface();
-
         void ProcessUartDataAdda();
+        void ProcessUartDataAES50();
 
     public:
         X32Ctrl(X32BaseParameter* basepar);

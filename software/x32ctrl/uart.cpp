@@ -29,22 +29,6 @@ Uart::Uart(X32BaseParameter* basepar): X32Base(basepar) {}
 
 
 
-// incoming message has the form: 0xFE 0x8i Class Index Data[] 0xFE
-// Checksum is calculated using the following equation:
-// chksum = ( 0xFE - i - class - index - sumof(data[]) - sizeof(data[]) ) and 0x7F
-uint8_t Uart::calculateChecksum(const char* data, uint16_t len) {
-  // a single message can contain up to max. 64 chars
-  int32_t sum = 0xFE;
-  for (uint8_t i = 0; i < (len-1); i++) {
-    sum -= data[i];
-  }
-  sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
-
-  // write the calculated sum to the last element of the array
-  return (sum & 0x7F);
-}
-
-
 int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
     
     if (state->bodyless && !state->bodyless_with_surface_and_adda)
@@ -145,10 +129,7 @@ int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
     return 0;
 }
 
-int Uart::TxRaw(MessageBase* message) {
-
-
-
+int Uart::Tx(MessageBase* message) {
     if (fd < 0) {
         fprintf(stderr, "Error: Problem on opening serial port\n");
         return -1;
@@ -179,33 +160,7 @@ int Uart::TxRaw(MessageBase* message) {
     return bytes_written;
 }
 
-int Uart::Tx(MessageBase* message, bool addChecksum) {
-    if (fd < 0) {
-        fprintf(stderr, "Error: Problem on opening serial port\n");
-        return -1;
-    }
-
-    message->AddRawByte(0xFE); // Endbyte
-
-    if (addChecksum) {
-        char checksum = 0;
-        if (message->current_length >= 2) { // at least start- and end-byte
-            checksum = calculateChecksum(message->buffer, message->current_length);
-        }
-
-        // add checksum to message and send data via serial-port
-        message->AddRawByte(checksum);
-    }
-
-    return TxRaw(message);
-}
-
-
-
 int Uart::Rx(char* buf, uint16_t bufLen) {
-
-
-
     int bytesRead;
     int bytesAvailable;
     int bytesToRead;
@@ -253,35 +208,7 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 	return 0;
 }
 
-int Uart::TxToFPGA(uint16_t cmd, data_64b* data) {
-  uint8_t serialData[14];
-  uint16_t ErrorCheckWord;
-
-  ErrorCheckWord = 0;
-  for (uint8_t i=0; i<8; i++) {
-    ErrorCheckWord += data->u8[i];
-  }
-
-  serialData[0] = '*';  // * = begin of command
-  serialData[1] = (cmd >> 8);  // MSB of 16-bit cmd
-  serialData[2] = cmd;         // LSB of 16-bit cmd
-  serialData[3] = data->u8[7]; // MSB of 64-bit payload
-  serialData[4] = data->u8[6];
-  serialData[5] = data->u8[5];
-  serialData[6] = data->u8[4];
-  serialData[7] = data->u8[3];
-  serialData[8] = data->u8[2];
-  serialData[9] = data->u8[1];
-  serialData[10] = data->u8[0]; // LSB of payload
-  serialData[11] = (ErrorCheckWord >> 8); // MSB
-  serialData[12] = ErrorCheckWord; // LSB
-  serialData[13] = '#';  // # = end of command
-
-  MessageBase message;
-
-  for (uint8_t i=0; i<14; i++) {
-      message.AddRawByte(serialData[i]);
-  }
-
-  return TxRaw(&message);
+void Uart::FlushRxBuffer() {
+    char buf;
+	while (Rx(&buf, 1) > 0);
 }

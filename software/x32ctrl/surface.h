@@ -44,6 +44,9 @@ class Surface : public X32Base
         uint8_t GetBoardId(uint8_t faderindex);
         uint8_t GetFaderId(uint8_t faderindex);
 
+        uint8_t calculateChecksum(const char* data, uint16_t len);
+        int SendData(MessageBase* message, bool addChecksum);
+
     public:
         Surface(X32BaseParameter* basepar);
         Uart* uart;

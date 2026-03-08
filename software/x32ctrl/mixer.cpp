@@ -32,6 +32,8 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Mixer::Init() {
+    helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "fpga->Init()");
+    fpga->Init();
 
     helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "dsp->Init()");
     dsp->Init();

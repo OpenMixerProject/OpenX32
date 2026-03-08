@@ -260,6 +260,9 @@ void X32Ctrl::Tick10ms(void){
 	// read incoming data from adda-boards and expansion-card
 	ProcessUartDataAdda();
 
+	// read incoming data from AES50 devices
+	ProcessUartDataAES50();
+
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
 	//UdpHandleCommunication();
 
@@ -331,6 +334,10 @@ void X32Ctrl::ProcessUartDataAdda() {
 			mixer->card->ProcessCommand(newCommand);
 		}
 	}
+}
+
+void X32Ctrl::ProcessUartDataAES50() {
+	mixer->fpga->AES50Receive(true);
 }
 
 //#####################################################################################################################

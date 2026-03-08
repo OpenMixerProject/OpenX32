@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include "WString.h"
 #include "base.h"
+#include "uart.h"
+#include "message-base.h"
 #include "spi.h"
 
 #define FPGA_MAX_PACKET_LENGTH 32
@@ -19,6 +21,7 @@ class Fpga : public X32Base
         SPI* spi;
 
         Fpga(X32BaseParameter* basepar);
+        void Init();
 
         uint8_t GetInputIndex(uint8_t group, uint8_t channel);
         uint8_t GetOutputIndex(uint8_t group, uint8_t channel);
@@ -37,6 +40,11 @@ class Fpga : public X32Base
         void SetConfigBit(uint8_t bitNumber, bool value);
         void SendConfig(void);
     
+        void AES50Receive(bool mirrorDataBackToAES50Device);
+        void AES50Send(char* data, uint len);
+
     private:
+        Uart* uart;
+        char fpgaBufferUart[256];
         uint8_t configData;
 };

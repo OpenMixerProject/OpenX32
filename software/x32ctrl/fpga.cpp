@@ -25,6 +25,8 @@
 #include "fpga.h"
 
 Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
+	uart = new Uart(basepar);
+
 	spi = new SPI(basepar);
 
 	if (!state->bodyless) {
@@ -36,6 +38,27 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 
 	configData = 0b00000011; // set AES50 to sys_mode 01 = AES50 Master and TDM Master and enable AES50 on Port A
 	SendConfig();
+}
+
+void Fpga::Init() {
+	const uint16_t speed = 38400;
+	String serial;
+	
+	if (state->bodyless) {
+		serial = "/tmp/ttyLocalFpga";
+	}
+	else if (state->raspi)
+	{
+		//serial = "/dev/ttymxc3";
+		return;
+	}
+	else
+	{
+		serial = "/dev/ttymxc3";	
+	}
+
+	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial.c_str(), speed);
+	uart->Open(serial.c_str(), speed, true);
 }
 
 // get the absolute input-source (global channel-number)
@@ -368,4 +391,43 @@ void Fpga::SendConfig(void) {
 		// FPGA is sending the same data back to the i.MX25 at the moment so check the received values against the sent values
 		helper->Error("FPGA-ConfigBits: Received values (0x%02x 0x%02x) does not match the sent values (0x%02x 0x%02x)\n", rxData[0], rxData[1], txData[0], txData[1]);
 	}
+}
+
+void Fpga::AES50Receive(bool mirrorDataBackToAES50Device) {
+	uint readBytes = uart->Rx(&fpgaBufferUart[0], sizeof(fpgaBufferUart));
+	
+	// TODO: do something with this data
+	
+	/*
+	The protocol looks like this:
+	0x10 66 62 30 20 20 5E
+	16 ASCII-Chars for Device-Name
+	48x 0x02 + 7 ASCII-Chars
+
+	0x05 04 B3 C1 20 20 5E
+	8 ASCII-Chars for Device-Name + 0x00
+	*/
+
+	if (mirrorDataBackToAES50Device) {
+		// send data right back to the AES50-device
+		AES50Send(&fpgaBufferUart[0], readBytes);
+	}
+}
+
+void Fpga::AES50Send(char* data, uint len) {
+	MessageBase* message = new MessageBase();
+
+	message->AddDataArray(data, len);
+
+	if (helper->DEBUG_FPGA(DEBUGLEVEL_TRACE)) {
+		printf("DEBUG_FPGA: Transmit: ");
+    	for (int i =0; i < message->current_length; i++){
+        	printf("%c", message->buffer[i]);
+    	}
+    	printf("\n");
+	}
+
+	uart->Tx(message);
+
+	delete(message);
 }

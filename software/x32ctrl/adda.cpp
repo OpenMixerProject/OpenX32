@@ -258,7 +258,7 @@ void Adda::Send(String cmd) {
     	printf("\n");
 	}
 
-	uart->TxRaw(message);
+	uart->Tx(message);
 
 	delete(message);
 }
@@ -430,7 +430,7 @@ String Adda::SendReceive(String cmd) {
 
 void Adda::FlushRxBuffer() {
 	// flush receivebuffer
-	while (uart->Rx(&addaBufferUart[0], 1) > 0);
+	uart->FlushRxBuffer();
 }
 
 // Mute all ADDA boards
