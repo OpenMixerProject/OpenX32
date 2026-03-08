@@ -23,17 +23,30 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_color;
     lv_obj_t *maintab;
     lv_obj_t *hometab;
-    lv_obj_t *warning;
-    lv_obj_t *openx32logo_1;
-    lv_obj_t *warning_1;
-    lv_obj_t *warning_2;
+    lv_obj_t *home_channelstrip_1;
     lv_obj_t *home_ch_1;
+    lv_obj_t *home_vumeter_1;
+    lv_obj_t *obj0;
+    lv_obj_t *home_channelstrip_2;
     lv_obj_t *home_ch_2;
+    lv_obj_t *home_vumeter_2;
+    lv_obj_t *obj1;
+    lv_obj_t *home_channelstrip_3;
     lv_obj_t *home_ch_3;
+    lv_obj_t *home_vumeter_3;
+    lv_obj_t *obj2;
+    lv_obj_t *home_channelstrip_4;
     lv_obj_t *home_ch_4;
+    lv_obj_t *home_vumeter_4;
+    lv_obj_t *obj3;
+    lv_obj_t *home_channelstrip_5;
     lv_obj_t *home_ch_5;
+    lv_obj_t *home_vumeter_5;
+    lv_obj_t *obj4;
+    lv_obj_t *home_channelstrip_6;
     lv_obj_t *home_ch_6;
-    lv_obj_t *bodyless_instructions;
+    lv_obj_t *home_vumeter_6;
+    lv_obj_t *obj5;
     lv_obj_t *configtab;
     lv_obj_t *current_channel_source_1;
     lv_obj_t *config_vumeter;
@@ -48,7 +61,7 @@ typedef struct _objects_t {
     lv_obj_t *config_mute_checkbox;
     lv_obj_t *current_channel_gain;
     lv_obj_t *openx32_demo_knob;
-    lv_obj_t *obj0;
+    lv_obj_t *obj6;
     lv_obj_t *config_phantom_button;
     lv_obj_t *current_channel_gate;
     lv_obj_t *current_channel_comp;
@@ -722,7 +735,7 @@ typedef struct _objects_t {
     lv_obj_t *ms_main_lr__fader;
     lv_obj_t *ms_main_lr__obj0;
     lv_obj_t *configtab_1;
-    lv_obj_t *obj1;
+    lv_obj_t *obj7;
     lv_obj_t *rta_chart;
     lv_obj_t *routingtab;
     lv_obj_t *hw_inputs;
@@ -796,12 +809,6 @@ extern objects_t objects;
 void create_screen_main();
 void tick_screen_main();
 
-void create_user_widget_8meters(lv_obj_t *parent_obj, int startWidgetIndex);
-void tick_user_widget_8meters(int startWidgetIndex);
-
-void create_user_widget_meter_strip(lv_obj_t *parent_obj, int startWidgetIndex);
-void tick_user_widget_meter_strip(int startWidgetIndex);
-
 void create_user_widget_ms_bar(lv_obj_t *parent_obj, int startWidgetIndex);
 void tick_user_widget_ms_bar(int startWidgetIndex);
 
@@ -810,9 +817,6 @@ void tick_user_widget_ms_bar8(int startWidgetIndex);
 
 void create_user_widget_config_slider_display_encoder(lv_obj_t *parent_obj, int startWidgetIndex);
 void tick_user_widget_config_slider_display_encoder(int startWidgetIndex);
-
-void create_user_widget_config_slider(lv_obj_t *parent_obj, int startWidgetIndex);
-void tick_user_widget_config_slider(int startWidgetIndex);
 
 void create_user_widget_widget_fx(lv_obj_t *parent_obj, int startWidgetIndex);
 void tick_user_widget_widget_fx(int startWidgetIndex);

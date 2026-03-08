@@ -166,9 +166,6 @@ void guiInit(Config* config) {
 
 	if (state->bodyless)
 	{
-		// Show keymapping for bodyless mode
-		lv_obj_set_flag(objects.bodyless_instructions, LV_OBJ_FLAG_HIDDEN, false);
-
 		#ifdef BODYLESS_SDL2
 		uint32_t idle_time;
 

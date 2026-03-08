@@ -6,6 +6,17 @@ class PageHome : public Page
 {
     using enum MP_ID;
 
+    private:
+
+        lv_obj_t* vumeters[6] = {
+            objects.home_vumeter_1,
+            objects.home_vumeter_2,
+            objects.home_vumeter_3,
+            objects.home_vumeter_4,
+            objects.home_vumeter_5,
+            objects.home_vumeter_6
+        };
+
     public:
 
         PageHome(PageBaseParameter* pagebasepar) : Page(pagebasepar)
@@ -38,6 +49,16 @@ class PageHome : public Page
                 lv_label_set_text(objects.home_ch_4, config->GetString(CHANNEL_NAME, 3).c_str());
                 lv_label_set_text(objects.home_ch_5, config->GetString(CHANNEL_NAME, 4).c_str());
                 lv_label_set_text(objects.home_ch_6, config->GetString(CHANNEL_NAME, 5).c_str());
+            }
+        }
+
+        void OnUpdateMeters() override
+        {
+            for (uint i = 0; i < MAX_DISPLAY_ENCODER; i++)
+            {
+                float dbValue = helper->sample2Dbfs(mixer->dsp->rChannel[i].meterDecay);
+                uint imageOffset = helper->rescale(dbValue, -100.0f, 10.0f, 0.0f, 31.0f);
+                lv_image_set_offset_x(vumeters[i], imageOffset * -lv_obj_get_width(vumeters[i]));
             }
         }
 };
