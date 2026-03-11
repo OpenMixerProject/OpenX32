@@ -1,30 +1,36 @@
-# clock from external PLL (49.152 MHz)
-create_clock -period 20.345 main_lattice|PLL_OUT
+# Caution: this SDC-file is interpreted by Synplify Pro only
+# for the Place and Route performed by Lattice Diamond we have to define more timing-settings in the LPF-file
 
-# clock for AES50-logic (75 MHz, 80MHz, 90MHz or 100MHz)
-#create_clock -period 13.33 clk_100MHz
-#create_clock -period 12.5 clk_100MHz
-#create_clock -period 11.0 clk_100MHz
-create_clock -period 10.0 clk_100MHz
+# define the clocks from external hardware
+create_clock -name {clk_16MHz} -period 62.5 [get_ports {fpgaclk}]
+create_clock -name {clk_49_152MHz} -period 20.3450520834 [get_ports {PLL_OUT}]
 
-# clock for EthernetPHY (50 MHz)
-create_clock -period 20.00 clk_50MHz
+# define inferred clocks from PLLs
+create_clock -name {clk_100MHz} -period 10.0 [get_pins {b2v_inst74.PLLInst_0.CLKOP}]
+create_clock -name {clk_50MHz} -period 20.0 [get_pins {b2v_inst74.PLLInst_0.CLKOS2}]
+create_clock -name {clk_24_576MHz} -period 40.690104167 [get_pins {b2v_inst28.PLLInst_0.CLKOP}]
+create_clock -name {clk_12_288MHz} -period 81.38020834 [get_pins {b2v_inst28.PLLInst_0.CLKOS}]
 
-# maximum delay between 50MHz and 100MHz clock
-#set_max_delay -from clk_100MHz -to clk_50MHz -datapath_only 13.33
-#set_max_delay -from clk_50MHz -to clk_100MHz -datapath_only 13.33
-#set_max_delay -from clk_100MHz -to clk_50MHz -datapath_only 12.5
-#set_max_delay -from clk_50MHz -to clk_100MHz -datapath_only 12.5
-#set_max_delay -from clk_100MHz -to clk_50MHz -datapath_only 11.0
-#set_max_delay -from clk_50MHz -to clk_100MHz -datapath_only 11.0
-set_max_delay -from clk_100MHz -to clk_50MHz -datapath_only 10.0
+# if logic is used to generate sub-clocks, use the following line
+#create_generated_clock -name {clk_100MHz} -source {get_ports {fpgaclk}} -multiply_by 25 -divide_by 4 [get_pins {b2v_inst74.PLLInst_0.CLKOP}]
+#create_generated_clock -name {clk_50MHz} -source {get_ports {fpgaclk}} -multiply_by 25 -divide_by 8 [get_pins {b2v_inst74.PLLInst_0.CLKOS}]
+#create_generated_clock -name {clk_24_576MHz} -source {get_ports {PLL_OUT}} -divide_by 2 [get_pins {b2v_inst28.PLLInst_0.CLKOP}]
+#create_generated_clock -name {clk_12_288MHz} -source {get_ports {PLL_OUT}} -divide_by 4 [get_pins {b2v_inst28.PLLInst_0.CLKOS}]
+
+# define maximum delay between 50MHz and 100MHz clocks
 set_max_delay -from clk_50MHz -to clk_100MHz -datapath_only 10.0
+set_max_delay -from clk_100MHz -to clk_50MHz -datapath_only 10.0
 
-# unused clocks
-#create_clock -period 10.00 lattice_pll|CLKOS_inferred_clock
-#create_clock -period 20.00 lattice_pll|CLKOS2_inferred_clock
-#create_clock -period 40.00 lattice_pll_audio|CLKOP_inferred_clock
-#create_clock -period 80.00 lattice_pll_audio|CLKOS_inferred_clock
+# define setup-and-hold-time for the 50MHz clock
+set_output_delay -clock [get_clocks clk_50MHz] -max 12.0 [get_ports {aes50a_rmii_clk_out aes50a_rmii_tx_en_out aes50a_rmii_txd_0_out aes50a_rmii_txd_1_out}]
+set_output_delay -clock [get_clocks clk_50MHz] -min 8.0 [get_ports {aes50a_rmii_clk_out aes50a_rmii_tx_en_out aes50a_rmii_txd_0_out aes50a_rmii_txd_1_out}]
 
-#set_max_delay -from lattice_pll|CLKOS_inferred_clock -to lattice_pll|CLKOS2_inferred_clock -datapath_only 10.0
-#set_max_delay -from lattice_pll|CLKOS2_inferred_clock -to lattice_pll|CLKOS_inferred_clock -datapath_only 10.0
+# define groups
+#set_clock_groups -asynchronous -group {clk_100MHz clk_50MHz} -group {clk_audio_op clk_audio_os} -group {clk_16MHz}
+set_clock_groups -asynchronous \
+    -group {clk_100MHz} \
+    -group {clk_50MHz} \
+    -group {clk_24_576MHz} \
+    -group {clk_12_288MHz} \
+    -group {clk_16MHz} \
+	-group {clk_49_152MHz}

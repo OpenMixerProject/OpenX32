@@ -112,30 +112,6 @@
                     </spirit:vendorExtensions>
                 </spirit:port>
                 <spirit:port>
-                    <spirit:name>aes50_rmii_txd_refclk</spirit:name>
-                    <spirit:displayName>aes50_rmii_txd_refclk</spirit:displayName>
-                    <spirit:wire>
-                        <spirit:direction>in</spirit:direction>
-                    </spirit:wire>
-                    <spirit:vendorExtensions>
-                        <lattice:attributes>
-                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.refclk</lattice:attribute>
-                        </lattice:attributes>
-                    </spirit:vendorExtensions>
-                </spirit:port>
-                <spirit:port>
-                    <spirit:name>aes50_rmii_txd_reset</spirit:name>
-                    <spirit:displayName>aes50_rmii_txd_reset</spirit:displayName>
-                    <spirit:wire>
-                        <spirit:direction>in</spirit:direction>
-                    </spirit:wire>
-                    <spirit:vendorExtensions>
-                        <lattice:attributes>
-                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.reset</lattice:attribute>
-                        </lattice:attributes>
-                    </spirit:vendorExtensions>
-                </spirit:port>
-                <spirit:port>
                     <spirit:name>lattice_pll_CLKI</spirit:name>
                     <spirit:displayName>lattice_pll_CLKI</spirit:displayName>
                     <spirit:wire>
@@ -168,6 +144,18 @@
                     <spirit:vendorExtensions>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="exportFrom">lattice_pll.CLKOS</lattice:attribute>
+                        </lattice:attributes>
+                    </spirit:vendorExtensions>
+                </spirit:port>
+                <spirit:port>
+                    <spirit:name>lattice_pll_CLKOS2</spirit:name>
+                    <spirit:displayName>lattice_pll_CLKOS2</spirit:displayName>
+                    <spirit:wire>
+                        <spirit:direction>out</spirit:direction>
+                    </spirit:wire>
+                    <spirit:vendorExtensions>
+                        <lattice:attributes>
+                            <lattice:attribute lattice:name="exportFrom">lattice_pll.CLKOS2</lattice:attribute>
                         </lattice:attributes>
                     </spirit:vendorExtensions>
                 </spirit:port>
@@ -344,22 +332,6 @@
                     </spirit:vendorExtensions>
                 </spirit:port>
                 <spirit:port>
-                    <spirit:name>aes50_rmii_txd_data</spirit:name>
-                    <spirit:displayName>aes50_rmii_txd_data</spirit:displayName>
-                    <spirit:wire>
-                        <spirit:direction>in</spirit:direction>
-                        <spirit:vector>
-                            <spirit:left>2</spirit:left>
-                            <spirit:right>0</spirit:right>
-                        </spirit:vector>
-                    </spirit:wire>
-                    <spirit:vendorExtensions>
-                        <lattice:attributes>
-                            <lattice:attribute lattice:name="exportFrom">aes50_rmii_txd.data</lattice:attribute>
-                        </lattice:attributes>
-                    </spirit:vendorExtensions>
-                </spirit:port>
-                <spirit:port>
                     <spirit:name>aes50_rmii_txd_dout</spirit:name>
                     <spirit:displayName>aes50_rmii_txd_dout</spirit:displayName>
                     <spirit:wire>
@@ -381,7 +353,7 @@
             <lattice:device>LFE5U-25F-6BG381C</lattice:device>
             <lattice:synthesis>synplify</lattice:synthesis>
             <lattice:date>2026-01-04.19:33:32</lattice:date>
-            <lattice:modified>2026-02-26.22:44:25</lattice:modified>
+            <lattice:modified>2026-03-10.22:43:10</lattice:modified>
             <lattice:diamond>3.14.0.75.2</lattice:diamond>
             <lattice:language>Verilog</lattice:language>
             <lattice:attributes>
@@ -513,7 +485,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
+                        <lattice:modified>2026-03-10.22:43:10</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -640,7 +612,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Date</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">02/23/2026</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">03/10/2026</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>ModuleName</lattice:lpckey>
@@ -656,7 +628,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Time</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">11:08:40</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">21:53:43</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VendorName</lattice:lpckey>
@@ -984,7 +956,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
+                        <lattice:modified>2026-03-10.22:43:10</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1052,7 +1024,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Date</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">02/25/2026</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">03/10/2026</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>ModuleName</lattice:lpckey>
@@ -1068,7 +1040,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Time</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">23:53:48</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">22:43:06</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VendorName</lattice:lpckey>
@@ -1252,7 +1224,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
+                        <lattice:modified>2026-03-10.22:43:10</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1491,6 +1463,13 @@
                                 </spirit:wire>
                             </spirit:port>
                             <spirit:port>
+                                <spirit:name>CLKOS2</spirit:name>
+                                <spirit:displayName>CLKOS2</spirit:displayName>
+                                <spirit:wire>
+                                    <spirit:direction>out</spirit:direction>
+                                </spirit:wire>
+                            </spirit:port>
+                            <spirit:port>
                                 <spirit:name>RST</spirit:name>
                                 <spirit:displayName>RST</spirit:displayName>
                                 <spirit:wire>
@@ -1501,7 +1480,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
+                        <lattice:modified>2026-03-10.22:43:10</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -1569,7 +1548,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Date</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">02/26/2026</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">03/09/2026</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>ModuleName</lattice:lpckey>
@@ -1585,7 +1564,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>Time</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">22:43:40</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">22:53:26</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VendorName</lattice:lpckey>
@@ -1594,11 +1573,11 @@
                             <lattice:lpcsection lattice:name="Parameters"/>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKFB_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">25</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">5</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKI_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">2</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKI_FREQ</lattice:lpckey>
@@ -1606,7 +1585,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_ACTUAL_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">200.000000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">100.000000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_APHASE</lattice:lpckey>
@@ -1614,7 +1593,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">3</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">8</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_DPHASE</lattice:lpckey>
@@ -1622,7 +1601,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">200</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">100</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOP_MUXA</lattice:lpckey>
@@ -1642,7 +1621,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_ACTUAL_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">0.000000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">50.000000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_APHASE</lattice:lpckey>
@@ -1650,7 +1629,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">1</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">16</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_DPHASE</lattice:lpckey>
@@ -1658,7 +1637,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_Enable</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">DISABLED</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">ENABLED</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS2_FREQ</lattice:lpckey>
@@ -1722,7 +1701,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_ACTUAL_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">100.000000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">80.000000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_APHASE</lattice:lpckey>
@@ -1730,7 +1709,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_DIV</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">6</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">10</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_DPHASE</lattice:lpckey>
@@ -1742,7 +1721,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_FREQ</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">100</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">80</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>CLKOS_MUXB</lattice:lpckey>
@@ -1802,7 +1781,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>FEEDBK_PATH</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">CLKOP</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">CLKOS</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>FRACN_DIV</lattice:lpckey>
@@ -1830,7 +1809,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>PLL_BW</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">0.917</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">1.833</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>PLL_LOCK_MODE</lattice:lpckey>
@@ -1854,7 +1833,7 @@
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VCO_RATE</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">600.000</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">800.000</lattice:lpcvalue>
                             </lattice:lpcentry>
                             <lattice:lpcentry>
                                 <lattice:lpckey>VHDL</lattice:lpckey>
@@ -1867,7 +1846,7 @@
                             <lattice:lpcsection lattice:name="Command"/>
                             <lattice:lpcentry>
                                 <lattice:lpckey>cmd_line</lattice:lpckey>
-                                <lattice:lpcvalue lattice:resolve="constant">-w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 100 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1</lattice:lpcvalue>
+                                <lattice:lpcvalue lattice:resolve="constant">-w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 100 -fclkop_tol 0.0 -phasep 0 -fclkos 80 -fclkos_tol 0.0 -fclkos2 50 -fclkos2_tol 0.0 -phases2 0 -phase_cntl STATIC -rst -fb_mode 2</lattice:lpcvalue>
                             </lattice:lpcentry>
                         </lattice:lpc>
                         <lattice:groups/>
@@ -1954,7 +1933,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
+                        <lattice:modified>2026-03-10.22:43:10</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -2407,7 +2386,7 @@
                     </spirit:model>
                     <spirit:vendorExtensions>
                         <lattice:synthesis>synplify</lattice:synthesis>
-                        <lattice:modified>2026-02-26.22:44:25</lattice:modified>
+                        <lattice:modified>2026-03-10.22:43:10</lattice:modified>
                         <lattice:attributes>
                             <lattice:attribute lattice:name="AddComponent">false</lattice:attribute>
                             <lattice:attribute lattice:name="BBox">false</lattice:attribute>
@@ -2840,18 +2819,6 @@
                 <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_clkout"/>
             </spirit:adHocConnection>
             <spirit:adHocConnection>
-                <spirit:name>aes50_rmii_txd_refclk</spirit:name>
-                <spirit:displayName>aes50_rmii_txd_refclk</spirit:displayName>
-                <spirit:internalPortReference spirit:portRef="refclk" spirit:componentRef="aes50_rmii_txd"/>
-                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_refclk"/>
-            </spirit:adHocConnection>
-            <spirit:adHocConnection>
-                <spirit:name>aes50_rmii_txd_reset</spirit:name>
-                <spirit:displayName>aes50_rmii_txd_reset</spirit:displayName>
-                <spirit:internalPortReference spirit:portRef="reset" spirit:componentRef="aes50_rmii_txd"/>
-                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_reset"/>
-            </spirit:adHocConnection>
-            <spirit:adHocConnection>
                 <spirit:name>lattice_pll_CLKI</spirit:name>
                 <spirit:displayName>lattice_pll_CLKI</spirit:displayName>
                 <spirit:internalPortReference spirit:portRef="CLKI" spirit:componentRef="lattice_pll"/>
@@ -2868,6 +2835,12 @@
                 <spirit:displayName>lattice_pll_CLKOS</spirit:displayName>
                 <spirit:internalPortReference spirit:portRef="CLKOS" spirit:componentRef="lattice_pll"/>
                 <spirit:externalPortReference spirit:portRef="lattice_pll_CLKOS"/>
+            </spirit:adHocConnection>
+            <spirit:adHocConnection>
+                <spirit:name>lattice_pll_CLKOS2</spirit:name>
+                <spirit:displayName>lattice_pll_CLKOS2</spirit:displayName>
+                <spirit:internalPortReference spirit:portRef="CLKOS2" spirit:componentRef="lattice_pll"/>
+                <spirit:externalPortReference spirit:portRef="lattice_pll_CLKOS2"/>
             </spirit:adHocConnection>
             <spirit:adHocConnection>
                 <spirit:name>lattice_pll_RST</spirit:name>
@@ -3030,30 +3003,6 @@
                 <spirit:displayName>aes50_rmii_rxd_q[2]</spirit:displayName>
                 <spirit:internalPortReference spirit:portRef="q[2]" spirit:componentRef="aes50_rmii_rxd"/>
                 <spirit:externalPortReference spirit:portRef="aes50_rmii_rxd_q[2]"/>
-            </spirit:adHocConnection>
-            <spirit:adHocConnection>
-                <spirit:name>aes50_rmii_txd_data</spirit:name>
-                <spirit:displayName>aes50_rmii_txd_data</spirit:displayName>
-                <spirit:internalPortReference spirit:right="0" spirit:portRef="data" spirit:componentRef="aes50_rmii_txd" spirit:left="2"/>
-                <spirit:externalPortReference spirit:right="0" spirit:portRef="aes50_rmii_txd_data" spirit:left="2"/>
-            </spirit:adHocConnection>
-            <spirit:adHocConnection>
-                <spirit:name>aes50_rmii_txd_data[0]</spirit:name>
-                <spirit:displayName>aes50_rmii_txd_data[0]</spirit:displayName>
-                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_data[0]"/>
-                <spirit:internalPortReference spirit:portRef="data[0]" spirit:componentRef="aes50_rmii_txd"/>
-            </spirit:adHocConnection>
-            <spirit:adHocConnection>
-                <spirit:name>aes50_rmii_txd_data[1]</spirit:name>
-                <spirit:displayName>aes50_rmii_txd_data[1]</spirit:displayName>
-                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_data[1]"/>
-                <spirit:internalPortReference spirit:portRef="data[1]" spirit:componentRef="aes50_rmii_txd"/>
-            </spirit:adHocConnection>
-            <spirit:adHocConnection>
-                <spirit:name>aes50_rmii_txd_data[2]</spirit:name>
-                <spirit:displayName>aes50_rmii_txd_data[2]</spirit:displayName>
-                <spirit:externalPortReference spirit:portRef="aes50_rmii_txd_data[2]"/>
-                <spirit:internalPortReference spirit:portRef="data[2]" spirit:componentRef="aes50_rmii_txd"/>
             </spirit:adHocConnection>
             <spirit:adHocConnection>
                 <spirit:name>aes50_rmii_txd_dout</spirit:name>

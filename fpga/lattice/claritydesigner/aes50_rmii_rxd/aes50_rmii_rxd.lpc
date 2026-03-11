@@ -16,8 +16,8 @@ CoreRevision=6.0
 ModuleName=aes50_rmii_rxd
 SourceFormat=verilog
 ParameterFileVersion=1.0
-Date=02/25/2026
-Time=23:53:48
+Date=03/10/2026
+Time=22:43:06
 
 [Parameters]
 Verilog=1

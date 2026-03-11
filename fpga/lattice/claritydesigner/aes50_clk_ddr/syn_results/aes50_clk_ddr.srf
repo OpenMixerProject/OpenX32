@@ -3,7 +3,7 @@
 #OS: Windows 10 or later
 #Hostname: K4TECHNIK
 
-# Mon Feb 23 11:08:43 2026
+# Tue Mar 10 21:53:53 2026
 
 #Implementation: syn_results
 
@@ -249,33 +249,33 @@ Only the first 100 messages of id 'CG100' are reported. To see all messages use 
 @I::"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\pmi_def.v" (library work)
 @I::"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v" (library work)
 Verilog syntax check successful!
-Options changed - recompiling
+File O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v changed - recompiling
 Selecting top level module aes50_clk_ddr
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":1646:7:1646:13|Synthesizing module ODDRX1F in library work.
 Running optimization stage 1 on ODDRX1F .......
-Finished optimization stage 1 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+Finished optimization stage 1 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":761:7:761:9|Synthesizing module VLO in library work.
 Running optimization stage 1 on VLO .......
-Finished optimization stage 1 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+Finished optimization stage 1 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":757:7:757:9|Synthesizing module VHI in library work.
 Running optimization stage 1 on VHI .......
-Finished optimization stage 1 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+Finished optimization stage 1 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":591:7:591:8|Synthesizing module OB in library work.
 Running optimization stage 1 on OB .......
-Finished optimization stage 1 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 1 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v":8:7:8:19|Synthesizing module aes50_clk_ddr in library work.
 Running optimization stage 1 on aes50_clk_ddr .......
-Finished optimization stage 1 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 1 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 97MB peak: 99MB)
 Running optimization stage 2 on aes50_clk_ddr .......
-Finished optimization stage 2 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on OB .......
-Finished optimization stage 2 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on VHI .......
-Finished optimization stage 2 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on VLO .......
-Finished optimization stage 2 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on ODDRX1F .......
-Finished optimization stage 2 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 
 For a summary of runtime per design unit, please see file:
 ==========================================================
@@ -283,12 +283,12 @@ For a summary of runtime per design unit, please see file:
 
 
 
-At c_ver Exit (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:01s; Memory used current: 96MB peak: 97MB)
+At c_ver Exit (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:04s; Memory used current: 97MB peak: 99MB)
 
-Process took 0h:00m:03s realtime, 0h:00m:01s cputime
+Process took 0h:00m:06s realtime, 0h:00m:04s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:47 2026
+# Tue Mar 10 21:54:00 2026
 
 ###########################################################]
 ###########################################################[
@@ -308,14 +308,14 @@ Implementation : syn_results
 Synopsys Synopsys Netlist Linker, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
 
 @N|Running in 64-bit mode
-File O:\fpga\lattice\pll\aes50_clk_ddr\syn_results\synwork\layer0.srs changed - recompiling
+File O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synwork\layer0.srs changed - recompiling
 
-At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 92MB)
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 94MB)
 
 Process took 0h:00m:01s realtime, 0h:00m:01s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:48 2026
+# Tue Mar 10 21:54:01 2026
 
 ###########################################################]
 
@@ -325,12 +325,12 @@ For a summary of runtime and memory usage for all design units, please see file:
 
 @END
 
-At c_hdl Exit (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:01s; Memory used current: 24MB peak: 24MB)
+At c_hdl Exit (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:05s; Memory used current: 24MB peak: 26MB)
 
-Process took 0h:00m:04s realtime, 0h:00m:01s cputime
+Process took 0h:00m:07s realtime, 0h:00m:05s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:48 2026
+# Tue Mar 10 21:54:02 2026
 
 ###########################################################]
 ###########################################################[
@@ -350,17 +350,17 @@ Implementation : syn_results
 Synopsys Synopsys Netlist Linker, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
 
 @N|Running in 64-bit mode
-File O:\fpga\lattice\pll\aes50_clk_ddr\syn_results\synwork\aes50_clk_ddr_comp.srs changed - recompiling
+File O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synwork\aes50_clk_ddr_comp.srs changed - recompiling
 
-At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 92MB)
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 94MB)
 
 Process took 0h:00m:01s realtime, 0h:00m:01s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:50 2026
+# Tue Mar 10 21:54:04 2026
 
 ###########################################################]
-# Mon Feb 23 11:08:51 2026
+# Tue Mar 10 21:54:05 2026
 
 
 Copyright (C) 1994-2023 Synopsys, Inc.
@@ -390,47 +390,47 @@ See clock summary report "O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_resu
 @N: MF248 |Running in 64-bit mode.
 @N: MF666 |Clock conversion enabled. (Command "set_option -fix_gated_and_generated_clocks 1" in the project file.)
 
-Design Input Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 190MB peak: 199MB)
+Design Input Complete (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 190MB peak: 199MB)
 
 
-Mapper Initialization Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 190MB peak: 199MB)
+Mapper Initialization Complete (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 191MB peak: 199MB)
 
 
-Start loading timing files (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 204MB peak: 204MB)
+Start loading timing files (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 204MB peak: 204MB)
 
 
-Finished loading timing files (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 204MB peak: 206MB)
+Finished loading timing files (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 205MB peak: 206MB)
 
 NConnInternalConnection caching is on
 
-Starting HSTDM IP insertion (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 254MB peak: 255MB)
+Starting HSTDM IP insertion (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 255MB peak: 256MB)
 
 
-Finished HSTDM IP insertion (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 254MB peak: 255MB)
+Finished HSTDM IP insertion (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:02s; Memory used current: 255MB peak: 257MB)
 
 
-Started DisTri Cleanup (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 254MB peak: 255MB)
+Started DisTri Cleanup (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:02s; Memory used current: 255MB peak: 257MB)
 
 
-Finished DisTri Cleanup (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 254MB peak: 255MB)
+Finished DisTri Cleanup (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 255MB peak: 257MB)
 
 
-Starting clock optimization phase (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 256MB peak: 256MB)
+Starting clock optimization phase (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 256MB peak: 257MB)
 
 
 mixed edge conversion for GCC is OFF
 
-Finished clock optimization phase (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 256MB peak: 256MB)
+Finished clock optimization phase (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:03s; Memory used current: 256MB peak: 258MB)
 
 
-Starting clock optimization report phase (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 256MB peak: 256MB)
+Starting clock optimization report phase (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 257MB peak: 259MB)
 
 
-Finished clock optimization report phase (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 256MB peak: 257MB)
+Finished clock optimization report phase (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 257MB peak: 259MB)
 
 @N: FX1184 |Applying syn_allowed_resources blockrams=32 on top level netlist aes50_clk_ddr 
 
-Finished netlist restructuring (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 256MB peak: 257MB)
+Finished netlist restructuring (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 257MB peak: 259MB)
 
 
 
@@ -478,23 +478,23 @@ Summary of user generated gated clocks:
 @N: FX1143 |Skipping assigning INTERNAL_VREF to iobanks, because the table of mapping from pin to iobank is not initialized.
 Finished Pre Mapping Phase.
 
-Starting constraint checker (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:01s; Memory used current: 257MB peak: 257MB)
+Starting constraint checker (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:04s; Memory used current: 257MB peak: 259MB)
 
 
-Finished constraint checker preprocessing (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:01s; Memory used current: 257MB peak: 258MB)
+Finished constraint checker preprocessing (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:04s; Memory used current: 257MB peak: 260MB)
 
 
-Finished constraint checker (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:01s; Memory used current: 258MB peak: 258MB)
+Finished constraint checker (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:04s; Memory used current: 258MB peak: 260MB)
 
 Pre-mapping successful!
 
-At Mapper Exit (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:02s; Memory used current: 173MB peak: 259MB)
+At Mapper Exit (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:05s; Memory used current: 173MB peak: 260MB)
 
-Process took 0h:00m:05s realtime, 0h:00m:02s cputime
-# Mon Feb 23 11:08:57 2026
+Process took 0h:00m:08s realtime, 0h:00m:05s cputime
+# Tue Mar 10 21:54:14 2026
 
 ###########################################################]
-# Mon Feb 23 11:08:58 2026
+# Tue Mar 10 21:54:15 2026
 
 
 Copyright (C) 1994-2023 Synopsys, Inc.
@@ -518,30 +518,30 @@ Mapper Startup Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:0
 @N: MF248 |Running in 64-bit mode.
 @N: MF666 |Clock conversion enabled. (Command "set_option -fix_gated_and_generated_clocks 1" in the project file.)
 
-Design Input Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 185MB peak: 199MB)
+Design Input Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 186MB peak: 199MB)
 
 
 Mapper Initialization Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 186MB peak: 199MB)
 
 
-Start loading timing files (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 200MB peak: 200MB)
+Start loading timing files (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 200MB peak: 200MB)
 
 
-Finished loading timing files (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 201MB peak: 203MB)
+Finished loading timing files (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 202MB peak: 203MB)
 
 
 
-Starting Optimization and Mapping (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 254MB peak: 254MB)
+Starting Optimization and Mapping (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 254MB peak: 254MB)
 
 @W: BN161 :"o:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v":8:7:8:19|Net reset has multiple drivers .
 
-Finished RTL optimizations (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 257MB peak: 257MB)
+Finished RTL optimizations (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 257MB peak: 257MB)
 
 
-Starting factoring (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 257MB peak: 258MB)
+Starting factoring (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:02s; Memory used current: 258MB peak: 260MB)
 
 
-Finished factoring (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 258MB peak: 258MB)
+Finished factoring (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 258MB peak: 260MB)
 
 
 Available hyper_sources - for debug and ip models
@@ -549,71 +549,71 @@ Available hyper_sources - for debug and ip models
 
 NConnInternalConnection caching is on
 
-Finished generic timing optimizations - Pass 1 (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 258MB peak: 258MB)
+Finished generic timing optimizations - Pass 1 (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 258MB peak: 260MB)
 
 
-Starting Early Timing Optimization (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 258MB peak: 259MB)
+Starting Early Timing Optimization (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:03s; Memory used current: 259MB peak: 261MB)
 
 
-Finished Early Timing Optimization (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 258MB peak: 259MB)
+Finished Early Timing Optimization (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 259MB peak: 261MB)
 
 
-Finished generic timing optimizations - Pass 2 (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 258MB peak: 259MB)
+Finished generic timing optimizations - Pass 2 (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 259MB peak: 261MB)
 
 
-Finished preparing to map (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 258MB peak: 259MB)
+Finished preparing to map (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 259MB peak: 261MB)
 
 
-Finished technology mapping (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 259MB peak: 259MB)
+Finished technology mapping (Real Time elapsed 0h:00m:05s; CPU Time elapsed 0h:00m:04s; Memory used current: 259MB peak: 261MB)
 
 Pass		 CPU time		Worst Slack		Luts / Registers
 ------------------------------------------------------------
-   1		0h:00m:01s		100000.00ns		   0 /         0
+   1		0h:00m:04s		100000.00ns		   0 /         0
 
-Finished technology timing optimizations and critical path resynthesis (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 259MB peak: 259MB)
+Finished technology timing optimizations and critical path resynthesis (Real Time elapsed 0h:00m:05s; CPU Time elapsed 0h:00m:04s; Memory used current: 259MB peak: 261MB)
 
 @N: FX164 |The option to pack registers in the IOB has not been specified. Please set syn_useioff attribute.  
 
-Finished restoring hierarchy (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 259MB peak: 259MB)
+Finished restoring hierarchy (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:05s; Memory used current: 260MB peak: 261MB)
 
 
-Starting CDBProcessSetClockGroups... (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 260MB peak: 260MB)
+Starting CDBProcessSetClockGroups... (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:05s; Memory used current: 260MB peak: 262MB)
 
 
-Finished with CDBProcessSetClockGroups (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 260MB peak: 260MB)
+Finished with CDBProcessSetClockGroups (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:05s; Memory used current: 260MB peak: 262MB)
 
 
-Start Writing Netlists (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 205MB peak: 260MB)
+Start Writing Netlists (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:05s; Memory used current: 206MB peak: 262MB)
 
 Writing Analyst data base O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synwork\aes50_clk_ddr_m.srm
 
-Finished Writing Netlist Databases (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 260MB peak: 260MB)
+Finished Writing Netlist Databases (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:06s; Memory used current: 260MB peak: 262MB)
 
 Writing EDIF Netlist and constraint files
 @N: FX1056 |Writing EDF file: O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\aes50_clk_ddr.edn
 @N: BW106 |Synplicity Constraint File capacitance units using default value of 1pF 
 
-Finished Writing EDIF Netlist and constraint files (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 268MB peak: 268MB)
+Finished Writing EDIF Netlist and constraint files (Real Time elapsed 0h:00m:08s; CPU Time elapsed 0h:00m:06s; Memory used current: 268MB peak: 268MB)
 
 Writing Verilog Simulation files
 
-Finished Writing Verilog Simulation files (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:02s; Memory used current: 268MB peak: 268MB)
+Finished Writing Verilog Simulation files (Real Time elapsed 0h:00m:08s; CPU Time elapsed 0h:00m:07s; Memory used current: 269MB peak: 270MB)
 
 Writing VHDL Simulation files
 
-Finished Writing VHDL Simulation files (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:02s; Memory used current: 268MB peak: 269MB)
+Finished Writing VHDL Simulation files (Real Time elapsed 0h:00m:09s; CPU Time elapsed 0h:00m:07s; Memory used current: 269MB peak: 271MB)
 
 
-Finished Writing Netlists (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 268MB peak: 269MB)
+Finished Writing Netlists (Real Time elapsed 0h:00m:09s; CPU Time elapsed 0h:00m:08s; Memory used current: 269MB peak: 271MB)
 
 
-Start final timing analysis (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:03s; Memory used current: 268MB peak: 269MB)
+Start final timing analysis (Real Time elapsed 0h:00m:10s; CPU Time elapsed 0h:00m:08s; Memory used current: 268MB peak: 271MB)
 
 @W: MT246 :"o:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v":32:12:32:24|Blackbox ODDRX1F is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)
 
 
 ##### START OF TIMING REPORT #####[
-# Timing report written on Mon Feb 23 11:09:03 2026
+# Timing report written on Tue Mar 10 21:54:26 2026
 #
 
 
@@ -669,10 +669,10 @@ No IO constraint found
 
 Timing exceptions that could not be applied
 
-Finished final timing analysis (Real Time elapsed 0h:00m:05s; CPU Time elapsed 0h:00m:03s; Memory used current: 269MB peak: 269MB)
+Finished final timing analysis (Real Time elapsed 0h:00m:10s; CPU Time elapsed 0h:00m:08s; Memory used current: 269MB peak: 271MB)
 
 
-Finished timing report (Real Time elapsed 0h:00m:05s; CPU Time elapsed 0h:00m:03s; Memory used current: 269MB peak: 270MB)
+Finished timing report (Real Time elapsed 0h:00m:10s; CPU Time elapsed 0h:00m:09s; Memory used current: 269MB peak: 271MB)
 
 ---------------------------------------
 Resource Usage Report
@@ -692,9 +692,9 @@ VHI:            1
 VLO:            1
 Mapper successful!
 
-At Mapper Exit (Real Time elapsed 0h:00m:05s; CPU Time elapsed 0h:00m:03s; Memory used current: 133MB peak: 270MB)
+At Mapper Exit (Real Time elapsed 0h:00m:11s; CPU Time elapsed 0h:00m:09s; Memory used current: 133MB peak: 271MB)
 
-Process took 0h:00m:05s realtime, 0h:00m:03s cputime
-# Mon Feb 23 11:09:04 2026
+Process took 0h:00m:11s realtime, 0h:00m:09s cputime
+# Tue Mar 10 21:54:27 2026
 
 ###########################################################]

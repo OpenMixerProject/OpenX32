@@ -15,13 +15,13 @@ Implementation : syn_results
 Synopsys Synopsys Netlist Linker, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
 
 @N|Running in 64-bit mode
-File O:\fpga\lattice\pll\aes50_clk_ddr\syn_results\synwork\aes50_clk_ddr_comp.srs changed - recompiling
+File O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synwork\aes50_clk_ddr_comp.srs changed - recompiling
 
-At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 92MB)
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 94MB)
 
 Process took 0h:00m:01s realtime, 0h:00m:01s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:50 2026
+# Tue Mar 10 21:54:04 2026
 
 ###########################################################]

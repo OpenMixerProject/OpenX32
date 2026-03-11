@@ -36,7 +36,8 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	    spi->OpenConnectionFpga();
 	}
 
-	configData = 0b00000011; // set AES50 to sys_mode 01 = AES50 Master and TDM Master and enable AES50 on Port A
+	// configData = Unused | Unused | Debugsignals on Card-Output | PHY_CLK[1..0] | AES50_MODE[1..0] | AES50_Online
+	configData = 0b00010011; // set AES50 to sys_mode 01 = AES50 Master and TDM Master and enable AES50 on Port A
 	SendConfig();
 }
 
@@ -394,6 +395,8 @@ void Fpga::SendConfig(void) {
 }
 
 void Fpga::AES50Receive(bool mirrorDataBackToAES50Device) {
+	//uart->MirrorBack();
+
 	uint readBytes = uart->Rx(&fpgaBufferUart[0], sizeof(fpgaBufferUart));
 	
 	// TODO: do something with this data
@@ -421,7 +424,7 @@ void Fpga::AES50Send(char* data, uint len) {
 
 	if (helper->DEBUG_FPGA(DEBUGLEVEL_TRACE)) {
 		printf("DEBUG_FPGA: Transmit: ");
-    	for (int i =0; i < message->current_length; i++){
+    	for (int i = 0; i < message->current_length; i++){
         	printf("%c", message->buffer[i]);
     	}
     	printf("\n");

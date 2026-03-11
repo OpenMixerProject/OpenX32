@@ -168,7 +168,7 @@ begin
 				global_rst <= '0';
 				online <= '0';
 
-				-- wait for 500ms
+				-- wait for 50ms
 				if (wait_b < 800) then
 					if (wait_a < 1000) then
 						wait_a <= wait_a + 1;

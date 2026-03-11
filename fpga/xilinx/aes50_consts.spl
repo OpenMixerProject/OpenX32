@@ -9,4 +9,6 @@
 =aes_clk_ok_counter_reference[19:0]=
 =mult_clk625_48k[31:0]=
 =mult_clk625_44k1[31:0]=
+=uart_clks_per_bit[9:0]=
+=uart_timeout_clks[19:0]=
 [BiDir]

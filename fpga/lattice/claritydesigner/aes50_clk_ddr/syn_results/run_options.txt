@@ -1,7 +1,7 @@
 #--  Synopsys, Inc.
 #--  Version V-2023.09L-2
 #--  Project file O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\run_options.txt
-#--  Written on Mon Feb 23 11:08:42 2026
+#--  Written on Tue Mar 10 21:53:53 2026
 
 
 #project files

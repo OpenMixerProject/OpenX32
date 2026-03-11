@@ -240,33 +240,33 @@ Only the first 100 messages of id 'CG100' are reported. To see all messages use 
 @I::"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\pmi_def.v" (library work)
 @I::"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v" (library work)
 Verilog syntax check successful!
-Options changed - recompiling
+File O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v changed - recompiling
 Selecting top level module aes50_clk_ddr
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":1646:7:1646:13|Synthesizing module ODDRX1F in library work.
 Running optimization stage 1 on ODDRX1F .......
-Finished optimization stage 1 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+Finished optimization stage 1 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":761:7:761:9|Synthesizing module VLO in library work.
 Running optimization stage 1 on VLO .......
-Finished optimization stage 1 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+Finished optimization stage 1 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":757:7:757:9|Synthesizing module VHI in library work.
 Running optimization stage 1 on VHI .......
-Finished optimization stage 1 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 96MB)
+Finished optimization stage 1 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"C:\Programme2\Lattice\Diamond\cae_library\synthesis\verilog\ecp5u.v":591:7:591:8|Synthesizing module OB in library work.
 Running optimization stage 1 on OB .......
-Finished optimization stage 1 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 1 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 @N: CG364 :"O:\fpga\lattice\claritydesigner\aes50_clk_ddr\aes50_clk_ddr.v":8:7:8:19|Synthesizing module aes50_clk_ddr in library work.
 Running optimization stage 1 on aes50_clk_ddr .......
-Finished optimization stage 1 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 1 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 97MB peak: 99MB)
 Running optimization stage 2 on aes50_clk_ddr .......
-Finished optimization stage 2 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on aes50_clk_ddr (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on OB .......
-Finished optimization stage 2 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on OB (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on VHI .......
-Finished optimization stage 2 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on VHI (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on VLO .......
-Finished optimization stage 2 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on VLO (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 Running optimization stage 2 on ODDRX1F .......
-Finished optimization stage 2 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 97MB)
+Finished optimization stage 2 on ODDRX1F (CPU Time 0h:00m:00s, Memory Used current: 96MB peak: 99MB)
 
 For a summary of runtime per design unit, please see file:
 ==========================================================
@@ -274,12 +274,12 @@ For a summary of runtime per design unit, please see file:
 
 
 
-At c_ver Exit (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:01s; Memory used current: 96MB peak: 97MB)
+At c_ver Exit (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:04s; Memory used current: 97MB peak: 99MB)
 
-Process took 0h:00m:03s realtime, 0h:00m:01s cputime
+Process took 0h:00m:06s realtime, 0h:00m:04s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:47 2026
+# Tue Mar 10 21:54:00 2026
 
 ###########################################################]
 ###########################################################[
@@ -299,14 +299,14 @@ Implementation : syn_results
 Synopsys Synopsys Netlist Linker, Version comp202309synp1, Build 349R, Built Sep 17 2024 08:16:26, @
 
 @N|Running in 64-bit mode
-File O:\fpga\lattice\pll\aes50_clk_ddr\syn_results\synwork\layer0.srs changed - recompiling
+File O:\fpga\lattice\claritydesigner\aes50_clk_ddr\syn_results\synwork\layer0.srs changed - recompiling
 
-At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 92MB)
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 92MB peak: 94MB)
 
 Process took 0h:00m:01s realtime, 0h:00m:01s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:48 2026
+# Tue Mar 10 21:54:01 2026
 
 ###########################################################]
 
@@ -316,11 +316,11 @@ For a summary of runtime and memory usage for all design units, please see file:
 
 @END
 
-At c_hdl Exit (Real Time elapsed 0h:00m:04s; CPU Time elapsed 0h:00m:01s; Memory used current: 24MB peak: 24MB)
+At c_hdl Exit (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:05s; Memory used current: 24MB peak: 26MB)
 
-Process took 0h:00m:04s realtime, 0h:00m:01s cputime
+Process took 0h:00m:07s realtime, 0h:00m:05s cputime
 
 Process completed successfully.
-# Mon Feb 23 11:08:48 2026
+# Tue Mar 10 21:54:02 2026
 
 ###########################################################]

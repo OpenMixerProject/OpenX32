@@ -4,9 +4,9 @@
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2026 2 26 22 44 25)
+      (timestamp 2026 3 9 22 54 7)
       (program "SCUBA" (version "Diamond (64-bit) 3.14.0.75.2"))))
-      (comment "C:\Programme2\Lattice\Diamond\ispfpga\bin\nt64\scuba.exe -w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 200 -fclkop_tol 0.0 -fclkos 100 -fclkos_tol 0.0 -phases 0 -phase_cntl STATIC -rst -fb_mode 1 -fdc O:/fpga/lattice/claritydesigner/lattice_pll/lattice_pll.fdc ")
+      (comment "C:\Programme2\Lattice\Diamond\ispfpga\bin\nt64\scuba.exe -w -n lattice_pll -lang verilog -synth synplify -bus_exp 7 -bb -arch sa5p00 -type pll -fin 16.00 -fclkop 100 -fclkop_tol 0.0 -phasep 0 -fclkos 80 -fclkos_tol 0.0 -fclkos2 50 -fclkos2_tol 0.0 -phases2 0 -phase_cntl STATIC -rst -fb_mode 2 -fdc O:/fpga/lattice/claritydesigner/lattice_pll/lattice_pll.fdc ")
   (library ORCLIB
     (edifLevel 0)
     (technology
@@ -86,6 +86,8 @@
           (port CLKOP
             (direction OUTPUT))
           (port CLKOS
+            (direction OUTPUT))
+          (port CLKOS2
             (direction OUTPUT)))
         (property NGD_DRC_MASK (integer 1))
         (contents
@@ -113,15 +115,15 @@
             (property CLKOS2_FPHASE
               (string "0"))
             (property CLKOS2_CPHASE
-              (string "0"))
+              (string "15"))
             (property CLKOS_FPHASE
               (string "0"))
             (property CLKOS_CPHASE
-              (string "5"))
+              (string "9"))
             (property CLKOP_FPHASE
               (string "0"))
             (property CLKOP_CPHASE
-              (string "2"))
+              (string "7"))
             (property PLL_LOCK_MODE
               (string "0"))
             (property CLKOS_TRIM_DELAY
@@ -136,18 +138,20 @@
               (string "DIVD"))
             (property CLKOS3_ENABLE
               (string "DISABLED"))
+            (property FREQUENCY_PIN_CLKOS2
+              (string "50.000000"))
             (property OUTDIVIDER_MUXC
               (string "DIVC"))
             (property CLKOS2_ENABLE
-              (string "DISABLED"))
+              (string "ENABLED"))
             (property FREQUENCY_PIN_CLKOS
-              (string "100.000000"))
+              (string "80.000000"))
             (property OUTDIVIDER_MUXB
               (string "DIVB"))
             (property CLKOS_ENABLE
               (string "ENABLED"))
             (property FREQUENCY_PIN_CLKOP
-              (string "200.000000"))
+              (string "100.000000"))
             (property OUTDIVIDER_MUXA
               (string "DIVA"))
             (property CLKOP_ENABLE
@@ -155,23 +159,23 @@
             (property FREQUENCY_PIN_CLKI
               (string "16.000000"))
             (property ICP_CURRENT
-              (string "5"))
+              (string "7"))
             (property LPF_RESISTOR
               (string "16"))
             (property CLKOS3_DIV
               (string "1"))
             (property CLKOS2_DIV
-              (string "1"))
+              (string "16"))
             (property CLKOS_DIV
-              (string "6"))
+              (string "10"))
             (property CLKOP_DIV
-              (string "3"))
+              (string "8"))
             (property CLKFB_DIV
-              (string "25"))
+              (string "5"))
             (property CLKI_DIV
-              (string "2"))
+              (string "1"))
             (property FEEDBK_PATH
-              (string "CLKOP")))
+              (string "CLKOS")))
           (net REFCLK
             (joined
               (portRef REFCLK (instanceRef PLLInst_0))))
@@ -195,14 +199,18 @@
               (portRef PHASEDIR (instanceRef PLLInst_0))
               (portRef PHASESEL1 (instanceRef PLLInst_0))
               (portRef PHASESEL0 (instanceRef PLLInst_0))))
+          (net CLKOS2
+            (joined
+              (portRef CLKOS2)
+              (portRef CLKOS2 (instanceRef PLLInst_0))))
           (net CLKOS
             (joined
               (portRef CLKOS)
+              (portRef CLKFB (instanceRef PLLInst_0))
               (portRef CLKOS (instanceRef PLLInst_0))))
           (net CLKOP
             (joined
               (portRef CLKOP)
-              (portRef CLKFB (instanceRef PLLInst_0))
               (portRef CLKOP (instanceRef PLLInst_0))))
           (net RST
             (joined

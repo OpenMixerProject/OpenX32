@@ -208,6 +208,32 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 	return 0;
 }
 
+void Uart::MirrorBack() {
+    int bytesRead;
+    int bytesAvailable;
+    char buf[100];
+    int bytesToRead;
+
+	if (ioctl(fd, FIONREAD, &bytesAvailable) == -1) {
+		perror("Error on ioctl FIONREAD");
+		close(fd);
+		return;
+	}
+    bytesToRead = bytesAvailable;
+    if (bytesToRead > 100) {
+        bytesToRead = 100;
+    }
+
+	if (bytesToRead > 0) {
+        bytesRead = read(fd, &buf[0], bytesToRead);
+
+		if (bytesRead > 0) {
+            // send via same UART
+            write(fd, &buf[0], bytesRead);
+		}
+	}
+}
+
 void Uart::FlushRxBuffer() {
     char buf;
 	while (Rx(&buf, 1) > 0);
