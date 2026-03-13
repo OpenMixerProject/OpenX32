@@ -16,8 +16,8 @@ CoreRevision=6.0
 ModuleName=aes50_clk_ddr
 SourceFormat=verilog
 ParameterFileVersion=1.0
-Date=03/10/2026
-Time=21:53:43
+Date=02/23/2026
+Time=11:08:40
 
 [Parameters]
 Verilog=1

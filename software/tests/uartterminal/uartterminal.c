@@ -149,6 +149,22 @@ int uartRead() {
         return 0;
 }
 
+void uartMirror() {
+        if (ioctl(fd, FIONREAD, &bytes_available) == -1) {
+                perror("Error on ioctl FIONREAD");
+                close(fd);
+                return;
+	}
+
+	if (bytes_available > 0) {
+                bytes_read = read(fd, buffer_uart, (bytes_available < sizeof(buffer_uart)) ? bytes_available : sizeof(buffer_uart));
+		if (bytes_read > 0) {
+			write(fd, buffer_uart, bytes_read);
+			printf("Copied %d bytes\n", bytes_read);
+		}
+	}
+}
+
 int main(int argc, char *argv[]) {                                                                                                                                                           srand(time(NULL));
     printf("UART Tester\n");
     printf("v0.0.2, 07.08.2025\n");
@@ -160,6 +176,7 @@ int main(int argc, char *argv[]) {                                              
     }else{
         char* uartport = argv[1];
         char* baudrate = argv[2];
+        char buf;
         printf("Connecting to UART on port %s with %s baud...\n", uartport, baudrate);
         uartOpen(uartport, atoi(baudrate));
 
@@ -170,6 +187,8 @@ int main(int argc, char *argv[]) {                                              
 
             // sleep for 1ms to lower CPU-load
             usleep(1000);
+
+            //uartMirror();
         }
     }
     return 0;

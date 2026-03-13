@@ -42,7 +42,7 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Fpga::Init() {
-	const uint16_t speed = 38400;
+	const uint16_t speed = 115200;
 	String serial;
 	
 	if (state->bodyless) {

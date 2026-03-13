@@ -29,6 +29,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity reset is
 	port (
 		clk					: in std_logic;	-- expecting 16 MHz clock
+		pll_locked			: in std_logic;
 		o_pripll_rst		: out std_logic;
 		o_secpll_rst		: out std_logic;
 		o_global_rst 		: out std_logic;	-- reset-signal 0 (5ms) -> 1 (250ns) -> 0 (1µs) -> start (inf)
@@ -45,7 +46,6 @@ architecture Behavioral of reset is
 	signal global_rst		: std_logic;
 	signal online			: std_logic;
 	
-	signal count_clk		: natural range 0 to 100000 := 0;
 	signal wait_a			: natural range 0 to 1000 := 0;
 	signal wait_b			: natural range 0 to 1000 := 0;
 begin
@@ -97,20 +97,22 @@ begin
 				global_rst <= '0';
 				online <= '0';
 
-				-- wait for 50ms
-				if (wait_b < 800) then
-					if (wait_a < 1000) then
-						wait_a <= wait_a + 1;
+				if pll_locked = '1' then
+					-- wait for 50ms
+					if (wait_b < 800) then
+						if (wait_a < 1000) then
+							wait_a <= wait_a + 1;
+						else
+							-- 62.5 us have passed
+							wait_a <= 0;
+							wait_b <= wait_b + 1;
+						end if;
 					else
-						-- 62.5 us have passed
 						wait_a <= 0;
-						wait_b <= wait_b + 1;
+						wait_b <= 0;
+						
+						s_SM <= s_StartSecPLL;
 					end if;
-				else
-					wait_a <= 0;
-					wait_b <= 0;
-					
-					s_SM <= s_StartSecPLL;
 				end if;
 			
 			elsif (s_SM = s_StartSecPLL) then
