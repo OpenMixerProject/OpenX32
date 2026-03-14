@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 03/09/2026 08:27:36
+-- /___/   /\     Timestamp : 03/14/2026 23:18:49
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -129,6 +129,7 @@ architecture BEHAVIORAL of main is
    signal aes50a_tdm_in           : std_logic_vector (6 downto 0);
    signal aes50a_tdm_out          : std_logic_vector (6 downto 0);
    signal aes50_fs_mode           : std_logic_vector (1 downto 0);
+   signal aes50_sys_mode          : std_logic_vector (1 downto 0);
    signal audio_output            : std_logic_vector (479 downto 0);
    signal clk_12_288MHz           : std_logic;
    signal clk_16MHz               : std_logic;
@@ -202,8 +203,6 @@ architecture BEHAVIORAL of main is
    signal XLXN_3465               : std_logic;
    signal XLXN_3479               : std_logic;
    signal XLXN_3480               : std_logic;
-   signal XLXN_4443               : std_logic;
-   signal XLXN_4445               : std_logic;
    signal XLXN_4526               : std_logic;
    signal XLXN_4802               : std_logic;
    signal XLXN_4873               : std_logic_vector (9 downto 0);
@@ -910,7 +909,7 @@ begin
    
    XLXI_1109 : aes50_rst
       port map (clk100_i=>clk_100MHz,
-                start_i=>configbits(0),
+                start_i=>online,
                 rst_o=>XLXN_3074);
    
    XLXI_1110 : GND
@@ -990,14 +989,6 @@ begin
    XLXI_1142 : GND
       port map (G=>aes50a_clk_b_rx_nen_out);
    
-   XLXI_1143 : BUF
-      port map (I=>aes50a_rmii_txd(0),
-                O=>XLXN_4443);
-   
-   XLXI_1144 : BUF
-      port map (I=>aes50a_rmii_txd(1),
-                O=>XLXN_4445);
-   
    XLXI_1148 : GND
       port map (G=>aes50_fs_mode(1));
    
@@ -1063,48 +1054,48 @@ begin
       port map (P=>XLXN_3479);
    
    XLXI_1390 : oddr_clock
-      port map (clk_in=>clk_50MHz,
-                clk_in_inv=>clk_50MHz_inv,
+      port map (clk_in=>clk_50MHz_inv,
+                clk_in_inv=>clk_50MHz,
                 d0=>XLXN_4526,
                 d1=>XLXN_4526,
                 reset=>rst,
                 clk_out=>aes50a_rmii_tx_en_out);
    
    XLXI_1391 : oddr_clock
-      port map (clk_in=>clk_50MHz,
-                clk_in_inv=>clk_50MHz_inv,
-                d0=>XLXN_4443,
-                d1=>XLXN_4443,
+      port map (clk_in=>clk_50MHz_inv,
+                clk_in_inv=>clk_50MHz,
+                d0=>aes50a_rmii_txd(0),
+                d1=>aes50a_rmii_txd(0),
                 reset=>rst,
                 clk_out=>aes50a_rmii_txd_0_out);
    
    XLXI_1392 : oddr_clock
-      port map (clk_in=>clk_50MHz,
-                clk_in_inv=>clk_50MHz_inv,
-                d0=>XLXN_4445,
-                d1=>XLXN_4445,
+      port map (clk_in=>clk_50MHz_inv,
+                clk_in_inv=>clk_50MHz,
+                d0=>aes50a_rmii_txd(1),
+                d1=>aes50a_rmii_txd(1),
                 reset=>rst,
                 clk_out=>aes50a_rmii_txd_1_out);
    
    XLXI_1440 : iddr_clock
-      port map (clk_in=>clk_50MHz_inv,
-                clk_in_inv=>clk_50MHz,
+      port map (clk_in=>clk_50MHz,
+                clk_in_inv=>clk_50MHz_inv,
                 d=>aes50a_rmii_crs_dv_in,
                 reset=>rst,
                 q0=>XLXN_3465,
                 q1=>open);
    
    XLXI_1441 : iddr_clock
-      port map (clk_in=>clk_50MHz_inv,
-                clk_in_inv=>clk_50MHz,
+      port map (clk_in=>clk_50MHz,
+                clk_in_inv=>clk_50MHz_inv,
                 d=>aes50a_rmii_rxd_0_in,
                 reset=>rst,
                 q0=>aes50a_rmii_rxd(0),
                 q1=>open);
    
    XLXI_1442 : iddr_clock
-      port map (clk_in=>clk_50MHz_inv,
-                clk_in_inv=>clk_50MHz,
+      port map (clk_in=>clk_50MHz,
+                clk_in_inv=>clk_50MHz_inv,
                 d=>aes50a_rmii_rxd_1_in,
                 reset=>rst,
                 q0=>aes50a_rmii_rxd(1),
@@ -1136,7 +1127,7 @@ begin
                 rmii_crs_dv_i=>XLXN_3465,
                 rmii_rxd_i(1 downto 0)=>aes50a_rmii_rxd(1 downto 0),
                 rst_i=>XLXN_3074,
-                sys_mode_i(1 downto 0)=>configbits(2 downto 1),
+                sys_mode_i(1 downto 0)=>aes50_sys_mode(1 downto 0),
                 tdm_i(6 downto 0)=>aes50a_tdm_in(6 downto 0),
                 tdm8_i2s_mode_i=>XLXN_3086,
                 uart_clks_per_bit_i(9 downto 0)=>XLXN_4873(9 downto 0),
@@ -1167,6 +1158,12 @@ begin
    
    XLXI_1542 : VCC
       port map (P=>XLXN_4802);
+   
+   XLXI_1543 : VCC
+      port map (P=>aes50_sys_mode(1));
+   
+   XLXI_1544 : GND
+      port map (G=>aes50_sys_mode(0));
    
 end BEHAVIORAL;
 

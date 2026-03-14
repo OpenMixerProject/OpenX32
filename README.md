@@ -33,7 +33,7 @@ The Linux has control over most parts of the i.M253 main-controller:
 * [x] Support of USB-Host interface (HID-Keyboard, HID-Mouse, Mass-Storage-Devices, Joystick, Soundcard, etc.)
 * [x] Support of internal SD-Card to read MAC-Address and the general configuration
 
-Several audio-functions are already supported:
+Most audio-functions are already supported:
 * [x] Configuration of FPGA (Xilinx Spartan 3A or Lattice ECP5) via internal SPI-interface
 * [x] Support of both AnalogDevices DSPs (ADSP-21371 SHARC DSPs) via internal SPI-interface
 * [x] Support of 1:1-routing for the available 112 inputs (32x XLR, 8x AUX, 32x Card, 40x DSP) to 112 outputs (16x XLR, 16x UltraNet, 8x AUX, 32x Card, 40x DSP)
@@ -42,13 +42,14 @@ Several audio-functions are already supported:
 * [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438 on older revisions, M8000 on newer revisions)
 * [x] Noisegate, 4-band EQ and compressor per channel is already working within the main-DSP
 * [x] Some more advanced audio-algorithms are already implemented in DSP2
+* [x] AES50 is working on Lattice-FPGA-versions. Receiving and sending audio and using the AUX-channel is working.
 
 The hardware-surface is working, too:
 * [x] Support of booting from SD-Card and via USB using the original DCP-Bootloader
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
 
 So the most important things (audio in/out, control-surface, display) are working already and more things are on the ToDo-list:
-* [ ] AES50 is working (almost). Receiving and sending audio is possible and the AUX-channel for headamp-control is "working" but needs more time
+* [ ] Reverse-Engineer the headamp-remote-control protocol used in the AUX-channel of AES50
 * [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years; barebox already boots OpenX32 from development sd-cards)
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)
