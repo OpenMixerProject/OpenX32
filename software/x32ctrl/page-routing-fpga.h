@@ -139,7 +139,7 @@ class PageRoutingFpga: public Page
             lv_obj_add_flag(objects.table_routing_fpga_header, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
             // Selection-Table
-            lv_table_set_row_count(objects.table_routing_fpga, NUM_OUTPUT_CHANNEL); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+            lv_table_set_row_count(objects.table_routing_fpga, NUM_OUTPUT_CHANNEL); // Not required but avoids a lot of memory reallocation lv_table_set_set_value
             lv_table_set_column_count(objects.table_routing_fpga, 3);
             lv_table_set_column_width(objects.table_routing_fpga, 0, 300);
             lv_table_set_column_width(objects.table_routing_fpga, 1, 50);
@@ -171,7 +171,7 @@ class PageRoutingFpga: public Page
 
         void OnChange(bool force_update) override
         {
-            if(gui_selected_block != gui_selected_block_before || force_update)
+            if((gui_selected_block != gui_selected_block_before) || force_update)
             {
 				if (gui_selected_block < 0) {
 					// limit list at the top
@@ -189,7 +189,7 @@ class PageRoutingFpga: public Page
                 DrawTable();
             } 
 
-            if(gui_selected_item_before != gui_selected_item || force_update)
+            if((gui_selected_item_before != gui_selected_item) || force_update)
             {
 				if (gui_selected_item < 0) {
 					// limit list at the top
@@ -211,7 +211,7 @@ class PageRoutingFpga: public Page
 				gui_selected_item_before = gui_selected_item;
             } 
             
-            if(config->HasParameterChanged(ROUTING_FPGA) || force_update)
+            if((config->HasParameterChanged(ROUTING_FPGA)) || force_update)
             {
                 for(auto const& index : config->GetChangedParameterIndexes({ROUTING_FPGA}))
                 {
@@ -312,10 +312,13 @@ class PageRoutingFpga: public Page
 
             lv_table_set_row_count(objects.table_routing_fpga, 0);
 
-            for (uint8_t i = 0; i < gui_items_count; i++)
-            {
-                lv_table_set_cell_value(objects.table_routing_fpga, i, 0, config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + gui_items_offset).c_str());
-                lv_table_set_cell_value(objects.table_routing_fpga, i, 2, mixer->fpga->GetOutputNameByIndex(i + 1 + gui_items_offset).c_str());
+            try {
+                for (uint8_t i = 0; i < gui_items_count; i++)
+                {
+                    lv_table_set_cell_value(objects.table_routing_fpga, i, 0, config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + gui_items_offset).c_str());
+                    lv_table_set_cell_value(objects.table_routing_fpga, i, 2, mixer->fpga->GetOutputNameByIndex(i + 1 + gui_items_offset).c_str());
+                }
+            }catch (...){
             }
 
             lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item, 1, LV_SYMBOL_RIGHT);

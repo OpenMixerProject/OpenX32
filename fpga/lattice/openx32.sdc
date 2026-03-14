@@ -19,7 +19,6 @@ set_output_delay -clock [get_clocks clk_50MHz] -min 8.0 [get_ports {aes50a_rmii_
 
 # define groups
 set_clock_groups -asynchronous \
-    -group {clk_100MHz} \
-    -group {clk_50MHz} \
+    -group {clk_100MHz clk_50MHz} \
     -group {clk_16MHz} \
 	-group {clk_49_152MHz}
