@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <symbol version="7" name="aes50_top">
     <symboltype>BLOCK</symboltype>
-    <timestamp>2026-3-14T21:27:4</timestamp>
+    <timestamp>2026-3-27T21:38:46</timestamp>
     <pin polarity="Input" x="0" y="-1888" name="clk50_i" />
     <pin polarity="Input" x="0" y="-1824" name="clk100_i" />
     <pin polarity="Input" x="0" y="-1760" name="rst_i" />

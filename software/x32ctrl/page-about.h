@@ -16,13 +16,14 @@ class PageAbout: public Page {
 
         void OnInit() override
         {
+/*
             BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
             BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
-
+*/
             EncoderText();
 
             SyncEncoderWidgets(true);
@@ -38,6 +39,7 @@ class PageAbout: public Page {
 
 				switch (button)
                 {
+/*
                     case X32_BTN_ENCODER1:
                         mixer->fpga->SetConfigBit(0, !mixer->fpga->GetConfigBit(0));
                         break;
@@ -56,6 +58,7 @@ class PageAbout: public Page {
                     case X32_BTN_ENCODER6:
                         mixer->fpga->SetConfigBit(5, !mixer->fpga->GetConfigBit(5));
                         break;
+*/
                     default:
                         handled = false;
                         // dummy
@@ -75,11 +78,13 @@ class PageAbout: public Page {
 
         void EncoderText()
         {
+/*
             custom_encoder[DISPLAY_ENCODER_1].label = String("AES50 Online\n") + String(mixer->fpga->GetConfigBit(0) ? "1" : "0");  // AES online/offline
             custom_encoder[DISPLAY_ENCODER_2].label = String("SysMode Bit 1\n") + String(mixer->fpga->GetConfigBit(2) ? "1" : "0"); // SysMode Bit 1
             custom_encoder[DISPLAY_ENCODER_3].label = String("SysMode Bit 0\n") + String(mixer->fpga->GetConfigBit(1) ? "1" : "0"); // SysMode Bit 0
             custom_encoder[DISPLAY_ENCODER_4].label = String("Bit 3\n") + String(mixer->fpga->GetConfigBit(3) ? "1" : "0");
             custom_encoder[DISPLAY_ENCODER_5].label = String("Bit 4\n") + String(mixer->fpga->GetConfigBit(4) ? "1" : "0");
             custom_encoder[DISPLAY_ENCODER_6].label = String("FPGA-Debugmode\n") + String(mixer->fpga->GetConfigBit(5) ? "1" : "0");
+*/
         }
 };

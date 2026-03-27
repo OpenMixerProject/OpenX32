@@ -307,8 +307,11 @@ void X32Ctrl::Tick100ms(void) {
 		// show the received value (could be a bit older than the request)
 	 	lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)state->dspLoad[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
 	 	lv_label_set_text_fmt(objects.debugtext_dsp2, "DSP2: Load: %.1f %% | Version: v%.2f | Glitches: %.0f | Heap: %.0f Words free", (double)state->dspLoad[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1]);
-		lv_label_set_text_fmt(objects.debugtext_x32ctrl, "DSP1-TxQueue: %d | DSP2-TxQueue: %d", mixer->dsp->spi->GetDspTxQueueLength(0), mixer->dsp->spi->GetDspTxQueueLength(1)); 
+		//lv_label_set_text_fmt(objects.debugtext_x32ctrl, "DSP1-TxQueue: %d | DSP2-TxQueue: %d", mixer->dsp->spi->GetDspTxQueueLength(0), mixer->dsp->spi->GetDspTxQueueLength(1)); 
 	}
+
+	// send AES50-data to FPGA
+	mixer->fpga->AES50Tick(config);
 }
 
 void X32Ctrl::ProcessUartDataAdda() {
@@ -336,7 +339,7 @@ void X32Ctrl::ProcessUartDataAdda() {
 }
 
 void X32Ctrl::ProcessUartDataAES50() {
-	mixer->fpga->AES50Receive(true);
+	mixer->fpga->AES50Receive();
 }
 
 //#####################################################################################################################

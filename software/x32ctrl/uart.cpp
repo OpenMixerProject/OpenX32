@@ -208,6 +208,7 @@ int Uart::Rx(char* buf, uint16_t bufLen) {
 	return 0;
 }
 
+/*
 void Uart::MirrorBack() {
     int bytesRead;
     int bytesAvailable;
@@ -233,6 +234,7 @@ void Uart::MirrorBack() {
 		}
 	}
 }
+*/
 
 void Uart::FlushRxBuffer() {
     char buf;

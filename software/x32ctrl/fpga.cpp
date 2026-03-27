@@ -36,9 +36,11 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	    spi->OpenConnectionFpga();
 	}
 
-	// configData = Unused | Unused | Debugsignals on Card-Output | PHY_CLK[1..0] | AES50_MODE[1..0] | AES50_Online
-	configData = 0b00010011; // set AES50 to sys_mode 01 = AES50 Master and TDM Master and enable AES50 on Port A
+	// configData -> at the moment all bits are unused
+	configData = 0b00000000;
 	SendConfig();
+
+	AES50Counter = 0;
 }
 
 void Fpga::Init() {
@@ -55,7 +57,7 @@ void Fpga::Init() {
 	}
 	else
 	{
-		serial = "/dev/ttymxc3";	
+		serial = "/dev/ttymxc3";
 	}
 
 	helper->DEBUG_FPGA(DEBUGLEVEL_NORMAL, "opening %s with %d baud", serial.c_str(), speed);
@@ -250,6 +252,8 @@ String Fpga::GetInputName(uint8_t group, uint8_t channel) {
 		case 'B': // AES50B-Inputs 1-48
 			return String("AES50B In ") + String(channel);
 	}
+
+	return "";
 }
 
 String Fpga::GetInputNameByIndex(uint8_t sourceIndex) {
@@ -299,6 +303,8 @@ String Fpga::GetOutputName(uint8_t group, uint8_t channel) {
 		case 'B':
 			return "AES50B Out " + String(channel);
 	}
+
+	return "";
 }
 
 String Fpga::GetOutputNameByIndex(uint8_t index) {
@@ -394,27 +400,173 @@ void Fpga::SendConfig(void) {
 	}
 }
 
-void Fpga::AES50Receive(bool mirrorDataBackToAES50Device) {
-	//uart->MirrorBack();
+void Fpga::AES50Receive(void) {
+	bool messageHandled = false;
+	uint readBytes = uart->Rx(&fpgaRxBufferUart[0], sizeof(fpgaRxBufferUart));
+	char tmpName[16];
 
-	uint readBytes = uart->Rx(&fpgaBufferUart[0], sizeof(fpgaBufferUart));
-	
-	// TODO: do something with this data
-	
-	/*
-	The protocol looks like this:
-	0x10 66 62 30 20 20 5E
-	16 ASCII-Chars for Device-Name
-	48x 0x02 + 7 ASCII-Chars
+	// check the checksum of the read message
+	if ((readBytes > 2) && (readBytes >= (fpgaRxBufferUart[1] * 4)) && (AES50CalcChecksum(&fpgaRxBufferUart[0], false))) {
+		// checksum is valid -> process message
 
-	0x05 04 B3 C1 20 20 5E
-	8 ASCII-Chars for Device-Name + 0x00
-	*/
+		switch (fpgaRxBufferUart[0]) {
+			case 0x01:
+				// headamp-configuration-message
 
-	if (mirrorDataBackToAES50Device) {
-		// send data right back to the AES50-device
-		AES50Send(&fpgaBufferUart[0], readBytes);
+				break;
+			case 0x05:
+				// device-type and properties-message
+				break;
+			case 0x10:
+				// device- and channelname-message
+
+				// take the name of the connected device and display it in X32CTRL
+				memcpy(&tmpName[0], &fpgaRxBufferUart[8], 16);
+				lv_label_set_text_fmt(objects.debugtext_x32ctrl, "AES50 Connected to: %s", String(tmpName).c_str());
+
+				break;
+			default:
+				// unknown message
+				break;
+		}
+	}else{
+		// checksum failed
 	}
+
+	// send data right back to the AES50-device
+	//AES50Send(&fpgaRxBufferUart[0], readBytes);
+}
+
+// this function is called every 100ms
+void Fpga::AES50Tick(Config* config) {
+	AES50Counter++;
+	if (AES50Counter == 10) {
+		// send device-properties every 2 seconds
+		AES50SendDeviceTypeAndProperty();
+	}else if (AES50Counter >= 20) {
+		// send headamp-controls every 2 seconds
+		AES50Counter = 0;
+
+		AES50SendHeadampMessage(config);
+	}
+}
+
+void Fpga::AES50SendDeviceTypeAndProperty() {
+	fpgaTxBufferUart[0] = 0x05;
+	fpgaTxBufferUart[1] = (16 / 4); // message-length in 32-bit words
+	fpgaTxBufferUart[2] = 0; // checksum (will be set in AES50Send-Function)
+	fpgaTxBufferUart[3] = 0; // checksum (will be set in AES50Send-Function)
+
+	// AES50-DeviceChars for the last four connected devices
+	// (AES50 seems to support up to 6, but only the last 4 are transmitted)
+	fpgaTxBufferUart[4] = 0; // fourth device in AES50-chain
+	fpgaTxBufferUart[5] = 0; // third device in AES50-chain
+	fpgaTxBufferUart[6] = 0; // second device in AES50-chain: S16
+	fpgaTxBufferUart[7] = 'C'; // first device in AES50-chain: X32
+
+	// data[8 .. 13] <- '0' if no headamp-control, '2' if headamp-
+	// control is present
+	fpgaTxBufferUart[8] = '2'; // AES50 Ch 1-8 have headamp-controls
+	fpgaTxBufferUart[9] = '2'; // AES50 Ch 9-16 have headamp-controls
+	fpgaTxBufferUart[10] = '0'; // AES50 Ch 17-24 have no headamp-control in current device
+	fpgaTxBufferUart[11] = '0'; // AES50 Ch 25-32 have no headamp-control in current device
+	fpgaTxBufferUart[12] = '0'; // AES50 Ch 33-40 have no headamp-control in current device
+	fpgaTxBufferUart[13] = '0'; // AES50 Ch 41-48 have no headamp-control in current device
+
+	// byte-stuffing to have full divider by 4
+	fpgaTxBufferUart[14] = 0x00;
+	fpgaTxBufferUart[15] = 0x00;
+
+	// calculate and add checksum to begin of message
+	AES50CalcChecksum(&fpgaTxBufferUart[0], true);
+
+	// send data over UART to AES50 IP-core
+	AES50Send(&fpgaTxBufferUart[0], 16);
+}
+
+void Fpga::AES50SendNames() {
+	fpgaTxBufferUart[0] = 0x10;
+	fpgaTxBufferUart[1] = (408 / 4); // message-length in 32-bit words
+	fpgaTxBufferUart[2] = 0; // checksum (will be set in AES50Send-Function)
+	fpgaTxBufferUart[3] = 0; // checksum (will be set in AES50Send-Function)
+
+	// AES50-DeviceChars for the last four connected devices
+	// (AES50 seems to support up to 6, but only the last 4 are transmitted)
+	fpgaTxBufferUart[4] = 0;
+	fpgaTxBufferUart[5] = 0;
+	fpgaTxBufferUart[6] = 0; // S16
+	fpgaTxBufferUart[7] = 'C'; // X32
+
+	// the next bytes are zero-terminated ASCII-strings.
+	// First clear the data-array with zeros
+	for (int i = 8; i < 408; i++) {
+		fpgaTxBufferUart[i] = 0x00;
+	}
+
+	// insert zero-terminated device-string of current AES50-device
+	sprintf((char*)&fpgaTxBufferUart[8], "X32");
+	fpgaTxBufferUart[24] = 0x02; // add a 0x02 as "START OF TEXT"
+
+	// from data[25] 48x 7-char ASCII-Name for each channel is
+	// sent followed by a 0x02
+	for (int i = 0; i < 48; i++) {
+		sprintf((char*)&fpgaTxBufferUart[25 + (i * 8)], "IN % u", i + 1);
+		fpgaTxBufferUart[25 + (i * 8) + 7] = 0x02;
+	}
+	fpgaTxBufferUart[407] = 0x0A; // add a linefeed at the end
+
+	// calculate and add checksum to begin of message
+	AES50CalcChecksum(&fpgaTxBufferUart[0], true);
+
+	// send data over UART to AES50 IP-core
+	AES50Send(&fpgaTxBufferUart[0], 408);
+}
+
+void Fpga::AES50SendHeadampMessage(Config* config) {
+	fpgaTxBufferUart[0] = 0x01;
+	fpgaTxBufferUart[1] = (60 / 4); // message-length in 32-bit words
+	fpgaTxBufferUart[2] = 0; // checksum (will be set in AES50Send-Function)
+	fpgaTxBufferUart[3] = 0; // checksum (will be set in AES50Send-Function)
+
+	// AES50-DeviceChars for the last four connected devices
+	// (AES50 seems to support up to 6, but only the last 4 are transmitted)
+	fpgaTxBufferUart[4] = 0;
+	fpgaTxBufferUart[5] = 0;
+	fpgaTxBufferUart[6] = 0; // S16
+	fpgaTxBufferUart[7] = 'C'; // X32
+
+	// now insert the headamp-gains
+	// the specific value depends on the connected AES50 device as some
+	// devices have more gain-options than others
+	//
+	// An S16 has settings between -2.0dB and 45.5dB resulting in 47.5dB range
+	// with 2.5dB steps -> 47.5 / 2.5 = 19. So we have settings between
+	// 0 = -2.0dB and 19 = 45.5dB
+	/*
+	// TODO: get current routing for each of the 48 AES50A-input-channels and read gain-level
+	for (int i = 0; i < 48; i++) {
+		fpgaTxBufferUart[8 + i] = (uint8_t) roundf(gainMap(headAmpGain[i], -2.0f, 45.5f, 0, 19));
+		if (headAmpPhantom[i]) {
+			fpgaTxBufferUart[8 + i] |= 0x80;
+		}
+	}
+	*/
+	// for now, set the gains to minimum value
+	for (int i = 0; i < 48; i++) {
+		fpgaTxBufferUart[8 + i] = 0;
+	}
+
+	// a single 32-bit word with zeros for finalizing the message
+	fpgaTxBufferUart[56] = 0;
+	fpgaTxBufferUart[57] = 0;
+	fpgaTxBufferUart[58] = 0;
+	fpgaTxBufferUart[59] = 0;
+
+	// calculate and add checksum to begin of message
+	AES50CalcChecksum(&fpgaTxBufferUart[0], true);
+
+	// send data over UART to AES50 IP-core
+	AES50Send(&fpgaTxBufferUart[0], 60);
 }
 
 void Fpga::AES50Send(char* data, uint len) {
@@ -433,4 +585,45 @@ void Fpga::AES50Send(char* data, uint len) {
 	uart->Tx(message);
 
 	delete(message);
+}
+
+bool Fpga::AES50CalcChecksum(char* buf, bool insertChecksum) {;
+	uint8_t messageID = buf[0];
+	uint8_t len = buf[1];
+	uint8_t deviceChar = buf[7];
+
+	// initializing
+	uint32_t ids4 = (uint32_t)deviceChar << 24;
+	uint16_t cks = (uint16_t)(ids4 >> 16) ^ (uint16_t)(ids4 & 0xFFFF);
+
+	uint32_t* dataWords = (uint32_t*)&buf[8];
+
+	if (len > 2) {
+		for (int i = 0; i <= (len - 3); i++) {
+			uint32_t currentWord = dataWords[i];
+			cks -= (uint16_t)(currentWord >> 16) ^ (uint16_t)(currentWord & 0xFFFF);
+		}
+	}
+	uint16_t finalCks = cks ^ 0xFFFF;
+
+	if (insertChecksum) {
+		// insert calculated checksum into message
+		buf[2] = (uint8_t)(finalCks & 0xFF);
+		buf[3] = (uint8_t)(finalCks >> 8);
+
+		return true;
+	}else{
+		// just compare calculated checksum against message
+		return ((buf[2] == (uint8_t)(finalCks & 0xFF)) && (buf[3] == (uint8_t)(finalCks >> 8)));
+	}
+}
+
+int Fpga::wrapRingBufferIndex(int index, int bufLen) {
+	if (index < 0) {
+		return (index + bufLen);
+	}else if (index >= bufLen) {
+		return (index - bufLen);
+	}else{
+		return index;
+	}
 }

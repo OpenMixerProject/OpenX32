@@ -24,6 +24,6 @@ class Uart : public X32Base
         int Open(const char* ttydev, uint32_t baudrate, bool raw);
         int Tx(MessageBase* message);
         int Rx(char* buf, uint16_t bufLen);
-        void MirrorBack();
+        //void MirrorBack();
         void FlushRxBuffer();
 };
