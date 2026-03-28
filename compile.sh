@@ -177,10 +177,10 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
         -DCMAKE_INSTALL_PREFIX=/tmp/armv5_libs \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=OFF \
-	-DZLIB_INCLUDE_DIR=/usr/include/ \
-	-DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
+	    -DZLIB_INCLUDE_DIR=/usr/include/ \
+	    -DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
         -DCMAKE_C_FLAGS="-march=armv5t" \
-	-DCMAKE_EXE_LINKER_FLAGS="-static -L/usr/lib/arm-linux-gnueabi"
+	    -DCMAKE_EXE_LINKER_FLAGS="-static -L/usr/lib/arm-linux-gnueabi"
 	cmake --build .
 	make -j$(nproc) install
 	cd ../..	
@@ -191,13 +191,13 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	VNC_LIB_ROOT=/tmp/armv5_libs
 	ZLIB_LIB_PATH=/usr/lib/arm-linux-gnueabi
 	cmake .. \
-	-DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
-	-DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
-	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_C_FLAGS="-march=armv5t -O2 -I${VNC_LIB_ROOT}/include -I/usr/include" \
-	-DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
-	-DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
-	-DCMAKE_EXE_LINKER_FLAGS="-static -L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	    -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
+	    -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
+	    -DCMAKE_BUILD_TYPE=Release \
+	    -DCMAKE_C_FLAGS="-march=armv5t -O2 -I${VNC_LIB_ROOT}/include -I/usr/include" \
+	    -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
+	    -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
+	    -DCMAKE_EXE_LINKER_FLAGS="-static -L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
 	make -j$(nproc)
 	cd ../..
 	
@@ -205,7 +205,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 fi
 
 # copy tools to initramFS
-cp software/bin/x32sdconfig initramfs_root/bin/
+cp software/bin/x32sdconfig initramfs_root/openx32/
 cp software/bin/x32ctrl initramfs_root/openx32/
 cp software/dropbear/dropbear initramfs_root/openx32/
 cp software/dropbear/dropbearkey initramfs_root/openx32/
@@ -221,10 +221,10 @@ rm /tmp/uramdisk.bin
 find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio
 gzip -9 /tmp/initramfs.cpio
 mkimage -A ARM -O linux -T ramdisk -C gzip -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.gz /tmp/uramdisk.bin
+cd ..
 
 # =================== Binary-Blob =======================
 
-cd ..
 rm /tmp/openx32.bin
 # Miniloader at offset 0x000000: will be started by i.MX Serial Download Program
 update_progress 85 "Merge binary-files...Miniloader -> openx32.bin"
@@ -252,7 +252,7 @@ perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp
 # Creating proper OpenX32 DCP-Image
 #mkdir -p /tmp/openx32/binary
 #cp /tmp/openx32.bin /tmp/openx32/binary/dcpapp.bin
-#dcp-tool -c /tmp/dcp_corefs_openx32-alpha3.run "OpenX32 Alpha 3 - https://github.com/OpenMixerProject" /tmp/openx32/
+#./dcp-tool -c /tmp/dcp_corefs_openx32-alpha3.run "OpenX32 Alpha 3 - https://github.com/OpenMixerProject" /tmp/openx32/
 
 
 update_progress 100 "Done."
