@@ -33,18 +33,15 @@ echo "Starting shell for ttymxc4..."
 # start dropbear with auto-key-creation
 /openx32/dropbear -p 22 -R > /dev/null 2>&1 &
 
-# start OpenX32 Main-Software as Shell
-/openx32/x32ctrl --L /openx32/lattice.bit --X /openx32/xilinx.bit --D1 /openx32/dsp1.ldr --D2 /openx32/dsp2.ldr
+while true; do
+	# start OpenX32 Main-Software as Shell
+	/bin/setsid /bin/cttyhack /openx32/x32ctrl --L /openx32/lattice.bit --X /openx32/xilinx.bit --D1 /openx32/dsp1.ldr --D2 /openx32/dsp2.ldr
 
-# start a simple shell for tty0 (Display)
-echo "Booting into busybox shell..."
-# try to make the current shell a controlling terminal
-/bin/setsid /bin/cttyhack /bin/sh
+	# start a simple shell for tty0 (Display)
+	echo "Booting into busybox shell..."
+	# try to make the current shell a controlling terminal
+	/bin/setsid /bin/cttyhack /bin/sh
 
-
-
-# and some things, if something is going wrong
-# =============================
-# fallback, if switch_root is failing
-echo "Failed to switch root. Kernel panic imminent!"
-while true; do sleep 1; done # do endless loop to prevent kernel-panic
+	echo "Shell exited. Restarting in 1 second..."
+	sleep 1
+done
