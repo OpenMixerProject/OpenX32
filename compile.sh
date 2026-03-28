@@ -247,12 +247,14 @@ dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc
 # =================== DCP-Loader-File =======================
 
 update_progress 95 "Creating final DCP-Loader-File..."
+
+# creating unencrypted test-application
 perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.run
 
-# Creating proper OpenX32 DCP-Image
+# creating encrypted OpenX32 DCP-Image
 #mkdir -p /tmp/openx32/binary
 #cp /tmp/openx32.bin /tmp/openx32/binary/dcpapp.bin
-#./dcp-tool -c /tmp/dcp_corefs_openx32-alpha3.run "OpenX32 Alpha 3 - https://github.com/OpenMixerProject" /tmp/openx32/
+#./dcp-tool -c /tmp/dcp_corefs_openx32-alpha4.run "OpenX32 Alpha 4 - https://github.com/OpenMixerProject" /tmp/openx32/
 
 
 update_progress 100 "Done."
