@@ -221,14 +221,15 @@ int SPI::UploadBitstreamFpgaXilinx(void) {
 
 // configures a Lattice ECP5 via SPI
 // returns 0 if successul, -1 on errors
-bool SPI::UploadBitstreamFpgaLattice(void) {
+int SPI::UploadBitstreamFpgaLattice(void) {
 
     string filename_lattice = app->get_option("--L")->as<string>();
 
     // abort if no file path was given
     if(filename_lattice.length() == 0)
     {
-        return false;
+        // no bitstream-file given for Lattice FPGA, so try Xilinx afterwards
+        return -1;
     }
 
     int spi_fd = -1;
@@ -245,7 +246,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
     spi_fd = open(SPI_DEVICE_FPGA, O_RDWR);
     if (spi_fd < 0) {
         perror("Error: Could not open SPI-device\n");
-        return false;
+        return -2; // Return Error-Code -2
     }
 
     ioctl(spi_fd, SPI_IOC_WR_BITS_PER_WORD, &spiBitsPerWord);
@@ -269,7 +270,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
         perror("Error: Could not open bitstream-file");
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return false;
+        return -1; // no bitstream-file for Lattice available -> try Xilinx afterwards
     }
 
     // perform configuration-process
@@ -287,7 +288,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
 		helper->Error("Error: Unexpected IDCODE: 0x%08X\n", idcode);
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return false;
+        return -1; // the device is not a Lattice-Device -> try Xilinx afterwards
 	}
 
     // Enable SRAM Programming: send ISC_ENABLE command [class C command]
@@ -308,7 +309,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
         perror("Error: Failed to allocate memory for transfer structures");
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return false;
+        return -3; // return Error-Code -3
     }
     // buffer for data-payload
     uint8_t *bitstream_payload = (uint8_t *)malloc(bitstream_size);
@@ -317,7 +318,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
         free(transfers);
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return false;
+        return -3; // return Error-Code -3
     }
     // read buffer into large payload-buffer
     size_t total_bytes_read = fread(bitstream_payload, sizeof(char), bitstream_size, bitstream_file);
@@ -327,7 +328,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
         free(transfers);
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
-        return false;
+        return -4; // return Error-Code -4
     }
 
     if (helper->DEBUG_SPI(DEBUGLEVEL_NORMAL)) {
@@ -380,7 +381,7 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
 			free(bitstream_payload);
 			free(transfers);
             if (spi_fd >= 0) close(spi_fd);
-            return false;
+            return -5; // return Error-Code -5
         }
 
         // calculate progress-bar
@@ -436,14 +437,18 @@ bool SPI::UploadBitstreamFpgaLattice(void) {
     if(helper->DEBUG_SPI(DEBUGLEVEL_NORMAL)) {
         fpgaLatticePrintBits(status);
     }
-    bool ret =
+    bool cleanUpload =
         ((status) & (1<<(8))) &&  // Bit 8 (DONE) must be 1
         !((status) & (1<<(26)));  // Bit 26 (EXECUTION ERROR) must be 0
 
 	if (bitstream_file) fclose(bitstream_file);
 	if (spi_fd >= 0) close(spi_fd);
     
-	return ret;
+    if (cleanUpload) {
+        return 0; // everything OK
+    }else{
+    	return 1; // DONE-bit or EXECUTION-Bit is set unexpected
+    }
 }
 
 void SPI::toggleFpgaProgramnPin(uint32_t assertTime, uint32_t waitTime) {

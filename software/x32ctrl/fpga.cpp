@@ -30,7 +30,8 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	spi = new SPI(basepar);
 
 	if (!state->bodyless) {
-    	if (!spi->UploadBitstreamFpgaLattice()) {
+    	if (spi->UploadBitstreamFpgaLattice() == -1) {
+			// uploading the Lattice-Bitstream was not successful (or not set), so try to upload the Xilinx-bitstream
 	        spi->UploadBitstreamFpgaXilinx();
 	    }
 	    spi->OpenConnectionFpga();

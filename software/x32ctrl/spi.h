@@ -111,7 +111,7 @@ class SPI : public X32Base {
 
     // functions for configuring FPGA and DSPs
     int UploadBitstreamFpgaXilinx();
-    bool UploadBitstreamFpgaLattice();
+    int UploadBitstreamFpgaLattice();
     int UploadBitstreamDsps(bool useCli);
 
     // functions for general communication
