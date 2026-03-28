@@ -235,12 +235,12 @@ dd if=u-boot/u-boot.bin of=/tmp/openx32.bin bs=8 seek=$((0x18)) conv=notrunc
 # Linux-Kernel at offset 0x060000 (384 kiB for Miniloader + U-Boot): will be started by U-Boot
 update_progress 87 "Merge binary-files...Linux-Kernel -> openx32.bin"
 dd if=/tmp/uImage of=/tmp/openx32.bin bs=512 seek=$((0x300)) conv=notrunc
-# DeviceTreeBlob at offset 0x800000 (~8 MiB for Kernel)
+# DeviceTreeBlob at offset 0x600000 (~6 MiB for Kernel)
 update_progress 88 "Merge binary-files...DeviceTreeBlob -> openx32.bin"
-dd if=linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dtb of=/tmp/openx32.bin bs=512 seek=$((0x4000)) conv=notrunc
+dd if=linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dtb of=/tmp/openx32.bin bs=512 seek=$((0x3000)) conv=notrunc
 # InitramFS at offset 0x810000 (~64kiB for DeviceTreeBlob)
 update_progress 89 "Merge binary-files...InitramFS -> openx32.bin"
-dd if=/tmp/uramdisk.bin of=/tmp/openx32.bin bs=512 seek=$((0x4080)) conv=notrunc
+dd if=/tmp/uramdisk.bin of=/tmp/openx32.bin bs=512 seek=$((0x3080)) conv=notrunc
 update_progress 90 "Merge binary-files...Finalize openx32.bin"
 dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc
 

@@ -42,14 +42,13 @@ Most audio-functions are already supported:
 * [x] Support of internal 8-channel AUX-AD/DA-Converter (CS42438 on older revisions, M8000 on newer revisions)
 * [x] Noisegate, 4-band EQ and compressor per channel is already working within the main-DSP
 * [x] Some more advanced audio-algorithms are already implemented in DSP2
-* [x] AES50 is working on Lattice-FPGA-versions. Receiving and sending audio and using the AUX-channel is working.
+* [x] AES50 is working on Lattice-FPGA-versions. Receiving and sending audio and using the AUX-channel for headamp-control is working.
 
 The hardware-surface is working, too:
 * [x] Support of booting from SD-Card and via USB using the original DCP-Bootloader
 * [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
 
 So the most important things (audio in/out, control-surface, display) are working already and more things are on the ToDo-list:
-* [ ] Reverse-Engineer the headamp-remote-control protocol used in the AUX-channel of AES50
 * [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years; barebox already boots OpenX32 from development sd-cards)
 * [ ] Planned: ALSA Soundcard with I2S to main-FPGA (DeviceTree option "simple-audio-card" via SSI1 and AUDMUX is not initializing)
 * [ ] Planned: GPIO support via libgpiod (at the moment libgpiod is not working and has no control over /dev/gpiochipX)

@@ -15,9 +15,9 @@
 #define SPI_DEVICE_DSP2 "/dev/spidev0.1"
 #define SPI_DEVICE_FPGA "/dev/spidev2.0"
 #define MHz * 1000000
-#define SPI_FPGA_SPEED_HZ       8 MHz
-#define SPI_DSP_CONF_SPEED_HZ   8 MHz
-#define SPI_DSP_SPEED_HZ        8 MHz // 16 MHz is the regular SPI-clock on the original X32
+#define SPI_FPGA_SPEED_HZ       8 MHz // works fine
+#define SPI_DSP_CONF_SPEED_HZ   1 MHz // during configuration the SPI-pins seem not to allow higher speeds
+#define SPI_DSP_SPEED_HZ        8 MHz // without Kernel-Debug 16MHz seems to be possible as 16 MHz is the regular SPI-clock on the original X32
 
 #define PI 3.14159265358979323846f
 #define MAX_NAME_LENGTH 30 + 1 // null termination!
