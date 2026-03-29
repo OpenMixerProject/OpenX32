@@ -398,22 +398,41 @@ void audioProcessData(void) {
 	//				 | |\  | (_) | \__ \  __/ (_| | (_| | ||  __/
 	//				 |_| \_|\___/|_|___/\___|\__, |\__,_|\__\___|
 	//				                         |___/
-	// Noisegate: gain = (gain * coeff) + gainSet - (gainSet * coeff)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
 		// the logic for the gate is relying on a single sample here. Its a compromise, but working
-		fxProcessGateLogic(i_ch, audioBuffer[TAP_PRE_EQ][0][DSP_BUF_IDX_DSPCHANNEL + i_ch]);
+		float absInput = fabsf(audioBuffer[TAP_PRE_EQ][0][DSP_BUF_IDX_DSPCHANNEL + i_ch]);
 
-		//gain = (gain * coeff) + gainSet - (gainSet * coeff)
-		dsp.gateGain[i_ch] = (dsp.gateGain[i_ch] * dsp.gateCoeff[i_ch]) + dsp.gateGainSet[i_ch] - (dsp.gateGainSet[i_ch] * dsp.gateCoeff[i_ch]);
+		float targetGain;
+		if (absInput > dsp.dspChannel[i_ch].gate.value_threshold) {
+			// open gate
+			targetGain = 1.0f;
+		}else{
+			// gate closed
+			targetGain = dsp.dspChannel[i_ch].gate.value_gainmin;
+		}
+
+		if (targetGain > dsp.gateEnvelope[i_ch]) {
+			// Attack: gate is opening
+			dsp.gateEnvelope[i_ch] += dsp.dspChannel[i_ch].gate.value_coeff_attack * (targetGain - dsp.gateEnvelope[i_ch]);
+			dsp.dspChannel[i_ch].gate.holdTimer = dsp.dspChannel[i_ch].gate.value_hold_ticks;
+		} else {
+			// Release: gate is closing
+			if (dsp.dspChannel[i_ch].gate.holdTimer > 0) {
+				dsp.dspChannel[i_ch].gate.holdTimer--;
+			} else {
+				dsp.gateEnvelope[i_ch] += dsp.dspChannel[i_ch].gate.value_coeff_release * (targetGain - dsp.gateEnvelope[i_ch]);
+			}
+		}
 	}
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		float* src = &audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL];
-		float* gain = &dsp.gateGain[0];
+		float* gain = &dsp.gateEnvelope[0];
 		float* dst = &audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL];
 		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
 			dst[i_ch] = gain[i_ch] * src[i_ch];
 		}
 	}
+
 /*
 	vecvmltf(&dsp.gateGain[0], &dsp.gateCoeff[0], &dsp.gateGain[0], MAX_CHAN_FULLFEATURED);
 	vecvaddf(&dsp.gateGain[0], &dsp.gateGainSet[0], &dsp.gateGain[0], MAX_CHAN_FULLFEATURED);
@@ -461,23 +480,38 @@ void audioProcessData(void) {
 	//				 | |_| | |_| | | | | (_| | | | | | | | (__\__ \
 	//				 |____/ \__, |_| |_|\__,_|_| |_| |_|_|\___|___/
 	//				        |___/
-	// Compressor: gain = (gain * coeff) + gainSet - (gainSet * coeff)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
-		// the logic for the compressor is relying on a single sample here. Its a compromise, but working
-		fxProcessCompressorLogic(i_ch, audioBuffer[TAP_POST_EQ][0][DSP_BUF_IDX_DSPCHANNEL + i_ch]);
-	}
-	/*
-	vecvmltf(&dsp.compressorGain[0], &dsp.compressorCoeff[0], &dsp.compressorGain[0], MAX_CHAN_FULLFEATURED);
-	vecvaddf(&dsp.compressorGain[0], &dsp.compressorGainSet[0], &dsp.compressorGain[0], MAX_CHAN_FULLFEATURED);
-	vecvmltf(&dsp.compressorGainSet[0], &dsp.compressorCoeff[0], &audioTempBufferChanA[0], MAX_CHAN_FULLFEATURED);
-	vecvsubf(&dsp.compressorGain[0], &audioTempBufferChanA[0], &dsp.compressorGain[0], MAX_CHAN_FULLFEATURED);
-	*/
-	for (int i = 0; i < MAX_CHAN_FULLFEATURED; i++) {
-		dsp.compressorGain[i] = (dsp.compressorGain[i] * dsp.compressorCoeff[i]) + dsp.compressorGainSet[i] - (dsp.compressorGainSet[i] * dsp.compressorCoeff[i]);
+		// the logic for the gate is relying on a single sample here. Its a compromise, but working
+
+		// we are processing the audiosamples with values between -2^31 and +2^31. So we have to rescale the absolute-value
+		float inputDb = linearToDb(fabsf(audioBuffer[TAP_POST_EQ][0][DSP_BUF_IDX_DSPCHANNEL + i_ch]) * INT32_TO_FLOAT_NORM);
+
+		// gain computation (static Curve)
+		float targetGainDb = 0.0f;
+		if (inputDb > dsp.dspChannel[i_ch].compressor.value_threshold) {
+			targetGainDb = (dsp.dspChannel[i_ch].compressor.value_threshold - inputDb) * (1.0f - 1.0f / dsp.dspChannel[i_ch].compressor.value_ratio);
+		}
+
+		// Attack / Hold / Release Logic
+		float currentGainLinear = dbToLinear(targetGainDb);
+
+		// simple smoothing (Ballistics)
+		if (currentGainLinear < dsp.compressorEnvelope[i_ch]) {
+			// Attack
+			dsp.compressorEnvelope[i_ch] += dsp.dspChannel[i_ch].compressor.value_coeff_attack * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
+			dsp.dspChannel[i_ch].compressor.holdTimer = dsp.dspChannel[i_ch].compressor.value_hold_ticks; // Reset Hold-Timer
+		} else {
+			// Hold -> Release
+			if (dsp.dspChannel[i_ch].compressor.holdTimer > 0) {
+				dsp.dspChannel[i_ch].compressor.holdTimer--;
+			} else {
+				dsp.compressorEnvelope[i_ch] += dsp.dspChannel[i_ch].compressor.value_coeff_release * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
+			}
+		}
 	}
 
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		vecvmltf(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.compressorGain[0], &audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FULLFEATURED);
+		vecvmltf(&audioBuffer[TAP_POST_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.compressorEnvelope[0], &audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FULLFEATURED);
 		vecvmltf(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.compressorMakeup[0], &audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSPCHANNEL], MAX_CHAN_FULLFEATURED);
 
 		// bypass audio that is not used in full-featured channel

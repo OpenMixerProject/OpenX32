@@ -33,6 +33,8 @@
 #include <sysreg.h>
 #include <signal.h>
 
+#define INT32_TO_FLOAT_NORM (1.0f / 2147483647.0f)
+
 // global variables
 extern volatile int audioProcessing;
 extern volatile int audioReady;
@@ -55,46 +57,28 @@ typedef struct {
 	double b[5];
 } sLR24;
 
-typedef enum {
-	GATE_CLOSED,
-	GATE_ATTACK,
-	GATE_OPEN,
-	GATE_HOLD,
-	GATE_CLOSING
-} gateState;
 typedef struct {
 	// filter-data from i.MX25
-	float value_threshold;
-	float value_gainmin;
+	float value_threshold; // linear
+	float value_gainmin; // linear
 	float value_coeff_attack;
-	float value_hold_ticks;
+	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
 
 	// online parameters
-	short int holdCounter;
-	bool closed;
-	gateState state;
+	int holdTimer;
 } sGate;
 
-typedef enum {
-	COMPRESSOR_IDLE,
-	COMPRESSOR_ATTACK,
-	COMPRESSOR_ACTIVE,
-	COMPRESSOR_HOLD,
-	COMPRESSOR_RELEASE
-} compressorState;
 typedef struct {
 	// filter-data from i.MX25
-	float value_threshold;
+	float value_threshold; // indB
 	float value_ratio;
 	float value_coeff_attack;
-	float value_hold_ticks;
+	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
 
 	// online parameters
-	int holdCounter;
-	bool triggered;
-	compressorState state;
+	int holdTimer;
 } sCompressor;
 
 typedef struct {
@@ -117,13 +101,9 @@ struct {
 	//float highcutCoeff[MAX_CHAN_FULLFEATURED];
 	//float highcutStates[MAX_CHAN_FULLFEATURED];
 
-	float gateGainSet[MAX_CHAN_FULLFEATURED];
-	float gateGain[MAX_CHAN_FULLFEATURED];
-	float gateCoeff[MAX_CHAN_FULLFEATURED];
+	float gateEnvelope[MAX_CHAN_FULLFEATURED];
 
-	float compressorGainSet[MAX_CHAN_FULLFEATURED];
-	float compressorGain[MAX_CHAN_FULLFEATURED];
-	float compressorCoeff[MAX_CHAN_FULLFEATURED];
+	float compressorEnvelope[MAX_CHAN_FULLFEATURED];
 	float compressorMakeup[MAX_CHAN_FULLFEATURED];
 
 	float pm peqCoeffs[CHANNELS_WITH_4BD_EQ][5 * MAX_CHAN_EQS]; // store in program memory

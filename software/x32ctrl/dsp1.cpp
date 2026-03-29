@@ -213,7 +213,7 @@ void DSP1::SendGate(uint chanIndex)
     float values[5];
 
     // threshold
-    values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_GATE_TRESHOLD, chanIndex)/20.0f);
+    values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_GATE_TRESHOLD, chanIndex)/20.0f); // send threshold as linear value for 32-bit fixed point representation
 
     // gainmin
     // range of 60dB means that we will reduce the signal on active gate by 60dB. We have to convert logarithmic dB-value into linear value for gain
@@ -222,13 +222,13 @@ void DSP1::SendGate(uint chanIndex)
     // coeff_attack
     // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
     // ln(10%) - ln(90%) = -2.197224577
-    values[2] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_ATTACK, chanIndex)));
+    values[2] = 1.0f - exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_ATTACK, chanIndex)));
 
     // hold_ticks 
     values[3] = config->GetFloat(CHANNEL_GATE_HOLD, chanIndex) * samplerate / 1000.0f;
 
     // coeff_release 
-    values[4] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_RELEASE, chanIndex)));
+    values[4] = 1.0f - exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_GATE_RELEASE, chanIndex)));
 
     spi->QueueDspData(0, 'g', chanIndex, 0, 5, &values[0]);
 }
@@ -322,7 +322,8 @@ void DSP1::SendCompressor(uint8_t chanIndex)
 	float samplerate = (float)config->GetUint(SAMPLERATE)/(float)DSP_SAMPLES_IN_BUFFER;
 
     // threshold
-	values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex)/20.0f);
+	//values[0] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex)/20.0f); // send threshold as linear value for 32-bit fixed point representation
+    values[0] = config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex); // send threshold as dB value, DSP will convert it to linear value for 32-bit fixed point representation
 
     // ratio
     values[1] = config->GetFloat(CHANNEL_DYNAMICS_RATIO, chanIndex);
@@ -333,11 +334,11 @@ void DSP1::SendCompressor(uint8_t chanIndex)
     // to get a smooth behaviour, we will use a low-pass with a damping to get 10%/90% changes within the desired time
     // ln(10%) - ln(90%) = -2.197224577
     // attack
-	values[3] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_ATTACK, chanIndex)));
+	values[3] = 1.0f - exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_ATTACK, chanIndex)));
     // hold
 	values[4] = config->GetFloat(CHANNEL_DYNAMICS_HOLD, chanIndex) * samplerate / 1000.0f;
     // release
-	values[5] = exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_RELEASE, chanIndex)));
+	values[5] = 1.0f - exp(-2197.22457734f/(samplerate * config->GetFloat(CHANNEL_DYNAMICS_RELEASE, chanIndex)));
 
     spi->QueueDspData(0, 'c', chanIndex, 0, 6, &values[0]);
 }

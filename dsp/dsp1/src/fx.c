@@ -24,54 +24,26 @@
 
 #include "fx.h"
 
-//void fxProcessGateLogic(int channel, float samples[]) {
-void fxProcessGateLogic(int channel, float sample) {
-	//float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
-	float input_abs = abs(sample);
+float linearToDb(float linear) {
+	if (linear <= 0.00001f) return -100.0f;
+	return 20.0f * log10f(linear);
+}
 
-	dsp.dspChannel[channel].gate.closed = input_abs < dsp.dspChannel[channel].gate.value_threshold;
+// fast approximation to 20.0f * log10(x)
+float linearToDb_fast(float linear) {
+    if (linear < 0.0000001f) return -140.0f; // Noise floor
 
-	// calculate the gate-logic and online-parameters
-	switch (dsp.dspChannel[channel].gate.state) {
-		case GATE_CLOSED:
-			dsp.gateGainSet[channel] = dsp.dspChannel[channel].gate.value_gainmin;
-			// check if we have to open the gate
-			if (!dsp.dspChannel[channel].gate.closed) {
-				dsp.dspChannel[channel].gate.state = GATE_ATTACK;
-			}
-			break;
-		case GATE_ATTACK:
-			dsp.gateGainSet[channel] = 1.0f;
-			dsp.gateCoeff[channel] = dsp.dspChannel[channel].gate.value_coeff_attack;
-			dsp.dspChannel[channel].gate.state = GATE_OPEN;
-			break;
-		case GATE_OPEN:
-			if (dsp.dspChannel[channel].gate.closed) {
-				dsp.dspChannel[channel].gate.holdCounter = dsp.dspChannel[channel].gate.value_hold_ticks;
-				dsp.dspChannel[channel].gate.state = GATE_HOLD;
-			}
-			break;
-		case GATE_HOLD:
-			if (!dsp.dspChannel[channel].gate.closed) {
-				// re-enter on-state
-				dsp.dspChannel[channel].gate.state = GATE_OPEN;
-			}else{
-				if (dsp.dspChannel[channel].gate.holdCounter == 0) {
-					dsp.dspChannel[channel].gate.state = GATE_CLOSING;
-				}else{
-					dsp.dspChannel[channel].gate.holdCounter--;
-				}
-			}
-			break;
-		case GATE_CLOSING:
-			dsp.gateGainSet[channel] = dsp.dspChannel[channel].gate.value_gainmin;
-			dsp.gateCoeff[channel] = dsp.dspChannel[channel].gate.value_coeff_release;
-			dsp.dspChannel[channel].gate.state = GATE_CLOSED;
-			break;
-		default:
-			dsp.dspChannel[channel].gate.state = GATE_CLOSED;
-			break;
-	}
+    // uses the bit-structure if floats for a fast log2-approximation
+    union { float f; uint32_t i; } vx = { linear };
+    float log2_approx = (float)vx.i * 1.1920928955078125e-7f - 126.94269504f;
+
+    // conversion of log2 to 20 * log10:
+    // 20 * log10(x) = 20 * log2(x) * log10(2) ~ 6.0206 * log2(x)
+    return 6.0206f * log2_approx;
+}
+
+float dbToLinear(float dB) {
+    return powf(10.0f, dB / 20.0f);
 }
 
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
@@ -125,89 +97,3 @@ void fxSmoothCoeffs(void) {
 	}
 }
 */
-
-//void fxProcessCompressorLogic(int channel, float samples[]) {
-void fxProcessCompressorLogic(int channel, float sample) {
-	//float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
-	float input_abs = abs(sample);
-
-	dsp.dspChannel[channel].compressor.triggered = (input_abs > dsp.dspChannel[channel].compressor.value_threshold);
-
-	// calculate the gate-logic and online-parameters
-	switch (dsp.dspChannel[channel].compressor.state) {
-		case COMPRESSOR_IDLE:
-			dsp.compressorGainSet[channel] = 1.0f;
-			// check if we have to open the gate
-			if (!dsp.dspChannel[channel].compressor.triggered) {
-				break;
-			}
-
-			dsp.dspChannel[channel].compressor.state = COMPRESSOR_ATTACK;
-			// no break by intention: fall-through to ATTACK
-		case COMPRESSOR_ATTACK:
-			// overshoot = abs(sample) - threshold
-			// output = (overshoot / ratio) + threshold
-			// gainSet = output / abs(input)
-			if ((input_abs > 0) && (dsp.dspChannel[channel].compressor.value_ratio != 0)) {
-				// gainSet = input_abs
-				dsp.compressorGainSet[channel] = (((input_abs - dsp.dspChannel[channel].compressor.value_threshold) * dsp.dspChannel[channel].compressor.value_ratio) + dsp.dspChannel[channel].compressor.value_threshold) / input_abs;
-			}
-
-			dsp.compressorCoeff[channel] = dsp.dspChannel[channel].compressor.value_coeff_attack;
-			dsp.dspChannel[channel].compressor.state = COMPRESSOR_ACTIVE;
-			// no break by intention: fall-through to ACTIVE
-		case COMPRESSOR_ACTIVE:
-			// check if we are still triggered
-			if (dsp.dspChannel[channel].compressor.triggered) {
-				// check if we have to compress even more
-				float newValue;
-				if ((input_abs > 0) && (dsp.dspChannel[channel].compressor.value_ratio != 0)) {
-					newValue = (((input_abs - dsp.dspChannel[channel].compressor.value_threshold) * dsp.dspChannel[channel].compressor.value_ratio) + dsp.dspChannel[channel].compressor.value_threshold) / input_abs;
-					if (newValue < dsp.compressorGainSet[channel]) {
-						// compress even more
-						dsp.compressorGainSet[channel] = newValue;
-					}
-				}
-
-				// stay in this state
-				dsp.dspChannel[channel].compressor.state = COMPRESSOR_ACTIVE;
-				break;
-			}
-
-			dsp.dspChannel[channel].compressor.holdCounter = dsp.dspChannel[channel].compressor.value_hold_ticks;
-			dsp.dspChannel[channel].compressor.state = COMPRESSOR_HOLD;
-			// no break by intention: fall-through to hold
-		case COMPRESSOR_HOLD:
-			if (dsp.dspChannel[channel].compressor.triggered) {
-				// re-enter active-state
-				float newValue;
-				if ((input_abs > 0) && (dsp.dspChannel[channel].compressor.value_ratio != 0)) {
-					newValue = (((input_abs - dsp.dspChannel[channel].compressor.value_threshold) * dsp.dspChannel[channel].compressor.value_ratio) + dsp.dspChannel[channel].compressor.value_threshold) / input_abs;
-					if (newValue < dsp.compressorGainSet[channel]) {
-						// compress even more
-						dsp.compressorGainSet[channel] = newValue;
-					}
-				}
-				dsp.dspChannel[channel].compressor.state = COMPRESSOR_ACTIVE;
-				dsp.dspChannel[channel].compressor.holdCounter = dsp.dspChannel[channel].compressor.value_hold_ticks;
-				break;
-			}
-
-			// we are below threshold
-			if (dsp.dspChannel[channel].compressor.holdCounter >= 0) {
-				dsp.dspChannel[channel].compressor.holdCounter--;
-				break;
-			}
-
-			dsp.dspChannel[channel].compressor.state = COMPRESSOR_RELEASE;
-			// no break by intention: fall-through to RELEASE
-		case COMPRESSOR_RELEASE:
-			dsp.compressorGainSet[channel] = 1.0f;
-			dsp.compressorCoeff[channel] = dsp.dspChannel[channel].compressor.value_coeff_release;
-			dsp.dspChannel[channel].compressor.state = COMPRESSOR_IDLE;
-			break;
-		default:
-			dsp.dspChannel[channel].compressor.state = COMPRESSOR_IDLE;
-			break;
-	}
-}

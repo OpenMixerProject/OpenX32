@@ -37,6 +37,8 @@ entity audioclk is
 		fs_x_1024_i		: in std_logic; -- 49.152 MHz
 		fs_x_512_o		: out std_logic; -- 24.576 MHz
 		fs_x_256_o		: out std_logic; -- 12.288 MHz
+		fs_x_128_o		: out std_logic; -- 6.144 MHz
+		fs_x_64_o		: out std_logic; -- 3.072 MHz
 		fs_o				: out std_logic -- 48 kHz
 	);
 end entity;
@@ -44,6 +46,8 @@ end entity;
 architecture behavioral of audioclk is
 	signal clk_a			: std_logic := '0';
 	signal clk_b			: std_logic := '0';
+	signal clk_c			: std_logic := '0';
+	signal clk_d			: std_logic := '0';
 	signal count_fs		: natural range 0 to 256 := 1;
 	signal fs				: std_logic := '0';
 begin
@@ -55,8 +59,25 @@ begin
 				clk_a <= '1';
 
 				if (clk_b = '0') then
-					-- rising edge of clk_b
+					-- rising edge of clk_c
 					clk_b <= '1';
+
+					if (clk_c = '0') then
+						-- rising edge of clk_c
+						clk_c <= '1';
+
+
+						if (clk_d = '0') then
+							-- rising edge of clk_d
+							clk_d <= '1';
+						else
+							-- falling edge of clk_d
+							clk_d <= '0';
+						end if;
+					else
+						-- falling edge of clk_b
+						clk_c <= '0';
+					end if;
 				else
 					-- falling edge of clk_b
 					clk_b <= '0';
@@ -79,5 +100,7 @@ begin
 	-- output the signals
 	fs_x_512_o <= clk_a;
 	fs_x_256_o <= clk_b;
+	fs_x_128_o <= clk_c;
+	fs_x_64_o  <= clk_d;
 	fs_o <= fs;
 end behavioral;

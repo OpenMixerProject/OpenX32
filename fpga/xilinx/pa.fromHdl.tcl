@@ -1,10 +1,16 @@
 
 # PlanAhead Launch Script for Pre-Synthesis Floorplanning, created by Project Navigator
 
-create_project -name OpenX32 -dir "O:/fpga/xilinx/planAhead_run_1" -part xc3s1400aft256-4
+create_project -name OpenX32 -dir "O:/fpga/xilinx/planAhead_run_2" -part xc3s1400aft256-4
 set_param project.pinAheadLayout yes
 set srcset [get_property srcset [current_run -impl]]
 set_property target_constrs_file "main.ucf" [current_fileset -constrset]
+set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_uart_tx.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_uart_rx.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
 set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_rmii_crc32.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
@@ -27,6 +33,12 @@ set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_rmii_transceiver.vhd}]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_clockmanager.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_aux_encoder.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_aux_decoder.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {oddr_clk.vhd}]]

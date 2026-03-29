@@ -4,10 +4,9 @@
 #include "dsp1.h"
 
 // function prototypes
-//void fxProcessGateLogic(int channel, float samples[]);
-void fxProcessGateLogic(int channel, float sample);
+float linearToDb(float linear);
+float dbToLinear(float dB);
+float linearToDb_fast(float linear);
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]);
 void fxSmoothCoeffs(void);
-//void fxProcessCompressorLogic(int channel, float samples[]);
-void fxProcessCompressorLogic(int channel, float sample);
 #endif

@@ -1,0 +1,9 @@
+[Inputs]
+fs_x_1024_i
+[Outputs]
+fs_x_512_o
+fs_x_256_o
+fs_x_128_o
+fs_x_64_o
+fs_o
+[BiDir]

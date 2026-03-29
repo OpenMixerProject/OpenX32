@@ -87,13 +87,13 @@ void spiInit(void) {
 		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3); // CPSPI chain-pointer
 		spiTx_tcb[2][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
 		spiTx_tcb[2][2] = 1; // IMSPI internal modifier
-		spiTx_tcb[2][3] = (int)&dsp.compressorGain[0]; // IISPI internal index
+		spiTx_tcb[2][3] = (int)&dsp.compressorEnvelope[0]; // IISPI internal index
 
 		// gate-gains
 		spiTx_tcb[3][0] = ((int)&spiTx_tcb[4][0] + 3); // CPSPI chain-pointer
 		spiTx_tcb[3][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
 		spiTx_tcb[3][2] = 1; // IMSPI internal modifier
-		spiTx_tcb[3][3] = (int)&dsp.gateGain[0]; // IISPI internal index
+		spiTx_tcb[3][3] = (int)&dsp.gateEnvelope[0]; // IISPI internal index
 
 		// closing data (audio-data of main-busses and final "#")
 		spiTx_tcb[4][0] = 0; // CPSPI chain-pointer ("0" ends DMA-chain)

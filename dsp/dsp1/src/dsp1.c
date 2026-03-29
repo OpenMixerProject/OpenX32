@@ -92,8 +92,9 @@ void openx32Init(void) {
 
 	// initialize states of dynamics
 	for (int ch = 0; ch < MAX_CHAN_FULLFEATURED; ch++) {
-		dsp.dspChannel[ch].gate.state = GATE_CLOSED;
-		dsp.dspChannel[ch].compressor.state = COMPRESSOR_IDLE;
+		dsp.gateEnvelope[ch] = 1.0f;
+		dsp.compressorEnvelope[ch] = 1.0f;
+		dsp.dspChannel[ch].compressor.holdTimer = 0;
 	}
 }
 
