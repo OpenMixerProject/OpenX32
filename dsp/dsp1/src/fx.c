@@ -43,7 +43,7 @@ float linearToDb_fast(float linear) {
 }
 
 float dbToLinear(float dB) {
-    return powf(10.0f, dB / 20.0f);
+    return powf(10.0f, dB * 0.05f);
 }
 
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {

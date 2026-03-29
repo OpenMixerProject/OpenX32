@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.43
+#define DSP_VERSION				0.45
 
 #define DEBUG_DISABLE_LOWCUT	0
 #define DEBUG_DISABLE_GATE		0
@@ -58,6 +58,7 @@
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
 #define M_PI					3.1415926535897932384626433832795f
+#define INT32_TO_FLOAT_NORM		(1.0f / 2147483647.0f)
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF

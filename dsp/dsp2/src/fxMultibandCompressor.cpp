@@ -409,8 +409,8 @@ void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict
 }
 
 void fxMultibandCompressor::processLogic(sCompressor* compressor, float sample) {
-	//float input_abs = abs(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
-	float input_abs = abs(sample);
+	//float input_abs = fabsf(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
+	float input_abs = fabsf(sample);
 
 	compressor->triggered = (input_abs > compressor->value_threshold);
 
@@ -426,9 +426,9 @@ void fxMultibandCompressor::processLogic(sCompressor* compressor, float sample) 
 			compressor->state = COMPRESSOR_ATTACK;
 			// no break by intention: fall-through to ATTACK
 		case COMPRESSOR_ATTACK:
-			// overshoot = abs(sample) - threshold
+			// overshoot = fabsf(sample) - threshold
 			// output = (overshoot / ratio) + threshold
-			// gainSet = output / abs(input)
+			// gainSet = output / fabsf(input)
 			if ((input_abs > 0) && (compressor->value_ratio != 0)) {
 				// gainSet = input_abs
 				compressor->gainSet = (((input_abs - compressor->value_threshold) * compressor->value_ratio) + compressor->value_threshold) / input_abs;

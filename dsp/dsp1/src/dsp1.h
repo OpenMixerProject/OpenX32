@@ -33,8 +33,6 @@
 #include <sysreg.h>
 #include <signal.h>
 
-#define INT32_TO_FLOAT_NORM (1.0f / 2147483647.0f)
-
 // global variables
 extern volatile int audioProcessing;
 extern volatile int audioReady;

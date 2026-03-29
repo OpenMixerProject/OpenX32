@@ -64,8 +64,6 @@ fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) 
 
 	for (int i = 0; i < FX_DYNAMICEQ_BANDS; i++) {
 		// setup the smoothing-filter for the control-signal
-		_deq[i].smoothingCoeff = 0.1;	// coeff = 1 -> no smoothing, coeff = 0.001 -> slow response
-	    _deq[i].smoothedTargetGain = 0.0f;	// start-parameter
 	    _deq[i].envelope = 0.0f;
 	}
 
@@ -152,54 +150,58 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 			biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStatesCtrl[i_ch][0], SAMPLES_IN_BUFFER, 1);
 		}
 
-		// Step 1.2: take the first sample of the filtered control-signal and update envelope
-		float ctrlSignalL = abs(bufOut[0][0]); // we are using the output-buffer as a temporary storage for the control-signal
-		float ctrlSignalR = abs(bufOut[1][0]); // we are using the output-buffer as a temporary storage for the control-signal
+		// Step 1.2: update envelope with mean-value of all 16 samples
+		float ctrlSignalL = 0;
+		float ctrlSignalR = 0;
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			ctrlSignalL += fabsf(bufOut[0][s]);
+			ctrlSignalR += fabsf(bufOut[1][s]);
+		}
 		float ctrlSignal = ctrlSignalL;
 		if (ctrlSignalR > ctrlSignalL) {
 			ctrlSignal = ctrlSignalR;
 		}
 
-		ctrlSignal /= 2147483648.0f; // normalize control-signal between 0 and +1
-		if (ctrlSignal > _deq[band].envelope) {
-			_deq[band].envelope += _deq[band].attack * (ctrlSignal - _deq[band].envelope);
-		}else{
-			_deq[band].envelope += _deq[band].release * (ctrlSignal - _deq[band].envelope);
-		}
+		float ctrlSignal_dB = helperFcn_lin2db((ctrlSignal / (float)SAMPLES_IN_BUFFER) * INT32_TO_FLOAT_NORM); // normalize control-signal between 0 and +1
 
-
-
-
-		// Step 2: calculation of the gain-reduction
-		// ==============================================================
-		float envelope_dB = helperFcn_lin2db(_deq[band].envelope); // convert absolute value between 0 and 1 to -oodBfs and 0dBfs
-		float targetGain = 0.0f;
-
-		// if envelope is above threshold, change gain
-		if (envelope_dB > _deq[band].threshold) {
+		float targetGainDb = 0.0f;
+		float currentGainLinear;
+		if (ctrlSignal_dB > _deq[band].threshold) {
 			// calculate the overshoot
-			float overshoot = envelope_dB - _deq[band].threshold;
-			// apply the ratio: gainreduction = (1 - 1/ratio) * overshoot
-			float delta_dB = overshoot * (1.0f - (1.0f / _deq[band].ratio));
+			float overshoot_dB = ctrlSignal_dB - _deq[band].threshold;
+			float delta_dB = overshoot_dB * (1.0f - (1.0f / _deq[band].ratio));
 
+			// compress or expand signal
 			if (_deq[band].maxDynamicGain < 0) {
 				// reduction-mode / compression-mode
-				targetGain = -delta_dB;
+				targetGainDb = -delta_dB;
 
-				if (targetGain < _deq[band].maxDynamicGain) {
-					targetGain = _deq[band].maxDynamicGain;
+				// limit to maximum allowed negative dynamic gain
+				if (targetGainDb < _deq[band].maxDynamicGain) {
+					targetGainDb = _deq[band].maxDynamicGain;
 				}
+
+				currentGainLinear = -helperFcn_db2lin(-targetGainDb);
 			}else{
 				// boost-mode / expander-mode
-				targetGain = delta_dB;
+				targetGainDb = delta_dB;
 
-				if (targetGain > _deq[band].maxDynamicGain) {
-					targetGain = _deq[band].maxDynamicGain;
+				// limit to maximum allowed dynamic gain
+				if (targetGainDb > _deq[band].maxDynamicGain) {
+					targetGainDb = _deq[band].maxDynamicGain;
 				}
+
+				currentGainLinear = helperFcn_db2lin(targetGainDb);
+			}
+
+			if (((currentGainLinear > _deq[band].envelope) && (_deq[band].maxDynamicGain > 0)) || ((currentGainLinear < _deq[band].envelope) && (_deq[band].maxDynamicGain < 0))) {
+				// Attack
+				_deq[band].envelope += _deq[band].attack * (currentGainLinear - _deq[band].envelope);
+			}else{
+				// Release
+				_deq[band].envelope += _deq[band].release * (currentGainLinear - _deq[band].envelope);
 			}
 		}
-		// Smooth the parameters with first-order low-pass
-		_deq[band].smoothedTargetGain = _deq[band].smoothedTargetGain + _deq[band].smoothingCoeff * (targetGain - _deq[band].smoothedTargetGain);
 	}
 
 
@@ -207,25 +209,25 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 	// Step 3: update coefficients and apply biquad-filter on all samples
 	// ==============================================================
 	#if FX_DYNAMICEQ_BANDS == 1
-		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].smoothedTargetGain + _deq[band].staticGain, &peqCoeffs[0], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[band].type, _deq[band].frequency, _deq[band].Q, _deq[band].envelope + _deq[band].staticGain, &peqCoeffs[0], dsp.samplerate);
 	#elif FX_DYNAMICEQ_BANDS == 2
 		float peqCoeffsTmp[10];
-		helperFcn_calcBiquadCoeffs(_deq[0].type, _deq[0].frequency, _deq[0].Q, _deq[0].smoothedTargetGain + _deq[0].staticGain, &peqCoeffsTmp[0], dsp.samplerate);
-		helperFcn_calcBiquadCoeffs(_deq[1].type, _deq[1].frequency, _deq[1].Q, _deq[1].smoothedTargetGain + _deq[1].staticGain, &peqCoeffsTmp[5], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[0].type, _deq[0].frequency, _deq[0].Q, _deq[0].envelope + _deq[0].staticGain, &peqCoeffsTmp[0], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[1].type, _deq[1].frequency, _deq[1].Q, _deq[1].envelope + _deq[1].staticGain, &peqCoeffsTmp[5], dsp.samplerate);
 		for (int i = 0; i < 5; i++) {
 			peqCoeffs[i * 2] = peqCoeffsTmp[i];
 			peqCoeffs[(i * 2) + 1] = peqCoeffsTmp[5 + i];
 		}
 	#elif FX_DYNAMICEQ_BANDS == 3
 		float peqCoeffsTmp[10];
-		helperFcn_calcBiquadCoeffs(_deq[0].type, _deq[0].frequency, _deq[0].Q, _deq[0].smoothedTargetGain + _deq[0].staticGain, &peqCoeffsTmp[0], dsp.samplerate);
-		helperFcn_calcBiquadCoeffs(_deq[1].type, _deq[1].frequency, _deq[1].Q, _deq[1].smoothedTargetGain + _deq[1].staticGain, &peqCoeffsTmp[5], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[0].type, _deq[0].frequency, _deq[0].Q, _deq[0].envelope + _deq[0].staticGain, &peqCoeffsTmp[0], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[1].type, _deq[1].frequency, _deq[1].Q, _deq[1].envelope + _deq[1].staticGain, &peqCoeffsTmp[5], dsp.samplerate);
 		for (int i = 0; i < 5; i++) {
 			peqCoeffs[i * 2] = peqCoeffsTmp[i];
 			peqCoeffs[(i * 2) + 1] = peqCoeffsTmp[5 + i];
 		}
 		// last element is not interleaved
-		helperFcn_calcBiquadCoeffs(_deq[2].type, _deq[2].frequency, _deq[2].Q, _deq[2].smoothedTargetGain + _deq[2].staticGain, &peqCoeffs[10], dsp.samplerate);
+		helperFcn_calcBiquadCoeffs(_deq[2].type, _deq[2].frequency, _deq[2].Q, _deq[2].envelope + _deq[2].staticGain, &peqCoeffs[10], dsp.samplerate);
 	#endif
 
 	for (int i_ch = 0; i_ch < 2; i_ch++) {

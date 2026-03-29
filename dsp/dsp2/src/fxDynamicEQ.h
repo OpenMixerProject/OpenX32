@@ -20,8 +20,6 @@ typedef struct {
 
     // background-variables
     float envelope;					// current Envelope-Level
-    float smoothingCoeff;			// alpha-coefficient for 1st-order low-pass
-    float smoothedTargetGain;		// new target-gain filtered by 1st-order-low-pass
     float biquadCoeffsCtrl[5];		// coefficients for control-signal
     float biquadStatesCtrl[2][2];	// states for control-signal
 } sDynamicEQ;

@@ -766,9 +766,9 @@ void X32Ctrl::syncSurface(bool fullSync)
 	{
 		if (config->IsModelX32Full())
 		{
-			uint offset = config->GetUint(BANKING_INPUT) * 8;
+			uint offset = config->GetUint(BANKING_INPUT) * 16;
 
-			for(uint i = 0; i < 8; i++)
+			for(uint i = 0; i < 16; i++)
 			{
 				BindFader(i, CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
 			}
