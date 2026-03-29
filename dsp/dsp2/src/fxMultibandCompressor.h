@@ -3,13 +3,6 @@
 
 #include "fxBase.h"
 
-typedef enum {
-	COMPRESSOR_IDLE,
-	COMPRESSOR_ATTACK,
-	COMPRESSOR_ACTIVE,
-	COMPRESSOR_HOLD,
-	COMPRESSOR_RELEASE
-} compressorState;
 typedef struct {
 	// filter-data from i.MX25
 	float value_threshold;
@@ -20,12 +13,8 @@ typedef struct {
 	float value_makeup;
 
 	// online parameters
-	int holdCounter;
-	bool triggered;
-	compressorState state;
-
-	float gainSet;
-	float gain;
+	int holdTimer;
+	float envelope;
 	float coeff;
 
 	float coeffs[5 * 4];

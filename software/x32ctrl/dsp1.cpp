@@ -1007,7 +1007,7 @@ void DSP1::DSP2_SendFxParameter(int slotIdx)
                         config->GetFloat(fx->GetParameterDefinition(34 * c + 6 + band * 6), slotIdx), // attack
                         config->GetFloat(fx->GetParameterDefinition(34 * c + 7 + band * 6), slotIdx), // hold
                         config->GetFloat(fx->GetParameterDefinition(34 * c + 8 + band * 6), slotIdx), // release
-                        config->GetFloat(fx->GetParameterDefinition(34 * c + 9 + band * 6), slotIdx)  // makepu
+                        config->GetFloat(fx->GetParameterDefinition(34 * c + 9 + band * 6), slotIdx)  // makeup
                     );
                     valueCount = 8;
                     spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);

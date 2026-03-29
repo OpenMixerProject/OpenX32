@@ -48,7 +48,7 @@ fxMultibandCompressor::fxMultibandCompressor(int fxSlot, int channelMode) : fx(f
     //       /  \       /  \       /  \       /  \
 
 	for (int i = 0; i < 5; i++) {
-		_compressor[0][i].value_threshold = 1369560648.0f; // -5dB
+		_compressor[0][i].value_threshold = -5.0; // dB
 		_compressor[0][i].value_ratio = 1.5f;
 		_compressor[0][i].value_coeff_attack = 0.92937699360542739010302f; // attach = 10ms
 		_compressor[0][i].value_hold_ticks = 4800.0f; // 100ms
@@ -109,10 +109,7 @@ fxMultibandCompressor::fxMultibandCompressor(int fxSlot, int channelMode) : fx(f
 		for (int b = 0; b < 5; b++) {
 			memset(_compressor[i_ch][b].states, 0, sizeof(_compressor[i_ch][b].states));
 
-			_compressor[i_ch][b].gain = 1.0f;
-			_compressor[i_ch][b].gainSet = 1.0f;
-			_compressor[i_ch][b].state = COMPRESSOR_IDLE;
-			_compressor[i_ch][b].triggered = false;
+			_compressor[i_ch][b].envelope = 1.0f;
 		}
     }
 
@@ -257,29 +254,23 @@ void fxMultibandCompressor::setFrequencies(int channel, float f0, float f1, floa
         _compressor[channel][4].coeffs[sectionIndex + 8] = 0; // poles
     }
 
-
-
-    /*
-    	// For debugging: Direct-passthrough on all 4 IIR-filters
-        for (int eq = 0; eq < 4; eq++) {
-            int sectionIndex = ((eq / 2) * 2) * 5;
-            if ((eq % 2) != 0) {
-                // odd section index
-                sectionIndex += 1;
-            }
-            _compressor[channel][0].coeffs[sectionIndex + 0] = 1; // zeros
-            _compressor[channel][0].coeffs[sectionIndex + 2] = 0; // zeros
-            _compressor[channel][0].coeffs[sectionIndex + 4] = 0; // zeros
-            _compressor[channel][0].coeffs[sectionIndex + 6] = 0; // poles
-            _compressor[channel][0].coeffs[sectionIndex + 8] = 0; // poles
-        }
-
-        memcpy(&_compressor[channel][1].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
-        memcpy(&_compressor[channel][2].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
-        memcpy(&_compressor[channel][3].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
-        memcpy(&_compressor[channel][4].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
-    */
-
+	// For debugging: Direct-passthrough on all 4 IIR-filters
+	//for (int eq = 0; eq < 4; eq++) {
+	//    int sectionIndex = ((eq / 2) * 2) * 5;
+	//    if ((eq % 2) != 0) {
+	//        // odd section index
+	//        sectionIndex += 1;
+	//    }
+	//    _compressor[channel][0].coeffs[sectionIndex + 0] = 1; // zeros
+	//    _compressor[channel][0].coeffs[sectionIndex + 2] = 0; // zeros
+	//    _compressor[channel][0].coeffs[sectionIndex + 4] = 0; // zeros
+	//    _compressor[channel][0].coeffs[sectionIndex + 6] = 0; // poles
+	//    _compressor[channel][0].coeffs[sectionIndex + 8] = 0; // poles
+	//}
+	//memcpy(&_compressor[channel][1].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
+	//memcpy(&_compressor[channel][2].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
+	//memcpy(&_compressor[channel][3].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
+	//memcpy(&_compressor[channel][4].coeffs[0], &_compressor[channel][0].coeffs[0], 5 * 4 * sizeof(float));
 }
 
 // human-friendly parameter-settings, but more expensive for the DSP
@@ -289,13 +280,14 @@ void fxMultibandCompressor::setParameters(int channel, int band, float threshold
 	// the compressor will be calculated only every "SAMPLES_IN_BUFFER" samples, so we have to take care of this
 	float samplerate = dsp.samplerate/(float)SAMPLES_IN_BUFFER;
 
-	_compressor[channel][band].value_threshold = (powf(2.0f, 31.0f) - 1.0f) * helperFcn_db2lin(threshold); // powf(10.0f, threshold/20.0f);
+	_compressor[channel][band].value_threshold = threshold;
 	_compressor[channel][band].value_ratio = ratio;
-	_compressor[channel][band].value_coeff_attack = expf(-2197.22457734f/(samplerate * attack)); // ln(10%) - ln(90%) = -2.197224577
+	_compressor[channel][band].value_coeff_attack = 1.0f - expf(-2197.22457734f/(samplerate * attack)); // ln(10%) - ln(90%) = -2.197224577
 	_compressor[channel][band].value_hold_ticks = hold * samplerate / 1000.0f;
-	_compressor[channel][band].value_coeff_release = expf(-2197.22457734f/(samplerate * release)); // ln(10%) - ln(90%) = -2.197224577
+	_compressor[channel][band].value_coeff_release = 1.0f - expf(-2197.22457734f/(samplerate * release)); // ln(10%) - ln(90%) = -2.197224577
 	_compressor[channel][band].value_makeup = helperFcn_db2lin(makeup); //powf(10.0f, makeup/20.0f);
 }
+
 
 void fxMultibandCompressor::rxData(float data[], int len) {
 	// data received from x32ctrl
@@ -368,33 +360,66 @@ void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict
 		// _buffer[][] contains now all samples of the current band
 
 		// Step 3: compress current band for each channel
-		// Compressor: gain = (gain * coeff) + gainSet - (gainSet * coeff)
 		if (_dualMono) {
 			// dual mono processing
 			for (int i_ch = 0; i_ch < 2; i_ch++) {
-				processLogic(&_compressor[i_ch][b], _buffer[i_ch][0]);
-				_compressor[i_ch][b].gain = (_compressor[i_ch][b].gain * _compressor[i_ch][b].coeff) + _compressor[i_ch][b].gainSet - (_compressor[i_ch][b].gainSet * _compressor[i_ch][b].coeff);
+				float inputDb = helperFcn_lin2db(fabsf(_buffer[i_ch][0]) * INT32_TO_FLOAT_NORM);
+				float targetGainDb = 0.0f;
+				if (inputDb > _compressor[i_ch][b].value_threshold) {
+					targetGainDb = (_compressor[i_ch][b].value_threshold - inputDb) * (1.0f - 1.0f / _compressor[i_ch][b].value_ratio);
+				}
+				float currentGainLinear = helperFcn_db2lin(targetGainDb);
+				if (currentGainLinear < _compressor[i_ch][b].envelope) {
+					// Attack
+					_compressor[i_ch][b].envelope += _compressor[i_ch][b].value_coeff_attack * (currentGainLinear - _compressor[i_ch][b].envelope);
+					_compressor[i_ch][b].holdTimer = _compressor[i_ch][b].value_hold_ticks;
+				}else{
+					// Hold -> Release
+					if (_compressor[i_ch][b].holdTimer > 0) {
+						_compressor[i_ch][b].holdTimer--;
+					}else{
+						_compressor[i_ch][b].envelope += _compressor[i_ch][b].value_coeff_release * (currentGainLinear - _compressor[i_ch][b].envelope);
+					}
+				}
 			}
 
 			// Step 4: apply new gain and makeup to all samples of current band and sumup all bands to output samples
 			for (int i_ch = 0; i_ch < 2; i_ch++) {
-				float mult = _compressor[i_ch][b].gain * _compressor[i_ch][b].value_makeup;
+				float mult = _compressor[i_ch][b].envelope * _compressor[i_ch][b].value_makeup;
 				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 					bufOut[i_ch][s] += _buffer[i_ch][s] * mult;
 				}
 			}
 		}else{
 			// stereo processing
-			float sample = _buffer[0][0]; // left channel
-			if (_buffer[1][0] > sample) {
+			float sample = fabsf(_buffer[0][0]); // left channel
+			float sampleR = fabsf(_buffer[1][0]); // right channel
+			if (sampleR > sample) {
 				// take right channel if its louder
-				sample = _buffer[1][0];
+				sample = sampleR;
 			}
-			processLogic(&_compressor[0][b], sample); // process with loudest sample
-			_compressor[0][b].gain = (_compressor[0][b].gain * _compressor[0][b].coeff) + _compressor[0][b].gainSet - (_compressor[0][b].gainSet * _compressor[0][b].coeff);
+
+			float inputDb = helperFcn_lin2db(sample * INT32_TO_FLOAT_NORM);
+			float targetGainDb = 0.0f;
+			if (inputDb > _compressor[0][b].value_threshold) {
+				targetGainDb = (_compressor[0][b].value_threshold - inputDb) * (1.0f - 1.0f / _compressor[0][b].value_ratio);
+			}
+			float currentGainLinear = helperFcn_db2lin(targetGainDb);
+			if (currentGainLinear < _compressor[0][b].envelope) {
+				// Attack
+				_compressor[0][b].envelope += _compressor[0][b].value_coeff_attack * (currentGainLinear - _compressor[0][b].envelope);
+				_compressor[0][b].holdTimer = _compressor[0][b].value_hold_ticks;
+			}else{
+				// Hold -> Release
+				if (_compressor[0][b].holdTimer > 0) {
+					_compressor[0][b].holdTimer--;
+				}else{
+					_compressor[0][b].envelope += _compressor[0][b].value_coeff_release * (currentGainLinear - _compressor[0][b].envelope);
+				}
+			}
 
 			// Step 4: apply new gain and makeup to all samples of current band and sumup all bands to output samples
-			float mult = _compressor[0][b].gain * _compressor[0][b].value_makeup;
+			float mult = _compressor[0][b].envelope * _compressor[0][b].value_makeup;
 			for (int i_ch = 0; i_ch < 2; i_ch++) {
 				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 					bufOut[i_ch][s] += _buffer[i_ch][s] * mult;
@@ -402,93 +427,11 @@ void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict
 			}
 		}
 	}
-
+/*
 	// bypass
-	//bufOut[0][s] = bufIn[0][s];
-	//bufOut[1][s] = bufIn[1][s];
-}
-
-void fxMultibandCompressor::processLogic(sCompressor* compressor, float sample) {
-	//float input_abs = fabsf(meanf(samples, SAMPLES_IN_BUFFER)); // takes 2.5% CPU Load
-	float input_abs = fabsf(sample);
-
-	compressor->triggered = (input_abs > compressor->value_threshold);
-
-	// calculate the gate-logic and online-parameters
-	switch (compressor->state) {
-		case COMPRESSOR_IDLE:
-			compressor->gainSet = 1.0f;
-			// check if we have to open the gate
-			if (!compressor->triggered) {
-				break;
-			}
-
-			compressor->state = COMPRESSOR_ATTACK;
-			// no break by intention: fall-through to ATTACK
-		case COMPRESSOR_ATTACK:
-			// overshoot = fabsf(sample) - threshold
-			// output = (overshoot / ratio) + threshold
-			// gainSet = output / fabsf(input)
-			if ((input_abs > 0) && (compressor->value_ratio != 0)) {
-				// gainSet = input_abs
-				compressor->gainSet = (((input_abs - compressor->value_threshold) * compressor->value_ratio) + compressor->value_threshold) / input_abs;
-			}
-
-			compressor->coeff = compressor->value_coeff_attack;
-			compressor->state = COMPRESSOR_ACTIVE;
-			// no break by intention: fall-through to ACTIVE
-		case COMPRESSOR_ACTIVE:
-			// check if we are still triggered
-			if (compressor->triggered) {
-				// check if we have to compress even more
-				float newValue;
-				if ((input_abs > 0) && (compressor->value_ratio != 0)) {
-					newValue = (((input_abs - compressor->value_threshold) * compressor->value_ratio) + compressor->value_threshold) / input_abs;
-					if (newValue < compressor->gainSet) {
-						// compress even more
-						compressor->gainSet = newValue;
-					}
-				}
-
-				// stay in this state
-				compressor->state = COMPRESSOR_ACTIVE;
-				break;
-			}
-
-			compressor->holdCounter = compressor->value_hold_ticks;
-			compressor->state = COMPRESSOR_HOLD;
-			// no break by intention: fall-through to hold
-		case COMPRESSOR_HOLD:
-			if (compressor->triggered) {
-				// re-enter active-state
-				float newValue;
-				if ((input_abs > 0) && (compressor->value_ratio != 0)) {
-					newValue = (((input_abs - compressor->value_threshold) * compressor->value_ratio) + compressor->value_threshold) / input_abs;
-					if (newValue < compressor->gainSet) {
-						// compress even more
-						compressor->gainSet = newValue;
-					}
-				}
-				compressor->state = COMPRESSOR_ACTIVE;
-				compressor->holdCounter = compressor->value_hold_ticks;
-				break;
-			}
-
-			// we are below threshold
-			if (compressor->holdCounter >= 0) {
-				compressor->holdCounter--;
-				break;
-			}
-
-			compressor->state = COMPRESSOR_RELEASE;
-			// no break by intention: fall-through to RELEASE
-		case COMPRESSOR_RELEASE:
-			compressor->gainSet = 1.0f;
-			compressor->coeff = compressor->value_coeff_release;
-			compressor->state = COMPRESSOR_IDLE;
-			break;
-		default:
-			compressor->state = COMPRESSOR_IDLE;
-			break;
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		bufOut[0][s] = bufIn[0][s];
+		bufOut[1][s] = bufIn[1][s];
 	}
+*/
 }

@@ -701,8 +701,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_THRESHOLD, cat, "[1L] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "1l_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND1_RATIO, cat, "[1L] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -733,8 +732,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_THRESHOLD, cat, "[2L] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "2l_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND2_RATIO, cat, "[2L] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -765,8 +763,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_THRESHOLD, cat, "[3L] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "3l_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND3_RATIO, cat, "[3L] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -797,8 +794,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_THRESHOLD, cat, "[4L] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "4l_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND4_RATIO, cat, "[4L] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -829,8 +825,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_THRESHOLD, cat, "[5L] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "5l_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_L_BAND5_RATIO, cat, "[5L] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -886,8 +881,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_THRESHOLD, cat, "[1R] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "1r_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND1_RATIO, cat, "[1R] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -918,8 +912,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_THRESHOLD, cat, "[2R] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "2r_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND2_RATIO, cat, "[2R] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -950,8 +943,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_THRESHOLD, cat, "[3R] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "3r_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND3_RATIO, cat, "[3R] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -982,8 +974,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_THRESHOLD, cat, "[4R] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "4r_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND4_RATIO, cat, "[4R] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)
@@ -1014,8 +1005,7 @@ void Config::DefineMixerparameters() {
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_THRESHOLD, cat, "[5R] Threshold", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "5r_threshold")
-
-    ->DefMinMaxStandard_Float(-15.0f, 0.0f, -5.0f, 0);
+    ->DefMinMaxStandard_Float(-60.0f, 0.0f, -5.0f, 0);
 
     DefParameter(FX_MULTIBANDCOMPRESOR_R_BAND5_RATIO, cat, "[5R] Ratio", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::NONE)

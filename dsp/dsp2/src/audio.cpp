@@ -275,7 +275,7 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 				fxSlots[fxSlot] = new fxDelay(fxSlot, channelMode);
 				break;
 			case 5:
-				//fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode); // at the moment this effect takes to much space in program
+				//fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode); // at the moment this effect takes too much space (334 words) in program-memory
 				break;
 			case 6:
 				fxSlots[fxSlot] = new fxDynamicEQ(fxSlot, channelMode);
@@ -364,7 +364,7 @@ void audioProcessData(void) {
 		fxSlots[0]->process(&fxInBuf[0], &fxOutSurroundBuf[0]);
 	#else
 		for (int i = 0; i < 8; i++) {
-			if (fxSlots[i] != 0) {
+			if (fxSlots[i] != NULL) {
 				fxSlots[i]->process(&fxInBuf[i][0], &fxOutBuf[i][0]);
 			}
 		}

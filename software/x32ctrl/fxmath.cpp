@@ -320,11 +320,11 @@ void FxMath::fxCalcParameters_MultibandCompressor(float data[], int channel, int
 
   data[0] = channel;
   data[1] = band;
-	data[2] = (pow(2.0f, 31.0f) - 1.0f) * pow(10.0f, threshold/20.0f);
+	data[2] = threshold;
 	data[3] = ratio;
-	data[4] = exp(-2197.22457734f/(samplerate * attack)); // ln(10%) - ln(90%) = -2.197224577
+	data[4] = 1.0f - exp(-2197.22457734f/(samplerate * attack)); // ln(10%) - ln(90%) = -2.197224577
 	data[5] = hold * samplerate / 1000.0f;
-	data[6] = exp(-2197.22457734f/(samplerate * release)); // ln(10%) - ln(90%) = -2.197224577
+	data[6] = 1.0f - exp(-2197.22457734f/(samplerate * release)); // ln(10%) - ln(90%) = -2.197224577
 	data[7] = pow(10.0f, makeup / 20.0f);
 }
 
