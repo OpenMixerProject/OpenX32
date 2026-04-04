@@ -31,9 +31,11 @@ void X32Ctrl::Init(){
 	char model[12];
 	char serial[15];
 	char date[16];
+	char cfg[5];
 	helper->ReadConfig("/etc/x32.conf", "MDL=", model, 12);
 	helper->ReadConfig("/etc/x32.conf", "SN=", serial, 15);
 	helper->ReadConfig("/etc/x32.conf", "DATE=", date, 16);
+	helper->ReadConfig("/etc/x32.conf", "CFG", cfg, 5);
 	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
 	if (state->bodyless) {
@@ -138,6 +140,10 @@ void X32Ctrl::Init(){
 		
 		mixer->SaveConfig(0);
 	}
+
+	// DEBUG Show CFG-Value
+	config->Set(CHANNEL_NAME, String(cfg), to_underlying(X32_VCHANNEL_BLOCK::DCA));
+	config->Set(CHANNEL_NAME, String(date), to_underlying(X32_VCHANNEL_BLOCK::DCA)+1);
 
 	// set brightness and contrast
 	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LED Brightness to %d", state->ledbrightness);
