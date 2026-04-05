@@ -318,19 +318,19 @@ void X32Ctrl::Tick100ms(void) {
 		dspLoadHistoryPointer++;
 		if (dspLoadHistoryPointer >= 20) {
 			dspLoadHistoryPointer = 0;
-
-			float dspLoadMean[2] = {0, 0};
-			for (uint8_t i = 0; i < 20; i++) {
-				dspLoadMean[0] += dspLoadHistory[0][i];
-				dspLoadMean[1] += dspLoadHistory[1][i];
-			}
-			dspLoadMean[0] /= 20.0;
-			dspLoadMean[1] /= 20.0;
-
-			// show the DSP-load
-			lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)dspLoadMean[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
-			lv_label_set_text_fmt(objects.debugtext_dsp2, "DSP2: Load: %.1f %% | Version: v%.2f | Glitches: %.0f | Heap: %.0f Words free", (double)dspLoadMean[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1]);
 		}
+
+		float dspLoadMean[2] = {0, 0};
+		for (uint8_t i = 0; i < 20; i++) {
+			dspLoadMean[0] += dspLoadHistory[0][i];
+			dspLoadMean[1] += dspLoadHistory[1][i];
+		}
+		dspLoadMean[0] /= 20.0;
+		dspLoadMean[1] /= 20.0;
+
+		// show the DSP-load
+		lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)dspLoadMean[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
+		lv_label_set_text_fmt(objects.debugtext_dsp2, "DSP2: Load: %.1f %% | Version: v%.2f | Glitches: %.0f | Heap: %.0f Words free", (double)dspLoadMean[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1]);
 
 		// show some debug-text
 		//lv_label_set_text_fmt(objects.debugtext_x32ctrl, "DSP1-TxQueue: %d | DSP2-TxQueue: %d", mixer->dsp->spi->GetDspTxQueueLength(0), mixer->dsp->spi->GetDspTxQueueLength(1)); 

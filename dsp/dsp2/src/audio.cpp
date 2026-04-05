@@ -279,6 +279,7 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 			//	fxSlots[fxSlot] = new fxDemo(fxSlot, fxInBuf, fxOutBuf, channelMode);
 			//	break;
 			default:
+				// FX_NONE or undefined
 				break;
 		}
 	#endif

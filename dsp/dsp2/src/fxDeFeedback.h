@@ -22,12 +22,14 @@ class fxDeFeedback : public fx {
         float* _bufIn[2];
         float* _bufOut[2];
 
-        int weightsRst;
-        int historyRst;
+        int _weightsRst;
+        int _historyRst;
 
         // filter-storages
-        float weights[TAPS];
-        float history[TAPS + SAMPLES_IN_BUFFER];
+        float _weights[TAPS];
+        float _history[TAPS + SAMPLES_IN_BUFFER];
+
+        float _envelope;
 
         float nn_inference_scalar(float* __restrict input);
 };

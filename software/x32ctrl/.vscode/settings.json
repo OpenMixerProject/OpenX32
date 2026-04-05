@@ -54,5 +54,6 @@
         "constants.h": "c",
         "ratio": "cpp"
     },
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "C_Cpp.default.compilerPath": ""
 }

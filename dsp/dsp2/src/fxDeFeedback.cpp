@@ -38,8 +38,10 @@ fxDeFeedback::fxDeFeedback(int fxSlot, float* bufIn[], float* bufOut[], int chan
 	_bufOut[0] = bufOut[0];
 	_bufOut[1] = bufOut[1];
 
-	weightsRst = 0;
-	historyRst = 0;
+	_weightsRst = 0;
+	_historyRst = 0;
+
+	_envelope = 1;
 }
 
 fxDeFeedback::~fxDeFeedback() {
@@ -62,7 +64,7 @@ float fxDeFeedback::nn_inference_scalar(float* __restrict input) {
     for (int i = 0; i < (SAMPLES_IN_BUFFER * 2); i++) {
         float sum = nn_bias_h[i];
         for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-            sum += (input[s] * INT32_TO_FLOAT_NORM) * nn_weights_ih[i][s]; // bring to -1.0 ... +1.0
+            sum += input[s] * nn_weights_ih[i][s];
         }
         hidden[i] = (sum > 0.0f) ? sum : 0.0f;
     }
@@ -81,11 +83,11 @@ float fxDeFeedback::nn_inference_scalar(float* __restrict input) {
 void fxDeFeedback::process() {
 	if (_startup) {
 		for (int i = 0; i < SAMPLES_IN_BUFFER; i++) {
-			if (weightsRst < TAPS) {
-				weights[weightsRst++] = 0.0;
+			if (_weightsRst < TAPS) {
+				_weights[_weightsRst++] = 0.0;
 			}
-			if (historyRst < (TAPS + SAMPLES_IN_BUFFER)) {
-				history[historyRst++] = 0.0;
+			if (_historyRst < (TAPS + SAMPLES_IN_BUFFER)) {
+				_history[_historyRst++] = 0.0;
 			}else{
 				_startup = false;
 			}
@@ -96,7 +98,22 @@ void fxDeFeedback::process() {
 
 	// Step 1: LMS Loop
     // Step 1: AI decides: is it feedback (1.0) or regular audio (0.0)
-    float ai_decision = nn_inference_scalar(&_bufIn[0][0]);
+
+	// use a limiter for the input-signal
+	float inputDb = helperFcn_lin2db(fabsf(_bufIn[0][0]) * INT32_TO_FLOAT_NORM);
+	float targetGainDb = 0.0f; // 0dBfs
+	if (inputDb > -12.0f) {
+		targetGainDb = (-12.0f - inputDb); // hard limit with ratio 1:oo
+	}
+	float currentGainLinear = helperFcn_db2lin(targetGainDb);
+	// as we are using this signal just for the AI, we do not use any envelope-curve
+	float bufLimitedNormalized[SAMPLES_IN_BUFFER];
+	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+		bufLimitedNormalized[s] = _bufIn[0][s] * currentGainLinear * (4.0f * INT32_TO_FLOAT_NORM); // with a threshold at -12dB we have to increase the volume by x4 afterwards
+	}
+
+
+    float ai_decision = nn_inference_scalar(&bufLimitedNormalized[0]); // input has to be normalized to -1.0 ... +1.0
 
 	// map the decision to a small learning-rate. Important: this value
 	// has to be 0 when we want normal audio
@@ -106,16 +123,16 @@ void fxDeFeedback::process() {
         // Step 2: simple FIR Filter for prediction
         float pred = 0;
         for(int i = 0; i < TAPS; i++) {
-            pred += weights[i] * history[i + (SAMPLES_IN_BUFFER - 1 - s)];
+            pred += _weights[i] * _history[i + (SAMPLES_IN_BUFFER - 1 - s)];
         }
 
         float error = (_bufIn[0][s] * INT32_TO_FLOAT_NORM) - pred;
         _bufOut[0][s] = error;
 
-        // Step 3: NLMS Update (Enery-Normalizing for stability)
+        // Step 3: NLMS Update (Energy-Normalizing for stability)
         float energy = 0;
         for(int i = 0; i < TAPS; i++) {
-            float h = history[i + (SAMPLES_IN_BUFFER - 1 - s)];
+            float h = _history[i + (SAMPLES_IN_BUFFER - 1 - s)];
             energy += h * h;
         }
         energy += 0.01f; // small bias to prevent a DIV/0
@@ -124,28 +141,35 @@ void fxDeFeedback::process() {
 
         // Step 4: update of the weights
         for (int i = 0; i < TAPS; i++) {
-            weights[i] = (weights[i] * LEAKAGE) + step * error * history[i + (SAMPLES_IN_BUFFER - 1 - s)];
+            _weights[i] = (_weights[i] * LEAKAGE) + step * error * _history[i + (SAMPLES_IN_BUFFER - 1 - s)];
         }
     }
 
     // Step 5: update the history
-    memmove(&history[SAMPLES_IN_BUFFER], &history[0], TAPS * sizeof(float));
+    memmove(&_history[SAMPLES_IN_BUFFER], &_history[0], TAPS * sizeof(float));
     for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-        history[SAMPLES_IN_BUFFER - 1 - s] = _bufOut[0][s];
+        _history[SAMPLES_IN_BUFFER - 1 - s] = _bufOut[0][s];
     }
 
 
 
 	// Last Step: intervention logic with a hard threshold
+    float targetGain = 1;
 	if (ai_decision > INTERVENTION_THRESHOLD) {
-		// damp the output-signal to a minimum
-		// TODO: use an envelope-curve here like in compressor or gate instead of hard damping
-        for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-            _bufOut[0][s] *= 0.1f; // hard damping during feedback
-        }
+		// damp the output-signal
+		targetGain = 0;
 
-		// TODO: use a notch-filter with the detected frequency to fight against feedback
+		// fast attack
+		_envelope += 0.1f * (targetGain - _envelope);
+	}else{
+		// slow release of filter
+		_envelope += 0.01f * (targetGain - _envelope);
 	}
+    for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+        _bufOut[0][s] *= _envelope; // hard damping during feedback
+    }
+
+
 
 	// rescale back to 32-bit
     for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
