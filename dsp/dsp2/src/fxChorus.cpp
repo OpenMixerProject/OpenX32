@@ -28,9 +28,15 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-fxChorus::fxChorus(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxChorus::fxChorus(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0];
+	_bufIn[1] = bufIn[1];
+	_bufOut[0] = bufOut[0];
+	_bufOut[1] = bufOut[1];
 
 	// calculate the maximum amount of space we need in the external RAM for the maximum samplerate we are supporting
 	_delayLineLengthMaxMs = 50;
@@ -102,11 +108,11 @@ void fxChorus::rxData(float data[], int len) {
 	_mix = data[8];
 }
 
-void fxChorus::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxChorus::process() {
 	if (_startup) {
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			bufOut[0][s] = 0;
-			bufOut[1][s] = 0;
+			_bufOut[0][s] = 0;
+			_bufOut[1][s] = 0;
 
 			_delayLineA[_delayLineHeadA] = 0;
 			_delayLineB[_delayLineHeadA] = 0;
@@ -122,8 +128,8 @@ void fxChorus::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	}
 
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-	    float inL = bufIn[0][s];
-	    float inR = bufIn[1][s];
+	    float inL = _bufIn[0][s];
+	    float inR = _bufIn[1][s];
 
 	    // write sample into delay-line
 	    _delayLineA[_delayLineHeadA] = inL;
@@ -158,8 +164,8 @@ void fxChorus::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	    // Step 5: Mixing & Output
 	    float dryGain = 1.0f - _mix;
 	    float wetGain = _mix;
-	    bufOut[0][s] = fclipf((dryGain * inL) + (wetGain * chorusL), 2147483647.0f);
-	    bufOut[1][s] = fclipf((dryGain * inR) + (wetGain * chorusR), 2147483647.0f);
+	    _bufOut[0][s] = fclipf((dryGain * inL) + (wetGain * chorusL), 2147483647.0f);
+	    _bufOut[1][s] = fclipf((dryGain * inR) + (wetGain * chorusR), 2147483647.0f);
 
 	    // Step 6: update Pointer & Phase
 	    _delayLineHeadA = (_delayLineHeadA + 1 >= _delayLineBufferSize) ? 0 : _delayLineHeadA + 1;

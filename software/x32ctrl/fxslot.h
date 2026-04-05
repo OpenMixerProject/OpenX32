@@ -11,6 +11,8 @@
 #include "fx-delay.h"
 #include "fx-multibandcompressor.h"
 #include "fx-dynamiceq.h"
+#include "fx-defeedback.h"
+#include "fx-matrixupmixer.h"
 
 class FxSlot : X32Base {
 

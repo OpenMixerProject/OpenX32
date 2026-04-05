@@ -265,9 +265,15 @@ void hadamardMatrix(float* buf) {
 #endif
 
 //#pragma section("seg_block2_code")
-fxReverb::fxReverb(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxReverb::fxReverb(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0];
+	_bufIn[1] = bufIn[1];
+	_bufOut[0] = bufOut[0];
+	_bufOut[1] = bufOut[1];
 
 	_startupCounter = 0;
 
@@ -393,11 +399,11 @@ void fxReverb::rxData(float data[], int len) {
 	}
 }
 
-void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxReverb::process() {
 	if (_startup) {
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			bufOut[0][s] = 0;
-			bufOut[1][s] = 0;
+			_bufOut[0][s] = 0;
+			_bufOut[1][s] = 0;
 		}
 
 		// last delay-line has the longest delay, so check if this delay-line is set to 0 already
@@ -442,8 +448,8 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: generate multi-channel fx-input (inL -> _fxBuf[0,2,4,6], inR -> _fxBuf[1,3,5,7])
 		// =================================
-		float inL = bufIn[0][s];
-		float inR = bufIn[1][s];
+		float inL = _bufIn[0][s];
+		float inR = _bufIn[1][s];
 		#if FX_REVERB_INT_CHAN == 8
 			_fxBuf[0] = inL; _fxBuf[1] = inR;
 			_fxBuf[2] = inL; _fxBuf[3] = inR;
@@ -591,12 +597,12 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 				float sumR = (verb1 + verb3) + (verb5 + verb7);
 
 				float scaledWet = _wet * (2.0f / (float)FX_REVERB_INT_CHAN);
-				bufOut[0][s] = (inL * _dry) + (sumL * scaledWet);
-				bufOut[1][s] = (inR * _dry) + (sumR * scaledWet);
+				_bufOut[0][s] = (inL * _dry) + (sumL * scaledWet);
+				_bufOut[1][s] = (inR * _dry) + (sumR * scaledWet);
 			#else
 				// take fxOutput 1/2 as left/right-channel directly
-				bufOut[0][s] = (inL * _dry) + (_fxBufOutput[0] * _wet);
-				bufOut[1][s] = (inR * _dry) + (_fxBufOutput[1] * _wet);
+				_bufOut[0][s] = (inL * _dry) + (_fxBufOutput[0] * _wet);
+				_bufOut[1][s] = (inR * _dry) + (_fxBufOutput[1] * _wet);
 			#endif
 		#else
 			// general calculation for different amount of channels
@@ -610,12 +616,12 @@ void fxReverb::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 				}
 
 				float scaledWet = _wet * (2.0f / (float)FX_REVERB_INT_CHAN);
-				bufOut[0][s] = (inL * _dry) + (sumL * scaledWet);
-				bufOut[1][s] = (inR * _dry) + (sumR * scaledWet);
+				_bufOut[0][s] = (inL * _dry) + (sumL * scaledWet);
+				_bufOut[1][s] = (inR * _dry) + (sumR * scaledWet);
 			#else
 				// take fxOutput 1/2 as left/right-channel directly
-				bufOut[0][s] = (inL * dry) + (_fxBufOutput[0] * wet);
-				bufOut[1][s] = (inR * dry) + (_fxBufOutput[1] * wet);
+				_bufOut[0][s] = (inL * dry) + (_fxBufOutput[0] * wet);
+				_bufOut[1][s] = (inR * dry) + (_fxBufOutput[1] * wet);
 			#endif
 		#endif
 	}

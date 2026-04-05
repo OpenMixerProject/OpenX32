@@ -28,9 +28,15 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-fxDelay::fxDelay(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxDelay::fxDelay(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0];
+	_bufIn[1] = bufIn[1];
+	_bufOut[0] = bufOut[0];
+	_bufOut[1] = bufOut[1];
 
 	// calculate the maximum amount of space we need in the external RAM for the maximum samplerate we are supporting
 	_delayLineLengthMaxMs = 500;
@@ -73,11 +79,11 @@ void fxDelay::rxData(float data[], int len) {
 	_delayLineTailOffsetR = data[1];
 }
 
-void fxDelay::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxDelay::process() {
 	if (_startup) {
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			bufOut[0][s] = 0;
-			bufOut[1][s] = 0;
+			_bufOut[0][s] = 0;
+			_bufOut[1][s] = 0;
 
 			_delayLineL[_delayLineHead] = 0;
 			_delayLineR[_delayLineHead] = 0;
@@ -112,14 +118,14 @@ void fxDelay::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
 
 
 		// Step 2: output data
-	    bufOut[0][s] = delayedSampleL;
-	    bufOut[1][s] = delayedSampleR;
+	    _bufOut[0][s] = delayedSampleL;
+	    _bufOut[1][s] = delayedSampleR;
 
 
 
 	    // Step 3: write sample back to delayLine with decayed feedback
-		_delayLineL[_delayLineHead] = bufIn[0][s] + _delayLineL[_delayLineHead] * 0.3f; // _feedbackDecayGain = powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
-		_delayLineR[_delayLineHead] = bufIn[1][s] + _delayLineR[_delayLineHead] * 0.3f; // _feedbackDecayGain = powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
+		_delayLineL[_delayLineHead] = _bufIn[0][s] + _delayLineL[_delayLineHead] * 0.3f; // _feedbackDecayGain = powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
+		_delayLineR[_delayLineHead] = _bufIn[1][s] + _delayLineR[_delayLineHead] * 0.3f; // _feedbackDecayGain = powf(10, _dbPerCycle * 0.05f); // decay = 10^(dBperCycle/20)  ->  -1.5dB/cycle = x0.85
 		_delayLineHead++;
 		if (_delayLineHead >= _delayLineBufferSize) {
 			_delayLineHead = 0;

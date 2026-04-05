@@ -909,7 +909,7 @@ void DSP1::DSP2_SetFx(int fxSlot, FX_TYPE fxType, int mode)
     values[0] = (int)fxType; // type of the Effect
     values[1] = (int)mode; // mode of the effect (e.g. DualMono or Stereo)
     spi->QueueDspData(1, 'f', 'r', fxSlot, 2, (float*)values);
-    
+
     DSP2_SendFxParameter(fxSlot);
 }
 
@@ -1031,6 +1031,9 @@ void DSP1::DSP2_SendFxParameter(int slotIdx)
                 valueCount = 11;
                 spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);
             }
+            break;
+        case FX_TYPE::DEFEEDBACK:
+            // nothing to send at the moment
             break;
         default:
             break;

@@ -31,9 +31,15 @@
 
 #define ONE_OVER_SQRT2			0.70710678118654752440f
 
-fxMultibandCompressor::fxMultibandCompressor(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxMultibandCompressor::fxMultibandCompressor(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0];
+	_bufIn[1] = bufIn[1];
+	_bufOut[0] = bufOut[0];
+	_bufOut[1] = bufOut[1];
 
 	_dualMono = true;
 
@@ -334,11 +340,11 @@ void fxMultibandCompressor::rxData(float data[], int len) {
 	}
 }
 
-void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxMultibandCompressor::process() {
 	// Step 1: clear the output-buffer
 	for (int i_ch = 0; i_ch < 2; i_ch++) {
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			bufOut[i_ch][s] = 0;
+			_bufOut[i_ch][s] = 0;
 		}
 	}
 
@@ -347,7 +353,7 @@ void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict
 		// Step 2: calculate 24db/oct LR24-filter for each band
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
 			// copy all samples into temporary buffer
-			memcpy(&_buffer[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER);
+			memcpy(&_buffer[i_ch][0], &_bufIn[i_ch][0], SAMPLES_IN_BUFFER);
 
 			// coefficients must be placed in program-memory (pm)
 			// as our effects are implemented as classes which places the variables in the heap in the data-memory (dm)
@@ -387,7 +393,7 @@ void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict
 			for (int i_ch = 0; i_ch < 2; i_ch++) {
 				float mult = _compressor[i_ch][b].envelope * _compressor[i_ch][b].value_makeup;
 				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-					bufOut[i_ch][s] += _buffer[i_ch][s] * mult;
+					_bufOut[i_ch][s] += _buffer[i_ch][s] * mult;
 				}
 			}
 		}else{
@@ -422,7 +428,7 @@ void fxMultibandCompressor::process(float* __restrict bufIn[], float* __restrict
 			float mult = _compressor[0][b].envelope * _compressor[0][b].value_makeup;
 			for (int i_ch = 0; i_ch < 2; i_ch++) {
 				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-					bufOut[i_ch][s] += _buffer[i_ch][s] * mult;
+					_bufOut[i_ch][s] += _buffer[i_ch][s] * mult;
 				}
 			}
 		}

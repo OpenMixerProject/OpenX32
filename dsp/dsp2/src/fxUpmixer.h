@@ -26,8 +26,8 @@
 #define imag					1
 
 // function prototypes
-void fxUpmixerInit(void);
-void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]);
+void fxUpmixerInit(float* inBuf[], float* outBuf[]);
+void fxUpmixerProcess();
 
 #endif
 

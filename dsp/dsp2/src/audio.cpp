@@ -24,7 +24,6 @@
 
 #include "audio.h"
 #include "system.h"
-#include "rta.h"
 
 // include individual effects
 #include "fxBase.h"
@@ -35,9 +34,9 @@
 	// this surround-upmixer-effect takes quite a lot ressources so it
 	// is not implemented as an effect-class-member of the FX-Rack at the moment
 	#include "fxUpmixer.h"
-#elif FX_USE_MATRIXUPMIXER == 1
-	#include "fxMatrixUpmixer.h"
 #else
+	#include "rta.h"
+
 	//#include "fxDemo.h"
 	#include "fxReverb.h"
 	#include "fxChorus.h"
@@ -46,6 +45,8 @@
 	#include "fxDelay.h"
 	#include "fxMultibandCompressor.h"
 	#include "fxDynamicEQ.h"
+	#include "fxDeFeedback.h"
+	#include "fxMatrixUpmixer.h"
 #endif
 
 /*
@@ -89,17 +90,8 @@ int pm audioTx_tcb[4][BUFFER_COUNT][4];
 float time = 0;
 
 // definitions for effect-rack
-#if (FX_USE_UPMIXER == 1)
-	float* fxInBuf[2];
-	float* fxOutSurroundBuf[6];
-#elif (FX_USE_MATRIXUPMIXER == 1)
-	fx* fxSlots[1] = {0};
-	float* fxInBuf[2];
-	float* fxOutSurroundBuf[6];
-#else
+#if (FX_USE_UPMIXER == 0)
 	fx* fxSlots[8] = {0};
-	float* fxInBuf[8][2];
-	float* fxOutBuf[8][2];
 #endif
 
 void audioInit(void) {
@@ -135,61 +127,22 @@ void audioInit(void) {
 	//fxDelayLine[0][0][0] = 0.0f; // dummy write to memory-area to prevent removing by compiler/linker
 
 	// initialize effects-rack
-	#if (FX_USE_MATRIXUPMIXER == 1) || (FX_USE_UPMIXER == 1)
+	#if (FX_USE_UPMIXER == 1)
+		// initialize surround upmixing using a stereo-decompositing upmixer
+		float* fxInBuf[2];
+		float* fxOutBuf[6];
+
 		fxInBuf[0] = &audioBuffer[TAP_INPUT][0][0];
 		fxInBuf[1] = &audioBuffer[TAP_INPUT][1][0];
 
-		fxOutSurroundBuf[0] = &audioBuffer[TAP_OUTPUT][0][0];
-		fxOutSurroundBuf[1] = &audioBuffer[TAP_OUTPUT][1][0];
-		fxOutSurroundBuf[2] = &audioBuffer[TAP_OUTPUT][2][0];
-		fxOutSurroundBuf[3] = &audioBuffer[TAP_OUTPUT][3][0];
-		fxOutSurroundBuf[4] = &audioBuffer[TAP_OUTPUT][4][0];
-		fxOutSurroundBuf[5] = &audioBuffer[TAP_OUTPUT][5][0];
-	#else
-		// route first two inputs to all effect-inputs
-		fxInBuf[0][0] = &audioBuffer[TAP_INPUT][0][0];
-		fxInBuf[0][1] = &audioBuffer[TAP_INPUT][1][0];
-		fxInBuf[1][0] = &audioBuffer[TAP_INPUT][2][0];
-		fxInBuf[1][1] = &audioBuffer[TAP_INPUT][3][0];
-		fxInBuf[2][0] = &audioBuffer[TAP_INPUT][4][0];
-		fxInBuf[2][1] = &audioBuffer[TAP_INPUT][5][0];
-		fxInBuf[3][0] = &audioBuffer[TAP_INPUT][6][0];
-		fxInBuf[3][1] = &audioBuffer[TAP_INPUT][7][0];
-		fxInBuf[4][0] = &audioBuffer[TAP_INPUT][8][0];
-		fxInBuf[4][1] = &audioBuffer[TAP_INPUT][9][0];
-		fxInBuf[5][0] = &audioBuffer[TAP_INPUT][10][0];
-		fxInBuf[5][1] = &audioBuffer[TAP_INPUT][11][0];
-		fxInBuf[6][0] = &audioBuffer[TAP_INPUT][12][0];
-		fxInBuf[6][1] = &audioBuffer[TAP_INPUT][13][0];
-		fxInBuf[7][0] = &audioBuffer[TAP_INPUT][14][0];
-		fxInBuf[7][1] = &audioBuffer[TAP_INPUT][15][0];
+		fxOutBuf[0] = &audioBuffer[TAP_OUTPUT][0][0];
+		fxOutBuf[1] = &audioBuffer[TAP_OUTPUT][1][0];
+		fxOutBuf[2] = &audioBuffer[TAP_OUTPUT][2][0];
+		fxOutBuf[3] = &audioBuffer[TAP_OUTPUT][3][0];
+		fxOutBuf[4] = &audioBuffer[TAP_OUTPUT][4][0];
+		fxOutBuf[5] = &audioBuffer[TAP_OUTPUT][5][0];
 
-		// route each effect-output to a dedicated DSP2 output
-		fxOutBuf[0][0] = &audioBuffer[TAP_OUTPUT][0][0];
-		fxOutBuf[0][1] = &audioBuffer[TAP_OUTPUT][1][0];
-		fxOutBuf[1][0] = &audioBuffer[TAP_OUTPUT][2][0];
-		fxOutBuf[1][1] = &audioBuffer[TAP_OUTPUT][3][0];
-		fxOutBuf[2][0] = &audioBuffer[TAP_OUTPUT][4][0];
-		fxOutBuf[2][1] = &audioBuffer[TAP_OUTPUT][5][0];
-		fxOutBuf[3][0] = &audioBuffer[TAP_OUTPUT][6][0];
-		fxOutBuf[3][1] = &audioBuffer[TAP_OUTPUT][7][0];
-		fxOutBuf[4][0] = &audioBuffer[TAP_OUTPUT][8][0];
-		fxOutBuf[4][1] = &audioBuffer[TAP_OUTPUT][9][0];
-		fxOutBuf[5][0] = &audioBuffer[TAP_OUTPUT][10][0];
-		fxOutBuf[5][1] = &audioBuffer[TAP_OUTPUT][11][0];
-		fxOutBuf[6][0] = &audioBuffer[TAP_OUTPUT][12][0];
-		fxOutBuf[6][1] = &audioBuffer[TAP_OUTPUT][13][0];
-		fxOutBuf[7][0] = &audioBuffer[TAP_OUTPUT][14][0];
-		fxOutBuf[7][1] = &audioBuffer[TAP_OUTPUT][15][0];
-	#endif
-
-	// setup the fx-rack
-	#if (FX_USE_UPMIXER == 1)
-		// initialize surround upmixing using a stereo-decompositing upmixer
-		fxUpmixerInit();
-	#elif (FX_USE_MATRIXUPMIXER == 1)
-		// surround upmixing using a simple matrix-upmixer
-		fxSlots[0] = new fxMatrixUpmixer(0, 6); // EffectSlot #0, 5.1 Surround, Ch 1-6
+		fxUpmixerInit(fxInBuf, fxOutBuf);
 	#else
 		// regular stereo-effects
 
@@ -214,18 +167,18 @@ void audioInit(void) {
 		//audioFxChangeSlot(5, 5, 2); // install MultibandCompressor on slot 5
 		//audioFxChangeSlot(6, 6, 2); // install DynamicEQ on slot 6
 		//audioFxChangeSlot(7, 7, 2); // install demo-FX on slot 7
+
+		rtaInit();
+
+		dsp.oscillatorFreq[0] = 500;
+		dsp.oscillatorFreq[1] = 1000;
+		dsp.oscillatorVolume[0] = 0.1f * 2147483647.0f; // 50% ~ -20dBfs
+		dsp.oscillatorVolume[1] = dsp.oscillatorVolume[0]; // 50% ~ -20dBfs
 	#endif
-
-	rtaInit();
-
-	dsp.oscillatorFreq[0] = 500;
-	dsp.oscillatorFreq[1] = 1000;
-	dsp.oscillatorVolume[0] = 0.1f * 2147483647.0f; // 50% ~ -20dBfs
-	dsp.oscillatorVolume[1] = dsp.oscillatorVolume[0]; // 50% ~ -20dBfs
 }
 
 void audioFxData(int fxSlot, float* data, int len) {
-	#if (FX_USE_UPMIXER == 0) && (FX_USE_MATRIXUPMIXER == 0)
+	#if (FX_USE_UPMIXER == 0)
 		// passthrough data to desired fx-slot
 		if (fxSlots[fxSlot] != NULL) {
 			fxSlots[fxSlot]->rxData(data, len);
@@ -234,7 +187,10 @@ void audioFxData(int fxSlot, float* data, int len) {
 }
 
 void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
-	#if (FX_USE_UPMIXER == 0) && (FX_USE_MATRIXUPMIXER == 0)
+	#if (FX_USE_UPMIXER == 0)
+		float* fxInBuf[2];
+		float* fxOutBuf[6]; // normal FX uses only 2 channel, but the two Upmixer use 6
+
 		if (channelMode < 1) return;
 		if (channelMode > 2) return;
 		if (fxSlot < 0) return;
@@ -246,11 +202,24 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 			fxSlots[fxSlot] = 0;
 		}
 
-		// check if we are already using a reverb. If yes, return without installing effect
-		for (int i = 0; i < 8; i++) {
-			if ((fxSlots[i] != NULL) && (fxSlots[i]->getType() == FX_REVERB)) {
-				// at the moment only one installed reverb is allowed
-				return;
+		// we have two special effects, that cannot be used twice in the system
+		// the reverb takes to much resources and the matrix-upmixer uses the four surround-output-channels
+		if (newFxId == FX_REVERB) {
+			// check if we are already using a reverb. If yes, return without installing effect
+			for (int i = 0; i < 8; i++) {
+				if ((fxSlots[i] != NULL) && (fxSlots[i]->getType() == FX_REVERB)) {
+					// at the moment only one installed reverb is allowed
+					return;
+				}
+			}
+		}
+		if (newFxId == FX_MATRIXUPMIXER) {
+			// check if we are already using a matrix-upmixer. If yes, return without installing effect
+			for (int i = 0; i < 8; i++) {
+				if ((fxSlots[i] != NULL) && (fxSlots[i]->getType() == FX_MATRIXUPMIXER)) {
+					// at the moment only one installed matrix-upmixer is allowed
+					return;
+				}
 			}
 		}
 
@@ -258,31 +227,57 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 		//fxSlots[fxSlot] = (fxReverb*)heap_malloc(0, sizeof(fxReverb)); // 0 = heapID
 
 		// set new effect
+		fxInBuf[0] = &audioBuffer[TAP_INPUT][fxSlot * 2][0];
+		fxInBuf[1] = &audioBuffer[TAP_INPUT][fxSlot * 2 + 1][0];
+		fxOutBuf[0] = &audioBuffer[TAP_OUTPUT][fxSlot * 2][0];
+		fxOutBuf[1] = &audioBuffer[TAP_OUTPUT][fxSlot * 2 + 1][0];
+
 		switch (newFxId) {
-			case 0:
-				fxSlots[fxSlot] = new fxReverb(fxSlot, channelMode);
+			case FX_REVERB:
+				#if FX_USE_REVERB == 1
+					fxSlots[fxSlot] = new fxReverb(fxSlot, fxInBuf, fxOutBuf, channelMode);
+				#endif
 				break;
-			case 1:
-				fxSlots[fxSlot] = new fxChorus(fxSlot, channelMode);
+			case FX_CHORUS:
+				fxSlots[fxSlot] = new fxChorus(fxSlot, fxInBuf, fxOutBuf, channelMode);
 				break;
-			case 2:
-				fxSlots[fxSlot] = new fxTransientshaper(fxSlot, channelMode);
+			case FX_TRANSIENTSHAPER:
+				fxSlots[fxSlot] = new fxTransientshaper(fxSlot, fxInBuf, fxOutBuf, channelMode);
 				break;
-			case 3:
-				fxSlots[fxSlot] = new fxOverdrive(fxSlot, channelMode);
+			case FX_OVERDRIVE:
+				fxSlots[fxSlot] = new fxOverdrive(fxSlot, fxInBuf, fxOutBuf, channelMode);
 				break;
-			case 4:
-				fxSlots[fxSlot] = new fxDelay(fxSlot, channelMode);
+			case FX_DELAY:
+				fxSlots[fxSlot] = new fxDelay(fxSlot, fxInBuf, fxOutBuf, channelMode);
 				break;
-			case 5:
-				//fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, channelMode); // at the moment this effect takes too much space (334 words) in program-memory
+			case FX_MULTIBANDCOMPRESSOR:
+				#if FX_USE_MULTIBANDCOMPRESSOR == 1
+					fxSlots[fxSlot] = new fxMultibandCompressor(fxSlot, fxInBuf, fxOutBuf, channelMode);
+				#endif
 				break;
-			case 6:
-				fxSlots[fxSlot] = new fxDynamicEQ(fxSlot, channelMode);
+			case FX_DEQ:
+				#if FX_USE_DYNAMICEQ == 1
+					fxSlots[fxSlot] = new fxDynamicEQ(fxSlot, fxInBuf, fxOutBuf, channelMode);
+				#endif
 				break;
-			case 7:
-				//fxSlots[fxSlot] = new fxDemo(fxSlot, channelMode);
+			case FX_DEFEEDBACK:
+				#if FX_USE_DEFEEDBACK == 1
+					fxSlots[fxSlot] = new fxDeFeedback(fxSlot, fxInBuf, fxOutBuf, channelMode);
+				#endif
 				break;
+			case FX_MATRIXUPMIXER:
+				// surround upmixing using a simple matrix-upmixer
+
+				// route
+				fxOutBuf[2] = &audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_UPMIX_CENTER][0];
+				fxOutBuf[3] = &audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_UPMIX_BACKLEFT][0];
+				fxOutBuf[4] = &audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_UPMIX_BACKRIGHT][0];
+				fxOutBuf[5] = &audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_UPMIX_LFE][0];
+				fxSlots[fxSlot] = new fxMatrixUpmixer(fxSlot, fxInBuf, fxOutBuf, 6); // surround-channels are on the last 4 return-channels
+				break;
+			//case FX_DEMO:
+			//	fxSlots[fxSlot] = new fxDemo(fxSlot, fxInBuf, fxOutBuf, channelMode);
+			//	break;
 			default:
 				break;
 		}
@@ -358,34 +353,30 @@ void audioProcessData(void) {
 
 	#if FX_USE_UPMIXER == 1
 		// perform stereo-decompositing and 5.1 upmixing
-		fxUpmixerProcess(&fxInBuf[0], &fxOutSurroundBuf[0]);
-	#elif (FX_USE_MATRIXUPMIXER == 1)
-		// process a 5.1 surround-effect
-		fxSlots[0]->process(&fxInBuf[0], &fxOutSurroundBuf[0]);
+		fxUpmixerProcess();
 	#else
 		for (int i = 0; i < 8; i++) {
 			if (fxSlots[i] != NULL) {
-				fxSlots[i]->process(&fxInBuf[i][0], &fxOutBuf[i][0]);
+				fxSlots[i]->process();
 			}
 		}
-	#endif
 
+		// RTA (use AUX channel 8 (index 23) for this)
+		rtaProcess(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_RTA_SOURCE][0]);
 
-	// RTA (use AUX channel 8 (index 23) for this)
-	rtaProcess(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_RTA_SOURCE][0]);
+		// create sinewave-audio on both oscillator-channels (takes around ~3% DSP Load)
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			time += (1.0f/48000.0f); // add 20.83us
+			if (time >= 2.0833333) {
+				// make sure that the float-value is not losing resolution by overflowing
+				time = 0;
+			}
 
-	// create sinewave-audio on both oscillator-channels (takes around ~3% DSP Load)
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		time += (1.0f/48000.0f); // add 20.83us
-		if (time >= 2.0833333) {
-			// make sure that the float-value is not losing resolution by overflowing
-			time = 0;
+			// create sinewaves
+			audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_LEFT][s] = sin(2.0f * M_PI * dsp.oscillatorFreq[0] * time) * dsp.oscillatorVolume[0];
+			audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_RIGHT][s] = sin(2.0f * M_PI * dsp.oscillatorFreq[1] * time) * dsp.oscillatorVolume[1];
 		}
-
-		// create sinewaves
-		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_LEFT][s] = sin(2.0f * M_PI * dsp.oscillatorFreq[0] * time) * dsp.oscillatorVolume[0];
-		audioBuffer[TAP_OUTPUT][DSP_BUF_IDX_OSC_RIGHT][s] = sin(2.0f * M_PI * dsp.oscillatorFreq[1] * time) * dsp.oscillatorVolume[1];
-	}
+	#endif
 
 
 

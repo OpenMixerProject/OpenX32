@@ -52,7 +52,10 @@
 //    return y * (1.5f - 0.5f * x * y * y); // one Newton-Raphson-Step for more precision
 //}
 
-float pm hannWindow[FX_UPMIX_WINDOW_LEN];
+float* __restrict _bufIn[2];
+float* __restrict _bufOut[6];
+
+float pm upmixHannWindow[FX_UPMIX_WINDOW_LEN];
 float lowPassSubState = 0;
 float lowPassSubCoeff = 0.01609904178227480397989f; // 125Hz = 785.398163397448 / 48785.398163397448 <- alpha = (2 * pi * f_c) / (f_s + 2 * pi * f_c) = (2 * pi * 125Hz) / (48000Hz + 2 * pi * 125Hz)
 //float lowPassSurroundState[2];
@@ -115,8 +118,18 @@ int delayLineHead = 0;
 float pm delayLineBackLeft[FX_UPMIXER_BUFFER_SIZE];
 float pm delayLineBackRight[FX_UPMIXER_BUFFER_SIZE];
 
-void fxUpmixerInit(void) {
-	gen_hanning(&hannWindow[0], 1, FX_UPMIX_WINDOW_LEN); // pointer to array, a (Window-spacing), N (Window-Length)
+void fxUpmixerInit(float* bufIn[], float* bufOut[]) {
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0]; // input left
+	_bufIn[1] = bufIn[1]; // input right
+	_bufOut[0] = bufOut[0]; // left
+	_bufOut[1] = bufOut[1]; // right
+	_bufOut[2] = bufOut[2]; // center
+	_bufOut[3] = bufOut[3]; // back-left
+	_bufOut[4] = bufOut[4]; // back-right
+	_bufOut[5] = bufOut[5]; // LFE
+
+	gen_hanning(&upmixHannWindow[0], 1, FX_UPMIX_WINDOW_LEN); // pointer to array, a (Window-spacing), N (Window-Length)
 	twidfftf(&twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
 
 	for (int i = 0; i < FX_UPMIXER_BUFFER_SIZE; i++) {
@@ -125,7 +138,7 @@ void fxUpmixerInit(void) {
 	}
 }
 
-void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
+void fxUpmixerProcess() {
 	// this is the first approach on implementing an Stereo to 5.1 upmixing algorithm based on the
 	// PhD of Sebastian Kraft (https://openhsu.ub.hsu-hh.de/server/api/core/bitstreams/d2391f49-8092-4bb3-a1ad-85b558655dd7/content)
 	//
@@ -149,7 +162,7 @@ void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
 	// Step 1: Collect data and trigger calculation every N/4 samples
 	// ============================================================================================
 	for (int i_ch = 0; i_ch < 2; i_ch++) {
-		memcpy(&upmixInputBuffer[i_ch][upmixInputBufferHead], inBuf[i_ch], SAMPLES_IN_BUFFER * sizeof(float));
+		memcpy(&upmixInputBuffer[i_ch][upmixInputBufferHead], _bufIn[i_ch], SAMPLES_IN_BUFFER * sizeof(float));
 	}
 	upmixInputSampleCounter += SAMPLES_IN_BUFFER; // keep track of received samples
 
@@ -187,7 +200,7 @@ void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
 		// now we have a consistent and sorted sample-buffer with the oldest sample at index 0 and the newest sample at the last index
 		// apply pre-calculated Hann-Window
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			vecvmltf(&upmixFftInputBufferLR_real[i_ch][0], &hannWindow[0], &upmixFftInputBufferLR_real[i_ch][0], FX_UPMIX_WINDOW_LEN);
+			vecvmltf(&upmixFftInputBufferLR_real[i_ch][0], &upmixHannWindow[0], &upmixFftInputBufferLR_real[i_ch][0], FX_UPMIX_WINDOW_LEN);
 		}
 
 		// TODO: allocate different memory-location for data one compared to data two to increase performance
@@ -458,11 +471,11 @@ void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
 		ifftf(reBufBR, imBufBR, &upmixFftTempBuffer_real[0], &upmixFftTempBuffer_imag[0], &twidtab_real[0], &twidtab_imag[0], FX_UPMIX_WINDOW_LEN);
 
 		// apply pre-calculated Hann-Window again to mitigate harmonics
-		vecvmltf(reBufL, &hannWindow[0], reBufL, FX_UPMIX_WINDOW_LEN);
-		vecvmltf(reBufR, &hannWindow[0], reBufR, FX_UPMIX_WINDOW_LEN);
-		vecvmltf(reBufC, &hannWindow[0], reBufC, FX_UPMIX_WINDOW_LEN);
-		vecvmltf(reBufBL, &hannWindow[0], reBufBL, FX_UPMIX_WINDOW_LEN);
-		vecvmltf(reBufBR, &hannWindow[0], reBufBR, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufL, &upmixHannWindow[0], reBufL, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufR, &upmixHannWindow[0], reBufR, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufC, &upmixHannWindow[0], reBufC, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufBL, &upmixHannWindow[0], reBufBL, FX_UPMIX_WINDOW_LEN);
+		vecvmltf(reBufBR, &upmixHannWindow[0], reBufBR, FX_UPMIX_WINDOW_LEN);
 
 
 
@@ -505,9 +518,9 @@ void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
 	}
 
 	// copy data to output-buffer
-	memcpy(outBuf[0], &upmixOutputBuffer[0][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // left
-	memcpy(outBuf[1], &upmixOutputBuffer[1][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // right
-	memcpy(outBuf[2], &upmixOutputBuffer[2][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // center
+	memcpy(_bufOut[0], &upmixOutputBuffer[0][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // left
+	memcpy(_bufOut[1], &upmixOutputBuffer[1][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // right
+	memcpy(_bufOut[2], &upmixOutputBuffer[2][upmixOutputSampleCounter], SAMPLES_IN_BUFFER * sizeof(float)); // center
 
 
 	// Step 8: delay-line for surround-channels
@@ -527,10 +540,10 @@ void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
 	if (delayLineTailLeft < 0) { delayLineTailLeft += FX_UPMIXER_BUFFER_SIZE; } // manual wrap-around
 	if (delayLineTailRight < 0) { delayLineTailRight += FX_UPMIXER_BUFFER_SIZE; } // manual wrap-around
 	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		outBuf[3][s] = delayLineBackLeft[delayLineTailLeft++];
+		_bufOut[3][s] = delayLineBackLeft[delayLineTailLeft++];
 		if (delayLineTailLeft == FX_UPMIXER_BUFFER_SIZE) { delayLineTailLeft = 0; }
 
-		outBuf[4][s] = delayLineBackRight[delayLineTailRight++];
+		_bufOut[4][s] = delayLineBackRight[delayLineTailRight++];
 		if (delayLineTailRight == FX_UPMIXER_BUFFER_SIZE) { delayLineTailRight = 0; }
 	}
 
@@ -557,9 +570,9 @@ void fxUpmixerProcess(float* __restrict inBuf[2], float* __restrict outBuf[6]) {
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
 	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		float inputSum = (inBuf[0][s] + inBuf[1][s]) * 0.5f; // SHARC supports Dual-MAC in a single clock-cycle
+		float inputSum = (_bufIn[0][s] + _bufIn[1][s]) * 0.5f; // SHARC supports Dual-MAC in a single clock-cycle
 		lowPassSubState += lowPassSubCoeff * (inputSum - lowPassSubState); // SHARC supports Dual-MAC in a single clock-cycle
-		outBuf[5][s] = lowPassSubState;
+		_bufOut[5][s] = lowPassSubState;
 	}
 
 

@@ -5,13 +5,16 @@
 
 class fxChorus : public fx {
     public:
-        fxChorus(int fxSlot, int channelMode);
+        fxChorus(int fxSlot, float* inBuf[], float* outBuf[], int channelMode);
         ~fxChorus();
         void setParameters(float depthA, float depthB, float delayA, float delayB, float freqA, float freqB, float phaseA, float phaseB, float mix);
         void rxData(float data[], int len);
         fxType getType() { return FX_CHORUS; };
-        void process(float* __restrict bufIn[], float* __restrict bufOut[]);
+        void process();
     private:
+        float* __restrict _bufIn[2];
+        float* __restrict _bufOut[2];
+
         int _delayLineLengthMaxMs;
         int _delayLineBufferSize;
         float* _delayLineA;

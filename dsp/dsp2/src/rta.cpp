@@ -27,7 +27,7 @@
 
 #include "rta.h"
 
-float pm hannWindow[RTA_FFT_SIZE];
+float pm rtaHannWindow[RTA_FFT_SIZE];
 
 #if RTA_FFT_FFT_MODE == 0
 	float fft_input[RTA_FFT_SIZE];
@@ -46,7 +46,7 @@ float pm hannWindow[RTA_FFT_SIZE];
 int head = 0;
 
 void rtaInit() {
-	gen_hanning(&hannWindow[0], 1, RTA_FFT_SIZE); // pointer to array, a (Window-spacing), N (Window-Length)
+	gen_hanning(&rtaHannWindow[0], 1, RTA_FFT_SIZE); // pointer to array, a (Window-spacing), N (Window-Length)
 
 	#if RTA_FFT_FFT_MODE == 0
 		twidfft(twiddle, RTA_FFT_SIZE);
@@ -60,7 +60,7 @@ void rtaProcess(float* __restrict inBuf) {
 	// 16 samples every 333 microseconds -> 1024 samples -> every 21ms the FFT will be calculated
 	if (head >= RTA_FFT_SIZE) {
 		// apply hann-window
-		vecvmltf(&fft_input[0], &hannWindow[0], &fft_input[0], RTA_FFT_SIZE);
+		vecvmltf(&fft_input[0], &rtaHannWindow[0], &fft_input[0], RTA_FFT_SIZE);
 
 		// perform FFT
 		#if RTA_FFT_FFT_MODE == 0

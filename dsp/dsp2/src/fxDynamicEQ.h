@@ -26,13 +26,16 @@ typedef struct {
 
 class fxDynamicEQ : public fx {
     public:
-        fxDynamicEQ(int fxSlot, int channelMode);
+        fxDynamicEQ(int fxSlot, float* inBuf[], float* outBuf[], int channelMode);
         ~fxDynamicEQ();
         void setParameters(int band, int type, float frequency, float staticGain, float maxDynamicGain, float Q, float threshold, float ratio, float attack, float release);
         void rxData(float data[], int len);
         fxType getType() { return FX_DEQ; };
-        void process(float* __restrict bufIn[], float* __restrict bufOut[]);
+        void process();
     private:
+        float* __restrict _bufIn[2];
+        float* __restrict _bufOut[2];
+
         sDynamicEQ _deq[FX_DYNAMICEQ_BANDS];
         float _biquadStates[2][2 * FX_DYNAMICEQ_BANDS];	// coefficients for left/right-signal
 };

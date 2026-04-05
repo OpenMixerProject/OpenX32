@@ -85,11 +85,19 @@ class PageEffects: public Page {
                             lv_table_set_cell_value(objects.fxtable, 1, slotIndex * 2, mixer->dsp->fx_slot[slotIndex]->fx->GetName().c_str());
 
                             // FX Parameters
-                            for (uint8_t p = 0; p < slot->fx->GetParameterCount(); p++)
-                            {
-                                Mixerparameter *parameter = config->GetParameter(slot->fx->GetParameterDefinition(p));
-                                lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex * 2), parameter->GetName().c_str());
-                                lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex * 2) + 1, parameter->GetFormatedValue(slotIndex).c_str());
+                            if (slot->fx->GetParameterCount() == 0) {
+                                // clear name and parameters
+                                for (uint8_t p = 0; p < 12; p++){
+                                    lv_table_set_cell_value(objects.fxtable, p + 2, (slotIndex * 2), "");
+                                    lv_table_set_cell_value(objects.fxtable, p + 2, (slotIndex * 2) + 1, "");
+                                }
+                            }else{
+                                for (uint8_t p = 0; p < slot->fx->GetParameterCount(); p++)
+                                {
+                                    Mixerparameter *parameter = config->GetParameter(slot->fx->GetParameterDefinition(p));
+                                    lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex * 2), parameter->GetName().c_str());
+                                    lv_table_set_cell_value(objects.fxtable, p + 3, (slotIndex * 2) + 1, parameter->GetFormatedValue(slotIndex).c_str());
+                                }
                             }
                         } else {
                             // FX Name

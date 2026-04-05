@@ -753,7 +753,9 @@ enum class FX_TYPE : int {
     DELAY = 4,
     MULTIBANDCOMPRESOR = 5,
     DYNAMICEQ = 6,
-    FX_COUNT = 7
+    DEFEEDBACK = 7,
+    MATRIXUPMIXER = 8,
+    FX_COUNT = 9
 };
 
 enum class X32_COLOR : int {

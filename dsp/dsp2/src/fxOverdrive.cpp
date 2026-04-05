@@ -30,9 +30,15 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-fxOverdrive::fxOverdrive(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxOverdrive::fxOverdrive(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0];
+	_bufIn[1] = bufIn[1];
+	_bufOut[0] = bufOut[0];
+	_bufOut[1] = bufOut[1];
 
 	// set default effect parameters
 	//setParameters(10.0f, -0.2f, 300, 10000, 10000);
@@ -95,11 +101,11 @@ void fxOverdrive::rxData(float data[], int len) {
 	_lpfOutputCoef = data[5];
 }
 
-void fxOverdrive::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxOverdrive::process() {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		float signal[2];
-		signal[0] = bufIn[0][s];
-		signal[1] = bufIn[1][s];
+		signal[0] = _bufIn[0][s];
+		signal[1] = _bufIn[1][s];
 
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
 			// input lowpass: output = zoutput + coeff * (input - zoutput)
@@ -126,7 +132,7 @@ void fxOverdrive::process(float* __restrict bufIn[], float* __restrict bufOut[])
 			_lpfOutputState[i_ch] = clipOut; // store zoutput
 
 			// limit output to +/-2^31
-			bufOut[i_ch][s] = fclipf(clipOut, 2147483647.0f);
+			_bufOut[i_ch][s] = fclipf(clipOut, 2147483647.0f);
 		}
 
 		// bypass

@@ -7,13 +7,16 @@
 
 class fxOverdrive : public fx {
     public:
-        fxOverdrive(int fxSlot, int channelMode);
+        fxOverdrive(int fxSlot, float* inBuf[], float* outBuf[], int channelMode);
         ~fxOverdrive();
         void setParameters(float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
         void rxData(float data[], int len);
         fxType getType() { return FX_OVERDRIVE; };
-        void process(float* __restrict bufIn[], float* __restrict bufOut[]);
+        void process();
     private:
+        float* __restrict _bufIn[2];
+        float* __restrict _bufOut[2];
+
     	float _hpfInputCoef;
     	float _lpfInputCoef;
     	float _lpfOutputCoef;

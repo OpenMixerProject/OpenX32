@@ -29,9 +29,15 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-fxTransientshaper::fxTransientshaper(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxTransientshaper::fxTransientshaper(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0];
+	_bufIn[1] = bufIn[1];
+	_bufOut[0] = bufOut[0];
+	_bufOut[1] = bufOut[1];
 
 	// initialize delay-lines in external memory
 	_delayLine = (float*)(_memoryAddress);
@@ -95,7 +101,7 @@ void fxTransientshaper::rxData(float data[], int len) {
 	_delayLineTailOffset = data[5];
 }
 
-void fxTransientshaper::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxTransientshaper::process() {
 	if (_startup) {
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			_delayLine[_delayLineHead] = 0;
@@ -111,14 +117,14 @@ void fxTransientshaper::process(float* __restrict bufIn[], float* __restrict buf
 
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: write current sample in delay-line
-		_delayLine[_delayLineHead] = bufIn[0][s];
+		_delayLine[_delayLineHead] = _bufIn[0][s];
 		_delayLineHead++;
 		if (_delayLineHead >= FX_TRANSIENTSHAPER_BUFFER_SIZE) {
 			_delayLineHead = 0;
 		}
 
 		// Step 2: calculate envelope-curve based on current sample (look-ahead as we are using a delay-line with ~1ms)
-		float abs_x = fabsf(bufIn[0][s]);
+		float abs_x = fabsf(_bufIn[0][s]);
 		_envelopeFast += _kFast * (abs_x - _envelopeFast);
 		_envelopeMed  += _kMed  * (abs_x - _envelopeMed);
 		_envelopeSlow += _kSlow * (abs_x - _envelopeSlow);
@@ -150,8 +156,8 @@ void fxTransientshaper::process(float* __restrict bufIn[], float* __restrict buf
 		float sampleDelayed = _delayLine[tail];
 
 		// Step 4: use gain on delayed sample
-		bufOut[0][s] = sampleDelayed * transientGain;
-		bufOut[1][s] = sampleDelayed * transientGain;
+		_bufOut[0][s] = sampleDelayed * transientGain;
+		_bufOut[1][s] = sampleDelayed * transientGain;
 
 		// bypass
 		//bufOut[0][s] = bufIn[0][s];

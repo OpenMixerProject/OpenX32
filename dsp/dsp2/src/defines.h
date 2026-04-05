@@ -1,9 +1,13 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.3
-#define FX_USE_UPMIXER			0	// enables a full-featured stereo-decompositing and 5.1-surround-upmixing effect (all other effects will be disabled)
-#define FX_USE_MATRIXUPMIXER	0	// enables a nice but simple stereo-to-5.1-surround matrix-upmixer (all other effects will be disabled)
+#define DSP_VERSION					0.4
+#define FX_USE_REVERB				1	// this effect takes a lot of ressource so that Multiband-Compressor and DynamicEQ cannot be used at the moment
+#define FX_USE_DEFEEDBACK			1
+#define FX_USE_MULTIBANDCOMPRESSOR	0	// this effect takes a lot of ressources and cannot be used together with reverb
+#define FX_USE_DYNAMICEQ			0	// this effect takes a lot of ressources and cannot be used together with reverb
+
+#define FX_USE_UPMIXER				0	// enables a stereo-decompositing and 5.1-surround-upmixing effect (all other effects will be disabled)
 
 // DSP2 receives 24 Audio-channels from DSP1
 // Channel 1-8		-> FX Sends 1-8
@@ -38,12 +42,12 @@
 // output buffer indices
 #define DSP_BUF_IDX_IMXIN_LEFT		16  // Audio from iMX25 Left
 #define DSP_BUF_IDX_IMXIN_RIGHT		17  // Audio from iMX25 Right
-#define DSP_BUF_IDX_OSC_LEFT		18  // Audio from Oscillator Left
-#define DSP_BUF_IDX_OSC_RIGHT		19  // Audio from Oscillator Right
-//#define DSP_BUF_IDX_UNUSED		20  // unused output-channel
-//#define DSP_BUF_IDX_UNUSED		21  // unused output-channel
-//#define DSP_BUF_IDX_UNUSED		22  // unused output-channel
-//#define DSP_BUF_IDX_UNUSED		23  // unused output-channel
+#define DSP_BUF_IDX_UPMIX_CENTER	18  // Audio from Surround-Upmixer
+#define DSP_BUF_IDX_UPMIX_BACKLEFT	19  // Audio from Surround-Upmixer
+#define DSP_BUF_IDX_UPMIX_BACKRIGHT	20  // Audio from Surround-Upmixer
+#define DSP_BUF_IDX_UPMIX_LFE		21  // Audio from Surround-Upmixer
+#define DSP_BUF_IDX_OSC_LEFT		22  // Audio from Oscillator Left
+#define DSP_BUF_IDX_OSC_RIGHT		23  // Audio from Oscillator Right
 
 #define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 

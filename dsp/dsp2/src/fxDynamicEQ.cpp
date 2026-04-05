@@ -28,9 +28,15 @@
 
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-fxDynamicEQ::fxDynamicEQ(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxDynamicEQ::fxDynamicEQ(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0];
+	_bufIn[1] = bufIn[1];
+	_bufOut[0] = bufOut[0];
+	_bufOut[1] = bufOut[1];
 
 	// set default parameters
 	//		                     static  maxDyn
@@ -133,7 +139,7 @@ void fxDynamicEQ::rxData(float data[], int len) {
 	helperFcn_calcBiquadCoeffs(_deq[band].typeCtrl, _deq[band].frequency, _deq[band].Q, 1.0f, &_deq[band].biquadCoeffsCtrl[0], dsp.samplerate);
 }
 
-void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxDynamicEQ::process() {
 	// this function is called every "SAMPLES_IN_BUFFER"-samples
 	// so the calling-interval is SAMPLERATE / SAMPLES_IN_BUFFER
 	// 48000Hz / 16 = 3 kHz -> every 333 microseconds
@@ -144,18 +150,18 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 		// Step 1.1: apply desired biquad-filter on control-signal first
 		//
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
-			memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+			memcpy(&_bufOut[i_ch][0], &_bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
 
 			memcpy(&peqCoeffs[0], &_deq[band].biquadCoeffsCtrl[0], 5 * sizeof(float));
-			biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStatesCtrl[i_ch][0], SAMPLES_IN_BUFFER, 1);
+			biquad_trans(&_bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStatesCtrl[i_ch][0], SAMPLES_IN_BUFFER, 1);
 		}
 
 		// Step 1.2: update envelope with mean-value of all 16 samples
 		float ctrlSignalL = 0;
 		float ctrlSignalR = 0;
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			ctrlSignalL += fabsf(bufOut[0][s]);
-			ctrlSignalR += fabsf(bufOut[1][s]);
+			ctrlSignalL += fabsf(_bufOut[0][s]);
+			ctrlSignalR += fabsf(_bufOut[1][s]);
 		}
 		float ctrlSignal = ctrlSignalL;
 		if (ctrlSignalR > ctrlSignalL) {
@@ -231,7 +237,7 @@ void fxDynamicEQ::process(float* __restrict bufIn[], float* __restrict bufOut[])
 	#endif
 
 	for (int i_ch = 0; i_ch < 2; i_ch++) {
-		memcpy(&bufOut[i_ch][0], &bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-		biquad_trans(&bufOut[i_ch][0], &peqCoeffs[0], &_biquadStates[i_ch][0], SAMPLES_IN_BUFFER, FX_DYNAMICEQ_BANDS);
+		memcpy(&_bufOut[i_ch][0], &_bufIn[i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+		biquad_trans(&_bufOut[i_ch][0], &peqCoeffs[0], &_biquadStates[i_ch][0], SAMPLES_IN_BUFFER, FX_DYNAMICEQ_BANDS);
 	}
 }

@@ -34,13 +34,21 @@
 
 #include "fxMatrixUpmixer.h"
 
-#if FX_USE_MATRIXUPMIXER == 1
-
 #pragma file_attr("prefersMem=internal") // let the linker know, that all variables should be placed into the internal ram
 
-fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, int channelMode) : fx(fxSlot, channelMode) {
+fxMatrixUpmixer::fxMatrixUpmixer(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) : fx(fxSlot, bufIn, bufOut, channelMode) {
 	// constructor
 	// code of constructor of baseclass is called first. So add here only effect-specific things
+
+	// get the pointers to the sample-buffers
+	_bufIn[0] = bufIn[0]; // input left
+	_bufIn[1] = bufIn[1]; // input right
+	_bufOut[0] = bufOut[0]; // left
+	_bufOut[1] = bufOut[1]; // right
+	_bufOut[2] = bufOut[2]; // center
+	_bufOut[3] = bufOut[3]; // back-left
+	_bufOut[4] = bufOut[4]; // back-right
+	_bufOut[5] = bufOut[5]; // LFE
 
 	// calculate the maximum amount of space we need in the external RAM for the maximum samplerate we are supporting
 	_delayLineLengthMaxMs = 25;
@@ -72,12 +80,12 @@ void fxMatrixUpmixer::rxData(float data[], int len) {
 	// data received from x32ctrl
 }
 
-void fxMatrixUpmixer::process(float* __restrict bufIn[], float* __restrict bufOut[]) {
+void fxMatrixUpmixer::process() {
 	// channel center
 	// =========================================================
 	// C = (Lin + Rin) / 2
-	vecvaddf(bufIn[0], bufIn[1], bufOut[2], SAMPLES_IN_BUFFER);
-	vecsmltf(bufOut[2], 0.5f, bufOut[2], SAMPLES_IN_BUFFER);
+	vecvaddf(_bufIn[0], _bufIn[1], _bufOut[2], SAMPLES_IN_BUFFER);
+	vecsmltf(_bufOut[2], 0.5f, _bufOut[2], SAMPLES_IN_BUFFER);
 
 
 
@@ -86,11 +94,11 @@ void fxMatrixUpmixer::process(float* __restrict bufIn[], float* __restrict bufOu
 	// channels left and right
 	// =========================================================
 	// first calculate C / 2
-	vecsmltf(bufOut[2], 0.5f, &_bufTemp[0], SAMPLES_IN_BUFFER);
+	vecsmltf(_bufOut[2], 0.5f, &_bufTemp[0], SAMPLES_IN_BUFFER);
 	// L = Lin - (C / 2)
-	vecvsubf(bufIn[0], &_bufTemp[0], bufOut[0], SAMPLES_IN_BUFFER);
+	vecvsubf(_bufIn[0], &_bufTemp[0], _bufOut[0], SAMPLES_IN_BUFFER);
 	// R = Rin - (C / 2)
-	vecvsubf(bufIn[1], &_bufTemp[0], bufOut[1], SAMPLES_IN_BUFFER);
+	vecvsubf(_bufIn[1], &_bufTemp[0], _bufOut[1], SAMPLES_IN_BUFFER);
 
 
 
@@ -99,7 +107,7 @@ void fxMatrixUpmixer::process(float* __restrict bufIn[], float* __restrict bufOu
 	// channel surroundLeft and surroundRight
 	// =========================================================
 	// calc surround-signal: surround_signal = (Lin - Rin) / 2
-	vecvsubf(bufIn[0], bufIn[1], &_bufTemp[0], SAMPLES_IN_BUFFER);
+	vecvsubf(_bufIn[0], _bufIn[1], &_bufTemp[0], SAMPLES_IN_BUFFER);
 	vecsmltf(&_bufTemp[0], 0.5f, &_bufTemp[0], SAMPLES_IN_BUFFER);
 
 	// feed delay line with current surround_signal
@@ -129,9 +137,9 @@ void fxMatrixUpmixer::process(float* __restrict bufIn[], float* __restrict bufOu
 	}
 
 	// sL = surround_signal
-	memcpy(bufOut[3], &_bufTemp[0], SAMPLES_IN_BUFFER);
+	memcpy(_bufOut[3], &_bufTemp[0], SAMPLES_IN_BUFFER);
 	// sR = -surround_signal
-	vecsmltf(&_bufTemp[0], -1.0f, bufOut[4], SAMPLES_IN_BUFFER);
+	vecsmltf(&_bufTemp[0], -1.0f, _bufOut[4], SAMPLES_IN_BUFFER);
 
 
 
@@ -143,9 +151,7 @@ void fxMatrixUpmixer::process(float* __restrict bufIn[], float* __restrict bufOu
 
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufOut[5][s] = _lowPassSubState + _lowPassSubCoeff * (bufOut[2][s] - _lowPassSubState);
-		_lowPassSubState = bufOut[5][s];
+		_bufOut[5][s] = _lowPassSubState + _lowPassSubCoeff * (_bufOut[2][s] - _lowPassSubState);
+		_lowPassSubState = _bufOut[5][s];
 	}
 }
-
-#endif

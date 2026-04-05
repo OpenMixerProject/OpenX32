@@ -24,7 +24,7 @@
 
 #include "fxBase.h"
 
-fx::fx(int fxSlot, int channelMode) {
+fx::fx(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) {
 	// take the memory-slot-address (we have 8 of them)
 	_startup = true;
 	_fxSlot = fxSlot;

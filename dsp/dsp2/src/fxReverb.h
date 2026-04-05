@@ -55,13 +55,16 @@ typedef struct {
 
 class fxReverb : public fx {
     public:
-        fxReverb(int fxSlot, int channelMode);
+        fxReverb(int fxSlot, float* inBuf[], float* outBuf[], int channelMode);
         ~fxReverb();
         void setParameters(float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet); // Size in ms, Reverberation Time to -60dB, Frequency for feedback-loop, dry, wet
         void rxData(float data[], int len);
         fxType getType() { return FX_REVERB; };
-        void process(float* __restrict bufIn[], float* __restrict bufOut[]);
+        void process();
     private:
+        float* __restrict _bufIn[2];
+        float* __restrict _bufOut[2];
+
         int _startupCounter;
 
         sDiffusor _diffusor[FX_REVERB_DIFFUSION_STEPS][FX_REVERB_INT_CHAN];

@@ -185,7 +185,7 @@ class PageRoutingChannels: public Page
 			custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN;
 			custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_REFRESH) + "\nSource";
 			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + "\nSource (Group)";
-			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + "\nTAP";
+			custom_encoder[DISPLAY_ENCODER_5].label = String(LV_SYMBOL_REFRESH) + "\nTAP";
 		}
 
 		void OnChange(bool force_update) override {

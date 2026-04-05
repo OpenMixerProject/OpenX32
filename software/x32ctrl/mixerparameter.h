@@ -222,22 +222,22 @@ class Mixerparameter
                                 result += String("Linux Audio R");
                                 break;
                             case DSP_BUF_IDX_DSP2_AUX + 2:
-                                result += String("Oscillator 1");
+                                result += String("Surround Center");
                                 break;
                             case DSP_BUF_IDX_DSP2_AUX + 3:
-                                result += String("Oscillator 2");
+                                result += String("Surround BackLeft");
                                 break;
                             case DSP_BUF_IDX_DSP2_AUX + 4:
-                                result += String("Unused DSP2 Aux 5");
+                                result += String("Surround BackRight");
                                 break;
                             case DSP_BUF_IDX_DSP2_AUX + 5:
-                                result += String("Unused DSP2 Aux 6");
+                                result += String("Surround LFE");
                                 break;
                             case DSP_BUF_IDX_DSP2_AUX + 6:
-                                result += String("Unused DSP2 Aux 7");
+                                result += String("Oscillator 1");
                                 break;
                             case DSP_BUF_IDX_DSP2_AUX + 7:
-                                result += String("Unused DSP2 Aux 8");
+                                result += String("Oscillator 2");
                                 break;
                             case DSP_BUF_IDX_MONLEFT:
                                 result += String("Monitor L");

@@ -59,6 +59,14 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 			fx = new FxDynamicEQ(_basepar);
 			fxType = fxToLoad;
 			break;
+		case FX_TYPE::DEFEEDBACK:
+			fx = new FxDeFeedback(_basepar);
+			fxType = fxToLoad;
+			break;
+		case FX_TYPE::MATRIXUPMIXER:
+			fx = new FxMatrixUpmixer(_basepar);
+			fxType = fxToLoad;
+			break;
 		default:
 			helper->Error("Can not load unknown FX.");
 		case FX_TYPE::NONE:
