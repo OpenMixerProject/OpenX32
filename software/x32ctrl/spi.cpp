@@ -284,8 +284,8 @@ int SPI::UploadBitstreamFpgaLattice(void) {
     uint32_t idcode = fpgaLatticeReadData(&spi_fd, CMD_READ_ID);
     helper->DEBUG_SPI(DEBUGLEVEL_NORMAL, "Read IDCODE: 0x%08X", idcode);
 	// check if we've found the ID for the Lattice LFE5U-25 FPGA
-	if (idcode != 0x41111043) {
-		helper->Error("Error: Unexpected IDCODE: 0x%08X\n", idcode);
+    if (idcode != 0x41111043) {
+		//helper->Error("Error: Unexpected IDCODE: 0x%08X\n", idcode); // <- don't print error here, because we want to try Xilinx afterwards if this fails
         if (bitstream_file) fclose(bitstream_file);
         if (spi_fd >= 0) close(spi_fd);
         return -1; // the device is not a Lattice-Device -> try Xilinx afterwards
