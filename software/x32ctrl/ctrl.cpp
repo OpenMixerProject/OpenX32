@@ -142,8 +142,8 @@ void X32Ctrl::Init(){
 	}
 
 	// DEBUG Show CFG-Value
-	config->Set(CHANNEL_NAME, String(cfg), to_underlying(X32_VCHANNEL_BLOCK::DCA));
-	config->Set(CHANNEL_NAME, String(date), to_underlying(X32_VCHANNEL_BLOCK::DCA)+1);
+	//config->Set(CHANNEL_NAME, String(cfg), to_underlying(X32_VCHANNEL_BLOCK::DCA));
+	//config->Set(CHANNEL_NAME, String(date), to_underlying(X32_VCHANNEL_BLOCK::DCA)+1);
 
 	// set brightness and contrast
 	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LED Brightness to %d", state->ledbrightness);
@@ -1948,7 +1948,7 @@ void X32Ctrl::InitSurfaceBinding()
 		BindFader(16, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
 	}
 
-	if (config->IsModelX32CompactOrProducer())
+	if (config->IsModelX32Full())
 	{
 		// Main fader
 		BindFader(24, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
