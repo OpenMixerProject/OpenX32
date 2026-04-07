@@ -58,8 +58,8 @@
 				hsync-len = <1>;
 
 				
-				vfront-porch = <132>;
-				vback-porch = <22>;
+				vfront-porch = <130>;
+				vback-porch = <24>;
 				vsync-len = <1>;
 
 				de-active = <1>;
