@@ -771,8 +771,7 @@ typedef struct _objects_t {
     lv_obj_t *setup_card_sd2info;
     lv_obj_t *openx32logo_2;
     lv_obj_t *setup_debug_label;
-    lv_obj_t *roller_routing_block;
-    lv_obj_t *table_routing_fpga_debug;
+    lv_obj_t *obj8;
     lv_obj_t *fxtable;
     lv_obj_t *display_encoder_sliders;
     lv_obj_t *widget1;

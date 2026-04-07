@@ -7662,29 +7662,28 @@
                           "heightUnit": "px",
                           "children": [
                             {
-                              "objID": "2ad676b5-4603-4212-8860-9a6b9603e498",
-                              "type": "LVGLRollerWidget",
-                              "left": -20,
-                              "top": -12,
-                              "width": 134,
-                              "height": 306,
+                              "objID": "93481623-beb2-40b1-fb83-0327eada6ce6",
+                              "type": "LVGLPanelWidget",
+                              "left": -19,
+                              "top": 34,
+                              "width": 798,
+                              "height": 200,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
-                                "objID": "fc541653-307b-4db4-b2bd-43110c79e366",
+                                "objID": "9777aeb5-9932-41a1-f1aa-24e62c8a1a7d",
                                 "useStyle": "default",
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
                               "timeline": [],
                               "eventHandlers": [],
-                              "identifier": "roller_routing_block",
                               "leftUnit": "px",
                               "topUnit": "px",
                               "widthUnit": "px",
                               "heightUnit": "px",
                               "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_CHAIN_HOR|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
                               "hiddenFlagType": "literal",
                               "clickableFlag": true,
                               "clickableFlagType": "literal",
@@ -7696,44 +7695,53 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "0efa16cb-caa7-4ccd-8280-1491d0b68c70"
+                                "objID": "3df732f1-600b-4491-9be0-22f23498e52d",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "outline_width": 1,
+                                      "outline_color": "#f00000",
+                                      "radius": 0,
+                                      "pad_top": 0,
+                                      "pad_bottom": 0,
+                                      "pad_left": 0,
+                                      "pad_right": 0,
+                                      "pad_row": 0,
+                                      "pad_column": 0,
+                                      "border_post": true
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
-                              "groupIndex": 0,
-                              "options": "Mixer Channels\nXLR Outputs\nAUX Outputs\nUltranet\nCARD Recording\nAES50 A Outputs\nAES50 B Outputs",
-                              "optionsType": "literal",
-                              "selected": 6,
-                              "selectedType": "literal",
-                              "mode": "NORMAL"
+                              "groupIndex": 0
                             },
                             {
-                              "objID": "0f2e388c-1ccb-4196-c0c5-a9e787835ff1",
-                              "type": "LVGLTableWidget",
-                              "left": 124,
-                              "top": -14,
-                              "width": 351,
-                              "height": 308,
+                              "objID": "c6448ad2-d41d-4448-80f5-fd172dd5f424",
+                              "type": "LVGLLabelWidget",
+                              "left": 261,
+                              "top": 123,
+                              "width": 289,
+                              "height": 16,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
-                                "objID": "acd3bca8-cac5-4581-a36e-a1a5cf7248bc",
+                                "objID": "e296edc2-56a1-4166-d183-41979d721596",
                                 "useStyle": "default",
                                 "conditionalStyles": [],
                                 "childStyles": []
                               },
-                              "locked": false,
                               "timeline": [],
                               "eventHandlers": [],
-                              "identifier": "table_routing_fpga_debug",
                               "leftUnit": "px",
                               "topUnit": "px",
-                              "widthUnit": "px",
-                              "heightUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
                               "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
                               "hiddenFlagType": "literal",
-                              "clickableFlag": true,
                               "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
                               "flagScrollDirection": "",
                               "scrollSnapX": "",
                               "scrollSnapY": "",
@@ -7741,22 +7749,14 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "0106a024-5abe-4e68-b551-af206edb0a73",
-                                "definition": {
-                                  "ITEMS": {
-                                    "DEFAULT": {
-                                      "pad_top": 2,
-                                      "pad_bottom": 2,
-                                      "pad_left": 2,
-                                      "pad_right": 2,
-                                      "pad_row": 2,
-                                      "pad_column": 2
-                                    }
-                                  }
-                                }
+                                "objID": "86f94ccd-4ea0-4e22-8bf1-a7a04e0fb55d"
                               },
                               "group": "",
-                              "groupIndex": 0
+                              "groupIndex": 0,
+                              "text": "the red line should be visible all around",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
                             }
                           ],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
