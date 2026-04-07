@@ -49,24 +49,24 @@
 		display-timings {
 			native-mode = <&wvga_timings>;
 			wvga_timings: timing0 {
-				clock-frequency = <33300000>;
+				clock-frequency = <40000000>;
 				hactive = <800>;
 				vactive = <480>;
 
-				hfront-porch = <210>; 
-				hback-porch = <46>;
+				hfront-porch = <208>; 
+				hback-porch = <47>;
 				hsync-len = <1>;
 
 				
-				vfront-porch = <22>;
-				vback-porch = <23>;
+				vfront-porch = <132>;
+				vback-porch = <22>;
 				vsync-len = <1>;
 
 				de-active = <1>;
-				pixelclk-active = <0>;
+				pixelclk-active = <1>;
 
-				hsync-active = <0>; // only for AT070TN
-				vsync-active = <0>; // only for AT070TN
+				hsync-active = <0>;
+				vsync-active = <0>;
 			};
 		};
 	};
