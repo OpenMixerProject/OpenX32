@@ -744,6 +744,84 @@ enum class MP_ID {
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 
+// @brief Surfaceelement ID
+enum class SE_ID {
+    NONE,
+    PAGE_CUSTOM_ENCODER,
+
+    MUTE_1,
+    MUTE_2,
+    MUTE_3,
+    MUTE_4,
+    MUTE_5,
+    MUTE_6,
+    MUTE_7,
+    MUTE_8,
+
+    MUTE_9,
+    MUTE_10,
+    MUTE_11,
+    MUTE_12,
+    MUTE_13,
+    MUTE_14,
+    MUTE_15,
+    MUTE_16,
+
+    MUTE_17,
+    MUTE_18,
+    MUTE_19,
+    MUTE_20,
+    MUTE_21,
+    MUTE_22,
+    MUTE_23,
+    MUTE_24,
+
+    MUTE_MAIN,
+
+    FADER_1,
+    FADER_2,
+    FADER_3,
+    FADER_4,
+    FADER_5,
+    FADER_6,
+    FADER_7,
+    FADER_8,
+
+    FADER_9,
+    FADER_10,
+    FADER_11,
+    FADER_12,
+    FADER_13,
+    FADER_14,
+    FADER_15,
+    FADER_16,
+
+    FADER_17,
+    FADER_18,
+    FADER_19,
+    FADER_20,
+    FADER_21,
+    FADER_22,
+    FADER_23,
+    FADER_24,
+
+    FADER_MAIN,
+ 
+    __ELEMENT_COUNTER_DO_NOT_MOVE
+};
+
+// @brief Surfaceelement Type
+enum class SE_TYPE {
+    NONE,
+    Fader,
+    Encoder,
+    Button,
+    LED,
+    LCD,
+    VUMeter
+};
+
+
 enum class FX_TYPE : int {
     NONE = -1,
     REVERB = 0,

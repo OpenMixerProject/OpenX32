@@ -23,6 +23,8 @@ void Config::SetModel(String model){
         //x32log("ERROR: No model detected!\n");
         _model = X32_MODEL::NONE;
     }
+
+    DefineSurfaceElements();
 };
 
 bool Config::IsModelX32Full() {
@@ -1460,4 +1462,79 @@ void Config::Reset(MP_ID mp, uint index)
     mpm[(uint)mp]->Reset(index);
     
     SetParameterChanged(mp, index);
+}
+
+//#############################################################################################################################################
+//#
+//#  ######  ##     ## ########  ########    ###     ######  ######## ######## ##       ######## ##     ## ######## ##    ## ########  ######  
+//# ##    ## ##     ## ##     ## ##         ## ##   ##    ## ##       ##       ##       ##       ###   ### ##       ###   ##    ##    ##    ## 
+//# ##       ##     ## ##     ## ##        ##   ##  ##       ##       ##       ##       ##       #### #### ##       ####  ##    ##    ##       
+//#  ######  ##     ## ########  ######   ##     ## ##       ######   ######   ##       ######   ## ### ## ######   ## ## ##    ##     ######  
+//#       ## ##     ## ##   ##   ##       ######### ##       ##       ##       ##       ##       ##     ## ##       ##  ####    ##          ## 
+//# ##    ## ##     ## ##    ##  ##       ##     ## ##    ## ##       ##       ##       ##       ##     ## ##       ##   ###    ##    ##    ## 
+//#  ######   #######  ##     ## ##       ##     ##  ######  ######## ######## ######## ######## ##     ## ######## ##    ##    ##     ######  
+//#
+//#############################################################################################################################################
+
+
+SurfaceElement* Config::DefSurfaceElements(SE_ID element_id, String name) {
+	
+	// create it
+	SurfaceElement* newSE = new SurfaceElement(element_id, name);
+
+    sem[(uint)element_id] = newSE;
+
+	// return for further definition
+	return newSE;
+}
+
+void Config::DefineSurfaceElements()
+{
+	using enum SE_ID;
+
+    //#######################################
+    //#
+    //#  Channelstrip
+    //#
+    //#######################################
+
+    if (IsModelX32FullOrCompactOrProducer())
+    {
+        int max_channelstrip = 0;
+
+        if (IsModelX32Full())
+        {
+            max_channelstrip = 24;
+        }
+        else if (IsModelX32CompactOrProducer())
+        {
+            max_channelstrip = 16;
+        }
+
+        for (uint i = 0; i < max_channelstrip; i++)
+        {
+            DefSurfaceElements((SE_ID)(((int)MUTE_1)+i), String("Mute ") + String(i+1))
+                ->DefButton((X32_BTN)((uint)X32_BTN_BOARD_L_CH_1_MUTE + i));
+
+            DefSurfaceElements((SE_ID)(((int)FADER_1)+i), String("Fader ") + String(i+1))
+                ->DefFader(X32_BOARD_L, i);
+        }
+
+        DefSurfaceElements(MUTE_MAIN, "Mute Main")
+            ->DefButton(X32_BTN_BOARD_R_CH_8_MUTE);
+
+        DefSurfaceElements(FADER_MAIN,"Fader Main")
+            ->DefFader(X32_BOARD_R, 8);
+            
+    } 
+}
+
+bool Config::HasSurfaceElement(SE_ID id)
+{
+    return sem[(uint)id] != 0;
+}
+
+SurfaceElement* Config::GetSurfaceElement(SE_ID id)
+{
+    return sem[(uint)id];
 }

@@ -34,6 +34,7 @@
 #include "page-prototypegui.h"
 #include "lcd-menu.h"
 
+#include "surfaceelement.h"
 #include "surfacebindings.h"
 
 
@@ -78,9 +79,8 @@ class X32Ctrl : public X32Base
         LcdMenu* lcdmenu;
 
         // surface binding
-        map<uint, SurfaceBinding_Fader*> fader_binding;
-
-
+        map<SE_ID, SurfaceBinding*>* binding = new map<SE_ID, SurfaceBinding*>();
+ 
         // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
         sBank inputBanks[8];
         sBank busBanks[4];
@@ -99,7 +99,7 @@ class X32Ctrl : public X32Base
         void my_handler(int s);
 
         void InitSurfaceBinding();
-        void BindFader(uint fader_index, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action);
+        void Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action);
 
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);

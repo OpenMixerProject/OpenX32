@@ -59,7 +59,7 @@ class Surface : public X32Base
 
         void LoadX32CoreDefinitions();
 
-        uint8_t GetFaderIndex(uint8_t boardId, uint8_t index);
+        uint8_t GetChannelstripIndex(uint8_t boardId, uint8_t index);
 
         void SetBrightnessAllBoards(uint8_t brightness);
         void SetBrightness(uint8_t boardId, uint8_t brightness);

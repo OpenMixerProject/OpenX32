@@ -785,28 +785,36 @@ void X32Ctrl::syncGuiOrLcd() {
 // sync mixer state to Surface
 void X32Ctrl::syncSurface(bool fullSync)
 {
+	// ########################################################
+	//
 	// New "SurfaceManager" with Binding
+	//
+	// ########################################################
 
-	// check, if banking was changed
+
+	// ###########################################
+	//
+	// Check if binding has to be changed
+	//
+	// ###########################################
+
 	if (config->HasParameterChanged(BANKING_INPUT) || fullSync)
 	{
+		uint offset_base = 0;
 		if (config->IsModelX32Full())
 		{
-			uint offset = config->GetUint(BANKING_INPUT) * 16;
-
-			for(uint i = 0; i < 16; i++)
-			{
-				BindFader(i, CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
-			}
+			offset_base = 16;
 		}
 		if (config->IsModelX32CompactOrProducer())
 		{
-			uint offset = config->GetUint(BANKING_INPUT) * 8;
+			offset_base = 8;
+		}
 
-			for(uint i = 0; i < 8; i++)
-			{
-				BindFader(i, CHANNEL_VOLUME, i + offset, SB_ACTION::SET);	
-			}
+		uint offset = config->GetUint(BANKING_INPUT) * offset_base;
+		for(uint i = 0; i < offset_base; i++)
+		{
+			Bind((SE_ID)((uint)SE_ID::MUTE_1 + i), CHANNEL_MUTE, i + offset, SB_ACTION::TOGGLE);
+			Bind((SE_ID)((uint)SE_ID::FADER_1 + i), CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
 		}
 
 		// sync all after banking has changed
@@ -837,61 +845,49 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 		for(uint i = 0; i < 8; i++)
 		{
-			BindFader(i + bus_fader_offset, CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
+			Bind((SE_ID)((uint)SE_ID::MUTE_1 + i + bus_fader_offset), CHANNEL_MUTE, i + offset, SB_ACTION::TOGGLE);
+			Bind((SE_ID)((uint)SE_ID::FADER_1 + i + bus_fader_offset), CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
 		}
 
 		// sync all after banking has changed
 		fullSync = true;
 	}
 
+	// ###########################################
+	//
+	// Now sync the Surfaceelements
+	//
+	// ###########################################
 
-	// Sync faders
-	for (auto const& [fader_index, SurfaceBinding_Fader] : fader_binding)
+	for (auto const& [surfaceelement, SurfaceBinding] : *binding)
     {
-		if (config->HasParameterChanged(SurfaceBinding_Fader->mp_id, SurfaceBinding_Fader->mp_index) || fullSync)
+		if (config->HasParameterChanged(SurfaceBinding->mp_id, SurfaceBinding->mp_index) || fullSync)
 		{
-			u_int16_t faderPosition = helper->Dbfs2Fader(config->GetFloat(SurfaceBinding_Fader->mp_id, SurfaceBinding_Fader->mp_index));
-			
-			uint board = 0;
-			uint fader_board_index = 0;
-			if (config->IsModelX32Full())
+			if (config->HasSurfaceElement(surfaceelement))
 			{
-				if (fader_index < 8)
-				{
-					board = X32_BOARD_L;
-					fader_board_index = fader_index;
-				}
-				else if (fader_index < 16)
-				{
-					board = X32_BOARD_M;
-					fader_board_index = fader_index - 8;
-				}
-				else
-				{
-					board = X32_BOARD_R;
-					fader_board_index = fader_index - 16;
-				}
-			}
-			else if (config->IsModelX32CompactOrProducer())
-			{
-				if (fader_index < 8)
-				{
-					board = X32_BOARD_L;
-					fader_board_index = fader_index;
-				}
-				else
-				{
-					board = X32_BOARD_R;
-					fader_board_index = fader_index - 8;
-				}
-			}
+				SurfaceElement* element = config->GetSurfaceElement(surfaceelement);
 
-			surface->SetFader(board, fader_board_index, faderPosition);
+				if (element->element_type == SE_TYPE::Fader)
+				{
+					u_int16_t faderPosition = helper->Dbfs2Fader(config->GetFloat(SurfaceBinding->mp_id, SurfaceBinding->mp_index));
+					surface->SetFader(element->board, element->index, faderPosition);
+				}
+				else if (element->element_type == SE_TYPE::Button)
+				{
+					surface->SetLedByEnum(element->button, config->GetBool(SurfaceBinding->mp_id, SurfaceBinding->mp_index));
+				}
+			}
 		}
 	}
 
 
-	// old
+
+	// ########################################################
+	//
+	//  old method
+	//
+	// ########################################################
+
 	surfaceSyncBoardMain(fullSync);
 
 	if (config->IsModelX32FullOrCompactOrProducer()){   
@@ -1146,10 +1142,10 @@ void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board, bool fullSync)
 			{
 				surface->SetLed(p_board, 0x30+i, config->GetBool(CHANNEL_SOLO, channelIndex)); 
 			}
-			if (config->HasParameterChanged(CHANNEL_MUTE) || fullSync)
-			{
-				surface->SetLed(p_board, 0x40+i, config->GetBool(CHANNEL_MUTE, channelIndex)); 
-			}
+			// if (config->HasParameterChanged(CHANNEL_MUTE) || fullSync)
+			// {
+			// 	surface->SetLed(p_board, 0x40+i, config->GetBool(CHANNEL_MUTE, channelIndex)); 
+			// }
 
 			if(!state->surface_disable_lcd_update)
 			{
@@ -1940,28 +1936,22 @@ void X32Ctrl::ProcessUartDataSurface() {
 
 void X32Ctrl::InitSurfaceBinding()
 {
-	// Fader
-
-	if (config->IsModelX32CompactOrProducer())
-	{
-		// Main fader
-		BindFader(16, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
-	}
-
-	if (config->IsModelX32Full())
-	{
-		// Main fader
-		BindFader(24, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
-	}
+	Bind(SE_ID::FADER_MAIN, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
 }
 
-void X32Ctrl::BindFader(uint fader_index, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action)
+void X32Ctrl::Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action)
 {
-	fader_binding[fader_index] = new SurfaceBinding_Fader(mixerparameter, mixerparameter_index, action);
+	SurfaceBinding* sb = new SurfaceBinding(mixerparameter, mixerparameter_index, action);
+
+	if (binding->contains(surfaceelement))
+    {
+        binding->at(surfaceelement) = sb;
+    }
+    else
+    {
+        binding->insert({surfaceelement, sb});
+    }
 }
-
-
-
 
 //#####################################################################################################################
 //
@@ -1977,25 +1967,23 @@ void X32Ctrl::BindFader(uint fader_index, MP_ID mixerparameter, uint mixerparame
 
 void X32Ctrl::FaderMoved(SurfaceEvent* event)
 {
-	uint faderIdx = surface->GetFaderIndex(event->boardId, event->index);
-	if (fader_binding.contains(faderIdx))
-	{
-		SurfaceBinding_Fader* FaderBinding  = fader_binding[faderIdx];
+	// uint channelstripIdx = surface->GetChannelstripIndex(event->boardId, event->index);
+	// if (binding_fader.contains(channelstripIdx))
+	// {
+	// 	SurfaceBinding* binding  = binding_fader[channelstripIdx];
 
-		switch (FaderBinding->action)
-		{
-			case SB_ACTION::SET:
-				config->Set(FaderBinding->mp_id, helper->Fadervalue2dBfs(event->value), FaderBinding->mp_index);
-				surface->FaderMoved(event);
-				break;
-		}
-	}
+	// 	switch (binding->action)
+	// 	{
+	// 		case SB_ACTION::SET:
+	// 			config->Set(binding->mp_id, helper->Fadervalue2dBfs(event->value), binding->mp_index);
+	// 			surface->FaderMoved(event);
+	// 			break;
+	// 	}
+	// }
 }
 
 void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 {
-	using enum MP_ID;
-
 	X32_BTN button = surface->Button2Enum[((uint16_t)event->boardId << 8) + (uint16_t)(event->value & 0x7F)];
 	bool isButtonPressed = (event->value >> 7) == 1;
 
@@ -2017,6 +2005,34 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			secondbuttonPressed = X32_BTN_NONE;
 		}
 	}
+
+	if (isButtonPressed)
+	{
+		for (auto const& [surfaceelement, SurfaceBinding] : *binding)
+		{
+			if (config->HasSurfaceElement(surfaceelement))
+			{
+				SurfaceElement* element = config->GetSurfaceElement(surfaceelement);
+
+				if (element->element_type == SE_TYPE::Button)
+				{
+					if (element->button == button)
+					{
+						switch (SurfaceBinding->action)
+						{
+							case SB_ACTION::TOGGLE:
+								config->Toggle(SurfaceBinding->mp_id, SurfaceBinding->mp_index);
+								break;
+							case SB_ACTION::SET:
+								config->Set(SurfaceBinding->mp_id, 1, SurfaceBinding->mp_index);
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+
 
 	// Standard button assingments
 	if (isButtonPressed) {
@@ -2182,38 +2198,6 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			case X32_BTN_BOARD_R_CH_8_SOLO:
 			case X32_BTN_MAIN_SOLO:
 				config->Toggle(CHANNEL_SOLO, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_R_CH_1_SOLO));
-				break;
-			case X32_BTN_BOARD_L_CH_1_MUTE:
-			case X32_BTN_BOARD_L_CH_2_MUTE:
-			case X32_BTN_BOARD_L_CH_3_MUTE:
-			case X32_BTN_BOARD_L_CH_4_MUTE:
-			case X32_BTN_BOARD_L_CH_5_MUTE:
-			case X32_BTN_BOARD_L_CH_6_MUTE:
-			case X32_BTN_BOARD_L_CH_7_MUTE:
-			case X32_BTN_BOARD_L_CH_8_MUTE:
-				config->Toggle(CHANNEL_MUTE, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_L_CH_1_MUTE));
-				break;
-			case X32_BTN_BOARD_M_CH_1_MUTE:
-			case X32_BTN_BOARD_M_CH_2_MUTE:
-			case X32_BTN_BOARD_M_CH_3_MUTE:
-			case X32_BTN_BOARD_M_CH_4_MUTE:
-			case X32_BTN_BOARD_M_CH_5_MUTE:
-			case X32_BTN_BOARD_M_CH_6_MUTE:
-			case X32_BTN_BOARD_M_CH_7_MUTE:
-			case X32_BTN_BOARD_M_CH_8_MUTE:
-				config->Toggle(CHANNEL_MUTE, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_M_CH_1_MUTE));
-				break;
-			case X32_BTN_BOARD_R_CH_1_MUTE:
-			case X32_BTN_BOARD_R_CH_2_MUTE:
-			case X32_BTN_BOARD_R_CH_3_MUTE:
-			case X32_BTN_BOARD_R_CH_4_MUTE:
-			case X32_BTN_BOARD_R_CH_5_MUTE:
-			case X32_BTN_BOARD_R_CH_6_MUTE:
-			case X32_BTN_BOARD_R_CH_7_MUTE:
-			case X32_BTN_BOARD_R_CH_8_MUTE:
-			case X32_BTN_MAIN_MUTE:
-				config->Toggle(CHANNEL_MUTE, GetvChannelIndexFromButtonOrFaderIndex(event->boardId, button - X32_BTN_BOARD_R_CH_1_MUTE));
-				break;
 			case X32_BTN_CLEAR_SOLO:
 				mixer->ClearSolo();
 				break;

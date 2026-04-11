@@ -1281,7 +1281,7 @@ void Surface::FaderReset()
 // Want to move Fader to Position
 // position = 0x0000 ... 0x0FFF
 void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
-    uint8_t faderindex = GetFaderIndex(boardId, index);
+    uint8_t faderindex = GetChannelstripIndex(boardId, index);
 
     //if (faders[faderindex].position_real != faders[faderindex].position_wanted) {
         helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Want to move fader at index %d to %d", faderindex, position);
@@ -1292,14 +1292,14 @@ void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
 // Fader was physically moved (by us or by operator)
 void Surface::FaderMoved(SurfaceEvent* event)
 {
-    uint8_t faderindex = GetFaderIndex(event->boardId, event->index);
+    uint8_t faderindex = GetChannelstripIndex(event->boardId, event->index);
     helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Fader at index %d moved to %d", faderindex, event->value);
     faders[faderindex].position_wanted = event->value;
     faders[faderindex].position_real = event->value;
     faders[faderindex].wait = 10; // wait 100x 10ms
 }
 
-uint8_t Surface::GetFaderIndex(uint8_t boardId, uint8_t index)
+uint8_t Surface::GetChannelstripIndex(uint8_t boardId, uint8_t index)
 {
     switch (boardId)
     {

@@ -10,6 +10,7 @@
 #include "helper.h"
 
 #include "mixerparameter.h"
+#include "surfaceelement.h"
 
 class Config
 {
@@ -19,13 +20,18 @@ class Config
 
         Helper* helper;
 
+        // Mixerparameter
+
         Mixerparameter* mpm[(uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE];
         map<MP_ID, set<uint>>* mp_changedlist = new map<MP_ID, set<uint>>();
-
-        void CreateMixerparameter(MP_ID mp_type); 
-        void CreateMixerparameter(MP_ID mp_type, uint index);    
         
         void SetParameterChanged(MP_ID mp, uint index);
+
+        // Surfaceelements
+
+        SurfaceElement* sem[(uint)SE_ID::__ELEMENT_COUNTER_DO_NOT_MOVE];
+
+
 
         // old
         X32_MODEL _model;
@@ -66,6 +72,11 @@ class Config
         void Refresh(MP_ID mp, uint index = 0);
         void Reset(MP_ID mp, uint index = 0);
 
+        void DefineSurfaceElements();
+        SurfaceElement* DefSurfaceElements(SE_ID element_id, String name);
+
+        bool HasSurfaceElement(SE_ID id);
+        SurfaceElement* GetSurfaceElement(SE_ID);
 
         void SetModel(String model);
         bool IsModelX32Full();
