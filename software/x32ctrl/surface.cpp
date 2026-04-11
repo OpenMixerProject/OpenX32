@@ -93,9 +93,9 @@ void Surface::Reset(void) {
         usleep(2000 * 1000);
     }
 
-    for(uint8_t faderindex=0; faderindex<MAX_FADERS; faderindex++){
-        faders[faderindex].wait = 0;
-    }
+    //Reset twice (the first faders are not reseted if we do it only once)
+    FaderReset();
+    FaderReset();
 
     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "... Done");
 }
@@ -1254,6 +1254,29 @@ void Surface::Blink(){
 // #
 // ####################################################################
 
+/// @brief Set All Faders to 0 (-Unlimited dBFS)
+void Surface::FaderReset()
+{
+    // Reset touchcontrol wait time
+    for(uint8_t faderindex=0; faderindex<MAX_FADERS; faderindex++){
+        faders[faderindex].wait = 0;
+    }
+
+    // Reset position of faders
+    uint8_t maxfaderindex = 0;
+    if (config->IsModelX32Full()){
+        maxfaderindex = MAX_FADERS;
+    }
+    if (config->IsModelX32CompactOrProducer()){
+        maxfaderindex = MAX_FADERS-8;
+    }
+
+    for(uint8_t faderindex=0; faderindex<maxfaderindex; faderindex++)
+    {
+        faders[faderindex].position_real = 0;
+        SetFaderRaw(GetBoardId(faderindex), GetFaderId(faderindex), 0);
+    }
+}
 
 // Want to move Fader to Position
 // position = 0x0000 ... 0x0FFF
