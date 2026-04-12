@@ -70,7 +70,7 @@ void X32Ctrl::Init(){
 
 	//############################################################################
 	//#                                                                          #
-	//#     Default Config                                                       #
+	//#     Default X32Config                                                       #
 	//#                                                                          #
 	//############################################################################
 	//#                                                                          #
@@ -119,7 +119,7 @@ void X32Ctrl::Init(){
 	//#                                                                          #
 	//############################################################################
     //#                                                                          #
-	//#     EoDC - Default of Default Config :-)                                 #
+	//#     EoDC - Default of Default X32Config :-)                                 #
 	//#                                                                          #
 	//############################################################################
 	
@@ -132,7 +132,7 @@ void X32Ctrl::Init(){
 	}
 
 
-	// Config
+	// X32Config
 	if(!mixer->LoadConfig(0))
 	{
 		// create new ini file
@@ -813,8 +813,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 		uint offset = config->GetUint(BANKING_INPUT) * offset_base;
 		for(uint i = 0; i < offset_base; i++)
 		{
-			Bind((SE_ID)((uint)SE_ID::MUTE_1 + i), CHANNEL_MUTE, i + offset, SB_ACTION::TOGGLE);
-			Bind((SE_ID)((uint)SE_ID::FADER_1 + i), CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
+			Bind((SE_ID)((uint)SE_ID::MUTE_1 + i), CHANNEL_MUTE, i + offset, SurfaceBindingAction::TOGGLE);
+			Bind((SE_ID)((uint)SE_ID::FADER_1 + i), CHANNEL_VOLUME, i + offset, SurfaceBindingAction::SET);
 		}
 
 		// sync all after banking has changed
@@ -845,8 +845,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 		for(uint i = 0; i < 8; i++)
 		{
-			Bind((SE_ID)((uint)SE_ID::MUTE_1 + i + bus_fader_offset), CHANNEL_MUTE, i + offset, SB_ACTION::TOGGLE);
-			Bind((SE_ID)((uint)SE_ID::FADER_1 + i + bus_fader_offset), CHANNEL_VOLUME, i + offset, SB_ACTION::SET);
+			Bind((SE_ID)((uint)SE_ID::MUTE_1 + i + bus_fader_offset), CHANNEL_MUTE, i + offset, SurfaceBindingAction::TOGGLE);
+			Bind((SE_ID)((uint)SE_ID::FADER_1 + i + bus_fader_offset), CHANNEL_VOLUME, i + offset, SurfaceBindingAction::SET);
 		}
 
 		// sync all after banking has changed
@@ -1886,8 +1886,14 @@ void X32Ctrl::ProcessUartDataSurface() {
                     break;
             }       
 
-            if (valid){
-                helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback: BoardId 0x%02X, Class 0x%02X, Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+            if (valid)
+			{
+				helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback: BoardId 0x%02X, Class 0x%02X, Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+				
+				// "SurfaceManager"
+				ProcessSurface((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue);
+
+				// old
 				ProcessSurfaceEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }
@@ -1936,10 +1942,10 @@ void X32Ctrl::ProcessUartDataSurface() {
 
 void X32Ctrl::InitSurfaceBinding()
 {
-	Bind(SE_ID::FADER_MAIN, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SB_ACTION::SET);
+	Bind(SE_ID::FADER_MAIN, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN), SurfaceBindingAction::SET);
 }
 
-void X32Ctrl::Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action)
+void X32Ctrl::Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparameter_index, SurfaceBindingAction action)
 {
 	SurfaceBinding* sb = new SurfaceBinding(mixerparameter, mixerparameter_index, action);
 
@@ -1964,6 +1970,74 @@ void X32Ctrl::Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparamet
 //  ######   #######  ##     ## ##       ##     ##  ######  ########      #### ##    ## ##         #######     ##    
 //
 //#####################################################################################################################
+
+
+void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, uint16_t value)
+{
+	if (classid == 'f') // Fader
+	{
+	}
+	else if (classid == 'b') // Button
+	{
+		// find surfaceelement
+		SurfaceElement* se = config->GetSurfaceElementButton(board, button);
+
+
+		X32_BTN button = surface->Button2Enum[((uint16_t)board << 8) + (uint16_t)(value & 0x7F)];
+		bool isButtonPressed = (value >> 7) == 1;
+
+		// Logic for double button press
+		if (isButtonPressed) {
+			if (buttonPressed == X32_BTN_NONE) {
+				buttonPressed = button;
+			} else {
+				helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DoubleButtonPress: Button1 %d, Button2 %d", buttonPressed, secondbuttonPressed);
+				secondbuttonPressed = button;
+			}
+		} else {
+			if (buttonPressed == button) {
+				buttonPressed = X32_BTN_NONE;
+			}
+			if (secondbuttonPressed == button) {
+				secondbuttonPressed = X32_BTN_NONE;
+			}
+		}
+
+		if (isButtonPressed)
+		{
+			for (auto const& [surfaceelement, surfacebinding] : *binding)
+			{
+				if (config->HasSurfaceElement(surfaceelement))
+				{
+					SurfaceElement* element = config->GetSurfaceElement(surfaceelement);
+
+					if (element->element_type == SE_TYPE::Button && element->button == button)
+					{
+						switch (surfacebinding->action)
+						{
+							case SurfaceBindingAction::TOGGLE:
+								config->Toggle(surfacebinding->mp_id, surfacebinding->mp_index);
+								break;
+							case SurfaceBindingAction::SET:
+								config->Set(surfacebinding->mp_id, 1, surfacebinding->mp_index);
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+	else if (classid == 'e') // Encoder
+	{
+
+	}
+	else 
+	{
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_TRACE, "unknown message: %s\n",
+			(String("Board: ") + String(board) + " Class: " + String(classid) + " Index: " + String(index) + " Value: " + String(value)).c_str()
+		);
+	}
+}
 
 void X32Ctrl::FaderMoved(SurfaceEvent* event)
 {
@@ -2006,32 +2080,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 		}
 	}
 
-	if (isButtonPressed)
-	{
-		for (auto const& [surfaceelement, SurfaceBinding] : *binding)
-		{
-			if (config->HasSurfaceElement(surfaceelement))
-			{
-				SurfaceElement* element = config->GetSurfaceElement(surfaceelement);
-
-				if (element->element_type == SE_TYPE::Button)
-				{
-					if (element->button == button)
-					{
-						switch (SurfaceBinding->action)
-						{
-							case SB_ACTION::TOGGLE:
-								config->Toggle(SurfaceBinding->mp_id, SurfaceBinding->mp_index);
-								break;
-							case SB_ACTION::SET:
-								config->Set(SurfaceBinding->mp_id, 1, SurfaceBinding->mp_index);
-								break;
-						}
-					}
-				}
-			}
-		}
-	}
+	
 
 
 	// Standard button assingments

@@ -439,7 +439,7 @@ void Fpga::AES50Receive(void) {
 }
 
 // this function is called every 100ms
-void Fpga::AES50Tick(Config* config) {
+void Fpga::AES50Tick(X32Config* config) {
 	AES50Counter++;
 	if (AES50Counter == 10) {
 		// send device-properties every 2 seconds
@@ -523,7 +523,7 @@ void Fpga::AES50SendNames() {
 	AES50Send(&fpgaTxBufferUart[0], 408);
 }
 
-void Fpga::AES50SendHeadampMessage(Config* config) {
+void Fpga::AES50SendHeadampMessage(X32Config* config) {
 	fpgaTxBufferUart[0] = 0x01;
 	fpgaTxBufferUart[1] = (60 / 4); // message-length in 32-bit words
 	fpgaTxBufferUart[2] = 0; // checksum (will be set in AES50Send-Function)

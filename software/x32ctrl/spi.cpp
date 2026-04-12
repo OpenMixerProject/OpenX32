@@ -566,9 +566,9 @@ void SPI::fpgaLatticePrintBits(uint32_t status)
     printf("+----+--------------------------------+---+\n");
       
     SHOWSTATUSBIT(status, 0, "JTAG Transparent");
-    SHOWSTATUSBIT(status, 1, "Config Target Selection [0]");
-    SHOWSTATUSBIT(status, 2, "Config Target Selection [1]");
-    SHOWSTATUSBIT(status, 3, "Config Target Selection [2]");
+    SHOWSTATUSBIT(status, 1, "X32Config Target Selection [0]");
+    SHOWSTATUSBIT(status, 2, "X32Config Target Selection [1]");
+    SHOWSTATUSBIT(status, 3, "X32Config Target Selection [2]");
     SHOWSTATUSBIT(status, 4, "JTAG Active");
     SHOWSTATUSBIT(status, 5, "PWD Protection");
     SHOWSTATUSBIT(status, 6, "(Internal use)");

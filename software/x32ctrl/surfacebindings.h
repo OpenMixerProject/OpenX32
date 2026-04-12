@@ -12,9 +12,9 @@ class SurfaceBinding
         MP_ID mp_id = MP_ID::NONE;
         uint mp_index = 0;
 
-        SB_ACTION action = SB_ACTION::NONE;       
+        SurfaceBindingAction action = SurfaceBindingAction::NONE;       
 
-        SurfaceBinding(MP_ID mixerparameter_id, uint mixerparameter_index, SB_ACTION sb_action)
+        SurfaceBinding(MP_ID mixerparameter_id, uint mixerparameter_index, SurfaceBindingAction sb_action)
         {
             this->mp_id = mixerparameter_id;
             this->mp_index = mixerparameter_index;

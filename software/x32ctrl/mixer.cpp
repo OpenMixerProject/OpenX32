@@ -531,7 +531,7 @@ bool Mixer::LoadConfig(uint scene)
 
     if (access(loadFile.c_str(), F_OK) == -1)
     {
-        helper->Error("Can not load Config. File %s does not exist.", loadFile.c_str());
+        helper->Error("Can not load X32Config. File %s does not exist.", loadFile.c_str());
     }
 
 	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", loadFile.c_str());

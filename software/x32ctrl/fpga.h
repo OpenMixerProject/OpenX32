@@ -50,10 +50,10 @@ class Fpga : public X32Base
         void AES50Receive(void);
         void AES50Send(char* data, uint len);
 
-        void AES50Tick(Config* config);
+        void AES50Tick(X32Config* config);
         void AES50SendDeviceTypeAndProperty(void);
         void AES50SendNames(void);
-        void AES50SendHeadampMessage(Config* config);
+        void AES50SendHeadampMessage(X32Config* config);
 
     private:
         Uart* uart;

@@ -12,7 +12,7 @@
 #include "mixerparameter.h"
 #include "surfaceelement.h"
 
-class Config
+class X32Config
 {
     using enum MP_ID;
 
@@ -38,7 +38,7 @@ class Config
 
     public:
 
-        Config(Helper* h);
+        X32Config(Helper* h);
 
         void DefineMixerparameters();
         Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);

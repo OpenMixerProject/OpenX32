@@ -123,7 +123,7 @@ void init10msTimer_NonGUI(void) {
 	}
 }
 
-void guiInit(Config* config) {
+void guiInit(X32Config* config) {
 
 	lv_init();
 
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
 	srand(time(NULL));
 
     Helper* helper = new Helper();
-    Config* config = new Config(helper);
+    X32Config* config = new X32Config(helper);
     state = new State();
 
 	app = new CLI::App();

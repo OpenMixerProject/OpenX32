@@ -3,7 +3,7 @@
 // #include <iostream>
 
 #include "external.h"
-#include "config.h"
+#include "x32config.h"
 #include "helper.h"
 #include "state.h"
 #include "mixer.h"
@@ -39,7 +39,7 @@
 
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
-#include "CLI11.hpp"
+//#include "CLI11.hpp"
 
 // includes for lvgl
 #include "lv_port_linux/lvgl/lvgl.h"
@@ -99,7 +99,7 @@ class X32Ctrl : public X32Base
         void my_handler(int s);
 
         void InitSurfaceBinding();
-        void Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparameter_index, SB_ACTION action);
+        void Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparameter_index, SurfaceBindingAction action);
 
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);
@@ -112,6 +112,8 @@ class X32Ctrl : public X32Base
         void ProcessUartDataSurface();
         void ProcessUartDataAdda();
         void ProcessUartDataAES50();
+
+        void ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, uint16_t value);
 
     public:
 

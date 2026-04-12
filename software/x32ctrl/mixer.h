@@ -5,7 +5,7 @@
 
 #include "external.h"
 #include "defines.h"
-#include "config.h"
+#include "x32config.h"
 #include "types.h"
 #include "base.h"
 

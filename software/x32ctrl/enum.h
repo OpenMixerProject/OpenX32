@@ -873,7 +873,7 @@ enum class DSP_TAP : int
 };
 
 /// @brief Surface Binding Action
-enum class SB_ACTION
+enum class SurfaceBindingAction
 {
     NONE,
     SET,

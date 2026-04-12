@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config.h"
+#include "x32config.h"
 #include "state.h"
 #include "helper.h"
 #include "base-parameter.h"
@@ -10,7 +10,7 @@ class X32Base
 {
     protected:
         CLI::App* app;
-        Config* config;
+        X32Config* config;
         State* state;
         Helper* helper;
 
