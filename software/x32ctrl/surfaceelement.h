@@ -9,18 +9,20 @@ class SurfaceElement
 {
     private:
 
-        SE_ID element_id;
+        SurfaceElementId element_id;
         String _name;
+        
+        /// @brief Button-ID, LED-ID or Fader-Index
+        uint element_index; 
+
+        X32_BOARD board_id;
 
     public:
 
-        SE_TYPE element_type;
-        X32_BOARD board;
-        uint index;
+        SurfaceElementType element_type;
 
-        X32_BTN button;
 
-        SurfaceElement(SE_ID se, String name)
+        SurfaceElement(SurfaceElementId se, String name)
         {
             element_id = se;
             _name = name;
@@ -28,19 +30,43 @@ class SurfaceElement
 
         SurfaceElement* DefFader(X32_BOARD board, uint faderindex)
         {
-            element_type = SE_TYPE::Fader;
-            this->board = board;
-            index = faderindex;
+            element_type = SurfaceElementType::Fader;
+            board_id = board;
+            element_index = faderindex;
 
             return this;
         }
 
-        SurfaceElement* DefButton(X32_BTN button_id)
+        SurfaceElement* DefButton(X32_BOARD board, uint button)
         {
-            element_type = SE_TYPE::Button;
-            button = button_id;
+            element_type = SurfaceElementType::Button;
+            board_id = board;
+            element_index = button;
 
             return this;
         }
+
+        String GetName()
+        {
+            return _name;
+        }
+
+        SurfaceElementId GetId()
+        {
+            return element_id;
+        }
+
+        X32_BOARD GetBoard()
+        {
+            return board_id;
+        }
+
+        /// @brief Button-ID, LED-ID or Fader-Index
+        uint GetIndex()
+        {
+            return element_index;
+        }
+
+
 
 };

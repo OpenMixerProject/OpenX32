@@ -745,73 +745,91 @@ enum class MP_ID {
 };
 
 // @brief Surfaceelement ID
-enum class SE_ID {
+enum class SurfaceElementId {
     NONE,
-    PAGE_CUSTOM_ENCODER,
 
-    MUTE_1,
-    MUTE_2,
-    MUTE_3,
-    MUTE_4,
-    MUTE_5,
-    MUTE_6,
-    MUTE_7,
-    MUTE_8,
+    // keep all in blocks, so we can enumerate!
 
-    MUTE_9,
-    MUTE_10,
-    MUTE_11,
-    MUTE_12,
-    MUTE_13,
-    MUTE_14,
-    MUTE_15,
-    MUTE_16,
+    BOARD_L_CH1_16,
+    BOARD_L_CH17_32,
 
-    MUTE_17,
-    MUTE_18,
-    MUTE_19,
-    MUTE_20,
-    MUTE_21,
-    MUTE_22,
-    MUTE_23,
-    MUTE_24,
+    BOARD_L_CH1_8,
+    BOARD_L_CH9_16,
+    BOARD_L_CH17_24,
+    BOARD_L_CH25_32,
+    BOARD_L_AUX_USB,
+    BOARD_L_FX_RET,
+    BOARD_L_BUS1_8,
+    BOARD_L_BUS9_16,
+    
+    BOARD_R_DCA,
+    BOARD_R_BUS1_8,
+    BOARD_R_BUS9_16,
+    BOARD_R_MATRIX_MAIN,
 
-    MUTE_MAIN,
+    BOARD_L_MUTE_1,
+    BOARD_L_MUTE_2,
+    BOARD_L_MUTE_3,
+    BOARD_L_MUTE_4,
+    BOARD_L_MUTE_5,
+    BOARD_L_MUTE_6,
+    BOARD_L_MUTE_7,
+    BOARD_L_MUTE_8,
 
-    FADER_1,
-    FADER_2,
-    FADER_3,
-    FADER_4,
-    FADER_5,
-    FADER_6,
-    FADER_7,
-    FADER_8,
+    BOARD_M_MUTE_1,
+    BOARD_M_MUTE_2,
+    BOARD_M_MUTE_3,
+    BOARD_M_MUTE_4,
+    BOARD_M_MUTE_5,
+    BOARD_M_MUTE_6,
+    BOARD_M_MUTE_7,
+    BOARD_M_MUTE_8,
 
-    FADER_9,
-    FADER_10,
-    FADER_11,
-    FADER_12,
-    FADER_13,
-    FADER_14,
-    FADER_15,
-    FADER_16,
+    BOARD_R_MUTE_1,
+    BOARD_R_MUTE_2,
+    BOARD_R_MUTE_3,
+    BOARD_R_MUTE_4,
+    BOARD_R_MUTE_5,
+    BOARD_R_MUTE_6,
+    BOARD_R_MUTE_7,
+    BOARD_R_MUTE_8,
 
-    FADER_17,
-    FADER_18,
-    FADER_19,
-    FADER_20,
-    FADER_21,
-    FADER_22,
-    FADER_23,
-    FADER_24,
+    BOARD_R_MUTE_MAIN,
 
-    FADER_MAIN,
+    BOARD_L_FADER_1,
+    BOARD_L_FADER_2,
+    BOARD_L_FADER_3,
+    BOARD_L_FADER_4,
+    BOARD_L_FADER_5,
+    BOARD_L_FADER_6,
+    BOARD_L_FADER_7,
+    BOARD_L_FADER_8,
+
+    BOARD_M_FADER_1,
+    BOARD_M_FADER_2,
+    BOARD_M_FADER_3,
+    BOARD_M_FADER_4,
+    BOARD_M_FADER_5,
+    BOARD_M_FADER_6,
+    BOARD_M_FADER_7,
+    BOARD_M_FADER_8,
+
+    BOARD_R_FADER_1,
+    BOARD_R_FADER_2,
+    BOARD_R_FADER_3,
+    BOARD_R_FADER_4,
+    BOARD_R_FADER_5,
+    BOARD_R_FADER_6,
+    BOARD_R_FADER_7,
+    BOARD_R_FADER_8,
+
+    BOARD_R_FADER_MAIN,
  
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 
 // @brief Surfaceelement Type
-enum class SE_TYPE {
+enum class SurfaceElementType {
     NONE,
     Fader,
     Encoder,
@@ -879,4 +897,29 @@ enum class SurfaceBindingAction
     SET,
     CHANGE,
     TOGGLE,
+    Banking,
+};
+
+enum class X32BankId
+{
+    None,
+
+    CH1_8,
+    CH9_16,
+    CH17_24,
+    CH25_32,
+    AUX_USB,
+    FX_RET,
+    BUS1_8,
+    BUS9_16,
+    DCA,
+    MATRIX_MAIN
+};
+
+enum class X32BankTarget
+{
+    None,
+    
+    InputSection,
+    BusSection
 };

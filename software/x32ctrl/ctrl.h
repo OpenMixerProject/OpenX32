@@ -35,11 +35,10 @@
 #include "lcd-menu.h"
 
 #include "surfaceelement.h"
-#include "surfacebindings.h"
-
+#include "surfacebindingparameter.h"
 
 // Commandline and config file parser CLI11 (https://github.com/CLIUtils/CLI11)
-//#include "CLI11.hpp"
+#include "CLI11.hpp"
 
 // includes for lvgl
 #include "lv_port_linux/lvgl/lvgl.h"
@@ -79,11 +78,13 @@ class X32Ctrl : public X32Base
         LcdMenu* lcdmenu;
 
         // surface binding
-        map<SE_ID, SurfaceBinding*>* binding = new map<SE_ID, SurfaceBinding*>();
+        map<SurfaceElementId, SurfaceBindingParameter*>* surface_binding;
  
         // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
         sBank inputBanks[8];
         sBank busBanks[4];
+
+        X32Bank* banks[10];
 
         map<X32_PAGE, Page*> pages;
         X32_PAGE lastPage = X32_PAGE::HOME;
@@ -91,15 +92,20 @@ class X32Ctrl : public X32Base
         sTouchControl touchcontrol;
 
         // currently pressed button
-        X32_BTN buttonPressed = X32_BTN_NONE;
+        SurfaceElement* buttonPressed = 0;
         
         // second button pressed, while first button is also pressed
-        X32_BTN secondbuttonPressed = X32_BTN_NONE;
+        SurfaceElement* secondbuttonPressed = 0;
 
         void my_handler(int s);
 
+        void InitBanks();
+        void InitBank_Channelstrip(X32Bank* bank, uint offset);
+        void LoadBank(X32BankTarget target, X32BankId id);
         void InitSurfaceBinding();
-        void Bind(SE_ID surfaceelement, MP_ID mixerparameter, uint mixerparameter_index, SurfaceBindingAction action);
+        void SurfaceBind(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
+        void SurfaceBind_MixerParameter(SurfaceElementId surfaceelement_id, SurfaceBindingAction action, MP_ID mixerparaemter_id, uint mixerparameter_index);
+        void SurfaceBind_Bank(SurfaceElementId surfaceelement_id, X32BankId bank_id, X32BankTarget target);
 
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);
@@ -152,7 +158,6 @@ class X32Ctrl : public X32Base
         uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
 
         void SimulatorButton(uint key);
-        void FaderMoved(SurfaceEvent* event);
         void ButtonPressedOrReleased(SurfaceEvent* event);
         void EncoderTurned(SurfaceEvent* event);
 

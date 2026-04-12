@@ -11,6 +11,7 @@
 
 #include "mixerparameter.h"
 #include "surfaceelement.h"
+#include "x32bank.h"
 
 class X32Config
 {
@@ -29,8 +30,7 @@ class X32Config
 
         // Surfaceelements
 
-        SurfaceElement* sem[(uint)SE_ID::__ELEMENT_COUNTER_DO_NOT_MOVE];
-
+        SurfaceElement* sem[(uint)SurfaceElementId::__ELEMENT_COUNTER_DO_NOT_MOVE];
 
 
         // old
@@ -72,11 +72,14 @@ class X32Config
         void Refresh(MP_ID mp, uint index = 0);
         void Reset(MP_ID mp, uint index = 0);
 
-        void DefineSurfaceElements();
-        SurfaceElement* DefSurfaceElements(SE_ID element_id, String name);
 
-        bool HasSurfaceElement(SE_ID id);
-        SurfaceElement* GetSurfaceElement(SE_ID);
+
+        void DefineSurfaceElements();
+        SurfaceElement* DefSurfaceElements(SurfaceElementId element_id, String name);
+
+        bool HasSurfaceElement(SurfaceElementId id);
+        SurfaceElement* GetSurfaceElement(SurfaceElementId);
+        SurfaceElement* GetSurfaceElementButton(X32_BOARD board, uint16_t value);
 
         void SetModel(String model);
         bool IsModelX32Full();
