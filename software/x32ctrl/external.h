@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <math.h>
 #include <linux/input.h>
+#include <set>
+#include <map>
 
 // special includes
 #include <string.h>

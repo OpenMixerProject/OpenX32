@@ -216,10 +216,10 @@ void X32Config::DefineMixerparameters() {
     ->DefConfig(group, "banking_eq")
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
-    DefParameter(BANKING_INPUT, cat, "Banking Input Section")
-    ->DefHideEncoderReset()
-    ->DefConfig(group, "banking_input")
-    ->DefMinMaxStandard_Uint(0, 7, 0);
+    // DefParameter(BANKING_INPUT, cat, "Banking Input Section")
+    // ->DefHideEncoderReset()
+    // ->DefConfig(group, "banking_input")
+    // ->DefMinMaxStandard_Uint(0, 7, 0);
 
     DefParameter(BANKING_BUS, cat, "Banking Bus Section")
     ->DefHideEncoderReset()
@@ -1492,69 +1492,101 @@ void X32Config::DefineSurfaceElements()
 {
 	using enum SurfaceElementId;
 
-    //#######################################
-    //#
-    //#  Channelstrip
-    //#
-    //#######################################
-
     if (IsModelX32FullOrCompactOrProducer())
     {
-
-    // BOARD_R_DCA,
-    // BOARD_R_BUS1_8,
-    // BOARD_R_BUS9_16,
-    // BOARD_R_MATRIX_MAIN
-
-        // Board L
+        //################################################################
+        //
+        // ########   #######     ###    ########  ########       ##       
+        // ##     ## ##     ##   ## ##   ##     ## ##     ##      ##       
+        // ##     ## ##     ##  ##   ##  ##     ## ##     ##      ##       
+        // ########  ##     ## ##     ## ########  ##     ##      ##       
+        // ##     ## ##     ## ######### ##   ##   ##     ##      ##       
+        // ##     ## ##     ## ##     ## ##    ##  ##     ##      ##       
+        // ########   #######  ##     ## ##     ## ########       ########
+        //
+        //################################################################ 
 
         if (IsModelX32Full())
         {
-            DefSurfaceElements(BOARD_L_CH1_16, "Inputs CH 1-16")->DefButton(X32_BOARD_L, 0x01);
-            DefSurfaceElements(BOARD_L_CH17_32, "Inputs CH 17-32")->DefButton(X32_BOARD_L, 0x02);
+            DefSurfaceElements(CH1_16, "Inputs CH 1-16")->DefButton(X32_BOARD_L, 0x01);
+            DefSurfaceElements(CH17_32, "Inputs CH 17-32")->DefButton(X32_BOARD_L, 0x02);
         }
         else if (IsModelX32CompactOrProducer())
         {
-            DefSurfaceElements(BOARD_L_CH1_8, "Inputs CH 1-8")->DefButton(X32_BOARD_L, 0x00);
-            DefSurfaceElements(BOARD_L_CH9_16, "Inputs CH 9-16")->DefButton(X32_BOARD_L, 0x01);
-            DefSurfaceElements(BOARD_L_CH17_24, "Inputs CH 17-24")->DefButton(X32_BOARD_L, 0x02);
-            DefSurfaceElements(BOARD_L_CH25_32, "Inputs CH 25-32")->DefButton(X32_BOARD_L, 0x03);
-            DefSurfaceElements(BOARD_L_AUX_USB, "Inputs AUX/USB")->DefButton(X32_BOARD_L, 0x04);
-            DefSurfaceElements(BOARD_L_FX_RET, "Inputs Effects Return")->DefButton(X32_BOARD_L, 0x05);
-            DefSurfaceElements(BOARD_L_BUS1_8, "Inputs Bus 1-8")->DefButton(X32_BOARD_L, 0x06);
-            DefSurfaceElements(BOARD_L_BUS9_16, "Inputs Bus 9-16")->DefButton(X32_BOARD_L, 0x07);
+            DefSurfaceElements(CH1_8, "Inputs CH 1-8")->DefButton(X32_BOARD_L, 0x00);
+            DefSurfaceElements(CH9_16, "Inputs CH 9-16")->DefButton(X32_BOARD_L, 0x01);
+            DefSurfaceElements(CH17_24, "Inputs CH 17-24")->DefButton(X32_BOARD_L, 0x02);
+            DefSurfaceElements(CH25_32, "Inputs CH 25-32")->DefButton(X32_BOARD_L, 0x03);
+            DefSurfaceElements(AUX_USB, "Inputs AUX/USB")->DefButton(X32_BOARD_L, 0x04);
+            DefSurfaceElements(FX_RET, "Inputs Effects Return")->DefButton(X32_BOARD_L, 0x05);
+            DefSurfaceElements(BUS1_8_MASTER, "Inputs Bus 1-8")->DefButton(X32_BOARD_L, 0x06);
+            DefSurfaceElements(BUS9_16_MASTER, "Inputs Bus 9-16")->DefButton(X32_BOARD_L, 0x07);
         }
 
         for (uint i = 0; i < 8; i++)
         {
+            DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_SELECT_1)+i), String("Board L Select ") + String(i+1))
+                ->DefButton(X32_BOARD_L, 0x20 + i);
+
+            DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_SOLO_1)+i), String("Board L Solo ") + String(i+1))
+                ->DefButton(X32_BOARD_L, 0x30 + i);
+
             DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_MUTE_1)+i), String("Board L Mute ") + String(i+1))
                 ->DefButton(X32_BOARD_L, 0x40 + i);
 
-            // DefSurfaceElements((SurfaceElementId)(((int)FADER_1)+i), String("Fader ") + String(i+1))
-            //     ->DefFader(X32_BOARD_L, i);
+            DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_FADER_1)+i), String("Board L Fader ") + String(i+1))
+                 ->DefFader(X32_BOARD_L, i);
         }
+
+        //#################################################################
+        //
+        // ########   #######     ###    ########  ########       ##     ## 
+        // ##     ## ##     ##   ## ##   ##     ## ##     ##      ###   ### 
+        // ##     ## ##     ##  ##   ##  ##     ## ##     ##      #### #### 
+        // ########  ##     ## ##     ## ########  ##     ##      ## ### ## 
+        // ##     ## ##     ## ######### ##   ##   ##     ##      ##     ## 
+        // ##     ## ##     ## ##     ## ##    ##  ##     ##      ##     ## 
+        // ########   #######  ##     ## ##     ## ########       ##     ## 
+        //
+        //################################################################# 
 
         if (IsModelX32Full())
         {
-            // Board M
             for (uint i = 0; i < 8; i++)
             {
                 DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_MUTE_1)+i), String("Board M Mute ") + String(i+1))
                     ->DefButton(X32_BOARD_M, 0x40 + i);
 
-                // DefSurfaceElements((SurfaceElementId)(((int)FADER_1)+i), String("Fader ") + String(i+1))
-                //     ->DefFader(X32_BOARD_L, i);
+                DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_FADER_1)+i), String("Board M Fader ") + String(i+1))
+                 ->DefFader(X32_BOARD_M, i);
             }
         }
 
-        // Board R
+        //#################################################################
+        //
+        // ########   #######     ###    ########  ########       ########  
+        // ##     ## ##     ##   ## ##   ##     ## ##     ##      ##     ## 
+        // ##     ## ##     ##  ##   ##  ##     ## ##     ##      ##     ## 
+        // ########  ##     ## ##     ## ########  ##     ##      ########  
+        // ##     ## ##     ## ######### ##   ##   ##     ##      ##   ##   
+        // ##     ## ##     ## ##     ## ##    ##  ##     ##      ##    ##  
+        // ########   #######  ##     ## ##     ## ########       ##     ##
+        // 
+        //#################################################################
+
+
+            // DCA,
+    // BOARD_R_BUS1_8,
+    // BOARD_R_BUS9_16,
+    // BOARD_R_MATRIX_MAIN
+
         for (uint i = 0; i < 8; i++)
         {
             DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_MUTE_1)+i), String("Board R Mute ") + String(i+1))
                 ->DefButton(X32_BOARD_R, 0x40 + i);
 
-            // DefSurfaceElements((SurfaceElementId)(((int)FADER_1)+i), String("Fader ") + String(i+1))
-            //     ->DefFader(X32_BOARD_L, i);
+            DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_FADER_1)+i), String("Board R Fader ") + String(i+1))
+                ->DefFader(X32_BOARD_R, i);
         }
 
         DefSurfaceElements(BOARD_R_MUTE_MAIN, "Mute Main")

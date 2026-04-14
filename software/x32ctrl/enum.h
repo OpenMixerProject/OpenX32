@@ -513,7 +513,7 @@ enum class MP_ID {
     SELECTED_CHANNEL,
     ACTIVE_PAGE,
     BANKING_EQ,
-    BANKING_INPUT,
+    //BANKING_INPUT,
     BANKING_BUS,
     BANKING_BUS_SENDS,
 
@@ -750,22 +750,82 @@ enum class SurfaceElementId {
 
     // keep all in blocks, so we can enumerate!
 
-    BOARD_L_CH1_16,
-    BOARD_L_CH17_32,
+    DAW_REMOTE,
+    CH1_16,
+    CH17_32,
 
-    BOARD_L_CH1_8,
-    BOARD_L_CH9_16,
-    BOARD_L_CH17_24,
-    BOARD_L_CH25_32,
-    BOARD_L_AUX_USB,
-    BOARD_L_FX_RET,
-    BOARD_L_BUS1_8,
-    BOARD_L_BUS9_16,
+
+    CH1_8,
+    CH9_16,
+    CH17_24,
+    CH25_32,
+    AUX_USB,
+    FX_RET,
+    BUS1_8_MASTER,
+    BUS9_16_MASTER,
     
-    BOARD_R_DCA,
-    BOARD_R_BUS1_8,
-    BOARD_R_BUS9_16,
-    BOARD_R_MATRIX_MAIN,
+    DCA,
+    BUS1_8,
+    BUS9_16,
+    MATRIX_MAIN,
+
+    BOARD_L_SELECT_1,
+    BOARD_L_SELECT_2,
+    BOARD_L_SELECT_3,
+    BOARD_L_SELECT_4,
+    BOARD_L_SELECT_5,
+    BOARD_L_SELECT_6,
+    BOARD_L_SELECT_7,
+    BOARD_L_SELECT_8,
+
+    BOARD_M_SELECT_1,
+    BOARD_M_SELECT_2,
+    BOARD_M_SELECT_3,
+    BOARD_M_SELECT_4,
+    BOARD_M_SELECT_5,
+    BOARD_M_SELECT_6,
+    BOARD_M_SELECT_7,
+    BOARD_M_SELECT_8,
+
+    BOARD_R_SELECT_1,
+    BOARD_R_SELECT_2,
+    BOARD_R_SELECT_3,
+    BOARD_R_SELECT_4,
+    BOARD_R_SELECT_5,
+    BOARD_R_SELECT_6,
+    BOARD_R_SELECT_7,
+    BOARD_R_SELECT_8,
+
+    BOARD_R_SELECT_MAIN,
+
+    BOARD_L_SOLO_1,
+    BOARD_L_SOLO_2,
+    BOARD_L_SOLO_3,
+    BOARD_L_SOLO_4,
+    BOARD_L_SOLO_5,
+    BOARD_L_SOLO_6,
+    BOARD_L_SOLO_7,
+    BOARD_L_SOLO_8,
+
+    BOARD_M_SOLO_1,
+    BOARD_M_SOLO_2,
+    BOARD_M_SOLO_3,
+    BOARD_M_SOLO_4,
+    BOARD_M_SOLO_5,
+    BOARD_M_SOLO_6,
+    BOARD_M_SOLO_7,
+    BOARD_M_SOLO_8,
+
+    BOARD_R_SOLO_1,
+    BOARD_R_SOLO_2,
+    BOARD_R_SOLO_3,
+    BOARD_R_SOLO_4,
+    BOARD_R_SOLO_5,
+    BOARD_R_SOLO_6,
+    BOARD_R_SOLO_7,
+    BOARD_R_SOLO_8,
+
+    BOARD_R_SOLO_MAIN,
 
     BOARD_L_MUTE_1,
     BOARD_L_MUTE_2,
@@ -895,6 +955,7 @@ enum class SurfaceBindingAction
 {
     NONE,
     SET,
+    SET_TO_INDEX,
     CHANGE,
     TOGGLE,
     Banking,
@@ -913,7 +974,9 @@ enum class X32BankId
     BUS1_8,
     BUS9_16,
     DCA,
-    MATRIX_MAIN
+    MATRIX_MAIN,
+
+    __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 
 enum class X32BankTarget

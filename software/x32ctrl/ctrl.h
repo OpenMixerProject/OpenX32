@@ -1,8 +1,7 @@
 #pragma once
 
-// #include <iostream>
+#include "external.h" // all external includes
 
-#include "external.h"
 #include "x32config.h"
 #include "helper.h"
 #include "state.h"
@@ -79,12 +78,13 @@ class X32Ctrl : public X32Base
 
         // surface binding
         map<SurfaceElementId, SurfaceBindingParameter*>* surface_binding;
+        set<SurfaceElementId> surface_binding_changed;
  
         // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
         sBank inputBanks[8];
         sBank busBanks[4];
 
-        X32Bank* banks[10];
+        X32Bank* banks[(uint)X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE];
 
         map<X32_PAGE, Page*> pages;
         X32_PAGE lastPage = X32_PAGE::HOME;
@@ -104,7 +104,7 @@ class X32Ctrl : public X32Base
         void LoadBank(X32BankTarget target, X32BankId id);
         void InitSurfaceBinding();
         void SurfaceBind(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
-        void SurfaceBind_MixerParameter(SurfaceElementId surfaceelement_id, SurfaceBindingAction action, MP_ID mixerparaemter_id, uint mixerparameter_index);
+        void SurfaceBind_MixerParameter(SurfaceElementId surfaceelement_id, SurfaceBindingAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
         void SurfaceBind_Bank(SurfaceElementId surfaceelement_id, X32BankId bank_id, X32BankTarget target);
 
         void ResetFaderBankLayout();
@@ -145,7 +145,7 @@ class X32Ctrl : public X32Base
         void surfaceSyncBoardExtra(bool fullSync);
         void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
-        void surfaceSyncBankIndicator(bool fullSync);
+        //void surfaceSyncBankIndicator(bool fullSync);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        
         void setLedChannelIndicator_Core(void);        
@@ -154,8 +154,8 @@ class X32Ctrl : public X32Base
         void syncXRemote(bool syncAll);
 
         void ChangeSelect(int8_t direction);
-        uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);
-        uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
+        //uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);
+        //uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
 
         void SimulatorButton(uint key);
         void ButtonPressedOrReleased(SurfaceEvent* event);
@@ -163,5 +163,4 @@ class X32Ctrl : public X32Base
 
         void BankingSends(X32_BTN p_button);
         void BankingEQ(X32_BTN p_button);
-        void Banking(X32_BTN p_button);
 }; 
