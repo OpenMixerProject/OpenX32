@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # mount system-folders
 # =============================
 /bin/mount -t proc none /proc

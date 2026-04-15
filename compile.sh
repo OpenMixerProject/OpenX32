@@ -127,8 +127,8 @@ fi
 if [ "$COMPILE_LINUX" = true ]; then
 	update_progress 25 "Compile Linux..."
 	cd ../linux
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) zImage
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) dtbs
+	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) zImage
+	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) dtbs
 	update_progress 50 "Create U-Boot-image..."
 	mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
 fi
@@ -138,7 +138,11 @@ fi
 if [ "$COMPILE_BUSYBOX" = true ]; then
 	update_progress 55 "Compile busybox..."
 	cd ../busybox
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc)
+	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) \
+		CFLAGS="-flto -fwhole-program -flto-partition=none" \
+		AR=arm-linux-gnueabi-gcc-ar \
+		RANLIB=arm-linux-gnueabi-gcc-ranlib
+
 	ARCH=arm make install
 	cd ..
 	cp -rP /tmp/busybox_install/bin initramfs_root/
@@ -163,7 +167,24 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 
 	update_progress 70 "Compile dropbear..."
 	cd dropbear
-	./configure --host=arm-linux-gnueabi --enable-static --disable-zlib --disable-harden --disable-syslog
+	./configure	\
+		--disable-pam \
+		--disable-harden \
+		--disable-lastlog \
+		--disable-utmp \
+		--disable-zlib \
+		--disable-utmpx \
+		--disable-wtmp \
+		--disable-wtmpx \
+		--enable-bundled-libtom \
+		--disable-pututxline \
+		--host=arm-linux-gnueabi \
+		--disable-zlib \
+		--disable-syslog \
+		CFLAGS="-Os -g0 -flto -fwhole-program -flto-partition=none" \
+		AR=arm-linux-gnueabi-gcc-ar \
+		RANLIB=arm-linux-gnueabi-gcc-ranlib
+
 	make PROGRAMS="dropbear dropbearkey"
 	cp dropbear ../bin/
 	cp dropbearkey ../bin/
@@ -179,8 +200,8 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
         -DBUILD_SHARED_LIBS=OFF \
 	    -DZLIB_INCLUDE_DIR=/usr/include/ \
 	    -DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
-        -DCMAKE_C_FLAGS="-march=armv5t" \
-	    -DCMAKE_EXE_LINKER_FLAGS="-static -L/usr/lib/arm-linux-gnueabi"
+        -DCMAKE_C_FLAGS="-march=armv5t -Os -ffunction-sections -fdata-sections" \
+	    -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/arm-linux-gnueabi"
 	cmake --build .
 	make -j$(nproc) install
 	cd ../..	
@@ -194,10 +215,10 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	    -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
 	    -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
 	    -DCMAKE_BUILD_TYPE=Release \
-	    -DCMAKE_C_FLAGS="-march=armv5t -O2 -I${VNC_LIB_ROOT}/include -I/usr/include" \
+	    -DCMAKE_C_FLAGS="-march=armv5t -Os -I${VNC_LIB_ROOT}/include -I/usr/include" \
 	    -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
 	    -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
-	    -DCMAKE_EXE_LINKER_FLAGS="-static -L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	    -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
 	make -j$(nproc)
 	cd ../..
 	
@@ -205,11 +226,24 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 fi
 
 # copy tools to initramFS
+mkdir -p initramfs_root/openx32
+mkdir -p initramfs_root/lib
 cp software/bin/x32sdconfig initramfs_root/openx32/
 cp software/bin/x32ctrl initramfs_root/openx32/
 cp software/dropbear/dropbear initramfs_root/openx32/
 cp software/dropbear/dropbearkey initramfs_root/openx32/
 cp software/framebuffer-vncserver/build/framebuffer-vncserver initramfs_root/openx32/
+cp bins/* initramfs_root/openx32
+cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6 
+cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3 
+cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
+cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
+cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
+arm-linux-gnueabi-strip initramfs_root/lib/*
+arm-linux-gnueabi-strip initramfs_root/openx32/*
+arm-linux-gnueabi-strip initramfs_root/bin/*
+arm-linux-gnueabi-strip initramfs_root/sbin/*
 
 # =================== Create InitramFS =======================
 
