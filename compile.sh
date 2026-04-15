@@ -257,7 +257,7 @@ arm-linux-gnueabi-strip initramfs_root/sbin/*
 update_progress 80 "Create initramFS..."
 cd initramfs_root
 mkdir -p dev proc sys etc mnt home usr
-rm /tmp/initramfs.cpio.gz
+rm /tmp/initramfs.cpio.lzma
 rm /tmp/uramdisk.bin
 find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio
 lzma -9 -z /tmp/initramfs.cpio
