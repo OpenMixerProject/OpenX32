@@ -119,7 +119,7 @@ make
 if [ "$COMPILE_UBOOT" = true ]; then
 	update_progress 10 "Compile U-Boot..."
 	cd ../u-boot
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-none-eabi- make -j$(nproc)
+	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc)
 fi
 
 # =================== Linux =======================
