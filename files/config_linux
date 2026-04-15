@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm 6.18.0 Kernel Configuration
+# Linux/arm 6.18.22 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="arm-linux-gnueabi-gcc (OpenWrt GCC 14.3.0 r33936+16-ca8d931205) 14.3.0"
 CONFIG_CC_IS_GCC=y
@@ -1485,7 +1485,6 @@ CONFIG_SPI_GPIO=y
 CONFIG_SPI_IMX=y
 # CONFIG_SPI_FSL_SPI is not set
 # CONFIG_SPI_FSL_DSPI is not set
-# CONFIG_SPI_MICROCHIP_CORE is not set
 # CONFIG_SPI_MICROCHIP_CORE_QSPI is not set
 # CONFIG_SPI_OC_TINY is not set
 # CONFIG_SPI_SC18IS602 is not set
@@ -2618,6 +2617,7 @@ CONFIG_SND_SOC_WM8994=y
 # CONFIG_SND_SOC_MT6358 is not set
 # CONFIG_SND_SOC_MT6660 is not set
 # CONFIG_SND_SOC_NAU8315 is not set
+# CONFIG_SND_SOC_NAU8325 is not set
 # CONFIG_SND_SOC_NAU8540 is not set
 # CONFIG_SND_SOC_NAU8810 is not set
 # CONFIG_SND_SOC_NAU8821 is not set
@@ -4795,7 +4795,6 @@ CONFIG_LOCK_DEBUGGING_SUPPORT=y
 
 # CONFIG_DEBUG_IRQFLAGS is not set
 # CONFIG_STACKTRACE is not set
-# CONFIG_WARN_ALL_UNSEEDED_RANDOM is not set
 # CONFIG_DEBUG_KOBJECT is not set
 
 #
