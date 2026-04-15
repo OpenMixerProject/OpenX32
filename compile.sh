@@ -260,8 +260,8 @@ mkdir -p dev proc sys etc mnt home usr
 rm /tmp/initramfs.cpio.gz
 rm /tmp/uramdisk.bin
 find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio
-gzip -9 /tmp/initramfs.cpio
-mkimage -A ARM -O linux -T ramdisk -C gzip -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.gz /tmp/uramdisk.bin
+lzma -9 -z /tmp/initramfs.cpio
+mkimage -A ARM -O linux -T ramdisk -C lzma -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.lzma /tmp/uramdisk.bin
 cd ..
 
 # =================== Binary-Blob =======================
