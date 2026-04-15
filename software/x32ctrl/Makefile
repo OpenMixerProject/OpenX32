@@ -20,7 +20,7 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP
 
 # normal build
-CFLAGS          ?= -std=c++23 -Os -flto -fwhole-program -flto-partition=none -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CFLAGS          ?= -std=c++23 -mcpu=arm926ej-s -Os -flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
 #CFLAGS          ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
@@ -81,6 +81,7 @@ $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
 	@echo "AS  $<"
 
 copy:
+	cp Makefile.lvgl lv_port_linux/Makefile
 	@if ! diff -q lv_conf.h lv_port_linux/lv_conf.h >/dev/null 2>&1; then \
 		cp lv_conf.h lv_port_linux/lv_conf.h; \
 		echo "Update lv_port_linux/lv_conf.h (changed content)"; \

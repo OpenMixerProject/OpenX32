@@ -347,8 +347,8 @@ String Adda::SendReceive(String cmd) {
 	FlushRxBuffer();
 	Send(cmd);
 
-	uint8_t waitForMessage = 1000; // wait maximum timeoutMs ms
-	uint16_t readBytes = 0;
+	unsigned int waitForMessage = 1000; // wait maximum timeoutMs ms
+	unsigned int readBytes = 0;
 	while (waitForMessage > 0) {
 		helper->DEBUG_ADDA(DEBUGLEVEL_TRACE, "Waiting for Message from ADDA-Boards, Counter: %d", waitForMessage);
 		readBytes += uart->Rx(&addaBufferUart[readBytes], sizeof(addaBufferUart));

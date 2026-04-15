@@ -139,7 +139,7 @@ if [ "$COMPILE_BUSYBOX" = true ]; then
 	update_progress 55 "Compile busybox..."
 	cd ../busybox
 	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) \
-		CFLAGS="-flto -fwhole-program -flto-partition=none" \
+		CFLAGS="-flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
 
@@ -181,13 +181,12 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 		--host=arm-linux-gnueabi \
 		--disable-zlib \
 		--disable-syslog \
-		CFLAGS="-Os -g0 -flto -fwhole-program -flto-partition=none" \
+		CFLAGS="-Os -g0 -flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
 
-	make PROGRAMS="dropbear dropbearkey"
-	cp dropbear ../bin/
-	cp dropbearkey ../bin/
+	make PROGRAMS="dropbear dropbearkey" MULTI=1
+	cp dropbearmulti ../bin/
 	cd ..
 
 	update_progress 75 "Compile fb-vnc-server..."
@@ -198,9 +197,9 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
         -DCMAKE_INSTALL_PREFIX=/tmp/armv5_libs \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=OFF \
-	    -DZLIB_INCLUDE_DIR=/usr/include/ \
+	    -DZLIB_INCLUDE_DIR=/dummy/usr/include/ \
 	    -DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
-        -DCMAKE_C_FLAGS="-march=armv5t -Os -ffunction-sections -fdata-sections" \
+        -DCMAKE_C_FLAGS="-s -mcpu=arm926ej-s -Os -fno-caller-saves -fno-plt -D_GNU_SOURCE" \
 	    -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/arm-linux-gnueabi"
 	cmake --build .
 	make -j$(nproc) install
@@ -215,7 +214,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	    -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
 	    -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
 	    -DCMAKE_BUILD_TYPE=Release \
-	    -DCMAKE_C_FLAGS="-march=armv5t -Os -I${VNC_LIB_ROOT}/include -I/usr/include" \
+	    -DCMAKE_C_FLAGS="-mcpu=arm926ej-s  -Os -I${VNC_LIB_ROOT}/include -fno-caller-saves -fno-plt" \
 	    -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
 	    -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
 	    -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
@@ -230,16 +229,24 @@ mkdir -p initramfs_root/openx32
 mkdir -p initramfs_root/lib
 cp software/bin/x32sdconfig initramfs_root/openx32/
 cp software/bin/x32ctrl initramfs_root/openx32/
-cp software/dropbear/dropbear initramfs_root/openx32/
-cp software/dropbear/dropbearkey initramfs_root/openx32/
+cp software/dropbear/dropbearmulti initramfs_root/openx32/
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbearkey && cd ../../
 cp software/framebuffer-vncserver/build/framebuffer-vncserver initramfs_root/openx32/
 cp bins/* initramfs_root/openx32
-cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6 
-cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3 
-cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+# for glibc
+#cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6 
+#cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3 
+#cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+#cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
+#cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
+#cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
+# for musl
+cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so 
 cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
-cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
-cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
+cd initramfs_root/lib/ && ln -sf libc.so ld-musl-arm.so.1 && cd ../../
+
+
 arm-linux-gnueabi-strip initramfs_root/lib/*
 arm-linux-gnueabi-strip initramfs_root/openx32/*
 arm-linux-gnueabi-strip initramfs_root/bin/*
