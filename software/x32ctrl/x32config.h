@@ -80,6 +80,7 @@ class X32Config
         bool HasSurfaceElement(SurfaceElementId id);
         SurfaceElement* GetSurfaceElement(SurfaceElementId);
         SurfaceElement* GetSurfaceElementButton(X32_BOARD board, uint16_t value);
+        SurfaceElement* GetSurfaceElementFader(X32_BOARD board, uint8_t index);
 
         void SetModel(String model);
         bool IsModelX32Full();

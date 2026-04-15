@@ -753,6 +753,8 @@ enum class SurfaceElementId {
     DAW_REMOTE,
     CH1_16,
     CH17_32,
+    AUX_USB_RX_RET,
+    BUS_MASTER,
 
 
     CH1_8,
@@ -764,10 +766,13 @@ enum class SurfaceElementId {
     BUS1_8_MASTER,
     BUS9_16_MASTER,
     
+    SEND_ON_FADER,
+
     DCA,
     BUS1_8,
     BUS9_16,
     MATRIX_MAIN,
+    CLEAR_SOLO,
 
     BOARD_L_SELECT_1,
     BOARD_L_SELECT_2,
@@ -826,6 +831,35 @@ enum class SurfaceElementId {
     BOARD_R_SOLO_8,
 
     BOARD_R_SOLO_MAIN,
+
+    BOARD_L_LCD_1,
+    BOARD_L_LCD_2,
+    BOARD_L_LCD_3,
+    BOARD_L_LCD_4,
+    BOARD_L_LCD_5,
+    BOARD_L_LCD_6,
+    BOARD_L_LCD_7,
+    BOARD_L_LCD_8,
+
+    BOARD_M_LCD_1,
+    BOARD_M_LCD_2,
+    BOARD_M_LCD_3,
+    BOARD_M_LCD_4,
+    BOARD_M_LCD_5,
+    BOARD_M_LCD_6,
+    BOARD_M_LCD_7,
+    BOARD_M_LCD_8,
+
+    BOARD_R_LCD_1,
+    BOARD_R_LCD_2,
+    BOARD_R_LCD_3,
+    BOARD_R_LCD_4,
+    BOARD_R_LCD_5,
+    BOARD_R_LCD_6,
+    BOARD_R_LCD_7,
+    BOARD_R_LCD_8,
+
+    BOARD_R_LCD_MAIN,
 
     BOARD_L_MUTE_1,
     BOARD_L_MUTE_2,
@@ -895,7 +929,7 @@ enum class SurfaceElementType {
     Encoder,
     Button,
     LED,
-    LCD,
+    Lcd,
     VUMeter
 };
 
@@ -959,6 +993,7 @@ enum class SurfaceBindingAction
     CHANGE,
     TOGGLE,
     Banking,
+    LCD,
 };
 
 enum class X32BankId

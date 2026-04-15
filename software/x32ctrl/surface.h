@@ -91,7 +91,7 @@ class Surface : public X32Base
         map<uint16_t, X32_ENC> Encoder2Enum;
 
         void FaderReset();
-        void FaderMoved(SurfaceEvent* event);
+        void FaderMoved(uint8_t boardId, uint8_t index, uint16_t value);
         
         void BlockFader(uint8_t boardId, uint8_t faderIndex);
         bool IsFaderBlocked(uint8_t boardId, uint8_t faderIndex);

@@ -46,6 +46,15 @@ class SurfaceElement
             return this;
         }
 
+        SurfaceElement* DefLcd(X32_BOARD board, uint lcd)
+        {
+            element_type = SurfaceElementType::Lcd;
+            board_id = board;
+            element_index = lcd;
+
+            return this;
+        }
+
         String GetName()
         {
             return _name;

@@ -144,7 +144,6 @@ class X32Ctrl : public X32Base
         void surfaceSyncBoard(X32_BOARD board, bool fullSync);
         void surfaceSyncBoardExtra(bool fullSync);
         void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
-        void SetLcdFromVChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         //void surfaceSyncBankIndicator(bool fullSync);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        
@@ -154,8 +153,6 @@ class X32Ctrl : public X32Base
         void syncXRemote(bool syncAll);
 
         void ChangeSelect(int8_t direction);
-        //uint8_t SurfaceChannel2vChannel(uint8_t surfaceChannel);
-        //uint8_t GetvChannelIndexFromButtonOrFaderIndex(X32_BOARD p_board, uint16_t p_buttonIndex);
 
         void SimulatorButton(uint key);
         void ButtonPressedOrReleased(SurfaceEvent* event);
