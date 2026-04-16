@@ -28,10 +28,6 @@ echo "                                  .-+%%%%%%#***=-.                        
 echo ""
 echo "Compiling OpenX32 Operating System for the Behringer X32 Audio-Mixing Console"
 
-#export PATH=/opt/cross/bin:$PATH
-export PATH=/usr/bin:$PATH
-export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
-
 cleanup() {
     tput csr 0 $(($(tput lines) - 1)) # reset scroll-region
     tput rc                          # restore cursor
@@ -71,6 +67,9 @@ COMPILE_UBOOT=true
 COMPILE_LINUX=true
 COMPILE_BUSYBOX=true
 COMPILE_SOFTWARE=true
+COMPILE_MUSL=true
+USE_LZMA=false
+USE_ENCRYPTION=false
 
 # Argumente verarbeiten
 while [[ $# -gt 0 ]]; do
@@ -91,14 +90,24 @@ while [[ $# -gt 0 ]]; do
       COMPILE_SOFTWARE=false
       shift
       ;;
+    --glibc)
+      COMPILE_MUSL=false
+      shift
+      ;;
+    --lzma)
+      USE_LZMA=true
+      shift
+      ;;
+    --encrypted)
+      USE_ENCRYPTION=true
+      shift
+      ;;
     *)
       echo "Unknown Parameter: $1"
       exit 1
       ;;
   esac
 done
-
-
 
 update_progress 0 "Prepare compilation..."
 # configuration-files
@@ -113,6 +122,13 @@ cp files/mx25pdk.h u-boot/include/configs/mx25pdk.h
 cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
 # custom boot logo - fullscreen -> console has only 1 line!
 # cp files/linux-boot-logo_final.ppm linux/drivers/video/logo/logo_linux_clut224.ppm
+
+export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
+if [ "$COMPILE_MUSL" = true ]; then
+	export PATH=/opt/cross/bin:$PATH
+else
+	export PATH=/usr/bin:$PATH
+fi
 
 # =================== Loader =======================
 
@@ -200,37 +216,50 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	cd ..
 
 	update_progress 75 "Compile fb-vnc-server..."
-	cd libvncserver
-	rm -r build
-	mkdir build && cd build
-	cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../files/libvncserver_toolchain.cmake \
-	        -DCMAKE_INSTALL_PREFIX=/tmp/armv5_libs \
-	        -DCMAKE_BUILD_TYPE=Release \
-	        -DBUILD_SHARED_LIBS=OFF \
-		-DZLIB_INCLUDE_DIR=/dummy/usr/include/ \
-		-DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
-	        -DCMAKE_C_FLAGS="-s $COPTS -D_GNU_SOURCE" \
-		-DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/arm-linux-gnueabi"
-	cmake --build .
-	make -j$(nproc) install
-	cd ../..
+        cd libvncserver
+        rm -r build
+        mkdir build && cd build
+	if [ "$COMPILE_MUSL" = true ]; then
+	        cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../files/libvncserver_musl_toolchain.cmake \
+        	        -DCMAKE_C_FLAGS="-s $COPTS -D_GNU_SOURCE"
+	else
+       		cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../files/libvncserver_toolchain.cmake \
+	               -DCMAKE_C_FLAGS="-s $COPTS -D_GNU_SOURCE"
+	fi
+        cmake --build .
+        make -j$(nproc)
+        cd ../..
 
-	cd framebuffer-vncserver
-	rm -r build
-	mkdir -p build && cd build
-	VNC_LIB_ROOT=/tmp/armv5_libs
-	ZLIB_LIB_PATH=/usr/lib/arm-linux-gnueabi
-	cmake .. \
-	    -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
-	    -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
-	    -DCMAKE_BUILD_TYPE=Release \
-	    -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include" \
-	    -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
-	    -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
-	    -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
-	make -j$(nproc)
-	cd ../..
+        cd framebuffer-vncserver
+        rm -r build
+        mkdir -p build && cd build
+        VNC_LIB_ROOT=/tmp/armv5_libs
+	cp ../../libvncserver/build/libvncserver.so.1 $VNC_LIB_ROOT
+	if [ "$COMPILE_MUSL" = true ]; then
+	        ZLIB_LIB_PATH=/opt/cross/arm-openwrt-linux-muslgnueabi/lib
+	        cmake .. -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver_musl.cmake \
+		    -DLIBVNC=$VNC_LIB_ROOT/libvncserver.so.1 \
+	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
+	            -DCMAKE_BUILD_TYPE=Release \
+	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
+	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
+	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	else
+	        ZLIB_LIB_PATH=/usr/lib/arm-linux-gnueabi
+	        cmake .. -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
+		    -DLIBVNC=$VNC_LIB_ROOT/libvncserver.so.1 \
+	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
+	            -DCMAKE_BUILD_TYPE=Release \
+	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
+	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
+	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	fi
+        make -j$(nproc)
+        cd ../..
 
+	# exit software-directory
 	cd ..
 fi
 
@@ -243,19 +272,26 @@ cp software/dropbear/dropbearmulti initramfs_root/openx32/
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbearkey && cd ../../
 cp software/framebuffer-vncserver/build/framebuffer-vncserver initramfs_root/openx32/
-# for glibc
-cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6
-cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3
-cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
-cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
-cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
-cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
-cp $(arm-linux-gnueabi-gcc -print-file-name=libcrypt.so.1) initramfs_root/lib/libcrypt.so.1
-# for musl
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
-#cd initramfs_root/lib/ && ln -sf libc.so ld-musl-arm.so.1 && cd ../../
+
+# copy general libraries
+cp software/libvncserver/build/libvncserver.so.1 initramfs_root/lib/libvncserver.so.1
+
+if [ "$COMPILE_MUSL" = true ]; then
+	# copy specific libraries for musl
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+	cd initramfs_root/lib/ && ln -sf libc.so ld-musl-arm.so.1 && cd ../../
+else
+	# copy specific libraries for glibc
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libcrypt.so.1) initramfs_root/lib/libcrypt.so.1
+fi
 
 arm-linux-gnueabi-strip initramfs_root/lib/*
 arm-linux-gnueabi-strip initramfs_root/openx32/*
@@ -269,14 +305,18 @@ cd initramfs_root
 mkdir -p dev proc sys etc mnt home usr
 rm /tmp/uramdisk.bin
 fakeroot sh -c "find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio"
-# GZIP compression
-rm /tmp/initramfs.cpio.gz
-gzip -9 /tmp/initramfs.cpio
-mkimage -A ARM -O linux -T ramdisk -C none -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.gz /tmp/uramdisk.bin
-# LZMA is compressing much better, but the startup will be much slower
-#rm /tmp/initramfs.cpio.lzma
-#xz --format=lzma -9 -e --lzma1=dict=1MiB /tmp/initramfs.cpio
-#mkimage -A ARM -O linux -T ramdisk -C lzma -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.lzma /tmp/uramdisk.bin
+
+if [ "$USE_LZMA" = true ]; then
+	# LZMA is compressing much better, but the startup will be much slower
+	rm /tmp/initramfs.cpio.lzma
+	xz --format=lzma -9 -e --lzma1=dict=1MiB /tmp/initramfs.cpio
+	mkimage -A ARM -O linux -T ramdisk -C lzma -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.lzma /tmp/uramdisk.bin
+else
+	# GZIP compression
+	rm /tmp/initramfs.cpio.gz
+	gzip -9 /tmp/initramfs.cpio
+	mkimage -A ARM -O linux -T ramdisk -C none -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.gz /tmp/uramdisk.bin
+fi
 cd ..
 
 # =================== Binary-Blob =======================
@@ -304,14 +344,18 @@ dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc
 
 update_progress 95 "Creating final DCP-Loader-File..."
 
-# creating unencrypted test-application
-perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.run
+GITREV=$(git describe --tags --always --dirty)
+DATE=$(date +%d.%m.%Y)
 
-# creating encrypted OpenX32 DCP-Image
-#mkdir -p /tmp/openx32/binary
-#cp /tmp/openx32.bin /tmp/openx32/binary/dcpapp.bin
-#./dcp-tool -c /tmp/dcp_corefs_openx32-alpha4.run "OpenX32 Alpha 4 - https://github.com/OpenMixerProject" /tmp/openx32/
-
+if [ "$USE_ENCRYPTION" = true ]; then
+	# creating encrypted OpenX32 DCP-Image
+	mkdir -p /tmp/openx32/binary
+	cp /tmp/openx32.bin /tmp/openx32/binary/dcpapp.bin
+	/opt/dcp-tool/dcp-tool -c /tmp/dcp_corefs_openx32.run "OpenX32 ${GITREV} ${DATE} - https://www.OpenX32.com" /tmp/openx32/
+else
+	# creating unencrypted test-application
+	perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.run
+fi
 
 update_progress 100 "Done."
 echo "  ____                  __   ______ ____"

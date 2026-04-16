@@ -10,6 +10,25 @@ sudo apt install libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-d
 # extract toolchain to directory /opt/cross
 sudo tar -xf toolchains/cross-arm-arm926ej.tar.xz -C /
 
+# download, compile and install libz into /opt/cross
+cd /tmp
+wget https://zlib.net/zlib-1.3.2.tar.gz
+tar -xf zlib-1.3.2.tar.gz
+rm zlib-1.3.2.tar.gz
+cd zlib-1.3.2
+export PATH=/opt/cross/bin:$PATH
+export CHOST=arm-openwrt-linux-muslgnueabi
+export CC=${CHOST}-gcc
+export AR=${CHOST}-ar
+export RANLIB=${CHOST}-ranlib
+# install in the toolchain-folder
+./configure --prefix=/opt/cross/arm-openwrt-linux-muslgnueabi --shared
+make
+sudo make install
+
+
+
+
 # install individual libraries for some tools
 # ========================================================================
 #echo "Installing libraries for ARM..."

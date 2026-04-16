@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/bin/arm-linux-gnueabi-gcc -mcpu=arm926ej-s -flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt  -I . *.c -o ../bin/x32sdconfig
+arm-linux-gnueabi-gcc -mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables -I . *.c -o ../bin/x32sdconfig

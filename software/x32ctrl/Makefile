@@ -21,12 +21,14 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP
 
 # normal build
-CFLAGS          ?= -std=c++23 -mcpu=arm926ej-s -fwhole-program $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CFLAGS          ?= -std=c11 -flto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CXXFLAGS        ?= -std=c++23 -flto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
-#CFLAGS          ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CFLAGS          ?= -std=c11 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CXXFLAGS         ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
-LDFLAGS         ?= -lm -lrt -lpthread
+LDFLAGS         ?= -flto -lm -lrt -lpthread
 
 BIN             = x32ctrl
 BUILD_DIR       = ../bin
@@ -73,7 +75,7 @@ $(BUILD_OBJ_DIR)/%.o: %.c lv_conf.h
 
 $(BUILD_OBJ_DIR)/%.o: %.cpp lv_conf.h
 	@mkdir -p $(dir $@)
-	@$(CXX)  $(CFLAGS) -c $< -o $@
+	@$(CXX)  $(CXXFLAGS) -c $< -o $@
 	@echo "CXX $<"
 
 $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
