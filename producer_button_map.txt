@@ -2,7 +2,6 @@ X32 Producer (X32P) — Button / Encoder Probe Map
 ===================================================
 Serial: S180502087AWQ · Built: 2018-05-21
 Probed live against OpenX32 alpha-5 build 4.09-0-g647189e4
-See: software/x32ctrl/surface.cpp (new IsModelX32Producer() block needed)
 
 ---------------------------------------------------
 DECODE RULE
