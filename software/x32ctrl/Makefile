@@ -2,6 +2,7 @@
 # Makefile
 #
 
+COPTS           ?= -mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables
 CC              = arm-linux-gnueabi-gcc
 CXX             = arm-linux-gnueabi-g++
 AR              = arm-linux-gnueabi-ar
@@ -20,7 +21,7 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP
 
 # normal build
-CFLAGS          ?= -std=c++23 -mcpu=arm926ej-s -Os -flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CFLAGS          ?= -std=c++23 -mcpu=arm926ej-s -fwhole-program $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
 #CFLAGS          ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)

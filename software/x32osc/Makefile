@@ -2,6 +2,7 @@
 # Makefile
 #
 
+COPTS           ?= -mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables
 CC              = arm-linux-gnueabi-gcc
 CXX             = arm-linux-gnueabi-g++
 AR              = arm-linux-gnueabi-ar
@@ -12,7 +13,7 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wmissing-prototypes -Wno-discarded-qu
                    -Wsizeof-pointer-memaccess -Wno-format-nonliteral -Wno-cast-qual -Wunreachable-code -Wno-switch-default -Wreturn-type -Wmultichar -Wformat-security \
                    -Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body \
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value -std=gnu99
-CFLAGS          ?= -Os -g0 $(WARNINGS)
+CFLAGS          ?= -Os -g0 $(COPTS) $(WARNINGS)
 LDFLAGS         ?= -lm
 
 BIN             = x32osc

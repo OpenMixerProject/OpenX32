@@ -27,7 +27,11 @@ echo "                             .#@@%%*-.    .:=+**##***+.                   
 echo "                                  .-+%%%%%%#***=-.                                               "
 echo ""
 echo "Compiling OpenX32 Operating System for the Behringer X32 Audio-Mixing Console"
-export PATH=/opt/cross/bin:$PATH
+
+#export PATH=/opt/cross/bin:$PATH
+export PATH=/usr/bin:$PATH
+export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
+
 cleanup() {
     tput csr 0 $(($(tput lines) - 1)) # reset scroll-region
     tput rc                          # restore cursor
@@ -119,7 +123,7 @@ make
 if [ "$COMPILE_UBOOT" = true ]; then
 	update_progress 10 "Compile U-Boot..."
 	cd ../u-boot
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc)
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc)
 fi
 
 # =================== Linux =======================
@@ -127,8 +131,8 @@ fi
 if [ "$COMPILE_LINUX" = true ]; then
 	update_progress 25 "Compile Linux..."
 	cd ../linux
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) zImage
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) dtbs
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) zImage
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) dtbs
 	update_progress 50 "Create U-Boot-image..."
 	mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
 fi
@@ -138,8 +142,8 @@ fi
 if [ "$COMPILE_BUSYBOX" = true ]; then
 	update_progress 55 "Compile busybox..."
 	cd ../busybox
-	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) \
-		CFLAGS="-flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt" \
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) \
+		CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
 
@@ -181,7 +185,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 		--host=arm-linux-gnueabi \
 		--disable-zlib \
 		--disable-syslog \
-		CFLAGS="-Os -g0 -flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt" \
+		CFLAGS="-Os -g0 -flto -fwhole-program -flto-partition=none $COPTS" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
 
@@ -199,7 +203,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	        -DBUILD_SHARED_LIBS=OFF \
 		-DZLIB_INCLUDE_DIR=/dummy/usr/include/ \
 		-DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
-	        -DCMAKE_C_FLAGS="-s -mcpu=arm926ej-s -Os -fno-caller-saves -fno-plt -D_GNU_SOURCE" \
+	        -DCMAKE_C_FLAGS="-s $COPTS -D_GNU_SOURCE" \
 		-DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/arm-linux-gnueabi"
 	cmake --build .
 	make -j$(nproc) install
@@ -214,7 +218,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	    -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
 	    -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
 	    -DCMAKE_BUILD_TYPE=Release \
-	    -DCMAKE_C_FLAGS="-mcpu=arm926ej-s  -Os -I${VNC_LIB_ROOT}/include -fno-caller-saves -fno-plt" \
+	    -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include" \
 	    -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
 	    -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
 	    -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
