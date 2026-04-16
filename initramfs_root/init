@@ -30,7 +30,7 @@ echo "Starting shell for ttymxc4..."
 /sbin/getty -L 115200 ttymxc4 &
 
 # start dropbear with auto-key-creation
-/openx32/dropbear -p 22 -R > /dev/null 2>&1 &
+/openx32/dropbear -p 22 -R -r /etc/dropbear/openx32_key > /dev/null 2>&1 &
 
 while true; do
 	# start OpenX32 Main-Software as Shell

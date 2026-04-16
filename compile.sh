@@ -70,6 +70,7 @@ COMPILE_SOFTWARE=true
 COMPILE_MUSL=true
 USE_LZMA=false
 USE_ENCRYPTION=false
+CREATE_SSHKEY=false
 
 # Argumente verarbeiten
 while [[ $# -gt 0 ]]; do
@@ -100,6 +101,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --encrypted)
       USE_ENCRYPTION=true
+      shift
+      ;;
+    --create-sshkey)
+      CREATE_SSHKEY=true
       shift
       ;;
     *)
@@ -298,6 +303,32 @@ arm-linux-gnueabi-strip initramfs_root/openx32/*
 arm-linux-gnueabi-strip initramfs_root/bin/*
 arm-linux-gnueabi-strip initramfs_root/sbin/*
 
+
+
+# =================== Create MOTD =======================
+GITREV=$(git describe --tags --always --dirty)
+DATE=$(date +%d.%m.%Y)
+
+echo "  ____                  __   ______ ____" > initramfs_root/etc/motd
+echo " / __ \\                 \\ \\ / /___ \\__  \\" >> initramfs_root/etc/motd
+echo "| |  | |_ __   ___ _ __  \\ V /  __) | ) |" >> initramfs_root/etc/motd
+echo "| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / /" >> initramfs_root/etc/motd
+echo "| |__| | |_) |  __/ | | |/ . \\ ___) / /_ " >> initramfs_root/etc/motd
+echo " \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|" >> initramfs_root/etc/motd
+echo "       | |    https://www.openx32.com" >> initramfs_root/etc/motd
+echo "       |_|    " >> initramfs_root/etc/motd
+echo "---------------------------------------------------"  >> initramfs_root/etc/motd
+echo "OpenX32 ${GITREV} ${DATE}" >> initramfs_root/etc/motd
+echo "---------------------------------------------------"  >> initramfs_root/etc/motd
+
+
+# =================== Create SSH-KEY =======================
+if [ "$CREATE_SSHKEY" = true ]; then
+	cd initramfs_root/etc/dropbear
+	dropbearkey -t rsa -f openx32_key
+	cd ../../../
+fi
+
 # =================== Create InitramFS =======================
 
 update_progress 80 "Create initramFS..."
@@ -343,9 +374,6 @@ dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc
 # =================== DCP-Loader-File =======================
 
 update_progress 95 "Creating final DCP-Loader-File..."
-
-GITREV=$(git describe --tags --always --dirty)
-DATE=$(date +%d.%m.%Y)
 
 if [ "$USE_ENCRYPTION" = true ]; then
 	# creating encrypted OpenX32 DCP-Image
