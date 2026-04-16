@@ -119,7 +119,7 @@ make
 if [ "$COMPILE_UBOOT" = true ]; then
 	update_progress 10 "Compile U-Boot..."
 	cd ../u-boot
-	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc)
+	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc)
 fi
 
 # =================== Linux =======================
@@ -127,8 +127,8 @@ fi
 if [ "$COMPILE_LINUX" = true ]; then
 	update_progress 25 "Compile Linux..."
 	cd ../linux
-	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) zImage
-	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) dtbs
+	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) zImage
+	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) dtbs
 	update_progress 50 "Create U-Boot-image..."
 	mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
 fi
@@ -138,7 +138,7 @@ fi
 if [ "$COMPILE_BUSYBOX" = true ]; then
 	update_progress 55 "Compile busybox..."
 	cd ../busybox
-	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) \
+	ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- make -j$(nproc) \
 		CFLAGS="-flto -fwhole-program -flto-partition=none -fno-caller-saves -fno-plt" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
@@ -194,17 +194,17 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	rm -r build
 	mkdir build && cd build
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../files/libvncserver_toolchain.cmake \
-        -DCMAKE_INSTALL_PREFIX=/tmp/armv5_libs \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DBUILD_SHARED_LIBS=OFF \
-	    -DZLIB_INCLUDE_DIR=/dummy/usr/include/ \
-	    -DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
-        -DCMAKE_C_FLAGS="-s -mcpu=arm926ej-s -Os -fno-caller-saves -fno-plt -D_GNU_SOURCE" \
-	    -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/arm-linux-gnueabi"
+	        -DCMAKE_INSTALL_PREFIX=/tmp/armv5_libs \
+	        -DCMAKE_BUILD_TYPE=Release \
+	        -DBUILD_SHARED_LIBS=OFF \
+		-DZLIB_INCLUDE_DIR=/dummy/usr/include/ \
+		-DZLIB_LIBRARY=/usr/lib/arm-linux-gnueabi/libz.a \
+	        -DCMAKE_C_FLAGS="-s -mcpu=arm926ej-s -Os -fno-caller-saves -fno-plt -D_GNU_SOURCE" \
+		-DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/arm-linux-gnueabi"
 	cmake --build .
 	make -j$(nproc) install
-	cd ../..	
-	
+	cd ../..
+
 	cd framebuffer-vncserver
 	rm -r build
 	mkdir -p build && cd build
@@ -220,7 +220,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	    -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
 	make -j$(nproc)
 	cd ../..
-	
+
 	cd ..
 fi
 
@@ -233,19 +233,18 @@ cp software/dropbear/dropbearmulti initramfs_root/openx32/
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbearkey && cd ../../
 cp software/framebuffer-vncserver/build/framebuffer-vncserver initramfs_root/openx32/
-cp bins/* initramfs_root/openx32
 # for glibc
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6 
-#cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3 
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
-#cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
-# for musl
-cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so 
+cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6
+cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3
+cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
 cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
-cd initramfs_root/lib/ && ln -sf libc.so ld-musl-arm.so.1 && cd ../../
-
+cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
+cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
+cp $(arm-linux-gnueabi-gcc -print-file-name=libcrypt.so.1) initramfs_root/lib/libcrypt.so.1
+# for musl
+#cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so
+#cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
+#cd initramfs_root/lib/ && ln -sf libc.so ld-musl-arm.so.1 && cd ../../
 
 arm-linux-gnueabi-strip initramfs_root/lib/*
 arm-linux-gnueabi-strip initramfs_root/openx32/*
@@ -257,11 +256,16 @@ arm-linux-gnueabi-strip initramfs_root/sbin/*
 update_progress 80 "Create initramFS..."
 cd initramfs_root
 mkdir -p dev proc sys etc mnt home usr
-rm /tmp/initramfs.cpio.gz
 rm /tmp/uramdisk.bin
-find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio
-lzma -9 -z /tmp/initramfs.cpio
-mkimage -A ARM -O linux -T ramdisk -C lzma -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.lzma /tmp/uramdisk.bin
+fakeroot sh -c "find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio"
+# GZIP compression
+rm /tmp/initramfs.cpio.gz
+gzip -9 /tmp/initramfs.cpio
+mkimage -A ARM -O linux -T ramdisk -C none -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.gz /tmp/uramdisk.bin
+# LZMA is compressing much better, but the startup will be much slower
+#rm /tmp/initramfs.cpio.lzma
+#xz --format=lzma -9 -e --lzma1=dict=1MiB /tmp/initramfs.cpio
+#mkimage -A ARM -O linux -T ramdisk -C lzma -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.lzma /tmp/uramdisk.bin
 cd ..
 
 # =================== Binary-Blob =======================
@@ -276,12 +280,12 @@ dd if=u-boot/u-boot.bin of=/tmp/openx32.bin bs=8 seek=$((0x18)) conv=notrunc
 # Linux-Kernel at offset 0x060000 (384 kiB for Miniloader + U-Boot): will be started by U-Boot
 update_progress 87 "Merge binary-files...Linux-Kernel -> openx32.bin"
 dd if=/tmp/uImage of=/tmp/openx32.bin bs=512 seek=$((0x300)) conv=notrunc
-# DeviceTreeBlob at offset 0x600000 (~6 MiB for Kernel)
+# DeviceTreeBlob at offset 0x300000 (~3 MiB for Kernel)
 update_progress 88 "Merge binary-files...DeviceTreeBlob -> openx32.bin"
-dd if=linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dtb of=/tmp/openx32.bin bs=512 seek=$((0x3000)) conv=notrunc
-# InitramFS at offset 0x810000 (~64kiB for DeviceTreeBlob)
+dd if=linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dtb of=/tmp/openx32.bin bs=512 seek=$((0x1980)) conv=notrunc
+# InitramFS at offset 0x310000 (~64kiB for DeviceTreeBlob)
 update_progress 89 "Merge binary-files...InitramFS -> openx32.bin"
-dd if=/tmp/uramdisk.bin of=/tmp/openx32.bin bs=512 seek=$((0x3080)) conv=notrunc
+dd if=/tmp/uramdisk.bin of=/tmp/openx32.bin bs=512 seek=$((0x1A00)) conv=notrunc
 update_progress 90 "Merge binary-files...Finalize openx32.bin"
 dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc
 

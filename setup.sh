@@ -7,6 +7,8 @@ echo "Installing packages..."
 sudo apt update
 sudo apt install libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf llvm fakeroot build-essential devscripts gcc-arm-none-eabi binutils-arm-none-eabi gcc-arm-linux-gnueabi g++-arm-linux-gnueabi binutils-arm-linux-gnueabi u-boot-tools bc cpio
 
+# extract toolchain to directory /opt/cross
+sudo tar -xf toolchains/opt/cross-arm-arm926ej.tar.xz -C /opt/
 
 # install individual libraries for some tools
 # ========================================================================
