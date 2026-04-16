@@ -842,7 +842,7 @@ CONFIG_IMX_SCMI_MISC_DRV=y
 
 # CONFIG_FWCTL is not set
 # CONFIG_GNSS is not set
-CONFIG_MTD=y
+# CONFIG_MTD is not set
 
 #
 # Partition parsers
@@ -1013,7 +1013,7 @@ CONFIG_ARCH_MIGHT_HAVE_PC_PARPORT=y
 # CONFIG_HMC6352 is not set
 # CONFIG_DS1682 is not set
 # CONFIG_LATTICE_ECP3_CONFIG is not set
-CONFIG_SRAM=y
+# CONFIG_SRAM is not set
 CONFIG_SRAM_EXEC=y
 # CONFIG_XILINX_SDFEC is not set
 # CONFIG_HISI_HIKEY_USB is not set
