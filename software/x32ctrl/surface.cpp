@@ -560,6 +560,187 @@ void Surface::InitDefinitions(void) {
         AddEncoderDefinition(X32_ENC_ENCODER6, 0x010E);
     }
 
+    if (config->IsModelX32Producer()){
+
+        // Upper section (Board 0x01). The Producer's LCD-area panel
+        // diverges from Compact: dedicated phantom/polarity/lowcut buttons
+        // replace Compact's USB-near-EQ slot, and an ASSIGN_1..8 bank
+        // replaces the scribble-strip encoder pushes. Probed live on a
+        // X32P (S180502087AWQ) against alpha-5 build 4.09.
+
+        AddButtonDefinition(X32_BTN_TALK_A,             0x0100);
+        AddButtonDefinition(X32_BTN_TALK_B,             0x0101);
+        AddButtonDefinition(X32_BTN_MONITOR_DIM,        0x0102);
+        AddButtonDefinition(X32_BTN_VIEW_MONITOR,       0x0103);
+
+        AddButtonDefinition(X32_BTN_PHANTOM_48V,        0x0104);
+        AddButtonDefinition(X32_BTN_PHASE_INVERT,       0x0105);
+        AddButtonDefinition(X32_BTN_LOW_CUT,            0x0106);
+        AddButtonDefinition(X32_BTN_VIEW_CONFIG,        0x0107);
+
+        AddButtonDefinition(X32_BTN_GATE,               0x0108);
+        AddButtonDefinition(X32_BTN_VIEW_GATE,          0x0109);
+        AddButtonDefinition(X32_BTN_COMPRESSOR,         0x010A);
+        AddButtonDefinition(X32_BTN_VIEW_COMPRESSOR,    0x010B);
+
+        AddButtonDefinition(X32_BTN_EQ,                 0x010C);
+        AddButtonDefinition(X32_BTN_EQ_MODE,            0x010D);
+        AddButtonDefinition(X32_BTN_EQ_HIGH,            0x010E);
+        AddButtonDefinition(X32_BTN_EQ_HIGH_MID,        0x010F);
+        AddButtonDefinition(X32_BTN_EQ_LOW_MID,         0x0110);
+        AddButtonDefinition(X32_BTN_EQ_LOW,             0x0111);
+        AddButtonDefinition(X32_BTN_VIEW_EQ,            0x0112);
+
+        AddButtonDefinition(X32_BTN_VIEW_USB,           0x0113);
+
+        AddButtonDefinition(X32_BTN_VIEW_MIX_BUS_SENDS, 0x0114);
+        AddButtonDefinition(X32_BTN_MONO_BUS,           0x0115);
+        AddButtonDefinition(X32_BTN_MAIN_LR_BUS,        0x0116);
+        AddButtonDefinition(X32_BTN_VIEW_MAIN,          0x0117);
+
+        AddButtonDefinition(X32_BTN_ASSIGN_1,           0x0118);
+        AddButtonDefinition(X32_BTN_ASSIGN_2,           0x0119);
+        AddButtonDefinition(X32_BTN_ASSIGN_3,           0x011A);
+        AddButtonDefinition(X32_BTN_ASSIGN_4,           0x011B);
+        AddButtonDefinition(X32_BTN_ASSIGN_5,           0x011C);
+        AddButtonDefinition(X32_BTN_ASSIGN_6,           0x011D);
+        AddButtonDefinition(X32_BTN_ASSIGN_7,           0x011E);
+        AddButtonDefinition(X32_BTN_ASSIGN_8,           0x011F);
+        AddButtonDefinition(X32_BTN_VIEW_ASSIGN,        0x0120);
+
+        // Screen-surround section (Board 0x01). Producer adds physical
+        // MONITOR and SCENES buttons next to the LCD that Compact lacks.
+        // The MONITOR button here drives the same VIEW_MONITOR action as
+        // 0x0103 above; acceptable until a Producer-specific behavior is
+        // wanted. Producer has no dedicated SCENES_PREV/NEXT/UNDO/GO.
+
+        AddButtonDefinition(X32_BTN_HOME,               0x0121);
+        AddButtonDefinition(X32_BTN_METERS,              0x0122);
+        AddButtonDefinition(X32_BTN_ROUTING,             0x0123);
+        AddButtonDefinition(X32_BTN_LIBRARY,             0x0124);
+        AddButtonDefinition(X32_BTN_EFFECTS,              0x0125);
+        AddButtonDefinition(X32_BTN_SETUP,                0x0126);
+        AddButtonDefinition(X32_BTN_VIEW_MONITOR,         0x0127);
+        AddButtonDefinition(X32_BTN_VIEW_SCENES,          0x0128);
+        AddButtonDefinition(X32_BTN_MUTE_GRP,             0x0129);
+        AddButtonDefinition(X32_BTN_UTILITY,              0x012A);
+
+        AddButtonDefinition(X32_BTN_ENCODER1, 0x012B, false);
+        AddButtonDefinition(X32_BTN_ENCODER2, 0x012C, false);
+        AddButtonDefinition(X32_BTN_ENCODER3, 0x012D, false);
+        AddButtonDefinition(X32_BTN_ENCODER4, 0x012E, false);
+        AddButtonDefinition(X32_BTN_ENCODER5, 0x012F, false);
+        AddButtonDefinition(X32_BTN_ENCODER6, 0x0130, false);
+
+        AddButtonDefinition(X32_BTN_UP,    0x0131, false);
+        AddButtonDefinition(X32_BTN_LEFT,  0x0132, false);
+        AddButtonDefinition(X32_BTN_RIGHT, 0x0133, false);
+        AddButtonDefinition(X32_BTN_DOWN,  0x0134, false);
+
+        // Channel strip + bank-select sections — identical to Compact
+        // (boardId/code scheme matches surface.cpp:421-518 exactly).
+
+        // Board L: bank-select (left of fader bank 1)
+
+        AddButtonDefinition(X32_BTN_CH_1_8,             0x0400);
+        AddButtonDefinition(X32_BTN_CH_9_16,            0x0401);
+        AddButtonDefinition(X32_BTN_CH_17_24,           0x0402);
+        AddButtonDefinition(X32_BTN_CH_25_32,           0x0403);
+        AddButtonDefinition(X32_BTN_AUX_IN_1_6_USB_REC, 0x0404);
+        AddButtonDefinition(X32_BTN_EFFECTS_RETURNS,    0x0405);
+        AddButtonDefinition(X32_BTN_BUS_1_8_MASTER,     0x0406);
+        AddButtonDefinition(X32_BTN_BUS_9_16_MASTER,    0x0407);
+
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_1_SELECT, 0x0420);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_2_SELECT, 0x0421);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_3_SELECT, 0x0422);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_4_SELECT, 0x0423);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_5_SELECT, 0x0424);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_6_SELECT, 0x0425);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_7_SELECT, 0x0426);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_8_SELECT, 0x0427);
+
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_1_SOLO, 0x0430);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_2_SOLO, 0x0431);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_3_SOLO, 0x0432);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_4_SOLO, 0x0433);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_5_SOLO, 0x0434);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_6_SOLO, 0x0435);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_7_SOLO, 0x0436);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_8_SOLO, 0x0437);
+
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_1_MUTE, 0x0440);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_2_MUTE, 0x0441);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_3_MUTE, 0x0442);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_4_MUTE, 0x0443);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_5_MUTE, 0x0444);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_6_MUTE, 0x0445);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_7_MUTE, 0x0446);
+        AddButtonDefinition(X32_BTN_BOARD_L_CH_8_MUTE, 0x0447);
+
+        // Board R: middle bank-select + bank 2 + main strip
+
+        AddButtonDefinition(X32_BTN_DAW_REMOTE,     0x0800);
+        AddButtonDefinition(X32_BTN_SEND_ON_FADERS, 0x0801);
+        AddButtonDefinition(X32_BTN_GROUP_DCA_1_8,  0x0802);
+        AddButtonDefinition(X32_BTN_BUS_1_8,        0x0803);
+        AddButtonDefinition(X32_BTN_BUS_9_16,       0x0804);
+        AddButtonDefinition(X32_BTN_MATRIX_MAIN_C,  0x0805);
+        AddButtonDefinition(X32_BTN_CLEAR_SOLO,     0x0806);
+
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_1_SELECT, 0x0820);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_2_SELECT, 0x0821);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_3_SELECT, 0x0822);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_4_SELECT, 0x0823);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_5_SELECT, 0x0824);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_6_SELECT, 0x0825);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_7_SELECT, 0x0826);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_8_SELECT, 0x0827);
+        AddButtonDefinition(X32_BTN_MAIN_SELECT,         0x0828);
+
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_1_SOLO, 0x0830);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_2_SOLO, 0x0831);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_3_SOLO, 0x0832);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_4_SOLO, 0x0833);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_5_SOLO, 0x0834);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_6_SOLO, 0x0835);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_7_SOLO, 0x0836);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_8_SOLO, 0x0837);
+        AddButtonDefinition(X32_BTN_MAIN_SOLO,         0x0838);
+
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_1_MUTE, 0x0840);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_2_MUTE, 0x0841);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_3_MUTE, 0x0842);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_4_MUTE, 0x0843);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_5_MUTE, 0x0844);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_6_MUTE, 0x0845);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_7_MUTE, 0x0846);
+        AddButtonDefinition(X32_BTN_BOARD_R_CH_8_MUTE, 0x0847);
+        AddButtonDefinition(X32_BTN_MAIN_MUTE,         0x0848);
+
+        // Encoders — Producer's upper-strip + 6 screen knobs. Index
+        // assignments match Compact 1:1 (Class 0x65, indexes 0x00-0x0E).
+
+        AddEncoderDefinition(X32_ENC_GAIN,     0x0100);
+        AddEncoderDefinition(X32_ENC_LOWCUT,   0x0101);
+        AddEncoderDefinition(X32_ENC_GATE,     0x0102);
+        AddEncoderDefinition(X32_ENC_DYNAMICS, 0x0103);
+
+        AddEncoderDefinition(X32_ENC_EQ_Q,    0x0104);
+        AddEncoderDefinition(X32_ENC_EQ_FREQ, 0x0105);
+        AddEncoderDefinition(X32_ENC_EQ_GAIN, 0x0106);
+
+        AddEncoderDefinition(X32_ENC_LEVEL_SUB, 0x0107);
+        AddEncoderDefinition(X32_ENC_PAN,       0x0108);
+
+        AddEncoderDefinition(X32_ENC_ENCODER1, 0x0109);
+        AddEncoderDefinition(X32_ENC_ENCODER2, 0x010A);
+        AddEncoderDefinition(X32_ENC_ENCODER3, 0x010B);
+        AddEncoderDefinition(X32_ENC_ENCODER4, 0x010C);
+        AddEncoderDefinition(X32_ENC_ENCODER5, 0x010D);
+        AddEncoderDefinition(X32_ENC_ENCODER6, 0x010E);
+    }
+
     if (config->IsModelX32Rack()){
 
         AddButtonDefinition(X32_BTN_VIEW_USB, 0x0000);
