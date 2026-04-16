@@ -29,9 +29,7 @@ class X32Config
         void SetParameterChanged(MP_ID mp, uint index);
 
         // Surfaceelements
-
         SurfaceElement* sem[(uint)SurfaceElementId::__ELEMENT_COUNTER_DO_NOT_MOVE];
-
 
         // old
         X32_MODEL _model;
@@ -71,8 +69,6 @@ class X32Config
         void Toggle(MP_ID mp, uint index = 0);
         void Refresh(MP_ID mp, uint index = 0);
         void Reset(MP_ID mp, uint index = 0);
-
-
 
         void DefineSurfaceElements();
         SurfaceElement* DefSurfaceElements(SurfaceElementId element_id, String name);

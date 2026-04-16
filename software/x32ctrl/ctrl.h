@@ -58,13 +58,6 @@
 
 using namespace std;
 
-#define FADER_BANK_LAYOUT_X32 0 // fader bank layout like X32 (Channels, Busses, etc.)
-#define FADER_BANK_LAYOUT_USER 1
-
-#define PAGE_FUNC_BASE (bool pageInit, bool meterupdate, uint8_t chanIndex, VChannel* chan)
-#define PAGE_FUNC_DEF(pagename) void pagename PAGE_FUNC_BASE
-#define PAGE_FUNC_IMPL(pagename) void X32Ctrl:: pagename PAGE_FUNC_BASE
-
 class X32Ctrl : public X32Base
 {
     using enum MP_ID;
@@ -105,7 +98,6 @@ class X32Ctrl : public X32Base
         void InitSurfaceBinding();
         void SurfaceBind(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
         void SurfaceBind_MixerParameter(SurfaceElementId surfaceelement_id, SurfaceBindingAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
-        void SurfaceBind_Bank(SurfaceElementId surfaceelement_id, X32BankId bank_id, X32BankTarget target);
 
         void ResetFaderBankLayout();
         void LoadFaderBankLayout(int layout);
@@ -144,7 +136,6 @@ class X32Ctrl : public X32Base
         void surfaceSyncBoard(X32_BOARD board, bool fullSync);
         void surfaceSyncBoardExtra(bool fullSync);
         void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
-        //void surfaceSyncBankIndicator(bool fullSync);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        
         void setLedChannelIndicator_Core(void);        

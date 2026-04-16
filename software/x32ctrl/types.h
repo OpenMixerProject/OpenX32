@@ -10,6 +10,8 @@
 
 using namespace std;
 
+typedef unsigned int uint;
+
 // define own datatypes
 typedef union {
     uint64_t u64;

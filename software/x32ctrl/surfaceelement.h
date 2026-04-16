@@ -1,5 +1,6 @@
 #pragma once
 
+#include "external.h"
 #include "enum.h"
 #include "WString.h"
 
@@ -12,8 +13,13 @@ class SurfaceElement
         SurfaceElementId element_id;
         String _name;
         
-        /// @brief Button-ID, LED-ID or Fader-Index
-        uint element_index; 
+        // Button-ID, LED-ID or Fader-Index
+        uint element_index;
+
+        uint encoder_backlight;
+        uint encoder_button;
+
+        bool no_led = false;
 
         X32_BOARD board_id;
 
@@ -55,6 +61,47 @@ class SurfaceElement
             return this;
         }
 
+        SurfaceElement* DefLed(X32_BOARD board, uint led)
+        {
+            element_type = SurfaceElementType::Led;
+            board_id = board;
+            element_index = led;
+
+            return this;
+        }
+
+        SurfaceElement* DefEncoder(X32_BOARD board, uint encoder, uint backlight = 0)
+        {
+            element_type = SurfaceElementType::Encoder;
+            board_id = board;
+            element_index = encoder;
+            encoder_backlight = backlight;
+
+            return this;
+        }
+
+        SurfaceElement* DefPushEncoder(X32_BOARD board, uint encoder, uint button)
+        {
+            element_type = SurfaceElementType::PushEncoder;
+            board_id = board;
+            element_index = encoder;
+            encoder_button = button;
+
+            return this;
+        }
+
+        SurfaceElement* DefNoLed()
+        {
+            // if (element_type != SurfaceElementType::Button)
+            // {
+            //     throw new Exception();
+            // }
+            
+            no_led = true;
+
+            return this;
+        }
+
         String GetName()
         {
             return _name;
@@ -70,10 +117,21 @@ class SurfaceElement
             return board_id;
         }
 
-        /// @brief Button-ID, LED-ID or Fader-Index
+        // Button-ID, LED-ID or Fader-Index
         uint GetIndex()
         {
             return element_index;
+        }
+
+
+        uint GetEncoderBacklight()
+        {
+            if (element_type == SurfaceElementType::Encoder)
+            {
+                return encoder_backlight;
+            }
+
+            return 0;
         }
 
 

@@ -454,7 +454,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_BOARD_L_CH_7_MUTE, 0x446);
         AddButtonDefinition(X32_BTN_BOARD_L_CH_8_MUTE, 0x447);
 
-        // Board R);
+        // Board R
 
         AddButtonDefinition(X32_BTN_DAW_REMOTE, 0x800);
         AddButtonDefinition(X32_BTN_SEND_ON_FADERS, 0x801);
@@ -517,7 +517,7 @@ void Surface::InitDefinitions(void) {
         AddButtonDefinition(X32_BTN_BOARD_R_CH_8_MUTE, 0x847);
         AddButtonDefinition(X32_BTN_MAIN_MUTE, 0x848);
 
-        // LED, only);
+        // LED, only
 
         AddLedDefinition(X32_LED_EQ_HCUT, 0x0118);
         AddLedDefinition(X32_LED_EQ_HSHV, 0x0119);

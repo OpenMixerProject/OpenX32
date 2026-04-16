@@ -349,7 +349,8 @@ typedef enum  {
 
 typedef enum
 {
-    X32_BOARD_MAIN =    0x00,
+    X32_BOARD_EXTRA =   0x00,
+    X32_BOARD_MAIN =    0x01,
     X32_BOARD_L =       0x04,
     X32_BOARD_M =       0x05, // only X32 Full
     X32_BOARD_R =       0x08,
@@ -513,7 +514,7 @@ enum class MP_ID {
     SELECTED_CHANNEL,
     ACTIVE_PAGE,
     BANKING_EQ,
-    //BANKING_INPUT,
+    BANKING_INPUT,
     BANKING_BUS,
     BANKING_BUS_SENDS,
 
@@ -750,12 +751,98 @@ enum class SurfaceElementId {
 
     // keep all in blocks, so we can enumerate!
 
+    // Only X32 Core
+    SCENE_SETUP,
+
+    // Only X32 Rack
+    CHANNEL_SOLO,
+    CHANNEL_MUTE,
+    CHANNEL_ENCODER,
+
+    TALK_A,
+    TALK_B,
+    VIEW_TALK,
+    MONITOR_DIM,
+    VIEW_MONITOR,
+
+    USB_ACCESS,
+    VIEW_USB,
+
+    GAIN_ENCODER,
+    PHANTOM_48V,
+    PHASE_INVERT,
+    PREAMP_VUMETER,
+    LOW_CUT_FREQ_ENCODER,
+    LOW_CUT,
+    VIEW_CONFIG,
+
+    GATE_THRESHOLD_ENCODER,
+    GATE,
+    VIEW_GATE,
+    GATE_DYNAMICS_VUMETER,
+    DYNAMICS_THRESHOLD_ENCODER,
+    COMP_EXP,
+    VIEW_DYNAMICS,
+
+    EQ_MODE,
+    EQ,
+    EQ_HCUT_LED,
+    EQ_HSHV_LED,
+    EQ_VEQ_LED,
+    EQ_PEQ_LED,
+    EQ_LSHV_LED,
+    EQ_LCUT_LED,
+    EQ_Q_ENCODER,
+    EQ_FREQ_ENCODER,
+    EQ_GAIN_ENCODER,
+    EQ_HIGH,
+    EQ_HIGH_MID,
+    EQ_LOW_MID,
+    EQ_LOW,
+    VIEW_EQ,
+
+    BUS_SEND_ENCODER_1,
+    BUS_SEND_ENCODER_2,
+    BUS_SEND_ENCODER_3,
+    BUS_SEND_ENCODER_4,
+    BUS_SEND_1_4,
+    BUS_SEND_5_8,
+    BUS_SEND_9_12,
+    BUS_SEND_13_16,
+    VIEW_MIX_BUS_SENDS,
+
+    MAIN_BUS_LEVEL_ENCODER,
+    MONO_BUS,
+    PAN_BAL_ENCODER,
+    MAIN_LR_BUS,
+    VIEW_MAIN,
+
+    __DISPLAY_ENCODER_1,
+    __DISPLAY_ENCODER_2,
+    __DISPLAY_ENCODER_3,
+    __DISPLAY_ENCODER_4,
+    __DISPLAY_ENCODER_5,
+    __DISPLAY_ENCODER_6,
+
+    HOME,
+    METERS,
+    ROUTING,
+    SETUP,
+    LIBRARY,
+    EFFECTS,
+    MUTE_GRP,
+    UTILITY,
+
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+
     DAW_REMOTE,
     CH1_16,
     CH17_32,
     AUX_USB_RX_RET,
     BUS_MASTER,
-
 
     CH1_8,
     CH9_16,
@@ -772,6 +859,8 @@ enum class SurfaceElementId {
     BUS1_8,
     BUS9_16,
     MATRIX_MAIN,
+
+    COMP_MAIN,
     CLEAR_SOLO,
 
     BOARD_L_SELECT_1,
@@ -918,17 +1007,52 @@ enum class SurfaceElementId {
     BOARD_R_FADER_8,
 
     BOARD_R_FADER_MAIN,
+
+    VIEW_SCENES,
+    SCENES_PREV,
+    SCENES_NEXT,
+    SCENES_UNDO,
+    SCENES_GO,
+
+    VIEW_ASSIGN,
+    ASSIGN_ENCODER_1,
+    ASSIGN_ENCODER_2,
+    ASSIGN_ENCODER_3,
+    ASSIGN_ENCODER_4,
+    ASSIGN_1,
+    ASSIGN_2,
+    ASSIGN_3,
+    ASSIGN_4,
+    ASSIGN_5,
+    ASSIGN_6,
+    ASSIGN_7,
+    ASSIGN_8,
+    ASSIGN_9,
+    ASSIGN_10,
+    ASSIGN_11,
+    ASSIGN_12,
+    ASSIGN_A,
+    ASSIGN_B,
+    ASSIGN_C,
+
+    MUTE_GROUP_1,
+    MUTE_GROUP_2,
+    MUTE_GROUP_3,
+    MUTE_GROUP_4,
+    MUTE_GROUP_5,
+    MUTE_GROUP_6,
  
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 
-// @brief Surfaceelement Type
+// Surfaceelement Type
 enum class SurfaceElementType {
     NONE,
     Fader,
     Encoder,
+    PushEncoder,
     Button,
-    LED,
+    Led,
     Lcd,
     VUMeter
 };
@@ -990,6 +1114,7 @@ enum class SurfaceBindingAction
     NONE,
     SET,
     SET_TO_INDEX,
+    SET_TO_VALUE,
     CHANGE,
     TOGGLE,
     Banking,
@@ -998,8 +1123,6 @@ enum class SurfaceBindingAction
 
 enum class X32BankId
 {
-    None,
-
     CH1_8,
     CH9_16,
     CH17_24,
@@ -1019,5 +1142,6 @@ enum class X32BankTarget
     None,
     
     InputSection,
+    InputSection2,
     BusSection
 };
