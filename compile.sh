@@ -185,7 +185,9 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 		--host=arm-linux-gnueabi \
 		--disable-zlib \
 		--disable-syslog \
-		CFLAGS="-Os -g0 -flto -fwhole-program -flto-partition=none $COPTS" \
+		host_alias=arm-linux ac_cv_func_getpass=yes \
+		LTM_CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
+		CFLAGS="-g0 -flto -fwhole-program -flto-partition=none $COPTS -DDISABLE_X11FWD -DARGTYPE=3" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
 
