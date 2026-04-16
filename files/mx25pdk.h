@@ -96,11 +96,11 @@
 #define CONFIG_LOADADDR			0x80060000	/* loadaddr env var */
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
-//#define CONFIG_BOOTARGS "console=ttymxc4,115200 root=/dev/ram0 rw init=/init initrd=0x80810000 video=imxfb:800x480@60"
-#define CONFIG_BOOTARGS "console=ttymxc4,115200 console=tty0 root=/dev/ram0 rw init=/init initrd=0x80610000 video=imxfb:800x480 vt.global_cursor_default=0"
+//#define CONFIG_BOOTARGS "console=ttymxc4,115200 root=/dev/ram0 rw init=/init initrd=0x80340000 video=imxfb:800x480@60"
+#define CONFIG_BOOTARGS "console=ttymxc4,115200 console=tty0 root=/dev/ram0 rw init=/init initrd=0x80340000 video=imxfb:800x480 vt.global_cursor_default=0"
 #define CONFIG_EXTRA_ENV_SETTINGS "bootargs=" CONFIG_BOOTARGS "\0"
 /* bootm <kernel_addr> <ramdisk_addr> <dtb_addr> */
-#define CONFIG_BOOTCOMMAND "echo Loading kernel from RAM...; bootm 0x80060000 0x80610000 0x80600000"
+#define CONFIG_BOOTCOMMAND "echo Loading kernel from RAM...; bootm 0x80060000 0x80340000 0x80330000"
 
 /* Miscellaneous configurable options */
 

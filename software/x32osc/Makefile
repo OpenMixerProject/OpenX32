@@ -12,8 +12,8 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wmissing-prototypes -Wno-discarded-qu
                    -Wsizeof-pointer-memaccess -Wno-format-nonliteral -Wno-cast-qual -Wunreachable-code -Wno-switch-default -Wreturn-type -Wmultichar -Wformat-security \
                    -Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body \
                    -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value -std=gnu99
-CFLAGS          ?= -O3 -g0 $(WARNINGS)
-LDFLAGS         ?= -static -lm
+CFLAGS          ?= -Os -g0 $(WARNINGS)
+LDFLAGS         ?= -lm
 
 BIN             = x32osc
 BUILD_DIR       = ../bin

@@ -11,6 +11,7 @@
 
 # initramfs
 initramfs_root/bin
+initramfs_root/lib
 initramfs_root/dev
 initramfs_root/linuxrc
 initramfs_root/proc

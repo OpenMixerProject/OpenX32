@@ -303,9 +303,9 @@ void FxMath::fxCalcParameters_Overdrive(float data[], float preGain, float Q, fl
 		data[2] = Q / denum;
 	}
 
-	data[3] = 1.0f / (1.0f + 2.0f * PI * hpfInputFreq * (1.0f/samplerate)); // 1.0f / (1.0f + 2.0f * M_PI * f_c * (1.0f/f_s))
-	data[4] = (2.0f * PI * lpfInputFreq) / (samplerate + 2.0f * PI * lpfInputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
-	data[5] = (2.0f * PI * lpfOutputFreq) / (samplerate + 2.0f * PI * lpfOutputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
+	data[3] = 1.0f / (1.0f + 2.0f * PI * hpfInputFreq * (1.0f/samplerate)); // 1.0f / (1.0f + 2.0f * (float)M_PI * f_c * (1.0f/f_s))
+	data[4] = (2.0f * PI * lpfInputFreq) / (samplerate + 2.0f * PI * lpfInputFreq); // (2.0f * (float)M_PI * f_c) / (f_s + 2.0f * (float)M_PI * f_c)
+	data[5] = (2.0f * PI * lpfOutputFreq) / (samplerate + 2.0f * PI * lpfOutputFreq); // (2.0f * (float)M_PI * f_c) / (f_s + 2.0f * (float)M_PI * f_c)
 }
 
 void FxMath::fxCalcParameters_Delay(float data[], float delayMs[2]) {
