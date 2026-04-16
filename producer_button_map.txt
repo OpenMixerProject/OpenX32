@@ -240,29 +240,3 @@ Bank-select rows match Compact (surface.cpp:421-428, 459-464) byte-for-byte.
 Combined with the channel-strip section above, the entire fader/bank
 region of the Producer is identical to Compact — divergence is confined
 to the upper LCD-area buttons.
-
----------------------------------------------------
-STILL TO PROBE
----------------------------------------------------
-1. MUTE GROUPS 1-6: physical buttons should map to Compact's 0x0815-0x081A
-   (X32_BTN_MUTE_GROUP_1..6). Press them once each in order.
-2. Any remaining unmapped physical buttons: footswitch input (if a
-   pedal is plugged in), talkback-related secondary buttons, RTA in/out,
-   FN / channel-strip-wide keys, anything around the headphones/monitor
-   area not yet seen.
-
-For each: press once cleanly, write the physical label + the 'Callback:'
-line from x32ctrl debug. We'll update this file as we go.
-
----------------------------------------------------
-NEXT STEPS AFTER FULL PROBE
----------------------------------------------------
-1. Insert a new `if (config->IsModelX32Producer()) { ... }` block in
-   software/x32ctrl/surface.cpp right after line 624 (after the Compact
-   and before Core blocks), populated with AddButtonDefinition /
-   AddEncoderDefinition calls from this table.
-2. Cross-compile on a Linux host (pve04) using toolchains/ + compile.sh.
-3. Copy resulting dcp_corefs_openx32-*.run to the USB stick, reboot X32,
-   verify every button maps to the intended action.
-4. Open PR against https://github.com/OpenMixerProject/OpenX32, attach
-   this file as reference.
