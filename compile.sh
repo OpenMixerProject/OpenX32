@@ -146,8 +146,8 @@ if [ "$COMPILE_BUSYBOX" = true ]; then
 		CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
-	
-	ARCH=arm CROSS_COMPILE=/opt/cross/bin/arm-linux-gnueabi- make -j$(nproc) install \
+
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) install \
 		CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
