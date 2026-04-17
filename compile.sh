@@ -216,7 +216,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
 
-	make PROGRAMS="dropbear dropbearkey" MULTI=1
+	make PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp" MULTI=1 SCPPROGRESS=1
 	cp dropbearmulti ../bin/
 	cd ..
 
@@ -278,7 +278,10 @@ cp software/bin/x32sdconfig initramfs_root/openx32/
 cp software/bin/x32ctrl initramfs_root/openx32/
 cp software/dropbear/dropbearmulti initramfs_root/openx32/
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dbclient && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbearconvert && cd ../../
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbearkey && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti scp && cd ../../
 cp software/framebuffer-vncserver/build/framebuffer-vncserver initramfs_root/openx32/
 
 # copy general libraries
