@@ -108,7 +108,7 @@ class PageRoutingDsp: public Page
 
     public:
         PageRoutingDsp(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
-            prevPage = X32_PAGE::ROUTING_DSP2;
+            prevPage = X32_PAGE::ROUTING_DSP1;
             nextPage = X32_PAGE::NONE;
             tabLayer0 = objects.maintab;
             tabIndex0 = 2;
