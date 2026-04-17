@@ -1952,6 +1952,132 @@ void X32Config::DefineSurfaceElements()
     }
     else if (IsModelX32Producer())
     {
+        // Board Main - upper LCD-area buttons
+        // Producer has dedicated 48V / polarity / low-cut keys where
+        // Compact places VIEW_USB, so the preamp/gate/comp/EQ block is
+        // shifted -1 vs Compact; VIEW_USB relocates to 0x13.
+        GetSurfaceElement(TALK_A)                       ->DefButton(X32_BOARD_MAIN, 0x00);
+        GetSurfaceElement(TALK_B)                       ->DefButton(X32_BOARD_MAIN, 0x01);
+        GetSurfaceElement(MONITOR_DIM)                  ->DefButton(X32_BOARD_MAIN, 0x02);
+        GetSurfaceElement(VIEW_MONITOR)                 ->DefButton(X32_BOARD_MAIN, 0x03);
+
+        GetSurfaceElement(PHANTOM_48V)                  ->DefButton(X32_BOARD_MAIN, 0x04);
+        GetSurfaceElement(PHASE_INVERT)                 ->DefButton(X32_BOARD_MAIN, 0x05);
+        GetSurfaceElement(LOW_CUT)                      ->DefButton(X32_BOARD_MAIN, 0x06);
+        GetSurfaceElement(VIEW_CONFIG)                  ->DefButton(X32_BOARD_MAIN, 0x07);
+
+        GetSurfaceElement(GATE)                         ->DefButton(X32_BOARD_MAIN, 0x08);
+        GetSurfaceElement(VIEW_GATE)                    ->DefButton(X32_BOARD_MAIN, 0x09);
+
+        GetSurfaceElement(COMP_EXP)                     ->DefButton(X32_BOARD_MAIN, 0x0A);
+        GetSurfaceElement(VIEW_DYNAMICS)                ->DefButton(X32_BOARD_MAIN, 0x0B);
+
+        GetSurfaceElement(EQ)                           ->DefButton(X32_BOARD_MAIN, 0x0C);
+        GetSurfaceElement(EQ_MODE)                      ->DefButton(X32_BOARD_MAIN, 0x0D);
+        GetSurfaceElement(EQ_HIGH)                      ->DefButton(X32_BOARD_MAIN, 0x0E);
+        GetSurfaceElement(EQ_HIGH_MID)                  ->DefButton(X32_BOARD_MAIN, 0x0F);
+        GetSurfaceElement(EQ_LOW_MID)                   ->DefButton(X32_BOARD_MAIN, 0x10);
+        GetSurfaceElement(EQ_LOW)                       ->DefButton(X32_BOARD_MAIN, 0x11);
+        GetSurfaceElement(VIEW_EQ)                      ->DefButton(X32_BOARD_MAIN, 0x12);
+
+        GetSurfaceElement(VIEW_USB)                     ->DefButton(X32_BOARD_MAIN, 0x13);
+
+        GetSurfaceElement(VIEW_MIX_BUS_SENDS)           ->DefButton(X32_BOARD_MAIN, 0x14);
+        GetSurfaceElement(MONO_BUS)                     ->DefButton(X32_BOARD_MAIN, 0x15);
+        GetSurfaceElement(MAIN_LR_BUS)                  ->DefButton(X32_BOARD_MAIN, 0x16);
+        GetSurfaceElement(VIEW_MAIN)                    ->DefButton(X32_BOARD_MAIN, 0x17);
+
+        // Producer has a dedicated ASSIGN_1..8 bank where Compact has
+        // the display-encoder pushes; ASSIGN view sits just after it.
+        GetSurfaceElement(ASSIGN_1)                     ->DefButton(X32_BOARD_MAIN, 0x18);
+        GetSurfaceElement(ASSIGN_2)                     ->DefButton(X32_BOARD_MAIN, 0x19);
+        GetSurfaceElement(ASSIGN_3)                     ->DefButton(X32_BOARD_MAIN, 0x1A);
+        GetSurfaceElement(ASSIGN_4)                     ->DefButton(X32_BOARD_MAIN, 0x1B);
+        GetSurfaceElement(ASSIGN_5)                     ->DefButton(X32_BOARD_MAIN, 0x1C);
+        GetSurfaceElement(ASSIGN_6)                     ->DefButton(X32_BOARD_MAIN, 0x1D);
+        GetSurfaceElement(ASSIGN_7)                     ->DefButton(X32_BOARD_MAIN, 0x1E);
+        GetSurfaceElement(ASSIGN_8)                     ->DefButton(X32_BOARD_MAIN, 0x1F);
+        GetSurfaceElement(VIEW_ASSIGN)                  ->DefButton(X32_BOARD_MAIN, 0x20);
+
+        // Screen-surround buttons. Producer also adds a MONITOR and a
+        // SCENES button here that Compact doesn't have.
+        GetSurfaceElement(HOME)                         ->DefButton(X32_BOARD_MAIN, 0x21);
+        GetSurfaceElement(METERS)                       ->DefButton(X32_BOARD_MAIN, 0x22);
+        GetSurfaceElement(ROUTING)                      ->DefButton(X32_BOARD_MAIN, 0x23);
+        GetSurfaceElement(LIBRARY)                      ->DefButton(X32_BOARD_MAIN, 0x24);
+        GetSurfaceElement(EFFECTS)                      ->DefButton(X32_BOARD_MAIN, 0x25);
+        GetSurfaceElement(SETUP)                        ->DefButton(X32_BOARD_MAIN, 0x26);
+        // 0x27 MONITOR screen-area button: no dedicated enum yet; skipped
+        GetSurfaceElement(VIEW_SCENES)                  ->DefButton(X32_BOARD_MAIN, 0x28);
+        GetSurfaceElement(MUTE_GRP)                     ->DefButton(X32_BOARD_MAIN, 0x29);
+        GetSurfaceElement(UTILITY)                      ->DefButton(X32_BOARD_MAIN, 0x2A);
+
+        // Arrow order on Producer is UP / LEFT / RIGHT / DOWN
+        GetSurfaceElement(UP)                           ->DefButton(X32_BOARD_MAIN, 0x31)->DefNoLed();
+        GetSurfaceElement(LEFT)                         ->DefButton(X32_BOARD_MAIN, 0x32)->DefNoLed();
+        GetSurfaceElement(RIGHT)                        ->DefButton(X32_BOARD_MAIN, 0x33)->DefNoLed();
+        GetSurfaceElement(DOWN)                         ->DefButton(X32_BOARD_MAIN, 0x34)->DefNoLed();
+
+        // EQ shape LEDs share the Compact layout
+        GetSurfaceElement(EQ_HCUT_LED)                  ->DefLed(X32_BOARD_MAIN, 0x18);
+        GetSurfaceElement(EQ_HSHV_LED)                  ->DefLed(X32_BOARD_MAIN, 0x19);
+        GetSurfaceElement(EQ_VEQ_LED)                   ->DefLed(X32_BOARD_MAIN, 0x1A);
+        GetSurfaceElement(EQ_PEQ_LED)                   ->DefLed(X32_BOARD_MAIN, 0x1B);
+        GetSurfaceElement(EQ_LSHV_LED)                  ->DefLed(X32_BOARD_MAIN, 0x1C);
+        GetSurfaceElement(EQ_LCUT_LED)                  ->DefLed(X32_BOARD_MAIN, 0x1D);
+
+        GetSurfaceElement(USB_ACCESS)                   ->DefLed(X32_BOARD_MAIN, 0x26);
+
+        // Upper-strip encoders match Compact 1:1
+        GetSurfaceElement(GAIN_ENCODER)                 ->DefEncoder(X32_BOARD_MAIN, 0x00, 0x2A);
+        GetSurfaceElement(LOW_CUT_FREQ_ENCODER)         ->DefEncoder(X32_BOARD_MAIN, 0x01, 0x2B);
+        GetSurfaceElement(GATE_THRESHOLD_ENCODER)       ->DefEncoder(X32_BOARD_MAIN, 0x02, 0x2C);
+        GetSurfaceElement(DYNAMICS_THRESHOLD_ENCODER)   ->DefEncoder(X32_BOARD_MAIN, 0x03, 0x2D);
+        GetSurfaceElement(EQ_Q_ENCODER)                 ->DefEncoder(X32_BOARD_MAIN, 0x04, 0x2E);
+        GetSurfaceElement(EQ_FREQ_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x05, 0x2F);
+        GetSurfaceElement(EQ_GAIN_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x06, 0x30);
+        GetSurfaceElement(MAIN_BUS_LEVEL_ENCODER)       ->DefEncoder(X32_BOARD_MAIN, 0x07, 0x31);
+        GetSurfaceElement(PAN_BAL_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x08, 0x32);
+
+        // Display push-encoders sit right of the screen. The push codes
+        // are 0x2B..0x30 on Producer (Compact uses 0x18..0x1D).
+        GetSurfaceElement(__DISPLAY_ENCODER_1)          ->DefPushEncoder(X32_BOARD_MAIN, 0x09, 0x2B);
+        GetSurfaceElement(__DISPLAY_ENCODER_2)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0A, 0x2C);
+        GetSurfaceElement(__DISPLAY_ENCODER_3)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0B, 0x2D);
+        GetSurfaceElement(__DISPLAY_ENCODER_4)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0C, 0x2E);
+        GetSurfaceElement(__DISPLAY_ENCODER_5)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0D, 0x2F);
+        GetSurfaceElement(__DISPLAY_ENCODER_6)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0E, 0x30);
+
+
+        // Board L - bank-select row matches Compact byte-for-byte
+        GetSurfaceElement(CH1_8)                        ->DefButton(X32_BOARD_L, 0x00);
+        GetSurfaceElement(CH9_16)                       ->DefButton(X32_BOARD_L, 0x01);
+        GetSurfaceElement(CH17_24)                      ->DefButton(X32_BOARD_L, 0x02);
+        GetSurfaceElement(CH25_32)                      ->DefButton(X32_BOARD_L, 0x03);
+        GetSurfaceElement(AUX_USB)                      ->DefButton(X32_BOARD_L, 0x04);
+        GetSurfaceElement(FX_RET)                       ->DefButton(X32_BOARD_L, 0x05);
+        GetSurfaceElement(BUS1_8_MASTER)                ->DefButton(X32_BOARD_L, 0x06);
+        GetSurfaceElement(BUS9_16_MASTER)               ->DefButton(X32_BOARD_L, 0x07);
+
+
+        // Board R - middle bank-select row matches Compact. Producer
+        // has no dedicated SCENES_PREV/NEXT/UNDO/GO buttons, no ASSIGN
+        // bank on this board (assigns live on the main board), and no
+        // mute-group buttons - so those entries are omitted vs Compact.
+        GetSurfaceElement(DAW_REMOTE)                   ->DefButton(X32_BOARD_R, 0x00);
+        GetSurfaceElement(SEND_ON_FADER)                ->DefButton(X32_BOARD_R, 0x01);
+
+        GetSurfaceElement(DCA)                          ->DefButton(X32_BOARD_R, 0x02);
+        GetSurfaceElement(BUS1_8)                       ->DefButton(X32_BOARD_R, 0x03);
+        GetSurfaceElement(BUS9_16)                      ->DefButton(X32_BOARD_R, 0x04);
+        GetSurfaceElement(MATRIX_MAIN)                  ->DefButton(X32_BOARD_R, 0x05);
+        GetSurfaceElement(CLEAR_SOLO)                   ->DefButton(X32_BOARD_R, 0x06);
+
+        GetSurfaceElement(BOARD_R_SELECT_MAIN)          ->DefButton(X32_BOARD_R, 0x28);
+        GetSurfaceElement(BOARD_R_SOLO_MAIN)            ->DefButton(X32_BOARD_R, 0x38);
+        GetSurfaceElement(BOARD_R_LCD_MAIN)             ->DefLcd(X32_BOARD_R, 0x08);
+        GetSurfaceElement(BOARD_R_MUTE_MAIN)            ->DefButton(X32_BOARD_R, 0x48);
+        GetSurfaceElement(BOARD_R_FADER_MAIN)           ->DefFader(X32_BOARD_R, 0x08);
 
     }
     else if (IsModelX32Rack())
