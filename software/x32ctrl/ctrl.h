@@ -100,7 +100,7 @@ class X32Ctrl : public X32Base
         void SurfaceBind_MixerParameter(SurfaceElementId surfaceelement_id, SurfaceBindingAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
 
         void ResetFaderBankLayout();
-        void LoadFaderBankLayout(int layout);
+        void LoadFaderBankLayout();
 
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;
