@@ -1,6 +1,7 @@
 #include "ctrl.h"
 
-X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
+X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar)
+{
 	mixer = new Mixer(basepar);
 	surface = new Surface(basepar);
 	xremote = new XRemote(basepar);
@@ -21,7 +22,8 @@ X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar) {
 // #
 // ###########################################################################
 
-void X32Ctrl::Init(){
+void X32Ctrl::Init()
+{
 	//##################################################################################
 	//#
 	//# 	Read x32ctrl configuration
@@ -88,7 +90,8 @@ void X32Ctrl::Init(){
 	//#                                                                          #
 	//#     Without GUI                                                          #
 	//#                                                                          #
-	if(config->IsModelX32Core()) {
+	if(config->IsModelX32Core())
+	{
 			// Placeholder
 	}
 	//############################################################################
@@ -220,16 +223,21 @@ void X32Ctrl::LoadFaderBankLayout()
 	}
 }
 
-void X32Ctrl::ResetFaderBankLayout() {
+void X32Ctrl::ResetFaderBankLayout()
+{
 	// reset channel section
-	for (uint8_t b = 0; b < 8; b++){
-		for (uint8_t sCh = 0; sCh < 16; sCh++){
+	for (uint8_t b = 0; b < 8; b++)
+	{
+		for (uint8_t sCh = 0; sCh < 16; sCh++)
+		{
 			inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
 		}
 	}
 	// reset bus section
-	for (uint8_t b = 0; b < 4; b++){
-		for (uint8_t sCh = 0; sCh < 8; sCh++){
+	for (uint8_t b = 0; b < 4; b++)
+	{
+		for (uint8_t sCh = 0; sCh < 8; sCh++)
+		{
 			busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
 		}
 	}
@@ -249,10 +257,12 @@ void X32Ctrl::ResetFaderBankLayout() {
 //
 //#####################################################################################################################
 
-void X32Ctrl::Tick10ms(void){
+void X32Ctrl::Tick10ms(void)
+{
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "10ms");
 
-	if (config->IsModelX32FullOrCompactOrProducer()) {
+	if (config->IsModelX32FullOrCompactOrProducer()) 
+	{
 		surface->Touchcontrol();	
 	}
 
@@ -297,7 +307,8 @@ void X32Ctrl::Tick10ms(void){
 	}
 }
 
-void X32Ctrl::Tick50ms(void) {
+void X32Ctrl::Tick50ms(void)
+{
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "50ms");
 	UpdateMeters();
 }
@@ -1681,7 +1692,7 @@ void X32Ctrl::ProcessUartDataSurface() {
 				ProcessSurface((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue);
 
 				// old
-				ProcessSurfaceEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
+				//ProcessSurfaceEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
             } 
         }
     }
