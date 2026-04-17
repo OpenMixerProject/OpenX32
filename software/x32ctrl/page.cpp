@@ -124,22 +124,22 @@ void Page::DisplayEncoderTurned(X32_ENC encoder, int amount)
     }
 }
 
-void Page::DisplayButton(X32_BTN button, bool pressed)
+void Page::DisplayButton(X32Action action, bool pressed)
 {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::DisplayButton()");
 
     if (initDone) {
         
         // let page handle button message
-        if (!OnDisplayButton(button, pressed))
+        if (!OnDisplayButton(action, pressed))
         {
             // page did not want it, so handle it here
 
             if (pressed)
             {
-                if (button >= X32_BTN_ENCODER1 && button <= X32_BTN_ENCODER6)
+                if (action >= X32Action::Display_EncoderButton_1 && action <= X32Action::Display_EncoderButton_6)
                 {
-                    uint encoderIndex = button - X32_BTN_ENCODER1;
+                    uint encoderIndex = action - X32Action::Display_EncoderButton_1;
                     MP_ID encoder_mp_id = encoderbinding[encoderIndex]->mp_id_encoder;
 
                     if (encoder_mp_id != NONE && encoder_mp_id != PAGE_CUSTOM_ENCODER)
@@ -165,8 +165,9 @@ void Page::DisplayButton(X32_BTN button, bool pressed)
                     }
                 }
 
-                if (button == X32_BTN_UTILITY)
+                if (action == X32Action::Display_Button_Utility)
                 {
+                    // TODO
                     // toggle mode
                     UtilityMode(!utilityMode);
                 }

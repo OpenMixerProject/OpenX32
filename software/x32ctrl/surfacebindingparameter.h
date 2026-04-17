@@ -7,17 +7,22 @@ using namespace std;
 class SurfaceBindingParameter
 {
     public:
-
-        SurfaceBindingAction sb_action = SurfaceBindingAction::NONE;  
-
-        // Mixerparameter IDs
+    
+        MixerparameterAction mp_action = MixerparameterAction::NONE;  
         MP_ID mp_id = MP_ID::NONE;
         uint mp_index = 0;
 
-        SurfaceBindingParameter(SurfaceBindingAction action, MP_ID mixerparameter_id, uint mixerparameter_index)
+        X32Action x32_action = X32Action::None;
+
+        SurfaceBindingParameter(MixerparameterAction action, MP_ID mixerparameter_id, uint mixerparameter_index)
         {
-            sb_action = action;
+            mp_action = action;
 	        mp_id = mixerparameter_id;
 	        mp_index = mixerparameter_index;
+        }
+
+        SurfaceBindingParameter(X32Action action)
+        {
+	        x32_action = action;
         }
 };

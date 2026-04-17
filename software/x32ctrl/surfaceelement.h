@@ -134,6 +134,15 @@ class SurfaceElement
             return 0;
         }
 
+        uint GetPushEncoderButton()
+        {
+            if (element_type == SurfaceElementType::PushEncoder)
+            {
+                return encoder_button;
+            }
+
+            return 0;
+        }
 
 
 };

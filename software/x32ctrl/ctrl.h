@@ -96,8 +96,9 @@ class X32Ctrl : public X32Base
         void InitBank_Channelstrip(X32Bank* bank, uint offset);
         void LoadBank(X32BankTarget target, X32BankId id);
         void InitSurfaceBinding();
-        void SurfaceBind(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
-        void SurfaceBind_MixerParameter(SurfaceElementId surfaceelement_id, SurfaceBindingAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
+        void SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
+        void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
+        void SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action);
 
         void ResetFaderBankLayout();
         void LoadFaderBankLayout();
@@ -125,7 +126,6 @@ class X32Ctrl : public X32Base
         void UdpHandleCommunication(void);
 
         void InitPagesAndGUI();
-        void ShowPage(X32_PAGE page);
         void ShowPrevPage();
         void ShowNextPage();
 

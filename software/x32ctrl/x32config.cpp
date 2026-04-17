@@ -361,6 +361,10 @@ void X32Config::DefineMixerparameters() {
 
     // gate
     cat = MP_CAT::CHANNEL_GATE;
+
+    DefParameter(CHANNEL_GATE_ENABLE, cat, "Gate Enable", MAX_VCHANNELS)
+    ->DefConfig(group, "gate_enable")
+    ->DefStandard_Bool(false);
    
     DefParameter(CHANNEL_GATE_TRESHOLD, cat, "Threshold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
@@ -389,6 +393,10 @@ void X32Config::DefineMixerparameters() {
 
     // dynamics
     cat = MP_CAT::CHANNEL_DYNAMICS;
+
+    DefParameter(CHANNEL_COMPRESSOR_ENABLE, cat, "Compressor Enable", MAX_VCHANNELS)
+    ->DefConfig(group, "compressor_enable")
+    ->DefStandard_Bool(false);
 
     DefParameter(CHANNEL_DYNAMICS_TRESHOLD, cat, "Threshold", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
@@ -423,6 +431,10 @@ void X32Config::DefineMixerparameters() {
 
     // EQ
     cat = MP_CAT::CHANNEL_EQ;
+
+    DefParameter(CHANNEL_LOWCUT_ENABLE, cat, "Lowcut Enable", MAX_VCHANNELS)
+    ->DefConfig(group, "lowcut_enable")
+    ->DefStandard_Bool(false);
 
     DefParameter(CHANNEL_LOWCUT_FREQ, cat, "Lowcut", MAX_VCHANNELS)
     ->DefConfig(group, "lowcut_freq")
@@ -1826,7 +1838,7 @@ void X32Config::DefineSurfaceElements()
         // Board Main
 
         GetSurfaceElement(TALK_A)                       ->DefButton(X32_BOARD_MAIN, 0x00);
-        GetSurfaceElement(TALK_A)                       ->DefButton(X32_BOARD_MAIN, 0x01);
+        GetSurfaceElement(TALK_B)                       ->DefButton(X32_BOARD_MAIN, 0x01);
         GetSurfaceElement(MONITOR_DIM)                  ->DefButton(X32_BOARD_MAIN, 0x02);
         GetSurfaceElement(VIEW_MONITOR)                 ->DefButton(X32_BOARD_MAIN, 0x03);
 
@@ -2143,6 +2155,15 @@ SurfaceElement* X32Config::GetSurfaceElementButton(X32_BOARD board, uint16_t val
             element->element_type == SurfaceElementType::Button &&
             element->GetBoard() == board &&
             element->GetIndex() == (value & 0x7F)
+        )
+        {
+            return element;
+        }
+        else if (
+            element != 0 &&
+            element->element_type == SurfaceElementType::PushEncoder &&
+            element->GetBoard() == board &&
+            element->GetPushEncoderButton() == (value & 0x7F)
         )
         {
             return element;

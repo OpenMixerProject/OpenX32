@@ -538,14 +538,17 @@ enum class MP_ID {
     CHANNEL_PHASE_INVERT,
     CHANNEL_PHANTOM,
 
+    CHANNEL_LOWCUT_ENABLE,
     CHANNEL_LOWCUT_FREQ,
-
+    
+    CHANNEL_GATE_ENABLE,
     CHANNEL_GATE_TRESHOLD,
     CHANNEL_GATE_RANGE,
     CHANNEL_GATE_ATTACK,
     CHANNEL_GATE_HOLD,
     CHANNEL_GATE_RELEASE,
     
+    CHANNEL_COMPRESSOR_ENABLE,
     CHANNEL_DYNAMICS_TRESHOLD,
     CHANNEL_DYNAMICS_RATIO,
     CHANNEL_DYNAMICS_MAKEUP,
@@ -1109,15 +1112,15 @@ enum class DSP_TAP : int
 };
 
 /// @brief Surface Binding Action
-enum class SurfaceBindingAction
+enum class MixerparameterAction
 {
     NONE,
     SET,
     SET_TO_INDEX,
-    SET_TO_VALUE,
+    SET_TO_SELECTED_CHANNEL,
     CHANGE,
     TOGGLE,
-    Banking,
+    TOGGLE_SELECTED_CHANNEL,
     LCD,
 };
 
@@ -1144,4 +1147,23 @@ enum class X32BankTarget
     InputSection,
     InputSection2,
     BusSection
+};
+
+enum class X32Action
+{
+    None,
+
+    PagePrev,
+    PageNext,
+    Display_Button_Up,
+    Display_Button_Down,
+    Display_Button_Left,
+    Display_Button_Right,
+    Display_EncoderButton_1,
+    Display_EncoderButton_2,
+    Display_EncoderButton_3,
+    Display_EncoderButton_4,
+    Display_EncoderButton_5,
+    Display_EncoderButton_6,
+    Display_Button_Utility,
 };
