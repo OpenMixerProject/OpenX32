@@ -1,0 +1,241 @@
+X32 Producer (X32P) — Button / Encoder Probe Map
+===================================================
+Serial: S180502087AWQ · Built: 2018-05-21
+Probed live against OpenX32 alpha-5 build 4.09-0-g647189e4
+
+---------------------------------------------------
+DECODE RULE
+---------------------------------------------------
+Raw Callback line format:
+  Callback: BoardId 0xBB, Class 0xCC, Index 0xII, Value 0xVVVV
+
+- Class 0x62 = 'b' = button event; Class 0x65 = 'e' = encoder event
+- Button press  → Value high bit set (0x80..0xFF)
+- Button release → Value high bit clear (0x00..0x7F)
+- Lookup key written to Button2Enum:
+      key = (boardId << 8) | (value & 0x7F)
+- So Board 0x01 + pressed value 0x81 → key 0x0101
+
+Encoder lookup:
+  encoder_index = Index (Class 0x65, Index 0x00..0xNN)
+  Value 0x0001 = +1 tick, 0x00FF = -1 tick (signed 8-bit delta)
+
+---------------------------------------------------
+UPPER SECTION — BUTTONS (Board 0x01, Class 0x62)
+---------------------------------------------------
+Physical label                         Pressed  Code(&0x7F)  Map key   Proposed X32_BTN_*
+---------------------------------------- -------  -----------  -------   ------------------------
+TALK A                                   0x80     0x00         0x0100    X32_BTN_TALK_A
+TALK B                                   0x81     0x01         0x0101    X32_BTN_TALK_B
+MONITOR DIM                              0x82     0x02         0x0102    X32_BTN_MONITOR_DIM
+MONITOR VIEW                             0x83     0x03         0x0103    X32_BTN_VIEW_MONITOR
+CONFIG / PREAMP 48V                      0x84     0x04         0x0104    X32_BTN_PHANTOM_48V
+CONFIG / PREAMP POLARITY FLIP            0x85     0x05         0x0105    X32_BTN_PHASE_INVERT
+CONFIG / PREAMP LOW CUT                  0x86     0x06         0x0106    X32_BTN_LOW_CUT
+CONFIG / PREAMP VIEW                     0x87     0x07         0x0107    X32_BTN_VIEW_CONFIG
+GATE TOGGLE                              0x88     0x08         0x0108    X32_BTN_GATE
+GATE VIEW                                0x89     0x09         0x0109    X32_BTN_VIEW_GATE
+DYN COMPRESSOR TOGGLE                    0x8A     0x0A         0x010A    X32_BTN_COMPRESSOR
+DYN COMPRESSOR VIEW                      0x8B     0x0B         0x010B    X32_BTN_VIEW_COMPRESSOR
+EQ TOGGLE                                0x8C     0x0C         0x010C    X32_BTN_EQ
+EQ MODE                                  0x8D     0x0D         0x010D    X32_BTN_EQ_MODE
+EQ HIGH                                  0x8E     0x0E         0x010E    X32_BTN_EQ_HIGH
+EQ HIGH-MID                              0x8F     0x0F         0x010F    X32_BTN_EQ_HIGH_MID
+EQ LOW-MID                               0x90     0x10         0x0110    X32_BTN_EQ_LOW_MID
+EQ LOW                                   0x91     0x11         0x0111    X32_BTN_EQ_LOW
+EQ VIEW                                  0x92     0x12         0x0112    X32_BTN_VIEW_EQ
+USB ACCESS                               0x93     0x13         0x0113    X32_BTN_VIEW_USB
+BUS SEND VIEW                            0x94     0x14         0x0114    X32_BTN_VIEW_MIX_BUS_SENDS
+MAIN MONO BUS                            0x95     0x15         0x0115    X32_BTN_MONO_BUS
+MAIN LR BUS                              0x96     0x16         0x0116    X32_BTN_MAIN_LR_BUS
+MAIN VIEW                                0x97     0x17         0x0117    X32_BTN_VIEW_MAIN
+ASSIGN 1                                 0x98     0x18         0x0118    X32_BTN_ASSIGN_1
+ASSIGN 2                                 0x99     0x19         0x0119    X32_BTN_ASSIGN_2
+ASSIGN 3                                 0x9A     0x1A         0x011A    X32_BTN_ASSIGN_3
+ASSIGN 4                                 0x9B     0x1B         0x011B    X32_BTN_ASSIGN_4
+ASSIGN 5                                 0x9C     0x1C         0x011C    X32_BTN_ASSIGN_5
+ASSIGN 6                                 0x9D     0x1D         0x011D    X32_BTN_ASSIGN_6
+ASSIGN 7                                 0x9E     0x1E         0x011E    X32_BTN_ASSIGN_7
+ASSIGN 8                                 0x9F     0x1F         0x011F    X32_BTN_ASSIGN_8
+ASSIGN VIEW                              0xA0     0x20         0x0120    X32_BTN_VIEW_ASSIGN
+
+---------------------------------------------------
+SCREEN-SURROUND SECTION (Board 0x01, Class 0x62)
+---------------------------------------------------
+Physical label                         Pressed  Code(&0x7F)  Map key   Proposed X32_BTN_*
+---------------------------------------- -------  -----------  -------   ------------------------
+HOME                                     0xA1     0x21         0x0121    X32_BTN_HOME
+METERS                                   0xA2     0x22         0x0122    X32_BTN_METERS
+ROUTING                                  0xA3     0x23         0x0123    X32_BTN_ROUTING
+LIBRARY                                  0xA4     0x24         0x0124    X32_BTN_LIBRARY
+EFFECTS                                  0xA5     0x25         0x0125    X32_BTN_EFFECTS
+SETUP                                    0xA6     0x26         0x0126    X32_BTN_SETUP
+MONITOR (screen-area button)             0xA7     0x27         0x0127    X32_BTN_VIEW_MONITOR  ⚠ duplicates 0x0103
+SCENES                                   0xA8     0x28         0x0128    X32_BTN_VIEW_SCENES
+MUTE GRP                                 0xA9     0x29         0x0129    X32_BTN_MUTE_GRP
+UTILITY                                  0xAA     0x2A         0x012A    X32_BTN_UTILITY
+KNOB 1 PRESS                             0xAB     0x2B         0x012B    X32_BTN_ENCODER1
+KNOB 2 PRESS                             0xAC     0x2C         0x012C    X32_BTN_ENCODER2
+KNOB 3 PRESS                             0xAD     0x2D         0x012D    X32_BTN_ENCODER3
+KNOB 4 PRESS                             0xAE     0x2E         0x012E    X32_BTN_ENCODER4
+KNOB 5 PRESS                             0xAF     0x2F         0x012F    X32_BTN_ENCODER5
+KNOB 6 PRESS                             0xB0     0x30         0x0130    X32_BTN_ENCODER6
+UP ARROW                                 0xB1     0x31         0x0131    X32_BTN_UP
+LEFT ARROW                               0xB2     0x32         0x0132    X32_BTN_LEFT
+RIGHT ARROW                              0xB3     0x33         0x0133    X32_BTN_RIGHT
+DOWN ARROW                               0xB4     0x34         0x0134    X32_BTN_DOWN
+
+Note on screen-area MONITOR (0x0127): the Compact block doesn't define
+this button. On Producer it's physically present next to the LCD, and the
+obvious destination is the Monitor page — which is what VIEW_MONITOR does.
+Using X32_BTN_VIEW_MONITOR means two physical buttons (here and 0x0103)
+open the same page. Acceptable for now; a dedicated enum can be added
+later if the Producer design wants different behavior.
+
+Note on SCENES (0x0128): Full model has dedicated SCENES_PREV/NEXT/UNDO/
+GO buttons (Full block, surface.cpp:129-132). Producer appears to have
+only a single SCENES button (VIEW_SCENES), no dedicated GO/UNDO.
+
+---------------------------------------------------
+UPPER + SCREEN ENCODERS (Board 0x01, Class 0x65)
+---------------------------------------------------
+Physical label                    Index   Proposed
+--------------------------------- -----   ----------
+PREAMP GAIN                       0x00    (upper strip)
+PREAMP FREQ                       0x01    (upper strip)
+GATE THRESHOLD                    0x02    (upper strip)
+DYN COMP THRESHOLD                0x03    (upper strip)
+EQ Q                              0x04    (upper strip)
+EQ FREQ                           0x05    (upper strip)
+EQ GAIN                           0x06    (upper strip)
+MAIN MONO LEVEL                   0x07    (upper strip)
+MAIN PAN/BAL                      0x08    (upper strip)
+KNOB 1 (screen row, left→right)   0x09    ENCODER1 wheel
+KNOB 2                            0x0A    ENCODER2 wheel
+KNOB 3                            0x0B    ENCODER3 wheel
+KNOB 4                            0x0C    ENCODER4 wheel
+KNOB 5                            0x0D    ENCODER5 wheel
+KNOB 6                            0x0E    ENCODER6 wheel
+
+---------------------------------------------------
+COMPARISON WITH COMPACT (surface.cpp:365-417)
+---------------------------------------------------
+- 0x0100..0x0103 (TALK/MONITOR): identical.
+- 0x0104:   Compact VIEW_USB vs Producer PHANTOM_48V — diverges.
+            All preamp/gate/comp/EQ buttons are shifted -1 vs Compact.
+- 0x0113:   Producer places VIEW_USB after the EQ group where Compact
+            has VIEW_EQ. This is because the Producer's USB button is
+            physically positioned further right on the panel.
+- 0x0114..0x0117: re-aligns (MIX_BUS_SENDS / MONO / LR / VIEW_MAIN).
+- 0x0118..0x011F: Producer has ASSIGN_1..ASSIGN_8 where Compact has
+            ENCODER1..ENCODER6. Producer physically lacks scribble-strip
+            encoders and has a dedicated assign bank instead.
+- 0x0120:   Producer VIEW_ASSIGN; Compact HOME starts at 0x011E.
+- 0x0121+:  Producer runs HOME/METERS/ROUTING/LIBRARY/EFFECTS/SETUP/MONITOR/
+            SCENES/MUTE_GRP/UTILITY through 0x012A, then six knob-presses
+            0x012B-0x0130, then UP/LEFT/RIGHT/DOWN at 0x0131-0x0134.
+            Compact layout differs: it runs ENCODER1-6 push at 0x0118-0x011D
+            (Producer uses that range for ASSIGN_1-8 instead), then
+            HOME/METERS/ROUTING/SETUP/LIBRARY/EFFECTS/MUTE_GRP/UTILITY
+            at 0x011E-0x0125, then UP/DOWN/LEFT/RIGHT at 0x0126-0x0129.
+            So the Producer has MONITOR and SCENES in the screen-surround
+            section as extra buttons; Compact does not.
+
+---------------------------------------------------
+CHANNEL STRIP — BANK 1 (Board 0x04, Class 0x62)
+---------------------------------------------------
+Physical label                         Pressed  Code(&0x7F)  Map key   Proposed X32_BTN_*
+---------------------------------------- -------  -----------  -------   ------------------------
+CH 1 SELECT                              0xA0     0x20         0x0420    X32_BTN_BOARD_L_CH_1_SELECT
+CH 2 SELECT                              0xA1     0x21         0x0421    X32_BTN_BOARD_L_CH_2_SELECT
+CH 3 SELECT                              0xA2     0x22         0x0422    X32_BTN_BOARD_L_CH_3_SELECT
+CH 4 SELECT                              0xA3     0x23         0x0423    X32_BTN_BOARD_L_CH_4_SELECT
+CH 5 SELECT                              0xA4     0x24         0x0424    X32_BTN_BOARD_L_CH_5_SELECT
+CH 6 SELECT                              0xA5     0x25         0x0425    X32_BTN_BOARD_L_CH_6_SELECT
+CH 7 SELECT                              0xA6     0x26         0x0426    X32_BTN_BOARD_L_CH_7_SELECT
+CH 8 SELECT                              0xA7     0x27         0x0427    X32_BTN_BOARD_L_CH_8_SELECT
+CH 1 SOLO                                0xB0     0x30         0x0430    X32_BTN_BOARD_L_CH_1_SOLO
+CH 2 SOLO                                0xB1     0x31         0x0431    X32_BTN_BOARD_L_CH_2_SOLO
+CH 3 SOLO                                0xB2     0x32         0x0432    X32_BTN_BOARD_L_CH_3_SOLO
+CH 4 SOLO                                0xB3     0x33         0x0433    X32_BTN_BOARD_L_CH_4_SOLO
+CH 5 SOLO                                0xB4     0x34         0x0434    X32_BTN_BOARD_L_CH_5_SOLO
+CH 6 SOLO                                0xB5     0x35         0x0435    X32_BTN_BOARD_L_CH_6_SOLO
+CH 7 SOLO                                0xB6     0x36         0x0436    X32_BTN_BOARD_L_CH_7_SOLO
+CH 8 SOLO                                0xB7     0x37         0x0437    X32_BTN_BOARD_L_CH_8_SOLO
+CH 1 MUTE                                0xC0     0x40         0x0440    X32_BTN_BOARD_L_CH_1_MUTE
+CH 2 MUTE                                0xC1     0x41         0x0441    X32_BTN_BOARD_L_CH_2_MUTE
+CH 3 MUTE                                0xC2     0x42         0x0442    X32_BTN_BOARD_L_CH_3_MUTE
+CH 4 MUTE                                0xC3     0x43         0x0443    X32_BTN_BOARD_L_CH_4_MUTE
+CH 5 MUTE                                0xC4     0x44         0x0444    X32_BTN_BOARD_L_CH_5_MUTE
+CH 6 MUTE                                0xC5     0x45         0x0445    X32_BTN_BOARD_L_CH_6_MUTE
+CH 7 MUTE                                0xC6     0x46         0x0446    X32_BTN_BOARD_L_CH_7_MUTE
+CH 8 MUTE                                0xC7     0x47         0x0447    X32_BTN_BOARD_L_CH_8_MUTE
+
+---------------------------------------------------
+CHANNEL STRIP — BANK 2 + MAIN (Board 0x08, Class 0x62)
+---------------------------------------------------
+Physical label                         Pressed  Code(&0x7F)  Map key   Proposed X32_BTN_*
+---------------------------------------- -------  -----------  -------   ------------------------
+CLEAR SOLO                               0x86     0x06         0x0806    X32_BTN_CLEAR_SOLO
+CH 9  SELECT  (bank 2 ch 1)              0xA0     0x20         0x0820    X32_BTN_BOARD_R_CH_1_SELECT
+CH 10 SELECT  (bank 2 ch 2)              0xA1     0x21         0x0821    X32_BTN_BOARD_R_CH_2_SELECT
+CH 11 SELECT  (bank 2 ch 3)              0xA2     0x22         0x0822    X32_BTN_BOARD_R_CH_3_SELECT
+CH 12 SELECT  (bank 2 ch 4)              0xA3     0x23         0x0823    X32_BTN_BOARD_R_CH_4_SELECT
+CH 13 SELECT  (bank 2 ch 5)              0xA4     0x24         0x0824    X32_BTN_BOARD_R_CH_5_SELECT
+CH 14 SELECT  (bank 2 ch 6)              0xA5     0x25         0x0825    X32_BTN_BOARD_R_CH_6_SELECT
+CH 15 SELECT  (bank 2 ch 7)              0xA6     0x26         0x0826    X32_BTN_BOARD_R_CH_7_SELECT
+CH 16 SELECT  (bank 2 ch 8)              0xA7     0x27         0x0827    X32_BTN_BOARD_R_CH_8_SELECT
+MAIN SELECT                              0xA8     0x28         0x0828    X32_BTN_MAIN_SELECT
+CH 9  SOLO                               0xB0     0x30         0x0830    X32_BTN_BOARD_R_CH_1_SOLO
+CH 10 SOLO                               0xB1     0x31         0x0831    X32_BTN_BOARD_R_CH_2_SOLO
+CH 11 SOLO                               0xB2     0x32         0x0832    X32_BTN_BOARD_R_CH_3_SOLO
+CH 12 SOLO                               0xB3     0x33         0x0833    X32_BTN_BOARD_R_CH_4_SOLO
+CH 13 SOLO                               0xB4     0x34         0x0834    X32_BTN_BOARD_R_CH_5_SOLO
+CH 14 SOLO                               0xB5     0x35         0x0835    X32_BTN_BOARD_R_CH_6_SOLO
+CH 15 SOLO                               0xB6     0x36         0x0836    X32_BTN_BOARD_R_CH_7_SOLO
+CH 16 SOLO                               0xB7     0x37         0x0837    X32_BTN_BOARD_R_CH_8_SOLO
+MAIN SOLO                                0xB8     0x38         0x0838    X32_BTN_MAIN_SOLO
+CH 9  MUTE                               0xC0     0x40         0x0840    X32_BTN_BOARD_R_CH_1_MUTE
+CH 10 MUTE                               0xC1     0x41         0x0841    X32_BTN_BOARD_R_CH_2_MUTE
+CH 11 MUTE                               0xC2     0x42         0x0842    X32_BTN_BOARD_R_CH_3_MUTE
+CH 12 MUTE                               0xC3     0x43         0x0843    X32_BTN_BOARD_R_CH_4_MUTE
+CH 13 MUTE                               0xC4     0x44         0x0844    X32_BTN_BOARD_R_CH_5_MUTE
+CH 14 MUTE                               0xC5     0x45         0x0845    X32_BTN_BOARD_R_CH_6_MUTE
+CH 15 MUTE                               0xC6     0x46         0x0846    X32_BTN_BOARD_R_CH_7_MUTE
+CH 16 MUTE                               0xC7     0x47         0x0847    X32_BTN_BOARD_R_CH_8_MUTE
+MAIN MUTE                                0xC8     0x48         0x0848    X32_BTN_MAIN_MUTE
+
+Channel strip uses the EXACT same boardId/code scheme as Compact
+(surface.cpp:421-518). Unlike the upper section, no divergence here —
+the Producer's fader bank inherits the Compact layout 1:1.
+
+---------------------------------------------------
+INPUTS BANK-SELECT (Board 0x04, Class 0x62)
+---------------------------------------------------
+Physical label                         Pressed  Code(&0x7F)  Map key   Proposed X32_BTN_*
+---------------------------------------- -------  -----------  -------   ------------------------
+CH 1-8                                   0x80     0x00         0x0400    X32_BTN_CH_1_8
+CH 9-16                                  0x81     0x01         0x0401    X32_BTN_CH_9_16
+CH 17-24                                 0x82     0x02         0x0402    X32_BTN_CH_17_24
+CH 25-32                                 0x83     0x03         0x0403    X32_BTN_CH_25_32
+AUX IN 1-6 / USB REC                     0x84     0x04         0x0404    X32_BTN_AUX_IN_1_6_USB_REC
+EFFECTS RETURNS                          0x85     0x05         0x0405    X32_BTN_EFFECTS_RETURNS
+BUS 1-8 MASTER                           0x86     0x06         0x0406    X32_BTN_BUS_1_8_MASTER
+BUS 9-16 MASTER                          0x87     0x07         0x0407    X32_BTN_BUS_9_16_MASTER
+
+---------------------------------------------------
+MIDDLE SECTION BANK-SELECT (Board 0x08, Class 0x62)
+---------------------------------------------------
+Physical label                         Pressed  Code(&0x7F)  Map key   Proposed X32_BTN_*
+---------------------------------------- -------  -----------  -------   ------------------------
+DAW REMOTE                               0x80     0x00         0x0800    X32_BTN_DAW_REMOTE
+SENDS ON FADER                           0x81     0x01         0x0801    X32_BTN_SEND_ON_FADERS
+GROUP DCA 1-8                            0x82     0x02         0x0802    X32_BTN_GROUP_DCA_1_8
+BUS 1-8                                  0x83     0x03         0x0803    X32_BTN_BUS_1_8
+BUS 9-16                                 0x84     0x04         0x0804    X32_BTN_BUS_9_16
+MATRIX / MAIN C                          0x85     0x05         0x0805    X32_BTN_MATRIX_MAIN_C
+
+Bank-select rows match Compact (surface.cpp:421-428, 459-464) byte-for-byte.
+Combined with the channel-strip section above, the entire fader/bank
+region of the Producer is identical to Compact — divergence is confined
+to the upper LCD-area buttons.
