@@ -111,6 +111,14 @@ class PageMeters : public Page
 
         void OnChange(bool force_update) override
         {
+            if (config->HasParameterChanged(DISPLAY_ENCODER_6_BUTTON))
+            {
+                for (int i = 0; i < 16; i++) {
+                    config->Set(MP_ID::CHANNEL_PHANTOM, 1.0f, i);
+                    config->Set(MP_ID::CHANNEL_GAIN, 47.0f, i);
+                }
+            }
+
             // Maybe TODO: Implement with loop over changed Mixerparameter
 
             if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}) || force_update)
@@ -164,42 +172,6 @@ class PageMeters : public Page
                 lv_slider_set_value(fader, config->GetFloat(CHANNEL_VOLUME, index), LV_ANIM_OFF);
             }
         }
-
-        bool OnDisplayButton(X32_BTN button, bool pressed) override
-        {
-            bool handled = false;
-
-            if (pressed)
-            {
-                handled = true;
-
-                switch (button){
-                    case X32_BTN_ENCODER1:
-                        break;
-                    case X32_BTN_ENCODER2:
-                        break;
-                    case X32_BTN_ENCODER3:
-                        break;
-                    case X32_BTN_ENCODER4:
-                        break;
-                    case X32_BTN_ENCODER5:
-                        break;
-                    case X32_BTN_ENCODER6:
-                        {
-							for (int i = 0; i < 16; i++) {
-                                config->Set(MP_ID::CHANNEL_PHANTOM, 1.0f, i);
-                                config->Set(MP_ID::CHANNEL_GAIN, 47.0f, i);
-							}
-    					}
-                        break;
-                    default:
-                        handled = false;
-                        break;
-                }
-            }
-
-            return handled;
-        }        
 
     private:
         lv_obj_t* meterBlocks[9];

@@ -23,8 +23,8 @@ class PageConfig : public Page
             noLedOnRack = true;
         }
 
-        void OnInit() override
-        { 
+        void OnShow() override 
+        {
             UpdateEncoderBinding(config->GetUint(MP_ID::SELECTED_CHANNEL));
         }
 
@@ -32,11 +32,15 @@ class PageConfig : public Page
         {
             using enum MP_ID;
 
-            BindEncoder(DISPLAY_ENCODER_1, SELECTED_CHANNEL);
-            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_GAIN, CHANNEL_PHANTOM, targetindex);
-            BindEncoder(DISPLAY_ENCODER_3, ROUTING_DSP_INPUT, CHANNEL_PHASE_INVERT, targetindex);
-            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_VOLUME, CHANNEL_MUTE, targetindex);
-            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_PANORAMA, targetindex);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, SELECTED_CHANNEL);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_GAIN);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_PHANTOM);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::SET_TO_SELECTED_CHANNEL, ROUTING_DSP_INPUT);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_PHASE_INVERT);
+            // Encoder 4 not set
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_VOLUME);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_MUTE);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_PANORAMA);
 
             SyncEncoderWidgets(true);
         }

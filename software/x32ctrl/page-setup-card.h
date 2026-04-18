@@ -175,28 +175,29 @@ class PageSetupCard: public Page {
         void UpdateEncoderBinding(uint bank) {
             switch (bank) {
                 case 0: // regular controls
-                    BindEncoder(DISPLAY_ENCODER_1, MP_ID::CARD_NUMBER_OF_CHANNELS, MP_ID::CARD_AUDIO_SOURCE); // Channelnumber and Source-Mode
-                    BindEncoder(DISPLAY_ENCODER_2, MP_ID::CARD_SDCARD);
+                    // TODO
+                    // BindEncoder(DISPLAY_ENCODER_1, MP_ID::CARD_NUMBER_OF_CHANNELS, MP_ID::CARD_AUDIO_SOURCE); // Channelnumber and Source-Mode
+                    // BindEncoder(DISPLAY_ENCODER_2, MP_ID::CARD_SDCARD);
 
-                    BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
-                    BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
-                    BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
-                    BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
-                    custom_encoder[DISPLAY_ENCODER_3].label = "Stop";
-                    custom_encoder[DISPLAY_ENCODER_4].label = "Play/Pause";
-                    custom_encoder[DISPLAY_ENCODER_5].label = "Record";
-                    custom_encoder[DISPLAY_ENCODER_6].label = "Select Track";
+                    // BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
+                    // BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
+                    // BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
+                    // BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
+                    // custom_encoder[DISPLAY_ENCODER_3].label = "Stop";
+                    // custom_encoder[DISPLAY_ENCODER_4].label = "Play/Pause";
+                    // custom_encoder[DISPLAY_ENCODER_5].label = "Record";
+                    // custom_encoder[DISPLAY_ENCODER_6].label = "Select Track";
                     break;
                 case 1: // additional controls
-                    BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
-                    BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
-                    BindEncoder(DISPLAY_ENCODER_3, NONE);
-                    BindEncoder(DISPLAY_ENCODER_4, NONE);
-                    BindEncoder(DISPLAY_ENCODER_5, NONE);
-                    BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
-                    custom_encoder[DISPLAY_ENCODER_1].label = "<< 15 Seconds";
-                    custom_encoder[DISPLAY_ENCODER_2].label = "15 Seconds >>";
-                    custom_encoder[DISPLAY_ENCODER_6].label = "Format Card";
+                    // BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
+                    // BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
+                    // BindEncoder(DISPLAY_ENCODER_3, NONE);
+                    // BindEncoder(DISPLAY_ENCODER_4, NONE);
+                    // BindEncoder(DISPLAY_ENCODER_5, NONE);
+                    // BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
+                    // custom_encoder[DISPLAY_ENCODER_1].label = "<< 15 Seconds";
+                    // custom_encoder[DISPLAY_ENCODER_2].label = "15 Seconds >>";
+                    // custom_encoder[DISPLAY_ENCODER_6].label = "Format Card";
                     break;
             }
 
@@ -292,155 +293,155 @@ class PageSetupCard: public Page {
             }
         }
 
-        bool OnDisplayButton(X32_BTN button, bool pressed) override
-        {
-            bool handled = false;
+        // bool OnDisplayButton(X32_BTN button, bool pressed) override
+        // {
+        //     bool handled = false;
 
-        	if (pressed)
-            {
-                handled = true;
+        // 	if (pressed)
+        //     {
+        //         handled = true;
 
-                switch (banking) {
-                    case 0:
-                        switch (button)
-                        {
-                            //case X32_BTN_ENCODER1:
-                            //    break;
-                            //case X32_BTN_ENCODER2: 
-                            //    break;
-                            case X32_BTN_ENCODER3: // Stop
-                                mixer->card->XLIVE_Stop();
-                                if (mixer->card->XLIVE_Recording) {
-                                    lv_delay_ms(100);
-                                    mixer->card->FlushRxBuffer(); // purge all commands send by Expansion-Card (several *9N24 and *9N00 commands)
-                                    RefreshTOC(); // refresh list as content could have changed
-                                }
-                                break;
-                            case X32_BTN_ENCODER4: // Play/Pause
-                                mixer->card->XLIVE_PlayPause(); // toggle between play and pause
-                                OnChange(false);
-                                break;
-                            case X32_BTN_ENCODER5: // Record
-                                mixer->card->XLIVE_RecordNewSession();
-                                OnChange(false);
-                                break;
-                            case X32_BTN_ENCODER6: // Select
-                                mixer->card->XLIVE_SelectSession(helper->split(TOC, ',', gui_selected_item));
-                                break;
-                            case X32_BTN_UP:
-                                prevParameterBank();
-                                break;
-                            case X32_BTN_DOWN:
-                                nextParameterBank();
-                                break;
-                            default:
-                                handled = false;
-                                // dummy
-                        }
-                        break;
-                    case 1:
-                        switch (button)
-                        {
-                            case X32_BTN_ENCODER1:
-                                // seek 15 seconds to left
-                                {
-                                    uint newPosition = mixer->card->currentSongPositionSeconds - 15;
-                                    if (newPosition < 0) {
-                                        newPosition = 0;
-                                    }
-                                    mixer->card->XLIVE_Seek(newPosition * config->GetUint(SAMPLERATE));
-                                }
-                                break;
-                            case X32_BTN_ENCODER2: 
-                                // seek 15 seconds to right
-                                {
-                                    uint newPosition = mixer->card->currentSongPositionSeconds + 15;
-                                    if (newPosition < mixer->card->currentSongTotalSeconds) {
-                                        mixer->card->XLIVE_Seek(newPosition * config->GetUint(SAMPLERATE));
-                                    }
-                                }
-                                break;
-                            //case X32_BTN_ENCODER3:
-                            //    break;
-                            //case X32_BTN_ENCODER4:
-                            //    break;
-                            //case X32_BTN_ENCODER5:
-                            //    break;
-                            case X32_BTN_ENCODER6:
-                                // format current card
-                                mixer->card->XLIVE_FormatCard(); // TODO: we should ask the user with a nice message if he/she really wants to format the card
-                                break;
-                            case X32_BTN_UP:
-                                prevParameterBank();
-                                break;
-                            case X32_BTN_DOWN:
-                                nextParameterBank();
-                                break;
-                            default:
-                                handled = false;
-                                // dummy
-                        }
-                        break;
-                }
+        //         switch (banking) {
+        //             case 0:
+        //                 switch (button)
+        //                 {
+        //                     //case X32_BTN_ENCODER1:
+        //                     //    break;
+        //                     //case X32_BTN_ENCODER2: 
+        //                     //    break;
+        //                     case X32_BTN_ENCODER3: // Stop
+        //                         mixer->card->XLIVE_Stop();
+        //                         if (mixer->card->XLIVE_Recording) {
+        //                             lv_delay_ms(100);
+        //                             mixer->card->FlushRxBuffer(); // purge all commands send by Expansion-Card (several *9N24 and *9N00 commands)
+        //                             RefreshTOC(); // refresh list as content could have changed
+        //                         }
+        //                         break;
+        //                     case X32_BTN_ENCODER4: // Play/Pause
+        //                         mixer->card->XLIVE_PlayPause(); // toggle between play and pause
+        //                         OnChange(false);
+        //                         break;
+        //                     case X32_BTN_ENCODER5: // Record
+        //                         mixer->card->XLIVE_RecordNewSession();
+        //                         OnChange(false);
+        //                         break;
+        //                     case X32_BTN_ENCODER6: // Select
+        //                         mixer->card->XLIVE_SelectSession(helper->split(TOC, ',', gui_selected_item));
+        //                         break;
+        //                     case X32_BTN_UP:
+        //                         prevParameterBank();
+        //                         break;
+        //                     case X32_BTN_DOWN:
+        //                         nextParameterBank();
+        //                         break;
+        //                     default:
+        //                         handled = false;
+        //                         // dummy
+        //                 }
+        //                 break;
+        //             case 1:
+        //                 switch (button)
+        //                 {
+        //                     case X32_BTN_ENCODER1:
+        //                         // seek 15 seconds to left
+        //                         {
+        //                             uint newPosition = mixer->card->currentSongPositionSeconds - 15;
+        //                             if (newPosition < 0) {
+        //                                 newPosition = 0;
+        //                             }
+        //                             mixer->card->XLIVE_Seek(newPosition * config->GetUint(SAMPLERATE));
+        //                         }
+        //                         break;
+        //                     case X32_BTN_ENCODER2: 
+        //                         // seek 15 seconds to right
+        //                         {
+        //                             uint newPosition = mixer->card->currentSongPositionSeconds + 15;
+        //                             if (newPosition < mixer->card->currentSongTotalSeconds) {
+        //                                 mixer->card->XLIVE_Seek(newPosition * config->GetUint(SAMPLERATE));
+        //                             }
+        //                         }
+        //                         break;
+        //                     //case X32_BTN_ENCODER3:
+        //                     //    break;
+        //                     //case X32_BTN_ENCODER4:
+        //                     //    break;
+        //                     //case X32_BTN_ENCODER5:
+        //                     //    break;
+        //                     case X32_BTN_ENCODER6:
+        //                         // format current card
+        //                         mixer->card->XLIVE_FormatCard(); // TODO: we should ask the user with a nice message if he/she really wants to format the card
+        //                         break;
+        //                     case X32_BTN_UP:
+        //                         prevParameterBank();
+        //                         break;
+        //                     case X32_BTN_DOWN:
+        //                         nextParameterBank();
+        //                         break;
+        //                     default:
+        //                         handled = false;
+        //                         // dummy
+        //                 }
+        //                 break;
+        //         }
 
-                // update encoders as values have changed
-                SyncEncoderWidgets(true);
-            }
+        //         // update encoders as values have changed
+        //         SyncEncoderWidgets(true);
+        //     }
 
-            return handled;
-        }
+        //     return handled;
+        // }
 
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount)
-        {
-            bool handled = true;
+        // bool OnDisplayEncoderTurned(X32_ENC encoder, int amount)
+        // {
+        //     bool handled = true;
 
-            switch (banking) {
-                case 0:
-                    switch (encoder)
-                    {
-                        //case X32_ENC_ENCODER1:
-                        //    break;
-                        //case X32_ENC_ENCODER2: // Stop
-                        //    break;
-                        //case X32_ENC_ENCODER3: // Play/Pause
-                        //    break;
-                        //case X32_ENC_ENCODER4: // 
-                        //    break;
-                        //case X32_ENC_ENCODER5: // Record
-                        //    break;
-                        case X32_ENC_ENCODER6: // Select
-                            gui_selected_item += amount;
-                            OnChange(false);
-                            break;
-                        default:
-                            handled = false;
-                            // dummy
-                    }
-                    break;
-                case 1:
-                    switch (encoder)
-                    {
-                        //case X32_ENC_ENCODER1:
-                        //    break;
-                        //case X32_ENC_ENCODER2:
-                        //    break;
-                        //case X32_ENC_ENCODER3:
-                        //    break;
-                        //case X32_ENC_ENCODER4:
-                        //    break;
-                        //case X32_ENC_ENCODER5:
-                        //    break;
-                        //case X32_ENC_ENCODER6:
-                        //    break;
-                        default:
-                            handled = false;
-                            // dummy
-                    }
-                    break;
-            }
+        //     switch (banking) {
+        //         case 0:
+        //             switch (encoder)
+        //             {
+        //                 //case X32_ENC_ENCODER1:
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER2: // Stop
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER3: // Play/Pause
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER4: // 
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER5: // Record
+        //                 //    break;
+        //                 case X32_ENC_ENCODER6: // Select
+        //                     gui_selected_item += amount;
+        //                     OnChange(false);
+        //                     break;
+        //                 default:
+        //                     handled = false;
+        //                     // dummy
+        //             }
+        //             break;
+        //         case 1:
+        //             switch (encoder)
+        //             {
+        //                 //case X32_ENC_ENCODER1:
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER2:
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER3:
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER4:
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER5:
+        //                 //    break;
+        //                 //case X32_ENC_ENCODER6:
+        //                 //    break;
+        //                 default:
+        //                     handled = false;
+        //                     // dummy
+        //             }
+        //             break;
+        //     }
 
-            return handled;
-        }
+        //     return handled;
+        // }
         
         void nextParameterBank()
         {

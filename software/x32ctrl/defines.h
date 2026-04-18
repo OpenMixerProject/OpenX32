@@ -27,12 +27,12 @@
 #define DISPLAY_RESOLUTION_Y 480
 
 #define MAX_DISPLAY_ENCODER 6
-#define DISPLAY_ENCODER_1   0
-#define DISPLAY_ENCODER_2   1
-#define DISPLAY_ENCODER_3   2
-#define DISPLAY_ENCODER_4   3
-#define DISPLAY_ENCODER_5   4
-#define DISPLAY_ENCODER_6   5
+// #define DISPLAY_ENCODER_1   0
+// #define DISPLAY_ENCODER_2   1
+// #define DISPLAY_ENCODER_3   2
+// #define DISPLAY_ENCODER_4   3
+// #define DISPLAY_ENCODER_5   4
+// #define DISPLAY_ENCODER_6   5
 
 // LCD Contrast
 #define LCD_CONTRAST_MIN 0

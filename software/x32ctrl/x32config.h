@@ -31,6 +31,13 @@ class X32Config
         // Surfaceelements
         SurfaceElement* sem[(uint)SurfaceElementId::__ELEMENT_COUNTER_DO_NOT_MOVE];
 
+        // surface binding
+        map<SurfaceElementId, SurfaceBindingParameter*>* surface_binding;
+        set<SurfaceElementId> surface_binding_changed;
+
+
+
+
         // old
         X32_MODEL _model;
 
@@ -77,6 +84,17 @@ class X32Config
         SurfaceElement* GetSurfaceElement(SurfaceElementId);
         SurfaceElement* GetSurfaceElementButton(X32_BOARD board, uint16_t value);
         SurfaceElement* GetSurfaceElementFader(X32_BOARD board, uint8_t index);
+        
+        map<SurfaceElementId, SurfaceBindingParameter*>* GetSurfaceBinding();
+        SurfaceBindingParameter* GetSurfaceBinding(SurfaceElementId elementId);
+        void SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
+        void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
+        // void SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action);
+        void SurfaceUnbind(SurfaceElementId surfaceelement_id);
+
+        bool HasAnySurfaceBindingChanged();
+        bool HasSurfaceBindingChanged(SurfaceElementId elementId);
+        void RemoveSurfaceBindingChanged(SurfaceElementId elementId);
 
         void SetModel(String model);
         bool IsModelX32Full();

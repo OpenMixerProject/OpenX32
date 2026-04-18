@@ -33,14 +33,21 @@ class PageHome : public Page
             led = X32_BTN_HOME;
         }
 
-        void OnInit() override 
+        void OnShow() override 
         {
-            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_VOLUME, CHANNEL_MUTE, 0);
-            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_VOLUME, CHANNEL_MUTE, 1);
-            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_VOLUME, CHANNEL_MUTE, 2);
-            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME, CHANNEL_MUTE, 3);
-            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_VOLUME, CHANNEL_MUTE, 4);
-            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_VOLUME, CHANNEL_MUTE, 5);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, CHANNEL_VOLUME, 0);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET, CHANNEL_VOLUME, 1);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::SET, CHANNEL_VOLUME, 2);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET, CHANNEL_VOLUME, 3);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET, CHANNEL_VOLUME, 4);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::SET, CHANNEL_VOLUME, 5);
+
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, MixerparameterAction::SET, CHANNEL_MUTE, 0);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::SET, CHANNEL_MUTE, 1);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3, MixerparameterAction::SET, CHANNEL_MUTE, 2);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4, MixerparameterAction::SET, CHANNEL_MUTE, 3);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5, MixerparameterAction::SET, CHANNEL_MUTE, 4);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6, MixerparameterAction::SET, CHANNEL_MUTE, 5);
         }
 
         void OnChange(bool force_update) override

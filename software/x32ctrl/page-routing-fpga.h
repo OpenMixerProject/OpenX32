@@ -152,25 +152,62 @@ class PageRoutingFpga: public Page
             lv_obj_set_user_data(objects.table_routing_fpga, &gui_selected_item);
 
             DrawTable();
-
-            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
         }
 
-        void OnShow() override {
-
-            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_UP) + "\nBlock\n" + LV_SYMBOL_DOWN;            
-            custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + "\nSource";
-			custom_encoder[DISPLAY_ENCODER_5].label = String(LV_SYMBOL_REFRESH) + "\nSource (Group)";
+        void OnShow() override
+        {
+            config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nBlock\n" + LV_SYMBOL_DOWN);
+            config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN);
+            config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN);
+            config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource");
+            config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource (Group)");
         }
 
         void OnChange(bool force_update) override
         {
+			if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
+            {
+				gui_selected_block += config->GetInt(DISPLAY_ENCODER_1_ENCODER);
+			}
+
+            if (config->HasParameterChanged(DISPLAY_ENCODER_2_ENCODER))
+            {
+				gui_selected_item += config->GetInt(DISPLAY_ENCODER_2_ENCODER);
+			}
+
+            if (config->HasParameterChanged(DISPLAY_ENCODER_3_ENCODER))
+            {
+				int amount = config->GetInt(DISPLAY_ENCODER_3_ENCODER);
+
+				if (amount < 0) {
+					gui_selected_item -= 8;
+				}else{
+					gui_selected_item += 8;
+				}
+			}
+
+            if (config->HasParameterChanged(DISPLAY_ENCODER_4_ENCODER))
+            {
+				int amount = config->GetInt(DISPLAY_ENCODER_4_ENCODER);
+                config->Change(ROUTING_FPGA, amount, gui_selected_item + gui_items_offset);
+            }
+
+            if (config->HasParameterChanged(DISPLAY_ENCODER_5_ENCODER))
+            {
+                int amount = config->GetInt(DISPLAY_ENCODER_5_ENCODER);
+
+                int8_t absoluteChange;
+                if (amount < 0) {
+                    absoluteChange = -8;
+                }else{
+                    absoluteChange = 8;
+                }
+                for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++)
+                {
+                    config->Change(ROUTING_FPGA, absoluteChange, i);
+                }
+            }
+
             if((gui_selected_block != gui_selected_block_before) || force_update)
             {
 				if (gui_selected_block < 0) {
@@ -226,51 +263,6 @@ class PageRoutingFpga: public Page
                     }
                 }
             }
-        }
-
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override
-        {
-            bool handled = true;
-
-            switch (encoder)
-            {
-                case X32_ENC_ENCODER1:
-                    gui_selected_block += amount;
-					OnChange(false);
-                    break;
-                case X32_ENC_ENCODER2:
-                    gui_selected_item += amount;
-					OnChange(false);
-                    break;
-                case X32_ENC_ENCODER3:
-                    if (amount < 0) {
-						gui_selected_item -= 8;
-					}else{
-						gui_selected_item += 8;
-					}
-					OnChange(false);
-                    break;
-                case X32_ENC_ENCODER4:
-                    config->Change(ROUTING_FPGA, amount, gui_selected_item + gui_items_offset);
-                    break;
-                case X32_ENC_ENCODER5:
-					int8_t absoluteChange;
-                    if (amount < 0) {
-                        absoluteChange = -8;
-                    }else{
-                        absoluteChange = 8;
-                    }
-                    for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++)
-                    {
-                        config->Change(ROUTING_FPGA, absoluteChange, i);
-                    }
-                    break;
-                default:  
-                    handled = false;                  
-                    break;
-            }
-
-            return handled;
         }
 
         void DrawTable()

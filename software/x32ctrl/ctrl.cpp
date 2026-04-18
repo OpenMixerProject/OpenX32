@@ -6,8 +6,6 @@ X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar)
 	surface = new Surface(basepar);
 	xremote = new XRemote(basepar);
 	lcdmenu = new LcdMenu(basepar, mixer, surface); // only used for X32Core (at the moment, maybe later for assing-section?)
-
-	surface_binding = new map<SurfaceElementId, SurfaceBindingParameter*>();
 }
 
 // ###########################################################################
@@ -291,7 +289,7 @@ void X32Ctrl::Tick10ms(void)
 		mixer->card->Sync();
 	}
 
-	if (config->HasAnyParameterChanged() || !surface_binding_changed.empty())
+	if (config->HasAnyParameterChanged() || config->HasAnySurfaceBindingChanged())
 	{
 		// sync GUI(s) last, to get visual response after the hardware is synced!
 		syncSurface(false);
@@ -612,7 +610,8 @@ void X32Ctrl::UdpHandleCommunication(void) {
 //
 //#####################################################################################################################
 
-void X32Ctrl::InitPagesAndGUI(){
+void X32Ctrl::InitPagesAndGUI()
+{
 	PageBaseParameter* pagebasepar = new PageBaseParameter(app, config, state, helper, mixer, surface);
 	
 	pages[X32_PAGE::HOME] = new PageHome(pagebasepar);
@@ -637,35 +636,39 @@ void X32Ctrl::InitPagesAndGUI(){
 	pages[X32_PAGE::EFFECTS] = new PageEffects(pagebasepar);
 	pages[X32_PAGE::MUTE_GRP] = new PageMutegroup(pagebasepar);
 	pages[X32_PAGE::SCENES] = new PageScenes(pagebasepar);
-	for (const auto& [key, value] : pages) {
+	
+	for (const auto& [key, value] : pages)
+	{
 		value->Init();
 	}	
 }
 
-void X32Ctrl::ShowNextPage(void){
-
+bool X32Ctrl::ShowNextPage()
+{
 	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
 	X32_PAGE nextPage = pages[activePage]->GetNextPage();
-	if (nextPage != X32_PAGE::NONE){
+	if (nextPage != X32_PAGE::NONE)
+	{
 		config->Set(ACTIVE_PAGE, (uint)nextPage);
-	} else {
-		// if theres is no next page, send button press to page
-		pages[activePage]->DisplayButton(X32Action::, true);
-	}
+		return true;
+	} 
+	
+	return false;
 }
 
-void X32Ctrl::ShowPrevPage(void){
-
+bool X32Ctrl::ShowPrevPage()
+{
 	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
 	X32_PAGE prevPage = pages[activePage]->GetPrevPage();
-	if (prevPage != X32_PAGE::NONE){
+	if (prevPage != X32_PAGE::NONE)
+	{
 		config->Set(ACTIVE_PAGE, (uint)prevPage);
-	} else {
-		// if theres is no prev page, send button press to page
-		pages[activePage]->DisplayButton(X32_BTN_LEFT, true);
+		return true;
 	}
+
+	return false;
 }
 
 // void X32Ctrl::ShowPage(X32_PAGE newPage) {
@@ -739,18 +742,24 @@ void X32Ctrl::syncGuiOrLcd() {
 	}
 	
 	//####################################
-	//#     Show Active Page
-	//####################################
-
-	if (config->HasParameterChanged(ACTIVE_PAGE)){
-		pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->Show();
-	}
-
-	//####################################
 	//#     Update Active Page
 	//####################################
 
-	pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->Change();
+	Page* activePage = pages.at((X32_PAGE)(config->GetUint(ACTIVE_PAGE)));
+	activePage->Change();
+
+	//####################################
+	//#     Show Active Page 
+	//#
+	//#  Has to be done after updating the current active page, so we get the call.
+	//#  If done in other order, the changed Mixerparemter array is emptied and we never change the page!
+	//####################################
+
+	if (config->HasParameterChanged(ACTIVE_PAGE)){
+		Page* newPage = pages.at((X32_PAGE)config->GetUint(ACTIVE_PAGE));
+		newPage->Show();
+		newPage->Change();
+	}
 
 	//####################################
 	//#     Update General Header
@@ -825,7 +834,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 	//
 	// ###########################################
 
-	for (auto const& [key, value] : *surface_binding)
+	for (auto const& [key, value] : *(config->GetSurfaceBinding()))
     {
 		SurfaceElementId element_id = key;
 		SurfaceBindingParameter* binding_parameter = value;
@@ -878,10 +887,10 @@ void X32Ctrl::syncSurface(bool fullSync)
 		 Check if the binding has changed		
 		*/
 
-		if(surface_binding_changed.contains(element_id))
+		if(config->HasSurfaceBindingChanged(element_id))
 		{
 			hasChanged = true;
-			surface_binding_changed.erase(element_id);
+			config->RemoveSurfaceBindingChanged(element_id);
 		}
 
 		/*
@@ -1765,11 +1774,11 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 	{
 		for (uint i = 0; i < 8; i++)
 		{
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
 		}
 	}
 
@@ -1777,11 +1786,11 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 	{
 		for (uint i = 0; i < 8; i++)
 		{
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
 		}
 	}
 
@@ -1789,11 +1798,11 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 	{
 		for (uint i = 0; i < 8; i++)
 		{
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
-			SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
 		}
 	}	
 }
@@ -1801,116 +1810,81 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 // Bind Surfaceelements to Mixerparameter or special functions
 void X32Ctrl::InitSurfaceBinding()
 {
-	// Channel Section
-	SurfaceBind(SurfaceElementId::PHANTOM_48V, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHANTOM);
-	SurfaceBind(SurfaceElementId::PHASE_INVERT, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHASE_INVERT);
-	SurfaceBind(SurfaceElementId::LOW_CUT, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_LOWCUT_ENABLE);
-	SurfaceBind(SurfaceElementId::VIEW_CONFIG, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::CONFIG));
+	// Config / Preamp
+	config->SurfaceBind(SurfaceElementId::PHANTOM_48V, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHANTOM);
+	config->SurfaceBind(SurfaceElementId::PHASE_INVERT, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHASE_INVERT);
+	config->SurfaceBind(SurfaceElementId::LOW_CUT, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_LOWCUT_ENABLE);
+	config->SurfaceBind(SurfaceElementId::VIEW_CONFIG, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::CONFIG));
 
-	SurfaceBind(SurfaceElementId::GATE, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_GATE_ENABLE);
-	SurfaceBind(SurfaceElementId::VIEW_GATE, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::GATE));
+	// Gate
+	config->SurfaceBind(SurfaceElementId::GATE, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_GATE_ENABLE);
+	config->SurfaceBind(SurfaceElementId::VIEW_GATE, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::GATE));
 
-	SurfaceBind(SurfaceElementId::COMP_EXP, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_COMPRESSOR_ENABLE);
-	SurfaceBind(SurfaceElementId::VIEW_DYNAMICS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::COMPRESSOR));
+	// Dynamics
+	config->SurfaceBind(SurfaceElementId::COMP_EXP, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_COMPRESSOR_ENABLE);
+	config->SurfaceBind(SurfaceElementId::VIEW_DYNAMICS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::COMPRESSOR));
 
-	SurfaceBind(SurfaceElementId::VIEW_EQ, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::EQ));
+	// EQ
+	config->SurfaceBind(SurfaceElementId::VIEW_EQ, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::EQ));
 
-	SurfaceBind(SurfaceElementId::VIEW_MIX_BUS_SENDS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SENDS));
+	// Bus Sends
+	config->SurfaceBind(SurfaceElementId::VIEW_MIX_BUS_SENDS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SENDS));
 	
-	SurfaceBind(SurfaceElementId::MONO_BUS, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_SUB);
-	SurfaceBind(SurfaceElementId::MAIN_LR_BUS, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_LR);
-	SurfaceBind(SurfaceElementId::VIEW_MAIN, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::MAIN));
+	// Bus Mixes
+	config->SurfaceBind(SurfaceElementId::MONO_BUS, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_SUB);
+	config->SurfaceBind(SurfaceElementId::MAIN_LR_BUS, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_LR);
+	config->SurfaceBind(SurfaceElementId::VIEW_MAIN, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::MAIN));
 	
-	SurfaceBind(SurfaceElementId::VIEW_SCENES, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SCENES));
+	// Scenes
+	config->SurfaceBind(SurfaceElementId::VIEW_SCENES, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SCENES));
 	//SurfaceBind_MixerParameter(SurfaceElementId::VIEW_ASSIGN, SurfaceBindingAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::CONFIG));
 
-	
-
 	// Display
-	SurfaceBind(SurfaceElementId::HOME, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::HOME));
-	SurfaceBind(SurfaceElementId::METERS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::METERS));
-	SurfaceBind(SurfaceElementId::ROUTING, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::ROUTING));
-	SurfaceBind(SurfaceElementId::SETUP, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SETUP));
-	SurfaceBind(SurfaceElementId::LIBRARY, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::LIBRARY));
-	SurfaceBind(SurfaceElementId::EFFECTS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::EFFECTS));
-	SurfaceBind(SurfaceElementId::MUTE_GRP, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::MUTE_GRP));
-	//SurfaceBind_MixerParameter(SurfaceElementId::UTILITY, SurfaceBindingAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::));
+	config->SurfaceBind(SurfaceElementId::HOME, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::HOME));
+	config->SurfaceBind(SurfaceElementId::METERS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::METERS));
+	config->SurfaceBind(SurfaceElementId::ROUTING, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::ROUTING));
+	config->SurfaceBind(SurfaceElementId::SETUP, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SETUP));
+	config->SurfaceBind(SurfaceElementId::LIBRARY, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::LIBRARY));
+	config->SurfaceBind(SurfaceElementId::EFFECTS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::EFFECTS));
+	config->SurfaceBind(SurfaceElementId::MUTE_GRP, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::MUTE_GRP));
+	config->SurfaceBind(SurfaceElementId::UTILITY, MixerparameterAction::TOGGLE, DISPLAY_UTILITY);
 
-	SurfaceBind(SurfaceElementId::LEFT, X32Action::PagePrev);
-	SurfaceBind(SurfaceElementId::RIGHT, X32Action::PageNext);
-	
+	config->SurfaceBind(SurfaceElementId::LEFT, MixerparameterAction::TOGGLE, DISPLAY_LEFT);
+	config->SurfaceBind(SurfaceElementId::RIGHT, MixerparameterAction::TOGGLE, DISPLAY_RIGHT);
+	config->SurfaceBind(SurfaceElementId::UP, MixerparameterAction::TOGGLE, DISPLAY_UP);
+	config->SurfaceBind(SurfaceElementId::DOWN, MixerparameterAction::TOGGLE, DISPLAY_DOWN);
 
 	// Banking of Input Section
 	if (config->IsModelX32CompactOrProducer())
 	{
-		SurfaceBind(SurfaceElementId::CH1_8, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH1_8));
-		SurfaceBind(SurfaceElementId::CH9_16, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH9_16));
-		SurfaceBind(SurfaceElementId::CH17_24, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH17_24));
-		SurfaceBind(SurfaceElementId::CH25_32, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH25_32));
-		SurfaceBind(SurfaceElementId::AUX_USB, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::AUX_USB));
-		SurfaceBind(SurfaceElementId::FX_RET, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::FX_RET));
-		SurfaceBind(SurfaceElementId::BUS1_8_MASTER, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::BUS1_8));
-		SurfaceBind(SurfaceElementId::BUS9_16_MASTER, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::BUS9_16));
+		config->SurfaceBind(SurfaceElementId::CH1_8, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH1_8));
+		config->SurfaceBind(SurfaceElementId::CH9_16, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH9_16));
+		config->SurfaceBind(SurfaceElementId::CH17_24, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH17_24));
+		config->SurfaceBind(SurfaceElementId::CH25_32, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH25_32));
+		config->SurfaceBind(SurfaceElementId::AUX_USB, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::AUX_USB));
+		config->SurfaceBind(SurfaceElementId::FX_RET, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::FX_RET));
+		config->SurfaceBind(SurfaceElementId::BUS1_8_MASTER, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::BUS1_8));
+		config->SurfaceBind(SurfaceElementId::BUS9_16_MASTER, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::BUS9_16));
 	}
 
 	// Banking of Bus Section
-	SurfaceBind(SurfaceElementId::DCA, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::DCA));
-	SurfaceBind(SurfaceElementId::BUS1_8, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::BUS1_8));
-	SurfaceBind(SurfaceElementId::BUS9_16, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::BUS9_16));
-	SurfaceBind(SurfaceElementId::MATRIX_MAIN, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::MATRIX_MAIN));
+	config->SurfaceBind(SurfaceElementId::DCA, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::DCA));
+	config->SurfaceBind(SurfaceElementId::BUS1_8, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::BUS1_8));
+	config->SurfaceBind(SurfaceElementId::BUS9_16, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::BUS9_16));
+	config->SurfaceBind(SurfaceElementId::MATRIX_MAIN, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::MATRIX_MAIN));
 	
 	// Main Fader
-	SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-	SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-	SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-	SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-	SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+	config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+	config->SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+	config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+	config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+	config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 
 	//Extra
 
 }
 
-void X32Ctrl::SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter)
-{
-	if (surface_binding->contains(surfaceelement_id))
-    {
-		// Binding already exists -> overwrite it
-        surface_binding->at(surfaceelement_id) = binding_parameter;
-    }
-    else
-    {
-		// Create new binding
-        surface_binding->insert({surfaceelement_id, binding_parameter});
-    }
 
-	surface_binding_changed.insert(surfaceelement_id);
-
-	if (helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL))
-	{	
-		String surfaceElementName = config->GetSurfaceElement(surfaceelement_id)->GetName();
-
-		if (binding_parameter->mp_id != MP_ID::NONE)
-		{
-			helper->Log("DEBUG_SURFACE: \"%s\" ---> \"%s\" on Index \"%d\"\n",
-				surfaceElementName.c_str(),
-				config->GetParameter(binding_parameter->mp_id)->GetName().c_str(),
-				binding_parameter->mp_index
-			);
-		}	
-	}
-}
-
-void X32Ctrl::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index)
-{
-	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action, mixerparaemter_id, mixerparameter_index);
-	SurfaceBindParameter(surfaceelement_id, binding_parameter);
-}
-
-void X32Ctrl::SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action)
-{
-	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action);
-	SurfaceBindParameter(surfaceelement_id, binding_parameter);
-}
 
 //#####################################################################################################################
 //
@@ -1933,7 +1907,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 		SurfaceElement* fader = config->GetSurfaceElementFader(board, index);
 		if (fader == 0) { return; }
 
-		SurfaceBindingParameter* bindingParameter = surface_binding->at(fader->GetId());
+		SurfaceBindingParameter* bindingParameter = config->GetSurfaceBinding(fader->GetId());
 				
 		switch (bindingParameter->mp_action)
 		{
@@ -1972,18 +1946,11 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 			isButtonPressed ? "pressed" : "released"
 		);
 
-		if (!surface_binding->contains(button->GetId()))
-		{
-			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Button is not bound.");
-			return;
-		}
-
-
 		if (isButtonPressed)
 		{
-			SurfaceBindingParameter* bindingParameterButton = surface_binding->at(button->GetId());
+			SurfaceBindingParameter* bindingParameterButton = config->GetSurfaceBinding(button->GetId());
 
-			if (bindingParameterButton->mp_action != MixerparameterAction::NONE)
+			if (bindingParameterButton != 0 && bindingParameterButton->mp_action != MixerparameterAction::NONE)
 			{
 				switch (bindingParameterButton->mp_action)
 				{
@@ -2004,7 +1971,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						{
 							// Second button was pressed, while holding the first one
 
-							SurfaceBindingParameter* bindingParameterButtonOne = surface_binding->at(buttonPressed->GetId());
+							SurfaceBindingParameter* bindingParameterButtonOne = config->GetSurfaceBinding(buttonPressed->GetId());
 
 							if (config->IsModelX32CompactOrProducer())
 							{
@@ -2035,30 +2002,9 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						break;						
 				}
 			}
-			else if (bindingParameterButton->x32_action != X32Action::None)
+			else
 			{
-				switch(bindingParameterButton->x32_action)
-				{
-					using enum X32Action;
-
-					case PagePrev:
-						ShowPrevPage();
-						break;
-					case PageNext:
-						ShowNextPage();
-						break;
-					case Display_Button_Up:
-					case Display_Button_Down:
-					case Display_EncoderButton_1:
-					case Display_EncoderButton_2:
-					case Display_EncoderButton_3:
-					case Display_EncoderButton_4:
-					case Display_EncoderButton_5:
-					case Display_EncoderButton_6:
-					case Display_Button_Utility:
-						pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->DisplayButton(bindingParameterButton->x32_action, isButtonPressed);
-						break;
-				}
+				helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Button is not bound.");
 			}
 		}
 	}
@@ -2114,105 +2060,31 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 	}
 
 
-	if (isButtonPressed)
-	{
-		switch (button)
-		{
-			case X32_BTN_CLEAR_SOLO:
-				mixer->ClearSolo();
-				break;
-			case X32_BTN_PHANTOM_48V:
-				config->Toggle(CHANNEL_PHANTOM, config->GetUint(SELECTED_CHANNEL));
-				break;
-			case X32_BTN_PHASE_INVERT:
-				config->Toggle(CHANNEL_PHASE_INVERT, config->GetUint(SELECTED_CHANNEL));
-				break;
-			case X32_BTN_CHANNEL_SOLO: // only X32 Rack
-				config->Toggle(CHANNEL_SOLO, config->GetUint(SELECTED_CHANNEL));
-				break;
-			case X32_BTN_CHANNEL_MUTE: // only X32 Rack
-				config->Toggle(CHANNEL_MUTE, config->GetUint(SELECTED_CHANNEL));
-				break;
-			case X32_BTN_SCENE_SETUP:
-				if (config->IsModelX32Core()) {
-					state->x32core_lcdmode_setup = !state->x32core_lcdmode_setup;
-					if (state->x32core_lcdmode_setup) {
-						surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 1);
-						lcdmenu->OnShow();
-					} else {
-						surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 0);
-						// trigger switch to channel lcd
-						config->Refresh(SELECTED_CHANNEL);
-					}
-				}
-				break;
-			case X32_BTN_CHANNEL_ENCODER:
-				if (config->IsModelX32Core()) {
-					if (state->x32core_lcdmode_setup) {
-						lcdmenu->OnLcdEncoderPressed();
-					}
-				}
-				break;
-			case X32_BTN_ASSIGN_3:
-				//DEBUG
-				{
-					// Set talkback to all 32 DSP Inputs
-					for (int i = 0; i < 32; i++)
-					{
-						config->Set(ROUTING_FPGA, 71, i + 72);
-					}
-				}
-				break;
-			case X32_BTN_ASSIGN_4:
-				//DEBUG	
-				{
-				}
-				break;
-			case X32_BTN_ASSIGN_5:
-				//DEBUG
-				if (config->IsModelX32Core())
-				{
-					config->Set(ROUTING_FPGA, 71, 71);
-				}
-				break;
-			case X32_BTN_ASSIGN_6:
-				//DEBUG
-				if (config->IsModelX32Core())
-				{
-					config->Set(CARD_NUMBER_OF_CHANNELS, CARD_CHANNELMODE_32IN_32OUT);
-					
-					// Set Card 1-32 PLAYBACK to DSP INPUT 1-32
-					for (uint i = 0; i < 32; i++)
-					{
-						config->Set(ROUTING_FPGA, 33 + i , i + 72);
-					}
-				}
-				break;
-			default:
-				//helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Unhandled button detected.\n");
-				break;
-		}
-	}
+	// TODO: Implement on X32Core
 
-	// Display Encoders
-	// - are independent from Surface Modes!
-	if (config->IsModelX32FullOrCompactOrProducerOrRack()){
-		switch (button){
-			case X32_BTN_UP:
-			case X32_BTN_DOWN:
-			case X32_BTN_ENCODER1:
-			case X32_BTN_ENCODER2:
-			case X32_BTN_ENCODER3:
-			case X32_BTN_ENCODER4:		
-			case X32_BTN_ENCODER5:				
-			case X32_BTN_ENCODER6:
-			case X32_BTN_UTILITY:
-				pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->DisplayButton(button, isButtonPressed);
-				break;
-			default:
-				break;
-		}
-	}
+	// if (isButtonPressed)
+	// {
+	// 		case X32_BTN_SCENE_SETUP:
+	// 			if (config->IsModelX32Core()) {
+	// 				state->x32core_lcdmode_setup = !state->x32core_lcdmode_setup;
+	// 				if (state->x32core_lcdmode_setup) {
+	// 					surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 1);
+	// 					lcdmenu->OnShow();
+	// 				} else {
+	// 					surface->SetLedByEnum(X32_BTN_SCENE_SETUP, 0);
+	// 					// trigger switch to channel lcd
+	// 					config->Refresh(SELECTED_CHANNEL);
+	// 				}
+	// 			}
+	// 			break;
+	// 		case X32_BTN_CHANNEL_ENCODER:
+	// 			if (config->IsModelX32Core()) {
+	// 				if (state->x32core_lcdmode_setup) {
+	// 					lcdmenu->OnLcdEncoderPressed();
+	// 				}
+	// 			}
+	// 			break;
+	// }
 }
 
 void X32Ctrl::EncoderTurned(SurfaceEvent* event)
@@ -2296,24 +2168,6 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 			// just here to avoid compiler warnings                  
 			break;
 	}
-
-	// Display Encoders
-	// - are independent from Surface Modes!
-	if (config->IsModelX32FullOrCompactOrProducerOrRack()) {
-		switch (encoder){
-			case X32_ENC_ENCODER1:
-			case X32_ENC_ENCODER2:
-			case X32_ENC_ENCODER3:
-			case X32_ENC_ENCODER4:
-			case X32_ENC_ENCODER5:
-			case X32_ENC_ENCODER6:
-				pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->DisplayEncoderTurned(encoder, amount);
-				break;
-			default:  
-				// just here to avoid compiler warnings                  
-				break;
-		}
-	}
 }
 
 //################################################################################
@@ -2332,128 +2186,128 @@ void X32Ctrl::EncoderTurned(SurfaceEvent* event)
 // Key was pressed in the bodyless mode
 void X32Ctrl::SimulatorButton(uint32_t key)
 {
-	if (key != state->simulator_last_key)
-	{
-		printf("Simulatorbutton: %X\n", key);
+	// if (key != state->simulator_last_key)
+	// {
+	// 	printf("Simulatorbutton: %X\n", key);
 
-		X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
+	// 	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
-		switch (key)
-		{
-			using enum X32_PAGE;
+	// 	switch (key)
+	// 	{
+	// 		using enum X32_PAGE;
 
-			case 49:
-				// HOME
-				config->Set(ACTIVE_PAGE, (uint)HOME);
-				break;
-			case 50:
-				config->Set(ACTIVE_PAGE, (uint)METERS);
-				break;
-			case 51:
-				config->Set(ACTIVE_PAGE, (uint)ROUTING);
-				break;
-			case 52:
-				config->Set(ACTIVE_PAGE, (uint)LIBRARY);
-				break;
-			case 53:
-				config->Set(ACTIVE_PAGE, (uint)EFFECTS);
-				break;
-			case 54:
-				config->Set(ACTIVE_PAGE, (uint)SETUP);
-				break;
-			case 55:
-				//ShowPage(MONITOR);
-				break;
-			case 56:
-				//ShowPage(SCENES);
-				break;
-			case 57:
-				config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
-				break;
-			case 48:
-				config->Set(ACTIVE_PAGE, (uint)DEBUG);
-				break;
-			case 17:
-				pages[activePage]->DisplayButton(X32_BTN_UP, true);
-				pages[activePage]->DisplayButton(X32_BTN_UP, false);
-				break;
-			case 18:
-				pages[activePage]->DisplayButton(X32_BTN_DOWN, true);
-				pages[activePage]->DisplayButton(X32_BTN_DOWN, false);
-				break;
-			case 20:
-				ShowPrevPage();
-				break;
-			case 19:
-				ShowNextPage();
-				break;
-			case 113: // Q
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, 1);
-				break;
-			case 119: // W
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, 1);
-				break;
-			case 101: // E
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, 1);
-				break;
-			case 114: // R
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, 1);
-				break;
-			case 116: // T
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, 1);
-				break;
-			case 122: // Z
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, 1);
-				break;
-			case 97: // A
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, -1);
-				break;
-			case 115: // S
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
-				break;
-			case 100: // D
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
-				break;
-			case 102: // F
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
-				break;
-			case 103: // G
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
-				break;
-			case 104: // H
-				pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
-				break;
-			case 121: // Y
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER1, true);
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER1, false);
-				break;
-			case 120: // X
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER2, true);
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER2, false);
-				break;
-			case 99: // C
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER3, true);
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER3, false);
-				break;
-			case 118: // V
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER4, true);
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER4, false);
-				break;
-			case 98: // B
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER5, true);
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER5, false);
-				break;
-			case 110: // N
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER6, true);
-				pages[activePage]->DisplayButton(X32_BTN_ENCODER6, false);
-				break;
-			case 0xFFFFFF9F:
-				config->Set(ACTIVE_PAGE, (uint)SCENES);
-				break;
-		}
+	// 		case 49:
+	// 			// HOME
+	// 			config->Set(ACTIVE_PAGE, (uint)HOME);
+	// 			break;
+	// 		case 50:
+	// 			config->Set(ACTIVE_PAGE, (uint)METERS);
+	// 			break;
+	// 		case 51:
+	// 			config->Set(ACTIVE_PAGE, (uint)ROUTING);
+	// 			break;
+	// 		case 52:
+	// 			config->Set(ACTIVE_PAGE, (uint)LIBRARY);
+	// 			break;
+	// 		case 53:
+	// 			config->Set(ACTIVE_PAGE, (uint)EFFECTS);
+	// 			break;
+	// 		case 54:
+	// 			config->Set(ACTIVE_PAGE, (uint)SETUP);
+	// 			break;
+	// 		case 55:
+	// 			//ShowPage(MONITOR);
+	// 			break;
+	// 		case 56:
+	// 			//ShowPage(SCENES);
+	// 			break;
+	// 		case 57:
+	// 			config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
+	// 			break;
+	// 		case 48:
+	// 			config->Set(ACTIVE_PAGE, (uint)DEBUG);
+	// 			break;
+	// 		case 17:
+	// 			pages[activePage]->DisplayButton(X32_BTN_UP, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_UP, false);
+	// 			break;
+	// 		case 18:
+	// 			pages[activePage]->DisplayButton(X32_BTN_DOWN, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_DOWN, false);
+	// 			break;
+	// 		case 20:
+	// 			ShowPrevPage();
+	// 			break;
+	// 		case 19:
+	// 			ShowNextPage();
+	// 			break;
+	// 		case 113: // Q
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, 1);
+	// 			break;
+	// 		case 119: // W
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, 1);
+	// 			break;
+	// 		case 101: // E
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, 1);
+	// 			break;
+	// 		case 114: // R
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, 1);
+	// 			break;
+	// 		case 116: // T
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, 1);
+	// 			break;
+	// 		case 122: // Z
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, 1);
+	// 			break;
+	// 		case 97: // A
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, -1);
+	// 			break;
+	// 		case 115: // S
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
+	// 			break;
+	// 		case 100: // D
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
+	// 			break;
+	// 		case 102: // F
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
+	// 			break;
+	// 		case 103: // G
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
+	// 			break;
+	// 		case 104: // H
+	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
+	// 			break;
+	// 		case 121: // Y
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER1, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER1, false);
+	// 			break;
+	// 		case 120: // X
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER2, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER2, false);
+	// 			break;
+	// 		case 99: // C
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER3, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER3, false);
+	// 			break;
+	// 		case 118: // V
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER4, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER4, false);
+	// 			break;
+	// 		case 98: // B
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER5, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER5, false);
+	// 			break;
+	// 		case 110: // N
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER6, true);
+	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER6, false);
+	// 			break;
+	// 		case 0xFFFFFF9F:
+	// 			config->Set(ACTIVE_PAGE, (uint)SCENES);
+	// 			break;
+	// 	}
 		
-		state->simulator_last_key = key;
-	}	
+	// 	state->simulator_last_key = key;
+	// }	
 }
 
 //#####################################################################################################################

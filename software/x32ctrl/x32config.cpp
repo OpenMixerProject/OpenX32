@@ -3,6 +3,8 @@
 X32Config::X32Config(Helper* h)
 {
     this->helper = h;
+    
+    surface_binding = new map<SurfaceElementId, SurfaceBindingParameter*>();
 
     DefineMixerparameters();
 }
@@ -231,6 +233,32 @@ void X32Config::DefineMixerparameters() {
     ->DefConfig(group, "banking_bus_sends")
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
+    // ###########
+    // # Display
+    // ###########
+
+    cat = MP_CAT::DISPLAY;
+
+    DefParameter(DISPLAY_ENCODER_1_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_2_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_3_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_4_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_5_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_6_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
+
+    DefParameter(DISPLAY_ENCODER_1_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_2_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_3_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_4_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_5_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_6_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
+
+    DefParameter(DISPLAY_UTILITY, cat, "")->DefStandard_Bool(false);
+
+    DefParameter(DISPLAY_LEFT, cat, "")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_RIGHT, cat, "")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_UP, cat, "")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_DOWN, cat, "")->DefStandard_Bool(false);
 
     // ###########
     // # Global
@@ -1437,7 +1465,7 @@ void X32Config::SetParameterChanged(MP_ID mp, uint index)
     {
         Mixerparameter* parameter = GetParameter(mp);
 
-        String message = "Mixerparameter \"" + parameter->GetName(index) + "\" ";
+        String message = "Mixerparameter \"" + parameter->GetName() + "\" ";
         
         if (parameter->GetInstances() > 1)
         {
@@ -1579,12 +1607,19 @@ void X32Config::DefineSurfaceElements()
     DefSurfaceElements(MAIN_LR_BUS, "STEREO BUS");
     DefSurfaceElements(VIEW_MAIN, "VIEW MAIN BUS");
 
-    DefSurfaceElements(__DISPLAY_ENCODER_1, "Display Encoder 1");
-    DefSurfaceElements(__DISPLAY_ENCODER_2, "Display Encoder 2");
-    DefSurfaceElements(__DISPLAY_ENCODER_3, "Display Encoder 3");
-    DefSurfaceElements(__DISPLAY_ENCODER_4, "Display Encoder 4");
-    DefSurfaceElements(__DISPLAY_ENCODER_5, "Display Encoder 5");
-    DefSurfaceElements(__DISPLAY_ENCODER_6, "Display Encoder 6");
+    DefSurfaceElements(DISPLAY_ENCODER_1, "Display Encoder 1");
+    DefSurfaceElements(DISPLAY_ENCODER_2, "Display Encoder 2");
+    DefSurfaceElements(DISPLAY_ENCODER_3, "Display Encoder 3");
+    DefSurfaceElements(DISPLAY_ENCODER_4, "Display Encoder 4");
+    DefSurfaceElements(DISPLAY_ENCODER_5, "Display Encoder 5");
+    DefSurfaceElements(DISPLAY_ENCODER_6, "Display Encoder 6");
+
+    DefSurfaceElements(DISPLAY_ENCODER_BUTTON_1, "Display Encoder Button 1");
+    DefSurfaceElements(DISPLAY_ENCODER_BUTTON_2, "Display Encoder Button 2");
+    DefSurfaceElements(DISPLAY_ENCODER_BUTTON_3, "Display Encoder Button 3");
+    DefSurfaceElements(DISPLAY_ENCODER_BUTTON_4, "Display Encoder Button 4");
+    DefSurfaceElements(DISPLAY_ENCODER_BUTTON_5, "Display Encoder Button 5");
+    DefSurfaceElements(DISPLAY_ENCODER_BUTTON_6, "Display Encoder Button 6");
 
     DefSurfaceElements(HOME, "HOME");
     DefSurfaceElements(METERS, "METERS");
@@ -1775,12 +1810,19 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(MAIN_BUS_LEVEL_ENCODER)       ->DefEncoder(X32_BOARD_MAIN, 0x0B, 0x31); // BG-LED?
         GetSurfaceElement(PAN_BAL_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x0C, 0x32); // BG-LED?
 
-        GetSurfaceElement(__DISPLAY_ENCODER_1)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0D, 0x17);
-        GetSurfaceElement(__DISPLAY_ENCODER_2)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0E, 0x18);
-        GetSurfaceElement(__DISPLAY_ENCODER_3)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0F, 0x19);
-        GetSurfaceElement(__DISPLAY_ENCODER_4)            ->DefPushEncoder(X32_BOARD_MAIN, 0x10, 0x1A);
-        GetSurfaceElement(__DISPLAY_ENCODER_5)            ->DefPushEncoder(X32_BOARD_MAIN, 0x11, 0x1B);
-        GetSurfaceElement(__DISPLAY_ENCODER_6)            ->DefPushEncoder(X32_BOARD_MAIN, 0x12, 0x1C);
+        GetSurfaceElement(DISPLAY_ENCODER_1)            ->DefEncoder(X32_BOARD_MAIN, 0x0D);
+        GetSurfaceElement(DISPLAY_ENCODER_2)            ->DefEncoder(X32_BOARD_MAIN, 0x0E);
+        GetSurfaceElement(DISPLAY_ENCODER_3)            ->DefEncoder(X32_BOARD_MAIN, 0x0F);
+        GetSurfaceElement(DISPLAY_ENCODER_4)            ->DefEncoder(X32_BOARD_MAIN, 0x10);
+        GetSurfaceElement(DISPLAY_ENCODER_5)            ->DefEncoder(X32_BOARD_MAIN, 0x11);
+        GetSurfaceElement(DISPLAY_ENCODER_6)            ->DefEncoder(X32_BOARD_MAIN, 0x12);
+
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_1)     ->DefButton(X32_BOARD_MAIN, 0x17);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_2)     ->DefButton(X32_BOARD_MAIN, 0x18);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_3)     ->DefButton(X32_BOARD_MAIN, 0x19);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_4)     ->DefButton(X32_BOARD_MAIN, 0x1A);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_5)     ->DefButton(X32_BOARD_MAIN, 0x1B);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_6)     ->DefButton(X32_BOARD_MAIN, 0x1C);
 
         // Board L
 
@@ -1901,13 +1943,19 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(MAIN_BUS_LEVEL_ENCODER)       ->DefEncoder(X32_BOARD_MAIN, 0x07, 0x31);
         GetSurfaceElement(PAN_BAL_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x08, 0x32);
 
-        GetSurfaceElement(__DISPLAY_ENCODER_1)            ->DefPushEncoder(X32_BOARD_MAIN, 0x09, 0x18);
-        GetSurfaceElement(__DISPLAY_ENCODER_2)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0A, 0x19);
-        GetSurfaceElement(__DISPLAY_ENCODER_3)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0B, 0x1A);
-        GetSurfaceElement(__DISPLAY_ENCODER_4)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0C, 0x1B);
-        GetSurfaceElement(__DISPLAY_ENCODER_5)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0D, 0x1C);
-        GetSurfaceElement(__DISPLAY_ENCODER_6)            ->DefPushEncoder(X32_BOARD_MAIN, 0x0E, 0x1D);
+        GetSurfaceElement(DISPLAY_ENCODER_1)            ->DefEncoder(X32_BOARD_MAIN, 0x09);
+        GetSurfaceElement(DISPLAY_ENCODER_2)            ->DefEncoder(X32_BOARD_MAIN, 0x0A);
+        GetSurfaceElement(DISPLAY_ENCODER_3)            ->DefEncoder(X32_BOARD_MAIN, 0x0B);
+        GetSurfaceElement(DISPLAY_ENCODER_4)            ->DefEncoder(X32_BOARD_MAIN, 0x0C);
+        GetSurfaceElement(DISPLAY_ENCODER_5)            ->DefEncoder(X32_BOARD_MAIN, 0x0D);
+        GetSurfaceElement(DISPLAY_ENCODER_6)            ->DefEncoder(X32_BOARD_MAIN, 0x0E);
 
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_1)     ->DefButton(X32_BOARD_MAIN, 0x18);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_2)     ->DefButton(X32_BOARD_MAIN, 0x19);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_3)     ->DefButton(X32_BOARD_MAIN, 0x1A);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_4)     ->DefButton(X32_BOARD_MAIN, 0x1B);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_5)     ->DefButton(X32_BOARD_MAIN, 0x1C);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_6)     ->DefButton(X32_BOARD_MAIN, 0x1D);
 
 
         // Board L
@@ -2051,14 +2099,21 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(MAIN_BUS_LEVEL_ENCODER)       ->DefEncoder(X32_BOARD_MAIN, 0x07, 0x31);
         GetSurfaceElement(PAN_BAL_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x08, 0x32);
 
-        // Display push-encoders sit right of the screen. The push codes
-        // are 0x2B..0x30 on Producer (Compact uses 0x18..0x1D).
-        GetSurfaceElement(__DISPLAY_ENCODER_1)          ->DefPushEncoder(X32_BOARD_MAIN, 0x09, 0x2B);
-        GetSurfaceElement(__DISPLAY_ENCODER_2)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0A, 0x2C);
-        GetSurfaceElement(__DISPLAY_ENCODER_3)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0B, 0x2D);
-        GetSurfaceElement(__DISPLAY_ENCODER_4)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0C, 0x2E);
-        GetSurfaceElement(__DISPLAY_ENCODER_5)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0D, 0x2F);
-        GetSurfaceElement(__DISPLAY_ENCODER_6)          ->DefPushEncoder(X32_BOARD_MAIN, 0x0E, 0x30);
+        // Display push-encoders sit right of the screen
+        GetSurfaceElement(DISPLAY_ENCODER_1)            ->DefEncoder(X32_BOARD_MAIN, 0x09);
+        GetSurfaceElement(DISPLAY_ENCODER_2)            ->DefEncoder(X32_BOARD_MAIN, 0x0A);
+        GetSurfaceElement(DISPLAY_ENCODER_3)            ->DefEncoder(X32_BOARD_MAIN, 0x0B);
+        GetSurfaceElement(DISPLAY_ENCODER_4)            ->DefEncoder(X32_BOARD_MAIN, 0x0C);
+        GetSurfaceElement(DISPLAY_ENCODER_5)            ->DefEncoder(X32_BOARD_MAIN, 0x0D);
+        GetSurfaceElement(DISPLAY_ENCODER_6)            ->DefEncoder(X32_BOARD_MAIN, 0x0E);
+
+        // The push codes are 0x2B..0x30 on Producer
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_1)     ->DefButton(X32_BOARD_MAIN, 0x2B);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_2)     ->DefButton(X32_BOARD_MAIN, 0x2C);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_3)     ->DefButton(X32_BOARD_MAIN, 0x2D);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_4)     ->DefButton(X32_BOARD_MAIN, 0x2E);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_5)     ->DefButton(X32_BOARD_MAIN, 0x2F);
+        GetSurfaceElement(DISPLAY_ENCODER_BUTTON_6)     ->DefButton(X32_BOARD_MAIN, 0x30);
 
 
         // Board L - bank-select row matches Compact byte-for-byte
@@ -2159,15 +2214,6 @@ SurfaceElement* X32Config::GetSurfaceElementButton(X32_BOARD board, uint16_t val
         {
             return element;
         }
-        else if (
-            element != 0 &&
-            element->element_type == SurfaceElementType::PushEncoder &&
-            element->GetBoard() == board &&
-            element->GetPushEncoderButton() == (value & 0x7F)
-        )
-        {
-            return element;
-        }
     }
 
     return 0;
@@ -2186,6 +2232,86 @@ SurfaceElement* X32Config::GetSurfaceElementFader(X32_BOARD board, uint8_t index
         {
             return element;
         }
+    }
+
+    return 0;
+}
+
+void X32Config::SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter)
+{
+	if (surface_binding->contains(surfaceelement_id))
+    {
+		// Binding already exists -> overwrite it
+        surface_binding->at(surfaceelement_id) = binding_parameter;
+    }
+    else
+    {
+		// Create new binding
+        surface_binding->insert({surfaceelement_id, binding_parameter});
+    }
+
+	surface_binding_changed.insert(surfaceelement_id);
+
+	if (helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL))
+	{	
+		String surfaceElementName = GetSurfaceElement(surfaceelement_id)->GetName();
+
+		if (binding_parameter->mp_id != MP_ID::NONE)
+		{
+			helper->Log("DEBUG_SURFACE: \"%s\" ---> \"%s\" on Index \"%d\"\n",
+				surfaceElementName.c_str(),
+				GetParameter(binding_parameter->mp_id)->GetName().c_str(),
+				binding_parameter->mp_index
+			);
+		}	
+	}
+}
+
+void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index)
+{
+	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action, mixerparaemter_id, mixerparameter_index);
+	SurfaceBindParameter(surfaceelement_id, binding_parameter);
+}
+
+// void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action)
+// {
+// 	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action);
+// 	SurfaceBindParameter(surfaceelement_id, binding_parameter);
+// }
+
+void X32Config::SurfaceUnbind(SurfaceElementId surfaceelement_id)
+{
+    if (surface_binding->contains(surfaceelement_id))
+    {
+        surface_binding->erase(surfaceelement_id);
+    }
+}
+
+bool X32Config::HasAnySurfaceBindingChanged()
+{
+    return surface_binding_changed.size() > 0;
+}
+
+bool X32Config::HasSurfaceBindingChanged(SurfaceElementId elementId)
+{
+    return surface_binding_changed.contains(elementId);
+}
+
+void X32Config::RemoveSurfaceBindingChanged(SurfaceElementId elementId)
+{
+    surface_binding_changed.erase(elementId);
+}
+
+map<SurfaceElementId, SurfaceBindingParameter*>* X32Config::GetSurfaceBinding()
+{
+    return surface_binding;
+}
+
+SurfaceBindingParameter* X32Config::GetSurfaceBinding(SurfaceElementId elementId)
+{
+    if(surface_binding->contains(elementId))
+    {
+        return surface_binding->at(elementId);
     }
 
     return 0;

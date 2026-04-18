@@ -54,9 +54,12 @@ class PageRta : public Page
             chartSeriesRta = lv_chart_add_series(objects.rta_chart, lv_color_hex(0xff0000), LV_CHART_AXIS_PRIMARY_Y);
             lv_obj_add_event_cb(objects.rta_chart, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.rta_chart, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+        }
 
+        void OnShow() override
+        {
             uint dsp2_rta_input = MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS - 1;
-            BindEncoder(DISPLAY_ENCODER_1, ROUTING_DSP_OUTPUT, dsp2_rta_input);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, ROUTING_DSP_OUTPUT, dsp2_rta_input);
         }
 
         void OnUpdateMeters() override

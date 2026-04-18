@@ -34,11 +34,12 @@ class PageEq: public Page {
             lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQ, lv_color_hex(0xef7900));
             lv_chart_set_series_color(objects.current_channel_eq, chartSeriesEQPhase, lv_color_hex(0x008000));
             //chart-shadow: 0x7e4000
-
-            BindEncoder(DISPLAY_ENCODER_6, BANKING_EQ);
         }
 
-        void OnShow() override {
+        void OnShow() override
+        {
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::SET, BANKING_EQ);
+
             DrawEq();
         }
 
@@ -49,11 +50,11 @@ class PageEq: public Page {
             {
                 uint chanIndex = config->GetUint(SELECTED_CHANNEL);
 
-                BindEncoder(DISPLAY_ENCODER_1, CHANNEL_LOWCUT_FREQ, chanIndex);
-                BindEncoder(DISPLAY_ENCODER_2, (MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ)), chanIndex);
-                BindEncoder(DISPLAY_ENCODER_3, (MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ)), chanIndex);
-                BindEncoder(DISPLAY_ENCODER_4, (MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ)), chanIndex);
-                BindEncoder(DISPLAY_ENCODER_5, (MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ)), chanIndex);
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, CHANNEL_LOWCUT_FREQ, chanIndex);
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET, (MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ)), chanIndex);
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::SET, (MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ)), chanIndex);
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET, (MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ)), chanIndex);
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET, (MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ)), chanIndex);
             }
 
             if (config->HasParameterChanged(CHANNEL_LOWCUT_FREQ) ||

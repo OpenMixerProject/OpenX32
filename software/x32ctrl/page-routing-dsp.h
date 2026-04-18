@@ -159,25 +159,62 @@ class PageRoutingDsp: public Page
 
             // store config pointer in user data for use in draw callback
             lv_obj_set_user_data(objects.table_routing_dsp_output, &gui_selected_item);
-
-			BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_2, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_3, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_4, PAGE_CUSTOM_ENCODER);
-			BindEncoder(DISPLAY_ENCODER_5, PAGE_CUSTOM_ENCODER);
 		}
 
 		void OnShow() override
 		{
-			custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_2].label = String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN;
-			custom_encoder[DISPLAY_ENCODER_3].label = String(LV_SYMBOL_REFRESH) + "\nSource";
-			custom_encoder[DISPLAY_ENCODER_4].label = String(LV_SYMBOL_REFRESH) + "\nSource (Group)";
-			custom_encoder[DISPLAY_ENCODER_5].label = String(LV_SYMBOL_REFRESH) + "\nTAP";
+			config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN);
+            config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN);
+            config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource");
+            config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource (Group)");
+            config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nTAP");
 		}
 
 		void OnChange(bool force_update) override
 		{
+			if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
+            {
+				gui_selected_item += config->GetInt(DISPLAY_ENCODER_1_ENCODER);
+			}
+
+			if (config->HasParameterChanged(DISPLAY_ENCODER_2_ENCODER))
+            {
+				int amount = config->GetInt(DISPLAY_ENCODER_2_ENCODER);
+
+				if (amount < 0) {
+					gui_selected_item -= 8;
+				}else{
+					gui_selected_item += 8;
+				}
+			}
+
+			if (config->HasParameterChanged(DISPLAY_ENCODER_3_ENCODER))
+            {
+				int amount = config->GetInt(DISPLAY_ENCODER_3_ENCODER);
+				config->Change(ROUTING_DSP_OUTPUT, amount, gui_selected_item);
+			}
+
+			if (config->HasParameterChanged(DISPLAY_ENCODER_4_ENCODER))
+            {	
+				int amount = config->GetInt(DISPLAY_ENCODER_4_ENCODER);
+
+				int8_t absoluteChange;
+				if (amount < 0) {
+					absoluteChange = -8;
+				}else{
+					absoluteChange = 8;
+				}
+				for (uint8_t i = (gui_selected_item); i < (gui_selected_item + 8); i++) {
+					config->Change(ROUTING_DSP_OUTPUT, absoluteChange, i);
+				}
+			}
+
+			if (config->HasParameterChanged(DISPLAY_ENCODER_5_ENCODER))
+            {	
+				int amount = config->GetInt(DISPLAY_ENCODER_5_ENCODER);
+				config->Change(ROUTING_DSP_OUTPUT_TAPPOINT, amount, gui_selected_item);
+			}
+
 			if(gui_selected_item_before != gui_selected_item)
 			{
 				if (gui_selected_item < 0) {
@@ -217,45 +254,4 @@ class PageRoutingDsp: public Page
 				}
 			}
 		}
-
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-            switch (encoder){
-				case X32_ENC_ENCODER1:
-					gui_selected_item += amount;
-					OnChange(false);
-					break;
-				case X32_ENC_ENCODER2:
-					if (amount < 0) {
-						gui_selected_item -= 8;
-					}else{
-						gui_selected_item += 8;
-					}
-					OnChange(false);
-					break;
-				case X32_ENC_ENCODER3:
-					config->Change(ROUTING_DSP_OUTPUT, amount, gui_selected_item);
-					break;
-				case X32_ENC_ENCODER4:
-					int8_t absoluteChange;
-					if (amount < 0) {
-						absoluteChange = -8;
-					}else{
-						absoluteChange = 8;
-					}
-					for (uint8_t i = gui_selected_item; i < (gui_selected_item + 8); i++) {
-						config->Change(ROUTING_DSP_OUTPUT, absoluteChange, i);
-					}
-					break;
-				case X32_ENC_ENCODER5:
-					config->Change(ROUTING_DSP_OUTPUT_TAPPOINT, amount, gui_selected_item);
-					break;
-				case X32_ENC_ENCODER6:
-					break;
-				default:  
-					// just here to avoid compiler warnings                  
-					break;
-			}
-
-			return true;
-        }
 };

@@ -38,14 +38,16 @@ class Page : public X32Base
         bool encoder_binding = false;
 
         // encoder binding
-        map<uint, PageBinding_Encoder*> encoderbinding;
+        map<SurfaceElementId, LVGLEncoderWidget*> lvgl_encoder_widgets;
         sDisplayEncoder custom_encoder[MAX_DISPLAY_ENCODER];
 
         bool initDone = false;
         bool utilityMode = false;
 
         void BindEncoder(uint encoder, MP_ID mp_id, uint mp_index = 0);
+        void BindEncoder(SurfaceElementId encoder, MP_ID mp_id, uint mp_index = 0);
         void BindEncoder(uint encoder, MP_ID mp_id, MP_ID mp_id_button, uint mp_index = 0);
+        void BindEncoder(SurfaceElementId encoder, MP_ID mp_id, MP_ID mp_id_button, uint mp_index = 0);
         
         void SetEncoder(uint encoder, MP_ID mp, String buttonPressLabel);
         void SetEncoder(uint encoder, String label, String buttonPressLabel);
@@ -57,8 +59,10 @@ class Page : public X32Base
         void UnbindEncoder(uint encoder);
         void SetEncoderHighlight(uint encoder, bool highlight);
         void SyncEncoderWidgets(bool force);
+        void SyncEncoderWidget(SurfaceElementId elementIdEncoder, SurfaceElementId elementIdButton, bool force);
 
-        void ClearEncoder(PageBinding_Encoder *binding);
+        void ClearEncoder(LVGLEncoderWidget *binding);
+        void ClearEncoderButton(LVGLEncoderWidget *binding);
 
         //###################################################
         //# Default implementation of virtual functions,
@@ -69,8 +73,8 @@ class Page : public X32Base
         virtual void OnUpdateMeters() {}
         virtual void OnShow() {}
         virtual void OnChange(bool force_update) {}
-        virtual bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) { return false; }
-        virtual bool OnDisplayButton(X32Action action, bool pressed) { return false; }
+        //virtual bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) { return false; }
+        //virtual bool OnDisplayButton(X32Action action, bool pressed) { return false; }
 
     public:
         Page(PageBaseParameter* pagebasepar);
@@ -80,8 +84,8 @@ class Page : public X32Base
         void UpdateMeters();
         void Change();
 
-        void DisplayEncoderTurned(X32_ENC encoder, int amount);
-        void DisplayButton(X32Action action, bool pressed);
+        //void DisplayEncoderTurned(X32_ENC encoder, int amount);
+        //void DisplayButton(X32Action action, bool pressed);
 
         void UtilityMode(bool mode);
 

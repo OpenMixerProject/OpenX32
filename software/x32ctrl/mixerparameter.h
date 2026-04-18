@@ -861,31 +861,26 @@ class Mixerparameter
             return _config_entry;
         }
 
-        String GetName(uint index = 0)
+        void SetName(String name)
         {
-            if (index < instances)
-            {
-                return _name;
-            }
-            
-            return "";
+            _name = name;
         }
 
-        String GetNameShort(uint index = 0)
+        String GetName()
         {
-            if (index < instances)
-            {
-                return _name_short;
-            }
-            
-            return "";
+            return _name;
+        }
+
+        String GetNameShort()
+        {
+            return _name_short;
         }
 
         String GetLabelAndValue(uint index = 0)
         {
             if (index < instances)
             {
-                return GetName(index) + String(": ") + GetFormatedValue(index);
+                return GetName() + String(": ") + GetFormatedValue(index);
             }
 
             return "";
@@ -895,7 +890,7 @@ class Mixerparameter
         {
             if (index < instances)
             {
-               return GetNameShort(index) + String(": ") + GetFormatedValue(index);
+               return GetNameShort() + String(": ") + GetFormatedValue(index);
             }
 
             return "";

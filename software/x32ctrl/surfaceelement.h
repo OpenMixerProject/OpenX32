@@ -17,7 +17,6 @@ class SurfaceElement
         uint element_index;
 
         uint encoder_backlight;
-        uint encoder_button;
 
         bool no_led = false;
 
@@ -80,16 +79,6 @@ class SurfaceElement
             return this;
         }
 
-        SurfaceElement* DefPushEncoder(X32_BOARD board, uint encoder, uint button)
-        {
-            element_type = SurfaceElementType::PushEncoder;
-            board_id = board;
-            element_index = encoder;
-            encoder_button = button;
-
-            return this;
-        }
-
         SurfaceElement* DefNoLed()
         {
             // if (element_type != SurfaceElementType::Button)
@@ -105,6 +94,11 @@ class SurfaceElement
         String GetName()
         {
             return _name;
+        }
+
+        SurfaceElementType GetType()
+        {
+            return element_type;
         }
 
         SurfaceElementId GetId()
@@ -133,16 +127,5 @@ class SurfaceElement
 
             return 0;
         }
-
-        uint GetPushEncoderButton()
-        {
-            if (element_type == SurfaceElementType::PushEncoder)
-            {
-                return encoder_button;
-            }
-
-            return 0;
-        }
-
 
 };

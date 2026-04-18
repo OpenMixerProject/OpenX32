@@ -476,7 +476,8 @@ enum class MP_CAT {
     CHANNEL_EQ,
     CHANNEL_DYNAMICS,
     CHANNEL_SENDS,
-    FX
+    FX,
+    DISPLAY,
 };
 
 /// @brief Mixerparameter ID
@@ -517,6 +518,26 @@ enum class MP_ID {
     BANKING_INPUT,
     BANKING_BUS,
     BANKING_BUS_SENDS,
+    DISPLAY_UTILITY,
+
+    DISPLAY_ENCODER_1_ENCODER,
+    DISPLAY_ENCODER_2_ENCODER,
+    DISPLAY_ENCODER_3_ENCODER,
+    DISPLAY_ENCODER_4_ENCODER,
+    DISPLAY_ENCODER_5_ENCODER,
+    DISPLAY_ENCODER_6_ENCODER,
+
+    DISPLAY_ENCODER_1_BUTTON,
+    DISPLAY_ENCODER_2_BUTTON,
+    DISPLAY_ENCODER_3_BUTTON,
+    DISPLAY_ENCODER_4_BUTTON,
+    DISPLAY_ENCODER_5_BUTTON,
+    DISPLAY_ENCODER_6_BUTTON,
+
+    DISPLAY_LEFT,
+    DISPLAY_RIGHT,
+    DISPLAY_UP,
+    DISPLAY_DOWN,
 
     // Global
 
@@ -820,12 +841,19 @@ enum class SurfaceElementId {
     MAIN_LR_BUS,
     VIEW_MAIN,
 
-    __DISPLAY_ENCODER_1,
-    __DISPLAY_ENCODER_2,
-    __DISPLAY_ENCODER_3,
-    __DISPLAY_ENCODER_4,
-    __DISPLAY_ENCODER_5,
-    __DISPLAY_ENCODER_6,
+    DISPLAY_ENCODER_1,
+    DISPLAY_ENCODER_2,
+    DISPLAY_ENCODER_3,
+    DISPLAY_ENCODER_4,
+    DISPLAY_ENCODER_5,
+    DISPLAY_ENCODER_6,
+
+    DISPLAY_ENCODER_BUTTON_1,
+    DISPLAY_ENCODER_BUTTON_2,
+    DISPLAY_ENCODER_BUTTON_3,
+    DISPLAY_ENCODER_BUTTON_4,
+    DISPLAY_ENCODER_BUTTON_5,
+    DISPLAY_ENCODER_BUTTON_6,
 
     HOME,
     METERS,
@@ -1147,23 +1175,4 @@ enum class X32BankTarget
     InputSection,
     InputSection2,
     BusSection
-};
-
-enum class X32Action
-{
-    None,
-
-    PagePrev,
-    PageNext,
-    Display_Button_Up,
-    Display_Button_Down,
-    Display_Button_Left,
-    Display_Button_Right,
-    Display_EncoderButton_1,
-    Display_EncoderButton_2,
-    Display_EncoderButton_3,
-    Display_EncoderButton_4,
-    Display_EncoderButton_5,
-    Display_EncoderButton_6,
-    Display_Button_Utility,
 };

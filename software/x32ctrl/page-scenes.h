@@ -24,71 +24,37 @@ class PageScenes: public Page
             }            
         }
 
-        void OnInit() override
+        void OnShow() override
         {
-            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_6, PAGE_CUSTOM_ENCODER);
-
             OnChange(true);
         }
 
         void OnChange(bool force_update) override
         {
+            if (config->HasParameterChanged(DISPLAY_ENCODER_6_ENCODER))
+            {
+                int amount = config->GetInt(DISPLAY_ENCODER_6_ENCODER);
+                selected_scene += amount;
+            }
+
+            if (config->HasParameterChanged(DISPLAY_ENCODER_1_BUTTON))
+            {
+                mixer->LoadConfig(selected_scene);
+            }
+
+            if (config->HasParameterChanged(DISPLAY_ENCODER_6_BUTTON))
+            {
+                mixer->SaveConfig(selected_scene);
+            }
+
             if(selected_scene != selected_scene_before || force_update)
             {
-                custom_encoder[DISPLAY_ENCODER_1].label = String("Load ") + selected_scene;
-                custom_encoder[DISPLAY_ENCODER_6].label = String("Save ") + selected_scene;
+                config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String("Load ") + selected_scene);
+                config->GetParameter(DISPLAY_ENCODER_6_BUTTON)->SetName(String("Save ") + selected_scene);
 
                 SyncEncoderWidgets(false);
 
                 selected_scene_before = selected_scene;
             }
         }
-
-        bool OnDisplayButton(X32_BTN button, bool pressed) override
-        {
-            bool handled = false;
-
-        	if (pressed)
-            {
-                handled = true;
-
-				switch (button)
-                {
-                    case X32_BTN_ENCODER1:
-                        mixer->LoadConfig(selected_scene);
-                        break;
-                    case X32_BTN_ENCODER6:
-                        mixer->SaveConfig(selected_scene);
-                        break;
-                    default:
-                        handled = false;
-                        // dummy
-				}
-			}
-
-            return handled;
-        }
-
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override
-        {
-            bool handled = false;
-
-            switch (encoder)
-            {
-				case X32_ENC_ENCODER1:
-                    selected_scene += amount;
-                    handled = true;
-                    OnChange(false);
-                    break;
-                default:
-                        handled = false;
-                        // dummy
-            }
-
-            return handled;
-        }
-
-    private:
-
 };

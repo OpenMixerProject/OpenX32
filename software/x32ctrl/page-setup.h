@@ -19,10 +19,6 @@ class PageSetup: public Page
 
         void OnInit() override
         {
-            BindEncoder(DISPLAY_ENCODER_4, LED_BRIGHTNESS);
-            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_LCD_MODE);
-            BindEncoder(DISPLAY_ENCODER_6, LCD_CONTRAST);
-
             String versioninfo;
             if (mixer->adda->HasXlrIn0()) {
                 versioninfo += "IN0: " + mixer->adda->GetXlrIn0().substring(2, mixer->adda->GetXlrIn0().length() - 1) + "\n";
@@ -48,11 +44,14 @@ class PageSetup: public Page
             lv_label_set_text_fmt(objects.setup_versioninfotext, "%s", versioninfo.c_str());
         }
 
-        void OnChange(bool forceUpdate)
+        void OnShow() override 
         {
-            if (config->HasParameterChanged(SELECTED_CHANNEL) || forceUpdate)
-            {
-                BindEncoder(DISPLAY_ENCODER_2, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED, config->GetUint(SELECTED_CHANNEL));
-            }
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_COLOR);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_COLOR_INVERTED);
+
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET, LED_BRIGHTNESS);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET, CHANNEL_LCD_MODE);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::SET, LCD_CONTRAST);
+
         }
 };

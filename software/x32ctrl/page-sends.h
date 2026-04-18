@@ -10,10 +10,10 @@ class PageSends : public Page
     private:
 
         uint bankingSends = 0;
-        uint bankingSendsBefore = 0;
 
     public:
-        PageSends(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+        PageSends(PageBaseParameter* pagebasepar) : Page(pagebasepar)
+        {
             prevPage = X32_PAGE::EQ;
             nextPage = X32_PAGE::MAIN;
             tabLayer0 = objects.maintab;
@@ -24,44 +24,11 @@ class PageSends : public Page
             noLedOnRack = true;
         }
 
-        void OnInit() override { 
-            UpdateEncoderBinding(config->GetUint(SELECTED_CHANNEL));
-        }
-
-        void UpdateEncoderBinding(uint targetindex)
-        {
-            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER);
-            BindEncoder(DISPLAY_ENCODER_2, (MP_ID)((uint)CHANNEL_BUS_SEND01 + bankingSends * 2), targetindex);
-            BindEncoder(DISPLAY_ENCODER_3, (MP_ID)((uint)CHANNEL_BUS_SEND01_TAPPOINT + bankingSends * 2), targetindex);
-            BindEncoder(DISPLAY_ENCODER_4, (MP_ID)((uint)CHANNEL_BUS_SEND02 + bankingSends * 2), targetindex);
-            BindEncoder(DISPLAY_ENCODER_5, (MP_ID)((uint)CHANNEL_BUS_SEND02_TAPPOINT + bankingSends * 2), targetindex);
-
-            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_REFRESH) + String("\nSelect ") + ((bankingSends * 2) + 1) + String("/") + ((bankingSends * 2) + 2);
-
-            SyncEncoderWidgets(true);
-        }
-
-        void OnChange(bool force_update) override {
-
-            uint8_t chanIndex = config->GetUint(SELECTED_CHANNEL);
-            bool bankinHasChanged = (bankingSends != bankingSendsBefore);
-
-            if (
-                config->HasParametersChanged({SELECTED_CHANNEL, BANKING_BUS_SENDS}) || 
-                bankinHasChanged || 
-                force_update
-            )
+        void OnChange(bool force_update) override
+        {   
+            if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER) || force_update)
             {
-                UpdateEncoderBinding(chanIndex);
-
-                bankingSendsBefore = bankingSends;
-            }
-        }
-
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override
-        {
-            if (encoder == X32_ENC_ENCODER1)
-            {
+                int amount = config->GetInt(DISPLAY_ENCODER_1_ENCODER);
                 if (amount > 0)
                 {
                     bankingSends++;
@@ -76,11 +43,12 @@ class PageSends : public Page
                     bankingSends = 7;
                 }
 
-                OnChange(false);
+                config->GetParameter(DISPLAY_ENCODER_1_ENCODER)->SetName(String(LV_SYMBOL_REFRESH) + String("\nSelect ") + ((bankingSends * 2) + 1) + String("/") + ((bankingSends * 2) + 2));
 
-                return true; // handled
-            }
-
-            return false; // unhandled
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND01 + bankingSends * 2));
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::SET_TO_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND01_TAPPOINT + bankingSends * 2));
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET_TO_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND02 + bankingSends * 2));
+                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET_TO_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND02_TAPPOINT + bankingSends * 2));
+            }            
         }
 };

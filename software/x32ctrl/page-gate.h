@@ -38,17 +38,13 @@ class PageGate: public Page {
             //chart-shadow: 0x7e4000
         }
 
-        void UpdateEncoderBinding(uint chanindex) 
+        void OnShow() override
         {
-            using enum MP_ID;
-
-            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_GATE_TRESHOLD, chanindex);
-            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_GATE_RANGE, chanindex);
-            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_GATE_ATTACK, chanindex);
-            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_GATE_HOLD, chanindex);
-            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_GATE_RELEASE, chanindex);
-
-            SyncEncoderWidgets(true);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_GATE_TRESHOLD);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_GATE_RANGE);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_GATE_ATTACK);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_GATE_HOLD);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_GATE_RELEASE);
         }
 
         void OnChange(bool force_update) override
@@ -62,7 +58,6 @@ class PageGate: public Page {
                 force_update)
             {
                 DrawGate(chanIndex);
-                UpdateEncoderBinding(chanIndex);
             }
         }
 

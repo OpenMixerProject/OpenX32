@@ -40,16 +40,14 @@ class PageDynamics: public Page {
             //chart-shadow: 0x7e4000
         }
 
-        void UpdateEncoderBinding(uint chanindex)
+        void OnShow() override 
         {
-            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_DYNAMICS_TRESHOLD, chanindex);
-            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_DYNAMICS_RATIO, chanindex);
-            BindEncoder(DISPLAY_ENCODER_3, CHANNEL_DYNAMICS_MAKEUP, chanindex);
-            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_DYNAMICS_ATTACK, chanindex);
-            BindEncoder(DISPLAY_ENCODER_5, CHANNEL_DYNAMICS_HOLD, chanindex);
-            BindEncoder(DISPLAY_ENCODER_6, CHANNEL_DYNAMICS_RELEASE, chanindex);
-
-            SyncEncoderWidgets(true);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_TRESHOLD);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_RATIO);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_MAKEUP);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_ATTACK);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_HOLD);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_RELEASE);
         }
 
         void OnChange(bool force_update) override
@@ -61,7 +59,6 @@ class PageDynamics: public Page {
                 force_update)
             {
                 DrawDynamics(chanIndex);
-                UpdateEncoderBinding(chanIndex);
             }
         }
 

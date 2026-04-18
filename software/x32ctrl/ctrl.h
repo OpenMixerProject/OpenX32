@@ -69,10 +69,12 @@ class X32Ctrl : public X32Base
         XRemote* xremote;
         LcdMenu* lcdmenu;
 
-        // surface binding
-        map<SurfaceElementId, SurfaceBindingParameter*>* surface_binding;
-        set<SurfaceElementId> surface_binding_changed;
- 
+        // currently pressed button
+        SurfaceElement* buttonPressed = 0;
+        
+        // second button pressed, while first button is also pressed
+        SurfaceElement* secondbuttonPressed = 0;
+
         // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
         sBank inputBanks[8];
         sBank busBanks[4];
@@ -84,21 +86,12 @@ class X32Ctrl : public X32Base
 
         sTouchControl touchcontrol;
 
-        // currently pressed button
-        SurfaceElement* buttonPressed = 0;
-        
-        // second button pressed, while first button is also pressed
-        SurfaceElement* secondbuttonPressed = 0;
-
         void my_handler(int s);
 
         void InitBanks();
         void InitBank_Channelstrip(X32Bank* bank, uint offset);
         void LoadBank(X32BankTarget target, X32BankId id);
         void InitSurfaceBinding();
-        void SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
-        void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
-        void SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action);
 
         void ResetFaderBankLayout();
         void LoadFaderBankLayout();
@@ -126,8 +119,8 @@ class X32Ctrl : public X32Base
         void UdpHandleCommunication(void);
 
         void InitPagesAndGUI();
-        void ShowPrevPage();
-        void ShowNextPage();
+        bool ShowPrevPage();
+        bool ShowNextPage();
 
         void syncGuiOrLcd(void);
         void syncSurface(bool fullSync);

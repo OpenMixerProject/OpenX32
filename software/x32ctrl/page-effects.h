@@ -19,10 +19,10 @@ class PageEffects: public Page {
             led = X32_BTN_EFFECTS;
         }
 
-        void OnShow() override {
-            // encoder 1
-            BindEncoder(DISPLAY_ENCODER_1, PAGE_CUSTOM_ENCODER, NONE);
-            custom_encoder[DISPLAY_ENCODER_1].label = String(LV_SYMBOL_REFRESH) + "\nSelect FX";
+        void OnShow() override
+        {
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, DISPLAY_ENCODER_1_ENCODER);
+            config->GetParameter(DISPLAY_ENCODER_1_ENCODER)->SetName(String(LV_SYMBOL_REFRESH) + "\nSelect FX");
 
             lv_table_set_column_count(objects.fxtable, 8);
             for (uint8_t i = 0; i < MAX_FX_SLOTS; i++) {
@@ -30,7 +30,46 @@ class PageEffects: public Page {
             }
         }
 
-        void OnChange(bool force_update) override {
+        void OnChange(bool force_update) override
+        {
+            if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
+            {
+                // ENCODER 1 -> select new FX
+                // get the selected FX-slot
+                FxSlot* slot = mixer->dsp->fx_slot[selectedFx];
+
+                // calculate new FX-Type based on current FX-Type and encoder turn amount
+                FX_TYPE newFxType = (FX_TYPE)((int)slot->GetFxType() + config->GetUint(DISPLAY_ENCODER_1_ENCODER));
+                if (newFxType < FX_TYPE::NONE) {
+                    newFxType = (FX_TYPE)((int)FX_TYPE::FX_COUNT - 1);
+                }else if (newFxType >= FX_TYPE::FX_COUNT) {
+                    newFxType = FX_TYPE::NONE;
+                }
+
+                // install new effect
+                mixer->dsp->DSP2_SetFx(selectedFx, newFxType, 2);
+            }
+
+            if (config->HasParameterChanged(DISPLAY_LEFT))
+            {
+                prevFX();
+            }
+
+            if (config->HasParameterChanged(DISPLAY_RIGHT))
+            {
+                nextFX();
+            }
+
+            if (config->HasParameterChanged(DISPLAY_UP))
+            {
+                prevParameterBank();
+            }
+
+            if (config->HasParameterChanged(DISPLAY_DOWN))
+            {
+                nextParameterBank();
+            }
+
 
             bool parameterChanged = config->HasParametersChanged(MP_CAT::FX);
             bool selectionChanged = selectedFx != selectedFxBefore;
@@ -53,12 +92,14 @@ class PageEffects: public Page {
                             if (slot->HasFx()) {
 
                                 // reset banking, if FX has less parameters
-                                if (slot->fx->GetParameterCount() <= (banking * 5)) {
+                                if (slot->fx->GetParameterCount() <= (banking * 5))
+                                {
                                     banking = 0;
                                 }
 
-                                for (uint8_t e = 0; e < (MAX_DISPLAY_ENCODER - 1); e++){
-                                    BindEncoder(DISPLAY_ENCODER_2 + e, slot->fx->GetParameterDefinition(e + (banking * 5)), selectedFx);
+                                for (uint8_t e = 0; e < (MAX_DISPLAY_ENCODER - 1); e++)
+                                {
+                                    config->SurfaceBind((SurfaceElementId)(((uint)(SurfaceElementId::DISPLAY_ENCODER_2)) + e), MixerparameterAction::SET, slot->fx->GetParameterDefinition(e + (banking * 5)), selectedFx);
                                 }
 
                             } else {
@@ -66,8 +107,9 @@ class PageEffects: public Page {
 
                                 banking = 0;
 
-                                for (uint8_t e = 0; e < (MAX_DISPLAY_ENCODER - 1); e++){
-                                    UnbindEncoder(DISPLAY_ENCODER_2 + e);
+                                for (uint8_t e = 0; e < (MAX_DISPLAY_ENCODER - 1); e++)
+                                {
+                                    config->SurfaceUnbind((SurfaceElementId)(((uint)(SurfaceElementId::DISPLAY_ENCODER_2)) + e));
                                 }
                             }
 
@@ -117,79 +159,12 @@ class PageEffects: public Page {
             }
         }
 
-        bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-
-            if (encoder == X32_ENC_ENCODER1) {
-                // ENCODER 1 -> select new FX
-                // get the selected FX-slot
-                FxSlot* slot = mixer->dsp->fx_slot[selectedFx];
-
-                // calculate new FX-Type based on current FX-Type and encoder turn amount
-                FX_TYPE newFxType = (FX_TYPE)((int)slot->GetFxType() + amount);
-                if (newFxType < FX_TYPE::NONE) {
-                    newFxType = (FX_TYPE)((int)FX_TYPE::FX_COUNT - 1);
-                }else if (newFxType >= FX_TYPE::FX_COUNT) {
-                    newFxType = FX_TYPE::NONE;
-                }
-
-                // install new effect
-                mixer->dsp->DSP2_SetFx(selectedFx, newFxType, 2);
-
-                // update UI
-                OnChange(true);
-                SyncEncoderWidgets(true);
-            }else{
-                // ENCODER 2 ... 6 -> change parameter of selected FX
-                uint encoderIndex = encoder - X32_ENC_ENCODER1; // must be X32_ENC_ENCODER1 here to calculate correct index for encoderbinding
-                if (encoderbinding[encoderIndex]->mp_id_encoder != MP_ID::NONE)
-                {
-                    config->Change(encoderbinding[encoderIndex]->mp_id_encoder, amount, selectedFx);
-                }
-            }
-            
-            return true;
-        }
-
-        bool OnDisplayButton(X32_BTN button, bool pressed) override {
-            bool message_handled = false;
-
-            if (pressed){
-                message_handled = true;
-
-                switch (button){
-                    case X32_ENC_ENCODER1:
-                        // do nothing when encoder 1 is pressed
-                        break;
-                    case X32_BTN_LEFT:
-                        prevFX();
-                        break;
-                    case X32_BTN_RIGHT:
-                        nextFX();
-                        break;
-                    case X32_BTN_UP:
-                        prevParameterBank();
-                        break;
-                    case X32_BTN_DOWN:
-                        nextParameterBank();
-                        break;
-                    default:
-                        message_handled = false;
-                        break;
-                }
-            }
-
-            return message_handled;
-        }
-
         void nextParameterBank()
         {
             if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > ((banking + 1) * 5))
             {
                 banking++;
             }
-
-            OnChange(true);
-            SyncEncoderWidgets(true);
         }
 
         void prevParameterBank()
@@ -198,9 +173,6 @@ class PageEffects: public Page {
             {
                 banking--;
             }
-
-            OnChange(true);
-            SyncEncoderWidgets(true);
         }
 
         void nextFX()
@@ -213,9 +185,6 @@ class PageEffects: public Page {
             {
                 selectedFx = 0;
             }
-
-            OnChange(true);
-            SyncEncoderWidgets(true);
         }
 
         void prevFX()
@@ -228,8 +197,5 @@ class PageEffects: public Page {
             {
                 selectedFx = MAX_FX_SLOTS - 1;
             }
-
-            OnChange(true);
-            SyncEncoderWidgets(true);
         }
 };

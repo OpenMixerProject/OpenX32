@@ -13,7 +13,9 @@ class PageMain : public Page
         uint bankingSendsBefore = 0;
 
     public:
-        PageMain(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+
+        PageMain(PageBaseParameter* pagebasepar) : Page(pagebasepar)
+        {
             prevPage = X32_PAGE::SENDS;
             tabLayer0 = objects.maintab;
             tabIndex0 = 0;
@@ -23,21 +25,12 @@ class PageMain : public Page
             noLedOnRack = true;
         }
 
-        void OnChange(bool forceUpdate) override
+        void OnInit() override
         {
-            if (config->HasParameterChanged(SELECTED_CHANNEL) || forceUpdate)
-            {
-                UpdateEncoderBinding(config->GetUint(SELECTED_CHANNEL));
-            }
-        }
-
-        void UpdateEncoderBinding(uint targetindex)
-        {
-            BindEncoder(DISPLAY_ENCODER_1, CHANNEL_VOLUME, CHANNEL_SEND_LR, config->GetUint(SELECTED_CHANNEL));
-            BindEncoder(DISPLAY_ENCODER_2, CHANNEL_PANORAMA, config->GetUint(SELECTED_CHANNEL));
-
-            BindEncoder(DISPLAY_ENCODER_4, CHANNEL_VOLUME_SUB, CHANNEL_SEND_SUB, config->GetUint(SELECTED_CHANNEL));
-            
-            SyncEncoderWidgets(true);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_VOLUME);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_LR);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_PANORAMA);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_VOLUME_SUB);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_SUB);
         }
 };
