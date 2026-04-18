@@ -154,14 +154,14 @@ if [ "$COMPILE_LINUX" = true ]; then
 	cd ../linux
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) zImage
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) dtbs
-	update_progress 50 "Create U-Boot-image..."
+	update_progress 40 "Create U-Boot-image..."
 	mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
 fi
 
 # =================== Busybox =======================
 
 if [ "$COMPILE_BUSYBOX" = true ]; then
-	update_progress 55 "Compile busybox..."
+	update_progress 45 "Compile busybox..."
 	cd ../busybox
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) \
 		CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
@@ -184,17 +184,17 @@ fi
 if [ "$COMPILE_SOFTWARE" = true ]; then
 	cd software
 
-	update_progress 60 "Compile x32sdconfig..."
+	update_progress 55 "Compile x32sdconfig..."
 	cd x32sdconfig
 	./compile.sh
 	cd ..
 
-	update_progress 65 "Compile x32ctrl..."
+	update_progress 60 "Compile x32ctrl..."
 	cd x32ctrl
 	make -j$(nproc)
 	cd ..
 
-	update_progress 70 "Compile dropbear..."
+	update_progress 65 "Compile dropbear..."
 	cd dropbear
 	./configure	\
 		--disable-pam \
@@ -220,7 +220,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	cp dropbearmulti ../bin/
 	cd ..
 
-	update_progress 75 "Compile fb-vnc-server..."
+	update_progress 70 "Compile fb-vnc-server..."
         cd libvncserver
         rm -r build
         mkdir build && cd build
@@ -268,6 +268,9 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	cd ..
 fi
 
+
+update_progress 75 "Copy and optimize binaries..."
+
 # copy tools to initramFS
 mkdir -p initramfs_root/openx32
 mkdir -p initramfs_root/lib
@@ -298,10 +301,16 @@ else
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libcrypt.so.1) initramfs_root/lib/libcrypt.so.1
 fi
 
+
+# =================== Optimize binaries =======================
 arm-linux-gnueabi-strip initramfs_root/lib/*
 arm-linux-gnueabi-strip initramfs_root/openx32/*
 arm-linux-gnueabi-strip initramfs_root/bin/*
 arm-linux-gnueabi-strip initramfs_root/sbin/*
+
+upx -9 initramfs_root/openx32/*
+upx -9 initramfs_root/bin/busybox
+upx -9 initramfs_root/lib/libstdc++.so.6
 
 
 
