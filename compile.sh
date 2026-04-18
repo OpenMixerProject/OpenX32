@@ -311,11 +311,6 @@ arm-linux-gnueabi-strip initramfs_root/openx32/*
 arm-linux-gnueabi-strip initramfs_root/bin/*
 arm-linux-gnueabi-strip initramfs_root/sbin/*
 
-upx -9 initramfs_root/openx32/*
-upx -9 initramfs_root/bin/busybox
-upx -9 initramfs_root/lib/libstdc++.so.6
-
-
 
 # =================== Create MOTD =======================
 GITREV=$(git describe --tags --always --dirty)
