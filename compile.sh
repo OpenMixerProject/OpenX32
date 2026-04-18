@@ -115,18 +115,45 @@ while [[ $# -gt 0 ]]; do
 done
 
 update_progress 0 "Prepare compilation..."
+# we are patching some files in the submodules to mitigate a full fork
 # configuration-files
-cp files/config_uboot u-boot/.config
-cp files/config_linux linux/.config
-cp files/config_busybox busybox/.config
+# u-boot-configuration
+if ! diff -q files/config_uboot u-boot/.config >/dev/null 2>&1; then
+	cp files/config_uboot u-boot/.config
+	echo "Update u-boot/.config (changed content)"
+else
+	echo "u-boot-config is up to date."
+fi
+
+# linux-configuration
+if ! diff -q files/config_linux linux/.config >/dev/null 2>&1; then
+	cp files/config_linux linux/.config
+	echo "Update linux/.config (changed content)"
+else
+	echo "linux-config is up to date."
+fi
+
+# busybox-configuration
+if ! diff -q files/config_busybox software/busybox/.config >/dev/null 2>&1; then
+	cp files/config_busybox software/busybox/.config
+	echo "Update software/busybox/.config (changed content)"
+else
+	echo "busybox-config is up to date."
+fi
+
 cp files/meminit.txt software/pyatk/bin/
+
 # patched source-files
 cp files/imximage.cfg u-boot/board/freescale/mx25pdk/imximage.cfg
 cp files/mx25pdk.c u-boot/board/freescale/mx25pdk/mx25pdk.c
 cp files/mx25pdk.h u-boot/include/configs/mx25pdk.h
 cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
+
 # custom boot logo - fullscreen -> console has only 1 line!
 # cp files/linux-boot-logo_final.ppm linux/drivers/video/logo/logo_linux_clut224.ppm
+
+
+
 
 export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
 if [ "$COMPILE_MUSL" = true ]; then
@@ -155,13 +182,14 @@ if [ "$COMPILE_LINUX" = true ]; then
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) zImage
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) dtbs
 	mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
+	cd ..
 fi
 
 # =================== Busybox =======================
 
 if [ "$COMPILE_BUSYBOX" = true ]; then
 	update_progress 40 "Compile busybox..."
-	cd ../busybox
+	cd software/busybox
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) \
 		CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
 		AR=arm-linux-gnueabi-gcc-ar \
@@ -172,7 +200,7 @@ if [ "$COMPILE_BUSYBOX" = true ]; then
 		AR=arm-linux-gnueabi-gcc-ar \
 		RANLIB=arm-linux-gnueabi-gcc-ranlib
 
-	cd ..
+	cd ../..
 	cp -rP /tmp/busybox_install/bin initramfs_root/
 	cp -rP /tmp/busybox_install/sbin initramfs_root/
 	cp -rP /tmp/busybox_install/linuxrc initramfs_root/
@@ -331,7 +359,7 @@ echo "---------------------------------------------------"  >> initramfs_root/et
 # =================== Create SSH-KEY =======================
 if [ "$CREATE_SSHKEY" = true ]; then
 	cd initramfs_root/etc/dropbear
-	dropbearkey -t rsa -f openx32_key
+	dropbearkey -t ed25519 -f openx32_key
 	cd ../../../
 fi
 

@@ -3,7 +3,7 @@
 	url = https://github.com/hbock/pyatk
 	ignore = dirty
 [submodule "busybox"]
-	path = busybox
+	path = software/busybox
 	url = https://git.busybox.net/busybox
 	ignore = dirty
 [submodule "linux"]

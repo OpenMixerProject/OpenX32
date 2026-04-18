@@ -68,6 +68,27 @@ Yes, here: https://discourse.openmixerproject.de
 ## Steps to run OpenX32 without recompiling
 Checkout the most recent release from https://github.com/OpenMixerProject/OpenX32/releases and follow the instructions there. You only have to copy a couple of files onto an USB-thumbdrive and boot into Linux :)
 
+You can login via SSH using the password "openx32" and the following command:
+
+```
+ssh root@IPADDRESS
+
+root@192.168.0.153's password: openx32
+  ____                  __   ______ ____
+ / __ \                 \ \ / /___ \__  \
+| |  | |_ __   ___ _ __  \ V /  __) | ) |
+| |  | | '_ \ / _ \ '_ \  > <  |__ < / /
+| |__| | |_) |  __/ | | |/ . \ ___) / /_
+ \____/| .__/ \___|_| |_/_/ \_\____/____|
+       | |    https://www.openx32.com
+       |_|
+---------------------------------------------------
+OpenX32 alpha5-29-g4cb74fa-dirty 18.04.2026
+---------------------------------------------------
+~ #
+```
+
+
 ## Steps to compile the new operating system
 
 ### Step 1: Init Git-Submodules and install dependencies

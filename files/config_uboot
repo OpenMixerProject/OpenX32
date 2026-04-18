@@ -4,7 +4,7 @@
 #
 
 #
-# Compiler: arm-none-eabi-gcc (15:12.2.rel1-1) 12.2.1 20221205
+# Compiler: arm-linux-gnueabi-gcc (OpenWrt GCC 15.2.0 r33970+16-05b6a93173) 15.2.0
 #
 CONFIG_CREATE_ARCH_SYMLINK=y
 # CONFIG_ARC is not set
