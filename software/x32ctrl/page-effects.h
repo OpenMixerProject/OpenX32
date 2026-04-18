@@ -52,12 +52,14 @@ class PageEffects: public Page {
 
             if (config->HasParameterChanged(DISPLAY_LEFT))
             {
+                config->SetParameterUnchanged(DISPLAY_LEFT);
                 prevFX();
             }
 
             if (config->HasParameterChanged(DISPLAY_RIGHT))
             {
-                nextFX();
+                config->SetParameterUnchanged(DISPLAY_RIGHT);
+                nextFX();                
             }
 
             if (config->HasParameterChanged(DISPLAY_UP))

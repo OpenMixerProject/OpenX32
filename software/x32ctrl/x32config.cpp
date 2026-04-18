@@ -1450,6 +1450,14 @@ void X32Config::Set(MP_ID mp, String value_string, uint index)
     SetParameterChanged(mp, index);
 }
 
+void X32Config::SetParameterUnchanged(MP_ID mp)
+{
+    if (mp_changedlist->contains(mp))
+    {
+        mp_changedlist->erase(mp);
+    }
+}
+
 void X32Config::SetParameterChanged(MP_ID mp, uint index)
 {
     if (mp_changedlist->contains(mp))

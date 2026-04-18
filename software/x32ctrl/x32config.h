@@ -61,6 +61,7 @@ class X32Config
         bool HasParametersChanged(MP_CAT parameter_cat);
         bool HasParametersChanged(MP_CAT parameter_cat, uint index);
         bool HasAnyParameterChanged();
+        void SetParameterUnchanged(MP_ID mp);
         void ResetChangedParameterList();
         
         float GetFloat(MP_ID mp, uint index = 0);

@@ -129,12 +129,14 @@ void Page::Change()
         // Go to next page
         if (config->HasParameterChanged(DISPLAY_RIGHT) && this->GetNextPage() != X32_PAGE::NONE)
         {
+            config->SetParameterUnchanged(DISPLAY_RIGHT);
             config->Set(ACTIVE_PAGE, (uint)(this->GetNextPage()));
         }
 
         // Go to previous page
         if (config->HasParameterChanged(DISPLAY_LEFT) && this->GetPrevPage() != X32_PAGE::NONE)
         {
+            config->SetParameterUnchanged(DISPLAY_LEFT);
             config->Set(ACTIVE_PAGE, (uint)(this->GetPrevPage()));
         }
 
