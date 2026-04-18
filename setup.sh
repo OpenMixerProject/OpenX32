@@ -50,7 +50,7 @@ sudo apt install zlib1g-dev:armel libz-dev:armel
 #echo "Configuring pyATK..."
 #cp files/usbdev.py pyatk/pyatk/channel/
 #cp files/boot.py pyatk/pyatk/
-#cd pyatk
+#cd software/pyatk
 #python3 -m venv pyatk_venv
 #source pyatk_venv/bin/activate
 #pip install pyserial pyusb==1.0.0

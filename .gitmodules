@@ -1,5 +1,5 @@
 [submodule "pyatk"]
-	path = pyatk
+	path = software/pyatk
 	url = https://github.com/hbock/pyatk
 	ignore = dirty
 [submodule "busybox"]

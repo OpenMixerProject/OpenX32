@@ -119,7 +119,7 @@ update_progress 0 "Prepare compilation..."
 cp files/config_uboot u-boot/.config
 cp files/config_linux linux/.config
 cp files/config_busybox busybox/.config
-cp files/meminit.txt pyatk/bin/
+cp files/meminit.txt software/pyatk/bin/
 # patched source-files
 cp files/imximage.cfg u-boot/board/freescale/mx25pdk/imximage.cfg
 cp files/mx25pdk.c u-boot/board/freescale/mx25pdk/mx25pdk.c
@@ -150,18 +150,17 @@ fi
 # =================== Linux =======================
 
 if [ "$COMPILE_LINUX" = true ]; then
-	update_progress 25 "Compile Linux..."
+	update_progress 20 "Compile Linux..."
 	cd ../linux
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) zImage
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) dtbs
-	update_progress 40 "Create U-Boot-image..."
 	mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
 fi
 
 # =================== Busybox =======================
 
 if [ "$COMPILE_BUSYBOX" = true ]; then
-	update_progress 45 "Compile busybox..."
+	update_progress 40 "Compile busybox..."
 	cd ../busybox
 	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) \
 		CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
@@ -184,17 +183,17 @@ fi
 if [ "$COMPILE_SOFTWARE" = true ]; then
 	cd software
 
-	update_progress 55 "Compile x32sdconfig..."
+	update_progress 45 "Compile x32sdconfig..."
 	cd x32sdconfig
 	./compile.sh
 	cd ..
 
-	update_progress 60 "Compile x32ctrl..."
+	update_progress 50 "Compile x32ctrl..."
 	cd x32ctrl
 	make -j$(nproc)
 	cd ..
 
-	update_progress 65 "Compile dropbear..."
+	update_progress 55 "Compile dropbear..."
 	cd dropbear
 	./configure	\
 		--disable-pam \
@@ -220,7 +219,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	cp dropbearmulti ../bin/
 	cd ..
 
-	update_progress 70 "Compile fb-vnc-server..."
+	update_progress 60 "Compile fb-vnc-server..."
         cd libvncserver
         rm -r build
         mkdir build && cd build

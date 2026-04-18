@@ -3,7 +3,7 @@
 This repository contains software to load and start the Linux-Kernel on the Behringer X32, some userland tools and x32ctrl - the main logic of our custom firmware.
 This audio-mixing-console uses a Freescale/NXP i.MX253 Microcontroller with an ARM926EJ-S core that supports booting Linux.
 
-Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox (the picture is older, shows Kernel 6.12):
+Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox:
 
 ![alt_text](Documentation/openx32_1.jpg)
 
@@ -71,7 +71,7 @@ Checkout the most recent release from https://github.com/OpenMixerProject/OpenX3
 ## Steps to compile the new operating system
 
 ### Step 1: Init Git-Submodules and install dependencies
-This system uses the most recent versions of the tools I could find: the bootloader u-Boot is used in Version 2020.10 as this is the last U-Boot supporting the i.MX25. Up to now Linux has still support for the i.MX25 and I selected v6.12, the most recent LTS-kernel.
+This system uses the most recent versions of the tools I could find: the bootloader u-Boot is used in Version 2020.10 as this is the last U-Boot supporting the i.MX25. Up to now Linux has still support for the i.MX25 and I selected v6.18, the most recent LTS-kernel.
 
 So the repository uses other GitHub-repositories as submodules (u-Boot, Linux and pyATK). Please use the following command to checkout the main-repo together with submodules. To minimze the download-size and -time, we will clone the submodules separately:
 
@@ -89,37 +89,33 @@ Next to the sourcecode, your system needs to be setup correctly to compile the w
 This script will install several dependencies to compile u-boot and the linux-kernel. After installing the packets, it will patch pyATK to run with recent versions of Python 3.11 and newer. It will also configure pyATK in a virtual python-environment.
 
 
-### Step 2: Run the scripts
+### Step 2: Run the compile-script
 
-Compile u-boot, Linux and busbox by calling the script ./compile_all.sh and upload the new operating system into the RAM by calling the script ./run.sh
+Compile u-boot, Linux, busybox and the other tools simply by calling the script ./compile.sh:
 
 ```
-./compile_all.sh
-./run.sh
+./compile.sh
 ```
 
-* compile_all.sh will copy some patched files into the submodules, compile a small program called "miniloader", the U-Boot-bootloader and the Linux kernel. The kernel-image "zImage" will be converted to a "uImage" and will be merged together with the miniloader and u-boot-image into a single binary-file.
-* Finally, run.sh will use pyATK to initialize the most important hardware of the i.MX253 using the file "meminit.txt" and upload the generated binary-blob into the RAM of the processor. The Serial-Download-Program of the i.MX will then start the small assembler-program "miniloader" placed at address 0x80000000 - hence the begin of the RAM. The only task of Miniloader is to jumpstart the U-Boot-Bootloader at offset 0x3C0. U-Boot is placed at offset 0x0C0, but the first function-entry of the U-Boot will not start when using the Serial-Download-Program. So with this small hack, U-Boot takes control over the i.MX, reallocate itself to a higher memory-region and starts the linux-kernel together with the DeviceTreeBlob. The kernel is then decompressed and will start up.
+* compile.sh will copy some patched files into the submodules
+* then it compiles the U-Boot-bootloader, the Linux kernel and other user-programs
+* at the end all binaries are merged into a single binary file
+* this binary file is finally compiled into a file that is compatible with the original bootloader of the X32 so that you can run the firmware from a USB-Thumbdrive directly
 
-### Step 3: Compile user-softwares
+If you want to make this firmware permanent, rename the file from dcpxxx.run into dcpxxx.update and the firmware will be written on the internal SD-Card. The boot will be much faster compared to the USB-boot. 
 
-Within the software-folder several user-applications are placed. You can call the script "compile_software.sh" to compile all softwares at once or compile them individual:
-* x32ctrl: call "make". The binary is copied to the folder "../bin/"
-* x32sdconfig: call "compile.sh". Program will read the original SD-card on boot and put general information about the board to the folder /etc/
+Within the software-folder several user-applications are placed:
+* x32ctrl: this is the main-program responsible for the UI and the communication with hardware components
+* x32sdconfig: this small software reads the original SD-card on boot and put general information about the board to the folder /etc/
 
-There are some test-softwares in the "test"-folder. Use individual "compile.sh" scripts
+There are some test- and debug-softwares in the "test"-folder:
 * fpgaconfig: program to configure the Xilinx Spartan 3A FPGA using spidev2.0
 * dspconfig: program to configure the two AnalogDevices 21371 SHARC DSP using spidev0.0 and spidev0.1
 * spiread: program to test the communication to the DSPs
 * uarttest: program to test communication with FPGA
 
-As the X32 has limited RAM available, you might use the script "build_distribution.sh" to copy all important files into the folder "usb". Then take an USB-Thumbdrive, copy all files within this folder to the root of the USB-drive and mount the device on the X32 with the command "mount /dev/sda1 /mnt/usb".
 
-Now run the script "/mnt/usb/scripts/startall.sh". This will create important Symlinks to the main-system and start an SSH-Server.
-
-Important: at this early development stage, some packages, libraries or other things *will* be missing. Please create a ticket in GitHub so that I can fix this.
-
-### Step 4: Compiling logic for the FPGA
+### Step 3: Compiling logic for the FPGA
 
 The X32 devices before 2020 are using a Xilinx Spartan-3A X3CS1400 FPGA to route the audio between the individual ADCs, DACs, expansion card and digital connectors like AES50 and UltraNet. For the Spartan-3A we can use the free version of Xilinx ISE 14.7 as the most recent toolchain to synthesize logic for this FPGA:
 
@@ -135,7 +131,8 @@ Download ISE 14.7 from the Xilinx (AMD) website: https://www.xilinx.com/support/
 
 An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: [View Schematic as PDF](https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/Documentation/FPGA.pdf).
 
-### Step 5: Compiling code for the SHARC DSPs
+
+### Step 4: Compiling code for the SHARC DSPs
 
 The X32 uses two AnalogDevices 21371 SHARC DSPs for mixing. These devices are supported by the CrossCore EmbeddedStudio v2.12:
 
@@ -149,6 +146,7 @@ DSP1 is the main-DSP receiving and sending all 40 audio-channels from and to the
 
 DSP2 is used for the more advanced audio-effects in the original system. This DSP is not used at the moment.
 
+
 ## Connecting a serial terminal to MIDI In/Out
 The MIDI-Ports are connected to the UART5 of the i.MX25. With a simple resistor and a RS232/USB-converter the MIDI-ports can be used for a serial-terminal with 115200 baud:
 
@@ -161,10 +159,13 @@ The MIDI-Ports are connected to the UART5 of the i.MX25. With a simple resistor 
 
 see also: [Article in our Discourse](https://discourse.openmixerproject.de/t/midi-port-as-uart-serial-port)
 
+
 ## Used third-party software
 * U-Boot in Version 2020.10 (https://github.com/u-boot/u-boot/tree/v2020.10)
 * Linux in Version 6.18 (https://github.com/torvalds/linux/tree/v6.18)
 * Busybox (https://git.busybox.net/busybox)
-* pyATK in Version 0.1.0 (https://github.com/hbock/pyatk)
 * LVGL in Version 9.5.0 (https://github.com/lvgl/lv_port_linux)
 * Dropbear (https://github.com/mkj/dropbear)
+* Framebuffer-VNC (https://github.com/ponty/framebuffer-vncserver)
+* LibVNC (https://github.com/LibVNC/libvncserver)
+* pyATK in Version 0.1.0 (https://github.com/hbock/pyatk)
