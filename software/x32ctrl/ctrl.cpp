@@ -1811,16 +1811,20 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 void X32Ctrl::InitSurfaceBinding()
 {
 	// Config / Preamp
+	config->SurfaceBind(SurfaceElementId::GAIN_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_GAIN);
 	config->SurfaceBind(SurfaceElementId::PHANTOM_48V, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHANTOM);
 	config->SurfaceBind(SurfaceElementId::PHASE_INVERT, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHASE_INVERT);
+	config->SurfaceBind(SurfaceElementId::LOW_CUT_FREQ_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_LOWCUT_FREQ);
 	config->SurfaceBind(SurfaceElementId::LOW_CUT, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_LOWCUT_ENABLE);
 	config->SurfaceBind(SurfaceElementId::VIEW_CONFIG, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::CONFIG));
 
 	// Gate
+	config->SurfaceBind(SurfaceElementId::GATE_THRESHOLD_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_GATE_TRESHOLD);
 	config->SurfaceBind(SurfaceElementId::GATE, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_GATE_ENABLE);
 	config->SurfaceBind(SurfaceElementId::VIEW_GATE, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::GATE));
 
 	// Dynamics
+	config->SurfaceBind(SurfaceElementId::DYNAMICS_THRESHOLD_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_DYNAMICS_TRESHOLD);
 	config->SurfaceBind(SurfaceElementId::COMP_EXP, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_COMPRESSOR_ENABLE);
 	config->SurfaceBind(SurfaceElementId::VIEW_DYNAMICS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::COMPRESSOR));
 
@@ -1831,7 +1835,9 @@ void X32Ctrl::InitSurfaceBinding()
 	config->SurfaceBind(SurfaceElementId::VIEW_MIX_BUS_SENDS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SENDS));
 	
 	// Bus Mixes
+	config->SurfaceBind(SurfaceElementId::MAIN_BUS_LEVEL_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_VOLUME_SUB);
 	config->SurfaceBind(SurfaceElementId::MONO_BUS, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_SUB);
+	config->SurfaceBind(SurfaceElementId::PAN_BAL_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_PANORAMA);
 	config->SurfaceBind(SurfaceElementId::MAIN_LR_BUS, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_LR);
 	config->SurfaceBind(SurfaceElementId::VIEW_MAIN, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::MAIN));
 	
@@ -2010,6 +2016,43 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 	}
 	else if (classid == 'e') // Encoder
 	{
+		// find encoder
+		SurfaceElement* encoder = config->GetSurfaceElementEncoder(board, index);
+		if (encoder == 0) { return; }
+		int8_t amount = 0;
+
+		if (value > 0 && value < 128)
+		{
+			amount = (uint8_t)value;
+		}
+		else if (value > 128 && value < 256) 
+		{
+			amount = -(256 - (uint8_t)(value));
+		}
+
+		helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Encoder \"%s\" turned: \"%d\"",
+			encoder->GetName().c_str(),
+			amount
+		);
+
+		SurfaceBindingParameter* bindingParameterEncoder = config->GetSurfaceBinding(encoder->GetId());
+
+		if (bindingParameterEncoder != 0 && bindingParameterEncoder->mp_action != MixerparameterAction::NONE)
+		{
+			switch (bindingParameterEncoder->mp_action)
+			{
+				case MixerparameterAction::CHANGE:
+					config->Change(bindingParameterEncoder->mp_id, amount, bindingParameterEncoder->mp_index);
+					break;
+				case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
+					config->Change(bindingParameterEncoder->mp_id, amount, config->GetUint(SELECTED_CHANNEL));
+					break;
+			}
+		}
+		else
+		{
+			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Encoder is not bound.");
+		}
 
 	}
 	else 
@@ -2046,12 +2089,6 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 			case X32_BTN_BUS_SEND_9_12:
 			case X32_BTN_BUS_SEND_13_16:
 				BankingSends(button);
-				break;
-			case X32_BTN_MONO_BUS:
-				config->Toggle(CHANNEL_SEND_SUB, config->GetUint(SELECTED_CHANNEL));
-				break;
-			case X32_BTN_MAIN_LR_BUS:
-				config->Toggle(CHANNEL_SEND_LR, config->GetUint(SELECTED_CHANNEL));
 				break;
 			default:
 				// just here to avoid compiler warnings

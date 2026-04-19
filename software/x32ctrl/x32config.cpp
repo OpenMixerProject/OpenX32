@@ -1894,6 +1894,7 @@ void X32Config::DefineSurfaceElements()
 
         GetSurfaceElement(VIEW_USB)                     ->DefButton(X32_BOARD_MAIN, 0x04);
 
+        
         GetSurfaceElement(PHANTOM_48V)                  ->DefButton(X32_BOARD_MAIN, 0x05);
         GetSurfaceElement(PHASE_INVERT)                 ->DefButton(X32_BOARD_MAIN, 0x06);
         GetSurfaceElement(LOW_CUT)                      ->DefButton(X32_BOARD_MAIN, 0x07);
@@ -2218,6 +2219,24 @@ SurfaceElement* X32Config::GetSurfaceElementButton(X32_BOARD board, uint16_t val
             element->element_type == SurfaceElementType::Button &&
             element->GetBoard() == board &&
             element->GetIndex() == (value & 0x7F)
+        )
+        {
+            return element;
+        }
+    }
+
+    return 0;
+}
+
+SurfaceElement* X32Config::GetSurfaceElementEncoder(X32_BOARD board, uint8_t index)
+{
+    for (SurfaceElement* element : sem)
+	{
+        if (
+            element != 0 &&
+            element->element_type == SurfaceElementType::Encoder &&
+            element->GetBoard() == board &&
+            element->GetIndex() == index
         )
         {
             return element;

@@ -1147,6 +1147,7 @@ enum class MixerparameterAction
     SET_TO_INDEX,
     SET_TO_SELECTED_CHANNEL,
     CHANGE,
+    CHANGE_SELECTED_CHANNEL,
     TOGGLE,
     TOGGLE_SELECTED_CHANNEL,
     LCD,

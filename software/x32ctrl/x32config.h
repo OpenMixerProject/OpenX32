@@ -84,6 +84,7 @@ class X32Config
         bool HasSurfaceElement(SurfaceElementId id);
         SurfaceElement* GetSurfaceElement(SurfaceElementId);
         SurfaceElement* GetSurfaceElementButton(X32_BOARD board, uint16_t value);
+        SurfaceElement* GetSurfaceElementEncoder(X32_BOARD board, uint8_t index);
         SurfaceElement* GetSurfaceElementFader(X32_BOARD board, uint8_t index);
         
         map<SurfaceElementId, SurfaceBindingParameter*>* GetSurfaceBinding();
