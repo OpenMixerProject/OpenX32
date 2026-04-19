@@ -1150,6 +1150,8 @@ enum class MixerparameterAction
     CHANGE_SELECTED_CHANNEL,
     TOGGLE,
     TOGGLE_SELECTED_CHANNEL,
+    RESET,
+    RESET_SELECTED_CHANNEL,
     LCD,
 };
 

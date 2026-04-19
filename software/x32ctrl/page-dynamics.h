@@ -42,12 +42,13 @@ class PageDynamics: public Page {
 
         void OnShow() override 
         {
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_TRESHOLD);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_RATIO);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_MAKEUP);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_ATTACK);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_HOLD);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_DYNAMICS_RELEASE);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_DYNAMICS_TRESHOLD);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_COMPRESSOR_ENABLE);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_DYNAMICS_RATIO);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_DYNAMICS_MAKEUP);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_DYNAMICS_ATTACK);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_DYNAMICS_HOLD);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_DYNAMICS_RELEASE);
         }
 
         void OnChange(bool force_update) override

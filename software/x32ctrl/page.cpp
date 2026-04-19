@@ -316,61 +316,80 @@ void Page::SyncEncoderWidget(SurfaceElementId elementIdEncoder, SurfaceElementId
         ClearEncoderButton(lvgl_encoder_widget);
     }
     
-    if (surface_binding_encoder != 0 && (config->HasParameterChanged(surface_binding_encoder->mp_id, surface_binding_encoder->mp_index) || force))
+    if (surface_binding_encoder != 0)
     {
-        if (surface_binding_encoder->mp_id == MP_ID::NONE)
-        {
-            __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(surface_binding_encoder->mp_id)) + String(" is not defined!")).c_str());
-        }  
+        uint index = (surface_binding_encoder->mp_action == MixerparameterAction::CHANGE_SELECTED_CHANNEL) ?
+            config->GetUint(SELECTED_CHANNEL) : surface_binding_encoder->mp_index;
 
-        Mixerparameter* parameter = config->GetParameter(surface_binding_encoder->mp_id);
-
-        lv_label_set_text(lvgl_encoder_widget->Label, parameter->GetLabelAndValue(surface_binding_encoder->mp_index).c_str());
-
-        // Hide or Show Slider 
-        if (parameter->GetHideEncoderSlider())
+        if(config->HasParameterChanged(surface_binding_encoder->mp_id, index) || force)
         {
-            lv_obj_set_flag(lvgl_encoder_widget->Slider, LV_OBJ_FLAG_HIDDEN, true);
-        } else {
-            lv_obj_set_flag(lvgl_encoder_widget->Slider, LV_OBJ_FLAG_HIDDEN, false);
-            lv_slider_set_value(lvgl_encoder_widget->Slider, parameter->GetPercent(surface_binding_encoder->mp_index), LV_ANIM_OFF);          
-        }
+            if (surface_binding_encoder->mp_id == MP_ID::NONE)
+            {
+                __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(surface_binding_encoder->mp_id)) + String(" is not defined!")).c_str());
+            }  
 
-        if (parameter->GetHideEncoderReset())
-        {
-            // empty reset label
-            lv_label_set_text(lvgl_encoder_widget->ButtonLabel, "");
-        } 
-        else if (surface_binding_button == 0)
-        {
-            // button resets the main parameter
-            lv_label_set_text(lvgl_encoder_widget->ButtonLabel, parameter->GetResetLabel(surface_binding_encoder->mp_index).c_str());
+            Mixerparameter* parameter = config->GetParameter(surface_binding_encoder->mp_id);
+
+            lv_label_set_text(lvgl_encoder_widget->Label, parameter->GetLabelAndValue(index).c_str());
+
+            // Hide or Show Slider 
+            if (parameter->GetHideEncoderSlider())
+            {
+                lv_obj_set_flag(lvgl_encoder_widget->Slider, LV_OBJ_FLAG_HIDDEN, true);
+            } else {
+                lv_obj_set_flag(lvgl_encoder_widget->Slider, LV_OBJ_FLAG_HIDDEN, false);
+                lv_slider_set_value(lvgl_encoder_widget->Slider, parameter->GetPercent(index), LV_ANIM_OFF);          
+            }
         }
     }
     
-    if (surface_binding_button != 0 && (config->HasParameterChanged(surface_binding_button->mp_id, surface_binding_button->mp_index) || force))
+    if (surface_binding_button != 0)
     {
-        if (surface_binding_button->mp_id != MP_ID::NONE)
+        MixerparameterAction action = surface_binding_button->mp_action;
+        uint index = 0;
+
+        switch (action)
         {
-            // button is bound to its own parameter
-
-            Mixerparameter* parameter_button = config->GetParameter(surface_binding_button->mp_id);
-            lv_label_set_text(lvgl_encoder_widget->ButtonLabel, parameter_button->GetName().c_str());
-
-            // Button is highlighted if value is true
-
-            if (parameter_button->GetBool(surface_binding_button->mp_index))
+            case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
+            case MixerparameterAction::RESET_SELECTED_CHANNEL:
+                index = config->GetUint(SELECTED_CHANNEL);
+                break;
+            default:
+                index = surface_binding_encoder->mp_index;
+                break;
+        }
+            
+        if (config->HasParameterChanged(surface_binding_button->mp_id, index) || force)
+        {
+            if (surface_binding_button->mp_id != MP_ID::NONE)
             {
-                add_style_label_bg_yellow(lvgl_encoder_widget->ButtonLabel);
+                Mixerparameter* parameter_button = config->GetParameter(surface_binding_button->mp_id);
+                String text;
+                if (action == MixerparameterAction::RESET ||
+                    action == MixerparameterAction::RESET_SELECTED_CHANNEL)
+                {
+                    text = parameter_button->GetResetLabel(index);
+                }
+                else
+                {
+                    text = parameter_button->GetName();
+                }
+                lv_label_set_text(lvgl_encoder_widget->ButtonLabel, text.c_str());
+
+                // Button is highlighted if value is true
+                if (parameter_button->GetBool(index))
+                {
+                    add_style_label_bg_yellow(lvgl_encoder_widget->ButtonLabel);
+                }
+                else
+                {
+                    remove_style_label_bg_yellow(lvgl_encoder_widget->ButtonLabel);
+                }
             }
             else
             {
                 remove_style_label_bg_yellow(lvgl_encoder_widget->ButtonLabel);
             }
-        }
-        else
-        {
-            remove_style_label_bg_yellow(lvgl_encoder_widget->ButtonLabel);
         }
     }
 }

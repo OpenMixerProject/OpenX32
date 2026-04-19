@@ -758,7 +758,6 @@ void X32Ctrl::syncGuiOrLcd() {
 	if (config->HasParameterChanged(ACTIVE_PAGE)){
 		Page* newPage = pages.at((X32_PAGE)config->GetUint(ACTIVE_PAGE));
 		newPage->Show();
-		newPage->Change();
 	}
 
 	//####################################
@@ -838,6 +837,29 @@ void X32Ctrl::syncSurface(bool fullSync)
     {
 		SurfaceElementId element_id = key;
 		SurfaceBindingParameter* binding_parameter = value;
+
+		// Filter Surfacelements with no visual/physical feedback
+		switch(element_id)
+		{
+			case SurfaceElementId::DISPLAY_ENCODER_1:
+			case SurfaceElementId::DISPLAY_ENCODER_2:
+			case SurfaceElementId::DISPLAY_ENCODER_3:
+			case SurfaceElementId::DISPLAY_ENCODER_4:
+			case SurfaceElementId::DISPLAY_ENCODER_5:
+			case SurfaceElementId::DISPLAY_ENCODER_6:
+			case SurfaceElementId::DISPLAY_ENCODER_BUTTON_1:
+			case SurfaceElementId::DISPLAY_ENCODER_BUTTON_2:
+			case SurfaceElementId::DISPLAY_ENCODER_BUTTON_3:
+			case SurfaceElementId::DISPLAY_ENCODER_BUTTON_4:
+			case SurfaceElementId::DISPLAY_ENCODER_BUTTON_5:
+			case SurfaceElementId::DISPLAY_ENCODER_BUTTON_6:
+			case SurfaceElementId::UP:
+			case SurfaceElementId::DOWN:
+			case SurfaceElementId::LEFT:
+			case SurfaceElementId::RIGHT:
+				continue;
+				break;
+		}
 
 		bool hasChanged = false;
 
@@ -2005,7 +2027,13 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						{
 							config->Set(bindingParameterButton->mp_id, bindingParameterButton->mp_index);
 						}
-						break;						
+						break;
+					case MixerparameterAction::RESET:
+						config->Reset(bindingParameterButton->mp_id, bindingParameterButton->mp_index);
+						break;
+					case MixerparameterAction::RESET_SELECTED_CHANNEL:
+						config->Reset(bindingParameterButton->mp_id, config->GetUint(SELECTED_CHANNEL));
+						break;
 				}
 			}
 			else

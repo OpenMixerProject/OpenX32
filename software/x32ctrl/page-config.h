@@ -32,15 +32,16 @@ class PageConfig : public Page
         {
             using enum MP_ID;
 
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, SELECTED_CHANNEL);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_GAIN);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_PHANTOM);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::SET_TO_SELECTED_CHANNEL, ROUTING_DSP_INPUT);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_PHASE_INVERT);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE, SELECTED_CHANNEL);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_GAIN);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHANTOM);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::CHANGE_SELECTED_CHANNEL, ROUTING_DSP_INPUT);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHASE_INVERT);
             // Encoder 4 not set
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_VOLUME);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_MUTE);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::SET_TO_SELECTED_CHANNEL, CHANNEL_PANORAMA);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_VOLUME);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_MUTE);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_PANORAMA);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6, MixerparameterAction::RESET_SELECTED_CHANNEL, CHANNEL_PANORAMA);
 
             SyncEncoderWidgets(true);
         }
