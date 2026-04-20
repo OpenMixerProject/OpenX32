@@ -76,60 +76,6 @@ class PageGate: public Page {
             //lv_chart_refresh(objects.current_channel_gate);
         }
 
-        // bool OnDisplayButton(X32_BTN button, bool pressed) override {
-        //     if (pressed){
-		// 		switch (button){
-		// 			case X32_BTN_ENCODER1:
-		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'T', GATE_THRESHOLD_MIN);
-		// 				break;
-		// 			case X32_BTN_ENCODER2:
-		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'R', GATE_RANGE_MAX);
-		// 				break;
-		// 			case X32_BTN_ENCODER3:
-		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'A', 10.0f);
-		// 				break;
-		// 			case X32_BTN_ENCODER4:
-		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'H', 50.0f);
-		// 				break;
-		// 			case X32_BTN_ENCODER5:
-		// 				mixer->SetGate(config->GetUint(SELECTED_CHANNEL), 'r', 250.0f);
-		// 				break;
-		// 			case X32_BTN_ENCODER6:
-		// 				break;
-		// 			default:
-		// 				break;
-		// 		}
-		// 	}
-
-        //     return true;
-        // }
-
-        // bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) override {
-        //     switch (encoder){
-		// 		case X32_ENC_ENCODER1:
-		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'T', amount);
-		// 			break;
-		// 		case X32_ENC_ENCODER2:
-		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'R', amount);
-		// 			break;
-		// 		case X32_ENC_ENCODER3:
-		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'A', amount);
-		// 			break;
-		// 		case X32_ENC_ENCODER4:
-		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'H', amount);
-		// 			break;
-		// 		case X32_ENC_ENCODER5:
-		// 			mixer->ChangeGate(config->GetUint(SELECTED_CHANNEL), 'r', amount);
-		// 			break;
-		// 		case X32_ENC_ENCODER6:
-		// 			break;
-		// 		default:
-		// 			break;
-		// 	}
-
-        //     return false;
-        // }
-
     private:
         lv_chart_series_t* chartSeriesGate;
         lv_chart_series_t* chartSeriesGateAudio;
@@ -177,7 +123,7 @@ class PageGate: public Page {
                 int32_t value = y_array[point_id];
 
                 X32Config* config = (X32Config*)lv_obj_get_user_data(obj);
-                if (value >= config->GetFloat(MP_ID::CHANNEL_GATE_TRESHOLD, config->GetUint(MP_ID::SELECTED_CHANNEL)) * 100.0f) {
+                if (value >= config->GetFloat(CHANNEL_GATE_TRESHOLD, config->GetUint(SELECTED_CHANNEL)) * 100.0f) {
                     line_dsc->color = lv_palette_main(LV_PALETTE_GREEN);
                 } else {
                     line_dsc->color = lv_palette_main(LV_PALETTE_RED);
@@ -200,12 +146,12 @@ class PageGate: public Page {
             for (uint16_t pixel = 0; pixel < 200; pixel++) {
                 inputLevel = (60.0f * ((float)pixel/199.0f)) - 60.0f; // from -60 dB to 0 dB
 
-                if (inputLevel >= config->GetFloat(MP_ID::CHANNEL_GATE_TRESHOLD)) {
+                if (inputLevel >= config->GetFloat(CHANNEL_GATE_TRESHOLD, selectedChannelIndex)) {
                     // above threshold
                     outputLevel = inputLevel;
                 }else{
                     // below threshold -> apply reduction
-                    outputLevel = inputLevel - config->GetFloat(MP_ID::CHANNEL_GATE_RANGE);
+                    outputLevel = inputLevel - config->GetFloat(CHANNEL_GATE_RANGE, selectedChannelIndex);
                 }
 
                 // scale outputLevel to -6000 .. 0

@@ -607,6 +607,11 @@ class Mixerparameter
 	        return decimal_places;
         }
 
+        MP_UOM GetUOM()
+        {
+            return unitOfMeasurement;
+        }
+
         /// @brief Resets the stored data.
         /// @param index The index of the parameter (usual the vchannel index or FX slot index).
         void Reset(uint index = 0)

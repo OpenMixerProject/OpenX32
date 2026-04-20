@@ -539,3 +539,8 @@ float Helper::rescale(float input, float inputMin, float inputMax, float outputM
     // Die eigentliche Skalierungsformel
     return (input - inputMin) * (outputMax - outputMin) / (inputMax - inputMin) + outputMin;
 }
+
+float math_log(float number, float base)
+{
+	return log(number) / log(base);
+}

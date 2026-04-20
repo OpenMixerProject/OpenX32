@@ -73,8 +73,6 @@ class Page : public X32Base
         virtual void OnUpdateMeters() {}
         virtual void OnShow() {}
         virtual void OnChange(bool force_update) {}
-        //virtual bool OnDisplayEncoderTurned(X32_ENC encoder, int amount) { return false; }
-        //virtual bool OnDisplayButton(X32Action action, bool pressed) { return false; }
 
     public:
         Page(PageBaseParameter* pagebasepar);
@@ -83,9 +81,6 @@ class Page : public X32Base
         void Show();
         void UpdateMeters();
         void Change();
-
-        //void DisplayEncoderTurned(X32_ENC encoder, int amount);
-        //void DisplayButton(X32Action action, bool pressed);
 
         void UtilityMode(bool mode);
 

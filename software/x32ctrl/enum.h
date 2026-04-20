@@ -443,7 +443,6 @@ enum class MP_UOM {
     MS, // Milliseconds
     SECONDS, // Seconds
     HZ, // Hertz
-    KHZ, // Kilohertz
     PERCENT, // Percent
     EQ_TYPE,
     FPGA_ROUTING,
@@ -483,7 +482,6 @@ enum class MP_CAT {
 /// @brief Mixerparameter ID
 enum class MP_ID {
     NONE,
-    PAGE_CUSTOM_ENCODER,
 
     // Settings
 
@@ -511,7 +509,7 @@ enum class MP_ID {
 
     // State
 
-    ACTIVE_SCENE,
+    //ACTIVE_SCENE,
     SELECTED_CHANNEL,
     ACTIVE_PAGE,
     BANKING_EQ,
@@ -1143,11 +1141,14 @@ enum class DSP_TAP : int
 enum class MixerparameterAction
 {
     NONE,
+    REFRESH, // used for display buttons
     SET,
-    SET_TO_INDEX,
-    SET_TO_SELECTED_CHANNEL,
+    SET_TO_INDEX, // Set value of index 0 to value of index parameter
+    SET_ON_INDEX, // Set value of index 'index parameter' to 1
+    SET_SELECTED_CHANNEL,
     CHANGE,
     CHANGE_SELECTED_CHANNEL,
+    CHANGE__MP_INDIRECT__SELECTED_CHANNEL, // Set value of 'Mixerparameter ID + Offset' on index 'selected channel'
     TOGGLE,
     TOGGLE_SELECTED_CHANNEL,
     RESET,

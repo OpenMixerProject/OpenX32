@@ -103,7 +103,6 @@ void X32Config::DefineMixerparameters() {
     // #####################
 
     DefParameter(NONE, MP_CAT::NONE, "");
-    DefParameter(PAGE_CUSTOM_ENCODER, MP_CAT::NONE, "");
 
     // ############
     // # Settings
@@ -198,39 +197,32 @@ void X32Config::DefineMixerparameters() {
     cat = MP_CAT::STATE;
     group = "state";
 
-    DefParameter(ACTIVE_SCENE, cat, "Active Scene")
-    ->DefConfig(group, "active_scene")
-    ->DefMinMaxStandard_Uint(0, 99, 0);
+    // DefParameter(ACTIVE_SCENE, cat, "Active Scene")
+    // ->DefMinMaxStandard_Uint(0, 99, 0);
 
     DefParameter(SELECTED_CHANNEL, cat, "Selected Ch")
     ->DefUOM(MP_UOM::ZERO_BASED_INDEX__START_BY_ONE)
     ->DefHideEncoderReset()
-    ->DefConfig(group, "selected_channel")
     ->DefMinMaxStandard_Uint(0, MAX_VCHANNELS - 1, 0);
 
     DefParameter(ACTIVE_PAGE, cat, "Active Page")
     ->DefHideEncoderSlider()
-    ->DefConfig(group, "active_page")
     ->DefMinMaxStandard_Uint(0, 255, (uint)X32_PAGE::HOME);
 
     DefParameter(BANKING_EQ, cat, "Banking EQ")
     ->DefHideEncoderReset()
-    ->DefConfig(group, "banking_eq")
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
     DefParameter(BANKING_INPUT, cat, "Banking Input Section")
     ->DefHideEncoderReset()
-    ->DefConfig(group, "banking_input")
     ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 0);
 
     DefParameter(BANKING_BUS, cat, "Banking Bus Section")
     ->DefHideEncoderReset()
-    ->DefConfig(group, "banking_bus")
     ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 0);
 
     DefParameter(BANKING_BUS_SENDS, cat, "Banking Bus Sends")
     ->DefHideEncoderReset()
-    ->DefConfig(group, "banking_bus_sends")
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
     // ###########
@@ -239,19 +231,19 @@ void X32Config::DefineMixerparameters() {
 
     cat = MP_CAT::DISPLAY;
 
-    DefParameter(DISPLAY_ENCODER_1_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_2_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_3_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_4_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_5_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_6_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_1_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_2_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_3_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_4_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_5_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_6_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
 
-    DefParameter(DISPLAY_ENCODER_1_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_2_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_3_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_4_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_5_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
-    DefParameter(DISPLAY_ENCODER_6_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider()->DefHideEncoderReset();
+    DefParameter(DISPLAY_ENCODER_1_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_2_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_3_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_4_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_5_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    DefParameter(DISPLAY_ENCODER_6_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
 
     DefParameter(DISPLAY_UTILITY, cat, "")->DefStandard_Bool(false);
 
@@ -469,7 +461,7 @@ void X32Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
     ->DefStepsize(1)
-    ->DefMinMaxStandard_Float(20.0f, 24000.0f, 20.0f);
+    ->DefMinMaxStandard_Float(0.0f, 400.0f, 0.0f);
 
     uint channel_eq_count = 4;
     float channel_eq_freq[4] = {125.0f, 500.0f, 2000.0f, 10000.0f};
@@ -1396,9 +1388,19 @@ bool X32Config::HasAnyParameterChanged()
     return mp_changedlist->size() > 0;
 }
 
-void X32Config::ResetChangedParameterList()
+void X32Config::ResetAndUnfreezeChangedParameterList()
 {
-    mp_changedlist->clear();
+    if (mp_changedlist->size() != 0)
+    {
+        mp_changedlist->clear();
+    }
+
+    if (mp_changedlist_temp->size() != 0)
+    {
+        mp_changedlist->insert(mp_changedlist_temp->begin(), mp_changedlist_temp->end());
+        mp_changedlist_temp->clear();
+    }
+    MixerParameterChangelistFreeze = false;
 }
 
 Mixerparameter* X32Config::GetParameter(MP_ID mp)
@@ -1458,15 +1460,44 @@ void X32Config::SetParameterUnchanged(MP_ID mp)
     }
 }
 
+// Freeze the mp_changedlist, so it stays consistent
+void X32Config::FreezeParameterList()
+{
+    MixerParameterChangelistFreeze = true;
+}
+
+// Unfreeze the mp_changedlist and copy mp_changedlist2 to mp_changedlist
+void X32Config::UnfreezeParameterList()
+{
+    
+
+
+}
+
 void X32Config::SetParameterChanged(MP_ID mp, uint index)
 {
-    if (mp_changedlist->contains(mp))
+    // Mixerparameter changelist is frozen, write changes to temporary list
+    if (MixerParameterChangelistFreeze)
     {
-        mp_changedlist->at(mp).insert(index);
+        if (mp_changedlist_temp->contains(mp))
+        {
+            mp_changedlist_temp->at(mp).insert(index);
+        }
+        else
+        {
+            mp_changedlist_temp->insert({mp, {index}});
+        }
     }
-    else
+    else // normal operation
     {
-        mp_changedlist->insert({mp, {index}});
+        if (mp_changedlist->contains(mp))
+        {
+            mp_changedlist->at(mp).insert(index);
+        }
+        else
+        {
+            mp_changedlist->insert({mp, {index}});
+        }
     }
 
     if (helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE))

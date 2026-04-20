@@ -686,6 +686,23 @@ uint16_t Surface::CalcEncoderRingLedIncrement(uint8_t pct) {
     return led_mask;
 }
 
+
+uint16_t Surface::CalcEncoderRingLedDirect(uint8_t num_leds_to_light)
+{
+    if (num_leds_to_light > 13)
+    {
+        num_leds_to_light = 13;
+    }
+
+    uint16_t led_mask = 0;
+    if (num_leds_to_light > 0)
+    {
+        led_mask = (1U << num_leds_to_light) - 1;
+    }
+
+    return led_mask;
+}
+
 // bit 0=CCW, bit 6=center, bit 12 = CW, bit 15=encoder-backlight
 // CCW <- XXXXXX X XXXXXX -> CW
 uint16_t Surface::CalcEncoderRingLedDecrement(uint8_t pct) {
@@ -1116,7 +1133,7 @@ void Surface::SetMeterLedMain_FullOrCompact(uint8_t preamp, uint8_t dynamics, ui
 
 // boardId = 0, 1, 4, 5, 8
 // index
-// ledMode = 0=increment, 1=absolute position, 2=balance l/r, 3=width/spread, 4=decrement
+// ledMode = 0=increment, 1=absolute position, 2=balance l/r, 3=width/spread, 4=decrement, 5=direct -> the number of leds to turn on (max. 13)
 // ledPct = percentage 0...100
 // backlight = enable or disable
 void Surface::SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, uint8_t ledPct, bool backlight) {
@@ -1143,6 +1160,10 @@ void Surface::SetEncoderRing(uint8_t boardId, uint8_t index, uint8_t ledMode, ui
             break;
         case 4: // decrement-method
             leds = CalcEncoderRingLedDecrement(ledPct);
+        case 5: // direct number of leds (max 13)
+            leds = CalcEncoderRingLedDirect(ledPct);
+        case 6: // direct position of led (max 13)
+            leds = (1U << (ledPct-1));
             break;
     }
     message.AddDataByte(leds & 0xFF);

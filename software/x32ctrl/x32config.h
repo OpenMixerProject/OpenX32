@@ -25,6 +25,8 @@ class X32Config
 
         Mixerparameter* mpm[(uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE];
         map<MP_ID, set<uint>>* mp_changedlist = new map<MP_ID, set<uint>>();
+        bool MixerParameterChangelistFreeze = false;
+        map<MP_ID, set<uint>>* mp_changedlist_temp = new map<MP_ID, set<uint>>();
         
         void SetParameterChanged(MP_ID mp, uint index);
 
@@ -61,8 +63,10 @@ class X32Config
         bool HasParametersChanged(MP_CAT parameter_cat);
         bool HasParametersChanged(MP_CAT parameter_cat, uint index);
         bool HasAnyParameterChanged();
+        void FreezeParameterList();
+        void UnfreezeParameterList();
         void SetParameterUnchanged(MP_ID mp);
-        void ResetChangedParameterList();
+        void ResetAndUnfreezeChangedParameterList();
         
         float GetFloat(MP_ID mp, uint index = 0);
         int GetInt(MP_ID mp, uint index = 0);

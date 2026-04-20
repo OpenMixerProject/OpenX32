@@ -546,7 +546,8 @@ bool Mixer::LoadConfig(uint scene)
 
 		if (			
 			parameter->GetId() == NONE ||
-			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
+            parameter->GetCategory() == MP_CAT::DISPLAY ||
+            parameter->GetCategory() == MP_CAT::STATE ||
 			parameter->IsNoConfig() ||
 			parameter->IsReadonly()
 		)
@@ -629,7 +630,8 @@ void Mixer::SaveConfig(uint scene)
 
 		if (
 			parameter->GetId() == NONE ||
-			parameter->GetId() == PAGE_CUSTOM_ENCODER ||
+            parameter->GetCategory() == MP_CAT::DISPLAY ||
+            parameter->GetCategory() == MP_CAT::STATE ||
 			parameter->IsNoConfig() ||
 			parameter->IsReadonly()
 		)

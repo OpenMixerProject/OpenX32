@@ -259,6 +259,14 @@ void X32Ctrl::Tick10ms(void)
 {
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "10ms");
 
+	//#####################################
+	//
+	//   Freeze changed parameter list
+	//
+	config->FreezeParameterList();
+	//
+	//#####################################
+
 	if (config->IsModelX32FullOrCompactOrProducer()) 
 	{
 		surface->Touchcontrol();	
@@ -299,15 +307,23 @@ void X32Ctrl::Tick10ms(void)
 	{
 		syncGuiOrLcd();
 		//syncXRemote(false);
-
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset list of changed Mixerparameter.");
-		config->ResetChangedParameterList();
 	}
+
+	//#####################################
+	//
+	//   Unfreeze changed parameter list
+	//
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset list of changed Mixerparameter.");
+	config->ResetAndUnfreezeChangedParameterList();
+	//
+	//#####################################
 }
 
 void X32Ctrl::Tick50ms(void)
 {
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "50ms");
+
+	// Update VU-Meters
 	UpdateMeters();
 }
 
@@ -317,8 +333,10 @@ void X32Ctrl::Tick100ms(void) {
 
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "100ms");
 
+	// Led Blinking
 	surface->Blink();
 
+	// DSP-Activity Light
     if (!(state->dsp_disable_activity_light)) {
    	    // toggle the LED on DSP1 and DSP2 to show some activity
         uint32_t value = 2;
@@ -326,6 +344,7 @@ void X32Ctrl::Tick100ms(void) {
         mixer->dsp->spi->QueueDspData(1, 'a', 42, 0, 1, (float*)&value);
     }
 
+	// DEBUG Row in GUI-Header
 	if (config->GetBool(DEBUG) && !config->IsModelX32Core())
 	{
 		// calculate mean-value and show the current DSP-load
@@ -872,11 +891,24 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 		hasChanged = fullSync && binding_parameter->mp_id != NONE;
 
-		hasChanged |= (binding_parameter->mp_action == MixerparameterAction::SET || binding_parameter->mp_action == MixerparameterAction::TOGGLE) &&
+		hasChanged |= (
+						binding_parameter->mp_action == MixerparameterAction::SET ||
+						binding_parameter->mp_action == MixerparameterAction::TOGGLE ||
+						binding_parameter->mp_action == MixerparameterAction::CHANGE
+					) &&
 					 config->HasParameterChanged(binding_parameter->mp_id, binding_parameter->mp_index);
 
-		hasChanged |= (binding_parameter->mp_action == MixerparameterAction::SET_TO_SELECTED_CHANNEL || binding_parameter->mp_action == MixerparameterAction::TOGGLE_SELECTED_CHANNEL) &&
+		hasChanged |= (
+						binding_parameter->mp_action == MixerparameterAction::SET_SELECTED_CHANNEL ||
+						binding_parameter->mp_action == MixerparameterAction::TOGGLE_SELECTED_CHANNEL ||
+						binding_parameter->mp_action == MixerparameterAction::CHANGE_SELECTED_CHANNEL
+					) &&
 					(config->HasParameterChanged(SELECTED_CHANNEL) || config->HasParameterChanged(binding_parameter->mp_id, config->GetUint(SELECTED_CHANNEL)));
+
+		hasChanged |= (
+						binding_parameter->mp_action == MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL
+					) &&
+					(config->HasParameterChanged(SELECTED_CHANNEL) || config->HasParameterChanged((MP_ID)(((uint)binding_parameter->mp_id) + config->GetUint((MP_ID)binding_parameter->mp_index)), config->GetUint(SELECTED_CHANNEL)));
 		
 		hasChanged |= binding_parameter->mp_action == MixerparameterAction::SET_TO_INDEX && config->HasParameterChanged(binding_parameter->mp_id);
 		
@@ -939,7 +971,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 						ledOn = config->GetBool(binding_parameter->mp_id, binding_parameter->mp_index);
 						break;
 					case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
-					case MixerparameterAction::SET_TO_SELECTED_CHANNEL:
+					case MixerparameterAction::SET_SELECTED_CHANNEL:
 						ledOn = config->GetBool(binding_parameter->mp_id, config->GetUint(SELECTED_CHANNEL));
 						break;
 					case MixerparameterAction::SET_TO_INDEX:
@@ -949,6 +981,46 @@ void X32Ctrl::syncSurface(bool fullSync)
 				}
 
 				surface->SetLed(element->GetBoard(), element->GetIndex(), ledOn);
+			}
+			else if (element->element_type == SurfaceElementType::Encoder)
+			{
+				MP_ID parameter_id = binding_parameter->mp_id;
+				uint parameter_index = binding_parameter->mp_index;
+
+				switch(binding_parameter->mp_action)
+				{
+					case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
+					case MixerparameterAction::SET_SELECTED_CHANNEL:
+					case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
+						parameter_index = config->GetUint(SELECTED_CHANNEL);
+						break;
+					case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+						parameter_id = (MP_ID)(((uint)binding_parameter->mp_id) + config->GetUint((MP_ID)binding_parameter->mp_index));
+						parameter_index = config->GetUint(SELECTED_CHANNEL);
+						break;					
+				}
+
+				switch(config->GetParameter(parameter_id)->GetUOM())
+				{
+					case MP_UOM::HZ:
+						{
+							float max = config->GetParameter(parameter_id)->GetMax();
+							float min = config->GetParameter(parameter_id)->GetMin();
+							float max_zerobased = (max-min);
+
+							float wert = config->GetFloat(parameter_id, parameter_index);
+
+				            uint position = (uint)((13+1)-std::pow(13, (1.0 - (wert / max_zerobased))));
+                    
+                			surface->SetEncoderRing(element->GetBoard(), element->GetIndex(), 6, position, 1);
+						}
+						break;
+					case MP_UOM::PANORAMA:
+						surface->SetEncoderRing(element->GetBoard(), element->GetIndex(), 2, (config->GetFloat(parameter_id, parameter_index) + 100.0f)/2.0f, 1);
+						break;
+					default:
+						surface->SetEncoderRing(element->GetBoard(), element->GetIndex(), 0, config->GetPercent(parameter_id, parameter_index), 1);
+				}
 			}
 			else if (element->element_type == SurfaceElementType::Lcd)
 			{
@@ -994,97 +1066,51 @@ void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
 
 	if (config->IsModelX32FullOrCompactOrProducer()) {
 		
-		// Gain
-		if (config->HasParameterChanged(CHANNEL_GAIN, chanIndex) || fullSync)
-		{
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_GAIN] & 0xFF, 0, config->GetPercent(CHANNEL_GAIN, chanIndex), 1);
-		}
-		// Balance/Panorama
-		if (config->HasParameterChanged(CHANNEL_PANORAMA, chanIndex) || fullSync)
-		{
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_PAN] >> 8, surface->Enum2Encoder[X32_ENC_PAN] & 0xFF, 2, (config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f)/2.0f, 1);
-		}
+		// // Bus sends
+		// if (config->IsModelX32Full())
+		// {
+		// 	if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS, chanIndex) || fullSync)
+		// 	{
+		// 		surface->SetEncoderRing(
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8,
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF,
+		// 			0,
+		// 			pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 0)), chanIndex)/20.0f) * 100.0f,
+		// 			1);
 
-		// Bus sends
-		if (config->IsModelX32Full())
-		{
-			if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS, chanIndex) || fullSync)
-			{
-				surface->SetEncoderRing(
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_1] >> 8,
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_1] & 0xFF,
-					0,
-					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 0)), chanIndex)/20.0f) * 100.0f,
-					1);
+		// 		surface->SetEncoderRing(
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8,
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF,
+		// 			0,
+		// 			pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND02 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 1)), chanIndex)/20.0f) * 100.0f,
+		// 			1);
 
-				surface->SetEncoderRing(
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_2] >> 8,
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_2] & 0xFF,
-					0,
-					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND02 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 1)), chanIndex)/20.0f) * 100.0f,
-					1);
+		// 		surface->SetEncoderRing(
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8,
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF,
+		// 			0,
+		// 			pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND03 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 2)), chanIndex)/20.0f) * 100.0f,
+		// 			1);
 
-				surface->SetEncoderRing(
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_3] >> 8,
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_3] & 0xFF,
-					0,
-					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND03 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 2)), chanIndex)/20.0f) * 100.0f,
-					1);
+		// 		surface->SetEncoderRing(
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8,
+		// 			surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF,
+		// 			0,
+		// 			pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND04 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 3)), chanIndex)/20.0f) * 100.0f,
+		// 			1);
+		// 	}
+		// }
 
-				surface->SetEncoderRing(
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_4] >> 8,
-					surface->Enum2Encoder[X32_ENC_BUS_SEND_4] & 0xFF,
-					0,
-					pow(10.0f, config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND04 + (config->GetUint(BANKING_BUS_SENDS) * 4 + 3)), chanIndex)/20.0f) * 100.0f,
-					1);
-			}
-		}
-		// Main Bus
+		
+				// // EQ-LEDS
+				// uint eq_type = config->GetUint((MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ, chanIndex)), chanIndex);
 
-		// Sub "Level"
-		if (config->HasParameterChanged(CHANNEL_VOLUME_SUB, chanIndex) || fullSync)
-		{
-			surface->SetEncoderRingDbfs(surface->Enum2Encoder[X32_ENC_LEVEL_SUB] >> 8, surface->Enum2Encoder[X32_ENC_LEVEL_SUB] & 0xFF,
-				config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex), false, true);
-		}
-
-		// Gate
-		if (config->HasParameterChanged(CHANNEL_GATE_TRESHOLD, chanIndex) || fullSync)
-		{
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_GATE] >> 8, surface->Enum2Encoder[X32_ENC_GATE] & 0xFF, 4, 100.0f - ((config->GetFloat(CHANNEL_GATE_TRESHOLD, chanIndex) + 80.0f)/0.8f), 1);
-		}
-		// Dynamics
-		if (config->HasParameterChanged(CHANNEL_DYNAMICS_TRESHOLD,chanIndex) || fullSync)
-		{
-			surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_DYNAMICS] >> 8, surface->Enum2Encoder[X32_ENC_DYNAMICS] & 0xFF, 4, 100.0f - ((config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, chanIndex) + 60.0f)/0.6f), 1);
-		}
-		// EQ
-		if (config->HasParametersChanged(MP_CAT::CHANNEL_EQ, chanIndex) || fullSync)
-		{
-			if (chanIndex < 40) {
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_LOWCUT] >> 8, surface->Enum2Encoder[X32_ENC_LOWCUT] & 0xFF, 1, (config->GetFloat(CHANNEL_LOWCUT_FREQ, chanIndex) - 20.0f)/3.8f, 1);
-				
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_FREQ] >> 8, surface->Enum2Encoder[X32_ENC_EQ_FREQ] & 0xFF, 1, (config->GetFloat((MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ, chanIndex))) - 20.0f)/199.8f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_GAIN] >> 8, surface->Enum2Encoder[X32_ENC_EQ_GAIN] & 0xFF, 2, (config->GetFloat((MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ, chanIndex))) + 15.0f)/0.3f, 1);
-				surface->SetEncoderRing(surface->Enum2Encoder[X32_ENC_EQ_Q] >> 8, surface->Enum2Encoder[X32_ENC_EQ_Q] & 0xFF, 3, ((10.0f - config->GetFloat((MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ, chanIndex)))) + 0.3f)/0.097f, 1);
-				
-				// EQ-LEDS
-				uint eq_type = config->GetUint((MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ, chanIndex)), chanIndex);
-
-				surface->SetLedByEnum(X32_LED_EQ_HCUT, eq_type == 6); // LowPass
-				surface->SetLedByEnum(X32_LED_EQ_HSHV, eq_type == 3); // HighShelf
-				surface->SetLedByEnum(X32_LED_EQ_LCUT, eq_type == 7); // HighPass
-				surface->SetLedByEnum(X32_LED_EQ_LSHV, eq_type == 2); // LowShelf
-				surface->SetLedByEnum(X32_LED_EQ_PEQ, eq_type == 1); // PEQ
-				surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
-
-				uint activeEQ = config->GetUint(BANKING_EQ);
-				surface->SetLedByEnum(X32_BTN_EQ_LOW, activeEQ == 0);
-				surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, activeEQ == 1);
-				surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, activeEQ == 2);
-				surface->SetLedByEnum(X32_BTN_EQ_HIGH, activeEQ == 3);
-			}
-		}
+				// surface->SetLedByEnum(X32_LED_EQ_HCUT, eq_type == 6); // LowPass
+				// surface->SetLedByEnum(X32_LED_EQ_HSHV, eq_type == 3); // HighShelf
+				// surface->SetLedByEnum(X32_LED_EQ_LCUT, eq_type == 7); // HighPass
+				// surface->SetLedByEnum(X32_LED_EQ_LSHV, eq_type == 2); // LowShelf
+				// surface->SetLedByEnum(X32_LED_EQ_PEQ, eq_type == 1); // PEQ
+				// surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
 	}
 
 	if (config->IsModelX32Rack()) {			
@@ -1851,6 +1877,14 @@ void X32Ctrl::InitSurfaceBinding()
 	config->SurfaceBind(SurfaceElementId::VIEW_DYNAMICS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::COMPRESSOR));
 
 	// EQ
+	config->SurfaceBind(SurfaceElementId::EQ_Q_ENCODER, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_EQ_Q1, (uint)BANKING_EQ);
+	config->SurfaceBind(SurfaceElementId::EQ_FREQ_ENCODER, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_EQ_FREQ1, (uint)BANKING_EQ);
+	config->SurfaceBind(SurfaceElementId::EQ_GAIN_ENCODER, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_EQ_GAIN1, (uint)BANKING_EQ);
+
+	config->SurfaceBind(SurfaceElementId::EQ_LOW, MixerparameterAction::SET_TO_INDEX, BANKING_EQ, 0);
+	config->SurfaceBind(SurfaceElementId::EQ_LOW_MID, MixerparameterAction::SET_TO_INDEX, BANKING_EQ, 1);
+	config->SurfaceBind(SurfaceElementId::EQ_HIGH_MID, MixerparameterAction::SET_TO_INDEX, BANKING_EQ, 2);
+	config->SurfaceBind(SurfaceElementId::EQ_HIGH, MixerparameterAction::SET_TO_INDEX, BANKING_EQ, 3);
 	config->SurfaceBind(SurfaceElementId::VIEW_EQ, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::EQ));
 
 	// Bus Sends
@@ -1982,6 +2016,9 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 			{
 				switch (bindingParameterButton->mp_action)
 				{
+					case MixerparameterAction::REFRESH:
+						config->Refresh(bindingParameterButton->mp_id, bindingParameterButton->mp_index);
+						break;
 					case MixerparameterAction::TOGGLE:
 						config->Toggle(bindingParameterButton->mp_id, bindingParameterButton->mp_index);
 						break;
@@ -1991,7 +2028,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 					case MixerparameterAction::SET:
 						config->Set(bindingParameterButton->mp_id, 1, bindingParameterButton->mp_index);
 						break;
-					case MixerparameterAction::SET_TO_SELECTED_CHANNEL:
+					case MixerparameterAction::SET_SELECTED_CHANNEL:
 						config->Set(bindingParameterButton->mp_id, 1, config->GetUint(SELECTED_CHANNEL));
 						break;
 					case MixerparameterAction::SET_TO_INDEX:
@@ -2074,6 +2111,11 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 					break;
 				case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
 					config->Change(bindingParameterEncoder->mp_id, amount, config->GetUint(SELECTED_CHANNEL));
+					break;
+				case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+					uint mp_id_raw = ((uint)bindingParameterEncoder->mp_id) + config->GetUint((MP_ID)bindingParameterEncoder->mp_index);
+					MP_ID id = (MP_ID)mp_id_raw;
+					config->Change(id, amount, config->GetUint(SELECTED_CHANNEL));
 					break;
 			}
 		}

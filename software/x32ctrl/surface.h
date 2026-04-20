@@ -28,6 +28,7 @@ class Surface : public X32Base
 
         uint8_t int2segment(int8_t p_value);
 
+        uint16_t CalcEncoderRingLedDirect(uint8_t num_leds_to_light);
         uint16_t CalcEncoderRingLedIncrement(uint8_t pct);
         uint16_t CalcEncoderRingLedDecrement(uint8_t pct);
         uint16_t CalcEncoderRingLedPosition(uint8_t pct);
