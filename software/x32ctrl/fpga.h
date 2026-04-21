@@ -47,13 +47,16 @@ class Fpga : public X32Base
         void SetConfigBit(uint8_t bitNumber, bool value);
         void SendConfig(void);
     
+        void AES50SetPhantomPowerState(uint8_t aes50Port, uint8_t channel, bool state);
+        void AES50SetHeadampGain(uint8_t aes50Port, uint8_t channel, float gain);
+
         void AES50Receive(void);
         void AES50Send(char* data, uint len);
 
-        void AES50Tick(Config* config);
+        void AES50Tick();
         void AES50SendDeviceTypeAndProperty(void);
         void AES50SendNames(void);
-        void AES50SendHeadampMessage(Config* config);
+        void AES50SendHeadampMessage();
 
     private:
         Uart* uart;
@@ -61,6 +64,8 @@ class Fpga : public X32Base
         char fpgaTxBufferUart[FPGA_UART_BUFFER_SIZE];
         uint8_t configData;
         uint8_t AES50Counter;
+        bool AES50PhantomPowerState[1][48]; // [AES50A][Channel1-48]
+        float AES50HeadampGains[1][48]; // [AES50A][Channel1-48]
         
         bool AES50CalcChecksum(char* buf, bool insertChecksum);
         int wrapRingBufferIndex(int index, int bufLen);

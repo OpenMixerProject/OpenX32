@@ -466,9 +466,11 @@ void Mixer::halSendGain(uint8_t dspChannel) {
                 adda->SetGain(boardId, addaChannel, config->GetFloat(CHANNEL_GAIN,  dspChannel), config->GetFloat(CHANNEL_PHANTOM,  dspChannel));
             }
         }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50A) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50A + 48))) {
-            // AES50A input
+            // AES50A input (never thought that we get this far in the reverse-engineering process, but here we are... :) )
+            fpga->AES50SetHeadampGain(0, externalDspSourceIndex - FPGA_OUTPUT_IDX_AES50A + 1, config->GetFloat(CHANNEL_GAIN,  dspChannel));
+
         }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50B) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50B + 48))) {
-            // AES50B input
+            // AES50B input (we need more optimizations in the FPGA to get the second AES50-port working, so this is not implemented yet)
         }
     }
 }
@@ -501,8 +503,10 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
             }
         }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50A) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50A + 48))) {
             // AES50A input
+            fpga->AES50SetPhantomPowerState(0, externalDspSourceIndex - FPGA_OUTPUT_IDX_AES50A + 1, config->GetFloat(CHANNEL_PHANTOM,  dspChannel));
+
         }else if ((externalDspSourceIndex >= FPGA_OUTPUT_IDX_AES50B) && (externalDspSourceIndex < (FPGA_OUTPUT_IDX_AES50B + 48))) {
-            // AES50B input
+            // AES50B input (we need more optimizations in the FPGA to get the second AES50-port working, so this is not implemented yet)
         }
     }
 }

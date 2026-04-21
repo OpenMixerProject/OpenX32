@@ -337,7 +337,8 @@ void X32Ctrl::Tick100ms(void) {
 	}
 
 	// send AES50-data to FPGA
-	mixer->fpga->AES50Tick(config);
+	// DeviceTypeAndProperty every 2 seconds, Headamp-Message every 2 seconds (Names every 10 seconds)
+	mixer->fpga->AES50Tick();
 }
 
 void X32Ctrl::ProcessUartDataAdda() {
