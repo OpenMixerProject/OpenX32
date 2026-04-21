@@ -33,3 +33,7 @@
 	path = software/libvncserver
 	url = https://github.com/LibVNC/libvncserver.git
 	ignore = dirty
+[submodule "software/libartnet"]
+	path = software/libartnet
+	url = https://github.com/OpenLightingProject/libartnet.git
+	ignore = dirty

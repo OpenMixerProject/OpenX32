@@ -35,8 +35,9 @@ sudo make install
 sudo dpkg --add-architecture armel
 sudo apt update
 
-# libz required for openssh-portable
-sudo apt install zlib1g-dev:armel libz-dev:armel
+# libz required for vnc-server
+# libudev required for automount and usb-DMX512-interfaces
+sudo apt install zlib1g-dev:armel libz-dev:armel libudev-dev:armel
 
 # libasound2 required for audio-output
 #sudo apt install libasound2:armel

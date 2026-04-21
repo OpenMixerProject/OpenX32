@@ -211,6 +211,15 @@ fi
 if [ "$COMPILE_SOFTWARE" = true ]; then
 	cd software
 
+	if [ ! -f /opt/cross/lib/libartnet.so ]; then
+		update_progress 45 "Compile libartnet..."
+		cd libartnet
+		autoreconf -fi
+		./configure --host=arm-linux-gnueabi --prefix=/opt/cross
+		sudo make install
+		cd ..
+	fi
+
 	update_progress 45 "Compile x32sdconfig..."
 	cd x32sdconfig
 	./compile.sh
@@ -319,6 +328,7 @@ if [ "$COMPILE_MUSL" = true ]; then
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libartnet.so.1) initramfs_root/lib/libartnet.so.1
 	cd initramfs_root/lib/ && ln -sf libc.so ld-musl-arm.so.1 && cd ../../
 else
 	# copy specific libraries for glibc
@@ -329,6 +339,7 @@ else
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libcrypt.so.1) initramfs_root/lib/libcrypt.so.1
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libartnet.so.1) initramfs_root/lib/libartnet.so.1
 fi
 
 
