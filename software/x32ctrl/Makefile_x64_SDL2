@@ -25,7 +25,7 @@ DEPFLAGS        = -MMD -MP -D=BODYLESS_SDL2
 # debug build
 CFLAGS          ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS) 
 
-LDFLAGS         ?= -lSDL2 -lm -lrt -lpthread
+LDFLAGS         ?= -lSDL2 -lm -lrt -lpthread -lartnet
 
 BIN             = x32ctrl
 BUILD_DIR       = ../bin

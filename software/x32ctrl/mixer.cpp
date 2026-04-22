@@ -28,7 +28,7 @@ Mixer::Mixer(X32BaseParameter* basepar): X32Base(basepar) {
     fpga = new Fpga(basepar);
     dsp = new DSP1(basepar);
     adda = new Adda(basepar);
-    card = new Card(basepar, adda);   
+    card = new Card(basepar, adda);
 }
 
 void Mixer::Init() {

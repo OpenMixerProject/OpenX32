@@ -8,6 +8,7 @@
 #include "state.h"
 #include "mixer.h"
 #include "xremote.h"
+#include "artnet.h"
 
 #include "page.h"
 #include "page-meters.h"
@@ -76,6 +77,7 @@ class X32Ctrl : public X32Base
         Surface* surface;
         XRemote* xremote;
         LcdMenu* lcdmenu;
+        Artnet* artnet;
 
         // surface binding
         map<uint, SurfaceBinding_Fader*> fader_binding;

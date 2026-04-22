@@ -107,6 +107,18 @@ while [[ $# -gt 0 ]]; do
       CREATE_SSHKEY=true
       shift
       ;;
+    --just-x32ctrl)
+      export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
+      if [ "$COMPILE_MUSL" = true ]; then
+          export PATH=/opt/cross/bin:$PATH
+      else
+          export PATH=/usr/bin:$PATH
+      fi
+      cd software/x32ctrl
+      make -j$(nproc)
+      cd ../..
+      exit 1;
+      ;;
     *)
       echo "Unknown Parameter: $1"
       exit 1
@@ -148,7 +160,7 @@ cp files/imximage.cfg u-boot/board/freescale/mx25pdk/imximage.cfg
 cp files/mx25pdk.c u-boot/board/freescale/mx25pdk/mx25pdk.c
 cp files/mx25pdk.h u-boot/include/configs/mx25pdk.h
 cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
-
+cp files/libartnet_network.c software/libartnet/artnet/network.c
 # custom boot logo - fullscreen -> console has only 1 line!
 # cp files/linux-boot-logo_final.ppm linux/drivers/video/logo/logo_linux_clut224.ppm
 
@@ -215,8 +227,21 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 		update_progress 45 "Compile libartnet..."
 		cd libartnet
 		autoreconf -fi
-		./configure --host=arm-linux-gnueabi --prefix=/opt/cross
-		sudo make install
+
+                ./configure \
+                        --host=arm-linux-gnueabi \
+                        --prefix=/opt/cross \
+			ac_cv_func_malloc_0_nonnull=yes \
+			ac_cv_func_realloc_0_nonnull=yes \
+                        CC=arm-linux-gnueabi-gcc \
+                        CXX=arm-linux-gnueabi-g++ \
+                        AR=arm-linux-gnueabi-ar \
+                        RANLIB=arm-linux-gnueabi-ranlib \
+                        LDFLAGS="-L/opt/cross/lib" \
+                        CFLAGS="-U_TIME_BITS -Wno-error"
+
+                sudo env "PATH=$PATH" make install
+
 		cd ..
 	fi
 
