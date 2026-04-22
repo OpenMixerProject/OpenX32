@@ -785,6 +785,7 @@ enum class SurfaceElementId {
     TALK_B,
     VIEW_TALK,
     MONITOR_DIM,
+    MONITOR_MONO,
     VIEW_MONITOR,
 
     USB_ACCESS,
