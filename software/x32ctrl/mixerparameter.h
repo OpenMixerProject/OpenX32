@@ -45,6 +45,8 @@ class Mixerparameter
 
         bool value_string_autoincrement_zerobased = false;
 
+        bool button_blink = false;
+
         bool readonly = false;
 
         /// @brief Hide slider on display encoder.
@@ -524,6 +526,14 @@ class Mixerparameter
             return this;
         }
 
+        // If the Mixerparameter is bound to a button and its value is true, the button blinks.
+        Mixerparameter* DefButtonBlink()
+        {   
+            button_blink = true;
+
+            return this;
+        }
+
         /// @brief The data of this Mixerparameter can not be changed, it is readonly.
         Mixerparameter* DefReadonly() {
             readonly = true;
@@ -785,6 +795,11 @@ class Mixerparameter
         float GetMax()
         {
             return value_max;
+        }
+
+        bool GetBlink()
+        {
+            return button_blink;
         }
 
         void Change(int amount, uint index = 0)

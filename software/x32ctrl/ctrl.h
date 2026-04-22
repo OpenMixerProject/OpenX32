@@ -115,7 +115,6 @@ class X32Ctrl : public X32Base
         void Tick10ms(void);
         void Tick50ms(void);
         void Tick100ms(void);
-        void ProcessSurfaceEventsRaw(SurfaceEvent* event);
         void UdpHandleCommunication(void);
 
         void InitPagesAndGUI();
@@ -125,9 +124,6 @@ class X32Ctrl : public X32Base
         void syncGuiOrLcd(void);
         void syncSurface(bool fullSync);
         
-        void surfaceSyncBoardMain(bool fullSync);
-        void surfaceSyncBoard(X32_BOARD board, bool fullSync);
-        void surfaceSyncBoardExtra(bool fullSync);
         void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        
@@ -139,9 +135,4 @@ class X32Ctrl : public X32Base
         void ChangeSelect(int8_t direction);
 
         void SimulatorButton(uint key);
-        void ButtonPressedOrReleased(SurfaceEvent* event);
-        void EncoderTurned(SurfaceEvent* event);
-
-        void BankingSends(X32_BTN p_button);
-        void BankingEQ(X32_BTN p_button);
 }; 

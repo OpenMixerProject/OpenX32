@@ -411,22 +411,6 @@ void X32Ctrl::ProcessUartDataAES50() {
 //#####################################################################################################################
 //#####################################################################################################################
 
-void X32Ctrl::ProcessSurfaceEventsRaw(SurfaceEvent* event){
-	switch(event->classId){
-	  case 'f':
-		// OLD: FaderMoved(event);
-		break;
-	  case 'b':
-		ButtonPressedOrReleased(event);
-		break;
-	  case 'e':
-		EncoderTurned(event);
-		break;
-	  default:
-		helper->DEBUG_X32CTRL(DEBUGLEVEL_TRACE, "unknown message: %s\n", event->ToString().c_str());
-	}
-	delete(event);
-}
 
 // receive data from XRemote client
 void X32Ctrl::UdpHandleCommunication(void) {
@@ -838,12 +822,55 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 	if (config->HasParameterChanged(BANKING_INPUT))
 	{
-		LoadBank(X32BankTarget::InputSection, (X32BankId)(config->GetUint(BANKING_INPUT)));
+		if (config->IsModelX32Full())
+		{
+			X32BankId bank1;
+			X32BankId bank2;
+
+			switch((X32BankId)(config->GetUint(BANKING_INPUT)))
+			{
+				case X32BankId::CH1_16:
+					bank1 = X32BankId::CH1_8;
+					bank2 = X32BankId::CH9_16;
+					break;
+				case X32BankId::CH17_32:
+					bank1 = X32BankId::CH17_24;
+					bank2 = X32BankId::CH25_32;
+					break;
+				case X32BankId::AUX_USB_FX_RET:
+					bank1 = X32BankId::AUX_USB;
+					bank2 = X32BankId::FX_RET;
+					break;
+				case X32BankId::BUS1_16:
+					bank1 = X32BankId::BUS1_8;
+					bank2 = X32BankId::BUS9_16;
+					break;
+			}
+
+			LoadBank(X32BankTarget::InputSection, bank1);
+			LoadBank(X32BankTarget::InputSection2, bank2);
+		}
+		else
+		{
+			LoadBank(X32BankTarget::InputSection, (X32BankId)(config->GetUint(BANKING_INPUT)));
+		}
 	}
 
 	if (config->HasParameterChanged(BANKING_BUS))
 	{
-		LoadBank(X32BankTarget::BusSection, (X32BankId)(config->GetUint(BANKING_BUS)));
+		X32BankId bank = (X32BankId)(config->GetUint(BANKING_BUS));
+
+		switch(bank)
+		{
+			case X32BankId::CH17_32:
+				bank = X32BankId::CH17_24;
+				break;
+			case X32BankId::AUX_USB_FX_RET:
+				bank = X32BankId::AUX_USB;
+				break;
+		}
+
+		LoadBank(X32BankTarget::BusSection, bank);
 	}
 
 	// ###########################################
@@ -963,6 +990,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 			else if (element->element_type == SurfaceElementType::Button)
 			{
 				bool ledOn = false;
+				bool ledBlink = false;
 
 				switch(binding_parameter->mp_action)
 				{
@@ -980,7 +1008,12 @@ void X32Ctrl::syncSurface(bool fullSync)
 					
 				}
 
-				surface->SetLed(element->GetBoard(), element->GetIndex(), ledOn);
+				if (config->GetParameter(binding_parameter->mp_id)->GetBlink())
+				{
+					ledBlink = ledOn;
+				}				
+
+				surface->SetLed(element_id, ledOn, ledBlink);
 			}
 			else if (element->element_type == SurfaceElementType::Encoder)
 			{
@@ -1031,41 +1064,9 @@ void X32Ctrl::syncSurface(bool fullSync)
 			}
 		}
 	}
-
-	// ########################################################
-	//
-	//  old method
-	//
-	// ########################################################
-
-	surfaceSyncBoardMain(fullSync);
-
-	if (config->IsModelX32FullOrCompactOrProducer()){   
-		//surfaceSyncBankIndicator(fullSync);
-
-		surfaceSyncBoard(X32_BOARD_L, fullSync);
-		if (config->IsModelX32Full()){
-			surfaceSyncBoard(X32_BOARD_M, fullSync);
-		}
-		surfaceSyncBoard(X32_BOARD_R, fullSync);
-	
-		surfaceSyncBoardExtra(fullSync);
-	}
 }
 
-void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
-{
-	using enum MP_ID;
 
-	uint8_t chanIndex = config->GetUint(SELECTED_CHANNEL);
-
-	if (config->HasParameterChanged(SELECTED_CHANNEL)){ 
-		// channel selection has changed - do a full sync
-		fullSync=true; 
-	}
-
-	if (config->IsModelX32FullOrCompactOrProducer()) {
-		
 		// // Bus sends
 		// if (config->IsModelX32Full())
 		// {
@@ -1101,103 +1102,69 @@ void X32Ctrl::surfaceSyncBoardMain(bool fullSync)
 		// 	}
 		// }
 
-		
-				// // EQ-LEDS
-				// uint eq_type = config->GetUint((MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ, chanIndex)), chanIndex);
 
-				// surface->SetLedByEnum(X32_LED_EQ_HCUT, eq_type == 6); // LowPass
-				// surface->SetLedByEnum(X32_LED_EQ_HSHV, eq_type == 3); // HighShelf
-				// surface->SetLedByEnum(X32_LED_EQ_LCUT, eq_type == 7); // HighPass
-				// surface->SetLedByEnum(X32_LED_EQ_LSHV, eq_type == 2); // LowShelf
-				// surface->SetLedByEnum(X32_LED_EQ_PEQ, eq_type == 1); // PEQ
-				// surface->SetLedByEnum(X32_LED_EQ_VEQ, false);
-	}
+	// if (config->IsModelX32Rack()) {			
+	// 	if (config->HasParameterChanged(SELECTED_CHANNEL)){
+	// 		setLedChannelIndicator_Rack();
+	// 	}
+	// 	// Solo
+	// 	if (config->HasParameterChanged(CHANNEL_SOLO, chanIndex) || fullSync){
+	// 		surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, config->GetBool(CHANNEL_SOLO, chanIndex)); 
+	// 	}
+	// 	// Mute
+	// 	if (config->HasParameterChanged(CHANNEL_MUTE, chanIndex) || fullSync){
+	// 		surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, config->GetBool(CHANNEL_MUTE, chanIndex)); 
+	// 	}
+	// 	// Volume
+	// 	if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, chanIndex) ||fullSync){
+	// 		surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
+	// 	}
+	// }
 
-	if (config->IsModelX32Rack()) {			
-		if (config->HasParameterChanged(SELECTED_CHANNEL)){
-			setLedChannelIndicator_Rack();
-		}
-		// Solo
-		if (config->HasParameterChanged(CHANNEL_SOLO, chanIndex) || fullSync){
-			surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, config->GetBool(CHANNEL_SOLO, chanIndex)); 
-		}
-		// Mute
-		if (config->HasParameterChanged(CHANNEL_MUTE, chanIndex) || fullSync){
-			surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, config->GetBool(CHANNEL_MUTE, chanIndex)); 
-		}
-		// Volume
-		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, chanIndex) ||fullSync){
-			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
-		}
-	}
+	// if (config->IsModelX32Core()) {
 
-	if (config->IsModelX32Core()) {
+	// 	if (config->HasParameterChanged(SELECTED_CHANNEL)){
+	// 		setLedChannelIndicator_Core();
+	// 	}
 
-		if (config->HasParameterChanged(SELECTED_CHANNEL)){
-			setLedChannelIndicator_Core();
-		}
+	// 	if (!state->x32core_lcdmode_setup && (
+	// 			config->HasParametersChanged({CHANNEL_SOLO,CHANNEL_MUTE,CHANNEL_COLOR,CHANNEL_NAME}, chanIndex) ||
+	// 			config->HasParameterChanged(SELECTED_CHANNEL)
+	// 		)
+	// 	)
+	// 	{
+	// 		SetLcdFromChannel(X32_BOARD_MAIN, 0, chanIndex);
+	// 	}
 
-		if (!state->x32core_lcdmode_setup && (
-				config->HasParametersChanged({CHANNEL_SOLO,CHANNEL_MUTE,CHANNEL_COLOR,CHANNEL_NAME}, chanIndex) ||
-				config->HasParameterChanged(SELECTED_CHANNEL)
-			)
-		)
-		{
-			SetLcdFromChannel(X32_BOARD_MAIN, 0, chanIndex);
-		}
+	// 	// Volume
+	// 	if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, chanIndex))
+	// 	{
+	// 		surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
+	// 	}
 
-		// Volume
-		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, chanIndex))
-		{
-			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
-		}
-
-		// Main Channel
-		if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, (uint)X32_VCHANNEL_BLOCK::MAIN))
-		{
-			surface->SetEncoderRingDbfs(1, 1, config->GetFloat(CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::MAIN), config->GetBool(CHANNEL_MUTE, (uint)X32_VCHANNEL_BLOCK::MAIN), 1);
-		}
-	}
+	// 	// Main Channel
+	// 	if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, (uint)X32_VCHANNEL_BLOCK::MAIN))
+	// 	{
+	// 		surface->SetEncoderRingDbfs(1, 1, config->GetFloat(CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::MAIN), config->GetBool(CHANNEL_MUTE, (uint)X32_VCHANNEL_BLOCK::MAIN), 1);
+	// 	}
+	// }
 
 
-	if (config->IsModelX32Rack()){
-		// Clear Solo
-		if (config->HasParameterChanged(CHANNEL_SOLO)){
-			bool soloActive = mixer->IsSoloActivated();
-			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActive, soloActive);
-		}
-		// Main Channel
-		uint mainchanIndex = (uint)X32_VCHANNEL_BLOCK::MAIN;
-		if (config->HasParameterChanged(CHANNEL_VOLUME, mainchanIndex) || config->HasParameterChanged(CHANNEL_MUTE, mainchanIndex)){
-			surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, config->GetFloat(CHANNEL_VOLUME, mainchanIndex), config->GetBool(CHANNEL_MUTE, mainchanIndex), 0);
-		}
-	}
-}
+	// if (config->IsModelX32Rack()){
+	// 	// Clear Solo
+	// 	if (config->HasParameterChanged(CHANNEL_SOLO)){
+	// 		bool soloActive = mixer->IsSoloActivated();
+	// 		surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActive, soloActive);
+	// 	}
+	// 	// Main Channel
+	// 	uint mainchanIndex = (uint)X32_VCHANNEL_BLOCK::MAIN;
+	// 	if (config->HasParameterChanged(CHANNEL_VOLUME, mainchanIndex) || config->HasParameterChanged(CHANNEL_MUTE, mainchanIndex)){
+	// 		surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, config->GetFloat(CHANNEL_VOLUME, mainchanIndex), config->GetBool(CHANNEL_MUTE, mainchanIndex), 0);
+	// 	}
+	// }
 
-void X32Ctrl::surfaceSyncBoard(X32_BOARD p_board, bool fullSync)
-{
-	using enum MP_ID;
 
-	if (p_board == X32_BOARD_R){
-		// Clear Solo
-		if (config->HasParameterChanged(CHANNEL_SOLO)) { 
-			bool soloActivated = mixer->IsSoloActivated();
-			surface->SetLedByEnum(X32_BTN_CLEAR_SOLO, soloActivated, soloActivated); 
-		}
-	}
-}
 
-void X32Ctrl::surfaceSyncBoardExtra(bool fullSync) {
-	
-	if (config->IsModelX32Full())
-	{
-		// TODO
-		surface->SetLcd(0, 0, 7, 0, 0, 0xA0, 0x20, 5, 5, "OpenX32", 0, 0, 0, "");
-		surface->SetLcd(0, 1, 7, 0, 0, 0xA0, 0x20, 5, 5, "is a", 0, 0, 0, "");
-		surface->SetLcd(0, 2, 7, 0, 0, 0xA0, 0x20, 5, 5, "cool", 0, 0, 0, "");
-		surface->SetLcd(0, 3, 7, 0, 0, 0xA0, 0x20, 5, 5, "Thing!", 0, 0, 0, "");
-	}
-}
 
 void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex)
 {
@@ -1398,28 +1365,29 @@ void X32Ctrl::UpdateMeters(void) {
 
 
 // only X32 Rack
-void X32Ctrl::setLedChannelIndicator_Rack(void){
-		uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL);
-		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
-		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
-		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
-		surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
-		surface->SetLedByEnum(X32_LED_MAIN, (chanIdx >= 70)&&(chanIdx <= 71));
-		surface->SetLedByEnum(X32_LED_MATRIX, (chanIdx >= 72)&&(chanIdx <= 79));
-		surface->SetLedByEnum(X32_LED_MAIN, (chanIdx == 80));
+void X32Ctrl::setLedChannelIndicator_Rack(void)
+{
+		// uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL);
+		// surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
+		// surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
+		// surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
+		// surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
+		// surface->SetLedByEnum(X32_LED_MAIN, (chanIdx >= 70)&&(chanIdx <= 71));
+		// surface->SetLedByEnum(X32_LED_MATRIX, (chanIdx >= 72)&&(chanIdx <= 79));
+		// surface->SetLedByEnum(X32_LED_MAIN, (chanIdx == 80));
 
-		// set 7-Segment Display
-		surface->SetX32RackDisplay(chanIdx);        
+		// // set 7-Segment Display
+		// surface->SetX32RackDisplay(chanIdx);        
 }
 
 // only X32 Core
 void X32Ctrl::setLedChannelIndicator_Core(void){
-		uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL);
-		surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
-		surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
-		surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
-		surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
-		surface->SetLedByEnum(X32_LED_MTX, (chanIdx >= 70)&&(chanIdx <= 79));
+		// uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL);
+		// surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
+		// surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
+		// surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
+		// surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
+		// surface->SetLedByEnum(X32_LED_MTX, (chanIdx >= 70)&&(chanIdx <= 79));
 }
 
 uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
@@ -1917,7 +1885,14 @@ void X32Ctrl::InitSurfaceBinding()
 	config->SurfaceBind(SurfaceElementId::DOWN, MixerparameterAction::TOGGLE, DISPLAY_DOWN);
 
 	// Banking of Input Section
-	if (config->IsModelX32CompactOrProducer())
+	if (config->IsModelX32Full())
+	{
+		config->SurfaceBind(SurfaceElementId::CH1_16, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH1_16));
+		config->SurfaceBind(SurfaceElementId::CH17_32, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH17_32));
+		config->SurfaceBind(SurfaceElementId::AUX_USB_RX_RET, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::AUX_USB_FX_RET));
+		config->SurfaceBind(SurfaceElementId::BUS_MASTER, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::BUS1_16));
+	}
+	else if (config->IsModelX32CompactOrProducer())
 	{
 		config->SurfaceBind(SurfaceElementId::CH1_8, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH1_8));
 		config->SurfaceBind(SurfaceElementId::CH9_16, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH9_16));
@@ -1937,6 +1912,7 @@ void X32Ctrl::InitSurfaceBinding()
 	
 	// Main Fader
 	config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+	config->SurfaceBind(SurfaceElementId::CLEAR_SOLO, MixerparameterAction::SET_TO_INDEX, CLEAR_SOLO, 0);
 	config->SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 	config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 	config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
@@ -2056,7 +2032,11 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 								// #######################################
 								// Banking Channels 17-24 into bus section
 								// #######################################
-
+								if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
+								{
+									// both buttons belong to input banking --> so load the bank into the bus section
+									config->Set(BANKING_BUS, bindingParameterButton->mp_index);
+								}
 
 							}
 						}
@@ -2133,38 +2113,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 	}
 }
 
-void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
-{
-	X32_BTN button = surface->Button2Enum[((uint16_t)event->boardId << 8) + (uint16_t)(event->value & 0x7F)];
-	bool isButtonPressed = (event->value >> 7) == 1;
 
-	//helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "X32_BTN:%d", button);	
-
-
-	// Standard button assingments
-	if (isButtonPressed) {
-		switch (button) {
-			// Note: X32_BTN_UP and X32_BTN_DOWN are handled in the page classes!
-			case X32_BTN_EQ_MODE:
-				config->Change(((MP_ID)((uint)CHANNEL_EQ_TYPE1 + config->GetUint(BANKING_EQ))), +1, config->GetUint(SELECTED_CHANNEL));
-				break;
-			case X32_BTN_EQ_LOW:
-			case X32_BTN_EQ_LOW_MID:
-			case X32_BTN_EQ_HIGH_MID:
-			case X32_BTN_EQ_HIGH:
-				BankingEQ(button);
-				break;
-			case X32_BTN_BUS_SEND_1_4:
-			case X32_BTN_BUS_SEND_5_8:
-			case X32_BTN_BUS_SEND_9_12:
-			case X32_BTN_BUS_SEND_13_16:
-				BankingSends(button);
-				break;
-			default:
-				// just here to avoid compiler warnings
-				break;
-		}
-	}
 
 
 	// TODO: Implement on X32Core
@@ -2192,90 +2141,7 @@ void X32Ctrl::ButtonPressedOrReleased(SurfaceEvent* event)
 	// 			}
 	// 			break;
 	// }
-}
 
-void X32Ctrl::EncoderTurned(SurfaceEvent* event)
-{
-	using enum MP_ID;
-
-	X32_ENC encoder = surface->Encoder2Enum[((uint16_t)event->boardId << 8) + (uint16_t)(event->index)];
-	int8_t amount = 0;
-
-	if (event->value > 0 && event->value < 128){
-		amount = (uint8_t)event->value;
-	} else if (event->value > 128 && event->value < 256) {
-		amount = -(256 - (uint8_t)(event->value));
-	}
-	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Encoder amount: %d", amount);
-
-	switch (encoder)
-	{
-		case X32_ENC_ASSIGN_1: // use Assing 1 temporarly on X32 Core for Channel Volume
-			config->Change(CHANNEL_VOLUME, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_ASSIGN_2: // use Assing 2 temporarly on X32 Core for Main Volume
-			config->Change(CHANNEL_VOLUME, amount, (uint)X32_VCHANNEL_BLOCK::MAIN);
-			break;
-		case X32_ENC_CHANNEL_SELECT:  // only X32 Rack and Core
-			if (config->IsModelX32Core() && state->x32core_lcdmode_setup)
-			{
-				lcdmenu->OnLcdEncoderTurned(amount);
-			} 
-			else 
-			{
-				ChangeSelect(amount);
-			}
-			break;
-		case X32_ENC_MAIN_LEVEL:  // only X32 Rack
-			config->Change(CHANNEL_VOLUME, amount, (uint)X32_VCHANNEL_BLOCK::MAIN);
-			break;
-		case X32_ENC_CHANNEL_LEVEL:
-			config->Change(CHANNEL_VOLUME, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_GAIN:
-			config->Change(CHANNEL_GAIN, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_GATE:
-			config->Change(CHANNEL_GATE_TRESHOLD, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_LOWCUT:
-			config->Change(CHANNEL_LOWCUT_FREQ, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_DYNAMICS:
-			config->Change(CHANNEL_DYNAMICS_TRESHOLD, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_EQ_Q:
-			config->Change(((MP_ID)((uint)CHANNEL_EQ_Q1 + config->GetUint(BANKING_EQ))), amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_EQ_FREQ:
-			config->Change(((MP_ID)((uint)CHANNEL_EQ_FREQ1 + config->GetUint(BANKING_EQ))), amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_EQ_GAIN:
-			config->Change(((MP_ID)((uint)CHANNEL_EQ_GAIN1 + config->GetUint(BANKING_EQ))), amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_PAN:
-			config->Change(CHANNEL_PANORAMA, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_BUS_SEND_1:
-			config->Change((MP_ID)((uint)CHANNEL_BUS_SEND01 + config->GetUint(BANKING_BUS_SENDS) * 4 + 0), amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_BUS_SEND_2:
-			config->Change((MP_ID)((uint)CHANNEL_BUS_SEND02 + config->GetUint(BANKING_BUS_SENDS) * 4 + 1), amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_BUS_SEND_3:
-			config->Change((MP_ID)((uint)CHANNEL_BUS_SEND03 + config->GetUint(BANKING_BUS_SENDS) * 4 + 2), amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_BUS_SEND_4:
-			config->Change((MP_ID)((uint)CHANNEL_BUS_SEND04 + config->GetUint(BANKING_BUS_SENDS) * 4 + 3), amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		case X32_ENC_LEVEL_SUB:
-			config->Change(CHANNEL_VOLUME_SUB, amount, config->GetUint(SELECTED_CHANNEL));
-			break;
-		default:
-			// just here to avoid compiler warnings                  
-			break;
-	}
-}
 
 //################################################################################
 //# 
@@ -2430,63 +2296,30 @@ void X32Ctrl::SimulatorButton(uint32_t key)
 //#####################################################################################################################
 
 
-void X32Ctrl::BankingSends(X32_BTN p_button) {
-	surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 0);
-	surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 0);
-	surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 0);
-	surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 0);
+// void X32Ctrl::BankingSends(X32_BTN p_button) {
+// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 0);
+// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 0);
+// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 0);
+// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 0);
 
-	switch (p_button){
-		case X32_BTN_BUS_SEND_1_4:
-			config->Set(BANKING_BUS_SENDS, 0);
-			surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 1);
-			break;
-		case X32_BTN_BUS_SEND_5_8:
-			config->Set(BANKING_BUS_SENDS, 1);
-			surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 1);
-			break;
-		case X32_BTN_BUS_SEND_9_12:
-			config->Set(BANKING_BUS_SENDS, 2);
-			surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 1);
-			break;
-		case X32_BTN_BUS_SEND_13_16:
-			config->Set(BANKING_BUS_SENDS, 3);
-			surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 1);
-			break;
-		default:
-			break;
-	}
-}
-
-void X32Ctrl::BankingEQ(X32_BTN p_button){
-	surface->SetLedByEnum(X32_BTN_EQ_LOW, 0);
-	surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, 0);
-	surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, 0);
-	surface->SetLedByEnum(X32_BTN_EQ_HIGH, 0);
-
-	uint newBankingEq = 0;
-
-	switch (p_button){
-		case X32_BTN_EQ_LOW:
-			newBankingEq = 0;
-			surface->SetLedByEnum(X32_BTN_EQ_LOW, 1);
-			break;
-		case X32_BTN_EQ_LOW_MID:
-			newBankingEq = 1;
-			surface->SetLedByEnum(X32_BTN_EQ_LOW_MID, 1);
-			break;
-		case X32_BTN_EQ_HIGH_MID:
-			newBankingEq = 2;
-			surface->SetLedByEnum(X32_BTN_EQ_HIGH_MID, 1);
-			break;
-		case X32_BTN_EQ_HIGH:
-			newBankingEq = 3;
-			surface->SetLedByEnum(X32_BTN_EQ_HIGH, 1);
-			break;
-		// TODO: implement LOW2 and HIGH2
-		default:
-			break;
-	}
-
-	config->Set(BANKING_EQ, newBankingEq);
-}
+// 	switch (p_button){
+// 		case X32_BTN_BUS_SEND_1_4:
+// 			config->Set(BANKING_BUS_SENDS, 0);
+// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 1);
+// 			break;
+// 		case X32_BTN_BUS_SEND_5_8:
+// 			config->Set(BANKING_BUS_SENDS, 1);
+// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 1);
+// 			break;
+// 		case X32_BTN_BUS_SEND_9_12:
+// 			config->Set(BANKING_BUS_SENDS, 2);
+// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 1);
+// 			break;
+// 		case X32_BTN_BUS_SEND_13_16:
+// 			config->Set(BANKING_BUS_SENDS, 3);
+// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 1);
+// 			break;
+// 		default:
+// 			break;
+// 	}
+// }

@@ -197,6 +197,10 @@ void X32Config::DefineMixerparameters() {
     cat = MP_CAT::STATE;
     group = "state";
 
+    DefParameter(CLEAR_SOLO, cat, "Clear Solo")
+    ->DefStandard_Bool(false)
+    ->DefButtonBlink();
+
     // DefParameter(ACTIVE_SCENE, cat, "Active Scene")
     // ->DefMinMaxStandard_Uint(0, 99, 0);
 
@@ -267,7 +271,7 @@ void X32Config::DefineMixerparameters() {
 
     DefParameter(MONITOR_TAPPOINT, cat, "Monitor Tappoint")
     ->DefConfig(group, "monitor_tappoint")
-    ->DefMinMaxStandard_Uint(0, 81, 0);
+    ->DefMinMaxStandard_Uint(0, 81, 0);    
 
     // ###########
     // # Channels
@@ -1436,6 +1440,11 @@ String X32Config::GetString(MP_ID mp, uint index)
 uint X32Config::GetPercent(MP_ID mp, uint index)
 {
     return mpm[(uint)mp]->GetPercent(index);
+}
+
+bool X32Config::GetBlink(MP_ID mp)
+{
+    return mpm[(uint)mp]->GetBlink();
 }
 
 void X32Config::Set(MP_ID mp, float value, uint index)

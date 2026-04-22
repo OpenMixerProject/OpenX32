@@ -74,6 +74,7 @@ class X32Config
         bool GetBool(MP_ID mp, uint index = 0);
         String GetString(MP_ID mp, uint index = 0);
         uint GetPercent(MP_ID mp, uint index = 0);
+        bool GetBlink(MP_ID mp);
         void Set(MP_ID mp, float value, uint index = 0);    
         void Set(MP_ID mp, String value_string, uint index = 0
         );

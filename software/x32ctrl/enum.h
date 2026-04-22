@@ -541,6 +541,7 @@ enum class MP_ID {
 
     MONITOR_VOLUME,
     MONITOR_TAPPOINT,
+    CLEAR_SOLO,
 
     // Channel
 
@@ -1159,6 +1160,15 @@ enum class MixerparameterAction
 
 enum class X32BankId
 {
+    // X32 Full
+
+    CH1_16,
+    CH17_32,
+    AUX_USB_FX_RET,
+    BUS1_16,
+
+    // X32 Compact / Producer
+
     CH1_8,
     CH9_16,
     CH17_24,

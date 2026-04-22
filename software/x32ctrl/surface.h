@@ -24,7 +24,7 @@ class Surface : public X32Base
         SurfaceFader faders[MAX_FADERS];
 
         bool blinkstate = false;
-        set<uint16_t> blinklist;
+        set<SurfaceElementId> blinklist;
 
         uint8_t int2segment(int8_t p_value);
 
@@ -69,9 +69,8 @@ class Surface : public X32Base
         void SetFader(uint8_t boardId, uint8_t index, uint16_t position);
         void SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1);
         void SetX32RackDisplay(uint8_t p_value);
-        void SetLed(uint8_t boardId, uint8_t ledId, bool state);
-        void SetLedByNr(uint16_t ledNr, bool state, bool blink=false);
-        void SetLedByEnum(X32_BTN led, bool state, bool blink=false);
+        void SetLed(SurfaceElementId buttonOrLed, bool state, bool blink = false);
+        void SetLedRaw(SurfaceElementId buttonOrLed, bool ledOn);
         void SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds);
         void SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);
         void SetMeterLedMain_Producer(uint8_t preamp, uint8_t dynamics, uint32_t meterL, uint32_t meterR, uint32_t meterSolo);

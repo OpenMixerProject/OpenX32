@@ -929,15 +929,44 @@ void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
     SendData(&message, true);
 }
 
-void Surface::SetLed(uint8_t boardId, uint8_t ledId, bool ledState){
+void Surface::SetLed(SurfaceElementId buttonOrLed, bool ledOn, bool blink)
+{
+    if(blink)
+    {
+        blinklist.insert(buttonOrLed);
+    }
+    else
+    {
+        if (!blinklist.empty())
+        {
+            set<SurfaceElementId>::iterator it = blinklist.find(buttonOrLed);
+            if (it != blinklist.end())
+            {
+                blinklist.erase(it);
+            }
+        }
+    }
+
+    SetLedRaw(buttonOrLed, ledOn);
+}
+
+void Surface::SetLedRaw(SurfaceElementId buttonOrLed, bool ledOn)
+{
+    SurfaceElement *element = config->GetSurfaceElement(buttonOrLed);
+    uint board = (uint)element->GetBoard();
+    uint index = (uint)element->GetIndex();
+
     SurfaceMessage message;
-    message.AddDataByte(0x80 + boardId);
-    message.AddDataByte('L'); // class: L = LED
+    message.AddDataByte(0x80 + board);
+    message.AddDataByte('L');  // class: L = LED
     message.AddDataByte(0x80); // index - fixed at 0x80 for LEDs
-    if (ledState) {
-        message.AddDataByte(ledId + 0x80); // turn LED on
-    }else{
-        message.AddDataByte(ledId); // turn LED off
+    if (ledOn)
+    {
+        message.AddDataByte(index + 0x80); // turn LED on
+    }
+    else
+    {
+        message.AddDataByte(index); // turn LED off
     }
     SendData(&message, true);
 }
@@ -1026,38 +1055,11 @@ uint8_t Surface::int2segment(int8_t p_value){
     }
 }
 
-// ledNr = Nr of the LED from constants.h (contains BoardId and LED-Nr)
-// state = 0 / 1
-void Surface::SetLedByNr(uint16_t ledNr, bool ledState, bool blink) {
-    uint8_t boardId = (uint8_t)((ledNr & 0xFF00) >> 8);
-    uint8_t ledId = (uint8_t)(ledNr & 0x7F);
-
-    helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "SetLedByNr: ledNr 0x%X ledState %d blink %d", ledNr, ledState, blink);
-
-    if(blink) {
-        blinklist.insert(ledNr);
-    } else {
-        if (!blinklist.empty()) {
-            set<uint16_t>::iterator it = blinklist.find(ledNr);
-            if (it != blinklist.end()) {
-                blinklist.erase(it);
-            }
-        }
-        
-        SetLed(boardId, ledId, ledState);
-    }    
-}
-
-// ledNr = LED from X32_BTN enum
-// state = 0 / 1
-void Surface::SetLedByEnum(X32_BTN led, bool ledState, bool blink) {
-    SetLedByNr(Enum2Led[led], ledState, blink);
-}
-
 // boardId = 0, 1, 4, 5, 8
 // index = 0 ... 8
 // leds = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds) {
+void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds)
+{
   // 0xFE, 0x8i, class, index, data[], 0xFE, chksum
   // 0x4C, index, leds.b[]
   SurfaceMessage message;
@@ -1067,9 +1069,11 @@ void Surface::SetMeterLed(uint8_t boardId, uint8_t index, uint8_t leds) {
   message.AddDataByte(leds);
   SendData(&message, true);
 }
+
 // preamp = 8-bit bitwise (bit 0=Sig, 1=-30dB ... 6=-3dB, 7=Clip)
 // meter = 32-bit bitwise (bit 0=-45dB ... 15=-4, 16=-2, 19=Clip, 20+=unused)
-void Surface::SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t meterR, uint32_t meterSolo) {
+void Surface::SetMeterLedMain_Rack(uint8_t preamp, uint32_t meterL, uint32_t meterR, uint32_t meterSolo)
+{
     SurfaceMessage message;
     message.AddDataByte(0x80); // start message for specific boardId
     message.AddDataByte('M'); // class: M = Meter
@@ -1257,11 +1261,8 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
 void Surface::Blink(){
     blinkstate = !blinkstate;
 
-    for(uint16_t buttonNr : blinklist) {
-        uint8_t boardId = (uint8_t)((buttonNr & 0xFF00) >> 8);
-        uint8_t ledId = (uint8_t)(buttonNr & 0x7F);
-
-        SetLed(boardId, ledId, blinkstate);
+    for(SurfaceElementId button : blinklist) {
+        SetLedRaw(button, blinkstate);
     }
 }
 
