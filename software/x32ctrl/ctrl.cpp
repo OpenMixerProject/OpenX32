@@ -2185,128 +2185,127 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 // Key was pressed in the bodyless mode
 void X32Ctrl::SimulatorButton(uint32_t key)
 {
-	// if (key != state->simulator_last_key)
-	// {
-	// 	printf("Simulatorbutton: %X\n", key);
+	if (key != state->simulator_last_key)
+	{
+		printf("Simulatorbutton: %d\n", key);
 
-	// 	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
+		X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
-	// 	switch (key)
-	// 	{
-	// 		using enum X32_PAGE;
+		switch (key)
+		{
+			using enum X32_PAGE;
 
-	// 		case 49:
-	// 			// HOME
-	// 			config->Set(ACTIVE_PAGE, (uint)HOME);
-	// 			break;
-	// 		case 50:
-	// 			config->Set(ACTIVE_PAGE, (uint)METERS);
-	// 			break;
-	// 		case 51:
-	// 			config->Set(ACTIVE_PAGE, (uint)ROUTING);
-	// 			break;
-	// 		case 52:
-	// 			config->Set(ACTIVE_PAGE, (uint)LIBRARY);
-	// 			break;
-	// 		case 53:
-	// 			config->Set(ACTIVE_PAGE, (uint)EFFECTS);
-	// 			break;
-	// 		case 54:
-	// 			config->Set(ACTIVE_PAGE, (uint)SETUP);
-	// 			break;
-	// 		case 55:
-	// 			//ShowPage(MONITOR);
-	// 			break;
-	// 		case 56:
-	// 			//ShowPage(SCENES);
-	// 			break;
-	// 		case 57:
-	// 			config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
-	// 			break;
-	// 		case 48:
-	// 			config->Set(ACTIVE_PAGE, (uint)DEBUG);
-	// 			break;
-	// 		case 17:
-	// 			pages[activePage]->DisplayButton(X32_BTN_UP, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_UP, false);
-	// 			break;
-	// 		case 18:
-	// 			pages[activePage]->DisplayButton(X32_BTN_DOWN, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_DOWN, false);
-	// 			break;
-	// 		case 20:
-	// 			ShowPrevPage();
-	// 			break;
-	// 		case 19:
-	// 			ShowNextPage();
-	// 			break;
-	// 		case 113: // Q
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, 1);
-	// 			break;
-	// 		case 119: // W
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, 1);
-	// 			break;
-	// 		case 101: // E
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, 1);
-	// 			break;
-	// 		case 114: // R
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, 1);
-	// 			break;
-	// 		case 116: // T
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, 1);
-	// 			break;
-	// 		case 122: // Z
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, 1);
-	// 			break;
-	// 		case 97: // A
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER1, -1);
-	// 			break;
-	// 		case 115: // S
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
-	// 			break;
-	// 		case 100: // D
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
-	// 			break;
-	// 		case 102: // F
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
-	// 			break;
-	// 		case 103: // G
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
-	// 			break;
-	// 		case 104: // H
-	// 			pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
-	// 			break;
-	// 		case 121: // Y
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER1, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER1, false);
-	// 			break;
-	// 		case 120: // X
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER2, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER2, false);
-	// 			break;
-	// 		case 99: // C
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER3, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER3, false);
-	// 			break;
-	// 		case 118: // V
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER4, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER4, false);
-	// 			break;
-	// 		case 98: // B
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER5, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER5, false);
-	// 			break;
-	// 		case 110: // N
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER6, true);
-	// 			pages[activePage]->DisplayButton(X32_BTN_ENCODER6, false);
-	// 			break;
-	// 		case 0xFFFFFF9F:
-	// 			config->Set(ACTIVE_PAGE, (uint)SCENES);
-	// 			break;
-	// 	}
+			case 49:
+				// HOME
+				config->Set(ACTIVE_PAGE, (uint)HOME);
+				break;
+			case 50:
+				// METERS
+				config->Set(ACTIVE_PAGE, (uint)METERS);
+				break;
+			case 51:
+				config->Set(ACTIVE_PAGE, (uint)ROUTING);
+				break;
+			case 52:
+				config->Set(ACTIVE_PAGE, (uint)LIBRARY);
+				break;
+			case 53:
+				config->Set(ACTIVE_PAGE, (uint)EFFECTS);
+				break;
+			case 54:
+				config->Set(ACTIVE_PAGE, (uint)SETUP);
+				break;
+			case 55:
+				//ShowPage(MONITOR);
+				break;
+			case 56:
+				//ShowPage(SCENES);
+				break;
+			case 57:
+				config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
+				break;
+			case 48:
+				config->Set(ACTIVE_PAGE, (uint)DEBUG);
+				break;
+			case 17:
+				config->Refresh(DISPLAY_UP);
+				break;
+			case 18:
+				config->Refresh(DISPLAY_DOWN);
+				break;
+			case 20:
+				config->Refresh(DISPLAY_LEFT);
+				break;
+			case 19:
+				config->Refresh(DISPLAY_RIGHT);
+				break;
+			// case 113: // Q
+			// 	config->Change(DISPLAY_ENCODER_1_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
+			// 	break;
+			// case 119: // W
+			// 	config->Change(DISPLAY_ENCODER_2_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
+			// 	break;
+			// case 101: // E
+			// 	config->Change(DISPLAY_ENCODER_3_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
+			// 	break;
+			// case 114: // R
+			// 	config->Change(DISPLAY_ENCODER_4_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
+			// 	break;
+			// case 116: // T
+			// 	config->Change(DISPLAY_ENCODER_5_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
+			// 	break;
+			// case 122: // Z
+			// 	config->Change(DISPLAY_ENCODER_6_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
+			// 	break;
+			// case 97: // A
+			// 	config->Change(DISPLAY_ENCODER_1_ENCODER, -1, config->GetUint(SELECTED_CHANNEL));
+			// 	break;
+			// case 115: // S
+			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
+			// 	break;
+			// case 100: // D
+			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
+			// 	break;
+			// case 102: // F
+			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
+			// 	break;
+			// case 103: // G
+			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
+			// 	break;
+			// case 104: // H
+			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
+			// 	break;
+			// case 121: // Y
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER1, true);
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER1, false);
+			// 	break;
+			// case 120: // X
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER2, true);
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER2, false);
+			// 	break;
+			// case 99: // C
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER3, true);
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER3, false);
+			// 	break;
+			// case 118: // V
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER4, true);
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER4, false);
+			// 	break;
+			// case 98: // B
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER5, true);
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER5, false);
+			// 	break;
+			// case 110: // N
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER6, true);
+			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER6, false);
+			// 	break;
+			case 0xFFFFFF9F:
+				config->Set(ACTIVE_PAGE, (uint)SCENES);
+				break;
+		}
 		
-	// 	state->simulator_last_key = key;
-	// }	
+		state->simulator_last_key = key;
+	}	
 }
 
 //#####################################################################################################################
