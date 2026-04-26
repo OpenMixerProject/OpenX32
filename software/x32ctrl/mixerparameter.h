@@ -41,6 +41,17 @@ class Mixerparameter
 
         uint decimal_places = 0;
         uint stepmode = 0; // 0: linear, 1: frequency, 2: boolean toggle between 0 and 1
+        
+        // When the resulting value is too high:
+        // 0: limit to max value
+        // 1: set to min value
+        uint cyclemode_high = 0; 
+        
+        // When the resulting value is too low:
+        // 0: limit to min value
+        // 1: set to max value
+        uint cyclemode_low = 0;
+
         float stepsize = 1;
 
         bool value_string_autoincrement_zerobased = false;
@@ -112,6 +123,26 @@ class Mixerparameter
                     break;
                 case SECONDS:
                     result += "s"; // this will automatically be converted to ms or minutes
+                    break;
+                case BANKING_EQ:
+                    switch ((uint) (isResetLabel ? value_standard : value[index]))
+                    {
+                        case 0:
+                            result += "LOW";
+                            break;
+                        case 1:
+                            result += "LOW MID";
+                            break;
+                        case 2:
+                            result += "HIGH MID";
+                            break;
+                        case 3:
+                            result += "HIGH";
+                            break;
+                        default:
+                            result += "Unknown EQ Bank";
+                            break;
+                    }
                     break;
                 case EQ_TYPE:
                     switch ((uint) (isResetLabel ? value_standard : value[index]))
@@ -381,6 +412,9 @@ class Mixerparameter
                     }else{
                         return "<C>";
                     }
+                case BANKING_EQ:
+                    return GetUnitOfMesaurement(false, index, isResetLabel);
+                    break;
                 default:
                     return String(value_float, decimal_places) + GetUnitOfMesaurement(false, index, isResetLabel);
             }            
@@ -522,6 +556,20 @@ class Mixerparameter
 
         Mixerparameter* DefStepmode(uint mode) {
             stepmode = mode;
+
+            return this;
+        }
+
+        // When the resulting value is too low:
+        // 0: set to min value (limit)
+        // 1: set to max value (cycle around)
+        // When the resulting value is too high:
+        // 0: set to max value (limit)
+        // 1: set to min value (cycle around)
+        Mixerparameter* DefCycleMode(uint mode_low, uint mode_high)
+        {
+            cyclemode_low = mode_low;
+            cyclemode_high = mode_high;
 
             return this;
         }
@@ -807,6 +855,12 @@ class Mixerparameter
             CheckIndex(index);
             CheckNotReadonly();
 
+            // Strings can not be 'changed'
+            if (value_type == MP_VALUE_TYPE::STRING)
+            {
+                return;
+            }
+
             if (stepsize == 0)
             {
                 __throw_logic_error((String("Stepsize of Mixerparameter ") + GetName() + String(" is 0, so no change can happen!")).c_str());
@@ -827,6 +881,34 @@ class Mixerparameter
                 default:
                     newValue = value[index] + (amount * stepsize);
                     break;
+            }
+
+            // resulting value is too low
+            if (newValue < value_min)
+            {
+                switch (cyclemode_low)
+                {
+                    case 0: // limit to min value
+                        newValue = value_min;
+                        break;
+                    case 1:
+                        newValue = value_max;
+                        break;
+                }
+            }
+
+            // resulting value is too high
+            if (newValue > value_max)
+            {
+                switch (cyclemode_high)
+                {
+                    case 0:
+                        newValue = value_max;
+                        break;
+                    case 1:
+                        newValue = value_min;
+                        break;
+                }
             }
             
             Set(newValue, index);            

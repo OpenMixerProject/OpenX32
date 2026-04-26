@@ -454,6 +454,7 @@ enum class MP_UOM {
     CARD_SDCARD,
     CARD_AUDIO_SOURCE,
     PANORAMA,
+    BANKING_EQ,
 };
 
 enum class MP_VALUE_TYPE {
@@ -576,6 +577,7 @@ enum class MP_ID {
     CHANNEL_DYNAMICS_HOLD,
     CHANNEL_DYNAMICS_RELEASE,
 
+    CHANNEL_EQ_ENABLE,
     CHANNEL_EQ_TYPE1,
     CHANNEL_EQ_TYPE2,
     CHANNEL_EQ_TYPE3,
@@ -1088,6 +1090,17 @@ enum class SurfaceElementType {
     VUMeter
 };
 
+enum class EQ_TYPE : int
+{
+    ALLPASS = 0,
+    PEQ = 1,
+    LOWSHELV = 2,
+    HIGHSHELV = 3,
+    BANDPASS = 4,
+    NOTCH = 5,
+    HICUT = 6,
+    LOWCUT = 7,
+};
 
 enum class FX_TYPE : int {
     NONE = -1,
@@ -1147,14 +1160,31 @@ enum class MixerparameterAction
     SET,
     SET_TO_INDEX, // Set value of index 0 to value of index parameter
     SET_ON_INDEX, // Set value of index 'index parameter' to 1
+    
+    // Value of 'Mixerparameter ID + Offset' on index 'selected channel'.
+    SET__MP_INDIRECT__SELECTED_CHANNEL,
+
     SET_SELECTED_CHANNEL,
+    
     CHANGE,
     CHANGE_SELECTED_CHANNEL,
-    CHANGE__MP_INDIRECT__SELECTED_CHANNEL, // Set value of 'Mixerparameter ID + Offset' on index 'selected channel'
+
+    // Value of 'Mixerparameter ID + Offset' on index 'selected channel'.
+    // Button: Increment in Stepsize
+    CHANGE__MP_INDIRECT__SELECTED_CHANNEL, 
+
+    // Button: Toggle between true and false.
     TOGGLE,
+
+    // Button: Toggle between true and false.
     TOGGLE_SELECTED_CHANNEL,
+
+    // Button: Reset to Resetvalue.
     RESET,
+
+    // Button: Reset to Resetvalue.
     RESET_SELECTED_CHANNEL,
+
     LCD,
 };
 

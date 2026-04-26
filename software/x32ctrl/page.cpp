@@ -203,32 +203,17 @@ void Page::SyncEncoderWidget(SurfaceElementId elementIdEncoder, SurfaceElementId
     
     if (surface_binding_encoder != 0)
     {
-        uint index = 0;
-        MP_ID id = NONE;
-        switch (surface_binding_encoder->mp_action)
-        {
-            case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
-                id = surface_binding_encoder->mp_id;
-                index = config->GetUint(SELECTED_CHANNEL);
-                break;
-            case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
-                id = (MP_ID)((uint)surface_binding_encoder->mp_id + config->GetUint((MP_ID)surface_binding_encoder->mp_index));
-                index = config->GetUint(SELECTED_CHANNEL);
-                break;
-            default:
-                id = surface_binding_encoder->mp_id;
-                index = surface_binding_encoder->mp_index;
+        uint index = config->ParameterCalcIndex(surface_binding_encoder);
+        MP_ID id = config->ParameterCalcId(surface_binding_encoder);
 
-        }
-
-        if(config->HasParameterChanged(surface_binding_encoder->mp_id, index) || force)
+        if(config->HasParameterChanged(id, index) || force)
         {
-            if (surface_binding_encoder->mp_id == MP_ID::NONE)
+            if (id == MP_ID::NONE)
             {
-                __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(surface_binding_encoder->mp_id)) + String(" is not defined!")).c_str());
+                __throw_invalid_argument((String("Mixerparameter with enum id ") + String(to_underlying(id)) + String(" is not defined!")).c_str());
             }  
 
-            Mixerparameter* parameter = config->GetParameter(surface_binding_encoder->mp_id);
+            Mixerparameter* parameter = config->GetParameter(id);
 
             lv_label_set_text(lvgl_encoder_widget->Label, parameter->GetLabelAndValue(index).c_str());
 
@@ -245,26 +230,17 @@ void Page::SyncEncoderWidget(SurfaceElementId elementIdEncoder, SurfaceElementId
     
     if (surface_binding_button != 0)
     {
-        MixerparameterAction action = surface_binding_button->mp_action;
-        uint index = 0;
-
-        switch (action)
-        {
-            case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
-            case MixerparameterAction::RESET_SELECTED_CHANNEL:
-                index = config->GetUint(SELECTED_CHANNEL);
-                break;
-            default:
-                index = surface_binding_button->mp_index;
-                break;
-        }
+        MP_ID id = config->ParameterCalcId(surface_binding_button);
+        uint index = config->ParameterCalcIndex(surface_binding_button);
             
-        if (config->HasParameterChanged(surface_binding_button->mp_id, index) || force)
+        if (config->HasParameterChanged(id, index) || force)
         {
-            if (surface_binding_button->mp_id != MP_ID::NONE)
+            if (id != MP_ID::NONE)
             {
-                Mixerparameter* parameter_button = config->GetParameter(surface_binding_button->mp_id);
+                MixerparameterAction action = surface_binding_button->mp_action;
+                Mixerparameter* parameter_button = config->GetParameter(id);
                 String text;
+
                 if (action == MixerparameterAction::RESET ||
                     action == MixerparameterAction::RESET_SELECTED_CHANNEL)
                 {

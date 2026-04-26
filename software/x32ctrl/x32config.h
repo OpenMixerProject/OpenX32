@@ -53,6 +53,8 @@ class X32Config
 
         Mixerparameter** GetParameterList();
         map<MP_ID, set<uint>>* GetChangedParameterList();
+
+        
         
         vector<uint> GetChangedParameterIndexes(MP_CAT parameter_cat);
         vector<uint> GetChangedParameterIndexes(vector<MP_ID> filter_ids);
@@ -83,6 +85,9 @@ class X32Config
         void Refresh(MP_ID mp, uint index = 0);
         void Reset(MP_ID mp, uint index = 0);
 
+        MP_ID ParameterCalcId(SurfaceBindingParameter* binding_parameter);
+        uint ParameterCalcIndex(SurfaceBindingParameter* binding_parameter);
+
         void DefineSurfaceElements();
         SurfaceElement* DefSurfaceElements(SurfaceElementId element_id, String name);
 
@@ -95,7 +100,7 @@ class X32Config
         map<SurfaceElementId, SurfaceBindingParameter*>* GetSurfaceBinding();
         SurfaceBindingParameter* GetSurfaceBinding(SurfaceElementId elementId);
         void SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
-        void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0);
+        void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0, uint led_value = 0);
         // void SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action);
         void SurfaceUnbind(SurfaceElementId surfaceelement_id);
 

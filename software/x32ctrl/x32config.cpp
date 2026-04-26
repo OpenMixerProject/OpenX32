@@ -213,7 +213,8 @@ void X32Config::DefineMixerparameters() {
     ->DefHideEncoderSlider()
     ->DefMinMaxStandard_Uint(0, 255, (uint)X32_PAGE::HOME);
 
-    DefParameter(BANKING_EQ, cat, "Banking EQ")
+    DefParameter(BANKING_EQ, cat, "EQ")
+    ->DefUOM(MP_UOM::BANKING_EQ)
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
@@ -465,7 +466,11 @@ void X32Config::DefineMixerparameters() {
     ->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
     ->DefStepsize(1)
-    ->DefMinMaxStandard_Float(0.0f, 400.0f, 0.0f);
+    ->DefMinMaxStandard_Float(20.0f, 400.0f, 0.0f);
+
+    DefParameter(CHANNEL_EQ_ENABLE, cat, "EQ Enable", MAX_VCHANNELS)
+    ->DefConfig(group, "EQ_enable")
+    ->DefStandard_Bool(false);
 
     uint channel_eq_count = 4;
     float channel_eq_freq[4] = {125.0f, 500.0f, 2000.0f, 10000.0f};
@@ -475,7 +480,8 @@ void X32Config::DefineMixerparameters() {
         ->DefUOM(MP_UOM::EQ_TYPE)
         ->DefConfig(group, "eq_type_" + String(i))
         ->DefHideEncoderReset()
-        ->DefMinMaxStandard_Uint(0, 7, 1);
+        ->DefMinMaxStandard_Uint(0, 7, 1)
+        ->DefCycleMode(1, 1);
 
         DefParameter((MP_ID)((uint)CHANNEL_EQ_FREQ1 + i), cat, String("Freg[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::HZ)
@@ -1552,6 +1558,37 @@ void X32Config::Reset(MP_ID mp, uint index)
     SetParameterChanged(mp, index);
 }
 
+MP_ID X32Config::ParameterCalcId(SurfaceBindingParameter* binding_parameter)
+{
+    switch(binding_parameter->mp_action)
+    {
+        case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
+        case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+            return (MP_ID)((uint)binding_parameter->mp_id + GetUint((MP_ID)binding_parameter->mp_index));
+        default:
+            return binding_parameter->mp_id;
+    }
+}
+
+uint X32Config::ParameterCalcIndex(SurfaceBindingParameter* binding_parameter)
+{
+    switch(binding_parameter->mp_action)
+    {
+        case MixerparameterAction::SET_TO_INDEX:
+            return 0;
+            break;
+        case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
+        case MixerparameterAction::SET_SELECTED_CHANNEL:
+        case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
+        case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+        case MixerparameterAction::RESET_SELECTED_CHANNEL:
+            return GetUint(SELECTED_CHANNEL);
+            break;
+        default:
+            return binding_parameter->mp_index;
+    }
+}
+
 //#############################################################################################################################################
 //#
 //#  ######  ##     ## ########  ########    ###     ######  ######## ######## ##       ######## ##     ## ######## ##    ## ########  ######  
@@ -2345,17 +2382,11 @@ void X32Config::SurfaceBindParameter(SurfaceElementId surfaceelement_id, Surface
 	}
 }
 
-void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index)
+void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index, uint led_value)
 {
-	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action, mixerparaemter_id, mixerparameter_index);
+	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action, mixerparaemter_id, mixerparameter_index, led_value);
 	SurfaceBindParameter(surfaceelement_id, binding_parameter);
 }
-
-// void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action)
-// {
-// 	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action);
-// 	SurfaceBindParameter(surfaceelement_id, binding_parameter);
-// }
 
 void X32Config::SurfaceUnbind(SurfaceElementId surfaceelement_id)
 {
