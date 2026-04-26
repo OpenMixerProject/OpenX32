@@ -111,9 +111,12 @@ void X32Config::DefineMixerparameters() {
 	MP_CAT cat = MP_CAT::SETTING;
     String group = "setting";
 
-    DefParameter(DEBUG, cat, "DEBUG Header")
+    DefParameter(DEBUG_HEADER, cat, "DEBUG Header")
     ->DefConfig(group, "debug")
     ->DefStandard_Bool(true);
+    
+    DefParameter(DEBUG_VALUE, cat, "DEBUG")
+    ->DefMinMaxStandard_Uint(0, 255, 0);
 
 	DefParameter(LCD_CONTRAST, cat, "LCD Contrast")
     ->DefNameShort("Contrast")
@@ -1849,14 +1852,20 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(VIEW_MAIN)                    ->DefButton(X32_BOARD_MAIN, 0x14);
         GetSurfaceElement(MONO_BUS)                     ->DefButton(X32_BOARD_MAIN, 0x15);
         GetSurfaceElement(MAIN_LR_BUS)                  ->DefButton(X32_BOARD_MAIN, 0x16);
-        
 
-        GetSurfaceElement(VIEW_USB)                     ->DefButton(X32_BOARD_MAIN, 0x31);
+        GetSurfaceElement(EQ_HCUT_LED)                  ->DefLed(X32_BOARD_MAIN, 0x17);
+        GetSurfaceElement(EQ_HSHV_LED)                  ->DefLed(X32_BOARD_MAIN, 0x18);
+        GetSurfaceElement(EQ_VEQ_LED)                   ->DefLed(X32_BOARD_MAIN, 0x19);
+        GetSurfaceElement(EQ_PEQ_LED)                   ->DefLed(X32_BOARD_MAIN, 0x1A);
+        GetSurfaceElement(EQ_LSHV_LED)                  ->DefLed(X32_BOARD_MAIN, 0x1B);
+        GetSurfaceElement(EQ_LCUT_LED)                  ->DefLed(X32_BOARD_MAIN, 0x1C);
 
         GetSurfaceElement(UP)                           ->DefButton(X32_BOARD_MAIN, 0x1D)->DefNoLed();
         GetSurfaceElement(LEFT)                         ->DefButton(X32_BOARD_MAIN, 0x1E)->DefNoLed();
         GetSurfaceElement(RIGHT)                        ->DefButton(X32_BOARD_MAIN, 0x1F)->DefNoLed();
         GetSurfaceElement(DOWN)                         ->DefButton(X32_BOARD_MAIN, 0x20)->DefNoLed();
+
+        GetSurfaceElement(USB_ACCESS)                   ->DefLed(X32_BOARD_MAIN, 0x21);
 
         GetSurfaceElement(HOME)                         ->DefButton(X32_BOARD_MAIN, 0x22);
         GetSurfaceElement(METERS)                       ->DefButton(X32_BOARD_MAIN, 0x23);
@@ -1874,14 +1883,7 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(TALK_B)                       ->DefButton(X32_BOARD_MAIN, 0x2F);
         GetSurfaceElement(VIEW_TALK)                    ->DefButton(X32_BOARD_MAIN, 0x30);
 
-        GetSurfaceElement(EQ_HCUT_LED)                  ->DefLed(X32_BOARD_MAIN, 0x18);
-        GetSurfaceElement(EQ_HSHV_LED)                  ->DefLed(X32_BOARD_MAIN, 0x19);
-        GetSurfaceElement(EQ_VEQ_LED)                   ->DefLed(X32_BOARD_MAIN, 0x1A);
-        GetSurfaceElement(EQ_PEQ_LED)                   ->DefLed(X32_BOARD_MAIN, 0x1B);
-        GetSurfaceElement(EQ_LSHV_LED)                  ->DefLed(X32_BOARD_MAIN, 0x1C);
-        GetSurfaceElement(EQ_LCUT_LED)                  ->DefLed(X32_BOARD_MAIN, 0x1D);
-
-        GetSurfaceElement(USB_ACCESS)                   ->DefLed(X32_BOARD_MAIN, 0x26);
+        GetSurfaceElement(VIEW_USB)                     ->DefButton(X32_BOARD_MAIN, 0x31);
 
         GetSurfaceElement(GAIN_ENCODER)                 ->DefEncoder(X32_BOARD_MAIN, 0x00, 0x2A);
         GetSurfaceElement(LOW_CUT_FREQ_ENCODER)         ->DefEncoder(X32_BOARD_MAIN, 0x01, 0x2B);
@@ -1891,10 +1893,10 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(EQ_FREQ_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x05, 0x2F);
         GetSurfaceElement(EQ_GAIN_ENCODER)              ->DefEncoder(X32_BOARD_MAIN, 0x06, 0x30);
 
-        GetSurfaceElement(BUS_SEND_ENCODER_1)           ->DefEncoder(X32_BOARD_MAIN, 0x07, 0x30); // BG-LED?
-        GetSurfaceElement(BUS_SEND_ENCODER_2)           ->DefEncoder(X32_BOARD_MAIN, 0x08, 0x30); // BG-LED?
-        GetSurfaceElement(BUS_SEND_ENCODER_3)           ->DefEncoder(X32_BOARD_MAIN, 0x09, 0x30); // BG-LED?
-        GetSurfaceElement(BUS_SEND_ENCODER_4)           ->DefEncoder(X32_BOARD_MAIN, 0x0A, 0x30); // BG-LED?
+        GetSurfaceElement(BUS_SEND_ENCODER_1)           ->DefEncoder(X32_BOARD_MAIN, 0x07, 0x3A);
+        GetSurfaceElement(BUS_SEND_ENCODER_2)           ->DefEncoder(X32_BOARD_MAIN, 0x08, 0x3A);
+        GetSurfaceElement(BUS_SEND_ENCODER_3)           ->DefEncoder(X32_BOARD_MAIN, 0x09, 0x3C);
+        GetSurfaceElement(BUS_SEND_ENCODER_4)           ->DefEncoder(X32_BOARD_MAIN, 0x0A, 0x3C);
         GetSurfaceElement(BUS_SEND_1_4)                 ->DefButton(X32_BOARD_MAIN, 0x10);
         GetSurfaceElement(BUS_SEND_5_8)                 ->DefButton(X32_BOARD_MAIN, 0x11);
         GetSurfaceElement(BUS_SEND_9_12)                ->DefButton(X32_BOARD_MAIN, 0x12);

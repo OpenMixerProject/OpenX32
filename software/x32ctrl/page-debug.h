@@ -24,11 +24,16 @@ class PageDebug: public Page
             config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName("XLR1 -> DSP2, DSP2 -> Ch9..24");
             config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName("Clear DebugLabelText");
 
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::SET, DEBUG);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE, DEBUG_VALUE);
         }
 
         void OnChange(bool force) override
         {
+            if (config->HasParameterChanged(DEBUG_VALUE))
+            {
+                surface->SetLedRaw(1, config->GetUint(DEBUG_VALUE), true);
+            }
+
             if (config->HasParameterChanged(DISPLAY_ENCODER_1_BUTTON))
             {
                 // Reload DSP1

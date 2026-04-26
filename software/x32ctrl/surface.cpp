@@ -947,15 +947,17 @@ void Surface::SetLed(SurfaceElementId buttonOrLed, bool ledOn, bool blink)
         }
     }
 
-    SetLedRaw(buttonOrLed, ledOn);
+    SetLed(buttonOrLed, ledOn);
 }
 
-void Surface::SetLedRaw(SurfaceElementId buttonOrLed, bool ledOn)
+void Surface::SetLed(SurfaceElementId buttonOrLed, bool ledOn)
 {
     SurfaceElement *element = config->GetSurfaceElement(buttonOrLed);
-    uint board = (uint)element->GetBoard();
-    uint index = (uint)element->GetIndex();
+    SetLedRaw((uint)element->GetBoard(), (uint)element->GetIndex(), ledOn);
+}
 
+void Surface::SetLedRaw(uint board, uint index, bool ledOn)
+{
     SurfaceMessage message;
     message.AddDataByte(0x80 + board);
     message.AddDataByte('L');  // class: L = LED
@@ -1262,7 +1264,7 @@ void Surface::Blink(){
     blinkstate = !blinkstate;
 
     for(SurfaceElementId button : blinklist) {
-        SetLedRaw(button, blinkstate);
+        SetLed(button, blinkstate);
     }
 }
 

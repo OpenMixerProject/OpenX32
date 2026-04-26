@@ -486,7 +486,8 @@ enum class MP_ID {
 
     // Settings
 
-    DEBUG,
+    DEBUG_HEADER,
+    DEBUG_VALUE,
     LCD_CONTRAST,
     LED_BRIGHTNESS,
     DISPLAY_BRIGHTNESS,
@@ -1190,6 +1191,8 @@ enum class MixerparameterAction
 
 enum class X32BankId
 {
+    None,
+
     // X32 Full
 
     CH1_16,

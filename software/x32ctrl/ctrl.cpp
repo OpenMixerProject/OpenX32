@@ -345,7 +345,7 @@ void X32Ctrl::Tick100ms(void) {
     }
 
 	// DEBUG Row in GUI-Header
-	if (config->GetBool(DEBUG) && !config->IsModelX32Core())
+	if (config->GetBool(DEBUG_HEADER) && !config->IsModelX32Core())
 	{
 		// calculate mean-value and show the current DSP-load
 		dspLoadHistory[0][dspLoadHistoryPointer] = state->dspLoad[0];
@@ -1008,6 +1008,10 @@ void X32Ctrl::syncSurface(bool fullSync)
 				if (binding_parameter->mp_action == MixerparameterAction::SET_TO_INDEX)
 				{
 					ledOn = config->GetInt(parameter_id, parameter_index) == binding_parameter->mp_index;
+				}
+				else if (binding_parameter->mp_action == MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL)
+				{
+					ledOn = config->GetInt(parameter_id, parameter_index) == binding_parameter->led_value;
 				}
 				else
 				{
@@ -1784,6 +1788,11 @@ void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
 
 void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 {
+	if (id == X32BankId::None)
+	{
+		return;
+	}
+
 	X32Bank* bank_to_load = banks[(uint)id];
 
 	if (target == X32BankTarget::InputSection)
@@ -1955,6 +1964,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 		if (fader == 0) { return; }
 
 		SurfaceBindingParameter* bindingParameter = config->GetSurfaceBinding(fader->GetId());
+		if (bindingParameter == 0) { return; }
 				
 		switch (bindingParameter->mp_action)
 		{
@@ -2018,41 +2028,46 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						config->Set(parameter_id, 1, parameter_index);
 						break;
 					case MixerparameterAction::SET_TO_INDEX:
-						if (secondbuttonPressed != 0)
 						{
-							// Second button was pressed, while holding the first one
+							// Set value to the bound index value.
+							float value_to_set = bindingParameterButton->mp_index;
 
-							SurfaceBindingParameter* bindingParameterButtonOne = config->GetSurfaceBinding(buttonPressed->GetId());
-
-							if (config->IsModelX32CompactOrProducer())
+							if (secondbuttonPressed != 0)
 							{
-								// ######################################
-								// Banking input section into bus section
-								// ######################################
-								if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
-								{
-									// both buttons belong to input banking --> so load the bank into the bus section
-									config->Set(BANKING_BUS, bindingParameterButton->mp_index);
-								}
-							} 
-							else if (config->IsModelX32Full())
-							{
-								// TODO https://github.com/OpenMixerProject/OpenX32/issues/61
+								// Second button was pressed, while holding the first one
 
-								// #######################################
-								// Banking Channels 17-24 into bus section
-								// #######################################
-								if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
-								{
-									// both buttons belong to input banking --> so load the bank into the bus section
-									config->Set(BANKING_BUS, bindingParameterButton->mp_index);
-								}
+								SurfaceBindingParameter* bindingParameterButtonOne = config->GetSurfaceBinding(buttonPressed->GetId());
 
+								if (config->IsModelX32CompactOrProducer())
+								{
+									// ######################################
+									// Banking input section into bus section
+									// ######################################
+									if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
+									{
+										// both buttons belong to input banking --> so load the bank into the bus section
+										config->Set(BANKING_BUS, value_to_set, parameter_index);
+									}
+								} 
+								else if (config->IsModelX32Full())
+								{
+									// TODO https://github.com/OpenMixerProject/OpenX32/issues/61
+
+									// #######################################
+									// Banking Channels 17-24 into bus section
+									// #######################################
+									if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
+									{
+										// both buttons belong to input banking --> so load the bank into the bus section										
+										config->Set(BANKING_BUS, value_to_set, parameter_index);
+									}
+
+								}
 							}
-						}
-						else
-						{
-							config->Set(parameter_id, parameter_index);
+							else
+							{
+								config->Set(parameter_id, value_to_set, parameter_index);
+							}
 						}
 						break;
 					case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
