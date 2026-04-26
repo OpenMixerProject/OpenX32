@@ -1,7 +1,6 @@
 {
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/4",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/5",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/11",
     "subnavigationSelectedItems": {}
@@ -133,7 +132,7 @@
                 {
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
-                  "weight": 1.27387190045851,
+                  "weight": 0.761476499156763,
                   "enableClose": false,
                   "children": [
                     {
@@ -165,7 +164,7 @@
                 {
                   "type": "tabset",
                   "id": "#53535229-d14c-4d96-897c-ebfec499b8c9",
-                  "weight": 1.398412449386018,
+                  "weight": 1.910807850687765,
                   "enableClose": false,
                   "children": [
                     {
@@ -199,7 +198,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 32.80365104681733,
+              "weight": 29.367695502387853,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -220,7 +219,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 9.918890533919074,
+              "weight": 13.35484607834856,
               "children": [
                 {
                   "type": "tab",
@@ -1059,8 +1058,8 @@
       },
       "transform": {
         "translate": {
-          "x": -354.3079938928478,
-          "y": -210.59379877589208
+          "x": -403.3079938928478,
+          "y": -202.59379877589208
         },
         "scale": 1
       },
@@ -1076,9 +1075,7 @@
           "1": {
             "3": {
               "0": {
-                "3": {
-                  "0": {}
-                }
+                "4": {}
               }
             }
           },
@@ -1311,7 +1308,6 @@
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "MISCELLANEOUS",
     "TEXT"
   ],
   "showInactiveFlowsInDebugger": true,

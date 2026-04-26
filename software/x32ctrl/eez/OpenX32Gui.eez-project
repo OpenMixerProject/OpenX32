@@ -7662,16 +7662,16 @@
                           "heightUnit": "px",
                           "children": [
                             {
-                              "objID": "93481623-beb2-40b1-fb83-0327eada6ce6",
-                              "type": "LVGLPanelWidget",
-                              "left": -19,
-                              "top": 34,
-                              "width": 798,
-                              "height": 200,
+                              "objID": "9d59b9e5-d6f4-47be-e8c6-e4ada86b101f",
+                              "type": "LVGLButtonMatrixWidget",
+                              "left": -17,
+                              "top": -16,
+                              "width": 398,
+                              "height": 314,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
-                                "objID": "9777aeb5-9932-41a1-f1aa-24e62c8a1a7d",
+                                "objID": "69da3873-fcdd-4401-bebb-cc1734fe7579",
                                 "useStyle": "default",
                                 "conditionalStyles": [],
                                 "childStyles": []
@@ -7695,68 +7695,275 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "3df732f1-600b-4491-9be0-22f23498e52d",
+                                "objID": "2444e8aa-57de-4492-d09b-6f1405c11206",
                                 "definition": {
                                   "MAIN": {
                                     "DEFAULT": {
-                                      "outline_width": 1,
-                                      "outline_color": "#f00000",
+                                      "pad_top": 2,
+                                      "pad_bottom": 2,
+                                      "pad_right": 2,
+                                      "pad_left": 2,
+                                      "pad_row": 2,
+                                      "pad_column": 2,
                                       "radius": 0,
-                                      "pad_top": 0,
-                                      "pad_bottom": 0,
-                                      "pad_left": 0,
-                                      "pad_right": 0,
-                                      "pad_row": 0,
-                                      "pad_column": 0,
-                                      "border_post": true
+                                      "text_align": "CENTER",
+                                      "text_font": "MONTSERRAT_12"
+                                    }
+                                  },
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "radius": 0
                                     }
                                   }
                                 }
                               },
                               "group": "",
-                              "groupIndex": 0
-                            },
-                            {
-                              "objID": "c6448ad2-d41d-4448-80f5-fd172dd5f424",
-                              "type": "LVGLLabelWidget",
-                              "left": 261,
-                              "top": 123,
-                              "width": 289,
-                              "height": 16,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "e296edc2-56a1-4166-d183-41979d721596",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "leftUnit": "px",
-                              "topUnit": "px",
-                              "widthUnit": "content",
-                              "heightUnit": "content",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-                              "hiddenFlagType": "literal",
-                              "clickableFlagType": "literal",
-                              "flagScrollbarMode": "",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "86f94ccd-4ea0-4e22-8bf1-a7a04e0fb55d"
-                              },
-                              "group": "",
                               "groupIndex": 0,
-                              "text": "the red line should be visible all around",
-                              "textType": "literal",
-                              "longMode": "WRAP",
-                              "recolor": false
+                              "buttons": [
+                                {
+                                  "objID": "87d0b634-442a-4a5d-c645-83daff646b39",
+                                  "text": "Kanal 1\\n[XLR1]\\nCH01",
+                                  "width": 1,
+                                  "ctrlCustom1": false
+                                },
+                                {
+                                  "objID": "fde7280b-d869-42fc-9476-f110a30b59ce",
+                                  "text": "Kanal 2\\n[XLR2]\\nCH02",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "5b27341e-b943-4cd4-a09b-37d0cb7eff2a",
+                                  "text": "Kanal 3\\n[Card 3]\\nCH03",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "b0715cb9-9560-44e1-a439-4b45854ec8f4",
+                                  "text": "Kanal 4\\n[A28]\\nCH04",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "cdfd0d9b-8af2-479f-8879-a23ed5c8d462",
+                                  "text": "Kanal 5\\n[A29]\\nCH05",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "32374fe1-1b27-4e2b-d1fd-796e6474674c",
+                                  "newLine": false,
+                                  "text": "Kanal 6\\n[B04]\\nCH06",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "35ec46c1-0848-4661-abd4-f66f3a2d3138",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "2884bdc2-cace-49a5-cc97-077ba69a0664",
+                                  "newLine": true,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "bc624c8c-8a71-400e-bb73-0ebd17ecbdf4",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "e7d29514-cb1a-4782-aff9-86ddd3343809",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "939c8db0-01bc-48b6-e657-63118413d46a",
+                                  "newLine": false,
+                                  "text": "Kanal 10\\nCH10\\nXLR 10",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "51e61338-16f1-4faa-addf-2797527279eb",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "f7c489a6-ae0e-457b-e5f3-85caaa0b09f1",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "11b97812-85d9-4f6e-cd01-600b38c75119",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "bf434d86-a2af-4257-c485-a5e329d8d30d",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "493205a5-74b8-409d-d95a-6f1e78a901b0",
+                                  "newLine": true,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "3581425c-4afe-4b0c-8c56-795fbb228f27",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "9fc2cc04-8a0c-4aa0-8f62-c4bb1e9b8c74",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "e5911d2b-9b55-4e4d-9db8-b6b86e836ab7",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "9162e647-a255-4633-c464-0f0d5fc601fe",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "f5d7cbd3-7533-4918-d204-24b947c2dd5f",
+                                  "newLine": false,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "a7125c74-2b95-4ddf-fc7b-6570e4dbfc07",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "a1d24411-941b-4b9a-8b4f-80ab2031b2c0",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "14caaac7-e05a-47db-aebc-cfaf4dad16bf",
+                                  "newLine": true,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "23919f80-46f8-4bb3-b0c0-1c32bdd64d6f",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "7d50a2ec-0390-47f5-d6b7-7a4749bfb8ee",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "4885c695-5051-4591-ec88-b9f3dbea4190",
+                                  "newLine": false,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "4681ba6c-4538-41b3-8c3a-49e25d37ab0b",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "43723cc6-87ae-4ef2-b7bc-bda70ad5f887",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "ecf8dd7e-3b1a-4b29-b520-20074c7b01b7",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "1b3002cd-d34e-4191-f288-3dd10fc2c0b9",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "7fc6131b-673e-45fe-d402-f739dba0d3dd",
+                                  "newLine": true,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "6ba9890a-cf09-48a8-e8c6-467aff683d44",
+                                  "newLine": false,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "1a82ab0b-a362-4ed6-9b5d-4d0c8179c5be",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "52e5da95-ff09-4fd0-fe4e-e6b498c274ad",
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "d02ebf40-8315-4a92-8a3a-e8128f31b2ec",
+                                  "text": "Kanal 32\\nCH32\\nXLR 32",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "f3050db4-804d-452a-aeab-5611c296f2ff",
+                                  "text": "AUX 1\\nCH33\\nAUX 1",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "3309c4e4-7b21-4b3d-c241-a8a2437fa1f3",
+                                  "newLine": false,
+                                  "text": "AUX 2\\nCH34\\nAUX 2",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "26eff43b-bb39-4bf0-c458-ee10229e5261",
+                                  "text": "AUX 3\\nCH35\\nAUX 3",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "7efa77ff-4f32-46eb-b70c-abf4b52bffa7",
+                                  "newLine": true,
+                                  "text": "Btn",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "7f85b036-9794-4f3a-8307-f41c3258d7a3",
+                                  "text": "AUX 4\\nCH36\\nAUX 4",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "14c5202a-a758-470c-f42f-fe311d4e1cac",
+                                  "text": "AUX 5\\nCH37\\nAUX 5",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "98c57dac-67c9-4f4e-b741-02350d5fe020",
+                                  "text": "AUX 6\\nCH38\\nAUX 6",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "01166b27-1a94-4e65-809d-2af33e2893bf",
+                                  "text": "USB1\\nCH39\\nAUX 7",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "9b9e2589-7357-4d1e-a7ad-097e0e202701",
+                                  "text": "USB2\\nCH40\\nAUX 8",
+                                  "width": 1
+                                },
+                                {
+                                  "objID": "f8655296-d51c-4c55-a22e-8ebf34ac9d50",
+                                  "text": " ",
+                                  "width": 2
+                                }
+                              ],
+                              "oneCheck": false
                             }
                           ],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
