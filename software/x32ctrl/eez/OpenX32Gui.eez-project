@@ -7666,7 +7666,7 @@
                               "type": "LVGLButtonMatrixWidget",
                               "left": -17,
                               "top": -16,
-                              "width": 398,
+                              "width": 529,
                               "height": 314,
                               "customInputs": [],
                               "customOutputs": [],
@@ -7678,6 +7678,7 @@
                               },
                               "timeline": [],
                               "eventHandlers": [],
+                              "identifier": "routingmatrix",
                               "leftUnit": "px",
                               "topUnit": "px",
                               "widthUnit": "px",
@@ -7744,7 +7745,14 @@
                                 {
                                   "objID": "cdfd0d9b-8af2-479f-8879-a23ed5c8d462",
                                   "text": "Kanal 5\\n[A29]\\nCH05",
-                                  "width": 1
+                                  "width": 1,
+                                  "ctrlNoRepeat": false,
+                                  "ctrlDisabled": false,
+                                  "ctrlCheckable": false,
+                                  "ctrlChecked": true,
+                                  "ctrlClickTrig": false,
+                                  "ctrlPopover": false,
+                                  "ctrlCustom1": false
                                 },
                                 {
                                   "objID": "32374fe1-1b27-4e2b-d1fd-796e6474674c",

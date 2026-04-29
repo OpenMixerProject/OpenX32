@@ -1612,26 +1612,115 @@ void create_screen_main() {
                                     {
                                         lv_obj_t *parent_obj = obj;
                                         {
-                                            lv_obj_t *obj = lv_obj_create(parent_obj);
-                                            objects.obj8 = obj;
-                                            lv_obj_set_pos(obj, -19, 34);
-                                            lv_obj_set_size(obj, 798, 200);
-                                            lv_obj_set_style_outline_width(obj, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_outline_color(obj, lv_color_hex(0xfff00000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            // routingmatrix
+                                            lv_obj_t *obj = lv_buttonmatrix_create(parent_obj);
+                                            objects.routingmatrix = obj;
+                                            lv_obj_set_pos(obj, -17, -16);
+                                            lv_obj_set_size(obj, 529, 314);
+                                            static const char *map[47] = {
+                                                "Kanal 1\n[XLR1]\nCH01",
+                                                "Kanal 2\n[XLR2]\nCH02",
+                                                "Kanal 3\n[Card 3]\nCH03",
+                                                "Kanal 4\n[A28]\nCH04",
+                                                "Kanal 5\n[A29]\nCH05",
+                                                "Kanal 6\n[B04]\nCH06",
+                                                "Btn",
+                                                "\n",
+                                                "Btn",
+                                                "Btn",
+                                                "Kanal 10\nCH10\nXLR 10",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "\n",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "\n",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "\n",
+                                                "Btn",
+                                                "Btn",
+                                                "Btn",
+                                                "Kanal 32\nCH32\nXLR 32",
+                                                "AUX 1\nCH33\nAUX 1",
+                                                "AUX 2\nCH34\nAUX 2",
+                                                "AUX 3\nCH35\nAUX 3",
+                                                "\n",
+                                                "AUX 4\nCH36\nAUX 4",
+                                                "AUX 5\nCH37\nAUX 5",
+                                                "AUX 6\nCH38\nAUX 6",
+                                                "USB1\nCH39\nAUX 7",
+                                                "USB2\nCH40\nAUX 8",
+                                                " ",
+                                                NULL,
+                                            };
+                                            static lv_buttonmatrix_ctrl_t ctrl_map[41] = {
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1 | LV_BUTTONMATRIX_CTRL_CHECKED,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                1,
+                                                2,
+                                            };
+                                            lv_buttonmatrix_set_map(obj, map);
+                                            lv_buttonmatrix_set_ctrl_map(obj, ctrl_map);
+                                            lv_obj_set_style_pad_top(obj, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_bottom(obj, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_right(obj, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_left(obj, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_row(obj, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_pad_column(obj, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_pad_top(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_pad_left(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_pad_row(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_pad_column(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_border_post(obj, true, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                        }
-                                        {
-                                            lv_obj_t *obj = lv_label_create(parent_obj);
-                                            lv_obj_set_pos(obj, 261, 123);
-                                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                            lv_label_set_text(obj, "the red line should be visible all around");
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_radius(obj, 0, LV_PART_ITEMS | LV_STATE_DEFAULT);
                                         }
                                     }
                                 }
