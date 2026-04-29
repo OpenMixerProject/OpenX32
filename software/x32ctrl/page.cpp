@@ -200,6 +200,12 @@ void Page::SyncEncoderWidget(SurfaceElementId elementIdEncoder, SurfaceElementId
     {
         ClearEncoderButton(lvgl_encoder_widget);
     }
+
+    // if Surface binding has changed -> refresh all
+    if (config->HasSurfaceBindingChanged(elementIdEncoder) || config->HasSurfaceBindingChanged(elementIdButton))
+    {
+        force = true;
+    }
     
     if (surface_binding_encoder != 0)
     {
