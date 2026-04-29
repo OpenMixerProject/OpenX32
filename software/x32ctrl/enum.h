@@ -779,11 +779,23 @@ enum class SurfaceElementId {
 
     // Only X32 Core
     SCENE_SETUP,
+    LED_IN,
+    LED_AUX_FX,
+    LED_BUS,
+    LED_DCA,
+    LED_MAIN,
+    LED_MATRIX,
 
     // Only X32 Rack
     CHANNEL_SOLO,
     CHANNEL_MUTE,
     CHANNEL_ENCODER,
+    CHANNEL_ENCODER_BUTTON,
+    CHANNEL_LEVEL,
+    MAIN_LEVEL,
+    VIEW_USB_RED,
+
+    // General
 
     TALK_A,
     TALK_B,
