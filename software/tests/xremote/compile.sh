@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/bin/arm-linux-gnueabi-g++ xremote.c WString.cpp -static -o ../../bin/xremote
+/opt/cross/bin/arm-linux-gnueabi-g++ xremote.c WString.cpp -o ../../bin/xremote

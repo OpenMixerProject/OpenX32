@@ -2,6 +2,7 @@
 # Makefile
 #
 
+COPTS           ?= -mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables
 CC              = arm-linux-gnueabi-gcc
 CXX             = arm-linux-gnueabi-g++
 AR              = arm-linux-gnueabi-ar
@@ -20,12 +21,14 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP
 
 # normal build
-#CFLAGS          ?= -std=c++23 -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CFLAGS          ?= -std=c11 -flto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CXXFLAGS        ?= -std=c++23 -flto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
-CFLAGS          ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CFLAGS          ?= -std=c11 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CXXFLAGS         ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
-LDFLAGS         ?= -lm -lrt -lpthread -static
+LDFLAGS         ?= -flto -lm -lrt -lpthread -lartnet
 
 BIN             = x32ctrl
 BUILD_DIR       = ../bin
@@ -72,7 +75,7 @@ $(BUILD_OBJ_DIR)/%.o: %.c lv_conf.h
 
 $(BUILD_OBJ_DIR)/%.o: %.cpp lv_conf.h
 	@mkdir -p $(dir $@)
-	@$(CXX)  $(CFLAGS) -c $< -o $@
+	@$(CXX)  $(CXXFLAGS) -c $< -o $@
 	@echo "CXX $<"
 
 $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
@@ -81,6 +84,7 @@ $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
 	@echo "AS  $<"
 
 copy:
+	cp Makefile.lvgl lv_port_linux/Makefile
 	@if ! diff -q lv_conf.h lv_port_linux/lv_conf.h >/dev/null 2>&1; then \
 		cp lv_conf.h lv_port_linux/lv_conf.h; \
 		echo "Update lv_port_linux/lv_conf.h (changed content)"; \

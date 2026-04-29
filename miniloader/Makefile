@@ -7,8 +7,8 @@ LIBS =
 TARGET = miniloader.elf
 
 $(TARGET):      $(SOURCES)
-	arm-none-eabi-gcc $(CXXFLAGS) -o $(TARGET) $(SOURCES) $(LIBS) -T miniloader.ld -nostartfiles -nostdlib -Wl,-Map,miniloader.map,--cref,-n
-	arm-none-eabi-objcopy -O binary miniloader.elf miniloader.bin
+	arm-linux-gnueabi-gcc $(CXXFLAGS) -o $(TARGET) $(SOURCES) $(LIBS) -T miniloader.ld -nostartfiles -nostdlib -Wl,-Map,miniloader.map,--cref,-n
+	arm-linux-gnueabi-objcopy -O binary miniloader.elf miniloader.bin
 
 all:    $(TARGET)
 

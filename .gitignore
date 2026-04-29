@@ -11,12 +11,16 @@
 
 # initramfs
 initramfs_root/bin
+initramfs_root/lib
 initramfs_root/dev
 initramfs_root/linuxrc
 initramfs_root/proc
 initramfs_root/sbin
 initramfs_root/sys
 initramfs_root/openx32
+initramfs_root/etc/dropbear/openx32_key
+initramfs_root/etc/dropbear/openx32_key.pub
+initramfs_root/etc/motd
 
 # compiled software
 software/x32ctrl/.vscode/tasks.json

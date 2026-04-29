@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/bin/arm-linux-gnueabi-gcc fpgaconfig_lattice.c -lgpiod -static -o ../../bin/fpgaconfig_lattice
+/opt/cross/bin/arm-linux-gnueabi-gcc fpgaconfig_lattice.c -lgpiod -o ../../bin/fpgaconfig_lattice

@@ -1,5 +1,7 @@
 #pragma once
 
+typedef unsigned int uint;
+
 #define X32_CTRL_VERSION "v0.2.5"
 #define BUILD_DEBUG 1 // build with or without debug functions
 #define X32_CTRL_URL "https://github.com/OpenMixerProject/OpenX32"

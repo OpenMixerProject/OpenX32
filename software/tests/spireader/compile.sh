@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/bin/arm-linux-gnueabi-gcc spireader.c -static -o ../../bin/spireader
+/opt/cross/bin/arm-linux-gnueabi-gcc spireader.c -o ../../bin/spireader

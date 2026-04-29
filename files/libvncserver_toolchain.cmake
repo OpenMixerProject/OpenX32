@@ -12,6 +12,13 @@ SET(CMAKE_SYSTEM_NAME Linux)
 #set(COMPILER_PREFIX "i686-w64-mingw32")
 set(COMPILER_PREFIX "arm-linux-gnueabi")
 
+set(CMAKE_INSTALL_PREFIX /tmp/armv5_libs)
+set(CMAKE_BUILD_TYPE Release)
+set(BUILD_SHARED_LIBS OFF)
+set(ZLIB_INCLUDE_DIR /dummy/usr/include/)
+set(ZLIB_LIBRARY /usr/lib/arm-linux-gnueabi/libz.a)
+set(CMAKE_EXE_LINKER_FLAGS "-L/usr/lib/arm-linux-gnueabi")
+
 # which compilers to use for C and C++
 find_program(CMAKE_RC_COMPILER NAMES ${COMPILER_PREFIX}-windres)
 #SET(CMAKE_RC_COMPILER ${COMPILER_PREFIX}-windres)

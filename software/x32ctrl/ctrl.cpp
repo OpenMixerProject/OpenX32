@@ -6,6 +6,7 @@ X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar)
 	surface = new Surface(basepar);
 	xremote = new XRemote(basepar);
 	lcdmenu = new LcdMenu(basepar, mixer, surface); // only used for X32Core (at the moment, maybe later for assing-section?)
+	artnet = new Artnet(basepar);
 }
 
 // ###########################################################################
@@ -70,6 +71,9 @@ void X32Ctrl::Init()
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "lcdmenu->Init()");
 		lcdmenu->OnInit();
 	}
+
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "artnet->Init()");
+	artnet->Init();
 
 	//############################################################################
 	//#                                                                          #
@@ -325,6 +329,9 @@ void X32Ctrl::Tick50ms(void)
 
 	// Update VU-Meters
 	UpdateMeters();
+
+	// update Dimmerkernel
+	artnet->Tick();
 }
 
 void X32Ctrl::Tick100ms(void) {
@@ -360,8 +367,8 @@ void X32Ctrl::Tick100ms(void) {
 			dspLoadMean[0] += dspLoadHistory[0][i];
 			dspLoadMean[1] += dspLoadHistory[1][i];
 		}
-		dspLoadMean[0] /= 20.0;
-		dspLoadMean[1] /= 20.0;
+		dspLoadMean[0] /= 20.0f;
+		dspLoadMean[1] /= 20.0f;
 
 		// show the DSP-load
 		lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)dspLoadMean[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
@@ -372,7 +379,8 @@ void X32Ctrl::Tick100ms(void) {
 	}
 
 	// send AES50-data to FPGA
-	mixer->fpga->AES50Tick(config);
+	// DeviceTypeAndProperty every 2 seconds, Headamp-Message every 2 seconds (Names every 10 seconds)
+	mixer->fpga->AES50Tick();
 }
 
 void X32Ctrl::ProcessUartDataAdda() {

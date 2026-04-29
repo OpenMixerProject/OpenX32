@@ -1,9 +1,9 @@
 [submodule "pyatk"]
-	path = pyatk
+	path = software/pyatk
 	url = https://github.com/hbock/pyatk
 	ignore = dirty
 [submodule "busybox"]
-	path = busybox
+	path = software/busybox
 	url = https://git.busybox.net/busybox
 	ignore = dirty
 [submodule "linux"]
@@ -32,4 +32,8 @@
 [submodule "software/libvncserver"]
 	path = software/libvncserver
 	url = https://github.com/LibVNC/libvncserver.git
+	ignore = dirty
+[submodule "software/libartnet"]
+	path = software/libartnet
+	url = https://github.com/OpenLightingProject/libartnet.git
 	ignore = dirty
