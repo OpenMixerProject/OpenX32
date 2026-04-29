@@ -25,12 +25,13 @@ class PageMain : public Page
             noLedOnRack = true;
         }
 
-        void OnInit() override
+        void OnShow() override
         {
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET_SELECTED_CHANNEL, CHANNEL_VOLUME);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_VOLUME);
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_LR);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_SELECTED_CHANNEL, CHANNEL_PANORAMA);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET_SELECTED_CHANNEL, CHANNEL_VOLUME_SUB);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_PANORAMA);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::RESET_SELECTED_CHANNEL, CHANNEL_PANORAMA);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_VOLUME_SUB);
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SEND_SUB);
         }
 };
