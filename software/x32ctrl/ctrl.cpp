@@ -71,6 +71,7 @@ void X32Ctrl::Init(){
 
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "artnet->Init()");
 	artnet->Init();
+	
 
 	//############################################################################
 	//#                                                                          #
@@ -351,6 +352,11 @@ void X32Ctrl::Tick100ms(void) {
 
 	if (startupCounter < 100) {
 		startupCounter++;
+
+		if (startupCounter == 1) {
+			// set IP-Address in GUI
+			lv_label_set_text_fmt(objects.setup_ipaddresstext, "%s", helper->getIpAddress().c_str());
+		}
 
 		if (startupCounter == 10) {
 /*

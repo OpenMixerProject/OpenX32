@@ -376,7 +376,7 @@ arm-linux-gnueabi-strip initramfs_root/sbin/*
 
 
 # =================== Create MOTD =======================
-GITREV=$(git describe --tags --always --dirty)
+GITREV=$(git describe --tags --always --dirty --long)
 DATE=$(date +%d.%m.%Y)
 
 echo "  ____                  __   ______ ____" > initramfs_root/etc/motd
