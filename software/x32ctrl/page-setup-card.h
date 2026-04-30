@@ -344,7 +344,7 @@ class PageSetupCard: public Page {
                             case X32_BTN_ENCODER1:
                                 // seek 15 seconds to left
                                 {
-                                    uint newPosition = mixer->card->currentSongPositionSeconds - 15;
+                                    int newPosition = mixer->card->currentSongPositionSeconds - 15;
                                     if (newPosition < 0) {
                                         newPosition = 0;
                                     }
@@ -354,7 +354,7 @@ class PageSetupCard: public Page {
                             case X32_BTN_ENCODER2: 
                                 // seek 15 seconds to right
                                 {
-                                    uint newPosition = mixer->card->currentSongPositionSeconds + 15;
+                                    int newPosition = mixer->card->currentSongPositionSeconds + 15;
                                     if (newPosition < mixer->card->currentSongTotalSeconds) {
                                         mixer->card->XLIVE_Seek(newPosition * config->GetUint(SAMPLERATE));
                                     }

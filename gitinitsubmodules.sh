@@ -13,8 +13,8 @@ mkdir -p linux
 cd linux
 git init
 git remote add origin https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-git fetch --depth 1 origin tag v6.18.22
-git checkout v6.18.22
+git fetch --depth 1 origin tag v6.18.25
+git checkout v6.18.25
 patch -p1 < ../files/kernel_patches/901-debloat_sock_diag.patch
 patch -p1 < ../files/kernel_patches/902-debloat_proc.patch
 patch -p1 < ../files/kernel_patches/904-debloat_dma_buf.patch

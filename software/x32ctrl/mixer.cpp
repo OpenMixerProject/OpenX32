@@ -240,6 +240,12 @@ void Mixer::LoadRoutingDefault()
         config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MAINLEFT + (i % 2), i);
         config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), i);
     }
+	// connect mixbus-channels 1-8 to DSP2-FX-Channels 1-8 as PostFader
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MIXBUS + i, 41 + i);
+        config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 41 + i);
+    }
 
     // connect MainLeft to RTA
     uint indexRTA = (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS) - 1;
@@ -525,7 +531,7 @@ void Mixer::halSendPhantomPower(uint8_t dspChannel) {
 
 bool Mixer::LoadConfig(uint scene)
 {
-    String loadFile = String(scene) + String(X32_MIXER_CONFIGFILE);
+    String loadFile = "scn" + String(scene) + "_" + String(X32_MIXER_CONFIGFILE);
 
     // no file found
 	if (helper->GetFileSize(loadFile.c_str()) == -1)
@@ -672,7 +678,7 @@ void Mixer::SaveConfig(uint scene)
 		}
 	}
 
-    String saveFile = String(scene) + String(X32_MIXER_CONFIGFILE);
+    String saveFile = "scn" + String(scene) + "_" + String(X32_MIXER_CONFIGFILE);
 	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", saveFile.c_str());
 	mixer_ini.save(saveFile.c_str());
 }

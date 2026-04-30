@@ -7313,10 +7313,10 @@
                             {
                               "objID": "ce684c4d-d91d-4e56-fb85-826da67ea2ea",
                               "type": "LVGLLabelWidget",
-                              "left": 285,
-                              "top": 180,
-                              "width": 195,
-                              "height": 16,
+                              "left": 83,
+                              "top": 159,
+                              "width": 323,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7343,11 +7343,18 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "8cd47945-ef08-4c15-cb2f-f1d3a1eadfbb"
+                                "objID": "8cd47945-ef08-4c15-cb2f-f1d3a1eadfbb",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "AES50-IP-Core: Markus Noll",
+                              "text": "AES50-IP-Core:\nMarkus Noll (YetAnotherElectronicsChannel)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
@@ -7355,10 +7362,10 @@
                             {
                               "objID": "544c55fd-f364-4d10-c0e2-f33ce5c93dd1",
                               "type": "LVGLLabelWidget",
-                              "left": 268,
-                              "top": 150,
-                              "width": 225,
-                              "height": 16,
+                              "left": 433,
+                              "top": 109,
+                              "width": 217,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7385,11 +7392,18 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "069e16d9-454d-41dd-96ed-0af5ea86a864"
+                                "objID": "069e16d9-454d-41dd-96ed-0af5ea86a864",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "FPGA and DSPs: Chris Noeding",
+                              "text": "FPGA, DSPs and Effects:\nChris Noeding (xn--nding-jua)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
@@ -7397,10 +7411,10 @@
                             {
                               "objID": "9b43f7fb-60f4-417a-e96e-71802140012c",
                               "type": "LVGLLabelWidget",
-                              "left": 261,
-                              "top": 120,
-                              "width": 235,
-                              "height": 16,
+                              "left": 83,
+                              "top": 109,
+                              "width": 261,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7431,11 +7445,18 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "1f45492a-7382-424b-d3bb-659bc6ad9f81"
+                                "objID": "1f45492a-7382-424b-d3bb-659bc6ad9f81",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "User-Interface: Alexander Schulz",
+                              "text": "Main-Control, UI and Backend:\nAlexander Schulz (schulz-alexander)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
@@ -7444,9 +7465,9 @@
                               "objID": "fd1a5fa3-fe4c-4eb3-e3f2-d2e2f85c8e7c",
                               "type": "LVGLLabelWidget",
                               "left": 188,
-                              "top": 63,
+                              "top": 53,
                               "width": 384,
-                              "height": 16,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7473,11 +7494,67 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "55dddb8f-1246-4959-c4c2-f52f8c29a179"
+                                "objID": "55dddb8f-1246-4959-c4c2-f52f8c29a179",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "https://www.github.com/OpenMixerProject/OpenX32",
+                              "text": "https://www.openx32.com\nhttps://www.github.com/OpenMixerProject/OpenX32",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
+                              "objID": "cd4ccbc6-b300-4d99-d8dc-82176ab2d6bf",
+                              "type": "LVGLLabelWidget",
+                              "left": 433,
+                              "top": 159,
+                              "width": 245,
+                              "height": 32,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "5c988920-11ea-427f-8263-a72304290a35",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "f8e7923a-6044-4fec-dca4-09bdfc9acfc0",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "Optimizations for Linux:\nSebastian Gottschall (BrainSlayer)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false

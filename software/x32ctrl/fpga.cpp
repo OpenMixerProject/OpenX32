@@ -473,6 +473,10 @@ void Fpga::AES50Receive(void) {
 
 // this function is called every 100ms
 void Fpga::AES50Tick() {
+	if (AES50Device < 65) {
+		AES50Device = 65;
+	}
+
 	AES50Counter++;
 	if (AES50Counter == 10) {
 		// send device-properties every 2 seconds
@@ -482,6 +486,14 @@ void Fpga::AES50Tick() {
 		AES50Counter = 0;
 
 		AES50SendHeadampMessage();
+
+		// flexMode: cycle through all known devices every 4 seconds
+		/*
+		AES50Device++;
+		if (AES50Device > 105) {
+			AES50Device = 65;
+		}
+		*/
 	}
 }
 
@@ -495,8 +507,8 @@ void Fpga::AES50SendDeviceTypeAndProperty() {
 	// (AES50 seems to support up to 6, but only the last 4 are transmitted)
 	fpgaTxBufferUart[4] = 0; // fourth device in AES50-chain
 	fpgaTxBufferUart[5] = 0; // third device in AES50-chain
-	fpgaTxBufferUart[6] = 0; // second device in AES50-chain: S16
-	fpgaTxBufferUart[7] = 'C'; // first device in AES50-chain: X32
+	fpgaTxBufferUart[6] = 0; // second device in AES50-chain
+	fpgaTxBufferUart[7] = AES50Device; // first device in AES50-chain
 
 	// data[8 .. 13] <- '0' if no headamp-control, '2' if headamp-
 	// control is present
@@ -526,10 +538,10 @@ void Fpga::AES50SendNames() {
 
 	// AES50-DeviceChars for the last four connected devices
 	// (AES50 seems to support up to 6, but only the last 4 are transmitted)
-	fpgaTxBufferUart[4] = 0;
-	fpgaTxBufferUart[5] = 0;
-	fpgaTxBufferUart[6] = 0; // S16
-	fpgaTxBufferUart[7] = 'C'; // X32
+	fpgaTxBufferUart[4] = 0; // fourth device in AES50-chain
+	fpgaTxBufferUart[5] = 0; // third device in AES50-chain
+	fpgaTxBufferUart[6] = 0; // second device in AES50-chain
+	fpgaTxBufferUart[7] = AES50Device; // first device in AES50-chain
 
 	// the next bytes are zero-terminated ASCII-strings.
 	// First clear the data-array with zeros
@@ -568,10 +580,10 @@ void Fpga::AES50SendHeadampMessage() {
 
 	// AES50-DeviceChars for the last four connected devices
 	// (AES50 seems to support up to 6, but only the last 4 are transmitted)
-	fpgaTxBufferUart[4] = 0;
-	fpgaTxBufferUart[5] = 0;
-	fpgaTxBufferUart[6] = 0; // S16
-	fpgaTxBufferUart[7] = 'C'; // X32
+	fpgaTxBufferUart[4] = 0; // fourth device in AES50-chain
+	fpgaTxBufferUart[5] = 0; // third device in AES50-chain
+	fpgaTxBufferUart[6] = 0; // second device in AES50-chain
+	fpgaTxBufferUart[7] = AES50Device; // first device in AES50-chain
 
 	// now insert the headamp-gains
 	// TODO: the specific value depends on the connected AES50 device as some
@@ -608,7 +620,7 @@ void Fpga::AES50SendHeadampMessage() {
 void Fpga::AES50Send(char* data, uint len) {
 	MessageBase* message = new MessageBase();
 
-	message->AddDataArray(data, len);
+	message->AddRawDataArray(data, len);
 
 	if (helper->DEBUG_FPGA(DEBUGLEVEL_TRACE)) {
 		printf("DEBUG_FPGA: Transmit: ");

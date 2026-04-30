@@ -156,6 +156,7 @@ void fxDynamicEQ::process() {
 			biquad_trans(&_bufOut[i_ch][0], &peqCoeffs[0], &_deq[band].biquadStatesCtrl[i_ch][0], SAMPLES_IN_BUFFER, 1);
 		}
 
+/*
 		// Step 1.2: update envelope with mean-value of all 16 samples
 		float ctrlSignalL = 0;
 		float ctrlSignalR = 0;
@@ -167,10 +168,22 @@ void fxDynamicEQ::process() {
 		if (ctrlSignalR > ctrlSignalL) {
 			ctrlSignal = ctrlSignalR;
 		}
+		float ctrlSignal_dB = helperFcn_lin2db((ctrlSignal / (float)SAMPLES_IN_BUFFER) * INT32_TO_FLOAT_NORM);
+*/
+		// Step 1.2: update envelope with peak-value of all 16 samples
+		float ctrlSignalL = 0;
+		float ctrlSignalR = 0;
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			ctrlSignalL = fmax(fabsf(_bufOut[0][s]), ctrlSignalL);
+			ctrlSignalR = fmax(fabsf(_bufOut[1][s]), ctrlSignalR);
+		}
+		float ctrlSignal = ctrlSignalL;
+		if (ctrlSignalR > ctrlSignalL) {
+			ctrlSignal = ctrlSignalR;
+		}
+		float ctrlSignal_dB = helperFcn_lin2db(ctrlSignal * INT32_TO_FLOAT_NORM); // normalize control-signal between -1 and +1
 
-		float ctrlSignal_dB = helperFcn_lin2db((ctrlSignal / (float)SAMPLES_IN_BUFFER) * INT32_TO_FLOAT_NORM); // normalize control-signal between 0 and +1
-
-		float targetGainDb = 0.0f;
+		float targetGainDb = 0.0f; // Default: 0 dB
 		float currentGainLinear;
 		if (ctrlSignal_dB > _deq[band].threshold) {
 			// calculate the overshoot
@@ -199,14 +212,16 @@ void fxDynamicEQ::process() {
 
 				currentGainLinear = helperFcn_db2lin(targetGainDb);
 			}
+		}else{
+			targetGainDb = 0.0f;
+		}
 
-			if (((currentGainLinear > _deq[band].envelope) && (_deq[band].maxDynamicGain > 0)) || ((currentGainLinear < _deq[band].envelope) && (_deq[band].maxDynamicGain < 0))) {
-				// Attack
-				_deq[band].envelope += _deq[band].attack * (currentGainLinear - _deq[band].envelope);
-			}else{
-				// Release
-				_deq[band].envelope += _deq[band].release * (currentGainLinear - _deq[band].envelope);
-			}
+		if (((currentGainLinear > _deq[band].envelope) && (_deq[band].maxDynamicGain > 0)) || ((currentGainLinear < _deq[band].envelope) && (_deq[band].maxDynamicGain < 0))) {
+			// Attack
+			_deq[band].envelope += _deq[band].attack * (currentGainLinear - _deq[band].envelope);
+		}else{
+			// Release
+			_deq[band].envelope += _deq[band].release * (currentGainLinear - _deq[band].envelope);
 		}
 	}
 

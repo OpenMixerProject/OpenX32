@@ -112,10 +112,10 @@ void X32Ctrl::Init(){
 			DYNAMICEQ = 6
 			*/
 
-			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // this effect takes lot of DSP-ressources
             mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
             mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
-            mixer->dsp->DSP2_SetFx(3, FX_TYPE::DYNAMICEQ, 2);
+            mixer->dsp->DSP2_SetFx(3, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(4, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(5, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);
@@ -305,6 +305,7 @@ void X32Ctrl::Tick50ms(void) {
 void X32Ctrl::Tick100ms(void) {
 	static float dspLoadHistory[2][20];
 	static uint8_t dspLoadHistoryPointer = 0;
+	static uint8_t startupCounter = 0;
 
 	helper->DEBUG_TIMER(DEBUGLEVEL_TRACE, "100ms");
 
@@ -346,6 +347,52 @@ void X32Ctrl::Tick100ms(void) {
 	// send AES50-data to FPGA
 	// DeviceTypeAndProperty every 2 seconds, Headamp-Message every 2 seconds (Names every 10 seconds)
 	mixer->fpga->AES50Tick();
+
+
+	// TODO: find the reason why the system is working only on the second
+	// attempt. Here is a brute-force solution: re-upload the two DSPs right
+	// after the startup and load the init-scene again.
+	// Then everything seems to work fine.
+	if (startupCounter < 20) {
+		startupCounter++;
+
+		if (startupCounter == 20) {
+			// 2 seconds after startup, re-upload both DSPs and
+			// do a full sync to get all meters and states updated
+
+			// re-upload DSPs
+			mixer->dsp->spi->CloseConnectionDsps();
+			mixer->dsp->spi->UploadBitstreamDsps(false); // use UI to show progress
+			mixer->dsp->spi->OpenConnectionDsps();
+			usleep(50000); // wait 50ms
+
+			// load initial scene
+			mixer->LoadConfig(0);
+/*
+			// route channel 1-4 to effects using post-fader tapping
+			for (uint8_t i = 0; i < 8; i++)
+			{
+				config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_DSPCHANNEL + (i / 2), 41 + i);
+				config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 41 + i);
+			}
+
+			// set volume of FX-return to 0dBfs
+			for (int i = 0; i < 8; i++)
+			{
+				config->Set(CHANNEL_VOLUME, 0, 41 + i);
+			}
+*/
+			// set default FXes in FX slots
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // takes lot of ressources
+            mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
+            mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
+            mixer->dsp->DSP2_SetFx(3, FX_TYPE::NONE, 2);
+            mixer->dsp->DSP2_SetFx(4, FX_TYPE::NONE, 2);
+            mixer->dsp->DSP2_SetFx(5, FX_TYPE::NONE, 2);
+            mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);
+            mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2);
+		}
+	}
 }
 
 void X32Ctrl::ProcessUartDataAdda() {
@@ -1583,7 +1630,7 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 	xremote->SetCard(10); // X-LIVE
 
 	for(uint8_t i=0; i<(uint)X32_VCHANNELTYPE::NORMAL; i++) {
-		uint8_t chanindex = i;
+		//uint8_t chanindex = i;
 		//VChannel* chan = mixer->GetVChannel(i);
 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
 		// 	xremote->SetFader(String("ch"), chanindex, mixer->GetVolumeOscvalue(chanindex));
@@ -1606,7 +1653,7 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 	}
 
 	for(uint8_t i=(uint)X32_VCHANNEL_BLOCK::AUX; i<(uint)X32_VCHANNELTYPE::AUX; i++) {
-		uint8_t chanindex = i;
+		//uint8_t chanindex = i;
 		//VChannel* chan = mixer->GetVChannel(i);
 		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
 		// 	xremote->SetFader(String("auxin"), chanindex, mixer->GetVolumeOscvalue(chanindex));
