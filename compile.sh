@@ -337,7 +337,6 @@ mkdir -p initramfs_root/openx32
 mkdir -p initramfs_root/lib
 cp software/bin/x32sdconfig initramfs_root/openx32/
 cp software/bin/x32ctrl initramfs_root/openx32/
-cp files/scn0_mixer.ini initramfs_root/openx32/scn0_mixer.ini
 cp software/dropbear/dropbearmulti initramfs_root/openx32/
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dbclient && cd ../../

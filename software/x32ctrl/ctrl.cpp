@@ -364,26 +364,26 @@ void X32Ctrl::Tick100ms(void) {
 			mixer->dsp->spi->CloseConnectionDsps();
 			mixer->dsp->spi->UploadBitstreamDsps(false); // use UI to show progress
 			mixer->dsp->spi->OpenConnectionDsps();
-			usleep(50000); // wait 50ms
+			usleep(500000); // wait 500ms
 
-			// load initial scene
+			// load default-configuration
 			mixer->LoadConfig(0);
-/*
+
 			// route channel 1-4 to effects using post-fader tapping
 			for (uint8_t i = 0; i < 8; i++)
 			{
-				config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_DSPCHANNEL + (i / 2), 41 + i);
-				config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 41 + i);
+				config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_DSPCHANNEL + (i / 2), 40 + i);
+				config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 40 + i);
 			}
 
 			// set volume of FX-return to 0dBfs
 			for (int i = 0; i < 8; i++)
 			{
-				config->Set(CHANNEL_VOLUME, 0, 41 + i);
+				config->Set(CHANNEL_VOLUME, 0, 40 + i);
 			}
-*/
+
 			// set default FXes in FX slots
-			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // takes lot of ressources
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
             mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
             mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
             mixer->dsp->DSP2_SetFx(3, FX_TYPE::NONE, 2);
@@ -391,6 +391,10 @@ void X32Ctrl::Tick100ms(void) {
             mixer->dsp->DSP2_SetFx(5, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2);
+
+			// set dry/wet for Reverb on slot 1
+			config->Set(FX_REVERB_DRY, 0, 0);
+			config->Set(FX_REVERB_WET, 1, 0);
 		}
 	}
 }

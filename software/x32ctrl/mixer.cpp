@@ -243,8 +243,8 @@ void Mixer::LoadRoutingDefault()
 	// connect mixbus-channels 1-8 to DSP2-FX-Channels 1-8 as PostFader
     for (uint8_t i = 0; i < 8; i++)
     {
-        config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MIXBUS + i, 41 + i);
-        config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 41 + i);
+        config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MIXBUS + i, 40 + i);
+        config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 40 + i);
     }
 
     // connect MainLeft to RTA
