@@ -349,25 +349,23 @@ void X32Ctrl::Tick100ms(void) {
 	mixer->fpga->AES50Tick();
 
 
-	// TODO: find the reason why the system is working only on the second
-	// attempt. Here is a brute-force solution: re-upload the two DSPs right
-	// after the startup and load the init-scene again.
-	// Then everything seems to work fine.
-	if (startupCounter < 20) {
+	if (startupCounter < 100) {
 		startupCounter++;
 
-		if (startupCounter == 20) {
-			// 2 seconds after startup, re-upload both DSPs and
-			// do a full sync to get all meters and states updated
-
+		if (startupCounter == 10) {
+/*
 			// re-upload DSPs
 			mixer->dsp->spi->CloseConnectionDsps();
 			mixer->dsp->spi->UploadBitstreamDsps(false); // use UI to show progress
 			mixer->dsp->spi->OpenConnectionDsps();
-			usleep(500000); // wait 500ms
+			usleep(50000); // wait 50ms
+*/
 
-			// load default-configuration
+			// the gate, the dynamics and the EQ-settings are not loaded correctly on first load, so load it again after a short time
 			mixer->LoadConfig(0);
+
+			// in the following lines the default configuration is set so that the users of the beta-version
+			// can start with a working system
 
 			// route channel 1-4 to effects using post-fader tapping
 			for (uint8_t i = 0; i < 8; i++)
@@ -383,7 +381,7 @@ void X32Ctrl::Tick100ms(void) {
 			}
 
 			// set default FXes in FX slots
-			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // on first load this effect has a bug, so we have to disable it a bit later
             mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
             mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
             mixer->dsp->DSP2_SetFx(3, FX_TYPE::NONE, 2);
@@ -392,9 +390,22 @@ void X32Ctrl::Tick100ms(void) {
             mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);
             mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2);
 
-			// set dry/wet for Reverb on slot 1
-			config->Set(FX_REVERB_DRY, 0, 0);
-			config->Set(FX_REVERB_WET, 1, 0);
+			// set FX-settings to wet on slot 1-4
+			config->Set(FX_REVERB_DRY, 0, 0); // fx-slot 1
+			config->Set(FX_REVERB_WET, 1, 0); // fx-slot 1
+			config->Set(FX_CHORUS_MIX, 1, 1); // fx-slot 2
+		}
+
+		if (startupCounter == 40) {
+			// disable effect as on first start of the effect some parts in
+			// the external memory gets corrupted. This needs more debugging
+			// for now stop-restart is fine
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE::NONE, 2);
+		}
+
+		if (startupCounter == 50) {
+			// renable effect
+			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
 		}
 	}
 }
