@@ -94,3 +94,17 @@ int MessageBase::AddDataArray(const char* data, uint8_t len){
     }
     return 0;
 }
+
+int MessageBase::AddRawDataArray(const char* data, uint8_t len){
+    // check if we have space left in message-buffer (max. 64 bytes for payload)
+    if (current_length >= MAX_MESSAGE_SIZE) {
+        fprintf(stderr, "Error: Message buffer overflow before adding data!\n");
+        return -1;
+    }
+
+    for (uint8_t i=0; i<len; i++) {
+        buffer[current_length++] = data[i];
+    }
+    
+    return 0;
+}

@@ -754,6 +754,8 @@ typedef struct _objects_t {
     lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
     lv_obj_t *current_channel_source_4;
+    lv_obj_t *current_channel_source_5;
+    lv_obj_t *setup_ipaddresstext;
     lv_obj_t *setup_versioninfotext;
     lv_obj_t *setup_card_sdcard;
     lv_obj_t *setup_card_sdusb;

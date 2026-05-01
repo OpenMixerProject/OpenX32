@@ -198,7 +198,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 29.367695502387853,
+              "weight": 28.78469113595715,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -213,13 +213,12 @@
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 13.35484607834856,
+              "weight": 13.937850444779253,
               "children": [
                 {
                   "type": "tab",
@@ -229,7 +228,8 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ]
+              ],
+              "active": true
             }
           ]
         }
@@ -1058,10 +1058,10 @@
       },
       "transform": {
         "translate": {
-          "x": -403.3079938928478,
-          "y": -202.59379877589208
+          "x": -293.3559954196358,
+          "y": -157.0078490819191
         },
-        "scale": 1
+        "scale": 0.75
       },
       "timeline": {
         "isEditorActive": false,
@@ -1075,7 +1075,11 @@
           "1": {
             "3": {
               "0": {
-                "4": {}
+                "0": {
+                  "2": {
+                    "$selected": true
+                  }
+                }
               }
             }
           },
@@ -1308,11 +1312,12 @@
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "TEXT"
+    "TEXT",
+    "MISCELLANEOUS"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 1,
+  "flowZoom": 0.75,
   "implementationLanguage": "C",
   "openDialogDefaultPath": "C:\\Cloud\\Dokumente\\OpenX32_Website\\SoftwareImages\\sdcard_all.png"
 }

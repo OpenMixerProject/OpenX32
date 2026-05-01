@@ -6044,6 +6044,104 @@
                               "recolor": false
                             },
                             {
+                              "objID": "29124131-f4b4-4ea0-853f-c23ba2f899dc",
+                              "type": "LVGLLabelWidget",
+                              "left": 277,
+                              "top": 9,
+                              "width": 218,
+                              "height": 26,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "043cab3c-1c4b-4681-a688-ea81314dcc31",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "current_channel_source_5",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "abb02a1d-5784-405e-cefe-a284e2a875ce",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#264056",
+                                      "bg_opa": 64,
+                                      "text_align": "CENTER",
+                                      "pad_top": 5,
+                                      "pad_bottom": 5
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "IP ADDRESS",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
+                              "objID": "d9800901-17dd-453b-c7f0-fabb3f6563fd",
+                              "type": "LVGLLabelWidget",
+                              "left": 277,
+                              "top": 48,
+                              "width": 9,
+                              "height": 16,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "37e97d37-541d-4198-d600-21fa7e2ee81c",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "setup_ipaddresstext",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "4f3bfc5d-25e0-4afe-9f05-c3e3236bc9ba"
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "...",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
                               "objID": "765915a1-d50c-4ab5-ffc5-a00b482ad4d8",
                               "type": "LVGLLabelWidget",
                               "left": 32,
@@ -7313,10 +7411,10 @@
                             {
                               "objID": "ce684c4d-d91d-4e56-fb85-826da67ea2ea",
                               "type": "LVGLLabelWidget",
-                              "left": 285,
-                              "top": 180,
-                              "width": 195,
-                              "height": 16,
+                              "left": 83,
+                              "top": 159,
+                              "width": 323,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7343,11 +7441,18 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "8cd47945-ef08-4c15-cb2f-f1d3a1eadfbb"
+                                "objID": "8cd47945-ef08-4c15-cb2f-f1d3a1eadfbb",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "AES50-IP-Core: Markus Noll",
+                              "text": "AES50-IP-Core:\nMarkus Noll (YetAnotherElectronicsChannel)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
@@ -7355,10 +7460,10 @@
                             {
                               "objID": "544c55fd-f364-4d10-c0e2-f33ce5c93dd1",
                               "type": "LVGLLabelWidget",
-                              "left": 268,
-                              "top": 150,
-                              "width": 225,
-                              "height": 16,
+                              "left": 433,
+                              "top": 109,
+                              "width": 217,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7385,11 +7490,18 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "069e16d9-454d-41dd-96ed-0af5ea86a864"
+                                "objID": "069e16d9-454d-41dd-96ed-0af5ea86a864",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "FPGA and DSPs: Chris Noeding",
+                              "text": "FPGA, DSPs and Effects:\nChris Noeding (xn--nding-jua)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
@@ -7397,10 +7509,10 @@
                             {
                               "objID": "9b43f7fb-60f4-417a-e96e-71802140012c",
                               "type": "LVGLLabelWidget",
-                              "left": 261,
-                              "top": 120,
-                              "width": 235,
-                              "height": 16,
+                              "left": 83,
+                              "top": 109,
+                              "width": 261,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7431,11 +7543,18 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "1f45492a-7382-424b-d3bb-659bc6ad9f81"
+                                "objID": "1f45492a-7382-424b-d3bb-659bc6ad9f81",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "User-Interface: Alexander Schulz",
+                              "text": "Main-Control, UI and Backend:\nAlexander Schulz (schulz-alexander)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
@@ -7444,9 +7563,9 @@
                               "objID": "fd1a5fa3-fe4c-4eb3-e3f2-d2e2f85c8e7c",
                               "type": "LVGLLabelWidget",
                               "left": 188,
-                              "top": 63,
+                              "top": 53,
                               "width": 384,
-                              "height": 16,
+                              "height": 32,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -7473,11 +7592,67 @@
                               "disabledStateType": "literal",
                               "states": "",
                               "localStyles": {
-                                "objID": "55dddb8f-1246-4959-c4c2-f52f8c29a179"
+                                "objID": "55dddb8f-1246-4959-c4c2-f52f8c29a179",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "https://www.github.com/OpenMixerProject/OpenX32",
+                              "text": "https://www.openx32.com\nhttps://www.github.com/OpenMixerProject/OpenX32",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false
+                            },
+                            {
+                              "objID": "cd4ccbc6-b300-4d99-d8dc-82176ab2d6bf",
+                              "type": "LVGLLabelWidget",
+                              "left": 433,
+                              "top": 159,
+                              "width": 245,
+                              "height": 32,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "5c988920-11ea-427f-8263-a72304290a35",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "f8e7923a-6044-4fec-dca4-09bdfc9acfc0",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "Optimizations for Linux:\nSebastian Gottschall (BrainSlayer)",
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false

@@ -332,7 +332,7 @@ fi
 
 update_progress 75 "Copy and optimize binaries..."
 
-# copy tools to initramFS
+# copy binaries and default-configuration to initramFS
 mkdir -p initramfs_root/openx32
 mkdir -p initramfs_root/lib
 cp software/bin/x32sdconfig initramfs_root/openx32/
@@ -376,7 +376,7 @@ arm-linux-gnueabi-strip initramfs_root/sbin/*
 
 
 # =================== Create MOTD =======================
-GITREV=$(git describe --tags --always --dirty)
+GITREV=$(git describe --tags --always --dirty --long)
 DATE=$(date +%d.%m.%Y)
 
 echo "  ____                  __   ______ ____" > initramfs_root/etc/motd

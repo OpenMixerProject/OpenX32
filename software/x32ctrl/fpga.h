@@ -67,6 +67,7 @@ class Fpga : public X32Base
         bool AES50PhantomPowerState[1][48]; // [AES50A][Channel1-48]
         float AES50HeadampGains[1][48]; // [AES50A][Channel1-48]
         
+      	uint8_t AES50Device;
         bool AES50CalcChecksum(char* buf, bool insertChecksum);
         int wrapRingBufferIndex(int index, int bufLen);
 };
