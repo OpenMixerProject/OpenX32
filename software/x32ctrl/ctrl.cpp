@@ -6,7 +6,10 @@ X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar)
 	surface = new Surface(basepar);
 	xremote = new XRemote(basepar);
 	lcdmenu = new LcdMenu(basepar, mixer, surface); // only used for X32Core (at the moment, maybe later for assing-section?)
+
+	#if ENABLE_ARTNET
 	artnet = new Artnet(basepar);
+	#endif
 }
 
 // ###########################################################################
@@ -73,7 +76,7 @@ void X32Ctrl::Init()
 	}
 
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "artnet->Init()");
-	artnet->Init();
+	//artnet->Init();
 	
 
 	//############################################################################
@@ -331,8 +334,10 @@ void X32Ctrl::Tick50ms(void)
 	// Update VU-Meters
 	UpdateMeters();
 
+#if ENABLE_ARTNET
 	// update Dimmerkernel
-	artnet->Tick();
+	//artnet->Tick();
+#endif
 }
 
 void X32Ctrl::Tick100ms(void) {

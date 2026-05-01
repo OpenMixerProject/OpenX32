@@ -22,6 +22,8 @@
   GNU General Public License for more details.
 */
 
+#if ENABLE_ARTNET
+
 #include "artnet.h"
 
 Artnet::Artnet(X32BaseParameter* basepar): X32Base(basepar) {
@@ -94,3 +96,4 @@ void Artnet::setChannel(uint16_t channel, float value, float timeMs) {
   }
 }
 
+#endif

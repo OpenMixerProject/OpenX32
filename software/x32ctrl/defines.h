@@ -1,9 +1,24 @@
 #pragma once
 
+// ##############
+// #  Features  #
+// ##############
+
+#define ENABLE_ARTNET 0
+
+// ###########
+// #  DEBUG  #
+// ###########
+
+#define BUILD_DEBUG 1 // build with or without debug functions
+
+
+//#################################################################################
+
 typedef unsigned int uint;
 
 #define X32_CTRL_VERSION "v0.2.5"
-#define BUILD_DEBUG 1 // build with or without debug functions
+
 #define X32_CTRL_URL "https://github.com/OpenMixerProject/OpenX32"
 #define X32_CTRL_CONFIGFILE "x32ctrl.cfg"
 #define X32_MIXER_CONFIGFILE "mixer.ini"

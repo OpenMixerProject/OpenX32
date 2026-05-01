@@ -7,7 +7,10 @@
 #include "state.h"
 #include "mixer.h"
 #include "xremote.h"
-#include "artnet.h"
+
+#if ENABLE_ARTNET
+    #include "artnet.h"
+#endif
 
 #include "page.h"
 #include "page-meters.h"
@@ -69,7 +72,9 @@ class X32Ctrl : public X32Base
         Surface* surface;
         XRemote* xremote;
         LcdMenu* lcdmenu;
+        #if ENABLE_ARTNET
         Artnet* artnet;
+        #endif
 
         // currently pressed button
         SurfaceElement* buttonPressed = 0;

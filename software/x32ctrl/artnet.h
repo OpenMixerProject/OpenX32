@@ -1,5 +1,7 @@
 #pragma once
 
+#if ENABLE_ARTNET
+
 #include <stdint.h>
 #include "WString.h"
 #include "base.h"
@@ -20,3 +22,5 @@ class Artnet : public X32Base
         float dmxDest[512];
         float dmxStep[512];
 };
+
+#endif
