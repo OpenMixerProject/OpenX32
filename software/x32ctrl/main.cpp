@@ -133,8 +133,10 @@ void guiInit(X32Config* config) {
 
 		#ifdef BODYLESS_SDL2
 		display = lv_sdl_window_create(DISPLAY_RESOLUTION_X, DISPLAY_RESOLUTION_Y);		
-	 	lv_sdl_window_set_title(display, "OpenX32 x32ctrl - bodyless mode (Development Simulator)");
+	 	lv_sdl_window_set_title(display, "OpenX32 - x32ctrl - Development Simulator");
 		keyboard = lv_sdl_keyboard_create();
+		mouse = lv_sdl_mouse_create();
+		mouse_wheel = lv_sdl_mousewheel_create();
 		#endif
 	}
 	else
@@ -174,7 +176,7 @@ void guiInit(X32Config* config) {
 			idle_time = lv_timer_handler();
         	usleep(idle_time * 1000);
 
-			ctrl->SimulatorButton(lv_indev_get_key(keyboard));
+			//ctrl->SimulatorButton(lv_indev_get_key(keyboard));
     	}
 		#endif
 	}
@@ -183,6 +185,17 @@ void guiInit(X32Config* config) {
 		//start endless loop	
 		driver_backends_run_loop();
 	}
+}
+
+void action_encoder1_clicked(lv_event_t * e)
+{
+	ctrl->ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x18 + 0x80);
+	ctrl->ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x18);
+}
+
+void action_encoder1_scroll(lv_event_t * e)
+{
+	ctrl->ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, lv_event_get_rotary_diff(e));
 }
 
 int main(int argc, char* argv[]) {

@@ -111,7 +111,26 @@
     "structures": [],
     "enums": []
   },
-  "actions": [],
+  "actions": [
+    {
+      "objID": "4d08c573-310a-4efc-e823-e4b8419688d7",
+      "components": [],
+      "connectionLines": [],
+      "localVariables": [],
+      "componentGroups": [],
+      "userProperties": [],
+      "name": "ENCODER1_Clicked"
+    },
+    {
+      "objID": "15595bfc-c654-4ccc-8899-ae412d5def0a",
+      "components": [],
+      "connectionLines": [],
+      "localVariables": [],
+      "componentGroups": [],
+      "userProperties": [],
+      "name": "ENCODER1_Scroll"
+    }
+  ],
   "userPages": [
     {
       "objID": "4b40eba7-b31a-468a-b887-11dfd0b6637f",
@@ -8591,14 +8610,29 @@
                   "locked": true,
                   "hiddenInEditor": false,
                   "timeline": [],
-                  "eventHandlers": [],
+                  "eventHandlers": [
+                    {
+                      "objID": "01ac5983-400e-4df0-fbe2-0ac2024e4c25",
+                      "eventName": "CLICKED",
+                      "handlerType": "action",
+                      "action": "ENCODER1_Clicked",
+                      "userData": 0
+                    },
+                    {
+                      "objID": "9941c6dc-a15e-4303-cb39-cd585d9d95f5",
+                      "eventName": "SCROLL",
+                      "handlerType": "action",
+                      "action": "ENCODER1_Scroll",
+                      "userData": 0
+                    }
+                  ],
                   "identifier": "widget1",
                   "leftUnit": "px",
                   "topUnit": "px",
                   "widthUnit": "px",
                   "heightUnit": "px",
                   "children": [],
-                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_CHAIN_HOR|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLLABLE|SCROLL_CHAIN_VER",
                   "hiddenFlagType": "literal",
                   "clickableFlag": true,
                   "clickableFlagType": "literal",
@@ -8606,7 +8640,9 @@
                   "flagScrollDirection": "",
                   "scrollSnapX": "",
                   "scrollSnapY": "",
+                  "checkedState": false,
                   "checkedStateType": "literal",
+                  "disabledState": false,
                   "disabledStateType": "literal",
                   "states": "",
                   "useStyle": "display_encoder_panels",
@@ -9056,7 +9092,7 @@
               "recolor": false
             }
           ],
-          "widgetFlags": "CLICKABLE|PRESS_LOCK|CLICK_FOCUSABLE|GESTURE_BUBBLE|SNAPPABLE|SCROLLABLE|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER",
+          "widgetFlags": "CLICKABLE|PRESS_LOCK|CLICK_FOCUSABLE|GESTURE_BUBBLE|SNAPPABLE|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLLABLE",
           "hiddenFlagType": "literal",
           "clickableFlag": true,
           "clickableFlagType": "literal",

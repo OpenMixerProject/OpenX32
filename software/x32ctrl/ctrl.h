@@ -112,7 +112,7 @@ class X32Ctrl : public X32Base
         void ProcessUartDataAdda();
         void ProcessUartDataAES50();
 
-        void ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, uint16_t value);
+        
 
     public:
 
@@ -141,5 +141,6 @@ class X32Ctrl : public X32Base
 
         void ChangeSelect(int8_t direction);
 
+        void ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, uint16_t value);
         void SimulatorButton(uint key);
 }; 

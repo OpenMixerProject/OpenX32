@@ -20,12 +20,14 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP -D=BODYLESS_SDL2
 
 # normal build
-#CFLAGS          ?= -std=c++23 -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CXXFLAGS          ?= -std=c++23 -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
-CFLAGS          ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS) 
+CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS) 
+CXXFLAGS        ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
-LDFLAGS         ?= -lSDL2 -lm -lrt -lpthread -lartnet
+LDFLAGS         ?= -lSDL2 -lm -lrt -lpthread #-lartnet
 
 BIN             = x32ctrl
 BUILD_DIR       = ../bin
@@ -72,7 +74,7 @@ $(BUILD_OBJ_DIR)/%.o: %.c lv_conf.h
 
 $(BUILD_OBJ_DIR)/%.o: %.cpp lv_conf.h
 	@mkdir -p $(dir $@)
-	@$(CXX)  $(CFLAGS) -c $< -o $@
+	@$(CXX)  $(CXXFLAGS) -c $< -o $@
 	@echo "CXX $<"
 
 $(BUILD_OBJ_DIR)/%.o: %.S lv_conf.h
