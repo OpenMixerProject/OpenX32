@@ -15,9 +15,9 @@ void Config::SetModel(String model){
         _model = X32_MODEL::RACK;
     }else if (model == "X32P") {
         _model = X32_MODEL::PRODUCER;
-    }else if (model == "X32C") {
+    }else if (model == "X32C" || model == "M32R") {
         _model =  X32_MODEL::COMPACT;
-    }else if (model == "X32") {
+    }else if (model == "X32" || model == "M32") {
         _model = X32_MODEL::FULL;
     }else{
         //x32log("ERROR: No model detected!\n");
