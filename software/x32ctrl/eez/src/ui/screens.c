@@ -18,6 +18,15 @@ objects_t objects;
 
 lv_obj_t *tick_value_change_obj;
 
+static void event_handler_cb_main_main(lv_event_t *e) {
+    lv_event_code_t event = lv_event_get_code(e);
+    if (event == LV_EVENT_SCREEN_LOAD_START) {
+        // group: grp_KEY
+        lv_group_remove_all_objs(groups.grp_KEY);
+        lv_group_add_obj(groups.grp_KEY, objects.channel_box);
+    }
+}
+
 //
 // Screens
 //
@@ -27,6 +36,7 @@ void create_screen_main() {
     objects.main = obj;
     lv_obj_set_pos(obj, 0, 0);
     lv_obj_set_size(obj, 800, 480);
+    lv_obj_add_event_cb(obj, event_handler_cb_main_main, LV_EVENT_ALL, 0);
     {
         lv_obj_t *parent_obj = obj;
         {
@@ -35,6 +45,8 @@ void create_screen_main() {
             objects.channel_box = obj;
             lv_obj_set_pos(obj, 3, 3);
             lv_obj_set_size(obj, 94, 72);
+            lv_obj_add_event_cb(obj, action_action_key, LV_EVENT_KEY, (void *)0);
+            lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
             lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
             {
@@ -1832,8 +1844,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     create_user_widget_config_slider_display_encoder(obj, 761);
-                    lv_obj_add_event_cb(obj, action_encoder1_clicked, LV_EVENT_CLICKED, (void *)0);
-                    lv_obj_add_event_cb(obj, action_encoder1_scroll, LV_EVENT_SCROLL, (void *)0);
+                    lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ONE|LV_OBJ_FLAG_SCROLL_ON_FOCUS);
                     add_style_display_encoder_panels(obj);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
@@ -2345,12 +2356,28 @@ ext_font_desc_t fonts[] = {
 uint32_t active_theme_index = 0;
 
 //
+// Groups
+//
+
+groups_t groups;
+static bool groups_created = false;
+void ui_create_groups() {
+    if (!groups_created) {
+        groups.grp_KEY = lv_group_create();
+        groups_created = true;
+    }
+}
+
+//
 //
 //
 
 void create_screens() {
-
-// Set default LVGL theme
+    
+    // Initialize groups
+    ui_create_groups();
+    
+    // Set default LVGL theme
     lv_display_t *dispp = lv_display_get_default();
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
     lv_display_set_theme(dispp, theme);

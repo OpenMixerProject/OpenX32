@@ -2266,127 +2266,122 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 // Key was pressed in the bodyless mode
 void X32Ctrl::SimulatorButton(uint32_t key)
 {
-	if (key != state->simulator_last_key)
+	printf("Simulatorbutton: %d\n", key);
+
+	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
+
+	switch (key)
 	{
-		printf("Simulatorbutton: %d\n", key);
+		using enum X32_PAGE;
 
-		X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
-
-		switch (key)
-		{
-			using enum X32_PAGE;
-
-			case 49:
-				// HOME
-				config->Set(ACTIVE_PAGE, (uint)HOME);
-				break;
-			case 50:
-				// METERS
-				config->Set(ACTIVE_PAGE, (uint)METERS);
-				break;
-			case 51:
-				config->Set(ACTIVE_PAGE, (uint)ROUTING);
-				break;
-			case 52:
-				config->Set(ACTIVE_PAGE, (uint)LIBRARY);
-				break;
-			case 53:
-				config->Set(ACTIVE_PAGE, (uint)EFFECTS);
-				break;
-			case 54:
-				config->Set(ACTIVE_PAGE, (uint)SETUP);
-				break;
-			case 55:
-				//ShowPage(MONITOR);
-				break;
-			case 56:
-				//ShowPage(SCENES);
-				break;
-			case 57:
-				config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
-				break;
-			case 48:
-				config->Set(ACTIVE_PAGE, (uint)DEBUG);
-				break;
-			case 17:
-				config->Refresh(DISPLAY_UP);
-				break;
-			case 18:
-				config->Refresh(DISPLAY_DOWN);
-				break;
-			case 20:
-				config->Refresh(DISPLAY_LEFT);
-				break;
-			case 19:
-				config->Refresh(DISPLAY_RIGHT);
-				break;
-			// case 113: // Q
-			// 	config->Change(DISPLAY_ENCODER_1_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
-			// 	break;
-			// case 119: // W
-			// 	config->Change(DISPLAY_ENCODER_2_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
-			// 	break;
-			// case 101: // E
-			// 	config->Change(DISPLAY_ENCODER_3_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
-			// 	break;
-			// case 114: // R
-			// 	config->Change(DISPLAY_ENCODER_4_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
-			// 	break;
-			// case 116: // T
-			// 	config->Change(DISPLAY_ENCODER_5_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
-			// 	break;
-			// case 122: // Z
-			// 	config->Change(DISPLAY_ENCODER_6_ENCODER, 1, config->GetUint(SELECTED_CHANNEL));
-			// 	break;
-			// case 97: // A
-			// 	config->Change(DISPLAY_ENCODER_1_ENCODER, -1, config->GetUint(SELECTED_CHANNEL));
-			// 	break;
-			// case 115: // S
-			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER2, -1);
-			// 	break;
-			// case 100: // D
-			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER3, -1);
-			// 	break;
-			// case 102: // F
-			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER4, -1);
-			// 	break;
-			// case 103: // G
-			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER5, -1);
-			// 	break;
-			// case 104: // H
-			// 	pages[activePage]->DisplayEncoderTurned(X32_ENC_ENCODER6, -1);
-			// 	break;
-			// case 121: // Y
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER1, true);
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER1, false);
-			// 	break;
-			// case 120: // X
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER2, true);
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER2, false);
-			// 	break;
-			// case 99: // C
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER3, true);
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER3, false);
-			// 	break;
-			// case 118: // V
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER4, true);
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER4, false);
-			// 	break;
-			// case 98: // B
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER5, true);
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER5, false);
-			// 	break;
-			// case 110: // N
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER6, true);
-			// 	pages[activePage]->DisplayButton(X32_BTN_ENCODER6, false);
-			// 	break;
-			case 0xFFFFFF9F:
-				config->Set(ACTIVE_PAGE, (uint)SCENES);
-				break;
-		}
-		
-		state->simulator_last_key = key;
-	}	
+		case 49:
+			// HOME
+			config->Set(ACTIVE_PAGE, (uint)HOME);
+			break;
+		case 50:
+			// METERS
+			config->Set(ACTIVE_PAGE, (uint)METERS);
+			break;
+		case 51:
+			config->Set(ACTIVE_PAGE, (uint)ROUTING);
+			break;
+		case 52:
+			config->Set(ACTIVE_PAGE, (uint)LIBRARY);
+			break;
+		case 53:
+			config->Set(ACTIVE_PAGE, (uint)EFFECTS);
+			break;
+		case 54:
+			config->Set(ACTIVE_PAGE, (uint)SETUP);
+			break;
+		case 55:
+			//ShowPage(MONITOR);
+			break;
+		case 56:
+			//ShowPage(SCENES);
+			break;
+		case 57:
+			config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
+			break;
+		case 48:
+			config->Set(ACTIVE_PAGE, (uint)DEBUG);
+			break;
+		case 17:
+			config->Refresh(DISPLAY_UP);
+			break;
+		case 18:
+			config->Refresh(DISPLAY_DOWN);
+			break;
+		case 20:
+			config->Refresh(DISPLAY_LEFT);
+			break;
+		case 19:
+			config->Refresh(DISPLAY_RIGHT);
+			break;
+		case 113: // Q
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, 1); // Encoder 1 up
+			break;
+		case 119: // W
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0A, 1); // Encoder 2 up
+			break;
+		case 101: // E
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0B, 1); // Encoder 3 up
+			break;
+		case 114: // R
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0C, 1); // Encoder 4 up
+			break;
+		case 116: // T
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0D, 1); // Encoder 5 up
+			break;
+		case 122: // Z
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0E, 1); // Encoder 6 up
+			break;
+		case 97: // A
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, 255); // Encoder 1 down
+		 	break;
+		case 115: // S
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0A, 255); // Encoder 2 down
+			break;
+		case 100: // D
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0B, 255); // Encoder 3 down
+			break;
+		case 102: // F
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0C, 255); // Encoder 4 down
+			break;
+		case 103: // G
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0D, 255); // Encoder 5 down
+			break;
+		case 104: // H
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0E, 255); // Encoder 6 down
+			break;
+		case 121: // Y
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x18 + 0x80); // Encoder Button 1 press
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x18); // Encoder Button 1 release
+			break;
+		case 120: // X
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x19 + 0x80); // Encoder Button 2 press
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x19); // Encoder Button 2 release
+			break;
+		case 99: // C
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1A + 0x80); // Encoder Button 3 press
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1A); // Encoder Button 3 release
+			break;
+		case 118: // V
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1B + 0x80); // Encoder Button 4 press
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1B); // Encoder Button 4 release
+			break;
+		case 98: // B
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1C + 0x80); // Encoder Button 5 press
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1C); // Encoder Button 5 release
+			break;
+		case 110: // N
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1D + 0x80); // Encoder Button 6 press
+			ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x1D); // Encoder Button 6 release
+			break;
+		case 0xFFFFFF9F:
+			config->Set(ACTIVE_PAGE, (uint)SCENES);
+			break;
+	}
 }
 
 //#####################################################################################################################

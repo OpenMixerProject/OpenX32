@@ -129,6 +129,15 @@
       "componentGroups": [],
       "userProperties": [],
       "name": "ENCODER1_Scroll"
+    },
+    {
+      "objID": "26fab2e6-297a-4446-ace9-7f0fdeb2b5b8",
+      "components": [],
+      "connectionLines": [],
+      "localVariables": [],
+      "componentGroups": [],
+      "userProperties": [],
+      "name": "action_KEY"
     }
   ],
   "userPages": [
@@ -175,7 +184,15 @@
               "locked": false,
               "hiddenInEditor": false,
               "timeline": [],
-              "eventHandlers": [],
+              "eventHandlers": [
+                {
+                  "objID": "d1e3bc23-bb35-4325-8b93-97662792a456",
+                  "eventName": "KEY",
+                  "handlerType": "action",
+                  "action": "action_KEY",
+                  "userData": 0
+                }
+              ],
               "identifier": "channel_box",
               "leftUnit": "px",
               "topUnit": "px",
@@ -336,7 +353,7 @@
                   "groupIndex": 0
                 }
               ],
-              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_MOMENTUM|SCROLL_ELASTIC",
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_MOMENTUM|SCROLL_ELASTIC",
               "hiddenFlagType": "literal",
               "clickableFlag": true,
               "clickableFlagType": "literal",
@@ -359,7 +376,7 @@
                   }
                 }
               },
-              "group": "",
+              "group": "grp_KEY",
               "groupIndex": 0
             },
             {
@@ -8610,29 +8627,14 @@
                   "locked": true,
                   "hiddenInEditor": false,
                   "timeline": [],
-                  "eventHandlers": [
-                    {
-                      "objID": "01ac5983-400e-4df0-fbe2-0ac2024e4c25",
-                      "eventName": "CLICKED",
-                      "handlerType": "action",
-                      "action": "ENCODER1_Clicked",
-                      "userData": 0
-                    },
-                    {
-                      "objID": "9941c6dc-a15e-4303-cb39-cd585d9d95f5",
-                      "eventName": "SCROLL",
-                      "handlerType": "action",
-                      "action": "ENCODER1_Scroll",
-                      "userData": 0
-                    }
-                  ],
+                  "eventHandlers": [],
                   "identifier": "widget1",
                   "leftUnit": "px",
                   "topUnit": "px",
                   "widthUnit": "px",
                   "heightUnit": "px",
                   "children": [],
-                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_CHAIN_HOR|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLLABLE|SCROLL_CHAIN_VER",
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE|SCROLLABLE|SCROLL_ONE|SCROLL_ON_FOCUS|SCROLL_MOMENTUM|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_CHAIN_HOR|SCROLL_WITH_ARROW",
                   "hiddenFlagType": "literal",
                   "clickableFlag": true,
                   "clickableFlagType": "literal",
@@ -10426,8 +10428,14 @@
   },
   "lvglGroups": {
     "objID": "f2f79c21-8769-ed90-c624-7405d4136ec9",
-    "groups": [],
-    "defaultGroupForKeyboardInSimulator": "inputgroup"
+    "groups": [
+      {
+        "objID": "0766b8a2-0663-4b22-8581-fa6453e55eed",
+        "name": "grp_KEY"
+      }
+    ],
+    "defaultGroupForEncoderInSimulator": "",
+    "defaultGroupForKeyboardInSimulator": "grp_KEY"
   },
   "fonts": [],
   "bitmaps": [

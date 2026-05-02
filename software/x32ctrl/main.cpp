@@ -135,8 +135,17 @@ void guiInit(X32Config* config) {
 		display = lv_sdl_window_create(DISPLAY_RESOLUTION_X, DISPLAY_RESOLUTION_Y);		
 	 	lv_sdl_window_set_title(display, "OpenX32 - x32ctrl - Development Simulator");
 		keyboard = lv_sdl_keyboard_create();
-		mouse = lv_sdl_mouse_create();
-		mouse_wheel = lv_sdl_mousewheel_create();
+		//mouse = lv_sdl_mouse_create();
+		//mouse_wheel = lv_sdl_mousewheel_create();
+
+		// call this before "ui_init()"
+		ui_create_groups();
+
+		// set group for your input device
+		lv_group_set_default(groups.grp_KEY);
+		lv_indev_set_group(keyboard, groups.grp_KEY);
+
+
 		#endif
 	}
 	else
@@ -171,12 +180,10 @@ void guiInit(X32Config* config) {
 		#ifdef BODYLESS_SDL2
 		uint32_t idle_time;
 
-		while (1) {
-
+		while (1)
+		{
 			idle_time = lv_timer_handler();
         	usleep(idle_time * 1000);
-
-			//ctrl->SimulatorButton(lv_indev_get_key(keyboard));
     	}
 		#endif
 	}
@@ -187,15 +194,9 @@ void guiInit(X32Config* config) {
 	}
 }
 
-void action_encoder1_clicked(lv_event_t * e)
+void action_action_key(lv_event_t * e)
 {
-	ctrl->ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x18 + 0x80);
-	ctrl->ProcessSurface(X32_BOARD_MAIN, 'b', 0, 0x18);
-}
-
-void action_encoder1_scroll(lv_event_t * e)
-{
-	ctrl->ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, lv_event_get_rotary_diff(e));
+	ctrl->SimulatorButton(lv_indev_get_key(keyboard));
 }
 
 int main(int argc, char* argv[]) {

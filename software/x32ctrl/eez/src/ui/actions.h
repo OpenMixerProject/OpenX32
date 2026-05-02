@@ -9,6 +9,7 @@ extern "C" {
 
 extern void action_encoder1_clicked(lv_event_t * e);
 extern void action_encoder1_scroll(lv_event_t * e);
+extern void action_action_key(lv_event_t * e);
 
 #ifdef __cplusplus
 }
