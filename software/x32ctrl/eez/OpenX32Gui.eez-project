@@ -4683,56 +4683,6 @@
                               "textType": "literal",
                               "longMode": "WRAP",
                               "recolor": false
-                            },
-                            {
-                              "objID": "b0cdf37b-7ce7-4527-f653-f951272b8e89",
-                              "type": "LVGLLabelWidget",
-                              "left": 490,
-                              "top": 363,
-                              "width": 306,
-                              "height": 15,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "266eeb7f-0750-41d4-9b39-af7a1dc16c0e",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "locked": true,
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "leftUnit": "px",
-                              "topUnit": "px",
-                              "widthUnit": "content",
-                              "heightUnit": "content",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-                              "hiddenFlagType": "literal",
-                              "clickableFlagType": "literal",
-                              "flagScrollbarMode": "",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "80aec2e0-569b-4dee-f51f-a0abd2b8b935",
-                                "definition": {
-                                  "MAIN": {
-                                    "DEFAULT": {
-                                      "text_font": "MONTSERRAT_12"
-                                    }
-                                  }
-                                }
-                              },
-                              "group": "",
-                              "groupIndex": 0,
-                              "text": "DEBUG: Press Encoder 6 -> CH1-16 48V + Gain 47dB",
-                              "textType": "literal",
-                              "longMode": "WRAP",
-                              "recolor": false
                             }
                           ],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",

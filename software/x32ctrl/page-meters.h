@@ -6,7 +6,12 @@ using enum MP_ID;
 
 class PageMeters : public Page 
 {
+    private:
+        
+        lv_obj_t* meterBlocks[9];
+
     public:
+        
         PageMeters(PageBaseParameter* pagebasepar) : Page(pagebasepar)
         {
             nextPage = X32_PAGE::RTA;
@@ -18,7 +23,8 @@ class PageMeters : public Page
             hideEncoders = true;            
         }
 
-        void OnInit() override {
+        void OnInit() override
+        {
             meterBlocks[0] = objects.meters_1_8;
             meterBlocks[1] = objects.meters_9_16;
             meterBlocks[2] = objects.meters_17_24;
@@ -30,7 +36,8 @@ class PageMeters : public Page
             meterBlocks[8] = objects.meters_matrix;
         }
 
-        void OnUpdateMeters() override {
+        void OnUpdateMeters() override
+        {
 
             for(int m = 0; m < 9; m++) {
                 lv_obj_t* parent = meterBlocks[m];
@@ -109,54 +116,6 @@ class PageMeters : public Page
 
         }
 
-        void OnChange(bool force_update) override
-        {
-            if (config->HasParameterChanged(DISPLAY_ENCODER_6_BUTTON))
-            {
-                for (int i = 0; i < 16; i++) {
-                    config->Set(MP_ID::CHANNEL_PHANTOM, 1.0f, i);
-                    config->Set(MP_ID::CHANNEL_GAIN, 47.0f, i);
-                }
-            }
-
-            // Maybe TODO: Implement with loop over changed Mixerparameter
-
-            if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}) || force_update)
-            {
-                for(int m = 0; m < 9; m++)
-                {
-                    lv_obj_t* parent = meterBlocks[m];
-
-                    for(int i = 0; i < lv_obj_get_child_count(parent); i++)
-                    {
-                        uint8_t index = i+(m*8);
-
-                        lv_obj_t * strip;
-                        lv_obj_t * fader;
-                        bool isMainFader = index == (uint)X32_VCHANNEL_BLOCK::MAIN;
-
-                        if (isMainFader)
-                        {
-                            fader = objects.ms_main_lr__fader;
-                        }
-                        else
-                        {
-                            strip = lv_obj_get_child(parent, i);
-                            fader = lv_obj_get_child(strip, 6);   
-                        }
-
-                        UpdateSlider(index, force_update, fader);
-                    } 
-                } 
-                
-                // Main L/R
-                if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}, (uint)X32_VCHANNEL_BLOCK::MAIN) || force_update)
-                {
-                    UpdateSlider((uint)X32_VCHANNEL_BLOCK::MAIN, force_update, objects.ms_main_lr__fader);
-                }
-            }
-        }
-
         void UpdateSlider(uint index, bool force_update, lv_obj_t *fader)
         {
             if (config->HasParameterChanged(CHANNEL_SOLO, index) || force_update)
@@ -172,8 +131,4 @@ class PageMeters : public Page
                 lv_slider_set_value(fader, config->GetFloat(CHANNEL_VOLUME, index), LV_ANIM_OFF);
             }
         }
-
-    private:
-        lv_obj_t* meterBlocks[9];
-
 };
