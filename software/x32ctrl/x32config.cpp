@@ -1226,6 +1226,17 @@ void X32Config::DefineMixerparameters() {
     ->DefConfig(group, "3_release")
     ->DefMinMaxStandard_Float(5.0f, 4000.0f, 300.0f);
 
+    // ########
+    // # DMX
+    // ########
+
+    cat = MP_CAT::DMX;
+    group = "dmx_artnet";
+
+    DefParameter(DMX_ARTNET_ENABLE, cat, "ArtNet Node Enabled")
+    ->DefStandard_Bool(true)
+    ->DefConfig(group, "artnet_enable");
+
 
     //#####################################################
     //#  fill all empty parameter indexes with MP_ID::NONE
