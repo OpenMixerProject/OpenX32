@@ -1595,6 +1595,7 @@ uint X32Config::ParameterCalcIndex(SurfaceBindingParameter* binding_parameter)
         case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
         case MixerparameterAction::SET_SELECTED_CHANNEL:
         case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
+        case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
         case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
         case MixerparameterAction::RESET_SELECTED_CHANNEL:
             return GetUint(SELECTED_CHANNEL);

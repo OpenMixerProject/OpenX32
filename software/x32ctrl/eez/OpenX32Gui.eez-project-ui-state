@@ -2,7 +2,7 @@
   "navigation": {
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
     "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/2",
-    "selectedActionObject": "[OpenX32Gui.eez-project]:/actions/0",
+    "selectedActionObject": "[OpenX32Gui.eez-project]:/actions/2",
     "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/5",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/15",
     "selectedLvglGroupObject": "[OpenX32Gui.eez-project]:/lvglGroups/groups/0",
@@ -26,7 +26,7 @@
           },
           {
             "type": "border",
-            "selected": 2,
+            "selected": 4,
             "size": 206.5,
             "location": "right",
             "children": [
@@ -136,6 +136,7 @@
                   "type": "tabset",
                   "id": "#79a3d779-12e8-44a9-9d8e-626528bd4ed3",
                   "weight": 0.761476499156763,
+                  "selected": 2,
                   "enableClose": false,
                   "children": [
                     {
@@ -201,7 +202,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 28.78469113595715,
+              "weight": 28.298011229122064,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -222,7 +223,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 13.937850444779253,
+              "weight": 14.424530351614338,
               "children": [
                 {
                   "type": "tab",
@@ -1061,8 +1062,8 @@
       },
       "transform": {
         "translate": {
-          "x": -397.47466055951435,
-          "y": -210.92713210922543
+          "x": -393.5133329981875,
+          "y": -136.21338752048086
         },
         "scale": 1
       },
@@ -1075,19 +1076,16 @@
       "selectionFront": {},
       "selectionBack": {
         "0": {
-          "0": {},
-          "1": {
-            "1": {
-              "0": {}
-            },
+          "4": {
             "2": {
-              "$selected": true
+              "0": {
+                "1": {}
+              }
             }
           },
-          "2": {
+          "5": {
             "0": {}
-          },
-          "3": {}
+          }
         }
       }
     },
@@ -1310,7 +1308,9 @@
   "selectedStylePropertyName": "",
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
-  "lvglExpandedPropertiesGroup": [],
+  "lvglExpandedPropertiesGroup": [
+    "TEXT"
+  ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
   "flowZoom": 1,
