@@ -21,13 +21,13 @@ class PageRouting: public Page
 
 		void OnShow() override
         {
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, "XLR 1 - 32\ninto\nChannel 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, "Preset:\nXLR 1 - 32 to\nChannel 1 - 32");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1);
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, "CARD 1 - 32\ninto\nChannel 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, "Preset:\nCARD 1 - 32 to\nChannel 1 - 32");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2);
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, "XLR 1 - 32\ninto\nAES50 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, "Preset:\nXLR 1 - 32 to\nAES50 1 - 32");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3);
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, "CARD 1 - 32\ninto\nAES50 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, "Preset:\nCARD 1 - 32 to\nAES50 1 - 32");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4);
 		}
 

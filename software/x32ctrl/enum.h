@@ -1202,6 +1202,8 @@ enum class MixerparameterAction
     RESET_SELECTED_CHANNEL,
 
     LCD,
+
+    DMX, // artnet / USB DMX
 };
 
 enum class X32BankId

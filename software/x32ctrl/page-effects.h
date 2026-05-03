@@ -47,6 +47,14 @@ class PageEffects: public Page {
 
                 // install new effect
                 mixer->dsp->DSP2_SetFx(selectedFx, newFxType, 2);
+
+                // reset Banking
+                banking = 0;
+                bankingBefore = 0;
+
+                // force update of page
+                OnChange(true);
+                SyncEncoderWidgets(true);
             }
         }
         
@@ -103,7 +111,17 @@ class PageEffects: public Page {
 
                                 for (uint8_t e = 0; e < (MAX_DISPLAY_ENCODER - 1); e++)
                                 {
-                                    config->SurfaceBind((SurfaceElementId)(((uint)(SurfaceElementId::DISPLAY_ENCODER_2)) + e), MixerparameterAction::SET, slot->fx->GetParameterDefinition(e + (banking * 5)), selectedFx);
+                                    SurfaceElementId surface_element_id = (SurfaceElementId)(((uint)(SurfaceElementId::DISPLAY_ENCODER_2)) + e);
+                                    MP_ID parameter_id = slot->fx->GetParameterDefinition(e + (banking * 5));
+
+                                    if (parameter_id == NONE)
+                                    {
+                                        config->SurfaceUnbind(surface_element_id);
+                                    }
+                                    else
+                                    {
+                                        config->SurfaceBind(surface_element_id, MixerparameterAction::CHANGE, parameter_id, selectedFx);
+                                    }
                                 }
 
                             } else {
@@ -165,9 +183,14 @@ class PageEffects: public Page {
 
         void nextParameterBank()
         {
-            if (mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > ((banking + 1) * 5))
+            if (mixer->dsp->fx_slot[selectedFx]->HasFx() &&
+                mixer->dsp->fx_slot[selectedFx]->fx->GetParameterCount() > ((banking + 1) * 5))
             {
                 banking++;
+            }
+            else
+            {
+                banking = 0;
             }
         }
 
@@ -176,6 +199,10 @@ class PageEffects: public Page {
             if (banking > 0)
             {
                 banking--;
+            }
+            else
+            {
+                banking = 0;
             }
         }
 

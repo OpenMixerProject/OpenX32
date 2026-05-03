@@ -214,7 +214,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "timeline": [],
                   "eventHandlers": [],
                   "identifier": "current_channel_number",
@@ -265,7 +265,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "timeline": [],
                   "eventHandlers": [],
                   "identifier": "current_channel_name",
@@ -316,7 +316,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "timeline": [],
                   "eventHandlers": [],
                   "identifier": "current_channel_color",
@@ -4962,9 +4962,9 @@
                             {
                               "objID": "1563169e-c68a-46e7-fc4a-78035566229c",
                               "type": "LVGLTextareaWidget",
-                              "left": 12,
-                              "top": 28,
-                              "width": 163,
+                              "left": 20,
+                              "top": 33,
+                              "width": 113,
                               "height": 108,
                               "customInputs": [],
                               "customOutputs": [],
@@ -5007,7 +5007,7 @@
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "Hardware Inputs\n- XLR\n- AUX / TB\n- CARD\n- AES50",
+                              "text": "Inputs\n- XLR\n- AUX / TB\n- CARD\n- AES50",
                               "textType": "literal",
                               "placeholder": "",
                               "oneLineMode": false,
@@ -5018,9 +5018,9 @@
                             {
                               "objID": "98c2b163-c1bd-40ae-876f-7a84c6633587",
                               "type": "LVGLTextareaWidget",
-                              "left": 12,
-                              "top": 156,
-                              "width": 163,
+                              "left": 20,
+                              "top": 161,
+                              "width": 113,
                               "height": 123,
                               "customInputs": [],
                               "customOutputs": [],
@@ -5063,7 +5063,7 @@
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "Hardware Outputs\n- XLR\n- AUX / Mon\n- CARD\n- Ultranet\n- AES50",
+                              "text": "Outputs\n- XLR\n- AUX / Mon\n- CARD\n- Ultranet\n- AES50",
                               "textType": "literal",
                               "placeholder": "",
                               "oneLineMode": false,
@@ -5074,9 +5074,9 @@
                             {
                               "objID": "c5c62322-4d2f-4444-c6d2-676946607508",
                               "type": "LVGLTextareaWidget",
-                              "left": 175,
-                              "top": 28,
-                              "width": 168,
+                              "left": 131,
+                              "top": 33,
+                              "width": 133,
                               "height": 251,
                               "customInputs": [],
                               "customOutputs": [],
@@ -5119,7 +5119,7 @@
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "Input/Output (FPGA)\n\nRoutes the audio from any input to any output",
+                              "text": "In-/Output\nRouting\n(FPGA)\n\nRoutes the audio from any input to any output",
                               "textType": "literal",
                               "placeholder": "",
                               "oneLineMode": false,
@@ -5130,8 +5130,8 @@
                             {
                               "objID": "97ced50a-745d-4645-eaa4-062342befbff",
                               "type": "LVGLTextareaWidget",
-                              "left": 437,
-                              "top": 28,
+                              "left": 354,
+                              "top": 33,
                               "width": 118,
                               "height": 251,
                               "customInputs": [],
@@ -5186,8 +5186,8 @@
                             {
                               "objID": "c11a3d7d-c700-42e7-b2cd-f8b3cb9a45e1",
                               "type": "LVGLTextareaWidget",
-                              "left": 343,
-                              "top": 114,
+                              "left": 262,
+                              "top": 33,
                               "width": 94,
                               "height": 56,
                               "customInputs": [],
@@ -5243,8 +5243,8 @@
                             {
                               "objID": "dc998117-49e6-47bb-e525-61a437e6dcce",
                               "type": "LVGLTextareaWidget",
-                              "left": 555,
-                              "top": 115,
+                              "left": 470,
+                              "top": 33,
                               "width": 94,
                               "height": 56,
                               "customInputs": [],
@@ -5300,10 +5300,10 @@
                             {
                               "objID": "63e27221-f51a-43c3-d34e-128b6484401b",
                               "type": "LVGLTextareaWidget",
-                              "left": 649,
-                              "top": 28,
+                              "left": 562,
+                              "top": 33,
                               "width": 136,
-                              "height": 251,
+                              "height": 90,
                               "customInputs": [],
                               "customOutputs": [],
                               "style": {
@@ -5345,7 +5345,235 @@
                               },
                               "group": "",
                               "groupIndex": 0,
-                              "text": "FX (DSP2)\n\n\nFX Processing\nUSB\nAES/EBU",
+                              "text": "FX (DSP2)\n\n\nFX Processing",
+                              "textType": "literal",
+                              "placeholder": "",
+                              "oneLineMode": false,
+                              "passwordMode": false,
+                              "acceptedCharacters": "",
+                              "maxTextLength": 128
+                            },
+                            {
+                              "objID": "45273520-9bf9-48a3-b59c-1aa9080c88d4",
+                              "type": "LVGLTextareaWidget",
+                              "left": 643,
+                              "top": 121,
+                              "width": 75,
+                              "height": 40,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "56952c14-3692-4686-b794-2453e1072ace",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "routing_input_2",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_ON_FOCUS|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "off",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "527ec4a4-1c8f-46c9-f2db-26330bf033e9",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#ffffff",
+                                      "text_color": "#000000",
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "2 Ch",
+                              "textType": "literal",
+                              "placeholder": "",
+                              "oneLineMode": false,
+                              "passwordMode": false,
+                              "acceptedCharacters": "",
+                              "maxTextLength": 128
+                            },
+                            {
+                              "objID": "8e5ae541-59f5-4d36-de45-c42ceec61365",
+                              "type": "LVGLTextareaWidget",
+                              "left": 544,
+                              "top": 121,
+                              "width": 75,
+                              "height": 40,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "0d59c9a2-5adf-41c8-eeb3-344c2886d4ac",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "routing_input_3",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_ON_FOCUS|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "off",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "0f4f29c4-5847-4575-a52c-11d525501eab",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#ffffff",
+                                      "text_color": "#000000",
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "2 Ch",
+                              "textType": "literal",
+                              "placeholder": "",
+                              "oneLineMode": false,
+                              "passwordMode": false,
+                              "acceptedCharacters": "",
+                              "maxTextLength": 128
+                            },
+                            {
+                              "objID": "6cd69f70-4063-4cc2-b0cd-ee0561ddf375",
+                              "type": "LVGLTextareaWidget",
+                              "left": 643,
+                              "top": 159,
+                              "width": 128,
+                              "height": 107,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "a4875ecd-b07a-455c-8911-491300ee6ae8",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "main_cpu",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_ON_FOCUS|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "off",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "63d8efd2-0495-4466-d284-429751b694dd",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#b2fcdb",
+                                      "text_color": "#000000",
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "Main CPU\n\n2 Channel\nSoundcard\naka \"USB\"",
+                              "textType": "literal",
+                              "placeholder": "",
+                              "oneLineMode": false,
+                              "passwordMode": false,
+                              "acceptedCharacters": "",
+                              "maxTextLength": 128
+                            },
+                            {
+                              "objID": "9d5d3ad3-db77-4679-992f-8a0f0e8c8335",
+                              "type": "LVGLTextareaWidget",
+                              "left": 497,
+                              "top": 159,
+                              "width": 122,
+                              "height": 57,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "bbdcea9d-b0d0-4466-9875-220148761225",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "aes_ebu",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_ON_FOCUS|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "off",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "1d0ddfc7-73f7-4b07-9cae-6ca8cb7e80f4",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#b2fcdb",
+                                      "text_color": "#000000",
+                                      "text_align": "CENTER"
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "text": "AES/EBU\nPort",
                               "textType": "literal",
                               "placeholder": "",
                               "oneLineMode": false,
@@ -5389,6 +5617,7 @@
                             "conditionalStyles": [],
                             "childStyles": []
                           },
+                          "locked": false,
                           "timeline": [],
                           "eventHandlers": [],
                           "leftUnit": "px",
@@ -5581,6 +5810,7 @@
                             "conditionalStyles": [],
                             "childStyles": []
                           },
+                          "locked": false,
                           "timeline": [],
                           "eventHandlers": [],
                           "leftUnit": "px",
@@ -5728,6 +5958,7 @@
                             "conditionalStyles": [],
                             "childStyles": []
                           },
+                          "locked": false,
                           "timeline": [],
                           "eventHandlers": [],
                           "leftUnit": "px",
@@ -8574,7 +8805,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "hiddenInEditor": false,
                   "timeline": [],
                   "eventHandlers": [],
@@ -8631,7 +8862,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "hiddenInEditor": false,
                   "timeline": [],
                   "eventHandlers": [],
@@ -8686,7 +8917,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "hiddenInEditor": false,
                   "timeline": [],
                   "eventHandlers": [],
@@ -8741,7 +8972,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "hiddenInEditor": false,
                   "timeline": [],
                   "eventHandlers": [],
@@ -8796,7 +9027,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "hiddenInEditor": false,
                   "timeline": [],
                   "eventHandlers": [],
@@ -8851,7 +9082,7 @@
                     "conditionalStyles": [],
                     "childStyles": []
                   },
-                  "locked": true,
+                  "locked": false,
                   "hiddenInEditor": false,
                   "timeline": [],
                   "eventHandlers": [],

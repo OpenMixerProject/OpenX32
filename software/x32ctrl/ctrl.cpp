@@ -2163,6 +2163,9 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 					case MixerparameterAction::RESET_SELECTED_CHANNEL:
 						config->Reset(parameter_id, parameter_index);
 						break;
+					case MixerparameterAction::DMX:
+						
+						break;
 				}
 			}
 			else

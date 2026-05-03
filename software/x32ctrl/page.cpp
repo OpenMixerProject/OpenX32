@@ -70,10 +70,24 @@ void Page::Show()
     // hide encoders if wanted
     lv_obj_set_flag(objects.display_encoder_sliders, LV_OBJ_FLAG_HIDDEN, hideEncoders);
 
+    // Reset Surfacebinding of Display Encoders
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_1);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_2);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_3);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_4);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_5);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_6);
+
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5);
+    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6);
+
     // show page and trigger a complete update
     OnShow();
     OnChange(true);
-    SyncEncoderWidgets(true);
 }
 
 void Page::Change()

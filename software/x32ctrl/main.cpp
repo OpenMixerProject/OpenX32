@@ -194,9 +194,12 @@ void guiInit(X32Config* config) {
 	}
 }
 
+
 void action_action_key(lv_event_t * e)
 {
+	#ifdef BODYLESS_SDL2
 	ctrl->SimulatorButton(lv_indev_get_key(keyboard));
+	#endif
 }
 
 int main(int argc, char* argv[]) {

@@ -745,6 +745,10 @@ typedef struct _objects_t {
     lv_obj_t *routing_input;
     lv_obj_t *routing_input_1;
     lv_obj_t *dsp;
+    lv_obj_t *routing_input_2;
+    lv_obj_t *routing_input_3;
+    lv_obj_t *main_cpu;
+    lv_obj_t *aes_ebu;
     lv_obj_t *table_routing_fpga_header;
     lv_obj_t *roller_routing_fpga_block;
     lv_obj_t *table_routing_fpga;

@@ -1087,10 +1087,10 @@ void create_screen_main() {
                                             // hw_inputs
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.hw_inputs = obj;
-                                            lv_obj_set_pos(obj, 12, 28);
-                                            lv_obj_set_size(obj, 163, 108);
+                                            lv_obj_set_pos(obj, 20, 33);
+                                            lv_obj_set_size(obj, 113, 108);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "Hardware Inputs\n- XLR\n- AUX / TB\n- CARD\n- AES50");
+                                            lv_textarea_set_text(obj, "Inputs\n- XLR\n- AUX / TB\n- CARD\n- AES50");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffd4ea6b), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1100,10 +1100,10 @@ void create_screen_main() {
                                             // hw_outputs
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.hw_outputs = obj;
-                                            lv_obj_set_pos(obj, 12, 156);
-                                            lv_obj_set_size(obj, 163, 123);
+                                            lv_obj_set_pos(obj, 20, 161);
+                                            lv_obj_set_size(obj, 113, 123);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "Hardware Outputs\n- XLR\n- AUX / Mon\n- CARD\n- Ultranet\n- AES50");
+                                            lv_textarea_set_text(obj, "Outputs\n- XLR\n- AUX / Mon\n- CARD\n- Ultranet\n- AES50");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffde59), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1113,10 +1113,10 @@ void create_screen_main() {
                                             // fpga
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.fpga = obj;
-                                            lv_obj_set_pos(obj, 175, 28);
-                                            lv_obj_set_size(obj, 168, 251);
+                                            lv_obj_set_pos(obj, 131, 33);
+                                            lv_obj_set_size(obj, 133, 251);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "Input/Output (FPGA)\n\nRoutes the audio from any input to any output");
+                                            lv_textarea_set_text(obj, "In-/Output\nRouting\n(FPGA)\n\nRoutes the audio from any input to any output");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffbcbcbc), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1126,7 +1126,7 @@ void create_screen_main() {
                                             // mixer
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.mixer = obj;
-                                            lv_obj_set_pos(obj, 437, 28);
+                                            lv_obj_set_pos(obj, 354, 33);
                                             lv_obj_set_size(obj, 118, 251);
                                             lv_textarea_set_max_length(obj, 128);
                                             lv_textarea_set_text(obj, "Mixer (DSP1)\n\n\nChannels\nBuses\nMain LR\nMonitoring");
@@ -1139,7 +1139,7 @@ void create_screen_main() {
                                             // routing_input
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.routing_input = obj;
-                                            lv_obj_set_pos(obj, 343, 114);
+                                            lv_obj_set_pos(obj, 262, 33);
                                             lv_obj_set_size(obj, 94, 56);
                                             lv_textarea_set_max_length(obj, 128);
                                             lv_textarea_set_text(obj, "40 Ch\n<---------->");
@@ -1154,7 +1154,7 @@ void create_screen_main() {
                                             // routing_input_1
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.routing_input_1 = obj;
-                                            lv_obj_set_pos(obj, 555, 115);
+                                            lv_obj_set_pos(obj, 470, 33);
                                             lv_obj_set_size(obj, 94, 56);
                                             lv_textarea_set_max_length(obj, 128);
                                             lv_textarea_set_text(obj, "24 Ch\n<---------->");
@@ -1169,14 +1169,74 @@ void create_screen_main() {
                                             // dsp
                                             lv_obj_t *obj = lv_textarea_create(parent_obj);
                                             objects.dsp = obj;
-                                            lv_obj_set_pos(obj, 649, 28);
-                                            lv_obj_set_size(obj, 136, 251);
+                                            lv_obj_set_pos(obj, 562, 33);
+                                            lv_obj_set_size(obj, 136, 90);
                                             lv_textarea_set_max_length(obj, 128);
-                                            lv_textarea_set_text(obj, "FX (DSP2)\n\n\nFX Processing\nUSB\nAES/EBU");
+                                            lv_textarea_set_text(obj, "FX (DSP2)\n\n\nFX Processing");
                                             lv_textarea_set_one_line(obj, false);
                                             lv_textarea_set_password_mode(obj, false);
                                             lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffd48d), LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_input_2
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_input_2 = obj;
+                                            lv_obj_set_pos(obj, 643, 121);
+                                            lv_obj_set_size(obj, 75, 40);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "2 Ch");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // routing_input_3
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.routing_input_3 = obj;
+                                            lv_obj_set_pos(obj, 544, 121);
+                                            lv_obj_set_size(obj, 75, 40);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "2 Ch");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // main_cpu
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.main_cpu = obj;
+                                            lv_obj_set_pos(obj, 643, 159);
+                                            lv_obj_set_size(obj, 128, 107);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "Main CPU\n\n2 Channel\nSoundcard\naka \"USB\"");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffb2fcdb), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                        }
+                                        {
+                                            // aes_ebu
+                                            lv_obj_t *obj = lv_textarea_create(parent_obj);
+                                            objects.aes_ebu = obj;
+                                            lv_obj_set_pos(obj, 497, 159);
+                                            lv_obj_set_size(obj, 122, 57);
+                                            lv_textarea_set_max_length(obj, 128);
+                                            lv_textarea_set_text(obj, "AES/EBU\nPort");
+                                            lv_textarea_set_one_line(obj, false);
+                                            lv_textarea_set_password_mode(obj, false);
+                                            lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+                                            lv_obj_set_style_bg_color(obj, lv_color_hex(0xffb2fcdb), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                                         }
                                     }
                                 }
@@ -1836,7 +1896,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 761);
+                    create_user_widget_config_slider_display_encoder(obj, 765);
                     lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ONE|LV_OBJ_FLAG_SCROLL_ON_FOCUS);
                     add_style_display_encoder_panels(obj);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1852,7 +1912,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 765);
+                    create_user_widget_config_slider_display_encoder(obj, 769);
                     add_style_display_encoder_panels(obj);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
@@ -1867,7 +1927,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 769);
+                    create_user_widget_config_slider_display_encoder(obj, 773);
                     add_style_display_encoder_panels(obj);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
@@ -1882,7 +1942,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 773);
+                    create_user_widget_config_slider_display_encoder(obj, 777);
                     add_style_display_encoder_panels(obj);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
@@ -1897,7 +1957,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 777);
+                    create_user_widget_config_slider_display_encoder(obj, 781);
                     add_style_display_encoder_panels(obj);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
@@ -1912,7 +1972,7 @@ void create_screen_main() {
                     lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    create_user_widget_config_slider_display_encoder(obj, 781);
+                    create_user_widget_config_slider_display_encoder(obj, 785);
                     add_style_display_encoder_panels(obj);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
@@ -1958,12 +2018,12 @@ void tick_screen_main() {
     tick_user_widget_ms_bar8(564);
     tick_user_widget_ms_bar8(637);
     tick_user_widget_ms_bar(710);
-    tick_user_widget_config_slider_display_encoder(761);
     tick_user_widget_config_slider_display_encoder(765);
     tick_user_widget_config_slider_display_encoder(769);
     tick_user_widget_config_slider_display_encoder(773);
     tick_user_widget_config_slider_display_encoder(777);
     tick_user_widget_config_slider_display_encoder(781);
+    tick_user_widget_config_slider_display_encoder(785);
 }
 
 void create_user_widget_ms_bar(lv_obj_t *parent_obj, int startWidgetIndex) {
