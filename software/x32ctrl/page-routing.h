@@ -21,44 +21,44 @@ class PageRouting: public Page
 
 		void OnShow() override
         {
-            config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName("XLR 1 - 32\ninto\nChannel 1 - 32");
-            config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName("CARD 1 - 32\ninto\nChannel 1 - 32");
-            config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName("XLR 1 - 32\ninto\nAES50 1 - 32");
-            config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName("CARD 1 - 32\ninto\nAES50 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, "XLR 1 - 32\ninto\nChannel 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, "CARD 1 - 32\ninto\nChannel 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, "XLR 1 - 32\ninto\nAES50 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, "CARD 1 - 32\ninto\nAES50 1 - 32");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4);
 		}
 
-        void OnChange(bool force) override
-		{
-			if (config->HasParameterChanged(DISPLAY_ENCODER_1_BUTTON))
+        void OnChangeCustomButton(SurfaceElementId surface_element_id) override
+        {
+            switch (surface_element_id)
             {
-                for (uint i = 0; i < 32; i++)
-                {
-                    config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_XLR + i, FPGA_OUTPUT_IDX_DSP - 1 + i);
-                }                    
-            }
-
-            if (config->HasParameterChanged(DISPLAY_ENCODER_2_BUTTON))
-            {
-                for (uint i = 0; i < 32; i++)
-                {
-                    config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_CARD + i, FPGA_OUTPUT_IDX_DSP - 1 + i);
-                }                    
-            }
-
-            if (config->HasParameterChanged(DISPLAY_ENCODER_3_BUTTON))
-            {
-                for (uint i = 0; i < 32; i++)
-                {
-                    config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_XLR + i, FPGA_OUTPUT_IDX_AES50A - 1 + i);
-                }                    
-            }
-
-            if (config->HasParameterChanged(DISPLAY_ENCODER_4_BUTTON))
-            {
-                for (uint i = 0; i < 32; i++)
-                {
-                    config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_CARD + i, FPGA_OUTPUT_IDX_AES50A - 1 + i);
-                }                    
+                case SurfaceElementId::DISPLAY_ENCODER_BUTTON_1:
+                    for (uint i = 0; i < 32; i++)
+                    {
+                        config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_XLR + i, FPGA_OUTPUT_IDX_DSP - 1 + i);
+                    }
+                    break;
+                 case SurfaceElementId::DISPLAY_ENCODER_BUTTON_2:
+                    for (uint i = 0; i < 32; i++)
+                    {
+                        config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_CARD + i, FPGA_OUTPUT_IDX_DSP - 1 + i);
+                    }  
+                    break;
+                 case SurfaceElementId::DISPLAY_ENCODER_BUTTON_3:
+                    for (uint i = 0; i < 32; i++)
+                    {
+                        config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_XLR + i, FPGA_OUTPUT_IDX_AES50A - 1 + i);
+                    }   
+                    break;
+                 case SurfaceElementId::DISPLAY_ENCODER_BUTTON_4:
+                    for (uint i = 0; i < 32; i++)
+                    {
+                        config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_CARD + i, FPGA_OUTPUT_IDX_AES50A - 1 + i);
+                    }  
+                    break;
             }
         }
 };

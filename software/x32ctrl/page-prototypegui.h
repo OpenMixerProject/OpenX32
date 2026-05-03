@@ -7,6 +7,7 @@ class PagePrototypeGui: public Page
     private:
 
         char* button_map[47];
+        uint selectionindex = 0;
 
     public:
         PagePrototypeGui(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
@@ -49,27 +50,19 @@ class PagePrototypeGui: public Page
             button_map[map_pointer++] = "";//(char*)lv_malloc_zeroed(1);
 
             lv_buttonmatrix_set_map(objects.routingmatrix, button_map);
-
             
-
-            Mixerparameter* parameter = config->GetParameter(DISPLAY_ENCODER_1_ENCODER);
-            parameter->SetName(LV_SYMBOL_REFRESH);
-            parameter
-                ->DefMinMaxStandard_Uint(0, 39, 0)
-                ->DefUOM(MP_UOM::NONE)
-                ->DefCycleMode(1, 1);
-
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE, DISPLAY_ENCODER_1_ENCODER);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE, DISPLAY_ENCODER_1_ENCODER);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::CHANGE, DISPLAY_ENCODER_1_ENCODER);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::CHANGE, DISPLAY_ENCODER_1_ENCODER);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, LV_SYMBOL_REFRESH);
         }
 
-        void OnChange(bool force) override
+
+        void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) override
         {
-            if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER) || force)
+            switch (surface_element_id)
             {
-                lv_buttonmatrix_set_button_ctrl(objects.routingmatrix, config->GetUint(DISPLAY_ENCODER_1_ENCODER), LV_BUTTONMATRIX_CTRL_CHECKED);
+                case SurfaceElementId::DISPLAY_ENCODER_BUTTON_1:
+                    selectionindex += amount;
+                    lv_buttonmatrix_set_button_ctrl(objects.routingmatrix, selectionindex, LV_BUTTONMATRIX_CTRL_CHECKED);
+                    break;
             }
         }
 };

@@ -103,6 +103,7 @@ class X32Config
         void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0, uint led_value = 0);
         // void SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action);
         void SurfaceUnbind(SurfaceElementId surfaceelement_id);
+        void SurfaceBindCustom(SurfaceElementId surfaceelement_id, String labeltext = "");
 
         bool HasAnySurfaceBindingChanged();
         bool HasSurfaceBindingChanged(SurfaceElementId elementId);

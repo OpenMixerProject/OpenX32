@@ -2095,6 +2095,11 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 				switch (bindingParameterButton->mp_action)
 				{
+					case MixerparameterAction::CUSTOM:
+					{
+						Page* curent_page = pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)];
+						curent_page->ChangeCustomButton(button->GetId());
+					}
 					case MixerparameterAction::REFRESH:
 						config->Refresh(parameter_id, parameter_index);
 						break;
@@ -2200,9 +2205,17 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 					config->Change(bindingParameterEncoder->mp_id, amount, config->GetUint(SELECTED_CHANNEL));
 					break;
 				case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
-					uint mp_id_raw = ((uint)bindingParameterEncoder->mp_id) + config->GetUint((MP_ID)bindingParameterEncoder->mp_index);
-					MP_ID id = (MP_ID)mp_id_raw;
-					config->Change(id, amount, config->GetUint(SELECTED_CHANNEL));
+					{
+						uint mp_id_raw = ((uint)bindingParameterEncoder->mp_id) + config->GetUint((MP_ID)bindingParameterEncoder->mp_index);
+						MP_ID id = (MP_ID)mp_id_raw;
+						config->Change(id, amount, config->GetUint(SELECTED_CHANNEL));
+					}
+					break;
+				case MixerparameterAction::CUSTOM:
+					{
+						Page* curent_page = pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)];
+						curent_page->ChangeCustomEncoder(encoder->GetId(), amount);
+					}
 					break;
 			}
 		}

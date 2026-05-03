@@ -6,6 +6,9 @@ using enum MP_ID;
 
 class PageScenes: public Page
 {
+    private:
+        int configindex = 0;
+
     public:
         PageScenes(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             tabLayer0 = objects.maintab;
@@ -22,25 +25,33 @@ class PageScenes: public Page
 
         void OnShow() override
         {
-            config->GetParameter(DISPLAY_ENCODER_1_ENCODER)->SetName(String("Select Scene"));
-            config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String("Load"));
-            config->GetParameter(DISPLAY_ENCODER_6_BUTTON)->SetName(String("Save"));
-
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, MixerparameterAction::REFRESH, DISPLAY_ENCODER_1_BUTTON);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE, DISPLAY_ENCODER_1_ENCODER);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6, MixerparameterAction::REFRESH, DISPLAY_ENCODER_6_BUTTON);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, "Select Scene");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, "Load");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_6, "Save");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6);
         }
 
-        void OnChange(bool force_update) override
+        void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) override
         {
-            if (config->HasParameterChanged(DISPLAY_ENCODER_1_BUTTON))
+            switch (surface_element_id)
             {
-                mixer->LoadConfig(config->GetInt(DISPLAY_ENCODER_1_ENCODER));
+                case SurfaceElementId::DISPLAY_ENCODER_1:
+                    configindex += amount;
+                    break;
             }
+        }
 
-            if (config->HasParameterChanged(DISPLAY_ENCODER_6_BUTTON))
+        void OnChangeCustomButton(SurfaceElementId surface_element_id) override
+        {
+            switch (surface_element_id)
             {
-                mixer->SaveConfig(config->GetInt(DISPLAY_ENCODER_1_ENCODER));
+                case SurfaceElementId::DISPLAY_ENCODER_BUTTON_2:
+                    mixer->LoadConfig(configindex);
+                    break;
+                case SurfaceElementId::DISPLAY_ENCODER_BUTTON_6:
+                    mixer->SaveConfig(configindex);
+                    break;
             }
         }
 };

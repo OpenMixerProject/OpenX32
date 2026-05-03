@@ -21,25 +21,24 @@ class PageEffects: public Page {
 
         void OnShow() override
         {
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, DISPLAY_ENCODER_1_ENCODER);
-            config->GetParameter(DISPLAY_ENCODER_1_ENCODER)->SetName(String(LV_SYMBOL_REFRESH) + "\nSelect FX");
-
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_REFRESH) + "\nSelect FX");
+            
             lv_table_set_column_count(objects.fxtable, 8);
             for (uint8_t i = 0; i < MAX_FX_SLOTS; i++) {
                 lv_table_set_column_width(objects.fxtable, i, DISPLAY_RESOLUTION_X / 8);
             }
         }
 
-        void OnChange(bool force_update) override
+        void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) override
         {
-            if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
+            if (surface_element_id == SurfaceElementId::DISPLAY_ENCODER_1)
             {
                 // ENCODER 1 -> select new FX
                 // get the selected FX-slot
                 FxSlot* slot = mixer->dsp->fx_slot[selectedFx];
 
                 // calculate new FX-Type based on current FX-Type and encoder turn amount
-                FX_TYPE newFxType = (FX_TYPE)((int)slot->GetFxType() + config->GetUint(DISPLAY_ENCODER_1_ENCODER));
+                FX_TYPE newFxType = (FX_TYPE)((int)slot->GetFxType() + amount);
                 if (newFxType < FX_TYPE::NONE) {
                     newFxType = (FX_TYPE)((int)FX_TYPE::FX_COUNT - 1);
                 }else if (newFxType >= FX_TYPE::FX_COUNT) {
@@ -49,7 +48,10 @@ class PageEffects: public Page {
                 // install new effect
                 mixer->dsp->DSP2_SetFx(selectedFx, newFxType, 2);
             }
-
+        }
+        
+        void OnChange(bool force_update) override
+        {
             if (config->HasParameterChanged(DISPLAY_LEFT))
             {
                 config->SetParameterUnchanged(DISPLAY_LEFT);

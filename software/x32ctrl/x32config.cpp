@@ -239,19 +239,19 @@ void X32Config::DefineMixerparameters() {
 
     cat = MP_CAT::DISPLAY;
 
-    DefParameter(DISPLAY_ENCODER_1_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_2_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_3_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_4_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_5_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_6_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_1_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_2_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_3_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_4_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_5_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_6_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
 
-    DefParameter(DISPLAY_ENCODER_1_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_2_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_3_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_4_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_5_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    DefParameter(DISPLAY_ENCODER_6_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_1_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_2_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_3_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_4_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_5_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
+    // DefParameter(DISPLAY_ENCODER_6_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
 
     DefParameter(DISPLAY_UTILITY, cat, "")->DefStandard_Bool(false);
 
@@ -2456,6 +2456,13 @@ void X32Config::SurfaceUnbind(SurfaceElementId surfaceelement_id)
     {
         surface_binding->erase(surfaceelement_id);
     }
+}
+
+void X32Config::SurfaceBindCustom(SurfaceElementId surfaceelement_id, String labeltext)
+{
+    SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(MixerparameterAction::CUSTOM, MP_ID::NONE, 0);
+    binding_parameter->custom_label = labeltext;
+	SurfaceBindParameter(surfaceelement_id, binding_parameter);
 }
 
 bool X32Config::HasAnySurfaceBindingChanged()

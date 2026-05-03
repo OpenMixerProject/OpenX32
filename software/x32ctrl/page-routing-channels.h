@@ -9,9 +9,6 @@ class PageRoutingChannels: public Page
 	using enum MP_ID;
 
 	private:
-		// char inputChannelName[25] = "";
-		// char inputSourceName[25] = "";
-		// char tapPointName[15] = "";
 
 		int gui_selected_item = 0;
 		int gui_selected_item_before = 0;
@@ -111,7 +108,9 @@ class PageRoutingChannels: public Page
         }
 
     public:
-        PageRoutingChannels(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
+
+        PageRoutingChannels(PageBaseParameter* pagebasepar) : Page(pagebasepar)
+		{
             prevPage = X32_PAGE::ROUTING_FPGA;
             nextPage = X32_PAGE::ROUTING_DSP2;
             tabLayer0 = objects.maintab;
@@ -175,98 +174,98 @@ class PageRoutingChannels: public Page
 
 		void OnShow() override
 		{
-			config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN);
-            config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN);
-            config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource");
-            config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource (Group)");
-            config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nTAP");
+			// config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN);
+            // config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN);
+            // config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource");
+            // config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource (Group)");
+            // config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nTAP");
 		}
 
 		void OnChange(bool force_update) override 
 		{
-			if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
-            {
-				gui_selected_item += config->GetInt(DISPLAY_ENCODER_1_ENCODER);
-			}
+			// if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
+            // {
+			// 	gui_selected_item += config->GetInt(DISPLAY_ENCODER_1_ENCODER);
+			// }
 
-			if (config->HasParameterChanged(DISPLAY_ENCODER_2_ENCODER))
-            {
-				int amount = config->GetInt(DISPLAY_ENCODER_2_ENCODER);
+			// if (config->HasParameterChanged(DISPLAY_ENCODER_2_ENCODER))
+            // {
+			// 	int amount = config->GetInt(DISPLAY_ENCODER_2_ENCODER);
 
-				if (amount < 0) {
-					gui_selected_item -= 8;
-				}else{
-					gui_selected_item += 8;
-				}
-			}
+			// 	if (amount < 0) {
+			// 		gui_selected_item -= 8;
+			// 	}else{
+			// 		gui_selected_item += 8;
+			// 	}
+			// }
 
-			if (config->HasParameterChanged(DISPLAY_ENCODER_3_ENCODER))
-            {
-				int amount = config->GetInt(DISPLAY_ENCODER_3_ENCODER);
-				config->Change(ROUTING_DSP_INPUT, amount, gui_selected_item);
-			}
+			// if (config->HasParameterChanged(DISPLAY_ENCODER_3_ENCODER))
+            // {
+			// 	int amount = config->GetInt(DISPLAY_ENCODER_3_ENCODER);
+			// 	config->Change(ROUTING_DSP_INPUT, amount, gui_selected_item);
+			// }
 
-			if (config->HasParameterChanged(DISPLAY_ENCODER_4_ENCODER))
-            {	
-				int amount = config->GetInt(DISPLAY_ENCODER_4_ENCODER);
+			// if (config->HasParameterChanged(DISPLAY_ENCODER_4_ENCODER))
+            // {	
+			// 	int amount = config->GetInt(DISPLAY_ENCODER_4_ENCODER);
 
-				int8_t absoluteChange;
-				if (amount < 0) {
-					absoluteChange = -8;
-				}else{
-					absoluteChange = 8;
-				}
-				for (uint8_t i = (gui_selected_item); i < (gui_selected_item + 8); i++) {
-					config->Change(ROUTING_DSP_INPUT, absoluteChange, i);
-				}
-			}
+			// 	int8_t absoluteChange;
+			// 	if (amount < 0) {
+			// 		absoluteChange = -8;
+			// 	}else{
+			// 		absoluteChange = 8;
+			// 	}
+			// 	for (uint8_t i = (gui_selected_item); i < (gui_selected_item + 8); i++) {
+			// 		config->Change(ROUTING_DSP_INPUT, absoluteChange, i);
+			// 	}
+			// }
 
-			if (config->HasParameterChanged(DISPLAY_ENCODER_5_ENCODER))
-            {	
-				int amount = config->GetInt(DISPLAY_ENCODER_5_ENCODER);
-				config->Change(ROUTING_DSP_INPUT_TAPPOINT, amount, gui_selected_item);
-			}
+			// if (config->HasParameterChanged(DISPLAY_ENCODER_5_ENCODER))
+            // {	
+			// 	int amount = config->GetInt(DISPLAY_ENCODER_5_ENCODER);
+			// 	config->Change(ROUTING_DSP_INPUT_TAPPOINT, amount, gui_selected_item);
+			// }
 
-			if(gui_selected_item_before != gui_selected_item)
-			{
-				if (gui_selected_item < 0)
-				{
-					// limit list at the top
-					gui_selected_item = 0;
-				}
-				else if (gui_selected_item >= 40) 
-				{
-					// limit list at the bottom
-					gui_selected_item = 40 - 1;
-				}
+			// if(gui_selected_item_before != gui_selected_item)
+			// {
+			// 	if (gui_selected_item < 0)
+			// 	{
+			// 		// limit list at the top
+			// 		gui_selected_item = 0;
+			// 	}
+			// 	else if (gui_selected_item >= 40) 
+			// 	{
+			// 		// limit list at the bottom
+			// 		gui_selected_item = 40 - 1;
+			// 	}
 
-				// remove old indicator
-				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 1, " ");
-				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 3, " ");
+			// 	// remove old indicator
+			// 	lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 1, " ");
+			// 	lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 3, " ");
 				
-				// display new indicator
-				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_RIGHT);
-				lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_RIGHT);
+			// 	// display new indicator
+			// 	lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_RIGHT);
+			// 	lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_RIGHT);
 				
-				// set select to scroll table
-				lv_table_set_selected_cell(objects.table_routing_dsp_input, gui_selected_item, 2);
+			// 	// set select to scroll table
+			// 	lv_table_set_selected_cell(objects.table_routing_dsp_input, gui_selected_item, 2);
 				
-				gui_selected_item_before = gui_selected_item;
-			} 
+			// 	gui_selected_item_before = gui_selected_item;
+			// } 
 			
-			if(config->HasParametersChanged({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}) || force_update)
-			{
-				for(auto const& index : config->GetChangedParameterIndexes({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}))
-                {
-					if ((config->GetUint(ROUTING_DSP_INPUT, index) >= 1) && (config->GetUint(ROUTING_DSP_INPUT, index) <= 40)) {
-						// external signal from FPGA
-						lv_table_set_cell_value(objects.table_routing_dsp_input, index, 0, (config->GetParameter(ROUTING_FPGA)->GetFormatedValue(FPGA_OUTPUT_IDX_DSP - 1 + index) + " -> " + config->GetParameter(ROUTING_DSP_INPUT)->GetFormatedValue(index)).c_str());
-					}else{
-						// internal signal within DSP
-						lv_table_set_cell_value(objects.table_routing_dsp_input, index, 0, config->GetParameter(ROUTING_DSP_INPUT)->GetFormatedValue(index).c_str());
-					}
-					lv_table_set_cell_value(objects.table_routing_dsp_input, index, 2, config->GetParameter(ROUTING_DSP_INPUT_TAPPOINT)->GetFormatedValue(index).c_str());
-				}
-			}
+			// if(config->HasParametersChanged({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}) || force_update)
+			// {
+			// 	for(auto const& index : config->GetChangedParameterIndexes({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}))
+            //     {
+			// 		if ((config->GetUint(ROUTING_DSP_INPUT, index) >= 1) && (config->GetUint(ROUTING_DSP_INPUT, index) <= 40)) {
+			// 			// external signal from FPGA
+			// 			lv_table_set_cell_value(objects.table_routing_dsp_input, index, 0, (config->GetParameter(ROUTING_FPGA)->GetFormatedValue(FPGA_OUTPUT_IDX_DSP - 1 + index) + " -> " + config->GetParameter(ROUTING_DSP_INPUT)->GetFormatedValue(index)).c_str());
+			// 		}else{
+			// 			// internal signal within DSP
+			// 			lv_table_set_cell_value(objects.table_routing_dsp_input, index, 0, config->GetParameter(ROUTING_DSP_INPUT)->GetFormatedValue(index).c_str());
+			// 		}
+			// 		lv_table_set_cell_value(objects.table_routing_dsp_input, index, 2, config->GetParameter(ROUTING_DSP_INPUT_TAPPOINT)->GetFormatedValue(index).c_str());
+			// 	}
+			// }
 		}
 };

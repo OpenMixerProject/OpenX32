@@ -70,49 +70,6 @@ void Page::Show()
     // hide encoders if wanted
     lv_obj_set_flag(objects.display_encoder_sliders, LV_OBJ_FLAG_HIDDEN, hideEncoders);
 
-    // Reset Surfacebinding of Display Encoders
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_1);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_2);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_3);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_4);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_5);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_6);
-
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5);
-    config->SurfaceUnbind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6);
-
-    config->GetParameter(DISPLAY_ENCODER_1_ENCODER)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_2_ENCODER)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_3_ENCODER)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_4_ENCODER)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_5_ENCODER)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_6_ENCODER)->Reset();
-
-    config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->Reset();
-    config->GetParameter(DISPLAY_ENCODER_6_BUTTON)->Reset();
-
-    config->GetParameter(DISPLAY_ENCODER_1_ENCODER)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_2_ENCODER)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_3_ENCODER)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_4_ENCODER)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_5_ENCODER)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_6_ENCODER)->SetName("");
-
-    config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName("");
-    config->GetParameter(DISPLAY_ENCODER_6_BUTTON)->SetName("");
-
     // show page and trigger a complete update
     OnShow();
     OnChange(true);
@@ -143,6 +100,16 @@ void Page::Change()
         OnChange(syncAll);
         SyncEncoderWidgets(syncAll);
     }
+}
+
+void Page::ChangeCustomButton(SurfaceElementId surface_element_id)
+{
+    OnChangeCustomButton(surface_element_id);
+}
+
+void Page::ChangeCustomEncoder(SurfaceElementId surface_element_id, int amount)
+{
+    OnChangeCustomEncoder(surface_element_id, amount);
 }
 
 void Page::UpdateMeters() {
@@ -209,6 +176,23 @@ void Page::SyncEncoderWidget(SurfaceElementId elementIdEncoder, SurfaceElementId
     
     if (surface_binding_encoder != 0)
     {
+        // Custom Display Encoder -> just show the label and clear slider and button
+        if (surface_binding_encoder->mp_action == MixerparameterAction::CUSTOM)
+        {
+            // set label
+            lv_label_set_text(lvgl_encoder_widget->Label, surface_binding_encoder->custom_label.c_str());
+
+            // hide slider
+            lv_obj_set_flag(lvgl_encoder_widget->Slider, LV_OBJ_FLAG_HIDDEN, true);
+
+            // clear button
+            ClearEncoderButton(lvgl_encoder_widget);
+            
+            // immediately return, as this is a special case that overrides all other
+            return;
+        }
+
+
         uint index = config->ParameterCalcIndex(surface_binding_encoder);
         MP_ID id = config->ParameterCalcId(surface_binding_encoder);
 

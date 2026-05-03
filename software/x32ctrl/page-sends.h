@@ -9,7 +9,7 @@ class PageSends : public Page
 
     private:
 
-        
+        uint bankingSends = 0;
 
     public:
         PageSends(PageBaseParameter* pagebasepar) : Page(pagebasepar)
@@ -26,24 +26,22 @@ class PageSends : public Page
 
         void OnShow()
         {
-            Mixerparameter* mp = config->GetParameter(DISPLAY_ENCODER_1_ENCODER);
-            mp->SetName(String(LV_SYMBOL_REFRESH));
-            mp->DefMinMaxStandard_Uint(0,7,0);
-            mp->DefUOM(MP_UOM::NONE);
-
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE, DISPLAY_ENCODER_1_ENCODER);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_REFRESH));
         }
 
-        void OnChange(bool force_update) override
+        void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) override
         {   
-            if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER) || force_update)
+            switch (surface_element_id)
             {
-                uint bankingSends = config->GetUint(DISPLAY_ENCODER_1_ENCODER);
+                case SurfaceElementId::DISPLAY_ENCODER_1:
                 
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND01 + bankingSends * 2));
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND01_TAPPOINT + bankingSends * 2));
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND02 + bankingSends * 2));
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND02_TAPPOINT + bankingSends * 2));
+                    bankingSends += amount;
+
+                    config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND01 + bankingSends * 2));
+                    config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND01_TAPPOINT + bankingSends * 2));
+                    config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND02 + bankingSends * 2));
+                    config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::CHANGE_SELECTED_CHANNEL, (MP_ID)((uint)CHANNEL_BUS_SEND02_TAPPOINT + bankingSends * 2));
+                    break;
             }            
         }
 };

@@ -59,7 +59,7 @@ class PageRta : public Page
         void OnShow() override
         {
             uint dsp2_rta_input = MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS - 1;
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::SET, ROUTING_DSP_OUTPUT, dsp2_rta_input);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE, ROUTING_DSP_OUTPUT, dsp2_rta_input);
         }
 
         void OnUpdateMeters() override

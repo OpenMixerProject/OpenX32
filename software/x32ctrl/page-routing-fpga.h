@@ -156,113 +156,113 @@ class PageRoutingFpga: public Page
 
         void OnShow() override
         {
-            config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nBlock\n" + LV_SYMBOL_DOWN);
-            config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN);
-            config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN);
-            config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource");
-            config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource (Group)");
+            // config->GetParameter(DISPLAY_ENCODER_1_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nBlock\n" + LV_SYMBOL_DOWN);
+            // config->GetParameter(DISPLAY_ENCODER_2_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect\n" + LV_SYMBOL_DOWN);
+            // config->GetParameter(DISPLAY_ENCODER_3_BUTTON)->SetName(String(LV_SYMBOL_UP) + "\nSelect (Group)\n" + LV_SYMBOL_DOWN);
+            // config->GetParameter(DISPLAY_ENCODER_4_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource");
+            // config->GetParameter(DISPLAY_ENCODER_5_BUTTON)->SetName(String(LV_SYMBOL_REFRESH) + "\nSource (Group)");
         }
 
         void OnChange(bool force_update) override
         {
-			if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
-            {
-				gui_selected_block += config->GetInt(DISPLAY_ENCODER_1_ENCODER);
-			}
+			// if (config->HasParameterChanged(DISPLAY_ENCODER_1_ENCODER))
+            // {
+			// 	gui_selected_block += config->GetInt(DISPLAY_ENCODER_1_ENCODER);
+			// }
 
-            if (config->HasParameterChanged(DISPLAY_ENCODER_2_ENCODER))
-            {
-				gui_selected_item += config->GetInt(DISPLAY_ENCODER_2_ENCODER);
-			}
+            // if (config->HasParameterChanged(DISPLAY_ENCODER_2_ENCODER))
+            // {
+			// 	gui_selected_item += config->GetInt(DISPLAY_ENCODER_2_ENCODER);
+			// }
 
-            if (config->HasParameterChanged(DISPLAY_ENCODER_3_ENCODER))
-            {
-				int amount = config->GetInt(DISPLAY_ENCODER_3_ENCODER);
+            // if (config->HasParameterChanged(DISPLAY_ENCODER_3_ENCODER))
+            // {
+			// 	int amount = config->GetInt(DISPLAY_ENCODER_3_ENCODER);
 
-				if (amount < 0) {
-					gui_selected_item -= 8;
-				}else{
-					gui_selected_item += 8;
-				}
-			}
+			// 	if (amount < 0) {
+			// 		gui_selected_item -= 8;
+			// 	}else{
+			// 		gui_selected_item += 8;
+			// 	}
+			// }
 
-            if (config->HasParameterChanged(DISPLAY_ENCODER_4_ENCODER))
-            {
-				int amount = config->GetInt(DISPLAY_ENCODER_4_ENCODER);
-                config->Change(ROUTING_FPGA, amount, gui_selected_item + gui_items_offset);
-            }
+            // if (config->HasParameterChanged(DISPLAY_ENCODER_4_ENCODER))
+            // {
+			// 	int amount = config->GetInt(DISPLAY_ENCODER_4_ENCODER);
+            //     config->Change(ROUTING_FPGA, amount, gui_selected_item + gui_items_offset);
+            // }
 
-            if (config->HasParameterChanged(DISPLAY_ENCODER_5_ENCODER))
-            {
-                int amount = config->GetInt(DISPLAY_ENCODER_5_ENCODER);
+            // if (config->HasParameterChanged(DISPLAY_ENCODER_5_ENCODER))
+            // {
+            //     int amount = config->GetInt(DISPLAY_ENCODER_5_ENCODER);
 
-                int8_t absoluteChange;
-                if (amount < 0) {
-                    absoluteChange = -8;
-                }else{
-                    absoluteChange = 8;
-                }
-                for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++)
-                {
-                    config->Change(ROUTING_FPGA, absoluteChange, i);
-                }
-            }
+            //     int8_t absoluteChange;
+            //     if (amount < 0) {
+            //         absoluteChange = -8;
+            //     }else{
+            //         absoluteChange = 8;
+            //     }
+            //     for (uint8_t i=gui_selected_item; i<(gui_selected_item+8); i++)
+            //     {
+            //         config->Change(ROUTING_FPGA, absoluteChange, i);
+            //     }
+            // }
 
-            if((gui_selected_block != gui_selected_block_before) || force_update)
-            {
-				if (gui_selected_block < 0) {
-					// limit list at the top
-					gui_selected_block = 0;
-				}else if (gui_selected_block >= 7) {
-					// limit list at the bottom
-					gui_selected_block = 7 - 1;
-                }
+            // if((gui_selected_block != gui_selected_block_before) || force_update)
+            // {
+			// 	if (gui_selected_block < 0) {
+			// 		// limit list at the top
+			// 		gui_selected_block = 0;
+			// 	}else if (gui_selected_block >= 7) {
+			// 		// limit list at the bottom
+			// 		gui_selected_block = 7 - 1;
+            //     }
 
-                lv_roller_set_selected(objects.roller_routing_fpga_block, gui_selected_block, LV_ANIM_OFF);
+            //     lv_roller_set_selected(objects.roller_routing_fpga_block, gui_selected_block, LV_ANIM_OFF);
                 
-				gui_selected_block_before = gui_selected_block;
-                gui_selected_item = 0;
+			// 	gui_selected_block_before = gui_selected_block;
+            //     gui_selected_item = 0;
 
-                DrawTable();
-            } 
+            //     DrawTable();
+            // } 
 
-            if((gui_selected_item_before != gui_selected_item) || force_update)
-            {
-				if (gui_selected_item < 0) {
-					// limit list at the top
-					gui_selected_item = 0;
-				}else if (gui_selected_item >= gui_items_count) {
-					// limit list at the bottom
-					gui_selected_item = gui_items_count - 1;
-				}
+            // if((gui_selected_item_before != gui_selected_item) || force_update)
+            // {
+			// 	if (gui_selected_item < 0) {
+			// 		// limit list at the top
+			// 		gui_selected_item = 0;
+			// 	}else if (gui_selected_item >= gui_items_count) {
+			// 		// limit list at the bottom
+			// 		gui_selected_item = gui_items_count - 1;
+			// 	}
 
-                // remove old indicator
-                lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item_before, 1, " ");
+            //     // remove old indicator
+            //     lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item_before, 1, " ");
                 
-                // display new indicator
-                lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item, 1, LV_SYMBOL_RIGHT);
+            //     // display new indicator
+            //     lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item, 1, LV_SYMBOL_RIGHT);
                 
-                // set select to scroll table
-                lv_table_set_selected_cell(objects.table_routing_fpga, gui_selected_item, 2);
+            //     // set select to scroll table
+            //     lv_table_set_selected_cell(objects.table_routing_fpga, gui_selected_item, 2);
                 
-				gui_selected_item_before = gui_selected_item;
-            } 
+			// 	gui_selected_item_before = gui_selected_item;
+            // } 
             
-            if((config->HasParameterChanged(ROUTING_FPGA)) || force_update)
-            {
-                for(auto const& index : config->GetChangedParameterIndexes({ROUTING_FPGA}))
-                {
-                    if (index >= gui_items_offset && index <= gui_items_offset + gui_items_count)
-                    {
-                        lv_table_set_cell_value(
-                            objects.table_routing_fpga,
-                            index - gui_items_offset,
-                            0,
-                            config->GetParameter(ROUTING_FPGA)->GetFormatedValue(index).c_str()
-                        );
-                    }
-                }
-            }
+            // if((config->HasParameterChanged(ROUTING_FPGA)) || force_update)
+            // {
+            //     for(auto const& index : config->GetChangedParameterIndexes({ROUTING_FPGA}))
+            //     {
+            //         if (index >= gui_items_offset && index <= gui_items_offset + gui_items_count)
+            //         {
+            //             lv_table_set_cell_value(
+            //                 objects.table_routing_fpga,
+            //                 index - gui_items_offset,
+            //                 0,
+            //                 config->GetParameter(ROUTING_FPGA)->GetFormatedValue(index).c_str()
+            //             );
+            //         }
+            //     }
+            // }
         }
 
         void DrawTable()

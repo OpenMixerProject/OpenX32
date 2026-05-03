@@ -73,6 +73,8 @@ class Page : public X32Base
         virtual void OnUpdateMeters() {}
         virtual void OnShow() {}
         virtual void OnChange(bool force_update) {}
+        virtual void OnChangeCustomButton(SurfaceElementId surface_element_id) {}
+        virtual void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) {}
 
     public:
         Page(PageBaseParameter* pagebasepar);
@@ -81,6 +83,8 @@ class Page : public X32Base
         void Show();
         void UpdateMeters();
         void Change();
+        void ChangeCustomButton(SurfaceElementId surface_element_id);
+        void ChangeCustomEncoder(SurfaceElementId surface_element_id, int amount);
 
         void UtilityMode(bool mode);
 
