@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "WString.h"
 #include "base.h"
-#include <artnet/artnet.h>
+#include "../libartnet/artnet/artnet.h"
 
 class Artnet : public X32Base
 {
