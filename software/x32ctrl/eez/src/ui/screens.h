@@ -21,6 +21,9 @@ typedef struct _objects_t {
     lv_obj_t *current_channel_number;
     lv_obj_t *current_channel_name;
     lv_obj_t *current_channel_color;
+    lv_obj_t *header_ip;
+    lv_obj_t *header_aes50_info;
+    lv_obj_t *header_debugtext;
     lv_obj_t *maintab;
     lv_obj_t *hometab;
     lv_obj_t *home_channelstrip_1;
@@ -749,9 +752,9 @@ typedef struct _objects_t {
     lv_obj_t *routing_input_3;
     lv_obj_t *main_cpu;
     lv_obj_t *aes_ebu;
-    lv_obj_t *table_routing_fpga_header;
-    lv_obj_t *roller_routing_fpga_block;
-    lv_obj_t *table_routing_fpga;
+    lv_obj_t *routing_fpga_block;
+    lv_obj_t *routing_fpga_source;
+    lv_obj_t *routing_fpga_matrix;
     lv_obj_t *table_routing_dsp_input_header;
     lv_obj_t *table_routing_dsp_input;
     lv_obj_t *table_routing_dsp_output_header;
@@ -804,9 +807,6 @@ typedef struct _objects_t {
     lv_obj_t *widget6__label;
     lv_obj_t *widget6__slider;
     lv_obj_t *widget6__label_buttonpress;
-    lv_obj_t *debugtext_dsp2;
-    lv_obj_t *debugtext_x32ctrl;
-    lv_obj_t *debugtext_dsp1;
 } objects_t;
 
 extern objects_t objects;

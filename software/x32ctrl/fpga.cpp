@@ -456,7 +456,7 @@ void Fpga::AES50Receive(void) {
 
 				// take the name of the connected device and display it in X32CTRL
 				memcpy(&tmpName[0], &fpgaRxBufferUart[8], 16);
-				lv_label_set_text_fmt(objects.debugtext_x32ctrl, "AES50 Connected to: %s", String(tmpName).c_str());
+				lv_label_set_text_fmt(objects.header_aes50_info, "AES50: %s", String(tmpName).c_str());
 
 				break;
 			default:

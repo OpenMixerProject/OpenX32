@@ -127,31 +127,31 @@ class PageRoutingFpga: public Page
 
         void OnInit() override 
         {
-            // Header
-            lv_table_set_column_count(objects.table_routing_fpga_header, 3);
-            lv_table_set_column_width(objects.table_routing_fpga_header, 0, 300);
-            lv_table_set_column_width(objects.table_routing_fpga_header, 1, 50);
-            lv_table_set_column_width(objects.table_routing_fpga_header, 2, 300);
-            lv_table_set_cell_value(objects.table_routing_fpga_header, 0, 0, "Source");
-            lv_table_set_cell_value(objects.table_routing_fpga_header, 0, 2, "Destination");
+            // // Header
+            // lv_table_set_column_count(objects.table_routing_fpga_header, 3);
+            // lv_table_set_column_width(objects.table_routing_fpga_header, 0, 300);
+            // lv_table_set_column_width(objects.table_routing_fpga_header, 1, 50);
+            // lv_table_set_column_width(objects.table_routing_fpga_header, 2, 300);
+            // lv_table_set_cell_value(objects.table_routing_fpga_header, 0, 0, "Source");
+            // lv_table_set_cell_value(objects.table_routing_fpga_header, 0, 2, "Destination");
 
-            lv_obj_add_event_cb(objects.table_routing_fpga_header, draw_event_header_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
-            lv_obj_add_flag(objects.table_routing_fpga_header, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+            // lv_obj_add_event_cb(objects.table_routing_fpga_header, draw_event_header_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+            // lv_obj_add_flag(objects.table_routing_fpga_header, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
-            // Selection-Table
-            lv_table_set_row_count(objects.table_routing_fpga, NUM_OUTPUT_CHANNEL); // Not required but avoids a lot of memory reallocation lv_table_set_set_value
-            lv_table_set_column_count(objects.table_routing_fpga, 3);
-            lv_table_set_column_width(objects.table_routing_fpga, 0, 300);
-            lv_table_set_column_width(objects.table_routing_fpga, 1, 50);
-            lv_table_set_column_width(objects.table_routing_fpga, 2, 300);
+            // // Selection-Table
+            // lv_table_set_row_count(objects.table_routing_fpga, NUM_OUTPUT_CHANNEL); // Not required but avoids a lot of memory reallocation lv_table_set_set_value
+            // lv_table_set_column_count(objects.table_routing_fpga, 3);
+            // lv_table_set_column_width(objects.table_routing_fpga, 0, 300);
+            // lv_table_set_column_width(objects.table_routing_fpga, 1, 50);
+            // lv_table_set_column_width(objects.table_routing_fpga, 2, 300);
 
-            lv_obj_add_event_cb(objects.table_routing_fpga, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
-            lv_obj_add_flag(objects.table_routing_fpga, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+            // lv_obj_add_event_cb(objects.table_routing_fpga, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+            // lv_obj_add_flag(objects.table_routing_fpga, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
-            // store config pointer in user data for use in draw callback
-            lv_obj_set_user_data(objects.table_routing_fpga, &gui_selected_item);
+            // // store config pointer in user data for use in draw callback
+            // lv_obj_set_user_data(objects.table_routing_fpga, &gui_selected_item);
 
-            DrawTable();
+            // DrawTable();
         }
 
         void OnShow() override
@@ -267,52 +267,52 @@ class PageRoutingFpga: public Page
 
         void DrawTable()
         {
-            switch (gui_selected_block)
-            {
-                case 0: // DSP Input (Mixer Channels)
-                    gui_items_offset = 72;
-                    gui_items_count = 40;
-                    break;
-                case 1: // XLR Outputs
-                    gui_items_offset = 0;
-                    gui_items_count = 16;
-                    break;
-                case 2: // AUX Outputs
-                    gui_items_offset = 64;
-                    gui_items_count = 8;
-                    break;
-                case 3: // Ultranet
-                    gui_items_offset = 16;
-                    gui_items_count = 16;
-                    break;
-                case 4: // CARD Recording
-                    gui_items_offset = 32;
-                    gui_items_count = 32;
-                    break;
-                case 5: // AES50 A Outputs
-                    gui_items_offset = 112;
-                    gui_items_count = 48;
-                    break;
-                case 6: // AES50 B Outputs
-                    gui_items_offset = 160;
-                    gui_items_count = 48;
-                    break;
+            // switch (gui_selected_block)
+            // {
+            //     case 0: // DSP Input (Mixer Channels)
+            //         gui_items_offset = 72;
+            //         gui_items_count = 40;
+            //         break;
+            //     case 1: // XLR Outputs
+            //         gui_items_offset = 0;
+            //         gui_items_count = 16;
+            //         break;
+            //     case 2: // AUX Outputs
+            //         gui_items_offset = 64;
+            //         gui_items_count = 8;
+            //         break;
+            //     case 3: // Ultranet
+            //         gui_items_offset = 16;
+            //         gui_items_count = 16;
+            //         break;
+            //     case 4: // CARD Recording
+            //         gui_items_offset = 32;
+            //         gui_items_count = 32;
+            //         break;
+            //     case 5: // AES50 A Outputs
+            //         gui_items_offset = 112;
+            //         gui_items_count = 48;
+            //         break;
+            //     case 6: // AES50 B Outputs
+            //         gui_items_offset = 160;
+            //         gui_items_count = 48;
+            //         break;
             
-                default:
-                    break;
-            }
+            //     default:
+            //         break;
+            // }
 
-            lv_table_set_row_count(objects.table_routing_fpga, 0);
+            // lv_table_set_row_count(objects.table_routing_fpga, 0);
 
-            try {
-                for (uint8_t i = 0; i < gui_items_count; i++)
-                {
-                    lv_table_set_cell_value(objects.table_routing_fpga, i, 0, config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + gui_items_offset).c_str());
-                    lv_table_set_cell_value(objects.table_routing_fpga, i, 2, mixer->fpga->GetOutputNameByIndex(i + 1 + gui_items_offset).c_str());
-                }
-            }catch (...){
-            }
+            // try {
+            //     for (uint8_t i = 0; i < gui_items_count; i++)
+            //     {
+            //         lv_table_set_cell_value(objects.table_routing_fpga, i, 0, config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + gui_items_offset).c_str());
+            //         lv_table_set_cell_value(objects.table_routing_fpga, i, 2, mixer->fpga->GetOutputNameByIndex(i + 1 + gui_items_offset).c_str());
+            //     }
+            // }catch (...){
+            // }
 
-            lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item, 1, LV_SYMBOL_RIGHT);
+            // lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item, 1, LV_SYMBOL_RIGHT);
         }
 };

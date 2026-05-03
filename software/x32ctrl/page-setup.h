@@ -46,12 +46,12 @@ class PageSetup: public Page
 
         void OnShow() override 
         {
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::SET_SELECTED_CHANNEL, CHANNEL_COLOR);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_COLOR);
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_COLOR_INVERTED);
 
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::SET, LED_BRIGHTNESS);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::SET, CHANNEL_LCD_MODE);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::SET, LCD_CONTRAST);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_4, MixerparameterAction::CHANGE, LED_BRIGHTNESS);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_5, MixerparameterAction::CHANGE, CHANNEL_LCD_MODE);
+            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE, LCD_CONTRAST);
 
         }
 };

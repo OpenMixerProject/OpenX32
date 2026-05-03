@@ -377,12 +377,11 @@ void X32Ctrl::Tick100ms(void) {
 		dspLoadMean[0] /= 20.0f;
 		dspLoadMean[1] /= 20.0f;
 
-		// show the DSP-load
-		lv_label_set_text_fmt(objects.debugtext_dsp1, "DSP1: Load: %.1f %% | Version: v%.2f | Glitches: %.0f", (double)dspLoadMean[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0]);
-		lv_label_set_text_fmt(objects.debugtext_dsp2, "DSP2: Load: %.1f %% | Version: v%.2f | Glitches: %.0f | Heap: %.0f Words free", (double)dspLoadMean[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1]);
-
-		// show some debug-text
-		//lv_label_set_text_fmt(objects.debugtext_x32ctrl, "DSP1-TxQueue: %d | DSP2-TxQueue: %d", mixer->dsp->spi->GetDspTxQueueLength(0), mixer->dsp->spi->GetDspTxQueueLength(1)); 
+		// show DSP debug infos
+		lv_label_set_text_fmt(objects.header_debugtext, "DSP1 L: %.1f %% V: v%.2f G: %.0f TxQ: %d DSP2 L: %.1f %% V: v%.2f G: %.0f H: %.0f free TxQ: %d", 
+			(double)dspLoadMean[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0], mixer->dsp->spi->GetDspTxQueueLength(0),
+			(double)dspLoadMean[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1], mixer->dsp->spi->GetDspTxQueueLength(1)
+		);
 	}
 
 	// send AES50-data to FPGA
@@ -395,7 +394,7 @@ void X32Ctrl::Tick100ms(void) {
 
 		if (startupCounter == 1) {
 			// set IP-Address in GUI
-			lv_label_set_text_fmt(objects.setup_ipaddresstext, "%s", helper->getIpAddress().c_str());
+			lv_label_set_text_fmt(objects.header_ip, "IP: %s", helper->getIpAddress().c_str());
 		}
 
 		if (startupCounter == 10) {
@@ -2156,8 +2155,10 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 							}
 						}
 						break;
+					case MixerparameterAction::CHANGE:
+					case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
 					case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
-						config->Change(parameter_id, 1, parameter_index);
+						config->Change(parameter_id, 1, parameter_index); // every button press does one stepsize "up"
 						break;
 					case MixerparameterAction::RESET:
 					case MixerparameterAction::RESET_SELECTED_CHANNEL:

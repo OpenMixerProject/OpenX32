@@ -134,8 +134,9 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Uint(44100, 48000, 48000)
     ->DefConfig(group, "samplerate");
 
-    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, "Channels")
+    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, "Channelmode")
     ->DefMinMaxStandard_Uint(0, 5, 0)
+    ->DefCycleMode(1, 1)
     ->DefUOM(MP_UOM::CARD_NUMBER_OF_CHANNELS)
     ->DefConfig(group, "card_channels");
 
@@ -145,7 +146,7 @@ void X32Config::DefineMixerparameters() {
     ->DefStepsize(1)
     ->DefUOM(MP_UOM::CARD_SDCARD);
 
-    DefParameter(CARD_AUDIO_SOURCE, cat, "Card Audio Source")
+    DefParameter(CARD_AUDIO_SOURCE, cat, "Card Source") // keep name short to fit onto label (Page Card)
     ->DefConfig(group, "card_audio_source")
     ->DefMinMaxStandard_Uint(0, 1, 0)
     ->DefStepsize(1)
