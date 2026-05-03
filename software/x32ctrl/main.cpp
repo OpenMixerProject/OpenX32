@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
 			->group("Debug");
 
 	vector<string> debug_parameters;
-	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DSP1 DSP2 FPGA FX GUI INI MIXER STATE SPI SURFACE TIMER UART VCHANNEL X32CTRL XREMOTE")
+	app->add_option("-d,--debug", debug_parameters, "Prints debugging information to stdout. You can specify one or multiple of the following flags: ADDA DMX DSP1 DSP2 FPGA FX GUI INI MIXER STATE SPI SURFACE TIMER UART X32CTRL XREMOTE")
 			->configurable(false)
 			->group("Debug")
 			->expected(1,-1)
@@ -338,6 +338,7 @@ int main(int argc, char* argv[]) {
 		for(uint8_t i=0; i<debug_parameters.size(); i++) {
 			if (debug_parameters[i] == "ALL") { helper->SetDebugAll(); }
 			if (debug_parameters[i] == "ADDA") { helper->DEBUG_ADDA(true); }
+			if (debug_parameters[i] == "DMX") { helper->DEBUG_DMX(true); }
 			if (debug_parameters[i] == "DSP1") { helper->DEBUG_DSP1(true); }
 			if (debug_parameters[i] == "DSP2") { helper->DEBUG_DSP2(true); }
 			if (debug_parameters[i] == "FPGA") { helper->DEBUG_FPGA(true); }
@@ -346,7 +347,6 @@ int main(int argc, char* argv[]) {
 			if (debug_parameters[i] == "SPI") { helper->DEBUG_SPI(true); }
 			if (debug_parameters[i] == "SURFACE") { helper->DEBUG_SURFACE(true); }
 			if (debug_parameters[i] == "UART") { helper->DEBUG_UART(true); }
-			if (debug_parameters[i] == "VCHANNEL") { helper->DEBUG_VCHANNEL(true); }
 			if (debug_parameters[i] == "X32CTRL") { helper->DEBUG_X32CTRL(true); }
 			if (debug_parameters[i] == "XREMOTE") { helper->DEBUG_XREMOTE(true); }
 			if (debug_parameters[i] == "INI") { helper->DEBUG_INI(true); }

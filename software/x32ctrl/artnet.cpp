@@ -22,9 +22,10 @@
   GNU General Public License for more details.
 */
 
+#include "artnet.h"
+
 #if ENABLE_ARTNET
 
-#include "artnet.h"
 
 Artnet::Artnet(X32BaseParameter* basepar): X32Base(basepar) {
 }
@@ -50,10 +51,17 @@ void Artnet::Init() {
   if (artnet_start(node) != ARTNET_EOK) {
     helper->Error("Failed to start: %s\n", artnet_strerror() );
   }
+  else
+  {
+    helper->DEBUG_DMX(DEBUGLEVEL_NORMAL, "ArtNet Node startet");
+  }
 }
 
 // this function is called every 50ms and calculates the DMX values to be sent to ArtNet, based on the current channel values and the fade times
-void Artnet::Tick() {
+void Artnet::Tick()
+{
+  helper->DEBUG_DMX(DEBUGLEVEL_TRACE, "ArtNet Tick()");
+
   for (uint16_t i = 0; i < 512; i++) {
     if (dmxDest[i] > dmx[i]) {
       dmx[i] += dmxStep[i];
@@ -80,7 +88,8 @@ void Artnet::Tick() {
   artnet_read(node, 0);
 }
 
-void Artnet::setChannel(uint16_t channel, float value, float timeMs) {
+void Artnet::setChannel(uint16_t channel, float value, float timeMs)
+{
   float delta = value - dmx[channel];
 
   if (timeMs <= 0) {

@@ -76,7 +76,7 @@ void X32Ctrl::Init()
 	}
 
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "artnet->Init()");
-	//artnet->Init();
+	artnet->Init();
 	
 
 	//############################################################################
@@ -336,7 +336,7 @@ void X32Ctrl::Tick50ms(void)
 
 #if ENABLE_ARTNET
 	// update Dimmerkernel
-	//artnet->Tick();
+	artnet->Tick();
 #endif
 }
 

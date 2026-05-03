@@ -4,7 +4,7 @@
 // #  Features  #
 // ##############
 
-#define ENABLE_ARTNET 0
+#define ENABLE_ARTNET 1
 
 // ###########
 // #  DEBUG  #

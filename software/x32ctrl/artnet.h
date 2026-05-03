@@ -1,11 +1,15 @@
 #pragma once
 
-#if ENABLE_ARTNET
+
 
 #include <stdint.h>
+
+#include "defines.h"
 #include "WString.h"
 #include "base.h"
 #include <artnet/artnet.h>
+
+#if ENABLE_ARTNET
 
 class Artnet : public X32Base
 {

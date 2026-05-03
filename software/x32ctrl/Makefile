@@ -28,7 +28,7 @@ CXXFLAGS        ?= -std=c++23 -flto=auto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR
 #CFLAGS          ?= -std=c11 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 #CXXFLAGS         ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
 
-LDFLAGS         ?= -flto=auto -lm -lrt -lpthread #-lartnet
+LDFLAGS         ?= -flto=auto -lm -lrt -lpthread -lartnet
 
 BIN             = x32ctrl
 BUILD_DIR       = ../bin
