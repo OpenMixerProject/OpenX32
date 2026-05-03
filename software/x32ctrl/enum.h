@@ -478,6 +478,7 @@ enum class MP_CAT {
     CHANNEL_SENDS,
     FX,
     DISPLAY,
+    DMX,
 };
 
 /// @brief Mixerparameter ID
@@ -767,6 +768,8 @@ enum class MP_ID {
     FX_DYNAMICEQ_BAND1_RELEASE,
     FX_DYNAMICEQ_BAND2_RELEASE,
     FX_DYNAMICEQ_BAND3_RELEASE,
+
+    DMX_ARTNET_ENABLE,
 
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };

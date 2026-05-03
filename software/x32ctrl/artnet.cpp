@@ -27,65 +27,74 @@
 #if ENABLE_ARTNET
 
 
-Artnet::Artnet(X32BaseParameter* basepar): X32Base(basepar) {
+Artnet::Artnet(X32BaseParameter* basepar): X32Base(basepar)
+{
 }
 
-void Artnet::Init() {
+void Artnet::Init()
+{
+    node = artnet_new("0.0.0.0", false); // preferred IP (unsupported for now), verbose
+    artnet_set_short_name(node, "OpenX32"); // ShortName
+    artnet_set_long_name(node, "OpenX32 ArtNet Node"); // LongName
+    artnet_set_node_type(node, ARTNET_RAW); // configure as ArtNET-Server (transmits DMX data)
+    
+    // install callback-handlers
+    //artnet_set_program_handler(node, program_handler, (void*) ops) ;
+    //artnet_set_dmx_handler(node, dmx_handler, (void*) ops) ;
 
-  node = artnet_new("0.0.0.0", false); // preferred IP (unsupported for now), verbose
-  artnet_set_short_name(node, "OpenX32"); // ShortName
-  artnet_set_long_name(node, "OpenX32 ArtNet Node"); // LongName
-  artnet_set_node_type(node, ARTNET_RAW); // configure as ArtNET-Server (transmits DMX data)
-  
-  // install callback-handlers
-  //artnet_set_program_handler(node, program_handler, (void*) ops) ;
-  //artnet_set_dmx_handler(node, dmx_handler, (void*) ops) ;
+    // set first port to input (will transmit data into the network)
+    artnet_set_port_type(node, 0, ARTNET_ENABLE_INPUT, ARTNET_PORT_DMX); // configure as ArtNET-Transmitter to send DMX data
+    artnet_set_port_addr(node, 0, ARTNET_INPUT_PORT, 0); // port = universe
+    //artnet_set_port_type(node, 0, ARTNET_ENABLE_OUTPUT, ARTNET_PORT_DMX); // configure as ArtNET-Receiver to receive DMX data
+    //artnet_set_port_addr(node, 0, ARTNET_OUTPUT_PORT, 0); // port = universe
+    //  artnet_set_subnet_addr(node, 0);
 
-  // set first port to input (will transmit data into the network)
-  artnet_set_port_type(node, 0, ARTNET_ENABLE_INPUT, ARTNET_PORT_DMX); // configure as ArtNET-Transmitter to send DMX data
-  artnet_set_port_addr(node, 0, ARTNET_INPUT_PORT, 0); // port = universe
-  //artnet_set_port_type(node, 0, ARTNET_ENABLE_OUTPUT, ARTNET_PORT_DMX); // configure as ArtNET-Receiver to receive DMX data
-  //artnet_set_port_addr(node, 0, ARTNET_OUTPUT_PORT, 0); // port = universe
-//  artnet_set_subnet_addr(node, 0);
-
-  if (artnet_start(node) != ARTNET_EOK) {
-    helper->Error("Failed to start: %s\n", artnet_strerror() );
-  }
-  else
-  {
-    helper->DEBUG_DMX(DEBUGLEVEL_NORMAL, "ArtNet Node startet");
-  }
+    if (artnet_start(node) != ARTNET_EOK) {
+        helper->Error("Failed to start: %s\n", artnet_strerror() );
+    }
+    else
+    {
+        helper->DEBUG_DMX(DEBUGLEVEL_NORMAL, "ArtNet Node startet");
+    }
 }
 
 // this function is called every 50ms and calculates the DMX values to be sent to ArtNet, based on the current channel values and the fade times
 void Artnet::Tick()
 {
-  helper->DEBUG_DMX(DEBUGLEVEL_TRACE, "ArtNet Tick()");
+    if (config->GetBool(MP_ID::DMX_ARTNET_ENABLE))
+    {
+        helper->DEBUG_DMX(DEBUGLEVEL_TRACE, "ArtNet Tick()");
 
-  for (uint16_t i = 0; i < 512; i++) {
-    if (dmxDest[i] > dmx[i]) {
-      dmx[i] += dmxStep[i];
-    }else if (dmxDest[i] < dmx[i]) {
-      dmx[i] -= dmxStep[i];
+        for (uint16_t i = 0; i < 512; i++)
+        {
+            if (dmxDest[i] > dmx[i])
+            {
+                dmx[i] += dmxStep[i];
+            }
+            else if (dmxDest[i] < dmx[i])
+            {
+                dmx[i] -= dmxStep[i];
+            }
+
+            // copy new data to output-array
+            //dmxOutput[i] = dmx[i];
+
+            // debug-data on Channel 1 to 10
+            if (i < 10)
+            {
+                dmxOutput[i] += 1;
+            }
+        }
+
+        // send on configured ports
+        artnet_send_dmx(node, 0, 512, &dmxOutput[0]); // artnet-node, univese, length, data
+
+        // allow sending even on unconfigured ports for testing
+        //artnet_raw_send_dmx(node, 1, 512, &dmxOutput[0]); // artnet-node, univese, length, data
+
+        // read incoming data and answer to ArtPollRequest with an ArtPollReply
+        artnet_read(node, 0);
     }
-
-    // copy new data to output-array
-    //dmxOutput[i] = dmx[i];
-
-    // debug-data on Channel 1 to 10
-    if (i < 10) {
-      dmxOutput[i] += 1;
-    }
-  }
-
-  // send on configured ports
-  artnet_send_dmx(node, 0, 512, &dmxOutput[0]); // artnet-node, univese, length, data
-
-  // allow sending even on unconfigured ports for testing
-  //artnet_raw_send_dmx(node, 1, 512, &dmxOutput[0]); // artnet-node, univese, length, data
-
-  // read incoming data and answer to ArtPollRequest with an ArtPollReply
-  artnet_read(node, 0);
 }
 
 void Artnet::setChannel(uint16_t channel, float value, float timeMs)
