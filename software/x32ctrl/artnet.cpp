@@ -73,7 +73,7 @@ void Artnet::Tick()
     //dmxOutput[i] = dmx[i];
 
     // debug-data on Channel 1 to 10
-    if ((i >= 0) && (i < 10)) {
+    if (i < 10) {
       dmxOutput[i] += 1;
     }
   }

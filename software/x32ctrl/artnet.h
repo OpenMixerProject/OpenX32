@@ -7,7 +7,7 @@
 #include "defines.h"
 #include "WString.h"
 #include "base.h"
-#include <artnet/artnet.h>
+#include "../libartnet/artnet/artnet.h"
 
 #if ENABLE_ARTNET
 
