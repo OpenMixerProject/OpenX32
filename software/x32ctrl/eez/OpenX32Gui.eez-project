@@ -5765,110 +5765,6 @@
                           "heightUnit": "px",
                           "children": [
                             {
-                              "objID": "85e6c8bb-1dcd-4859-e02d-ba52a679321e",
-                              "type": "LVGLRollerWidget",
-                              "left": 536,
-                              "top": 4,
-                              "width": 130,
-                              "height": 314,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "a69dd062-0c94-4326-b416-1e3bb0bec11f",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "identifier": "routing_fpga_block",
-                              "leftUnit": "px",
-                              "topUnit": "px",
-                              "widthUnit": "px",
-                              "heightUnit": "px",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_CHAIN_HOR|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-                              "hiddenFlagType": "literal",
-                              "clickableFlag": true,
-                              "clickableFlagType": "literal",
-                              "flagScrollbarMode": "",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "2c9f0db2-a824-40d4-90e8-0aa3fe8d0624",
-                                "definition": {
-                                  "MAIN": {
-                                    "DEFAULT": {
-                                      "radius": 0
-                                    }
-                                  }
-                                }
-                              },
-                              "group": "",
-                              "groupIndex": 0,
-                              "options": "Mixer Channels\nXLR Outputs\nAUX Outputs\nUltranet\nCARD Recording\nAES50 A Outputs\nAES50 B Outputs",
-                              "optionsType": "literal",
-                              "selected": 0,
-                              "selectedType": "literal",
-                              "mode": "NORMAL"
-                            },
-                            {
-                              "objID": "f59becb6-f3bf-49e2-f6af-a906499a74cb",
-                              "type": "LVGLTableWidget",
-                              "left": 670,
-                              "top": 4,
-                              "width": 130,
-                              "height": 314,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "f9525333-239e-4cd1-8b21-ed1452cea2d7",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "locked": false,
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "identifier": "routing_fpga_source",
-                              "leftUnit": "px",
-                              "topUnit": "px",
-                              "widthUnit": "px",
-                              "heightUnit": "px",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
-                              "hiddenFlagType": "literal",
-                              "clickableFlag": true,
-                              "clickableFlagType": "literal",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "070601c8-dea1-4330-c93a-aec11fdb3e50",
-                                "definition": {
-                                  "ITEMS": {
-                                    "DEFAULT": {
-                                      "pad_column": 0,
-                                      "pad_row": 0,
-                                      "pad_top": 10,
-                                      "pad_bottom": 2,
-                                      "pad_left": 10,
-                                      "pad_right": 10
-                                    }
-                                  }
-                                }
-                              },
-                              "group": "",
-                              "groupIndex": 0
-                            },
-                            {
                               "objID": "1d9b7e22-c8be-45f8-cd42-333b56509fc1",
                               "type": "LVGLButtonMatrixWidget",
                               "left": 0,
@@ -5929,10 +5825,9 @@
                               "groupIndex": 0,
                               "buttons": [
                                 {
-                                  "objID": "7fd325ef-b327-48b9-e72c-5eaf81706df4",
-                                  "text": "Kanal 1\\n[XLR1]\\nCH01",
-                                  "width": 1,
-                                  "ctrlCustom1": false
+                                  "objID": "0f96be7c-a881-4550-b0e2-534d5c344e32",
+                                  "text": "Btn",
+                                  "width": 1
                                 },
                                 {
                                   "objID": "df3500dd-4adc-4846-a170-8ab3dda7d690",
@@ -6179,6 +6074,58 @@
                                 }
                               ],
                               "oneCheck": false
+                            },
+                            {
+                              "objID": "85e6c8bb-1dcd-4859-e02d-ba52a679321e",
+                              "type": "LVGLRollerWidget",
+                              "left": 536,
+                              "top": 4,
+                              "width": 130,
+                              "height": 314,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "a69dd062-0c94-4326-b416-1e3bb0bec11f",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "routing_fpga_block",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_CHAIN_HOR|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollbarMode": "",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "2c9f0db2-a824-40d4-90e8-0aa3fe8d0624",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "radius": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0,
+                              "options": "XLR\nAUX\nCARD\nAES50 A",
+                              "optionsType": "literal",
+                              "selected": 0,
+                              "selectedType": "literal",
+                              "mode": "NORMAL"
                             }
                           ],
                           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
@@ -6198,303 +6145,7 @@
                           },
                           "group": "",
                           "groupIndex": 0,
-                          "tabName": "Signal-Routing (FPGA)",
-                          "tabNameType": "literal"
-                        },
-                        {
-                          "objID": "314bd3fb-7477-4637-a232-07fa1b8790c2",
-                          "type": "LVGLTabWidget",
-                          "left": -11,
-                          "top": 148,
-                          "width": 800,
-                          "height": 382,
-                          "customInputs": [],
-                          "customOutputs": [],
-                          "style": {
-                            "objID": "25540d11-d25e-4a69-bbaa-b1a118b6624b",
-                            "useStyle": "default",
-                            "conditionalStyles": [],
-                            "childStyles": []
-                          },
-                          "locked": false,
-                          "timeline": [],
-                          "eventHandlers": [],
-                          "leftUnit": "px",
-                          "topUnit": "px",
-                          "widthUnit": "px",
-                          "heightUnit": "px",
-                          "children": [
-                            {
-                              "objID": "49146d0d-0c12-4df2-8b88-7d4be7bbcd1c",
-                              "type": "LVGLTableWidget",
-                              "left": 0,
-                              "top": 0,
-                              "width": 100,
-                              "height": 30,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "3b88c659-5e86-490f-db1c-d05e7ef7ff0d",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "locked": false,
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "identifier": "table_routing_dsp_input_header",
-                              "leftUnit": "%",
-                              "topUnit": "%",
-                              "widthUnit": "%",
-                              "heightUnit": "px",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
-                              "hiddenFlagType": "literal",
-                              "clickableFlag": true,
-                              "clickableFlagType": "literal",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "ce8ea446-3a31-4e7a-d31e-156a1cb01476",
-                                "definition": {
-                                  "ITEMS": {
-                                    "DEFAULT": {
-                                      "pad_top": 2,
-                                      "pad_bottom": 2,
-                                      "pad_left": 2,
-                                      "pad_right": 2,
-                                      "pad_row": 2,
-                                      "pad_column": 2
-                                    }
-                                  }
-                                }
-                              },
-                              "group": "",
-                              "groupIndex": 0
-                            },
-                            {
-                              "objID": "23c70335-a0c4-4a1f-a831-4d7562f1fffc",
-                              "type": "LVGLTableWidget",
-                              "left": 0,
-                              "top": 30,
-                              "width": 100,
-                              "height": 290,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "d2abef38-1ef4-4946-c40b-fa0b5e48ad1f",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "locked": false,
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "identifier": "table_routing_dsp_input",
-                              "leftUnit": "%",
-                              "topUnit": "px",
-                              "widthUnit": "%",
-                              "heightUnit": "px",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
-                              "hiddenFlagType": "literal",
-                              "clickableFlag": true,
-                              "clickableFlagType": "literal",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "1bcac413-f115-4f9e-e9b0-17b29f092bd1",
-                                "definition": {
-                                  "ITEMS": {
-                                    "DEFAULT": {
-                                      "pad_top": 10,
-                                      "pad_bottom": 2,
-                                      "pad_left": 10,
-                                      "pad_right": 10,
-                                      "pad_row": 0,
-                                      "pad_column": 0
-                                    }
-                                  }
-                                }
-                              },
-                              "group": "",
-                              "groupIndex": 0
-                            }
-                          ],
-                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-                          "hiddenFlagType": "literal",
-                          "clickableFlag": true,
-                          "clickableFlagType": "literal",
-                          "flagScrollbarMode": "",
-                          "flagScrollDirection": "",
-                          "scrollSnapX": "",
-                          "scrollSnapY": "",
-                          "checkedStateType": "literal",
-                          "disabledStateType": "literal",
-                          "states": "",
-                          "useStyle": "tab_nopad",
-                          "localStyles": {
-                            "objID": "55fcaede-b90e-482c-e866-c752071d5493"
-                          },
-                          "group": "",
-                          "groupIndex": 0,
-                          "tabName": "Channel Routing (DSP)",
-                          "tabNameType": "literal"
-                        },
-                        {
-                          "objID": "a33fcaa7-0c94-4665-d78e-30c0ca6bf702",
-                          "type": "LVGLTabWidget",
-                          "left": 0,
-                          "top": 0,
-                          "width": 800,
-                          "height": 382,
-                          "customInputs": [],
-                          "customOutputs": [],
-                          "style": {
-                            "objID": "b23c8192-4f59-4cf1-9449-cfc7c112dd99",
-                            "useStyle": "default",
-                            "conditionalStyles": [],
-                            "childStyles": []
-                          },
-                          "locked": false,
-                          "timeline": [],
-                          "eventHandlers": [],
-                          "leftUnit": "px",
-                          "topUnit": "px",
-                          "widthUnit": "px",
-                          "heightUnit": "px",
-                          "children": [
-                            {
-                              "objID": "cb2e2926-2a69-472e-ebfe-e1721e6e6b95",
-                              "type": "LVGLTableWidget",
-                              "left": 0,
-                              "top": 0,
-                              "width": 100,
-                              "height": 30,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "a09e206a-f266-4a88-df1b-d13cb95b8ccc",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "locked": false,
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "identifier": "table_routing_dsp_output_header",
-                              "leftUnit": "%",
-                              "topUnit": "%",
-                              "widthUnit": "%",
-                              "heightUnit": "px",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
-                              "hiddenFlagType": "literal",
-                              "clickableFlag": true,
-                              "clickableFlagType": "literal",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "5f33375f-e6a2-4646-c871-5a8aabb416a7",
-                                "definition": {
-                                  "ITEMS": {
-                                    "DEFAULT": {
-                                      "pad_top": 2,
-                                      "pad_bottom": 2,
-                                      "pad_left": 2,
-                                      "pad_right": 2,
-                                      "pad_row": 2,
-                                      "pad_column": 2
-                                    }
-                                  }
-                                }
-                              },
-                              "group": "",
-                              "groupIndex": 0
-                            },
-                            {
-                              "objID": "3d67e1eb-8b1c-455e-e422-180b44717bce",
-                              "type": "LVGLTableWidget",
-                              "left": 0,
-                              "top": 30,
-                              "width": 100,
-                              "height": 290,
-                              "customInputs": [],
-                              "customOutputs": [],
-                              "style": {
-                                "objID": "ec1edf64-47f6-4eeb-aac2-e7621dd91336",
-                                "useStyle": "default",
-                                "conditionalStyles": [],
-                                "childStyles": []
-                              },
-                              "locked": false,
-                              "timeline": [],
-                              "eventHandlers": [],
-                              "identifier": "table_routing_dsp_output",
-                              "leftUnit": "%",
-                              "topUnit": "px",
-                              "widthUnit": "%",
-                              "heightUnit": "px",
-                              "children": [],
-                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
-                              "hiddenFlagType": "literal",
-                              "clickableFlag": true,
-                              "clickableFlagType": "literal",
-                              "flagScrollDirection": "",
-                              "scrollSnapX": "",
-                              "scrollSnapY": "",
-                              "checkedStateType": "literal",
-                              "disabledStateType": "literal",
-                              "states": "",
-                              "localStyles": {
-                                "objID": "1be270b2-e4c7-43f4-8f7d-15cee0194418",
-                                "definition": {
-                                  "ITEMS": {
-                                    "DEFAULT": {
-                                      "pad_top": 10,
-                                      "pad_bottom": 2,
-                                      "pad_left": 10,
-                                      "pad_right": 10,
-                                      "pad_row": 0,
-                                      "pad_column": 0
-                                    }
-                                  }
-                                }
-                              },
-                              "group": "",
-                              "groupIndex": 0
-                            }
-                          ],
-                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-                          "hiddenFlagType": "literal",
-                          "clickableFlag": true,
-                          "clickableFlagType": "literal",
-                          "flagScrollbarMode": "",
-                          "flagScrollDirection": "",
-                          "scrollSnapX": "",
-                          "scrollSnapY": "",
-                          "checkedStateType": "literal",
-                          "disabledStateType": "literal",
-                          "states": "",
-                          "useStyle": "tab_nopad",
-                          "localStyles": {
-                            "objID": "c1a424ce-28eb-4b04-d194-c87e8391ab9f"
-                          },
-                          "group": "",
-                          "groupIndex": 0,
-                          "tabName": "Output-Routing (DSP)",
+                          "tabName": "Routing",
                           "tabNameType": "literal"
                         }
                       ],
@@ -9547,6 +9198,58 @@
               },
               "group": "",
               "groupIndex": 0
+            },
+            {
+              "objID": "51224b49-5758-4d0d-d107-3f8f3992c47b",
+              "type": "LVGLRollerWidget",
+              "left": 670,
+              "top": 102,
+              "width": 130,
+              "height": 314,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "1bdd9668-62cc-45b2-cd79-1d4e85afa2f9",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "identifier": "routing_fpga_block_1",
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_CHAIN_HOR|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlag": true,
+              "clickableFlagType": "literal",
+              "flagScrollbarMode": "",
+              "flagScrollDirection": "",
+              "scrollSnapX": "",
+              "scrollSnapY": "",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "415abaa9-a5b0-4340-c897-7a5664994b7b",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "radius": 0
+                    }
+                  }
+                }
+              },
+              "group": "",
+              "groupIndex": 0,
+              "options": "XLR 1\nXLR 2\nXLR 3\nXLR 4\nXLR 5\nXLR 6\nXLR 7\nXLR 8\nXLR 9\nXLR 10\nXLR 11\nXLR 12\nXLR 13\nXLR 14\nXLR 15\nXLR 16\nXLR 17\nXLR 18\nXLR 19\nXLR 20",
+              "optionsType": "literal",
+              "selected": 0,
+              "selectedType": "literal",
+              "mode": "NORMAL"
             }
           ],
           "widgetFlags": "CLICKABLE|PRESS_LOCK|CLICK_FOCUSABLE|GESTURE_BUBBLE|SNAPPABLE|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLLABLE",

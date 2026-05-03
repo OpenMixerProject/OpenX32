@@ -59,7 +59,7 @@ class PagePrototypeGui: public Page
         {
             switch (surface_element_id)
             {
-                case SurfaceElementId::DISPLAY_ENCODER_BUTTON_1:
+                case SurfaceElementId::DISPLAY_ENCODER_1:
                     selectionindex += amount;
                     lv_buttonmatrix_set_button_ctrl(objects.routingmatrix, selectionindex, LV_BUTTONMATRIX_CTRL_CHECKED);
                     break;

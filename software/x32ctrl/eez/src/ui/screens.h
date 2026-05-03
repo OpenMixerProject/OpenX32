@@ -752,13 +752,8 @@ typedef struct _objects_t {
     lv_obj_t *routing_input_3;
     lv_obj_t *main_cpu;
     lv_obj_t *aes_ebu;
-    lv_obj_t *routing_fpga_block;
-    lv_obj_t *routing_fpga_source;
     lv_obj_t *routing_fpga_matrix;
-    lv_obj_t *table_routing_dsp_input_header;
-    lv_obj_t *table_routing_dsp_input;
-    lv_obj_t *table_routing_dsp_output_header;
-    lv_obj_t *table_routing_dsp_output;
+    lv_obj_t *routing_fpga_block;
     lv_obj_t *setuptab;
     lv_obj_t *current_channel_source_4;
     lv_obj_t *current_channel_source_5;
@@ -807,6 +802,7 @@ typedef struct _objects_t {
     lv_obj_t *widget6__label;
     lv_obj_t *widget6__slider;
     lv_obj_t *widget6__label_buttonpress;
+    lv_obj_t *routing_fpga_block_1;
 } objects_t;
 
 extern objects_t objects;
