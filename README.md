@@ -66,7 +66,7 @@ I want to learn things about embedded systems and how they work. The X32 is a ve
 Yes, here: https://discourse.openmixerproject.de
 
 ## Steps to run OpenX32 without recompiling
-Checkout the most recent release from https://github.com/OpenMixerProject/OpenX32/releases and follow the instructions there. You only have to copy a couple of files onto an USB-thumbdrive and boot into Linux :)
+Checkout the most recent release from https://github.com/OpenMixerProject/OpenX32/releases and follow the instructions there. You only have to copy one file onto an USB-thumbdrive and boot into OpenX32 :)
 
 You can login via SSH using the password "openx32" and the following command:
 
