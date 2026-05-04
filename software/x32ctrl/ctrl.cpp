@@ -956,8 +956,15 @@ void X32Ctrl::syncSurface(bool fullSync)
 	if (config->HasParameterChanged(CHANNEL_SOLO))
 	{
 		bool soloActive = mixer->IsSoloActivated();
-
 		config->Set(CLEAR_SOLO, soloActive);
+	}
+
+	if (config->IsModelX32Rack())
+	{
+		if (config->HasParameterChanged(SELECTED_CHANNEL))
+		{
+			setLedChannelIndicator_Rack();
+		}
 	}
 
 	// ###########################################
@@ -1161,23 +1168,6 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 	
 
-	// if (config->IsModelX32Rack()) {			
-	// 	if (config->HasParameterChanged(SELECTED_CHANNEL)){
-	// 		setLedChannelIndicator_Rack();
-	// 	}
-	// 	// Solo
-	// 	if (config->HasParameterChanged(CHANNEL_SOLO, chanIndex) || fullSync){
-	// 		surface->SetLedByEnum(X32_BTN_CHANNEL_SOLO, config->GetBool(CHANNEL_SOLO, chanIndex)); 
-	// 	}
-	// 	// Mute
-	// 	if (config->HasParameterChanged(CHANNEL_MUTE, chanIndex) || fullSync){
-	// 		surface->SetLedByEnum(X32_BTN_CHANNEL_MUTE, config->GetBool(CHANNEL_MUTE, chanIndex)); 
-	// 	}
-	// 	// Volume
-	// 	if (config->HasParametersChanged({CHANNEL_VOLUME, CHANNEL_MUTE}, chanIndex) ||fullSync){
-	// 		surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 0, config->GetFloat(CHANNEL_VOLUME, chanIndex), config->GetBool(CHANNEL_MUTE, chanIndex), 1);
-	// 	}
-	// }
 
 	// if (config->IsModelX32Core()) {
 
@@ -1206,18 +1196,6 @@ void X32Ctrl::syncSurface(bool fullSync)
 	// 		surface->SetEncoderRingDbfs(1, 1, config->GetFloat(CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::MAIN), config->GetBool(CHANNEL_MUTE, (uint)X32_VCHANNEL_BLOCK::MAIN), 1);
 	// 	}
 	// }
-
-
-	// if (config->IsModelX32Rack()){
-	// 	// Main Channel
-	// 	uint mainchanIndex = (uint)X32_VCHANNEL_BLOCK::MAIN;
-	// 	if (config->HasParameterChanged(CHANNEL_VOLUME, mainchanIndex) || config->HasParameterChanged(CHANNEL_MUTE, mainchanIndex)){
-	// 		surface->SetEncoderRingDbfs(X32_BOARD_MAIN, 1, config->GetFloat(CHANNEL_VOLUME, mainchanIndex), config->GetBool(CHANNEL_MUTE, mainchanIndex), 0);
-	// 	}
-	// }
-
-
-
 
 void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex)
 {
@@ -1420,17 +1398,17 @@ void X32Ctrl::UpdateMeters(void) {
 // only X32 Rack
 void X32Ctrl::setLedChannelIndicator_Rack(void)
 {
-		// uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL);
-		// surface->SetLedByEnum(X32_LED_IN, (chanIdx <= 31));
-		// surface->SetLedByEnum(X32_LED_AUX, (chanIdx >= 32)&&(chanIdx <= 47));
-		// surface->SetLedByEnum(X32_LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
-		// surface->SetLedByEnum(X32_LED_DCA, (chanIdx >= 64)&&(chanIdx <= 69));
-		// surface->SetLedByEnum(X32_LED_MAIN, (chanIdx >= 70)&&(chanIdx <= 71));
-		// surface->SetLedByEnum(X32_LED_MATRIX, (chanIdx >= 72)&&(chanIdx <= 79));
-		// surface->SetLedByEnum(X32_LED_MAIN, (chanIdx == 80));
+	uint chanIdx = config->GetUint(SELECTED_CHANNEL);
+	surface->SetLed(SurfaceElementId::LED_IN, (chanIdx <= 31));
+	surface->SetLed(SurfaceElementId::LED_AUX_FX, (chanIdx >= 32)&&(chanIdx <= 47));
+	surface->SetLed(SurfaceElementId::LED_BUS, (chanIdx >= 48)&&(chanIdx <= 63));
+	surface->SetLed(SurfaceElementId::LED_MATRIX, (chanIdx >= 64)&&(chanIdx <= 69));
+	surface->SetLed(SurfaceElementId::LED_MAIN, (chanIdx >= 70)&&(chanIdx <= 71));
+	surface->SetLed(SurfaceElementId::LED_DCA, (chanIdx >= 72)&&(chanIdx <= 79));
+	surface->SetLed(SurfaceElementId::LED_MAIN, (chanIdx == 80));
 
-		// // set 7-Segment Display
-		// surface->SetX32RackDisplay(chanIdx);        
+	// set 7-Segment Display
+	surface->SetX32RackDisplay(chanIdx);        
 }
 
 // only X32 Core
@@ -1993,6 +1971,8 @@ void X32Ctrl::InitSurfaceBinding()
 
 	if (config->IsModelX32Rack())
 	{
+		config->SurfaceBind(SurfaceElementId::VIEW_SCENES, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SCENES));
+
 		config->SurfaceBind(SurfaceElementId::CHANNEL_ENCODER, MixerparameterAction::CHANGE, SELECTED_CHANNEL);
 
 		config->SurfaceBind(SurfaceElementId::CHANNEL_SOLO, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_SOLO);
