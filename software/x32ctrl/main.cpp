@@ -257,8 +257,8 @@ int main(int argc, char* argv[]) {
 			->expected(1,-1)
 			->option_text("FLAG FLAG ...");
 
-	bool verbose;
-	bool trace;
+	bool verbose = false;
+	bool trace = false;
 	const char* catDebug = "Debug";
 	const char* catDebugSurface = "Debug Surface";
 	app->add_flag("--verbose", verbose, "Print more debug messages")

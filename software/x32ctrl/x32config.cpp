@@ -1496,14 +1496,6 @@ void X32Config::FreezeParameterList()
     MixerParameterChangelistFreeze = true;
 }
 
-// Unfreeze the mp_changedlist and copy mp_changedlist2 to mp_changedlist
-void X32Config::UnfreezeParameterList()
-{
-    
-
-
-}
-
 void X32Config::SetParameterChanged(MP_ID mp, uint index)
 {
     // Mixerparameter changelist is frozen, write changes to temporary list
@@ -1530,18 +1522,18 @@ void X32Config::SetParameterChanged(MP_ID mp, uint index)
         }
     }
 
-    if (helper->DEBUG_MIXER(DEBUGLEVEL_VERBOSE))
+    if (helper->DEBUG_MIXER(DEBUGLEVEL_TRACE))
     {
         Mixerparameter* parameter = GetParameter(mp);
 
-        String message = "Mixerparameter \"" + parameter->GetName() + "\" ";
+        String message = "DEBUG_MIXER: Mixerparameter \"" + parameter->GetName() + "\" ";
         
         if (parameter->GetInstances() > 1)
         {
             message += String(index) + " ";
         }
         
-        message += "has changed to: " + parameter->GetFormatedValue(index) + "\n";
+        message += "has changed to:" + parameter->GetFormatedValue(index) + "\n";
 
         helper->Log(message.c_str());
     }

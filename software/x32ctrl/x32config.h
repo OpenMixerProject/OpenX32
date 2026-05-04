@@ -66,7 +66,6 @@ class X32Config
         bool HasParametersChanged(MP_CAT parameter_cat, uint index);
         bool HasAnyParameterChanged();
         void FreezeParameterList();
-        void UnfreezeParameterList();
         void SetParameterUnchanged(MP_ID mp);
         void ResetAndUnfreezeChangedParameterList();
         

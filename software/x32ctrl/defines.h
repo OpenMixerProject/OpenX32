@@ -15,6 +15,12 @@
 
 //#################################################################################
 
+// bodyless mode does not compile with artnet, so disable it
+#ifdef BODYLESS_SDL2
+    #define ENABLE_ARTNET 0
+#endif
+
+
 typedef unsigned int uint;
 
 #define X32_CTRL_VERSION "v0.2.5"

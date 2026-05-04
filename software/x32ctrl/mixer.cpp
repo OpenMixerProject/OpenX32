@@ -253,30 +253,32 @@ void Mixer::LoadRoutingDefault()
     config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), indexRTA);
 }
 
-void Mixer::ClearSolo(void){
-    if (IsSoloActivated()){
-        for (int i=0; i<MAX_VCHANNELS; i++){
+void Mixer::ClearSolo(void)
+{
+    if (IsSoloActivated())
+    {
+        for (int i=0; i<MAX_VCHANNELS; i++)
+        {
             config->Set(MP_ID::CHANNEL_SOLO, 0.0f, i);
         }
     }
 }
 
-
-bool Mixer::IsSoloActivated(void){
+bool Mixer::IsSoloActivated(void)
+{
     for (uint8_t i=0; i < MAX_VCHANNELS; i++)
     {
-        if (config->GetBool(MP_ID::CHANNEL_SOLO, i)){
+        if (config->GetBool(MP_ID::CHANNEL_SOLO, i))
+        {
             return true;
         }
     }
     return false;
 }
 
-
 String Mixer::GetCardModelString(){
     return adda->GetExpansion();
 }
-
 
 //#########################################
 //#
@@ -299,7 +301,7 @@ void Mixer::Sync(void)
         {
             changedParameterCount += indexSet.size();
         }
-        helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "Sync %d changed Parameters.", changedParameterCount);
+        helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "syncing %d changed Mixerparameters to hardware", changedParameterCount);
     }
 
     vector<MP_ID> filter = {CHANNEL_VOLUME, CHANNEL_VOLUME_SUB, CHANNEL_MUTE, CHANNEL_PANORAMA, CHANNEL_SEND_LR, CHANNEL_SEND_SUB};
@@ -446,6 +448,8 @@ void Mixer::Sync(void)
             dsp->DSP2_SendFxParameter(fxSlot);
         }
     }
+
+    helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "sync done");
 }
 
 // set the gain of the local XLR head-amp-control

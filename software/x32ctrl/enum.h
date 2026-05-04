@@ -1207,6 +1207,8 @@ enum class MixerparameterAction
     LCD,
 
     DMX, // artnet / USB DMX
+
+    CLEAR_SOLO,
 };
 
 enum class X32BankId

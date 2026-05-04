@@ -1,5 +1,5 @@
 #
-# Makefile
+# Makefile SDL2
 #
 
 #CC              = arm-linux-gnueabi-gcc

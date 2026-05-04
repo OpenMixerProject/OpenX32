@@ -75,8 +75,10 @@ void X32Ctrl::Init()
 		lcdmenu->OnInit();
 	}
 
+	#if ENABLE_ARTNET
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "artnet->Init()");
 	artnet->Init();
+	#endif
 	
 
 	//############################################################################
@@ -953,12 +955,6 @@ void X32Ctrl::syncSurface(bool fullSync)
 		LoadBank(X32BankTarget::BusSection, bank);
 	}
 
-	if (config->HasParameterChanged(CHANNEL_SOLO))
-	{
-		bool soloActive = mixer->IsSoloActivated();
-		config->Set(CLEAR_SOLO, soloActive);
-	}
-
 	if (config->IsModelX32Rack())
 	{
 		if (config->HasParameterChanged(SELECTED_CHANNEL))
@@ -1033,6 +1029,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 					(config->HasParameterChanged(SELECTED_CHANNEL) || config->HasParameterChanged((MP_ID)(((uint)binding_parameter->mp_id) + config->GetUint((MP_ID)binding_parameter->mp_index)), config->GetUint(SELECTED_CHANNEL)));
 		
 		hasChanged |= binding_parameter->mp_action == MixerparameterAction::SET_TO_INDEX && config->HasParameterChanged(binding_parameter->mp_id);
+
+		hasChanged |= binding_parameter->mp_action == MixerparameterAction::CLEAR_SOLO && config->HasParameterChanged(CHANNEL_SOLO);
 		
 		if (!hasChanged && binding_parameter->mp_action == MixerparameterAction::LCD)
 		{
@@ -1099,6 +1097,10 @@ void X32Ctrl::syncSurface(bool fullSync)
 				bool ledOn = false;
 				bool ledBlink = false;
 
+				if (binding_parameter->mp_action == MixerparameterAction::CLEAR_SOLO)
+				{
+					ledBlink = mixer->IsSoloActivated();
+				}
 				if (binding_parameter->mp_action == MixerparameterAction::SET_TO_INDEX)
 				{
 					ledOn = config->GetInt(parameter_id, parameter_index) == binding_parameter->mp_index;
@@ -1962,11 +1964,16 @@ void X32Ctrl::InitSurfaceBinding()
 		
 		// Main Fader
 		config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-		config->SurfaceBind(SurfaceElementId::CLEAR_SOLO, MixerparameterAction::SET, CLEAR_SOLO);
+		
 		config->SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+	}
+
+	if (config->IsModelX32FullOrCompactOrProducerOrRack())
+	{
+		config->SurfaceBind(SurfaceElementId::CLEAR_SOLO, MixerparameterAction::CLEAR_SOLO, NONE);
 	}
 
 	if (config->IsModelX32Rack())
@@ -2014,6 +2021,9 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 				config->Set(bindingParameter->mp_id, helper->Fadervalue2dBfs(value), bindingParameter->mp_index);
 				surface->FaderMoved((uint)board, index, value);
 				break;
+			case MixerparameterAction::DMX:
+				// TODO Implement ArtNet and other cool DMX stuff
+				break;
 		}
 	}
 	else if (classid == 'b') // Button
@@ -2056,11 +2066,6 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 				switch (bindingParameterButton->mp_action)
 				{
-					case MixerparameterAction::CUSTOM:
-					{
-						Page* curent_page = pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)];
-						curent_page->ChangeCustomButton(button->GetId());
-					}
 					case MixerparameterAction::REFRESH:
 						config->Refresh(parameter_id, parameter_index);
 						break;
@@ -2126,8 +2131,16 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 					case MixerparameterAction::RESET_SELECTED_CHANNEL:
 						config->Reset(parameter_id, parameter_index);
 						break;
+					case MixerparameterAction::CLEAR_SOLO:
+						mixer->ClearSolo();
+						break;
+					case MixerparameterAction::CUSTOM:
+					{
+						Page* curent_page = pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)];
+						curent_page->ChangeCustomButton(button->GetId());
+					}
 					case MixerparameterAction::DMX:
-						
+						// TODO Implement ArtNet and other cool DMX stuff
 						break;
 				}
 			}
@@ -2182,6 +2195,9 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						Page* curent_page = pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)];
 						curent_page->ChangeCustomEncoder(encoder->GetId(), amount);
 					}
+					break;
+				case MixerparameterAction::DMX:
+					// TODO Implement ArtNet and other cool DMX stuff
 					break;
 			}
 		}

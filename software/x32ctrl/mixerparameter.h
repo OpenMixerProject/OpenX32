@@ -379,8 +379,6 @@ class Mixerparameter
 
             switch (unitOfMeasurement)
             {
-                case NONE:
-                    return "";
                 case TAPPOINT:
                 case EQ_TYPE:
                 case FPGA_ROUTING:
