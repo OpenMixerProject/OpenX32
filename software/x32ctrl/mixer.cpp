@@ -86,13 +86,8 @@ void Mixer::LoadVChannelLayout()
     {
         uint8_t index = (uint)X32_VCHANNEL_BLOCK::AUX + i;
 
-        if(i <=5){
-            config->Set(CHANNEL_NAME, String("AUX") + String(i+1), index);
-            config->Set(CHANNEL_COLOR, SURFACE_COLOR_GREEN, index);
-        } else {
-            config->Set(CHANNEL_NAME, String("USB"), index);
-            config->Set(CHANNEL_COLOR, SURFACE_COLOR_YELLOW, index);
-        }
+        config->Set(CHANNEL_NAME, String("AUX") + String(i+1), index);
+        config->Set(CHANNEL_COLOR, SURFACE_COLOR_GREEN, index);
     }
 
     // FX Returns 1-8
