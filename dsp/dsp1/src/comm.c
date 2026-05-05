@@ -176,7 +176,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						dsp.channelSendMainLeftVolume[channel] = floatValues[1];
 						dsp.channelSendMainRightVolume[channel] = floatValues[2];
 						dsp.channelSendMainSubVolume[channel] = floatValues[3];
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 1: // Mixbus-Channels
@@ -189,7 +188,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						dsp.channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[1];
 						dsp.channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[2];
 						dsp.channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[3];
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 2: // Matrix-Channels
@@ -197,20 +195,17 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 					if (valueCount == 1) {
 						dsp.matrixVolume[channel] = floatValues[0];
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 */
 					break;
 				case 3: // Main-Channels
 					if (valueCount == 3) {
 						memcpy(&dsp.mainVolumeSet[0], &floatValues[0], 3 * sizeof(float));
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 4: // Monitoring
 					if (valueCount == 1) {
 						dsp.monitorVolume = floatValues[0];
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				default:
@@ -243,7 +238,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				dsp.dspChannel[channel].gate.value_coeff_attack = floatValues[2];
 				dsp.dspChannel[channel].gate.value_hold_ticks = floatValues[3];
 				dsp.dspChannel[channel].gate.value_coeff_release = floatValues[4];
-				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 			}
 			break;
 		case 'e': // Equalizer/Filter
@@ -256,8 +250,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					if (valueCount == 1) {
 						// copy coefficient
 						dsp.lowcutCoeff[channel] = floatValues[0]; // equation = 1.0f / (1.0f + 2.0f * M_PI * desiredLowCutFrequency * (1.0f/samplerate));
-
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 'e': // EQ
@@ -268,8 +260,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					if ((valueCount == (MAX_CHAN_EQS * 5)) && (channel < CHANNELS_WITH_4BD_EQ)) {
 						// copy biquad-coefficients
 						memcpy(&dsp.peqCoeffs[channel][0], &floatValues[0], valueCount * sizeof(float));
-
-						sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 					}
 					break;
 				case 'r': // reset channel-parameters
@@ -319,7 +309,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				dsp.dspChannel[channel].compressor.value_coeff_attack = floatValues[3];
 				dsp.dspChannel[channel].compressor.value_hold_ticks = floatValues[4];
 				dsp.dspChannel[channel].compressor.value_coeff_release = floatValues[5];
-				sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 			}
 			break;
 		case 'a': // Auxiliary
@@ -330,13 +319,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 							// LED Control
 							switch(intValues[0]) {
 								case 0:
-									sysreg_bit_clr(sysreg_FLAGS, FLG7);
 									break;
 								case 1:
-									sysreg_bit_set(sysreg_FLAGS, FLG7);
 									break;
 								default:
-									sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 									break;
 							}
 						}

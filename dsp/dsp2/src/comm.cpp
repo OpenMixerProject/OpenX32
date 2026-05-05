@@ -114,13 +114,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					if (valueCount == 1) {
 						switch(intValues[0]) {
 							case 0:
-								sysreg_bit_clr(sysreg_FLAGS, FLG7);
 								break;
 							case 1:
-								sysreg_bit_set(sysreg_FLAGS, FLG7);
 								break;
 							default:
-								sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 								break;
 						}
 					}
