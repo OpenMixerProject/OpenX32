@@ -390,7 +390,6 @@ void X32Ctrl::Tick100ms(void) {
 	// DeviceTypeAndProperty every 2 seconds, Headamp-Message every 2 seconds (Names every 10 seconds)
 	mixer->fpga->AES50Tick();
 
-
 	if (startupCounter < 100) {
 		startupCounter++;
 
@@ -448,11 +447,13 @@ void X32Ctrl::Tick100ms(void) {
 			// the external memory gets corrupted. This needs more debugging
 			// for now stop-restart is fine
 			mixer->dsp->DSP2_SetFx(0, FX_TYPE::NONE, 2);
+			mixer->dsp->DSP2_SetFx(2, FX_TYPE::NONE, 2);
 		}
 
 		if (startupCounter == 50) {
 			// renable effect
 			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
+			mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
 		}
 	}
 }
