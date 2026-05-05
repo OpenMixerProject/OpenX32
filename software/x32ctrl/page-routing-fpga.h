@@ -10,21 +10,16 @@ class PageRoutingFpga: public Page
 
     private:
 
-        char* button_map[47];
-        uint selectionindex = 0;
-
-        int gui_selected_block = 0;
-		int gui_selected_block_before = 0;
-
-        int gui_selected_block_item = 0;
-		int gui_selected_block_item_before = 0;
+        uint selection_target = 0;
+        uint selection_index = 0;
+        int selection_source = 0;
+        int selection_source_item = 0;
 
     public:
 
         PageRoutingFpga(PageBaseParameter* pagebasepar) : Page(pagebasepar)
         {
             prevPage = X32_PAGE::ROUTING;
-            nextPage = X32_PAGE::ROUTING_DSP1;
             tabLayer0 = objects.maintab;
             tabIndex0 = 2;
             tabLayer1 = objects.routingtab;
@@ -32,103 +27,179 @@ class PageRoutingFpga: public Page
             led = X32_BTN_ROUTING;
         }
 
-        void OnInit() override 
-        {
-            lv_buttonmatrix_set_one_checked(objects.routing_fpga_matrix, true);
-        }
-
         void OnShow() override
         {
-            uint map_pointer = 0;
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_SHUFFLE) + String("\nSection"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_REFRESH) + String("\nSelect"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nSource"));
+        }
 
-            for (uint i=0; i < 40; i++)
+        void OnChange(bool force)
+        {
+            if (config->HasParameterChanged(ROUTING_FPGA))
             {
-                // newline after 8 elements
-                if (i > 0 && i % 8 == 0)
-                {
-                    button_map[map_pointer++] = "\n";
-                }
-
-                String text =   config->GetString(CHANNEL_NAME, i) + String("\n") +
-                                config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + 72) + String("\n")  +
-                                String("[") + config->GetString(CHANNEL_NAME_INTERN, i) + String("]");
-
-                char* buffer = (char*)lv_malloc(text.length() + 1);                                
-                memccpy(buffer, text.c_str(), 0, text.length() + 1);
-
-                button_map[map_pointer++] = buffer;
+                LoadMatrix();
             }
-
-            // last empty string to end Buttonmatrix
-            button_map[map_pointer++] = "";//(char*)lv_malloc_zeroed(1);
-
-            lv_buttonmatrix_set_map(objects.routing_fpga_matrix, button_map);
-            
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_SHUFFLE) + String("\nCh / In / Out"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, String(LV_SYMBOL_REFRESH) + String("\nSelect"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nSelect"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_6, String(LV_SYMBOL_DOWNLOAD) + String ("\nSelect\n(Save)"));
         }
 
         void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) override
         {
             switch (surface_element_id)
             {
-                case SurfaceElementId::DISPLAY_ENCODER_4:
-                    selectionindex += amount;
-                    lv_buttonmatrix_set_button_ctrl(objects.routing_fpga_matrix, selectionindex, LV_BUTTONMATRIX_CTRL_CHECKED);
+                case SurfaceElementId::DISPLAY_ENCODER_1:
+                    selection_target += amount;
+                    lv_roller_set_selected(objects.routing_fpga_target, selection_target, LV_ANIM_OFF);
+                    LoadMatrix();
+                    break;
+                case SurfaceElementId::DISPLAY_ENCODER_2:
+                    selection_index += amount;
+                    LoadMatrix();
+                    break;
+                case SurfaceElementId::DISPLAY_ENCODER_5:
+                    selection_source += amount;
+                    lv_roller_set_selected(objects.routing_fpga_source, selection_source, LV_ANIM_OFF);
                     break;
             }
         }
 
-        void DrawTable()
+        void LoadMatrix()
         {
-            // switch (gui_selected_block)
-            // {
-            //     case 0: // DSP Input (Mixer Channels)
-            //         gui_items_offset = 72;
-            //         gui_items_count = 40;
-            //         break;
-            //     case 1: // XLR Outputs
-            //         gui_items_offset = 0;
-            //         gui_items_count = 16;
-            //         break;
-            //     case 2: // AUX Outputs
-            //         gui_items_offset = 64;
-            //         gui_items_count = 8;
-            //         break;
-            //     case 3: // Ultranet
-            //         gui_items_offset = 16;
-            //         gui_items_count = 16;
-            //         break;
-            //     case 4: // CARD Recording
-            //         gui_items_offset = 32;
-            //         gui_items_count = 32;
-            //         break;
-            //     case 5: // AES50 A Outputs
-            //         gui_items_offset = 112;
-            //         gui_items_count = 48;
-            //         break;
-            //     case 6: // AES50 B Outputs
-            //         gui_items_offset = 160;
-            //         gui_items_count = 48;
-            //         break;
-            
-            //     default:
-            //         break;
-            // }
+            uint targetblockoffset = 0;
+            uint targetblocksize = 0;
 
-            // lv_table_set_row_count(objects.table_routing_fpga, 0);
+            switch (selection_target)
+            {
+                case 0: // CHANNELS
+                    targetblockoffset = 72;
+                    targetblocksize = 40;
+                    break;
+                case 1: // AUX Out
+                    targetblockoffset = 65;
+                    targetblocksize = 6;
+                    break;
+                case 2: // XLR Out
+                    targetblockoffset = 0;
+                    targetblocksize = 16;
+                    break;
+                case 3: // AES50 Out
+                    targetblockoffset = 112;
+                    targetblocksize = 48;
+                    break;
+                case 4: // Card Out
+                    targetblockoffset = 32;
+                    targetblocksize = 32;
+                    break;
+                case 5: // Ultranet
+                    targetblockoffset = 16;
+                    targetblocksize = 16;
+                    break;
+            }
 
-            // try {
-            //     for (uint8_t i = 0; i < gui_items_count; i++)
-            //     {
-            //         lv_table_set_cell_value(objects.table_routing_fpga, i, 0, config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + gui_items_offset).c_str());
-            //         lv_table_set_cell_value(objects.table_routing_fpga, i, 2, mixer->fpga->GetOutputNameByIndex(i + 1 + gui_items_offset).c_str());
-            //     }
-            // }catch (...){
-            // }
+            for (uint i = 0; i < lv_obj_get_child_count(objects.routing_matrix); i++)
+            {
+                lv_obj_t* routing_tile = lv_obj_get_child(objects.routing_matrix, i);
 
-            // lv_table_set_cell_value(objects.table_routing_fpga, gui_selected_item, 1, LV_SYMBOL_RIGHT);
+                lv_obj_t* routing_tile_lbl_header = lv_obj_get_child(routing_tile, 0);
+                lv_obj_t* routing_tile_lbl = lv_obj_get_child(routing_tile, 1);
+                lv_obj_t* routing_tile_lbl_footer = lv_obj_get_child(routing_tile, 2);
+
+                String header = "";
+                String label = "";
+                String footer = "";
+
+                if (i < targetblocksize)
+                {
+                    switch (selection_target)
+                    {
+                        case 0: // CHANNELS
+                            header = config->GetString(CHANNEL_NAME_INTERN, i);
+                            label = config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + targetblockoffset);
+                            footer = config->GetString(CHANNEL_NAME, i);
+                            break;
+                        default:
+                            header = String(i+1);
+                            label = config->GetParameter(ROUTING_FPGA)->GetFormatedValue(i + targetblockoffset);
+                            break;
+                    }
+                }
+                
+                if (i == selection_index)
+                {
+                    lv_obj_set_state(routing_tile_lbl_header, LV_STATE_FOCUSED, true);
+                    config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE, ROUTING_FPGA, i + targetblockoffset);
+                }
+                else
+                {
+                    lv_obj_set_state(routing_tile_lbl_header, LV_STATE_FOCUSED, false);
+                }
+
+                lv_label_set_text(routing_tile_lbl_header, header.c_str());
+                lv_label_set_text(routing_tile_lbl, label.c_str());
+                lv_label_set_text(routing_tile_lbl_footer, footer.c_str());
+            }
+
+            SyncEncoderWidgets(true);
         }
+
+        // void GenerateItemList()
+        // {
+        //     String itemName;
+        //     uint count = 0;
+
+        //     switch (gui_selected_block)
+        //     {
+        //         case 0:
+        //             itemName = "XLR";
+        //             count = (uint)X32_VCHANNEL_BLOCK_SIZE::NORMAL;
+        //             break;
+        //         case 1:
+        //             itemName = "AUX";
+        //             count = (uint)X32_VCHANNEL_BLOCK_SIZE::AUX;
+        //             break;
+        //         case 2:
+        //             itemName = "CARD";
+        //             count = 32;
+        //             break;
+        //         case 3:
+        //             itemName = "AES50 A";
+        //             count = 48;
+        //             break;
+        //     }
+
+        //     String itemstring;
+        //     for (uint i = 0; i < count; i++)
+        //     {
+        //         if (i != 0)
+        //         {
+        //             itemstring += "\n";
+        //         }
+
+        //         itemstring += String("XLR ") + String(i+1);
+        //     }
+        //     lv_roller_set_options(objects.routing_fpga_source_item, itemstring.c_str(), LV_ROLLER_MODE_NORMAL);
+        // }
+
+
+
+        // uint RoutingFPGA_BlockToOffset(uint block)
+        // {
+        //     uint offset = 0;
+        //     switch (gui_selected_block)
+        //     {
+        //         case 0: // XLR Input
+        //             offset = 0;
+        //             break;
+        //         case 1: // AUX Input
+        //             offset = 64;
+        //             break;
+        //         case 2: // Card input
+        //             offset = 32;
+        //             break;
+        //         case 3: // AES50 A
+        //             offset = 112;
+        //             break;
+        //     }
+
+        //     return offset;
+        // }
 };
