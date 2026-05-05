@@ -194,10 +194,10 @@ class Mixerparameter
                                 result += String("AUX In ") + (chan - FPGA_INPUT_IDX_AUX + 1);
                                 break;
                             case FPGA_INPUT_IDX_TALKBACK_INT:
-                                result += String("Talkback Internal");
+                                result += String("TB Int");
                                 break;
                             case FPGA_INPUT_IDX_TALKBACK_EXT:
-                                result += String("Talkback External");
+                                result += String("TB Ext");
                                 break;
                             case FPGA_INPUT_IDX_DSP_RETURN ... (FPGA_INPUT_IDX_AES50A - 8 - 1):
                                 result += String("DSP Out ") + (chan - FPGA_INPUT_IDX_DSP_RETURN + 1);
