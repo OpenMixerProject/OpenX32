@@ -22,7 +22,7 @@
 #define LAMP_PWM		IMX_GPIO_NR(1, 26)
 #define USB_POWER		IMX_GPIO_NR(4, 11)
 #define MCU_BUSY		IMX_GPIO_NR(4, 24)
-#define SURFACE_RESET		IMX_GPIO_NR(4, 28)
+#define SURFACE_RESET	IMX_GPIO_NR(4, 28)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -95,8 +95,7 @@ int dram_init(void)
 /*
  * Set up input pins with hysteresis and 100-k pull-ups
  */
-#define UART2_IN_PAD_CTRL       (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP)
-#define UART5_IN_PAD_CTRL       (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP)
+#define UART_IN_PAD_CTRL       (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP)
 /*
  * FIXME: need to revisit this
  * The original code enabled PUE and 100-k pull-down without PKE, so the right
@@ -105,16 +104,15 @@ int dram_init(void)
  * or:
  *	PAD_CTL_PUS_100K_DOWN for 100-k pull-down
  */
-#define UART2_OUT_PAD_CTRL      0
-#define UART5_OUT_PAD_CTRL      0
+#define UART_OUT_PAD_CTRL      0
 
 static void mx25pdk_uart_init(void)
 {
 	static const iomux_v3_cfg_t uart_pads[] = {
-		NEW_PAD_CTRL(MX25_PAD_UART2_RXD__UART2_RXD, UART2_IN_PAD_CTRL),
-		NEW_PAD_CTRL(MX25_PAD_UART2_TXD__UART2_TXD, UART2_OUT_PAD_CTRL),
-		NEW_PAD_CTRL(MX25_PAD_LBA__UART5_RXD_MUX, UART5_IN_PAD_CTRL),
-		NEW_PAD_CTRL(MX25_PAD_ECB__UART5_TXD_MUX, UART5_OUT_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_UART2_RXD__UART2_RXD, UART_IN_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_UART2_TXD__UART2_TXD, UART_OUT_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_LBA__UART5_RXD_MUX, UART_IN_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_ECB__UART5_TXD_MUX, UART_OUT_PAD_CTRL),
 	};
 
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
@@ -227,7 +225,7 @@ int board_init(void)
 /////////////////////////////////////////////////
 // functions for mxc-uart from serial_mxc.c
 /////////////////////////////////////////////////
-/*
+
 #include <watchdog.h>
 
 struct mxc_uart {
@@ -257,6 +255,7 @@ struct mxc_uart {
 };
 
 #define mxc_uart_base_surface	((struct mxc_uart *)UART2_BASE)
+
 #define URXD_CHARRDY	(1<<15)
 #define URXD_ERR	(1<<14)
 #define URXD_OVRRUN	(1<<13)
@@ -353,81 +352,74 @@ struct mxc_uart {
 #define TXTL		2  // reset default
 #define RXTL		1  // reset default
 
-static void surface_serial_init(struct mxc_uart *base, int use_dte)
+static void surface_serial_init()
 {
-	writel(0, &base->cr1);
-	writel(0, &base->cr2);
+	writel(0, &mxc_uart_base_surface->cr1);
+	writel(0, &mxc_uart_base_surface->cr2);
 
-	while (!(readl(&base->cr2) & UCR2_SRST));
+	while (!(readl(&mxc_uart_base_surface->cr2) & UCR2_SRST));
 
-	if (use_dte)
-		writel(0x404 | UCR3_ADNIMP, &base->cr3);
-	else
-		writel(0x704 | UCR3_ADNIMP, &base->cr3);
+	writel(0x704 | UCR3_ADNIMP, &mxc_uart_base_surface->cr3);
 
-	writel(0x704 | UCR3_ADNIMP, &base->cr3);
-	writel(0x8000, &base->cr4);
-	writel(0x2b, &base->esc);
-	writel(0, &base->tim);
+	writel(0x704 | UCR3_ADNIMP, &mxc_uart_base_surface->cr3);
+	writel(0x8000, &mxc_uart_base_surface->cr4);
+	writel(0x2b, &mxc_uart_base_surface->esc);
+	writel(0, &mxc_uart_base_surface->tim);
 
-	writel(0, &base->ts);
+	writel(0, &mxc_uart_base_surface->ts);
 }
 
-static void surface_serial_setbaudrate(struct mxc_uart *base, unsigned long clk,
-			       unsigned long baudrate, bool use_dte)
+static void surface_serial_setbaudrate(unsigned long clk, unsigned long baudrate)
 {
 	u32 tmp;
 
 	tmp = RFDIV << UFCR_RFDIV_SHF;
-	if (use_dte)
-		tmp |= UFCR_DCEDTE;
-	else
-		tmp |= (TXTL << UFCR_TXTL_SHF) | (RXTL << UFCR_RXTL_SHF);
-	writel(tmp, &base->fcr);
+	tmp |= (TXTL << UFCR_TXTL_SHF) | (RXTL << UFCR_RXTL_SHF);
+	writel(tmp, &mxc_uart_base_surface->fcr);
 
-	writel(0xf, &base->bir);
-	writel(clk / (2 * baudrate), &base->bmr);
+	writel(0xf, &mxc_uart_base_surface->bir);
+	writel(clk / (2 * baudrate), &mxc_uart_base_surface->bmr);
 
-	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST,
-	       &base->cr2);
-	writel(UCR1_UARTEN, &base->cr1);
+	writel(UCR2_WS | UCR2_IRTS | UCR2_RXEN | UCR2_TXEN | UCR2_SRST, &mxc_uart_base_surface->cr2);
+	writel(UCR1_UARTEN, &mxc_uart_base_surface->cr1);
 }
 
 void surface_serial_putc(const char c)
 {
-	writel(c, mxc_uart_base_surface->txd);
+	writel(c, &mxc_uart_base_surface->txd);
 
 	// wait for transmitter to be ready
-	while (!(readl(mxc_uart_base_surface->ts) & UTS_TXEMPTY))
+	while (!(readl(&mxc_uart_base_surface->ts) & UTS_TXEMPTY))
 		WATCHDOG_RESET();
 }
 
 void surface_set_led(uint8_t boardId, uint8_t index, bool ledOn) {
-	char buf[6];
+	char buf[7];
 	
-	buf[0] = 0x80 + boardId;
-	buf[1] = 'L'; // LED
-	buf[2] = 0x80; // index fixed at 0x80 for LEDs
+	buf[0] = 0xFE; // startbyte
+	buf[1] = 0x80 + boardId;
+	buf[2] = 'L'; // LED
+	buf[3] = 0x80; // index fixed at 0x80 for LEDs
 	if (ledOn) {
-		buf[3] = index + 0x80;
+		buf[4] = index + 0x80;
 	}else{
-		buf[3] = index;
+		buf[4] = index;
 	}
 	
-	buf[4] = 0xFE;
+	buf[5] = 0xFE;
 	
 	// calculate checksum
-	uint8_t len = 5;
+	uint8_t len = 6;
 	int32_t sum = 0xFE;
 	for (uint8_t i = 0; i < (len - 1); i++) {
 		sum -= buf[i];
 	}
 	sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
 	
-	buf[5] = sum & 0x7F; // add checksum
+	buf[6] = sum & 0x7F; // add checksum
 	
 	// send data over ttymxc1 (UART2)
-	for (uint8_t i = 0; i < 6; i++) {
+	for (uint8_t i = 0; i < (len + 1); i++) {
 		surface_serial_putc(buf[i]);
 	}
 }
@@ -437,62 +429,62 @@ void surface_set_lcd(uint8_t boardId, uint8_t index, uint8_t color) {
 	// index = 0 ... 8
 	// color = 0=BLACK, 1=RED, 2=GREEN, 3=YELLOW, 4=BLUE, 5=PINK, 6=CYAN, 7=WHITE
 
-	char buf[31];
+	char buf[32];
 	
-	buf[0] = 0x80 + boardId;
-	buf[1] = 'D'; // display
-	buf[2] = index;
-	buf[3] = color & 0x0F;
+	buf[0] = 0xFE; // startbyte
+	buf[1] = 0x80 + boardId;
+	buf[2] = 'D'; // display
+	buf[3] = index;
+	buf[4] = color & 0x0F; // use only 4 bits (bit 0=R, 1=G, 2=B, 3=Inverted)
 	
 	// begin of script
-	buf[4] = 0xA0; // icon: 0xA0 -> no icon
-	buf[5] = 0; // icon X
-	buf[6] = 0; // icon Y
+	buf[5] = 0xA0; // icon: 0xA0 -> no icon
+	buf[6] = 0; // icon X
+	buf[7] = 0; // icon Y
 	
 	// transmit first text
-	buf[7] = 0x20 + 8; // small text = 0x00, large text = 0x20
-	buf[8] = 0; // text X
-	buf[9] = 0; // text Y
-	buf[10] = 'O';
-	buf[11] = 'p';
-	buf[12] = 'e';
-	buf[13] = 'n';
-	buf[14] = 'X';
-	buf[15] = '3';
-	buf[16] = '2';
-	buf[17] = '!';
+	buf[8] = 0x20 + 8; // small text = 0x00, large text = 0x20
+	buf[9] = 0; // text X
+	buf[10] = 0; // text Y
+	buf[11] = 'O';
+	buf[12] = 'p';
+	buf[13] = 'e';
+	buf[14] = 'n';
+	buf[15] = 'X';
+	buf[16] = '3';
+	buf[17] = '2';
+	buf[18] = '!';
 
 	// transmit second text
-	buf[18] = 0x00 + 8; // small text = 0x00, large text = 0x20
-	buf[19] = 0; // text X
-	buf[20] = 30; // text Y
-	buf[21] = 'B';
-	buf[22] = 'o';
+	buf[19] = 0x00 + 8; // small text = 0x00, large text = 0x20
+	buf[20] = 0; // text X
+	buf[21] = 30; // text Y
+	buf[22] = 'B';
 	buf[23] = 'o';
-	buf[24] = 't';
-	buf[25] = 'i';
-	buf[26] = 'n';
-	buf[27] = 'g';
-	buf[28] = ' ';
+	buf[24] = 'o';
+	buf[25] = 't';
+	buf[26] = 'i';
+	buf[27] = 'n';
+	buf[28] = 'g';
+	buf[29] = ' ';
 	
-	buf[29] = 0xFE;
+	buf[30] = 0xFE;
 	
 	// calculate checksum
-	uint8_t len = 30;
+	uint8_t len = 31;
 	int32_t sum = 0xFE;
 	for (uint8_t i = 0; i < (len - 1); i++) {
 		sum -= buf[i];
 	}
 	sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
 	
-	buf[30] = sum & 0x7F; // add checksum
+	buf[31] = sum & 0x7F; // add checksum
 	
 	// send data over ttymxc1 (UART2)
-	for (uint8_t i = 0; i < 31; i++) {
+	for (uint8_t i = 0; i < (len + 1); i++) {
 		surface_serial_putc(buf[i]);
 	}
 }
-*/
 
 /////////////////////////////////////////////////
 // end of functions for mxc-uart from serial_mxc.c
@@ -502,18 +494,16 @@ int board_late_init(void)
 {
 	mx25pdk_fec_init();
 	
-	/*
 	// init ttymxc1 (UART2) for surface-elements like LCDs, LEDs, faders and encoders
-	surface_serial_init(mxc_uart_base_surface, 0);
+	surface_serial_init();
 	u32 clk = imx_get_uartclk();
-	surface_serial_setbaudrate(mxc_uart_base_surface, clk, 115200, false);
+	surface_serial_setbaudrate(clk, 115200);
 
-	// enable USB-LED on X32RACK
-	surface_set_led(0, 0x05, false); // boardId, LED-index, state
+	// enable X32_LED_IN = 0x10
+	surface_set_led(0x00, 0x10, true); // boardId, LED-index, state
 
 	// set first LCD on board 0 and display text "OpenX32! Booting"
-	surface_set_lcd(0, 0, 2); // boardId, index
-	*/
+	surface_set_lcd(0, 0, 0b00000111); // boardId, index, color (bit 0=R, 1=G, 2=B, 3=Inverted)
 
 	return 0;
 }
