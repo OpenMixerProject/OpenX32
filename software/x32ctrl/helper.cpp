@@ -540,7 +540,41 @@ float Helper::rescale(float input, float inputMin, float inputMax, float outputM
     return (input - inputMin) * (outputMax - outputMin) / (inputMax - inputMin) + outputMin;
 }
 
-float math_log(float number, float base)
+String Helper::FpgaInputToString(uint input)
 {
-	return log(number) / log(base);
+	switch (input)
+	{
+		case FPGA_INPUT_IDX_OFF:
+			return "OFF";
+			break;
+		case FPGA_INPUT_IDX_XLR ... (FPGA_INPUT_IDX_CARD - 1):
+			return String("XLR In ") + input;
+			break;
+		case FPGA_INPUT_IDX_CARD ... (FPGA_INPUT_IDX_AUX - 1):
+			return String("Card In ") + (input - FPGA_INPUT_IDX_CARD + 1) ;
+			break;
+		case FPGA_INPUT_IDX_AUX ... (FPGA_INPUT_IDX_TALKBACK_INT - 1):
+			return String("AUX In ") + (input - FPGA_INPUT_IDX_AUX + 1);
+			break;
+		case FPGA_INPUT_IDX_TALKBACK_INT:
+			return String("TB Int");
+			break;
+		case FPGA_INPUT_IDX_TALKBACK_EXT:
+			return String("TB Ext");
+			break;
+		case FPGA_INPUT_IDX_DSP_RETURN ... (FPGA_INPUT_IDX_AES50A - 8 - 1):
+			return String("DSP Out ") + (input - FPGA_INPUT_IDX_DSP_RETURN + 1);
+			break;
+		case FPGA_INPUT_IDX_DSP_RETURN + 32 ... (FPGA_INPUT_IDX_AES50A - 1):
+			return String("DSP AuxOut ") + (input - (FPGA_INPUT_IDX_DSP_RETURN + 32) + 1);
+			break;
+		case FPGA_INPUT_IDX_AES50A ... (FPGA_INPUT_IDX_AES50B - 1):
+			return String("AES50A In ") + (input - FPGA_INPUT_IDX_AES50A + 1);
+			break;
+		case FPGA_INPUT_IDX_AES50B ... (FPGA_INPUT_IDX_AES50B + 48 - 1):
+			return String("AES50B In ") + (input - FPGA_INPUT_IDX_AES50B + 1);
+			break;
+		default:
+			return String("unknown idx") + input;
+	}
 }

@@ -140,4 +140,6 @@ class Helper {
         String intToHexString(int value);
         float rescale(float input, float inputMin, float inputMax, float outputMin, float outputMax);
         float math_log(float number, float base);
+
+        String FpgaInputToString(uint input);
 };
