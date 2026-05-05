@@ -78,6 +78,18 @@ void DSP1::SendChannelVolume(uint chanIndex)
     spi->QueueDspData(0, 'v', chanIndex, 0, 4, &values[0]);
 }
 
+void DSP1::SendChannelSolo(uint chanIndex, bool isSoloActivated)
+{
+    uint32_t values[2];
+
+    values[0] = config->GetBool(CHANNEL_SOLO, chanIndex);
+    values[1] = isSoloActivated;
+
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendChannelSolo() channelindex %d: %u, %u", chanIndex, values[0], values[1]);
+
+    spi->QueueDspData(0, 'v', chanIndex, 10, 2, (float*)&values[0]);
+}
+
 // send BusSends
 void DSP1::SendChannelSend(uint chanIndex)
 {
@@ -145,7 +157,21 @@ void DSP1::SendMixbusVolume(uint chanIndex)
     values[2] = balanceRight; // 0  .. 100 .. 100
     values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
 
-    spi->QueueDspData(0, 'v', chanIndex, 1, 4, &values[0]);
+    uint mixbusChannelIndex = 48;
+    spi->QueueDspData(0, 'v', chanIndex - mixbusChannelIndex, 1, 4, &values[0]);
+}
+
+void DSP1::SendMixbusSolo(uint chanIndex, bool isSoloActivated)
+{
+    uint32_t values[2];
+
+    values[0] = config->GetBool(CHANNEL_SOLO, chanIndex);
+    values[1] = isSoloActivated;
+
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMixbusSolo() channelindex %d: %u, %u", chanIndex, values[0], values[1]);
+
+    uint mixbusChannelIndex = 48;
+    spi->QueueDspData(0, 'v', chanIndex - mixbusChannelIndex, 11, 2, (float*)&values[0]);
 }
 
 void DSP1::SendMatrixVolume(uint chanIndex)
@@ -161,8 +187,22 @@ void DSP1::SendMatrixVolume(uint chanIndex)
         sendVol = config->GetFloat(CHANNEL_VOLUME, chanIndex);
     }
 
+    uint matrixChannelIndex = 64;
     values[0] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
-    spi->QueueDspData(0, 'v', chanIndex, 2, 1, &values[0]);
+    spi->QueueDspData(0, 'v', chanIndex - matrixChannelIndex, 2, 1, &values[0]);
+}
+
+void DSP1::SendMatrixSolo(uint chanIndex, bool isSoloActivated)
+{
+    uint32_t values[2];
+
+    values[0] = config->GetBool(CHANNEL_SOLO, chanIndex);
+    values[1] = isSoloActivated;
+
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMatrixSolo() channelindex %d: %u, %u", chanIndex, values[0], values[1]);
+
+    uint matrixChannelIndex = 64;
+    spi->QueueDspData(0, 'v', chanIndex - matrixChannelIndex, 12, 2, (float*)&values[0]);
 }
 
 void DSP1::SendMonitorVolume() {
@@ -201,6 +241,21 @@ void DSP1::SendMainVolume()
     values[2] = volumeSub;
 
     spi->QueueDspData(0, 'v', 0, 3, 3, &values[0]);
+}
+
+void DSP1::SendMainSolo(bool isSoloActivated)
+{
+    uint32_t values[3];
+
+    uint mainChannelIndex = 80;
+    uint subChannelIndex = 71;
+    values[0] = config->GetBool(CHANNEL_SOLO, mainChannelIndex);
+    values[2] = config->GetBool(CHANNEL_SOLO, subChannelIndex);
+    values[1] = isSoloActivated;
+
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMainSolo() channelindex %d: %u, %u, %u", 0, values[0], values[1], values[2]);
+
+    spi->QueueDspData(0, 'v', 0, 13, 3, (float*)&values[0]); // TODO: USE OFFSET
 }
 
 void DSP1::SendGate(uint chanIndex)
@@ -833,7 +888,7 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    //helper->DEBUG_DSP1(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback
@@ -1059,7 +1114,7 @@ void DSP1::callbackDsp2(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
     float* floatValues = (float*)values;
     uint32_t* intValues = (uint32_t*)values;
 
-    helper->DEBUG_DSP2(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
+    //helper->DEBUG_DSP2(DEBUGLEVEL_TRACE, "Callback - classid=%c channel=%c, index=%d, valueCount=%d", classId, channel, index, valueCount);
 
     switch (classId) {
         case 's': // status-feedback

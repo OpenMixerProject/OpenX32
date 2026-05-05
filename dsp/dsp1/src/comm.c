@@ -26,12 +26,34 @@
 
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
-	  SPI ClassIds:
-	  'v' = Volume
-	  'e' = PEQ
-	  'g' = Gate
-	  'c' = Compressor
-	  'a' = Auxiliary
+	SPI ClassIds:
+	====================
+	'?' request-class
+	'r' DSP-routing
+		index 0: input routing
+		index 1: output routing
+	't' set tap-points
+		index 0: channel-send-tappoint
+	'v' volume
+		index 0: dsp-channels
+		index 1: mixbus-channels
+		index 2: matrix-channels
+		index 3: main-channels
+		index 4: monitor-volume
+
+		index 10: solo dsp-channels
+		index 11: solo mixbus
+		index 12: solo matrix
+		index 13: solo main
+	's' sends to mixbus
+	'g' gate
+	'e' equalizer
+		index 'l': lowcut
+		index 'e': eq
+		index 'r': reset
+	'c' compressor
+	'a' auxiliary
+		index 0: led-control
 	*/
 
 	float* floatValues = (float*)values;
@@ -208,6 +230,42 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						dsp.monitorVolume = floatValues[0];
 					}
 					break;
+
+
+				case 10: // Solo DSP-Channel / FX-Return
+					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+						return;
+					}
+
+					if (valueCount == 2) {
+						dsp.dspChannel[channel].solo = (intValues[0] > 0);
+						dsp.soloActive = (intValues[1] > 0);
+					}
+
+					break;
+
+				case 11: // Solo Mixbus
+					if (channel >= MAX_MIXBUS) {
+						return;
+					}
+
+					if (valueCount == 2) {
+						dsp.mixbusChannel[channel].solo = (intValues[0] > 0);
+						dsp.soloActive = (intValues[1] > 0);
+					}
+					break;
+
+				case 12: // Solo Matrix
+					break;
+
+				case 13: // Solo Main
+					if (valueCount == 3) {
+						dsp.mainLrSolo = (intValues[0] > 0);
+						dsp.mainSubSolo = (intValues[1] > 0);
+						dsp.soloActive = (intValues[2] > 0);
+					}
+					break;
+
 				default:
 					break;
 			}

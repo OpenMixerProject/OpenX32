@@ -153,7 +153,6 @@ struct {
 	short monitorMixbusTapPoint;
 	short monitorMatrixTapPoint;
 	short monitorMainTapPoint;
-	short monitorTapPoint;
 	float monitorVolume;
 	bool soloActive;
 } dsp;

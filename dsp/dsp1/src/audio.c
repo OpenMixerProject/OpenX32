@@ -126,7 +126,11 @@ void audioInit(void) {
 	}
 
 	// initialize variables
-	dsp.monitorTapPoint = TAP_PRE_FADER; //TAP_INPUT
+	dsp.monitorChannelTapPoint = TAP_PRE_FADER;
+	dsp.monitorMixbusTapPoint = TAP_PRE_FADER;
+	dsp.monitorMatrixTapPoint = TAP_PRE_FADER;
+	dsp.monitorMainTapPoint = TAP_PRE_FADER;
+	dsp.monitorVolume = 1.0f;
 
 	// FX-Returns (0dBfs and set left/right to main)
 	for (int i = 40; i < (40 + 8); i += 2) {
@@ -790,7 +794,7 @@ void audioProcessData(void) {
 	if (dsp.soloActive) {
 		// accumulate the soloed channels pre-fader into MonitorL/R
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			float *src = &audioBuffer[dsp.monitorMainTapPoint][s][DSP_BUF_IDX_DSPCHANNEL];
+			float *src = &audioBuffer[dsp.monitorChannelTapPoint][s][DSP_BUF_IDX_DSPCHANNEL];
 		    float sum = 0;
 
 			for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
@@ -800,8 +804,8 @@ void audioProcessData(void) {
 			}
 
 			#if DEBUG_DISABLE_MIXBUS == 0
-			src = &audioBuffer[dsp.monitorMainTapPoint][s][DSP_BUF_IDX_MIXBUS];
-			for (int i_ch = 0; i_ch < MAX_MIXBUS; i_ch++) {
+			src = &audioBuffer[dsp.monitorMixbusTapPoint][s][DSP_BUF_IDX_MIXBUS];
+			for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
 				if (dsp.mixbusChannel[i_ch].solo) {
 					sum += src[i_ch];
 				}
@@ -823,8 +827,8 @@ void audioProcessData(void) {
 	}else{
 		// no soloed channels. Put MainL/R to MonitorL/R
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MONLEFT] = dsp.monitorVolume * audioBuffer[dsp.monitorMainTapPoint][s][DSP_BUF_IDX_MAINLEFT];
-			audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MONRIGHT] = dsp.monitorVolume * audioBuffer[dsp.monitorMainTapPoint][s][DSP_BUF_IDX_MAINRIGHT];
+			audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MONLEFT] = dsp.monitorVolume * audioBuffer[dsp.monitorMainTapPoint][s][DSP_BUF_IDX_MAINLEFT];
+			audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MONRIGHT] = dsp.monitorVolume * audioBuffer[dsp.monitorMainTapPoint][s][DSP_BUF_IDX_MAINRIGHT];
 		}
 	}
 

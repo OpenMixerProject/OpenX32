@@ -332,6 +332,34 @@ void Mixer::Sync(void)
         }
     }
 
+    filter = {CHANNEL_SOLO};
+    if (config->HasParametersChanged(filter))
+    {
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes(filter);
+        for (auto const& changedIndex : changedIndexes)
+        {
+            if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX))
+            {
+                dsp->SendChannelSolo(changedIndex, IsSoloActivated());
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::BUS))
+            {
+                dsp->SendMixbusSolo(changedIndex, IsSoloActivated());
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MATRIX))
+            {
+                dsp->SendMatrixSolo(changedIndex, IsSoloActivated());
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAINSUB)) {
+                dsp->SendMainSolo(IsSoloActivated());
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAIN)) {
+                dsp->SendMainSolo(IsSoloActivated());
+            }  
+        }
+    }
+
     if (config->HasParametersChanged(MP_CAT::CHANNEL_SENDS))
     { 
         vector<uint> changedIndexes = config->GetChangedParameterIndexes(MP_CAT::CHANNEL_SENDS);
