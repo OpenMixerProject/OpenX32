@@ -128,7 +128,7 @@ class PageHome : public Page
         {
             for (uint i = 0; i < MAX_DISPLAY_ENCODER; i++)
             {
-                float dbValue = helper->sample2Dbfs(mixer->dsp->rChannel[i].meterDecay);
+                float dbValue = helper->sample2Dbfs(mixer->dsp->rChannel[channelindex[i]].meterDecay);
                 uint imageOffset = helper->rescale(dbValue, -100.0f, 10.0f, 0.0f, 31.0f);
                 uint newImageOffset = imageOffset * -lv_obj_get_width(vumeters[i]);
              
