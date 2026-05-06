@@ -36,6 +36,46 @@ class PageMeters : public Page
             meterBlocks[8] = objects.meters_matrix;
         }
 
+        void OnChange(bool force_update) override
+        {
+            // Maybe TODO: Implement with loop over changed Mixerparameter
+
+            if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}) || force_update)
+            {
+                for(int m = 0; m < 9; m++)
+                {
+                    lv_obj_t* parent = meterBlocks[m];
+
+                    for(int i = 0; i < lv_obj_get_child_count(parent); i++)
+                    {
+                        uint8_t index = i+(m*8);
+
+                        lv_obj_t * strip;
+                        lv_obj_t * fader;
+                        bool isMainFader = index == (uint)X32_VCHANNEL_BLOCK::MAIN;
+
+                        if (isMainFader)
+                        {
+                            fader = objects.ms_main_lr__fader;
+                        }
+                        else
+                        {
+                            strip = lv_obj_get_child(parent, i);
+                            fader = lv_obj_get_child(strip, 6);   
+                        }
+
+                        UpdateSlider(index, force_update, fader);
+                    } 
+                } 
+                
+                // Main L/R
+                if (config->HasParametersChanged({CHANNEL_SOLO, CHANNEL_MUTE, CHANNEL_VOLUME}, (uint)X32_VCHANNEL_BLOCK::MAIN) || force_update)
+                {
+                    UpdateSlider((uint)X32_VCHANNEL_BLOCK::MAIN, force_update, objects.ms_main_lr__fader);
+                }
+            }
+        }
+
         void OnUpdateMeters() override
         {
 
