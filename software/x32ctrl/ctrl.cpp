@@ -136,7 +136,6 @@ void X32Ctrl::Init()
 	//#     EoDC - Default of Default X32Config :-)                                 #
 	//#                                                                          #
 	//############################################################################
-	
 
 	// DEBUG
 	if (state->raspi)
@@ -144,7 +143,6 @@ void X32Ctrl::Init()
 		// load X32 Core button definitions for DEBUG with RASPI
 		surface->LoadX32CoreDefinitions();
 	}
-
 
 	// X32Config
 	if(!mixer->LoadConfig(0))
@@ -154,25 +152,6 @@ void X32Ctrl::Init()
 		
 		mixer->SaveConfig(0);
 	}
-
-	// DEBUG Show CFG-Value
-	//config->Set(CHANNEL_NAME, String(cfg), to_underlying(X32_VCHANNEL_BLOCK::DCA));
-	//config->Set(CHANNEL_NAME, String(date), to_underlying(X32_VCHANNEL_BLOCK::DCA)+1);
-
-	// set brightness and contrast
-	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LED Brightness to %d", state->ledbrightness);
-    surface->SetBrightness(0, state->ledbrightness); // brightness of LEDs
-    surface->SetBrightness(1, state->ledbrightness);
-    surface->SetBrightness(4, state->ledbrightness);
-    surface->SetBrightness(5, state->ledbrightness);
-    surface->SetBrightness(8, state->ledbrightness);
-
-	Mixerparameter* parameter = config->GetParameter(LCD_CONTRAST);
-    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", parameter->GetUint());
-    surface->SetContrast(0, parameter->GetUint()); // contrast of LCDs
-    surface->SetContrast(4, parameter->GetUint());
-    surface->SetContrast(5, parameter->GetUint());
-    surface->SetContrast(8, parameter->GetUint());
 }
 
 // Load a Fader bank layout, e.g. LAYOUT_X32 or LAYOUT_USER
@@ -954,6 +933,31 @@ void X32Ctrl::syncSurface(bool fullSync)
 		}
 
 		LoadBank(X32BankTarget::BusSection, bank);
+	}
+
+	if (config->IsModelX32FullOrCompact())
+	{
+		if (config->HasParameterChanged(LCD_CONTRAST))
+		{
+			uint contrast = config->GetUint(LCD_CONTRAST);
+			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LCD Contrast to %d", contrast);
+			
+			surface->SetContrast(X32_BOARD_EXTRA, contrast);
+			surface->SetContrast(X32_BOARD_L, contrast);
+			surface->SetContrast(X32_BOARD_M, contrast);
+			surface->SetContrast(X32_BOARD_R, contrast);
+		}
+
+		if (config->HasParameterChanged(LED_BRIGHTNESS))
+		{
+			uint brightness = config->GetUint(LED_BRIGHTNESS);
+			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Set LED Brightness to %d", brightness);
+			
+			surface->SetBrightness(X32_BOARD_EXTRA, brightness);
+			surface->SetBrightness(X32_BOARD_L, brightness);
+			surface->SetBrightness(X32_BOARD_M, brightness);
+			surface->SetBrightness(X32_BOARD_R, brightness);
+		}
 	}
 
 	if (config->IsModelX32Rack())
