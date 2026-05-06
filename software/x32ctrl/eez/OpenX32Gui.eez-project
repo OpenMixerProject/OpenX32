@@ -8484,6 +8484,302 @@
                           "groupIndex": 0,
                           "tabName": "Routing",
                           "tabNameType": "literal"
+                        },
+                        {
+                          "objID": "190026ea-ff48-498c-f325-9b0e64de916a",
+                          "type": "LVGLTabWidget",
+                          "left": -11,
+                          "top": 148,
+                          "width": 800,
+                          "height": 382,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "47d26654-5a28-43d5-8d6a-8b96c6d53802",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "locked": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "ed257447-eabf-4f61-8bbe-f665028e1bc3",
+                              "type": "LVGLTableWidget",
+                              "left": 0,
+                              "top": 0,
+                              "width": 100,
+                              "height": 30,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "7103b055-b7f2-4c86-80c7-f3498c81c7a8",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_input_header",
+                              "leftUnit": "%",
+                              "topUnit": "%",
+                              "widthUnit": "%",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "52132508-a815-40c6-a202-76c6ce0f8ebd",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 2,
+                                      "pad_bottom": 2,
+                                      "pad_left": 2,
+                                      "pad_right": 2,
+                                      "pad_row": 2,
+                                      "pad_column": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            },
+                            {
+                              "objID": "01cac576-49ac-4cdc-bd6f-4f83ea64dbe5",
+                              "type": "LVGLTableWidget",
+                              "left": 0,
+                              "top": 30,
+                              "width": 100,
+                              "height": 290,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "c948649a-2527-47fe-eb15-d477a217b1f9",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_input",
+                              "leftUnit": "%",
+                              "topUnit": "px",
+                              "widthUnit": "%",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "9fa208c6-1a68-428d-a911-658864a71a09",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 10,
+                                      "pad_bottom": 2,
+                                      "pad_left": 10,
+                                      "pad_right": 10,
+                                      "pad_row": 0,
+                                      "pad_column": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": true,
+                          "clickableFlagType": "literal",
+                          "flagScrollbarMode": "",
+                          "flagScrollDirection": "",
+                          "scrollSnapX": "",
+                          "scrollSnapY": "",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "useStyle": "tab_nopad",
+                          "localStyles": {
+                            "objID": "c028157e-bf1f-45d0-ce8a-63c84a58ea9b"
+                          },
+                          "group": "",
+                          "groupIndex": 0,
+                          "tabName": "Inputs",
+                          "tabNameType": "literal"
+                        },
+                        {
+                          "objID": "6aa4db38-75a8-4bb9-f05b-100cb02bc482",
+                          "type": "LVGLTabWidget",
+                          "left": 0,
+                          "top": 0,
+                          "width": 800,
+                          "height": 382,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "08623d3b-dae1-47d1-8b1c-528178e84821",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "locked": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "ecf14ffb-a2d4-4a1b-91f1-c072f1073c0a",
+                              "type": "LVGLTableWidget",
+                              "left": 0,
+                              "top": 0,
+                              "width": 100,
+                              "height": 30,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "5be9c003-b40c-4f86-8016-9f05039b4137",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_output_header",
+                              "leftUnit": "%",
+                              "topUnit": "%",
+                              "widthUnit": "%",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "e07d3433-3112-4e92-977b-ce3816f7864c",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 2,
+                                      "pad_bottom": 2,
+                                      "pad_left": 2,
+                                      "pad_right": 2,
+                                      "pad_row": 2,
+                                      "pad_column": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            },
+                            {
+                              "objID": "0853e59f-2a8d-4fde-81df-fcc16c24e109",
+                              "type": "LVGLTableWidget",
+                              "left": 0,
+                              "top": 30,
+                              "width": 100,
+                              "height": 290,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "e28430c6-af3c-41c3-ec85-d45f97df159c",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "locked": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "table_routing_dsp_output",
+                              "leftUnit": "%",
+                              "topUnit": "px",
+                              "widthUnit": "%",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE|SCROLL_ON_FOCUS",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": true,
+                              "clickableFlagType": "literal",
+                              "flagScrollDirection": "",
+                              "scrollSnapX": "",
+                              "scrollSnapY": "",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "4de61457-bfaa-4ee9-cd15-2ae9d8128a04",
+                                "definition": {
+                                  "ITEMS": {
+                                    "DEFAULT": {
+                                      "pad_top": 10,
+                                      "pad_bottom": 2,
+                                      "pad_left": 10,
+                                      "pad_right": 10,
+                                      "pad_row": 0,
+                                      "pad_column": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "group": "",
+                              "groupIndex": 0
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": true,
+                          "clickableFlagType": "literal",
+                          "flagScrollbarMode": "",
+                          "flagScrollDirection": "",
+                          "scrollSnapX": "",
+                          "scrollSnapY": "",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "useStyle": "tab_nopad",
+                          "localStyles": {
+                            "objID": "bc44c61f-b185-4ae9-9086-8e355f6b45be"
+                          },
+                          "group": "",
+                          "groupIndex": 0,
+                          "tabName": "Outputs",
+                          "tabNameType": "literal"
                         }
                       ],
                       "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",

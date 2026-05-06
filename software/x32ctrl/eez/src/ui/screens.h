@@ -947,6 +947,10 @@ typedef struct _objects_t {
     lv_obj_t *obj55__lbl;
     lv_obj_t *obj55__lbl_footer;
     lv_obj_t *routing_fpga_source;
+    lv_obj_t *table_routing_dsp_input_header;
+    lv_obj_t *table_routing_dsp_input;
+    lv_obj_t *table_routing_dsp_output_header;
+    lv_obj_t *table_routing_dsp_output;
     lv_obj_t *setuptab;
     lv_obj_t *current_channel_source_4;
     lv_obj_t *current_channel_source_5;
