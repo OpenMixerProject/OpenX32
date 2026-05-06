@@ -352,7 +352,7 @@ struct mxc_uart {
 #define TXTL		2  // reset default
 #define RXTL		1  // reset default
 
-static void surface_serial_init()
+static void surface_serial_init(void)
 {
 	writel(0, &mxc_uart_base_surface->cr1);
 	writel(0, &mxc_uart_base_surface->cr2);
@@ -393,6 +393,18 @@ void surface_serial_putc(const char c)
 		WATCHDOG_RESET();
 }
 
+uint8_t surface_calculate_checksum(char* data, uint16_t len) {
+	// a single message can contain up to max. 64 chars
+	int32_t sum = 0xFE;
+	for (uint8_t i = 0; i < (len-1); i++) {
+	sum -= data[i];
+	}
+	sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
+
+	// write the calculated sum to the last element of the array
+	return (sum & 0x7F);
+}
+
 void surface_set_led(uint8_t boardId, uint8_t index, bool ledOn) {
 	char buf[7];
 	
@@ -407,16 +419,8 @@ void surface_set_led(uint8_t boardId, uint8_t index, bool ledOn) {
 	}
 	
 	buf[5] = 0xFE;
-	
-	// calculate checksum
 	uint8_t len = 6;
-	int32_t sum = 0xFE;
-	for (uint8_t i = 0; i < (len - 1); i++) {
-		sum -= buf[i];
-	}
-	sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
-	
-	buf[6] = sum & 0x7F; // add checksum
+	buf[6] = surface_calculate_checksum(&buf[0], 6);
 	
 	// send data over ttymxc1 (UART2)
 	for (uint8_t i = 0; i < (len + 1); i++) {
@@ -432,17 +436,10 @@ void surface_set_contrast(uint8_t boardId, uint8_t contrast) {
 	buf[2] = 'C'; // ControlMessage
 	buf[3] = 'C'; // index
 	buf[4] = contrast & 0x3F;
+	
 	buf[5] = 0xFE; // endbyte
-	
-	// calculate checksum
 	uint8_t len = 6;
-	int32_t sum = 0xFE;
-	for (uint8_t i = 0; i < (len - 1); i++) {
-		sum -= buf[i];
-	}
-	sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
-	
-	buf[6] = sum & 0x7F; // add checksum
+	buf[6] = surface_calculate_checksum(&buf[0], 6);
 	
 	// send data over ttymxc1 (UART2)
 	for (uint8_t i = 0; i < (len + 1); i++) {
@@ -494,17 +491,9 @@ void surface_set_lcd(uint8_t boardId, uint8_t index, uint8_t color) {
 	buf[28] = 'g';
 	buf[29] = ' ';
 	
-	buf[30] = 0xFE;
-	
-	// calculate checksum
+	buf[30] = 0xFE; // endbyte
 	uint8_t len = 31;
-	int32_t sum = 0xFE;
-	for (uint8_t i = 0; i < (len - 1); i++) {
-		sum -= buf[i];
-	}
-	sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
-	
-	buf[31] = sum & 0x7F; // add checksum
+	buf[31] = surface_calculate_checksum(&buf[0], len);
 	
 	// send data over ttymxc1 (UART2)
 	for (uint8_t i = 0; i < (len + 1); i++) {
@@ -530,7 +519,7 @@ int board_late_init(void)
 
 	// set first LCD on board 0 and display text "OpenX32! Booting"
 	surface_set_contrast(0, 40);
-	surface_set_lcd(0, 0, 0b00000111); // boardId, index, color (bit 0=R, 1=G, 2=B, 3=Inverted)
+	surface_set_lcd(0, 8, 0b00000111); // boardId=0=R, index=8=Mainfader, color (bit 0=R, 1=G, 2=B, 3=Inverted)
 
 	return 0;
 }
