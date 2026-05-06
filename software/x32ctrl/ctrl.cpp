@@ -2300,6 +2300,9 @@ void X32Ctrl::SimulatorButton(uint32_t key)
 		case 56:
 			//ShowPage(SCENES);
 			break;
+		case 40899:
+			config->Toggle(DISPLAY_UTILITY);
+			break;
 		case 57:
 			config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
 			break;

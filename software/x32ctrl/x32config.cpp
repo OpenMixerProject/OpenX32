@@ -252,20 +252,6 @@ void X32Config::DefineMixerparameters() {
 
     cat = MP_CAT::DISPLAY;
 
-    // DefParameter(DISPLAY_ENCODER_1_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_2_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_3_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_4_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_5_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_6_ENCODER, cat, "")->DefMinMaxStandard_Int(-10,10,0)->DefHideEncoderSlider();
-
-    // DefParameter(DISPLAY_ENCODER_1_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_2_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_3_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_4_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_5_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-    // DefParameter(DISPLAY_ENCODER_6_BUTTON, cat, "")->DefStandard_Bool(false)->DefHideEncoderSlider();
-
     DefParameter(DISPLAY_UTILITY, cat, "")->DefStandard_Bool(false);
 
     DefParameter(DISPLAY_LEFT, cat, "")->DefStandard_Bool(false);
