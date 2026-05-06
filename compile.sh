@@ -464,6 +464,8 @@ echo "| |__| | |_) |  __/ | | |/ . \\ ___) / /_ "
 echo " \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|"
 echo "       | |    https://www.openx32.com"
 echo "       |_|    "
+echo "OpenX32 ${GITREV} ${DATE} - https://www.OpenX32.com"
+echo ""
 echo "Your version of OpenX32 is ready and it smells like fresh bread rolls. Yummie."
 echo "The image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as /tmp/dcp_corefs_openx32.run"
 

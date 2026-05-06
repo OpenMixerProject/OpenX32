@@ -42,6 +42,7 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 	SendConfig();
 
 	AES50Counter = 0;
+	AES50Device = 'C'; // X32Fullsize
 }
 
 void Fpga::Init() {
@@ -473,7 +474,7 @@ void Fpga::AES50Receive(void) {
 
 // this function is called every 100ms
 void Fpga::AES50Tick() {
-	if (AES50Device < 65) {
+	if ((AES50Device < 65) || (AES50Device > 105)) {
 		AES50Device = 65;
 	}
 
@@ -485,7 +486,7 @@ void Fpga::AES50Tick() {
 		// send headamp-controls every 2 seconds
 		AES50Counter = 0;
 
-		AES50SendHeadampMessage();
+		//AES50SendHeadampMessage();
 
 		// flexMode: cycle through all known devices every 4 seconds
 		/*
@@ -514,10 +515,10 @@ void Fpga::AES50SendDeviceTypeAndProperty() {
 	// control is present
 	fpgaTxBufferUart[8] = '2'; // AES50 Ch 1-8 have headamp-controls
 	fpgaTxBufferUart[9] = '2'; // AES50 Ch 9-16 have headamp-controls
-	fpgaTxBufferUart[10] = '0'; // AES50 Ch 17-24 have no headamp-control in current device
-	fpgaTxBufferUart[11] = '0'; // AES50 Ch 25-32 have no headamp-control in current device
-	fpgaTxBufferUart[12] = '0'; // AES50 Ch 33-40 have no headamp-control in current device
-	fpgaTxBufferUart[13] = '0'; // AES50 Ch 41-48 have no headamp-control in current device
+	fpgaTxBufferUart[10] = '2'; // AES50 Ch 17-24 have headamp-controls
+	fpgaTxBufferUart[11] = '2'; // AES50 Ch 25-32 have headamp-controls
+	fpgaTxBufferUart[12] = '2'; // AES50 Ch 33-40 have headamp-controls
+	fpgaTxBufferUart[13] = '2'; // AES50 Ch 41-48 have headamp-controls
 
 	// byte-stuffing to have full divider by 4
 	fpgaTxBufferUart[14] = 0x00;
@@ -592,18 +593,21 @@ void Fpga::AES50SendHeadampMessage() {
 	// An S16/SD16 has settings between -2.0dB and 45.5dB resulting in 47.5dB range
 	// with 2.5dB steps -> 47.5 / 2.5 = 19. So we have settings between
 	// 0 = -2.0dB and 19 = 45.5dB
+
 	for (int i = 0; i < 48; i++) {
 		fpgaTxBufferUart[8 + i] = (uint8_t) roundf(gainMap(AES50HeadampGains[0][i], -2.0f, 45.5f, 0, 19));
 		if (AES50PhantomPowerState[0][i]) {
 			fpgaTxBufferUart[8 + i] |= 0x80;
 		}
 	}
-/*
+
+	/*
 	// set the gains to minimum value
 	for (int i = 0; i < 48; i++) {
 		fpgaTxBufferUart[8 + i] = 0;
 	}
-*/
+	*/
+
 	// a single 32-bit word with zeros for finalizing the message
 	fpgaTxBufferUart[56] = 0;
 	fpgaTxBufferUart[57] = 0;
