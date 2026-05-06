@@ -203,6 +203,7 @@ void audioProcessData(void) {
 	- 4x EQ:			11.5% for 32 4-band-EQs (=0.36% per EQ)
 	- Dynamics:			3.8%
 	- Channelfader:		%
+	- Mix-Bus (8x):     15%
 	- Main-Bus:			6.2%
 	- Interleaving:		%
 	- Remaining parts:	%

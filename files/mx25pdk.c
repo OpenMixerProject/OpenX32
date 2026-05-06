@@ -424,6 +424,32 @@ void surface_set_led(uint8_t boardId, uint8_t index, bool ledOn) {
 	}
 }
 
+void surface_set_contrast(uint8_t boardId, uint8_t contrast) {
+	char buf[7];
+	
+	buf[0] = 0xFE; // startbyte
+	buf[1] = 0x80 + boardId;
+	buf[2] = 'C'; // ControlMessage
+	buf[3] = 'C'; // index
+	buf[4] = contrast & 0x3F;
+	buf[5] = 0xFE; // endbyte
+	
+	// calculate checksum
+	uint8_t len = 6;
+	int32_t sum = 0xFE;
+	for (uint8_t i = 0; i < (len - 1); i++) {
+		sum -= buf[i];
+	}
+	sum -= (len - 3); // remove 2-byte HEADER (0xFE 0x8i) and 1-byte end (0xFE)
+	
+	buf[6] = sum & 0x7F; // add checksum
+	
+	// send data over ttymxc1 (UART2)
+	for (uint8_t i = 0; i < (len + 1); i++) {
+		surface_serial_putc(buf[i]);
+	}
+}
+
 void surface_set_lcd(uint8_t boardId, uint8_t index, uint8_t color) {
 	// boardId = 0, 4, 5, 8
 	// index = 0 ... 8
@@ -453,7 +479,7 @@ void surface_set_lcd(uint8_t boardId, uint8_t index, uint8_t color) {
 	buf[15] = 'X';
 	buf[16] = '3';
 	buf[17] = '2';
-	buf[18] = '!';
+	buf[18] = ' ';
 
 	// transmit second text
 	buf[19] = 0x00 + 8; // small text = 0x00, large text = 0x20
@@ -503,6 +529,7 @@ int board_late_init(void)
 	surface_set_led(0x00, 0x10, true); // boardId, LED-index, state
 
 	// set first LCD on board 0 and display text "OpenX32! Booting"
+	surface_set_contrast(0, 40);
 	surface_set_lcd(0, 0, 0b00000111); // boardId, index, color (bit 0=R, 1=G, 2=B, 3=Inverted)
 
 	return 0;
