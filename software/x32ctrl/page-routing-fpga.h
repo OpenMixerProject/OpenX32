@@ -36,6 +36,8 @@ class PageRoutingFpga: public Page
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_SHUFFLE) + String("\nSection"));
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_REFRESH) + String("\nSelect"));
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nSource"));
+
+            LoadMatrix();
         }
 
         void OnChange(bool force)
