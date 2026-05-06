@@ -1992,6 +1992,10 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(ASSIGN_10)                    ->DefButton(X32_BOARD_EXTRA, 0x0B);
         GetSurfaceElement(ASSIGN_11)                    ->DefButton(X32_BOARD_EXTRA, 0x0C);
         GetSurfaceElement(ASSIGN_12)                    ->DefButton(X32_BOARD_EXTRA, 0x0D);
+
+        GetSurfaceElement(ASSIGN_A)                     ->DefButton(X32_BOARD_EXTRA, 0x0E);
+        GetSurfaceElement(ASSIGN_B)                     ->DefButton(X32_BOARD_EXTRA, 0x0F);
+        GetSurfaceElement(ASSIGN_C)                     ->DefButton(X32_BOARD_EXTRA, 0x10);
         
         GetSurfaceElement(MUTE_GROUP_1)                 ->DefButton(X32_BOARD_EXTRA, 0x11);
         GetSurfaceElement(MUTE_GROUP_2)                 ->DefButton(X32_BOARD_EXTRA, 0x12);
