@@ -123,32 +123,41 @@ class PageRoutingDsp: public Page
 	 		}
 
 	 		// Header
-	 		lv_table_set_column_count(objects.table_routing_dsp_output_header, 5); // Input | # | Source | # | Tap | #
-	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 0, 400);
-	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 1, 50);
+	 		lv_table_set_column_count(objects.table_routing_dsp_output_header, 6); // Source | > | Tap | > | DSP-Output | Delay
+	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 0, 350);
+	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 1, 40);
 	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 2, 100);
-	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 3, 50);
+	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 3, 40);
 	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 4, 200);
+	 		lv_table_set_column_width(objects.table_routing_dsp_output_header, 5, 70);
             lv_table_set_cell_value(objects.table_routing_dsp_output_header, 0, 0, "Source");
-	 		lv_table_set_cell_value(objects.table_routing_dsp_output_header, 0, 2, "Tappoint");
+	 		lv_table_set_cell_value(objects.table_routing_dsp_output_header, 0, 2, "Tap");
             lv_table_set_cell_value(objects.table_routing_dsp_output_header, 0, 4, "DSP-Output");
+            lv_table_set_cell_value(objects.table_routing_dsp_output_header, 0, 5, "Delay");
 
             lv_obj_add_event_cb(objects.table_routing_dsp_output_header, draw_event_header_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
             lv_obj_add_flag(objects.table_routing_dsp_output_header, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
 	 		// Selection-Table
 	 		lv_table_set_row_count(objects.table_routing_dsp_output, (MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS)); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
-	 		lv_table_set_column_count(objects.table_routing_dsp_output, 5); // Input | # | Source | # | Tap | #
-	 		lv_table_set_column_width(objects.table_routing_dsp_output, 0, 400);
-	 		lv_table_set_column_width(objects.table_routing_dsp_output, 1, 50);
+	 		lv_table_set_column_count(objects.table_routing_dsp_output, 6); // Source | > | Tap | > | DSP-Output | Delay
+	 		lv_table_set_column_width(objects.table_routing_dsp_output, 0, 350);
+	 		lv_table_set_column_width(objects.table_routing_dsp_output, 1, 40);
 	 		lv_table_set_column_width(objects.table_routing_dsp_output, 2, 100);
-	 		lv_table_set_column_width(objects.table_routing_dsp_output, 3, 50);
+	 		lv_table_set_column_width(objects.table_routing_dsp_output, 3, 40);
 	 		lv_table_set_column_width(objects.table_routing_dsp_output, 4, 200);
+	 		lv_table_set_column_width(objects.table_routing_dsp_output, 5, 70);
 	 		for (uint8_t i=0; i < MAX_DSP1_TO_FPGA_CHANNELS + MAX_DSP1_TO_DSP2_CHANNELS; i++)
 	 		{
 	 			lv_table_set_cell_value(objects.table_routing_dsp_output, i, 0, config->GetParameter(ROUTING_DSP_OUTPUT)->GetFormatedValue(i).c_str());
 	 			lv_table_set_cell_value(objects.table_routing_dsp_output, i, 2, config->GetParameter(ROUTING_DSP_OUTPUT_TAPPOINT)->GetFormatedValue(i).c_str());
 	 			lv_table_set_cell_value(objects.table_routing_dsp_output, i, 4, mixer->dsp->RoutingGetOutputNameByIndex(i+1).c_str());
+
+                if (i < MAX_DSP1_TO_FPGA_CHANNELS) {
+	 			    lv_table_set_cell_value(objects.table_routing_dsp_output, i, 5, config->GetParameter(DELAY_DSP_OUTPUT)->GetFormatedValue(i).c_str());
+                }else{
+                    lv_table_set_cell_value(objects.table_routing_dsp_output, i, 5, "-");
+                }
 	 		}
 
 	 		lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 1, LV_SYMBOL_RIGHT);
@@ -166,8 +175,8 @@ class PageRoutingDsp: public Page
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_UP) + String("\nSelect\n") + LV_SYMBOL_DOWN);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_UP) + String("\nSelect (Group)\n") + LV_SYMBOL_DOWN);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, String(LV_SYMBOL_REFRESH) + String("\nSource"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, String(LV_SYMBOL_REFRESH) + String("\n (Group)"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nTAP"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, String(LV_SYMBOL_REFRESH) + String("\nTAP"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nDelay"));
 	 	}
 
 		void OnChange(bool force) override
@@ -230,18 +239,10 @@ class PageRoutingDsp: public Page
 					config->Change(ROUTING_DSP_OUTPUT, amount, gui_selected_item);
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_4:
-					int8_t absoluteChange;
-					if (amount < 0) {
-						absoluteChange = -8;
-					}else{
-						absoluteChange = 8;
-					}
-					for (uint8_t i = (gui_selected_item); i < (gui_selected_item + 8); i++) {
-						config->Change(ROUTING_DSP_OUTPUT, absoluteChange, i);
-					}
+					config->Change(ROUTING_DSP_OUTPUT_TAPPOINT, amount, gui_selected_item);
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_5:
-					config->Change(ROUTING_DSP_OUTPUT_TAPPOINT, amount, gui_selected_item);
+                    config->Change(DELAY_DSP_OUTPUT, amount, gui_selected_item);
                     break;
             }
         }
