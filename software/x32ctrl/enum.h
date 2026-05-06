@@ -502,6 +502,10 @@ enum class MP_ID {
     CARD_POSITION,
     CARD_STATE,
 
+    // Delay
+    DELAY_DSP_INPUT,
+    DELAY_DSP_OUTPUT,
+
     // Routing
 
     ROUTING_FPGA,

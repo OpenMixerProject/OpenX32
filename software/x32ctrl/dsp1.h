@@ -54,6 +54,8 @@ class DSP1 : X32Base {
         void ResetEq(uint8_t chan);
         void SendCompressor(uint8_t chanIndex);
 
+        void SetInputDelay(uint dspChannel);
+        void SetOutputDelay(uint dspChannel);
         void SetInputRouting(uint dspChannel);
         void SetOutputRouting(uint dspChannel);
         void ChannelSendTapPoints(uint chanIndex);

@@ -374,6 +374,24 @@ void Mixer::Sync(void)
         }
     }
 
+    if (config->HasParametersChanged({DELAY_DSP_OUTPUT}))
+    { 
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({DELAY_DSP_OUTPUT});
+        for (auto const& changedIndex : changedIndexes)
+        {
+            dsp->SetOutputDelay(changedIndex);
+        }
+    }
+
+    if (config->HasParametersChanged({DELAY_DSP_INPUT}))
+    { 
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({DELAY_DSP_INPUT});
+        for (auto const& changedIndex : changedIndexes)
+        {
+            dsp->SetInputDelay(changedIndex);
+        }
+    }
+
     if (config->HasParametersChanged({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}))
     { 
         vector<uint> changedIndexes = config->GetChangedParameterIndexes({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT});

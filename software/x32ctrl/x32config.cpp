@@ -194,6 +194,16 @@ void X32Config::DefineMixerparameters() {
     ->DefConfig(group, "dsp_output_tappoint")
     ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::POST_FADER);
 
+    DefParameter(DELAY_DSP_INPUT, cat, "Delay", MAX_FPGA_TO_DSP1_CHANNELS) // 40 routable DSP-input channels from FPGA
+    ->DefUOM(MP_UOM::MS)
+    ->DefConfig(group, "dsp_input_delay")
+    ->DefMinMaxStandard_Float(0, 500, 0, 1); // 0...500ms, Default: 0ms
+
+    DefParameter(DELAY_DSP_OUTPUT, cat, "Delay", MAX_DSP1_TO_FPGA_CHANNELS) // 40 routable DSP-output-channels with delay
+    ->DefUOM(MP_UOM::MS)
+    ->DefConfig(group, "dsp_output_delay")
+    ->DefMinMaxStandard_Float(0, 500, 0, 1); // 0...500ms, Default: 0ms
+
     // ########
     // # State
     // ########

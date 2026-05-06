@@ -45,6 +45,9 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 		index 11: solo mixbus
 		index 12: solo matrix
 		index 13: solo main
+	'd' delay
+		'i': input-delay
+		'o': output-delay
 	's' sends to mixbus
 	'g' gate
 	'e' equalizer
@@ -270,6 +273,22 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 			}
 			break;
+		#if DEBUG_DISABLE_DELAYLINE == 0
+		case 'd': // delay for input or output
+			if (channel >= MAX_CHAN_FPGA) {
+				return;
+			}
+
+			switch (index) {
+				case 'i': // input-delay
+					delayLineTailOffsetInput[channel] = intValues[0];
+					break;
+				case 'o': // output-delay
+					delayLineTailOffsetOutput[channel] = intValues[0];
+					break;
+			}
+			break;
+		#endif
 		case 's': // sends to Mixbus
 			if (valueCount == 16) {
 				if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {

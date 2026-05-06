@@ -398,7 +398,22 @@ void DSP1::SendCompressor(uint8_t chanIndex)
     spi->QueueDspData(0, 'c', chanIndex, 0, 6, &values[0]);
 }
 
+void DSP1::SetInputDelay(uint chanIndex)
+{
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "Hardware: DSP Input Delay for channelindex %d", chanIndex);
 
+    uint32_t values[1];
+    values[0] = (config->GetFloat(DELAY_DSP_INPUT, chanIndex) * (float)config->GetUint(SAMPLERATE) * 0.001f);
+    spi->QueueDspData(0, 'd', chanIndex, 'i', 1, (float*)&values[0]);
+}
+
+void DSP1::SetOutputDelay(uint chanIndex) {
+    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "Hardware: DSP Output Delay for channelindex %d", chanIndex);
+
+    uint32_t values[1];
+    values[0] = (config->GetFloat(DELAY_DSP_OUTPUT, chanIndex) * (float)config->GetUint(SAMPLERATE) * 0.001f);
+    spi->QueueDspData(0, 'd', chanIndex, 'o', 1, (float*)&values[0]);
+}
 
 void DSP1::SetInputRouting(uint chanIndex)
 {
