@@ -179,7 +179,10 @@ void guiInit(X32Config* config) {
 	{
 		config->Set(BANKING_INPUT, (uint)X32BankId::CH1_8);
 	}
-	config->Refresh(BANKING_BUS);
+	if (config->IsModelX32FullOrCompactOrProducer())
+	{
+		config->Refresh(BANKING_BUS);
+	}
 
 	// sync the Page
 	config->Refresh(ACTIVE_PAGE);
