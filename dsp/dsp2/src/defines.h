@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION					0.42
+#define DSP_VERSION					0.46
 #define FX_USE_REVERB				1	// this effect takes a lot of ressource so that Multiband-Compressor and DynamicEQ cannot be used at the moment
 #define FX_USE_DEFEEDBACK			1
 #define FX_USE_MULTIBANDCOMPRESSOR	0	// this effect takes a lot of ressources and cannot be used together with reverb
