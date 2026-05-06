@@ -59,6 +59,7 @@ class Helper {
         void ReverseBitOrderArray(uint8_t* data, uint32_t len);
         uint32_t ReverseBitOrder_uint32(uint32_t n);
         float Saturate(float value, float min, float max);
+        int CheckBoundaries(int value, int amount, int lowerbound, int upperbound);
 
         String getIpAddress();
 
@@ -140,6 +141,4 @@ class Helper {
         String intToHexString(int value);
         float rescale(float input, float inputMin, float inputMax, float outputMin, float outputMax);
         float math_log(float number, float base);
-
-        String FpgaInputToString(uint input);
 };

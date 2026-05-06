@@ -15,6 +15,9 @@ class PageRoutingFpga: public Page
         int selection_source = 0;
         int selection_source_item = 0;
 
+        uint current_targetblocksize = 0;
+        uint current_targetblockoffset = 0;
+
     public:
 
         PageRoutingFpga(PageBaseParameter* pagebasepar) : Page(pagebasepar)
@@ -48,17 +51,42 @@ class PageRoutingFpga: public Page
             switch (surface_element_id)
             {
                 case SurfaceElementId::DISPLAY_ENCODER_1:
-                    selection_target += amount;
+                    selection_target = helper->CheckBoundaries(selection_target, amount, 0, 5);
                     lv_roller_set_selected(objects.routing_fpga_target, selection_target, LV_ANIM_OFF);
                     LoadMatrix();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_2:
-                    selection_index += amount;
+                    selection_index = helper->CheckBoundaries(selection_index, amount, 0, current_targetblocksize-1);
                     LoadMatrix();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_5:
-                    selection_source += amount;
-                    lv_roller_set_selected(objects.routing_fpga_source, selection_source, LV_ANIM_OFF);
+                    {
+                        selection_source = helper->CheckBoundaries(selection_source, amount, 0, 4);
+                        lv_roller_set_selected(objects.routing_fpga_source, selection_source, LV_ANIM_OFF);
+
+                        uint item_index = 0;
+
+                        switch(selection_source)
+                        {
+                            case 0: // XLR
+                                item_index = FPGA_INPUT_IDX_XLR;
+                                break;
+                            case 1: // CARD
+                                item_index = FPGA_INPUT_IDX_CARD;
+                                break;
+                            case 2: // AUX
+                                item_index = FPGA_INPUT_IDX_AUX;
+                                break;
+                            case 3: // DSP
+                                item_index = FPGA_INPUT_IDX_DSP_RETURN;
+                                break;
+                            case 4: // AES50 A
+                                item_index = FPGA_INPUT_IDX_AES50A;
+                                break;
+                        }
+                        
+                        config->Set(ROUTING_FPGA, item_index, current_targetblockoffset + selection_index);
+                    }
                     break;
             }
         }
@@ -96,6 +124,9 @@ class PageRoutingFpga: public Page
                     break;
             }
 
+            current_targetblockoffset = targetblockoffset;
+            current_targetblocksize = targetblocksize;           
+
             for (uint i = 0; i < lv_obj_get_child_count(objects.routing_matrix); i++)
             {
                 lv_obj_t* routing_tile = lv_obj_get_child(objects.routing_matrix, i);
@@ -123,84 +154,43 @@ class PageRoutingFpga: public Page
                             break;
                     }
                 }
-                
+
+                lv_label_set_text(routing_tile_lbl_header, header.c_str());
+                lv_label_set_text(routing_tile_lbl, label.c_str());
+                lv_label_set_text(routing_tile_lbl_footer, footer.c_str());
+
                 if (i == selection_index)
                 {
                     lv_obj_set_state(routing_tile_lbl_header, LV_STATE_FOCUSED, true);
                     config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE, ROUTING_FPGA, i + targetblockoffset);
+
+                    // Update source block
+                    switch (config->GetUint(ROUTING_FPGA, i + targetblockoffset))
+                    {
+                        case FPGA_INPUT_IDX_XLR ... FPGA_INPUT_IDX_XLR + 31:
+                            selection_source = 0;
+                            break;
+                        case FPGA_INPUT_IDX_CARD ... FPGA_INPUT_IDX_CARD + 31:
+                            selection_source = 1;
+                            break;
+                        case FPGA_INPUT_IDX_AUX ... FPGA_INPUT_IDX_AUX + 7:
+                            selection_source = 2;
+                            break;
+                        case FPGA_INPUT_IDX_DSP_RETURN ... FPGA_INPUT_IDX_DSP_RETURN + 39:
+                            selection_source = 3;
+                            break;
+                        case FPGA_INPUT_IDX_AES50A ... FPGA_INPUT_IDX_AES50A + 47:
+                            selection_source = 4;
+                            break;
+                    }                    
+                    lv_roller_set_selected(objects.routing_fpga_source, selection_source, LV_ANIM_OFF);
                 }
                 else
                 {
                     lv_obj_set_state(routing_tile_lbl_header, LV_STATE_FOCUSED, false);
                 }
-
-                lv_label_set_text(routing_tile_lbl_header, header.c_str());
-                lv_label_set_text(routing_tile_lbl, label.c_str());
-                lv_label_set_text(routing_tile_lbl_footer, footer.c_str());
             }
 
             SyncEncoderWidgets(true);
         }
-
-        // void GenerateItemList()
-        // {
-        //     String itemName;
-        //     uint count = 0;
-
-        //     switch (gui_selected_block)
-        //     {
-        //         case 0:
-        //             itemName = "XLR";
-        //             count = (uint)X32_VCHANNEL_BLOCK_SIZE::NORMAL;
-        //             break;
-        //         case 1:
-        //             itemName = "AUX";
-        //             count = (uint)X32_VCHANNEL_BLOCK_SIZE::AUX;
-        //             break;
-        //         case 2:
-        //             itemName = "CARD";
-        //             count = 32;
-        //             break;
-        //         case 3:
-        //             itemName = "AES50 A";
-        //             count = 48;
-        //             break;
-        //     }
-
-        //     String itemstring;
-        //     for (uint i = 0; i < count; i++)
-        //     {
-        //         if (i != 0)
-        //         {
-        //             itemstring += "\n";
-        //         }
-
-        //         itemstring += String("XLR ") + String(i+1);
-        //     }
-        //     lv_roller_set_options(objects.routing_fpga_source_item, itemstring.c_str(), LV_ROLLER_MODE_NORMAL);
-        // }
-
-
-
-        // uint RoutingFPGA_BlockToOffset(uint block)
-        // {
-        //     uint offset = 0;
-        //     switch (gui_selected_block)
-        //     {
-        //         case 0: // XLR Input
-        //             offset = 0;
-        //             break;
-        //         case 1: // AUX Input
-        //             offset = 64;
-        //             break;
-        //         case 2: // Card input
-        //             offset = 32;
-        //             break;
-        //         case 3: // AES50 A
-        //             offset = 112;
-        //             break;
-        //     }
-
-        //     return offset;
-        // }
 };

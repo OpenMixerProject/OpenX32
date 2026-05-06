@@ -119,11 +119,13 @@ void Page::Change()
 void Page::ChangeCustomButton(SurfaceElementId surface_element_id)
 {
     OnChangeCustomButton(surface_element_id);
+    SyncEncoderWidgets(false);
 }
 
 void Page::ChangeCustomEncoder(SurfaceElementId surface_element_id, int amount)
 {
     OnChangeCustomEncoder(surface_element_id, amount);
+    SyncEncoderWidgets(false);
 }
 
 void Page::UpdateMeters() {
