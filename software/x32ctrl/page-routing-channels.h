@@ -110,6 +110,36 @@ class PageRoutingChannels: public Page
             }
         }
 
+        void UpdateRowSelection()
+        {
+	 		if(gui_selected_item_before != gui_selected_item)
+	 		{
+	 			if (gui_selected_item < 0)
+	 			{
+	 				// limit list at the top
+	 				gui_selected_item = 0;
+	 			}
+	 			else if (gui_selected_item >= 40) 
+	 			{
+	 				// limit list at the bottom
+	 				gui_selected_item = 40 - 1;
+	 			}
+			
+	 			// remove old indicator
+	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 1, " ");
+	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 3, " ");
+			
+	 			// display new indicator
+	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_RIGHT);
+	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_RIGHT);
+			
+	 			// set select to scroll table
+	 			lv_table_set_selected_cell(objects.table_routing_dsp_input, gui_selected_item, 2);
+			
+	 			gui_selected_item_before = gui_selected_item;
+	 		} 
+        }
+    
     public:
 
         PageRoutingChannels(PageBaseParameter* pagebasepar) : Page(pagebasepar)
@@ -178,40 +208,16 @@ class PageRoutingChannels: public Page
 	 	void OnShow() override
 	 	{
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_UP) + String("\nSelect\n") + LV_SYMBOL_DOWN);
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_UP) + String("\nSelect (Group)\n") + LV_SYMBOL_DOWN);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_UP) + String("\nSelect (8)\n") + LV_SYMBOL_DOWN);
+
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, String(LV_SYMBOL_REFRESH) + String("\nSource"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, String(LV_SYMBOL_REFRESH) + String("\n (Group)"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, String(LV_SYMBOL_REFRESH) + String("\nSource (8)"));
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nTAP"));
 	 	}
 
 		void OnChange(bool force) override
 		{
-	 		if(gui_selected_item_before != gui_selected_item)
-	 		{
-	 			if (gui_selected_item < 0)
-	 			{
-	 				// limit list at the top
-	 				gui_selected_item = 0;
-	 			}
-	 			else if (gui_selected_item >= 40) 
-	 			{
-	 				// limit list at the bottom
-	 				gui_selected_item = 40 - 1;
-	 			}
-			
-	 			// remove old indicator
-	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 1, " ");
-	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item_before, 3, " ");
-			
-	 			// display new indicator
-	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 1, LV_SYMBOL_RIGHT);
-	 			lv_table_set_cell_value(objects.table_routing_dsp_input, gui_selected_item, 3, LV_SYMBOL_RIGHT);
-			
-	 			// set select to scroll table
-	 			lv_table_set_selected_cell(objects.table_routing_dsp_input, gui_selected_item, 2);
-			
-	 			gui_selected_item_before = gui_selected_item;
-	 		} 
+            UpdateRowSelection();
 			
 	 		if(config->HasParametersChanged({ROUTING_DSP_INPUT, ROUTING_DSP_INPUT_TAPPOINT}) || force)
 	 		{
@@ -228,13 +234,14 @@ class PageRoutingChannels: public Page
 	 			}
 	 		}
 		}
-		
+
 		void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) override
         {
             switch (surface_element_id)
             {
                 case SurfaceElementId::DISPLAY_ENCODER_1:
 					gui_selected_item += amount;
+                    UpdateRowSelection();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_2:
 					if (amount < 0) {
@@ -242,6 +249,7 @@ class PageRoutingChannels: public Page
 					}else{
 						gui_selected_item += 8;
 					}
+                    UpdateRowSelection();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_3:
 					config->Change(ROUTING_DSP_INPUT, amount, gui_selected_item);

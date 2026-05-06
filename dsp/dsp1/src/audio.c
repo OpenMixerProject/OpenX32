@@ -64,8 +64,10 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 // internal buffers for audio-samples
 #if DEBUG_DISABLE_DELAYLINE == 0
 	// delay-lines in the external SDRAM
-	float em delayLineInput[SAMPLES_IN_DELAYLINE][MAX_CHAN_FPGA];
-	float em delayLineOutput[SAMPLES_IN_DELAYLINE][MAX_CHAN_FPGA];
+	//float em delayLineInput[SAMPLES_IN_DELAYLINE][MAX_CHAN_FPGA];
+	//float em delayLineOutput[SAMPLES_IN_DELAYLINE][MAX_CHAN_FPGA];
+	float (*delayLineInput)[MAX_CHAN_FPGA] = (float (*)[MAX_CHAN_FPGA])((void*)SDRAM_AUDIO_START);
+	float (*delayLineOutput)[MAX_CHAN_FPGA] = (float (*)[MAX_CHAN_FPGA])((void*)(SDRAM_AUDIO_START + (MAX_CHAN_FPGA * SAMPLES_IN_DELAYLINE * sizeof(float))));
 
 	int delayLineHeadInput;
 	int delayLineHeadOutput;
@@ -131,7 +133,7 @@ void audioInit(void) {
 	dsp.monitorChannelTapPoint = TAP_PRE_FADER;
 	dsp.monitorMixbusTapPoint = TAP_PRE_FADER;
 	dsp.monitorMatrixTapPoint = TAP_PRE_FADER;
-	dsp.monitorMainTapPoint = TAP_PRE_FADER;
+	dsp.monitorMainTapPoint = TAP_POST_FADER;
 	dsp.monitorVolume = 1.0f;
 
 	// FX-Returns (0dBfs and set left/right to main)
@@ -160,8 +162,10 @@ void audioInit(void) {
 		dsp.channelSendMainSubVolume[i + 1] = 0.0f;
 	}
 
-	delayLineHeadInput = 0;
-	delayLineHeadOutput = 0;
+	#if DEBUG_DISABLE_DELAYLINE == 0
+		delayLineHeadInput = 0;
+		delayLineHeadOutput = 0;
+	#endif
 }
 
 void audioSmoothVolume(void) {

@@ -378,14 +378,6 @@ void X32Ctrl::Tick100ms(void) {
 		}
 
 		if (startupCounter == 10) {
-/*
-			// re-upload DSPs
-			mixer->dsp->spi->CloseConnectionDsps();
-			mixer->dsp->spi->UploadBitstreamDsps(false); // use UI to show progress
-			mixer->dsp->spi->OpenConnectionDsps();
-			usleep(50000); // wait 50ms
-*/
-
 			// the gate, the dynamics and the EQ-settings are not loaded correctly on first load, so load it again after a short time
 			mixer->LoadConfig(0);
 
@@ -398,6 +390,12 @@ void X32Ctrl::Tick100ms(void) {
 				config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_DSPCHANNEL + (i / 2), 40 + i);
 				config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 40 + i);
 			}
+
+			// set AUX7/8 to MONITOR L/R
+			config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MONLEFT, 38);
+			config->Set(ROUTING_DSP_OUTPUT, DSP_BUF_IDX_MONRIGHT, 39);
+			config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 38);
+			config->Set(ROUTING_DSP_OUTPUT_TAPPOINT, to_underlying(DSP_TAP::POST_FADER), 39);
 
 			// set volume of FX-return to 0dBfs
 			for (int i = 0; i < 8; i++)

@@ -306,7 +306,8 @@ void Mixer::Sync(void)
         for (auto const& changedIndex : changedIndexes)
         {
             if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
-                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX))
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX) ||
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::FXRET))
             {
                 dsp->SendChannelVolume(changedIndex);
             }

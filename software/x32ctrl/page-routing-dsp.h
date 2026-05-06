@@ -106,6 +106,33 @@ class PageRoutingDsp: public Page
             }
         }
 
+        void UpdateRowSelection()
+        {
+	 		if (gui_selected_item_before != gui_selected_item)
+	 		{
+	 			if (gui_selected_item < 0) {
+	 				// limit list at the top
+	 				gui_selected_item = 0;
+	 			}else if (gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)) {
+	 				// limit list at the bottom
+	 				gui_selected_item = (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS) - 1;
+	 			}
+
+	 			// remove old indicator
+	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item_before, 1, " ");
+	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item_before, 3, " ");
+			
+	 			// display new indicator
+	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 1, LV_SYMBOL_RIGHT);
+	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 3, LV_SYMBOL_RIGHT);
+			
+	 			// set select to scroll table
+	 			lv_table_set_selected_cell(objects.table_routing_dsp_output, gui_selected_item, 2);
+			
+	 			gui_selected_item_before = gui_selected_item;
+	 		} 
+        }
+
     public:
         PageRoutingDsp(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::ROUTING_DSP1;
@@ -163,51 +190,30 @@ class PageRoutingDsp: public Page
 	 		lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 1, LV_SYMBOL_RIGHT);
 	 		lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 3, LV_SYMBOL_RIGHT);
 
-             lv_obj_add_event_cb(objects.table_routing_dsp_output, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
-             lv_obj_add_flag(objects.table_routing_dsp_output, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+            lv_obj_add_event_cb(objects.table_routing_dsp_output, draw_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+            lv_obj_add_flag(objects.table_routing_dsp_output, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
 
-             // store config pointer in user data for use in draw callback
-             lv_obj_set_user_data(objects.table_routing_dsp_output, &gui_selected_item);
+            // store config pointer in user data for use in draw callback
+            lv_obj_set_user_data(objects.table_routing_dsp_output, &gui_selected_item);
 	 	}
 
 	 	void OnShow() override
 	 	{
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_UP) + String("\nSelect\n") + LV_SYMBOL_DOWN);
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_UP) + String("\nSelect (Group)\n") + LV_SYMBOL_DOWN);
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_UP) + String("\nSelect (8)\n") + LV_SYMBOL_DOWN);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, String(LV_SYMBOL_REFRESH) + String("\nSource"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, String(LV_SYMBOL_REFRESH) + String("\nTAP"));
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nDelay"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, String(LV_SYMBOL_REFRESH) + String("\nSource (8)"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nTAP"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_6, String(LV_SYMBOL_REFRESH) + String("\nDelay"));
 	 	}
 
 		void OnChange(bool force) override
 		{
-	 		if (gui_selected_item_before != gui_selected_item)
+            UpdateRowSelection();
+            
+	 		if(config->HasParametersChanged({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT, DELAY_DSP_OUTPUT}) || force)
 	 		{
-	 			if (gui_selected_item < 0) {
-	 				// limit list at the top
-	 				gui_selected_item = 0;
-	 			}else if (gui_selected_item >= (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS)) {
-	 				// limit list at the bottom
-	 				gui_selected_item = (MAX_DSP1_TO_FPGA_CHANNELS+MAX_DSP1_TO_DSP2_CHANNELS) - 1;
-	 			}
-
-	 			// remove old indicator
-	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item_before, 1, " ");
-	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item_before, 3, " ");
-			
-	 			// display new indicator
-	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 1, LV_SYMBOL_RIGHT);
-	 			lv_table_set_cell_value(objects.table_routing_dsp_output, gui_selected_item, 3, LV_SYMBOL_RIGHT);
-			
-	 			// set select to scroll table
-	 			lv_table_set_selected_cell(objects.table_routing_dsp_output, gui_selected_item, 2);
-			
-	 			gui_selected_item_before = gui_selected_item;
-	 		} 
-			
-	 		if(config->HasParametersChanged({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}) || force)
-	 		{
-	 			for(auto const& index : config->GetChangedParameterIndexes({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT}))
+	 			for(auto const& index : config->GetChangedParameterIndexes({ROUTING_DSP_OUTPUT, ROUTING_DSP_OUTPUT_TAPPOINT, DELAY_DSP_OUTPUT}))
                 {
 	 				if ((config->GetUint(ROUTING_DSP_OUTPUT, index) >= 1) && (config->GetUint(ROUTING_DSP_OUTPUT, index) <= 40)) {
 	 					// external signal from FPGA
@@ -217,7 +223,13 @@ class PageRoutingDsp: public Page
 	 					lv_table_set_cell_value(objects.table_routing_dsp_output, index, 0, config->GetParameter(ROUTING_DSP_OUTPUT)->GetFormatedValue(index).c_str());
 	 				}
 	 				lv_table_set_cell_value(objects.table_routing_dsp_output, index, 2, config->GetParameter(ROUTING_DSP_OUTPUT_TAPPOINT)->GetFormatedValue(index).c_str());
-	 			}
+
+                    if (index < MAX_DSP1_TO_FPGA_CHANNELS) {
+                        lv_table_set_cell_value(objects.table_routing_dsp_output, index, 5, config->GetParameter(DELAY_DSP_OUTPUT)->GetFormatedValue(index).c_str());
+                    }else{
+                        lv_table_set_cell_value(objects.table_routing_dsp_output, index, 5, "-");
+                    }
+                }
 	 		}
 		}
 
@@ -227,6 +239,7 @@ class PageRoutingDsp: public Page
             {
                 case SurfaceElementId::DISPLAY_ENCODER_1:
 					gui_selected_item += amount;
+                    UpdateRowSelection();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_2:
 					if (amount < 0) {
@@ -234,15 +247,30 @@ class PageRoutingDsp: public Page
 					}else{
 						gui_selected_item += 8;
 					}
+                    UpdateRowSelection();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_3:
 					config->Change(ROUTING_DSP_OUTPUT, amount, gui_selected_item);
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_4:
-					config->Change(ROUTING_DSP_OUTPUT_TAPPOINT, amount, gui_selected_item);
+					int8_t absoluteChange;
+					if (amount < 0) {
+						absoluteChange = -8;
+					}else{
+						absoluteChange = 8;
+					}
+					for (uint8_t i = (gui_selected_item); i < (gui_selected_item + 8); i++) {
+						config->Change(ROUTING_DSP_OUTPUT, absoluteChange, i);
+					}
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_5:
-                    config->Change(DELAY_DSP_OUTPUT, amount, gui_selected_item);
+					config->Change(ROUTING_DSP_OUTPUT_TAPPOINT, amount, gui_selected_item);
+                    break;
+                case SurfaceElementId::DISPLAY_ENCODER_6:
+                    if ((gui_selected_item >= 0) && (gui_selected_item < MAX_DSP1_TO_FPGA_CHANNELS)) {
+                        // allow changes of DSP-Delay only on the first 40 channels
+                        config->Change(DELAY_DSP_OUTPUT, amount, gui_selected_item);
+                    }
                     break;
             }
         }
