@@ -171,7 +171,14 @@ void guiInit(X32Config* config) {
 	config->Refresh(SELECTED_CHANNEL);
 
 	// trigger load of banks
-	config->Refresh(BANKING_INPUT);
+	if (config->IsModelX32Full())
+	{
+		config->Set(BANKING_INPUT, (uint)X32BankId::CH1_16);
+	}
+	else if (config->IsModelX32CompactOrProducer())
+	{
+		config->Set(BANKING_INPUT, (uint)X32BankId::CH1_8);
+	}
 	config->Refresh(BANKING_BUS);
 
 	// sync the Surface
