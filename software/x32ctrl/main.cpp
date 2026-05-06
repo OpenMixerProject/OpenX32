@@ -181,6 +181,9 @@ void guiInit(X32Config* config) {
 	}
 	config->Refresh(BANKING_BUS);
 
+	// sync the Page
+	config->Refresh(ACTIVE_PAGE);
+
 	// sync the Surface
 	ctrl->syncSurface(true);
 
