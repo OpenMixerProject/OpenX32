@@ -62,24 +62,26 @@ int audioRxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16 | P16 Ch 1-8 | P16 Ch 9-16 | AUX Ch 1-8 | DSP2 1-24
 
 // internal buffers for audio-samples
+#if DEBUG_DISABLE_DELAYLINE == 0
+	// delay-lines in the external SDRAM
+	float em delayLineInput[SAMPLES_IN_DELAYLINE][MAX_CHAN_FPGA];
+	float em delayLineOutput[SAMPLES_IN_DELAYLINE][MAX_CHAN_FPGA];
+
+	int delayLineHeadInput;
+	int delayLineHeadOutput;
+	int delayLineTailOffsetInput[MAX_CHAN_FPGA]; // offset = (delayMs * sampleRate / 1000)
+	int delayLineTailOffsetOutput[MAX_CHAN_FPGA]; // offset = (delayMs * sampleRate / 1000)
+#endif
+
 #pragma align 8 // align for 2 floats
 float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR]; // audioBuffer[TAPPOINT][SAMPLE][CHANNEL]
-float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
+//float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 //float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 float sampleBuffer[SAMPLES_IN_BUFFER]; // main channels can be calculated only after the other channels, so we can save some memory here
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
 int audioRx_tcb[8][BUFFER_COUNT][4];
 int audioTx_tcb[8][BUFFER_COUNT][4];
-
-#if DEBUG_DISABLE_DELAYLINE == 0
-	// delay-lines in the external SDRAM
-	#pragma align 4
-	#pragma circular_buffer
-	float em audioBufferInput[SAMPLES_IN_DELAYLINE][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR];
-	int delayLineHead;
-	int delayLineTailOffset[1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR]; // offset = (delayMs * sampleRate / 1000)
-#endif
 
 void audioInit(void) {
 	// initialize TCB-array with multi-buffering
@@ -157,6 +159,9 @@ void audioInit(void) {
 		dsp.channelSendMainRightVolume[i + 1] = 0.0f;
 		dsp.channelSendMainSubVolume[i + 1] = 0.0f;
 	}
+
+	delayLineHeadInput = 0;
+	delayLineHeadOutput = 0;
 }
 
 void audioSmoothVolume(void) {
@@ -213,13 +218,13 @@ void audioProcessData(void) {
 
 	audioSmoothVolume();
 
-	//  ___                   _     ____             _   _
-	// |_ _|_ __  _ __  _   _| |_  |  _ \ ___  _   _| |_(_)_ __   __ _
-	//  | || '_ \| '_ \| | | | __| | |_) / _ \| | | | __| | '_ \ / _` |
-	//  | || | | | |_) | |_| | |_  |  _ < (_) | |_| | |_| | | | | (_| |
-	// |___|_| |_| .__/ \__,_|\__| |_| \_\___/ \__,_|\__|_|_| |_|\__, |
-	//           |_|                                             |___/
-	// copy interleaved DMA input-buffer into channel buffers
+	//  ____        _          ___                   _
+	// |  _ \  __ _| |_ __ _  |_ _|_ __  _ __  _   _| |_
+	// | | | |/ _` | __/ _` |  | || '_ \| '_ \| | | | __|
+	// | |_| | (_| | || (_| |  | || | | | |_) | |_| | |_
+	// |____/ \__,_|\__\__,_| |___|_| |_| .__/ \__,_|\__|
+	//                                  |_|
+    // copy interleaved DMA input-buffer into channel buffers
 	sampleOffset = 0;
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		bufferSampleIndex = audioBufferOffset + sampleOffset;
@@ -236,11 +241,7 @@ void audioProcessData(void) {
 
 				// input from FPGA side (we are receiving int32_t data here)
 				// TODO: check if we can use DMA to convert and copy data to destination
-				#if DEBUG_DISABLE_DELAYLINE == 1
-					audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSPCHANNEL + dspCh] = (float)audioRxBuf[bufferIndex]; // copy int32_t-data to dsp channel as float
-				#else
-					audioBufferInput[delayLineHead][DSP_BUF_IDX_DSPCHANNEL + dspCh] = (float)audioRxBuf[bufferIndex]; // copy int32_t-data to dsp channel as float
-				#endif
+				audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSPCHANNEL + dspCh] = (float)audioRxBuf[bufferIndex]; // copy int32_t-data to dsp channel as float
 			}
 
 			tdmOffset += CHANNELS_PER_TDM;
@@ -255,11 +256,7 @@ void audioProcessData(void) {
 
 			// input from DSP2 side (we are receiving float data here)
 			// TODO: use DMA to store data in the destination as we already receive float-values
-			#if DEBUG_DISABLE_DELAYLINE == 1
-				memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FX + dspCh], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
-			#else
-				memcpy(&audioBufferInput[delayLineHead][DSP_BUF_IDX_DSP2_FX + dspCh], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
-			#endif
+			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FX + dspCh], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
 
 			dspCh += CHANNELS_PER_TDM;
 			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
@@ -269,36 +266,11 @@ void audioProcessData(void) {
 
 			// input from DSP2 side (we are receiving float data here)
 			// TODO: use DMA to store data in the destination as we already receive float-values
-			#if DEBUG_DISABLE_DELAYLINE == 1
-				memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_AUX], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
-			#else
-				memcpy(&audioBufferInput[delayLineHead][DSP_BUF_IDX_DSP2_AUX], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
-			#endif
+			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_AUX], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
 		}
 
 		sampleOffset += CHANNELS_PER_TDM;
-		#if DEBUG_DISABLE_DELAYLINE == 0
-			delayLineHead++;
-		#endif
 	}
-
-	#if DEBUG_DISABLE_DELAYLINE == 0
-		// copy data from delay-line
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			for (int i_ch = 0; i_ch < (1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR); i_ch++) {
-				// calculate the indices
-				int offset = delayLineTailOffset[i_ch];
-				int tailIdx = (delayLineHead + s - offset);
-
-				// use explicit modulo, so compiler can optimize this to Hardware-Circular-Logic
-				// if SAMPLES_IN_DELAYLINE is a power of 2, the compiler will use bitmasking
-				if (tailIdx < 0) tailIdx += SAMPLES_IN_DELAYLINE;
-				else if (tailIdx >= SAMPLES_IN_DELAYLINE) tailIdx -= SAMPLES_IN_DELAYLINE;
-
-				audioBuffer[TAP_INPUT][s][i_ch] = audioBufferInput[tailIdx][i_ch];
-			}
-		}
-	#endif
 
 	//   ____ _   _    _    _   _ _   _ _____ _     ____ _____ ____  ___ ____
 	//  / ___| | | |  / \  | \ | | \ | | ____| |   / ___|_   _|  _ \|_ _|  _ \
@@ -330,6 +302,41 @@ void audioProcessData(void) {
 	// vecvmltf(input_a[], input_b[], output[], sampleCount)
 	// vecsmltf(input_a[], scalar, output[], sampleCount)
 
+	//  ___                   _     ____       _                  __  ____             _   _
+	// |_ _|_ __  _ __  _   _| |_  |  _ \  ___| | __ _ _   _     / / |  _ \ ___  _   _| |_(_)_ __   __ _
+	//  | || '_ \| '_ \| | | | __| | | | |/ _ \ |/ _` | | | |   / /  | |_) / _ \| | | | __| | '_ \ / _` |
+	//  | || | | | |_) | |_| | |_  | |_| |  __/ | (_| | |_| |  / /   |  _ < (_) | |_| | |_| | | | | (_| |
+	// |___|_| |_| .__/ \__,_|\__| |____/ \___|_|\__,_|\__, | /_/    |_| \_\___/ \__,_|\__|_|_| |_|\__, |
+	//           |_|                                   |___/                                       |___/
+	#if DEBUG_DISABLE_DELAYLINE == 0
+		// route desired input-sources to one of the 40 delay-lines
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
+				delayLineInput[delayLineHeadInput][i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
+
+				// copy the delayed signal to the DSP-channel
+				int tail = delayLineHeadInput - delayLineTailOffsetInput[i_ch]; // each channel may have different delays
+				if (tail < 0) {
+					tail += SAMPLES_IN_DELAYLINE;
+				}
+				audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = delayLineInput[tail][i_ch];
+			}
+
+			// increase head of circular buffer for next sample
+			delayLineHeadInput++;
+			if (delayLineHeadInput >= SAMPLES_IN_DELAYLINE) {
+				delayLineHeadInput = 0;
+			}
+		}
+	#else
+		// route desired input-sources to one of the 40 DSP-channels directly
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
+				audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
+			}
+		}
+	#endif
+
 	#if DEBUG_DISABLE_LOWCUT == 0
 	//				  _                            _
 	//				 | |    _____      _____ _   _| |_
@@ -342,16 +349,10 @@ void audioProcessData(void) {
 		// output = coeff * (zoutput + input - zinput)
 		for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
 			// The input of the lowcut can be choosen: either the direct input or another channel
-			float sample = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
-
-			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = dsp.lowcutCoeff[i_ch] * (dsp.lowcutStatesOutput[i_ch] + sample - dsp.lowcutStatesInput[i_ch]);
-			dsp.lowcutStatesInput[i_ch] = sample; // zinput = input
+			float input = audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch];
+			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = dsp.lowcutCoeff[i_ch] * (dsp.lowcutStatesOutput[i_ch] + input - dsp.lowcutStatesInput[i_ch]);
+			dsp.lowcutStatesInput[i_ch] = input; // zinput = input
 			dsp.lowcutStatesOutput[i_ch] = audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch]; // zoutput = output
-		}
-
-		// copy data for the non-fullfeatured channels to the TAP_PRE_EQ directly without processing
-		for (int i_ch = MAX_CHAN_FULLFEATURED; i_ch < MAX_CHAN_FPGA; i_ch++) {
-			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
 		}
 
 		/*
@@ -371,12 +372,6 @@ void audioProcessData(void) {
 		vecvmltf(&dsp.lowcutCoeff[0], &audioTempBufferChanA[0], &dsp.lowcutStatesOutput[0], MAX_CHAN_FULLFEATURED); // zoutput = coeff * temp
 		memcpy(&audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.lowcutStatesOutput[0], MAX_CHAN_FULLFEATURED * sizeof(float)); // output = zoutput
 		*/
-	}
-	#else
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
-			audioBuffer[TAP_PRE_EQ][s][DSP_BUF_IDX_DSPCHANNEL + i_ch] = audioBuffer[dsp.inputTapPoint[i_ch]][s][dsp.inputRouting[i_ch]];
-		}
 	}
 	#endif
 
@@ -834,12 +829,13 @@ void audioProcessData(void) {
 
 	// ========================================================
 
-	//   ___        _               _     ____             _   _
-	//  / _ \ _   _| |_ _ __  _   _| |_  |  _ \ ___  _   _| |_(_)_ __   __ _
-	// | | | | | | | __| '_ \| | | | __| | |_) / _ \| | | | __| | '_ \ / _` |
-	// | |_| | |_| | |_| |_) | |_| | |_  |  _ < (_) | |_| | |_| | | | | (_| |
-	//  \___/ \__,_|\__| .__/ \__,_|\__| |_| \_\___/ \__,_|\__|_|_| |_|\__, |
-	//                 |_|                                             |___/
+	//  ____             _   _                  __   ___        _               _     ____       _
+	// |  _ \ ___  _   _| |_(_)_ __   __ _     / /  / _ \ _   _| |_ _ __  _   _| |_  |  _ \  ___| | __ _ _   _
+	// | |_) / _ \| | | | __| | '_ \ / _` |   / /  | | | | | | | __| '_ \| | | | __| | | | |/ _ \ |/ _` | | | |
+	// |  _ < (_) | |_| | |_| | | | | (_| |  / /   | |_| | |_| | |_| |_) | |_| | |_  | |_| |  __/ | (_| | |_| |
+	// |_| \_\___/ \__,_|\__|_|_| |_|\__, | /_/     \___/ \__,_|\__| .__/ \__,_|\__| |____/ \___|_|\__,_|\__, |
+	//                               |___/                         |_|                                   |___/
+
 	// copy channel buffers to interleaved output-buffer
 	sampleOffset = 0;
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
@@ -855,13 +851,33 @@ void audioProcessData(void) {
 				dspCh = tdmOffset + i_ch;
 				bufferIndex = (bufferTdmIndex + i_ch);
 
-				// output to FPGA as int32_t
-				audioTxBuf[bufferIndex] = audioBuffer[dsp.outputTapPoint[dspCh]][s][dsp.outputRouting[dspCh]];
+				#if DEBUG_DISABLE_DELAYLINE == 0
+					// output with delay
+					delayLineOutput[delayLineHeadOutput][dspCh] = audioBuffer[dsp.outputTapPoint[dspCh]][s][dsp.outputRouting[dspCh]];
+
+					// copy the delayed signal to the output
+					int tail = delayLineHeadOutput - delayLineTailOffsetOutput[dspCh];
+					if (tail < 0) {
+						tail += SAMPLES_IN_DELAYLINE;
+					}
+					audioTxBuf[bufferIndex] = delayLineOutput[tail][dspCh];
+				#else
+					// output to FPGA as int32_t
+					audioTxBuf[bufferIndex] = audioBuffer[dsp.outputTapPoint[dspCh]][s][dsp.outputRouting[dspCh]];
+				#endif
 			}
 
 			tdmOffset += CHANNELS_PER_TDM;
 			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
+
+		#if DEBUG_DISABLE_DELAYLINE == 0
+			// increase head of circular buffer for next sample
+			delayLineHeadOutput++;
+			if (delayLineHeadOutput >= SAMPLES_IN_DELAYLINE) {
+				delayLineHeadOutput = 0;
+			}
+		#endif
 
 		// copy data for DSP2
 		// keep values of tdmOffset and tdmBufferOffset from previous loop

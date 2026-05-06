@@ -31,7 +31,8 @@
 
 #define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 
-#define SDRAM_START  			0x04000000	// start address of SDRAM
+#define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
+#define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)
 #define SDRAM_SIZE	 			0x00400000	// size of SDRAM in 32-bit words (16 MiB)
 
 #define MAX_CHAN_FPGA			40	// total channels that are received from FPGA
