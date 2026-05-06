@@ -234,11 +234,11 @@ void X32Config::DefineMixerparameters() {
 
     DefParameter(BANKING_INPUT, cat, "Banking Input Section")
     ->DefHideEncoderReset()
-    ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 0);
+    ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 1);
 
     DefParameter(BANKING_BUS, cat, "Banking Bus Section")
     ->DefHideEncoderReset()
-    ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 0);
+    ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 13);
 
     DefParameter(BANKING_BUS_SENDS, cat, "Banking Bus Sends")
     ->DefHideEncoderReset()

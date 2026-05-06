@@ -1830,6 +1830,8 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 		return;
 	}
 
+	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Load Bank %d to section %d", id, target);
+
 	X32Bank* bank_to_load = banks[(uint)id];
 
 	if (target == X32BankTarget::InputSection)

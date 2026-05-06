@@ -168,11 +168,14 @@ void guiInit(X32Config* config) {
 	ctrl->InitPagesAndGUI();
 
 	// trigger first update of display header
-	config->Refresh(MP_ID::SELECTED_CHANNEL);
+	config->Refresh(SELECTED_CHANNEL);
+
+	// trigger load of banks
+	config->Refresh(BANKING_INPUT);
+	config->Refresh(BANKING_BUS);
 
 	// sync the Surface
 	ctrl->syncSurface(true);
-
 
 
 	if (state->bodyless)
