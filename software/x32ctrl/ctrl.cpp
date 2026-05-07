@@ -5,6 +5,7 @@ X32Ctrl::X32Ctrl(X32BaseParameter* basepar) : X32Base(basepar)
 	mixer = new Mixer(basepar);
 	surface = new Surface(basepar);
 	xremote = new XRemote(basepar);
+	wsm = new WSM(basepar);
 	lcdmenu = new LcdMenu(basepar, mixer, surface); // only used for X32Core (at the moment, maybe later for assing-section?)
 
 	#if ENABLE_ARTNET
@@ -69,6 +70,10 @@ void X32Ctrl::Init()
 
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "xremote->Init()");
 	xremote->Init();
+
+	helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "wsm->Init()");
+	wsm->Init();
+
 
 	if (config->IsModelX32Core()) {
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "lcdmenu->Init()");
@@ -276,6 +281,10 @@ void X32Ctrl::Tick10ms(void)
 	// communication with XRemote-clients via UDP (X32-Edit, MixingStation, etc.)
 	//UdpHandleCommunication();
 
+	// communication with Sennheiser Media Control Protocol
+	UdpHandleCommunication_WSM();
+
+
 	// sync if any Mixerparameter has changed
 	if (config->HasAnyParameterChanged())
 	{
@@ -321,7 +330,8 @@ void X32Ctrl::Tick50ms(void)
 #endif
 }
 
-void X32Ctrl::Tick100ms(void) {
+void X32Ctrl::Tick100ms(void)
+{
 	static float dspLoadHistory[2][20];
 	static uint8_t dspLoadHistoryPointer = 0;
 	static uint8_t startupCounter = 0;
@@ -330,6 +340,9 @@ void X32Ctrl::Tick100ms(void) {
 
 	// Led Blinking
 	surface->Blink();
+
+	// request data from all known clients
+	wsm->RequestDataFromClients();
 
 	// DSP-Activity Light
     if (!(state->dsp_disable_activity_light)) {
@@ -658,6 +671,31 @@ void X32Ctrl::UdpHandleCommunication(void) {
 	}
 
 
+}
+
+// receive data from WSM client
+void X32Ctrl::UdpHandleCommunication_WSM()
+{
+    char rxData[500];
+    int bytes_available = 0;
+    uint8_t channel;
+    data_32b value32bit;
+	struct sockaddr_in ClientAddr;
+    
+    // check for bytes in UDP-buffer
+    int result = ioctl(wsm->UdpHandle, FIONREAD, &bytes_available);
+    if (bytes_available > 0) {
+        socklen_t wsmClientAddrLen = sizeof(ClientAddr);
+        uint8_t len = recvfrom(wsm->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &ClientAddr, &wsmClientAddrLen);
+
+		String clientIp = inet_ntoa(ClientAddr.sin_addr);
+		String message = String(rxData);
+		message.replace("\r", "\r\n");
+
+		helper->DEBUG_XREMOTE(DEBUGLEVEL_NORMAL, "Sennheiser Media Control Protocoll (%s): %s", clientIp.c_str(), message.c_str());
+	}
+
+	
 }
 
 

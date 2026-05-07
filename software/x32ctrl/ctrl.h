@@ -7,6 +7,7 @@
 #include "state.h"
 #include "mixer.h"
 #include "xremote.h"
+#include "wsm.h"
 
 #if ENABLE_ARTNET
     #include "artnet.h"
@@ -71,6 +72,7 @@ class X32Ctrl : public X32Base
         Mixer* mixer;
         Surface* surface;
         XRemote* xremote;
+        WSM* wsm;
         LcdMenu* lcdmenu;
         #if ENABLE_ARTNET
         Artnet* artnet;
@@ -123,6 +125,7 @@ class X32Ctrl : public X32Base
         void Tick50ms(void);
         void Tick100ms(void);
         void UdpHandleCommunication(void);
+        void UdpHandleCommunication_WSM(void);
 
         void InitPagesAndGUI();
         bool ShowPrevPage();
