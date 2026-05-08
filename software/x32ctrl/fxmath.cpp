@@ -292,17 +292,12 @@ void FxMath::fxCalcParameters_TransientShaper(float data[], float tFastMs, float
   data[5] = (delayMs * samplerate / 1000.0f); // 1ms
 }
 
-void FxMath::fxCalcParameters_Overdrive(float data[], float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
+void FxMath::fxCalcParameters_Overdrive(float data[], float preGain, float Q, float bias, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
   float samplerate = config->GetUint(MP_ID::SAMPLERATE);
 
-	data[0] = preGain;
+	data[0] = powf(10.0f, preGain/20.0f);
 	data[1] = Q;
-
-	float denum = 1.0f - exp(8.0f * Q);
-	if (denum != 0) {
-		data[2] = Q / denum;
-	}
-
+	data[2] = bias;
 	data[3] = 1.0f / (1.0f + 2.0f * PI * hpfInputFreq * (1.0f/samplerate)); // 1.0f / (1.0f + 2.0f * (float)M_PI * f_c * (1.0f/f_s))
 	data[4] = (2.0f * PI * lpfInputFreq) / (samplerate + 2.0f * PI * lpfInputFreq); // (2.0f * (float)M_PI * f_c) / (f_s + 2.0f * (float)M_PI * f_c)
 	data[5] = (2.0f * PI * lpfOutputFreq) / (samplerate + 2.0f * PI * lpfOutputFreq); // (2.0f * (float)M_PI * f_c) / (f_s + 2.0f * (float)M_PI * f_c)

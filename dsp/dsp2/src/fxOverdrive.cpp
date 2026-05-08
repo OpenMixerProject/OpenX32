@@ -44,7 +44,7 @@ fxOverdrive::fxOverdrive(int fxSlot, float* bufIn[], float* bufOut[], int channe
 	//setParameters(10.0f, -0.2f, 300, 10000, 10000);
 	_preGain = 10.0f;
 	_Q = -0.2f;
-	_clipConst = -0.250594070204370662f;
+	_bias = 0.2;
 	_hpfInputCoef = 0.962213946674328602487f;
 	_lpfInputCoef = 0.566911509014416f;
 	_lpfOutputCoef = 0.566911509014416f;
@@ -64,11 +64,11 @@ fxOverdrive::~fxOverdrive() {
 }
 
 // human-friendly parameter-settings, but more expensive for the DSP
-void fxOverdrive::setParameters(float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
+void fxOverdrive::setParameters(float preGain, float Q, float bias, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq) {
 /*
 	_preGain = preGain;
 	_Q = Q;
-	_clipConst = clipConst;
+	_bias = bias;
 	_hpfInputCoef = hpfInputCoef;
 	_lpfInputCoef = lpfInputCoef;
 	_lpfOutputCoef = lpfOutputCoef;
@@ -76,12 +76,7 @@ void fxOverdrive::setParameters(float preGain, float Q, float hpfInputFreq, floa
 
 	_preGain = preGain;
 	_Q = Q;
-
-	float denum = 1.0f - expf(8.0f * _Q);
-	if (denum != 0) {
-		_clipConst = _Q / denum;
-	}
-
+	_bias = bias;
 	_hpfInputCoef = 1.0f / (1.0f + 2.0f * M_PI * hpfInputFreq * (1.0f/_sampleRate)); // 1.0f / (1.0f + 2.0f * M_PI * f_c * (1.0f/f_s))
 	_lpfInputCoef = (2.0f * M_PI * lpfInputFreq) / (_sampleRate + 2.0f * M_PI * lpfInputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
 	_lpfOutputCoef = (2.0f * M_PI * lpfOutputFreq) / (_sampleRate + 2.0f * M_PI * lpfOutputFreq); // (2.0f * M_PI * f_c) / (f_s + 2.0f * M_PI * f_c)
@@ -95,7 +90,7 @@ void fxOverdrive::rxData(float data[], int len) {
 
 	_preGain = data[0];
 	_Q = data[1];
-	_clipConst = data[2];
+	_bias = data[2];
 	_hpfInputCoef = data[3];
 	_lpfInputCoef = data[4];
 	_lpfOutputCoef = data[5];
@@ -103,36 +98,46 @@ void fxOverdrive::rxData(float data[], int len) {
 
 void fxOverdrive::process() {
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		float signal[2];
-		signal[0] = _bufIn[0][s];
-		signal[1] = _bufIn[1][s];
+		float clipOut;
 
 		for (int i_ch = 0; i_ch < 2; i_ch++) {
+			clipOut = _bufIn[i_ch][s] * INT32_TO_FLOAT_NORM;
+			clipOut *= _preGain;
+
 			// input lowpass: output = zoutput + coeff * (input - zoutput)
-			signal[i_ch] = _lpfInputState[i_ch] + _lpfInputCoef * (signal[i_ch] - _lpfInputState[i_ch]);
-			_lpfInputState[i_ch] = signal[i_ch]; // store zoutput
+			clipOut = _lpfInputState[i_ch] + _lpfInputCoef * (clipOut - _lpfInputState[i_ch]);
+			_lpfInputState[i_ch] = clipOut; // store zoutput
 
 			// input highpass: output = coeff * (zoutput + input - zinput)
-			float signalIn = signal[i_ch];
-			signal[i_ch] = _hpfInputCoef * (_hpfInputStateOut[i_ch] + signal[i_ch] - _hpfInputStateIn[i_ch]);
-			_hpfInputStateOut[i_ch] = signal[i_ch]; // store zoutput
-			_hpfInputStateIn[i_ch] = signalIn; // store zinput
+			float signalTmp = clipOut;
+			clipOut = _hpfInputCoef * (_hpfInputStateOut[i_ch] + clipOut - _hpfInputStateIn[i_ch]);
+			_hpfInputStateOut[i_ch] = clipOut; // store zoutput
+			_hpfInputStateIn[i_ch] = signalTmp; // store zinput
 
-			// overdrive with asymmetrical clipping
-			signal[i_ch] = _preGain * signal[i_ch];
-			float clipOut = _clipConst;
-			float denum = 1.0f - expf(-8.0f * (signal[i_ch] - _Q));
-			if (denum != 0) {
-				clipOut += (signal[i_ch] - _Q) / denum;
+
+			// soft-tube-clipping (good sound, but high demand)
+			clipOut += _bias; // asymmetrical bias
+			float k = 1.0f - _Q;
+			if (clipOut > 0) {
+				clipOut = clipOut / fastPow(1.0 + fastPow(clipOut, k), 1.0 / k);
+			}else{
+				float absSignal = fabs(clipOut);
+				clipOut = - (absSignal / fastPow(1.0 + fastPow(absSignal, k), 1.0 / k));
 			}
+
 
 			// output lowpass: output = zoutput + coeff * (input - zoutput)
 			// here high frequency-components after clipping will be removed
 			clipOut = _lpfOutputState[i_ch] + _lpfOutputCoef * (clipOut - _lpfOutputState[i_ch]);
 			_lpfOutputState[i_ch] = clipOut; // store zoutput
 
-			// limit output to +/-2^31
-			_bufOut[i_ch][s] = fclipf(clipOut, 2147483647.0f);
+			signalTmp = clipOut;
+			clipOut = 0.999f * (_hpfOutputStateOut[i_ch] + clipOut - _hpfOutputStateIn[i_ch]);
+			_hpfOutputStateOut[i_ch] = clipOut; // store zoutput
+			_hpfOutputStateIn[i_ch] = signalTmp; // store zinput
+
+			// limit output to +/-1.0f
+			_bufOut[i_ch][s] = fclipf(clipOut, 1.0f) * 2147483647.0f;
 		}
 
 		// bypass

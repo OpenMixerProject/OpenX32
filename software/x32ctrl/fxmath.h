@@ -26,7 +26,7 @@ class FxMath : X32Base {
         void fxCalcParameters_Reverb(float data[], float roomSizeMs, float rt60, float feedbackLowPassFreq, float dry, float wet);
         void fxCalcParameters_Chorus(float data[], float depth[2], float delayMs[2], float phase[2], float freq[2], float mix);
         void fxCalcParameters_TransientShaper(float data[], float tFastMs, float tMediumMs, float tSlowMs, float attack, float sustain, float delayMs);
-        void fxCalcParameters_Overdrive(float data[], float preGain, float Q, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
+        void fxCalcParameters_Overdrive(float data[], float preGain, float Q, float bias, float hpfInputFreq, float lpfInputFreq, float lpfOutputFreq);
         void fxCalcParameters_Delay(float data[], float delayMs[2]);
         void fxCalcParameters_MultibandCompressor(float data[], int channel, int band, float threshold, float ratio, float attack, float hold, float release, float makeup);
         void fxCalcParameters_MultibandCompressorFreq(float data[], int channel, float freq[4]);

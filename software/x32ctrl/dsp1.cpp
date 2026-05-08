@@ -1044,9 +1044,10 @@ void DSP1::DSP2_SendFxParameter(int slotIdx)
             fxmath->fxCalcParameters_Overdrive(&values[0],
                 config->GetFloat(fx->GetParameterDefinition(0), slotIdx), // preGain
                 config->GetFloat(fx->GetParameterDefinition(1), slotIdx), // Q
-                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // hpfInputFreq
-                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // lpfInputFreq
-                config->GetFloat(fx->GetParameterDefinition(4), slotIdx)  // lpfOutputFreq
+                config->GetFloat(fx->GetParameterDefinition(2), slotIdx), // Bias
+                config->GetFloat(fx->GetParameterDefinition(3), slotIdx), // hpfInputFreq
+                config->GetFloat(fx->GetParameterDefinition(4), slotIdx), // lpfInputFreq
+                config->GetFloat(fx->GetParameterDefinition(5), slotIdx)  // lpfOutputFreq
             );
             valueCount = 6;
             spi->QueueDspData(1, 'f', 'c', slotIdx, valueCount, values);

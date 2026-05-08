@@ -11,6 +11,7 @@ class FxOverdrive : public FxBase {
             // Define parameters of this FX
             parameters.push_back(MP_ID::FX_OVERDRIVE_PREGAIN);
             parameters.push_back(MP_ID::FX_OVERDRIVE_Q);
+            parameters.push_back(MP_ID::FX_OVERDRIVE_BIAS);
             parameters.push_back(MP_ID::FX_OVERDRIVE_HPF_INPUTFREQ);
             parameters.push_back(MP_ID::FX_OVERDRIVE_LPF_INPUTFREQ);
             parameters.push_back(MP_ID::FX_OVERDRIVE_LPF_OUTPUTFREQ);

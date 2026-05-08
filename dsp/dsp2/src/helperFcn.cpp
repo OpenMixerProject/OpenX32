@@ -153,3 +153,12 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 void helperFcn_lowPassFilter(float input, float* output, float coeff) {
 	*output = *output + coeff * (input - *output);
 }
+
+float fastPow(float a, float b) {
+    union {
+        float f;
+        int i;
+    } u = { a };
+    u.i = (int)(b * (u.i - 1064866816) + 1064866816);
+    return u.f;
+}

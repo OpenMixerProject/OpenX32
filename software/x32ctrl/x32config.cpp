@@ -682,9 +682,14 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(0.0f, 24.0f, 10.0f);
 
     DefParameter(FX_OVERDRIVE_Q, cat, "Q", MAX_FX_SLOTS)
-    ->DefStepsize(0.1f)
+    ->DefStepsize(0.025f)
     ->DefConfig(group, "q")
-    ->DefMinMaxStandard_Float(-10.0f, 10.0f, -0.2f, 1);
+    ->DefMinMaxStandard_Float(-1.0f, 1.0f, 0.2f, 2);
+
+    DefParameter(FX_OVERDRIVE_BIAS, cat, "Bias", MAX_FX_SLOTS)
+    ->DefStepsize(0.05f)
+    ->DefConfig(group, "bias")
+    ->DefMinMaxStandard_Float(0.0f, 1.0f, 0.2f, 2);
 
     DefParameter(FX_OVERDRIVE_HPF_INPUTFREQ, cat, "LC In", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::HZ)
