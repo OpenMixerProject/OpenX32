@@ -35,6 +35,7 @@
 
 // own helper-functions
 #include "helperFcn.h"
+#include "fastApproxMath.h"
 
 typedef struct {
 	float samplerate;

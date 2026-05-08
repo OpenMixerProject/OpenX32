@@ -119,12 +119,11 @@ void fxOverdrive::process() {
 			clipOut += _bias; // asymmetrical bias
 			float k = 1.0f - _Q;
 			if (clipOut > 0) {
-				clipOut = clipOut / fastPow(1.0 + fastPow(clipOut, k), 1.0 / k);
+				clipOut = clipOut / fastApproxMath_powf(1.0 + fastApproxMath_powf(clipOut, k), 1.0 / k);
 			}else{
 				float absSignal = fabs(clipOut);
-				clipOut = - (absSignal / fastPow(1.0 + fastPow(absSignal, k), 1.0 / k));
+				clipOut = - (absSignal / fastApproxMath_powf(1.0 + fastApproxMath_powf(absSignal, k), 1.0 / k));
 			}
-
 
 			// output lowpass: output = zoutput + coeff * (input - zoutput)
 			// here high frequency-components after clipping will be removed

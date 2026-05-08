@@ -10,6 +10,5 @@ void helperFcn_calcBiquadCoeffs(int type, float frequency, float Q, float gain, 
 void helperFcn_calcBandpassCoeff(float frequency, float Q, float peqCoeffs[], float samplerate);
 void helperFcn_calcPeqCoeff(float frequency, float Q, float gain, float peqCoeffs[], float samplerate);
 void helperFcn_lowPassFilter(float input, float* output, float coeff);
-float fastPow(float a, float b);
 
 #endif /* HELPERFCN_H_ */
