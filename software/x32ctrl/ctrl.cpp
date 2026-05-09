@@ -299,6 +299,8 @@ void X32Ctrl::Tick10ms(void)
 	{
 		// sync GUI(s) last, to get visual response after the hardware is synced!
 		syncSurface(false);
+
+		config->ClearSurfaceBindingChanged();
 	}
 		
 	if (config->HasAnyParameterChanged())
@@ -918,57 +920,60 @@ void X32Ctrl::syncSurface(bool fullSync)
 	//
 	// ######################################
 
-	if (config->HasParameterChanged(BANKING_INPUT))
+	if (config->IsModelX32FullOrCompactOrProducer())
 	{
-		if (config->IsModelX32Full())
+		if (config->HasParameterChanged(BANKING_INPUT))
 		{
-			X32BankId bank1;
-			X32BankId bank2;
-
-			switch((X32BankId)(config->GetUint(BANKING_INPUT)))
+			if (config->IsModelX32Full())
 			{
-				case X32BankId::CH1_16:
-					bank1 = X32BankId::CH1_8;
-					bank2 = X32BankId::CH9_16;
-					break;
+				X32BankId bank1;
+				X32BankId bank2;
+
+				switch((X32BankId)(config->GetUint(BANKING_INPUT)))
+				{
+					case X32BankId::CH1_16:
+						bank1 = X32BankId::CH1_8;
+						bank2 = X32BankId::CH9_16;
+						break;
+					case X32BankId::CH17_32:
+						bank1 = X32BankId::CH17_24;
+						bank2 = X32BankId::CH25_32;
+						break;
+					case X32BankId::AUX_USB_FX_RET:
+						bank1 = X32BankId::AUX_USB;
+						bank2 = X32BankId::FX_RET;
+						break;
+					case X32BankId::BUS1_16:
+						bank1 = X32BankId::BUS1_8;
+						bank2 = X32BankId::BUS9_16;
+						break;
+				}
+
+				LoadBank(X32BankTarget::InputSection, bank1);
+				LoadBank(X32BankTarget::InputSection2, bank2);
+			}
+			else
+			{
+				LoadBank(X32BankTarget::InputSection, (X32BankId)(config->GetUint(BANKING_INPUT)));
+			}
+		}
+
+		if (config->HasParameterChanged(BANKING_BUS))
+		{
+			X32BankId bank = (X32BankId)(config->GetUint(BANKING_BUS));
+
+			switch(bank)
+			{
 				case X32BankId::CH17_32:
-					bank1 = X32BankId::CH17_24;
-					bank2 = X32BankId::CH25_32;
+					bank = X32BankId::CH17_24;
 					break;
 				case X32BankId::AUX_USB_FX_RET:
-					bank1 = X32BankId::AUX_USB;
-					bank2 = X32BankId::FX_RET;
-					break;
-				case X32BankId::BUS1_16:
-					bank1 = X32BankId::BUS1_8;
-					bank2 = X32BankId::BUS9_16;
+					bank = X32BankId::AUX_USB;
 					break;
 			}
 
-			LoadBank(X32BankTarget::InputSection, bank1);
-			LoadBank(X32BankTarget::InputSection2, bank2);
+			LoadBank(X32BankTarget::BusSection, bank);
 		}
-		else
-		{
-			LoadBank(X32BankTarget::InputSection, (X32BankId)(config->GetUint(BANKING_INPUT)));
-		}
-	}
-
-	if (config->HasParameterChanged(BANKING_BUS))
-	{
-		X32BankId bank = (X32BankId)(config->GetUint(BANKING_BUS));
-
-		switch(bank)
-		{
-			case X32BankId::CH17_32:
-				bank = X32BankId::CH17_24;
-				break;
-			case X32BankId::AUX_USB_FX_RET:
-				bank = X32BankId::AUX_USB;
-				break;
-		}
-
-		LoadBank(X32BankTarget::BusSection, bank);
 	}
 
 	if (config->IsModelX32FullOrCompact())
@@ -1012,6 +1017,12 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 	for (auto const& [key, value] : *(config->GetSurfaceBinding()))
     {
+		// ignore nullptr
+		if (value == 0)
+		{
+			continue;
+		}
+
 		SurfaceElementId element_id = key;
 		SurfaceBindingParameter* binding_parameter = value;
 
@@ -1036,68 +1047,63 @@ void X32Ctrl::syncSurface(bool fullSync)
 			case SurfaceElementId::RIGHT:
 				continue;
 				break;
+			default:
+				break;
 		}
 
-		bool hasChanged = false;
+		// calcluate Mixerparameter ID and Index
+		MP_ID parameter_id = config->ParameterCalcId(binding_parameter);
+		uint parameter_index = config->ParameterCalcIndex(binding_parameter);
 
-		/*
-		 Check if the bound Mixerparameter has changed.
+		// full sync only if Mixerparameter ID is not NONE
+		bool hasChanged = fullSync && binding_parameter->mp_id != NONE;
 
-		 If the action is SET, check Mixerparameter ID and Index.
-		 If the action is SET_TO_INDEX, check only Mixerparameter ID, because the index is always 0.
-		*/
-
-		hasChanged = fullSync && binding_parameter->mp_id != NONE;
-
-		hasChanged |= (
-						binding_parameter->mp_action == MixerparameterAction::SET ||
-						binding_parameter->mp_action == MixerparameterAction::TOGGLE ||
-						binding_parameter->mp_action == MixerparameterAction::CHANGE
-					) &&
-					 config->HasParameterChanged(binding_parameter->mp_id, binding_parameter->mp_index);
-
-		hasChanged |= (
-						binding_parameter->mp_action == MixerparameterAction::SET_SELECTED_CHANNEL ||
-						binding_parameter->mp_action == MixerparameterAction::TOGGLE_SELECTED_CHANNEL ||
-						binding_parameter->mp_action == MixerparameterAction::CHANGE_SELECTED_CHANNEL
-					) &&
-					(config->HasParameterChanged(SELECTED_CHANNEL) || config->HasParameterChanged(binding_parameter->mp_id, config->GetUint(SELECTED_CHANNEL)));
-
-		hasChanged |= (
-						binding_parameter->mp_action == MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL ||
-						binding_parameter->mp_action == MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL
-					) &&
-					(config->HasParameterChanged(SELECTED_CHANNEL) || config->HasParameterChanged((MP_ID)(((uint)binding_parameter->mp_id) + config->GetUint((MP_ID)binding_parameter->mp_index)), config->GetUint(SELECTED_CHANNEL)));
-		
-		hasChanged |= binding_parameter->mp_action == MixerparameterAction::SET_TO_INDEX && config->HasParameterChanged(binding_parameter->mp_id);
-
-		hasChanged |= binding_parameter->mp_action == MixerparameterAction::CLEAR_SOLO && config->HasParameterChanged(CHANNEL_SOLO);
-		
-		if (!hasChanged && binding_parameter->mp_action == MixerparameterAction::LCD)
+		// Check if the bound Mixerparameter has changed
+		if (!hasChanged)
 		{
-			switch(config->GetUint(CHANNEL_LCD_MODE))
+			switch (binding_parameter->mp_action)
 			{
-				case 0:
-					if (config->HasParametersChanged({CHANNEL_PANORAMA, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED	}, binding_parameter->mp_index) ||
-						config->HasParameterChanged(CHANNEL_LCD_MODE)
-					)
+				case MixerparameterAction::CLEAR_SOLO:
+					hasChanged = config->HasParameterChanged(CHANNEL_SOLO);
+					break;
+				case MixerparameterAction::LCD:
+					switch(config->GetUint(CHANNEL_LCD_MODE))
 					{
-						hasChanged = true;
+						case 0:
+							if (config->HasParametersChanged({CHANNEL_PANORAMA, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED	}, binding_parameter->mp_index) ||
+								config->HasParameterChanged(CHANNEL_LCD_MODE)
+							)
+							{
+								hasChanged = true;
+							}
+							break;
+						case 1:
+							if (config->HasParametersChanged({CHANNEL_PHASE_INVERT, CHANNEL_VOLUME, CHANNEL_PANORAMA, CHANNEL_GAIN,	CHANNEL_GATE_TRESHOLD,
+									CHANNEL_DYNAMICS_TRESHOLD, CHANNEL_PHANTOM, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED }, binding_parameter->mp_index) ||
+								config->HasParametersChanged({MP_CAT::CHANNEL_EQ}, binding_parameter->mp_index) || 
+								config->HasParameterChanged(CHANNEL_LCD_MODE)
+							)
+							{
+								hasChanged = true;
+							}
+							break;
 					}
 					break;
-				case 1:
-					if (config->HasParametersChanged({CHANNEL_PHASE_INVERT, CHANNEL_VOLUME, CHANNEL_PANORAMA, CHANNEL_GAIN,	CHANNEL_GATE_TRESHOLD,
-							CHANNEL_DYNAMICS_TRESHOLD, CHANNEL_PHANTOM, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED }, binding_parameter->mp_index) ||
-						config->HasParametersChanged({MP_CAT::CHANNEL_EQ}, binding_parameter->mp_index) || 
-						config->HasParameterChanged(CHANNEL_LCD_MODE)
-					)
-					{
-						hasChanged = true;
-					}
+				case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
+				case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+					hasChanged |= config->HasParameterChanged((MP_ID)binding_parameter->mp_index);
+					// intentionally no break!
+				case MixerparameterAction::SET_SELECTED_CHANNEL:
+				case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
+				case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
+					hasChanged |= config->HasParameterChanged(SELECTED_CHANNEL);
+					// intentionally no break!
+				default:
+					hasChanged |= config->HasParameterChanged(parameter_id, parameter_index);
 					break;
 			}
 		}
-
+		
 		/*
 		 Check if the binding has changed		
 		*/
@@ -1115,8 +1121,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 		if (hasChanged && config->HasSurfaceElement(element_id))
 		{
 			SurfaceElement* element = config->GetSurfaceElement(element_id);
-			MP_ID parameter_id = config->ParameterCalcId(binding_parameter);
-			uint parameter_index = config->ParameterCalcIndex(binding_parameter);
+
+			helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Caluclated Mixerparamter: %s Index: %d", config->GetParameter(parameter_id)->GetName().c_str(), parameter_index);
 
 			// ####################################################
 			//
@@ -1148,7 +1154,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 				}
 				else if (binding_parameter->mp_action == MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL)
 				{
-					ledOn = config->GetInt(parameter_id, parameter_index) == binding_parameter->led_value;
+					ledOn = config->GetInt(parameter_id, parameter_index) == binding_parameter->extra_value;
 				}
 				else
 				{
@@ -1967,6 +1973,18 @@ void X32Ctrl::InitSurfaceBinding()
 
 		// Bus Sends
 		config->SurfaceBind(SurfaceElementId::VIEW_MIX_BUS_SENDS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SENDS));
+		if (config->IsModelX32Full())
+		{
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_ENCODER_1, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_BUS_SEND01, (uint)BANKING_BUS_SENDS, 4);
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_ENCODER_2, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_BUS_SEND02, (uint)BANKING_BUS_SENDS, 4);
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_ENCODER_3, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_BUS_SEND03, (uint)BANKING_BUS_SENDS, 4);
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_ENCODER_4, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_BUS_SEND04, (uint)BANKING_BUS_SENDS, 4);
+
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_1_4, MixerparameterAction::SET_TO_INDEX, BANKING_BUS_SENDS, 0);
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_5_8, MixerparameterAction::SET_TO_INDEX, BANKING_BUS_SENDS, 1);
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_9_12, MixerparameterAction::SET_TO_INDEX, BANKING_BUS_SENDS, 2);
+			config->SurfaceBind(SurfaceElementId::BUS_SEND_13_16, MixerparameterAction::SET_TO_INDEX, BANKING_BUS_SENDS, 3);
+		}
 		
 		// Bus Mixes
 		config->SurfaceBind(SurfaceElementId::MAIN_BUS_LEVEL_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_VOLUME_SUB);
@@ -2218,20 +2236,15 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 		if (bindingParameterEncoder != 0 && bindingParameterEncoder->mp_action != MixerparameterAction::NONE)
 		{
+			MP_ID parameter_id = config->ParameterCalcId(bindingParameterEncoder);
+			uint parameter_index = config->ParameterCalcIndex(bindingParameterEncoder);
+
 			switch (bindingParameterEncoder->mp_action)
 			{
 				case MixerparameterAction::CHANGE:
-					config->Change(bindingParameterEncoder->mp_id, amount, bindingParameterEncoder->mp_index);
-					break;
 				case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
-					config->Change(bindingParameterEncoder->mp_id, amount, config->GetUint(SELECTED_CHANNEL));
-					break;
 				case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
-					{
-						uint mp_id_raw = ((uint)bindingParameterEncoder->mp_id) + config->GetUint((MP_ID)bindingParameterEncoder->mp_index);
-						MP_ID id = (MP_ID)mp_id_raw;
-						config->Change(id, amount, config->GetUint(SELECTED_CHANNEL));
-					}
+					config->Change(parameter_id, amount, parameter_index);
 					break;
 				case MixerparameterAction::CUSTOM:
 					{

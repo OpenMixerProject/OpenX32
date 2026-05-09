@@ -1179,7 +1179,7 @@ enum class MixerparameterAction
     CHANGE,
     CHANGE_SELECTED_CHANNEL,
 
-    // Value of 'Mixerparameter ID + Offset' on index 'selected channel'.
+    // Value of 'Mixerparameter ID + (Mixerparameter Index * Extravalue)' on index 'selected channel'.
     // Button: Increment in Stepsize
     CHANGE__MP_INDIRECT__SELECTED_CHANNEL, 
 

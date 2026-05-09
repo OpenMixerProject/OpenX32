@@ -99,7 +99,7 @@ class X32Config
         map<SurfaceElementId, SurfaceBindingParameter*>* GetSurfaceBinding();
         SurfaceBindingParameter* GetSurfaceBinding(SurfaceElementId elementId);
         void SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter);
-        void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0, uint led_value = 0);
+        void SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index = 0, uint extra_value = 0);
         // void SurfaceBind(SurfaceElementId surfaceelement_id, X32Action action);
         void SurfaceUnbind(SurfaceElementId surfaceelement_id);
         void SurfaceBindCustom(SurfaceElementId surfaceelement_id, String labeltext = "");
@@ -107,6 +107,7 @@ class X32Config
         bool HasAnySurfaceBindingChanged();
         bool HasSurfaceBindingChanged(SurfaceElementId elementId);
         void RemoveSurfaceBindingChanged(SurfaceElementId elementId);
+        void ClearSurfaceBindingChanged();
 
         void SetModel(String model);
         bool IsModelX32Full();

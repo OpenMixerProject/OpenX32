@@ -11,14 +11,14 @@ class SurfaceBindingParameter
         MixerparameterAction mp_action = MixerparameterAction::NONE;  
         MP_ID mp_id = MP_ID::NONE;
         uint mp_index = 0;
-        uint led_value;
+        uint extra_value;
         String custom_label;
 
-        SurfaceBindingParameter(MixerparameterAction action, MP_ID mixerparameter_id, uint mixerparameter_index, uint led_value = 0)
+        SurfaceBindingParameter(MixerparameterAction action, MP_ID mixerparameter_id, uint mixerparameter_index, uint extra = 0)
         {
             mp_action = action;
 	        mp_id = mixerparameter_id;
 	        mp_index = mixerparameter_index;
-            this->led_value = led_value;
+            extra_value = extra;
         }
 };

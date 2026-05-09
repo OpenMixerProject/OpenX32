@@ -1574,7 +1574,14 @@ MP_ID X32Config::ParameterCalcId(SurfaceBindingParameter* binding_parameter)
     {
         case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
         case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
-            return (MP_ID)((uint)binding_parameter->mp_id + GetUint((MP_ID)binding_parameter->mp_index));
+            {
+                uint stepsize = binding_parameter->extra_value;
+                if (stepsize == 0)
+                {
+                    stepsize = 1;
+                }
+                return (MP_ID)((uint)binding_parameter->mp_id + (GetUint((MP_ID)binding_parameter->mp_index)) * stepsize);
+            }
         default:
             return binding_parameter->mp_id;
     }
@@ -2456,9 +2463,9 @@ void X32Config::SurfaceBindParameter(SurfaceElementId surfaceelement_id, Surface
 	}
 }
 
-void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index, uint led_value)
+void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index, uint extra_value)
 {
-	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action, mixerparaemter_id, mixerparameter_index, led_value);
+	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action, mixerparaemter_id, mixerparameter_index, extra_value);
 	SurfaceBindParameter(surfaceelement_id, binding_parameter);
 }
 
@@ -2490,6 +2497,11 @@ bool X32Config::HasSurfaceBindingChanged(SurfaceElementId elementId)
 void X32Config::RemoveSurfaceBindingChanged(SurfaceElementId elementId)
 {
     surface_binding_changed.erase(elementId);
+}
+
+void X32Config::ClearSurfaceBindingChanged()
+{
+    surface_binding_changed.clear();
 }
 
 map<SurfaceElementId, SurfaceBindingParameter*>* X32Config::GetSurfaceBinding()
