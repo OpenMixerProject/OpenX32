@@ -107,7 +107,6 @@ class X32Config
         bool HasAnySurfaceBindingChanged();
         bool HasSurfaceBindingChanged(SurfaceElementId elementId);
         void RemoveSurfaceBindingChanged(SurfaceElementId elementId);
-        void ClearSurfaceBindingChanged();
 
         void SetModel(String model);
         bool IsModelX32Full();

@@ -1965,8 +1965,8 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(MATRIX_MAIN)                  ->DefButton(X32_BOARD_R, 0x04);
         GetSurfaceElement(CLEAR_SOLO)                   ->DefButton(X32_BOARD_R, 0x05);
 
-        GetSurfaceElement(BOARD_R_SELECT_MAIN)          ->DefButton(X32_BOARD_R, 0x48);
-        GetSurfaceElement(BOARD_R_SOLO_MAIN)            ->DefButton(X32_BOARD_R, 0x48);
+        GetSurfaceElement(BOARD_R_SELECT_MAIN)          ->DefButton(X32_BOARD_R, 0x28);
+        GetSurfaceElement(BOARD_R_SOLO_MAIN)            ->DefButton(X32_BOARD_R, 0x38);
         GetSurfaceElement(BOARD_R_LCD_MAIN)             ->DefLcd(X32_BOARD_R, 0x08);
         GetSurfaceElement(BOARD_R_MUTE_MAIN)            ->DefButton(X32_BOARD_R, 0x48);
         GetSurfaceElement(BOARD_R_FADER_MAIN)           ->DefFader(X32_BOARD_R, 0x08);
@@ -2497,11 +2497,6 @@ bool X32Config::HasSurfaceBindingChanged(SurfaceElementId elementId)
 void X32Config::RemoveSurfaceBindingChanged(SurfaceElementId elementId)
 {
     surface_binding_changed.erase(elementId);
-}
-
-void X32Config::ClearSurfaceBindingChanged()
-{
-    surface_binding_changed.clear();
 }
 
 map<SurfaceElementId, SurfaceBindingParameter*>* X32Config::GetSurfaceBinding()
