@@ -295,18 +295,16 @@ void X32Ctrl::Tick10ms(void)
 		mixer->card->Sync();
 	}
 
-	if (config->HasAnyParameterChanged() || config->HasAnySurfaceBindingChanged())
-	{
-		// sync GUI(s) last, to get visual response after the hardware is synced!
-		syncSurface(false);
-
-		config->ClearSurfaceBindingChanged();
-	}
-		
 	if (config->HasAnyParameterChanged())
 	{
 		syncGuiOrLcd();
 		//syncXRemote(false);
+	}
+
+	if (config->HasAnyParameterChanged() || config->HasAnySurfaceBindingChanged())
+	{
+		// sync GUI(s) last, to get visual response after the hardware is synced!
+		syncSurface(false);
 	}
 
 	//#####################################
@@ -384,15 +382,18 @@ void X32Ctrl::Tick100ms(void)
 	// DeviceTypeAndProperty every 2 seconds, Headamp-Message every 2 seconds (Names every 10 seconds)
 	mixer->fpga->AES50Tick();
 
-	if (startupCounter < 100) {
+	if (startupCounter < 100)
+	{
 		startupCounter++;
 
-		if (startupCounter == 1) {
+		if (startupCounter == 1)
+		{
 			// set IP-Address in GUI
 			lv_label_set_text_fmt(objects.header_ip, "IP: %s", helper->getIpAddress().c_str());
 		}
 
-		if (startupCounter == 10) {
+		if (startupCounter == 10)
+		{
 			// the gate, the dynamics and the EQ-settings are not loaded correctly on first load, so load it again after a short time
 			mixer->LoadConfig(0);
 
@@ -431,7 +432,7 @@ void X32Ctrl::Tick100ms(void)
 			// set FX-settings to wet on slot 1-4
 			config->Set(FX_REVERB_DRY, 0, 0); // fx-slot 1
 			config->Set(FX_REVERB_WET, 1, 0); // fx-slot 1
-			config->Set(FX_CHORUS_MIX, 1, 1); // fx-slot 2
+			config->Set(FX_CHORUS_MIX, 1, 1); // fx-slot 2		
 		}
 
 		if (startupCounter == 40) {
@@ -1045,6 +1046,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 			case SurfaceElementId::DOWN:
 			case SurfaceElementId::LEFT:
 			case SurfaceElementId::RIGHT:
+				config->RemoveSurfaceBindingChanged(element_id);
 				continue;
 				break;
 			default:
@@ -1055,8 +1057,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 		MP_ID parameter_id = config->ParameterCalcId(binding_parameter);
 		uint parameter_index = config->ParameterCalcIndex(binding_parameter);
 
-		// full sync only if Mixerparameter ID is not NONE
-		bool hasChanged = fullSync && binding_parameter->mp_id != NONE;
+		// full sync
+		bool hasChanged = fullSync;
 
 		// Check if the bound Mixerparameter has changed
 		if (!hasChanged)
@@ -1131,6 +1133,11 @@ void X32Ctrl::syncSurface(bool fullSync)
 			// ####################################################
 			if (element->element_type == SurfaceElementType::Fader)
 			{
+				if (parameter_id == NONE)
+				{
+					continue;
+				}
+
 				u_int16_t faderPosition = helper->Dbfs2Fader(config->GetFloat(parameter_id, parameter_index));
 				surface->SetFader(element->GetBoard(), element->GetIndex(), faderPosition);
 			}
@@ -1141,6 +1148,11 @@ void X32Ctrl::syncSurface(bool fullSync)
 			// ####################################################
 			else if (element->element_type == SurfaceElementType::Button || element->element_type == SurfaceElementType::Led)
 			{
+				if (parameter_id == NONE)
+				{
+					continue;
+				}
+
 				bool ledOn = false;
 				bool ledBlink = false;
 
@@ -1176,6 +1188,11 @@ void X32Ctrl::syncSurface(bool fullSync)
 			// ####################################################
 			else if (element->element_type == SurfaceElementType::Encoder)
 			{
+				if (parameter_id == NONE)
+				{
+					continue;
+				}
+
 				switch(config->GetParameter(parameter_id)->GetUOM())
 				{
 					case MP_UOM::HZ:
@@ -1391,14 +1408,18 @@ void X32Ctrl::UpdateMeters(void) {
 		return;
 	}
 
+	//xremote->UpdateMeter(mixer);
+
+	// ########################################
+	//
+	//		GUI Meters
+	//
+	// ########################################
 
 	if (config->IsModelX32FullOrCompactOrProducerOrRack())
 	{
 		pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->UpdateMeters();
 	}
-
-
-	//xremote->UpdateMeter(mixer);
 
 	// ########################################
 	//
@@ -1440,6 +1461,31 @@ void X32Ctrl::UpdateMeters(void) {
 			mixer->dsp->MainChannelLR.meterInfo[1],
 			mixer->dsp->MainChannelSub.meterInfo[0]
 		);
+	}
+
+	
+	// ########################################
+	//
+	//		Channels
+	//
+	// ########################################
+
+	if (config->IsModelX32FullOrCompactOrProducer())
+	{
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			SurfaceBindingParameter* binding_board_l = config->GetSurfaceBinding((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_VUMETER_1 + i));
+			surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->rChannel[binding_board_l->mp_index].meter6Info);
+
+			if (config->IsModelX32Full())
+			{
+				SurfaceBindingParameter* binding_board_m = config->GetSurfaceBinding((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_VUMETER_1 + i));
+				surface->SetMeterLed(X32_BOARD_M, i, mixer->dsp->rChannel[binding_board_m->mp_index].meter6Info);
+			}
+
+			SurfaceBindingParameter* binding_board_r = config->GetSurfaceBinding((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_VUMETER_1 + i));
+			surface->SetMeterLed(X32_BOARD_R, i, mixer->dsp->rChannel[binding_board_r->mp_index].meter6Info);
+		}
 	}
 }
 
@@ -1856,8 +1902,9 @@ void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
 		bank->channelstrip[i] = new X32BankParameter();
 
         bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
+		bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
         bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
-		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD, SELECTED_CHANNEL, i + offset);
+		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD, NONE, i + offset);
         bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
         bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + offset);
     }
@@ -1881,6 +1928,7 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 		for (uint i = 0; i < 8; i++)
 		{
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
@@ -1893,6 +1941,7 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 		for (uint i = 0; i < 8; i++)
 		{
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
@@ -1905,6 +1954,7 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 		for (uint i = 0; i < 8; i++)
 		{
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
@@ -2027,7 +2077,7 @@ void X32Ctrl::InitSurfaceBinding()
 		config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		
 		config->SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-		config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+		config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, NONE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 	}

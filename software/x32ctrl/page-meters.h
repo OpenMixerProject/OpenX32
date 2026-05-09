@@ -102,7 +102,7 @@ class PageMeters : public Page
                         lv_obj_set_state(panel_2, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000100));
                         lv_obj_set_state(panel_1, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000010));
                         lv_obj_set_state(panel_0, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000001));
-                    } else 
+                    }  
 
                     // FX Ret
                     if (m == 5) {
@@ -125,20 +125,25 @@ class PageMeters : public Page
                     } else
                     
                     // Bus 9-16
-                    if (m == 7) {
-                        lv_obj_set_state(panel_clip, LV_STATE_CHECKED, (mixer->dsp->rChannel[index].meter6Info & 0b00100000));
-                        lv_obj_set_state(panel_4, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00010000));
-                        lv_obj_set_state(panel_3, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00001000));
-                        lv_obj_set_state(panel_2, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000100));
-                        lv_obj_set_state(panel_1, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000010));
-                        lv_obj_set_state(panel_0, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000001));
-                    } else
+                    if (m == 7)
+                    {
+                        // Todo: Bus 9-16
+                        // lv_obj_set_state(panel_clip, LV_STATE_CHECKED, (mixer->dsp->rChannel[index].meter6Info & 0b00100000));
+                        // lv_obj_set_state(panel_4, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00010000));
+                        // lv_obj_set_state(panel_3, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00001000));
+                        // lv_obj_set_state(panel_2, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000100));
+                        // lv_obj_set_state(panel_1, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000010));
+                        // lv_obj_set_state(panel_0, LV_STATE_CHECKED,    (mixer->dsp->rChannel[index].meter6Info & 0b00000001));
+                    }
 
                     // Matrix
                     if (m == 8) {
-                        if (i < 6) {
-                            //lv_bar_set_value(meter, !(mixer->dsp->Matrix[i].MainChannelSub.meter6Info), LV_ANIM_OFF);
-                        } else if (i == 7) {
+                        if (i < 6)
+                        {
+                            // Todo: Matrix 
+                        }
+                        else if (i == 7)
+                        {
                             lv_obj_set_state(panel_clip, LV_STATE_CHECKED, (mixer->dsp->MainChannelSub.meter6Info & 0b00100000));
                             lv_obj_set_state(panel_4, LV_STATE_CHECKED,    (mixer->dsp->MainChannelSub.meter6Info & 0b00010000));
                             lv_obj_set_state(panel_3, LV_STATE_CHECKED,    (mixer->dsp->MainChannelSub.meter6Info & 0b00001000));

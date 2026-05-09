@@ -87,10 +87,10 @@ void Page::Show()
 
     // show page and trigger a complete update
     OnShow();
-    OnChange(true);
+    Change(true);
 }
 
-void Page::Change()
+void Page::Change(bool syncAll)
 {
     helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::Change()");
 
@@ -110,7 +110,7 @@ void Page::Change()
             config->Set(ACTIVE_PAGE, (uint)(this->GetPrevPage()));
         }
 
-        bool syncAll = config->HasParameterChanged(SELECTED_CHANNEL);
+        syncAll |= config->HasParameterChanged(SELECTED_CHANNEL);
         OnChange(syncAll);
         SyncEncoderWidgets(syncAll);
     }

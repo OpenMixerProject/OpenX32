@@ -932,6 +932,33 @@ enum class SurfaceElementId {
 
     BOARD_R_SELECT_MAIN,
 
+    BOARD_L_VUMETER_1,
+    BOARD_L_VUMETER_2,
+    BOARD_L_VUMETER_3,
+    BOARD_L_VUMETER_4,
+    BOARD_L_VUMETER_5,
+    BOARD_L_VUMETER_6,
+    BOARD_L_VUMETER_7,
+    BOARD_L_VUMETER_8,
+
+    BOARD_M_VUMETER_1,
+    BOARD_M_VUMETER_2,
+    BOARD_M_VUMETER_3,
+    BOARD_M_VUMETER_4,
+    BOARD_M_VUMETER_5,
+    BOARD_M_VUMETER_6,
+    BOARD_M_VUMETER_7,
+    BOARD_M_VUMETER_8,
+
+    BOARD_R_VUMETER_1,
+    BOARD_R_VUMETER_2,
+    BOARD_R_VUMETER_3,
+    BOARD_R_VUMETER_4,
+    BOARD_R_VUMETER_5,
+    BOARD_R_VUMETER_6,
+    BOARD_R_VUMETER_7,
+    BOARD_R_VUMETER_8,
+
     BOARD_L_SOLO_1,
     BOARD_L_SOLO_2,
     BOARD_L_SOLO_3,
@@ -1179,7 +1206,7 @@ enum class MixerparameterAction
     CHANGE,
     CHANGE_SELECTED_CHANNEL,
 
-    // Value of 'Mixerparameter ID + (Mixerparameter Index * Extravalue)' on index 'selected channel'.
+    // Value of 'Mixerparameter ID + (Mixerparameter Index * xtravalue)' on index 'selected channel'.
     // Button: Increment in Stepsize
     CHANGE__MP_INDIRECT__SELECTED_CHANNEL, 
 
@@ -1196,6 +1223,8 @@ enum class MixerparameterAction
     RESET_SELECTED_CHANNEL,
 
     LCD,
+
+    VUMETER,
 
     DMX, // artnet / USB DMX
 
