@@ -11887,7 +11887,7 @@
           "heightUnit": "px",
           "children": [],
           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-          "hiddenFlag": true,
+          "hiddenFlag": false,
           "hiddenFlagType": "literal",
           "clickableFlag": true,
           "clickableFlagType": "literal",
@@ -11895,15 +11895,16 @@
           "flagScrollDirection": "",
           "scrollSnapX": "",
           "scrollSnapY": "",
+          "checkedState": false,
           "checkedStateType": "literal",
           "disabledStateType": "literal",
           "states": "",
-          "useStyle": "panel_flat_black",
+          "useStyle": "panel_flat_dark_grey",
           "localStyles": {
             "objID": "40ffecd2-64f7-4107-adbb-c95ef0993f75",
             "definition": {
               "MAIN": {
-                "DEFAULT": {
+                "CHECKED": {
                   "bg_color": "#ff0000"
                 }
               }
@@ -11936,7 +11937,7 @@
           "heightUnit": "px",
           "children": [],
           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-          "hiddenFlag": true,
+          "hiddenFlag": false,
           "hiddenFlagType": "literal",
           "clickableFlag": true,
           "clickableFlagType": "literal",
@@ -11944,15 +11945,16 @@
           "flagScrollDirection": "",
           "scrollSnapX": "",
           "scrollSnapY": "",
+          "checkedState": false,
           "checkedStateType": "literal",
           "disabledStateType": "literal",
           "states": "",
-          "useStyle": "panel_flat_black",
+          "useStyle": "panel_flat_dark_grey",
           "localStyles": {
             "objID": "a4dc83c0-dd33-48cd-afe1-f813be2734c2",
             "definition": {
               "MAIN": {
-                "DEFAULT": {
+                "CHECKED": {
                   "bg_color": "#ffab00"
                 }
               }
@@ -11985,7 +11987,7 @@
           "heightUnit": "px",
           "children": [],
           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-          "hiddenFlag": true,
+          "hiddenFlag": false,
           "hiddenFlagType": "literal",
           "clickableFlag": true,
           "clickableFlagType": "literal",
@@ -11993,15 +11995,16 @@
           "flagScrollDirection": "",
           "scrollSnapX": "",
           "scrollSnapY": "",
+          "checkedState": false,
           "checkedStateType": "literal",
           "disabledStateType": "literal",
           "states": "",
-          "useStyle": "panel_flat_black",
+          "useStyle": "panel_flat_dark_grey",
           "localStyles": {
             "objID": "9d18ec2d-1314-4397-f2f6-6fb1331d14ed",
             "definition": {
               "MAIN": {
-                "DEFAULT": {
+                "CHECKED": {
                   "bg_color": "#ffab00"
                 }
               }
@@ -12034,7 +12037,7 @@
           "heightUnit": "px",
           "children": [],
           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-          "hiddenFlag": true,
+          "hiddenFlag": false,
           "hiddenFlagType": "literal",
           "clickableFlag": true,
           "clickableFlagType": "literal",
@@ -12042,15 +12045,16 @@
           "flagScrollDirection": "",
           "scrollSnapX": "",
           "scrollSnapY": "",
+          "checkedState": false,
           "checkedStateType": "literal",
           "disabledStateType": "literal",
           "states": "",
-          "useStyle": "panel_flat_black",
+          "useStyle": "panel_flat_dark_grey",
           "localStyles": {
             "objID": "e9036165-9248-4924-8445-25b87d47a8fb",
             "definition": {
               "MAIN": {
-                "DEFAULT": {
+                "CHECKED": {
                   "bg_color": "#ffab00"
                 }
               }
@@ -12083,7 +12087,7 @@
           "heightUnit": "px",
           "children": [],
           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-          "hiddenFlag": true,
+          "hiddenFlag": false,
           "hiddenFlagType": "literal",
           "clickableFlag": true,
           "clickableFlagType": "literal",
@@ -12091,15 +12095,16 @@
           "flagScrollDirection": "",
           "scrollSnapX": "",
           "scrollSnapY": "",
+          "checkedState": false,
           "checkedStateType": "literal",
           "disabledStateType": "literal",
           "states": "",
-          "useStyle": "panel_flat_black",
+          "useStyle": "panel_flat_dark_grey",
           "localStyles": {
             "objID": "448e0ced-af07-47f9-a51d-04df01f8cc22",
             "definition": {
               "MAIN": {
-                "DEFAULT": {
+                "CHECKED": {
                   "bg_color": "#00ff00"
                 }
               }
@@ -12132,7 +12137,7 @@
           "heightUnit": "px",
           "children": [],
           "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
-          "hiddenFlag": true,
+          "hiddenFlag": false,
           "hiddenFlagType": "literal",
           "clickableFlag": true,
           "clickableFlagType": "literal",
@@ -12140,15 +12145,16 @@
           "flagScrollDirection": "",
           "scrollSnapX": "",
           "scrollSnapY": "",
+          "checkedState": false,
           "checkedStateType": "literal",
           "disabledStateType": "literal",
           "states": "",
-          "useStyle": "panel_flat_black",
+          "useStyle": "panel_flat_dark_grey",
           "localStyles": {
             "objID": "3f22e2f2-34fd-4a64-ee0b-00f7d02951ac",
             "definition": {
               "MAIN": {
-                "DEFAULT": {
+                "CHECKED": {
                   "bg_color": "#00ff00"
                 }
               }
@@ -12172,7 +12178,7 @@
             "conditionalStyles": [],
             "childStyles": []
           },
-          "locked": true,
+          "locked": false,
           "timeline": [],
           "eventHandlers": [],
           "identifier": "fader",
@@ -12226,7 +12232,7 @@
             "conditionalStyles": [],
             "childStyles": []
           },
-          "locked": true,
+          "locked": false,
           "timeline": [],
           "eventHandlers": [],
           "leftUnit": "px",
@@ -13257,6 +13263,30 @@
             "MAIN": {
               "DEFAULT": {
                 "bg_color": "#ffffff"
+              }
+            }
+          }
+        }
+      },
+      {
+        "objID": "f9c751be-90d9-4ee9-c034-962372ee4511",
+        "name": "panel_flat_dark_grey",
+        "forWidgetType": "LVGLPanelWidget",
+        "childStyles": [],
+        "definition": {
+          "objID": "8b719212-20f2-4c2f-f8cf-b6ea6badf5f8",
+          "definition": {
+            "MAIN": {
+              "DEFAULT": {
+                "pad_top": 0,
+                "pad_bottom": 0,
+                "pad_left": 0,
+                "pad_right": 0,
+                "pad_row": 0,
+                "pad_column": 0,
+                "border_width": 0,
+                "radius": 0,
+                "bg_color": "#292929"
               }
             }
           }

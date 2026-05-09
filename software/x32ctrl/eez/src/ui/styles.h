@@ -45,6 +45,11 @@ lv_style_t *get_style_slider_config_MAIN_DEFAULT();
 void add_style_slider_config(lv_obj_t *obj);
 void remove_style_slider_config(lv_obj_t *obj);
 
+// Style: panel_flat_dark_grey
+lv_style_t *get_style_panel_flat_dark_grey_MAIN_DEFAULT();
+void add_style_panel_flat_dark_grey(lv_obj_t *obj);
+void remove_style_panel_flat_dark_grey(lv_obj_t *obj);
+
 // Style: panel_flat_black
 lv_style_t *get_style_panel_flat_black_MAIN_DEFAULT();
 void add_style_panel_flat_black(lv_obj_t *obj);

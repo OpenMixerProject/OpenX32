@@ -335,6 +335,42 @@ void remove_style_slider_config(lv_obj_t *obj) {
 };
 
 //
+// Style: panel_flat_dark_grey
+//
+
+void init_style_panel_flat_dark_grey_MAIN_DEFAULT(lv_style_t *style) {
+    lv_style_set_pad_top(style, 0);
+    lv_style_set_pad_bottom(style, 0);
+    lv_style_set_pad_left(style, 0);
+    lv_style_set_pad_right(style, 0);
+    lv_style_set_pad_row(style, 0);
+    lv_style_set_pad_column(style, 0);
+    lv_style_set_border_width(style, 0);
+    lv_style_set_radius(style, 0);
+    lv_style_set_bg_color(style, lv_color_hex(0xff292929));
+};
+
+lv_style_t *get_style_panel_flat_dark_grey_MAIN_DEFAULT() {
+    static lv_style_t *style;
+    if (!style) {
+        style = (lv_style_t *)lv_malloc(sizeof(lv_style_t));
+        lv_style_init(style);
+        init_style_panel_flat_dark_grey_MAIN_DEFAULT(style);
+    }
+    return style;
+};
+
+void add_style_panel_flat_dark_grey(lv_obj_t *obj) {
+    (void)obj;
+    lv_obj_add_style(obj, get_style_panel_flat_dark_grey_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
+};
+
+void remove_style_panel_flat_dark_grey(lv_obj_t *obj) {
+    (void)obj;
+    lv_obj_remove_style(obj, get_style_panel_flat_dark_grey_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
+};
+
+//
 // Style: panel_flat_black
 //
 
@@ -473,6 +509,7 @@ void add_style(lv_obj_t *obj, int32_t styleIndex) {
         add_style_slider_fader_solo,
         add_style_slider_fader_mute,
         add_style_slider_config,
+        add_style_panel_flat_dark_grey,
         add_style_panel_flat_black,
         add_style_panel_flat_bg,
         add_style_label_bg_yellow,
@@ -490,6 +527,7 @@ void remove_style(lv_obj_t *obj, int32_t styleIndex) {
         remove_style_slider_fader_solo,
         remove_style_slider_fader_mute,
         remove_style_slider_config,
+        remove_style_panel_flat_dark_grey,
         remove_style_panel_flat_black,
         remove_style_panel_flat_bg,
         remove_style_label_bg_yellow,
