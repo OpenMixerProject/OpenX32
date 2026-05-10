@@ -60,6 +60,11 @@ class Mixerparameter
 
         bool readonly = false;
 
+        /// @brief assign members via select if this Mixerparameter is true
+        MP_ID assign_members_if = MP_ID::NONE;
+        /// @brief assign members via select to this Mixerparameter
+        MP_ID assign_members_to = MP_ID::NONE;
+
         /// @brief Hide slider on display encoder.
         bool hide_encoder_slider = false;        
 
@@ -589,6 +594,15 @@ class Mixerparameter
             return this;
         }
 
+        /// @brief assign members via select if this Mixerparameter is true
+        Mixerparameter* DefAssignMembersIfTo(MP_ID MixerparameterToCheck, MP_ID MixerparameterDestination)
+        {
+            assign_members_if = MixerparameterToCheck;
+            assign_members_to = MixerparameterDestination;
+
+            return this;
+        }
+
         /// @brief Hide the slider on display encoders if this Mixerparameter is bound.
         Mixerparameter* DefHideEncoderSlider() {
             hide_encoder_slider = true;
@@ -656,6 +670,16 @@ class Mixerparameter
         MP_CAT GetCategory()
         {
             return category;
+        }
+
+        MP_ID GetAssignMembersIf()
+        {
+            return assign_members_if;
+        }
+
+        MP_ID GetAssignMembersTo()
+        {
+            return assign_members_to;
         }
 
         uint GetDecimaPlaces()

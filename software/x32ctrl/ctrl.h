@@ -31,7 +31,6 @@
 #include "page-effects.h"
 #include "page-setup.h"
 #include "page-setup-card.h"
-#include "page-mutegroup.h"
 #include "page-debug.h"
 #include "page-about.h"
 #include "page-scenes.h"
@@ -89,6 +88,10 @@ class X32Ctrl : public X32Base
         sBank busBanks[4];
 
         X32Bank* banks[(uint)X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE];
+
+        X32Bank* bankLoadedInputsection;
+        X32Bank* bankLoadedInputsection2;
+        X32Bank* bankLoadedBussection;
 
         map<X32_PAGE, Page*> pages;
         X32_PAGE lastPage = X32_PAGE::HOME;

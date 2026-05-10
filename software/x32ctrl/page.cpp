@@ -52,8 +52,9 @@ void Page::Show()
 {
     helper->DEBUG_GUI(DEBUGLEVEL_NORMAL, "Page::Show()");
 
-    // Turn off Utility
+    // Turn off Utility and Mute Group
     config->Set(DISPLAY_UTILITY, false);
+    config->Set(DISPLAY_MUTE_GROUP, false);
 
     // open tab on Layer0
 	if (tabLayer0 != nullptr)

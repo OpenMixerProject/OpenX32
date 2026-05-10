@@ -253,6 +253,7 @@ void X32Config::DefineMixerparameters() {
     cat = MP_CAT::DISPLAY;
 
     DefParameter(DISPLAY_UTILITY, cat, "")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_MUTE_GROUP, cat, "")->DefStandard_Bool(false);
 
     DefParameter(DISPLAY_LEFT, cat, "")->DefStandard_Bool(false);
     DefParameter(DISPLAY_RIGHT, cat, "")->DefStandard_Bool(false);
@@ -274,7 +275,16 @@ void X32Config::DefineMixerparameters() {
 
     DefParameter(MONITOR_TAPPOINT, cat, "Monitor Tappoint")
     ->DefConfig(group, "monitor_tappoint")
-    ->DefMinMaxStandard_Uint(0, 81, 0);    
+    ->DefMinMaxStandard_Uint(0, 81, 0);
+
+    // Mute Group "master switches"
+    for (uint i = 0; i < MUTE_GROUPS; i++)
+    {
+        DefParameter(MpCalcId(MUTE_GROUP_1_MUTE, i), cat, String("Mute Group ") + String(i+1) + String(" Muted"))
+        ->DefConfig(group, String("mute_group_") + String(i+1) + String("_muted"))
+        ->DefStandard_Bool(false)
+        ->DefAssignMembersIfTo(DISPLAY_MUTE_GROUP, MpCalcId(MUTE_GROUP_1, i));
+    }
 
     // ###########
     // # Channels
@@ -328,6 +338,14 @@ void X32Config::DefineMixerparameters() {
     DefParameter(CHANNEL_MUTE, cat, "Mute", MAX_VCHANNELS)
     ->DefConfig(group, "mute")
     ->DefStandard_Bool(false);
+
+    // Mute Group Membership
+    for (uint i = 0; i < MUTE_GROUPS; i++)
+    {
+        DefParameter(MpCalcId(MUTE_GROUP_1, i), cat, String("Mute Group ") + String(i+1) + String(" Member"), MAX_VCHANNELS)
+        ->DefConfig(group, String("mute_group_") + String(i+1) + String("_member"))
+        ->DefStandard_Bool(false);
+    }
     
     DefParameter(CHANNEL_PANORAMA, cat, "Pan/Bal", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::PANORAMA)
@@ -346,41 +364,17 @@ void X32Config::DefineMixerparameters() {
     // Sends
     cat = MP_CAT::CHANNEL_SENDS;
 
-    vector<MP_ID> channel_send_busses = {
-        CHANNEL_BUS_SEND01, CHANNEL_BUS_SEND02, CHANNEL_BUS_SEND03, CHANNEL_BUS_SEND04, CHANNEL_BUS_SEND05, CHANNEL_BUS_SEND06,
-        CHANNEL_BUS_SEND07, CHANNEL_BUS_SEND08, CHANNEL_BUS_SEND09, CHANNEL_BUS_SEND10, CHANNEL_BUS_SEND11, CHANNEL_BUS_SEND12,
-        CHANNEL_BUS_SEND13, CHANNEL_BUS_SEND14, CHANNEL_BUS_SEND15, CHANNEL_BUS_SEND16
-    };
-
-    for (uint i = 0; i < channel_send_busses.size(); i++)
+    for (uint i = 0; i < BUS_SENDS; i++)
     {
-        DefParameter(channel_send_busses.at(i), cat, String("Send ") + (i + 1), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_BUS_SEND01, i), cat, String("Send ") + (i + 1), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefConfig(group, "bus_send" + String(i))
         ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
     }
-
-    vector<MP_ID> channel_send_busses_tappoints = {
-        CHANNEL_BUS_SEND01_TAPPOINT,
-        CHANNEL_BUS_SEND02_TAPPOINT,
-        CHANNEL_BUS_SEND03_TAPPOINT,
-        CHANNEL_BUS_SEND04_TAPPOINT,
-        CHANNEL_BUS_SEND05_TAPPOINT,
-        CHANNEL_BUS_SEND06_TAPPOINT,
-        CHANNEL_BUS_SEND07_TAPPOINT,
-        CHANNEL_BUS_SEND08_TAPPOINT,
-        CHANNEL_BUS_SEND09_TAPPOINT,
-        CHANNEL_BUS_SEND10_TAPPOINT,
-        CHANNEL_BUS_SEND11_TAPPOINT,
-        CHANNEL_BUS_SEND12_TAPPOINT,
-        CHANNEL_BUS_SEND13_TAPPOINT,
-        CHANNEL_BUS_SEND14_TAPPOINT,
-        CHANNEL_BUS_SEND15_TAPPOINT,
-        CHANNEL_BUS_SEND16_TAPPOINT};
     
-    for (uint i = 0; i < channel_send_busses_tappoints.size(); i++)
+    for (uint i = 0; i < BUS_SENDS; i++)
     {
-        DefParameter(channel_send_busses_tappoints.at(i), cat, String("Send ")  + (i + 1) + " Tap", MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_BUS_SEND01_TAPPOINT, i), cat, String("Send ")  + (i + 1) + " Tap", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::TAPPOINT)
         ->DefConfig(group, "bus_send_tappoint" + String(i))
         ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
@@ -478,25 +472,25 @@ void X32Config::DefineMixerparameters() {
     float channel_eq_freq[4] = {125.0f, 500.0f, 2000.0f, 10000.0f};
     for (uint i = 0; i < channel_eq_count; i++)
     {
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_TYPE1 + i), cat, String("Type[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_TYPE1, i), cat, String("Type[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::EQ_TYPE)
         ->DefConfig(group, "eq_type_" + String(i))
         ->DefHideEncoderReset()
         ->DefMinMaxStandard_Uint(0, 7, 1)
         ->DefCycleMode(1, 1);
 
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_FREQ1 + i), cat, String("Freg[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_FREQ1, i), cat, String("Freg[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::HZ)
         ->DefConfig(group, "eq_freq_" + String(i))
         ->DefStepmode(1) // frequency mode
         ->DefMinMaxStandard_Float(20.0f, 20000.0f, channel_eq_freq[i]);
 
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_GAIN1 + i), cat, String("Gain[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_GAIN1, i), cat, String("Gain[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefConfig(group, "eq_gain_" + String(i))
         ->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
  
-        DefParameter((MP_ID)((uint)CHANNEL_EQ_Q1 + i), cat, String("Q[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_Q1, i), cat, String("Q[") + String(i) + String("]"), MAX_VCHANNELS)
         ->DefStepsize(0.1f)
         ->DefConfig(group, "eq_q_" + String(i))
         ->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
@@ -1277,6 +1271,12 @@ map<MP_ID, set<uint>>* X32Config::GetChangedParameterList()
     return mp_changedlist;
 }
 
+// Calculate the Mixerparameter ID (usefull for loops or other iterative situations)
+MP_ID X32Config::MpCalcId(MP_ID mp_id, int amount)
+{
+	return (MP_ID)(((uint)mp_id) + amount);
+}
+
 vector<uint> X32Config::GetChangedParameterIndexes(MP_CAT parameter_cat)
 {
     vector<uint> changedIndexes;
@@ -1580,7 +1580,7 @@ MP_ID X32Config::ParameterCalcId(SurfaceBindingParameter* binding_parameter)
                 {
                     stepsize = 1;
                 }
-                return (MP_ID)((uint)binding_parameter->mp_id + (GetUint((MP_ID)binding_parameter->mp_index)) * stepsize);
+                return MpCalcId(binding_parameter->mp_id, (GetUint((MP_ID)binding_parameter->mp_index)) * stepsize);
             }
         default:
             return binding_parameter->mp_id;
@@ -2367,6 +2367,11 @@ void X32Config::DefineSurfaceElements()
             GetSurfaceElement((SurfaceElementId)(((int)BOARD_R_FADER_1)+i))     ->DefFader(X32_BOARD_R, i);
         }
     } 
+}
+
+SurfaceElementId X32Config::CalcSurfaceElementId(SurfaceElementId id, int amount)
+{
+	return (SurfaceElementId)(((uint)id) + amount);
 }
 
 bool X32Config::HasSurfaceElement(SurfaceElementId id)

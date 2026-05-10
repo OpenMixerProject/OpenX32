@@ -9,6 +9,8 @@ class PageConfig : public Page
         
         uint lastImageOffset;
 
+        lv_obj_t* config_mute_group[MUTE_GROUPS];
+
     public:
 
         PageConfig(PageBaseParameter* pagebasepar) : Page(pagebasepar)
@@ -23,15 +25,18 @@ class PageConfig : public Page
             noLedOnRack = true;
         }
 
-        void OnShow() override 
+        void OnInit() override
         {
-            UpdateEncoderBinding(config->GetUint(MP_ID::SELECTED_CHANNEL));
+            config_mute_group[0] = objects.config_mute_group_1;
+            config_mute_group[1] = objects.config_mute_group_2;
+            config_mute_group[2] = objects.config_mute_group_3;
+            config_mute_group[3] = objects.config_mute_group_4;
+            config_mute_group[4] = objects.config_mute_group_5;
+            config_mute_group[5] = objects.config_mute_group_6;
         }
 
-        void UpdateEncoderBinding(uint targetindex)
+        void OnShow() override 
         {
-            using enum MP_ID;
-
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_1, MixerparameterAction::CHANGE, SELECTED_CHANNEL);
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_2, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_GAIN);
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_PHANTOM);
@@ -43,8 +48,6 @@ class PageConfig : public Page
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, CHANNEL_MUTE);
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_PANORAMA);
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6, MixerparameterAction::RESET_SELECTED_CHANNEL, CHANNEL_PANORAMA);
-
-            SyncEncoderWidgets(true);
         }
 
         void OnChange(bool force_update) override
@@ -57,7 +60,6 @@ class PageConfig : public Page
             if (config->HasParameterChanged(SELECTED_CHANNEL))
             {
                 force_update = true;
-                UpdateEncoderBinding(chanIndex);
             }
 
             if (config->HasParameterChanged(CHANNEL_GAIN, chanIndex) || force_update)
@@ -96,7 +98,18 @@ class PageConfig : public Page
             {
                 lv_image_set_offset_x(objects.config_mute_checkbox, config->GetUint(CHANNEL_MUTE, chanIndex) * -lv_obj_get_width(objects.config_mute_checkbox));
             }
+
+            for (uint i = 0; i < MUTE_GROUPS; i++)
+            {
+                if (config->HasParameterChanged(config->MpCalcId(MUTE_GROUP_1, i), chanIndex) || force_update)
+                {
+                    lv_obj_set_state(config_mute_group[i], LV_STATE_CHECKED, config->GetBool(config->MpCalcId(MUTE_GROUP_1, i), chanIndex));
+                }
+            }
+
         }
+
+        
 
         void OnUpdateMeters() override
         {

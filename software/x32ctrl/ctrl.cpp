@@ -293,10 +293,7 @@ void X32Ctrl::Tick10ms(void)
 
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->card->Sync()");
 		mixer->card->Sync();
-	}
 
-	if (config->HasAnyParameterChanged())
-	{
 		syncGuiOrLcd();
 		//syncXRemote(false);
 	}
@@ -738,7 +735,6 @@ void X32Ctrl::InitPagesAndGUI()
 	pages[X32_PAGE::PROTOTYPEGUI] = new PagePrototypeGui(pagebasepar);
 	pages[X32_PAGE::LIBRARY] = new PageLibrary(pagebasepar);
 	pages[X32_PAGE::EFFECTS] = new PageEffects(pagebasepar);
-	pages[X32_PAGE::MUTE_GRP] = new PageMutegroup(pagebasepar);
 	pages[X32_PAGE::SCENES] = new PageScenes(pagebasepar);
 	
 	for (const auto& [key, value] : pages)
@@ -1934,6 +1930,8 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
 		}
+
+		bankLoadedInputsection = bank_to_load;
 	}
 
 	if (target == X32BankTarget::InputSection2)
@@ -1947,6 +1945,8 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
 		}
+
+		bankLoadedInputsection2 = bank_to_load;
 	}
 
 	if (target == X32BankTarget::BusSection)
@@ -1960,7 +1960,9 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
 			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
 		}
-	}	
+
+		bankLoadedBussection = bank_to_load;
+	}
 }
 
 // Bind Surfaceelements to Mixerparameter or special functions
@@ -1973,7 +1975,7 @@ void X32Ctrl::InitSurfaceBinding()
 	config->SurfaceBind(SurfaceElementId::SETUP, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SETUP));
 	config->SurfaceBind(SurfaceElementId::LIBRARY, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::LIBRARY));
 	config->SurfaceBind(SurfaceElementId::EFFECTS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::EFFECTS));
-	config->SurfaceBind(SurfaceElementId::MUTE_GRP, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::MUTE_GRP));
+	config->SurfaceBind(SurfaceElementId::MUTE_GRP, MixerparameterAction::TOGGLE, DISPLAY_MUTE_GROUP);
 	config->SurfaceBind(SurfaceElementId::UTILITY, MixerparameterAction::TOGGLE, DISPLAY_UTILITY);
 
 	config->SurfaceBind(SurfaceElementId::LEFT, MixerparameterAction::TOGGLE, DISPLAY_LEFT);
@@ -2080,6 +2082,15 @@ void X32Ctrl::InitSurfaceBinding()
 		config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, NONE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 		config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+
+		// Mute Groups
+		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_1, MixerparameterAction::TOGGLE, MUTE_GROUP_1_MUTE);
+		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_2, MixerparameterAction::TOGGLE, MUTE_GROUP_2_MUTE);
+		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_3, MixerparameterAction::TOGGLE, MUTE_GROUP_3_MUTE);
+		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_4, MixerparameterAction::TOGGLE, MUTE_GROUP_4_MUTE);
+		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_5, MixerparameterAction::TOGGLE, MUTE_GROUP_5_MUTE);
+		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_6, MixerparameterAction::TOGGLE, MUTE_GROUP_6_MUTE);
+
 	}
 
 	if (config->IsModelX32FullOrCompactOrProducerOrRack())
@@ -2142,6 +2153,9 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 		// find surfaceelement
 		SurfaceElement* button = config->GetSurfaceElementButton(board, value);
 		if (button == 0) { return; }
+
+		SurfaceBindingParameter* bindingParameterButton = config->GetSurfaceBinding(button->GetId());
+
 		bool isButtonPressed = (value >> 7) == 1;
 
 		// Logic for double button press
@@ -2154,7 +2168,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 			}
 		} else {
 			if (buttonPressed == button) {
-				buttonPressed = 0;
+				buttonPressed = 0;				
 			}
 			if (secondbuttonPressed == button) {
 				secondbuttonPressed = 0;
@@ -2166,99 +2180,143 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 			isButtonPressed ? "pressed" : "released"
 		);
 
-		if (isButtonPressed)
+		
+		if (bindingParameterButton != 0 && bindingParameterButton->mp_action != MixerparameterAction::NONE)
 		{
-			SurfaceBindingParameter* bindingParameterButton = config->GetSurfaceBinding(button->GetId());
+			MP_ID parameter_id = config->ParameterCalcId(bindingParameterButton);
+			uint parameter_index = config->ParameterCalcIndex(bindingParameterButton);
 
-			if (bindingParameterButton != 0 && bindingParameterButton->mp_action != MixerparameterAction::NONE)
+			Mixerparameter* parameter = config->GetParameter(parameter_id);
+
+			if (isButtonPressed)
 			{
-				MP_ID parameter_id = config->ParameterCalcId(bindingParameterButton);
-				uint parameter_index = config->ParameterCalcIndex(bindingParameterButton);
-
-				switch (bindingParameterButton->mp_action)
+				// Member Assign Mode (e.g. Mute Groups)
+				if (config->IsModelX32FullOrCompactOrProducer() && config->GetBool(parameter->GetAssignMembersIf()))
 				{
-					case MixerparameterAction::REFRESH:
-						config->Refresh(parameter_id, parameter_index);
-						break;
-					case MixerparameterAction::TOGGLE:
-						config->Toggle(parameter_id, parameter_index);
-						break;
-					case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
-						config->Toggle(parameter_id, parameter_index);
-						break;
-					case MixerparameterAction::SET:
-					case MixerparameterAction::SET_SELECTED_CHANNEL:
-						config->Set(parameter_id, 1, parameter_index);
-						break;
-					case MixerparameterAction::SET_TO_INDEX:
+					// Bind Select button to destination Mixerparameter
+					for (uint i = 0; i < 8; i++)
+					{
+						// Board L / InputSection
+						uint chanIndex_L = bankLoadedInputsection->channelstrip[i]->select->mp_index;
+						config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_L_SELECT_1, i),
+											bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_L);
+
+						if (config->IsModelX32Full())
 						{
-							// Set value to the bound index value.
-							float value_to_set = bindingParameterButton->mp_index;
-
-							if (secondbuttonPressed != 0)
+							uint chanIndex_M = bankLoadedInputsection2->channelstrip[i]->select->mp_index;
+							config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_M_SELECT_1, i),
+												bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_M);	
+						}
+						
+						uint chanIndex_R = bankLoadedBussection->channelstrip[i]->select->mp_index;
+						config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_R_SELECT_1, i),
+											bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_R);
+					}					
+				}
+				// Normal Mode
+				else
+				{
+					switch (bindingParameterButton->mp_action)
+					{
+						case MixerparameterAction::REFRESH:
+							config->Refresh(parameter_id, parameter_index);
+							break;
+						case MixerparameterAction::TOGGLE:
+							config->Toggle(parameter_id, parameter_index);
+							break;
+						case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
+							config->Toggle(parameter_id, parameter_index);
+							break;
+						case MixerparameterAction::SET:
+						case MixerparameterAction::SET_SELECTED_CHANNEL:
+							config->Set(parameter_id, 1, parameter_index);
+							break;
+						case MixerparameterAction::SET_TO_INDEX:
 							{
-								// Second button was pressed, while holding the first one
+								// Set value to the bound index value.
+								float value_to_set = bindingParameterButton->mp_index;
 
-								SurfaceBindingParameter* bindingParameterButtonOne = config->GetSurfaceBinding(buttonPressed->GetId());
-
-								if (config->IsModelX32CompactOrProducer())
+								if (secondbuttonPressed != 0)
 								{
-									// ######################################
-									// Banking input section into bus section
-									// ######################################
-									if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
+									// Second button was pressed, while holding the first one
+
+									SurfaceBindingParameter* bindingParameterButtonOne = config->GetSurfaceBinding(buttonPressed->GetId());
+
+									if (config->IsModelX32CompactOrProducer())
 									{
-										// both buttons belong to input banking --> so load the bank into the bus section
-										config->Set(BANKING_BUS, value_to_set, parameter_index);
+										// ######################################
+										// Banking input section into bus section
+										// ######################################
+										if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
+										{
+											// both buttons belong to input banking --> so load the bank into the bus section
+											config->Set(BANKING_BUS, value_to_set, parameter_index);
+										}
+									} 
+									else if (config->IsModelX32Full())
+									{
+										// TODO https://github.com/OpenMixerProject/OpenX32/issues/61
+
+										// #######################################
+										// Banking Channels 17-24 into bus section
+										// #######################################
+										if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
+										{
+											// both buttons belong to input banking --> so load the bank into the bus section										
+											config->Set(BANKING_BUS, value_to_set, parameter_index);
+										}
+
 									}
-								} 
-								else if (config->IsModelX32Full())
+								}
+								else
 								{
-									// TODO https://github.com/OpenMixerProject/OpenX32/issues/61
-
-									// #######################################
-									// Banking Channels 17-24 into bus section
-									// #######################################
-									if (bindingParameterButtonOne->mp_id == BANKING_INPUT && bindingParameterButton->mp_id == BANKING_INPUT)
-									{
-										// both buttons belong to input banking --> so load the bank into the bus section										
-										config->Set(BANKING_BUS, value_to_set, parameter_index);
-									}
-
+									config->Set(parameter_id, value_to_set, parameter_index);
 								}
 							}
-							else
-							{
-								config->Set(parameter_id, value_to_set, parameter_index);
-							}
+							break;
+						case MixerparameterAction::CHANGE:
+						case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
+						case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+							config->Change(parameter_id, 1, parameter_index); // every button press does one stepsize "up"
+							break;
+						case MixerparameterAction::RESET:
+						case MixerparameterAction::RESET_SELECTED_CHANNEL:
+							config->Reset(parameter_id, parameter_index);
+							break;
+						case MixerparameterAction::CLEAR_SOLO:
+							mixer->ClearSolo();
+							break;
+						case MixerparameterAction::CUSTOM:
+						{
+							Page* curent_page = pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)];
+							curent_page->ChangeCustomButton(button->GetId());
 						}
-						break;
-					case MixerparameterAction::CHANGE:
-					case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
-					case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
-						config->Change(parameter_id, 1, parameter_index); // every button press does one stepsize "up"
-						break;
-					case MixerparameterAction::RESET:
-					case MixerparameterAction::RESET_SELECTED_CHANNEL:
-						config->Reset(parameter_id, parameter_index);
-						break;
-					case MixerparameterAction::CLEAR_SOLO:
-						mixer->ClearSolo();
-						break;
-					case MixerparameterAction::CUSTOM:
-					{
-						Page* curent_page = pages[(X32_PAGE)config->GetUint(MP_ID::ACTIVE_PAGE)];
-						curent_page->ChangeCustomButton(button->GetId());
+						case MixerparameterAction::DMX:
+							// TODO Implement ArtNet and other cool DMX stuff
+							break;
 					}
-					case MixerparameterAction::DMX:
-						// TODO Implement ArtNet and other cool DMX stuff
-						break;
 				}
 			}
 			else
 			{
-				helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Button is not bound.");
+				// Button was released	
+
+				// Member Assign Mode (e.g. Mute Groups)
+				if (config->IsModelX32FullOrCompactOrProducer())
+				{
+					Mixerparameter* parameter = config->GetParameter(parameter_id);
+					if (config->GetBool(parameter->GetAssignMembersIf()))
+					{
+						// Reload current banking
+						config->Refresh(BANKING_INPUT);
+						config->Refresh(BANKING_BUS);			
+					}
+				}
 			}
+		}
+		else
+		{
+			helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Button is not bound.");
 		}
 	}
 	else if (classid == 'e') // Encoder
@@ -2405,7 +2463,7 @@ void X32Ctrl::SimulatorButton(uint32_t key)
 			config->Toggle(DISPLAY_UTILITY);
 			break;
 		case 57:
-			config->Set(ACTIVE_PAGE, (uint)MUTE_GRP);
+			config->Toggle(DISPLAY_MUTE_GROUP);
 			break;
 		case 48:
 			config->Set(ACTIVE_PAGE, (uint)DEBUG);

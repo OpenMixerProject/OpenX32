@@ -77,6 +77,9 @@ typedef unsigned int uint;
 #define CHANNEL_VOLUME_MIN         -100.0f // dB
 #define CHANNEL_VOLUME_MAX           10.0f // dB
 
+#define MUTE_GROUPS 6
+#define BUS_SENDS 16
+
 #define GATE_THRESHOLD_MIN            -80.0f // dB
 #define GATE_THRESHOLD_MAX              0.0f // dB
 #define GATE_RANGE_MIN                  3.0f // dB

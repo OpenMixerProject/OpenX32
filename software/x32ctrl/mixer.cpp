@@ -299,7 +299,51 @@ void Mixer::Sync(void)
         helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "syncing %d changed Mixerparameters to hardware", changedParameterCount);
     }
 
-    vector<MP_ID> filter = {CHANNEL_VOLUME, CHANNEL_VOLUME_SUB, CHANNEL_MUTE, CHANNEL_PANORAMA, CHANNEL_SEND_LR, CHANNEL_SEND_SUB};
+    vector<MP_ID> filter;
+
+    // Mute Groups
+    if (!config->GetBool(DISPLAY_MUTE_GROUP)) // only set mute from groups, if we are out of assign mode
+    {
+        // check if mute group has changed
+        bool hasMuteChanged = false;
+        for (uint muteGroupIdx = 0; muteGroupIdx < MUTE_GROUPS; muteGroupIdx++)
+        {
+            hasMuteChanged |= config->HasParameterChanged(config->MpCalcId(MUTE_GROUP_1_MUTE, muteGroupIdx));
+            hasMuteChanged |= config->HasParameterChanged(config->MpCalcId(MUTE_GROUP_1, muteGroupIdx));
+
+            if (hasMuteChanged)
+            {
+                break;
+            }
+        }
+
+        if (hasMuteChanged)
+        {
+            // loop through all channels
+            for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
+            {
+                // loop through all mute groups
+                bool muteChannel = false;
+                for (uint i = 0; i < MUTE_GROUPS; i++)
+                {
+                    MP_ID muteGroupSwitchId = config->MpCalcId(MUTE_GROUP_1_MUTE, i);
+                    MP_ID muteGroupId = config->MpCalcId(MUTE_GROUP_1, i);
+            
+                    // if we are part of the mute group
+                    if (config->GetBool(muteGroupId, chanIndex))
+                    {
+                        // add to the desired channel mute state according to mute group switch
+                        // -> if at least one group is muted, mute the channel
+                        muteChannel |= config->GetBool(muteGroupSwitchId);
+                    }
+                }
+
+                config->Set(CHANNEL_MUTE, muteChannel, chanIndex);
+            }
+        }
+    }
+
+    filter = {CHANNEL_VOLUME, CHANNEL_VOLUME_SUB, CHANNEL_MUTE, CHANNEL_PANORAMA, CHANNEL_SEND_LR, CHANNEL_SEND_SUB};
     if (config->HasParametersChanged(filter))
     {
         vector<uint> changedIndexes = config->GetChangedParameterIndexes(filter);
@@ -462,10 +506,10 @@ void Mixer::Sync(void)
             // copy values fromm Mixerparameter
             for (uint8_t peq = 0; peq < MAX_CHAN_EQS; peq++)
             {
-                dsp->Channel[changedIndex].peq[peq].type = config->GetUint((MP_ID)(to_underlying(CHANNEL_EQ_TYPE1) + peq), changedIndex);
-                dsp->Channel[changedIndex].peq[peq].fc = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_FREQ1) + peq), changedIndex);
-                dsp->Channel[changedIndex].peq[peq].Q = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_Q1) + peq), changedIndex);
-                dsp->Channel[changedIndex].peq[peq].gain = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_GAIN1) + peq), changedIndex);
+                dsp->Channel[changedIndex].peq[peq].type = config->GetUint(config->MpCalcId(CHANNEL_EQ_TYPE1, peq), changedIndex);
+                dsp->Channel[changedIndex].peq[peq].fc = config->GetFloat(config->MpCalcId(CHANNEL_EQ_FREQ1, peq), changedIndex);
+                dsp->Channel[changedIndex].peq[peq].Q = config->GetFloat(config->MpCalcId(CHANNEL_EQ_Q1, peq), changedIndex);
+                dsp->Channel[changedIndex].peq[peq].gain = config->GetFloat(config->MpCalcId(CHANNEL_EQ_GAIN1, peq), changedIndex);
             }
     
             dsp->SendEQ(changedIndex);

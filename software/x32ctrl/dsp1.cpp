@@ -43,10 +43,10 @@ void DSP1::Init(void)
     {
          for (uint8_t peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
          {
-            Channel[chanIndex].peq[peqIndex].type = config->GetUint((MP_ID)(to_underlying(CHANNEL_EQ_TYPE1) + peqIndex));
-            Channel[chanIndex].peq[peqIndex].fc = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_FREQ1) + peqIndex));
-            Channel[chanIndex].peq[peqIndex].Q = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_Q1) + peqIndex));
-            Channel[chanIndex].peq[peqIndex].gain = config->GetFloat((MP_ID)(to_underlying(CHANNEL_EQ_GAIN1) + peqIndex));
+            Channel[chanIndex].peq[peqIndex].type = config->GetUint(config->MpCalcId(CHANNEL_EQ_TYPE1, peqIndex));
+            Channel[chanIndex].peq[peqIndex].fc = config->GetFloat(config->MpCalcId(CHANNEL_EQ_FREQ1, peqIndex));
+            Channel[chanIndex].peq[peqIndex].Q = config->GetFloat(config->MpCalcId(CHANNEL_EQ_Q1, peqIndex));
+            Channel[chanIndex].peq[peqIndex].gain = config->GetFloat(config->MpCalcId(CHANNEL_EQ_GAIN1, peqIndex));
         }
     }
 }
@@ -98,7 +98,7 @@ void DSP1::SendChannelSend(uint chanIndex)
     float values[16];
     for (uint8_t i_mixbus = 0; i_mixbus < 16; i_mixbus++)
     {
-        float sendVol = config->GetFloat((MP_ID)((uint)CHANNEL_BUS_SEND01 + i_mixbus), chanIndex);
+        float sendVol = config->GetFloat(config->MpCalcId(CHANNEL_BUS_SEND01, i_mixbus), chanIndex);
 
         values[i_mixbus] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
     }
@@ -115,7 +115,7 @@ void DSP1::ChannelSendTapPoints(uint chanIndex)
         uint32_t values[2];
         uint dspindex = 0;
         values[0] = sendChannel;
-        values[1] = config->GetUint((MP_ID)((uint)CHANNEL_BUS_SEND01_TAPPOINT + sendChannel), chanIndex);
+        values[1] = config->GetUint(config->MpCalcId(CHANNEL_BUS_SEND01_TAPPOINT, sendChannel), chanIndex);
 
         // Mixbus
         if (chanIndex >= 48) // Mixbus

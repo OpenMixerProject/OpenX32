@@ -54,7 +54,7 @@ class X32Config
         Mixerparameter** GetParameterList();
         map<MP_ID, set<uint>>* GetChangedParameterList();
 
-        
+        MP_ID MpCalcId(MP_ID mp_id, int amount);
         
         vector<uint> GetChangedParameterIndexes(MP_CAT parameter_cat);
         vector<uint> GetChangedParameterIndexes(vector<MP_ID> filter_ids);
@@ -89,6 +89,8 @@ class X32Config
 
         void DefineSurfaceElements();
         SurfaceElement* DefSurfaceElements(SurfaceElementId element_id, String name);
+
+        SurfaceElementId CalcSurfaceElementId(SurfaceElementId id, int amount);
 
         bool HasSurfaceElement(SurfaceElementId id);
         SurfaceElement* GetSurfaceElement(SurfaceElementId);

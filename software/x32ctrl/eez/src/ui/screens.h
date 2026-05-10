@@ -63,6 +63,13 @@ typedef struct _objects_t {
     lv_obj_t *config_phase_checkbox;
     lv_obj_t *config_mute_checkbox;
     lv_obj_t *current_channel_gain;
+    lv_obj_t *list_mute_groups;
+    lv_obj_t *config_mute_group_1;
+    lv_obj_t *config_mute_group_2;
+    lv_obj_t *config_mute_group_3;
+    lv_obj_t *config_mute_group_4;
+    lv_obj_t *config_mute_group_5;
+    lv_obj_t *config_mute_group_6;
     lv_obj_t *openx32_demo_knob;
     lv_obj_t *obj6;
     lv_obj_t *config_phantom_button;

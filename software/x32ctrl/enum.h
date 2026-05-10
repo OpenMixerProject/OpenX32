@@ -393,7 +393,6 @@ enum class X32_PAGE :int
         PROTOTYPEGUI,
     LIBRARY,
     EFFECTS,
-    MUTE_GRP,
     SCENES
 };
 
@@ -524,6 +523,7 @@ enum class MP_ID {
     BANKING_BUS,
     BANKING_BUS_SENDS,
     DISPLAY_UTILITY,
+    DISPLAY_MUTE_GROUP,
 
     DISPLAY_LEFT,
     DISPLAY_RIGHT,
@@ -535,6 +535,20 @@ enum class MP_ID {
     MONITOR_VOLUME,
     MONITOR_TAPPOINT,
     CLEAR_SOLO,
+
+    MUTE_GROUP_1,
+    MUTE_GROUP_2,
+    MUTE_GROUP_3,
+    MUTE_GROUP_4,
+    MUTE_GROUP_5,
+    MUTE_GROUP_6,
+
+    MUTE_GROUP_1_MUTE,
+    MUTE_GROUP_2_MUTE,
+    MUTE_GROUP_3_MUTE,
+    MUTE_GROUP_4_MUTE,
+    MUTE_GROUP_5_MUTE,
+    MUTE_GROUP_6_MUTE,
 
     // Channel
 
