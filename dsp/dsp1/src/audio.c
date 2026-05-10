@@ -76,7 +76,7 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 #endif
 
 #pragma align 8 // align for 2 floats
-float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MATRIX + MAX_MAIN + MAX_MONITOR]; // audioBuffer[TAPPOINT][SAMPLE][CHANNEL]
+float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS + MAX_DSP2_FXINSERT + MAX_MATRIX + MAX_MAIN + MAX_DSP2_AUX + MAX_MONITOR]; // audioBuffer[TAPPOINT][SAMPLE][CHANNEL]
 //float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 //float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 float sampleBuffer[SAMPLES_IN_BUFFER]; // main channels can be calculated only after the other channels, so we can save some memory here
@@ -130,14 +130,13 @@ void audioInit(void) {
 	}
 
 	// initialize variables
-	dsp.monitorChannelTapPoint = TAP_PRE_FADER;
-	dsp.monitorMixbusTapPoint = TAP_PRE_FADER;
-	dsp.monitorMatrixTapPoint = TAP_PRE_FADER;
+	dsp.monitorChannelTapPoint = TAP_INPUT;
+	dsp.monitorMatrixTapPoint = TAP_INPUT; // TODO: set to TAP_PRE_FADER when EQ and dynamics are working on MixBus
 	dsp.monitorMainTapPoint = TAP_POST_FADER;
 	dsp.monitorVolume = 1.0f;
 
 	// FX-Returns (0dBfs and set left/right to main)
-	for (int i = 40; i < (40 + 8); i += 2) {
+	for (int i = MAX_CHAN_FPGA; i < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i += 2) {
 		dsp.channelVolumeSet[i] = 1.0f;
 		dsp.channelSendMainLeftVolume[i] = 1.0f;
 		dsp.channelSendMainRightVolume[i] = 0.0f;
@@ -150,7 +149,7 @@ void audioInit(void) {
 	}
 
 	// Mixbusse (silent)
-	for (int i = 48; i < (40 + 8 + 8); i += 2) {
+	for (int i = (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS); i += 2) {
 		dsp.channelVolumeSet[i] = 0.0f;
 		dsp.channelSendMainLeftVolume[i] = 0.0f;
 		dsp.channelSendMainRightVolume[i] = 0.0f;
@@ -161,6 +160,7 @@ void audioInit(void) {
 		dsp.channelSendMainRightVolume[i + 1] = 0.0f;
 		dsp.channelSendMainSubVolume[i + 1] = 0.0f;
 	}
+
 
 	#if DEBUG_DISABLE_DELAYLINE == 0
 		delayLineHeadInput = 0;
@@ -255,15 +255,22 @@ void audioProcessData(void) {
 
 		// copy channels from DSP2
 		// keep value of tdmBufferOffset from last loop
-		dspCh = 0;
-		for (int i_tdm = TDM_INPUTS_FPGA; i_tdm < TDM_INPUTS-1; i_tdm++) {
+		{
 			bufferIndex = bufferSampleIndex + tdmBufferOffset;
 
 			// input from DSP2 side (we are receiving float data here)
 			// TODO: use DMA to store data in the destination as we already receive float-values
-			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FX + dspCh], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
+			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FXRET], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
 
-			dspCh += CHANNELS_PER_TDM;
+			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
+		}
+		{
+			bufferIndex = bufferSampleIndex + tdmBufferOffset;
+
+			// input from DSP2 side (we are receiving float data here)
+			// TODO: use DMA to store data in the destination as we already receive float-values
+			memcpy(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FXINS], &audioRxBuf[bufferIndex], CHANNELS_PER_TDM * sizeof(float)); // copy 8 consecutive channels at once
+
 			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
 		{
@@ -529,7 +536,7 @@ void audioProcessData(void) {
 
 	// copy data for DSP2-FX-Return-Channels from TAP_INPUT to TAP_PRE_FADER without processing. All other DSP2-channel have no volume-control yet
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		memcpy(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSP2_FX], &audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FX], MAX_DSP2_FXRETURN * sizeof(float));
+		memcpy(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_DSP2_FXRET], &audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_DSP2_FXRET], MAX_DSP2_FXRETURN * sizeof(float));
 	}
 
 	//   ____ _                            _   _____         _
@@ -647,11 +654,12 @@ void audioProcessData(void) {
 	// translate these loops into SIMD-commands using the parallel-MAC-feature of the SHARC
 	// this takes 2% less load compared to vecdotf()-function
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-	    float *src = &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL];
+	    float* src = &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL];
 	    float sumL = 0;
 		float sumR = 0;
 	    float sumS = 0;
 
+	    // DSP-channel + FX-Returns
 	    for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); i_ch++) {
 	        sumL += src[i_ch] * dsp.channelSendMainLeftVolume[i_ch];
 	        sumR += src[i_ch] * dsp.channelSendMainRightVolume[i_ch];
@@ -794,23 +802,14 @@ void audioProcessData(void) {
 	if (dsp.soloActive) {
 		// accumulate the soloed channels pre-fader into MonitorL/R
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			float *src = &audioBuffer[dsp.monitorChannelTapPoint][s][DSP_BUF_IDX_DSPCHANNEL];
 		    float sum = 0;
 
-			for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
+		    float *src = &audioBuffer[dsp.monitorChannelTapPoint][s][DSP_BUF_IDX_DSPCHANNEL];
+			for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); i_ch++) {
 				if (dsp.dspChannel[i_ch].solo) {
 					sum += src[i_ch];
 				}
 			}
-
-			#if DEBUG_DISABLE_MIXBUS == 0
-			src = &audioBuffer[dsp.monitorMixbusTapPoint][s][DSP_BUF_IDX_MIXBUS];
-			for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
-				if (dsp.mixbusChannel[i_ch].solo) {
-					sum += src[i_ch];
-				}
-			}
-			#endif
 
 			if (dsp.mainLrSolo) {
 				sum += audioBuffer[dsp.monitorMainTapPoint][s][DSP_BUF_IDX_MAINLEFT];

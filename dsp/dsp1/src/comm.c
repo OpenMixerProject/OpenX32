@@ -149,18 +149,20 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 			break;
 		case 'r': // DSP routing
-			if (channel >= (MAX_CHAN_FPGA + MAX_CHAN_DSP2)) {
-				return;
-			}
-
 			switch (index) {
 				case 0:
+					if (channel >= MAX_CHAN_FPGA) {
+						return;
+					}
 					if (valueCount == 2) {
 						dsp.inputRouting[channel] = intValues[0];
 						dsp.inputTapPoint[channel] = intValues[1];
 					}
 					break;
 				case 1:
+					if (channel >= (MAX_CHAN_FPGA + MAX_CHAN_DSP2)) {
+						return;
+					}
 					if (valueCount == 2) {
 						dsp.outputRouting[channel] = intValues[0];
 						dsp.outputTapPoint[channel] = intValues[1];
@@ -203,18 +205,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						dsp.channelSendMainSubVolume[channel] = floatValues[3];
 					}
 					break;
-				case 1: // Mixbus-Channels
-					if (channel >= MAX_MIXBUS) {
-						return;
-					}
-
-					if (valueCount == 4) {
-						dsp.channelVolumeSet[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[0];
-						dsp.channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[1];
-						dsp.channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[2];
-						dsp.channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + channel] = floatValues[3];
-					}
-					break;
 				case 2: // Matrix-Channels
 /*
 
@@ -234,9 +224,8 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					}
 					break;
 
-
 				case 10: // Solo DSP-Channel / FX-Return
-					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS)) {
 						return;
 					}
 
@@ -247,21 +236,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 					break;
 
-				case 11: // Solo Mixbus
-					if (channel >= MAX_MIXBUS) {
-						return;
-					}
-
-					if (valueCount == 2) {
-						dsp.mixbusChannel[channel].solo = (intValues[0] > 0);
-						dsp.soloActive = (intValues[1] > 0);
-					}
-					break;
-
-				case 12: // Solo Matrix
-					break;
-
-				case 13: // Solo Main
+				case 11: // Solo Main
 					if (valueCount == 3) {
 						dsp.mainLrSolo = (intValues[0] > 0);
 						dsp.mainSubSolo = (intValues[1] > 0);

@@ -41,8 +41,6 @@ class DSP1 : X32Base {
         void SendChannelVolume(uint chanIndex);
         void SendChannelSolo(uint chanIndex, bool isSoloActivated);
         void SendChannelSend(uint chanIndex);
-        void SendMixbusVolume(uint chanIndex);
-        void SendMixbusSolo(uint chanIndex, bool isSoloActivated);
         void SendMatrixVolume(uint chanIndex);
         void SendMatrixSolo(uint chanIndex, bool isSoloActivated);
         void SendMonitorVolume();

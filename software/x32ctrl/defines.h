@@ -160,8 +160,9 @@ typedef unsigned int uint;
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
 #define DSP_BUF_IDX_AUX			33	// Aux-Channel 1-8
-#define DSP_BUF_IDX_DSP2_FX		41  // FXDSP2 FX-Channel 1-16
-#define DSP_BUF_IDX_MIXBUS		57	// Mixbus 1-16
+#define DSP_BUF_IDX_DSP2_FXRET  41  // FXDSP2 FX-Return-Channel 1-8
+#define DSP_BUF_IDX_MIXBUS		49	// Mixbus 1-16
+#define DSP_BUF_IDX_DSP2_FXINS  65  // FXDSP2 FX-Insert-Channel 1-8
 #define DSP_BUF_IDX_MAINLEFT	73	// main left
 #define DSP_BUF_IDX_MAINRIGHT	74	// main right
 #define DSP_BUF_IDX_MAINSUB		75	// main sub

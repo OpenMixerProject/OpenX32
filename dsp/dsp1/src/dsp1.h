@@ -85,11 +85,6 @@ typedef struct {
 	bool solo;
 } sDspChannel;
 
-typedef struct {
-	//sCompressor compressor;
-	bool solo;
-} sMixbusChannel;
-
 struct {
 	float samplerate;
 
@@ -118,11 +113,11 @@ struct {
 	short channelSendMixbusTapPoint[MAX_MIXBUS][MAX_CHAN_FPGA + MAX_DSP2_FXRETURN];
 
 	#pragma align 8 // align for 2 floats
-	float pm channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	float pm channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
 	#pragma align 8
-	float pm channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	float pm channelSendMainRightVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
 	#pragma align 8
-	float pm channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS]; // in p.u.
+	float pm channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
 
 
 /*
@@ -141,16 +136,13 @@ struct {
 	bool mainLrSolo;
 	bool mainSubSolo;
 
-	short inputRouting[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
-	short inputTapPoint[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
+	short inputRouting[MAX_CHAN_FPGA];
+	short inputTapPoint[MAX_CHAN_FPGA];
 	short outputRouting[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
 	short outputTapPoint[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
-	sDspChannel dspChannel[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
-	sMixbusChannel mixbusChannel[MAX_MIXBUS];
-	//sMatrixChannel matrixChannel[MAX_MATRIX];
+	sDspChannel dspChannel[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS];
 
 	short monitorChannelTapPoint;
-	short monitorMixbusTapPoint;
 	short monitorMatrixTapPoint;
 	short monitorMainTapPoint;
 	float monitorVolume;

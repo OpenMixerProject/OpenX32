@@ -344,13 +344,10 @@ void Mixer::Sync(void)
         {
             if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
                 helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX) ||
-                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::FXRET))
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::FXRET) ||
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::BUS) )
             {
                 dsp->SendChannelVolume(changedIndex);
-            }
-            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::BUS))
-            {
-                dsp->SendMixbusVolume(changedIndex);
             }
             else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MATRIX))
             {
@@ -372,13 +369,11 @@ void Mixer::Sync(void)
         for (auto const& changedIndex : changedIndexes)
         {
             if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
-                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX))
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::AUX) ||
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::FXRET) ||
+                helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::BUS) )
             {
                 dsp->SendChannelSolo(changedIndex, IsSoloActivated());
-            }
-            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::BUS))
-            {
-                dsp->SendMixbusSolo(changedIndex, IsSoloActivated());
             }
             else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MATRIX))
             {

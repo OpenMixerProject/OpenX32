@@ -134,46 +134,6 @@ void DSP1::ChannelSendTapPoints(uint chanIndex)
     }
 }
 
-// send Mixbus
-void DSP1::SendMixbusVolume(uint chanIndex)
-{
-    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMixbusVolume() channelindex %d", chanIndex);
-
-    float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chanIndex), 0.0f, 100.0f) / 100.0f;
-    float balanceRight = helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, chanIndex) + 100.0f, 0.0f, 100.0f) / 100.0f;
-    float volumeLR = config->GetFloat(CHANNEL_VOLUME, chanIndex);
-    float volumeSub = config->GetFloat(CHANNEL_VOLUME_SUB, chanIndex);
-
-    if (config->GetBool(CHANNEL_MUTE, chanIndex))
-    {
-         volumeLR = VOLUME_MIN; // dB
-         volumeSub = VOLUME_MIN; // dB
-    }
-
-    // send volume to DSP via SPI
-    float values[4];
-    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
-    values[1] = balanceLeft; // 100 .. 100 ..  0
-    values[2] = balanceRight; // 0  .. 100 .. 100
-    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
-
-    uint mixbusChannelIndex = 48;
-    spi->QueueDspData(0, 'v', chanIndex - mixbusChannelIndex, 1, 4, &values[0]);
-}
-
-void DSP1::SendMixbusSolo(uint chanIndex, bool isSoloActivated)
-{
-    uint32_t values[2];
-
-    values[0] = config->GetBool(CHANNEL_SOLO, chanIndex);
-    values[1] = isSoloActivated;
-
-    helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMixbusSolo() channelindex %d: %u, %u", chanIndex, values[0], values[1]);
-
-    uint mixbusChannelIndex = 48;
-    spi->QueueDspData(0, 'v', chanIndex - mixbusChannelIndex, 11, 2, (float*)&values[0]);
-}
-
 void DSP1::SendMatrixVolume(uint chanIndex)
 {
     helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMatrixVolume() channelindex %d", chanIndex);
@@ -438,34 +398,34 @@ void DSP1::SetOutputRouting(uint chanIndex) {
 
 String DSP1::RoutingGetOutputNameByIndex(uint8_t index) {
 /*
-    // DSP-output-channels:
-    // 0-31		Main-Output to FPGA
-    // 32-39	Aux-Output to FPGA
-    // 40-56	FX-Sends 1-16 to DSP2
+    // 64 DSP-output-channels:
+    // 1-32		Main-Output to FPGA
+    // 33-40	Aux-Output to FPGA
+    // 41-56	FX-Sends 1-16 to DSP2
     // 57-64	FX-Aux to DSP2
 */
-    if ((index >= DSP_BUF_IDX_DSPCHANNEL) && (index < (DSP_BUF_IDX_DSPCHANNEL + 32))) {
+    if ((index >= 1) && (index <= 32)) {
         return String("DSP Out ") + index;
-    } else if ((index >= DSP_BUF_IDX_AUX) && (index < (DSP_BUF_IDX_AUX + 8))) {
+    } else if ((index >= 33) && (index <= 40)) {
         return String("DSP AuxOut ") + (index - 32);
-    } else if ((index >= DSP_BUF_IDX_DSP2_FX) && (index < (DSP_BUF_IDX_DSP2_FX + 16))) {
+    } else if ((index >= 41) && (index <= 56)) {
         return String("FX SendOut ") + (index - 40);
     // the following channels are FX AUX Send 1-8 to DSP2
-    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 16))) {
+    } else if ((index == 57)) {
         return String("Linux Audio L");
-    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 17))) {
+    } else if ((index == 58)) {
         return String("Linux Audio R");
-    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 18))) {
+    } else if ((index == 59)) {
         return String("AES/EBU Out L");
-    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 19))) {
+    } else if ((index == 60)) {
         return String("AES/EBU Out R");
-    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 20))) {
+    } else if ((index == 61)) {
         return String("Unused Ch 5");
-    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 21))) {
+    } else if ((index == 62)) {
         return String("Unused Ch 6");
-    } else if ((index == (DSP_BUF_IDX_DSP2_FX + 22))) {
+    } else if ((index == 63)) {
         return String("Unused Ch 7");
-    } else if (index == DSP_BUF_IDX_DSP2_FX + 23) {
+    } else if (index == 64) {
         return String("RTA Source");
     }
 

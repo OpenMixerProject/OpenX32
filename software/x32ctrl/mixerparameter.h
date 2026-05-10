@@ -232,14 +232,17 @@ class Mixerparameter
                             case DSP_BUF_IDX_DSPCHANNEL ... (DSP_BUF_IDX_AUX - 1):
                                 result += String("FPGA -> DSP In ") + chan;
                                 break;
-                            case DSP_BUF_IDX_AUX ... (DSP_BUF_IDX_DSP2_FX - 1):
+                            case DSP_BUF_IDX_AUX ... (DSP_BUF_IDX_DSP2_FXRET - 1):
                                 result += String("FPGA -> DSP In ") + chan;
                                 break;
-                            case DSP_BUF_IDX_DSP2_FX ... (DSP_BUF_IDX_MIXBUS - 1):
-                                result += String("DSP2 -> FX Return ") + (chan - DSP_BUF_IDX_DSP2_FX + 1);
+                            case DSP_BUF_IDX_DSP2_FXRET ... (DSP_BUF_IDX_MIXBUS - 1):
+                                result += String("DSP2 -> FX Return ") + (chan - DSP_BUF_IDX_DSP2_FXRET + 1);
                                 break;
-                            case DSP_BUF_IDX_MIXBUS ... (DSP_BUF_IDX_MAINLEFT - 1):
+                            case DSP_BUF_IDX_MIXBUS ... (DSP_BUF_IDX_DSP2_FXINS - 1):
                                 result += String("Mixbus ") + (chan - DSP_BUF_IDX_MIXBUS + 1);
+                                break;
+                            case DSP_BUF_IDX_DSP2_FXINS ... (DSP_BUF_IDX_MAINLEFT - 1):
+                                result += String("DSP2 -> FX Insert ") + (chan - DSP_BUF_IDX_DSP2_FXINS + 1);
                                 break;
                             case DSP_BUF_IDX_MAINLEFT:
                                 result += String("Main L");
