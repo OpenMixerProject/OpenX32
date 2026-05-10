@@ -60,7 +60,7 @@ void X32Ctrl::Init()
 	//##################################################################################
 
 	InitBanks();
-	InitSurfaceBinding();
+	LoadDefaultSurfaceBinding();
 
 	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->Init()");
 	mixer->Init();
@@ -1966,7 +1966,7 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 }
 
 // Bind Surfaceelements to Mixerparameter or special functions
-void X32Ctrl::InitSurfaceBinding()
+void X32Ctrl::LoadDefaultSurfaceBinding()
 {
 	// Display
 	config->SurfaceBind(SurfaceElementId::HOME, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::HOME));
@@ -2074,16 +2074,10 @@ void X32Ctrl::InitSurfaceBinding()
 		config->SurfaceBind(SurfaceElementId::BUS1_8, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::BUS1_8));
 		config->SurfaceBind(SurfaceElementId::BUS9_16, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::BUS9_16));
 		config->SurfaceBind(SurfaceElementId::MATRIX_MAIN, MixerparameterAction::SET_TO_INDEX, BANKING_BUS, (uint)(X32BankId::MATRIX_MAIN));
-		
-		// Main Fader
-		config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-		
-		config->SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-		config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, NONE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-		config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-		config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 
-		// Mute Groups
+        LoadMainFaderSurfaceBinding();
+
+        // Mute Groups
 		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_1, MixerparameterAction::TOGGLE, MUTE_GROUP_1_MUTE);
 		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_2, MixerparameterAction::TOGGLE, MUTE_GROUP_2_MUTE);
 		config->SurfaceBind(SurfaceElementId::MUTE_GROUP_3, MixerparameterAction::TOGGLE, MUTE_GROUP_3_MUTE);
@@ -2111,7 +2105,15 @@ void X32Ctrl::InitSurfaceBinding()
 	}
 }
 
-
+void X32Ctrl::LoadMainFaderSurfaceBinding()
+{
+    // Main Fader
+    config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+    config->SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+    config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, NONE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+    config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+    config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+}
 
 //#####################################################################################################################
 //
@@ -2203,14 +2205,21 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 						if (config->IsModelX32Full())
 						{
+							// Board M / InputSection2
 							uint chanIndex_M = bankLoadedInputsection2->channelstrip[i]->select->mp_index;
 							config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_M_SELECT_1, i),
 												bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_M);	
 						}
 						
+						// Board R / BusSection
 						uint chanIndex_R = bankLoadedBussection->channelstrip[i]->select->mp_index;
 						config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_R_SELECT_1, i),
 											bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_R);
+
+						// Master Fader
+						config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN,
+											bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+
 					}					
 				}
 				// Normal Mode
@@ -2309,7 +2318,8 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 					{
 						// Reload current banking
 						config->Refresh(BANKING_INPUT);
-						config->Refresh(BANKING_BUS);			
+						config->Refresh(BANKING_BUS);
+						LoadMainFaderSurfaceBinding();		
 					}
 				}
 			}
