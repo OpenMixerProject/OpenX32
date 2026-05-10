@@ -134,10 +134,7 @@ void Page::Change(bool syncAll)
                 // Bind Encoder Widgets to Mute Groups
                 for (uint i = 0; i < MUTE_GROUPS; i++)
                 {
-                    String text = String("Assign to\n");
-
-                    config->SurfaceBindCustom(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_1, i), text);
-                    //config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_1, i), MixerparameterAction::NONE, NONE);
+                    config->SurfaceBindCustom(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_1, i), String("Assign to\n"));
                 }
                 config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_1);
                 config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_2);
@@ -242,12 +239,6 @@ void Page::SyncEncoderWidget(SurfaceElementId elementIdEncoder, SurfaceElementId
 
             // hide slider
             lv_obj_set_flag(lvgl_encoder_widget->Slider, LV_OBJ_FLAG_HIDDEN, true);
-
-            // clear button
-            ClearEncoderButton(lvgl_encoder_widget);
-            
-            // immediately return, as this is a special case that overrides all other
-            //return;
         }
         else
         {
