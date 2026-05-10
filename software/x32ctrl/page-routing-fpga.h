@@ -85,10 +85,14 @@ class PageRoutingFpga: public Page
                             case 4: // AES50 A
                                 item_index = FPGA_INPUT_IDX_AES50A;
                                 break;
+                            default:
+                                break;
                         }
                         
                         config->Set(ROUTING_FPGA, item_index, current_targetblockoffset + selection_index);
                     }
+                    break;
+                default:
                     break;
             }
         }
@@ -123,6 +127,8 @@ class PageRoutingFpga: public Page
                 case 5: // Ultranet
                     targetblockoffset = 16;
                     targetblocksize = 16;
+                    break;
+                default:
                     break;
             }
 
@@ -183,6 +189,8 @@ class PageRoutingFpga: public Page
                             break;
                         case FPGA_INPUT_IDX_AES50A ... FPGA_INPUT_IDX_AES50A + 47:
                             selection_source = 4;
+                            break;
+                        default:
                             break;
                     }                    
                     lv_roller_set_selected(objects.routing_fpga_source, selection_source, LV_ANIM_OFF);

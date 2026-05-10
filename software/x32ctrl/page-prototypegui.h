@@ -63,6 +63,8 @@ class PagePrototypeGui: public Page
                     selectionindex += amount;
                     lv_buttonmatrix_set_button_ctrl(objects.routingmatrix, selectionindex, LV_BUTTONMATRIX_CTRL_CHECKED);
                     break;
+                default:
+                    break;
             }
         }
 };

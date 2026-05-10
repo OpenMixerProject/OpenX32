@@ -40,6 +40,8 @@ class PageSends : public Page
 
                     UpdateBinding();
                     break;
+                default:
+                    break;
             }
         }
 

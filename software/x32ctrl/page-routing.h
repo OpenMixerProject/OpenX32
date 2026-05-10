@@ -59,6 +59,8 @@ class PageRouting: public Page
                         config->Set(ROUTING_FPGA, FPGA_INPUT_IDX_CARD + i, FPGA_OUTPUT_IDX_AES50A - 1 + i);
                     }  
                     break;
+                default:
+                    break;
             }
         }
 };

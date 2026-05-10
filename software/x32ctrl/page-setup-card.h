@@ -316,6 +316,8 @@ class PageSetupCard: public Page {
                     case SurfaceElementId::DISPLAY_ENCODER_BUTTON_6: // Select
                         mixer->card->XLIVE_SelectSession(helper->split(TOC, ',', gui_selected_item));
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -346,6 +348,8 @@ class PageSetupCard: public Page {
                         // format current card
                         mixer->card->XLIVE_FormatCard(); // TODO: we should ask the user with a nice message if he/she really wants to format the card
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -359,6 +363,8 @@ class PageSetupCard: public Page {
                     case SurfaceElementId::DISPLAY_ENCODER_6: // Select
                         gui_selected_item += amount;
                         OnChange(false);
+                        break;
+                    default:
                         break;
                 }
             }

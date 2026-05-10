@@ -121,6 +121,8 @@ class PageHome : public Page
                         OnChange(true);
                     }
                     break;
+                default:
+                    break;
             }
         }
 

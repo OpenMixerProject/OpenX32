@@ -1,7 +1,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.46
+#define DSP_VERSION				0.48
 
 #define DEBUG_DISABLE_LOWCUT	0
 #define DEBUG_DISABLE_GATE		0

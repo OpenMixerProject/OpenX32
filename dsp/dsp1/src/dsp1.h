@@ -79,12 +79,6 @@ typedef struct {
 	int holdTimer;
 } sCompressor;
 
-typedef struct {
-	sGate gate;
-	sCompressor compressor;
-	bool solo;
-} sDspChannel;
-
 struct {
 	float samplerate;
 
@@ -140,7 +134,10 @@ struct {
 	short inputTapPoint[MAX_CHAN_FPGA];
 	short outputRouting[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
 	short outputTapPoint[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
-	sDspChannel dspChannel[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS];
+
+	sGate dspChannelGate[MAX_CHAN_FULLFEATURED];
+	sCompressor dspChannelCompressor[MAX_CHAN_FULLFEATURED];
+	bool dspChannelSolo[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS];
 
 	short monitorChannelTapPoint;
 	short monitorMatrixTapPoint;

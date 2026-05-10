@@ -445,6 +445,11 @@ void X32Ctrl::Tick100ms(void)
 			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2);
 			mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
 		}
+
+		if (startupCounter == 60) {
+			// unmute ADDA-boards
+			mixer->adda->SetMuteAll(false);
+		}
 	}
 }
 

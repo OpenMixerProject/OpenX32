@@ -268,6 +268,8 @@ class PageRoutingChannels: public Page
                 case SurfaceElementId::DISPLAY_ENCODER_5:
 					config->Change(ROUTING_DSP_INPUT_TAPPOINT, amount, gui_selected_item);
                     break;
+                default:
+                    break;
             }
         }
 };

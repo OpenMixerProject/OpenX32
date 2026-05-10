@@ -26,8 +26,8 @@
 
 
 Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
+    SetMuteAll(true);
 	uart = new Uart(basepar);
-
 	addaPacketBufLen = 0;
 }
 

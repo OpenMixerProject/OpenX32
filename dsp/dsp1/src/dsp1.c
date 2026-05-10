@@ -94,7 +94,7 @@ void openx32Init(void) {
 	for (int ch = 0; ch < MAX_CHAN_FULLFEATURED; ch++) {
 		dsp.gateEnvelope[ch] = 1.0f;
 		dsp.compressorEnvelope[ch] = 1.0f;
-		dsp.dspChannel[ch].compressor.holdTimer = 0;
+		dsp.dspChannelCompressor[ch].holdTimer = 0;
 	}
 }
 

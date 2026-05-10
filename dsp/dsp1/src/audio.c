@@ -132,7 +132,7 @@ void audioInit(void) {
 	// initialize variables
 	dsp.monitorChannelTapPoint = TAP_INPUT;
 	dsp.monitorMatrixTapPoint = TAP_INPUT; // TODO: set to TAP_PRE_FADER when EQ and dynamics are working on MixBus
-	dsp.monitorMainTapPoint = TAP_POST_FADER;
+	dsp.monitorMainTapPoint = TAP_PRE_FADER;
 	dsp.monitorVolume = 1.0f;
 
 	// FX-Returns (0dBfs and set left/right to main)
@@ -414,24 +414,24 @@ void audioProcessData(void) {
 		float absInput = fabsf(audioBuffer[TAP_PRE_EQ][0][DSP_BUF_IDX_DSPCHANNEL + i_ch]);
 
 		float targetGain;
-		if (absInput > dsp.dspChannel[i_ch].gate.value_threshold) {
+		if (absInput > dsp.dspChannelGate[i_ch].value_threshold) {
 			// open gate
 			targetGain = 1.0f;
 		}else{
 			// gate closed
-			targetGain = dsp.dspChannel[i_ch].gate.value_gainmin;
+			targetGain = dsp.dspChannelGate[i_ch].value_gainmin;
 		}
 
 		if (targetGain > dsp.gateEnvelope[i_ch]) {
 			// Attack: gate is opening
-			dsp.gateEnvelope[i_ch] += dsp.dspChannel[i_ch].gate.value_coeff_attack * (targetGain - dsp.gateEnvelope[i_ch]);
-			dsp.dspChannel[i_ch].gate.holdTimer = dsp.dspChannel[i_ch].gate.value_hold_ticks;
+			dsp.gateEnvelope[i_ch] += dsp.dspChannelGate[i_ch].value_coeff_attack * (targetGain - dsp.gateEnvelope[i_ch]);
+			dsp.dspChannelGate[i_ch].holdTimer = dsp.dspChannelGate[i_ch].value_hold_ticks;
 		} else {
 			// Release: gate is closing
-			if (dsp.dspChannel[i_ch].gate.holdTimer > 0) {
-				dsp.dspChannel[i_ch].gate.holdTimer--;
+			if (dsp.dspChannelGate[i_ch].holdTimer > 0) {
+				dsp.dspChannelGate[i_ch].holdTimer--;
 			} else {
-				dsp.gateEnvelope[i_ch] += dsp.dspChannel[i_ch].gate.value_coeff_release * (targetGain - dsp.gateEnvelope[i_ch]);
+				dsp.gateEnvelope[i_ch] += dsp.dspChannelGate[i_ch].value_coeff_release * (targetGain - dsp.gateEnvelope[i_ch]);
 			}
 		}
 	}
@@ -499,8 +499,8 @@ void audioProcessData(void) {
 
 		// gain computation (static Curve)
 		float targetGainDb = 0.0f;
-		if (inputDb > dsp.dspChannel[i_ch].compressor.value_threshold) {
-			targetGainDb = (dsp.dspChannel[i_ch].compressor.value_threshold - inputDb) * (1.0f - 1.0f / dsp.dspChannel[i_ch].compressor.value_ratio);
+		if (inputDb > dsp.dspChannelCompressor[i_ch].value_threshold) {
+			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_threshold - inputDb) * (1.0f - 1.0f / dsp.dspChannelCompressor[i_ch].value_ratio);
 		}
 
 		// Attack / Hold / Release Logic
@@ -509,14 +509,14 @@ void audioProcessData(void) {
 		// simple smoothing (Ballistics)
 		if (currentGainLinear < dsp.compressorEnvelope[i_ch]) {
 			// Attack
-			dsp.compressorEnvelope[i_ch] += dsp.dspChannel[i_ch].compressor.value_coeff_attack * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
-			dsp.dspChannel[i_ch].compressor.holdTimer = dsp.dspChannel[i_ch].compressor.value_hold_ticks; // Reset Hold-Timer
+			dsp.compressorEnvelope[i_ch] += dsp.dspChannelCompressor[i_ch].value_coeff_attack * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
+			dsp.dspChannelCompressor[i_ch].holdTimer = dsp.dspChannelCompressor[i_ch].value_hold_ticks; // Reset Hold-Timer
 		} else {
 			// Hold -> Release
-			if (dsp.dspChannel[i_ch].compressor.holdTimer > 0) {
-				dsp.dspChannel[i_ch].compressor.holdTimer--;
+			if (dsp.dspChannelCompressor[i_ch].holdTimer > 0) {
+				dsp.dspChannelCompressor[i_ch].holdTimer--;
 			} else {
-				dsp.compressorEnvelope[i_ch] += dsp.dspChannel[i_ch].compressor.value_coeff_release * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
+				dsp.compressorEnvelope[i_ch] += dsp.dspChannelCompressor[i_ch].value_coeff_release * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
 			}
 		}
 	}
@@ -806,7 +806,7 @@ void audioProcessData(void) {
 
 		    float *src = &audioBuffer[dsp.monitorChannelTapPoint][s][DSP_BUF_IDX_DSPCHANNEL];
 			for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); i_ch++) {
-				if (dsp.dspChannel[i_ch].solo) {
+				if (dsp.dspChannelSolo[i_ch]) {
 					sum += src[i_ch];
 				}
 			}

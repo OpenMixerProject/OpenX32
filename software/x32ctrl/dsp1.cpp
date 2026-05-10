@@ -194,7 +194,7 @@ void DSP1::SendMainVolume()
         volumeSub = 0; // p.u.
     }
 
-    // send volume to DSP via spi->
+    // send volume to DSP via spi
     float values[3];
     values[0] = volumeLeft;
     values[1] = volumeRight;
@@ -215,7 +215,7 @@ void DSP1::SendMainSolo(bool isSoloActivated)
 
     helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMainSolo() channelindex %d: %u, %u, %u", 0, values[0], values[1], values[2]);
 
-    spi->QueueDspData(0, 'v', 0, 13, 3, (float*)&values[0]); // TODO: USE OFFSET
+    spi->QueueDspData(0, 'v', 0, 13, 3, (float*)&values[0]);
 }
 
 void DSP1::SendGate(uint chanIndex)

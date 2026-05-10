@@ -39,6 +39,8 @@ class PageScenes: public Page
                 case SurfaceElementId::DISPLAY_ENCODER_1:
                     configindex += amount;
                     break;
+                default:
+                    break;
             }
         }
 
@@ -51,6 +53,8 @@ class PageScenes: public Page
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_BUTTON_6:
                     mixer->SaveConfig(configindex);
+                    break;
+                default:
                     break;
             }
         }

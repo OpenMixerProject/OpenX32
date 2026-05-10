@@ -193,7 +193,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			break;
 		case 'v': // volume
 			switch (index) {
-				case 0: // DSP-Channels
+				case 0: // Volume DSP-Channels / FX-Return / Mixbusses
 					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS)) {
 						return;
 					}
@@ -205,6 +205,9 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						dsp.channelSendMainSubVolume[channel] = floatValues[3];
 					}
 					break;
+				case 1: // unused
+					break;
+
 				case 2: // Matrix-Channels
 /*
 
@@ -224,19 +227,25 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					}
 					break;
 
-				case 10: // Solo DSP-Channel / FX-Return
+				case 10: // Solo DSP-Channel / FX-Return / Mixbusses
 					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS)) {
 						return;
 					}
 
 					if (valueCount == 2) {
-						dsp.dspChannel[channel].solo = (intValues[0] > 0);
+						dsp.dspChannelSolo[channel] = (intValues[0] > 0);
 						dsp.soloActive = (intValues[1] > 0);
 					}
 
 					break;
 
-				case 11: // Solo Main
+				case 11: // unused
+					break;
+
+				case 12: // Matrix Solo
+					break;
+
+				case 13: // Solo Main
 					if (valueCount == 3) {
 						dsp.mainLrSolo = (intValues[0] > 0);
 						dsp.mainSubSolo = (intValues[1] > 0);
@@ -285,11 +294,11 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 
 			if (valueCount == 5) {
-				dsp.dspChannel[channel].gate.value_threshold = floatValues[0];
-				dsp.dspChannel[channel].gate.value_gainmin = floatValues[1];
-				dsp.dspChannel[channel].gate.value_coeff_attack = floatValues[2];
-				dsp.dspChannel[channel].gate.value_hold_ticks = floatValues[3];
-				dsp.dspChannel[channel].gate.value_coeff_release = floatValues[4];
+				dsp.dspChannelGate[channel].value_threshold = floatValues[0];
+				dsp.dspChannelGate[channel].value_gainmin = floatValues[1];
+				dsp.dspChannelGate[channel].value_coeff_attack = floatValues[2];
+				dsp.dspChannelGate[channel].value_hold_ticks = floatValues[3];
+				dsp.dspChannelGate[channel].value_coeff_release = floatValues[4];
 			}
 			break;
 		case 'e': // Equalizer/Filter
@@ -355,12 +364,12 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 
 			if (valueCount == 6) {
-				dsp.dspChannel[channel].compressor.value_threshold = floatValues[0];
-				dsp.dspChannel[channel].compressor.value_ratio = floatValues[1];
+				dsp.dspChannelCompressor[channel].value_threshold = floatValues[0];
+				dsp.dspChannelCompressor[channel].value_ratio = floatValues[1];
 				dsp.compressorMakeup[channel] = floatValues[2];
-				dsp.dspChannel[channel].compressor.value_coeff_attack = floatValues[3];
-				dsp.dspChannel[channel].compressor.value_hold_ticks = floatValues[4];
-				dsp.dspChannel[channel].compressor.value_coeff_release = floatValues[5];
+				dsp.dspChannelCompressor[channel].value_coeff_attack = floatValues[3];
+				dsp.dspChannelCompressor[channel].value_hold_ticks = floatValues[4];
+				dsp.dspChannelCompressor[channel].value_coeff_release = floatValues[5];
 			}
 			break;
 		case 'a': // Auxiliary

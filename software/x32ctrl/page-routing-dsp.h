@@ -272,6 +272,8 @@ class PageRoutingDsp: public Page
                         config->Change(DELAY_DSP_OUTPUT, amount, gui_selected_item);
                     }
                     break;
+                default:
+                    break;
             }
         }
 };

@@ -151,6 +151,8 @@ class PageDebug: public Page
                         config->Toggle(DEBUG_HEADER);
 			        }            
                     break;
+                default:
+                    break;
             }
         }
 };
