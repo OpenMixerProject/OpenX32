@@ -81,6 +81,7 @@ class Page : public X32Base
 
         void Init();
         void Show();
+        void ResetEncoderBinding();
         void UpdateMeters();
         void Change(bool syncAll = false);
         void ChangeCustomButton(SurfaceElementId surface_element_id);

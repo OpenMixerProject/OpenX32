@@ -342,8 +342,8 @@ void X32Config::DefineMixerparameters() {
     // Mute Group Membership
     for (uint i = 0; i < MUTE_GROUPS; i++)
     {
-        DefParameter(MpCalcId(MUTE_GROUP_1, i), cat, String("Mute Group ") + String(i+1) + String(" Member"), MAX_VCHANNELS)
-        ->DefConfig(group, String("mute_group_") + String(i+1) + String("_member"))
+        DefParameter(MpCalcId(MUTE_GROUP_1, i), cat, String("Mute Group ") + String(i+1), MAX_VCHANNELS)
+        ->DefConfig(group, String("mute_group_") + String(i+1))
         ->DefStandard_Bool(false);
     }
     
@@ -2484,7 +2484,7 @@ void X32Config::SurfaceUnbind(SurfaceElementId surfaceelement_id)
 
 void X32Config::SurfaceBindCustom(SurfaceElementId surfaceelement_id, String labeltext)
 {
-    SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(MixerparameterAction::CUSTOM, MP_ID::NONE, 0);
+    SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(MixerparameterAction::CUSTOM, NONE, 0);
     binding_parameter->custom_label = labeltext;
 	SurfaceBindParameter(surfaceelement_id, binding_parameter);
 }
