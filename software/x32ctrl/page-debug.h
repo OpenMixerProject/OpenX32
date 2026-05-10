@@ -26,7 +26,7 @@ class PageDebug: public Page
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, "XLR1 -> DSP2, DSP2 -> Ch9..24");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4);
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, "Clear DebugLabelText");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, "Debug Header on/off");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5);
 
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_6, MixerparameterAction::CHANGE, DEBUG_VALUE);
@@ -146,8 +146,9 @@ class PageDebug: public Page
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_BUTTON_5:
                     {
-                        mixer->debugText = ""; 
-                        lv_label_set_text(objects.setup_debug_label, mixer->debugText.c_str());
+                        //mixer->debugText = ""; 
+                        //lv_label_set_text(objects.setup_debug_label, mixer->debugText.c_str());
+                        config->Toggle(DEBUG_HEADER);
 			        }            
                     break;
             }
