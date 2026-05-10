@@ -132,20 +132,36 @@ void Page::Change(bool syncAll)
                 lv_obj_set_flag(objects.display_encoder_sliders, LV_OBJ_FLAG_HIDDEN, false);
 
                 // Bind Encoder Widgets to Mute Groups
-                for (uint i = 0; i < MUTE_GROUPS; i++)
+
+                // on Page Config -> edit mute group assignment
+                if (config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG)
                 {
-                    config->SurfaceBindCustom(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_1, i), String("Assign to\n"));
+                    for (uint i = 0; i < MAX_DISPLAY_ENCODER; i++)
+                    {
+                        config->SurfaceBindCustom(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_1, i), String(LV_SYMBOL_LIST) + String("\nAssign to\n"));
+                        config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, i),
+                                            MixerparameterAction::TOGGLE_SELECTED_CHANNEL, config->MpCalcId(MUTE_GROUP_1, i));
+                    }
+
+                    
                 }
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_1);
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_2);
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_3);
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_4);
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_5, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_5);
-                config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6, MixerparameterAction::TOGGLE_SELECTED_CHANNEL, MUTE_GROUP_6);
+                // on all other pages -> toggle mute group
+                else
+                {
+                    for (uint i = 0; i < MAX_DISPLAY_ENCODER; i++)
+                    {
+                        config->SurfaceBindCustom(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_1, i), String(LV_SYMBOL_MUTE) + String("\nToggle\n"));
+                        config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, i),
+                                            MixerparameterAction::TOGGLE, config->MpCalcId(MUTE_GROUP_1_MUTE, i));
+                    }
+                }
+
+                // force reload of Encoder Widgets
+                syncAll = true;
             }
             else
             {
-                // Rebind encoders from page
+                // rebind Encoder Widgets of page
                 ResetEncoderBinding();
                 OnShow();
                 OnChange(true);
@@ -200,7 +216,7 @@ X32_BTN Page::GetLed() {
 
 void Page::SyncEncoderWidgets(bool force)
 {
-    if (hideEncoders) {
+    if (hideEncoders && !config->GetBool(DISPLAY_MUTE_GROUP)) {
         return;
     }
 

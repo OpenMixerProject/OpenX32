@@ -2193,7 +2193,10 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 			if (isButtonPressed)
 			{
 				// Member Assign Mode (e.g. Mute Groups)
-				if (config->IsModelX32FullOrCompactOrProducer() && config->GetBool(parameter->GetAssignMembersIf()))
+				if (config->IsModelX32FullOrCompactOrProducer() 		&&
+					config->GetBool(parameter->GetAssignMembersIf()) 	&&
+					config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG
+				)
 				{
 					// Bind Select button to destination Mixerparameter
 					for (uint i = 0; i < 8; i++)

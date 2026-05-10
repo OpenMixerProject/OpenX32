@@ -302,22 +302,15 @@ void Mixer::Sync(void)
     vector<MP_ID> filter;
 
     // Mute Groups
-    if (!config->GetBool(DISPLAY_MUTE_GROUP)) // only set mute from groups, if we are out of assign mode
+    // if we are not on Page Config in Assign Mode
+    if (true) //!(config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG && config->GetBool(DISPLAY_MUTE_GROUP)))
     {
         // check if mute group has changed
-        bool hasMuteChanged = false;
         for (uint muteGroupIdx = 0; muteGroupIdx < MUTE_GROUPS; muteGroupIdx++)
         {
-            hasMuteChanged |= config->HasParameterChanged(config->MpCalcId(MUTE_GROUP_1_MUTE, muteGroupIdx));
-            hasMuteChanged |= config->HasParameterChanged(config->MpCalcId(MUTE_GROUP_1, muteGroupIdx));
-
-            if (hasMuteChanged)
-            {
-                break;
-            }
+            filter.push_back(config->MpCalcId(MUTE_GROUP_1_MUTE, muteGroupIdx));
         }
-
-        if (hasMuteChanged)
+        if (config->HasParametersChanged(filter))
         {
             // loop through all channels
             for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)

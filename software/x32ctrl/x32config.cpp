@@ -280,7 +280,7 @@ void X32Config::DefineMixerparameters() {
     // Mute Group "master switches"
     for (uint i = 0; i < MUTE_GROUPS; i++)
     {
-        DefParameter(MpCalcId(MUTE_GROUP_1_MUTE, i), cat, String("Mute Group ") + String(i+1) + String(" Muted"))
+        DefParameter(MpCalcId(MUTE_GROUP_1_MUTE, i), cat, String("Mute Group ") + String(i+1))
         ->DefConfig(group, String("mute_group_") + String(i+1) + String("_muted"))
         ->DefStandard_Bool(false)
         ->DefAssignMembersIfTo(DISPLAY_MUTE_GROUP, MpCalcId(MUTE_GROUP_1, i));

@@ -26,7 +26,7 @@
           },
           {
             "type": "border",
-            "selected": 0,
+            "selected": 5,
             "size": 206.5,
             "location": "right",
             "children": [
@@ -130,7 +130,7 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 11.42667066577527,
+              "weight": 11.309325056017437,
               "children": [
                 {
                   "type": "tabset",
@@ -202,22 +202,10 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 28.298011229122064,
-              "selected": 1,
+              "weight": 31.72443905398588,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
-                {
-                  "type": "tab",
-                  "id": "#f205efb0-4fa2-435a-a4e0-fbe43541fe00",
-                  "name": "ms_bar",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[OpenX32Gui.eez-project]:/userWidgets/0",
-                    "permanent": false
-                  },
-                  "icon": "svg:user_widget"
-                },
                 {
                   "type": "tab",
                   "id": "#dbab9156-9676-43a9-aac2-052835856f54",
@@ -229,12 +217,13 @@
                   },
                   "icon": "svg:page"
                 }
-              ]
+              ],
+              "active": true
             },
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 14.424530351614338,
+              "weight": 11.115448136508363,
               "children": [
                 {
                   "type": "tab",
@@ -244,8 +233,7 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ],
-              "active": true
+              ]
             }
           ]
         }
@@ -1074,8 +1062,8 @@
       },
       "transform": {
         "translate": {
-          "x": -385.45676762091,
-          "y": -255.80298882917106
+          "x": -403.49737701151923,
+          "y": -170.17611986480165
         },
         "scale": 1
       },
@@ -1087,25 +1075,7 @@
       },
       "selectionFront": {},
       "selectionBack": {
-        "0": {
-          "4": {
-            "0": {
-              "0": {
-                "0": {
-                  "0": {
-                    "$selected": true
-                  }
-                }
-              }
-            },
-            "2": {
-              "0": {}
-            }
-          },
-          "5": {
-            "0": {}
-          }
-        }
+        "0": {}
       }
     },
     "[OpenX32Gui.eez-project]:/lvglStyles/styles[tree-state]": {
@@ -1333,7 +1303,7 @@
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "BACKGROUND"
+    "PADDING"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
