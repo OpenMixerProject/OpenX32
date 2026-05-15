@@ -1073,8 +1073,49 @@ void X32Ctrl::syncSurface(bool fullSync)
 					// currently we have two main-modes:
 					// 1. ArtNET on faders
 					// 2. Normal channel display with panorama, name and color
-					if (config->GetBool(DMX_ARTNET_ON_FADERS)) {
-						if (config->HasParametersChanged({DMX_ARTNET_ON_FADERS, DMX_ARTNET_VALUE, DMX_ARTNET_OFFSET}))
+					if (config->GetBool(DMX_ARTNET_ON_FADERS) && (parameter_index != (int)X32_VCHANNEL_BLOCK::MAIN)) {
+						if (config->HasParameterChanged(DMX_ARTNET_OFFSET))
+						{
+							float value;
+							if (config->IsModelX32Full())
+							{
+								for (uint i = 0; i < 8; i++)
+								{
+									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i);
+									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + 8);
+									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + (int)X32_VCHANNEL_BLOCK::DCA);
+
+									value = artnet->GetValue(i + config->GetUint(DMX_ARTNET_OFFSET));
+									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i);
+
+									value = artnet->GetValue(8 + i + config->GetUint(DMX_ARTNET_OFFSET));
+									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i + 8);
+
+									value = artnet->GetValue(16 + i + config->GetUint(DMX_ARTNET_OFFSET));
+									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i + (int)X32_VCHANNEL_BLOCK::DCA);
+								}
+							}
+
+							if (config->IsModelX32CompactOrProducer())
+							{
+								for (uint i = 0; i < 8; i++)
+								{
+									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i);
+									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + (int)X32_VCHANNEL_BLOCK::DCA);
+
+									value = artnet->GetValue(i + config->GetUint(DMX_ARTNET_OFFSET));
+									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i);
+
+									value = artnet->GetValue(8 + i + config->GetUint(DMX_ARTNET_OFFSET));
+									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i + (int)X32_VCHANNEL_BLOCK::DCA);
+								}
+							}
+
+							hasChanged = true;
+						}
+
+						if ((config->HasParameterChanged(DMX_ARTNET_ON_FADERS)) ||
+							(config->HasParameterChanged(DMX_ARTNET_VALUE, binding_parameter->mp_index)))
 						{
 							hasChanged = true;
 						}
@@ -1285,29 +1326,14 @@ void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t cha
 		// DMX Mode
 
 		uint textIndex = 0;
-		uint16_t offset = 0;
-		if (config->IsModelX32Full()) {
-			// we have three boards
-			uint16_t offset;
-			if (p_boardId == X32_BOARD_L) {
-				offset = 0;
-			}else if (p_boardId == X32_BOARD_M) {
-				offset = 8;
-			}else if (p_boardId == X32_BOARD_R) {
-				offset = 16;
-			}
-			offset += config->GetUint(DMX_ARTNET_OFFSET);
-		}else if (config->IsModelX32CompactOrProducer()) {
-			// we have only two boards
-			uint16_t offset;
-			if (p_boardId == X32_BOARD_L) {
-				offset = 0;
-			}else if (p_boardId == X32_BOARD_R) {
-				offset = 8;
-			}
-			offset += config->GetUint(DMX_ARTNET_OFFSET);
+		uint16_t offset = config->GetUint(DMX_ARTNET_OFFSET);
+		if (p_boardId == X32_BOARD_L) {
+			offset += 0;
+		}else if (p_boardId == X32_BOARD_M) {
+			offset += 8; // only on X32Fullsize
+		}else if (p_boardId == X32_BOARD_R) {
+			offset += (config->IsModelX32Full() ? 16 : 8); // Depends on Fullsize or Compact/Producer
 		}
-
 
 		data->boardId = p_boardId;
 		data->color = (uint)X32_COLOR::YELLOW;
@@ -1317,7 +1343,7 @@ void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t cha
 		data->icon.y = 0;
 
 		// Channel Name
-		data->texts[textIndex].text = "DMX" + String(offset + channelIndex);
+		data->texts[textIndex].text = "DMX" + String(lcdIndex + offset + 1);
 		data->texts[textIndex].size = 0x20;
 		data->texts[textIndex].x = 0;
 		data->texts[textIndex].y = 0;
@@ -1325,8 +1351,8 @@ void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t cha
 		textIndex++;
 
 		// Value
-		float value = artnet->GetValue(offset + channelIndex);
-		data->texts[textIndex].text = String(value) + " / " + String(value/2.55f) + "%";
+		float value = artnet->GetValue(lcdIndex + offset);
+		data->texts[textIndex].text = String(value, 0) + " / " + String(value/2.55f, 1) + "%";
 		data->texts[textIndex].size = 0;
 		data->texts[textIndex].x = 0;
 		data->texts[textIndex].y = 20;
@@ -1335,23 +1361,23 @@ void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t cha
 
 		// Value
 		if (value < 32){
-			data->texts[textIndex].text = "________";
+			data->texts[textIndex].text = "";
 		} else if (value < 64){
-			data->texts[textIndex].text = "#_______";
+			data->texts[textIndex].text = "O";
 		} else if (value < 96){
-			data->texts[textIndex].text = "##______";
+			data->texts[textIndex].text = "OO";
 		} else if (value < 128){
-			data->texts[textIndex].text = "###_____";
+			data->texts[textIndex].text = "OOO";
 		} else if (value < 160){
-			data->texts[textIndex].text = "####____";
+			data->texts[textIndex].text = "OOOO";
 		} else if (value < 192){
-			data->texts[textIndex].text = "#####___";
+			data->texts[textIndex].text = "OOOOO";
 		} else if (value < 224){
-			data->texts[textIndex].text = "######__";
+			data->texts[textIndex].text = "OOOOOO";
 		} else if (value < 240){
-			data->texts[textIndex].text = "#######_";
+			data->texts[textIndex].text = "OOOOOOO";
 		} else {
-			data->texts[textIndex].text = "########";
+			data->texts[textIndex].text = "OOOOOOOO";
 		}
 		data->texts[textIndex].size = 0;
 		data->texts[textIndex].x = 0;
@@ -2247,29 +2273,17 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 				// so we are using a dummy-mixerparameter to get the changes
 				// and use a manual offeset to write the values to the ArtNet-Output
 
-				if (config->IsModelX32Full()) {
-					// we have three boards
-					uint16_t offset;
-					if (board == X32_BOARD_L) {
-						offset = 0;
-					}else if (board == X32_BOARD_M) {
-						offset = 8;
-					}else if (board == X32_BOARD_R) {
-						offset = 16;
-					}
-					offset += config->GetUint(DMX_ARTNET_OFFSET);
-					artnet->SetChannel(offset + index, (float)value * (255.0f/4095.0f), 0);
-				}else if (config->IsModelX32CompactOrProducer()) {
-					// we have only two boards
-					uint16_t offset;
-					if (board == X32_BOARD_L) {
-						offset = 0;
-					}else if (board == X32_BOARD_R) {
-						offset = 8;
-					}
-					offset += config->GetUint(DMX_ARTNET_OFFSET);
-					artnet->SetChannel(offset + index, (float)value * (255.0f/4095.0f), 0);
+				uint16_t offset = config->GetUint(DMX_ARTNET_OFFSET);
+				if (board == X32_BOARD_L) {
+					offset += 0;
+				}else if (board == X32_BOARD_M) {
+					offset += 8; // only on Fullsize
+				}else if (board == X32_BOARD_R) {
+					offset += (config->IsModelX32Full() ? 16 : 8);
 				}
+				artnet->SetChannel(index + offset, (float)value * (255.0f/4095.0f), 0);
+				config->Set(bindingParameter->mp_id, helper->Fadervalue2dBfs(value), bindingParameter->mp_index);
+				surface->FaderMoved((uint)board, index, value);
 				break;
 		}
 	}

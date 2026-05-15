@@ -1239,16 +1239,16 @@ void X32Config::DefineMixerparameters() {
     ->DefStandard_Bool(false)
     ->DefConfig(group, "artnet_on_faders");
 
-    // this is a dummy-value to get changes on artnet-values
-    // the value itself is taken from the the boardId and fader-index 
-    DefParameter(DMX_ARTNET_VALUE, cat, "ArtNet Value")
+    // contains the last changed ArtNet Channel
+    DefParameter(DMX_ARTNET_VALUE, cat, "ArtNet Value", MAX_VCHANNELS)
+    ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "artnet_value")
-    ->DefMinMaxStandard_Float(0.0f, 255.0f, 0.0f, 0);
+    ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
 
     DefParameter(DMX_ARTNET_OFFSET, cat, "ArtNet Offset")
     ->DefConfig(group, "artnet_channel")
-    ->DefStepsize(16) // we have at least 16 channels per X32, so we have only 32 pages
-    ->DefMinMaxStandard_Uint(1, 512, 1);
+    ->DefStepsize(8) // 64 pages
+    ->DefMinMaxStandard_Uint(0, 511, 0);
 
 
     //#####################################################

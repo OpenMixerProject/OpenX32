@@ -77,13 +77,7 @@ void Artnet::Tick()
             }
 
             // copy new data to output-array
-            //dmxOutput[i] = dmx[i];
-
-            // debug-data on Channel 1 to 10
-            if (i < 10)
-            {
-                dmxOutput[i] += 1;
-            }
+            dmxOutput[i] = dmx[i];
         }
 
         // send on configured ports
@@ -99,12 +93,10 @@ void Artnet::Tick()
 
 void Artnet::SetChannel(uint16_t channel, float value, float timeMs)
 {
-    if (channel >= 512) {
+    if (channel > 511) {
         helper->Error("Channel number out of range: %d", channel);
         return;
     }
-
-    float delta = value - dmx[channel];
 
     if (timeMs <= 0) {
         // no fading, set value directly
@@ -115,13 +107,13 @@ void Artnet::SetChannel(uint16_t channel, float value, float timeMs)
     }else{
         // calculate fading
         dmxDest[channel] = value;
-        dmxStep[channel] = delta / (timeMs / 50.0f); // calculate the step to reach the target value in the given time, based on the 50ms tick-rate
+        dmxStep[channel] = (value - dmx[channel]) / (timeMs / 50.0f); // calculate the step to reach the target value in the given time, based on the 50ms tick-rate
     }
 }
 
 float Artnet::GetValue(uint16_t channel)
 {
-    if (channel >= 512) {
+    if (channel > 511) {
         helper->Error("Channel number out of range: %d", channel);
         return 0;
     }
