@@ -407,6 +407,7 @@ uint8_t surface_calculate_checksum(char* data, uint16_t len) {
 
 void surface_set_led(uint8_t boardId, uint8_t index, bool ledOn) {
 	char buf[7];
+	uint8_t len = 6;
 	
 	buf[0] = 0xFE; // startbyte
 	buf[1] = 0x80 + boardId;
@@ -419,8 +420,7 @@ void surface_set_led(uint8_t boardId, uint8_t index, bool ledOn) {
 	}
 	
 	buf[5] = 0xFE;
-	uint8_t len = 6;
-	buf[6] = surface_calculate_checksum(&buf[0], 6);
+	buf[6] = surface_calculate_checksum(&buf[0], len);
 	
 	// send data over ttymxc1 (UART2)
 	for (uint8_t i = 0; i < (len + 1); i++) {
@@ -430,6 +430,7 @@ void surface_set_led(uint8_t boardId, uint8_t index, bool ledOn) {
 
 void surface_set_contrast(uint8_t boardId, uint8_t contrast) {
 	char buf[7];
+	uint8_t len = 6;
 	
 	buf[0] = 0xFE; // startbyte
 	buf[1] = 0x80 + boardId;
@@ -438,8 +439,26 @@ void surface_set_contrast(uint8_t boardId, uint8_t contrast) {
 	buf[4] = contrast & 0x3F;
 	
 	buf[5] = 0xFE; // endbyte
+	buf[6] = surface_calculate_checksum(&buf[0], len);
+	
+	// send data over ttymxc1 (UART2)
+	for (uint8_t i = 0; i < (len + 1); i++) {
+		surface_serial_putc(buf[i]);
+	}
+}
+
+void surface_set_brightness(uint8_t boardId, uint8_t brightness) {
+	char buf[7];
 	uint8_t len = 6;
-	buf[6] = surface_calculate_checksum(&buf[0], 6);
+	
+	buf[0] = 0xFE; // startbyte
+	buf[1] = 0x80 + boardId;
+	buf[2] = 'C'; // ControlMessage
+	buf[3] = 'B'; // index
+	buf[4] = brightness;
+	
+	buf[5] = 0xFE; // endbyte
+	buf[6] = surface_calculate_checksum(&buf[0], len);
 	
 	// send data over ttymxc1 (UART2)
 	for (uint8_t i = 0; i < (len + 1); i++) {
@@ -453,6 +472,7 @@ void surface_set_lcd(uint8_t boardId, uint8_t index, uint8_t color) {
 	// color = 0=BLACK, 1=RED, 2=GREEN, 3=YELLOW, 4=BLUE, 5=PINK, 6=CYAN, 7=WHITE
 
 	char buf[32];
+	uint8_t len = 31;
 	
 	buf[0] = 0xFE; // startbyte
 	buf[1] = 0x80 + boardId;
@@ -492,7 +512,6 @@ void surface_set_lcd(uint8_t boardId, uint8_t index, uint8_t color) {
 	buf[29] = ' ';
 	
 	buf[30] = 0xFE; // endbyte
-	uint8_t len = 31;
 	buf[31] = surface_calculate_checksum(&buf[0], len);
 	
 	// send data over ttymxc1 (UART2)
@@ -518,8 +537,9 @@ int board_late_init(void)
 	surface_set_led(0x00, 0x10, true); // boardId, LED-index, state
 
 	// set first LCD on board 0 and display text "OpenX32! Booting"
-	surface_set_contrast(0, 40);
-	surface_set_lcd(0, 8, 0b00000111); // boardId=0=R, index=8=Mainfader, color (bit 0=R, 1=G, 2=B, 3=Inverted)
+	surface_set_brightness(8, 0xC0); // default brightness
+	surface_set_contrast(8, 40); // default
+	surface_set_lcd(8, 8, 0b00000111); // boardId=0=R, index=8=Mainfader, color (bit 0=R, 1=G, 2=B, 3=Inverted)
 
 	return 0;
 }
