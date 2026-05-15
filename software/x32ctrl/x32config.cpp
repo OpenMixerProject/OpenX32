@@ -1231,9 +1231,24 @@ void X32Config::DefineMixerparameters() {
     cat = MP_CAT::DMX;
     group = "dmx_artnet";
 
-    DefParameter(DMX_ARTNET_ENABLE, cat, "ArtNet Node Enabled")
+    DefParameter(DMX_ARTNET_ENABLE, cat, "ArtNet Enabled")
     ->DefStandard_Bool(true)
     ->DefConfig(group, "artnet_enable");
+
+    DefParameter(DMX_ARTNET_ON_FADERS, cat, "ArtNet on Faders")
+    ->DefStandard_Bool(false)
+    ->DefConfig(group, "artnet_on_faders");
+
+    // this is a dummy-value to get changes on artnet-values
+    // the value itself is taken from the the boardId and fader-index 
+    DefParameter(DMX_ARTNET_VALUE, cat, "ArtNet Value")
+    ->DefConfig(group, "artnet_value")
+    ->DefMinMaxStandard_Float(0.0f, 255.0f, 0.0f, 0);
+
+    DefParameter(DMX_ARTNET_OFFSET, cat, "ArtNet Offset")
+    ->DefConfig(group, "artnet_channel")
+    ->DefStepsize(16) // we have at least 16 channels per X32, so we have only 32 pages
+    ->DefMinMaxStandard_Uint(1, 512, 1);
 
 
     //#####################################################

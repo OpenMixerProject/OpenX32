@@ -1070,26 +1070,36 @@ void X32Ctrl::syncSurface(bool fullSync)
 					hasChanged = config->HasParameterChanged(CHANNEL_SOLO);
 					break;
 				case MixerparameterAction::LCD:
-					switch(config->GetUint(CHANNEL_LCD_MODE))
-					{
-						case 0:
-							if (config->HasParametersChanged({CHANNEL_PANORAMA, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED	}, binding_parameter->mp_index) ||
-								config->HasParameterChanged(CHANNEL_LCD_MODE)
-							)
-							{
-								hasChanged = true;
-							}
-							break;
-						case 1:
-							if (config->HasParametersChanged({CHANNEL_PHASE_INVERT, CHANNEL_VOLUME, CHANNEL_PANORAMA, CHANNEL_GAIN,	CHANNEL_GATE_TRESHOLD,
-									CHANNEL_DYNAMICS_TRESHOLD, CHANNEL_PHANTOM, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED }, binding_parameter->mp_index) ||
-								config->HasParametersChanged({MP_CAT::CHANNEL_EQ}, binding_parameter->mp_index) || 
-								config->HasParameterChanged(CHANNEL_LCD_MODE)
-							)
-							{
-								hasChanged = true;
-							}
-							break;
+					// currently we have two main-modes:
+					// 1. ArtNET on faders
+					// 2. Normal channel display with panorama, name and color
+					if (config->GetBool(DMX_ARTNET_ON_FADERS)) {
+						if (config->HasParametersChanged({DMX_ARTNET_ON_FADERS, DMX_ARTNET_VALUE, DMX_ARTNET_OFFSET}))
+						{
+							hasChanged = true;
+						}
+					}else{
+						switch(config->GetUint(CHANNEL_LCD_MODE))
+						{
+							case 0:
+								if (config->HasParametersChanged({CHANNEL_PANORAMA, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED	}, binding_parameter->mp_index) ||
+									config->HasParameterChanged(CHANNEL_LCD_MODE)
+								)
+								{
+									hasChanged = true;
+								}
+								break;
+							case 1:
+								if (config->HasParametersChanged({CHANNEL_PHASE_INVERT, CHANNEL_VOLUME, CHANNEL_PANORAMA, CHANNEL_GAIN,	CHANNEL_GATE_TRESHOLD,
+										CHANNEL_DYNAMICS_TRESHOLD, CHANNEL_PHANTOM, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED }, binding_parameter->mp_index) ||
+									config->HasParametersChanged({MP_CAT::CHANNEL_EQ}, binding_parameter->mp_index) || 
+									config->HasParameterChanged(CHANNEL_LCD_MODE)
+								)
+								{
+									hasChanged = true;
+								}
+								break;
+						}
 					}
 					break;
 				case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
@@ -1271,130 +1281,209 @@ void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t cha
     LcdData* data = new LcdData();
 	uint textcount = 0;
 
-	switch(config->GetUint(CHANNEL_LCD_MODE))
-	{
-		case 0:
-			{
-				uint textIndex = 0;
+	if (config->GetBool(DMX_ARTNET_ON_FADERS)) {
+		// DMX Mode
 
-				data->boardId = p_boardId;
-				data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED);
-				data->lcdIndex = lcdIndex;
-				data->icon.icon = 0;
-				data->icon.x = 0;
-				data->icon.y = 0;
-
-				// Volume / Panorama
-
-				float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
-				
-				char balanceText[8] = "-------";
-				if (balance < -70){
-					balanceText[0] = '|';
-				} else if (balance < -40){
-					balanceText[1] = '|';
-				} else if (balance < -10){
-					balanceText[2] = '|';
-				} else if (balance > 70){
-					balanceText[6] = '|';
-				} else if (balance > 40){
-					balanceText[5] = '|';
-				} else if (balance > 10){
-					balanceText[4] = '|';
-				} else {
-					balanceText[3] = '|';
-				}
-				data->texts[textIndex].text = balanceText;    
-				data->texts[textIndex].size = 0;
-				data->texts[textIndex].x = 0;
-				data->texts[textIndex].y = 0;
-
-				textIndex++;
-
-				// Channel Name
-				data->texts[textIndex].text = config->GetString(CHANNEL_NAME, channelIndex);
-				data->texts[textIndex].size = 0x20;
-				data->texts[textIndex].x = 0;
-				data->texts[textIndex].y = 20;
-
-				textIndex++;
-
-				// Channel Internal Name
-				data->texts[textIndex].text = config->GetString(CHANNEL_NAME_INTERN, channelIndex);
-				data->texts[textIndex].size = 0;
-				data->texts[textIndex].x = 35;
-				data->texts[textIndex].y = 51;
-
-				textcount = textIndex + 1;
+		uint textIndex = 0;
+		uint16_t offset = 0;
+		if (config->IsModelX32Full()) {
+			// we have three boards
+			uint16_t offset;
+			if (p_boardId == X32_BOARD_L) {
+				offset = 0;
+			}else if (p_boardId == X32_BOARD_M) {
+				offset = 8;
+			}else if (p_boardId == X32_BOARD_R) {
+				offset = 16;
 			}
-			break;
-		case 1:
-			{
-				data->boardId = p_boardId;
-				data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED );
-				data->lcdIndex = lcdIndex;
-				data->icon.icon = 0;
-				data->icon.x = 0;
-				data->icon.y = 0;
-
-				// Gain / Lowcut
-				data->texts[0].text = String(config->GetFloat(CHANNEL_GAIN, channelIndex), 1) + String("dB ") + String(config->GetFloat(CHANNEL_LOWCUT_FREQ, channelIndex), 0) + String("Hz");
-				data->texts[0].size = 0;
-				data->texts[0].x = 3;
-				data->texts[0].y = 0;
-
-				// Phanton / Invert / Gate / Dynamics / EQ active
-				data->texts[1].text =
-					String(config->GetBool(CHANNEL_PHANTOM, channelIndex) ? "48V " : "    ") +
-					String(config->GetBool(CHANNEL_PHASE_INVERT, channelIndex) ? "@ " : "  ") +
-					String(config->GetFloat(CHANNEL_GATE_TRESHOLD, channelIndex) > -80.0f ? "G " : "  ") +
-					String(config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, channelIndex) < 0.0f ? "D " : "  ") +
-					// TODO String(mixer->GetEq(channelIndex) ? "E " : "  ");
-					String(true ? "E" : " ");
-				data->texts[1].size = 0;
-				data->texts[1].x = 10;
-				data->texts[1].y = 15;
-
-				// Volume / Panorama
-
-				float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
-				
-				char balanceText[8] = "-------";
-				if (balance < -70){
-					balanceText[0] = '|';
-				} else if (balance < -40){
-					balanceText[1] = '|';
-				} else if (balance < -10){
-					balanceText[2] = '|';
-				} else if (balance > 70){
-					balanceText[6] = '|';
-				} else if (balance > 40){
-					balanceText[5] = '|';
-				} else if (balance > 10){
-					balanceText[4] = '|';
-				} else {
-					balanceText[3] = '|';
-				}
-
-				float volume = config->GetFloat(CHANNEL_VOLUME, channelIndex);
-				if (volume > -100) {
-					data->texts[2].text = String(volume, 1) + String("dB ") + String(balanceText);
-				}else{
-					data->texts[2].text = String("-oodB ") + String(balanceText);
-				}
-				data->texts[2].size = 0;
-				data->texts[2].x = 8;
-				data->texts[2].y = 30;
-
-				// vChannel Name
-				data->texts[3].text = config->GetString(CHANNEL_NAME, channelIndex);
-				data->texts[3].size = 0;
-				data->texts[3].x = 0;
-				data->texts[3].y = 48;
-
-				textcount = 4;
+			offset += config->GetUint(DMX_ARTNET_OFFSET);
+		}else if (config->IsModelX32CompactOrProducer()) {
+			// we have only two boards
+			uint16_t offset;
+			if (p_boardId == X32_BOARD_L) {
+				offset = 0;
+			}else if (p_boardId == X32_BOARD_R) {
+				offset = 8;
 			}
-			break;
+			offset += config->GetUint(DMX_ARTNET_OFFSET);
+		}
+
+
+		data->boardId = p_boardId;
+		data->color = (uint)X32_COLOR::YELLOW;
+		data->lcdIndex = lcdIndex;
+		data->icon.icon = 0;
+		data->icon.x = 0;
+		data->icon.y = 0;
+
+		// Channel Name
+		data->texts[textIndex].text = "DMX" + String(offset + channelIndex);
+		data->texts[textIndex].size = 0x20;
+		data->texts[textIndex].x = 0;
+		data->texts[textIndex].y = 0;
+
+		textIndex++;
+
+		// Value
+		float value = artnet->GetValue(offset + channelIndex);
+		data->texts[textIndex].text = String(value) + " / " + String(value/2.55f) + "%";
+		data->texts[textIndex].size = 0;
+		data->texts[textIndex].x = 0;
+		data->texts[textIndex].y = 20;
+
+		textIndex++;
+
+		// Value
+		if (value < 32){
+			data->texts[textIndex].text = "________";
+		} else if (value < 64){
+			data->texts[textIndex].text = "#_______";
+		} else if (value < 96){
+			data->texts[textIndex].text = "##______";
+		} else if (value < 128){
+			data->texts[textIndex].text = "###_____";
+		} else if (value < 160){
+			data->texts[textIndex].text = "####____";
+		} else if (value < 192){
+			data->texts[textIndex].text = "#####___";
+		} else if (value < 224){
+			data->texts[textIndex].text = "######__";
+		} else if (value < 240){
+			data->texts[textIndex].text = "#######_";
+		} else {
+			data->texts[textIndex].text = "########";
+		}
+		data->texts[textIndex].size = 0;
+		data->texts[textIndex].x = 0;
+		data->texts[textIndex].y = 51;
+
+		textcount = textIndex + 1;
+	}else{
+		switch(config->GetUint(CHANNEL_LCD_MODE))
+		{
+			case 0:
+				{
+					uint textIndex = 0;
+
+					data->boardId = p_boardId;
+					data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED);
+					data->lcdIndex = lcdIndex;
+					data->icon.icon = 0;
+					data->icon.x = 0;
+					data->icon.y = 0;
+
+					// Volume / Panorama
+
+					float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
+					
+					char balanceText[8] = "-------";
+					if (balance < -70){
+						balanceText[0] = '|';
+					} else if (balance < -40){
+						balanceText[1] = '|';
+					} else if (balance < -10){
+						balanceText[2] = '|';
+					} else if (balance > 70){
+						balanceText[6] = '|';
+					} else if (balance > 40){
+						balanceText[5] = '|';
+					} else if (balance > 10){
+						balanceText[4] = '|';
+					} else {
+						balanceText[3] = '|';
+					}
+					data->texts[textIndex].text = balanceText;    
+					data->texts[textIndex].size = 0;
+					data->texts[textIndex].x = 0;
+					data->texts[textIndex].y = 0;
+
+					textIndex++;
+
+					// Channel Name
+					data->texts[textIndex].text = config->GetString(CHANNEL_NAME, channelIndex);
+					data->texts[textIndex].size = 0x20;
+					data->texts[textIndex].x = 0;
+					data->texts[textIndex].y = 20;
+
+					textIndex++;
+
+					// Channel Internal Name
+					data->texts[textIndex].text = config->GetString(CHANNEL_NAME_INTERN, channelIndex);
+					data->texts[textIndex].size = 0;
+					data->texts[textIndex].x = 35;
+					data->texts[textIndex].y = 51;
+
+					textcount = textIndex + 1;
+				}
+				break;
+			case 1:
+				{
+					data->boardId = p_boardId;
+					data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED );
+					data->lcdIndex = lcdIndex;
+					data->icon.icon = 0;
+					data->icon.x = 0;
+					data->icon.y = 0;
+
+					// Gain / Lowcut
+					data->texts[0].text = String(config->GetFloat(CHANNEL_GAIN, channelIndex), 1) + String("dB ") + String(config->GetFloat(CHANNEL_LOWCUT_FREQ, channelIndex), 0) + String("Hz");
+					data->texts[0].size = 0;
+					data->texts[0].x = 3;
+					data->texts[0].y = 0;
+
+					// Phanton / Invert / Gate / Dynamics / EQ active
+					data->texts[1].text =
+						String(config->GetBool(CHANNEL_PHANTOM, channelIndex) ? "48V " : "    ") +
+						String(config->GetBool(CHANNEL_PHASE_INVERT, channelIndex) ? "@ " : "  ") +
+						String(config->GetFloat(CHANNEL_GATE_TRESHOLD, channelIndex) > -80.0f ? "G " : "  ") +
+						String(config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, channelIndex) < 0.0f ? "D " : "  ") +
+						// TODO String(mixer->GetEq(channelIndex) ? "E " : "  ");
+						String(true ? "E" : " ");
+					data->texts[1].size = 0;
+					data->texts[1].x = 10;
+					data->texts[1].y = 15;
+
+					// Volume / Panorama
+
+					float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
+					
+					char balanceText[8] = "-------";
+					if (balance < -70){
+						balanceText[0] = '|';
+					} else if (balance < -40){
+						balanceText[1] = '|';
+					} else if (balance < -10){
+						balanceText[2] = '|';
+					} else if (balance > 70){
+						balanceText[6] = '|';
+					} else if (balance > 40){
+						balanceText[5] = '|';
+					} else if (balance > 10){
+						balanceText[4] = '|';
+					} else {
+						balanceText[3] = '|';
+					}
+
+					float volume = config->GetFloat(CHANNEL_VOLUME, channelIndex);
+					if (volume > -100) {
+						data->texts[2].text = String(volume, 1) + String("dB ") + String(balanceText);
+					}else{
+						data->texts[2].text = String("-oodB ") + String(balanceText);
+					}
+					data->texts[2].size = 0;
+					data->texts[2].x = 8;
+					data->texts[2].y = 30;
+
+					// vChannel Name
+					data->texts[3].text = config->GetString(CHANNEL_NAME, channelIndex);
+					data->texts[3].size = 0;
+					data->texts[3].x = 0;
+					data->texts[3].y = 48;
+
+					textcount = 4;
+				}
+				break;
+		}
 	}
 
 	surface->SetLcdX(data, textcount);
@@ -2151,7 +2240,36 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 				surface->FaderMoved((uint)board, index, value);
 				break;
 			case MixerparameterAction::DMX:
-				// TODO Implement ArtNet and other cool DMX stuff
+				// a fader is moved
+
+				// currently we are not using mixer-parameters as we have not enough
+				// mixerchannels for all 512 DMX-channels
+				// so we are using a dummy-mixerparameter to get the changes
+				// and use a manual offeset to write the values to the ArtNet-Output
+
+				if (config->IsModelX32Full()) {
+					// we have three boards
+					uint16_t offset;
+					if (board == X32_BOARD_L) {
+						offset = 0;
+					}else if (board == X32_BOARD_M) {
+						offset = 8;
+					}else if (board == X32_BOARD_R) {
+						offset = 16;
+					}
+					offset += config->GetUint(DMX_ARTNET_OFFSET);
+					artnet->SetChannel(offset + index, (float)value * (255.0f/4095.0f), 0);
+				}else if (config->IsModelX32CompactOrProducer()) {
+					// we have only two boards
+					uint16_t offset;
+					if (board == X32_BOARD_L) {
+						offset = 0;
+					}else if (board == X32_BOARD_R) {
+						offset = 8;
+					}
+					offset += config->GetUint(DMX_ARTNET_OFFSET);
+					artnet->SetChannel(offset + index, (float)value * (255.0f/4095.0f), 0);
+				}
 				break;
 		}
 	}
@@ -2309,7 +2427,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 							curent_page->ChangeCustomButton(button->GetId());
 						}
 						case MixerparameterAction::DMX:
-							// TODO Implement ArtNet and other cool DMX stuff
+							// a button is pressed
 							break;
 					}
 				}
@@ -2379,7 +2497,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 					}
 					break;
 				case MixerparameterAction::DMX:
-					// TODO Implement ArtNet and other cool DMX stuff
+					// an encoder is turned
 					break;
 			}
 		}

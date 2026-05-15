@@ -132,7 +132,7 @@ void audioInit(void) {
 	// initialize variables
 	dsp.monitorChannelTapPoint = TAP_INPUT;
 	dsp.monitorMatrixTapPoint = TAP_INPUT; // TODO: set to TAP_PRE_FADER when EQ and dynamics are working on MixBus
-	dsp.monitorMainTapPoint = TAP_PRE_FADER;
+	dsp.monitorMainTapPoint = TAP_POST_FADER;
 	dsp.monitorVolume = 1.0f;
 
 	// FX-Returns (0dBfs and set left/right to main)

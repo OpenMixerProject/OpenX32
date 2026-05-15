@@ -523,6 +523,54 @@ void Mixer::Sync(void)
         }
     }
 
+    if (config->HasParameterChanged(DMX_ARTNET_ON_FADERS))
+    {
+        if (config->GetBool(DMX_ARTNET_ON_FADERS))
+        {
+            // bind all faders to DMX_ARTNET_VALUE. The boardId and fader-index will be used as offset to write the values to the ArtNet-Output
+
+            if (config->IsModelX32FullOrCompactOrProducer())
+            {
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_1, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_2, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_3, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_4, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_5, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_6, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_7, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_L_FADER_8, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+            }
+
+            if (config->IsModelX32Full())
+            {
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_1, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_2, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_3, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_4, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_5, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_6, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_7, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_M_FADER_8, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+            }
+
+            if (config->IsModelX32FullOrCompactOrProducer())
+            {
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_1, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_2, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_3, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_4, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_5, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_6, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_7, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_8, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+
+                config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::DMX, DMX_ARTNET_VALUE);
+            }
+        }
+
+        // the channel-binding can be restored simply by using one of the regular banking-buttons
+    }
+
     helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "sync done");
 }
 

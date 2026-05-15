@@ -97,21 +97,36 @@ void Artnet::Tick()
     }
 }
 
-void Artnet::setChannel(uint16_t channel, float value, float timeMs)
+void Artnet::SetChannel(uint16_t channel, float value, float timeMs)
 {
-  float delta = value - dmx[channel];
+    if (channel >= 512) {
+        helper->Error("Channel number out of range: %d", channel);
+        return;
+    }
 
-  if (timeMs <= 0) {
-    // no fading, set value directly
-    dmx[channel] = value;
-    dmxDest[channel] = value;
-    dmxStep[channel] = 0;
-    return;
-  }else{
-    // calculate fading
-    dmxDest[channel] = value;
-    dmxStep[channel] = delta / (timeMs / 50.0f); // calculate the step to reach the target value in the given time, based on the 50ms tick-rate
-  }
+    float delta = value - dmx[channel];
+
+    if (timeMs <= 0) {
+        // no fading, set value directly
+        dmx[channel] = value;
+        dmxDest[channel] = value;
+        dmxStep[channel] = 0;
+        return;
+    }else{
+        // calculate fading
+        dmxDest[channel] = value;
+        dmxStep[channel] = delta / (timeMs / 50.0f); // calculate the step to reach the target value in the given time, based on the 50ms tick-rate
+    }
+}
+
+float Artnet::GetValue(uint16_t channel)
+{
+    if (channel >= 512) {
+        helper->Error("Channel number out of range: %d", channel);
+        return 0;
+    }
+
+    return dmx[channel];
 }
 
 #endif

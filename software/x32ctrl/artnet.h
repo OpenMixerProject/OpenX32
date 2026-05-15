@@ -18,7 +18,8 @@ class Artnet : public X32Base
         Artnet(X32BaseParameter* basepar);
         void Init();
         void Tick(); // called every 50ms
-        void setChannel(uint16_t channel, float value, float timeMs);
+        void SetChannel(uint16_t channel, float value, float timeMs);
+        float GetValue(uint16_t channel);
 
     private:
         artnet_node node;
