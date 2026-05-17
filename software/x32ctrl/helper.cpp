@@ -152,7 +152,7 @@ float Helper::Fadervalue2dBfs(uint16_t faderValue) {
   }
 }
 
-uint Helper::Fadervalue2DMX(uint16_t fadervalue)
+float Helper::Fadervalue2DMX(uint16_t fadervalue)
 {
 	return (float)fadervalue * (255.0f/4095.0f);
 }
@@ -224,7 +224,7 @@ uint16_t Helper::Dbfs2Fader(float dbfsValue) {
   }
 }
 
-uint16_t Helper::DMX2Fadervalue(uint DMXValue)
+uint16_t Helper::DMX2Fadervalue(float DMXValue)
 {
 	return uint16_t ((DMXValue * 4095.0f)/255.0f);
 }
