@@ -102,6 +102,7 @@ class X32Ctrl : public X32Base
 
         void InitBanks();
         void InitBank_Channelstrip(X32Bank* bank, uint offset);
+        void InitBank_DMX(X32Bank* bank, uint offset);
         void LoadBank(X32BankTarget target, X32BankId id);
         void LoadDefaultSurfaceBinding();
 
@@ -139,6 +140,9 @@ class X32Ctrl : public X32Base
         void syncGuiOrLcd(void);
         void syncSurface(bool fullSync);
         
+        #if ENABLE_ARTNET
+        void SetLcdFromArtnet(uint8_t p_boardId, uint8_t lcdIndex, uint8_t artnetIndex);
+        #endif
         void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        

@@ -1235,20 +1235,18 @@ void X32Config::DefineMixerparameters() {
     ->DefStandard_Bool(true)
     ->DefConfig(group, "artnet_enable");
 
-    DefParameter(DMX_ARTNET_ON_FADERS, cat, "ArtNet on Faders")
-    ->DefStandard_Bool(false)
-    ->DefConfig(group, "artnet_on_faders");
+    // DefParameter(DMX_ARTNET_ON_FADERS, cat, "ArtNet on Faders")
+    // ->DefStandard_Bool(false)
+    // ->DefConfig(group, "artnet_on_faders");
 
-    // contains the last changed ArtNet Channel
-    DefParameter(DMX_ARTNET_VALUE, cat, "ArtNet Value", MAX_VCHANNELS)
-    ->DefUOM(MP_UOM::DB)
+    DefParameter(DMX_ARTNET_VALUE, cat, "ArtNet Value", 512)
     ->DefConfig(group, "artnet_value")
-    ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
+    ->DefMinMaxStandard_Float(0, 255, 0);
 
-    DefParameter(DMX_ARTNET_OFFSET, cat, "ArtNet Offset")
-    ->DefConfig(group, "artnet_channel")
-    ->DefStepsize(8) // 64 pages
-    ->DefMinMaxStandard_Uint(0, 511, 0);
+    // DefParameter(DMX_ARTNET_OFFSET, cat, "ArtNet Offset")
+    // ->DefConfig(group, "artnet_channel")
+    // ->DefStepsize(8) // 64 pages
+    // ->DefMinMaxStandard_Uint(0, 511, 0);
 
 
     //#####################################################
@@ -1844,18 +1842,21 @@ void X32Config::DefineSurfaceElements()
     {
         String indexString = String(i+1);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_SELECT_1)+i), String("BOARD L SELECT ") + indexString);
+        DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_VUMETER_1)+i), String("BOARD L VUMETER ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_SOLO_1)+i), String("BOARD L SOLO ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_LCD_1)+i), String("BOARD L LCD ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_MUTE_1)+i), String("BOARD L MUTE ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_L_FADER_1)+i), String("BOARD L FADER ") + indexString);
     
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_SELECT_1)+i), String("BOARD M SELECT ") + indexString);
+        DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_VUMETER_1)+i), String("BOARD M VUMETER ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_SOLO_1)+i), String("BOARD M SOLO ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_LCD_1)+i), String("BOARD M LCD ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_MUTE_1)+i), String("BOARD M MUTE ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_M_FADER_1)+i), String("BOARD M FADER ") + indexString);
 
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_SELECT_1)+i), String("BOARD R SELECT ") + indexString);
+        DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_VUMETER_1)+i), String("BOARD R VUMETER ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_SOLO_1)+i), String("BOARD R SOLO ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_LCD_1)+i), String("BOARD R LCD ") + indexString);
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_MUTE_1)+i), String("BOARD R MUTE ") + indexString);
@@ -2455,6 +2456,31 @@ SurfaceElement* X32Config::GetSurfaceElementFader(X32_BOARD board, uint8_t index
 
 void X32Config::SurfaceBindParameter(SurfaceElementId surfaceelement_id, SurfaceBindingParameter* binding_parameter)
 {
+    if (binding_parameter == 0)
+    {
+        // unbind if there is no binding at all
+        SurfaceUnbind(surfaceelement_id);
+
+        return;
+    }
+
+    if (helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL))
+	{	
+		String surfaceElementName = GetSurfaceElement(surfaceelement_id)->GetName();
+        
+        String MixerparameterName = "None";
+        if (binding_parameter->mp_id != MP_ID::NONE)
+		{        
+            MixerparameterName = GetParameter(binding_parameter->mp_id)->GetName();
+        }
+
+        helper->Log("DEBUG_SURFACE: Binding: \"%s\" ---> \"%s\" on Index \"%d\"\n",
+            surfaceElementName.c_str(),
+            MixerparameterName.c_str(),
+            binding_parameter->mp_index
+        );
+	}
+
 	if (surface_binding->contains(surfaceelement_id))
     {
 		// Binding already exists -> overwrite it
@@ -2466,21 +2492,7 @@ void X32Config::SurfaceBindParameter(SurfaceElementId surfaceelement_id, Surface
         surface_binding->insert({surfaceelement_id, binding_parameter});
     }
 
-	surface_binding_changed.insert(surfaceelement_id);
-
-	if (helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL))
-	{	
-		String surfaceElementName = GetSurfaceElement(surfaceelement_id)->GetName();
-
-		if (binding_parameter->mp_id != MP_ID::NONE)
-		{
-			helper->Log("DEBUG_SURFACE: \"%s\" ---> \"%s\" on Index \"%d\"\n",
-				surfaceElementName.c_str(),
-				GetParameter(binding_parameter->mp_id)->GetName().c_str(),
-				binding_parameter->mp_index
-			);
-		}	
-	}
+	surface_binding_changed.insert(surfaceelement_id);	
 }
 
 void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index, uint extra_value)

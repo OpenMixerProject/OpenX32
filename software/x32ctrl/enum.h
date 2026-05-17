@@ -775,9 +775,9 @@ enum class MP_ID {
     FX_DYNAMICEQ_BAND3_RELEASE,
 
     DMX_ARTNET_ENABLE,
-    DMX_ARTNET_ON_FADERS,
+    //DMX_ARTNET_ON_FADERS,
     DMX_ARTNET_VALUE,
-    DMX_ARTNET_OFFSET,
+    //DMX_ARTNET_OFFSET,
 
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };
@@ -1239,7 +1239,8 @@ enum class MixerparameterAction
     // Button: Reset to Resetvalue.
     RESET_SELECTED_CHANNEL,
 
-    LCD,
+    LCD_Channel,
+    LCD_Artnet,
 
     VUMETER,
 
@@ -1248,6 +1249,7 @@ enum class MixerparameterAction
     CLEAR_SOLO,
 };
 
+// Banks has always 8 "Channels"
 enum class X32BankId
 {
     None,
@@ -1267,6 +1269,12 @@ enum class X32BankId
     CH25_32,
     AUX_USB,
     FX_RET,
+
+    // General
+
+    REMOTE1,
+    REMOTE2,
+
     BUS1_8,
     BUS9_16,
     DCA,

@@ -63,8 +63,6 @@ void Artnet::Tick()
 {
     if (config->GetBool(MP_ID::DMX_ARTNET_ENABLE))
     {
-        helper->DEBUG_DMX(DEBUGLEVEL_TRACE, "ArtNet Tick()");
-
         for (uint16_t i = 0; i < 512; i++)
         {
             if (dmxDest[i] > dmx[i])
@@ -91,8 +89,22 @@ void Artnet::Tick()
     }
 }
 
+void Artnet::Sync()
+{
+    if (config->HasParameterChanged(DMX_ARTNET_VALUE))
+    {
+        vector<uint> changedIndexes = config->GetChangedParameterIndexes({DMX_ARTNET_VALUE});
+        for (auto const& changedIndex : changedIndexes)
+        {
+            SetChannel(changedIndex, config->GetFloat(DMX_ARTNET_VALUE, changedIndex), 0);    
+        }
+    }
+}
+
 void Artnet::SetChannel(uint16_t channel, float value, float timeMs)
 {
+    helper->DEBUG_DMX(DEBUGLEVEL_TRACE, "channel %d value %f timeMs %f", channel, value, timeMs);
+
     if (channel > 511) {
         helper->Error("Channel number out of range: %d", channel);
         return;
@@ -111,14 +123,14 @@ void Artnet::SetChannel(uint16_t channel, float value, float timeMs)
     }
 }
 
-float Artnet::GetValue(uint16_t channel)
-{
-    if (channel > 511) {
-        helper->Error("Channel number out of range: %d", channel);
-        return 0;
-    }
+// float Artnet::GetValue(uint16_t channel)
+// {
+//     if (channel > 511) {
+//         helper->Error("Channel number out of range: %d", channel);
+//         return 0;
+//     }
 
-    return dmx[channel];
-}
+//     return dmx[channel];
+// }
 
 #endif

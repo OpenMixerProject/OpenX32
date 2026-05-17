@@ -22,8 +22,8 @@ class PageDebug: public Page
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, "ArtNET"); // just the title
             config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_2, MixerparameterAction::TOGGLE, DMX_ARTNET_ENABLE);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::CHANGE, DMX_ARTNET_OFFSET);
-            config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3, MixerparameterAction::TOGGLE, DMX_ARTNET_ON_FADERS);
+            //config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_3, MixerparameterAction::CHANGE, DMX_ARTNET_OFFSET);
+            //config->SurfaceBind(SurfaceElementId::DISPLAY_ENCODER_BUTTON_3, MixerparameterAction::TOGGLE, DMX_ARTNET_ON_FADERS);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_4, "XLR1 -> DSP2, DSP2 -> Ch9..24");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_4);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, "Debug Header on/off");

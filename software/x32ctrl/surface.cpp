@@ -1575,17 +1575,16 @@ void Surface::Touchcontrol() {
         maxfaderindex = MAX_FADERS-8;
     }
 
-    for(uint8_t faderindex=0; faderindex<maxfaderindex; faderindex++){
-
-        // // if fader position was set from us, but it didn't move -> someone holds the fader -> set wait time
-        // if ()
-
-        if (faders[faderindex].wait > 0){
+    for(uint8_t faderindex=0; faderindex<maxfaderindex; faderindex++)
+    {
+        if (faders[faderindex].wait > 0)
+        {
             faders[faderindex].wait--;
             helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Reduced wait time on fader at index %d to %d", faderindex, faders[faderindex].wait);
-        } else if (faders[faderindex].position_real != faders[faderindex].position_wanted){
+        }
+        else if (faders[faderindex].position_real != faders[faderindex].position_wanted)
+        {
             helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Move fader at index %d from %d to %d", faderindex, faders[faderindex].position_real, faders[faderindex].position_wanted);
-            //faders[faderindex].setcheck_oldvalue = faders[faderindex].position_real;
             faders[faderindex].position_real = faders[faderindex].position_wanted;
             SetFaderRaw(GetBoardId(faderindex), GetFaderId(faderindex), faders[faderindex].position_wanted);
         }

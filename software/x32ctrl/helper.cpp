@@ -152,6 +152,11 @@ float Helper::Fadervalue2dBfs(uint16_t faderValue) {
   }
 }
 
+uint Helper::Fadervalue2DMX(uint16_t fadervalue)
+{
+	return (float)fadervalue * (255.0f/4095.0f);
+}
+
 uint16_t Helper::Oscvalue2Fadervalue(float oscValue){
 	return (uint16_t)oscValue * 0x0FFF;
 }
@@ -217,6 +222,11 @@ uint16_t Helper::Dbfs2Fader(float dbfsValue) {
 	if (fader_value > FADER_MINUS_30DB) return FADER_MINUS_30DB-1;
 	return fader_value;
   }
+}
+
+uint16_t Helper::DMX2Fadervalue(uint DMXValue)
+{
+	return uint16_t ((DMXValue * 4095.0f)/255.0f);
 }
 
 long Helper::GetFileSize(const char* filename) {

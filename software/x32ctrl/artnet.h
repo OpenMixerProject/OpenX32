@@ -8,6 +8,9 @@
 #include "WString.h"
 #include "base.h"
 
+using namespace std;
+using enum MP_ID;
+
 #if ENABLE_ARTNET
 
 #include "../libartnet/artnet/artnet.h"
@@ -18,8 +21,9 @@ class Artnet : public X32Base
         Artnet(X32BaseParameter* basepar);
         void Init();
         void Tick(); // called every 50ms
+        void Sync();
         void SetChannel(uint16_t channel, float value, float timeMs);
-        float GetValue(uint16_t channel);
+        //float GetValue(uint16_t channel);
 
     private:
         artnet_node node;

@@ -294,6 +294,11 @@ void X32Ctrl::Tick10ms(void)
 		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "mixer->card->Sync()");
 		mixer->card->Sync();
 
+		#if ENABLE_ARTNET
+		helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "artnet->Sync()");
+		artnet->Sync();
+		#endif
+
 		syncGuiOrLcd();
 		//syncXRemote(false);
 	}
@@ -776,47 +781,6 @@ bool X32Ctrl::ShowPrevPage()
 	return false;
 }
 
-// void X32Ctrl::ShowPage(X32_PAGE newPage) {
-
-// 	// only work's on devices with display
-// 	if (!(config->IsModelX32FullOrCompactOrProducerOrRack()))
-// 	{
-// 		return;
-// 	}
-
-// 	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
-	
-// 	if (newPage == activePage) {
-// 		// operator has pressed the button of the current active page,
-// 		// so go back to previous page
-// 		newPage = lastPage;
-// 	}
-
-// 	if (pages[newPage] != nullptr) {
-
-// 		lastPage = activePage;
-// 		activePage = newPage;
-		
-// 		Page* p = pages[activePage];
-// 		Page* l = pages[lastPage];
-
-// 		// turn off led of prev page
-// 		if (l->GetLed() != X32_BTN_NONE) {
-// 			surface->SetLedByEnum(l->GetLed(), false);
-// 		}
-
-// 		// turn on led of new active page
-// 		if (p->GetLed() != X32_BTN_NONE) {
-// 			surface->SetLedByEnum(p->GetLed(), true);
-// 		}
-
-// 		config->Set(ACTIVE_PAGE, (uint)activePage);
-		
-// 	} else {
-// 		helper->Error("Page 0x%02X is not registered -> look at X32Ctrl::InitPages() to do so!\n", newPage);
-// 	}
-// }
-
 //#####################################################################################################################
 //
 //  ######  ##    ## ##    ##  ######  
@@ -949,6 +913,10 @@ void X32Ctrl::syncSurface(bool fullSync)
 						bank1 = X32BankId::BUS1_8;
 						bank2 = X32BankId::BUS9_16;
 						break;
+					case X32BankId::REMOTE1:
+						bank1 = X32BankId::REMOTE1;
+						bank2 = X32BankId::REMOTE2;
+						break;
 				}
 
 				LoadBank(X32BankTarget::InputSection, bank1);
@@ -964,6 +932,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 		{
 			X32BankId bank = (X32BankId)(config->GetUint(BANKING_BUS));
 
+			// special translations for X32 Full: banking over input AND bus section
 			switch(bank)
 			{
 				case X32BankId::CH17_32:
@@ -971,6 +940,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 					break;
 				case X32BankId::AUX_USB_FX_RET:
 					bank = X32BankId::AUX_USB;
+					break;
+				default:
 					break;
 			}
 
@@ -1069,79 +1040,31 @@ void X32Ctrl::syncSurface(bool fullSync)
 				case MixerparameterAction::CLEAR_SOLO:
 					hasChanged = config->HasParameterChanged(CHANNEL_SOLO);
 					break;
-				case MixerparameterAction::LCD:
-					// currently we have two main-modes:
-					// 1. ArtNET on faders
-					// 2. Normal channel display with panorama, name and color
-					if (config->GetBool(DMX_ARTNET_ON_FADERS) && (parameter_index != (int)X32_VCHANNEL_BLOCK::MAIN)) {
-						if (config->HasParameterChanged(DMX_ARTNET_OFFSET))
-						{
-							float value;
-							if (config->IsModelX32Full())
+				case MixerparameterAction::LCD_Channel:
+					switch(config->GetUint(CHANNEL_LCD_MODE))
+					{
+						case 0:
+							if (config->HasParametersChanged({CHANNEL_PANORAMA, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED	}, binding_parameter->mp_index) ||
+								config->HasParameterChanged(CHANNEL_LCD_MODE)
+							)
 							{
-								for (uint i = 0; i < 8; i++)
-								{
-									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i);
-									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + 8);
-									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + (int)X32_VCHANNEL_BLOCK::DCA);
-
-									value = artnet->GetValue(i + config->GetUint(DMX_ARTNET_OFFSET));
-									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i);
-
-									value = artnet->GetValue(8 + i + config->GetUint(DMX_ARTNET_OFFSET));
-									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i + 8);
-
-									value = artnet->GetValue(16 + i + config->GetUint(DMX_ARTNET_OFFSET));
-									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i + (int)X32_VCHANNEL_BLOCK::DCA);
-								}
+								hasChanged = true;
 							}
-
-							if (config->IsModelX32CompactOrProducer())
+							break;
+						case 1:
+							if (config->HasParametersChanged({CHANNEL_PHASE_INVERT, CHANNEL_VOLUME, CHANNEL_PANORAMA, CHANNEL_GAIN,	CHANNEL_GATE_TRESHOLD,
+									CHANNEL_DYNAMICS_TRESHOLD, CHANNEL_PHANTOM, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED }, binding_parameter->mp_index) ||
+								config->HasParametersChanged({MP_CAT::CHANNEL_EQ}, binding_parameter->mp_index) || 
+								config->HasParameterChanged(CHANNEL_LCD_MODE)
+							)
 							{
-								for (uint i = 0; i < 8; i++)
-								{
-									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i);
-									config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + (int)X32_VCHANNEL_BLOCK::DCA);
-
-									value = artnet->GetValue(i + config->GetUint(DMX_ARTNET_OFFSET));
-									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i);
-
-									value = artnet->GetValue(8 + i + config->GetUint(DMX_ARTNET_OFFSET));
-									config->Set(DMX_ARTNET_VALUE, helper->Fadervalue2dBfs(value * (4095.0f/255.0f)), i + (int)X32_VCHANNEL_BLOCK::DCA);
-								}
+								hasChanged = true;
 							}
-
-							hasChanged = true;
-						}
-
-						if ((config->HasParameterChanged(DMX_ARTNET_ON_FADERS)) ||
-							(config->HasParameterChanged(DMX_ARTNET_VALUE, binding_parameter->mp_index)))
-						{
-							hasChanged = true;
-						}
-					}else{
-						switch(config->GetUint(CHANNEL_LCD_MODE))
-						{
-							case 0:
-								if (config->HasParametersChanged({CHANNEL_PANORAMA, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED	}, binding_parameter->mp_index) ||
-									config->HasParameterChanged(CHANNEL_LCD_MODE)
-								)
-								{
-									hasChanged = true;
-								}
-								break;
-							case 1:
-								if (config->HasParametersChanged({CHANNEL_PHASE_INVERT, CHANNEL_VOLUME, CHANNEL_PANORAMA, CHANNEL_GAIN,	CHANNEL_GATE_TRESHOLD,
-										CHANNEL_DYNAMICS_TRESHOLD, CHANNEL_PHANTOM, CHANNEL_NAME, CHANNEL_COLOR, CHANNEL_COLOR_INVERTED }, binding_parameter->mp_index) ||
-									config->HasParametersChanged({MP_CAT::CHANNEL_EQ}, binding_parameter->mp_index) || 
-									config->HasParameterChanged(CHANNEL_LCD_MODE)
-								)
-								{
-									hasChanged = true;
-								}
-								break;
-						}
+							break;
 					}
+					break;
+				case MixerparameterAction::LCD_Artnet:
+					hasChanged = config->HasParameterChanged(DMX_ARTNET_VALUE, binding_parameter->mp_index);
 					break;
 				case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
 				case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
@@ -1190,7 +1113,17 @@ void X32Ctrl::syncSurface(bool fullSync)
 					continue;
 				}
 
-				u_int16_t faderPosition = helper->Dbfs2Fader(config->GetFloat(parameter_id, parameter_index));
+				u_int16_t faderPosition = 0;
+
+				if (parameter_id == MP_ID::DMX_ARTNET_VALUE)
+				{
+					faderPosition = helper->DMX2Fadervalue(config->GetUint(parameter_id, parameter_index));
+				}
+				else 
+				{
+					faderPosition = helper->Dbfs2Fader(config->GetFloat(parameter_id, parameter_index));
+				}
+
 				surface->SetFader(element->GetBoard(), element->GetIndex(), faderPosition);
 			}
 			// ####################################################
@@ -1276,7 +1209,16 @@ void X32Ctrl::syncSurface(bool fullSync)
 			{
 				if(!state->surface_disable_lcd_update)
 				{
-					SetLcdFromChannel(element->GetBoard(), element->GetIndex(), parameter_index);
+					if (binding_parameter->mp_action == MixerparameterAction::LCD_Channel)
+					{
+						SetLcdFromChannel(element->GetBoard(), element->GetIndex(), parameter_index);
+					}
+					#if ENABLE_ARTNET
+					else if (binding_parameter->mp_action == MixerparameterAction::LCD_Artnet)
+					{
+						SetLcdFromArtnet(element->GetBoard(), element->GetIndex(), parameter_index);
+					}
+					#endif
 				}
 			}
 		}
@@ -1315,201 +1257,204 @@ void X32Ctrl::syncSurface(bool fullSync)
 	// 	}
 	// }
 
+#if ENABLE_ARTNET
+
+void X32Ctrl::SetLcdFromArtnet(uint8_t p_boardId, uint8_t lcdIndex, uint8_t artnetIndex)
+{
+	using enum MP_ID;
+
+    LcdData* data = new LcdData();
+	uint textcount = 0;
+	uint textIndex = 0;
+
+	data->boardId = p_boardId;
+	data->color = (uint)X32_COLOR::YELLOW;
+	data->lcdIndex = lcdIndex;
+	data->icon.icon = 0;
+	data->icon.x = 0;
+	data->icon.y = 0;
+
+	// Channel Name
+	data->texts[textIndex].text = "DMX" + String(artnetIndex + 1);
+	data->texts[textIndex].size = 0x20;
+	data->texts[textIndex].x = 0;
+	data->texts[textIndex].y = 0;
+
+	textIndex++;
+
+	// Value
+	//float value = artnet->GetValue(artnetIndex);
+	float value = config->GetFloat(DMX_ARTNET_VALUE, artnetIndex);
+	data->texts[textIndex].text = String(value, 0) + " / " + String(value/2.55f, 1) + "%";
+	data->texts[textIndex].size = 0;
+	data->texts[textIndex].x = 0;
+	data->texts[textIndex].y = 20;
+
+	textIndex++;
+
+	// Value
+	if (value < 32){
+		data->texts[textIndex].text = "";
+	} else if (value < 64){
+		data->texts[textIndex].text = "O";
+	} else if (value < 96){
+		data->texts[textIndex].text = "OO";
+	} else if (value < 128){
+		data->texts[textIndex].text = "OOO";
+	} else if (value < 160){
+		data->texts[textIndex].text = "OOOO";
+	} else if (value < 192){
+		data->texts[textIndex].text = "OOOOO";
+	} else if (value < 224){
+		data->texts[textIndex].text = "OOOOOO";
+	} else if (value < 240){
+		data->texts[textIndex].text = "OOOOOOO";
+	} else {
+		data->texts[textIndex].text = "OOOOOOOO";
+	}
+	data->texts[textIndex].size = 0;
+	data->texts[textIndex].x = 0;
+	data->texts[textIndex].y = 51;
+
+	textcount = textIndex + 1;
+
+	surface->SetLcdX(data, textcount);
+	delete data;
+}
+
+#endif
+
 void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex)
 {
 	using enum MP_ID;
 
     LcdData* data = new LcdData();
 	uint textcount = 0;
+	
+	switch(config->GetUint(CHANNEL_LCD_MODE))
+	{
+		case 0:
+			{
+				uint textIndex = 0;
 
-	if (config->GetBool(DMX_ARTNET_ON_FADERS)) {
-		// DMX Mode
+				data->boardId = p_boardId;
+				data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED);
+				data->lcdIndex = lcdIndex;
+				data->icon.icon = 0;
+				data->icon.x = 0;
+				data->icon.y = 0;
 
-		uint textIndex = 0;
-		uint16_t offset = config->GetUint(DMX_ARTNET_OFFSET);
-		if (p_boardId == X32_BOARD_L) {
-			offset += 0;
-		}else if (p_boardId == X32_BOARD_M) {
-			offset += 8; // only on X32Fullsize
-		}else if (p_boardId == X32_BOARD_R) {
-			offset += (config->IsModelX32Full() ? 16 : 8); // Depends on Fullsize or Compact/Producer
-		}
+				// Volume / Panorama
 
-		data->boardId = p_boardId;
-		data->color = (uint)X32_COLOR::YELLOW;
-		data->lcdIndex = lcdIndex;
-		data->icon.icon = 0;
-		data->icon.x = 0;
-		data->icon.y = 0;
-
-		// Channel Name
-		data->texts[textIndex].text = "DMX" + String(lcdIndex + offset + 1);
-		data->texts[textIndex].size = 0x20;
-		data->texts[textIndex].x = 0;
-		data->texts[textIndex].y = 0;
-
-		textIndex++;
-
-		// Value
-		float value = artnet->GetValue(lcdIndex + offset);
-		data->texts[textIndex].text = String(value, 0) + " / " + String(value/2.55f, 1) + "%";
-		data->texts[textIndex].size = 0;
-		data->texts[textIndex].x = 0;
-		data->texts[textIndex].y = 20;
-
-		textIndex++;
-
-		// Value
-		if (value < 32){
-			data->texts[textIndex].text = "";
-		} else if (value < 64){
-			data->texts[textIndex].text = "O";
-		} else if (value < 96){
-			data->texts[textIndex].text = "OO";
-		} else if (value < 128){
-			data->texts[textIndex].text = "OOO";
-		} else if (value < 160){
-			data->texts[textIndex].text = "OOOO";
-		} else if (value < 192){
-			data->texts[textIndex].text = "OOOOO";
-		} else if (value < 224){
-			data->texts[textIndex].text = "OOOOOO";
-		} else if (value < 240){
-			data->texts[textIndex].text = "OOOOOOO";
-		} else {
-			data->texts[textIndex].text = "OOOOOOOO";
-		}
-		data->texts[textIndex].size = 0;
-		data->texts[textIndex].x = 0;
-		data->texts[textIndex].y = 51;
-
-		textcount = textIndex + 1;
-	}else{
-		switch(config->GetUint(CHANNEL_LCD_MODE))
-		{
-			case 0:
-				{
-					uint textIndex = 0;
-
-					data->boardId = p_boardId;
-					data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED);
-					data->lcdIndex = lcdIndex;
-					data->icon.icon = 0;
-					data->icon.x = 0;
-					data->icon.y = 0;
-
-					// Volume / Panorama
-
-					float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
-					
-					char balanceText[8] = "-------";
-					if (balance < -70){
-						balanceText[0] = '|';
-					} else if (balance < -40){
-						balanceText[1] = '|';
-					} else if (balance < -10){
-						balanceText[2] = '|';
-					} else if (balance > 70){
-						balanceText[6] = '|';
-					} else if (balance > 40){
-						balanceText[5] = '|';
-					} else if (balance > 10){
-						balanceText[4] = '|';
-					} else {
-						balanceText[3] = '|';
-					}
-					data->texts[textIndex].text = balanceText;    
-					data->texts[textIndex].size = 0;
-					data->texts[textIndex].x = 0;
-					data->texts[textIndex].y = 0;
-
-					textIndex++;
-
-					// Channel Name
-					data->texts[textIndex].text = config->GetString(CHANNEL_NAME, channelIndex);
-					data->texts[textIndex].size = 0x20;
-					data->texts[textIndex].x = 0;
-					data->texts[textIndex].y = 20;
-
-					textIndex++;
-
-					// Channel Internal Name
-					data->texts[textIndex].text = config->GetString(CHANNEL_NAME_INTERN, channelIndex);
-					data->texts[textIndex].size = 0;
-					data->texts[textIndex].x = 35;
-					data->texts[textIndex].y = 51;
-
-					textcount = textIndex + 1;
+				float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
+				
+				char balanceText[8] = "-------";
+				if (balance < -70){
+					balanceText[0] = '|';
+				} else if (balance < -40){
+					balanceText[1] = '|';
+				} else if (balance < -10){
+					balanceText[2] = '|';
+				} else if (balance > 70){
+					balanceText[6] = '|';
+				} else if (balance > 40){
+					balanceText[5] = '|';
+				} else if (balance > 10){
+					balanceText[4] = '|';
+				} else {
+					balanceText[3] = '|';
 				}
-				break;
-			case 1:
-				{
-					data->boardId = p_boardId;
-					data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED );
-					data->lcdIndex = lcdIndex;
-					data->icon.icon = 0;
-					data->icon.x = 0;
-					data->icon.y = 0;
+				data->texts[textIndex].text = balanceText;    
+				data->texts[textIndex].size = 0;
+				data->texts[textIndex].x = 0;
+				data->texts[textIndex].y = 0;
 
-					// Gain / Lowcut
-					data->texts[0].text = String(config->GetFloat(CHANNEL_GAIN, channelIndex), 1) + String("dB ") + String(config->GetFloat(CHANNEL_LOWCUT_FREQ, channelIndex), 0) + String("Hz");
-					data->texts[0].size = 0;
-					data->texts[0].x = 3;
-					data->texts[0].y = 0;
+				textIndex++;
 
-					// Phanton / Invert / Gate / Dynamics / EQ active
-					data->texts[1].text =
-						String(config->GetBool(CHANNEL_PHANTOM, channelIndex) ? "48V " : "    ") +
-						String(config->GetBool(CHANNEL_PHASE_INVERT, channelIndex) ? "@ " : "  ") +
-						String(config->GetFloat(CHANNEL_GATE_TRESHOLD, channelIndex) > -80.0f ? "G " : "  ") +
-						String(config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, channelIndex) < 0.0f ? "D " : "  ") +
-						// TODO String(mixer->GetEq(channelIndex) ? "E " : "  ");
-						String(true ? "E" : " ");
-					data->texts[1].size = 0;
-					data->texts[1].x = 10;
-					data->texts[1].y = 15;
+				// Channel Name
+				data->texts[textIndex].text = config->GetString(CHANNEL_NAME, channelIndex);
+				data->texts[textIndex].size = 0x20;
+				data->texts[textIndex].x = 0;
+				data->texts[textIndex].y = 20;
 
-					// Volume / Panorama
+				textIndex++;
 
-					float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
-					
-					char balanceText[8] = "-------";
-					if (balance < -70){
-						balanceText[0] = '|';
-					} else if (balance < -40){
-						balanceText[1] = '|';
-					} else if (balance < -10){
-						balanceText[2] = '|';
-					} else if (balance > 70){
-						balanceText[6] = '|';
-					} else if (balance > 40){
-						balanceText[5] = '|';
-					} else if (balance > 10){
-						balanceText[4] = '|';
-					} else {
-						balanceText[3] = '|';
-					}
+				// Channel Internal Name
+				data->texts[textIndex].text = config->GetString(CHANNEL_NAME_INTERN, channelIndex);
+				data->texts[textIndex].size = 0;
+				data->texts[textIndex].x = 35;
+				data->texts[textIndex].y = 51;
 
-					float volume = config->GetFloat(CHANNEL_VOLUME, channelIndex);
-					if (volume > -100) {
-						data->texts[2].text = String(volume, 1) + String("dB ") + String(balanceText);
-					}else{
-						data->texts[2].text = String("-oodB ") + String(balanceText);
-					}
-					data->texts[2].size = 0;
-					data->texts[2].x = 8;
-					data->texts[2].y = 30;
+				textcount = textIndex + 1;
+			}
+			break;
+		case 1:
+			{
+				data->boardId = p_boardId;
+				data->color = config->GetUint(CHANNEL_COLOR, channelIndex) | (config->GetUint(CHANNEL_COLOR_INVERTED, channelIndex) * SURFACE_COLOR_INVERTED );
+				data->lcdIndex = lcdIndex;
+				data->icon.icon = 0;
+				data->icon.x = 0;
+				data->icon.y = 0;
 
-					// vChannel Name
-					data->texts[3].text = config->GetString(CHANNEL_NAME, channelIndex);
-					data->texts[3].size = 0;
-					data->texts[3].x = 0;
-					data->texts[3].y = 48;
+				// Gain / Lowcut
+				data->texts[0].text = String(config->GetFloat(CHANNEL_GAIN, channelIndex), 1) + String("dB ") + String(config->GetFloat(CHANNEL_LOWCUT_FREQ, channelIndex), 0) + String("Hz");
+				data->texts[0].size = 0;
+				data->texts[0].x = 3;
+				data->texts[0].y = 0;
 
-					textcount = 4;
+				// Phanton / Invert / Gate / Dynamics / EQ active
+				data->texts[1].text =
+					String(config->GetBool(CHANNEL_PHANTOM, channelIndex) ? "48V " : "    ") +
+					String(config->GetBool(CHANNEL_PHASE_INVERT, channelIndex) ? "@ " : "  ") +
+					String(config->GetFloat(CHANNEL_GATE_TRESHOLD, channelIndex) > -80.0f ? "G " : "  ") +
+					String(config->GetFloat(CHANNEL_DYNAMICS_TRESHOLD, channelIndex) < 0.0f ? "D " : "  ") +
+					// TODO String(mixer->GetEq(channelIndex) ? "E " : "  ");
+					String(true ? "E" : " ");
+				data->texts[1].size = 0;
+				data->texts[1].x = 10;
+				data->texts[1].y = 15;
+
+				// Volume / Panorama
+
+				float balance = config->GetFloat(CHANNEL_PANORAMA, channelIndex);
+				
+				char balanceText[8] = "-------";
+				if (balance < -70){
+					balanceText[0] = '|';
+				} else if (balance < -40){
+					balanceText[1] = '|';
+				} else if (balance < -10){
+					balanceText[2] = '|';
+				} else if (balance > 70){
+					balanceText[6] = '|';
+				} else if (balance > 40){
+					balanceText[5] = '|';
+				} else if (balance > 10){
+					balanceText[4] = '|';
+				} else {
+					balanceText[3] = '|';
 				}
-				break;
-		}
+
+				float volume = config->GetFloat(CHANNEL_VOLUME, channelIndex);
+				if (volume > -100) {
+					data->texts[2].text = String(volume, 1) + String("dB ") + String(balanceText);
+				}else{
+					data->texts[2].text = String("-oodB ") + String(balanceText);
+				}
+				data->texts[2].size = 0;
+				data->texts[2].x = 8;
+				data->texts[2].y = 30;
+
+				// vChannel Name
+				data->texts[3].text = config->GetString(CHANNEL_NAME, channelIndex);
+				data->texts[3].size = 0;
+				data->texts[3].x = 0;
+				data->texts[3].y = 48;
+
+				textcount = 4;
+			}
+			break;
 	}
 
 	surface->SetLcdX(data, textcount);
@@ -1591,16 +1536,25 @@ void X32Ctrl::UpdateMeters(void) {
 		for (uint8_t i = 0; i < 8; i++)
 		{
 			SurfaceBindingParameter* binding_board_l = config->GetSurfaceBinding((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_VUMETER_1 + i));
-			surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->rChannel[binding_board_l->mp_index].meter6Info);
+			if (binding_board_l)
+			{
+				surface->SetMeterLed(X32_BOARD_L, i, mixer->dsp->rChannel[binding_board_l->mp_index].meter6Info);
+			}
 
 			if (config->IsModelX32Full())
 			{
 				SurfaceBindingParameter* binding_board_m = config->GetSurfaceBinding((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_VUMETER_1 + i));
-				surface->SetMeterLed(X32_BOARD_M, i, mixer->dsp->rChannel[binding_board_m->mp_index].meter6Info);
+				if (binding_board_m)
+				{
+					surface->SetMeterLed(X32_BOARD_M, i, mixer->dsp->rChannel[binding_board_m->mp_index].meter6Info);
+				}
 			}
 
 			SurfaceBindingParameter* binding_board_r = config->GetSurfaceBinding((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_VUMETER_1 + i));
-			surface->SetMeterLed(X32_BOARD_R, i, mixer->dsp->rChannel[binding_board_r->mp_index].meter6Info);
+			if (binding_board_r)
+			{
+				surface->SetMeterLed(X32_BOARD_R, i, mixer->dsp->rChannel[binding_board_r->mp_index].meter6Info);
+			}
 		}
 	}
 }
@@ -1994,96 +1948,7 @@ void X32Ctrl::ProcessUartDataSurface() {
 //
 //####################################################################
 
-void X32Ctrl::InitBanks()
-{
-	if (config->IsModelX32FullOrCompactOrProducer())
-	{
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH1_8, "Channel 1-8"), 0);
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH9_16, "Channel 9-16"), 8);
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH17_24, "Channel 17-24"), 16);
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH25_32, "Channel 25-32"), 24);
-		InitBank_Channelstrip(new X32Bank(X32BankId::AUX_USB, "AUX/USB"), (uint)(X32_VCHANNEL_BLOCK::AUX));
-		InitBank_Channelstrip(new X32Bank(X32BankId::FX_RET, "FX Return"), (uint)(X32_VCHANNEL_BLOCK::FXRET));
-		InitBank_Channelstrip(new X32Bank(X32BankId::BUS1_8, "Bus 1-8"), (uint)(X32_VCHANNEL_BLOCK::BUS));
-		InitBank_Channelstrip(new X32Bank(X32BankId::BUS9_16, "Bus 9-16"), ((uint)(X32_VCHANNEL_BLOCK::BUS)) + 8);
-		InitBank_Channelstrip(new X32Bank(X32BankId::DCA, "DCA"), (uint)(X32_VCHANNEL_BLOCK::DCA));
-		InitBank_Channelstrip(new X32Bank(X32BankId::MATRIX_MAIN, "Matrix/Main"), (uint)(X32_VCHANNEL_BLOCK::MATRIX));
-	}
-}
 
-void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
-{
-    for (uint i = 0; i < 8; i++)
-    {
-		bank->channelstrip[i] = new X32BankParameter();
-
-        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
-		bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
-        bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
-		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD, NONE, i + offset);
-        bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
-        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + offset);
-    }
-
-	banks[(uint)(bank->GetID())] = bank;
-}
-
-void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
-{
-	if (id == X32BankId::None)
-	{
-		return;
-	}
-
-	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Load Bank %d to section %d", id, target);
-
-	X32Bank* bank_to_load = banks[(uint)id];
-
-	if (target == X32BankTarget::InputSection)
-	{
-		for (uint i = 0; i < 8; i++)
-		{
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
-		}
-
-		bankLoadedInputsection = bank_to_load;
-	}
-
-	if (target == X32BankTarget::InputSection2)
-	{
-		for (uint i = 0; i < 8; i++)
-		{
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
-		}
-
-		bankLoadedInputsection2 = bank_to_load;
-	}
-
-	if (target == X32BankTarget::BusSection)
-	{
-		for (uint i = 0; i < 8; i++)
-		{
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
-			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
-		}
-
-		bankLoadedBussection = bank_to_load;
-	}
-}
 
 // Bind Surfaceelements to Mixerparameter or special functions
 void X32Ctrl::LoadDefaultSurfaceBinding()
@@ -2169,6 +2034,9 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 		config->SurfaceBind(SurfaceElementId::VIEW_SCENES, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SCENES));
 		//SurfaceBind_MixerParameter(SurfaceElementId::VIEW_ASSIGN, SurfaceBindingAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::CONFIG));
 
+		// Remote
+		config->SurfaceBind(SurfaceElementId::DAW_REMOTE, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::REMOTE1));
+
 		// Banking of Input Section
 		if (config->IsModelX32Full())
 		{
@@ -2230,9 +2098,131 @@ void X32Ctrl::LoadMainFaderSurfaceBinding()
     // Main Fader
     config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN, MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
     config->SurfaceBind(SurfaceElementId::BOARD_R_SOLO_MAIN, MixerparameterAction::TOGGLE, CHANNEL_SOLO, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
-    config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD, NONE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+    config->SurfaceBind(SurfaceElementId::BOARD_R_LCD_MAIN, MixerparameterAction::LCD_Channel, NONE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
     config->SurfaceBind(SurfaceElementId::BOARD_R_MUTE_MAIN, MixerparameterAction::TOGGLE, CHANNEL_MUTE, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
     config->SurfaceBind(SurfaceElementId::BOARD_R_FADER_MAIN, MixerparameterAction::SET, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+}
+
+//#####################################################################################################################
+//
+// ########     ###    ##    ## ##     ## #### ##    ##  ######   
+// ##     ##   ## ##   ###   ## ##    ##   ##  ###   ## ##    ##  
+// ##     ##  ##   ##  ####  ## ##   ##    ##  ####  ## ##        
+// ########  ##     ## ## ## ## #####      ##  ## ## ## ##   #### 
+// ##     ## ######### ##  #### ##   ##    ##  ##  #### ##    ##  
+// ##     ## ##     ## ##   ### ##    ##   ##  ##   ### ##    ##  
+// ########  ##     ## ##    ## ##     ## #### ##    ##  ######   
+//
+//#####################################################################################################################
+
+void X32Ctrl::InitBanks()
+{
+	if (config->IsModelX32FullOrCompactOrProducer())
+	{
+		InitBank_Channelstrip(new X32Bank(X32BankId::CH1_8, "Channel 1-8"), 0);
+		InitBank_Channelstrip(new X32Bank(X32BankId::CH9_16, "Channel 9-16"), 8);
+		InitBank_Channelstrip(new X32Bank(X32BankId::CH17_24, "Channel 17-24"), 16);
+		InitBank_Channelstrip(new X32Bank(X32BankId::CH25_32, "Channel 25-32"), 24);
+		InitBank_Channelstrip(new X32Bank(X32BankId::AUX_USB, "AUX/USB"), (uint)(X32_VCHANNEL_BLOCK::AUX));
+		InitBank_Channelstrip(new X32Bank(X32BankId::FX_RET, "FX Return"), (uint)(X32_VCHANNEL_BLOCK::FXRET));
+		InitBank_Channelstrip(new X32Bank(X32BankId::BUS1_8, "Bus 1-8"), (uint)(X32_VCHANNEL_BLOCK::BUS));
+		InitBank_Channelstrip(new X32Bank(X32BankId::BUS9_16, "Bus 9-16"), ((uint)(X32_VCHANNEL_BLOCK::BUS)) + 8);
+		InitBank_Channelstrip(new X32Bank(X32BankId::DCA, "DCA"), (uint)(X32_VCHANNEL_BLOCK::DCA));
+		InitBank_Channelstrip(new X32Bank(X32BankId::MATRIX_MAIN, "Matrix/Main"), (uint)(X32_VCHANNEL_BLOCK::MATRIX));
+		InitBank_DMX(new X32Bank(X32BankId::REMOTE1, "Remote1"), 0);
+		InitBank_DMX(new X32Bank(X32BankId::REMOTE2, "Remote2"), 8);
+	}
+}
+
+void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
+{
+    for (uint i = 0; i < 8; i++)
+    {
+		bank->channelstrip[i] = new X32BankParameter();
+
+        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
+		bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
+        bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
+		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
+        bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
+        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + offset);
+    }
+
+	banks[(uint)(bank->GetID())] = bank;
+}
+
+void X32Ctrl::InitBank_DMX(X32Bank* bank, uint offset)
+{
+    for (uint i = 0; i < 8; i++)
+    {
+		bank->channelstrip[i] = new X32BankParameter();
+
+        //bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
+		//bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
+        //bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
+		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Artnet, DMX_ARTNET_VALUE, i + offset);
+        //bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
+        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + offset);
+    }
+
+	banks[(uint)(bank->GetID())] = bank;
+}
+
+void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
+{
+	if (id == X32BankId::None)
+	{
+		return;
+	}
+
+	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Load Bank %d to section %d", id, target);
+
+	X32Bank* bank_to_load = banks[(uint)id];
+
+	if (target == X32BankTarget::InputSection)
+	{
+		for (uint i = 0; i < 8; i++)
+		{
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
+		}
+
+		bankLoadedInputsection = bank_to_load;
+	}
+
+	if (target == X32BankTarget::InputSection2)
+	{
+		for (uint i = 0; i < 8; i++)
+		{
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
+		}
+
+		bankLoadedInputsection2 = bank_to_load;
+	}
+
+	if (target == X32BankTarget::BusSection)
+	{
+		for (uint i = 0; i < 8; i++)
+		{
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_VUMETER_1 + i), bank_to_load->channelstrip[i]->vumeter);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_LCD_1 + i), bank_to_load->channelstrip[i]->lcd);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
+			config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
+		}
+
+		bankLoadedBussection = bank_to_load;
+	}
 }
 
 //#####################################################################################################################
@@ -2268,21 +2258,21 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 			case MixerparameterAction::DMX:
 				// a fader is moved
 
-				// currently we are not using mixer-parameters as we have not enough
-				// mixerchannels for all 512 DMX-channels
-				// so we are using a dummy-mixerparameter to get the changes
-				// and use a manual offeset to write the values to the ArtNet-Output
+				// // currently we are not using mixer-parameters as we have not enough
+				// // mixerchannels for all 512 DMX-channels
+				// // so we are using a dummy-mixerparameter to get the changes
+				// // and use a manual offeset to write the values to the ArtNet-Output
 
-				uint16_t offset = config->GetUint(DMX_ARTNET_OFFSET);
-				if (board == X32_BOARD_L) {
-					offset += 0;
-				}else if (board == X32_BOARD_M) {
-					offset += 8; // only on Fullsize
-				}else if (board == X32_BOARD_R) {
-					offset += (config->IsModelX32Full() ? 16 : 8);
-				}
-				artnet->SetChannel(index + offset, (float)value * (255.0f/4095.0f), 0);
-				config->Set(bindingParameter->mp_id, helper->Fadervalue2dBfs(value), bindingParameter->mp_index);
+				// uint16_t offset = config->GetUint(DMX_ARTNET_OFFSET);
+				// if (board == X32_BOARD_L) {
+				// 	offset += 0;
+				// }else if (board == X32_BOARD_M) {
+				// 	offset += 8; // only on Fullsize
+				// }else if (board == X32_BOARD_R) {
+				// 	offset += (config->IsModelX32Full() ? 16 : 8);
+				// }
+				// artnet->SetChannel(index + offset, (float)value * (255.0f/4095.0f), 0);
+				config->Set(bindingParameter->mp_id, helper->Fadervalue2DMX(value), bindingParameter->mp_index);
 				surface->FaderMoved((uint)board, index, value);
 				break;
 		}
@@ -2693,46 +2683,9 @@ void X32Ctrl::SimulatorButton(uint32_t key)
 		case 0xFFFFFF9F:
 			config->Set(ACTIVE_PAGE, (uint)SCENES);
 			break;
+		case 46274: // Button REMOTE DAW
+			ProcessSurface(X32_BOARD_R, 'b', 0, 0x00 + 0x80);
+			ProcessSurface(X32_BOARD_R, 'b', 0, 0x00);
+			break;
 	}
 }
-
-//#####################################################################################################################
-//
-// ########     ###    ##    ## ##     ## #### ##    ##  ######   
-// ##     ##   ## ##   ###   ## ##    ##   ##  ###   ## ##    ##  
-// ##     ##  ##   ##  ####  ## ##   ##    ##  ####  ## ##        
-// ########  ##     ## ## ## ## #####      ##  ## ## ## ##   #### 
-// ##     ## ######### ##  #### ##   ##    ##  ##  #### ##    ##  
-// ##     ## ##     ## ##   ### ##    ##   ##  ##   ### ##    ##  
-// ########  ##     ## ##    ## ##     ## #### ##    ##  ######   
-//
-//#####################################################################################################################
-
-
-// void X32Ctrl::BankingSends(X32_BTN p_button) {
-// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 0);
-// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 0);
-// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 0);
-// 	surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 0);
-
-// 	switch (p_button){
-// 		case X32_BTN_BUS_SEND_1_4:
-// 			config->Set(BANKING_BUS_SENDS, 0);
-// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_1_4, 1);
-// 			break;
-// 		case X32_BTN_BUS_SEND_5_8:
-// 			config->Set(BANKING_BUS_SENDS, 1);
-// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_5_8, 1);
-// 			break;
-// 		case X32_BTN_BUS_SEND_9_12:
-// 			config->Set(BANKING_BUS_SENDS, 2);
-// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_9_12, 1);
-// 			break;
-// 		case X32_BTN_BUS_SEND_13_16:
-// 			config->Set(BANKING_BUS_SENDS, 3);
-// 			surface->SetLedByEnum(X32_BTN_BUS_SEND_13_16, 1);
-// 			break;
-// 		default:
-// 			break;
-// 	}
-// }
