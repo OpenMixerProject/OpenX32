@@ -3,7 +3,7 @@
     "selectedUserPageObject": "[OpenX32Gui.eez-project]:/userPages/0",
     "selectedUserWidgetObject": "[OpenX32Gui.eez-project]:/userWidgets/0",
     "selectedActionObject": "[OpenX32Gui.eez-project]:/actions/2",
-    "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/4/childStyles/0",
+    "selectedStyleObject": "[OpenX32Gui.eez-project]:/lvglStyles/styles/8",
     "selectedBitmapObject": "[OpenX32Gui.eez-project]:/bitmaps/15",
     "selectedLvglGroupObject": "[OpenX32Gui.eez-project]:/lvglGroups/groups/0",
     "subnavigationSelectedItems": {}
@@ -26,7 +26,7 @@
           },
           {
             "type": "border",
-            "selected": 5,
+            "selected": 0,
             "size": 206.5,
             "location": "right",
             "children": [
@@ -130,7 +130,7 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 11.309325056017437,
+              "weight": 13.934252750591718,
               "children": [
                 {
                   "type": "tabset",
@@ -202,7 +202,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 31.72443905398588,
+              "weight": 24.822413039426177,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -223,7 +223,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 11.115448136508363,
+              "weight": 15.392546456493768,
               "children": [
                 {
                   "type": "tab",
@@ -1075,23 +1075,41 @@
       },
       "selectionFront": {},
       "selectionBack": {
-        "0": {}
+        "0": {
+          "4": {
+            "2": {
+              "0": {
+                "1": {},
+                "2": {}
+              }
+            },
+            "3": {
+              "0": {
+                "2": {
+                  "0": {
+                    "3": {
+                      "$selected": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "[OpenX32Gui.eez-project]:/lvglStyles/styles[tree-state]": {
       "0": {},
       "1": {},
-      "2": {
-        "1": {}
-      },
+      "2": {},
       "3": {},
-      "4": {
-        "0": {
-          "$selected": true
-        }
-      },
+      "4": {},
       "5": {},
-      "6": {}
+      "6": {},
+      "7": {},
+      "8": {
+        "$selected": true
+      }
     },
     "[OpenX32Gui.eez-project]:/userWidgets/0[flow-state]": {
       "selection": {
@@ -1302,9 +1320,7 @@
   "selectedStylePropertyName": "",
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
-  "lvglExpandedPropertiesGroup": [
-    "PADDING"
-  ],
+  "lvglExpandedPropertiesGroup": [],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
   "flowZoom": 1,

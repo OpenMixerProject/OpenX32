@@ -6,10 +6,10 @@
             "request": "launch",
             "program": "${workspaceFolder}/../bin/x32ctrl",
             //"args": ["-b"],
-            "args": ["-b", "-d", "XREMOTE"],
+            "args": ["-b", "-d", "SURFACE"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/../bin",
-            "environment": [],
+            //"environment": [{"name" :"DEBUGINFOD_URLS", "value": ""}],
             "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [

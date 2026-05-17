@@ -147,7 +147,7 @@ class PageSetupCard: public Page {
     public:
         PageSetupCard(PageBaseParameter* pagebasepar) : Page(pagebasepar) {
             prevPage = X32_PAGE::SETUP;
-            nextPage = X32_PAGE::ABOUT;
+            nextPage = X32_PAGE::SETUP_SURFACE;
             tabLayer0 = objects.maintab;
             tabIndex0 = 3;
             tabLayer1 = objects.setuptab;

@@ -12,7 +12,7 @@ class PageDebug: public Page
             tabLayer0 = objects.maintab;
             tabIndex0 = 3;
             tabLayer1 = objects.setuptab;
-            tabIndex1 = 3;
+            tabIndex1 = 4;
             led = X32_BTN_SETUP;
         }
 

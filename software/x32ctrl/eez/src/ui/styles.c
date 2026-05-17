@@ -497,6 +497,72 @@ void remove_style_display_encoder_panels(lv_obj_t *obj) {
 };
 
 //
+// Style: table_standard
+//
+
+void init_style_table_standard_ITEMS_DEFAULT(lv_style_t *style) {
+    lv_style_set_pad_top(style, 5);
+    lv_style_set_pad_bottom(style, 2);
+    lv_style_set_pad_left(style, 5);
+    lv_style_set_pad_right(style, 5);
+};
+
+lv_style_t *get_style_table_standard_ITEMS_DEFAULT() {
+    static lv_style_t *style;
+    if (!style) {
+        style = (lv_style_t *)lv_malloc(sizeof(lv_style_t));
+        lv_style_init(style);
+        init_style_table_standard_ITEMS_DEFAULT(style);
+    }
+    return style;
+};
+
+void add_style_table_standard(lv_obj_t *obj) {
+    (void)obj;
+    lv_obj_add_style(obj, get_style_table_standard_ITEMS_DEFAULT(), LV_PART_ITEMS | LV_STATE_DEFAULT);
+};
+
+void remove_style_table_standard(lv_obj_t *obj) {
+    (void)obj;
+    lv_obj_remove_style(obj, get_style_table_standard_ITEMS_DEFAULT(), LV_PART_ITEMS | LV_STATE_DEFAULT);
+};
+
+//
+// Style: roller_standard
+//
+
+void init_style_roller_standard_MAIN_DEFAULT(lv_style_t *style) {
+    lv_style_set_pad_top(style, 0);
+    lv_style_set_pad_bottom(style, 0);
+    lv_style_set_pad_left(style, 0);
+    lv_style_set_pad_right(style, 0);
+    lv_style_set_pad_row(style, 1);
+    lv_style_set_pad_column(style, 1);
+    lv_style_set_radius(style, 0);
+    lv_style_set_text_line_space(style, 10);
+};
+
+lv_style_t *get_style_roller_standard_MAIN_DEFAULT() {
+    static lv_style_t *style;
+    if (!style) {
+        style = (lv_style_t *)lv_malloc(sizeof(lv_style_t));
+        lv_style_init(style);
+        init_style_roller_standard_MAIN_DEFAULT(style);
+    }
+    return style;
+};
+
+void add_style_roller_standard(lv_obj_t *obj) {
+    (void)obj;
+    lv_obj_add_style(obj, get_style_roller_standard_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
+};
+
+void remove_style_roller_standard(lv_obj_t *obj) {
+    (void)obj;
+    lv_obj_remove_style(obj, get_style_roller_standard_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
+};
+
+//
 //
 //
 
@@ -514,6 +580,8 @@ void add_style(lv_obj_t *obj, int32_t styleIndex) {
         add_style_panel_flat_bg,
         add_style_label_bg_yellow,
         add_style_display_encoder_panels,
+        add_style_table_standard,
+        add_style_roller_standard,
     };
     add_style_funcs[styleIndex](obj);
 }
@@ -532,6 +600,8 @@ void remove_style(lv_obj_t *obj, int32_t styleIndex) {
         remove_style_panel_flat_bg,
         remove_style_label_bg_yellow,
         remove_style_display_encoder_panels,
+        remove_style_table_standard,
+        remove_style_roller_standard,
     };
     remove_style_funcs[styleIndex](obj);
 }

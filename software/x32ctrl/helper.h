@@ -63,6 +63,8 @@ class Helper {
         float Saturate(float value, float min, float max);
         int CheckBoundaries(int value, int amount, int lowerbound, int upperbound);
 
+        String MixerparameterAction2String(MixerparameterAction action);
+
         String getIpAddress();
 
         bool IsInChannelBlock(uint8_t index, X32_VCHANNEL_BLOCK block);

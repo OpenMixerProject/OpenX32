@@ -278,6 +278,61 @@ float Helper::Saturate(float value, float min, float max) {
   }
 }
 
+String Helper::MixerparameterAction2String(MixerparameterAction action)
+{
+	using enum MixerparameterAction;
+
+	switch(action)
+	{
+		case NONE:
+			return "None";
+		case CUSTOM:
+			return "Custom";
+		case REFRESH:
+			return "Refresh";
+		case SET:
+			return "Set";
+		case SET_TO_INDEX:
+			return "Set To Index";
+		case SET_ON_INDEX:
+			return "Set On Index";
+		case SET__MP_INDIRECT__SELECTED_CHANNEL:
+			return "Set SC Indirect";
+    	case SET_SELECTED_CHANNEL:
+    		return "Set SC";
+		case CHANGE:
+			return "Change";
+		case CHANGE_SELECTED_CHANNEL:
+			return "Change SC";
+		case CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+			return "Change SC Indirect"; 
+		case TOGGLE:
+			return "Toggle";
+		case TOGGLE_SELECTED_CHANNEL:
+			return "Toggle SC";
+		case RESET:
+			return "Reset";
+		case RESET_SELECTED_CHANNEL:
+			return "Reset SC";
+		case LCD_Channel:
+			return "LCD Channel";
+		case LCD_Artnet:
+			return "LCD Artnet";
+		case VUMETER:
+			return "VUMETER";
+		case DMX:
+			return "DMX"; 
+		case CLEAR_SOLO:
+			return "Clear Solo";
+		default:
+			return "Unknown MixerparameterAction";
+	}
+    
+    
+    
+
+}
+
 String Helper::getIpAddress() {
 	struct ifaddrs * ifAddrStruct=NULL;
 	struct ifaddrs * ifa=NULL;

@@ -246,6 +246,10 @@ void X32Config::DefineMixerparameters() {
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
+    DefParameter(BANKING_ASSIGN, cat, "Banking Assign")
+    ->DefHideEncoderReset()
+    ->DefMinMaxStandard_Uint(0, 2, 0);
+
     // ###########
     // # Display
     // ###########
@@ -1809,22 +1813,22 @@ void X32Config::DefineSurfaceElements()
     DefSurfaceElements(SCENES_GO, "GO");
 
     DefSurfaceElements(VIEW_ASSIGN, "VIEW ASSIGN");
-    DefSurfaceElements(ASSIGN_ENCODER_1, "ASSIGN ENCODER 1");
-    DefSurfaceElements(ASSIGN_ENCODER_2, "ASSIGN ENCODER 2");
-    DefSurfaceElements(ASSIGN_ENCODER_3, "ASSIGN ENCODER 3");
-    DefSurfaceElements(ASSIGN_ENCODER_4, "ASSIGN ENCODER 4");
-    DefSurfaceElements(ASSIGN_1, "ASSIGN 1");
-    DefSurfaceElements(ASSIGN_2, "ASSIGN 2");
-    DefSurfaceElements(ASSIGN_3, "ASSIGN 3");
-    DefSurfaceElements(ASSIGN_4, "ASSIGN 4");
-    DefSurfaceElements(ASSIGN_5, "ASSIGN 5");
-    DefSurfaceElements(ASSIGN_6, "ASSIGN 6");
-    DefSurfaceElements(ASSIGN_7, "ASSIGN 7");
-    DefSurfaceElements(ASSIGN_8, "ASSIGN 8");
-    DefSurfaceElements(ASSIGN_9, "ASSIGN 9");
-    DefSurfaceElements(ASSIGN_10, "ASSIGN 10");
-    DefSurfaceElements(ASSIGN_11, "ASSIGN 11");
-    DefSurfaceElements(ASSIGN_12, "ASSIGN 12");
+    DefSurfaceElements(ASSIGN_ENCODER_1, "ASSIGN Encoder 1");
+    DefSurfaceElements(ASSIGN_ENCODER_2, "ASSIGN Encoder 2");
+    DefSurfaceElements(ASSIGN_ENCODER_3, "ASSIGN Encoder 3");
+    DefSurfaceElements(ASSIGN_ENCODER_4, "ASSIGN Encoder 4");
+    DefSurfaceElements(ASSIGN_1, "ASSIGN Button 1");
+    DefSurfaceElements(ASSIGN_2, "ASSIGN Button 2");
+    DefSurfaceElements(ASSIGN_3, "ASSIGN Button 3");
+    DefSurfaceElements(ASSIGN_4, "ASSIGN Button 4");
+    DefSurfaceElements(ASSIGN_5, "ASSIGN Button 5");
+    DefSurfaceElements(ASSIGN_6, "ASSIGN Button 6");
+    DefSurfaceElements(ASSIGN_7, "ASSIGN Button 7");
+    DefSurfaceElements(ASSIGN_8, "ASSIGN Button 8");
+    DefSurfaceElements(ASSIGN_9, "ASSIGN Button 9");
+    DefSurfaceElements(ASSIGN_10, "ASSIGN Button 10");
+    DefSurfaceElements(ASSIGN_11, "ASSIGN Button 11");
+    DefSurfaceElements(ASSIGN_12, "ASSIGN Button 12");
     DefSurfaceElements(ASSIGN_A, "ASSIGN A");
     DefSurfaceElements(ASSIGN_B, "ASSIGN B");
     DefSurfaceElements(ASSIGN_C, "ASSIGN C");

@@ -31,6 +31,7 @@
 #include "page-effects.h"
 #include "page-setup.h"
 #include "page-setup-card.h"
+#include "page-setup-surface.h"
 #include "page-debug.h"
 #include "page-about.h"
 #include "page-scenes.h"

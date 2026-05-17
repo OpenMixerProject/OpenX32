@@ -388,6 +388,7 @@ enum class X32_PAGE :int
     SETUP,
         // sub-pages of setup
         SETUP_CARD,
+        SETUP_SURFACE,
         ABOUT,
         DEBUG,
         PROTOTYPEGUI,
@@ -522,6 +523,7 @@ enum class MP_ID {
     BANKING_INPUT,
     BANKING_BUS,
     BANKING_BUS_SENDS,
+    BANKING_ASSIGN,
     DISPLAY_UTILITY,
     DISPLAY_MUTE_GROUP,
 
