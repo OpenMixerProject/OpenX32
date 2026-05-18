@@ -73,7 +73,7 @@ bool DSP1::ChannelHasAdjustableGain(uint chanIndex)
 
 float DSP1::CompensateGainAndVolume(float targetGainDb, float targetVolumeDb)
 {
-    float clampedGainDb = max(-2.0f, min(45.0f, targetGainDb));
+    float clampedGainDb = max(-2.0f, min(45.5f, targetGainDb));
     float stepIndex = floor((clampedGainDb - (-2.0f)) / 2.5f);
     float hardwareGainDb = -2.0f + (stepIndex * 2.5f);
 
