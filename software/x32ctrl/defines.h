@@ -70,8 +70,8 @@ typedef unsigned int uint;
 
 #define VOLUME_MIN         -100.0f // dB
 
-#define CHANNEL_GAIN_MIN            -12.0f // dB
-#define CHANNEL_GAIN_MAX             45.5f // dB
+#define CHANNEL_GAIN_MIN            -18.0f // dB
+#define CHANNEL_GAIN_MAX             60.0f // dB <- real hardware goes only between -2.0 and +45.0 but we allow additional trim
 #define CHANNEL_PANORAMA_MIN       -100.0f // dB
 #define CHANNEL_PANORAMA_MAX        100.0f // dB
 #define CHANNEL_VOLUME_MIN         -100.0f // dB

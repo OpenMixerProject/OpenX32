@@ -35,6 +35,7 @@ class PageRoutingFpga: public Page
         {
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_1, String(LV_SYMBOL_SHUFFLE) + String("\nSection"));
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, String(LV_SYMBOL_REFRESH) + String("\nSelect"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, String(LV_SYMBOL_UP) + String("\nSelect\n") + LV_SYMBOL_DOWN);
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, String(LV_SYMBOL_REFRESH) + String("\nSource"));
 
             LoadMatrix();
@@ -59,6 +60,17 @@ class PageRoutingFpga: public Page
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_2:
                     selection_index = helper->CheckBoundaries(selection_index, amount, 0, current_targetblocksize-1);
+                    LoadMatrix();
+                    break;
+                case SurfaceElementId::DISPLAY_ENCODER_3:
+                    if (amount < 0)
+                    {
+                        selection_index = helper->CheckBoundaries(selection_index, -8, 0, current_targetblocksize-1);
+                    }
+                    else
+                    {
+                        selection_index = helper->CheckBoundaries(selection_index, 8, 0, current_targetblocksize-1);
+                    }
                     LoadMatrix();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_5:

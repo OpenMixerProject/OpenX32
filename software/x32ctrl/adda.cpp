@@ -229,7 +229,18 @@ String Adda::SetGain(uint8_t boardId, uint8_t channel, float gain, bool phantomP
 
 	// convert gain-value between -2dB and +45.5dB to three-digit value
 	char buf[4];
-	uint8_t gainHardware = (uint8_t)((gain + 2.0f)/2.5f); // gain is between -2dB and +45.5dB in 2.5dB steps
+	uint8_t gainHardware;
+	if (gain < -2.0f)
+	{
+		gainHardware = 0;
+	}else if (gain > 45.5f)
+	{
+		gainHardware = 19;
+	}else
+	{
+		gainHardware = (uint8_t)((gain + 2.0f)/2.5f); // gain is between -2dB and +45.5dB in 2.5dB steps
+	}
+	
 	sprintf(buf, "%03d", gainHardware);
 	
 	message += &buf[0];

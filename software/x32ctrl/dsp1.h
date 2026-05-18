@@ -36,6 +36,9 @@ class DSP1 : X32Base {
         DSP1(X32BaseParameter* basepar);
         void Init(void);
 
+        bool ChannelHasAdjustableGain(uint chanIndex);
+        float CompensateGainAndVolume(float targetGainDb, float targetVolumeDb);
+
         void SendChannelVolume(uint chanIndex);
         void SendChannelSolo(uint chanIndex, bool isSoloActivated);
         void SendChannelSend(uint chanIndex);

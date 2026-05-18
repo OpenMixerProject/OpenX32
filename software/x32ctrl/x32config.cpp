@@ -323,6 +323,7 @@ void X32Config::DefineMixerparameters() {
     DefParameter(CHANNEL_GAIN, cat, "Gain", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "gain")
+    ->DefStepsize(0.5f)
     ->DefMinMaxStandard_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
     
     DefParameter(CHANNEL_VOLUME, cat, "Volume", MAX_VCHANNELS)

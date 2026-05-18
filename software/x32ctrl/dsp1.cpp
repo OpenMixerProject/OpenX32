@@ -51,6 +51,38 @@ void DSP1::Init(void)
     }
 }
 
+bool DSP1::ChannelHasAdjustableGain(uint chanIndex)
+{
+    // check if channel has an adjustable gain
+    uint dspChannelInputRouting = config->GetUint(ROUTING_DSP_INPUT, chanIndex);
+    uint dspChannelFpgaSource = config->GetUint(ROUTING_FPGA, chanIndex);
+
+    // check if channel uses external signal from FPGA
+    if ((dspChannelInputRouting >= DSP_BUF_IDX_DSPCHANNEL) && (dspChannelInputRouting < (DSP_BUF_IDX_AUX + 8)))
+    {
+        // this channel gets its input from the FPGA. Now check if it has an adjustable gain
+        if ((dspChannelFpgaSource >= FPGA_INPUT_IDX_XLR) && (dspChannelFpgaSource < FPGA_INPUT_IDX_XLR + 32) ||
+            (dspChannelFpgaSource >= FPGA_INPUT_IDX_AES50A && dspChannelFpgaSource < FPGA_INPUT_IDX_AES50A + 48))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+float DSP1::CompensateGainAndVolume(float targetGainDb, float targetVolumeDb)
+{
+    float clampedGainDb = max(-2.0f, min(45.0f, targetGainDb));
+    float stepIndex = floor((clampedGainDb - (-2.0f)) / 2.5f);
+    float hardwareGainDb = -2.0f + (stepIndex * 2.5f);
+
+    float missingGainDb = targetGainDb - hardwareGainDb;
+    float finalDigitalVolumeDb = targetVolumeDb + missingGainDb;
+
+    return finalDigitalVolumeDb;
+}
+
 // set the general volume of one of the 40 DSP-channels, 8 FX-Returns and all Mixbusses
 void DSP1::SendChannelVolume(uint chanIndex)
 {
@@ -67,8 +99,23 @@ void DSP1::SendChannelVolume(uint chanIndex)
     }
 
     // convert volume from dB to linear
-    float volumeLR_pu = pow(10.0f, volumeLR/20.0f);
-    float volumeSub_pu = pow(10.0f, volumeSub/20.0f);
+    float volumeLR_pu;
+    float volumeSub_pu;
+
+    // check if current channel has an adjustable gain. If not, apply GAIN as TRIM
+    if (!ChannelHasAdjustableGain(chanIndex))
+    {
+        float trim = config->GetFloat(CHANNEL_GAIN, chanIndex);
+        float trim_pu = pow(10.0f, trim/20.0f);
+        volumeLR_pu = pow(10.0f, volumeLR/20.0f) * trim_pu;
+        volumeSub_pu = pow(10.0f, volumeSub/20.0f) * trim_pu;
+    }else{
+        // apply digital gain to increase gain-resolution as hardware supports 2.5dB-steps "only"
+        float volumeLR_new = CompensateGainAndVolume(config->GetFloat(CHANNEL_GAIN, chanIndex), volumeLR);
+        float volumeSub_new = CompensateGainAndVolume(config->GetFloat(CHANNEL_GAIN, chanIndex), volumeSub);
+        volumeLR_pu = pow(10.0f, volumeLR_new/20.0f);
+        volumeSub_pu = pow(10.0f, volumeSub_new/20.0f);
+    }
 
     // apply DCAs if enabled
     // loop through all DCA groups
