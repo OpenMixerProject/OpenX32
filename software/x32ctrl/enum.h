@@ -552,6 +552,15 @@ enum class MP_ID {
     MUTE_GROUP_5_MUTE,
     MUTE_GROUP_6_MUTE,
 
+    DCA_GROUP_1,
+    DCA_GROUP_2,
+    DCA_GROUP_3,
+    DCA_GROUP_4,
+    DCA_GROUP_5,
+    DCA_GROUP_6,
+    DCA_GROUP_7,
+    DCA_GROUP_8,
+
     // Channel
 
     CHANNEL_NAME,
@@ -1127,7 +1136,7 @@ enum class SurfaceElementId {
     MUTE_GROUP_4,
     MUTE_GROUP_5,
     MUTE_GROUP_6,
- 
+
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 

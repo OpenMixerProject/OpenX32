@@ -51,7 +51,7 @@ void DSP1::Init(void)
     }
 }
 
-// set the general volume of one of the 40 DSP-channels
+// set the general volume of one of the 40 DSP-channels, 8 FX-Returns and all Mixbusses
 void DSP1::SendChannelVolume(uint chanIndex)
 {
     float balanceLeft = helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, chanIndex), 0.0f, 100.0f) / 100.0f;
@@ -66,12 +66,33 @@ void DSP1::SendChannelVolume(uint chanIndex)
         volumeSub = VOLUME_MIN; // dB
     }
 
+    // convert volume from dB to linear
+    float volumeLR_pu = pow(10.0f, volumeLR/20.0f);
+    float volumeSub_pu = pow(10.0f, volumeSub/20.0f);
+
+    // apply DCAs if enabled
+    // loop through all DCA groups
+    for (uint i = 0; i < 8; i++)
+    {
+        MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
+
+        // check if we are part of the DCA group
+        if (config->GetBool(dcaGroupId, chanIndex))
+        {
+            // current channel is part of this DCA group -> apply DCA value to volume
+            float dcaValue = config->GetFloat(CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::DCA + i);
+            float dcaValue_pu = pow(10.0f, dcaValue/20.0f);
+            volumeLR_pu *= dcaValue_pu;
+            volumeSub_pu *= dcaValue_pu;
+        }
+    }
+
     // send volume to DSP via SPI
     float values[4];
-    values[0] = pow(10.0f, volumeLR/20.0f); // volume of this specific channel
+    values[0] = volumeLR_pu; // volume of this specific channel
     values[1] = balanceLeft; // 1 .. 1 ..  0
     values[2] = balanceRight; // 0  .. 1 .. 1
-    values[3] = pow(10.0f, volumeSub/20.0f); // subwoofer
+    values[3] = volumeSub_pu; // subwoofer
 
     helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendChannelVolume() channelindex %d: %f, %f, %f, %f", chanIndex, (double)values[0], (double)values[1], (double)values[2], (double)values[3]);
 
@@ -147,8 +168,25 @@ void DSP1::SendMatrixVolume(uint chanIndex)
         sendVol = config->GetFloat(CHANNEL_VOLUME, chanIndex);
     }
 
+    float sendVol_pu = pow(10.0f, sendVol/20.0f);
+
+    // apply DCAs if enabled
+    // loop through all DCA groups
+    for (uint i = 0; i < 8; i++)
+    {
+        MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
+
+        // check if we are part of the DCA group
+        if (config->GetBool(dcaGroupId, chanIndex))
+        {
+            // current channel is part of this DCA group -> apply DCA value to volume
+            float dcaValue = config->GetFloat(CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::DCA + i);
+            sendVol_pu *= pow(10.0f, dcaValue/20.0f);
+        }
+    }
+
     uint matrixChannelIndex = 64;
-    values[0] = pow(10.0f, sendVol/20.0f); // volume of this specific channel
+    values[0] = sendVol_pu; // volume of this specific channel
     spi->QueueDspData(0, 'v', chanIndex - matrixChannelIndex, 2, 1, &values[0]);
 }
 
@@ -174,31 +212,49 @@ void DSP1::SendMonitorVolume() {
     spi->QueueDspData(0, 'v', 0, 4, 1, &values[0]);
 }
 
-void DSP1::SendMainVolume()
+void DSP1::SendMainVolume(uint chanIndex)
 {
     helper->DEBUG_DSP1(DEBUGLEVEL_NORMAL, "SendMainVolume()");
 
     uint mainChannelIndex = 80;
     uint subChannelIndex = 71;
-    float volumeLeft = (helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex), 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
-    float volumeRight = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
-    float volumeSub = pow(10.0f, config->GetFloat(CHANNEL_VOLUME_SUB, subChannelIndex)/20.0f);
+    float volumeLeft_pu = (helper->Saturate(100.0f - config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex), 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
+    float volumeRight_pu = (helper->Saturate(config->GetFloat(CHANNEL_PANORAMA, mainChannelIndex) + 100.0f, 0.0f, 100.0f) / 100.0f) * pow(10.0f, config->GetFloat(CHANNEL_VOLUME, mainChannelIndex)/20.0f);
+    float volumeSub_pu = pow(10.0f, config->GetFloat(CHANNEL_VOLUME_SUB, subChannelIndex)/20.0f);
 
     if (config->GetBool(CHANNEL_MUTE, mainChannelIndex))
     {
-        volumeLeft = 0; // p.u.
-        volumeRight = 0; // p.u.
+        volumeLeft_pu = 0; // p.u.
+        volumeRight_pu = 0; // p.u.
     }
     if (config->GetBool(CHANNEL_MUTE, subChannelIndex))
     {
-        volumeSub = 0; // p.u.
+        volumeSub_pu = 0; // p.u.
+    }
+
+    // apply DCAs if enabled
+    // loop through all DCA groups
+    for (uint i = 0; i < 8; i++)
+    {
+        MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
+
+        // check if we are part of the DCA group
+        if (config->GetBool(dcaGroupId, chanIndex))
+        {
+            // current channel is part of this DCA group -> apply DCA value to volume
+            float dcaValue = config->GetFloat(CHANNEL_VOLUME, (uint)X32_VCHANNEL_BLOCK::DCA + i);
+            float dcaValue_pu = pow(10.0f, dcaValue/20.0f);
+            volumeLeft_pu *= dcaValue_pu;
+            volumeRight_pu *= dcaValue_pu;
+            volumeSub_pu *= dcaValue_pu;
+        }
     }
 
     // send volume to DSP via spi
     float values[3];
-    values[0] = volumeLeft;
-    values[1] = volumeRight;
-    values[2] = volumeSub;
+    values[0] = volumeLeft_pu;
+    values[1] = volumeRight_pu;
+    values[2] = volumeSub_pu;
 
     spi->QueueDspData(0, 'v', 0, 3, 3, &values[0]);
 }

@@ -72,6 +72,15 @@ typedef struct _objects_t {
     lv_obj_t *config_mute_group_6;
     lv_obj_t *openx32_demo_knob;
     lv_obj_t *obj6;
+    lv_obj_t *list_dca_groups;
+    lv_obj_t *config_dca_group_1;
+    lv_obj_t *config_dca_group_2;
+    lv_obj_t *config_dca_group_3;
+    lv_obj_t *config_dca_group_4;
+    lv_obj_t *config_dca_group_5;
+    lv_obj_t *config_dca_group_6;
+    lv_obj_t *config_dca_group_7;
+    lv_obj_t *config_dca_group_8;
     lv_obj_t *config_phantom_button;
     lv_obj_t *current_channel_gate;
     lv_obj_t *current_channel_comp;

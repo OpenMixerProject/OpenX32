@@ -174,6 +174,41 @@ void Page::Change(bool syncAll)
             lv_obj_set_flag(objects.display_encoder_sliders, LV_OBJ_FLAG_HIDDEN, hideEncoders);
         }
 
+        // Utility Groups
+        if (config->HasParameterChanged(DISPLAY_UTILITY))
+        {
+            if (config->GetBool(DISPLAY_UTILITY))
+            {
+                // Show Display Encoders
+                lv_obj_set_flag(objects.display_encoder_sliders, LV_OBJ_FLAG_HIDDEN, false);
+
+                // Bind Encoder Widgets to DCA Groups
+
+                // on Page Config -> edit mute group assignment
+                if (config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG)
+                {
+                    for (uint i = 0; i < MAX_DISPLAY_ENCODER; i++)
+                    {
+                        config->SurfaceBindCustom(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_1, i), String(LV_SYMBOL_LIST) + String("\nAssign to\n"));
+                        config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::DISPLAY_ENCODER_BUTTON_1, i),
+                                            MixerparameterAction::TOGGLE_SELECTED_CHANNEL, config->MpCalcId(DCA_GROUP_1, i));
+                    }
+
+                    
+                }
+
+                // force reload of Encoder Widgets
+                syncAll = true;
+            }
+            else
+            {
+                // rebind Encoder Widgets of page
+                ResetEncoderBinding();
+                OnShow();
+                OnChange(true);
+            }
+        }
+
         SyncEncoderWidgets(syncAll);
     }
 }

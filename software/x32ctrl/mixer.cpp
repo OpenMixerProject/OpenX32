@@ -336,6 +336,57 @@ void Mixer::Sync(void)
         }
     }
 
+    // check if DCA group has changed (channel added or removed to DCA group)
+    filter.clear();
+    for (uint dcaGroupIdx = 0; dcaGroupIdx < 8; dcaGroupIdx++)
+    {
+        filter.push_back(config->MpCalcId(DCA_GROUP_1, dcaGroupIdx));
+    }
+    if (config->HasParametersChanged(filter))
+    {
+        // loop through all channels
+        for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
+        {
+            bool dcaBindOnChannel = false;
+
+            // loop through all DCA groups
+            for (uint i = 0; i < 8; i++)
+            {
+                MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
+        
+                // check if we are part of the DCA group
+                if (config->GetBool(dcaGroupId, chanIndex))
+                {
+                    dcaBindOnChannel = true;
+                }
+            }
+
+            if (dcaBindOnChannel)
+            {
+                // this channel is part of at least one DCA group -> resend channel-volume for this channel to DSP to update DCA group values
+                if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
+                helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::AUX) ||
+                helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::FXRET) ||
+                helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::BUS) )
+                {
+                    dsp->SendChannelVolume(chanIndex);
+                }
+                else if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::MATRIX))
+                {
+                    dsp->SendMatrixVolume(chanIndex);
+                }
+                else if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::MAINSUB))
+                {
+                    dsp->SendMainVolume(chanIndex);
+                }
+                else if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::MAIN))
+                {
+                    dsp->SendMainVolume(chanIndex);
+                }
+            }
+        }
+    }
+
     filter = {CHANNEL_VOLUME, CHANNEL_VOLUME_SUB, CHANNEL_MUTE, CHANNEL_PANORAMA, CHANNEL_SEND_LR, CHANNEL_SEND_SUB};
     if (config->HasParametersChanged(filter))
     {
@@ -353,11 +404,43 @@ void Mixer::Sync(void)
             {
                 dsp->SendMatrixVolume(changedIndex);
             }
-            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAINSUB)) {
-                dsp->SendMainVolume();
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::DCA))
+            {
+                // DCA channel has changed -> resend volume for all channels that are part of this DCA group to update DCA group values
+                for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
+                {
+                    MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, changedIndex - (uint)X32_VCHANNEL_BLOCK::DCA); 
+                    if (config->GetBool(dcaGroupId, chanIndex))
+                    {
+                        if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::NORMAL) ||
+                            helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::AUX) ||
+                            helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::FXRET) ||
+                            helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::BUS) )
+                        {
+                            dsp->SendChannelVolume(chanIndex);
+                        }
+                        else if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::MATRIX))
+                        {
+                            dsp->SendMatrixVolume(chanIndex);
+                        }
+                        else if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::MAINSUB))
+                        {
+                            dsp->SendMainVolume(chanIndex);
+                        }
+                        else if (helper->IsInChannelBlock(chanIndex, X32_VCHANNEL_BLOCK::MAIN))
+                        {
+                            dsp->SendMainVolume(chanIndex);
+                        }  
+                    }
+                }
             }
-            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAIN)) {
-                dsp->SendMainVolume();
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAINSUB))
+            {
+                dsp->SendMainVolume(changedIndex);
+            }
+            else if (helper->IsInChannelBlock(changedIndex, X32_VCHANNEL_BLOCK::MAIN))
+            {
+                dsp->SendMainVolume(changedIndex);
             }  
         }
     }
@@ -522,35 +605,6 @@ void Mixer::Sync(void)
             dsp->DSP2_SendFxParameter(fxSlot);
         }
     }
-
-    // if (config->HasParameterChanged(DMX_ARTNET_ON_FADERS))
-    // {
-    //     if (config->GetBool(DMX_ARTNET_ON_FADERS))
-    //     {
-    //         // bind all faders to DMX_ARTNET_VALUE. The boardId and fader-index will be used as offset to write the values to the ArtNet-Output
-
-    //         if (config->IsModelX32Full())
-    //         {
-    //        		for (uint i = 0; i < 8; i++)
-    //     		{
-    //                 config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i);
-    //                 config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_M_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + 8);
-    //                 config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + (int)X32_VCHANNEL_BLOCK::DCA);
-    //             }
-    //         }
-
-    //         if (config->IsModelX32CompactOrProducer())
-    //         {
-    //        		for (uint i = 0; i < 8; i++)
-    //     		{
-    //                 config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_L_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i);
-    //                 config->SurfaceBind((SurfaceElementId)((uint)SurfaceElementId::BOARD_R_FADER_1 + i), MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + (int)X32_VCHANNEL_BLOCK::DCA);
-    //             }
-    //         }
-    //     }
-
-    //     // the channel-binding can be restored simply by using one of the regular banking-buttons
-    // }
 
     helper->DEBUG_MIXER(DEBUGLEVEL_NORMAL, "sync done");
 }

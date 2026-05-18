@@ -351,6 +351,14 @@ void X32Config::DefineMixerparameters() {
         ->DefStandard_Bool(false);
     }
     
+    // DCA Group Membership
+    for (uint i = 0; i < 8; i++)
+    {
+        DefParameter(MpCalcId(DCA_GROUP_1, i), cat, String("DCA Group ") + String(i+1), MAX_VCHANNELS)
+        ->DefConfig(group, String("dca_group_") + String(i+1))
+        ->DefStandard_Bool(false);
+    }
+
     DefParameter(CHANNEL_PANORAMA, cat, "Pan/Bal", MAX_VCHANNELS)
     ->DefUOM(MP_UOM::PANORAMA)
     ->DefConfig(group, "panorama")

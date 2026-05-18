@@ -22,8 +22,6 @@ class DSP1 : X32Base {
         sMixbusChannel Bus[16];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
-        float volumeFxReturn[8];
-        float volumeDca[8];
 
         float volumeSpecial;
         float monitorVolume;
@@ -44,7 +42,7 @@ class DSP1 : X32Base {
         void SendMatrixVolume(uint chanIndex);
         void SendMatrixSolo(uint chanIndex, bool isSoloActivated);
         void SendMonitorVolume();
-        void SendMainVolume();
+        void SendMainVolume(uint chanIndex);
         void SendMainSolo(bool isSoloActivated);
         void SendGate(uint chanIndex);
         void SendLowcut(uint8_t chan);

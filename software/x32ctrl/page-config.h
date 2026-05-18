@@ -10,6 +10,7 @@ class PageConfig : public Page
         uint lastImageOffset;
 
         lv_obj_t* config_mute_group[MUTE_GROUPS];
+        lv_obj_t* config_dca_group[8];
 
     public:
 
@@ -33,6 +34,15 @@ class PageConfig : public Page
             config_mute_group[3] = objects.config_mute_group_4;
             config_mute_group[4] = objects.config_mute_group_5;
             config_mute_group[5] = objects.config_mute_group_6;
+
+            config_dca_group[0] = objects.config_dca_group_1;
+            config_dca_group[1] = objects.config_dca_group_2;
+            config_dca_group[2] = objects.config_dca_group_3;
+            config_dca_group[3] = objects.config_dca_group_4;
+            config_dca_group[4] = objects.config_dca_group_5;
+            config_dca_group[5] = objects.config_dca_group_6;
+            config_dca_group[6] = objects.config_dca_group_7;
+            config_dca_group[7] = objects.config_dca_group_8;
         }
 
         void OnShow() override 
@@ -104,6 +114,14 @@ class PageConfig : public Page
                 if (config->HasParameterChanged(config->MpCalcId(MUTE_GROUP_1, i), chanIndex) || force_update)
                 {
                     lv_obj_set_state(config_mute_group[i], LV_STATE_CHECKED, config->GetBool(config->MpCalcId(MUTE_GROUP_1, i), chanIndex));
+                }
+            }
+
+            for (uint i = 0; i < 8; i++)
+            {
+                if (config->HasParameterChanged(config->MpCalcId(DCA_GROUP_1, i), chanIndex) || force_update)
+                {
+                    lv_obj_set_state(config_dca_group[i], LV_STATE_CHECKED, config->GetBool(config->MpCalcId(DCA_GROUP_1, i), chanIndex));
                 }
             }
 
