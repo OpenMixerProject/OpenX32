@@ -2134,7 +2134,7 @@ void X32Ctrl::InitBanks()
 		InitBank_Channelstrip(new X32Bank(X32BankId::FX_RET, "FX Return"), (uint)(X32_VCHANNEL_BLOCK::FXRET));
 		InitBank_Channelstrip(new X32Bank(X32BankId::BUS1_8, "Bus 1-8"), (uint)(X32_VCHANNEL_BLOCK::BUS));
 		InitBank_Channelstrip(new X32Bank(X32BankId::BUS9_16, "Bus 9-16"), ((uint)(X32_VCHANNEL_BLOCK::BUS)) + 8);
-		InitBank_Channelstrip(new X32Bank(X32BankId::DCA, "DCA"), (uint)(X32_VCHANNEL_BLOCK::DCA));
+		InitBank_Channelstrip_DCA(new X32Bank(X32BankId::DCA, "DCA"), (uint)(X32_VCHANNEL_BLOCK::DCA));
 		InitBank_Channelstrip(new X32Bank(X32BankId::MATRIX_MAIN, "Matrix/Main"), (uint)(X32_VCHANNEL_BLOCK::MATRIX));
 		InitBank_DMX(new X32Bank(X32BankId::REMOTE1, "Remote1"), 0);
 		InitBank_DMX(new X32Bank(X32BankId::REMOTE2, "Remote2"), 8);
@@ -2149,6 +2149,23 @@ void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
 
         bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
 		bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
+        bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
+		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
+        bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
+        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + offset);
+    }
+
+	banks[(uint)(bank->GetID())] = bank;
+}
+
+void X32Ctrl::InitBank_Channelstrip_DCA(X32Bank* bank, uint offset)
+{
+    for (uint i = 0; i < 8; i++)
+    {
+		bank->channelstrip[i] = new X32BankParameter();
+
+        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
+		//bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
         bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
 		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
         bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
@@ -2326,7 +2343,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 			if (isButtonPressed)
 			{
-				// Member Assign Mode (e.g. Mute Groups)
+				// Member Assign Mode (e.g. Mute Groups, DCA Groups)
 				if (config->IsModelX32FullOrCompactOrProducer() 		&&
 					config->GetBool(parameter->GetAssignMembersIf()) 	&&
 					config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG
@@ -2348,10 +2365,13 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 												bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_M);	
 						}
 						
-						// Board R / BusSection
-						uint chanIndex_R = bankLoadedBussection->channelstrip[i]->select->mp_index;
-						config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_R_SELECT_1, i),
-											bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_R);
+						if (config->GetUint(BANKING_BUS) != (uint) X32BankId::DCA)
+						{
+							// Board R / BusSection
+							uint chanIndex_R = bankLoadedBussection->channelstrip[i]->select->mp_index;
+							config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_R_SELECT_1, i),
+												bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_R);
+						}
 
 						// Master Fader
 						config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN,

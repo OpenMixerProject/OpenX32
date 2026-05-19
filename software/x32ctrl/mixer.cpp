@@ -330,7 +330,6 @@ void Mixer::Sync(void)
             config->Set(CHANNEL_MUTE, muteChannel, chanIndex);
         }
     }
-    }
 
     // DCA Groups - check if DCA group has changed (channel added or removed to DCA group)
     filter.clear();

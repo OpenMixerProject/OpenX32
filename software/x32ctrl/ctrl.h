@@ -103,6 +103,7 @@ class X32Ctrl : public X32Base
 
         void InitBanks();
         void InitBank_Channelstrip(X32Bank* bank, uint offset);
+        void InitBank_Channelstrip_DCA(X32Bank* bank, uint offset);
         void InitBank_DMX(X32Bank* bank, uint offset);
         void LoadBank(X32BankTarget target, X32BankId id);
         void LoadDefaultSurfaceBinding();
