@@ -130,6 +130,16 @@ class PageSetupSurface: public Page
                 controls.push_back(SurfaceElementId::ASSIGN_8);
             }
 
+            if (config->IsModelX32FullOrCompactOrProducer())
+            {
+                controls.push_back(SurfaceElementId::MUTE_GROUP_1);
+                controls.push_back(SurfaceElementId::MUTE_GROUP_2);
+                controls.push_back(SurfaceElementId::MUTE_GROUP_3);
+                controls.push_back(SurfaceElementId::MUTE_GROUP_4);
+                controls.push_back(SurfaceElementId::MUTE_GROUP_5);
+                controls.push_back(SurfaceElementId::MUTE_GROUP_6);
+            }
+
             String roller_options;
             for(uint i = 0; i < controls.size(); i++)
             {
