@@ -94,6 +94,8 @@ class X32Ctrl : public X32Base
         X32Bank* bankLoadedInputsection2;
         X32Bank* bankLoadedBussection;
 
+        X32BankId preSpillLoadedBank = X32BankId::None;
+
         map<X32_PAGE, Page*> pages;
         X32_PAGE lastPage = X32_PAGE::HOME;
 

@@ -1007,16 +1007,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 							}
 						}
 
-						if (config->IsModelX32Full())
-						{
-							LoadBank(X32BankTarget::InputSection, X32BankId::FLEX1);
-							LoadBank(X32BankTarget::InputSection2, X32BankId::FLEX2);
-						}
-
-						if (config->IsModelX32CompactOrProducer())
-						{
-							LoadBank(X32BankTarget::InputSection, X32BankId::FLEX1);
-						}
+						preSpillLoadedBank = (X32BankId)config->GetUint(BANKING_INPUT);
+						config->Set(BANKING_INPUT, (uint)X32BankId::FLEX1);
 
 						break;
 					}
@@ -1024,9 +1016,13 @@ void X32Ctrl::syncSurface(bool fullSync)
 					{
 						// DCA "Unspill"
 
-						helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DCA Unspill");
+						if (config->GetUint(BANKING_INPUT) == (uint)X32BankId::FLEX1)
+						{
+							helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DCA Unspill");
 
-						// TODO ;-)
+							config->Set(BANKING_INPUT, (uint)preSpillLoadedBank);
+							preSpillLoadedBank = X32BankId::None;
+						}
 					}
 				}
 			}
@@ -2263,7 +2259,7 @@ void X32Ctrl::InitBank_Channelstrip_DCA(X32Bank* bank, uint offset)
     {
 		bank->channelstrip[i] = new X32BankParameter();
 
-        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::PUSH, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
+        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
 		//bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
         bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
 		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
