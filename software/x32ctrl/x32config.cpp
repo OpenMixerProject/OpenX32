@@ -290,7 +290,7 @@ void X32Config::DefineMixerparameters() {
         ->DefAssignMembersIfTo(DISPLAY_MUTE_GROUP, MpCalcId(MUTE_GROUP_1, i));
     }
 
-    // DCA Group "master" - for DCA Spill and assigning the dca group via select button
+    // DCA Group "master" - for DCA Spill and assigning the DCA Group via select button
     for (uint i = 0; i < DCA_GROUPS; i++)
     {
         DefParameter(MpCalcId(DCA_GROUP_1_MASTER, i), cat, String("DCA Group ") + String(i+1))

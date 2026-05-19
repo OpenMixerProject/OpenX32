@@ -1295,13 +1295,21 @@ enum class X32BankId
 
     // General
 
-    REMOTE1,
-    REMOTE2,
-
     BUS1_8,
     BUS9_16,
     DCA,
     MATRIX_MAIN,
+
+    // Special
+
+    // DMX, Artnet
+    REMOTE1,
+    REMOTE2,
+
+    // Flexible Banks for various modes (DCA-Spill, EQ on Faders, Send on Faders, ...) that are created on the fly
+    FLEX1,
+    FLEX2,
+    FLEX3,
 
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };

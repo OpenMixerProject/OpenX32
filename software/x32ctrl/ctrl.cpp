@@ -918,6 +918,10 @@ void X32Ctrl::syncSurface(bool fullSync)
 						bank1 = X32BankId::REMOTE1;
 						bank2 = X32BankId::REMOTE2;
 						break;
+					case X32BankId::FLEX1:
+						bank1 = X32BankId::FLEX1;
+						bank2 = X32BankId::FLEX2;
+						break;
 				}
 
 				LoadBank(X32BankTarget::InputSection, bank1);
@@ -948,7 +952,93 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 			LoadBank(X32BankTarget::BusSection, bank);
 		}
+
+		// ######################################
+		//
+		//   DCA Spill
+		//
+		// ######################################
+
+		vector<MP_ID> filter;
+		for (uint i = 0; i < DCA_GROUPS; i++)
+    	{
+       		filter.push_back(config->MpCalcId(DCA_GROUP_1_MASTER, i));
+		}
+		if (config->HasParametersChanged(filter))
+		{
+			// loop through all DCA groups
+			for (uint i = 0; i < DCA_GROUPS; i++)
+			{
+				MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1_MASTER, i);
+		
+				if (config->HasParameterChanged(dcaGroupId))
+				{
+					if (config->GetBool(dcaGroupId))
+					{
+						// DCA Spill
+
+						helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DCA Spill");
+
+						uint nextSurfaceChannelStrip = 0;
+
+						// loop through all channels
+						for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
+						{
+							X32Bank* banktoUse = (nextSurfaceChannelStrip < 8) ? banks[(uint)X32BankId::FLEX1] : banks[(uint)X32BankId::FLEX2];
+
+							if (config->GetBool(config->MpCalcId(DCA_GROUP_1, i), chanIndex))
+							{
+								// channel is part of the spilled DCA Group -> bind it to the next free channel strip
+							 	SurfaceBindingParameter* binding =  banktoUse->channelstrip[nextSurfaceChannelStrip % 8]->lcd;
+
+								binding->mp_action = MixerparameterAction::LCD_Channel;
+								binding->mp_index = chanIndex;
+
+								nextSurfaceChannelStrip++;
+							}	
+							
+							if (config->IsModelX32Full() && nextSurfaceChannelStrip > 16)
+							{
+								break;
+							}
+							if (config->IsModelX32CompactOrProducer() && nextSurfaceChannelStrip > 8)
+							{
+								break;
+							}
+						}
+
+						if (config->IsModelX32Full())
+						{
+							LoadBank(X32BankTarget::InputSection, X32BankId::FLEX1);
+							LoadBank(X32BankTarget::InputSection2, X32BankId::FLEX2);
+						}
+
+						if (config->IsModelX32CompactOrProducer())
+						{
+							LoadBank(X32BankTarget::InputSection, X32BankId::FLEX1);
+						}
+
+						break;
+					}
+					else
+					{
+						// DCA "Unspill"
+
+						helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DCA Unspill");
+
+						// TODO ;-)
+					}
+				}
+			}
+		}
 	}
+
+	// ######################################
+	//
+	//   LCD Contrast and Brightness
+	//
+	// ######################################
+
 
 	if (config->IsModelX32FullOrCompact())
 	{
@@ -974,6 +1064,12 @@ void X32Ctrl::syncSurface(bool fullSync)
 			surface->SetBrightness(X32_BOARD_R, brightness);
 		}
 	}
+
+	// ######################################
+	//
+	//   X32 Rack Channel Indicator
+	//
+	// ######################################
 
 	if (config->IsModelX32Rack())
 	{
@@ -2138,6 +2234,9 @@ void X32Ctrl::InitBanks()
 		InitBank_Channelstrip(new X32Bank(X32BankId::MATRIX_MAIN, "Matrix/Main"), (uint)(X32_VCHANNEL_BLOCK::MATRIX));
 		InitBank_DMX(new X32Bank(X32BankId::REMOTE1, "Remote1"), 0);
 		InitBank_DMX(new X32Bank(X32BankId::REMOTE2, "Remote2"), 8);
+		InitBank_Flex(new X32Bank(X32BankId::FLEX1, "Flex1"));
+		InitBank_Flex(new X32Bank(X32BankId::FLEX2, "Flex2"));
+		InitBank_Flex(new X32Bank(X32BankId::FLEX3, "Flex3"));
 	}
 }
 
@@ -2187,6 +2286,24 @@ void X32Ctrl::InitBank_DMX(X32Bank* bank, uint offset)
 		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Artnet, DMX_ARTNET_VALUE, i + offset);
         //bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
         bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + offset);
+    }
+
+	banks[(uint)(bank->GetID())] = bank;
+}
+
+// create a empty bank for flexible use
+void X32Ctrl::InitBank_Flex(X32Bank* bank)
+{
+    for (uint i = 0; i < 8; i++)
+    {
+		bank->channelstrip[i] = new X32BankParameter();
+
+        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
+		bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
+		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
     }
 
 	banks[(uint)(bank->GetID())] = bank;
