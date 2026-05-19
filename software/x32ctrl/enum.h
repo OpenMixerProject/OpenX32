@@ -1253,6 +1253,9 @@ enum class MixerparameterAction
     // Button: Toggle between true and false.
     TOGGLE_SELECTED_CHANNEL,
 
+    // set value on press, reset value on release
+    PUSH,
+
     // Button: Reset to Resetvalue.
     RESET,
 

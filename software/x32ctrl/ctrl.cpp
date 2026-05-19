@@ -2164,7 +2164,7 @@ void X32Ctrl::InitBank_Channelstrip_DCA(X32Bank* bank, uint offset)
     {
 		bank->channelstrip[i] = new X32BankParameter();
 
-        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
+        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::PUSH, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
 		//bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
         bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
 		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
@@ -2341,13 +2341,16 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 			Mixerparameter* parameter = config->GetParameter(parameter_id);
 
+			// Member Assign Mode (e.g. Mute Groups, DCA Groups)
+			bool memberAssingMode = 
+					config->IsModelX32FullOrCompactOrProducer() 		&&
+					config->GetBool(parameter->GetAssignMembersIf()) 	&&
+					config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG;
+
 			if (isButtonPressed)
 			{
 				// Member Assign Mode (e.g. Mute Groups, DCA Groups)
-				if (config->IsModelX32FullOrCompactOrProducer() 		&&
-					config->GetBool(parameter->GetAssignMembersIf()) 	&&
-					config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG
-				)
+				if (memberAssingMode)
 				{
 					// Bind Select button to destination Mixerparameter
 					for (uint i = 0; i < 8; i++)
@@ -2355,14 +2358,14 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						// Board L / InputSection
 						uint chanIndex_L = bankLoadedInputsection->channelstrip[i]->select->mp_index;
 						config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_L_SELECT_1, i),
-											bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_L);
+											MixerparameterAction::TOGGLE, parameter->GetAssignMembersTo(), chanIndex_L);
 
 						if (config->IsModelX32Full())
 						{
 							// Board M / InputSection2
 							uint chanIndex_M = bankLoadedInputsection2->channelstrip[i]->select->mp_index;
 							config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_M_SELECT_1, i),
-												bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_M);	
+												MixerparameterAction::TOGGLE, parameter->GetAssignMembersTo(), chanIndex_M);	
 						}
 						
 						if (config->GetUint(BANKING_BUS) != (uint) X32BankId::DCA)
@@ -2370,12 +2373,12 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 							// Board R / BusSection
 							uint chanIndex_R = bankLoadedBussection->channelstrip[i]->select->mp_index;
 							config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_R_SELECT_1, i),
-												bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), chanIndex_R);
+												MixerparameterAction::TOGGLE, parameter->GetAssignMembersTo(), chanIndex_R);
 						}
 
 						// Master Fader
 						config->SurfaceBind(SurfaceElementId::BOARD_R_SELECT_MAIN,
-											bindingParameterButton->mp_action, parameter->GetAssignMembersTo(), to_underlying(X32_VCHANNEL_BLOCK::MAIN));
+											MixerparameterAction::TOGGLE, parameter->GetAssignMembersTo(), to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 
 					}					
 				}
@@ -2393,6 +2396,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
 							config->Toggle(parameter_id, parameter_index);
 							break;
+						case MixerparameterAction::PUSH:
 						case MixerparameterAction::SET:
 						case MixerparameterAction::SET_SELECTED_CHANNEL:
 							config->Set(parameter_id, 1, parameter_index);
@@ -2460,6 +2464,8 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						case MixerparameterAction::DMX:
 							// a button is pressed
 							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -2468,15 +2474,23 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 				// Button was released	
 
 				// Member Assign Mode (e.g. Mute Groups)
-				if (config->IsModelX32FullOrCompactOrProducer())
+				if (memberAssingMode)
 				{
-					Mixerparameter* parameter = config->GetParameter(parameter_id);
-					if (config->GetBool(parameter->GetAssignMembersIf()))
+					// Reload current banking
+					config->Refresh(BANKING_INPUT);
+					config->Refresh(BANKING_BUS);
+					LoadMainFaderSurfaceBinding();
+				}
+				// Normal Mode
+				else
+				{
+					switch (bindingParameterButton->mp_action)
 					{
-						// Reload current banking
-						config->Refresh(BANKING_INPUT);
-						config->Refresh(BANKING_BUS);
-						LoadMainFaderSurfaceBinding();		
+						case MixerparameterAction::PUSH:
+							config->Set(parameter_id, 0, parameter_index);
+							break;
+						default:
+							break;
 					}
 				}
 			}

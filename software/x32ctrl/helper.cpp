@@ -310,6 +310,8 @@ String Helper::MixerparameterAction2String(MixerparameterAction action)
 			return "Toggle";
 		case TOGGLE_SELECTED_CHANNEL:
 			return "Toggle SC";
+		case PUSH:
+			return "Push";
 		case RESET:
 			return "Reset";
 		case RESET_SELECTED_CHANNEL:
@@ -325,7 +327,7 @@ String Helper::MixerparameterAction2String(MixerparameterAction action)
 		case CLEAR_SOLO:
 			return "Clear Solo";
 		default:
-			return "Unknown MixerparameterAction";
+			return String("Unknown MixerparameterAction: ") + String((uint)action);
 	}
     
     

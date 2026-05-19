@@ -2496,8 +2496,15 @@ void X32Config::SurfaceBindParameter(SurfaceElementId surfaceelement_id, Surface
             MixerparameterName = GetParameter(binding_parameter->mp_id)->GetName();
         }
 
-        helper->Log("DEBUG_SURFACE: Binding: \"%s\" ---> \"%s\" on Index \"%d\"\n",
+        String MixerparemeterAction = "None";
+        if (binding_parameter->mp_action != MixerparameterAction::NONE)
+		{        
+            MixerparemeterAction = helper->MixerparameterAction2String(binding_parameter->mp_action);
+        }
+
+        helper->Log("DEBUG_SURFACE: Binding: \"%s\" ---(%s)---> \"%s\" on Index \"%d\"\n",
             surfaceElementName.c_str(),
+            MixerparemeterAction.c_str(),
             MixerparameterName.c_str(),
             binding_parameter->mp_index
         );
