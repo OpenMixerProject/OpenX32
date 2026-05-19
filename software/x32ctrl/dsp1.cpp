@@ -119,7 +119,7 @@ void DSP1::SendChannelVolume(uint chanIndex)
 
     // apply DCAs if enabled
     // loop through all DCA groups
-    for (uint i = 0; i < 8; i++)
+    for (uint i = 0; i < DCA_GROUPS; i++)
     {
         MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
 
@@ -219,7 +219,7 @@ void DSP1::SendMatrixVolume(uint chanIndex)
 
     // apply DCAs if enabled
     // loop through all DCA groups
-    for (uint i = 0; i < 8; i++)
+    for (uint i = 0; i < DCA_GROUPS; i++)
     {
         MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
 
@@ -281,7 +281,7 @@ void DSP1::SendMainVolume(uint chanIndex)
 
     // apply DCAs if enabled
     // loop through all DCA groups
-    for (uint i = 0; i < 8; i++)
+    for (uint i = 0; i < DCA_GROUPS; i++)
     {
         MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
 

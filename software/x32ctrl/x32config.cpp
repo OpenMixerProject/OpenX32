@@ -353,7 +353,7 @@ void X32Config::DefineMixerparameters() {
     }
     
     // DCA Group Membership
-    for (uint i = 0; i < 8; i++)
+    for (uint i = 0; i < DCA_GROUPS; i++)
     {
         DefParameter(MpCalcId(DCA_GROUP_1, i), cat, String("DCA Group ") + String(i+1), MAX_VCHANNELS)
         ->DefConfig(group, String("dca_group_") + String(i+1))

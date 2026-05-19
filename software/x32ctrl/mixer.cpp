@@ -301,44 +301,40 @@ void Mixer::Sync(void)
 
     vector<MP_ID> filter;
 
-    // Mute Groups
-    // if we are not on Page Config in Assign Mode
-    if (true) //!(config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG && config->GetBool(DISPLAY_MUTE_GROUP)))
+    // Mute Groups - check if mute group has changed
+    for (uint muteGroupIdx = 0; muteGroupIdx < MUTE_GROUPS; muteGroupIdx++)
     {
-        // check if mute group has changed
-        for (uint muteGroupIdx = 0; muteGroupIdx < MUTE_GROUPS; muteGroupIdx++)
+        filter.push_back(config->MpCalcId(MUTE_GROUP_1_MUTE, muteGroupIdx));
+    }
+    if (config->HasParametersChanged(filter))
+    {
+        // loop through all channels
+        for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
         {
-            filter.push_back(config->MpCalcId(MUTE_GROUP_1_MUTE, muteGroupIdx));
-        }
-        if (config->HasParametersChanged(filter))
-        {
-            // loop through all channels
-            for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
+            // loop through all mute groups
+            bool muteChannel = false;
+            for (uint i = 0; i < MUTE_GROUPS; i++)
             {
-                // loop through all mute groups
-                bool muteChannel = false;
-                for (uint i = 0; i < MUTE_GROUPS; i++)
+                MP_ID muteGroupSwitchId = config->MpCalcId(MUTE_GROUP_1_MUTE, i);
+                MP_ID muteGroupId = config->MpCalcId(MUTE_GROUP_1, i);
+        
+                // if we are part of the mute group
+                if (config->GetBool(muteGroupId, chanIndex))
                 {
-                    MP_ID muteGroupSwitchId = config->MpCalcId(MUTE_GROUP_1_MUTE, i);
-                    MP_ID muteGroupId = config->MpCalcId(MUTE_GROUP_1, i);
-            
-                    // if we are part of the mute group
-                    if (config->GetBool(muteGroupId, chanIndex))
-                    {
-                        // add to the desired channel mute state according to mute group switch
-                        // -> if at least one group is muted, mute the channel
-                        muteChannel |= config->GetBool(muteGroupSwitchId);
-                    }
+                    // add to the desired channel mute state according to mute group switch
+                    // -> if at least one group is muted, mute the channel
+                    muteChannel |= config->GetBool(muteGroupSwitchId);
                 }
-
-                config->Set(CHANNEL_MUTE, muteChannel, chanIndex);
             }
+
+            config->Set(CHANNEL_MUTE, muteChannel, chanIndex);
         }
     }
+    }
 
-    // check if DCA group has changed (channel added or removed to DCA group)
+    // DCA Groups - check if DCA group has changed (channel added or removed to DCA group)
     filter.clear();
-    for (uint dcaGroupIdx = 0; dcaGroupIdx < 8; dcaGroupIdx++)
+    for (uint dcaGroupIdx = 0; dcaGroupIdx < DCA_GROUPS; dcaGroupIdx++)
     {
         filter.push_back(config->MpCalcId(DCA_GROUP_1, dcaGroupIdx));
     }
@@ -350,7 +346,7 @@ void Mixer::Sync(void)
             bool dcaBindOnChannel = false;
 
             // loop through all DCA groups
-            for (uint i = 0; i < 8; i++)
+            for (uint i = 0; i < DCA_GROUPS; i++)
             {
                 MP_ID dcaGroupId = config->MpCalcId(DCA_GROUP_1, i);
         

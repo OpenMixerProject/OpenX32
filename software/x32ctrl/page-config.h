@@ -117,7 +117,7 @@ class PageConfig : public Page
                 }
             }
 
-            for (uint i = 0; i < 8; i++)
+            for (uint i = 0; i < DCA_GROUPS; i++)
             {
                 if (config->HasParameterChanged(config->MpCalcId(DCA_GROUP_1, i), chanIndex) || force_update)
                 {
