@@ -91,16 +91,6 @@ class PageSetupSurface: public Page
 
         void OnInit() override
         {
-            // DEBUG
-            config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_2, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 2);
-            //config->SurfaceBind(SurfaceElementId::, MixerparameterAction::LCD_Channel, NONE, 2);
-            config->SurfaceBind(SurfaceElementId::ASSIGN_6, MixerparameterAction::TOGGLE, CHANNEL_SOLO, 2);
-            config->SurfaceBind(SurfaceElementId::ASSIGN_8, MixerparameterAction::TOGGLE, MUTE_GROUP_1_MUTE, 0);
-            config->SurfaceBind(SurfaceElementId::ASSIGN_10, MixerparameterAction::TOGGLE, CHANNEL_MUTE, 2);
-
-            // DEBUG X32 Compact
-            config->SurfaceBind(SurfaceElementId::ASSIGN_1, MixerparameterAction::TOGGLE, CHANNEL_SOLO, 2);
-
             // Surface Elements
 
             if (config->IsModelX32Full())
@@ -109,6 +99,10 @@ class PageSetupSurface: public Page
                 controls.push_back(SurfaceElementId::ASSIGN_ENCODER_2);
                 controls.push_back(SurfaceElementId::ASSIGN_ENCODER_3);
                 controls.push_back(SurfaceElementId::ASSIGN_ENCODER_4);
+                controls.push_back(SurfaceElementId::ASSIGN_LCD_1);
+                controls.push_back(SurfaceElementId::ASSIGN_LCD_2);
+                controls.push_back(SurfaceElementId::ASSIGN_LCD_3);
+                controls.push_back(SurfaceElementId::ASSIGN_LCD_4);
                 controls.push_back(SurfaceElementId::ASSIGN_5);
                 controls.push_back(SurfaceElementId::ASSIGN_6);
                 controls.push_back(SurfaceElementId::ASSIGN_7);
@@ -154,6 +148,8 @@ class PageSetupSurface: public Page
             actions.push_back(MixerparameterAction::NONE);
             actions.push_back(MixerparameterAction::CHANGE);
             actions.push_back(MixerparameterAction::TOGGLE);
+            actions.push_back(MixerparameterAction::LCD_Channel);
+            actions.push_back(MixerparameterAction::LCD_Artnet);
 
             String roller_actions;
             for(uint i = 0; i < actions.size(); i++)
@@ -224,6 +220,7 @@ class PageSetupSurface: public Page
                             binding_parameter->mp_action = actions[selected_action];
                         }
 
+                        config->SurfaceBindParameter(controls.at(selected_control), binding_parameter);
                         Update();
                     }
                     break;
@@ -237,6 +234,7 @@ class PageSetupSurface: public Page
                             binding_parameter->mp_id = mixerparameters.at(selected_mixerparameter);
                         }
 
+                        config->SurfaceBindParameter(controls.at(selected_control), binding_parameter);
                         Update();    
                     }
                     break;
@@ -258,6 +256,7 @@ class PageSetupSurface: public Page
                             binding_parameter->mp_index = selected_mixerparameter_index;
                         }
 
+                        config->SurfaceBindParameter(controls.at(selected_control), binding_parameter);
                         Update();    
                     }
                     break;

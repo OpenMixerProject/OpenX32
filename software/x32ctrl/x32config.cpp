@@ -1836,6 +1836,10 @@ void X32Config::DefineSurfaceElements()
     DefSurfaceElements(ASSIGN_ENCODER_2, "ASSIGN Encoder 2");
     DefSurfaceElements(ASSIGN_ENCODER_3, "ASSIGN Encoder 3");
     DefSurfaceElements(ASSIGN_ENCODER_4, "ASSIGN Encoder 4");
+    DefSurfaceElements(ASSIGN_LCD_1, "ASSIGN LCD 1");
+    DefSurfaceElements(ASSIGN_LCD_2, "ASSIGN LCD 2");
+    DefSurfaceElements(ASSIGN_LCD_3, "ASSIGN LCD 3");
+    DefSurfaceElements(ASSIGN_LCD_4, "ASSIGN LCD 4");
     DefSurfaceElements(ASSIGN_1, "ASSIGN Button 1");
     DefSurfaceElements(ASSIGN_2, "ASSIGN Button 2");
     DefSurfaceElements(ASSIGN_3, "ASSIGN Button 3");
@@ -2023,6 +2027,10 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(ASSIGN_ENCODER_2)             ->DefEncoder(X32_BOARD_EXTRA, 0x01);
         GetSurfaceElement(ASSIGN_ENCODER_3)             ->DefEncoder(X32_BOARD_EXTRA, 0x02);
         GetSurfaceElement(ASSIGN_ENCODER_4)             ->DefEncoder(X32_BOARD_EXTRA, 0x03);
+        GetSurfaceElement(ASSIGN_LCD_1)                 ->DefLcd(X32_BOARD_EXTRA, 0);
+        GetSurfaceElement(ASSIGN_LCD_2)                 ->DefLcd(X32_BOARD_EXTRA, 1);
+        GetSurfaceElement(ASSIGN_LCD_3)                 ->DefLcd(X32_BOARD_EXTRA, 2);
+        GetSurfaceElement(ASSIGN_LCD_4)                 ->DefLcd(X32_BOARD_EXTRA, 3);
         GetSurfaceElement(ASSIGN_5)                     ->DefButton(X32_BOARD_EXTRA, 0x06);
         GetSurfaceElement(ASSIGN_6)                     ->DefButton(X32_BOARD_EXTRA, 0x07);
         GetSurfaceElement(ASSIGN_7)                     ->DefButton(X32_BOARD_EXTRA, 0x08);

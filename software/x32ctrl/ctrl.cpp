@@ -2205,6 +2205,28 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 		//SurfaceBind_MixerParameter(SurfaceElementId::VIEW_ASSIGN, SurfaceBindingAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::CONFIG));
 
 		// Assign
+		
+		// assign Channel 1-4 with Volume, LCD, Solo, Mute
+		config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_1, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 0);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_2, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 1);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_3, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 2);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_4, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 3);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_LCD_1, MixerparameterAction::LCD_Channel, NONE, 0);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_LCD_2, MixerparameterAction::LCD_Channel, NONE, 1);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_LCD_3, MixerparameterAction::LCD_Channel, NONE, 2);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_LCD_4, MixerparameterAction::LCD_Channel, NONE, 3);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_2, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 1);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_3, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 2);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_ENCODER_4, MixerparameterAction::CHANGE, CHANNEL_VOLUME, 3);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_5, MixerparameterAction::TOGGLE, CHANNEL_SOLO, 0);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_6, MixerparameterAction::TOGGLE, CHANNEL_SOLO, 1);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_7, MixerparameterAction::TOGGLE, CHANNEL_SOLO, 2);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_8, MixerparameterAction::TOGGLE, CHANNEL_SOLO, 3);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_9, MixerparameterAction::TOGGLE, CHANNEL_MUTE, 0);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_10, MixerparameterAction::TOGGLE, CHANNEL_MUTE, 1);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_11, MixerparameterAction::TOGGLE, CHANNEL_MUTE, 2);
+		config->SurfaceBind(SurfaceElementId::ASSIGN_12, MixerparameterAction::TOGGLE, CHANNEL_MUTE, 3);
+
 		config->SurfaceBind(SurfaceElementId::ASSIGN_A, MixerparameterAction::SET_TO_INDEX, BANKING_ASSIGN, 0);
 		config->SurfaceBind(SurfaceElementId::ASSIGN_B, MixerparameterAction::SET_TO_INDEX, BANKING_ASSIGN, 1);
 		config->SurfaceBind(SurfaceElementId::ASSIGN_C, MixerparameterAction::SET_TO_INDEX, BANKING_ASSIGN, 2);
@@ -2253,7 +2275,7 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 
 	if (config->IsModelX32FullOrCompactOrProducerOrRack())
 	{
-		config->SurfaceBind(SurfaceElementId::CLEAR_SOLO, MixerparameterAction::CLEAR_SOLO, NONE);
+		config->SurfaceBind(SurfaceElementId::CLEAR_SOLO, MixerparameterAction::CLEAR_SOLO, CLEAR_SOLO);
 	}
 
 	if (config->IsModelX32Rack())
