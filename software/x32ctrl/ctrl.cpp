@@ -2555,6 +2555,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 												MixerparameterAction::TOGGLE, parameter->GetAssignMembersTo(), chanIndex_M);	
 						}
 						
+						// not for Board R if DCA bank is loaded
 						if (config->GetUint(BANKING_BUS) != (uint) X32BankId::DCA)
 						{
 							// Board R / BusSection
