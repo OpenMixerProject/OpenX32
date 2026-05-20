@@ -296,7 +296,8 @@ void X32Config::DefineMixerparameters() {
         DefParameter(MpCalcId(DCA_GROUP_1_MASTER, i), cat, String("DCA Group ") + String(i+1))
         ->DefConfig(group, String("dca_group_") + String(i+1) + String("_master"))
         ->DefStandard_Bool(false)
-        ->DefAssignMembersIfTo(DISPLAY_UTILITY, MpCalcId(DCA_GROUP_1, i));
+        ->DefAssignMembersIfTo(DISPLAY_UTILITY, MpCalcId(DCA_GROUP_1, i))
+        ->DefButtonBlink();
     }
 
     // ###########

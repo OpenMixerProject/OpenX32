@@ -891,12 +891,23 @@ void X32Ctrl::syncSurface(bool fullSync)
 	{
 		if (config->HasParameterChanged(BANKING_INPUT))
 		{
+			X32BankId bankToSwitchTo = (X32BankId)(config->GetUint(BANKING_INPUT));
+ 
+			if (bankToSwitchTo != X32BankId::FLEX1)
+			{
+				// stop DCA Spill
+				for (uint i = 0; i < DCA_GROUPS; i++)
+				{
+					config->Set(config->MpCalcId(DCA_GROUP_1_MASTER, i), false);
+				}
+			}
+
 			if (config->IsModelX32Full())
 			{
 				X32BankId bank1;
 				X32BankId bank2;
 
-				switch((X32BankId)(config->GetUint(BANKING_INPUT)))
+				switch(bankToSwitchTo)
 				{
 					case X32BankId::CH1_16:
 						bank1 = X32BankId::CH1_8;
@@ -1012,19 +1023,26 @@ void X32Ctrl::syncSurface(bool fullSync)
 						preSpillLoadedBank = (X32BankId)config->GetUint(BANKING_INPUT);
 						config->Set(BANKING_INPUT, (uint)X32BankId::FLEX1);
 
+						// trigger blinking of DCA bank button
+						config->Refresh(BANKING_BUS);
+
 						break;
 					}
 					else
 					{
 						// DCA "Unspill"
 
+						helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DCA Unspill");
+
 						if (config->GetUint(BANKING_INPUT) == (uint)X32BankId::FLEX1)
 						{
-							helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DCA Unspill");
-
+							// load bank that was loaded before the DCA spill
 							config->Set(BANKING_INPUT, (uint)preSpillLoadedBank);
-							preSpillLoadedBank = X32BankId::None;
 						}
+						preSpillLoadedBank = X32BankId::None;
+
+						// trigger unblinking of DCA button
+						config->Refresh(BANKING_BUS);	
 					}
 				}
 			}
@@ -1247,8 +1265,32 @@ void X32Ctrl::syncSurface(bool fullSync)
 					ledBlink = mixer->IsSoloActivated();
 				}
 				if (binding_parameter->mp_action == MixerparameterAction::SET_TO_INDEX)
-				{
+				{					
 					ledOn = config->GetInt(parameter_id, parameter_index) == binding_parameter->mp_index;
+
+					// let DCA Bank Led blink on DCA Spill
+					if (
+						preSpillLoadedBank != X32BankId::None &&
+						(
+							(parameter_id == BANKING_BUS && binding_parameter->mp_index == (uint)X32BankId::DCA) ||
+							(
+								(
+									parameter_id == DCA_GROUP_1_MASTER || 
+									parameter_id == DCA_GROUP_2_MASTER || 
+									parameter_id == DCA_GROUP_3_MASTER || 
+									parameter_id == DCA_GROUP_4_MASTER || 
+									parameter_id == DCA_GROUP_5_MASTER || 
+									parameter_id == DCA_GROUP_6_MASTER || 
+									parameter_id == DCA_GROUP_7_MASTER || 
+									parameter_id == DCA_GROUP_8_MASTER
+								) &&
+							 	config->GetBool(parameter_id)
+							)
+						)
+					)
+					{
+						ledBlink = true;
+					}
 				}
 				else if (binding_parameter->mp_action == MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL)
 				{
