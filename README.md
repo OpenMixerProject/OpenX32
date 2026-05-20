@@ -10,17 +10,23 @@ Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox:
 ![alt_text](Documentation/openx32_1.jpg)
 
 x32ctrl is the new GUI and program that controls the individual boards and devices:
+
 ![alt_text](Documentation/openx32_home.png)
 
 Since the beginning in May 2025 the UI has improved a bit and some of the original X32-functions are already implemented in OpenX32:
+
 ![alt_text](Documentation/openx32_card.png)
 
-You can find more information in the two related Youtube-Videos:
+You can find more information in the three related Youtube-Videos:
+
+[![alt text](https://i.ytimg.com/vi_webp/buAULE1slm4/maxresdefault.webp)](https://youtu.be/buAULE1slm4?si=5ET_NJe8grWKEYNZ)
+
 [![alt text](https://img.youtube.com/vi/c5jjBm8EPsg/0.jpg)](https://www.youtube.com/watch?v=c5jjBm8EPsg)
 
 [![alt text](https://img.youtube.com/vi/6CfLC5xVy90/0.jpg)](https://www.youtube.com/watch?v=6CfLC5xVy90)
 
 A Youtube Short of the complete OpenX32 Alpha running on a X32 Rack:
+
 [![alt text](https://github.com/user-attachments/assets/273cbe2a-601b-4b46-af98-975f552c6958)](https://youtube.com/shorts/HEKZBwd_7Ww?si=Q7c15EphQGNHR0TK)
 
 ## What is working at the moment and what is planned so far
