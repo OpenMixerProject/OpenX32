@@ -104,7 +104,8 @@ class X32Ctrl : public X32Base
         void my_handler(int s);
 
         void InitBanks();
-        void InitBank_Channelstrip(X32Bank* bank, uint offset);
+        void InitBank_Channelstrip(X32Bank *bank, uint offset);
+        void SetChannelstripBinding(X32Bank *bank, uint i, uint chanIndex);
         void InitBank_Channelstrip_DCA(X32Bank* bank, uint offset);
         void InitBank_Flex(X32Bank* bank);
         void InitBank_DMX(X32Bank* bank, uint offset);
@@ -149,6 +150,7 @@ class X32Ctrl : public X32Base
         void SetLcdFromArtnet(uint8_t p_boardId, uint8_t lcdIndex, uint8_t artnetIndex);
         #endif
         void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
+        void SetLcdDark(uint8_t p_boardId, uint8_t lcdIndex);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        
         void setLedChannelIndicator_Core(void);        

@@ -2526,7 +2526,8 @@ void X32Config::SurfaceBindParameter(SurfaceElementId surfaceelement_id, Surface
 
 void X32Config::SurfaceBind(SurfaceElementId surfaceelement_id, MixerparameterAction action, MP_ID mixerparaemter_id, uint mixerparameter_index, uint extra_value)
 {
-	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(action, mixerparaemter_id, mixerparameter_index, extra_value);
+	SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter();
+    binding_parameter->FillBindingParameter(action, mixerparaemter_id, mixerparameter_index, extra_value);
 	SurfaceBindParameter(surfaceelement_id, binding_parameter);
 }
 
@@ -2540,7 +2541,8 @@ void X32Config::SurfaceUnbind(SurfaceElementId surfaceelement_id)
 
 void X32Config::SurfaceBindCustom(SurfaceElementId surfaceelement_id, String labeltext)
 {
-    SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter(MixerparameterAction::CUSTOM, NONE, 0);
+    SurfaceBindingParameter* binding_parameter = new SurfaceBindingParameter();
+    binding_parameter->FillBindingParameter(MixerparameterAction::CUSTOM, NONE, 0);
     binding_parameter->custom_label = labeltext;
 	SurfaceBindParameter(surfaceelement_id, binding_parameter);
 }

@@ -981,6 +981,11 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 						uint nextSurfaceChannelStrip = 0;
 
+						// reset the banks to default blank
+						banks[(uint)X32BankId::FLEX1]->Reset();
+						banks[(uint)X32BankId::FLEX2]->Reset();
+						banks[(uint)X32BankId::FLEX3]->Reset();
+
 						// loop through all channels
 						for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
 						{
@@ -988,12 +993,9 @@ void X32Ctrl::syncSurface(bool fullSync)
 
 							if (config->GetBool(config->MpCalcId(DCA_GROUP_1, i), chanIndex))
 							{
-								// channel is part of the spilled DCA Group -> bind it to the next free channel strip
-							 	SurfaceBindingParameter* binding =  banktoUse->channelstrip[nextSurfaceChannelStrip % 8]->lcd;
-
-								binding->mp_action = MixerparameterAction::LCD_Channel;
-								binding->mp_index = chanIndex;
-
+								// channel is part of the spilled DCA Group -> bind it to the next free channel strip in the bank
+								SetChannelstripBinding(banktoUse, nextSurfaceChannelStrip % 8, chanIndex);
+							 	
 								nextSurfaceChannelStrip++;
 							}	
 							
@@ -1203,6 +1205,9 @@ void X32Ctrl::syncSurface(bool fullSync)
 			{
 				if (parameter_id == NONE)
 				{
+					// set to -infinity
+					surface->SetFader(element->GetBoard(), element->GetIndex(), 0);
+
 					continue;
 				}
 
@@ -1228,6 +1233,9 @@ void X32Ctrl::syncSurface(bool fullSync)
 			{
 				if (parameter_id == NONE)
 				{
+					// set dark
+					surface->SetLed(element_id, false);
+
 					continue;
 				}
 
@@ -1268,6 +1276,9 @@ void X32Ctrl::syncSurface(bool fullSync)
 			{
 				if (parameter_id == NONE)
 				{
+					// set dark
+					surface->SetEncoderRing(element->GetBoard(), element->GetIndex(), 0, 0, 0);
+
 					continue;
 				}
 
@@ -1312,6 +1323,12 @@ void X32Ctrl::syncSurface(bool fullSync)
 						SetLcdFromArtnet(element->GetBoard(), element->GetIndex(), parameter_index);
 					}
 					#endif
+
+					// empty
+					else
+					{
+						SetLcdDark(element->GetBoard(), element->GetIndex());
+					}
 				}
 			}
 		}
@@ -1551,6 +1568,24 @@ void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t cha
 	}
 
 	surface->SetLcdX(data, textcount);
+	delete data;
+}
+
+void X32Ctrl::SetLcdDark(uint8_t p_boardId, uint8_t lcdIndex)
+{
+	using enum MP_ID;
+
+    LcdData* data = new LcdData();
+	
+	data->boardId = p_boardId;
+	data->color = (uint)X32_COLOR::BLACK;
+	data->lcdIndex = lcdIndex;
+	data->icon.icon = 0;
+	data->icon.x = 0;
+	data->icon.y = 0;
+
+	surface->SetLcdX(data, 0);
+
 	delete data;
 }
 
@@ -2240,31 +2275,32 @@ void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
 {
     for (uint i = 0; i < 8; i++)
     {
-		bank->channelstrip[i] = new X32BankParameter();
-
-        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
-		bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
-        bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
-		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
-        bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
-        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + offset);
+        SetChannelstripBinding(bank, i, i + offset);
     }
 
 	banks[(uint)(bank->GetID())] = bank;
+}
+
+void X32Ctrl::SetChannelstripBinding(X32Bank *bank, uint i, uint chanIndex)
+{
+    bank->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, chanIndex);
+    bank->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::VUMETER, NONE, chanIndex);
+    bank->channelstrip[i]->solo->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, chanIndex);
+    bank->channelstrip[i]->lcd->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, chanIndex);
+    bank->channelstrip[i]->mute->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, chanIndex);
+    bank->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, chanIndex);
 }
 
 void X32Ctrl::InitBank_Channelstrip_DCA(X32Bank* bank, uint offset)
 {
     for (uint i = 0; i < 8; i++)
     {
-		bank->channelstrip[i] = new X32BankParameter();
-
-        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
-		//bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
-        bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
-		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
-        bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
-        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + offset);
+        bank->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::TOGGLE, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
+		//bank->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
+        bank->channelstrip[i]->solo->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
+		bank->channelstrip[i]->lcd->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + offset);
+        bank->channelstrip[i]->mute->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
+        bank->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + offset);
     }
 
 	banks[(uint)(bank->GetID())] = bank;
@@ -2274,14 +2310,12 @@ void X32Ctrl::InitBank_DMX(X32Bank* bank, uint offset)
 {
     for (uint i = 0; i < 8; i++)
     {
-		bank->channelstrip[i] = new X32BankParameter();
-
-        //bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
-		//bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
-        //bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
-		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::LCD_Artnet, DMX_ARTNET_VALUE, i + offset);
-        //bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
-        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + offset);
+        //bank->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, i + offset);
+		//bank->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::VUMETER, NONE, i + offset);
+        //bank->channelstrip[i]->solo->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + offset);
+		bank->channelstrip[i]->lcd->FillBindingParameter(MixerparameterAction::LCD_Artnet, DMX_ARTNET_VALUE, i + offset);
+        //bank->channelstrip[i]->mute->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + offset);
+        bank->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::DMX, DMX_ARTNET_VALUE, i + offset);
     }
 
 	banks[(uint)(bank->GetID())] = bank;
@@ -2292,14 +2326,12 @@ void X32Ctrl::InitBank_Flex(X32Bank* bank)
 {
     for (uint i = 0; i < 8; i++)
     {
-		bank->channelstrip[i] = new X32BankParameter();
-
-        bank->channelstrip[i]->select = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
-		bank->channelstrip[i]->vumeter = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
-        bank->channelstrip[i]->solo = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
-		bank->channelstrip[i]->lcd = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
-        bank->channelstrip[i]->mute = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
-        bank->channelstrip[i]->fader = new SurfaceBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bank->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+		bank->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bank->channelstrip[i]->solo->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+		bank->channelstrip[i]->lcd->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bank->channelstrip[i]->mute->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bank->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
     }
 
 	banks[(uint)(bank->GetID())] = bank;
