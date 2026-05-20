@@ -29,6 +29,10 @@ A Youtube Short of the complete OpenX32 Alpha running on a X32 Rack:
 
 [![alt text](https://github.com/user-attachments/assets/273cbe2a-601b-4b46-af98-975f552c6958)](https://youtube.com/shorts/HEKZBwd_7Ww?si=Q7c15EphQGNHR0TK)
 
+And there is even a playlist:
+
+[OpenX32 Youtube Playlist](https://youtube.com/playlist?list=PLAHr4z-PREgdELUFOgvRtr9L1nDy0U7H5&si=_P4LirsMTT7rAs_U)
+
 ## What is working at the moment and what is planned so far
 Next to the underlaying Linux we are working on the audio-processing as well.
 
