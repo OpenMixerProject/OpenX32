@@ -60,6 +60,158 @@ bool X32Config::IsModelX32ProducerOrRack() {
     return ((_model == X32_MODEL::PRODUCER) || (_model == X32_MODEL::RACK));
 }
 
+//#####################################################################################################################
+//
+// ##        #######     ###    ########  
+// ##       ##     ##   ## ##   ##     ## 
+// ##       ##     ##  ##   ##  ##     ## 
+// ##       ##     ## ##     ## ##     ## 
+// ##       ##     ## ######### ##     ## 
+// ##       ##     ## ##     ## ##     ## 
+// ########  #######  ##     ## ########  
+//
+//#####################################################################################################################
+
+bool X32Config::LoadConfig(uint scene)
+{
+    String loadFile = "scn" + String(scene) + "_" + String(X32_MIXER_CONFIGFILE);
+
+    // no file found
+	if (helper->GetFileSize(loadFile.c_str()) == -1)
+    {
+        return false;
+    }
+
+    if (access(loadFile.c_str(), F_OK) == -1)
+    {
+        helper->Error("Can not load X32Config. File %s does not exist.", loadFile.c_str());
+    }
+
+	helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Load config from %s", loadFile.c_str());
+    mixer_ini.load(loadFile.c_str());
+
+	// go over all known Mixerparameters and try to load them
+	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+	{
+		MP_ID parameter_id = (MP_ID)i;
+		Mixerparameter* parameter = GetParameter(parameter_id);
+
+		if (			
+			parameter->GetId() == NONE ||
+            parameter->GetCategory() == MP_CAT::DISPLAY ||
+            parameter->GetCategory() == MP_CAT::STATE ||
+			parameter->IsNoConfig() ||
+			parameter->IsReadonly()
+		)
+		{
+			// this Mixerparameter should not be loaded from config file
+			continue;
+		}
+
+		for (uint index = 0; index < parameter->GetInstances(); index++)
+		{						
+			String section = parameter->GetConfigGroup() + String("_") + String(index);
+			String entry = parameter->GetConfigEntry();
+			
+			try
+			{
+				using enum MP_VALUE_TYPE;
+
+				switch(parameter->GetType())
+				{
+					case STRING:
+						parameter->Set(String(mixer_ini[section.c_str()][entry.c_str()].as<string>().c_str()), index);
+						break;
+					default:
+                        parameter->Set(mixer_ini[section.c_str()][entry.c_str()].as<float>(), index);
+						//__throw_out_of_range("LoadConfig() -> MP_VALUE_TYPE is not handled!");
+				}
+
+                Refresh(parameter->GetId(), index);
+			}
+			catch (exception ex)
+			{
+				// show the error message
+				helper->Error("Load %s: [%s] -> %s: %s\n",
+					loadFile.c_str(),
+					section.c_str(),
+					entry.c_str(),
+					ex.what()
+				);
+
+				// load standard value as workaround
+				parameter->Reset(index);
+			}
+		}
+	}
+
+    return true;
+}
+
+//#####################################################################################################################
+//
+//  ######     ###    ##     ## ######## 
+// ##    ##   ## ##   ##     ## ##       
+// ##        ##   ##  ##     ## ##       
+//  ######  ##     ## ##     ## ######   
+//       ## #########  ##   ##  ##       
+// ##    ## ##     ##   ## ##   ##       
+//  ######  ##     ##    ###    ######## 
+//
+//#####################################################################################################################
+
+void X32Config::Save(uint scene)
+{
+	// go over all known Mixerparameter an store them
+	for (uint i=0; i < (uint)__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+	{
+		SaveToConfig((MP_ID)i);
+	}
+
+    WriteFile(scene);
+}
+
+void X32Config::WriteFile(uint scene)
+{
+    String saveFile = "scn" + String(scene) + "_" + String(X32_MIXER_CONFIGFILE);
+    helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "Save config to %s", saveFile.c_str());
+    mixer_ini.save(saveFile.c_str());
+}
+
+void X32Config::SaveToConfig(MP_ID MixerparameterId)
+{
+    Mixerparameter* parameter = GetParameter(MixerparameterId);
+
+    if (
+        parameter->GetId() == NONE ||
+        parameter->GetCategory() == MP_CAT::DISPLAY ||
+        parameter->GetCategory() == MP_CAT::STATE ||
+        parameter->IsNoConfig() ||
+        parameter->IsReadonly()
+    )
+    {
+        // this Mixerparameter should not be written to config file
+        return;
+    }
+
+    String entry = parameter->GetConfigEntry();
+    String section_prefix = parameter->GetConfigGroup() + String("_");
+    for (uint index = 0; index < parameter->GetInstances(); index++)
+    {
+        String section = section_prefix + String(index);
+        
+        using enum MP_VALUE_TYPE;
+
+        switch(parameter->GetType())
+        {
+            case STRING:
+                mixer_ini[section.c_str()][entry.c_str()] = parameter->GetString(index).c_str();
+                break;
+            default:
+                mixer_ini[section.c_str()][entry.c_str()] = (parameter->GetFloat(index));
+        }
+    }
+}
 
 //######################################################################################################################################
 //#
@@ -1452,18 +1604,29 @@ bool X32Config::HasAnyParameterChanged()
     return mp_changedlist->size() > 0;
 }
 
-void X32Config::ResetAndUnfreezeChangedParameterList()
+void X32Config::SaveResetAndUnfreezeChangedParameterList()
 {
+    // save changed Mixerparaemters to current config (onyl in RAM)
+    for (auto const& [parameter_id, indexSet] : *GetChangedParameterList())
+    {
+        SaveToConfig(parameter_id);
+    }
+
+    // Reset
     if (mp_changedlist->size() != 0)
     {
+        helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Reset list of changed Mixerparameters");
         mp_changedlist->clear();
     }
 
+    // Copy changes since freeze
     if (mp_changedlist_temp->size() != 0)
     {
         mp_changedlist->insert(mp_changedlist_temp->begin(), mp_changedlist_temp->end());
         mp_changedlist_temp->clear();
     }
+
+    // Unfreeze
     MixerParameterChangelistFreeze = false;
 }
 

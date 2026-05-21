@@ -13,6 +13,9 @@
 #include "surfaceelement.h"
 #include "x32bank.h"
 
+// ini parser
+#include "inicpp.h"
+
 class X32Config
 {
     using enum MP_ID;
@@ -20,6 +23,8 @@ class X32Config
     private:
 
         Helper* helper;
+
+        ini::IniFile mixer_ini;
 
         // Mixerparameter
 
@@ -47,6 +52,11 @@ class X32Config
 
         X32Config(Helper* h);
 
+        bool LoadConfig(uint scene);
+        void Save(uint scene);
+        void WriteFile(uint scene);
+        void SaveToConfig(MP_ID MixerparameterId);
+
         void DefineMixerparameters();
         Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
         Mixerparameter* GetParameter(MP_ID mp);
@@ -67,7 +77,7 @@ class X32Config
         bool HasAnyParameterChanged();
         void FreezeParameterList();
         void SetParameterUnchanged(MP_ID mp);
-        void ResetAndUnfreezeChangedParameterList();
+        void SaveResetAndUnfreezeChangedParameterList();
         
         float GetFloat(MP_ID mp, uint index = 0);
         int GetInt(MP_ID mp, uint index = 0);

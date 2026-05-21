@@ -150,12 +150,12 @@ void X32Ctrl::Init()
 	}
 
 	// X32Config
-	if(!mixer->LoadConfig(0))
+	if(!config->LoadConfig(0))
 	{
 		// create new ini file
 		helper->DEBUG_INI(DEBUGLEVEL_NORMAL, "no default configfile found, creating one");
 		
-		mixer->SaveConfig(0);
+		config->Save(0);
 	}
 }
 
@@ -313,8 +313,8 @@ void X32Ctrl::Tick10ms(void)
 	//
 	//   Unfreeze changed parameter list
 	//
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Reset list of changed Mixerparameter.");
-	config->ResetAndUnfreezeChangedParameterList();
+	
+	config->SaveResetAndUnfreezeChangedParameterList();
 	//
 	//#####################################
 }
@@ -397,7 +397,7 @@ void X32Ctrl::Tick100ms(void)
 		if (startupCounter == 10)
 		{
 			// the gate, the dynamics and the EQ-settings are not loaded correctly on first load, so load it again after a short time
-			mixer->LoadConfig(0);
+			config->LoadConfig(0);
 
 			// in the following lines the default configuration is set so that the users of the beta-version
 			// can start with a working system
@@ -455,6 +455,32 @@ void X32Ctrl::Tick100ms(void)
 			// unmute ADDA-boards
 			mixer->adda->SetMuteAll(false);
 		}
+
+		if (startupCounter == 99)
+		{
+			intialized = true;
+		}
+	}
+
+	AutoSave();
+}
+
+void X32Ctrl::AutoSave()
+{
+	if (intialized)
+	{
+		if (autosavewait == 0)
+		{
+			helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Autosave to Scene 0");
+
+			lv_label_set_text_fmt(objects.header_debugtext, "Autosave in progress...");
+			lv_refr_now(NULL);
+
+			config->Save(0);
+			autosavewait = 60 * 10; // 60 Seconds -> Autosave every minute
+		}
+
+		autosavewait--;
 	}
 }
 

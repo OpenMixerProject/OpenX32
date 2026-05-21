@@ -49,10 +49,10 @@ class PageScenes: public Page
             switch (surface_element_id)
             {
                 case SurfaceElementId::DISPLAY_ENCODER_BUTTON_2:
-                    mixer->LoadConfig(configindex);
+                    config->LoadConfig(configindex);
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_BUTTON_6:
-                    mixer->SaveConfig(configindex);
+                    config->Save(configindex);
                     break;
                 default:
                     break;

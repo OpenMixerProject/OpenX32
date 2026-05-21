@@ -69,6 +69,8 @@ class X32Ctrl : public X32Base
 
     private:
         
+        bool intialized = false; // is the whole mixer ready?
+
         Mixer* mixer;
         Surface* surface;
         XRemote* xremote;
@@ -126,6 +128,8 @@ class X32Ctrl : public X32Base
         void ProcessUartDataAdda();
         void ProcessUartDataAES50();
 
+        uint autosavewait = 0;
+        void AutoSave();
         
 
     public:
