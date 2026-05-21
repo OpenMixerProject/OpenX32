@@ -17,8 +17,7 @@ class DSP1 : X32Base {
         uint8_t readState;
 
     public:
-        srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS + 8 + 8];  // values used only during runtime
-        sMixbusChannel Bus[16];
+        srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS + 8 + 16 + 8];  // values used only during runtime
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;
 
