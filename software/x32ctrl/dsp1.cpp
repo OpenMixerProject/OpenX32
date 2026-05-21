@@ -725,7 +725,7 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
 
 	// Now calculate the VU Meter LEDs for each channel
 	// leds Channel = 8-bit bitwise (bit 0=-60dB ... 4=-6dB, 5=Clip, 6=Gate, 7=Comp)
-	for (int i = 0; i < (40 + 8 + 8); i++) {
+	for (int i = 0; i < (40 + 8 + 16); i++) {
 		// check if current data is above stored peak-index
 
         if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
@@ -993,11 +993,13 @@ void DSP1::callbackDsp1(uint8_t classId, uint8_t channel, uint8_t index, uint8_t
                         state->dspLoad[0] = (((float)intValues[1]/264.0f) / (16.0f/0.048f)) * 100.0f;
                         state->dspAudioGlitchCounter[0] = floatValues[2]; // audio-glitch-counter
 
+                        // channel 1-40 -> DSP-channels
+                        // channel 41-48 -> FX-return-channels
+                        // channel 49-56 -> Mixbus 1-8
+
                         // copy meter-info to channel-struct (regular DSP-channels)
-                        for (int i = 0; i < (40 + 8 + 0); i++) {
-                            // channel 1-40 -> DSP-channels
-                            // channel 41-48 -> FX-return-channels
-                            // channel 49-56 -> Mixbus 1-8
+                        for (int i = 0; i < (40 + 8 + 0); i++)
+                        {
                             rChannel[i].meter = abs(floatValues[3 + i]); // convert 32-bit audio-value
                             rChannel[i].meterPu = abs(floatValues[3 + i])/2147483648.0f; // convert 32-bit audio-value to absolute p.u.
                         }
