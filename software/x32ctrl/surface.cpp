@@ -1441,12 +1441,20 @@ void Surface::SetLcdX(LcdData* p_data, uint8_t p_textCount) {
     SendData(&message, true);
 }
 
-void Surface::Blink(){
-    blinkstate = !blinkstate;
+void Surface::Blink()
+{
+    if (blinkwait == 0)
+    {
+        blinkstate = !blinkstate;
 
-    for(SurfaceElementId button : blinklist) {
-        SetLed(button, blinkstate);
+        for(SurfaceElementId button : blinklist) {
+            SetLed(button, blinkstate);
+        }
+
+        blinkwait = 5;
     }
+
+    blinkwait--; 
 }
 
 

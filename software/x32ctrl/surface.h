@@ -23,6 +23,7 @@ class Surface : public X32Base
 
         SurfaceFader faders[MAX_FADERS];
 
+        uint blinkwait = 0;
         bool blinkstate = false;
         set<SurfaceElementId> blinklist;
 
