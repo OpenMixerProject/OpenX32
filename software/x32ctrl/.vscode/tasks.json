@@ -3,7 +3,7 @@
         {
             "label": "openx32-build",
             "type": "shell",
-            "command": "export PATH=/opt/cross/bin:$PATH; make -j14 && cp ../bin/x32ctrl /var/www/html/x32/ &&  ssh root@192.168.188.103 \"cd /openx32 && rm x32ctrl && wget http://192.168.188.112/x32/x32ctrl && chmod +x x32ctrl\"",
+            "command": "export PATH=/opt/cross/bin:$PATH; make -j14 && cp ../bin/x32ctrl /var/www/html/x32/ &&  ssh root@192.168.188.104 \"cd /openx32 && rm x32ctrl && wget http://192.168.188.123/x32/x32ctrl && chmod +x x32ctrl\"",
             "options": {},
             "problemMatcher": [
                 "$gcc"
