@@ -93,13 +93,13 @@ class PageEq: public Page {
                 // PEQ
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)
                 {
-                    mixer->dsp->fxmath->RecalcFilterCoefficients_PEQ(&mixer->dsp->Channel[selectedChannelIndex].peq[i_peq]);
+                    mixer->dsp->fxmath->RecalcFilterCoefficients_PEQ(&mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq]);
                     eqValue[pixel] += mixer->dsp->fxmath->CalcFrequencyResponse_PEQ(
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[0],
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[1],
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[2],
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[1],
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[2],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].a[0],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].a[1],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].a[2],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].b[1],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].b[2],
                         freq,
                         config->GetUint(SAMPLERATE)
                     );
@@ -121,12 +121,12 @@ class PageEq: public Page {
                 for (uint8_t i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++)
                 {
                     phase += mixer->dsp->fxmath->CalcPhaseResponse_PEQ(
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[0],
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[1],
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].a[2],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].a[0],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].a[1],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].a[2],
                         1.0f,
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[1],
-                        mixer->dsp->Channel[selectedChannelIndex].peq[i_peq].b[2],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].b[1],
+                        mixer->dsp->rChannel[selectedChannelIndex].peq[i_peq].b[2],
                         freq,
                         config->GetUint(SAMPLERATE));
                 }

@@ -87,67 +87,32 @@ void X32Ctrl::Init()
 	
 
 	//############################################################################
-	//#                                                                          #
-	//#     Default X32Config                                                       #
-	//#                                                                          #
-	//############################################################################
-	//#                                                                          #
-	//#     With GUI                                                             #
-	//#                                                                          #
-	if(config->IsModelX32FullOrCompactOrProducer())
-	{
-			ResetFaderBankLayout();
-			LoadFaderBankLayout();
-	}
-	//############################################################################
-	//#                                                                          #
-	//#     Without GUI                                                          #
-	//#                                                                          #
-	if(config->IsModelX32Core())
-	{
-			// Placeholder
-	}
-	//############################################################################
-	//#                                                                          #
-	//#     Common to all                                                        #
-	//#                                                                          #
 
-			// Just load a default set of FXes
-			// TODO: Save and Load
-			/*
-			// available FX types:
-			========================
-			NONE = -1,
-			REVERB = 0,
-			CHORUS = 1,
-			TRANSIENTSHAPER = 2,
-			OVERDRIVE = 3,
-			DELAY = 4,
-			MULTIBANDCOMPRESOR = 5,
-			DYNAMICEQ = 6
-			*/
+	// Just load a default set of FXes
+	// TODO: Save and Load
+	/*
+	// available FX types:
+	========================
+	NONE = -1,
+	REVERB = 0,
+	CHORUS = 1,
+	TRANSIENTSHAPER = 2,
+	OVERDRIVE = 3,
+	DELAY = 4,
+	MULTIBANDCOMPRESOR = 5,
+	DYNAMICEQ = 6
+	*/
 
-			mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // this effect takes lot of DSP-ressources
-            mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
-            mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
-            mixer->dsp->DSP2_SetFx(3, FX_TYPE::NONE, 2);
-            mixer->dsp->DSP2_SetFx(4, FX_TYPE::NONE, 2);
-            mixer->dsp->DSP2_SetFx(5, FX_TYPE::NONE, 2);
-            mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);
-            mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2);
-	//#                                                                          #
-	//############################################################################
-    //#                                                                          #
-	//#     EoDC - Default of Default X32Config :-)                                 #
-	//#                                                                          #
-	//############################################################################
+	mixer->dsp->DSP2_SetFx(0, FX_TYPE::REVERB, 2); // this effect takes lot of DSP-ressources
+	mixer->dsp->DSP2_SetFx(1, FX_TYPE::CHORUS, 2);
+	mixer->dsp->DSP2_SetFx(2, FX_TYPE::DELAY, 2);
+	mixer->dsp->DSP2_SetFx(3, FX_TYPE::NONE, 2);
+	mixer->dsp->DSP2_SetFx(4, FX_TYPE::NONE, 2);
+	mixer->dsp->DSP2_SetFx(5, FX_TYPE::NONE, 2);
+	mixer->dsp->DSP2_SetFx(6, FX_TYPE::NONE, 2);
+	mixer->dsp->DSP2_SetFx(7, FX_TYPE::NONE, 2);
 
-	// DEBUG
-	if (state->raspi)
-	{
-		// load X32 Core button definitions for DEBUG with RASPI
-		surface->LoadX32CoreDefinitions();
-	}
+	//############################################################################
 
 	// X32Config
 	if(!config->LoadConfig(0))
@@ -158,84 +123,6 @@ void X32Ctrl::Init()
 		config->Save(0);
 	}
 }
-
-// Load a Fader bank layout, e.g. LAYOUT_X32 or LAYOUT_USER
-void X32Ctrl::LoadFaderBankLayout()
-{
-	// ##################################################
-	// #
-	// #   	Fader bank layout like X32
-	// #
-	// #	Channel section		|	Bus section
-	// #	--------------------|--------------------
-	// #	32 Channels			|   DCA 1-8
-	// #	8 Aux				|	Bus 1-8
-	// #	Fx Return			|	Bus 9-16
-	// #	Busses 				|	Matrix + Sub
-	// #
-	// ##################################################
-
-
-	if (config->IsModelX32Full()){
-		// bank is 16 channels wide
-		for (uint8_t bank=0;bank<4;bank++){
-			for (int i = 0; i <=15; i++) {
-				inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 16);
-				helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 16));
-			}
-		}
-	}
-	if (config->IsModelX32CompactOrProducer()){
-		// bank is 8 channels wide
-		for (uint8_t bank=0;bank<8;bank++){
-			for (int i = 0; i <=7; i++) {
-				inputBanks[bank].surfaceChannel2VChannel[i] = i + (bank * 8);
-				helper->DEBUG_X32CTRL(DEBUGLEVEL_VERBOSE, "Assing bank%d: surfaceChannel%d <-> vchannel%d\n", bank, i, i + (bank * 8));
-			}
-		}
-	}
-
-	// assign channels to bus fader bank
-
-	// DCA - starts at channel 72
-	for (int i = 0; i <=7; i++) {
-		busBanks[0].surfaceChannel2VChannel[i] = i + 72;
-	}
-	// Bus 1-8 - starts at channel 48
-	for (int i = 0; i <=7; i++) {
-		busBanks[1].surfaceChannel2VChannel[i] = i + 48;
-	}
-	// Bus 9-16 - starts at channel 56
-	for (int i = 0; i <=7; i++) {
-		busBanks[2].surfaceChannel2VChannel[i] = i + 56;
-	}
-	// Matrix / SPECIAL / SUB - starts at channel 64
-	for (int i = 0; i <=9; i++) {
-		busBanks[3].surfaceChannel2VChannel[i] = i + 64;
-	}
-}
-
-void X32Ctrl::ResetFaderBankLayout()
-{
-	// reset channel section
-	for (uint8_t b = 0; b < 8; b++)
-	{
-		for (uint8_t sCh = 0; sCh < 16; sCh++)
-		{
-			inputBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-		}
-	}
-	// reset bus section
-	for (uint8_t b = 0; b < 4; b++)
-	{
-		for (uint8_t sCh = 0; sCh < 8; sCh++)
-		{
-			busBanks[b].surfaceChannel2VChannel[sCh] = VCHANNEL_NOT_SET;
-		}
-	}
-}
-
-
 
 //#####################################################################################################################
 //
@@ -529,7 +416,7 @@ void X32Ctrl::UdpHandleCommunication(void) {
     data_32b value32bit;
     
     // check for bytes in UDP-buffer
-    int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
+    //int result = ioctl(xremote->UdpHandle, FIONREAD, &bytes_available);
     if (bytes_available > 0) {
         socklen_t xremoteClientAddrLen = sizeof(xremote->ClientAddr);
         uint8_t len = recvfrom(xremote->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &xremote->ClientAddr, &xremoteClientAddrLen);
@@ -714,15 +601,13 @@ void X32Ctrl::UdpHandleCommunication_WSM()
 {
     char rxData[500];
     int bytes_available = 0;
-    uint8_t channel;
-    data_32b value32bit;
-	struct sockaddr_in ClientAddr;
+    struct sockaddr_in ClientAddr;
     
     // check for bytes in UDP-buffer
-    int result = ioctl(wsm->UdpHandle, FIONREAD, &bytes_available);
+    // int result = ioctl(wsm->UdpHandle, FIONREAD, &bytes_available);
     if (bytes_available > 0) {
-        socklen_t wsmClientAddrLen = sizeof(ClientAddr);
-        uint8_t len = recvfrom(wsm->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &ClientAddr, &wsmClientAddrLen);
+        //socklen_t wsmClientAddrLen = sizeof(ClientAddr);
+        //uint8_t len = recvfrom(wsm->UdpHandle, rxData, bytes_available, MSG_WAITALL, (struct sockaddr *) &ClientAddr, &wsmClientAddrLen);
 
 		String clientIp = inet_ntoa(ClientAddr.sin_addr);
 		String message = String(rxData);
@@ -730,8 +615,6 @@ void X32Ctrl::UdpHandleCommunication_WSM()
 
 		helper->DEBUG_XREMOTE(DEBUGLEVEL_NORMAL, "Sennheiser Media Control Protocoll (%s): %s", clientIp.c_str(), message.c_str());
 	}
-
-	
 }
 
 
@@ -958,6 +841,8 @@ void X32Ctrl::syncSurface(bool fullSync)
 					case X32BankId::FLEX1:
 						bank1 = X32BankId::FLEX1;
 						bank2 = X32BankId::FLEX2;
+						break;
+					default:
 						break;
 				}
 
@@ -1208,12 +1093,12 @@ void X32Ctrl::syncSurface(bool fullSync)
 				case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
 				case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
 					hasChanged |= config->HasParameterChanged((MP_ID)binding_parameter->mp_index);
-					// intentionally no break!
+					[[fallthrough]]; // intentionally no break!
 				case MixerparameterAction::SET_SELECTED_CHANNEL:
 				case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
 				case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
 					hasChanged |= config->HasParameterChanged(SELECTED_CHANNEL);
-					// intentionally no break!
+					[[fallthrough]]; // intentionally no break!
 				default:
 					hasChanged |= config->HasParameterChanged(parameter_id, parameter_index);
 					break;
@@ -1684,36 +1569,39 @@ void X32Ctrl::UpdateMeters(void) {
 	//
 	// ########################################
 
-	uint8_t chanIdx = config->GetUint(SELECTED_CHANNEL); //config->selectedVChannel;
+	uint8_t selectedChannel = config->GetUint(SELECTED_CHANNEL);
 
-	if (config->IsModelX32Core()) {
-		// selected channel
-		surface->SetMeterLed(X32_BOARD_MAIN, 0, mixer->dsp->rChannel[chanIdx].meter8Info);
+	if (config->IsModelX32Core())
+	{
+		surface->SetMeterLed(X32_BOARD_MAIN, 0, mixer->dsp->rChannel[selectedChannel].meter8Info);
 	}
 
-	if (config->IsModelX32Rack()) {
+	if (config->IsModelX32Rack())
+	{
 		surface->SetMeterLedMain_Rack(
-			mixer->dsp->rChannel[chanIdx].meter8Info, 	// selected channel
+			mixer->dsp->rChannel[selectedChannel].meter8Info, 	// selected channel
 			mixer->dsp->MainChannelLR.meterInfo[0],
 		 	mixer->dsp->MainChannelLR.meterInfo[1],
 		 	mixer->dsp->MainChannelSub.meterInfo[0]
 		);
 	}
 
-	if (config->IsModelX32Producer()) {
+	if (config->IsModelX32Producer())
+	{
 		surface->SetMeterLedMain_Producer(
-			mixer->dsp->rChannel[chanIdx].meter8Info, 	// selected channel
-			surfaceCalcDynamicMeter(chanIdx),			// selected channel
+			mixer->dsp->rChannel[selectedChannel].meter8Info, 	// selected channel
+			surfaceCalcDynamicMeter(selectedChannel),			// selected channel
 			mixer->dsp->MainChannelLR.meterInfo[0],
 			mixer->dsp->MainChannelLR.meterInfo[1],
 			mixer->dsp->MainChannelSub.meterInfo[0]
 		);
 	}
 
-	if (config->IsModelX32FullOrCompact()) {
+	if (config->IsModelX32FullOrCompact())
+	{
 		surface->SetMeterLedMain_FullOrCompact(
-			mixer->dsp->rChannel[chanIdx].meter8Info,	// selected channel
-			surfaceCalcDynamicMeter(chanIdx),			// selected channel
+			mixer->dsp->rChannel[selectedChannel].meter8Info,	// selected channel
+			surfaceCalcDynamicMeter(selectedChannel),			// selected channel
 			mixer->dsp->MainChannelLR.meterInfo[0],
 			mixer->dsp->MainChannelLR.meterInfo[1],
 			mixer->dsp->MainChannelSub.meterInfo[0]
@@ -1808,85 +1696,62 @@ uint8_t X32Ctrl::surfaceCalcDynamicMeter(uint8_t channel) {
 
 // sync mixer state to GUI
 void X32Ctrl::syncXRemote(bool syncAll) {
-	bool fullSync = false;
+	// //bool fullSync = false;
 
-	if (syncAll || config->HasParameterChanged(SELECTED_CHANNEL)){ 
-		// channel selection has changed - do a full sync
-		fullSync=true; 
-	}
+	// if (syncAll || config->HasParameterChanged(SELECTED_CHANNEL)){ 
+	// 	// channel selection has changed - do a full sync
+	// 	//fullSync=true; 
+	// }
 	
-	// DEBUG
-	xremote->SetCard(10); // X-LIVE
+	// // DEBUG
+	// xremote->SetCard(10); // X-LIVE
 
-	for(uint8_t i=0; i<(uint)X32_VCHANNELTYPE::NORMAL; i++) {
-		//uint8_t chanindex = i;
-		//VChannel* chan = mixer->GetVChannel(i);
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
-		// 	xremote->SetFader(String("ch"), chanindex, mixer->GetVolumeOscvalue(chanindex));
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
-		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
-		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
-		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
-		// }
-	}
+	// for(uint8_t i=0; i<(uint)X32_VCHANNELTYPE::NORMAL; i++) {
+	// 	//uint8_t chanindex = i;
+	// 	//VChannel* chan = mixer->GetVChannel(i);
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
+	// 	// 	xremote->SetFader(String("ch"), chanindex, mixer->GetVolumeOscvalue(chanindex));
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
+	// 	// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+	// 	// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
+	// 	// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
+	// 	// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
+	// 	// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
+	// 	// }
+	// }
 
-	for(uint8_t i=(uint)X32_VCHANNEL_BLOCK::AUX; i<(uint)X32_VCHANNELTYPE::AUX; i++) {
-		//uint8_t chanindex = i;
-		//VChannel* chan = mixer->GetVChannel(i);
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
-		// 	xremote->SetFader(String("auxin"), chanindex, mixer->GetVolumeOscvalue(chanindex));
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
-		// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
-		// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
-		// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
-		// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
-		// }
-		// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
-		// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
-		// }
-	}
+	// for(uint8_t i=(uint)X32_VCHANNEL_BLOCK::AUX; i<(uint)X32_VCHANNELTYPE::AUX; i++) {
+	// 	//uint8_t chanindex = i;
+	// 	//VChannel* chan = mixer->GetVChannel(i);
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_VOLUME)){
+	// 	// 	xremote->SetFader(String("auxin"), chanindex, mixer->GetVolumeOscvalue(chanindex));
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_BALANCE)){
+	// 	// 	xremote->SetPan(chanindex, mixer->vchannel[chanindex]->dspChannel->balance);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_MUTE)){
+	// 	// 	xremote->SetMute(chanindex, mixer->vchannel[chanindex]->dspChannel->muted);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_SOLO)){
+	// 	// 	xremote->SetSolo(chanindex, mixer->vchannel[chanindex]->dspChannel->solo);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_COLOR)){
+	// 	// 	xremote->SetColor(chanindex, mixer->vchannel[chanindex]->color);
+	// 	// }
+	// 	// if (fullSync || chan->HasChanged(X32_VCHANNEL_CHANGED_NAME)){
+	// 	// 	xremote->SetName(chanindex, mixer->vchannel[chanindex]->name);
+	// 	// }
+	// }
 }
-
-// ####################################################################
-// #
-// #
-// #        channel Assigment
-// #
-// #
-// ####################################################################
-
-// direction - positive or negative integer value
-void X32Ctrl::ChangeSelect(int8_t direction)
-{
-	int16_t newSelectedVChannel = config->GetUint(SELECTED_CHANNEL) + direction;
-	helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "ChangeSelect(): selected channel index: %d, direction: %d, new channel index: %d", config->GetUint(SELECTED_CHANNEL), direction, newSelectedVChannel);
-	if (newSelectedVChannel < 0) {
-		newSelectedVChannel = MAX_VCHANNELS -1;
-	} else if (newSelectedVChannel >= MAX_VCHANNELS){
-		newSelectedVChannel = 0;
-	}
-
-	config->Set(SELECTED_CHANNEL, newSelectedVChannel);
-}
-
 
 //##############################################################################################################################
 //
@@ -1900,7 +1765,8 @@ void X32Ctrl::ChangeSelect(int8_t direction)
 //
 //############################################################################################################################## 
 
-void X32Ctrl::ProcessUartDataSurface() {
+void X32Ctrl::ProcessUartDataSurface()
+{
     uint8_t receivedClass = 0;
     uint8_t receivedIndex = 0;
     uint16_t receivedValue = 0;
@@ -1920,8 +1786,6 @@ void X32Ctrl::ProcessUartDataSurface() {
         }
         surfacePacketCurrentIndex=0;
     }
-
-
 
     if (helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE)) {
         printf("DEBUG_SURFACE: ");
@@ -2093,12 +1957,8 @@ void X32Ctrl::ProcessUartDataSurface() {
             if (valid)
 			{
 				helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback: BoardId 0x%02X, Class 0x%02X, Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedIndex, receivedValue);
-				
-				// "SurfaceManager"
-				ProcessSurface((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue);
 
-				// old
-				//ProcessSurfaceEventsRaw(new SurfaceEvent((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue));
+				ProcessSurface((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue);
             } 
         }
     }
@@ -2534,6 +2394,8 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 				config->Set(bindingParameter->mp_id, helper->Fadervalue2DMX(value), bindingParameter->mp_index);
 				surface->FaderMoved((uint)board, index, value);
 				break;
+			default:
+				break;
 		}
 	}
 	else if (classid == 'b') // Button
@@ -2780,6 +2642,8 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 				case MixerparameterAction::DMX:
 					// an encoder is turned
 					break;
+				default:
+					break;
 			}
 		}
 		else
@@ -2843,8 +2707,6 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 void X32Ctrl::SimulatorButton(uint32_t key)
 {
 	printf("Simulatorbutton: %d\n", key);
-
-	X32_PAGE activePage = (X32_PAGE)config->GetUint(ACTIVE_PAGE);
 
 	switch (key)
 	{

@@ -43,10 +43,10 @@ void DSP1::Init(void)
     {
          for (uint8_t peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
          {
-            Channel[chanIndex].peq[peqIndex].type = config->GetUint(config->MpCalcId(CHANNEL_EQ_TYPE1, peqIndex));
-            Channel[chanIndex].peq[peqIndex].fc = config->GetFloat(config->MpCalcId(CHANNEL_EQ_FREQ1, peqIndex));
-            Channel[chanIndex].peq[peqIndex].Q = config->GetFloat(config->MpCalcId(CHANNEL_EQ_Q1, peqIndex));
-            Channel[chanIndex].peq[peqIndex].gain = config->GetFloat(config->MpCalcId(CHANNEL_EQ_GAIN1, peqIndex));
+            rChannel[chanIndex].peq[peqIndex].type = config->GetUint(config->MpCalcId(CHANNEL_EQ_TYPE1, peqIndex));
+            rChannel[chanIndex].peq[peqIndex].fc = config->GetFloat(config->MpCalcId(CHANNEL_EQ_FREQ1, peqIndex));
+            rChannel[chanIndex].peq[peqIndex].Q = config->GetFloat(config->MpCalcId(CHANNEL_EQ_Q1, peqIndex));
+            rChannel[chanIndex].peq[peqIndex].gain = config->GetFloat(config->MpCalcId(CHANNEL_EQ_GAIN1, peqIndex));
         }
     }
 }
@@ -61,7 +61,7 @@ bool DSP1::ChannelHasAdjustableGain(uint chanIndex)
     if ((dspChannelInputRouting >= DSP_BUF_IDX_DSPCHANNEL) && (dspChannelInputRouting < (DSP_BUF_IDX_AUX + 8)))
     {
         // this channel gets its input from the FPGA. Now check if it has an adjustable gain
-        if ((dspChannelFpgaSource >= FPGA_INPUT_IDX_XLR) && (dspChannelFpgaSource < FPGA_INPUT_IDX_XLR + 32) ||
+        if (((dspChannelFpgaSource >= FPGA_INPUT_IDX_XLR) && (dspChannelFpgaSource < FPGA_INPUT_IDX_XLR + 32)) ||
             (dspChannelFpgaSource >= FPGA_INPUT_IDX_AES50A && dspChannelFpgaSource < FPGA_INPUT_IDX_AES50A + 48))
         {
             return true;
@@ -379,7 +379,7 @@ void DSP1::SendEQ(uint chanIndex)
 
     for (uint peqIndex = 0; peqIndex < MAX_CHAN_EQS; peqIndex++)
     {
-        fxmath->RecalcFilterCoefficients_PEQ(&(Channel[chanIndex].peq[peqIndex]));
+        fxmath->RecalcFilterCoefficients_PEQ(&(rChannel[chanIndex].peq[peqIndex]));
 
 /*
         // send coeffiecients without interleaving for biquad() function
@@ -401,19 +401,19 @@ void DSP1::SendEQ(uint chanIndex)
                 // odd section index
                 sectionIndex += 1;
             }
-            values[sectionIndex + 0] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
-            values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
-            values[sectionIndex + 4] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
-            values[sectionIndex + 6] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
-            values[sectionIndex + 8] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = rChannel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
+            values[sectionIndex + 2] = rChannel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+            values[sectionIndex + 4] = rChannel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+            values[sectionIndex + 6] = -rChannel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+            values[sectionIndex + 8] = -rChannel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
         }else{
             // last section: store without interleaving
             int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-            values[sectionIndex + 0] = Channel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
-            values[sectionIndex + 1] = Channel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
-            values[sectionIndex + 2] = Channel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
-            values[sectionIndex + 3] = -Channel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
-            values[sectionIndex + 4] = -Channel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
+            values[sectionIndex + 0] = rChannel[chanIndex].peq[peqIndex].a[0]; // a0 (zeros)
+            values[sectionIndex + 1] = rChannel[chanIndex].peq[peqIndex].a[1]; // a1 (zeros)
+            values[sectionIndex + 2] = rChannel[chanIndex].peq[peqIndex].a[2]; // a2 (zeros)
+            values[sectionIndex + 3] = -rChannel[chanIndex].peq[peqIndex].b[1]; // -b1 (poles)
+            values[sectionIndex + 4] = -rChannel[chanIndex].peq[peqIndex].b[2]; // -b2 (poles)
         }
     }
 

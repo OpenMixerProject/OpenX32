@@ -402,13 +402,13 @@ void Fpga::SendConfig(void) {
 	}
 }
 
-void Fpga::AES50SetPhantomPowerState(uint8_t aes50Port, uint8_t channel, bool state) {
+void Fpga::AES50SetPhantomPowerState(uint8_t aes50Port, uint8_t channel, bool phantomState) {
 	if (aes50Port > 0 || channel == 0 || channel > 48) {
 		helper->Error("AES50SetPhantomPowerState: Invalid AES50 port (%d) or channel (%d)!", aes50Port, channel);
 		return;
 	}
 
-	AES50PhantomPowerState[aes50Port][channel - 1] = state; // store the phantom power state in the local array
+	AES50PhantomPowerState[aes50Port][channel - 1] = phantomState; // store the phantom power state in the local array
 
 	// preload AES50Counter to send the headamp message with the new phantom power state within the next 200ms
 	// but allow bulk-updates without sending multiple messages in a short time by resetting the counter
@@ -423,7 +423,7 @@ void Fpga::AES50SetHeadampGain(uint8_t aes50Port, uint8_t channel, float gain) {
 	}
 
 	if (gain < -2.0f || gain > 45.5f) {
-		helper->Error("AES50SetHeadampGain: Gain value out of range (%.2f). Must be between -2.0dB and 45.5dB!", gain);
+		helper->Error("AES50SetHeadampGain: Gain value out of range (%.2f). Must be between -2.0dB and 45.5dB!", (double)gain);
 		return;
 	}
 
@@ -435,8 +435,9 @@ void Fpga::AES50SetHeadampGain(uint8_t aes50Port, uint8_t channel, float gain) {
 }
 
 
-void Fpga::AES50Receive(void) {
-	bool messageHandled = false;
+void Fpga::AES50Receive(void)
+{
+	//bool messageHandled = false;
 	uint readBytes = uart->Rx(&fpgaRxBufferUart[0], sizeof(fpgaRxBufferUart));
 	char tmpName[16];
 
@@ -639,8 +640,9 @@ void Fpga::AES50Send(char* data, uint len) {
 	delete(message);
 }
 
-bool Fpga::AES50CalcChecksum(char* buf, bool insertChecksum) {;
-	uint8_t messageID = buf[0];
+bool Fpga::AES50CalcChecksum(char* buf, bool insertChecksum)
+{
+	//uint8_t messageID = buf[0];
 	uint8_t len = buf[1];
 	uint8_t deviceChar = buf[7];
 

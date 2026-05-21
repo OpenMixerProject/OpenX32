@@ -69,6 +69,7 @@ void FxSlot::LoadFx(FX_TYPE fxToLoad) {
 			break;
 		default:
 			helper->Error("Can not load unknown FX.");
+			[[fallthrough]]; // intentionally no break!
 		case FX_TYPE::NONE:
 			ClearFx();
 			break;

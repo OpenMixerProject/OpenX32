@@ -162,18 +162,18 @@ void XRemote::SetMute(uint8_t ch, uint8_t muted) {
 void XRemote::SetSolo(uint8_t ch, uint8_t solo) {
     char cmd[20] = {0};
     String channel;
-    String state;
+    String str_state;
     if (ch < 10) {
       channel = "0" + String(ch);
     }else{
       channel = String(ch);
     }
     if (solo > 0) {
-      state = String("ON");
+      str_state = String("ON");
     }else{
-      state = String("OFF");
+      str_state = String("OFF");
     }
-    String scmd = String("-stat/solosw/") + channel + String(" ") + state;
+    String scmd = String("-stat/solosw/") + channel + String(" ") + str_state;
     scmd.toCharArray(cmd, 20);
     cmd[scmd.length()] = 0x10; // add linefeed
     SendBasicMessage("node", 's', 's', cmd);

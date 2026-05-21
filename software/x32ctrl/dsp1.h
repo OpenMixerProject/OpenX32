@@ -18,7 +18,6 @@ class DSP1 : X32Base {
 
     public:
         srDspChannel rChannel[MAX_FPGA_TO_DSP1_CHANNELS + 8 + 8];  // values used only during runtime
-        sDspChannel Channel[MAX_FPGA_TO_DSP1_CHANNELS]; // values stored in config
         sMixbusChannel Bus[16];
         sMainChannel MainChannelLR;
         sMainChannel MainChannelSub;

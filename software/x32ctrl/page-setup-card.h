@@ -22,12 +22,12 @@ class PageSetupCard: public Page {
         static void draw_event_header_cb(lv_event_t * e) {
             lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
             lv_draw_dsc_base_t * base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
-            lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
+            //lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
 
             // if the cells are drawn
             if(base_dsc->part == LV_PART_ITEMS) {
                 uint32_t row = base_dsc->id1;
-                uint32_t col = base_dsc->id2;
+                //uint32_t col = base_dsc->id2;
 
                 if(row == 0) {
                     lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
@@ -51,7 +51,7 @@ class PageSetupCard: public Page {
             // if the cells are drawn
             if(base_dsc->part == LV_PART_ITEMS) {
                 uint32_t row = base_dsc->id1;
-                uint32_t col = base_dsc->id2;
+                //uint32_t col = base_dsc->id2;
 
                 /*
                 // Make the texts in the first cell center aligned
@@ -248,8 +248,8 @@ class PageSetupCard: public Page {
             if (config->HasParameterChanged(CARD_POSITION) || force_update) {
                 if (mixer->card->XLIVE_Playing) {
                     // update text-fields and progressbar
-                    lv_label_set_text_fmt(objects.setup_card_currentposition, helper->secondsToHmsHuman(mixer->card->currentSongPositionSeconds).c_str());
-                    lv_label_set_text_fmt(objects.setup_card_totaltime, helper->secondsToHmsHuman(mixer->card->currentSongTotalSeconds).c_str());
+                    lv_label_set_text(objects.setup_card_currentposition, helper->secondsToHmsHuman(mixer->card->currentSongPositionSeconds).c_str());
+                    lv_label_set_text(objects.setup_card_totaltime, helper->secondsToHmsHuman(mixer->card->currentSongTotalSeconds).c_str());
                     int32_t percentage = (mixer->card->currentSongPositionSeconds * 100) / mixer->card->currentSongTotalSeconds;
                     lv_bar_set_value(objects.setup_card_progress, percentage, LV_ANIM_OFF);
                 }else{
@@ -328,11 +328,11 @@ class PageSetupCard: public Page {
                     case SurfaceElementId::DISPLAY_ENCODER_BUTTON_1:
                         // seek 15 seconds to left
                         {
-                            uint newPosition = mixer->card->currentSongPositionSeconds - 15;
+                            int newPosition = mixer->card->currentSongPositionSeconds - 15;
                             if (newPosition < 0) {
                                 newPosition = 0;
                             }
-                            mixer->card->XLIVE_Seek(newPosition * config->GetUint(SAMPLERATE));
+                            mixer->card->XLIVE_Seek((uint)newPosition * config->GetUint(SAMPLERATE));
                         }
                         break;
                     case SurfaceElementId::DISPLAY_ENCODER_BUTTON_2: 

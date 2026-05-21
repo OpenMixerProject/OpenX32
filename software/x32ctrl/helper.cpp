@@ -244,7 +244,7 @@ String Helper::FormatFileSize(uint sizeByte, uint digits) {
 		return String((float)sizeByte / 1024.0f, digits) + " kB";
 	} else if (sizeByte < (1024 * 1024 * 1024)) {
 		return String((float)sizeByte / (1024.0f * 1024.0f), digits) + " MB";
-	} else if (sizeByte < (1024 * 1024 * 1024 * 1024)) {
+	} else if (sizeByte < ((uint)1024 * 1024 * 1024 * 1024)) {
 		return String((float)sizeByte / (1024.0f * 1024.0f * 1024.0f), digits) + " GB";
 	}
 }

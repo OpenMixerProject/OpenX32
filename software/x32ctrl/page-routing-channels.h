@@ -20,12 +20,12 @@ class PageRoutingChannels: public Page
         static void draw_event_header_cb(lv_event_t * e) {
             lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
             lv_draw_dsc_base_t * base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
-            lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
+            //lv_obj_t* obj = (lv_obj_t*)lv_event_get_target_obj(e);
 	
             // if the cells are drawn
             if(base_dsc->part == LV_PART_ITEMS) {
                 uint32_t row = base_dsc->id1;
-                uint32_t col = base_dsc->id2;
+                //uint32_t col = base_dsc->id2;
 	
                 if(row == 0) {
                     lv_draw_label_dsc_t * label_draw_dsc = lv_draw_task_get_label_dsc(draw_task);
@@ -49,7 +49,7 @@ class PageRoutingChannels: public Page
             // if the cells are drawn
             if(base_dsc->part == LV_PART_ITEMS) {
                 uint32_t row = base_dsc->id1;
-                uint32_t col = base_dsc->id2;
+                //uint32_t col = base_dsc->id2;
 	
 				/*
                 if(row == 0) {

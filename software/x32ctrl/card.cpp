@@ -63,9 +63,8 @@ String Card::SendCommand(String command){
 	return adda->SendReceive(command);
 }
 
-void Card::ProcessCommand(String command) {
-	uint percentage;
-
+void Card::ProcessCommand(String command)
+{
     if (command.indexOf("*9N0") > -1){
         // command is send when a new card on slot 1 is detected
         // *9N0003B68500000024EB# -> empty 32GB card

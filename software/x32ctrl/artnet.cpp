@@ -103,7 +103,7 @@ void Artnet::Sync()
 
 void Artnet::SetChannel(uint16_t channel, float value, float timeMs)
 {
-    helper->DEBUG_DMX(DEBUGLEVEL_TRACE, "channel %d value %f timeMs %f", channel, value, timeMs);
+    helper->DEBUG_DMX(DEBUGLEVEL_TRACE, "channel %d value %f timeMs %f", channel, (double)value, (double)timeMs);
 
     if (channel > 511) {
         helper->Error("Channel number out of range: %d", channel);

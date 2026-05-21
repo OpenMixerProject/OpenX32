@@ -300,7 +300,6 @@ int SPI::UploadBitstreamFpgaLattice(void) {
     // transmit large bitstream in chunks but without deasserting CS
     fseek(bitstream_file, 0, SEEK_SET); 
     const size_t CHUNK_SIZE = 1024; // 1 KB as maximum chunk-size
-    uint8_t tx_chunk[CHUNK_SIZE];
     const int MAX_TRANSFERS = (int)(bitstream_size / CHUNK_SIZE) + 1;
 	
 	// dynamic allocation of memory for the transfer-array
@@ -397,7 +396,7 @@ int SPI::UploadBitstreamFpgaLattice(void) {
                     printf(" ");
                 }
             }
-            printf("] %ld/%ld Bytes (%u %%)", total_bytes_sent, bitstream_size, (uint)((total_bytes_sent * 100) / bitstream_size));
+            printf("] %ld/%d Bytes (%u %%)", total_bytes_sent, bitstream_size, (uint)((total_bytes_sent * 100) / bitstream_size));
             fflush(stdout);
 
             last_progress = current_progress;
@@ -488,12 +487,12 @@ void SPI::toggleFpgaProgramnPin(uint32_t assertTime, uint32_t waitTime) {
     }
 }
 
-void SPI::setFpgaChipSelectPin(bool state)
+void SPI::setFpgaChipSelectPin(bool cs_state)
 {
     if (!this->state->raspi)
     {
         int fd = open("/sys/class/leds/cs_fpga/brightness", O_WRONLY);
-        if (state) {
+        if (cs_state) {
             write(fd, "1", 1); // assert ChipSelect (sets the real pin to LOW)
             helper->DEBUG_SPI(DEBUGLEVEL_VERBOSE, "asserted ChipSelect");
         }else{
@@ -556,8 +555,6 @@ uint32_t SPI::fpgaLatticeReverseByteOrder_uint32(uint32_t x) {
 // Assumes little endian
 void SPI::fpgaLatticePrintBits(uint32_t status)
 {
-    int i;
-    
     printf("\n");
     printf("+-----------------------------------------+\n");
     printf("|      Lattice FPGA Status Register       |\n");

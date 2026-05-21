@@ -113,11 +113,7 @@ class X32Ctrl : public X32Base
         void InitBank_DMX(X32Bank* bank, uint offset);
         void LoadBank(X32BankTarget target, X32BankId id);
         void LoadDefaultSurfaceBinding();
-
         void LoadMainFaderSurfaceBinding();
-
-        void ResetFaderBankLayout();
-        void LoadFaderBankLayout();
 
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;
@@ -130,7 +126,6 @@ class X32Ctrl : public X32Base
 
         uint autosavewait = 0;
         void AutoSave();
-        
 
     public:
 
@@ -161,8 +156,6 @@ class X32Ctrl : public X32Base
         uint8_t CalcPreampMeter_FullOrCompact(uint8_t channel);
         uint8_t surfaceCalcDynamicMeter(uint8_t channel);
         void syncXRemote(bool syncAll);
-
-        void ChangeSelect(int8_t direction);
 
         void ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, uint16_t value);
         void SimulatorButton(uint key);

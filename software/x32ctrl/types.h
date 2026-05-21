@@ -87,16 +87,9 @@ typedef struct {
 	float b[3];
 } sPEQ;
 
-
-typedef struct {
-	sPEQ peq[MAX_CHAN_EQS];
-} sDspChannel;
-
-
 typedef struct {
 	uint8_t sendMatrixTapPoint[6];
 } sMixbusChannel;
-
 
 typedef struct {
 	float meterPu[2]; // meter information in p.u.
@@ -123,14 +116,11 @@ typedef struct{
     uint8_t surfaceChannel2VChannel[35];
 } sBank;
 
-typedef struct{
-    char name[MAX_NAME_LENGTH];
-
-
-} sBankMode;
-
 // values only for runtime use
-typedef struct {
+typedef struct
+{
+	sPEQ peq[MAX_CHAN_EQS];
+
 	float meterPu; // meter information in p.u.
 	uint32_t meter;
 
