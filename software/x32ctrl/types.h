@@ -88,10 +88,6 @@ typedef struct {
 } sPEQ;
 
 typedef struct {
-	uint8_t sendMatrixTapPoint[6];
-} sMixbusChannel;
-
-typedef struct {
 	float meterPu[2]; // meter information in p.u.
 	uint32_t meter[2];
 	uint32_t meterDecay[2]; // meter information with decay
