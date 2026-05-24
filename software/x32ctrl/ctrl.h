@@ -86,10 +86,6 @@ class X32Ctrl : public X32Base
         // second button pressed, while first button is also pressed
         SurfaceElement* secondbuttonPressed = 0;
 
-        // 4 banks on X32 Full, 8 banks on X32 Compact/Producer
-        sBank inputBanks[8];
-        sBank busBanks[4];
-
         X32Bank* banks[(uint)X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE];
 
         X32Bank* bankLoadedInputsection;

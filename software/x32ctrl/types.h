@@ -98,20 +98,6 @@ typedef struct {
 	uint8_t meter6Info;
 } sMainChannel;
 
-typedef struct{
-
-    // assing surfaceChannel to VChannel
-    //
-    // surfaceChannels:
-    // 0-7   Board L
-    // 8-15  Board M
-    // 16-23 Board R
-    // 24    Main Fader
-    // 25-28 Assing 1-4 (only X32 Full)
-    // 29-34 Display Encoder 1-6
-    uint8_t surfaceChannel2VChannel[35];
-} sBank;
-
 // values only for runtime use
 typedef struct
 {
