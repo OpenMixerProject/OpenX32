@@ -86,11 +86,11 @@ class X32Ctrl : public X32Base
         // second button pressed, while first button is also pressed
         SurfaceElement* secondbuttonPressed = 0;
 
-        X32Bank* banks[(uint)X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE];
+        X32FaderBank* banks[(uint)X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE];
 
-        X32Bank* bankLoadedInputsection;
-        X32Bank* bankLoadedInputsection2;
-        X32Bank* bankLoadedBussection;
+        X32FaderBank* bankLoadedInputsection;
+        X32FaderBank* bankLoadedInputsection2;
+        X32FaderBank* bankLoadedBussection;
 
         X32BankId preSpillLoadedBank = X32BankId::None;
 
@@ -102,12 +102,13 @@ class X32Ctrl : public X32Base
         void my_handler(int s);
 
         void InitBanks();
-        void InitBank_Channelstrip(X32Bank *bank, uint offset);
-        void SetChannelstripBinding(X32Bank *bank, uint i, uint chanIndex);
-        void InitBank_Channelstrip_DCA(X32Bank* bank, uint offset);
-        void InitBank_Flex(X32Bank* bank);
-        void InitBank_DMX(X32Bank* bank, uint offset);
+        void InitBank_Channelstrip(X32FaderBank *bank, uint offset);
+        void SetChannelstripBinding(X32FaderBank *bank, uint i, uint chanIndex);
+        void InitBank_Channelstrip_DCA(X32FaderBank* bank, uint offset);
+        void InitBank_Flex(X32FaderBank* bank);
+        void InitBank_DMX(X32FaderBank* bank, uint offset);
         void LoadBank(X32BankTarget target, X32BankId id);
+        void LoadAssignBank(X32AssignBankId id);
         void LoadDefaultSurfaceBinding();
         void LoadMainFaderSurfaceBinding();
 
@@ -141,10 +142,13 @@ class X32Ctrl : public X32Base
         void syncGuiOrLcd(void);
         void syncSurface(bool fullSync);
         
-        #if ENABLE_ARTNET
+        void SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t channelIndex);
+        void SetLcdFromAssign(uint8_t p_boardId, uint8_t lcdIndex, SurfaceElementId element_id);
+        void GetAssignLcdText(LcdData *data, SurfaceElementId encoder, SurfaceElementId upper_button, SurfaceElementId lower_button);
+        bool BelongsToChannel(Mixerparameter *parameter);
+#if ENABLE_ARTNET
         void SetLcdFromArtnet(uint8_t p_boardId, uint8_t lcdIndex, uint8_t artnetIndex);
         #endif
-        void SetLcdFromChannel(uint8_t p_boardId, uint8_t p_Index, uint8_t channelIndex);
         void SetLcdDark(uint8_t p_boardId, uint8_t lcdIndex);
         void UpdateMeters(void);
         void setLedChannelIndicator_Rack(void);        

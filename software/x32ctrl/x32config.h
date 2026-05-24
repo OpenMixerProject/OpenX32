@@ -11,7 +11,8 @@
 
 #include "mixerparameter.h"
 #include "surfaceelement.h"
-#include "x32bank.h"
+#include "x32faderbank.h"
+#include "x32assignbank.h"
 
 // ini parser
 #include "inicpp.h"
@@ -42,7 +43,7 @@ class X32Config
         map<SurfaceElementId, SurfaceBindingParameter*>* surface_binding;
         set<SurfaceElementId> surface_binding_changed;
 
-
+        X32AssignBank* assingBanks[(uint)X32AssignBankId::__ELEMENT_COUNTER_DO_NOT_MOVE];
 
 
         // old
@@ -70,6 +71,7 @@ class X32Config
         vector<uint> GetChangedParameterIndexes(vector<MP_ID> filter_ids);
         bool HasParameterChanged(MP_ID parameter_id);
         bool HasParameterChanged(MP_ID parameter_id, uint index);
+        bool HasBoundParameterChanged(SurfaceElementId id);
         bool HasParametersChanged(vector<MP_ID> parameter_id);
         bool HasParametersChanged(vector<MP_ID> parameter_id, uint index);
         bool HasParametersChanged(MP_CAT parameter_cat);
@@ -96,6 +98,7 @@ class X32Config
 
         MP_ID ParameterCalcId(SurfaceBindingParameter* binding_parameter);
         uint ParameterCalcIndex(SurfaceBindingParameter* binding_parameter);
+        MP_ID ParameterDependsOn(SurfaceBindingParameter* binding_parameter);
 
         void DefineSurfaceElements();
         SurfaceElement* DefSurfaceElements(SurfaceElementId element_id, String name);
@@ -131,4 +134,7 @@ class X32Config
         bool IsModelX32Rack();
         bool IsModelX32Producer();
         bool IsModelX32Compact();
+
+        void InitAssignBanks();
+        X32AssignBank* GetAssignBank(X32AssignBankId id);
 };

@@ -226,7 +226,6 @@ void Page::ChangeCustomEncoder(SurfaceElementId surface_element_id, int amount)
 }
 
 void Page::UpdateMeters() {
-    helper->DEBUG_GUI(DEBUGLEVEL_TRACE, "Page::UpdateMeters()");
     if (initDone) {
         OnUpdateMeters();
     }

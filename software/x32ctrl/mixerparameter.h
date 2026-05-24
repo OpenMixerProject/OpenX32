@@ -442,11 +442,12 @@ class Mixerparameter
             instances = count;
         }
 
+        // Short name of Mixerparameter, max. 5 Characters!
         Mixerparameter* DefNameShort(String name_short) 
         {
             _name_short = name_short;
-            if (_name_short.length() > 10) {
-                _name_short.substring(0, 9);
+            if (_name_short.length() > 5) {
+                _name_short = _name_short.substring(0, 5);
             }
 
             return this;

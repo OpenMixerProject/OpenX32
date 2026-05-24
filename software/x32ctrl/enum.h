@@ -1267,6 +1267,7 @@ enum class MixerparameterAction
     RESET_SELECTED_CHANNEL,
 
     LCD_Channel,
+    LCD_Assign,
     LCD_Artnet,
 
     VUMETER,
@@ -1317,6 +1318,16 @@ enum class X32BankId
 
     __ELEMENT_COUNTER_DO_NOT_MOVE
 };
+
+enum class X32AssignBankId
+{
+    Bank_A,
+    Bank_B,
+    Bank_C,
+    
+    __ELEMENT_COUNTER_DO_NOT_MOVE
+};
+
 
 enum class X32BankTarget
 {

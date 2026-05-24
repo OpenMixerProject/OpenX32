@@ -23,10 +23,13 @@ class PageSetupSurface: public Page
 
         void Update()
         {
-            lv_roller_set_selected(roller_bank, config->GetUint(BANKING_ASSIGN), LV_ANIM_OFF);
+            X32AssignBank* bank = config->GetAssignBank((X32AssignBankId)config->GetUint(BANKING_ASSIGN));
+
+            lv_roller_set_selected(roller_bank, (uint)bank->GetID(), LV_ANIM_OFF);
             lv_roller_set_selected(roller_control, selected_control, LV_ANIM_OFF);
 
-            SurfaceBindingParameter* binding_parameter = config->GetSurfaceBinding(controls.at(selected_control));
+            // von bank holen
+            SurfaceBindingParameter* binding_parameter =  config->GetSurfaceBinding(controls.at(selected_control));
             if (binding_parameter)
             {
                 // Action
@@ -124,15 +127,15 @@ class PageSetupSurface: public Page
                 controls.push_back(SurfaceElementId::ASSIGN_8);
             }
 
-            if (config->IsModelX32FullOrCompactOrProducer())
-            {
-                controls.push_back(SurfaceElementId::MUTE_GROUP_1);
-                controls.push_back(SurfaceElementId::MUTE_GROUP_2);
-                controls.push_back(SurfaceElementId::MUTE_GROUP_3);
-                controls.push_back(SurfaceElementId::MUTE_GROUP_4);
-                controls.push_back(SurfaceElementId::MUTE_GROUP_5);
-                controls.push_back(SurfaceElementId::MUTE_GROUP_6);
-            }
+            // if (config->IsModelX32FullOrCompactOrProducer())
+            // {
+            //     controls.push_back(SurfaceElementId::MUTE_GROUP_1);
+            //     controls.push_back(SurfaceElementId::MUTE_GROUP_2);
+            //     controls.push_back(SurfaceElementId::MUTE_GROUP_3);
+            //     controls.push_back(SurfaceElementId::MUTE_GROUP_4);
+            //     controls.push_back(SurfaceElementId::MUTE_GROUP_5);
+            //     controls.push_back(SurfaceElementId::MUTE_GROUP_6);
+            // }
 
             String roller_options;
             for(uint i = 0; i < controls.size(); i++)
@@ -165,12 +168,12 @@ class PageSetupSurface: public Page
             mixerparameters.push_back(CHANNEL_VOLUME);
             mixerparameters.push_back(CHANNEL_MUTE);
             mixerparameters.push_back(CHANNEL_SOLO);
-            mixerparameters.push_back(MUTE_GROUP_1_MUTE);
-            mixerparameters.push_back(MUTE_GROUP_2_MUTE);
-            mixerparameters.push_back(MUTE_GROUP_3_MUTE);
-            mixerparameters.push_back(MUTE_GROUP_4_MUTE);
-            mixerparameters.push_back(MUTE_GROUP_5_MUTE);
-            mixerparameters.push_back(MUTE_GROUP_6_MUTE);
+            // mixerparameters.push_back(MUTE_GROUP_1_MUTE);
+            // mixerparameters.push_back(MUTE_GROUP_2_MUTE);
+            // mixerparameters.push_back(MUTE_GROUP_3_MUTE);
+            // mixerparameters.push_back(MUTE_GROUP_4_MUTE);
+            // mixerparameters.push_back(MUTE_GROUP_5_MUTE);
+            // mixerparameters.push_back(MUTE_GROUP_6_MUTE);
             mixerparameters.push_back(DMX_ARTNET_VALUE);
             mixerparameters.push_back(DMX_ARTNET_ENABLE);
 

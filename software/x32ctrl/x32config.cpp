@@ -7,6 +7,7 @@ X32Config::X32Config(Helper* h)
     surface_binding = new map<SurfaceElementId, SurfaceBindingParameter*>();
 
     DefineMixerparameters();
+    InitAssignBanks();
 }
 
 void X32Config::SetModel(String model){
@@ -459,7 +460,7 @@ void X32Config::DefineMixerparameters() {
 	cat = MP_CAT::CHANNEL;
     group = "channel";
 
-    DefParameter(CHANNEL_NAME_INTERN, cat, "Channelname Intern", MAX_VCHANNELS)->DefNameShort("Internalname")
+    DefParameter(CHANNEL_NAME_INTERN, cat, "Channelname Intern", MAX_VCHANNELS)
     ->DefStandard_String("CH")
     ->DefReadonly();
     
@@ -468,18 +469,22 @@ void X32Config::DefineMixerparameters() {
     ->DefConfig(group, "name");
 
     DefParameter(CHANNEL_COLOR, cat, "Channelcolor", MAX_VCHANNELS)
+    ->DefNameShort("Color")
     ->DefMinMaxStandard_Uint((uint)X32_COLOR::BLACK, (uint)X32_COLOR::WHITE, (uint)X32_COLOR::YELLOW)
     ->DefConfig(group, "color");
 
     DefParameter(CHANNEL_COLOR_INVERTED, cat, "Color Inverted", MAX_VCHANNELS)
+    ->DefNameShort("ColInv")
     ->DefStandard_Bool(false)
     ->DefConfig(group, "color_inverted");
     
-    DefParameter(CHANNEL_PHASE_INVERT, cat, "Phase Inverted", MAX_VCHANNELS)->DefNameShort("Inverted")
+    DefParameter(CHANNEL_PHASE_INVERT, cat, "Phase Inverted", MAX_VCHANNELS)
+    ->DefNameShort("Phase")
     ->DefStandard_Bool(false)
     ->DefConfig(group, "phase_inverted");
     
-    DefParameter(CHANNEL_PHANTOM, cat, "Phantom", MAX_VCHANNELS)->DefNameShort("48V")
+    DefParameter(CHANNEL_PHANTOM, cat, "Phantom", MAX_VCHANNELS)
+    ->DefNameShort("48V")
     ->DefStandard_Bool(false);
     
     DefParameter(CHANNEL_GAIN, cat, "Gain", MAX_VCHANNELS)
@@ -489,11 +494,13 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(CHANNEL_GAIN_MIN, CHANNEL_GAIN_MAX, 0.0f, 1);
     
     DefParameter(CHANNEL_VOLUME, cat, "Volume", MAX_VCHANNELS)
+    ->DefNameShort("Vol")
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "volume")
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
 
-    DefParameter(CHANNEL_VOLUME_SUB, cat, "Sub", MAX_VCHANNELS)
+    DefParameter(CHANNEL_VOLUME_SUB, cat, "Volume Sub", MAX_VCHANNELS)
+    ->DefNameShort("Sub")
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "volume_sub")
     ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
@@ -559,6 +566,7 @@ void X32Config::DefineMixerparameters() {
     cat = MP_CAT::CHANNEL_GATE;
 
     DefParameter(CHANNEL_GATE_ENABLE, cat, "Gate Enable", MAX_VCHANNELS)
+    ->DefNameShort("Gate")
     ->DefConfig(group, "gate_enable")
     ->DefStandard_Bool(false);
    
@@ -590,37 +598,44 @@ void X32Config::DefineMixerparameters() {
     // dynamics
     cat = MP_CAT::CHANNEL_DYNAMICS;
 
-    DefParameter(CHANNEL_COMPRESSOR_ENABLE, cat, "Compressor Enable", MAX_VCHANNELS)
+    DefParameter(CHANNEL_COMPRESSOR_ENABLE, cat, "Dynamics Enable", MAX_VCHANNELS)
+    ->DefNameShort("DyEn")
     ->DefConfig(group, "compressor_enable")
     ->DefStandard_Bool(false);
 
     DefParameter(CHANNEL_DYNAMICS_TRESHOLD, cat, "Threshold", MAX_VCHANNELS)
+    ->DefNameShort("DyThr")
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "dynamics_threshold")
     ->DefMinMaxStandard_Float(DYNAMICS_THRESHOLD_MIN, DYNAMICS_THRESHOLD_MAX, DYNAMICS_THRESHOLD_MAX, 0);
     
     DefParameter(CHANNEL_DYNAMICS_RATIO, cat, "Ratio", MAX_VCHANNELS)
+    ->DefNameShort("DyRat")
     ->DefUOM(MP_UOM::NONE)
     ->DefConfig(group, "dynamics_ratio")
     ->DefStepmode(1)
     ->DefMinMaxStandard_Float(DYNAMICS_RATIO_MIN, DYNAMICS_RATIO_MAX, 3, 1);
     
     DefParameter(CHANNEL_DYNAMICS_MAKEUP, cat, "Makeup", MAX_VCHANNELS)
+    ->DefNameShort("DyMUp")
     ->DefUOM(MP_UOM::DB)
     ->DefConfig(group, "dynamics_makeup")
     ->DefMinMaxStandard_Float(DYNAMICS_MAKEUP_MIN, DYNAMICS_MAKEUP_MAX, DYNAMICS_MAKEUP_MIN, 1);
     
     DefParameter(CHANNEL_DYNAMICS_ATTACK, cat, "Attack", MAX_VCHANNELS)
+    ->DefNameShort("DyAtt")
     ->DefUOM(MP_UOM::MS)
     ->DefConfig(group, "dynamics_attack")
     ->DefMinMaxStandard_Float(DYNAMICS_ATTACK_MIN, DYNAMICS_ATTACK_MAX, 10.0f, 0);
     
     DefParameter(CHANNEL_DYNAMICS_HOLD, cat, "Hold", MAX_VCHANNELS)
+    ->DefNameShort("DyHol")
     ->DefUOM(MP_UOM::MS)
     ->DefConfig(group, "dynamics_hold")
     ->DefMinMaxStandard_Float(DYNAMICS_HOLD_MIN, DYNAMICS_HOLD_MAX, 10.0f, 0);
     
     DefParameter(CHANNEL_DYNAMICS_RELEASE, cat, "Release", MAX_VCHANNELS)
+    ->DefNameShort("DyRel")
     ->DefUOM(MP_UOM::MS)
     ->DefConfig(group, "dynamics_release")
     ->DefMinMaxStandard_Float(DYNAMICS_RELEASE_MIN, DYNAMICS_RELEASE_MAX, 150.0f, 0);
@@ -629,10 +644,12 @@ void X32Config::DefineMixerparameters() {
     cat = MP_CAT::CHANNEL_EQ;
 
     DefParameter(CHANNEL_LOWCUT_ENABLE, cat, "Lowcut Enable", MAX_VCHANNELS)
+    ->DefNameShort("LC En")
     ->DefConfig(group, "lowcut_enable")
     ->DefStandard_Bool(false);
 
     DefParameter(CHANNEL_LOWCUT_FREQ, cat, "Lowcut", MAX_VCHANNELS)
+    ->DefNameShort("LC Fr")
     ->DefConfig(group, "lowcut_freq")
     ->DefUOM(MP_UOM::HZ)
     ->DefStepmode(1) // frequency mode
@@ -640,6 +657,7 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(20.0f, 400.0f, 0.0f);
 
     DefParameter(CHANNEL_EQ_ENABLE, cat, "EQ Enable", MAX_VCHANNELS)
+    ->DefNameShort("EQ En")
     ->DefConfig(group, "EQ_enable")
     ->DefStandard_Bool(false);
 
@@ -647,25 +665,29 @@ void X32Config::DefineMixerparameters() {
     float channel_eq_freq[4] = {125.0f, 500.0f, 2000.0f, 10000.0f};
     for (uint i = 0; i < channel_eq_count; i++)
     {
-        DefParameter(MpCalcId(CHANNEL_EQ_TYPE1, i), cat, String("Type[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_TYPE1, i), cat, String("EQ Type[") + String(i) + String("]"), MAX_VCHANNELS)
+        ->DefNameShort(String("EQTy") + String(i))
         ->DefUOM(MP_UOM::EQ_TYPE)
         ->DefConfig(group, "eq_type_" + String(i))
         ->DefHideEncoderReset()
         ->DefMinMaxStandard_Uint(0, 7, 1)
         ->DefCycleMode(1, 1);
 
-        DefParameter(MpCalcId(CHANNEL_EQ_FREQ1, i), cat, String("Freg[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_FREQ1, i), cat, String("EQ Freg[") + String(i) + String("]"), MAX_VCHANNELS)
+        ->DefNameShort(String("EQFr") + String(i))
         ->DefUOM(MP_UOM::HZ)
         ->DefConfig(group, "eq_freq_" + String(i))
         ->DefStepmode(1) // frequency mode
         ->DefMinMaxStandard_Float(20.0f, 20000.0f, channel_eq_freq[i]);
 
-        DefParameter(MpCalcId(CHANNEL_EQ_GAIN1, i), cat, String("Gain[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_GAIN1, i), cat, String("EQ Gain[") + String(i) + String("]"), MAX_VCHANNELS)
+        ->DefNameShort(String("EQGa") + String(i))
         ->DefUOM(MP_UOM::DB)
         ->DefConfig(group, "eq_gain_" + String(i))
         ->DefMinMaxStandard_Float(-15.0f, 15.0f, 0.0f, 1);
  
-        DefParameter(MpCalcId(CHANNEL_EQ_Q1, i), cat, String("Q[") + String(i) + String("]"), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_EQ_Q1, i), cat, String("EQ Q[") + String(i) + String("]"), MAX_VCHANNELS)
+        ->DefNameShort(String("EQ Q") + String(i))
         ->DefStepsize(0.1f)
         ->DefConfig(group, "eq_q_" + String(i))
         ->DefMinMaxStandard_Float(0.3f, 10.0f, 2.0f, 1);
@@ -1597,6 +1619,27 @@ bool X32Config::HasParameterChanged(MP_ID parameter_id, uint index)
            mp_changedlist->at(parameter_id).contains(index);
 }
 
+
+/// @brief Checks, if the value of the bound Mixerparameter has changed
+/// @param id The surface element which bound Mixerparameter should be checked
+/// @return 
+bool X32Config::HasBoundParameterChanged(SurfaceElementId id)
+{
+    SurfaceBindingParameter* binding = GetSurfaceBinding(id);    
+
+    MP_ID parameter_id = ParameterCalcId(binding);
+	uint parameter_index = ParameterCalcIndex(binding);
+
+    bool hasChanged = mp_changedlist->contains(parameter_id) && mp_changedlist->at(parameter_id).contains(parameter_index);
+
+    if (ParameterDependsOn(binding) != NONE)
+    {
+        hasChanged |= HasParameterChanged(ParameterDependsOn(binding));
+    }
+
+    return hasChanged;
+}
+
 /// @brief Checks if any data in the Mixerparameters has changed.
 /// @return True if the data in any Mixerparameter has changed.
 bool X32Config::HasAnyParameterChanged()
@@ -1803,6 +1846,23 @@ uint X32Config::ParameterCalcIndex(SurfaceBindingParameter* binding_parameter)
             break;
         default:
             return binding_parameter->mp_index;
+    }
+}
+
+MP_ID X32Config::ParameterDependsOn(SurfaceBindingParameter* binding_parameter)
+{
+    switch(binding_parameter->mp_action)
+    {
+        case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
+        case MixerparameterAction::SET_SELECTED_CHANNEL:
+        case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
+        case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
+        case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+        case MixerparameterAction::RESET_SELECTED_CHANNEL:
+            return SELECTED_CHANNEL;
+            break;
+        default:
+            return NONE;
     }
 }
 
@@ -2747,4 +2807,85 @@ SurfaceBindingParameter* X32Config::GetSurfaceBinding(SurfaceElementId elementId
     }
 
     return 0;
+}
+
+void X32Config::InitAssignBanks()
+{
+    assingBanks[(uint)X32AssignBankId::Bank_A] = new X32AssignBank(X32AssignBankId::Bank_A, String("Assign A"));
+    assingBanks[(uint)X32AssignBankId::Bank_B] = new X32AssignBank(X32AssignBankId::Bank_B, String("Assign B"));
+    assingBanks[(uint)X32AssignBankId::Bank_C] = new X32AssignBank(X32AssignBankId::Bank_C, String("Assign C"));
+
+    if(true) //IsModelX32Full())
+	{
+		X32AssignBank* bank = assingBanks[(uint)X32AssignBankId::Bank_A];
+
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_1)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_2)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_3)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_4)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 3);
+
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_1)->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_2)->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_3)->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_4)->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, 3);
+
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_5)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_6)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_7)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_8)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 3);
+
+        bank->bindingMap->at(SurfaceElementId::ASSIGN_9)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_10)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_11)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_12)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 3);
+
+        bank = assingBanks[(uint)X32AssignBankId::Bank_B];
+
+        bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_1)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_2)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_3)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_4)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_VOLUME, 3);
+
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_1)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_2)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_3)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_4)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 3);
+
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_5)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_6)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_7)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_8)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, 3);
+
+        bank->bindingMap->at(SurfaceElementId::ASSIGN_9)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_10)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_11)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_12)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, 3);
+
+        bank = assingBanks[(uint)X32AssignBankId::Bank_C];
+
+        bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_1)->FillBindingParameter(MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_GAIN, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_2)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_GAIN, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_3)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_GAIN, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_ENCODER_4)->FillBindingParameter(MixerparameterAction::CHANGE, CHANNEL_EQ_FREQ1, 0);
+
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_1)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_2)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_3)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_LCD_4)->FillBindingParameter(MixerparameterAction::LCD_Assign, NONE, 3);
+
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_5)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_PHANTOM, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_6)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_PHANTOM, 1);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_7)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_PHANTOM, 2);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_8)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_PHANTOM, 3);
+
+        bank->bindingMap->at(SurfaceElementId::ASSIGN_9)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_LOWCUT_ENABLE, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_10)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_LOWCUT_FREQ, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_11)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_EQ_ENABLE, 0);
+		bank->bindingMap->at(SurfaceElementId::ASSIGN_12)->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_EQ_FREQ1, 0);
+	}
+}
+
+X32AssignBank* X32Config::GetAssignBank(X32AssignBankId id)
+{
+    return assingBanks[(uint)id];
 }

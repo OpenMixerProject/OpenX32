@@ -80,6 +80,7 @@ typedef unsigned int uint;
 #define MUTE_GROUPS 6
 #define DCA_GROUPS 8
 #define BUS_SENDS 16
+#define ASSING_BINDINGS 20
 
 #define GATE_THRESHOLD_MIN            -80.0f // dB
 #define GATE_THRESHOLD_MAX              0.0f // dB

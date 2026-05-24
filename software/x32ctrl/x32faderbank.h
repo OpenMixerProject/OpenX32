@@ -3,7 +3,7 @@
 #include "surfacebindingparameter.h"
 #include "mixerparameter.h"
 
-class X32BankParameter
+class X32ChannelStrip
 {
     public:
 
@@ -15,24 +15,25 @@ class X32BankParameter
         SurfaceBindingParameter* fader;
 };
 
-class X32Bank 
-{      
+class X32FaderBank
+{
     private:
+
         String _name;
         X32BankId _id;
-    
+
     public:
 
-        X32BankParameter* channelstrip[8];
+        X32ChannelStrip* channelstrip[8];
 
-        X32Bank(X32BankId id, String name)
+        X32FaderBank(X32BankId id, String name)
         {
             _id = id;
             _name = name;
 
             for(uint i = 0; i < 8; i++)
             {
-                channelstrip[i] = new X32BankParameter();
+                channelstrip[i] = new X32ChannelStrip();
 
                 channelstrip[i]->select = new SurfaceBindingParameter();
                 channelstrip[i]->vumeter = new SurfaceBindingParameter();
@@ -65,5 +66,4 @@ class X32Bank
                 channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::NONE, MP_ID::NONE, 0);
             }
         }
-        
 };

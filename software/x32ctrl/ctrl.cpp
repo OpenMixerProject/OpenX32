@@ -47,6 +47,7 @@ void X32Ctrl::Init()
 
 	if (state->bodyless) {
 		config->SetModel("X32C");
+		config->SetModel("X32");
 	} else if (state->raspi) {
 		config->SetModel("X32RACK");
 	} else {
@@ -875,6 +876,13 @@ void X32Ctrl::syncSurface(bool fullSync)
 			LoadBank(X32BankTarget::BusSection, bank);
 		}
 
+		if (config->HasParameterChanged(BANKING_ASSIGN))
+		{
+			X32AssignBankId bankId = (X32AssignBankId)(config->GetUint(BANKING_ASSIGN));
+
+			LoadAssignBank(bankId);
+		}
+
 		// ######################################
 		//
 		//   DCA Spill
@@ -911,7 +919,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 						// loop through all channels
 						for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
 						{
-							X32Bank* banktoUse = (nextSurfaceChannelStrip < 8) ? banks[(uint)X32BankId::FLEX1] : banks[(uint)X32BankId::FLEX2];
+							X32FaderBank* banktoUse = (nextSurfaceChannelStrip < 8) ? banks[(uint)X32BankId::FLEX1] : banks[(uint)X32BankId::FLEX2];
 
 							if (config->GetBool(config->MpCalcId(DCA_GROUP_1, i), chanIndex))
 							{
@@ -1085,6 +1093,54 @@ void X32Ctrl::syncSurface(bool fullSync)
 								hasChanged = true;
 							}
 							break;
+					}
+					break;
+				case MixerparameterAction::LCD_Assign:
+					{
+						// LCD 1 -> Encoder 1, BUtton 5, Button 9
+						if (element_id == SurfaceElementId::ASSIGN_LCD_1)
+						{
+							hasChanged =
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_ENCODER_1) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_ENCODER_1) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_5) ||	
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_5) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_9) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_9);
+						}
+
+						if (element_id == SurfaceElementId::ASSIGN_LCD_2)
+						{
+							hasChanged =
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_ENCODER_2) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_ENCODER_2) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_6) ||	
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_6) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_10)||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_10);
+						}
+
+						if (element_id == SurfaceElementId::ASSIGN_LCD_3)
+						{
+							hasChanged =
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_ENCODER_3) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_ENCODER_3) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_7) ||	
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_7) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_11) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_11);
+						}
+
+						if (element_id == SurfaceElementId::ASSIGN_LCD_4)
+						{
+							hasChanged =
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_ENCODER_4) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_ENCODER_4) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_8) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_8) ||
+								config->HasSurfaceBindingChanged(SurfaceElementId::ASSIGN_12) ||
+								config->HasBoundParameterChanged(SurfaceElementId::ASSIGN_12);
+						}
 					}
 					break;
 				case MixerparameterAction::LCD_Artnet:
@@ -1269,6 +1325,10 @@ void X32Ctrl::syncSurface(bool fullSync)
 					if (binding_parameter->mp_action == MixerparameterAction::LCD_Channel)
 					{
 						SetLcdFromChannel(element->GetBoard(), element->GetIndex(), parameter_index);
+					}
+					else if (binding_parameter->mp_action == MixerparameterAction::LCD_Assign)
+					{
+						SetLcdFromAssign(element->GetBoard(), element->GetIndex(), element_id);
 					}
 					#if ENABLE_ARTNET
 					else if (binding_parameter->mp_action == MixerparameterAction::LCD_Artnet)
@@ -1522,6 +1582,129 @@ void X32Ctrl::SetLcdFromChannel(uint8_t p_boardId, uint8_t lcdIndex, uint8_t cha
 
 	surface->SetLcdX(data, textcount);
 	delete data;
+}
+
+void X32Ctrl::SetLcdFromAssign(uint8_t p_boardId, uint8_t lcdIndex, SurfaceElementId element_id)
+{
+	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "SetLcdFromAssign()");
+
+    LcdData* data = new LcdData();
+	uint textcount = 0;
+
+	data->boardId = p_boardId;
+	data->lcdIndex = lcdIndex;
+	data->color = SURFACE_COLOR_WHITE | SURFACE_COLOR_INVERTED;
+	data->icon.icon = 0;
+	data->icon.x = 0;
+	data->icon.y = 0;
+
+	data->texts[0].size = 0;
+	data->texts[0].x = 0;
+	data->texts[0].y = 0;
+
+	data->texts[1].size = 0;
+	data->texts[1].x = 0;
+	data->texts[1].y = 15;
+
+	data->texts[2].size = 0;
+	data->texts[2].x = 0;
+	data->texts[2].y = 30;
+
+	data->texts[3].size = 0;
+	data->texts[3].x = 0;
+	data->texts[3].y = 48;
+
+	textcount = 4;
+
+	// thats the most data we can send -> over all in summary not more than 4*12 = 48 characters
+	// data->texts[0].text = "llllllllllll";
+	// data->texts[1].text = "llllllllllll";
+	// data->texts[2].text = "llllllllllll";
+	// data->texts[3].text = "llllllllllll";
+
+	switch(element_id)
+	{
+		case SurfaceElementId::ASSIGN_LCD_1:
+            GetAssignLcdText(data, SurfaceElementId::ASSIGN_ENCODER_1, SurfaceElementId::ASSIGN_5, SurfaceElementId::ASSIGN_9);
+            break;
+		case SurfaceElementId::ASSIGN_LCD_2:
+		    GetAssignLcdText(data, SurfaceElementId::ASSIGN_ENCODER_2, SurfaceElementId::ASSIGN_6, SurfaceElementId::ASSIGN_10);
+			break;
+		case SurfaceElementId::ASSIGN_LCD_3:
+		    GetAssignLcdText(data, SurfaceElementId::ASSIGN_ENCODER_3, SurfaceElementId::ASSIGN_7, SurfaceElementId::ASSIGN_11);
+			break;
+		case SurfaceElementId::ASSIGN_LCD_4:
+			GetAssignLcdText(data, SurfaceElementId::ASSIGN_ENCODER_4, SurfaceElementId::ASSIGN_8, SurfaceElementId::ASSIGN_12);
+			break;
+		default:
+			break;
+	}
+
+	surface->SetLcdX(data, textcount);
+	delete data;
+}
+
+void X32Ctrl::GetAssignLcdText(LcdData *data, SurfaceElementId encoder, SurfaceElementId upper_button, SurfaceElementId lower_button)
+{
+	// Encoder
+
+	MP_ID encoder_parameter_id = config->ParameterCalcId(config->GetSurfaceBinding(encoder));
+	uint encoder_parameter_index = config->ParameterCalcIndex(config->GetSurfaceBinding(encoder));
+	Mixerparameter* encoder_parameter = config->GetParameter(encoder_parameter_id);
+	String encoder_prefix;
+
+    if (BelongsToChannel(encoder_parameter))
+    {
+		encoder_prefix = config->GetParameter(CHANNEL_NAME)->GetString(encoder_parameter_index) + String(": ");
+	}
+
+    data->texts[0].text = encoder_prefix + encoder_parameter->GetNameShort();
+    data->texts[1].text = encoder_parameter->GetFormatedValue(encoder_parameter_index);
+
+	// Upper Button
+
+	MP_ID upper_button_parameter_id = config->ParameterCalcId(config->GetSurfaceBinding(upper_button));
+	uint upper_button_parameter_index = config->ParameterCalcIndex(config->GetSurfaceBinding(upper_button));
+	Mixerparameter* upper_button__parameter = config->GetParameter(upper_button_parameter_id);
+	String upper_button_prefix;
+
+	if (BelongsToChannel(upper_button__parameter))
+	{
+		upper_button_prefix += config->GetParameter(CHANNEL_NAME)->GetString(upper_button_parameter_index) + String(": ");
+	}
+
+    data->texts[2].text = upper_button_prefix + config->GetParameter(upper_button_parameter_id)->GetNameShort();
+
+	// Lower Button
+
+	MP_ID lower_button_parameter_id = config->ParameterCalcId(config->GetSurfaceBinding(lower_button));
+	uint lower_button_parameter_index = config->ParameterCalcIndex(config->GetSurfaceBinding(lower_button));
+	Mixerparameter* lower_button__parameter = config->GetParameter(lower_button_parameter_id);
+	String lower_button_prefix;
+
+	if (BelongsToChannel(lower_button__parameter))
+	{
+		lower_button_prefix += config->GetParameter(CHANNEL_NAME)->GetString(lower_button_parameter_index) + String(": ");
+	}
+
+    data->texts[3].text = lower_button_prefix + config->GetParameter(lower_button_parameter_id)->GetNameShort();
+
+	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "GetAssignLcdText() Row 1: %s", data->texts[0].text.c_str());
+	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "GetAssignLcdText() Row 2: %s", data->texts[1].text.c_str());
+	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "GetAssignLcdText() Row 3: %s", data->texts[2].text.c_str());
+	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "GetAssignLcdText() Row 4: %s", data->texts[3].text.c_str());
+}
+
+bool X32Ctrl::BelongsToChannel(Mixerparameter *parameter)
+{
+	MP_CAT category = parameter->GetCategory();
+
+    return
+		category == MP_CAT::CHANNEL || 
+		category == MP_CAT::CHANNEL_DYNAMICS ||
+		category == MP_CAT::CHANNEL_EQ ||
+		category == MP_CAT::CHANNEL_GATE ||
+		category == MP_CAT::CHANNEL_SENDS;
 }
 
 void X32Ctrl::SetLcdDark(uint8_t p_boardId, uint8_t lcdIndex)
@@ -2203,25 +2386,29 @@ void X32Ctrl::InitBanks()
 {
 	if (config->IsModelX32FullOrCompactOrProducer())
 	{
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH1_8, "Channel 1-8"), 0);
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH9_16, "Channel 9-16"), 8);
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH17_24, "Channel 17-24"), 16);
-		InitBank_Channelstrip(new X32Bank(X32BankId::CH25_32, "Channel 25-32"), 24);
-		InitBank_Channelstrip(new X32Bank(X32BankId::AUX_USB, "AUX/USB"), (uint)(X32_VCHANNEL_BLOCK::AUX));
-		InitBank_Channelstrip(new X32Bank(X32BankId::FX_RET, "FX Return"), (uint)(X32_VCHANNEL_BLOCK::FXRET));
-		InitBank_Channelstrip(new X32Bank(X32BankId::BUS1_8, "Bus 1-8"), (uint)(X32_VCHANNEL_BLOCK::BUS));
-		InitBank_Channelstrip(new X32Bank(X32BankId::BUS9_16, "Bus 9-16"), ((uint)(X32_VCHANNEL_BLOCK::BUS)) + 8);
-		InitBank_Channelstrip_DCA(new X32Bank(X32BankId::DCA, "DCA"), (uint)(X32_VCHANNEL_BLOCK::DCA));
-		InitBank_Channelstrip(new X32Bank(X32BankId::MATRIX_MAIN, "Matrix/Main"), (uint)(X32_VCHANNEL_BLOCK::MATRIX));
-		InitBank_DMX(new X32Bank(X32BankId::REMOTE1, "Remote1"), 0);
-		InitBank_DMX(new X32Bank(X32BankId::REMOTE2, "Remote2"), 8);
-		InitBank_Flex(new X32Bank(X32BankId::FLEX1, "Flex1"));
-		InitBank_Flex(new X32Bank(X32BankId::FLEX2, "Flex2"));
-		InitBank_Flex(new X32Bank(X32BankId::FLEX3, "Flex3"));
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::CH1_8, "Channel 1-8"), 0);
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::CH9_16, "Channel 9-16"), 8);
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::CH17_24, "Channel 17-24"), 16);
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::CH25_32, "Channel 25-32"), 24);
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::AUX_USB, "AUX/USB"), (uint)(X32_VCHANNEL_BLOCK::AUX));
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::FX_RET, "FX Return"), (uint)(X32_VCHANNEL_BLOCK::FXRET));
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::BUS1_8, "Bus 1-8"), (uint)(X32_VCHANNEL_BLOCK::BUS));
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::BUS9_16, "Bus 9-16"), ((uint)(X32_VCHANNEL_BLOCK::BUS)) + 8);
+		InitBank_Channelstrip_DCA(new X32FaderBank(X32BankId::DCA, "DCA"), (uint)(X32_VCHANNEL_BLOCK::DCA));
+		InitBank_Channelstrip(new X32FaderBank(X32BankId::MATRIX_MAIN, "Matrix/Main"), (uint)(X32_VCHANNEL_BLOCK::MATRIX));
+		InitBank_DMX(new X32FaderBank(X32BankId::REMOTE1, "Remote1"), 0);
+		InitBank_DMX(new X32FaderBank(X32BankId::REMOTE2, "Remote2"), 8);
+		InitBank_Flex(new X32FaderBank(X32BankId::FLEX1, "Flex1"));
+		InitBank_Flex(new X32FaderBank(X32BankId::FLEX2, "Flex2"));
+		InitBank_Flex(new X32FaderBank(X32BankId::FLEX3, "Flex3"));
 	}
+
+
+
+	
 }
 
-void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
+void X32Ctrl::InitBank_Channelstrip(X32FaderBank* bank, uint offset)
 {
     for (uint i = 0; i < 8; i++)
     {
@@ -2231,7 +2418,7 @@ void X32Ctrl::InitBank_Channelstrip(X32Bank* bank, uint offset)
 	banks[(uint)(bank->GetID())] = bank;
 }
 
-void X32Ctrl::SetChannelstripBinding(X32Bank *bank, uint i, uint chanIndex)
+void X32Ctrl::SetChannelstripBinding(X32FaderBank *bank, uint i, uint chanIndex)
 {
     bank->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, chanIndex);
     bank->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::VUMETER, NONE, chanIndex);
@@ -2241,7 +2428,7 @@ void X32Ctrl::SetChannelstripBinding(X32Bank *bank, uint i, uint chanIndex)
     bank->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, chanIndex);
 }
 
-void X32Ctrl::InitBank_Channelstrip_DCA(X32Bank* bank, uint offset)
+void X32Ctrl::InitBank_Channelstrip_DCA(X32FaderBank* bank, uint offset)
 {
     for (uint i = 0; i < 8; i++)
     {
@@ -2256,7 +2443,7 @@ void X32Ctrl::InitBank_Channelstrip_DCA(X32Bank* bank, uint offset)
 	banks[(uint)(bank->GetID())] = bank;
 }
 
-void X32Ctrl::InitBank_DMX(X32Bank* bank, uint offset)
+void X32Ctrl::InitBank_DMX(X32FaderBank* bank, uint offset)
 {
     for (uint i = 0; i < 8; i++)
     {
@@ -2272,7 +2459,7 @@ void X32Ctrl::InitBank_DMX(X32Bank* bank, uint offset)
 }
 
 // create a empty bank for flexible use
-void X32Ctrl::InitBank_Flex(X32Bank* bank)
+void X32Ctrl::InitBank_Flex(X32FaderBank* bank)
 {
     for (uint i = 0; i < 8; i++)
     {
@@ -2296,7 +2483,7 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 
 	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Load Bank %d to section %d", id, target);
 
-	X32Bank* bank_to_load = banks[(uint)id];
+	X32FaderBank* bank_to_load = banks[(uint)id];
 
 	if (target == X32BankTarget::InputSection)
 	{
@@ -2341,6 +2528,19 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 		}
 
 		bankLoadedBussection = bank_to_load;
+	}
+}
+
+void X32Ctrl::LoadAssignBank(X32AssignBankId bankId)
+{
+
+	X32AssignBank* bank_to_load = config->GetAssignBank(bankId);
+
+	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Load %s", bank_to_load->GetName().c_str());
+
+    for (auto const& [id, binding] : *(bank_to_load->bindingMap))
+    {
+		config->SurfaceBindParameter(id, binding);
 	}
 }
 
@@ -2760,10 +2960,12 @@ void X32Ctrl::SimulatorButton(uint32_t key)
 			config->Refresh(DISPLAY_RIGHT);
 			break;
 		case 113: // Q
-			ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, 1); // Encoder 1 up
+			//ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, 1); // Encoder 1 up
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0D, 1); // Encoder 1 up
 			break;
 		case 119: // W
-			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0A, 1); // Encoder 2 up
+			//ProcessSurface(X32_BOARD_MAIN, 'e', 0x0A, 1); // Encoder 2 up
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0E, 1); // Encoder 2 up
 			break;
 		case 101: // E
 			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0B, 1); // Encoder 3 up

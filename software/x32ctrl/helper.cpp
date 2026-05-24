@@ -318,6 +318,8 @@ String Helper::MixerparameterAction2String(MixerparameterAction action)
 			return "Reset SC";
 		case LCD_Channel:
 			return "LCD Channel";
+		case LCD_Assign:
+			return "LCD Assign";
 		case LCD_Artnet:
 			return "LCD Artnet";
 		case VUMETER:
