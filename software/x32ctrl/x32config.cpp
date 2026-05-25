@@ -255,7 +255,7 @@ void X32Config::DefineMixerparameters() {
     // # Special Parameters
     // #####################
 
-    DefParameter(NONE, MP_CAT::NONE, "");
+    DefParameter(NONE, MP_CAT::NONE, "None");
 
     // ############
     // # Settings
@@ -281,17 +281,32 @@ void X32Config::DefineMixerparameters() {
     ->DefStepsize(64)
     ->DefConfig(group, "led_brightness");
 
-    // TODO: DISPLAY_BRIGHTNESS
+    DefParameter(DISPLAY_BRIGHTNESS, cat, "Display Brightness")
+	->DefMinMaxStandard_Uint(0, 255, 128) // only guessed
+    //->DefStepsize(64)
+    ->DefConfig(group, "display_brightness");
 
     DefParameter(SAMPLERATE, cat, "Samplerate")
     ->DefMinMaxStandard_Uint(44100, 48000, 48000)
     ->DefConfig(group, "samplerate");
 
-    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, "Channelmode")
+   DefParameter(CHANNEL_LCD_MODE, cat, "LCD Mode")
+    ->DefUOM(MP_UOM::CHANNEL_LCD_MODE)
+    ->DefHideEncoderReset()
+    ->DefMinMaxStandard_Uint(0, 1, 0)
+    ->DefConfig(group, "lcd_mode");
+
+    DefParameter(CARD_NUMBER_OF_CHANNELS, cat, "Card Channels")
     ->DefMinMaxStandard_Uint(0, 5, 0)
     ->DefCycleMode(1, 1)
     ->DefUOM(MP_UOM::CARD_NUMBER_OF_CHANNELS)
     ->DefConfig(group, "card_channels");
+
+    DefParameter(CARD_AUDIO_SOURCE, cat, "Card Source")
+    ->DefConfig(group, "card_audio_source")
+    ->DefMinMaxStandard_Uint(0, 1, 0)
+    ->DefStepsize(1)
+    ->DefUOM(MP_UOM::CARD_AUDIO_SOURCE);
 
     DefParameter(CARD_SDCARD, cat, "Card #")
     ->DefConfig(group, "card_source")
@@ -299,18 +314,14 @@ void X32Config::DefineMixerparameters() {
     ->DefStepsize(1)
     ->DefUOM(MP_UOM::CARD_SDCARD);
 
-    DefParameter(CARD_AUDIO_SOURCE, cat, "Card Source") // keep name short to fit onto label (Page Card)
-    ->DefConfig(group, "card_audio_source")
-    ->DefMinMaxStandard_Uint(0, 1, 0)
-    ->DefStepsize(1)
-    ->DefUOM(MP_UOM::CARD_AUDIO_SOURCE);
-
-    DefParameter(CHANNEL_LCD_MODE, cat, "LCD Mode")
-    ->DefUOM(MP_UOM::CHANNEL_LCD_MODE)
-    ->DefHideEncoderReset()
-    ->DefMinMaxStandard_Uint(0, 1, 0)
-    ->DefConfig(group, "lcd_mode");
+    DefParameter(CARD_POSITION, cat, "Card Position")
+    ->DefConfig(group, "card_position")
+    ->DefMinMaxStandard_Uint(0, 24*60*60, 0) // max. 1 day in seconds
+    //->DefStepsize(1)
+    //->DefUOM(MP_UOM::CARD_SDCARD)
+    ;
     
+    DefParameter(CARD_STATE, cat, "Card State");
 
     // ##########
     // # Routing 
@@ -387,11 +398,11 @@ void X32Config::DefineMixerparameters() {
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, 3, 0);
 
-    DefParameter(BANKING_INPUT, cat, "Banking Input Section")
+    DefParameter(BANKING_INPUT, cat, "Banking Input")
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 1);
 
-    DefParameter(BANKING_BUS, cat, "Banking Bus Section")
+    DefParameter(BANKING_BUS, cat, "Banking Bus")
     ->DefHideEncoderReset()
     ->DefMinMaxStandard_Uint(0, (uint)(X32BankId::__ELEMENT_COUNTER_DO_NOT_MOVE), 13);
 
@@ -409,13 +420,13 @@ void X32Config::DefineMixerparameters() {
 
     cat = MP_CAT::DISPLAY;
 
-    DefParameter(DISPLAY_UTILITY, cat, "")->DefStandard_Bool(false);
-    DefParameter(DISPLAY_MUTE_GROUP, cat, "")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_UTILITY, cat, "Display Utility")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_MUTE_GROUP, cat, "Display Mute Group")->DefStandard_Bool(false);
 
-    DefParameter(DISPLAY_LEFT, cat, "")->DefStandard_Bool(false);
-    DefParameter(DISPLAY_RIGHT, cat, "")->DefStandard_Bool(false);
-    DefParameter(DISPLAY_UP, cat, "")->DefStandard_Bool(false);
-    DefParameter(DISPLAY_DOWN, cat, "")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_LEFT, cat, "Display Left")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_RIGHT, cat, "Display Right")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_UP, cat, "Display Up")->DefStandard_Bool(false);
+    DefParameter(DISPLAY_DOWN, cat, "Display Down")->DefStandard_Bool(false);
 
     // ###########
     // # Global
@@ -437,7 +448,7 @@ void X32Config::DefineMixerparameters() {
     // Mute Group "master switches"
     for (uint i = 0; i < MUTE_GROUPS; i++)
     {
-        DefParameter(MpCalcId(MUTE_GROUP_1_MUTE, i), cat, String("Mute Group ") + String(i+1))
+        DefParameter(MpCalcId(MUTE_GROUP_1_MUTE, i), cat, String("Mute Grp ") + String(i+1) + String(" On"))
         ->DefConfig(group, String("mute_group_") + String(i+1) + String("_muted"))
         ->DefStandard_Bool(false)
         ->DefAssignMembersIfTo(DISPLAY_MUTE_GROUP, MpCalcId(MUTE_GROUP_1, i));
@@ -446,7 +457,7 @@ void X32Config::DefineMixerparameters() {
     // DCA Group "master" - for DCA Spill and assigning the DCA Group via select button
     for (uint i = 0; i < DCA_GROUPS; i++)
     {
-        DefParameter(MpCalcId(DCA_GROUP_1_MASTER, i), cat, String("DCA Group ") + String(i+1))
+        DefParameter(MpCalcId(DCA_GROUP_1_MASTER, i), cat, String("DCA Grp ") + String(i+1) + String(" Spill"))
         ->DefConfig(group, String("dca_group_") + String(i+1) + String("_master"))
         ->DefStandard_Bool(false)
         ->DefAssignMembersIfTo(DISPLAY_UTILITY, MpCalcId(DCA_GROUP_1, i))
@@ -460,20 +471,20 @@ void X32Config::DefineMixerparameters() {
 	cat = MP_CAT::CHANNEL;
     group = "channel";
 
-    DefParameter(CHANNEL_NAME_INTERN, cat, "Channelname Intern", MAX_VCHANNELS)
+    DefParameter(CHANNEL_NAME_INTERN, cat, "Ch Name (intern)", MAX_VCHANNELS)
     ->DefStandard_String("CH")
     ->DefReadonly();
     
-    DefParameter(CHANNEL_NAME, cat, "Channelname", MAX_VCHANNELS)
+    DefParameter(CHANNEL_NAME, cat, "Ch Name", MAX_VCHANNELS)
     ->DefStandard_String("Kanal")
     ->DefConfig(group, "name");
 
-    DefParameter(CHANNEL_COLOR, cat, "Channelcolor", MAX_VCHANNELS)
+    DefParameter(CHANNEL_COLOR, cat, "Ch Color", MAX_VCHANNELS)
     ->DefNameShort("Color")
     ->DefMinMaxStandard_Uint((uint)X32_COLOR::BLACK, (uint)X32_COLOR::WHITE, (uint)X32_COLOR::YELLOW)
     ->DefConfig(group, "color");
 
-    DefParameter(CHANNEL_COLOR_INVERTED, cat, "Color Inverted", MAX_VCHANNELS)
+    DefParameter(CHANNEL_COLOR_INVERTED, cat, "Ch Color Inverted", MAX_VCHANNELS)
     ->DefNameShort("ColInv")
     ->DefStandard_Bool(false)
     ->DefConfig(group, "color_inverted");
@@ -516,7 +527,7 @@ void X32Config::DefineMixerparameters() {
     // Mute Group Membership
     for (uint i = 0; i < MUTE_GROUPS; i++)
     {
-        DefParameter(MpCalcId(MUTE_GROUP_1, i), cat, String("Mute Group ") + String(i+1), MAX_VCHANNELS)
+        DefParameter(MpCalcId(MUTE_GROUP_1, i), cat, String("Mute Grp ") + String(i+1) + String(" Assign"), MAX_VCHANNELS)
         ->DefConfig(group, String("mute_group_") + String(i+1))
         ->DefStandard_Bool(false);
     }
@@ -524,7 +535,7 @@ void X32Config::DefineMixerparameters() {
     // DCA Group Membership
     for (uint i = 0; i < DCA_GROUPS; i++)
     {
-        DefParameter(MpCalcId(DCA_GROUP_1, i), cat, String("DCA Group ") + String(i+1), MAX_VCHANNELS)
+        DefParameter(MpCalcId(DCA_GROUP_1, i), cat, String("DCA Grp ") + String(i+1) + String(" Assign"), MAX_VCHANNELS)
         ->DefConfig(group, String("dca_group_") + String(i+1))
         ->DefStandard_Bool(false);
     }
@@ -535,11 +546,11 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(CHANNEL_PANORAMA_MIN, CHANNEL_PANORAMA_MAX, 0.0f)
     ->DefStepsize(2);
 
-    DefParameter(CHANNEL_SEND_LR, cat, "LR", MAX_VCHANNELS)
+    DefParameter(CHANNEL_SEND_LR, cat, "Send LR", MAX_VCHANNELS)
     ->DefConfig(group, "send_lr")
     ->DefStandard_Bool(true);
 
-    DefParameter(CHANNEL_SEND_SUB, cat, "SUB", MAX_VCHANNELS)
+    DefParameter(CHANNEL_SEND_SUB, cat, "Send Sub", MAX_VCHANNELS)
     ->DefConfig(group, "send_sub")
     ->DefStandard_Bool(false);
 
@@ -548,7 +559,7 @@ void X32Config::DefineMixerparameters() {
 
     for (uint i = 0; i < BUS_SENDS; i++)
     {
-        DefParameter(MpCalcId(CHANNEL_BUS_SEND01, i), cat, String("Send ") + (i + 1), MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_BUS_SEND01, i), cat, String("Bus Send ") + (i + 1), MAX_VCHANNELS)
         ->DefUOM(MP_UOM::DB)
         ->DefConfig(group, "bus_send" + String(i))
         ->DefMinMaxStandard_Float(CHANNEL_VOLUME_MIN, CHANNEL_VOLUME_MAX, CHANNEL_VOLUME_MIN, 1);
@@ -556,7 +567,7 @@ void X32Config::DefineMixerparameters() {
     
     for (uint i = 0; i < BUS_SENDS; i++)
     {
-        DefParameter(MpCalcId(CHANNEL_BUS_SEND01_TAPPOINT, i), cat, String("Send ")  + (i + 1) + " Tap", MAX_VCHANNELS)
+        DefParameter(MpCalcId(CHANNEL_BUS_SEND01_TAPPOINT, i), cat, String("Bus Send ")  + (i + 1) + " Tap", MAX_VCHANNELS)
         ->DefUOM(MP_UOM::TAPPOINT)
         ->DefConfig(group, "bus_send_tappoint" + String(i))
         ->DefMinMaxStandard_Uint(0, 4, (uint)DSP_TAP::INPUT);
@@ -718,28 +729,28 @@ void X32Config::DefineMixerparameters() {
     #define FX_REVERB_WET_MAX              1.0f //
 
     // reverb roomsize
-    DefParameter(FX_REVERB_ROOMSIZE, cat, "Roomsize", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_ROOMSIZE, cat, "Rev Room", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::MS)
     ->DefConfig(group, "roomsize")
     ->DefMinMaxStandard_Float(FX_REVERB_ROOMSIZE_MIN, FX_REVERB_ROOMSIZE_MAX, FX_REVERB_ROOMSIZE_DEFAULT, 0);
     // reverb rt60
-    DefParameter(FX_REVERB_RT60, cat, "RT60", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_RT60, cat, "Rev RT60", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::SECONDS)
     ->DefConfig(group, "rt60")
     ->DefMinMaxStandard_Float(FX_REVERB_RT60_MIN, FX_REVERB_RT60_MAX, FX_REVERB_RT60_DEFAULT, 1);
     // reverb lowpass
-    DefParameter(FX_REVERB_LPFREQ, cat, "LowPassFreq", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_LPFREQ, cat, "Rev LPF", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::HZ)
     ->DefConfig(group, "lowpassfreq")
     ->DefStepmode(1) // frequency mode
     ->DefMinMaxStandard_Float(FX_REVERB_LPFREQ_MIN, FX_REVERB_LPFREQ_MAX, FX_REVERB_LPFREQ_DEFAULT, 0);
     // reverb dry
-    DefParameter(FX_REVERB_DRY, cat, "Dry", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_DRY, cat, "Rev Dry", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::PERCENT)
     ->DefConfig(group, "dry")
     ->DefMinMaxStandard_Float(FX_REVERB_DRY_MIN, FX_REVERB_DRY_MAX, FX_REVERB_DRY_DEFAULT);
     // reverb wet
-    DefParameter(FX_REVERB_WET, cat, "Wet", MAX_FX_SLOTS)
+    DefParameter(FX_REVERB_WET, cat, "Rev Wet", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::PERCENT)
     ->DefConfig(group, "wet")
     ->DefMinMaxStandard_Float(FX_REVERB_WET_MIN, FX_REVERB_WET_MAX, FX_REVERB_WET_DEFAULT);
@@ -1852,7 +1863,12 @@ uint X32Config::ParameterCalcIndex(SurfaceBindingParameter* binding_parameter)
 
 MP_ID X32Config::ParameterDependsOn(SurfaceBindingParameter* binding_parameter)
 {
-    switch(binding_parameter->mp_action)
+    return ParameterDependsOn(binding_parameter->mp_action);
+}
+
+MP_ID X32Config::ParameterDependsOn(MixerparameterAction mp_action)
+{
+    switch(mp_action)
     {
         case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
         case MixerparameterAction::SET_SELECTED_CHANNEL:

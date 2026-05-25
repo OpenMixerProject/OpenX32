@@ -99,6 +99,7 @@ class X32Config
         MP_ID ParameterCalcId(SurfaceBindingParameter* binding_parameter);
         uint ParameterCalcIndex(SurfaceBindingParameter* binding_parameter);
         MP_ID ParameterDependsOn(SurfaceBindingParameter* binding_parameter);
+        MP_ID ParameterDependsOn(MixerparameterAction mp_action);
 
         void DefineSurfaceElements();
         SurfaceElement* DefSurfaceElements(SurfaceElementId element_id, String name);

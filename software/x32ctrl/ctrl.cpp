@@ -1653,7 +1653,7 @@ void X32Ctrl::GetAssignLcdText(LcdData *data, SurfaceElementId encoder, SurfaceE
 	Mixerparameter* encoder_parameter = config->GetParameter(encoder_parameter_id);
 	String encoder_prefix;
 
-    if (BelongsToChannel(encoder_parameter))
+    if (encoder_parameter->BelongsToChannel())
     {
 		encoder_prefix = config->GetParameter(CHANNEL_NAME)->GetString(encoder_parameter_index) + String(": ");
 	}
@@ -1668,7 +1668,7 @@ void X32Ctrl::GetAssignLcdText(LcdData *data, SurfaceElementId encoder, SurfaceE
 	Mixerparameter* upper_button__parameter = config->GetParameter(upper_button_parameter_id);
 	String upper_button_prefix;
 
-	if (BelongsToChannel(upper_button__parameter))
+	if (upper_button__parameter->BelongsToChannel())
 	{
 		upper_button_prefix += config->GetParameter(CHANNEL_NAME)->GetString(upper_button_parameter_index) + String(": ");
 	}
@@ -1682,7 +1682,7 @@ void X32Ctrl::GetAssignLcdText(LcdData *data, SurfaceElementId encoder, SurfaceE
 	Mixerparameter* lower_button__parameter = config->GetParameter(lower_button_parameter_id);
 	String lower_button_prefix;
 
-	if (BelongsToChannel(lower_button__parameter))
+	if (lower_button__parameter->BelongsToChannel())
 	{
 		lower_button_prefix += config->GetParameter(CHANNEL_NAME)->GetString(lower_button_parameter_index) + String(": ");
 	}
@@ -1695,17 +1695,7 @@ void X32Ctrl::GetAssignLcdText(LcdData *data, SurfaceElementId encoder, SurfaceE
 	helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "GetAssignLcdText() Row 4: %s", data->texts[3].text.c_str());
 }
 
-bool X32Ctrl::BelongsToChannel(Mixerparameter *parameter)
-{
-	MP_CAT category = parameter->GetCategory();
 
-    return
-		category == MP_CAT::CHANNEL || 
-		category == MP_CAT::CHANNEL_DYNAMICS ||
-		category == MP_CAT::CHANNEL_EQ ||
-		category == MP_CAT::CHANNEL_GATE ||
-		category == MP_CAT::CHANNEL_SENDS;
-}
 
 void X32Ctrl::SetLcdDark(uint8_t p_boardId, uint8_t lcdIndex)
 {

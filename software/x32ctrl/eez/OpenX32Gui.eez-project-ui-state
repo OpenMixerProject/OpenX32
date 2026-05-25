@@ -27,7 +27,7 @@
           {
             "type": "border",
             "selected": 0,
-            "size": 206.5,
+            "size": 320.5,
             "location": "right",
             "children": [
               {
@@ -130,7 +130,7 @@
             {
               "type": "row",
               "id": "#f78277aa-c701-481b-a0bb-9cf1b7e08a56",
-              "weight": 13.934252750591718,
+              "weight": 11.341844405242139,
               "children": [
                 {
                   "type": "tabset",
@@ -202,7 +202,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 24.822413039426177,
+              "weight": 29.52120072335882,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -223,7 +223,7 @@
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 15.392546456493768,
+              "weight": 13.286167117910697,
               "children": [
                 {
                   "type": "tab",
@@ -1062,10 +1062,10 @@
       },
       "transform": {
         "translate": {
-          "x": -403.49737701151923,
-          "y": -170.17611986480165
+          "x": -311.4250619794188,
+          "y": -193.79810721461848
         },
-        "scale": 1
+        "scale": 0.75
       },
       "timeline": {
         "isEditorActive": false,
@@ -1079,10 +1079,14 @@
           "4": {
             "3": {
               "0": {
+                "2": {
+                  "0": {}
+                },
                 "5": {}
               }
             }
-          }
+          },
+          "5": {}
         }
       }
     },
@@ -1096,6 +1100,9 @@
       "6": {},
       "7": {},
       "8": {
+        "$selected": true
+      },
+      "9": {
         "$selected": true
       }
     },
@@ -1307,11 +1314,14 @@
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
   "lvglPart": "MAIN",
-  "lvglState": "DEFAULT",
-  "lvglExpandedPropertiesGroup": [],
+  "lvglState": "DISABLED",
+  "lvglExpandedPropertiesGroup": [
+    "TEXT",
+    "BACKGROUND"
+  ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 1,
+  "flowZoom": 0.75,
   "implementationLanguage": "C",
   "openDialogDefaultPath": "C:\\Cloud\\Dokumente\\OpenX32_Website\\SoftwareImages\\sdcard_all.png"
 }

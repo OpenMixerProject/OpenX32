@@ -1055,6 +1055,21 @@ class Mixerparameter
             return "";
         }
 
+        bool BelongsToChannel()
+        {
+            return
+                category == MP_CAT::CHANNEL || 
+                category == MP_CAT::CHANNEL_DYNAMICS ||
+                category == MP_CAT::CHANNEL_EQ ||
+                category == MP_CAT::CHANNEL_GATE ||
+                category == MP_CAT::CHANNEL_SENDS;
+        }
+
+        bool BelongsToFX()
+        {
+            return category == MP_CAT::FX;
+        }
+
         MixerparameterAction GetPreferredAction()
         {
             MixerparameterAction action;

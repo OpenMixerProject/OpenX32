@@ -11143,9 +11143,9 @@
                                 {
                                   "objID": "ffb2e489-8b56-450e-da83-23f70e4c0fec",
                                   "type": "LVGLLabelWidget",
-                                  "left": 193,
-                                  "top": 17,
-                                  "width": 54,
+                                  "left": 139,
+                                  "top": 16,
+                                  "width": 121,
                                   "height": 16,
                                   "customInputs": [],
                                   "customOutputs": [],
@@ -11177,7 +11177,7 @@
                                   },
                                   "group": "",
                                   "groupIndex": 0,
-                                  "text": "Control",
+                                  "text": "Surface Element",
                                   "textType": "literal",
                                   "longMode": "WRAP",
                                   "recolor": false
@@ -11186,8 +11186,8 @@
                                   "objID": "13dfbe9a-13b2-4b81-aaf6-5295d7c7670c",
                                   "type": "LVGLRollerWidget",
                                   "left": 134,
-                                  "top": 41,
-                                  "width": 177,
+                                  "top": 42,
+                                  "width": 130,
                                   "height": 276,
                                   "customInputs": [],
                                   "customOutputs": [],
@@ -11231,9 +11231,9 @@
                                 {
                                   "objID": "3e4a8c1c-a446-4e47-d141-e90c308fa013",
                                   "type": "LVGLRollerWidget",
-                                  "left": 315,
+                                  "left": 402,
                                   "top": 42,
-                                  "width": 177,
+                                  "width": 264,
                                   "height": 276,
                                   "customInputs": [],
                                   "customOutputs": [],
@@ -11277,9 +11277,9 @@
                                 {
                                   "objID": "6e9fe41d-088a-4c9b-84ec-953613d9997f",
                                   "type": "LVGLLabelWidget",
-                                  "left": 378,
+                                  "left": 275,
                                   "top": 17,
-                                  "width": 47,
+                                  "width": 117,
                                   "height": 16,
                                   "customInputs": [],
                                   "customOutputs": [],
@@ -11311,7 +11311,7 @@
                                   },
                                   "group": "",
                                   "groupIndex": 0,
-                                  "text": "Action",
+                                  "text": "Mixerparameter",
                                   "textType": "literal",
                                   "longMode": "WRAP",
                                   "recolor": false
@@ -11319,9 +11319,9 @@
                                 {
                                   "objID": "a7d7a0ce-24b5-4eee-d46d-42f5ded3831e",
                                   "type": "LVGLRollerWidget",
-                                  "left": 499,
-                                  "top": 41,
-                                  "width": 141,
+                                  "left": 268,
+                                  "top": 42,
+                                  "width": 130,
                                   "height": 276,
                                   "customInputs": [],
                                   "customOutputs": [],
@@ -11365,9 +11365,9 @@
                                 {
                                   "objID": "51d2f511-31ad-4f4a-c8b5-7db5cef23c95",
                                   "type": "LVGLRollerWidget",
-                                  "left": 646,
+                                  "left": 670,
                                   "top": 42,
-                                  "width": 141,
+                                  "width": 130,
                                   "height": 276,
                                   "customInputs": [],
                                   "customOutputs": [],
@@ -11394,6 +11394,7 @@
                                   "scrollSnapX": "",
                                   "scrollSnapY": "",
                                   "checkedStateType": "literal",
+                                  "disabledState": false,
                                   "disabledStateType": "literal",
                                   "states": "",
                                   "useStyle": "roller_standard",
@@ -11411,7 +11412,7 @@
                                 {
                                   "objID": "36b32842-5a80-4284-ce9d-a084b4d08b70",
                                   "type": "LVGLLabelWidget",
-                                  "left": 619,
+                                  "left": 710,
                                   "top": 17,
                                   "width": 47,
                                   "height": 16,
@@ -14338,6 +14339,15 @@
                 "pad_column": 1,
                 "radius": 0,
                 "text_line_space": 10
+              },
+              "DISABLED": {
+                "bg_opa": 0,
+                "text_opa": 0
+              }
+            },
+            "SELECTED": {
+              "DISABLED": {
+                "bg_opa": 0
               }
             }
           }

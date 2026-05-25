@@ -303,13 +303,13 @@ String Helper::MixerparameterAction2String(MixerparameterAction action)
 		case CHANGE:
 			return "Change";
 		case CHANGE_SELECTED_CHANNEL:
-			return "Change SC";
+			return "Change Selected Channel";
 		case CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
 			return "Change SC Indirect"; 
 		case TOGGLE:
 			return "Toggle";
 		case TOGGLE_SELECTED_CHANNEL:
-			return "Toggle SC";
+			return "Toggle Selected Channel";
 		case PUSH:
 			return "Push";
 		case RESET:

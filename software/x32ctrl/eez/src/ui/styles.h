@@ -77,6 +77,8 @@ void remove_style_table_standard(lv_obj_t *obj);
 
 // Style: roller_standard
 lv_style_t *get_style_roller_standard_MAIN_DEFAULT();
+lv_style_t *get_style_roller_standard_MAIN_DISABLED();
+lv_style_t *get_style_roller_standard_SELECTED_DISABLED();
 void add_style_roller_standard(lv_obj_t *obj);
 void remove_style_roller_standard(lv_obj_t *obj);
 

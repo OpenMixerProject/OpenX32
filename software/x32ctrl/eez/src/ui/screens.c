@@ -2520,16 +2520,16 @@ void create_screen_main() {
                                                 }
                                                 {
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
-                                                    lv_obj_set_pos(obj, 193, 17);
+                                                    lv_obj_set_pos(obj, 139, 16);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                                    lv_label_set_text_static(obj, "Control");
+                                                    lv_label_set_text_static(obj, "Surface Element");
                                                 }
                                                 {
                                                     // setup_surface_roller_control
                                                     lv_obj_t *obj = lv_roller_create(parent_obj);
                                                     objects.setup_surface_roller_control = obj;
-                                                    lv_obj_set_pos(obj, 134, 41);
-                                                    lv_obj_set_size(obj, 177, 276);
+                                                    lv_obj_set_pos(obj, 134, 42);
+                                                    lv_obj_set_size(obj, 130, 276);
                                                     lv_roller_set_options(obj, "ASSIGN Encoder 1\nASSIGN Encoder 2\nASSIGN Encoder 3\nASSIGN Encoder 4\nASSIGN Button 1\nASSIGN Button 2\nASSIGN Button 3\nASSIGN Button 4\nASSIGN Button 5\nASSIGN Button 6\nASSIGN Button 7\nASSIGN Button 8", LV_ROLLER_MODE_NORMAL);
                                                     lv_roller_set_selected(obj, 3, LV_ANIM_OFF);
                                                     add_style_roller_standard(obj);
@@ -2538,24 +2538,24 @@ void create_screen_main() {
                                                     // setup_surface_roller_action
                                                     lv_obj_t *obj = lv_roller_create(parent_obj);
                                                     objects.setup_surface_roller_action = obj;
-                                                    lv_obj_set_pos(obj, 315, 42);
-                                                    lv_obj_set_size(obj, 177, 276);
+                                                    lv_obj_set_pos(obj, 402, 42);
+                                                    lv_obj_set_size(obj, 264, 276);
                                                     lv_roller_set_options(obj, "Set\nSet to Index\nChange\nToggle\nReset\nRefresh\nClear Solo", LV_ROLLER_MODE_NORMAL);
                                                     lv_roller_set_selected(obj, 2, LV_ANIM_OFF);
                                                     add_style_roller_standard(obj);
                                                 }
                                                 {
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
-                                                    lv_obj_set_pos(obj, 378, 17);
+                                                    lv_obj_set_pos(obj, 275, 17);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                                                    lv_label_set_text_static(obj, "Action");
+                                                    lv_label_set_text_static(obj, "Mixerparameter");
                                                 }
                                                 {
                                                     // setup_surface_roller_target_group
                                                     lv_obj_t *obj = lv_roller_create(parent_obj);
                                                     objects.setup_surface_roller_target_group = obj;
-                                                    lv_obj_set_pos(obj, 499, 41);
-                                                    lv_obj_set_size(obj, 141, 276);
+                                                    lv_obj_set_pos(obj, 268, 42);
+                                                    lv_obj_set_size(obj, 130, 276);
                                                     lv_roller_set_options(obj, "Channel\nDMX", LV_ROLLER_MODE_NORMAL);
                                                     add_style_roller_standard(obj);
                                                 }
@@ -2563,15 +2563,15 @@ void create_screen_main() {
                                                     // setup_surface_roller_target_item
                                                     lv_obj_t *obj = lv_roller_create(parent_obj);
                                                     objects.setup_surface_roller_target_item = obj;
-                                                    lv_obj_set_pos(obj, 646, 42);
-                                                    lv_obj_set_size(obj, 141, 276);
+                                                    lv_obj_set_pos(obj, 670, 42);
+                                                    lv_obj_set_size(obj, 130, 276);
                                                     lv_roller_set_options(obj, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n", LV_ROLLER_MODE_NORMAL);
                                                     lv_roller_set_selected(obj, 2, LV_ANIM_OFF);
                                                     add_style_roller_standard(obj);
                                                 }
                                                 {
                                                     lv_obj_t *obj = lv_label_create(parent_obj);
-                                                    lv_obj_set_pos(obj, 619, 17);
+                                                    lv_obj_set_pos(obj, 710, 17);
                                                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                                     lv_label_set_text_static(obj, "Target");
                                                 }
