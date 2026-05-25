@@ -47,7 +47,7 @@ void X32Ctrl::Init()
 
 	if (state->bodyless) {
 		config->SetModel("X32C");
-		config->SetModel("X32");
+		//config->SetModel("X32");
 	} else if (state->raspi) {
 		config->SetModel("X32RACK");
 	} else {
@@ -2533,7 +2533,6 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 
 void X32Ctrl::LoadAssignBank(X32AssignBankId bankId)
 {
-
 	X32AssignBank* bank_to_load = config->GetAssignBank(bankId);
 
 	helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Load %s", bank_to_load->GetName().c_str());
@@ -2960,12 +2959,12 @@ void X32Ctrl::SimulatorButton(uint32_t key)
 			config->Refresh(DISPLAY_RIGHT);
 			break;
 		case 113: // Q
-			//ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, 1); // Encoder 1 up
-			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0D, 1); // Encoder 1 up
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x09, 1); // Encoder 1 up
+			//ProcessSurface(X32_BOARD_MAIN, 'e', 0x0D, 1); // Encoder 1 up
 			break;
 		case 119: // W
-			//ProcessSurface(X32_BOARD_MAIN, 'e', 0x0A, 1); // Encoder 2 up
-			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0E, 1); // Encoder 2 up
+			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0A, 1); // Encoder 2 up
+			//ProcessSurface(X32_BOARD_MAIN, 'e', 0x0E, 1); // Encoder 2 up
 			break;
 		case 101: // E
 			ProcessSurface(X32_BOARD_MAIN, 'e', 0x0B, 1); // Encoder 3 up

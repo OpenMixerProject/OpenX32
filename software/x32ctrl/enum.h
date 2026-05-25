@@ -1275,6 +1275,8 @@ enum class MixerparameterAction
     DMX, // artnet / USB DMX
 
     CLEAR_SOLO,
+
+    __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 
 // Banks has always 8 "Channels"

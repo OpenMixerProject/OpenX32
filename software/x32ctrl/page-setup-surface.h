@@ -21,19 +21,31 @@ class PageSetupSurface: public Page
         vector<MixerparameterAction> actions;
         vector<MP_ID> mixerparameters;
 
-        void Update()
-        {
-            X32AssignBank* bank = config->GetAssignBank((X32AssignBankId)config->GetUint(BANKING_ASSIGN));
+        X32AssignBank* bank;
+        SurfaceBindingParameter* binding_parameter;
 
+        void UpdateAll()
+        {
+            UpdateBank();
+        }
+
+        void UpdateBank()
+        {
+            bank = config->GetAssignBank((X32AssignBankId)config->GetUint(BANKING_ASSIGN));
             lv_roller_set_selected(roller_bank, (uint)bank->GetID(), LV_ANIM_OFF);
+
+            selected_control = 0;
+            UpdateControl();
+        }
+
+        void UpdateControl()
+        {
             lv_roller_set_selected(roller_control, selected_control, LV_ANIM_OFF);
 
-            // von bank holen
-            SurfaceBindingParameter* binding_parameter =  config->GetSurfaceBinding(controls.at(selected_control));
+            binding_parameter = bank->bindingMap->at(controls.at(selected_control));
+
             if (binding_parameter)
             {
-                // Action
-
                 uint action_index = 0;
                 for (;action_index < actions.size(); action_index++)
                 {
@@ -43,8 +55,7 @@ class PageSetupSurface: public Page
                     }
                 }
                 selected_action = action_index;
-                
-                // Mixerparameter
+                UpdateAction();
 
                 uint parameter_idx = 0;
                 for (;parameter_idx < mixerparameters.size(); parameter_idx++)
@@ -55,28 +66,46 @@ class PageSetupSurface: public Page
                     }
                 }
                 selected_mixerparameter = parameter_idx;
+                UpdateMixerparameter();
 
-                // Mixerparameter Index
-
-                String roller_target_items;
-                for(uint i = 0; i < config->GetParameter(binding_parameter->mp_id)->GetInstances(); i++)
-                {
-                    roller_target_items += String(i+1) + String("\n");
-                }
-                lv_roller_set_options(roller_target_item, roller_target_items.c_str(), LV_ROLLER_MODE_NORMAL);
+                
 
                 selected_mixerparameter_index = binding_parameter->mp_index;
-                
+
+                UpdateMixerparameterIndex();
             }
             else
             {
                 selected_action = 0; // None
                 selected_mixerparameter = 0; // None
                 selected_mixerparameter_index = 0; // None
-            }
 
+                UpdateAction();
+                UpdateMixerparameter();
+                UpdateMixerparameterIndex();
+            }
+        }
+
+        void UpdateAction()
+        {       
             lv_roller_set_selected(roller_action, selected_action, LV_ANIM_OFF);
+        }
+
+        void UpdateMixerparameter()
+        {
             lv_roller_set_selected(roller_target_group, selected_mixerparameter, LV_ANIM_OFF);
+            UpdateMixerparameterIndex();
+        }
+
+        void UpdateMixerparameterIndex()
+        {
+            String roller_target_items;
+            for(uint i = 0; i < config->GetParameter(mixerparameters.at(selected_mixerparameter))->GetInstances(); i++)
+            {
+                roller_target_items += String(i+1) + String("\n");
+            }
+            lv_roller_set_options(roller_target_item, roller_target_items.c_str(), LV_ROLLER_MODE_NORMAL);
+
             lv_roller_set_selected(roller_target_item, selected_mixerparameter_index, LV_ANIM_OFF);
         }
 
@@ -96,46 +125,26 @@ class PageSetupSurface: public Page
         {
             // Surface Elements
 
-            if (config->IsModelX32Full())
-            {
-                controls.push_back(SurfaceElementId::ASSIGN_ENCODER_1);
-                controls.push_back(SurfaceElementId::ASSIGN_ENCODER_2);
-                controls.push_back(SurfaceElementId::ASSIGN_ENCODER_3);
-                controls.push_back(SurfaceElementId::ASSIGN_ENCODER_4);
-                controls.push_back(SurfaceElementId::ASSIGN_LCD_1);
-                controls.push_back(SurfaceElementId::ASSIGN_LCD_2);
-                controls.push_back(SurfaceElementId::ASSIGN_LCD_3);
-                controls.push_back(SurfaceElementId::ASSIGN_LCD_4);
-                controls.push_back(SurfaceElementId::ASSIGN_5);
-                controls.push_back(SurfaceElementId::ASSIGN_6);
-                controls.push_back(SurfaceElementId::ASSIGN_7);
-                controls.push_back(SurfaceElementId::ASSIGN_8);
-                controls.push_back(SurfaceElementId::ASSIGN_9);
-                controls.push_back(SurfaceElementId::ASSIGN_10);
-                controls.push_back(SurfaceElementId::ASSIGN_11);
-                controls.push_back(SurfaceElementId::ASSIGN_12);
-            }
-            else if (config->IsModelX32Compact())
-            {
-                controls.push_back(SurfaceElementId::ASSIGN_1);
-                controls.push_back(SurfaceElementId::ASSIGN_2);
-                controls.push_back(SurfaceElementId::ASSIGN_3);
-                controls.push_back(SurfaceElementId::ASSIGN_4);
-                controls.push_back(SurfaceElementId::ASSIGN_5);
-                controls.push_back(SurfaceElementId::ASSIGN_6);
-                controls.push_back(SurfaceElementId::ASSIGN_7);
-                controls.push_back(SurfaceElementId::ASSIGN_8);
-            }
-
-            // if (config->IsModelX32FullOrCompactOrProducer())
-            // {
-            //     controls.push_back(SurfaceElementId::MUTE_GROUP_1);
-            //     controls.push_back(SurfaceElementId::MUTE_GROUP_2);
-            //     controls.push_back(SurfaceElementId::MUTE_GROUP_3);
-            //     controls.push_back(SurfaceElementId::MUTE_GROUP_4);
-            //     controls.push_back(SurfaceElementId::MUTE_GROUP_5);
-            //     controls.push_back(SurfaceElementId::MUTE_GROUP_6);
-            // }
+            controls.push_back(SurfaceElementId::ASSIGN_ENCODER_1);
+            controls.push_back(SurfaceElementId::ASSIGN_ENCODER_2);
+            controls.push_back(SurfaceElementId::ASSIGN_ENCODER_3);
+            controls.push_back(SurfaceElementId::ASSIGN_ENCODER_4);
+            controls.push_back(SurfaceElementId::ASSIGN_LCD_1);
+            controls.push_back(SurfaceElementId::ASSIGN_LCD_2);
+            controls.push_back(SurfaceElementId::ASSIGN_LCD_3);
+            controls.push_back(SurfaceElementId::ASSIGN_LCD_4);
+            controls.push_back(SurfaceElementId::ASSIGN_1);
+            controls.push_back(SurfaceElementId::ASSIGN_2);
+            controls.push_back(SurfaceElementId::ASSIGN_3);
+            controls.push_back(SurfaceElementId::ASSIGN_4);
+            controls.push_back(SurfaceElementId::ASSIGN_5);
+            controls.push_back(SurfaceElementId::ASSIGN_6);
+            controls.push_back(SurfaceElementId::ASSIGN_7);
+            controls.push_back(SurfaceElementId::ASSIGN_8);
+            controls.push_back(SurfaceElementId::ASSIGN_9);
+            controls.push_back(SurfaceElementId::ASSIGN_10);
+            controls.push_back(SurfaceElementId::ASSIGN_11);
+            controls.push_back(SurfaceElementId::ASSIGN_12);
 
             String roller_options;
             for(uint i = 0; i < controls.size(); i++)
@@ -148,11 +157,10 @@ class PageSetupSurface: public Page
 
             // Mixerparameter Actions
 
-            actions.push_back(MixerparameterAction::NONE);
-            actions.push_back(MixerparameterAction::CHANGE);
-            actions.push_back(MixerparameterAction::TOGGLE);
-            actions.push_back(MixerparameterAction::LCD_Channel);
-            actions.push_back(MixerparameterAction::LCD_Artnet);
+            for (uint i = 0; i < (uint)MixerparameterAction::__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+            {
+                actions.push_back((MixerparameterAction)(0 + i));
+            }
 
             String roller_actions;
             for(uint i = 0; i < actions.size(); i++)
@@ -164,18 +172,23 @@ class PageSetupSurface: public Page
 
             // Mixerparameter
 
-            mixerparameters.push_back(NONE);
-            mixerparameters.push_back(CHANNEL_VOLUME);
-            mixerparameters.push_back(CHANNEL_MUTE);
-            mixerparameters.push_back(CHANNEL_SOLO);
-            // mixerparameters.push_back(MUTE_GROUP_1_MUTE);
-            // mixerparameters.push_back(MUTE_GROUP_2_MUTE);
-            // mixerparameters.push_back(MUTE_GROUP_3_MUTE);
-            // mixerparameters.push_back(MUTE_GROUP_4_MUTE);
-            // mixerparameters.push_back(MUTE_GROUP_5_MUTE);
-            // mixerparameters.push_back(MUTE_GROUP_6_MUTE);
-            mixerparameters.push_back(DMX_ARTNET_VALUE);
-            mixerparameters.push_back(DMX_ARTNET_ENABLE);
+            // mixerparameters.push_back(NONE);
+            // mixerparameters.push_back(CHANNEL_VOLUME);
+            // mixerparameters.push_back(CHANNEL_MUTE);
+            // mixerparameters.push_back(CHANNEL_SOLO);
+            // // mixerparameters.push_back(MUTE_GROUP_1_MUTE);
+            // // mixerparameters.push_back(MUTE_GROUP_2_MUTE);
+            // // mixerparameters.push_back(MUTE_GROUP_3_MUTE);
+            // // mixerparameters.push_back(MUTE_GROUP_4_MUTE);
+            // // mixerparameters.push_back(MUTE_GROUP_5_MUTE);
+            // // mixerparameters.push_back(MUTE_GROUP_6_MUTE);
+            // mixerparameters.push_back(DMX_ARTNET_VALUE);
+            // mixerparameters.push_back(DMX_ARTNET_ENABLE);
+
+            for (uint i = 0; i < (uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
+            {
+                mixerparameters.push_back((MP_ID)(0 + i));
+            }
 
             String roller_target_groups;
             for(uint i = 0; i < mixerparameters.size(); i++)
@@ -193,15 +206,17 @@ class PageSetupSurface: public Page
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_2, "Select");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_3, "Select");
             config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_5, "Select");
-            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_6, "Select");
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_6, String("Select\n\n") + LV_SYMBOL_SAVE + String(" Apply"));
+            config->SurfaceBindCustom(SurfaceElementId::DISPLAY_ENCODER_BUTTON_6);
+
+            UpdateAll();
         }
 
         void OnChange(bool force_update) override
         {
             if (config->HasParameterChanged(BANKING_ASSIGN))
             {
-                selected_control = 0;
-                Update();
+                UpdateBank();
             }
         }
 
@@ -211,35 +226,15 @@ class PageSetupSurface: public Page
             {
                 case SurfaceElementId::DISPLAY_ENCODER_2:
 					selected_control = helper->CheckBoundaries(selected_control, amount, 0, controls.size()-1);
-                    Update();
+                    UpdateControl();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_3:
-                    {
-                        selected_action = helper->CheckBoundaries(selected_action, amount, 0, actions.size()-1);
-
-                        SurfaceBindingParameter* binding_parameter = config->GetSurfaceBinding(controls.at(selected_control));
-                        if (binding_parameter)
-                        {
-                            binding_parameter->mp_action = actions[selected_action];
-                        }
-
-                        config->SurfaceBindParameter(controls.at(selected_control), binding_parameter);
-                        Update();
-                    }
+                    selected_action = helper->CheckBoundaries(selected_action, amount, 0, actions.size()-1);
+                    UpdateAction();
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_5:
-                    {
-                        selected_mixerparameter = helper->CheckBoundaries(selected_mixerparameter, amount, 0, mixerparameters.size()-1);
-
-                        SurfaceBindingParameter* binding_parameter = config->GetSurfaceBinding(controls.at(selected_control));
-                        if (binding_parameter)
-                        {
-                            binding_parameter->mp_id = mixerparameters.at(selected_mixerparameter);
-                        }
-
-                        config->SurfaceBindParameter(controls.at(selected_control), binding_parameter);
-                        Update();    
-                    }
+                    selected_mixerparameter = helper->CheckBoundaries(selected_mixerparameter, amount, 0, mixerparameters.size()-1);
+                    UpdateMixerparameter();    
                     break;
                 case SurfaceElementId::DISPLAY_ENCODER_6:
                     {
@@ -253,14 +248,29 @@ class PageSetupSurface: public Page
                             selected_mixerparameter_index = 0;
                         }
 
-                        SurfaceBindingParameter* binding_parameter = config->GetSurfaceBinding(controls.at(selected_control));
-                        if (binding_parameter)
-                        {
-                            binding_parameter->mp_index = selected_mixerparameter_index;
-                        }
+                        UpdateMixerparameterIndex();    
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
 
-                        config->SurfaceBindParameter(controls.at(selected_control), binding_parameter);
-                        Update();    
+        void OnChangeCustomButton(SurfaceElementId surface_element_id) override
+        {
+            switch (surface_element_id)
+            {
+                case SurfaceElementId::DISPLAY_ENCODER_BUTTON_6:
+                    {
+                        // Update Binding
+                        SurfaceBindingParameter* par = bank->bindingMap->at(controls.at(selected_control));
+                        par->FillBindingParameter(actions[selected_action], mixerparameters[selected_mixerparameter], selected_mixerparameter_index);
+
+                        // Reload Bank
+                        if (config->GetUint(BANKING_ASSIGN) == (uint)(bank->GetID()))
+                        {
+                            config->Refresh(BANKING_ASSIGN);
+                        }
                     }
                     break;
                 default:

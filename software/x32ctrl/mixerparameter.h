@@ -60,6 +60,8 @@ class Mixerparameter
 
         bool readonly = false;
 
+        MixerparameterAction defaultAction = MixerparameterAction::NONE;
+
         /// @brief assign members via select if this Mixerparameter is true
         MP_ID assign_members_if = MP_ID::NONE;
         /// @brief assign members via select to this Mixerparameter
@@ -1051,6 +1053,28 @@ class Mixerparameter
             }
             
             return "";
+        }
+
+        MixerparameterAction GetPreferredAction()
+        {
+            MixerparameterAction action;
+
+            switch (value_type)
+            {
+                case MP_VALUE_TYPE::BOOL:
+                    action = MixerparameterAction::TOGGLE;
+                    break;
+                case MP_VALUE_TYPE::FLOAT:
+                case MP_VALUE_TYPE::UINT:
+                case MP_VALUE_TYPE::INT:
+                    action = MixerparameterAction::CHANGE;
+                    break;
+                case MP_VALUE_TYPE::STRING:
+                    action = MixerparameterAction::NONE;
+                    break;
+            }
+
+            return action;
         }
 
         /// @brief Get wether this Mixerparameter must not be in configfile.

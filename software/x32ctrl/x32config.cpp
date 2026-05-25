@@ -1798,6 +1798,7 @@ void X32Config::Toggle(MP_ID mp, uint index)
     SetParameterChanged(mp, index);
 }
 
+// sets the Mixerparameter to changed, so that it is reloaded
 void X32Config::Refresh(MP_ID mp, uint index)
 {
     SetParameterChanged(mp, index);
