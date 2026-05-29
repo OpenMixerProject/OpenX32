@@ -312,6 +312,7 @@ void Mixer::Sync(void)
         for (uint chanIndex = 0; chanIndex < MAX_VCHANNELS; chanIndex++)
         {
             // loop through all mute groups
+            bool channelIsAMuteGroupMember = false;
             bool muteChannel = false;
             for (uint i = 0; i < MUTE_GROUPS; i++)
             {
@@ -324,10 +325,19 @@ void Mixer::Sync(void)
                     // add to the desired channel mute state according to mute group switch
                     // -> if at least one group is muted, mute the channel
                     muteChannel |= config->GetBool(muteGroupSwitchId);
+                    channelIsAMuteGroupMember = true;
                 }
             }
 
-            config->Set(CHANNEL_MUTE, muteChannel, chanIndex);
+            // only change mute is channel is a member
+            if (channelIsAMuteGroupMember)
+            {
+                // and only change, if the mute group state is different than the channel state
+                if (muteChannel != config->GetBool(CHANNEL_MUTE, chanIndex))
+                {
+                    config->Set(CHANNEL_MUTE, muteChannel, chanIndex);
+                }
+            }
         }
     }
 
