@@ -202,3 +202,4 @@ see also: [Article in our Discourse](https://discourse.openmixerproject.de/t/mid
 * Framebuffer-VNC (https://github.com/ponty/framebuffer-vncserver)
 * LibVNC (https://github.com/LibVNC/libvncserver)
 * pyATK in Version 0.1.0 (https://github.com/hbock/pyatk)
+* Glaze library from commit 0c2893a (https://github.com/stephenberry/glaze)
