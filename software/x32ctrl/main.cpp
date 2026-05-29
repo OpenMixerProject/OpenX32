@@ -230,9 +230,6 @@ int main(int argc, char* argv[]) {
 	argv = app->ensure_utf8(argv);
 
 	// Command line options
-	app->set_config("--config", X32_CTRL_CONFIGFILE)
-		->configurable(false)
-		->description("Load and Store configuration from/to alternate file");;
 	app->add_flag("--version", "Get the version number, builddate and a nice logo")
 		->configurable(false);
 	app->add_flag("-p,--print", "Print configuration and exit")

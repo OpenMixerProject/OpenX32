@@ -28,6 +28,7 @@
 #define DEBUGLEVEL_TRACE 2 // Very verbose down to the last bit
 
 using namespace std;
+using namespace WString;
 
 class Helper {
     private:

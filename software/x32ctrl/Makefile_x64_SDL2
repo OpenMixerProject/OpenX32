@@ -10,6 +10,7 @@
 LVGL_DIR_NAME   ?= lvgl
 LVGL_DIR        ?= ./lv_port_linux
 LVGL_PATH       = demosAreDisabledByThisHack
+GLAZE_PATH		= ./lib
 
 WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-error=strict-prototypes -Wpointer-arith \
                    -fno-strict-aliasing -Wno-error=cpp -Wuninitialized -Wmaybe-uninitialized -Wno-unused-parameter -Wno-missing-field-initializers -Wtype-limits \
@@ -20,12 +21,12 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP -D=BODYLESS_SDL2
 
 # normal build
-#CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
-#CXXFLAGS          ?= -std=c++23 -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CFLAGS          ?= -O3 -g0 -I$(LVGL_DIR)/ -I $(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS)
+#CXXFLAGS          ?= -std=c++23 -O3 -g0 -I$(LVGL_DIR)/ -I$(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
-CFLAGS          ?= -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS) 
-CXXFLAGS        ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CFLAGS          ?= -g -I$(LVGL_DIR)/ -I$(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS) 
+CXXFLAGS        ?= -std=c++23 -g -I$(LVGL_DIR)/ -I$(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS)
 
 LDFLAGS         ?= -lSDL2 -lm -lrt -lpthread #-lartnet
 

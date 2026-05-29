@@ -11,6 +11,7 @@ LD              = arm-linux-gnueabi-ld
 LVGL_DIR_NAME   ?= lvgl
 LVGL_DIR        ?= ./lv_port_linux
 LVGL_PATH       = demosAreDisabledByThisHack
+GLAZE_PATH		= ./lib
 
 WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-error=strict-prototypes -Wpointer-arith \
                    -fno-strict-aliasing -Wno-error=cpp -Wuninitialized -Wmaybe-uninitialized -Wno-unused-parameter -Wno-missing-field-initializers -Wtype-limits \
@@ -21,12 +22,12 @@ WARNINGS        := -Wall -Wshadow -Wundef -Wextra -Wno-unused-function -Wno-erro
 DEPFLAGS        = -MMD -MP
 
 # normal build
-CFLAGS          ?= -std=c11 -flto=auto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
-CXXFLAGS        ?= -std=c++23 -flto=auto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+CFLAGS          ?= -std=c11 -flto=auto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ -I$(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS)
+CXXFLAGS        ?= -std=c++23 -flto=auto $(COPTS) -g0 -D_GNU_SOURCE -I$(LVGL_DIR)/ -I$(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS)
 
 # debug build
-#CFLAGS          ?= -std=c11 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
-#CXXFLAGS         ?= -std=c++23 -g -I$(LVGL_DIR)/ $(WARNINGS) $(DEPFLAGS)
+#CFLAGS          ?= -std=c11 -g -I$(LVGL_DIR)/ -I$(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS)
+#CXXFLAGS         ?= -std=c++23 -g -I$(LVGL_DIR)/ -I$(GLAZE_PATH)/ $(WARNINGS) $(DEPFLAGS)
 
 LDFLAGS         ?= -flto=auto -lm -lrt -lpthread -lartnet
 

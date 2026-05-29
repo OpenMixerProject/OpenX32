@@ -3,16 +3,20 @@
 #include <stdint.h>
 #include <vector>
 #include "WString.h"
+#include "glaze/glaze.hpp"
 #include "math.h"
 
 #include "defines.h"
 #include "enum.h"
 
 using namespace std;
+using namespace WString;
 
 /// @brief Mixerparameter contains data and many metadata about a mixer parameter. Def*-functions define, Get*-functions retrieve data, Set*/Change*/Toggle*-functions manipulate data.
 class Mixerparameter
 {
+    friend struct glz::meta<Mixerparameter>;
+
     private:
 
         MP_ID parameter_id;
@@ -22,8 +26,7 @@ class Mixerparameter
         String _name;           // complete long name
         String _name_short;     // short name for thight spaces
 
-        String _config_section;   // logical group the parameter belongs to, e.g. "input" or "bus" for channels, "reverb" or "transientshaper" for fx
-        String _config_entry;   // the entry in that group
+        bool _no_config = false;  // include Mixerparameter NOT in saved config
 
         MP_UOM unitOfMeasurement = MP_UOM::NONE;
 
@@ -623,22 +626,10 @@ class Mixerparameter
             return this;
         }
 
-        /// @brief This Mixerparameter is included in the configfile.
-        Mixerparameter* DefConfig(String section, String entry)
+        /// @brief This Mixerparameter in NOT included in the configfile.
+        Mixerparameter* DefNoConfig()
         {
-            _config_section = section;
-            _config_section.replace(" ", "_");
-            _config_section.replace("/", "_");
-            _config_section.replace("\\", "_");
-            _config_section.replace(".", "_");
-            _config_section.toLowerCase();
-
-            _config_entry = entry;
-            _config_entry.replace(" ", "_");
-            _config_entry.replace("/", "_");
-            _config_entry.replace("\\", "_");
-            _config_entry.replace(".", "_");
-            _config_entry.toLowerCase();
+            _no_config = true;
 
             return this;
         }
@@ -983,15 +974,6 @@ class Mixerparameter
             return instances;
         }
 
-        String GetConfigGroup()
-        { 
-            return _config_section;
-        }
-
-        String GetConfigEntry()
-        {            
-            return _config_entry;
-        }
 
         void SetName(String name)
         {
@@ -1096,11 +1078,69 @@ class Mixerparameter
         /// @return True if this Mixerparameter must not be in configfile. 
         bool IsNoConfig()
         {            
-            return _config_section == "" || _config_entry == "";
+            return _no_config;
         }
 
         bool IsReadonly()
         {
             return readonly;
         }
+
+        vector<float> Config_GetValue()
+        {
+            return value;
+        }
+
+        vector<String> Config_GetValueString()
+        {
+            return value_string;
+        }
+
+        void Config_SetValue(vector<float> newvalues)
+        {
+            value.clear();
+            copy(newvalues.begin(), newvalues.end(), back_inserter(value));
+        }
+
+        void Config_SetValueString(vector<String> newvalues_string)
+        {
+            value_string.clear();
+            copy(newvalues_string.begin(), newvalues_string.end(), back_inserter(value_string));
+        }
 };
+
+
+template <>
+    struct glz::meta<Mixerparameter> {
+        using T = Mixerparameter;
+        static constexpr auto value = glz::object(
+            &T::parameter_id,
+            &T::value //,            &T::value_string
+        );
+    };
+
+namespace glz
+{
+   template <>
+   struct from<JSON, String>
+   {
+      template <auto Opts>
+      static void op(String& value, is_context auto&& ctx, auto&& it, auto&& end)
+      {
+        std::string str;
+        parse<JSON>::op<Opts>(str, ctx, it, end);
+
+        value = str.c_str();
+      }
+   };
+
+   template <>
+   struct to<JSON, String>
+   {
+      template <auto Opts>
+      static void op(String& value, is_context auto&& ctx, auto&& b, auto&& ix) noexcept
+      {
+        serialize<JSON>::op<Opts>(value.c_str(), ctx, b, ix);
+      }
+   };
+}

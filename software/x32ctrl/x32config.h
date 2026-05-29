@@ -6,6 +6,7 @@
 
 #include "types.h"
 #include "WString.h"
+#include "glaze/glaze.hpp"
 
 #include "helper.h"
 
@@ -14,8 +15,6 @@
 #include "x32faderbank.h"
 #include "x32assignbank.h"
 
-// ini parser
-#include "inicpp.h"
 
 class X32Config
 {
@@ -24,8 +23,6 @@ class X32Config
     private:
 
         Helper* helper;
-
-        ini::IniFile mixer_ini;
 
         // Mixerparameter
 
@@ -55,8 +52,6 @@ class X32Config
 
         bool LoadConfig(uint scene);
         void Save(uint scene);
-        void WriteFile(uint scene);
-        void SaveToConfig(MP_ID MixerparameterId);
 
         void DefineMixerparameters();
         Mixerparameter* DefParameter(MP_ID mp_type, MP_CAT category, String name, uint count = 1);
@@ -139,3 +134,19 @@ class X32Config
         void InitAssignBanks();
         X32AssignBank* GetAssignBank(X32AssignBankId id);
 };
+
+class X32ConfigFileEntry
+{
+    public:
+        MP_ID MixerparameterId;
+        String MixerparameterName;
+        vector<float> value;
+        vector<String> string_value;
+};
+
+class X32ConfigFile
+{
+    public:
+        vector<X32ConfigFileEntry> entries;
+};
+

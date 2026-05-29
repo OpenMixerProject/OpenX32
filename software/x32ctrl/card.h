@@ -12,6 +12,8 @@
 #define CARD_TYPE_XMADI 4
 #define CARD_TYPE_UNKNOWN 255
 
+using namespace WString;
+
 class Card : X32Base
 {
     using enum MP_ID;
