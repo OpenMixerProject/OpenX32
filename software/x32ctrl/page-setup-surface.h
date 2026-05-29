@@ -11,6 +11,7 @@ class PageSetupSurface: public Page
         uint selected_action = 0;
         uint selected_mixerparameter = 0;
         uint selected_mixerparameter_index = 0;
+        uint selected_mixerparameter_index_upper_bound = 0;
 
         lv_obj_t* roller_bank = objects.setup_surface_roller_bank;
         lv_obj_t* roller_control = objects.setup_surface_roller_control;
@@ -123,14 +124,48 @@ class PageSetupSurface: public Page
 
             if (instances == 1)
             {
-                lv_obj_set_state(roller_target_item, LV_STATE_DISABLED, true);
+                if (actions[selected_action] == MixerparameterAction::LCD_Artnet)
+                {
+                    selected_mixerparameter_index_upper_bound = MAX_ARTNET_CHANNELS;
+
+                    for(uint i = 0; i < MAX_ARTNET_CHANNELS; i++)
+                    {
+                        roller_target_items += String("DMX") + String(i+1) + String("\n");
+                    }
+                    lv_roller_set_options(roller_target_item, roller_target_items.c_str(), LV_ROLLER_MODE_NORMAL);
+
+                    lv_roller_set_selected(roller_target_item, selected_mixerparameter_index, LV_ANIM_OFF);
+                    lv_obj_set_state(roller_target_item, LV_STATE_DISABLED, false);
+                }
+                else if (actions[selected_action] == MixerparameterAction::LCD_Channel)
+                {
+                    selected_mixerparameter_index_upper_bound = MAX_VCHANNELS;
+
+                    for(uint i = 0; i < MAX_VCHANNELS; i++)
+                    {
+                        roller_target_items += config->GetString(CHANNEL_NAME, i) + String("\n");
+                    }
+                    lv_roller_set_options(roller_target_item, roller_target_items.c_str(), LV_ROLLER_MODE_NORMAL);
+
+                    lv_roller_set_selected(roller_target_item, selected_mixerparameter_index, LV_ANIM_OFF);
+                    lv_obj_set_state(roller_target_item, LV_STATE_DISABLED, false);
+                }
+                else
+                {
+                    selected_mixerparameter_index_upper_bound = 0;
+                    lv_obj_set_state(roller_target_item, LV_STATE_DISABLED, true);
+                }
             }
             else if (config->ParameterDependsOn(actions[selected_action]) == SELECTED_CHANNEL)
             {
+                selected_mixerparameter_index_upper_bound = 0;
                 lv_obj_set_state(roller_target_item, LV_STATE_DISABLED, true);
+                
             }
             else
             {
+                selected_mixerparameter_index_upper_bound = mixerparameter->GetInstances()-1;
+
                 for(uint i = 0; i < instances; i++)
                 {
                     if (mixerparameter->BelongsToChannel())
@@ -167,8 +202,6 @@ class PageSetupSurface: public Page
 
         void OnInit() override
         {
-            // Surface Elements
-
             controls.push_back(SurfaceElementId::ASSIGN_ENCODER_1);
             controls.push_back(SurfaceElementId::ASSIGN_ENCODER_2);
             controls.push_back(SurfaceElementId::ASSIGN_ENCODER_3);
@@ -204,8 +237,6 @@ class PageSetupSurface: public Page
 
         void FillMixerparameter()
         {
-            // Mixerparameter
-
             for (uint i = 0; i < (uint)MP_ID::__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
             {
                 MP_ID mixerparameterId = (MP_ID)(0 + i);
@@ -227,11 +258,7 @@ class PageSetupSurface: public Page
 
         void FillActions()
         {
-            // Mixerparameter Actions
-
-            // on LCDs only show the LCD-Actions
             SurfaceElementId surfaceElement = controls.at(selected_control);
-
             actions.clear();
 
             if (
@@ -241,6 +268,7 @@ class PageSetupSurface: public Page
                 surfaceElement == SurfaceElementId::ASSIGN_LCD_4
             )
             {
+                // on LCDs only show the LCD-Actions
                 actions.push_back(MixerparameterAction::LCD_Channel);
                 actions.push_back(MixerparameterAction::LCD_Assign);
                 actions.push_back(MixerparameterAction::LCD_Artnet);
@@ -249,35 +277,10 @@ class PageSetupSurface: public Page
             {
                 actions.push_back(MixerparameterAction::NONE);
                 actions.push_back(MixerparameterAction::TOGGLE);
-                actions.push_back(MixerparameterAction::TOGGLE_SELECTED_CHANNEL);
                 actions.push_back(MixerparameterAction::CHANGE);
+                actions.push_back(MixerparameterAction::TOGGLE_SELECTED_CHANNEL);
                 actions.push_back(MixerparameterAction::CHANGE_SELECTED_CHANNEL);
-                
-
-                // // on the rest only show non-LCD-Actions
-                // for (uint i = 0; i < (uint)MixerparameterAction::__ELEMENT_COUNTER_DO_NOT_MOVE; i++)
-                // {
-                //     MixerparameterAction a = (MixerparameterAction)(0 + i);
-                //     switch (a)
-                //     {
-                //         case MixerparameterAction::LCD_Channel:
-                //         case MixerparameterAction::LCD_Assign:
-                //         case MixerparameterAction::LCD_Artnet:
-                //         case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
-                //         case MixerparameterAction::CUSTOM:
-                //         case MixerparameterAction::SET__MP_INDIRECT__SELECTED_CHANNEL:
-                //         case MixerparameterAction::SET_ON_INDEX:
-                //         case MixerparameterAction::SET_TO_INDEX:
-                //         case MixerparameterAction::VUMETER:
-                //             // do nothing
-                //             break;
-                //         default:
-                //             actions.push_back(a);
-                //             break;
-                //     }
-                // }
             }
-            
 
             String roller_actions;
             for (uint i = 0; i < actions.size(); i++)
@@ -301,14 +304,6 @@ class PageSetupSurface: public Page
 
             UpdateAll();
         }
-
-        // void OnChange(bool force_update) override
-        // {
-        //     if (config->HasParameterChanged(BANKING_ASSIGN))
-        //     {
-        //         UpdateBank();
-        //     }
-        // }
 
         void OnChangeCustomEncoder(SurfaceElementId surface_element_id, int amount) override
         {
@@ -338,7 +333,7 @@ class PageSetupSurface: public Page
                         Mixerparameter* parameter = config->GetParameter(mixerparameters.at(selected_mixerparameter));
                         if (parameter)
                         {
-                            selected_mixerparameter_index = helper->CheckBoundaries(selected_mixerparameter_index, amount, 0, parameter->GetInstances()-1);                           
+                            selected_mixerparameter_index = helper->CheckBoundaries(selected_mixerparameter_index, amount, 0, selected_mixerparameter_index_upper_bound);                           
                         }
                         else
                         {
