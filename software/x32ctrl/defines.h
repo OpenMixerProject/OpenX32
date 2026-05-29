@@ -209,6 +209,8 @@ typedef unsigned int uint;
 
 #define VCHANNEL_NOT_SET MAX_VCHANNELS+1
 
+#define MAX_ARTNET_CHANNELS 512
+
 // (uint32_t)(pow(2, 31) * pow(10, _DBFS / 20.0))
 #define VUTRESH_10_DBFS 6790939565
 #define VUTRESH_09_DBFS 6052431258

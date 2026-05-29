@@ -27,10 +27,10 @@ class Artnet : public X32Base
 
     private:
         artnet_node node;
-        uint8_t dmxOutput[512];
-        float dmx[512];
-        float dmxDest[512];
-        float dmxStep[512];
+        uint8_t dmxOutput[MAX_ARTNET_CHANNELS];
+        float dmx[MAX_ARTNET_CHANNELS];
+        float dmxDest[MAX_ARTNET_CHANNELS];
+        float dmxStep[MAX_ARTNET_CHANNELS];
 };
 
 #endif
