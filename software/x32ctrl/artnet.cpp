@@ -63,7 +63,7 @@ void Artnet::Tick()
 {
     if (config->GetBool(MP_ID::DMX_ARTNET_ENABLE))
     {
-        for (uint16_t i = 0; i < 512; i++)
+        for (uint16_t i = 0; i < MAX_ARTNET_CHANNELS; i++)
         {
             if (dmxDest[i] > dmx[i])
             {
@@ -79,10 +79,10 @@ void Artnet::Tick()
         }
 
         // send on configured ports
-        artnet_send_dmx(node, 0, 512, &dmxOutput[0]); // artnet-node, univese, length, data
+        artnet_send_dmx(node, 0, MAX_ARTNET_CHANNELS, &dmxOutput[0]); // artnet-node, univese, length, data
 
         // allow sending even on unconfigured ports for testing
-        //artnet_raw_send_dmx(node, 1, 512, &dmxOutput[0]); // artnet-node, univese, length, data
+        //artnet_raw_send_dmx(node, 1, MAX_ARTNET_CHANNELS, &dmxOutput[0]); // artnet-node, univese, length, data
 
         // read incoming data and answer to ArtPollRequest with an ArtPollReply
         artnet_read(node, 0);
