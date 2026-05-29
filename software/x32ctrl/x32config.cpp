@@ -149,13 +149,7 @@ void X32Config::Save(uint scene)
 	{
         Mixerparameter* parameter = GetParameter((MP_ID)i);
 
-        if (
-            parameter->GetId() == NONE ||
-            parameter->GetCategory() == MP_CAT::DISPLAY ||
-            parameter->GetCategory() == MP_CAT::STATE ||
-            parameter->IsNoConfig() ||
-            parameter->IsReadonly()
-        )
+        if (parameter->GetId() == NONE || parameter->IsNoConfig())
         {
             // this Mixerparameter should not be written to config file
             continue;
@@ -1241,7 +1235,7 @@ void X32Config::DefineMixerparameters() {
     DefParameter(DMX_ARTNET_ENABLE, cat, "ArtNet Enabled")
     ->DefStandard_Bool(true);
 
-    DefParameter(DMX_ARTNET_VALUE, cat, "ArtNet Value", 512)
+    DefParameter(DMX_ARTNET_VALUE, cat, "ArtNet Value", MAX_ARTNET_CHANNELS)
     ->DefMinMaxStandard_Float(0, 255, 0);
 
     //#####################################################
