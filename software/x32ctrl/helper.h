@@ -65,6 +65,7 @@ class Helper {
         int CheckBoundaries(int value, int amount, int lowerbound, int upperbound);
 
         String MixerparameterAction2String(MixerparameterAction action);
+        String MixerparameterCategoryToString(MP_CAT cat);
 
         String getIpAddress();
 

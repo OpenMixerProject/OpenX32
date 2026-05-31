@@ -989,8 +989,9 @@ typedef struct _objects_t {
     lv_obj_t *setup_surface_roller_bank;
     lv_obj_t *setup_surface_roller_control;
     lv_obj_t *setup_surface_roller_action;
-    lv_obj_t *setup_surface_roller_target_group;
-    lv_obj_t *setup_surface_roller_target_item;
+    lv_obj_t *setup_surface_roller_mixerparmeter;
+    lv_obj_t *setup_surface_roller_index;
+    lv_obj_t *setup_surface_roller_group;
     lv_obj_t *openx32logo_2;
     lv_obj_t *setup_debug_label;
     lv_obj_t *fxtable;

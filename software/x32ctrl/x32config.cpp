@@ -234,7 +234,6 @@ void X32Config::DefineMixerparameters() {
     // ###########
 
 	MP_CAT cat = MP_CAT::SETTING;
-    String group = "setting";
 
     DefParameter(DEBUG_HEADER, cat, "DEBUG Header")
     ->DefStandard_Bool(true);
@@ -291,7 +290,6 @@ void X32Config::DefineMixerparameters() {
     // ##########
 
     cat = MP_CAT::ROUTING;
-    group = "routing";
 
     DefParameter(ROUTING_FPGA, cat, "Routing FPGA", 208)  // 208 -> size of fpga routing struct! (prepared for both AES50-ports, but only 160 are used at the moment)
     ->DefUOM(MP_UOM::FPGA_ROUTING)
@@ -331,7 +329,6 @@ void X32Config::DefineMixerparameters() {
     // ########
 
     cat = MP_CAT::STATE;
-    group = "state";
 
     DefParameter(CLEAR_SOLO, cat, "Clear Solo")
     ->DefNoConfig()
@@ -392,7 +389,6 @@ void X32Config::DefineMixerparameters() {
     // ###########
 
 	cat = MP_CAT::GLOBAL;
-    group = "global";
 
     DefParameter(MONITOR_VOLUME, cat, "Monitor Volume")
     ->DefNameShort("Mon")
@@ -424,7 +420,6 @@ void X32Config::DefineMixerparameters() {
     // ###########
 
 	cat = MP_CAT::CHANNEL;
-    group = "channel";
 
     DefParameter(CHANNEL_NAME_INTERN, cat, "Ch Name (intern)", MAX_VCHANNELS)
     ->DefNoConfig()
@@ -629,7 +624,6 @@ void X32Config::DefineMixerparameters() {
 	cat = MP_CAT::FX;
 
     // reverb
-    group = "fx_reverb";
 
     #define FX_REVERB_ROOMSIZE_MIN         0.0f // ms
     #define FX_REVERB_ROOMSIZE_DEFAULT   150.0f // ms
@@ -670,7 +664,6 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(FX_REVERB_WET_MIN, FX_REVERB_WET_MAX, FX_REVERB_WET_DEFAULT);
 
     // chorus
-    group = "fx_chorus";
     #define FX_CHORUS_DEPTH_A_MIN          0.0f //
     #define FX_CHORUS_DEPTH_A_DEFAULT     10.0f //
     #define FX_CHORUS_DEPTH_A_MAX        100.0f //
@@ -740,7 +733,6 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(0.0f, 1.0f, 0.5f);
 
     // transientshaper
-    group = "fx_transientshaper";
 
     // fast
     DefParameter(FX_TRANSIENTSHAPER_FAST, cat, "Fast", MAX_FX_SLOTS)
@@ -775,7 +767,6 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(0.0f, 1000.0f, 1.0f);
 
     // FX_TYPE_OVERDRIVE
-    group = "fx_overdrive";
 
     DefParameter(FX_OVERDRIVE_PREGAIN, cat, "PreGain", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::DB)
@@ -805,7 +796,6 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(20.0f, 24000.0f, 10000.0f);
 
     // delay A/B
-    group = "fx_delay";
 
     DefParameter(FX_DELAY_DELAY_A, cat, "Delay A", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::MS)
@@ -816,7 +806,6 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(0.0f, 1000.0f, 450.0f);
 
     // FX_TYPE_MULTIBANDCOMPRESOR   channel band threshold ratio attack  hold   release   makeup
-    group = "fx_multibandcompressor";
 
     DefParameter(FX_MULTIBANDCOMPRESOR_L_FREQ1, cat, "[1L] Frequency", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::HZ)
@@ -1109,7 +1098,6 @@ void X32Config::DefineMixerparameters() {
     ->DefMinMaxStandard_Float(0.0f, 24.0f, 0.0f, 1);
 
     // FX_TYPE_DYNAMICEQ            band type freq staticGain  maxDynGain  Q  thresh  ratio  attack  release
-    group = "fx_dynamiceq";
 
     DefParameter(FX_DYNAMICEQ_BAND1_TYPE, cat, "[1] Type", MAX_FX_SLOTS)
     ->DefUOM(MP_UOM::EQ_TYPE)
@@ -1230,7 +1218,6 @@ void X32Config::DefineMixerparameters() {
     // ########
 
     cat = MP_CAT::DMX;
-    group = "dmx_artnet";
 
     DefParameter(DMX_ARTNET_ENABLE, cat, "ArtNet Enabled")
     ->DefStandard_Bool(true);
@@ -1847,26 +1834,26 @@ void X32Config::DefineSurfaceElements()
     DefSurfaceElements(SCENES_GO, "GO");
 
     DefSurfaceElements(VIEW_ASSIGN, "VIEW ASSIGN");
-    DefSurfaceElements(ASSIGN_ENCODER_1, "ASSIGN Encoder 1");
-    DefSurfaceElements(ASSIGN_ENCODER_2, "ASSIGN Encoder 2");
-    DefSurfaceElements(ASSIGN_ENCODER_3, "ASSIGN Encoder 3");
-    DefSurfaceElements(ASSIGN_ENCODER_4, "ASSIGN Encoder 4");
-    DefSurfaceElements(ASSIGN_LCD_1, "ASSIGN LCD 1");
-    DefSurfaceElements(ASSIGN_LCD_2, "ASSIGN LCD 2");
-    DefSurfaceElements(ASSIGN_LCD_3, "ASSIGN LCD 3");
-    DefSurfaceElements(ASSIGN_LCD_4, "ASSIGN LCD 4");
-    DefSurfaceElements(ASSIGN_1, "ASSIGN Button 1");
-    DefSurfaceElements(ASSIGN_2, "ASSIGN Button 2");
-    DefSurfaceElements(ASSIGN_3, "ASSIGN Button 3");
-    DefSurfaceElements(ASSIGN_4, "ASSIGN Button 4");
-    DefSurfaceElements(ASSIGN_5, "ASSIGN Button 5");
-    DefSurfaceElements(ASSIGN_6, "ASSIGN Button 6");
-    DefSurfaceElements(ASSIGN_7, "ASSIGN Button 7");
-    DefSurfaceElements(ASSIGN_8, "ASSIGN Button 8");
-    DefSurfaceElements(ASSIGN_9, "ASSIGN Button 9");
-    DefSurfaceElements(ASSIGN_10, "ASSIGN Button 10");
-    DefSurfaceElements(ASSIGN_11, "ASSIGN Button 11");
-    DefSurfaceElements(ASSIGN_12, "ASSIGN Button 12");
+    DefSurfaceElements(ASSIGN_ENCODER_1, "Encoder 1");
+    DefSurfaceElements(ASSIGN_ENCODER_2, "Encoder 2");
+    DefSurfaceElements(ASSIGN_ENCODER_3, "Encoder 3");
+    DefSurfaceElements(ASSIGN_ENCODER_4, "Encoder 4");
+    DefSurfaceElements(ASSIGN_LCD_1, "LCD 1");
+    DefSurfaceElements(ASSIGN_LCD_2, "LCD 2");
+    DefSurfaceElements(ASSIGN_LCD_3, "LCD 3");
+    DefSurfaceElements(ASSIGN_LCD_4, "LCD 4");
+    DefSurfaceElements(ASSIGN_1, "Button 1");
+    DefSurfaceElements(ASSIGN_2, "Button 2");
+    DefSurfaceElements(ASSIGN_3, "Button 3");
+    DefSurfaceElements(ASSIGN_4, "Button 4");
+    DefSurfaceElements(ASSIGN_5, "Button 5");
+    DefSurfaceElements(ASSIGN_6, "Button 6");
+    DefSurfaceElements(ASSIGN_7, "Button 7");
+    DefSurfaceElements(ASSIGN_8, "Button 8");
+    DefSurfaceElements(ASSIGN_9, "Button 9");
+    DefSurfaceElements(ASSIGN_10, "Button 10");
+    DefSurfaceElements(ASSIGN_11, "Button 11");
+    DefSurfaceElements(ASSIGN_12, "Button 12");
     DefSurfaceElements(ASSIGN_A, "ASSIGN A");
     DefSurfaceElements(ASSIGN_B, "ASSIGN B");
     DefSurfaceElements(ASSIGN_C, "ASSIGN C");

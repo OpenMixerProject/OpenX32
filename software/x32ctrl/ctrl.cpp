@@ -2475,6 +2475,11 @@ void X32Ctrl::LoadBank(X32BankTarget target, X32BankId id)
 
 	X32FaderBank* bank_to_load = banks[(uint)id];
 
+	if (bank_to_load == 0)
+	{
+		return;
+	}
+
 	if (target == X32BankTarget::InputSection)
 	{
 		for (uint i = 0; i < 8; i++)

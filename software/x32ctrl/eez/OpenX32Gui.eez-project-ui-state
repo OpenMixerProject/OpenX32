@@ -27,7 +27,7 @@
           {
             "type": "border",
             "selected": 0,
-            "size": 320.5,
+            "size": 223.5,
             "location": "right",
             "children": [
               {
@@ -202,7 +202,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 29.52120072335882,
+              "weight": 30.417593083958987,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -217,13 +217,12 @@
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "tabset",
               "id": "#5f1a3c3a-2fe6-49fc-865b-e77b2b5f558d",
-              "weight": 13.286167117910697,
+              "weight": 12.389774757310525,
               "children": [
                 {
                   "type": "tab",
@@ -233,7 +232,8 @@
                   "enableClose": false,
                   "icon": "svg:properties"
                 }
-              ]
+              ],
+              "active": true
             }
           ]
         }
@@ -1062,10 +1062,10 @@
       },
       "transform": {
         "translate": {
-          "x": -311.4250619794188,
-          "y": -193.79810721461848
+          "x": -412.5667493058917,
+          "y": -219.98080961949128
         },
-        "scale": 0.75
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
@@ -1080,7 +1080,11 @@
             "3": {
               "0": {
                 "2": {
-                  "0": {}
+                  "0": {
+                    "11": {
+                      "$selected": true
+                    }
+                  }
                 },
                 "5": {}
               }
@@ -1321,7 +1325,7 @@
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 0.75,
+  "flowZoom": 1,
   "implementationLanguage": "C",
   "openDialogDefaultPath": "C:\\Cloud\\Dokumente\\OpenX32_Website\\SoftwareImages\\sdcard_all.png"
 }

@@ -479,6 +479,8 @@ enum class MP_CAT {
     FX,
     DISPLAY,
     DMX,
+
+    __ELEMENT_COUNTER_DO_NOT_MOVE
 };
 
 /// @brief Mixerparameter ID

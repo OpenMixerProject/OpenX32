@@ -331,10 +331,43 @@ String Helper::MixerparameterAction2String(MixerparameterAction action)
 		default:
 			return String("Unknown MixerparameterAction: ") + String((uint)action);
 	}
-    
-    
-    
+}
 
+String Helper::MixerparameterCategoryToString(MP_CAT cat)
+{
+	using enum MP_CAT;
+
+	switch(cat)
+	{
+		case NONE:
+			return "None";
+		case SETTING:
+			return "Setting";
+		case ROUTING:
+			return "Routing";
+		case STATE:
+			return "State";
+		case GLOBAL:
+			return "Global";
+		case CHANNEL:
+			return "Channel";
+		case CHANNEL_GATE:
+			return "Ch Gate";
+		case CHANNEL_EQ:
+			return "Ch EQ";
+		case CHANNEL_DYNAMICS:
+			return "Ch Dynamics";
+		case CHANNEL_SENDS:
+			return "Ch Sends";
+		case FX:
+			return "FX";
+		case DISPLAY:
+			return "Display";
+		case DMX:
+			return "DMX";
+		default:
+			return String("Unknown Mixerparameter Category: ") + String((uint)cat);
+	}
 }
 
 String Helper::getIpAddress() {
