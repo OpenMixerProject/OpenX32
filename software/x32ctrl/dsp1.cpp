@@ -865,7 +865,7 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
 
     // only the first 32 full-featured channels have dynamic-information for compressor and gate
     for (int i = 0; i < 32; i++) {
-        if(config->IsModelX32Core() || config->IsModelX32Rack())) {
+        if(config->IsModelX32Core() || config->IsModelX32Rack()) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
 		    //if (!!RECEIVED_CHANNEL_GAIN!! < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
 		    //if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }
