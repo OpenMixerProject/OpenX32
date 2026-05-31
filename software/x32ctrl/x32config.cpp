@@ -2656,14 +2656,14 @@ void X32Config::DefineSurfaceElements()
         GetSurfaceElement(VIEW_MAIN)                    ->DefButton(X32_BOARD_MAIN, 0x1F);
 
         // Fader Layer
-        GetSurfaceElement(CH1_8)                        ->DefButton(X32_BOARD_L, 0x20);
-        GetSurfaceElement(CH9_16)                       ->DefButton(X32_BOARD_L, 0x21);
-        GetSurfaceElement(CH17_24)                      ->DefButton(X32_BOARD_L, 0x22);
-        GetSurfaceElement(CH25_32)                      ->DefButton(X32_BOARD_L, 0x23);
-        GetSurfaceElement(AUX_USB)                      ->DefButton(X32_BOARD_L, 0x24);
-        GetSurfaceElement(FX_RET)                       ->DefButton(X32_BOARD_L, 0x25);
-        GetSurfaceElement(BUS1_8_MASTER)                ->DefButton(X32_BOARD_L, 0x26);
-        GetSurfaceElement(BUS9_16_MASTER)               ->DefButton(X32_BOARD_L, 0x27);
+        GetSurfaceElement(CH1_8)                        ->DefButton(X32_BOARD_MAIN, 0x20);
+        GetSurfaceElement(CH9_16)                       ->DefButton(X32_BOARD_MAIN, 0x21);
+        GetSurfaceElement(CH17_24)                      ->DefButton(X32_BOARD_MAIN, 0x22);
+        GetSurfaceElement(CH25_32)                      ->DefButton(X32_BOARD_MAIN, 0x23);
+        GetSurfaceElement(AUX_USB)                      ->DefButton(X32_BOARD_MAIN, 0x24);
+        GetSurfaceElement(FX_RET)                       ->DefButton(X32_BOARD_MAIN, 0x25);
+        GetSurfaceElement(BUS1_8_MASTER)                ->DefButton(X32_BOARD_MAIN, 0x26);
+        GetSurfaceElement(BUS9_16_MASTER)               ->DefButton(X32_BOARD_MAIN, 0x27);
         
         GetSurfaceElement(DAW_REMOTE)                   ->DefButton(X32_BOARD_R, 0x28);
         GetSurfaceElement(SEND_ON_FADER)                ->DefButton(X32_BOARD_R, 0x29);
