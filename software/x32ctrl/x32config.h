@@ -121,15 +121,19 @@ class X32Config
 
         void SetModel(String model);
         bool IsModelX32Full();
-        bool IsModelX32FullOrCompact();
-        bool IsModelX32FullOrCompactOrProducer();
-        bool IsModelX32FullOrCompactOrProducerOrRack();
-        bool IsModelX32CompactOrProducer();
-        bool IsModelX32ProducerOrRack();
+        bool IsModelX32FullOrM32();
+        bool IsModelX32FullOrCompactOrM32();
+        bool IsModelX32FullOrCompactOrProducerOrM32OrM32R();
+        bool IsModelX32FullOrCompactOrProducerOrM32OrM32ROrRack();
+        bool IsModelX32CompactOrProducerOrM32R();
+        bool IsModelX32ProducerOrRackOrM32R();
         bool IsModelX32Core();
         bool IsModelX32Rack();
         bool IsModelX32Producer();
         bool IsModelX32Compact();
+        bool IsModelX32CompactOrM32R();
+        bool IsModelM32();
+        bool IsModelM32R();
 
         void InitAssignBanks();
         X32AssignBank* GetAssignBank(X32AssignBankId id);
