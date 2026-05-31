@@ -459,7 +459,7 @@ void Adda::SetMuteAll(bool muted) {
 int8_t Adda::GetXlrInBoardId(uint8_t channel) {
 	// we have up to 4 boards. Now we have to find the right BoardId for the desired channel
 
-	if (config->IsModelX32Full()) {
+	if (config->IsModelX32FullOrM32()) {
 		if ((channel >= 1) && (channel <= 8)) {
 				return ADDA_BOARD_XLR_IN_1;
 		}else if ((channel >= 9) && (channel <= 16)) {
@@ -471,7 +471,7 @@ int8_t Adda::GetXlrInBoardId(uint8_t channel) {
 		}
 	}
 
-	if(config->IsModelX32Compact()) {
+	if(config->IsModelX32CompactOrProducerOrM32R()) {
 		if ((channel >= 1) && (channel <= 8)) {
 			return ADDA_BOARD_XLR_IN_3;
 		}else if ((channel >= 9) && (channel <= 16)) {

@@ -135,6 +135,10 @@ class X32Config
         bool IsModelM32();
         bool IsModelM32R();
 
+        bool HasGui();
+        bool HasBigDisplay();
+        bool HasSmallDisplay();
+
         void InitAssignBanks();
         X32AssignBank* GetAssignBank(X32AssignBankId id);
 };

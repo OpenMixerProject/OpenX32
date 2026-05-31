@@ -149,7 +149,7 @@ void X32Ctrl::Tick10ms(void)
 	//
 	//#####################################
 
-	if (config->IsModelX32FullOrCompactOrProducer()) 
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R()) 
 	{
 		surface->Touchcontrol();	
 	}
@@ -243,7 +243,7 @@ void X32Ctrl::Tick100ms(void)
     }
 
 	// DEBUG Row in GUI-Header
-	if (config->GetBool(DEBUG_HEADER) && !config->IsModelX32Core())
+	if (config->GetBool(DEBUG_HEADER) && config->HasGui())
 	{
 		// calculate mean-value and show the current DSP-load
 		dspLoadHistory[0][dspLoadHistoryPointer] = state->dspLoad[0];
@@ -797,7 +797,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 	//
 	// ######################################
 
-	if (config->IsModelX32FullOrCompactOrProducer())
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R())
 	{
 		if (config->HasParameterChanged(BANKING_INPUT))
 		{
@@ -812,7 +812,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 				}
 			}
 
-			if (config->IsModelX32Full())
+			if (config->IsModelX32FullOrM32())
 			{
 				X32BankId bank1;
 				X32BankId bank2;
@@ -929,11 +929,11 @@ void X32Ctrl::syncSurface(bool fullSync)
 								nextSurfaceChannelStrip++;
 							}	
 							
-							if (config->IsModelX32Full() && nextSurfaceChannelStrip > 16)
+							if (config->IsModelX32FullOrM32() && nextSurfaceChannelStrip > 16)
 							{
 								break;
 							}
-							if (config->IsModelX32CompactOrProducer() && nextSurfaceChannelStrip > 8)
+							if (config->IsModelX32CompactOrProducerOrM32R() && nextSurfaceChannelStrip > 8)
 							{
 								break;
 							}
@@ -975,7 +975,7 @@ void X32Ctrl::syncSurface(bool fullSync)
 	// ######################################
 
 
-	if (config->IsModelX32FullOrCompact())
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R())
 	{
 		if (config->HasParameterChanged(LCD_CONTRAST))
 		{
@@ -1731,7 +1731,7 @@ void X32Ctrl::UpdateMeters(void) {
 	//
 	// ########################################
 
-	if (config->IsModelX32FullOrCompactOrProducerOrRack())
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32ROrRack())
 	{
 		pages[(X32_PAGE)config->GetUint(ACTIVE_PAGE)]->UpdateMeters();
 	}
@@ -1759,7 +1759,7 @@ void X32Ctrl::UpdateMeters(void) {
 		);
 	}
 
-	if (config->IsModelX32Producer())
+	if (config->HasSmallDisplay())
 	{
 		surface->SetMeterLedMain_Producer(
 			mixer->dsp->rChannel[selectedChannel].meter8Info, 	// selected channel
@@ -1770,7 +1770,7 @@ void X32Ctrl::UpdateMeters(void) {
 		);
 	}
 
-	if (config->IsModelX32FullOrCompact())
+	if (config->HasBigDisplay())
 	{
 		surface->SetMeterLedMain_FullOrCompact(
 			mixer->dsp->rChannel[selectedChannel].meter8Info,	// selected channel
@@ -1788,7 +1788,7 @@ void X32Ctrl::UpdateMeters(void) {
 	//
 	// ########################################
 
-	if (config->IsModelX32FullOrCompactOrProducer())
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R())
 	{
 		for (uint8_t i = 0; i < 8; i++)
 		{
@@ -2131,7 +2131,7 @@ void X32Ctrl::ProcessUartDataSurface()
 			{
 				helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback: BoardId 0x%02X, Class 0x%02X, Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedIndex, receivedValue);
 				
-				if (config->IsModelX32FullOrCompactOrProducer())
+				if (config->HasGui())
 				{
 					lv_label_set_text_fmt(objects.header_debug, "Surface Input: BoardId 0x%02X, Class 0x%02X ('%c'), Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedClass, receivedIndex, receivedValue);
 				}
@@ -2202,7 +2202,7 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 	config->SurfaceBind(SurfaceElementId::UP, MixerparameterAction::TOGGLE, DISPLAY_UP);
 	config->SurfaceBind(SurfaceElementId::DOWN, MixerparameterAction::TOGGLE, DISPLAY_DOWN);
 
-	if (config->IsModelX32FullOrCompactOrProducer())
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R())
 	{
 		// Config / Preamp
 		config->SurfaceBind(SurfaceElementId::GAIN_ENCODER, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_GAIN);
@@ -2244,7 +2244,7 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 
 		// Bus Sends
 		config->SurfaceBind(SurfaceElementId::VIEW_MIX_BUS_SENDS, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SENDS));
-		if (config->IsModelX32Full())
+		if (config->IsModelX32FullOrM32())
 		{
 			config->SurfaceBind(SurfaceElementId::BUS_SEND_ENCODER_1, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_BUS_SEND01, (uint)BANKING_BUS_SENDS, 4);
 			config->SurfaceBind(SurfaceElementId::BUS_SEND_ENCODER_2, MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL, CHANNEL_BUS_SEND02, (uint)BANKING_BUS_SENDS, 4);
@@ -2266,7 +2266,6 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 		
 		// Scenes
 		config->SurfaceBind(SurfaceElementId::VIEW_SCENES, MixerparameterAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::SCENES));
-		//SurfaceBind_MixerParameter(SurfaceElementId::VIEW_ASSIGN, SurfaceBindingAction::SET_TO_INDEX, ACTIVE_PAGE, (uint)(X32_PAGE::CONFIG));
 
 		// Assign
 		
@@ -2307,7 +2306,7 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 			config->SurfaceBind(SurfaceElementId::AUX_USB_RX_RET, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::AUX_USB_FX_RET));
 			config->SurfaceBind(SurfaceElementId::BUS_MASTER, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::BUS1_16));
 		}
-		else if (config->IsModelX32CompactOrProducer())
+		else if (config->IsModelX32CompactOrProducerOrM32R())
 		{
 			config->SurfaceBind(SurfaceElementId::CH1_8, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH1_8));
 			config->SurfaceBind(SurfaceElementId::CH9_16, MixerparameterAction::SET_TO_INDEX, BANKING_INPUT, (uint)(X32BankId::CH9_16));
@@ -2337,7 +2336,7 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 
 	}
 
-	if (config->IsModelX32FullOrCompactOrProducerOrRack())
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32ROrRack())
 	{
 		config->SurfaceBind(SurfaceElementId::CLEAR_SOLO, MixerparameterAction::CLEAR_SOLO, CLEAR_SOLO);
 	}
@@ -2379,7 +2378,7 @@ void X32Ctrl::LoadMainFaderSurfaceBinding()
 
 void X32Ctrl::InitBanks()
 {
-	if (config->IsModelX32FullOrCompactOrProducer())
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R())
 	{
 		InitBank_Channelstrip(new X32FaderBank(X32BankId::CH1_8, "Channel 1-8"), 0);
 		InitBank_Channelstrip(new X32FaderBank(X32BankId::CH9_16, "Channel 9-16"), 8);
@@ -2397,10 +2396,6 @@ void X32Ctrl::InitBanks()
 		InitBank_Flex(new X32FaderBank(X32BankId::FLEX2, "Flex2"));
 		InitBank_Flex(new X32FaderBank(X32BankId::FLEX3, "Flex3"));
 	}
-
-
-
-	
 }
 
 void X32Ctrl::InitBank_Channelstrip(X32FaderBank* bank, uint offset)
@@ -2639,7 +2634,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 			// Member Assign Mode (e.g. Mute Groups, DCA Groups)
 			bool memberAssingMode = 
-					config->IsModelX32FullOrCompactOrProducer() 		&&
+					config->IsModelX32FullOrCompactOrProducerOrM32OrM32R() 		&&
 					config->GetBool(parameter->GetAssignMembersIf()) 	&&
 					config->GetUint(ACTIVE_PAGE) == (uint)X32_PAGE::CONFIG;
 
@@ -2656,7 +2651,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 						config->SurfaceBind(config->CalcSurfaceElementId(SurfaceElementId::BOARD_L_SELECT_1, i),
 											MixerparameterAction::TOGGLE, parameter->GetAssignMembersTo(), chanIndex_L);
 
-						if (config->IsModelX32Full())
+						if (config->IsModelX32FullOrM32())
 						{
 							// Board M / InputSection2
 							uint chanIndex_M = bankLoadedInputsection2->channelstrip[i]->select->mp_index;
@@ -2709,7 +2704,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 
 									SurfaceBindingParameter* bindingParameterButtonOne = config->GetSurfaceBinding(buttonPressed->GetId());
 
-									if (config->IsModelX32CompactOrProducer())
+									if (config->IsModelX32CompactOrProducerOrM32R())
 									{
 										// ######################################
 										// Banking input section into bus section
@@ -2720,7 +2715,7 @@ void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, ui
 											config->Set(BANKING_BUS, value_to_set, parameter_index);
 										}
 									} 
-									else if (config->IsModelX32Full())
+									else if (config->IsModelX32FullOrM32())
 									{
 										// TODO https://github.com/OpenMixerProject/OpenX32/issues/61
 

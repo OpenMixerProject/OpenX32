@@ -542,9 +542,9 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
     uint8_t coefficientDecay = 250 / intervalMs; // 50ms * 5 = 250ms
 
     uint8_t vuTreshLookupSize = 0;
-    if (config->IsModelX32ProducerOrRack()) {
+    if (config->HasSmallDisplay()) {
         vuTreshLookupSize = 18;
-    } else if (config->IsModelX32FullOrCompact()) {
+    } else if (config->HasBigDisplay()) {
         vuTreshLookupSize = 24;
     }
 
@@ -558,12 +558,12 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
 	for (int k = 0; k < 3; k++) {
 		currentMeterPeakIndexMain[k] = 0;
 		for (int i = 0; i < vuTreshLookupSize; i++) {
-            if (config->IsModelX32ProducerOrRack()) {
+            if (config->HasSmallDisplay()) {
                 if (data[k] >= vuThresholds_minus45dbfs_18steps[i]) {
                     currentMeterPeakIndexMain[k] = (16 - i) + 1;
                     break;
 			    }
-            } else if (config->IsModelX32FullOrCompact()) {
+            } else if (config->HasBigDisplay()) {
                 if (data[k] >= vuThresholds_minus60dbfs_25steps[i]) {
                     currentMeterPeakIndexMain[k] = (23 - i) + 1;
                     break;
@@ -669,11 +669,11 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
 	MainChannelLR.meterInfo[1] = 0;
 	MainChannelSub.meterInfo[0] = 0;
 	for (int i = 0; i < vuTreshLookupSize; i++) {
-        if (config->IsModelX32ProducerOrRack()) {
+        if (config->HasSmallDisplay()) {
             if (MainChannelLR.meterDecay[0] >= vuThresholds_minus45dbfs_18steps[i]) { MainChannelLR.meterInfo[0]  |= (1U << (16 - i)); }
             if (MainChannelLR.meterDecay[1] >= vuThresholds_minus45dbfs_18steps[i]) { MainChannelLR.meterInfo[1]  |= (1U << (16 - i)); }
             if (MainChannelSub.meterDecay[0] >= vuThresholds_minus45dbfs_18steps[i]) { MainChannelSub.meterInfo[0] |= (1U << (16 - i)); }
-        } else if (config->IsModelX32FullOrCompact()) {
+        } else if (config->HasBigDisplay()) {
             if (MainChannelLR.meterDecay[0] >= vuThresholds_minus60dbfs_25steps[i]) { MainChannelLR.meterInfo[0]  |= (1U << (23 - i)); }
             if (MainChannelLR.meterDecay[1] >= vuThresholds_minus60dbfs_25steps[i]) { MainChannelLR.meterInfo[1]  |= (1U << (23 - i)); }
             if (MainChannelSub.meterDecay[0] >= vuThresholds_minus60dbfs_25steps[i]) { MainChannelSub.meterInfo[0] |= (1U << (23 - i)); }
@@ -865,7 +865,7 @@ void DSP1::UpdateVuMeter(uint8_t intervalMs)
 
     // only the first 32 full-featured channels have dynamic-information for compressor and gate
     for (int i = 0; i < 32; i++) {
-        if(!(config->IsModelX32Core() || config->IsModelX32Rack())) {
+        if(config->IsModelX32Core() || config->IsModelX32Rack())) {
 		    // the dynamic-information is received with the 'd' information, but we will store them here
 		    //if (!!RECEIVED_CHANNEL_GAIN!! < 1.0f) { rChannel[i].meter6Info |= 0b01000000; }
 		    //if (Channel[i].compressor.gain < 1.0f) { rChannel[i].meter6Info |= 0b10000000; }

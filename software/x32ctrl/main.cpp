@@ -171,15 +171,16 @@ void guiInit(X32Config* config) {
 	config->Refresh(SELECTED_CHANNEL);
 
 	// trigger load of banks
-	if (config->IsModelX32Full())
+	if (config->IsModelX32FullOrM32())
 	{
 		config->Set(BANKING_INPUT, (uint)X32BankId::CH1_16);
 	}
-	else if (config->IsModelX32CompactOrProducer())
+	else if (config->IsModelX32CompactOrProducerOrM32R())
 	{
 		config->Set(BANKING_INPUT, (uint)X32BankId::CH1_8);
 	}
-	if (config->IsModelX32FullOrCompactOrProducer())
+	
+	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R())
 	{
 		config->Refresh(BANKING_BUS);
 	}

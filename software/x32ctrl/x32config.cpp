@@ -92,6 +92,21 @@ bool X32Config::IsModelM32R() {
     return (_model == X32_MODEL::M32R);
 }
 
+bool X32Config::HasGui()
+{
+    return IsModelX32Full() || IsModelX32Compact() || IsModelX32Producer() || IsModelX32Rack() || IsModelM32() || IsModelM32R();
+}
+
+bool X32Config::HasBigDisplay()
+{
+    return IsModelX32Full() || IsModelX32Compact() || IsModelM32();
+}
+
+bool X32Config::HasSmallDisplay()
+{
+    return IsModelX32Producer() || IsModelX32Rack() || IsModelM32R();
+}
+
 //#####################################################################################################################
 //
 // ##        #######     ###    ########  

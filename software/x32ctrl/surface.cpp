@@ -745,10 +745,10 @@ void Surface::FaderReset()
 
     // Reset position of faders
     uint8_t maxfaderindex = 0;
-    if (config->IsModelX32Full()){
+    if (config->IsModelX32FullOrM32()){
         maxfaderindex = MAX_FADERS;
     }
-    if (config->IsModelX32CompactOrProducer()){
+    if (config->IsModelX32CompactOrProducerOrM32R()){
         maxfaderindex = MAX_FADERS-8;
     }
 
@@ -789,14 +789,14 @@ uint8_t Surface::GetChannelstripIndex(uint8_t boardId, uint8_t index)
         case X32_BOARD_M: // only X32 Full
             return index + 8;
         case X32_BOARD_R:
-            return index + (config->IsModelX32Full() ? 16 : 8);  // 16 - X32 Full, 8 - X32 Compact/Producer
+            return index + (config->IsModelX32FullOrM32() ? 16 : 8);  // 16 - X32 Full, 8 - X32 Compact/Producer
         default:
             return 0;
     }
 }
 
 uint8_t Surface::GetBoardId(uint8_t faderindex) {
-    if(config->IsModelX32Full())
+    if(config->IsModelX32FullOrM32())
     {
         if (faderindex < 8){
             return X32_BOARD_L;
@@ -807,7 +807,7 @@ uint8_t Surface::GetBoardId(uint8_t faderindex) {
         return X32_BOARD_R;
     }
 
-    if(config->IsModelX32CompactOrProducer())
+    if(config->IsModelX32CompactOrProducerOrM32R())
     {
         if (faderindex < 8){
             return X32_BOARD_L;
@@ -819,7 +819,7 @@ uint8_t Surface::GetBoardId(uint8_t faderindex) {
 }
 
 uint8_t Surface::GetFaderId(uint8_t faderindex) {
-    if(config->IsModelX32Full())
+    if(config->IsModelX32FullOrM32())
     {
         if (faderindex < 8){
             return faderindex;
@@ -830,7 +830,7 @@ uint8_t Surface::GetFaderId(uint8_t faderindex) {
         return faderindex-16;
     }
 
-    if(config->IsModelX32CompactOrProducer())
+    if(config->IsModelX32CompactOrProducerOrM32R())
     {
         if (faderindex < 8){
             return faderindex;
@@ -844,10 +844,10 @@ uint8_t Surface::GetFaderId(uint8_t faderindex) {
 void Surface::Touchcontrol() {
 
     uint8_t maxfaderindex = 0;
-    if (config->IsModelX32Full()){
+    if (config->IsModelX32FullOrM32()){
         maxfaderindex = MAX_FADERS;
     }
-    if (config->IsModelX32CompactOrProducer()){
+    if (config->IsModelX32CompactOrProducerOrM32R()){
         maxfaderindex = MAX_FADERS-8;
     }
 

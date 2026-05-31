@@ -336,7 +336,7 @@ class PageSetupSurface: public Page
                 SurfaceElementId elementId = controls.at(i);
 
                 bool disableControl = false;
-                if (config->IsModelX32Full())
+                if (config->IsModelX32FullOrM32())
                 {
                     switch (elementId)
                     {

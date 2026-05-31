@@ -352,7 +352,7 @@ typedef enum
     X32_BOARD_EXTRA =   0x00,
     X32_BOARD_MAIN =    0x01,
     X32_BOARD_L =       0x04,
-    X32_BOARD_M =       0x05, // only X32 Full
+    X32_BOARD_M =       0x05, // only X32 Full or M32
     X32_BOARD_R =       0x08,
 } X32_BOARD;
 
@@ -363,7 +363,9 @@ enum class X32_MODEL
     COMPACT,
     PRODUCER,
     RACK,
-    CORE
+    CORE,
+    M32,
+    M32R
 };
 
 enum class X32_PAGE :int
