@@ -262,7 +262,7 @@ void X32Ctrl::Tick100ms(void)
 		dspLoadMean[1] /= 20.0f;
 
 		// show DSP debug infos
-		lv_label_set_text_fmt(objects.header_debugtext, "DSP1 L: %.1f %% V: v%.2f G: %.0f TxQ: %d DSP2 L: %.1f %% V: v%.2f G: %.0f H: %.0f free TxQ: %d", 
+		lv_label_set_text_fmt(objects.header_statustext, "DSP1 L: %.1f %% V: v%.2f G: %.0f TxQ: %d DSP2 L: %.1f %% V: v%.2f G: %.0f H: %.0f free TxQ: %d", 
 			(double)dspLoadMean[0], (double)state->dspVersion[0], (double)state->dspAudioGlitchCounter[0], mixer->dsp->spi->GetDspTxQueueLength(0),
 			(double)dspLoadMean[1], (double)state->dspVersion[1], (double)state->dspAudioGlitchCounter[1], (double)state->dspFreeHeapWords[1], mixer->dsp->spi->GetDspTxQueueLength(1)
 		);
@@ -361,7 +361,7 @@ void X32Ctrl::AutoSave()
 		{
 			helper->DEBUG_X32CTRL(DEBUGLEVEL_NORMAL, "Autosave to Scene 0");
 
-			lv_label_set_text_fmt(objects.header_debugtext, "Autosave in progress...");
+			lv_label_set_text_fmt(objects.header_statustext, "Autosave in progress...");
 			lv_refr_now(NULL);
 
 			config->Save(0);
@@ -2130,6 +2130,11 @@ void X32Ctrl::ProcessUartDataSurface()
             if (valid)
 			{
 				helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Callback: BoardId 0x%02X, Class 0x%02X, Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedIndex, receivedValue);
+				
+				if (config->IsModelX32FullOrCompactOrProducer())
+				{
+					lv_label_set_text_fmt(objects.header_debug, "Surface Input: BoardId 0x%02X, Class 0x%02X ('%c'), Index 0x%02X, Value 0x%04X", receivedBoardId, receivedClass, receivedClass, receivedIndex, receivedValue);
+				}
 
 				ProcessSurface((X32_BOARD)receivedBoardId, receivedClass, receivedIndex, receivedValue);
             } 
