@@ -127,6 +127,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 update_progress 0 "Prepare compilation..."
+# Create directories
+mkdir -p initramfs_root/openx32
+mkdir -p initramfs_root/lib
+
 # we are patching some files in the submodules to mitigate a full fork
 # configuration-files
 # u-boot-configuration
@@ -333,10 +337,7 @@ fi
 update_progress 75 "Copy and optimize binaries..."
 
 # copy binaries and default-configuration to initramFS
-mkdir -p initramfs_root/openx32
-mkdir -p initramfs_root/lib
-cp software/bin/x32sdconfig initramfs_root/openx32/
-cp ssoftware/omc/build/omc initramfs_root/openx32/
+cp software/omc/build/omc initramfs_root/openx32/
 cp software/dropbear/dropbearmulti initramfs_root/openx32/
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dbclient && cd ../../
