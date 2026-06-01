@@ -250,8 +250,8 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	./compile.sh
 	cd ..
 
-	update_progress 50 "Compile x32ctrl..."
-	cd x32ctrl
+	update_progress 50 "Compile OpenMixerControl..."
+	cd omc
 	make -j$(nproc)
 	cd ..
 
