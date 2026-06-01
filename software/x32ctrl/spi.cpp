@@ -31,6 +31,9 @@ SPI::SPI(X32BaseParameter* basepar) : X32Base(basepar) {}
 // returns 0 if sucecssul, -1 on errors
 // Xilinx FPGAs do *not* use ChipSelect during SPI Slave Programming!
 int SPI::UploadBitstreamFpgaXilinx(void) {
+    if (state->wing) {
+        return -1;
+    }
 
     string filename_xilinx = app->get_option("--X")->as<string>();
 
@@ -222,6 +225,9 @@ int SPI::UploadBitstreamFpgaXilinx(void) {
 // configures a Lattice ECP5 via SPI
 // returns 0 if successul, -1 on errors
 int SPI::UploadBitstreamFpgaLattice(void) {
+    if (state->wing) {
+        return -1;
+    }
 
     string filename_lattice = app->get_option("--L")->as<string>();
 
@@ -681,6 +687,9 @@ int SPI::fpgaLatticeTransferCommand(int* spi_fd, uint8_t cmd) {
 // DMA-Transfer expects a seemless data-transport while the manual says something about handshake and wait-states... strange
 //
 int SPI::UploadBitstreamDsps(bool useCli) {
+    if (state->wing) {
+        return -1;
+    }
     
     int spi_fd[2] = {-1};
     FILE *bitstream_file[2] = {NULL};
@@ -885,6 +894,11 @@ int SPI::UploadBitstreamDsps(bool useCli) {
 }
 
 bool SPI::OpenConnectionFpga() {
+    if (state->wing) {
+        connected = false;
+        return false;
+    }
+
     uint8_t spiMode = SPI_MODE_0; // user-program uses SPI MODE 0
     uint8_t spiBitsPerWord = 8; // we are using standard 8-bit-mode here for communication
     uint32_t spiSpeed = SPI_FPGA_SPEED_HZ;
@@ -910,6 +924,9 @@ bool SPI::OpenConnectionFpga() {
 }
 
 bool SPI::CloseConnectionFpga() {
+    if (state->wing) {
+        return true;
+    }
     if (spiFpgaHandle >= 0) {
         close(spiFpgaHandle);
     }
@@ -917,6 +934,10 @@ bool SPI::CloseConnectionFpga() {
 }
 
 bool SPI::OpenConnectionDsps() {
+    if (state->wing) {
+        connected = false;
+        return false;
+    }
     uint8_t spiMode = SPI_MODE_3; // user-program uses SPI MODE 3
     uint8_t spiBitsPerWord = 32; // we are using 32-bit-mode here for communication
     uint32_t spiSpeed = 2 * state->dsp_spi_speed; // Linux SPI driver seems to divide speed by 2
@@ -954,6 +975,9 @@ bool SPI::OpenConnectionDsps() {
 }
 
 bool SPI::CloseConnectionDsps() {
+    if (state->wing) {
+        return true;
+    }
     if (!connected) return false;
 
     for (uint8_t i = 0; i < 2; i++) {
@@ -963,6 +987,9 @@ bool SPI::CloseConnectionDsps() {
 }
 
 bool SPI::SendFpgaData(uint8_t txData[], uint8_t rxData[], uint8_t len) {
+    if (state->wing) {
+        return false;
+    }
 //    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     struct spi_ioc_transfer tr = {0};
@@ -1055,7 +1082,7 @@ void SPI::ProcessDspTxQueue(uint8_t dsp) {
 
 bool SPI::SendDspData(uint8_t dsp, sSpiTxBufferElement* buffer) {
 
-    if (state->bodyless || state->raspi)
+    if (state->bodyless || state->raspi || state->wing)
     {
         return false;
     }
@@ -1127,6 +1154,9 @@ void SPI::UpdateNumberOfExpectedReadBytes(uint8_t dsp, uint8_t classId, uint8_t 
 }
 
 bool SPI::ReadDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t index) {
+    if (state->wing) {
+        return false;
+    }
 //    if (!connected) return false; // this line prevents SPI-communication at the moment
 
     // at the moment we are not using the ring-buffer-system, so this is just a simple buffer at the moment
@@ -1181,7 +1211,7 @@ bool SPI::ReadDspData(uint8_t dsp, uint8_t classId, uint8_t channel, uint8_t ind
 void SPI::PushValuesToRxBuffer(uint8_t dsp, uint32_t valueCount, uint32_t values[]) {
 //    if (!connected) return;
 
-    if (state->bodyless || state->raspi)
+    if (state->bodyless || state->raspi || state->wing)
     {
         return;
     }

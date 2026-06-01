@@ -27,13 +27,17 @@
 #if ENABLE_ARTNET
 
 
-Artnet::Artnet(X32BaseParameter* basepar): X32Base(basepar)
+Artnet::Artnet(X32BaseParameter* basepar): X32Base(basepar), node(nullptr)
 {
 }
 
 void Artnet::Init()
 {
     node = artnet_new("0.0.0.0", false); // preferred IP (unsupported for now), verbose
+    if (!node) {
+        helper->Error("Failed to create ArtNet node structure (check network configuration/interfaces).");
+        return;
+    }
     artnet_set_short_name(node, "OpenX32"); // ShortName
     artnet_set_long_name(node, "OpenX32 ArtNet Node"); // LongName
     artnet_set_node_type(node, ARTNET_RAW); // configure as ArtNET-Server (transmits DMX data)
@@ -61,7 +65,7 @@ void Artnet::Init()
 // this function is called every 50ms and calculates the DMX values to be sent to ArtNet, based on the current channel values and the fade times
 void Artnet::Tick()
 {
-    if (config->GetBool(MP_ID::DMX_ARTNET_ENABLE))
+    if (node && config->GetBool(MP_ID::DMX_ARTNET_ENABLE))
     {
         for (uint16_t i = 0; i < MAX_ARTNET_CHANNELS; i++)
         {

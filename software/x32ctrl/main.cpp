@@ -126,7 +126,9 @@ void init10msTimer_NonGUI(void) {
 
 void guiInit(X32Config* config) {
 
+	printf("DEBUG: Calling lv_init()...\n"); fflush(stdout);
 	lv_init();
+	printf("DEBUG: lv_init() completed successfully.\n"); fflush(stdout);
 
 	if (state->bodyless)
 	{
@@ -151,11 +153,16 @@ void guiInit(X32Config* config) {
 	}
 	else
 	{
+		printf("DEBUG: Entering FBDEV mode setup...\n"); fflush(stdout);
 		printf("FBDEV mode\n");
 
+		printf("DEBUG: Calling driver_backends_register()...\n"); fflush(stdout);
 		driver_backends_register();
+		printf("DEBUG: driver_backends_register() completed.\n"); fflush(stdout);
 		char dev[] = "FBDEV";
+		printf("DEBUG: Calling driver_backends_init_backend(FBDEV)...\n"); fflush(stdout);
 		driver_backends_init_backend(dev);
+		printf("DEBUG: driver_backends_init_backend() completed.\n"); fflush(stdout);
 
 		if (state->wing) {
 			wingTouch = new WingTouch(state);
