@@ -34,7 +34,7 @@ echo "Starting shell for ttymxc4..."
 
 while true; do
 	# start OpenX32 Main-Software as Shell
-	/bin/setsid /bin/cttyhack /openx32/x32ctrl --L /openx32/lattice.bit --X /openx32/xilinx.bit --D1 /openx32/dsp1.ldr --D2 /openx32/dsp2.ldr
+	/bin/setsid /bin/cttyhack /openx32/omc --L /openx32/lattice.bit --X /openx32/xilinx.bit --D1 /openx32/dsp1.ldr --D2 /openx32/dsp2.ldr
 
 	# start a simple shell for tty0 (Display)
 	echo "Booting into busybox shell..."

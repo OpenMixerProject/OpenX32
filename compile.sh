@@ -114,8 +114,8 @@ while [[ $# -gt 0 ]]; do
       else
           export PATH=/usr/bin:$PATH
       fi
-      cd software/x32ctrl
-      make -j$(nproc)
+      cd software/omc
+      ./compile.sh
       cd ../..
       exit 1;
       ;;
@@ -252,7 +252,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 
 	update_progress 50 "Compile OpenMixerControl..."
 	cd omc
-	make -j$(nproc)
+	./compile.sh
 	cd ..
 
 	update_progress 55 "Compile dropbear..."
@@ -336,7 +336,7 @@ update_progress 75 "Copy and optimize binaries..."
 mkdir -p initramfs_root/openx32
 mkdir -p initramfs_root/lib
 cp software/bin/x32sdconfig initramfs_root/openx32/
-cp software/bin/x32ctrl initramfs_root/openx32/
+cp ssoftware/omc/build/omc initramfs_root/openx32/
 cp software/dropbear/dropbearmulti initramfs_root/openx32/
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dbclient && cd ../../
