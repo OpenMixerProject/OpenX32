@@ -43,6 +43,12 @@ void X32Config::SetModel(String model){
     else if (model == "WING")
     {
         _model = X32_MODEL::WING;
+        Mixerparameter* banking_input_param = GetParameter(MP_ID::BANKING_INPUT);
+        if (banking_input_param != nullptr) {
+            banking_input_param->SetMinMax(0, (uint)WingBankId::__ELEMENT_COUNTER_DO_NOT_MOVE - 1);
+            banking_input_param->SetStandard((uint)WingBankId::WING_1_12);
+            banking_input_param->Set((uint)WingBankId::WING_1_12);
+        }
     }
     else
     {
@@ -1945,6 +1951,25 @@ void X32Config::DefineSurfaceElements()
         DefSurfaceElements((SurfaceElementId)(((int)BOARD_R_FADER_1)+i), String("BOARD R FADER ") + indexString);
     }
 
+    for (uint i = 0; i < 12; i++)
+    {
+        String indexString = String(i+1);
+        DefSurfaceElements((SurfaceElementId)(((int)WING_SELECT_1)+i), String("WING SELECT ") + indexString);
+        DefSurfaceElements((SurfaceElementId)(((int)WING_SOLO_1)+i), String("WING SOLO ") + indexString);
+        DefSurfaceElements((SurfaceElementId)(((int)WING_MUTE_1)+i), String("WING MUTE ") + indexString);
+        DefSurfaceElements((SurfaceElementId)(((int)WING_FADER_1)+i), String("WING FADER ") + indexString);
+    }
+
+    DefSurfaceElements(WING_LAYER_1_12, "WING LAYER 1-12");
+    DefSurfaceElements(WING_LAYER_13_24, "WING LAYER 13-24");
+    DefSurfaceElements(WING_LAYER_25_36, "WING LAYER 25-36");
+    DefSurfaceElements(WING_LAYER_37_40, "WING LAYER 37-40");
+    DefSurfaceElements(WING_LAYER_BUS_MASTER, "WING LAYER BUS MASTER");
+    DefSurfaceElements(WING_LAYER_MAIN_MATRIX, "WING LAYER MAIN MATRIX");
+    DefSurfaceElements(WING_LAYER_DCA, "WING LAYER DCA");
+    DefSurfaceElements(WING_LAYER_USER1, "WING LAYER USER1");
+    DefSurfaceElements(WING_LAYER_USER2, "WING LAYER USER2");
+
     /*
     
     Define modelspecific details
@@ -2751,7 +2776,28 @@ void X32Config::DefineSurfaceElements()
             GetSurfaceElement((SurfaceElementId)(((int)BOARD_R_MUTE_1)+i))      ->DefButton(X32_BOARD_R, 0x40 + i);
             GetSurfaceElement((SurfaceElementId)(((int)BOARD_R_FADER_1)+i))     ->DefFader(X32_BOARD_R, i);
         }
-    } 
+    }
+
+    if (IsModelWing())
+    {
+        for (uint i = 0; i < 12; i++)
+        {
+            GetSurfaceElement((SurfaceElementId)(((int)WING_SELECT_1)+i)) ->DefWingButton();
+            GetSurfaceElement((SurfaceElementId)(((int)WING_SOLO_1)+i))   ->DefWingButton();
+            GetSurfaceElement((SurfaceElementId)(((int)WING_MUTE_1)+i))   ->DefWingButton();
+            GetSurfaceElement((SurfaceElementId)(((int)WING_FADER_1)+i))  ->DefWingFader();
+        }
+
+        GetSurfaceElement(WING_LAYER_1_12) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_13_24) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_25_36) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_37_40) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_BUS_MASTER) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_MAIN_MATRIX) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_DCA) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_USER1) ->DefWingButton();
+        GetSurfaceElement(WING_LAYER_USER2) ->DefWingButton();
+    }
 }
 
 SurfaceElementId X32Config::CalcSurfaceElementId(SurfaceElementId id, int amount)

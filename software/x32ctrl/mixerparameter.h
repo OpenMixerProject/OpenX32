@@ -603,6 +603,15 @@ class Mixerparameter
             return this;
         }
 
+        void SetMinMax(float min, float max) {
+            value_min = min;
+            value_max = max;
+        }
+
+        void SetStandard(float standard) {
+            value_standard = standard;
+        }
+
         /// @brief assign members via select if this Mixerparameter is true
         Mixerparameter* DefAssignMembersIfTo(MP_ID MixerparameterToCheck, MP_ID MixerparameterDestination)
         {

@@ -51,6 +51,24 @@ class SurfaceElement
             return this;
         }
 
+        SurfaceElement* DefWingFader()
+        {
+            element_type = SurfaceElementType::Fader;
+            board_id = X32_BOARD_WING;
+            element_index = 0;
+
+            return this;
+        }
+
+        SurfaceElement* DefWingButton()
+        {
+            element_type = SurfaceElementType::Button;
+            board_id = X32_BOARD_WING;
+            element_index = 0;
+
+            return this;
+        }
+
         SurfaceElement* DefLcd(X32_BOARD board, uint lcd)
         {
             element_type = SurfaceElementType::Lcd;

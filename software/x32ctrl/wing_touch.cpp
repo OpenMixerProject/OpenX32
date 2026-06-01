@@ -46,15 +46,13 @@ int WingTouch::OpenSerial(const char* path) {
         return -1;
     }
 
-    cfmakeraw(&tio);
+    tio.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
+    tio.c_oflag &= ~OPOST;
+    tio.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+    tio.c_cflag &= ~(CSIZE|PARENB);
+    tio.c_cflag |= CS8;
     cfsetispeed(&tio, B115200);
     cfsetospeed(&tio, B115200);
-    tio.c_cflag |= CLOCAL | CREAD;
-    tio.c_cflag |= PARENB;
-    tio.c_cflag &= ~PARODD;
-    tio.c_cflag &= ~CSTOPB;
-    tio.c_cflag &= ~CSIZE;
-    tio.c_cflag |= CS8;
     tio.c_cc[VMIN] = 0;
     tio.c_cc[VTIME] = 0;
 

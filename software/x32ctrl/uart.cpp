@@ -59,15 +59,12 @@ int Uart::Open(const char* ttydev, uint32_t baudrate, bool raw) {
         tty.c_cflag &= ~(CSIZE|PARENB);
         tty.c_cflag |= CS8;
     } else {
-        tty.c_iflag &= ~(IGNPAR | ICRNL);
-        tty.c_iflag |= IGNPAR;
-        tty.c_oflag &= ~(OPOST | ONLCR);
-        tty.c_cflag |= (CLOCAL | CREAD);
-        tty.c_cflag &= ~CSIZE;
+        // Non-raw mode with parity support for backward compatibility
+        tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
+        tty.c_oflag &= ~OPOST;
+        tty.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+        tty.c_cflag &= ~(CSIZE|PARENB);
         tty.c_cflag |= CS8;
-        tty.c_cflag &= ~PARENB;
-        tty.c_cflag &= ~CSTOPB;
-        tty.c_lflag &= ~(ECHO | ECHOE | ECHOK | ICANON | ISIG);
     }
 
     tty.c_cc[VMIN] = 0; // Nicht blockierend lesen

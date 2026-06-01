@@ -151,7 +151,7 @@ void X32Ctrl::Tick10ms(void)
 	//
 	//#####################################
 
-	if (config->IsModelX32FullOrCompactOrProducerOrM32OrM32R()) 
+	if (config->IsModelWing() || config->IsModelX32FullOrCompactOrProducerOrM32OrM32R())
 	{
 		surface->Touchcontrol();	
 	}
@@ -969,6 +969,13 @@ void X32Ctrl::syncSurface(bool fullSync)
 			}
 		}
 	}
+	else if (config->IsModelWing())
+	{
+		if (config->HasParameterChanged(BANKING_INPUT))
+		{
+			LoadWingBank((WingBankId)(config->GetUint(BANKING_INPUT)));
+		}
+	}
 
 	// ######################################
 	//
@@ -1193,7 +1200,11 @@ void X32Ctrl::syncSurface(bool fullSync)
 				if (parameter_id == NONE)
 				{
 					// set to -infinity
-					surface->SetFader(element->GetBoard(), element->GetIndex(), 0);
+					if (config->IsModelWing()) {
+						surface->SetFader(element_id, 0);
+					} else {
+						surface->SetFader(element->GetBoard(), element->GetIndex(), 0);
+					}
 
 					continue;
 				}
@@ -1209,7 +1220,11 @@ void X32Ctrl::syncSurface(bool fullSync)
 					faderPosition = helper->Dbfs2Fader(config->GetFloat(parameter_id, parameter_index));
 				}
 
-				surface->SetFader(element->GetBoard(), element->GetIndex(), faderPosition);
+				if (config->IsModelWing()) {
+					surface->SetFader(element_id, faderPosition);
+				} else {
+					surface->SetFader(element->GetBoard(), element->GetIndex(), faderPosition);
+				}
 			}
 			// ####################################################
 			//
@@ -1998,14 +2013,32 @@ void X32Ctrl::ProcessUartDataSurface()
                                 uint16_t val10 = payload[1] | (payload[2] << 8);
                                 uint16_t val12 = (val10 * 4095) / 1023;
 
-                                uint8_t boardId = 4; // L
-                                uint8_t index = id;
-                                if (id >= 8) {
-                                    boardId = 8; // R
-                                    index = id - 8;
+                                if (id < 12) {
+                                    ProcessSurfaceWing((SurfaceElementId)((uint)SurfaceElementId::WING_FADER_1 + id), val12);
                                 }
-
-                                ProcessSurface((X32_BOARD)boardId, 'f', index, val12);
+                            }
+                            else if (cmd == 'b' && plen == 2) {
+                                uint8_t id = payload[0];
+                                uint8_t button_state = payload[1];
+                                if (id < 36) {
+                                    uint8_t strip = id / 3;
+                                    switch (id % 3) {
+                                        case 0:
+                                            ProcessSurfaceWing((SurfaceElementId)((uint)SurfaceElementId::WING_SELECT_1 + strip), button_state ? 0x80 : 0);
+                                            break;
+                                        case 1:
+                                            ProcessSurfaceWing((SurfaceElementId)((uint)SurfaceElementId::WING_SOLO_1 + strip), button_state ? 0x80 : 0);
+                                            break;
+                                        case 2:
+                                            ProcessSurfaceWing((SurfaceElementId)((uint)SurfaceElementId::WING_MUTE_1 + strip), button_state ? 0x80 : 0);
+                                            break;
+                                    }
+                                }
+                                else if (id >= 40 && id <= 48) {
+                                    if (button_state == 1) {
+                                        config->Set(BANKING_INPUT, (uint)(id - 40));
+                                    }
+                                }
                             }
                         }
                     }
@@ -2440,6 +2473,11 @@ void X32Ctrl::LoadDefaultSurfaceBinding()
 		config->SurfaceBind(SurfaceElementId::CHANNEL_LEVEL, MixerparameterAction::CHANGE_SELECTED_CHANNEL, CHANNEL_VOLUME);
 		config->SurfaceBind(SurfaceElementId::MAIN_LEVEL, MixerparameterAction::CHANGE, CHANNEL_VOLUME, to_underlying(X32_VCHANNEL_BLOCK::MAIN));
 	}
+
+	if (config->IsModelWing())
+	{
+		LoadWingBank(WingBankId::WING_1_12);
+	}
 }
 
 void X32Ctrl::LoadMainFaderSurfaceBinding()
@@ -2484,6 +2522,113 @@ void X32Ctrl::InitBanks()
 		InitBank_Flex(new X32FaderBank(X32BankId::FLEX2, "Flex2"));
 		InitBank_Flex(new X32FaderBank(X32BankId::FLEX3, "Flex3"));
 	}
+	else if (config->IsModelWing())
+	{
+		InitWingBanks();
+	}
+}
+
+void X32Ctrl::InitWingBanks()
+{
+    if (!config->IsModelWing()) return;
+
+    InitWingBank_Channelstrip(new WingFaderBank(WingBankId::WING_1_12, "Channel 1-12"), 0);
+    InitWingBank_Channelstrip(new WingFaderBank(WingBankId::WING_13_24, "Channel 13-24"), 12);
+
+    // WING_25_36: CH 25-32 + AUX 1-4
+    WingFaderBank* bank25_36 = new WingFaderBank(WingBankId::WING_25_36, "Channel 25-36");
+    for (uint i = 0; i < 8; i++) SetWingChannelstripBinding(bank25_36, i, 24 + i); // CH 25-32
+    for (uint i = 0; i < 4; i++) SetWingChannelstripBinding(bank25_36, 8 + i, (uint)(X32_VCHANNEL_BLOCK::AUX) + i); // AUX 1-4
+    wing_banks[(uint)WingBankId::WING_25_36] = bank25_36;
+
+    // WING_37_48: AUX 5-8 + FX Return 1-8
+    WingFaderBank* bank37_48 = new WingFaderBank(WingBankId::WING_37_48, "Channel 37-48");
+    for (uint i = 0; i < 4; i++) SetWingChannelstripBinding(bank37_48, i, (uint)(X32_VCHANNEL_BLOCK::AUX) + 4 + i); // AUX 5-8
+    for (uint i = 0; i < 8; i++) SetWingChannelstripBinding(bank37_48, 4 + i, (uint)(X32_VCHANNEL_BLOCK::FXRET) + i); // FX Return 1-8
+    wing_banks[(uint)WingBankId::WING_37_48] = bank37_48;
+
+    InitWingBank_Channelstrip(new WingFaderBank(WingBankId::WING_BUS_1_12, "Bus 1-12"), (uint)(X32_VCHANNEL_BLOCK::BUS));
+
+    // WING_BUS_13_24: Bus 13-16 + Matrix 1-6 + Main LR + Main Sub/Mono
+    WingFaderBank* bankBus13_24 = new WingFaderBank(WingBankId::WING_BUS_13_24, "Matrix/Main/Bus 13-16");
+    for (uint i = 0; i < 4; i++) SetWingChannelstripBinding(bankBus13_24, i, (uint)(X32_VCHANNEL_BLOCK::BUS) + 12 + i); // Bus 13-16
+    for (uint i = 0; i < 6; i++) SetWingChannelstripBinding(bankBus13_24, 4 + i, (uint)(X32_VCHANNEL_BLOCK::MATRIX) + i); // Matrix 1-6
+    SetWingChannelstripBinding(bankBus13_24, 10, (uint)(X32_VCHANNEL_BLOCK::MAIN)); // Main LR
+    SetWingChannelstripBinding(bankBus13_24, 11, (uint)(X32_VCHANNEL_BLOCK::SPECIAL)); // Main Sub/Mono (SPECIAL is Mono/Center)
+    wing_banks[(uint)WingBankId::WING_BUS_13_24] = bankBus13_24;
+
+    // WING_DCA: DCA 1-8 + Main LR + Main Sub/Mono + 2 unused
+    WingFaderBank* bankDca = new WingFaderBank(WingBankId::WING_DCA, "DCA");
+    for (uint i = 0; i < 8; i++) {
+        bankDca->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::TOGGLE, config->MpCalcId(DCA_GROUP_1_MASTER, i), 0);
+        bankDca->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bankDca->channelstrip[i]->solo->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, i + (uint)(X32_VCHANNEL_BLOCK::DCA));
+        bankDca->channelstrip[i]->lcd->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, i + (uint)(X32_VCHANNEL_BLOCK::DCA));
+        bankDca->channelstrip[i]->mute->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, i + (uint)(X32_VCHANNEL_BLOCK::DCA));
+        bankDca->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, i + (uint)(X32_VCHANNEL_BLOCK::DCA));
+    }
+    SetWingChannelstripBinding(bankDca, 8, (uint)(X32_VCHANNEL_BLOCK::MAIN)); // Main LR
+    SetWingChannelstripBinding(bankDca, 9, (uint)(X32_VCHANNEL_BLOCK::SPECIAL)); // Main Sub/Mono (SPECIAL)
+    for (uint i = 10; i < 12; i++) {
+        bankDca->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bankDca->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bankDca->channelstrip[i]->solo->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bankDca->channelstrip[i]->lcd->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bankDca->channelstrip[i]->mute->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+        bankDca->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::NONE, NONE, 0);
+    }
+    wing_banks[(uint)WingBankId::WING_DCA] = bankDca;
+
+    InitWingBank_Channelstrip(new WingFaderBank(WingBankId::WING_USER1, "User 1"), 0);
+    InitWingBank_Channelstrip(new WingFaderBank(WingBankId::WING_USER2, "User 2"), 12);
+}
+
+void X32Ctrl::InitWingBank_Channelstrip(WingFaderBank* bank, uint offset)
+{
+    if (!config->IsModelWing()) return;
+
+    for (uint i = 0; i < 12; i++)
+    {
+        SetWingChannelstripBinding(bank, i, i + offset);
+    }
+
+    wing_banks[(uint)(bank->GetID())] = bank;
+}
+
+void X32Ctrl::SetWingChannelstripBinding(WingFaderBank *bank, uint i, uint chanIndex)
+{
+    if (!config->IsModelWing()) return;
+
+    bank->channelstrip[i]->select->FillBindingParameter(MixerparameterAction::SET_TO_INDEX, SELECTED_CHANNEL, chanIndex);
+    bank->channelstrip[i]->vumeter->FillBindingParameter(MixerparameterAction::VUMETER, NONE, chanIndex);
+    bank->channelstrip[i]->solo->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_SOLO, chanIndex);
+    bank->channelstrip[i]->lcd->FillBindingParameter(MixerparameterAction::LCD_Channel, NONE, chanIndex);
+    bank->channelstrip[i]->mute->FillBindingParameter(MixerparameterAction::TOGGLE, CHANNEL_MUTE, chanIndex);
+    bank->channelstrip[i]->fader->FillBindingParameter(MixerparameterAction::SET, CHANNEL_VOLUME, chanIndex);
+}
+
+void X32Ctrl::LoadWingBank(WingBankId id)
+{
+    if (!config->IsModelWing()) return;
+    if (id == WingBankId::None) return;
+
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Load WING Bank %d", id);
+
+    WingFaderBank* bank_to_load = wing_banks[(uint)id];
+    if (bank_to_load == nullptr) return;
+
+    for (uint i = 0; i < 12; i++)
+    {
+        config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::WING_SELECT_1 + i), bank_to_load->channelstrip[i]->select);
+        config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::WING_SOLO_1 + i), bank_to_load->channelstrip[i]->solo);
+        config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::WING_MUTE_1 + i), bank_to_load->channelstrip[i]->mute);
+        config->SurfaceBindParameter((SurfaceElementId)((uint)SurfaceElementId::WING_FADER_1 + i), bank_to_load->channelstrip[i]->fader);
+    }
+
+    wingBankLoaded = bank_to_load;
+
+    // Send active layer LED frame to the WING surface
+    surface->SetWingActiveLayerLed(id);
 }
 
 void X32Ctrl::InitBank_Channelstrip(X32FaderBank* bank, uint offset)
@@ -2639,8 +2784,117 @@ void X32Ctrl::LoadAssignBank(X32AssignBankId bankId)
 //#####################################################################################################################
 
 
+void X32Ctrl::ProcessSurfaceWing(SurfaceElementId elementId, uint16_t value)
+{
+	if (!config->IsModelWing()) return;
+
+	SurfaceElement* element = config->GetSurfaceElement(elementId);
+	if (element == 0) { return; }
+
+	SurfaceBindingParameter* bindingParameter = config->GetSurfaceBinding(elementId);
+	if (bindingParameter == 0) { return; }
+
+	if (element->element_type == SurfaceElementType::Fader)
+	{
+		switch (bindingParameter->mp_action)
+		{
+			case MixerparameterAction::SET:
+				config->Set(bindingParameter->mp_id, helper->Fadervalue2dBfs(value), bindingParameter->mp_index);
+				surface->FaderMovedWing(elementId, value);
+				break;
+			case MixerparameterAction::DMX:
+				config->Set(bindingParameter->mp_id, helper->Fadervalue2DMX(value), bindingParameter->mp_index);
+				surface->FaderMovedWing(elementId, value);
+				break;
+			default:
+				break;
+		}
+	}
+	else if (element->element_type == SurfaceElementType::Button)
+	{
+		bool isButtonPressed = (value >> 7) == 1;
+
+		if (isButtonPressed) {
+			if (buttonPressed == 0) {
+				buttonPressed = element;
+			} else {
+				secondbuttonPressed = element;
+				helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "DoubleButtonPress: Button1 \"%s\", Button2 \"%s\"", buttonPressed->GetName().c_str(), secondbuttonPressed->GetName().c_str());
+			}
+		} else {
+			if (buttonPressed == element) {
+				buttonPressed = 0;				
+			}
+			if (secondbuttonPressed == element) {
+				secondbuttonPressed = 0;
+			}
+		}
+
+		helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Button \"%s\" %s",
+			element->GetName().c_str(),
+			isButtonPressed ? "pressed" : "released"
+		);
+
+		if (bindingParameter->mp_action != MixerparameterAction::NONE)
+		{
+			MP_ID parameter_id = config->ParameterCalcId(bindingParameter);
+			uint parameter_index = config->ParameterCalcIndex(bindingParameter);
+
+			if (isButtonPressed)
+			{
+					switch (bindingParameter->mp_action)
+					{
+						case MixerparameterAction::REFRESH:
+							config->Refresh(parameter_id, parameter_index);
+							break;
+						case MixerparameterAction::TOGGLE:
+						case MixerparameterAction::TOGGLE_SELECTED_CHANNEL:
+							config->Toggle(parameter_id, parameter_index);
+							break;
+						case MixerparameterAction::PUSH:
+						case MixerparameterAction::SET:
+						case MixerparameterAction::SET_SELECTED_CHANNEL:
+							config->Set(parameter_id, 1, parameter_index);
+							break;
+						case MixerparameterAction::SET_TO_INDEX:
+							config->Set(parameter_id, bindingParameter->mp_index, parameter_index);
+							break;
+						case MixerparameterAction::CHANGE:
+						case MixerparameterAction::CHANGE_SELECTED_CHANNEL:
+						case MixerparameterAction::CHANGE__MP_INDIRECT__SELECTED_CHANNEL:
+							config->Change(parameter_id, 1, parameter_index);
+							break;
+						case MixerparameterAction::RESET:
+						case MixerparameterAction::RESET_SELECTED_CHANNEL:
+							config->Reset(parameter_id, parameter_index);
+							break;
+						case MixerparameterAction::CLEAR_SOLO:
+							mixer->ClearSolo();
+							break;
+						default:
+							break;
+					}
+			}
+			else
+			{
+					switch (bindingParameter->mp_action)
+					{
+						case MixerparameterAction::PUSH:
+							config->Set(parameter_id, 0, parameter_index);
+							break;
+						default:
+							break;
+					}
+			}
+		}
+	}
+}
+
+
 void X32Ctrl::ProcessSurface(X32_BOARD board, uint8_t classid, uint8_t index, uint16_t value)
 {
+	if (config->IsModelWing()) return;
+
 	if (classid == 'f') // Fader
 	{
 		// find surfaceelement

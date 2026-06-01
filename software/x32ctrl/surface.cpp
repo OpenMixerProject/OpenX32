@@ -49,6 +49,33 @@
 #define CSC_BOOT_BIT             20u
 #define CSC_RESET_MASK           ((1u << CSC_RESET_BIT) | (1u << CSC_BOOT_BIT))
 #define WING_STAR                0x2au
+#define WING_FADER_COUNT         12u
+#define WING_STRIP_LED_COUNT     36u
+#define WING_LAYER_LED_COUNT     52u
+
+namespace {
+    bool WingElementOffset(SurfaceElementId elementId, SurfaceElementId first, uint8_t count, uint8_t *offset)
+    {
+        uint id = (uint)elementId;
+        uint firstId = (uint)first;
+        if (id >= firstId && id < firstId + count)
+        {
+            *offset = id - firstId;
+            return true;
+        }
+
+        return false;
+    }
+
+    void PackWingLedStates(const uint8_t *states, uint8_t count, uint8_t *payload, uint8_t payload_len)
+    {
+        memset(payload, 0, payload_len);
+        for (uint8_t i = 0; i < count; i++)
+        {
+            payload[i / 4] |= (states[i] & 0x03) << ((i % 4) * 2);
+        }
+    }
+}
 
 Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
     uart = new Uart(basepar);
@@ -109,13 +136,7 @@ void Surface::Init(void) {
         init_stock_csc_transport();
         uart->Open("/dev/ttymxc4", 115200, true);
 
-        // Send H probe
-        SurfaceMessage message;
-        message.AddRawByte(WING_STAR);
-        message.AddRawByte('H');
-        message.AddRawByte(WING_STAR);
-        message.AddRawByte(0x80);
-        uart->Tx(&message);
+        SendWingFrame('H', nullptr, 0);
         return;
     }
 
@@ -431,6 +452,8 @@ uint16_t Surface::CalcEncoderRingLedWidth(uint8_t pct) {
 }
 
 void Surface::SetBrightnessAllBoards(uint8_t brightness) {
+    if (config->IsModelWing()) return;
+
     SetBrightness(X32_BOARD_MAIN, brightness);
     SetBrightness(X32_BOARD_L, brightness);
     SetBrightness(X32_BOARD_M, brightness);
@@ -441,6 +464,8 @@ void Surface::SetBrightnessAllBoards(uint8_t brightness) {
 // index = 0 ... 8
 // brightness = 0 ... 255
 void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
+    if (config->IsModelWing()) return;
+
     SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
     message.AddDataByte('C'); // class: C = Controlmessage
@@ -450,6 +475,8 @@ void Surface::SetBrightness(uint8_t boardId, uint8_t brightness) {
 }
 
 void Surface::SetContrastAllBoards(uint8_t contrast) {
+    if (config->IsModelWing()) return;
+
     SetContrast(X32_BOARD_MAIN, contrast);
     SetContrast(X32_BOARD_L, contrast);
     SetContrast(X32_BOARD_M, contrast);
@@ -459,12 +486,103 @@ void Surface::SetContrastAllBoards(uint8_t contrast) {
 // boardId = 0, 1, 4, 5, 8
 // contrast = 0 ... 255
 void Surface::SetContrast(uint8_t boardId, uint8_t contrast) {
+    if (config->IsModelWing()) return;
+
     SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
     message.AddDataByte('C'); // class: C = Controlmessage
     message.AddDataByte('C'); // index
     message.AddDataByte(contrast & 0x3F);
     SendData(&message, true);
+}
+
+void Surface::SendWingFrame(uint8_t cmd, const uint8_t* payload, size_t len)
+{
+    if (!config->IsModelWing()) return;
+
+    SurfaceMessage message;
+    unsigned int sum = 0;
+
+    message.AddRawByte(WING_STAR);
+    message.AddRawByte(cmd);
+
+    for (size_t i = 0; i < len; i++)
+    {
+        uint8_t byte = payload[i];
+        sum = (sum + byte) & 0xffu;
+
+        if (byte == WING_STAR)
+        {
+            message.AddRawByte(WING_STAR);
+            message.AddRawByte(0x40);
+        }
+        else
+        {
+            message.AddRawByte(byte);
+        }
+    }
+
+    message.AddRawByte(WING_STAR);
+    message.AddRawByte((uint8_t)(((sum & 0xffu) ^ (len & 0xffu)) | 0x80u));
+    uart->Tx(&message);
+}
+
+void Surface::SetWingActiveLayerLed(WingBankId bankId)
+{
+    if (!config->IsModelWing()) return;
+
+    uint bank = (uint)bankId;
+    if (bank >= 9)
+    {
+        return;
+    }
+
+    for (uint8_t i = 0; i < 9; i++)
+    {
+        wing_btn_led_states[i] = (i == bank) ? 0x01 : 0x00;
+    }
+
+    uint8_t payload[13];
+    PackWingLedStates(wing_btn_led_states, WING_LAYER_LED_COUNT, payload, sizeof(payload));
+    SendWingFrame('l', payload, sizeof(payload));
+}
+
+void Surface::SetLedWing(SurfaceElementId buttonOrLed, bool ledOn)
+{
+    if (!config->IsModelWing()) return;
+
+    uint8_t offset = 0;
+    uint8_t led_state = ledOn ? 0x01 : 0x00;
+
+    if (WingElementOffset(buttonOrLed, SurfaceElementId::WING_SELECT_1, WING_FADER_COUNT, &offset))
+    {
+        wing_led_states[(offset * 3) + 0] = led_state;
+    }
+    else if (WingElementOffset(buttonOrLed, SurfaceElementId::WING_SOLO_1, WING_FADER_COUNT, &offset))
+    {
+        wing_led_states[(offset * 3) + 1] = led_state;
+    }
+    else if (WingElementOffset(buttonOrLed, SurfaceElementId::WING_MUTE_1, WING_FADER_COUNT, &offset))
+    {
+        wing_led_states[(offset * 3) + 2] = led_state;
+    }
+    else if (WingElementOffset(buttonOrLed, SurfaceElementId::WING_LAYER_1_12, 9, &offset))
+    {
+        wing_btn_led_states[offset] = led_state;
+
+        uint8_t payload[13];
+        PackWingLedStates(wing_btn_led_states, WING_LAYER_LED_COUNT, payload, sizeof(payload));
+        SendWingFrame('l', payload, sizeof(payload));
+        return;
+    }
+    else
+    {
+        return;
+    }
+
+    uint8_t payload[9];
+    PackWingLedStates(wing_led_states, WING_STRIP_LED_COUNT, payload, sizeof(payload));
+    SendWingFrame('B', payload, sizeof(payload));
 }
 
 void Surface::SetLed(SurfaceElementId buttonOrLed, bool ledOn, bool blink)
@@ -490,12 +608,18 @@ void Surface::SetLed(SurfaceElementId buttonOrLed, bool ledOn, bool blink)
 
 void Surface::SetLed(SurfaceElementId buttonOrLed, bool ledOn)
 {
+    if (config->IsModelWing()) {
+        SetLedWing(buttonOrLed, ledOn);
+        return;
+    }
     SurfaceElement *element = config->GetSurfaceElement(buttonOrLed);
     SetLedRaw((uint)element->GetBoard(), (uint)element->GetIndex(), ledOn);
 }
 
 void Surface::SetLedRaw(uint board, uint index, bool ledOn)
 {
+    if (config->IsModelWing()) return;
+
     SurfaceMessage message;
     message.AddDataByte(0x80 + board);
     message.AddDataByte('L');  // class: L = LED
@@ -839,20 +963,29 @@ void Surface::FaderReset()
     if (config->IsModelX32FullOrM32()){
         maxfaderindex = MAX_FADERS;
     }
-    if (config->IsModelX32CompactOrProducerOrM32R()){
+    else if (config->IsModelX32CompactOrProducerOrM32R()){
         maxfaderindex = MAX_FADERS-8;
+    }
+    else if (config->IsModelWing()){
+        maxfaderindex = WING_FADER_COUNT;
     }
 
     for(uint8_t faderindex=0; faderindex<maxfaderindex; faderindex++)
     {
         faders[faderindex].position_real = 0;
-        SetFaderRaw(GetBoardId(faderindex), GetFaderId(faderindex), 0);
+        if (config->IsModelWing()) {
+            SetFaderWing(faderindex, 0);
+        } else {
+            SetFaderRaw(GetBoardId(faderindex), GetFaderId(faderindex), 0);
+        }
     }
 }
 
 // Want to move Fader to Position
 // position = 0x0000 ... 0x0FFF
 void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
+    if (config->IsModelWing()) return;
+
     uint8_t faderindex = GetChannelstripIndex(boardId, index);
 
     //if (faders[faderindex].position_real != faders[faderindex].position_wanted) {
@@ -861,14 +994,45 @@ void Surface::SetFader(uint8_t boardId, uint8_t index, uint16_t position) {
    // }
 }
 
+void Surface::SetFader(SurfaceElementId faderId, uint16_t position) {
+    if (!config->IsModelWing()) return;
+
+    uint8_t faderindex = 0;
+    if (!WingElementOffset(faderId, SurfaceElementId::WING_FADER_1, WING_FADER_COUNT, &faderindex))
+    {
+        return;
+    }
+
+    helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Want to move WING fader at index %d to %d", faderindex, position);
+    faders[faderindex].position_wanted = position;
+}
+
 // Fader was physically moved (by us or by operator)
 void Surface::FaderMoved(uint8_t boardId, uint8_t index, uint16_t value)
 {
+    if (config->IsModelWing()) return;
+
     uint8_t faderindex = GetChannelstripIndex(boardId, index);
     helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Fader at index %d moved to %d", faderindex, value);
     faders[faderindex].position_wanted = value;
     faders[faderindex].position_real = value;
     faders[faderindex].wait = 10; // wait 100x 10ms
+}
+
+void Surface::FaderMovedWing(SurfaceElementId faderId, uint16_t value)
+{
+    if (!config->IsModelWing()) return;
+
+    uint8_t faderindex = 0;
+    if (!WingElementOffset(faderId, SurfaceElementId::WING_FADER_1, WING_FADER_COUNT, &faderindex))
+    {
+        return;
+    }
+
+    helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "WING fader at index %d moved to %d", faderindex, value);
+    faders[faderindex].position_wanted = value;
+    faders[faderindex].position_real = value;
+    faders[faderindex].wait = 10;
 }
 
 uint8_t Surface::GetChannelstripIndex(uint8_t boardId, uint8_t index)
@@ -938,8 +1102,11 @@ void Surface::Touchcontrol() {
     if (config->IsModelX32FullOrM32()){
         maxfaderindex = MAX_FADERS;
     }
-    if (config->IsModelX32CompactOrProducerOrM32R()){
+    else if (config->IsModelX32CompactOrProducerOrM32R()){
         maxfaderindex = MAX_FADERS-8;
+    }
+    else if (config->IsModelWing()){
+        maxfaderindex = WING_FADER_COUNT;
     }
 
     for(uint8_t faderindex=0; faderindex<maxfaderindex; faderindex++)
@@ -953,50 +1120,18 @@ void Surface::Touchcontrol() {
         {
             helper->DEBUG_SURFACE(DEBUGLEVEL_VERBOSE, "Move fader at index %d from %d to %d", faderindex, faders[faderindex].position_real, faders[faderindex].position_wanted);
             faders[faderindex].position_real = faders[faderindex].position_wanted;
-            SetFaderRaw(GetBoardId(faderindex), GetFaderId(faderindex), faders[faderindex].position_wanted);
+            if (config->IsModelWing()) {
+                SetFaderWing(faderindex, faders[faderindex].position_wanted);
+            } else {
+                SetFaderRaw(GetBoardId(faderindex), GetFaderId(faderindex), faders[faderindex].position_wanted);
+            }
         }
     }
 }
 
 // position = 0x0000 ... 0x0FFF
 void Surface::SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position) {
-    if (state->wing) {
-        uint8_t id = index;
-        if (boardId == 8) { // R
-            id = index + 8;
-        } else if (boardId == 5) { // M (if M32 layout is used)
-            id = index + 8;
-        }
-
-        if (id < 12) {
-            uint16_t pos10 = (position * 1023) / 4095;
-            SurfaceMessage message;
-            message.AddRawByte(WING_STAR);
-            message.AddRawByte('f');
-            
-            message.AddRawByte(id);
-            if (id == WING_STAR) message.AddRawByte(0x40);
-
-            uint8_t lsb = pos10 & 0xFF;
-            message.AddRawByte(lsb);
-            if (lsb == WING_STAR) message.AddRawByte(0x40);
-
-            uint8_t msb = (pos10 >> 8) & 0xFF;
-            message.AddRawByte(msb);
-            if (msb == WING_STAR) message.AddRawByte(0x40);
-
-            uint8_t payload[3] = {id, lsb, msb};
-            unsigned int sum = 0;
-            for (size_t i = 0; i < 3; i++) sum = (sum + payload[i]) & 0xffu;
-            uint8_t chk = (uint8_t)(((sum & 0xffu) ^ 3) | 0x80u);
-
-            message.AddRawByte(WING_STAR);
-            message.AddRawByte(chk);
-
-            uart->Tx(&message);
-        }
-        return;
-    }
+    if (config->IsModelWing()) return;
 
     SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
@@ -1008,6 +1143,29 @@ void Surface::SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position) {
     helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Set fader position on board %d at index %d to %d", boardId, index, position);
 
     SendData(&message, true);
+}
+
+void Surface::SetFaderWing(uint8_t fader_idx, uint16_t position) {
+    if (!config->IsModelWing()) return;
+
+    if (fader_idx >= WING_FADER_COUNT)
+    {
+        return;
+    }
+
+    if (position > 0x0FFF)
+    {
+        position = 0x0FFF;
+    }
+
+    uint8_t payload[3] = {
+        fader_idx,
+        (uint8_t)(position & 0xFF),
+        (uint8_t)((position >> 8) & 0x0F)
+    };
+
+    helper->DEBUG_SURFACE(DEBUGLEVEL_TRACE, "Set WING fader at index %d to %d", fader_idx, position);
+    SendWingFrame('F', payload, sizeof(payload));
 }
 
 // incoming message has the form: 0xFE 0x8i Class Index Data[] 0xFE

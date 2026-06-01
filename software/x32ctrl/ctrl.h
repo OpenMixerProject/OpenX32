@@ -92,6 +92,9 @@ class X32Ctrl : public X32Base
         X32FaderBank* bankLoadedInputsection2;
         X32FaderBank* bankLoadedBussection;
 
+        WingFaderBank* wing_banks[(uint)WingBankId::__ELEMENT_COUNTER_DO_NOT_MOVE];
+        WingFaderBank* wingBankLoaded = nullptr;
+
         X32BankId preSpillLoadedBank = X32BankId::None;
 
         map<X32_PAGE, Page*> pages;
@@ -111,6 +114,12 @@ class X32Ctrl : public X32Base
         void LoadAssignBank(X32AssignBankId id);
         void LoadDefaultSurfaceBinding();
         void LoadMainFaderSurfaceBinding();
+
+        void InitWingBanks();
+        void InitWingBank_Channelstrip(WingFaderBank *bank, uint offset);
+        void SetWingChannelstripBinding(WingFaderBank *bank, uint i, uint chanIndex);
+        void LoadWingBank(WingBankId id);
+        void ProcessSurfaceWing(SurfaceElementId elementId, uint16_t value);
 
         int surfacePacketCurrentIndex = 0;
         int surfacePacketCurrent = 0;

@@ -14,6 +14,7 @@
 #include "surface-fader.h"
 #include "surface-button.h"
 #include "helper.h"
+#include "x32faderbank.h"
 
 using namespace std;
 
@@ -27,6 +28,9 @@ class Surface : public X32Base
         bool blinkstate = false;
         set<SurfaceElementId> blinklist;
 
+        uint8_t wing_led_states[36] = {};
+        uint8_t wing_btn_led_states[52] = {};
+
         uint8_t int2segment(int8_t p_value);
 
         uint16_t CalcEncoderRingLedDirect(uint8_t num_leds_to_light);
@@ -38,6 +42,7 @@ class Surface : public X32Base
         uint16_t CalcEncoderRingLedWidth(uint8_t pct);
 
         void SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position);
+        void SetFaderWing(uint8_t fader_idx, uint16_t position);
         uint8_t GetBoardId(uint8_t faderindex);
         uint8_t GetFaderId(uint8_t faderindex);
 
@@ -64,6 +69,11 @@ class Surface : public X32Base
         void SetContrastAllBoards(uint8_t contrast);
         void SetContrast(uint8_t boardId, uint8_t contrast);
         void SetFader(uint8_t boardId, uint8_t index, uint16_t position);
+        void SetFader(SurfaceElementId faderId, uint16_t position);
+        void FaderMovedWing(SurfaceElementId faderId, uint16_t value);
+        void SendWingFrame(uint8_t cmd, const uint8_t* payload, size_t len);
+        void SetWingActiveLayerLed(WingBankId bankId);
+        void SetLedWing(SurfaceElementId buttonOrLed, bool ledOn);
         void SetX32RackDisplayRaw(uint8_t p_value2, uint8_t p_value1);
         void SetX32RackDisplay(uint8_t p_value);
         void SetLed(SurfaceElementId buttonOrLed, bool state, bool blink);
