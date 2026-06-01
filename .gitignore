@@ -9,6 +9,18 @@
 *.bak
 *.bak.*
 
+# external source
+linux/
+software/busybox/
+software/dropbear/
+software/framebuffer-vncserver/
+software/libvncserver/
+software/libartnet/
+software/omc/
+fpga/AES50/
+software/x32ctrl/lv_port_linux/
+
+
 # initramfs
 initramfs_root/bin
 initramfs_root/lib
