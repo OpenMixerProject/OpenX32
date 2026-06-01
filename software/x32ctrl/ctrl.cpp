@@ -45,7 +45,9 @@ void X32Ctrl::Init()
 	helper->ReadConfig("/etc/x32.conf", "CFG", cfg, 5);
 	helper->Log("Detected model: %s with Serial %s built on %s\n", model, serial, date);
 
-	if (state->bodyless) {
+	if (state->wing) {
+		config->SetModel("WING");
+	} else if (state->bodyless) {
 		config->SetModel("X32C");
 		//config->SetModel("X32");
 	} else if (state->raspi) {
@@ -1940,6 +1942,92 @@ void X32Ctrl::syncXRemote(bool syncAll) {
 
 void X32Ctrl::ProcessUartDataSurface()
 {
+    if (config->IsModelWing()) {
+        int bytesToProcess = surface->uart->Rx(&surfaceBufferUart[0], sizeof(surfaceBufferUart));
+        if (bytesToProcess <= 0) return;
+
+        static enum DecoderState {
+            WDEC_WAIT_START,
+            WDEC_IN_FRAME,
+            WDEC_AFTER_ESCAPE,
+            WDEC_WAIT_CHECKSUM,
+        } wdec_state = WDEC_WAIT_START;
+
+        static uint8_t wdec_frame[512];
+        static size_t wdec_flen = 0;
+
+        for (int i = 0; i < bytesToProcess; i++) {
+            uint8_t byte = surfaceBufferUart[i];
+            switch (wdec_state) {
+            case WDEC_WAIT_START:
+                if (byte == 0x2a) {
+                    wdec_state = WDEC_IN_FRAME;
+                    wdec_flen = 0;
+                }
+                break;
+            case WDEC_IN_FRAME:
+                if (byte == 0x2a) {
+                    if (wdec_flen > 0) {
+                        wdec_state = WDEC_AFTER_ESCAPE;
+                    } else {
+                        wdec_flen = 0;
+                    }
+                } else {
+                    if (wdec_flen < sizeof(wdec_frame)) wdec_frame[wdec_flen++] = byte;
+                    else { wdec_state = WDEC_WAIT_START; wdec_flen = 0; }
+                }
+                break;
+            case WDEC_AFTER_ESCAPE:
+                if (byte == 0x40) {
+                    if (wdec_flen < sizeof(wdec_frame)) wdec_frame[wdec_flen++] = 0x2a;
+                    else { wdec_state = WDEC_WAIT_START; wdec_flen = 0; }
+                    wdec_state = WDEC_IN_FRAME;
+                } else if ((byte & 0x80u) != 0) {
+                    wdec_state = WDEC_WAIT_CHECKSUM;
+                    if (wdec_flen >= 1) {
+                        uint8_t cmd = wdec_frame[0];
+                        uint8_t* payload = wdec_frame + 1;
+                        size_t plen = wdec_flen - 1;
+                        unsigned int sum = 0;
+                        for (size_t k = 0; k < plen; k++) sum = (sum + payload[k]) & 0xffu;
+                        uint8_t expected = (uint8_t)(((sum & 0xffu) ^ (plen & 0xffu)) | 0x80u);
+
+                        if (byte == expected) {
+                            if (cmd == 'f' && plen == 3) {
+                                uint8_t id = payload[0];
+                                uint16_t val10 = payload[1] | (payload[2] << 8);
+                                uint16_t val12 = (val10 * 4095) / 1023;
+
+                                uint8_t boardId = 4; // L
+                                uint8_t index = id;
+                                if (id >= 8) {
+                                    boardId = 8; // R
+                                    index = id - 8;
+                                }
+
+                                ProcessSurface((X32_BOARD)boardId, 'f', index, val12);
+                            }
+                        }
+                    }
+                    wdec_state = WDEC_WAIT_START;
+                    wdec_flen = 0;
+                } else {
+                    if (wdec_flen < sizeof(wdec_frame)) wdec_frame[wdec_flen++] = 0x2a;
+                    else { wdec_state = WDEC_WAIT_START; wdec_flen = 0; }
+                    wdec_state = WDEC_IN_FRAME;
+                    if (wdec_flen < sizeof(wdec_frame)) wdec_frame[wdec_flen++] = byte;
+                    else { wdec_state = WDEC_WAIT_START; wdec_flen = 0; }
+                }
+                break;
+            case WDEC_WAIT_CHECKSUM:
+                wdec_state = WDEC_WAIT_START;
+                wdec_flen = 0;
+                break;
+            }
+        }
+        return;
+    }
+
     uint8_t receivedClass = 0;
     uint8_t receivedIndex = 0;
     uint16_t receivedValue = 0;

@@ -29,7 +29,7 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 
 	spi = new SPI(basepar);
 
-	if (!state->bodyless) {
+	if (!state->bodyless && !state->wing) {
     	if (spi->UploadBitstreamFpgaLattice() == -1) {
 			// uploading the Lattice-Bitstream was not successful (or not set), so try to upload the Xilinx-bitstream
 	        spi->UploadBitstreamFpgaXilinx();
@@ -46,6 +46,7 @@ Fpga::Fpga(X32BaseParameter* basepar): X32Base(basepar) {
 }
 
 void Fpga::Init() {
+	if (state->wing) return;
 	const uint speed = 115200;
 	String serial;
 	
@@ -318,7 +319,7 @@ String Fpga::GetOutputNameByIndex(uint8_t index) {
 
 // helper-function to send the audio-routing to the fpga
 void Fpga::SendRoutingToFpga(int channel) {
-	if (state->bodyless) {
+	if (state->wing || state->bodyless) {
 		return;
 	}
 
@@ -389,6 +390,7 @@ void Fpga::SetConfigBit(uint8_t bitNumber, bool value) {
 }
 
 void Fpga::SendConfig(void) {
+	if (state->wing) return;
 	uint8_t txData[2];
 	uint8_t rxData[2];
 	txData[0] = configData;

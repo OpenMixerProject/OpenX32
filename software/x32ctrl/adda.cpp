@@ -33,6 +33,7 @@ Adda::Adda(X32BaseParameter* basepar): X32Base(basepar) {
 
 void Adda::Init()
 {
+	if (state->wing) return;
 	const uint16_t speed = 38400;
 	String serial;
 	
@@ -446,6 +447,7 @@ void Adda::FlushRxBuffer() {
 
 // Mute all ADDA boards
 void Adda::SetMuteAll(bool muted) {
+		if (state->wing) return;
 		int fd = open("/sys/class/leds/audio_mute/brightness", O_WRONLY);
 
 		if (muted) {

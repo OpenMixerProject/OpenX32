@@ -22,13 +22,103 @@
   GNU General Public License for more details.
 */
 
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
 #include "surface.h"
+
+#define IOMUXC_BASE              0x020E0000u
+#define GPIO5_BASE               0x020AC000u
+#define GPIO_DR_OFF              0x0000u
+#define GPIO_GDIR_OFF            0x0004u
+
+#define MUX_KEY_COL1             0x005Cu
+#define MUX_KEY_ROW1             0x0060u
+#define PAD_KEY_COL1             0x0370u
+#define PAD_KEY_ROW1             0x0374u
+#define SEL_UART5_RX             0x091Cu
+
+#define UART5_ALT_MODE           0x3u
+#define UART5_RX_DAISY_STOCK     0x1u
+#define PAD_UART_TX_STOCK        0x00000018u
+#define PAD_UART_RX_STOCK        0x0000B000u
+
+#define CSC_RESET_BIT            23u
+#define CSC_BOOT_BIT             20u
+#define CSC_RESET_MASK           ((1u << CSC_RESET_BIT) | (1u << CSC_BOOT_BIT))
+#define WING_STAR                0x2au
 
 Surface::Surface(X32BaseParameter* basepar): X32Base(basepar){
     uart = new Uart(basepar);
 }
 
+int Surface::init_stock_csc_transport()
+{
+    const size_t map_len = 0x1000;
+    int mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
+    if (mem_fd < 0) {
+        perror("Surface: failed to open /dev/mem");
+        return -1;
+    }
+
+    uint8_t *iomuxc = (uint8_t *)mmap(NULL, map_len, PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd, IOMUXC_BASE);
+    if (iomuxc == MAP_FAILED) {
+        perror("Surface: mmap iomuxc failed");
+        close(mem_fd);
+        return -1;
+    }
+
+    uint8_t *gpio5 = (uint8_t *)mmap(NULL, map_len, PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd, GPIO5_BASE);
+    if (gpio5 == MAP_FAILED) {
+        perror("Surface: mmap gpio5 failed");
+        munmap(iomuxc, map_len);
+        close(mem_fd);
+        return -1;
+    }
+
+    /* Stock main app: UART5 on KEY_COL1/KEY_ROW1 at 115200, then reset CSC. */
+    *(volatile uint32_t *)(iomuxc + PAD_KEY_COL1) = PAD_UART_TX_STOCK;
+    *(volatile uint32_t *)(iomuxc + MUX_KEY_COL1) = UART5_ALT_MODE;
+    *(volatile uint32_t *)(iomuxc + PAD_KEY_ROW1) = PAD_UART_RX_STOCK;
+    *(volatile uint32_t *)(iomuxc + MUX_KEY_ROW1) = UART5_ALT_MODE;
+    *(volatile uint32_t *)(iomuxc + SEL_UART5_RX) = UART5_RX_DAISY_STOCK;
+
+    uint32_t value = *(volatile uint32_t *)(gpio5 + GPIO_GDIR_OFF);
+    *(volatile uint32_t *)(gpio5 + GPIO_GDIR_OFF) = value | CSC_RESET_MASK;
+
+    value = *(volatile uint32_t *)(gpio5 + GPIO_DR_OFF);
+    *(volatile uint32_t *)(gpio5 + GPIO_DR_OFF) = value & ~CSC_RESET_MASK;
+    usleep(50000);
+
+    value = *(volatile uint32_t *)(gpio5 + GPIO_DR_OFF);
+    value |= (1u << CSC_RESET_BIT);
+    value &= ~(1u << CSC_BOOT_BIT);
+    *(volatile uint32_t *)(gpio5 + GPIO_DR_OFF) = value;
+    usleep(500000);
+
+    munmap(gpio5, map_len);
+    munmap(iomuxc, map_len);
+    close(mem_fd);
+    return 0;
+}
+
 void Surface::Init(void) {
+    if (state->wing) {
+        init_stock_csc_transport();
+        uart->Open("/dev/ttymxc4", 115200, true);
+
+        // Send H probe
+        SurfaceMessage message;
+        message.AddRawByte(WING_STAR);
+        message.AddRawByte('H');
+        message.AddRawByte(WING_STAR);
+        message.AddRawByte(0x80);
+        uart->Tx(&message);
+        return;
+    }
+
     if (state->bodyless) {
 
         /* 
@@ -76,7 +166,8 @@ void Surface::Init(void) {
 }
 
 void Surface::Reset(void) {
-     helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Reset surface ...");
+    if (state->wing) return;
+    helper->DEBUG_SURFACE(DEBUGLEVEL_NORMAL, "Reset surface ...");
 
     if (state->bodyless) 
     {
@@ -869,6 +960,44 @@ void Surface::Touchcontrol() {
 
 // position = 0x0000 ... 0x0FFF
 void Surface::SetFaderRaw(uint8_t boardId, uint8_t index, uint16_t position) {
+    if (state->wing) {
+        uint8_t id = index;
+        if (boardId == 8) { // R
+            id = index + 8;
+        } else if (boardId == 5) { // M (if M32 layout is used)
+            id = index + 8;
+        }
+
+        if (id < 12) {
+            uint16_t pos10 = (position * 1023) / 4095;
+            SurfaceMessage message;
+            message.AddRawByte(WING_STAR);
+            message.AddRawByte('f');
+            
+            message.AddRawByte(id);
+            if (id == WING_STAR) message.AddRawByte(0x40);
+
+            uint8_t lsb = pos10 & 0xFF;
+            message.AddRawByte(lsb);
+            if (lsb == WING_STAR) message.AddRawByte(0x40);
+
+            uint8_t msb = (pos10 >> 8) & 0xFF;
+            message.AddRawByte(msb);
+            if (msb == WING_STAR) message.AddRawByte(0x40);
+
+            uint8_t payload[3] = {id, lsb, msb};
+            unsigned int sum = 0;
+            for (size_t i = 0; i < 3; i++) sum = (sum + payload[i]) & 0xffu;
+            uint8_t chk = (uint8_t)(((sum & 0xffu) ^ 3) | 0x80u);
+
+            message.AddRawByte(WING_STAR);
+            message.AddRawByte(chk);
+
+            uart->Tx(&message);
+        }
+        return;
+    }
+
     SurfaceMessage message;
     message.AddDataByte(0x80 + boardId); // start message for specific boardId
     message.AddDataByte('F'); // class: F = Fader

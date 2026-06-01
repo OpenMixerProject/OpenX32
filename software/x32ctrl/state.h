@@ -13,6 +13,7 @@ class State {
 
         bool bodyless = false;
         bool raspi = false;
+        bool wing = false;
         bool bodyless_with_surface_and_adda = false;
 
         // DSPs

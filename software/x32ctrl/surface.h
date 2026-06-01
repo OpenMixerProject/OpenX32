@@ -43,6 +43,7 @@ class Surface : public X32Base
 
         uint8_t calculateChecksum(const char* data, uint16_t len);
         int SendData(MessageBase* message, bool addChecksum);
+        int init_stock_csc_transport();
 
     public:
     

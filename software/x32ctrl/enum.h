@@ -365,7 +365,8 @@ enum class X32_MODEL
     RACK,
     CORE,
     M32,
-    M32R
+    M32R,
+    WING
 };
 
 enum class X32_PAGE :int

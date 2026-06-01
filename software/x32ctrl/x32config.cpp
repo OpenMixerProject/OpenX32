@@ -40,6 +40,10 @@ void X32Config::SetModel(String model){
     {
         _model =  X32_MODEL::M32R;
     }
+    else if (model == "WING")
+    {
+        _model = X32_MODEL::WING;
+    }
     else
     {
         //x32log("ERROR: No model detected!\n");
@@ -91,15 +95,18 @@ bool X32Config::IsModelM32() {
 bool X32Config::IsModelM32R() {
     return (_model == X32_MODEL::M32R);
 }
+bool X32Config::IsModelWing() {
+    return (_model == X32_MODEL::WING);
+}
 
 bool X32Config::HasGui()
 {
-    return IsModelX32Full() || IsModelX32Compact() || IsModelX32Producer() || IsModelX32Rack() || IsModelM32() || IsModelM32R();
+    return IsModelX32Full() || IsModelX32Compact() || IsModelX32Producer() || IsModelX32Rack() || IsModelM32() || IsModelM32R() || IsModelWing();
 }
 
 bool X32Config::HasBigDisplay()
 {
-    return IsModelX32Full() || IsModelX32Compact() || IsModelM32();
+    return IsModelX32Full() || IsModelX32Compact() || IsModelM32() || IsModelWing();
 }
 
 bool X32Config::HasSmallDisplay()

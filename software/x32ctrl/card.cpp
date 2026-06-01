@@ -29,7 +29,10 @@ Card::Card(X32BaseParameter* basepar, Adda* _adda) : X32Base(basepar) {
 }
 
 void Card::Init() {
-    // TODO - move from ADDA Class
+    if (state->wing) {
+        type = CARD_TYPE_NONE;
+        return;
+    }
 
     // detect type of card
     if (!adda->HasExpansion()) {
