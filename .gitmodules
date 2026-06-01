@@ -2,44 +2,55 @@
 	path = software/pyatk
 	url = https://github.com/hbock/pyatk
 	ignore = dirty
+	shallow = true
 [submodule "busybox"]
 	path = software/busybox
 	url = https://git.busybox.net/busybox
 	ignore = dirty
+	shallow = true
 [submodule "linux"]
 	path = linux
 	url = https://github.com/torvalds/linux
 	ignore = dirty
 	branch = v6.18.25
+	shallow = true
 [submodule "u-boot"]
 	path = u-boot
 	url = https://github.com/u-boot/u-boot
 	ignore = dirty
 	branch = v2020.10
+	shallow = true
 [submodule "software/x32ctrl/lv_port_linux"]
 	path = software/x32ctrl/lv_port_linux
 	url = https://github.com/lvgl/lv_port_linux.git
 	ignore = dirty
+	shallow = true
 [submodule "software/dropbear"]
 	path = software/dropbear
 	url = https://github.com/mkj/dropbear.git
 	ignore = dirty
+	shallow = true
 [submodule "fpga/AES50"]
 	path = fpga/AES50
 	url = https://github.com/OpenMixerProject/AES50.git
+	shallow = true
 [submodule "software/framebuffer-vncserver"]
 	path = software/framebuffer-vncserver
 	url = https://github.com/ponty/framebuffer-vncserver.git
 	ignore = dirty
+	shallow = true
 [submodule "software/libvncserver"]
 	path = software/libvncserver
 	url = https://github.com/LibVNC/libvncserver.git
 	ignore = dirty
+	shallow = true
 [submodule "software/libartnet"]
 	path = software/libartnet
 	url = https://github.com/OpenLightingProject/libartnet.git
 	ignore = dirty
+	shallow = true
 [submodule "software/omc"]
 	path = software/omc
 	url = git@github.com:OpenMixerProject/OpenMixerControl.git
 	ignore = dirty
+	shallow = true
