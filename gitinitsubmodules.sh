@@ -13,6 +13,14 @@ patch -p1 < ../files/kernel_patches/902-debloat_proc.patch
 patch -p1 < ../files/kernel_patches/904-debloat_dma_buf.patch
 cd ..
 
-echo "Checking out all submodules..."
-git submodule update --init --recursive --progress --remote
+git clone --depth 1 --single-branch https://git.busybox.net/busybox software/busybox
+git clone --depth 1 --single-branch https://github.com/lvgl/lv_port_linux.git software/x32ctrl/lv_port_linux
+git clone --depth 1 --single-branch https://github.com/mkj/dropbear.git software/dropbear
+git clone --depth 1 --single-branch https://github.com/OpenMixerProject/AES50.git fpga/AES50
+git clone --depth 1 --single-branch https://github.com/ponty/framebuffer-vncserver.git software/framebuffer-vncserver
+git clone --depth 1 --single-branch https://github.com/LibVNC/libvncserver.git software/libvncserver
+git clone --depth 1 --single-branch https://github.com/OpenLightingProject/libartnet.git software/libartnet
+
+git clone --depth 1 --single-branch https://github.com/OpenMixerProject/OpenMixerControl.git software/omc
+
 echo "Done."
