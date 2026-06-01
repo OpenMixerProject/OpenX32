@@ -128,6 +128,7 @@ done
 
 update_progress 0 "Prepare compilation..."
 # Create directories
+mkdir -p build
 mkdir -p initramfs_root/openx32
 mkdir -p initramfs_root/lib
 
@@ -456,6 +457,8 @@ else
 	perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.run
 fi
 
+cp /tmp/dcp_corefs_openx32.run build/
+
 update_progress 100 "Done."
 echo "  ____                  __   ______ ____"
 echo " / __ \\                 \\ \\ / /___ \\__  \\"
@@ -468,7 +471,7 @@ echo "       |_|    "
 echo "OpenX32 ${GITREV} ${DATE} - https://www.OpenX32.com"
 echo ""
 echo "Your version of OpenX32 is ready and it smells like fresh bread rolls. Yummie."
-echo "The image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as /tmp/dcp_corefs_openx32.run"
+echo "The image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as build/dcp_corefs_openx32.run"
 
 
 # Am Ende die Scroll-Region wieder freigeben

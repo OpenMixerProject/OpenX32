@@ -38,6 +38,7 @@ initramfs_root/etc/motd
 software/x32ctrl/.vscode/tasks.json
 software/x32ctrl/build
 software/bin
+build/
 
 # USB-Distribution
 usb/usr/local/libexec
