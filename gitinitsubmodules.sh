@@ -14,7 +14,6 @@ patch -p1 < ../files/kernel_patches/904-debloat_dma_buf.patch
 cd ..
 
 git clone --depth 1 --single-branch https://git.busybox.net/busybox software/busybox
-git clone --depth 1 --single-branch https://github.com/lvgl/lv_port_linux.git software/x32ctrl/lv_port_linux
 git clone --depth 1 --single-branch https://github.com/mkj/dropbear.git software/dropbear
 git clone --depth 1 --single-branch https://github.com/OpenMixerProject/AES50.git fpga/AES50
 git clone --depth 1 --single-branch https://github.com/ponty/framebuffer-vncserver.git software/framebuffer-vncserver
