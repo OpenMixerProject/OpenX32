@@ -10,6 +10,7 @@
 	path = linux
 	url = https://github.com/torvalds/linux
 	ignore = dirty
+	branch = v6.18.25
 [submodule "u-boot"]
 	path = u-boot
 	url = https://github.com/u-boot/u-boot
