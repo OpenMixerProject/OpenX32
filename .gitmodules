@@ -37,6 +37,3 @@
 	path = software/libartnet
 	url = https://github.com/OpenLightingProject/libartnet.git
 	ignore = dirty
-[submodule "software/x32ctrl"]
-	path = software/x32ctrl
-	url = git@github.com:OpenMixerProject/OpenMixerControl.git
