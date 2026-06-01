@@ -40,3 +40,4 @@
 [submodule "software/omc"]
 	path = software/omc
 	url = git@github.com:OpenMixerProject/OpenMixerControl.git
+	ignore = dirty
