@@ -2,14 +2,14 @@
 
 https://openx32.com
 
-This repository contains software to load and start the Linux-Kernel on the Behringer X32, some userland tools and x32ctrl - the main logic of our custom firmware.
+This repository contains software to load and start the Linux-Kernel on the Behringer X32, some userland tools and [OpenMixerControl - omc](https://github.com/OpenMixerProject/OpenMixerControl) - the main logic of our custom firmware.
 This audio-mixing-console uses a Freescale/NXP i.MX253 Microcontroller with an ARM926EJ-S core that supports booting Linux.
 
 Currently the Linux Kernel is running in Version 6.18 (LTS) with busybox:
 
 ![alt_text](Documentation/openx32_1.jpg)
 
-x32ctrl is the new GUI and program that controls the individual boards and devices:
+omc is the new GUI and program that controls the individual boards and devices:
 
 ![alt_text](Documentation/openx32_home.png)
 
@@ -58,7 +58,7 @@ Most audio-functions are already supported:
 
 The hardware-surface is working, too:
 * [x] Support of booting from SD-Card and via USB using the original DCP-Bootloader
-* [x] Control of X32 surface (faders, buttons, LEDs, encoders) through x32ctrl-software
+* [x] Control of X32 surface (faders, buttons, LEDs, encoders) through omc-software
 
 So the most important things (audio in/out, control-surface, display) are working already and more things are on the ToDo-list:
 * [ ] In-Progress: Boot from barebox as a successor of U-Boot (U-Boot has ended the support of i.MX25 since a couple of years; barebox already boots OpenX32 from development sd-cards)
@@ -138,7 +138,7 @@ Compile u-boot, Linux, busybox and the other tools simply by calling the script 
 If you want to make this firmware permanent, rename the file from dcpxxx.run into dcpxxx.update and the firmware will be written on the internal SD-Card. The boot will be much faster compared to the USB-boot. 
 
 Within the software-folder several user-applications are placed:
-* x32ctrl: this is the main-program responsible for the UI and the communication with hardware components
+* omc: this is the main-program responsible for the UI and the communication with hardware components
 * x32sdconfig: this small software reads the original SD-card on boot and put general information about the board to the folder /etc/
 
 There are some test- and debug-softwares in the "test"-folder:
@@ -160,7 +160,7 @@ Download ISE 14.7 from the Xilinx (AMD) website: https://www.xilinx.com/support/
 4. On modern Windows 10/11 ISE 14.7 will not start beyond the Splash-Screen due to the use of "SmartHeap" within the file "libPortability.dll". Download a hotfix from https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/files/xilinx_ise_hotfix.zip, extract to C:\Xilinx\ and run the batch-file. The script will replace the 32-bit/64-bit versions of libPortability.dll.
 5. Start ISE 14.7, open the OpenX32 project and compile the logic of the main-schematic.
 6. On the left side of ISE 14.7 create a configuration file (bitstream)
-7. Copy main.bit to an USB-thumbdrive and load it either with "./fpgaconfig fpga.bit" or with the main-control-software "./x32ctrl fpga.bit"
+7. Copy main.bit to an USB-thumbdrive and load it either with "./fpgaconfig fpga.bit" or with the main-control-software "./omc --X fpga.bit" (Xillinx)
 
 An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: [View Schematic as PDF](https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/Documentation/FPGA.pdf).
 
@@ -173,7 +173,7 @@ The X32 uses two AnalogDevices 21371 SHARC DSPs for mixing. These devices are su
 2. Request 90-day Trial-Software from Analog Devices
 3. Open the DSP-project in the folder "dsp"
 4. Use "Project -> Compile all..." to compile current project and "dsp1.ldr" will be generated
-5. copy "dsp1.ldr" to the USB-thumbdrive and load it either with "./dspconfig dsp1.ldr" or with the main-control-software "./x32ctrl fpga.bit dsp1.ldr"
+5. copy "dsp1.ldr" to the USB-thumbdrive and load it either with "./dspconfig dsp1.ldr" or with the main-control-software "./omc --D1 dsp1.ldr"
 
 DSP1 is the main-DSP receiving and sending all 40 audio-channels from and to the FPGA that is routing the audio to and from the individual sources. Within this first DSP the 32 + x main-channels are processed (noise-gate, multi-band-EQs, compressor, general mixing).
 
