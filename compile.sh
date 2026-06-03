@@ -305,28 +305,27 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
         cd framebuffer-vncserver
         rm -r build
         mkdir -p build && cd build
-        VNC_LIB_ROOT=/tmp/armv5_libs
-	cp ../../libvncserver/build/libvncserver.so.1 $VNC_LIB_ROOT
+	VNC_LIB_ROOT=$(pwd)/../../libvncserver
 	if [ "$COMPILE_MUSL" = true ]; then
 	        ZLIB_LIB_PATH=/opt/cross/arm-openwrt-linux-muslgnueabi/lib
 	        cmake .. -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver_musl.cmake \
-		    -DLIBVNC=$VNC_LIB_ROOT/libvncserver.so.1 \
-	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
+		    -DLIBVNC=$VNC_LIB_ROOT/build/libvncserver.so.1 \
+	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT}/build \
 	            -DCMAKE_BUILD_TYPE=Release \
-	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include" \
-	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
-	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
-	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include -I${VNC_LIB_ROOT}/build/include" \
+	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/build -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
 	else
 	        ZLIB_LIB_PATH=/usr/lib/arm-linux-gnueabi
-	        cmake .. -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver.cmake \
-		    -DLIBVNC=$VNC_LIB_ROOT/libvncserver.so.1 \
-	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT} \
+	        cmake .. -DCMAKE_TOOLCHAIN_FILE=$(pwd)/../../../files/framebuffer-vncserver.cmake \
+		    -DLIBVNC=$VNC_LIB_ROOT/build/libvncserver.so.1 \
+	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT}/build \
 	            -DCMAKE_BUILD_TYPE=Release \
-	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include" \
-	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}" \
-	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}" \
-	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/lib -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include -I${VNC_LIB_ROOT}/build/include" \
+	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/build -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
 	fi
         make -j$(nproc)
         cd ../..
