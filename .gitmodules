@@ -1,0 +1,19 @@
+[submodule "linux"]
+	path = linux
+	ignore = dirty
+
+[submodule "u-boot"]
+	path = u-boot
+	ignore = dirty
+
+[submodule "libartnet"]
+	path = software/libartnet
+	ignore = dirty
+
+[submodule "libvncserver"]
+	path = software/libvncserver
+	ignore = dirty
+
+[submodule "pyatk"]
+	path = software/pyatk
+	ignore = dirty
