@@ -17,28 +17,28 @@
 		reg = <0x80000000 0x04000000>;
 	};
 
+    dsp_codec: dsp-codec {
+        #sound-dai-cells = <0>;
+        compatible = "linux,snd-soc-dummy";
+        status = "okay";
+    };
+
     sound {
         compatible = "simple-audio-card";
-        simple-audio-card,name = "imx25-audio";
+        simple-audio-card,name = "dsp-audio";
         simple-audio-card,format = "i2s";
         status = "okay";
 
-        simple-audio-card,bitclock-master = <&dailink_cpu>;
-        simple-audio-card,frame-master = <&dailink_cpu>;
+	simple-audio-card,bitclock-master = <&sound_codec>;
+        simple-audio-card,frame-master = <&sound_codec>;
 
-        dailink_cpu: simple-audio-card,cpu {
+	sound_cpu: simple-audio-card,cpu {
             sound-dai = <&ssi1>;
         };
 
-        simple-audio-card,codec {
-            sound-dai = <&codec_dummy>;
+        sound_codec: simple-audio-card,codec {
+            sound-dai = <&dsp_codec>;
         };
-    };
-
-    codec_dummy: audio-codec {
-        compatible = "linux,spdif-dit";
-        #sound-dai-cells = <0>;
-        status = "okay";
     };
 
 	wvga: display {
@@ -287,11 +287,10 @@ leds {
 
 		pinctrl_audmux: audmuxgrp {
 			fsl,pins = <
-				// values from X32 image
-				MX25_PAD_CSI_VSYNC__AUD6_RXD	0x0		// I2S RxD
-				MX25_PAD_CSI_MCLK__AUD6_TXD		0xC0	// I2S TxD
-				MX25_PAD_CSI_HSYNC__AUD6_TXC	0x0		// I2S BitClock
-				MX25_PAD_CSI_PIXCLK__AUD6_TXFS	0x0		// I2S FrameSync
+				MX25_PAD_CSI_VSYNC__AUD6_RXD        0x0 // I2S-Receiver
+				MX25_PAD_CSI_MCLK__AUD6_TXD         0xC0 // I2S-Sender
+				MX25_PAD_CSI_HSYNC__AUD6_TXC        0x0 // SCLK
+				MX25_PAD_CSI_PIXCLK__AUD6_TXFS      0x0 // LRCLK
 			>;
 		};
 
@@ -372,8 +371,8 @@ leds {
 };
 
 &ssi1 {
-	fsl,mode = "i2s-master";
-	status = "okay";
+        fsl,mode = "i2s-slave";
+        status = "okay";
 };
 
 #define AUD_PORT_1 0
@@ -386,19 +385,16 @@ leds {
 	ssi1 {
 		fsl,audmux-port = <AUD_PORT_1>;
 		fsl,port-config = <
-			0x00000000
-			IMX_AUDMUX_V2_PDCR_RXDSEL(AUD_PORT_6)
+			(IMX_AUDMUX_V2_PTCR_SYN)
+			(IMX_AUDMUX_V2_PDCR_RXDSEL(AUD_PORT_6))
 		>;
 	};
 
         port6 {
 		fsl,audmux-port = <AUD_PORT_6>;
 		fsl,port-config = <
-			(IMX_AUDMUX_V2_PTCR_TFSDIR |
-			IMX_AUDMUX_V2_PTCR_TFSEL(AUD_PORT_1) |
-			IMX_AUDMUX_V2_PTCR_TCLKDIR |
-			IMX_AUDMUX_V2_PTCR_TCSEL(AUD_PORT_1))
-			IMX_AUDMUX_V2_PDCR_RXDSEL(AUD_PORT_1)
+			(IMX_AUDMUX_V2_PTCR_SYN)
+			(IMX_AUDMUX_V2_PDCR_RXDSEL(AUD_PORT_1))
 		>;
         };
 };
