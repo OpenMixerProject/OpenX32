@@ -47,15 +47,16 @@ int messageBuilderAddDataByte(messageBuilder *message, unsigned char byte) {
 
 // add a multiple bytes to buffer without byte-stuffing
 int messageBuilderAddString(messageBuilder *message, const char* str) {
+    size_t str_len = strlen(str);
     // check if we have space left in message-buffer (max. 64 bytes for payload)
-    if (message->current_length >= MAX_MESSAGE_SIZE) {
+    if (message->current_length + str_len > MAX_MESSAGE_SIZE) {
         fprintf(stderr, "Error: Message buffer overflow before adding data!\n");
         return -1;
     }
 
     // as we do not apply byte-stuffing for ASCII-characters, we can copy the data directly to the buffer
-    memcpy(&message->buffer[message->current_length], str, strlen(str)); // dst, src, size
-    message->current_length += strlen(str);
+    memcpy(&message->buffer[message->current_length], str, str_len); // dst, src, size
+    message->current_length += str_len;
     return 0;
 }
 
