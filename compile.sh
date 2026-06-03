@@ -257,6 +257,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 
 	update_progress 50 "Compile OpenMixerControl..."
 	cd omc
+	git pull
 	./compile.sh
 	cd ..
 
