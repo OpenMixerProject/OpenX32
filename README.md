@@ -1,3 +1,12 @@
+# Service Anouncement
+
+We are currently (June 2026) in a repo transition phase 👷‍♂️:
+
+- all software related things are moved to [OpenMixerControl](https://github.com/OpenMixerProject/OpenMixerControl)
+- this repository will remain all OS and hardware specific code
+
+# General
+
 ![alt_text](Documentation/OpenX32.png)
 
 https://openx32.com
