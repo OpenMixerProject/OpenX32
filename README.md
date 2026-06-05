@@ -11,7 +11,7 @@ We are currently (June 2026) in a repo transition phase 👷‍♂️
 
 https://openx32.com
 
-This repository contains software to load and start the Linux-Kernel on the Behringer X32, some userland tools.
+This repository contains software to load and start the Linux-Kernel on the Behringer X32 or Midas M32 and some userland tools.
 The main logic of our custom firmware lives in its own repository at [OpenMixerControl](https://github.com/OpenMixerProject/OpenMixerControl)
 
 This audio-mixing-console uses a Freescale/NXP i.MX253 Microcontroller with an ARM926EJ-S core that supports booting Linux.
