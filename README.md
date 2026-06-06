@@ -98,6 +98,8 @@ Yes, here: https://discourse.openmixerproject.de
 ## Steps to run OpenX32 without recompiling
 Checkout the most recent release from https://github.com/OpenMixerProject/OpenX32/releases and follow the instructions there. You only have to copy one file onto an USB-thumbdrive and boot into OpenX32 :)
 
+[Here a quick video of the boot process](https://youtu.be/8KdU0hf32Tk?is=LheSUv582zfXFefS)
+
 You can login via SSH using the password "openx32" and the following command:
 
 ```
