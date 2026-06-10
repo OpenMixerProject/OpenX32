@@ -225,3 +225,6 @@ see also: [Article in our Discourse](https://discourse.openmixerproject.de/t/mid
 * LibVNC (https://github.com/LibVNC/libvncserver)
 * pyATK in Version 0.1.0 (https://github.com/hbock/pyatk)
 * Glaze library from commit 0c2893a (https://github.com/stephenberry/glaze)
+                        
+## Stargazers over time
+[![Stargazers over time](https://starchart.cc/OpenMixerProject/OpenX32.svg?variant=adaptive)](https://starchart.cc/OpenMixerProject/OpenX32)
