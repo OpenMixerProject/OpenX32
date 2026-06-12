@@ -1,0 +1,442 @@
+#!/bin/bash
+echo "                               =#%@@@@@###%@@@@%-                                                "
+echo "                           =*###+               :#@*                                             "
+echo "                        +****.                      :%-                                          "
+echo "                      #++++             ############  :%-          @@@@@@@@@@@@                  "
+echo "                    .+===             ###======++==*##  *+       @@@*#%%#****#@@@                "
+echo "                   -=-+               #+======+=.*===*#         @@#**@.*@******%@                "
+echo "                  -=-+                ##======*  #====+#.      @@****@  @******@@                "
+echo "                  +:-                  ##+====#  #***==+#+   =@@**@@@@  @****%@@                 "
+echo "                 =*=*                   -#*===#  ## #===+## @@@***@ @@  @@#*@@@                  "
+echo "      @@@@@@       ..                     ##+*#- ## #***==#= @@@@@@ @@   +@@@   @@@@@@@  @@@@@   "
+echo "    @@@    @@@             @@@@            ##= + ## ## #+==#- @@ @@ @@ = @@@    @@  @@  @@   @@  "
+echo "    @@      .@@#@@@@@@@  @@@ @@@ @@@@@@@@   .# # ## .= #-#++#= @ @  @@ * @*       @@*        @@  "
+echo "    @@       @@ @@    @@ @@@@@@@  @@   @@      # =#  = + *::=#   @  @+ *           -@@@   @@@=   "
+echo "    @@@    @@@  @@:   @@ @@       @@   @@      #  : .- : *::-#   @  +  #             @@ @@    @@ "
+echo "      @@@@@@    @@@@@@@   @@@@@@  @@   @@@  =# # ## :+ #-#++#+ @ @  @@.* @@     @@@@@@  @@@@@@@@ "
+echo "                @@                         ##+ * ## ## #+==#+ @@@@@ @@ = @@@                     "
+echo "                @@                        ##+= = ## #***==#+ @@***@ @@   #@@@                    "
+echo "                   :                    :#*==+#: ## #===+## @@@***@ @@  @@#*@@#                  "
+echo "                  .%+                  ##+====#  #***==+#=   +@@**@@@@  @****%@@                 "
+echo "                    %.                ##======*  #====*#  .*-  @@****@  @******@@                "
+echo "                     %=               #*======+: *===*#   +-=+  @@#**@ -@******@@                "
+echo "                      -@-             +##+=====+++=*##  ==-=-    @@@#%@@#****%@@@                "
+echo "                        *@*             =###########  -===*        @@@@@@@@@@@@                  "
+echo "                           @@%.                   .::=++*                                        "
+echo "                             .#@@%%*-.    .:=+**##***+.                                          "
+echo "                                  .-+%%%%%%#***=-.                                               "
+echo ""
+echo "Compiling OpenX32 Operating System for the Behringer X32 Audio-Mixing Console"
+
+
+# ================ CHECK SCRIPT-PARAMETERS ================
+# Standardmäßig werden alle Schritte ausgeführt
+COMPILE_UBOOT=true
+COMPILE_LINUX=true
+COMPILE_BUSYBOX=true
+COMPILE_SOFTWARE=true
+COMPILE_MUSL=true
+USE_LZMA=false
+USE_ENCRYPTION=false
+CREATE_SSHKEY=false
+
+# Argumente verarbeiten
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --skip-uboot)
+      COMPILE_UBOOT=false
+      shift # Nächstes Argument prüfen
+      ;;
+    --skip-linux)
+      COMPILE_LINUX=false
+      shift
+      ;;
+    --skip-busybox)
+      COMPILE_BUSYBOX=false
+      shift
+      ;;
+    --skip-software)
+      COMPILE_SOFTWARE=false
+      shift
+      ;;
+    --glibc)
+      COMPILE_MUSL=false
+      shift
+      ;;
+    --lzma)
+      USE_LZMA=true
+      shift
+      ;;
+    --encrypted)
+      USE_ENCRYPTION=true
+      shift
+      ;;
+    --create-sshkey)
+      CREATE_SSHKEY=true
+      shift
+      ;;
+    --just-x32ctrl)
+      export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
+      if [ "$COMPILE_MUSL" = true ]; then
+          export PATH=/opt/cross/bin:$PATH
+      else
+          export PATH=/usr/bin:$PATH
+      fi
+      cd software/omc
+      ./compile.sh
+      cd ../..
+      exit 1;
+      ;;
+    *)
+      echo "Unknown Parameter: $1"
+      exit 1
+      ;;
+  esac
+done
+
+# Create directories
+mkdir -p build
+mkdir -p initramfs_root/openx32
+mkdir -p initramfs_root/lib
+
+# we are patching some files in the submodules to mitigate a full fork
+# configuration-files
+# u-boot-configuration
+if ! diff -q files/config_uboot u-boot/.config >/dev/null 2>&1; then
+	cp files/config_uboot u-boot/.config
+	echo "Update u-boot/.config (changed content)"
+else
+	echo "u-boot-config is up to date."
+fi
+
+# linux-configuration
+if ! diff -q files/config_linux linux/.config >/dev/null 2>&1; then
+	cp files/config_linux linux/.config
+	echo "Update linux/.config (changed content)"
+else
+	echo "linux-config is up to date."
+fi
+
+# busybox-configuration
+if ! diff -q files/config_busybox software/busybox/.config >/dev/null 2>&1; then
+	cp files/config_busybox software/busybox/.config
+	echo "Update software/busybox/.config (changed content)"
+else
+	echo "busybox-config is up to date."
+fi
+
+cp files/meminit.txt software/pyatk/bin/
+
+# patched source-files
+cp files/imximage.cfg u-boot/board/freescale/mx25pdk/imximage.cfg
+cp files/mx25pdk.c u-boot/board/freescale/mx25pdk/mx25pdk.c
+cp files/mx25pdk.h u-boot/include/configs/mx25pdk.h
+cp files/imx25-pdk.dts linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dts
+cp files/libartnet_network.c software/libartnet/artnet/network.c
+# custom boot logo - fullscreen -> console has only 1 line!
+# cp files/linux-boot-logo_final.ppm linux/drivers/video/logo/logo_linux_clut224.ppm
+
+
+
+
+export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
+if [ "$COMPILE_MUSL" = true ]; then
+	export PATH=/opt/cross/bin:$PATH
+else
+	export PATH=/usr/bin:$PATH
+fi
+
+# =================== Loader =======================
+
+cd miniloader
+make
+
+if [ "$COMPILE_UBOOT" = true ]; then
+	
+	cd ../u-boot
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc)
+fi
+
+# =================== Linux =======================
+
+if [ "$COMPILE_LINUX" = true ]; then
+	
+	cd ../linux
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) zImage
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) dtbs
+	mkimage -A ARM -O linux -T kernel -C none -a 0x80060000 -e 0x80060000 -n "Linux kernel (OpenX32)" -d arch/arm/boot/zImage /tmp/uImage
+	cd ..
+fi
+
+# =================== Busybox =======================
+
+if [ "$COMPILE_BUSYBOX" = true ]; then
+	
+	cd software/busybox
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) \
+		CFLAGS="-flto=auto -fwhole-program -flto-partition=none $COPTS" \
+		AR=arm-linux-gnueabi-gcc-ar \
+		RANLIB=arm-linux-gnueabi-gcc-ranlib
+
+	ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j$(nproc) install \
+		CFLAGS="-flto=auto -fwhole-program -flto-partition=none $COPTS" \
+		AR=arm-linux-gnueabi-gcc-ar \
+		RANLIB=arm-linux-gnueabi-gcc-ranlib
+
+	cd ../..
+	cp -rP /tmp/busybox_install/bin initramfs_root/
+	cp -rP /tmp/busybox_install/sbin initramfs_root/
+	cp -rP /tmp/busybox_install/linuxrc initramfs_root/
+fi
+
+# =============== Software-Tools ===================
+
+if [ "$COMPILE_SOFTWARE" = true ]; then
+	cd software
+
+	if [ ! -f /opt/cross/lib/libartnet.so ]; then
+		
+		cd libartnet
+		autoreconf -fi
+
+                ./configure \
+                        --host=arm-linux-gnueabi \
+                        --prefix=/opt/cross \
+			ac_cv_func_malloc_0_nonnull=yes \
+			ac_cv_func_realloc_0_nonnull=yes \
+                        CC=arm-linux-gnueabi-gcc \
+                        CXX=arm-linux-gnueabi-g++ \
+                        AR=arm-linux-gnueabi-ar \
+                        RANLIB=arm-linux-gnueabi-ranlib \
+                        LDFLAGS="-L/opt/cross/lib" \
+                        CFLAGS="-U_TIME_BITS -Wno-error"
+
+                sudo env "PATH=$PATH" make install
+
+		cd ..
+	fi
+
+	
+	cd x32sdconfig
+	./compile.sh
+	cd ..
+
+	
+	cd omc
+	git pull
+	./compile.sh
+	cd ..
+
+	
+	cd dropbear
+	./configure	\
+		--disable-pam \
+		--disable-harden \
+		--disable-lastlog \
+		--disable-utmp \
+		--disable-zlib \
+		--disable-utmpx \
+		--disable-wtmp \
+		--disable-wtmpx \
+		--enable-bundled-libtom \
+		--disable-pututxline \
+		--host=arm-linux-gnueabi \
+		--disable-zlib \
+		--disable-syslog \
+		host_alias=arm-linux ac_cv_func_getpass=yes \
+		LTM_CFLAGS="-flto -fwhole-program -flto-partition=none $COPTS" \
+		CFLAGS="-g0 -flto -fwhole-program -flto-partition=none $COPTS -DDISABLE_X11FWD -DARGTYPE=3" \
+		AR=arm-linux-gnueabi-gcc-ar \
+		RANLIB=arm-linux-gnueabi-gcc-ranlib
+
+	make PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp" MULTI=1 SCPPROGRESS=1
+	cp dropbearmulti ../bin/
+	cd ..
+
+	
+        cd libvncserver
+        rm -r build
+        mkdir build && cd build
+	if [ "$COMPILE_MUSL" = true ]; then
+	        cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../files/libvncserver_musl_toolchain.cmake \
+        	        -DCMAKE_C_FLAGS="-s $COPTS -D_GNU_SOURCE"
+	else
+       		cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../files/libvncserver_toolchain.cmake \
+	               -DCMAKE_C_FLAGS="-s $COPTS -D_GNU_SOURCE"
+	fi
+        cmake --build .
+        make -j$(nproc)
+        cd ../..
+
+        cd framebuffer-vncserver
+        rm -r build
+        mkdir -p build && cd build
+	VNC_LIB_ROOT=$(pwd)/../../libvncserver
+	if [ "$COMPILE_MUSL" = true ]; then
+	        ZLIB_LIB_PATH=/opt/cross/arm-openwrt-linux-muslgnueabi/lib
+	        cmake .. -DCMAKE_TOOLCHAIN_FILE=../../files/framebuffer-vncserver_musl.cmake \
+		    -DLIBVNC=$VNC_LIB_ROOT/build/libvncserver.so.1 \
+	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT}/build \
+	            -DCMAKE_BUILD_TYPE=Release \
+	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include -I${VNC_LIB_ROOT}/build/include" \
+	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/build -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	else
+	        ZLIB_LIB_PATH=/usr/lib/arm-linux-gnueabi
+	        cmake .. -DCMAKE_TOOLCHAIN_FILE=$(pwd)/../../../files/framebuffer-vncserver.cmake \
+		    -DLIBVNC=$VNC_LIB_ROOT/build/libvncserver.so.1 \
+	            -DCMAKE_INSTALL_PREFIX={$VNC_LIB_ROOT}/build \
+	            -DCMAKE_BUILD_TYPE=Release \
+	            -DCMAKE_C_FLAGS="$COPTS -I${VNC_LIB_ROOT}/include -I${VNC_LIB_ROOT}/build/include" \
+	            -DCMAKE_PREFIX_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_FIND_ROOT_PATH="${VNC_LIB_ROOT}/include" \
+	            -DCMAKE_EXE_LINKER_FLAGS="-L${VNC_LIB_ROOT}/build -L${ZLIB_LIB_PATH} -lvncserver -lpthread -ldl"
+	fi
+        make -j$(nproc)
+        cd ../..
+
+	# exit software-directory
+	cd ..
+fi
+
+
+
+
+# copy binaries and default-configuration to initramFS
+cp software/omc/build/omc initramfs_root/openx32/
+cp software/dropbear/dropbearmulti initramfs_root/openx32/
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dbclient && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbearconvert && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbearkey && cd ../../
+cd initramfs_root/openx32/ && ln -sf dropbearmulti scp && cd ../../
+cp software/framebuffer-vncserver/build/framebuffer-vncserver initramfs_root/openx32/
+
+# copy general libraries
+cp software/libvncserver/build/libvncserver.so.1 initramfs_root/lib/libvncserver.so.1
+
+if [ "$COMPILE_MUSL" = true ]; then
+	# copy specific libraries for musl
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libartnet.so.1) initramfs_root/lib/libartnet.so.1
+	cd initramfs_root/lib/ && ln -sf libc.so ld-musl-arm.so.1 && cd ../../
+else
+	# copy specific libraries for glibc
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so.6) initramfs_root/lib/libc.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=ld-linux.so.3) initramfs_root/lib/ld-linux.so.3
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libgcc_s.so.1) initramfs_root/lib/libgcc_s.so.1
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libstdc++.so.6) initramfs_root/lib/libstdc++.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libm.so.6) initramfs_root/lib/libm.so.6
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libresolv.so.2) initramfs_root/lib/libresolv.so.2
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libcrypt.so.1) initramfs_root/lib/libcrypt.so.1
+	cp $(arm-linux-gnueabi-gcc -print-file-name=libartnet.so.1) initramfs_root/lib/libartnet.so.1
+fi
+
+
+# =================== Optimize binaries =======================
+arm-linux-gnueabi-strip initramfs_root/lib/*
+arm-linux-gnueabi-strip initramfs_root/openx32/*
+arm-linux-gnueabi-strip initramfs_root/bin/*
+arm-linux-gnueabi-strip initramfs_root/sbin/*
+
+
+# =================== Create MOTD =======================
+GITREV=$(git describe --tags --always --dirty --long)
+DATE=$(date +%d.%m.%Y)
+
+echo "  ____                  __   ______ ____" > initramfs_root/etc/motd
+echo " / __ \\                 \\ \\ / /___ \\__  \\" >> initramfs_root/etc/motd
+echo "| |  | |_ __   ___ _ __  \\ V /  __) | ) |" >> initramfs_root/etc/motd
+echo "| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / /" >> initramfs_root/etc/motd
+echo "| |__| | |_) |  __/ | | |/ . \\ ___) / /_ " >> initramfs_root/etc/motd
+echo " \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|" >> initramfs_root/etc/motd
+echo "       | |    https://www.openx32.com" >> initramfs_root/etc/motd
+echo "       |_|    " >> initramfs_root/etc/motd
+echo "---------------------------------------------------"  >> initramfs_root/etc/motd
+echo "OpenX32 ${GITREV} ${DATE}" >> initramfs_root/etc/motd
+echo "---------------------------------------------------"  >> initramfs_root/etc/motd
+
+
+# =================== Create SSH-KEY =======================
+if [ "$CREATE_SSHKEY" = true ]; then
+	cd initramfs_root/etc/dropbear
+	dropbearkey -t ed25519 -f openx32_key
+	cd ../../../
+fi
+
+# =================== Create InitramFS =======================
+
+
+cd initramfs_root
+mkdir -p dev proc sys etc mnt home usr
+rm /tmp/uramdisk.bin
+fakeroot sh -c "find . -print0 | cpio --null -ov --format=newc > /tmp/initramfs.cpio"
+
+if [ "$USE_LZMA" = true ]; then
+	# LZMA is compressing much better, but the startup will be much slower
+	rm /tmp/initramfs.cpio.lzma
+	xz --format=lzma -9 -e --lzma1=dict=1MiB /tmp/initramfs.cpio
+	mkimage -A ARM -O linux -T ramdisk -C lzma -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.lzma /tmp/uramdisk.bin
+else
+	# GZIP compression
+	rm /tmp/initramfs.cpio.gz
+	gzip -9 /tmp/initramfs.cpio
+	mkimage -A ARM -O linux -T ramdisk -C none -a 0 -e 0 -n "Ramdisk Image" -d /tmp/initramfs.cpio.gz /tmp/uramdisk.bin
+fi
+cd ..
+
+# =================== Binary-Blob =======================
+
+rm /tmp/openx32.bin
+# Miniloader at offset 0x000000: will be started by i.MX Serial Download Program
+
+dd if=miniloader/miniloader.bin of=/tmp/openx32.bin conv=notrunc
+# U-Boot at offset 0x0000C0: will be started by Miniloader
+
+dd if=u-boot/u-boot.bin of=/tmp/openx32.bin bs=8 seek=$((0x18)) conv=notrunc
+# Linux-Kernel at offset 0x060000 (384 kiB for Miniloader + U-Boot): will be started by U-Boot
+
+dd if=/tmp/uImage of=/tmp/openx32.bin bs=512 seek=$((0x300)) conv=notrunc
+# DeviceTreeBlob at offset 0x300000 (~3 MiB for Kernel)
+
+dd if=linux/arch/arm/boot/dts/nxp/imx/imx25-pdk.dtb of=/tmp/openx32.bin bs=512 seek=$((0x1980)) conv=notrunc
+# InitramFS at offset 0x310000 (~64kiB for DeviceTreeBlob)
+
+dd if=/tmp/uramdisk.bin of=/tmp/openx32.bin bs=512 seek=$((0x1A00)) conv=notrunc
+
+dd if=/dev/zero of=/tmp/openx32.bin bs=1 count=100 oflag=append conv=notrunc
+
+# =================== DCP-Loader-File =======================
+
+
+
+if [ "$USE_ENCRYPTION" = true ]; then
+	# creating encrypted OpenX32 DCP-Image
+	mkdir -p /tmp/openx32/binary
+	cp /tmp/openx32.bin /tmp/openx32/binary/dcpapp.bin
+	/opt/dcp-tool/dcp-tool -c /tmp/dcp_corefs_openx32.run "OpenX32 ${GITREV} ${DATE} - https://www.OpenX32.com" /tmp/openx32/
+else
+	# creating unencrypted test-application
+	perl software/dcpapp/dcp_compiler.pl /tmp/openx32.bin:binary/dcpapp.bin /tmp/dcp_corefs_openx32.run
+fi
+
+cp /tmp/dcp_corefs_openx32.run build/
+
+
+echo "  ____                  __   ______ ____"
+echo " / __ \\                 \\ \\ / /___ \\__  \\"
+echo "| |  | |_ __   ___ _ __  \\ V /  __) | ) |"
+echo "| |  | | '_ \\ / _ \\ '_ \\  > <  |__ < / /"
+echo "| |__| | |_) |  __/ | | |/ . \\ ___) / /_ "
+echo " \\____/| .__/ \\___|_| |_/_/ \\_\\____/____|"
+echo "       | |    https://www.openx32.com"
+echo "       |_|    "
+echo "OpenX32 ${GITREV} ${DATE} - https://www.OpenX32.com"
+echo ""
+echo "Your version of OpenX32 is ready and it smells like fresh bread rolls. Yummie."
+echo "The image with Miniloader, u-Boot, Linux Kernel, Ramdisk and DeviceTreeBlob is stored as build/dcp_corefs_openx32.run"
+
+echo ""
