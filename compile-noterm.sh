@@ -222,6 +222,11 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	cd ..
 
 	
+	cd tests/qtbench
+	./compile.sh
+	cd ../..
+
+	
 	cd omc
 	git pull
 	./compile.sh
@@ -305,6 +310,7 @@ fi
 
 # copy binaries and default-configuration to initramFS
 cp software/omc/build/omc initramfs_root/openx32/
+cp software/bin/qtbench initramfs_root/openx32/
 cp software/dropbear/dropbearmulti initramfs_root/openx32/
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dropbear && cd ../../
 cd initramfs_root/openx32/ && ln -sf dropbearmulti dbclient && cd ../../
