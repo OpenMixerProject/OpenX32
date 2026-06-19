@@ -967,7 +967,7 @@ void audioProcessData(void) {
 	// read from SDRAM
 	#pragma loop_count(MAX_CHAN_FPGA)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
-		int tail = delayLineHeadOutput - delayLineTailOffsetOutput[i_ch];
+		int tail = delayLineHeadOutput - SAMPLES_IN_BUFFER - delayLineTailOffsetOutput[i_ch];
 		if (tail < 0) tail += SAMPLES_IN_DELAYLINE;
 
 		float* dst = &delayReadBuffer[i_ch][0];
