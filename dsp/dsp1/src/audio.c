@@ -704,7 +704,7 @@ void audioProcessData(void) {
 		float sumR = 0;
 		float sumS = 0;
 
-		#pragma loop_count(56) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES
+		#pragma loop_count(64) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES
 		for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); i_ch++) {
 			float src = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][s];
 			sumL += src * dsp.channelSendMainLeftVolume[i_ch];
