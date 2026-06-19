@@ -46,6 +46,15 @@ float dbToLinear(float dB) {
     return powf(10.0f, dB * 0.05f);
 }
 
+float dbToLinear_fast(float dB) {
+    // 10^(dB/20) = 2^(dB / 6.0206)
+    float x = dB * (1.0f / 6.0206f); // log2-Skala
+    // Bit-Trick for 2^x Approximation
+    union { float f; int32_t i; } vx;
+    vx.i = (int32_t)(x * 8388608.0f) + 1065353216; // 2^23 * x + (127 << 23)
+    return vx.f;
+}
+
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	// biquad_trans() needs the coeffs in the following order
 	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)

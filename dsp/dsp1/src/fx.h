@@ -5,8 +5,9 @@
 
 // function prototypes
 float linearToDb(float linear);
-float dbToLinear(float dB);
 float linearToDb_fast(float linear);
+float dbToLinear(float dB);
+float dbToLinear_fast(float dB);
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]);
 void fxSmoothCoeffs(void);
 #endif

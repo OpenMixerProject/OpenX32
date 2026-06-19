@@ -84,13 +84,13 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						memcpy(&spiCommData[1], &cyclesTotal, sizeof(float));
 
 						// VU-meters of main-channels
-						spiCommData[2] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
-						spiCommData[3] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
-						spiCommData[4] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
+						spiCommData[2] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
+						spiCommData[3] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
+						spiCommData[4] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
 						// VU-meters of all DSP input-channels and dynamics
 						for (int i = 0; i < 40; i++) {
 							//spiCommData[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
-							spiCommData[5 + i] = audioBuffer[TAP_INPUT][0][dsp.inputRouting[i]];
+							spiCommData[5 + i] = audioBuffer[TAP_INPUT][dsp.inputRouting[i]][0];
 							//spiCommData[45 + i] = dsp.compressorGain[i];
 							//spiCommData[85 + i] = dsp.gateGain[i];
 						}
@@ -117,16 +117,16 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 						// VU-meters of all DSP input-channels and dynamics
 						for (int i = 0; i < 48; i++) {
-							spiCommData[4 + i] = audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_DSPCHANNEL + i];
+							spiCommData[4 + i] = audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i][0];
 						}
 						for (int i = 0; i < 8; i++) {
-							spiCommData[52 + i] = audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_MIXBUS];
+							spiCommData[52 + i] = audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_MIXBUS][0];
 						}
 
 						// VU-meters of main-channels
-						spiCommData[60] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
-						spiCommData[61] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
-						spiCommData[62] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
+						spiCommData[60] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
+						spiCommData[61] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
+						spiCommData[62] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
 
 						spiDmaBegin((unsigned int*)&spiCommData[0], _valueCount + 3, false);
 					#elif USE_SPI_TXD_MODE == 2
@@ -135,9 +135,9 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
 						spiCommData[4] = audioGlitchCounter;
 
-						spiCommData[5] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINLEFT];
-						spiCommData[6] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINRIGHT];
-						spiCommData[7] = audioBuffer[TAP_POST_FADER][0][DSP_BUF_IDX_MAINSUB];
+						spiCommData[5] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
+						spiCommData[6] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
+						spiCommData[7] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
 
 						spiDmaBegin((unsigned int*)&spiCommData[0], 5, false); // start DMA-transmission and transmit the first 5 elements of spiCommData
 						// after this the DMA-chain will switch to the next spi_tcb
@@ -154,21 +154,24 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					if (channel >= MAX_CHAN_FPGA) {
 						return;
 					}
-					if (valueCount == 2) {
-						dsp.inputRouting[channel] = intValues[0];
-						dsp.inputTapPoint[channel] = intValues[1];
-					}
+
+					// intValues[0] contains the outputRouting for this channel
+					// intValues[1] contains the tapPoint for this channel
+					dsp.inputSourcePtr[channel] = &audioBuffer[intValues[1]][intValues[0]][0];
+
 					break;
 				case 1:
 					if (channel >= (MAX_CHAN_FPGA + MAX_CHAN_DSP2)) {
 						return;
 					}
-					if (valueCount == 2) {
-						dsp.outputRouting[channel] = intValues[0];
-						dsp.outputTapPoint[channel] = intValues[1];
-					}
+
+					// intValues[0] contains the outputRouting for this channel
+					// intValues[1] contains the tapPoint for this channel
+					dsp.outputSourcePtr[channel] = &audioBuffer[intValues[1]][intValues[0]][0];
+
 					break;
 			}
+
 			break;
 		case 't': // set tapPoints
 			if (valueCount == 2) {
@@ -264,12 +267,16 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 
 			switch (index) {
+				#if DEBUG_DISABLE_INTPUTDELAY == 0
 				case 'i': // input-delay
 					delayLineTailOffsetInput[channel] = intValues[0];
 					break;
+				#endif
+				#if DEBUG_DISABLE_OUTPUTDELAY == 0
 				case 'o': // output-delay
 					delayLineTailOffsetOutput[channel] = intValues[0];
 					break;
+				#endif
 			}
 			break;
 		#endif
@@ -365,6 +372,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 			if (valueCount == 6) {
 				dsp.dspChannelCompressor[channel].value_threshold = floatValues[0];
+				//dsp.dspChannelCompressor[channel].value_threshold_linear = dbToLinear_fast(floatValues[0]) * FLOAT_NORM_TO_INT32;
 				dsp.dspChannelCompressor[channel].value_ratio = floatValues[1];
 				dsp.compressorMakeup[channel] = floatValues[2];
 				dsp.dspChannelCompressor[channel].value_coeff_attack = floatValues[3];

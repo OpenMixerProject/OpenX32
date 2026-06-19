@@ -74,31 +74,31 @@ void spiInit(void) {
 		// audio-data of main-DSP-channels and FX-return
 		spiTx_tcb[0][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer <- DEBUG: jump to main-bus-audio-data directly without mixbusses and gains
 		spiTx_tcb[0][1] = (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // ICSPI internal count
-		spiTx_tcb[0][2] = 1; // IMSPI internal modifier
-		spiTx_tcb[0][3] = (int)&audioBuffer[TAP_PRE_FADER][0][DSP_BUF_IDX_DSPCHANNEL]; // IISPI internal index
+		spiTx_tcb[0][2] = SAMPLES_IN_BUFFER; // IMSPI internal modifier (offset for next index)
+		spiTx_tcb[0][3] = (int)&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL][0]; // IISPI internal index
 
 		// audio-data of 8 mixbusses
 		spiTx_tcb[1][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
 		spiTx_tcb[1][1] = ACTIVE_MIX_BUSSES * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these volume-information. DSP will take to long
-		spiTx_tcb[1][2] = 1; // IMSPI internal modifier
-		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_INPUT][0][DSP_BUF_IDX_MIXBUS]; // IISPI internal index
+		spiTx_tcb[1][2] = SAMPLES_IN_BUFFER; // IMSPI internal modifier (offset for next index)
+		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS][0]; // IISPI internal index
 
 		// compressor gains
 		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3); // CPSPI chain-pointer
 		spiTx_tcb[2][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
-		spiTx_tcb[2][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[2][2] = 1; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[2][3] = (int)&dsp.compressorEnvelope[0]; // IISPI internal index
 
 		// gate-gains
 		spiTx_tcb[3][0] = ((int)&spiTx_tcb[4][0] + 3); // CPSPI chain-pointer
 		spiTx_tcb[3][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
-		spiTx_tcb[3][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[3][2] = 1; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[3][3] = (int)&dsp.gateEnvelope[0]; // IISPI internal index
 
 		// closing data (audio-data of main-busses and final "#")
 		spiTx_tcb[4][0] = 0; // CPSPI chain-pointer ("0" ends DMA-chain)
 		spiTx_tcb[4][1] = 4; // ICSPI internal count
-		spiTx_tcb[4][2] = 1; // IMSPI internal modifier
+		spiTx_tcb[4][2] = 1; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[4][3] = (int)&spiCommData[5]; // IISPI internal index
 
 

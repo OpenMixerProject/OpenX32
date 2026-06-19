@@ -3,7 +3,7 @@
 
 #include "dsp1.h"
 
-extern float audioBuffer[5][SAMPLES_IN_BUFFER][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MAIN + MAX_MATRIX + MAX_MONITOR];
+extern float audioBuffer[5][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MAIN + MAX_MATRIX + MAX_MONITOR][SAMPLES_IN_BUFFER];
 extern volatile uint32_t audioGlitchCounter;
 
 #if DEBUG_DISABLE_DELAYLINE == 0
