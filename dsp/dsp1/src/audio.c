@@ -483,13 +483,16 @@ void audioProcessData(void) {
 
 	#pragma loop_count(MAX_CHAN_FULLFEATURED)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
-		float* buf = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float* src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float makeUp = dsp.compressorMakeup[i_ch];
+		float coeff;
 
 	    // calculate peak over all 16 samples in buffer
 	    float peak = 0.0f;
 	    #pragma loop_count(SAMPLES_IN_BUFFER)
 	    for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-	        float abs = fabsf(buf[s]);
+	        float abs = fabsf(src[s]);
 	        if (abs > peak) peak = abs;
 	    }
 		float inputDb = linearToDb_fast(peak * INT32_TO_FLOAT_NORM);
@@ -502,7 +505,6 @@ void audioProcessData(void) {
 
 		// Attack / Hold / Release Logic
 		float currentGainLinear = dbToLinear_fast(targetGainDb);
-		float coeff;
 
 		// calculation of the envelope
 		float env = dsp.compressorEnvelope[i_ch];
@@ -521,10 +523,6 @@ void audioProcessData(void) {
 		}
 
 		// apply calculated gain to samples
-		float* src = &audioBuffer[TAP_POST_EQ]  [DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-		float makeUp = dsp.compressorMakeup[i_ch];
-
 		#pragma loop_count(SAMPLES_IN_BUFFER)
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			if (calcEnvelopeActive) {
