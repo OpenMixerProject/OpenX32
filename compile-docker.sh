@@ -40,6 +40,11 @@ RUN dpkg --add-architecture armel \
             libiberty-dev \
             autoconf \
             llvm \
+            perl \
+            python-is-python3 \
+            python3 \
+            pkg-config \
+            xz-utils \
             fakeroot \
             build-essential \
             devscripts \
@@ -88,8 +93,50 @@ export RANLIB=${CHOST}-ranlib
 make
 make install
 
+# download, compile and install the QtBase runtime used by qtbench
+QT_VERSION=5.15.2
+QT_ARCHIVE="qtbase-everywhere-src-${QT_VERSION}.tar.xz"
+QT_SOURCE_DIR="/tmp/qtbase-everywhere-src-${QT_VERSION}"
+QT_PREFIX="${BUILD_DIR}/opt/cross/qt5"
+QT_HOST_PREFIX="${BUILD_DIR}/opt/qt5-host"
+
+if [ ! -x "${QT_HOST_PREFIX}/bin/qmake" ]; then
+    cd /tmp
+    wget -nc "https://download.qt.io/archive/qt/5.15/${QT_VERSION}/submodules/${QT_ARCHIVE}"
+    rm -rf "${QT_SOURCE_DIR}"
+    tar -xf "${QT_ARCHIVE}"
+    cd "${QT_SOURCE_DIR}"
+
+    ./configure \
+        -release \
+        -opensource \
+        -confirm-license \
+        -xplatform linux-arm-gnueabi-g++ \
+        -device-option CROSS_COMPILE=arm-linux-gnueabi- \
+        -prefix "${QT_PREFIX}" \
+        -extprefix "${QT_PREFIX}" \
+        -hostprefix "${QT_HOST_PREFIX}" \
+        -nomake examples \
+        -nomake tests \
+        -no-dbus \
+        -no-icu \
+        -no-opengl \
+        -no-xcb \
+        -qt-freetype \
+        -qt-harfbuzz \
+        -qt-libpng \
+        -qt-zlib \
+        -linuxfb \
+        -widgets
+
+    make -j$(nproc)
+    make install
+fi
+
 # build with musl
 export PATH=${BUILD_DIR}/opt/cross/bin:$PATH
+export QT_QMAKE="${QT_HOST_PREFIX}/bin/qmake"
+export QT_RUNTIME_PREFIX="${QT_PREFIX}"
 
 cd ${ROOT_DIR}
 

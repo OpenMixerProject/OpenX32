@@ -356,6 +356,13 @@ cp software/framebuffer-vncserver/build/framebuffer-vncserver initramfs_root/ope
 # copy general libraries
 cp software/libvncserver/build/libvncserver.so.1 initramfs_root/lib/libvncserver.so.1
 
+QT_RUNTIME_PREFIX=${QT_RUNTIME_PREFIX:-/opt/cross/qt5}
+if [ -d "$QT_RUNTIME_PREFIX/lib" ]; then
+	mkdir -p initramfs_root/openx32/platforms
+	cp "$QT_RUNTIME_PREFIX"/lib/libQt5*.so.5 initramfs_root/lib/
+	cp "$QT_RUNTIME_PREFIX"/plugins/platforms/libqlinuxfb.so initramfs_root/openx32/platforms/
+fi
+
 if [ "$COMPILE_MUSL" = true ]; then
 	# copy specific libraries for musl
 	cp $(arm-linux-gnueabi-gcc -print-file-name=libc.so) initramfs_root/lib/libc.so
