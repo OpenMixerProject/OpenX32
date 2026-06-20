@@ -429,9 +429,14 @@ void audioProcessData(void) {
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
 		float* buf = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 
-		// use only sample 0 for gate-logic
-		float absInput  = fabsf(buf[0]);
-		float targetGain = (absInput > dsp.dspChannelGate[i_ch].value_threshold)
+	    // calculate peak over all 16 samples in buffer
+	    float peak = 0.0f;
+	    #pragma loop_count(SAMPLES_IN_BUFFER)
+	    for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+	        float abs = fabsf(buf[s]);
+	        if (abs > peak) peak = abs;
+	    }
+		float targetGain = (peak > dsp.dspChannelGate[i_ch].value_threshold)
 						   ? 1.0f
 						   : dsp.dspChannelGate[i_ch].value_gainmin;
 		float coeff;
@@ -508,10 +513,16 @@ void audioProcessData(void) {
 
 	#pragma loop_count(MAX_CHAN_FULLFEATURED)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
-		float inputDb = linearToDb_fast(
-			fabsf(audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0])
-			* INT32_TO_FLOAT_NORM
-		);
+		float* buf = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+
+	    // calculate peak over all 16 samples in buffer
+	    float peak = 0.0f;
+	    #pragma loop_count(SAMPLES_IN_BUFFER)
+	    for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+	        float abs = fabsf(buf[s]);
+	        if (abs > peak) peak = abs;
+	    }
+		float inputDb = linearToDb_fast(peak * INT32_TO_FLOAT_NORM);
 
 		float targetGainDb = 0.0f;
 		if (inputDb > dsp.dspChannelCompressor[i_ch].value_threshold) {
@@ -553,50 +564,6 @@ void audioProcessData(void) {
 		}
 		dsp.compressorEnvelope[i_ch] = env;
 	}
-
-	/*
-	#pragma loop_count(MAX_CHAN_FULLFEATURED)
-	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
-		float inputDb = linearToDb_fast(
-			fabsf(audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0])
-			* INT32_TO_FLOAT_NORM
-		);
-
-		float targetGainDb = 0.0f;
-		if (inputDb > dsp.dspChannelCompressor[i_ch].value_threshold) {
-			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_threshold - inputDb)
-						   * (1.0f - 1.0f / dsp.dspChannelCompressor[i_ch].value_ratio);
-		}
-
-		// Attack / Hold / Release Logic
-		float currentGainLinear = dbToLinear_fast(targetGainDb);
-
-		// simple smoothing (Ballistics)
-		if (currentGainLinear < dsp.compressorEnvelope[i_ch]) {
-			// Attack
-			dsp.compressorEnvelope[i_ch] += dsp.dspChannelCompressor[i_ch].value_coeff_attack * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
-			dsp.dspChannelCompressor[i_ch].holdTimer = dsp.dspChannelCompressor[i_ch].value_hold_ticks; // Reset Hold-Timer
-		} else {
-			// Hold -> Release
-			if (dsp.dspChannelCompressor[i_ch].holdTimer > 0) {
-				dsp.dspChannelCompressor[i_ch].holdTimer--;
-			} else {
-				dsp.compressorEnvelope[i_ch] += dsp.dspChannelCompressor[i_ch].value_coeff_release * (currentGainLinear - dsp.compressorEnvelope[i_ch]);
-			}
-		}
-
-		// apply calculated gain to samples
-		float combinedGain = dsp.compressorEnvelope[i_ch] * dsp.compressorMakeup[i_ch];
-		float* src = &audioBuffer[TAP_POST_EQ]  [DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-
-		#pragma loop_count(SAMPLES_IN_BUFFER)
-		#pragma vector_for
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		    dst[s] = src[s] * combinedGain;
-		}
-	}
-	*/
 
     // bypass: channels that don't have full-featured processing
     int bypassStart = DSP_BUF_IDX_DSPCHANNEL + MAX_CHAN_FULLFEATURED;
