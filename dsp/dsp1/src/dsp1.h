@@ -86,8 +86,11 @@ struct {
 	float lowcutCoeff[MAX_CHAN_FULLFEATURED];
 	float lowcutStatesInput[MAX_CHAN_FULLFEATURED];
 	float lowcutStatesOutput[MAX_CHAN_FULLFEATURED];
-	//float highcutCoeff[MAX_CHAN_FULLFEATURED];
-	//float highcutStates[MAX_CHAN_FULLFEATURED];
+
+	#if USE_HIGHCUT == 1
+	float highcutCoeff[MAX_CHAN_FULLFEATURED];
+	float highcutStates[MAX_CHAN_FULLFEATURED];
+	#endif
 
 	float gateEnvelope[MAX_CHAN_FULLFEATURED];
 
