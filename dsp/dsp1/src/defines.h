@@ -1,19 +1,23 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.48
+#define DSP_VERSION				0.50
 
 #define DEBUG_DISABLE_LOWCUT	0
 #define DEBUG_DISABLE_GATE		0
 #define DEBUG_DISABLE_EQ		0
 #define DEBUG_DISABLE_DYNAMICS	0
 #define DEBUG_DISABLE_MIXBUS	0
+#define DEBUG_DISABLE_EQMIXBUS	1
 #define DEBUG_DISABLE_EQMAIN	1
-#define DEBUG_DISABLE_DELAYLINE	1
+#define DEBUG_DISABLE_MATRIX	1
+#define DEBUG_DISABLE_MONITOR	0
+#define DEBUG_DISABLE_INTPUTDELAY	0
+#define DEBUG_DISABLE_OUTPUTDELAY	0
 
-#define TEST_MATRIXMULTIPLICATION_MIXBUS 0
+#define ACTIVE_MIX_BUSSES		16	// 16 MixBusses are possible now
 
-#define ACTIVE_MIX_BUSSES		8
+#define USE_HIGHCUT				0
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
@@ -60,6 +64,7 @@
 #define BUFFER_COUNT			2	// single-, double-, triple- or multi-buffering (e.g. for delay or other things)
 #define BUFFER_SIZE				SAMPLES_IN_BUFFER * CHANNELS_PER_TDM
 #define M_PI					3.1415926535897932384626433832795f
+#define FLOAT_NORM_TO_INT32		2147483647.0f
 #define INT32_TO_FLOAT_NORM		(1.0f / 2147483647.0f)
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000

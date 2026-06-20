@@ -70,6 +70,7 @@ typedef struct {
 typedef struct {
 	// filter-data from i.MX25
 	float value_threshold; // indB
+	//float value_threshold_linear; // linear
 	float value_ratio;
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
@@ -85,8 +86,11 @@ struct {
 	float lowcutCoeff[MAX_CHAN_FULLFEATURED];
 	float lowcutStatesInput[MAX_CHAN_FULLFEATURED];
 	float lowcutStatesOutput[MAX_CHAN_FULLFEATURED];
-	//float highcutCoeff[MAX_CHAN_FULLFEATURED];
-	//float highcutStates[MAX_CHAN_FULLFEATURED];
+
+	#if USE_HIGHCUT == 1
+	float highcutCoeff[MAX_CHAN_FULLFEATURED];
+	float highcutStates[MAX_CHAN_FULLFEATURED];
+	#endif
 
 	float gateEnvelope[MAX_CHAN_FULLFEATURED];
 
@@ -130,10 +134,8 @@ struct {
 	bool mainLrSolo;
 	bool mainSubSolo;
 
-	short inputRouting[MAX_CHAN_FPGA];
-	short inputTapPoint[MAX_CHAN_FPGA];
-	short outputRouting[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
-	short outputTapPoint[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
+	float* inputSourcePtr[MAX_CHAN_FPGA];
+	float* outputSourcePtr[MAX_CHAN_FPGA + MAX_CHAN_DSP2];
 
 	sGate dspChannelGate[MAX_CHAN_FULLFEATURED];
 	sCompressor dspChannelCompressor[MAX_CHAN_FULLFEATURED];
