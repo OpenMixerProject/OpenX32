@@ -71,7 +71,7 @@ typedef struct {
 	// filter-data from i.MX25
 	float value_threshold; // indB
 	//float value_threshold_linear; // linear
-	float value_ratio;
+	float value_ratio; // here the precalculated (1.0f - 1.0f/ratio) is sent by OMC
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
