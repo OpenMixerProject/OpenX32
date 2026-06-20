@@ -214,7 +214,6 @@ void audioProcessData(void) {
 
 	        // Stride-Access from src to dst
 	        #pragma loop_count(SAMPLES_IN_BUFFER)
-	        #pragma vector_for
 	        for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 	            dst[s] = (float)src[s * CHANNELS_PER_TDM];
 	        }
@@ -238,7 +237,6 @@ void audioProcessData(void) {
 	        float* dst = &audioBuffer[TAP_INPUT][dstBase + i_ch][0];
 
 	        #pragma loop_count(SAMPLES_IN_BUFFER)
-	        #pragma vector_for
 	        for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 	            dst[s] = *(float*)&audioRxBuf[rxBase + s * CHANNELS_PER_TDM + i_ch];
 	        }
@@ -358,7 +356,6 @@ void audioProcessData(void) {
 
 		// optimized loop for SHARC-pipeline
 		#pragma loop_count(SAMPLES_IN_BUFFER)
-		#pragma vector_for
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			float in  = buf[s];
 			float out = coeff * (zout + in - zinput);
@@ -437,28 +434,36 @@ void audioProcessData(void) {
 		float targetGain = (absInput > dsp.dspChannelGate[i_ch].value_threshold)
 						   ? 1.0f
 						   : dsp.dspChannelGate[i_ch].value_gainmin;
+		float coeff;
 
 		// calculation of the envelope
 		float env = dsp.gateEnvelope[i_ch];
+		bool calcEnvelopeActive = true;
 		if (targetGain > env) {
-			env += dsp.dspChannelGate[i_ch].value_coeff_attack * (targetGain - env);
+			// Attack
+			coeff = dsp.dspChannelGate[i_ch].value_coeff_attack;
 			dsp.dspChannelGate[i_ch].holdTimer = dsp.dspChannelGate[i_ch].value_hold_ticks;
 		} else {
+			// Hold -> Release
+			coeff = dsp.dspChannelGate[i_ch].value_coeff_release;
 			if (dsp.dspChannelGate[i_ch].holdTimer > 0) {
 				dsp.dspChannelGate[i_ch].holdTimer--;
-			} else {
-				env += dsp.dspChannelGate[i_ch].value_coeff_release * (targetGain - env);
+				calcEnvelopeActive = false;
 			}
 		}
-		dsp.gateEnvelope[i_ch] = env;
 
-		// apply gate on all 16 samples at once using SIMD
+		// apply calculated gain to samples
 		#pragma loop_count(SAMPLES_IN_BUFFER)
-		#pragma vector_for
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			if (calcEnvelopeActive) {
+				env += coeff * (targetGain - env);
+			}
+
 			buf[s] *= env;
 		}
+		dsp.gateEnvelope[i_ch] = env;
 	}
+
 	#endif
 
 	#if DEBUG_DISABLE_EQ == 0
@@ -516,6 +521,55 @@ void audioProcessData(void) {
 
 		// Attack / Hold / Release Logic
 		float currentGainLinear = dbToLinear_fast(targetGainDb);
+		float coeff;
+
+		// calculation of the envelope
+		float env = dsp.compressorEnvelope[i_ch];
+		bool calcEnvelopeActive = true;
+		if (currentGainLinear < env) {
+			// Attack
+			coeff = dsp.dspChannelCompressor[i_ch].value_coeff_attack;
+			dsp.dspChannelCompressor[i_ch].holdTimer = dsp.dspChannelCompressor[i_ch].value_hold_ticks; // Reset Hold-Timer
+		} else {
+			coeff = dsp.dspChannelCompressor[i_ch].value_coeff_release;
+			// Hold -> Release
+			if (dsp.dspChannelCompressor[i_ch].holdTimer > 0) {
+				dsp.dspChannelCompressor[i_ch].holdTimer--;
+				calcEnvelopeActive = false;
+			}
+		}
+
+		// apply calculated gain to samples
+		float combinedGain = dsp.compressorEnvelope[i_ch] * dsp.compressorMakeup[i_ch];
+		float* src = &audioBuffer[TAP_POST_EQ]  [DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+
+		#pragma loop_count(SAMPLES_IN_BUFFER)
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			if (calcEnvelopeActive) {
+				env += coeff * (currentGainLinear - env);
+			}
+			dst[s] = src[s] * combinedGain;
+		}
+		dsp.compressorEnvelope[i_ch] = env;
+	}
+
+	/*
+	#pragma loop_count(MAX_CHAN_FULLFEATURED)
+	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+		float inputDb = linearToDb_fast(
+			fabsf(audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0])
+			* INT32_TO_FLOAT_NORM
+		);
+
+		float targetGainDb = 0.0f;
+		if (inputDb > dsp.dspChannelCompressor[i_ch].value_threshold) {
+			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_threshold - inputDb)
+						   * (1.0f - 1.0f / dsp.dspChannelCompressor[i_ch].value_ratio);
+		}
+
+		// Attack / Hold / Release Logic
+		float currentGainLinear = dbToLinear_fast(targetGainDb);
 
 		// simple smoothing (Ballistics)
 		if (currentGainLinear < dsp.compressorEnvelope[i_ch]) {
@@ -542,6 +596,7 @@ void audioProcessData(void) {
 		    dst[s] = src[s] * combinedGain;
 		}
 	}
+	*/
 
     // bypass: channels that don't have full-featured processing
     int bypassStart = DSP_BUF_IDX_DSPCHANNEL + MAX_CHAN_FULLFEATURED;
