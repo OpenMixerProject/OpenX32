@@ -497,7 +497,7 @@ void audioProcessData(void) {
 		float targetGainDb = 0.0f;
 		if (inputDb > dsp.dspChannelCompressor[i_ch].value_threshold) {
 			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_threshold - inputDb)
-						   * (1.0f - 1.0f / dsp.dspChannelCompressor[i_ch].value_ratio);
+						   * dsp.dspChannelCompressor[i_ch].value_ratio;
 		}
 
 		// Attack / Hold / Release Logic
@@ -521,16 +521,16 @@ void audioProcessData(void) {
 		}
 
 		// apply calculated gain to samples
-		float combinedGain = dsp.compressorEnvelope[i_ch] * dsp.compressorMakeup[i_ch];
 		float* src = &audioBuffer[TAP_POST_EQ]  [DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float makeUp = dsp.compressorMakeup[i_ch];
 
 		#pragma loop_count(SAMPLES_IN_BUFFER)
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			if (calcEnvelopeActive) {
 				env += coeff * (currentGainLinear - env);
 			}
-			dst[s] = src[s] * combinedGain;
+			dst[s] = src[s] * env * makeUp;
 		}
 		dsp.compressorEnvelope[i_ch] = env;
 	}
