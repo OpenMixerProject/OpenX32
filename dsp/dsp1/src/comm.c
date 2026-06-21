@@ -34,6 +34,8 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 		index 1: output routing
 	't' set tap-points
 		index 0: channel-send-tappoint
+		index 1: mixbus-send-tappoint
+		index 2: main-send-tappoint
 	'v' volume
 		index 0: dsp-channels
 		index 1: mixbus-channels
@@ -49,6 +51,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 		'i': input-delay
 		'o': output-delay
 	's' sends to mixbus
+	'm' sends to matrix
 	'g' gate
 	'e' equalizer
 		index 'l': lowcut
@@ -175,22 +178,27 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			break;
 		case 't': // set tapPoints
 			if (valueCount == 2) {
-				if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
-					return;
-				}
-
 				switch (index) {
 					case 0: // ChannelSend-TapPoint
+						if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+							return;
+						}
 						dsp.channelSendMixbusTapPoint[intValues[0]][channel] = intValues[1];
 						break;
-/*
+					#if DEBUG_DISABLE_MATRIX == 0
 					case 1: // MixbusSend-TapPoint
+						if (channel >= (MAX_MIXBUS)) {
+							return;
+						}
 						dsp.sendMatrixTapPoint[intValues[0]][channel] = intValues[1];
 						break;
 					case 2: // MainSend-TapPoint
-						dsp.mainSendMatrixTapPoint[intValues[0]] = intValues[1];
+						if (channel >= (MAX_MAIN)) {
+							return;
+						}
+						dsp.sendMatrixTapPoint[intValues[0]][MAX_MIXBUS + channel] = intValues[1];
 						break;
-*/
+					#endif
 				}
 			}
 			break;
@@ -212,12 +220,11 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 
 				case 2: // Matrix-Channels
-/*
-
+					#if DEBUG_DISABLE_MATRIX == 0
 					if (valueCount == 1) {
 						dsp.matrixVolume[channel] = floatValues[0];
 					}
-*/
+					#endif
 					break;
 				case 3: // Main-Channels
 					if (valueCount == 3) {
@@ -245,8 +252,18 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				case 11: // unused
 					break;
 
+				#if DEBUG_DISABLE_MATRIX == 0
 				case 12: // Matrix Solo
+					if (channel >= (MAX_MATRIX)) {
+						return;
+					}
+
+					if (valueCount == 2) {
+						dsp.matrixSolo[channel] = (intValues[0] > 0);
+						dsp.soloActive = (intValues[1] > 0);
+					}
 					break;
+				#endif
 
 				case 13: // Solo Main
 					if (valueCount == 3) {
@@ -280,21 +297,30 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 			break;
 		#endif
-		case 's': // sends to Mixbus
-			if (valueCount == 16) {
-				if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+			case 's': // sends to Mixbus
+				if (valueCount == MAX_MIXBUS) {
+					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+						return;
+					}
+
+					for (int i = 0; i < MAX_MIXBUS; i++) {
+						dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
+					}
+				}
+				break;
+		#if DEBUG_DISABLE_MATRIX == 0
+		case 'm': // sends to Matrix
+			if (valueCount == (MAX_MIXBUS + MAX_MAIN)) {
+				if (channel >= (MAX_MATRIX)) {
 					return;
 				}
 
-				for (int i = 0; i < 16; i++) {
-					#if TEST_MATRIXMULTIPLICATION_MIXBUS == 1
-						dsp.channelSendMixbusVolume[channel][i] = floatValues[i];
-					#else
-						dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
-					#endif
+				for (int i = 0; i < (MAX_MIXBUS + MAX_MAIN); i++) {
+					dsp.sendMatrixVolume[channel][i] = floatValues[i];
 				}
 			}
 			break;
+		#endif
 		case 'g': // gate
 			if (channel >= (MAX_CHAN_FULLFEATURED)) {
 				return;
@@ -326,9 +352,9 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						return;
 					}
 
-					if ((valueCount == (MAX_CHAN_EQS * 5)) && (channel < CHANNELS_WITH_4BD_EQ)) {
+					if ((valueCount == (5 * EQ_4BD_BANDS)) && (channel < CHANNELS_WITH_4BD_EQ)) {
 						// copy biquad-coefficients
-						memcpy(&dsp.peqCoeffs[channel][0], &floatValues[0], valueCount * sizeof(float));
+						memcpy(&dsp.peqCoeffs_4BD_EQ[channel][0], &floatValues[0], valueCount * sizeof(float));
 					}
 					break;
 				case 'r': // reset channel-parameters
@@ -339,19 +365,19 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 					// initialize PEQs
 					float coeffs[5] = {1, 0, 0, 0, 0}; // a0, a1, a2, b1, b2: direct passthrough
-					for (int i_peq = 0; i_peq < MAX_CHAN_EQS; i_peq++) {
+					for (int i_peq = 0; i_peq < EQ_4BD_BANDS; i_peq++) {
 						fxSetPeqCoeffs(channel, i_peq, &coeffs[0]);
 					}
 					// init PEQ-states
-					for (int s = 0; s < (2 * MAX_CHAN_EQS); s++) {
-						dsp.peqStates[channel][s] = 0;
-						dsp.peqStates[channel][s] = 0;
+					for (int s = 0; s < (2 * EQ_4BD_BANDS); s++) {
+						dsp.peqStates_4BD_EQ[channel][s] = 0;
+						dsp.peqStates_4BD_EQ[channel][s] = 0;
 					}
 
 					// reset biquad-integrators
 					dsp.lowcutStatesInput[channel] = 0;
 					dsp.lowcutStatesOutput[channel] = 0;
-					memset(&dsp.peqStates[channel][0], 0, MAX_CHAN_EQS * 2 * sizeof(float));
+					memset(&dsp.peqStates_4BD_EQ[channel][0], 0, 2 * EQ_4BD_BANDS * sizeof(float));
 
 					/*
 					// reset the channel-configuration to have a working channel

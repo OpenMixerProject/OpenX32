@@ -473,10 +473,10 @@ void audioProcessData(void) {
 	for (int i_ch = 0; i_ch < (CHANNELS_WITH_4BD_EQ - MAX_MAIN); i_ch++) {
 		// apply biquad EQ on POST_EQ-Tap directly
 		biquad_trans(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0],
-					 &dsp.peqCoeffs[i_ch][0],
-					 &dsp.peqStates[i_ch][0],
+					 &dsp.peqCoeffs_4BD_EQ[i_ch][0],
+					 &dsp.peqStates_4BD_EQ[i_ch][0],
 					 SAMPLES_IN_BUFFER,
-					 MAX_CHAN_EQS);
+					 EQ_4BD_BANDS);
 	}
 	#else
 	// copy PRE_EQ-Tap to POST_EQ-TAP
@@ -670,22 +670,21 @@ void audioProcessData(void) {
 	*/
 
 	#if DEBUG_DISABLE_EQMIXBUS == 0
+	// copy INPUT-Tap to POST_EQ-TAP
+	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MIXBUS][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS][0], ACTIVE_MIX_BUSSES * SAMPLES_IN_BUFFER * sizeof(float));
 
 	// Hardware-Accelerated Biquad-Filter
 	#pragma loop_count(ACTIVE_MIX_BUSSES)
 	for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
-		// copy INPUT-Tap to POST_EQ-TAP
-		memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MIXBUS + i_ch][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS + i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
-
 		// apply biquad EQ on POST_EQ-Tap directly
 		biquad_trans(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MIXBUS + i_ch][0],
-					 &dsp.peqCoeffs[i_ch][0], // TODO: add coefficients for MixBus
-					 &dsp.peqStates[i_ch][0], // TODO: add states for MixBus
+					 &dsp.peqCoeffs_6BD_EQ[i_ch][0],
+					 &dsp.peqStates_6BD_EQ[i_ch][0],
 					 SAMPLES_IN_BUFFER,
-					 MAX_CHAN_EQS);
+					 EQ_6BD_BANDS);
 	}
 
-
+	// volume-control of the mixbus-channels
 	#pragma loop_count(ACTIVE_MIX_BUSSES)
 	for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
 		float* src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MIXBUS + i_ch][0];
@@ -699,6 +698,7 @@ void audioProcessData(void) {
 	}
 	#else
 	#pragma loop_count(ACTIVE_MIX_BUSSES)
+	// volume-control of the mixbus-channels
 	for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
 		float* src = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS + i_ch][0];
 		float* dst = &audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MIXBUS + i_ch][0];
@@ -797,17 +797,16 @@ void audioProcessData(void) {
 	// Hardware-Accelerated Biquad-Filter for the Main-Channels Left/Right/Sub
 	// copy samples into new array
 	#if DEBUG_DISABLE_EQMAIN == 0
-
 	// copy INPUT-Tap to POST_EQ-TAP
-	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL][0], MAX_MAIN * SAMPLES_IN_BUFFER * sizeof(float));
+	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MAINLEFT][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINLEFT][0], MAX_MAIN * SAMPLES_IN_BUFFER * sizeof(float));
 
 	for (int i_ch = 0; i_ch < MAX_MAIN; i_ch++) {
 		// apply biquad EQ on POST_EQ-Tap directly
 		biquad_trans(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MAINLEFT + i_ch][0],
-					 &dsp.peqCoeffs[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + i_ch][0],
-					 &dsp.peqStates[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + i_ch][0],
+					 &dsp.peqCoeffs_6BD_EQ[MAX_MIXBUS + i_ch][0],
+					 &dsp.peqStates_6BD_EQ[MAX_MIXBUS + i_ch][0],
 					 SAMPLES_IN_BUFFER,
-					 MAX_CHAN_EQS);
+					 EQ_6BD_BANDS);
 	}
 
 	// TODO: process dynamics on main L/R/S
@@ -848,19 +847,55 @@ void audioProcessData(void) {
 	// |_|  |_/_/   \_\_| |_| \_\___/_/\_\
 	// calculate matrices
 	#if DEBUG_DISABLE_MATRIX == 0
-	for (int i_matrix = 0; i_matrix < 6; i_matrix++) {
-		// calculated summarized audio for each matrix-channel
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			// vecdotf(const float dm a[],	const float dm b[], int samples) -> A dot B = A0*B0 + A1*B1 + A2*B2 + ...
-			audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MATRIX + i_matrix] = vecdotf(&audioBuffer[TAP_PRE_FADER][s][DSP_BUF_IDX_MIXBUS], &dsp.sendMatrixVolume[i_matrix][0], ACTIVE_MIX_BUSSES + 3);
+	memset(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_MATRIX][0], 0, MAX_MATRIX * SAMPLES_IN_BUFFER * sizeof(float));
+
+	#pragma loop_count(MAX_MATRIX)
+	for (int i_matrix = 0; i_matrix < MAX_MATRIX; i_matrix++) {
+		float* matrixInput = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MATRIX + i_matrix][0];
+		float gain = dsp.matrixVolume[i_matrix];
+		float* matrixPostFader = &audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MATRIX + i_matrix][0];
+
+		const short* taps = &dsp.sendMatrixTapPoint[i_matrix][0];
+		const float* volumes = &dsp.sendMatrixVolume[i_matrix][0];
+
+		// MixBus -> Matrix
+		#pragma loop_count(ACTIVE_MIX_BUSSES)
+		for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
+			float sendGain = volumes[i_ch];
+
+			if (sendGain == 0.0f) continue;
+
+			float* src = &audioBuffer[taps[i_ch]][DSP_BUF_IDX_MIXBUS + i_ch][0];
+
+			#pragma loop_count(16, 16, 16)
+			#pragma vector_for
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				matrixInput[s] += sendGain * src[s];
+			}
 		}
 
-		// TODO: process dynamics on mixbusses
-		// TODO: process 6-band PEQ on mixbusses
-	}
-	// matrix-volume
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		vecvmltf(&audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MATRIX], &dsp.matrixVolume[0], &audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_MATRIX], MAX_MATRIX);
+		// Main LRS -> Matrix
+		#pragma loop_count(MAX_MAIN)
+		for (int i_ch = 0; i_ch < MAX_MAIN; i_ch++) {
+			float sendGain = volumes[MAX_MIXBUS + i_ch];
+
+			if (sendGain == 0.0f) continue;
+
+			float* src = &audioBuffer[taps[MAX_MIXBUS + i_ch]][DSP_BUF_IDX_MIXBUS + i_ch][0];
+
+			#pragma loop_count(16, 16, 16)
+			#pragma vector_for
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				matrixInput[s] += sendGain * src[s];
+			}
+		}
+
+		// matrix volume
+		#pragma loop_count(16, 16, 16)
+		#pragma vector_for
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			matrixPostFader[s] = gain * matrixInput[s];
+		}
 	}
 	#endif
 
@@ -879,6 +914,7 @@ void audioProcessData(void) {
 		memset(monLeft, 0, SAMPLES_IN_BUFFER * sizeof(float));
 
 		// accumulate the soloed channels pre-fader into MonitorL/R
+		#pragma loop_count(64) // (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES)
 		for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); i_ch++) {
 			if (dsp.dspChannelSolo[i_ch]) {
 			    float* src = &audioBuffer[dsp.monitorChannelTapPoint][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];

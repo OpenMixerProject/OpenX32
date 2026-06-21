@@ -100,8 +100,10 @@ struct {
 	float compressorMakeup[MAX_CHAN_FULLFEATURED];
 	//float compressorGainSmoothed[MAX_CHAN_FULLFEATURED];
 
-	float pm peqCoeffs[CHANNELS_WITH_4BD_EQ][5 * MAX_CHAN_EQS]; // store in program memory
-	float dm peqStates[CHANNELS_WITH_4BD_EQ][2 * MAX_CHAN_EQS]; // store in data memory
+	float pm peqCoeffs_4BD_EQ[CHANNELS_WITH_4BD_EQ][5 * EQ_4BD_BANDS]; // store in program memory
+	float dm peqStates_4BD_EQ[CHANNELS_WITH_4BD_EQ][2 * EQ_4BD_BANDS]; // store in data memory
+	float pm peqCoeffs_6BD_EQ[CHANNELS_WITH_6BD_EQ][5 * EQ_6BD_BANDS]; // store in program memory
+	float dm peqStates_6BD_EQ[CHANNELS_WITH_6BD_EQ][2 * EQ_6BD_BANDS]; // store in data memory
 
 	// volume-settings
 	float channelVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
@@ -121,19 +123,16 @@ struct {
 	float pm channelSendMainSubVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
 
 
-/*
-	float sendMatrixVolume[MAX_MATRIX][MAX_MIXBUS + 3]; // Mixbus and MainLRS can be sent to matrix
-	int sendMatrixTapPoint[MAX_MATRIX][MAX_MIXBUS + 3]; // Mixbus and MainLRS can be sent to matrix
-	bool mixbusSolo[MAX_MIXBUS];
+	#if DEBUG_DISABLE_MATRIX == 0
+		float sendMatrixVolume[MAX_MATRIX][MAX_MIXBUS + MAX_MAIN];
+		short sendMatrixTapPoint[MAX_MATRIX][MAX_MIXBUS + MAX_MAIN];
 
-	float matrixVolume[MAX_MATRIX];
-	bool matrixSolo[MAX_MATRIX];
-*/
+		float matrixVolume[MAX_MATRIX];
+		bool matrixSolo[MAX_MATRIX];
+	#endif
 
 	float mainVolumeSet[3]; // left, right, sub
 	float mainVolume[3]; // left, right, sub
-	float mainSendMatrixVolume[MAX_MATRIX];
-	short mainSendMatrixTapPoint[MAX_MATRIX];
 	bool mainLrSolo;
 	bool mainSubSolo;
 
