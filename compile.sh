@@ -115,6 +115,7 @@ while [[ $# -gt 0 ]]; do
           export PATH=/usr/bin:$PATH
       fi
       cd software/omc
+      git pull
       export BUILD_TARGET="TARGET_XM32"
       export ROOT_DIR=$(pwd)
       make -j$(nproc)
