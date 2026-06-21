@@ -160,6 +160,12 @@ if ! diff -q files/config_busybox software/busybox/.config >/dev/null 2>&1; then
 else
 	echo "busybox-config is up to date."
 fi
+if ! diff -q files/busybox_trylink software/busybox/scripts/trylink >/dev/null 2>&1; then
+	cp files/busybox_trylink software/busybox/scripts/trylink
+	echo "Update software/busybox/scripts/trylink (changed content)"
+else
+	echo "busybox-trylink is up to date."
+fi
 
 cp files/meminit.txt software/pyatk/bin/
 
