@@ -371,9 +371,9 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 
 			if (valueCount == 6) {
-				dsp.dspChannelCompressor[channel].value_threshold = floatValues[0];
-				//dsp.dspChannelCompressor[channel].value_threshold_linear = dbToLinear_fast(floatValues[0]) * FLOAT_NORM_TO_INT32;
-				dsp.dspChannelCompressor[channel].value_ratio = floatValues[1]; // here the precalculated (1.0f - 1.0f/ratio) is sent by OMC
+				dsp.dspChannelCompressor[channel].value_thresholdDb = floatValues[0];
+				//dsp.dspChannelCompressor[channel].value_threshold = dbToLinear_fast(floatValues[0]) * FLOAT_NORM_TO_INT32;
+				dsp.dspChannelCompressor[channel].value_1_minus_1_by_ratio = floatValues[1]; // here the precalculated (1.0f - 1.0f/ratio) is sent by OMC
 				dsp.compressorMakeup[channel] = floatValues[2];
 				dsp.dspChannelCompressor[channel].value_coeff_attack = floatValues[3];
 				dsp.dspChannelCompressor[channel].value_hold_ticks = floatValues[4];

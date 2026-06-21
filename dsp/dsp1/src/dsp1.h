@@ -69,9 +69,9 @@ typedef struct {
 
 typedef struct {
 	// filter-data from i.MX25
-	float value_threshold; // indB
-	//float value_threshold_linear; // linear
-	float value_ratio; // here the precalculated (1.0f - 1.0f/ratio) is sent by OMC
+	float value_thresholdDb; // indB
+	//float value_threshold; // linear
+	float value_1_minus_1_by_ratio; // here the precalculated (1.0f - 1.0f/ratio) is sent by OMC
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
@@ -96,6 +96,7 @@ struct {
 
 	float compressorEnvelope[MAX_CHAN_FULLFEATURED];
 	float compressorMakeup[MAX_CHAN_FULLFEATURED];
+	//float compressorGainSmoothed[MAX_CHAN_FULLFEATURED];
 
 	float pm peqCoeffs[CHANNELS_WITH_4BD_EQ][5 * MAX_CHAN_EQS]; // store in program memory
 	float dm peqStates[CHANNELS_WITH_4BD_EQ][2 * MAX_CHAN_EQS]; // store in data memory

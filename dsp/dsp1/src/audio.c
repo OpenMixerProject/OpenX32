@@ -488,49 +488,49 @@ void audioProcessData(void) {
 		float makeUp = dsp.compressorMakeup[i_ch];
 		float coeff;
 
-	    // calculate peak over all 16 samples in buffer
-	    float peak = 0.0f;
-	    #pragma loop_count(SAMPLES_IN_BUFFER)
-	    for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-	        float abs = fabsf(src[s]);
-	        if (abs > peak) peak = abs;
-	    }
+		// calculate peak over all 16 samples in buffer
+		float peak = 0.0f;
+		#pragma loop_count(SAMPLES_IN_BUFFER)
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+			float abs = fabsf(src[s]);
+			if (abs > peak) peak = abs;
+		}
 		float inputDb = linearToDb_fast(peak * INT32_TO_FLOAT_NORM);
 
 		float targetGainDb = 0.0f;
-		if (inputDb > dsp.dspChannelCompressor[i_ch].value_threshold) {
-			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_threshold - inputDb)
-						   * dsp.dspChannelCompressor[i_ch].value_ratio;
+		if (inputDb > dsp.dspChannelCompressor[i_ch].value_thresholdDb) {
+			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_thresholdDb - inputDb) * dsp.dspChannelCompressor[i_ch].value_1_minus_1_by_ratio;
 		}
 
 		// Attack / Hold / Release Logic
-		float currentGainLinear = dbToLinear_fast(targetGainDb);
+		float targetGainLinear = dbToLinear_fast(targetGainDb);
 
 		// calculation of the envelope
-		float env = dsp.compressorEnvelope[i_ch];
-		bool calcEnvelopeActive = true;
-		if (currentGainLinear < env) {
+		if (targetGainLinear < dsp.compressorEnvelope[i_ch]) {
 			// Attack
 			coeff = dsp.dspChannelCompressor[i_ch].value_coeff_attack;
 			dsp.dspChannelCompressor[i_ch].holdTimer = dsp.dspChannelCompressor[i_ch].value_hold_ticks; // Reset Hold-Timer
 		} else {
-			coeff = dsp.dspChannelCompressor[i_ch].value_coeff_release;
 			// Hold -> Release
 			if (dsp.dspChannelCompressor[i_ch].holdTimer > 0) {
 				dsp.dspChannelCompressor[i_ch].holdTimer--;
-				calcEnvelopeActive = false;
+			}else{
+				coeff = dsp.dspChannelCompressor[i_ch].value_coeff_release;
 			}
 		}
 
 		// apply calculated gain to samples
 		#pragma loop_count(SAMPLES_IN_BUFFER)
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			if (calcEnvelopeActive) {
-				env += coeff * (currentGainLinear - env);
-			}
-			dst[s] = src[s] * env * makeUp;
+			dsp.compressorEnvelope[i_ch] += coeff * (targetGainLinear - dsp.compressorEnvelope[i_ch]);
+
+			// use small low-pass-filter to smooth the envelope even more
+			//dsp.compressorGainSmoothed[i_ch] = dsp.compressorEnvelope[i_ch] + 0.990f * (dsp.compressorGainSmoothed[i_ch] - dsp.compressorEnvelope[i_ch]);
+			//dst[s] = src[s] * dsp.compressorGainSmoothed[i_ch] * makeUp;
+
+			// direct use of envelope
+			dst[s] = src[s] * dsp.compressorEnvelope[i_ch] * makeUp;
 		}
-		dsp.compressorEnvelope[i_ch] = env;
 	}
 
     // bypass: channels that don't have full-featured processing
