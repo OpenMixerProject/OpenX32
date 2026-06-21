@@ -465,6 +465,7 @@ void audioProcessData(void) {
 	//				 | |__| (_| | |_| | (_| | | |/ /  __/ |
 	//				 |_____\__, |\__,_|\__,_|_|_/___\___|_|
 	//				          |_|
+
 	// Hardware-Accelerated Biquad-Filter
 	// copy PRE_EQ-Tap to POST_EQ-TAP
 	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL][0], (CHANNELS_WITH_4BD_EQ - MAX_MAIN) * SAMPLES_IN_BUFFER * sizeof(float));
@@ -496,17 +497,17 @@ void audioProcessData(void) {
 		float* src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 		float makeUp = dsp.compressorMakeup[i_ch];
-		float coeff;
+		float coeff = 0.0f;
 		float refValue = 0.0f;
 
-		if (dsp.dspChannelGate[i_ch].use_rms) {
+		if (dsp.dspChannelCompressor[i_ch].use_rms) {
 			// calculate RMS over all 16 samples
 			#pragma loop_count(16, 16, 16)
 			#pragma vector_for
 			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 				refValue += src[s] * src[s];
 			}
-			refValue = sqrtf(refValue * 0.0625f);
+			refValue = sqrtf(refValue * 0.0625f); // divide by 16 samples
 		}else{
 			// calculate peak over all 16 samples in buffer
 			#pragma loop_count(SAMPLES_IN_BUFFER)
@@ -562,7 +563,7 @@ void audioProcessData(void) {
 
 	#else
     // no dynamics: copy all channels POST_EQ -> PRE_FADER
-    memcpy(&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], &audioBuffer[TAP_POST_EQ] [DSP_BUF_IDX_DSPCHANNEL + i_ch][0], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) * SAMPLES_IN_BUFFER * sizeof(float));
+    memcpy(&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_POST_EQ] [DSP_BUF_IDX_DSPCHANNEL][0], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) * SAMPLES_IN_BUFFER * sizeof(float));
 	#endif
 
 	// copy data for DSP2-FX-Return-Channels from TAP_INPUT to TAP_PRE_FADER without processing. All other DSP2-channel have no volume-control yet
