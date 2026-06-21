@@ -116,9 +116,7 @@ while [[ $# -gt 0 ]]; do
       fi
       cd software/omc
       git pull
-      export BUILD_TARGET="TARGET_XM32"
-      export ROOT_DIR=$(pwd)
-      make -j$(nproc)
+      ./compile.sh TARGET_XM32
       cd ../..
       exit 1;
       ;;
@@ -267,9 +265,7 @@ if [ "$COMPILE_SOFTWARE" = true ]; then
 	update_progress 50 "Compile OpenMixerControl..."
 	cd omc
 	git pull
-        export BUILD_TARGET=TARGET_XM32
-        export ROOT_DIR=$(pwd)
-	make -j$(nproc)
+        ./compile.sh TARGET_XM32
 	cd ..
 
 	update_progress 55 "Compile dropbear..."
