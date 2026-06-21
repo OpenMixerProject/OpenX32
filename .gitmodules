@@ -6,6 +6,10 @@
 	path = u-boot
 	ignore = dirty
 
+[submodule "busybox"]
+	path = software/busybox
+	ignore = dirty
+
 [submodule "libartnet"]
 	path = software/libartnet
 	ignore = dirty
