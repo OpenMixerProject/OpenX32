@@ -518,7 +518,7 @@ void audioProcessData(void) {
 
 		// calculation of the envelope
 		refValue = linearToDb_fast(refValue * INT32_TO_FLOAT_NORM);
-		float targetGainDb = 1.0f;
+		float targetGainDb = 0.0f;
 		if (refValue > dsp.dspChannelCompressor[i_ch].value_thresholdDb) {
 			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_thresholdDb - refValue) * dsp.dspChannelCompressor[i_ch].value_1_minus_1_by_ratio;
 		}
