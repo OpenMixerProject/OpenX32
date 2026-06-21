@@ -303,9 +303,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			if (valueCount == 5) {
 				dsp.dspChannelGate[channel].value_threshold = floatValues[0];
 				dsp.dspChannelGate[channel].value_gainmin = floatValues[1];
-				dsp.dspChannelGate[channel].value_coeff_attack = floatValues[2];
+				dsp.dspChannelGate[channel].value_coeff_attack = floatValues[2] * 0.0625f;
 				dsp.dspChannelGate[channel].value_hold_ticks = floatValues[3];
-				dsp.dspChannelGate[channel].value_coeff_release = floatValues[4];
+				dsp.dspChannelGate[channel].value_coeff_release = floatValues[4] * 0.0625f;
+				dsp.dspChannelGate[channel].use_rms = true; // TODO: implement in OMC
 			}
 			break;
 		case 'e': // Equalizer/Filter
@@ -375,9 +376,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				//dsp.dspChannelCompressor[channel].value_threshold = dbToLinear_fast(floatValues[0]) * FLOAT_NORM_TO_INT32;
 				dsp.dspChannelCompressor[channel].value_1_minus_1_by_ratio = floatValues[1]; // here the precalculated (1.0f - 1.0f/ratio) is sent by OMC
 				dsp.compressorMakeup[channel] = floatValues[2];
-				dsp.dspChannelCompressor[channel].value_coeff_attack = floatValues[3];
+				dsp.dspChannelCompressor[channel].value_coeff_attack = floatValues[3] * 0.0625f;
 				dsp.dspChannelCompressor[channel].value_hold_ticks = floatValues[4];
-				dsp.dspChannelCompressor[channel].value_coeff_release = floatValues[5];
+				dsp.dspChannelCompressor[channel].value_coeff_release = floatValues[5] * 0.0625f;
+				dsp.dspChannelCompressor[channel].use_rms = true; // TODO: implement in OMC
 			}
 			break;
 		case 'a': // Auxiliary
