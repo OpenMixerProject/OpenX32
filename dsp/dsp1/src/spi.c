@@ -77,20 +77,20 @@ void spiInit(void) {
 		spiTx_tcb[0][2] = SAMPLES_IN_BUFFER; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[0][3] = (int)&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL][0]; // IISPI internal index
 
-		// audio-data of 8 mixbusses
+		// audio-data of mixbusses
 		spiTx_tcb[1][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
 		spiTx_tcb[1][1] = ACTIVE_MIX_BUSSES * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these volume-information. DSP will take to long
 		spiTx_tcb[1][2] = SAMPLES_IN_BUFFER; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS][0]; // IISPI internal index
 
 		// compressor gains
-		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3); // CPSPI chain-pointer
+		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
 		spiTx_tcb[2][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
 		spiTx_tcb[2][2] = 1; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[2][3] = (int)&dsp.compressorEnvelope[0]; // IISPI internal index
 
 		// gate-gains
-		spiTx_tcb[3][0] = ((int)&spiTx_tcb[4][0] + 3); // CPSPI chain-pointer
+		spiTx_tcb[3][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
 		spiTx_tcb[3][1] = MAX_CHAN_FULLFEATURED * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these values
 		spiTx_tcb[3][2] = 1; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[3][3] = (int)&dsp.gateEnvelope[0]; // IISPI internal index
