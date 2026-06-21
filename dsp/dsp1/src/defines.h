@@ -50,9 +50,10 @@
 #define MAX_MAIN				3	// internal Mainbus-Channels
 #define MAX_MONITOR				3	// internal Monitor-Channels
 
-#define MAX_CHAN_EQS			4
 #define CHANNELS_WITH_4BD_EQ	(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MAIN)	// consecutive channels that are using a 4-band PEQ
-#define CHANNELS_WITH_6BD_EQ	(MAX_MIXBUS)	// consecutive channels that are using a 6-band PEQ
+#define EQ_4BD_BANDS			4
+#define CHANNELS_WITH_6BD_EQ	(MAX_MIXBUS + MAX_MAIN)
+#define EQ_6BD_BANDS			6
 #define MAX_CHAN_FULLFEATURED	32	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 #define MAX_CHAN_REDUCED		(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN - MAX_CHAN_FULLFEATURED)	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 

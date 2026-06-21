@@ -75,12 +75,12 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)
 	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 2/3)
 	// a0 a1 a2 b1 b2 (section 4)
-	if (index >= MAX_CHAN_EQS) {
+	if (index >= EQ_4BD_BANDS) {
 		return;
 	}
 
 	// interleave coefficients for biquad_trans()
-	if (((MAX_CHAN_EQS % 2) == 0) || (index < (MAX_CHAN_EQS - 1))) {
+	if (((EQ_4BD_BANDS % 2) == 0) || (index < (EQ_4BD_BANDS - 1))) {
 		// we have even number of PEQ-sections
 		// or we have odd number but we are still below the last section
 
@@ -90,19 +90,19 @@ void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 			// odd section index
 			sectionIndex += 1;
 		}
-		dsp.peqCoeffs[channel][sectionIndex + 0] = coeffs[0]; // a0 (zeros)
-		dsp.peqCoeffs[channel][sectionIndex + 2] = coeffs[1]; // a1 (zeros)
-		dsp.peqCoeffs[channel][sectionIndex + 4] = coeffs[2]; // a2 (zeros)
-		dsp.peqCoeffs[channel][sectionIndex + 6] = -coeffs[3]; // -b1 (poles)
-		dsp.peqCoeffs[channel][sectionIndex + 8] = -coeffs[4]; // -b2 (poles)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 0] = coeffs[0]; // a0 (zeros)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 2] = coeffs[1]; // a1 (zeros)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 4] = coeffs[2]; // a2 (zeros)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 6] = -coeffs[3]; // -b1 (poles)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 8] = -coeffs[4]; // -b2 (poles)
 	}else{
 		// last section: store without interleaving
-		int sectionIndex = (MAX_CHAN_EQS - 1) * 5;
-		dsp.peqCoeffs[channel][sectionIndex + 0] = coeffs[0]; // a0 (zeros)
-		dsp.peqCoeffs[channel][sectionIndex + 1] = coeffs[1]; // a1 (zeros)
-		dsp.peqCoeffs[channel][sectionIndex + 2] = coeffs[2]; // a2 (zeros)
-		dsp.peqCoeffs[channel][sectionIndex + 3] = -coeffs[3]; // -b1 (poles)
-		dsp.peqCoeffs[channel][sectionIndex + 4] = -coeffs[4]; // -b2 (poles)
+		int sectionIndex = (EQ_4BD_BANDS - 1) * 5;
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 0] = coeffs[0]; // a0 (zeros)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 1] = coeffs[1]; // a1 (zeros)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 2] = coeffs[2]; // a2 (zeros)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 3] = -coeffs[3]; // -b1 (poles)
+		dsp.peqCoeffs_4BD_EQ[channel][sectionIndex + 4] = -coeffs[4]; // -b2 (poles)
 	}
 }
 
