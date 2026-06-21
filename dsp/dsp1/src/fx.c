@@ -55,6 +55,21 @@ float dbToLinear_fast(float dB) {
     return vx.f;
 }
 
+float calcRMS(const float* __restrict src) {
+    float sumOfSquares = 0.0f;
+
+    #pragma loop_count(16, 16, 16)
+    #pragma vector_for
+    for (int s = 0; s < 16; s++) {
+        float sample = src[s];
+        sumOfSquares += sample * sample;
+    }
+
+    float meanSquare = sumOfSquares * 0.0625f;
+
+    return sqrtf(meanSquare);
+}
+
 void fxSetPeqCoeffs(int channel, int index, float coeffs[]) {
 	// biquad_trans() needs the coeffs in the following order
 	// a0 a0 a1 a1 a2 a2 b1 b1 b2 b2 (section 0/1)

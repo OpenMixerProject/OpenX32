@@ -107,7 +107,7 @@ while [[ $# -gt 0 ]]; do
       CREATE_SSHKEY=true
       shift
       ;;
-    --just-x32ctrl)
+    --just-omc)
       export COPTS="-mcpu=arm926ej-s -Os -fno-caller-saves -pipe -funit-at-a-time -msoft-float -fno-plt -fno-unwind-tables -fno-asynchronous-unwind-tables"
       if [ "$COMPILE_MUSL" = true ]; then
           export PATH=/opt/cross/bin:$PATH
@@ -115,7 +115,7 @@ while [[ $# -gt 0 ]]; do
           export PATH=/usr/bin:$PATH
       fi
       cd software/omc
-      ./compile.sh
+      make -j$(nproc)
       cd ../..
       exit 1;
       ;;

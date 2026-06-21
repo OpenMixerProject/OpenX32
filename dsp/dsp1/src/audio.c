@@ -404,46 +404,56 @@ void audioProcessData(void) {
 	//				                         |___/
 	#pragma loop_count(MAX_CHAN_FULLFEATURED)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
-		float* buf = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float* src_dst = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float coeff = 0.0f;
+		float refValue = 0.0f;
 
-	    // calculate peak over all 16 samples in buffer
-	    float peak = 0.0f;
-	    #pragma loop_count(SAMPLES_IN_BUFFER)
-	    for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-	        float abs = fabsf(buf[s]);
-	        if (abs > peak) peak = abs;
-	    }
-		float targetGain = (peak > dsp.dspChannelGate[i_ch].value_threshold)
-						   ? 1.0f
-						   : dsp.dspChannelGate[i_ch].value_gainmin;
-		float coeff;
-
-		// calculation of the envelope
-		float env = dsp.gateEnvelope[i_ch];
-		bool calcEnvelopeActive = true;
-		if (targetGain > env) {
-			// Attack
-			coeff = dsp.dspChannelGate[i_ch].value_coeff_attack;
-			dsp.dspChannelGate[i_ch].holdTimer = dsp.dspChannelGate[i_ch].value_hold_ticks;
-		} else {
-			// Hold -> Release
-			coeff = dsp.dspChannelGate[i_ch].value_coeff_release;
-			if (dsp.dspChannelGate[i_ch].holdTimer > 0) {
-				dsp.dspChannelGate[i_ch].holdTimer--;
-				calcEnvelopeActive = false;
+		if (dsp.dspChannelGate[i_ch].use_rms) {
+			// calculate RMS over all 16 samples
+			#pragma loop_count(16, 16, 16)
+			#pragma vector_for
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				refValue += src_dst[s] * src_dst[s];
+			}
+			refValue = sqrtf(refValue * 0.0625f);
+		}else{
+			// calculate peak over all 16 samples in buffer
+			#pragma loop_count(SAMPLES_IN_BUFFER)
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				float abs = fabsf(src_dst[s]);
+				if (abs > refValue) refValue = abs;
 			}
 		}
+
+		// calculation of the envelope
+		float targetGainLinear = 1.0f;
+		if (refValue < dsp.dspChannelGate[i_ch].value_threshold) {
+			targetGainLinear = 0.0f;
+		}
+
+	    // Attack / Hold / Release Logic
+	    if (targetGainLinear > dsp.gateEnvelope[i_ch]) {
+	    	// Attack
+	    	coeff = dsp.dspChannelGate[i_ch].value_coeff_attack;
+	    	dsp.dspChannelGate[i_ch].holdTimer = dsp.dspChannelGate[i_ch].value_hold_ticks;
+	    }else{
+	    	// Hold -> Release
+	    	if (dsp.dspChannelGate[i_ch].holdTimer > 0) {
+				dsp.dspChannelGate[i_ch].holdTimer--;
+				// coeff stays 0 here
+			} else {
+				// Release
+				coeff = dsp.dspChannelGate[i_ch].value_coeff_release;
+			}
+	    }
 
 		// apply calculated gain to samples
 		#pragma loop_count(SAMPLES_IN_BUFFER)
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			if (calcEnvelopeActive) {
-				env += coeff * (targetGain - env);
-			}
+			dsp.gateEnvelope[i_ch] += coeff * (targetGainLinear - dsp.gateEnvelope[i_ch]);
 
-			buf[s] *= env;
+			src_dst[s] *= dsp.gateEnvelope[i_ch];
 		}
-		dsp.gateEnvelope[i_ch] = env;
 	}
 
 	#endif
@@ -487,19 +497,30 @@ void audioProcessData(void) {
 		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 		float makeUp = dsp.compressorMakeup[i_ch];
 		float coeff;
+		float refValue = 0.0f;
 
-		// calculate peak over all 16 samples in buffer
-		float peak = 0.0f;
-		#pragma loop_count(SAMPLES_IN_BUFFER)
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			float abs = fabsf(src[s]);
-			if (abs > peak) peak = abs;
+		if (dsp.dspChannelGate[i_ch].use_rms) {
+			// calculate RMS over all 16 samples
+			#pragma loop_count(16, 16, 16)
+			#pragma vector_for
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				refValue += src[s] * src[s];
+			}
+			refValue = sqrtf(refValue * 0.0625f);
+		}else{
+			// calculate peak over all 16 samples in buffer
+			#pragma loop_count(SAMPLES_IN_BUFFER)
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				float abs = fabsf(src[s]);
+				if (abs > refValue) refValue = abs;
+			}
 		}
-		float inputDb = linearToDb_fast(peak * INT32_TO_FLOAT_NORM);
 
-		float targetGainDb = 0.0f;
-		if (inputDb > dsp.dspChannelCompressor[i_ch].value_thresholdDb) {
-			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_thresholdDb - inputDb) * dsp.dspChannelCompressor[i_ch].value_1_minus_1_by_ratio;
+		// calculation of the envelope
+		refValue = linearToDb_fast(refValue * INT32_TO_FLOAT_NORM);
+		float targetGainDb = 1.0f;
+		if (refValue > dsp.dspChannelCompressor[i_ch].value_thresholdDb) {
+			targetGainDb = (dsp.dspChannelCompressor[i_ch].value_thresholdDb - refValue) * dsp.dspChannelCompressor[i_ch].value_1_minus_1_by_ratio;
 		}
 
 		// Attack / Hold / Release Logic

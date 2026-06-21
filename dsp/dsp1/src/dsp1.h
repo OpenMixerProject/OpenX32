@@ -62,6 +62,7 @@ typedef struct {
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
+	bool use_rms;
 
 	// online parameters
 	int holdTimer;
@@ -75,6 +76,7 @@ typedef struct {
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
+	bool use_rms;
 
 	// online parameters
 	int holdTimer;
