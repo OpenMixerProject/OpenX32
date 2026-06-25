@@ -16,6 +16,7 @@ cd ..
 git clone --depth 1 --single-branch https://git.busybox.net/busybox software/busybox
 git clone --depth 1 --single-branch https://github.com/mkj/dropbear.git software/dropbear
 git clone --depth 1 --single-branch https://github.com/OpenMixerProject/AES50.git fpga/AES50
+git clone --depth 1 --single-branch https://github.com/xn--nding-jua/ethernet_mac fpga/ethernet_mac
 git clone --depth 1 --single-branch https://github.com/ponty/framebuffer-vncserver.git software/framebuffer-vncserver
 git clone --depth 1 --single-branch https://github.com/LibVNC/libvncserver.git software/libvncserver
 git clone --depth 1 --single-branch https://github.com/OpenLightingProject/libartnet.git software/libartnet
