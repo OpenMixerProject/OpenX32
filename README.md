@@ -186,6 +186,21 @@ Download ISE 14.7 from the Xilinx (AMD) website: https://www.xilinx.com/support/
 
 An overview of the current FPGA-project can be found in the PDF-file of the top-schematic here: [View Schematic as PDF](https://github.com/xn--nding-jua/OpenX32/raw/refs/heads/main/Documentation/FPGA.pdf).
 
+#### Sidenode for Lattice-FPGA
+
+As AES50 is based on common 100MBit/s ethernet, we started playing around with audio-over-IP and audio-over-ethernet next to AES50. So there are two project-files for the Lattice FPGA at the moment:
+* fpga\lattice\QuartusPrime\openx32_aes50.qpf
+* fpga\lattice\QuartusPrime\openx32_audio_over_ethernet.qpf
+
+The first project is the regular one using the AES50 implementation of Markus Noll. The second is a first try on implementing the Allen&Heath ACE-Link-protocol right at AES50-PortA as well as a regular UDP-sender so that you can receive audio directly via ethernet from the X32.
+
+As the Lattice Diamond Software has no graphical editor, the toolchain looks like this:
+1. open Quartus Prime Lite in version 24.1 or newer
+2. open the project file fpga\lattice\QuartusPrime\openx32_xxxx.qpf
+3. open the main-schematic -> File -> Export as VHDL -> fpga\main_lattice.vhd
+4. open this file and make sure that the entity is called "main_lattice"
+5. open Lattice Diamond, open the project fpga\lattice\openx32.ldf and create the new bitstream-file in the "Process"-tab
+
 
 ### Step 4: Compiling code for the SHARC DSPs
 

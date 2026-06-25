@@ -5,6 +5,19 @@
 -- Source: https://www.github.com/xn--nding-jua/AES50_Transmitter
 --
 -- This file contains an ethernet-packet-generator to send individual bytes to an EthernetMAC directly.
+-- 
+-- Please Note: at the moment this implementation does not use ARP to register
+-- any route to the destination. To receive data anyway, you can add the route
+-- manually. For windows use this command (until next reboot):
+-- 
+-- arp -s IP_ADDRESS MAC_ADDRESS
+-- Example:
+-- arp -s 111.222.333.444 11-22-33-44-55-6
+-- 
+-- This allows receiving UDP-packets without problem through the NIC/Drive
+-- You can make this permament using "netsh"-command. But it would be better
+-- to implement ARP as shown here: https://github.com/xn--nding-jua/FPGA_Ethernet
+-- 
 
 library ieee;
 use ieee.std_logic_1164.all;
