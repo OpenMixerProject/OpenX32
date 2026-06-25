@@ -4,7 +4,7 @@
         <Option name="HDL type" value="VHDL"/>
     </Options>
     <Implementation title="impl1" dir="impl1" description="impl1" synthesis="synplify" default_strategy="Strategy1">
-        <Options def_top="aes50_spi_continuous" top="main_lattice"/>
+        <Options def_top="ethernet_packet_switcher" top="main_lattice"/>
         <Source name="../audioclk.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
@@ -195,6 +195,75 @@
             <Options/>
         </Source>
         <Source name="../AES50/AES50 IP/SRC/aes50_uart_rx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/crc.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/crc32.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/ethernet_rmii.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/ethernet_types.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/framing.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/framing_common.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/miim.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/miim_control.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/miim_registers.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/miim_types.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/reset_generator.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/rmii.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/lattice/rmii_io.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/lattice/single_signal_synchronizer.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../ethernet_mac/lattice/utility.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/ace_audio_packet.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/const_eth_config.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/const_eth_speed.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/ethernet_packet_switcher.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/ethernet_reset.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/reverse_mac.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/tdm_ace_demux.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../audio_over_ethernet/udp_audio_packet.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="openx32.lpf" type="Logic Preference" type_short="LPF">
