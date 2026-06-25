@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone 10 LP"
 set_global_assignment -name DEVICE auto
-set_global_assignment -name TOP_LEVEL_ENTITY main_lattice
+set_global_assignment -name TOP_LEVEL_ENTITY main_lattice_audio_over_ethernet
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 24.1STD.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:44:46  OCTOBER 26, 2025"
 set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
@@ -99,7 +99,7 @@ set_global_assignment -name VHDL_FILE ../../audiomatrix_ram_write.vhd
 set_global_assignment -name VHDL_FILE ../../audiomatrix_ram_read.vhd
 set_global_assignment -name VHDL_FILE ../../audiomatrix_ram.vhd
 set_global_assignment -name VHDL_FILE ../../audiomatrix.vhd
-set_global_assignment -name BDF_FILE main_lattice.bdf
+set_global_assignment -name BDF_FILE main_lattice_audio_over_ethernet.bdf
 set_global_assignment -name VHDL_FILE ../../audioclk_triple.vhd
 set_global_assignment -name VHDL_FILE ../../aes50_consts.vhd
 set_global_assignment -name VHDL_FILE ../../tdm_rx.vhd

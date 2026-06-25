@@ -15,14 +15,14 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Fri Mar 27 22:10:20 2026"
+-- CREATED		"Thu Jun 25 18:16:59 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 
 LIBRARY work;
 
-ENTITY main_lattice IS 
+ENTITY main_lattice_aes50 IS 
 	PORT
 	(
 		fpgaclk :  IN  STD_LOGIC;
@@ -121,9 +121,9 @@ ENTITY main_lattice IS
 		aes50a_clk_b_rx_nen_out :  OUT  STD_LOGIC;
 		aes50a_rmii_clk_out :  OUT  STD_LOGIC
 	);
-END main_lattice;
+END main_lattice_aes50;
 
-ARCHITECTURE bdf_type OF main_lattice IS 
+ARCHITECTURE bdf_type OF main_lattice_aes50 IS 
 
 COMPONENT spi_rx_routing
 	PORT(clk : IN STD_LOGIC;

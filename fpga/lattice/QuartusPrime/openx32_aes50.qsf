@@ -1,0 +1,116 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 2025  Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and any partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera IP License Agreement, or other applicable license
+# agreement, including, without limitation, that your use is for
+# the sole purpose of programming logic devices manufactured by
+# Altera and sold by Altera or its authorized distributors.  Please
+# refer to the Altera Software License Subscription Agreements 
+# on the Quartus Prime software download page.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+# Date created = 22:44:46  October 26, 2025
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		openx32_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Intel recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus Prime software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+set_global_assignment -name FAMILY "Cyclone 10 LP"
+set_global_assignment -name DEVICE auto
+set_global_assignment -name TOP_LEVEL_ENTITY main_lattice_aes50
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 24.1STD.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:44:46  OCTOBER 26, 2025"
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_aux_encoder.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_uart_rx.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_aux_decoder.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_uart_tx.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/uart_tx.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_aux_rx.vhd"
+set_global_assignment -name VHDL_FILE ../../aes50_spi_continuous.vhd
+set_global_assignment -name VHDL_FILE ../../config_rxd.vhd
+set_global_assignment -name VHDL_FILE ../../audioclk.vhd
+set_global_assignment -name VERILOG_FILE ../claritydesigner/lattice_pll_phy/lattice_pll_phy.v
+set_global_assignment -name VERILOG_FILE ../claritydesigner/aes50_rmii_rxd/aes50_rmii_rxd.v
+set_global_assignment -name VERILOG_FILE ../claritydesigner/aes50_rmii_txd/aes50_rmii_txd.v
+set_global_assignment -name VHDL_FILE ../../wordclock.vhd
+set_global_assignment -name VERILOG_FILE ../claritydesigner/aes50_clk_ddr/aes50_clk_ddr.v
+set_global_assignment -name VERILOG_FILE ../claritydesigner/lattice_pll_audio/lattice_pll_audio.v
+set_global_assignment -name VERILOG_FILE ../claritydesigner/lattice_pll/lattice_pll.v
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_tx.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_top.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_tdm_if.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_rx.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_rmii_transceiver.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_rmii_crc32.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_ring_buffer.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_i2c_master.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_dual_port_bram.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_cs2x00_pll_controller.vhd"
+set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_clockmanager.vhd"
+set_global_assignment -name VHDL_FILE ../../spi_rx_routing.vhd
+set_global_assignment -name VHDL_FILE ../../uart_collector.vhd
+set_global_assignment -name VHDL_FILE ../../audiomatrix_routing_ram.vhd
+set_global_assignment -name VHDL_FILE ../../and4_gate.vhd
+set_global_assignment -name VHDL_FILE ../../reset_wpll.vhd
+set_global_assignment -name VHDL_FILE ../../or2_gate.vhd
+set_global_assignment -name VHDL_FILE ../../ultranet_tx.vhd
+set_global_assignment -name VHDL_FILE ../../uart_tx.vhd
+set_global_assignment -name VHDL_FILE ../../uart_rx.vhd
+set_global_assignment -name VHDL_FILE ../../spi_tx.vhd
+set_global_assignment -name VHDL_FILE ../../spi_16bit_tx.vhd
+set_global_assignment -name VHDL_FILE ../../rs232_encoder.vhd
+set_global_assignment -name VHDL_FILE ../../rs232_decoder.vhd
+set_global_assignment -name VHDL_FILE ../../rs232_const.vhd
+set_global_assignment -name VHDL_FILE ../../reset.vhd
+set_global_assignment -name VHDL_FILE ../../pcm1690dac_config.vhd
+set_global_assignment -name VHDL_FILE ../../or4_gate.vhd
+set_global_assignment -name VHDL_FILE ../../m8000adc_config.vhd
+set_global_assignment -name VHDL_FILE ../../ddfs_drom.vhd
+set_global_assignment -name VHDL_FILE ../../cs42438_config.vhd
+set_global_assignment -name VHDL_FILE ../../cs2000cp_config.vhd
+set_global_assignment -name VHDL_FILE ../../audiomatrix_ram_write.vhd
+set_global_assignment -name VHDL_FILE ../../audiomatrix_ram_read.vhd
+set_global_assignment -name VHDL_FILE ../../audiomatrix_ram.vhd
+set_global_assignment -name VHDL_FILE ../../audiomatrix.vhd
+set_global_assignment -name BDF_FILE main_lattice_aes50.bdf
+set_global_assignment -name VHDL_FILE ../../audioclk_triple.vhd
+set_global_assignment -name VHDL_FILE ../../aes50_consts.vhd
+set_global_assignment -name VHDL_FILE ../../tdm_rx.vhd
+set_global_assignment -name VHDL_FILE ../../tdm_tx.vhd
+set_global_assignment -name VHDL_FILE ../../zeros_const.vhd
+set_global_assignment -name VHDL_FILE ../../tdm_demux.vhd
+set_global_assignment -name VHDL_FILE ../../aes50_rst.vhd
+set_global_assignment -name VHDL_FILE ../../tdm_multichan_rx.vhd
+set_global_assignment -name VHDL_FILE ../../tdm_multichan_tx.vhd
+set_global_assignment -name VHDL_FILE ../../clkinverter.vhd
+set_global_assignment -name VHDL_FILE ../../debug_switch.vhd
+set_global_assignment -name VHDL_FILE ../../aes50_aux_to_spi.vhd
+set_global_assignment -name VHDL_FILE ../../audioclk_fs.vhd
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
