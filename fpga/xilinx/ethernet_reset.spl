@@ -1,0 +1,9 @@
+[Inputs]
+clk
+power_good
+[Outputs]
+phy_rstn
+mac_rst
+sendArpRequest
+tx_online
+[BiDir]

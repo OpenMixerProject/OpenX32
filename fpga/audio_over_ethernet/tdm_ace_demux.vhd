@@ -29,24 +29,26 @@ use ieee.numeric_std.all; -- lib for unsigned and signed
 
 entity tdm_ace_demux is
 	port (
-		bclk			: in std_logic; -- bit-clock of TDM signal (for X32 it is 12.288 MHz)
-		fsync			: in std_logic; -- Frame sync
-		tdm0_in		: in std_logic_vector(23 downto 0);
-		tdm1_in		: in std_logic_vector(23 downto 0);
-		tdm2_in		: in std_logic_vector(23 downto 0);
-		tdm3_in		: in std_logic_vector(23 downto 0);
-		tdm4_in		: in std_logic_vector(23 downto 0);
-		tdm5_in		: in std_logic_vector(23 downto 0);
-		tdm6_in		: in std_logic_vector(23 downto 0);
-		tdm7_in		: in std_logic_vector(23 downto 0);
+		bclk				: in std_logic; -- bit-clock of TDM signal (for X32 it is 12.288 MHz)
+		fsync				: in std_logic; -- Frame sync
+		tdm0_in			: in std_logic_vector(23 downto 0);
+		tdm1_in			: in std_logic_vector(23 downto 0);
+		tdm2_in			: in std_logic_vector(23 downto 0);
+		tdm3_in			: in std_logic_vector(23 downto 0);
+		tdm4_in			: in std_logic_vector(23 downto 0);
+		tdm5_in			: in std_logic_vector(23 downto 0);
+		tdm6_in			: in std_logic_vector(23 downto 0);
+		tdm7_in			: in std_logic_vector(23 downto 0);
+		ace_tx_busy		: in std_logic;
 
-		audio_out	: out std_logic_vector(1559 downto 0); -- ACE supports 1 + 64 channels of 24bit audio = 1560 bits
-		audio_sync	: out std_logic
+		audio_out		: out std_logic_vector(1559 downto 0); -- ACE supports 1 + 64 channels of 24bit audio = 1560 bits
+		audio_ready		: out std_logic
 	);
 end tdm_ace_demux;
 
 architecture rtl of tdm_ace_demux is
 	signal zfsync			: std_logic;
+	signal zace_tx_busy	: std_logic;
 	signal bit_cnt			: integer range 0 to ((8 * 32) - 1) := 0;
 
 	signal packetCounter	: integer range 0 to 15 := 0;
@@ -60,6 +62,13 @@ begin
 	process(bclk)
 	begin
 		if rising_edge(bclk) then
+			-- check if the EthernetMAC is starting transmitting. If yes, clear the audio-ready-flag
+			zace_tx_busy <= ace_tx_busy;
+			if ((ace_tx_busy = '1') and (zace_tx_busy = '0')) then
+				-- rising edge of ace_tx_busy -> clear audio_ready_flag
+				audio_ready <= '0';
+			end if;
+		
 			-- check for fsync
 			if (fsync = '1' and zfsync = '0') then
 				-- output MSB of sample_data on next falling edge
@@ -157,9 +166,9 @@ begin
 				audio_out(167 + 192*7 downto 144 + 192*7) <= tdm5_in;
 				audio_out(191 + 192*7 downto 168 + 192*7) <= tdm6_in;
 				audio_out(215 + 192*7 downto 192 + 192*7) <= tdm7_in;
-				audio_sync <= '1';
-			else
-				audio_sync <= '0';
+				
+				-- set "audio-ready"-flag and start transmitting using EthernetMAC
+				audio_ready <= '1';
 			end if;
 			
 			zfsync <= fsync;

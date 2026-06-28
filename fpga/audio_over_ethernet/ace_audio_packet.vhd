@@ -44,12 +44,6 @@
 -- ----------------------------------------------------------------------------------------------------
 -- End of payload-section with 221 Bytes
 -- ----------------------------------------------------------------------------------------------------
--- 000c010000060000                                            // 8 bytes of Header and Synchronisation / State of Control-Channel
--- 000c010000000000                                            // 8 bytes of Header and Synchronisation / State of Control-Channel
--- 006832bb1867fce743                                          // 9 bytes of payload-data of control-channel
--- eb000000                                                    // 4 bytes with total message length (0xEB = 235 bytes)
--- eb000000                                                    // 4 bytes with total message length (0xEB = 235 bytes)
--- ----------------------------------------------------------------------------------------------------
 -- End of ACE-message-frame
 -- ----------------------------------------------------------------------------------------------------
 -- 
@@ -83,10 +77,11 @@ entity ace_audio_packet is
 		tx_busy					: in std_logic;
 		tx_byte_sent			: in std_logic;
 		audio_in					: in std_logic_vector(1559 downto 0); -- 65 audio-channels with each 24-bit = 1.560 bits
-		audio_sync				: in std_logic;
+		audio_ready				: in std_logic;
 
 		tx_enable				: out std_logic := '0';  -- TX valid
-		tx_data					: out std_logic_vector(7 downto 0) := (others => '0') -- data-octet
+		tx_data					: out std_logic_vector(7 downto 0) := (others => '0'); -- data-octet
+		ace_tx_busy				: out std_logic
 	);
 end entity;
 
@@ -98,41 +93,28 @@ architecture Behavioral of ace_audio_packet is
 	constant HEADER_LENGTH				: integer := 14; -- dest-/src-MAC-address + length of first payload-block
 	constant AUDIO_BUFFER_LENGTH		: integer := AUDIO_CHANNELS * BYTES_PER_SAMPLE;
 	constant CONTROL_DATA_LENGTH		: integer := 26; -- data for tunnelled network / control-signals
-	constant TRAILING_DATA_LENGTH		: integer := 16 + 9 + 8; -- synchronization, control-channel, padding-bytes
-	constant PACKET_LENGTH				: integer := HEADER_LENGTH + AUDIO_BUFFER_LENGTH + CONTROL_DATA_LENGTH + TRAILING_DATA_LENGTH;
+	constant PACKET_LENGTH				: integer := HEADER_LENGTH + AUDIO_BUFFER_LENGTH + CONTROL_DATA_LENGTH;
 
 	-- Other signals used in this file
 	type t_SM_Ethernet is (s_Idle, s_CalcChecksum, s_WaitChecksum, s_Start, s_Wait, s_Transmit, s_End);
 	signal s_SM_Ethernet					: t_SM_Ethernet := s_Idle;
 	signal byte_counter					: integer range 0 to 300 := 0; -- one ACE-frame seem to have a maximum of 268 bytes. So limit to 300 bytes here
-	--signal packet_counter				: integer range 0 to 65535 := 1; -- not used at the moment
 
 	type t_ethernet_frame is array (0 to PACKET_LENGTH - 1) of std_logic_vector(7 downto 0);
 	signal ace_frame		: t_ethernet_frame;
 	type t_sample_buffer is array (0 to AUDIO_BUFFER_LENGTH - 1) of std_logic_vector(7 downto 0);
 	signal sample_buffer		: t_sample_buffer;
-	
-	signal frame_start : std_logic := '0';
-	signal zaudio_sync : std_logic := '0';
 begin         
 	process (tx_clk)
 		variable bitPointer: integer range 0 to 1700; -- maximum is 1560 bits, but we give some headroom
 	begin
 		if (falling_edge(tx_clk)) then
-			zaudio_sync <= audio_sync;
-			-- pack a new ethernet-frame every 48kHz
-			if ((audio_sync = '1') and (zaudio_sync = '0')) then
-				frame_start <= '1'; -- set flag to read buffer when state-machine enteres s_Idle again
-			end if;
-		
-			-- send UDP-frames with stored audio-data
-			if ((frame_start = '1') and (s_SM_Ethernet = s_Idle)) then
-				frame_start <= '0';
-				
+			-- send ACE-frames with stored audio-data immediately, when EthernetMAC is idle again
+			if ((audio_ready = '1') and (s_SM_Ethernet = s_Idle)) then
 				-- prepare begin of packet
-				--packet_counter <= packet_counter + 1; -- increment packet counter
 				tx_enable <= '0';
 				byte_counter <= 0;
+				ace_tx_busy <= '1';
 				
 				-- 7 preamble bytes + SFD will be added by Ethernet-MAC
 				
@@ -202,50 +184,6 @@ begin
 				ace_frame(233) <= x"00";
 				ace_frame(234) <= x"00";
 				
-				-- trailing data
-				-- 000c010000060000    // 8 bytes of Header and Synchronisation / State of Control-Channel
-				-- 000c010000000000    // 8 bytes of Header and Synchronisation / State of Control-Channel
-				-- 006832bb1867fce743  // 9 bytes of payload-data of control-channel
-				-- eb000000            // 4 bytes with total message length (0xEB = 235 bytes)
-				-- eb000000            // 4 bytes with total message length (0xEB = 235 bytes)
-				ace_frame(235) <= x"00";
-				ace_frame(236) <= x"0C";
-				ace_frame(237) <= x"01";
-				ace_frame(238) <= x"00";
-				ace_frame(239) <= x"00";
-				ace_frame(240) <= x"06";
-				ace_frame(241) <= x"00";
-				ace_frame(242) <= x"00";
-				
-				ace_frame(243) <= x"00";
-				ace_frame(244) <= x"0C";
-				ace_frame(245) <= x"01";
-				ace_frame(246) <= x"00";
-				ace_frame(247) <= x"00";
-				ace_frame(248) <= x"00";
-				ace_frame(249) <= x"00";
-				ace_frame(250) <= x"00";
-
-				ace_frame(251) <= x"00";
-				ace_frame(252) <= x"68";
-				ace_frame(253) <= x"32";
-				ace_frame(254) <= x"BB";
-				ace_frame(255) <= x"18";
-				ace_frame(256) <= x"67";
-				ace_frame(257) <= x"FC";
-				ace_frame(258) <= x"E7";
-				ace_frame(259) <= x"43";
-
-				ace_frame(260) <= x"EB"; -- length of whole first part (MAC-Addresses + first payload-data)
-				ace_frame(261) <= x"00";
-				ace_frame(262) <= x"00";
-				ace_frame(263) <= x"00";
-
-				ace_frame(264) <= x"EB"; -- length of whole first part (MAC-Addresses + first payload-data)
-				ace_frame(265) <= x"00";
-				ace_frame(266) <= x"00";
-				ace_frame(267) <= x"00";
-				
 				s_SM_Ethernet <= s_Start;
 				
 			elsif (s_SM_Ethernet = s_Start) then
@@ -275,6 +213,7 @@ begin
 			elsif (s_SM_Ethernet = s_End) then
 				tx_enable <= '0';
 				tx_data <= "00000000";
+				ace_tx_busy <= '0';
 
 				s_SM_Ethernet <= s_Idle;
 			end if;

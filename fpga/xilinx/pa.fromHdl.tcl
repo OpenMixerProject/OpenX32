@@ -1,44 +1,50 @@
 
 # PlanAhead Launch Script for Pre-Synthesis Floorplanning, created by Project Navigator
 
-create_project -name OpenX32 -dir "O:/fpga/xilinx/planAhead_run_2" -part xc3s1400aft256-4
+create_project -name OpenX32 -dir "O:/openx32/fpga/xilinx/planAhead_run_5" -part xc3s1400aft256-4
 set_param project.pinAheadLayout yes
 set srcset [get_property srcset [current_run -impl]]
 set_property target_constrs_file "main.ucf" [current_fileset -constrset]
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_uart_tx.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/utility.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_uart_rx.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/crc.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_rmii_crc32.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/miim_types.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_ring_buffer.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/ethernet_types.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_dual_port_bram.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/crc32.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_tx.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/miim_registers.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_tdm_if.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/framing_common.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_rx.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/xilinx/single_signal_synchronizer.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_rmii_transceiver.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/xilinx/rmii_io.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_clockmanager.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/rmii.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_aux_encoder.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/reset_generator.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_aux_decoder.vhd}]]
+set hdlfile [add_files [list {../ethernet_mac/miim_control.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../ethernet_mac/miim.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../ethernet_mac/framing.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {oddr_clk.vhd}]]
@@ -77,6 +83,9 @@ set_property library work $hdlfile
 set hdlfile [add_files [list {../reset.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
+set hdlfile [add_files [list {../ethernet_mac/ethernet_rmii.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
 set hdlfile [add_files [list {../cs42438_config.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
@@ -84,6 +93,24 @@ set hdlfile [add_files [list {../cs2000cp_config.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {../config_rxd.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../clk_by_x.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../audio_over_ethernet/tdm_ace_demux.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../audio_over_ethernet/reverse_mac.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../audio_over_ethernet/ethernet_reset.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../audio_over_ethernet/const_eth_config.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {../audio_over_ethernet/ace_audio_packet.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {../audiomatrix_routing_ram.vhd}]]
@@ -99,15 +126,6 @@ set hdlfile [add_files [list {../audiomatrix_ram.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {../audioclk.vhd}]]
-set_property file_type VHDL $hdlfile
-set_property library work $hdlfile
-set hdlfile [add_files [list {../aes50_rst.vhd}]]
-set_property file_type VHDL $hdlfile
-set_property library work $hdlfile
-set hdlfile [add_files [list {../aes50_consts.vhd}]]
-set_property file_type VHDL $hdlfile
-set_property library work $hdlfile
-set hdlfile [add_files [list {../AES50/AES50 IP/SRC/aes50_top.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {main.vhf}]]

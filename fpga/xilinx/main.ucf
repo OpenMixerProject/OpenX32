@@ -221,12 +221,12 @@ NET "CARD_RDY" IOSTANDARD = LVCMOS33;
 #Created by Constraints Editor (xc3s1400a-ft256-4) - 2026/02/28
 NET "FPGACLK" TNM_NET = "FPGACLK";
 NET "PLL_OUT" TNM_NET = "PLL_OUT";
-NET "XLXI_1545/clk_a1" TNM_NET = XLXI_1545/clk_a1;
-NET "XLXI_1545/clk_b1" TNM_NET = XLXI_1545/clk_b1;
+NET "XLXI_53/clk_a1" TNM_NET = XLXI_53/clk_a1;
+NET "XLXI_53/clk_b1" TNM_NET = XLXI_53/clk_b1;
 TIMESPEC TS_FPGACLK = PERIOD "FPGACLK" 16 MHz HIGH 50 %;
 TIMESPEC TS_PLL_OUT = PERIOD "PLL_OUT" 49.152 MHz HIGH 50 %;
-TIMESPEC TS_XLXI_1545_clk_a1 = PERIOD "XLXI_1545/clk_a1" 24.576 MHz HIGH 50 %;
-TIMESPEC TS_XLXI_1545_clk_b1 = PERIOD "XLXI_1545/clk_b1" 12.288 MHz HIGH 50 %;
+TIMESPEC TS_XLXI_53_clk_a1 = PERIOD "XLXI_53/clk_a1" 24.576 MHz HIGH 50 %;
+TIMESPEC TS_XLXI_53_clk_b1 = PERIOD "XLXI_53/clk_b1" 12.288 MHz HIGH 50 %;
 
 NET "aes50a_clk_a_rx_in" LOC = A12;
 NET "aes50a_clk_a_rx_nen_out" LOC = B12;
@@ -269,7 +269,6 @@ NET "aes50a_rmii_rxd_1_in" LOC = C15;
 NET "aes50a_rmii_rxd_1_in" IOSTANDARD = LVCMOS33;
 NET "aes50a_rmii_rxd_0_in" IOSTANDARD = LVCMOS33;
 
-# PlanAhead Generated IO constraints 
 
 NET "aes50a_rmii_txd_0_out" SLEW = FAST;
 NET "aes50a_rmii_txd_1_out" SLEW = FAST;
@@ -285,3 +284,11 @@ NET "AD0_TX" SLEW = SLOW;
 NET "aes50a_clk_a_rx_nen_out" SLEW = FAST;
 NET "D_FS2" SLEW = FAST;
 NET "D_FS" SLEW = FAST;
+
+# PlanAhead Generated physical constraints 
+
+NET "aes50a_rmii_er_in" LOC = D15;
+
+# PlanAhead Generated IO constraints 
+
+NET "aes50a_rmii_er_in" IOSTANDARD = LVCMOS33;
