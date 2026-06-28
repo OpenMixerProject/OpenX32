@@ -20,7 +20,7 @@ begin
     -- ODDR2 Instanziierung speziell für Spartan-3A
     ODDR2_inst : ODDR2
     generic map(
-        DDR_ALIGNMENT => "NONE", -- Erlaubt C0 und C1 separat zu nutzen
+        DDR_ALIGNMENT => "SAME_EDGE", -- sampling D0/D1 both at rising edge
         INIT => '0',
         SRTYPE => "SYNC")
     port map (

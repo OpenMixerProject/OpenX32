@@ -20,7 +20,7 @@ begin
     -- IDDR2 Instanziierung speziell für Spartan-3A
     IDDR2_inst : IDDR2
     generic map(
-        DDR_ALIGNMENT => "NONE", -- Erlaubt C0 und C1 separat zu nutzen
+        DDR_ALIGNMENT => "NONE", -- SAME_EDGE_PIPELINED if sampling of both inputs on rising edge is important
         INIT_Q0 => '0',
         INIT_Q1 => '0',
         SRTYPE => "SYNC")
