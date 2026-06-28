@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Thu Jun 25 18:16:43 2026"
+-- CREATED		"Sun Jun 28 00:37:49 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -241,10 +241,11 @@ COMPONENT ace_audio_packet
 	PORT(tx_clk : IN STD_LOGIC;
 		 tx_busy : IN STD_LOGIC;
 		 tx_byte_sent : IN STD_LOGIC;
-		 audio_sync : IN STD_LOGIC;
+		 audio_ready : IN STD_LOGIC;
 		 audio_in : IN STD_LOGIC_VECTOR(1559 DOWNTO 0);
 		 src_mac_address : IN STD_LOGIC_VECTOR(47 DOWNTO 0);
 		 tx_enable : OUT STD_LOGIC;
+		 ace_tx_busy : OUT STD_LOGIC;
 		 tx_data : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 	);
 END COMPONENT;
@@ -297,6 +298,7 @@ END COMPONENT;
 COMPONENT tdm_ace_demux
 	PORT(bclk : IN STD_LOGIC;
 		 fsync : IN STD_LOGIC;
+		 ace_tx_busy : IN STD_LOGIC;
 		 tdm0_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
 		 tdm1_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
 		 tdm2_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
@@ -305,7 +307,7 @@ COMPONENT tdm_ace_demux
 		 tdm5_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
 		 tdm6_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
 		 tdm7_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_sync : OUT STD_LOGIC;
+		 audio_ready : OUT STD_LOGIC;
 		 audio_out : OUT STD_LOGIC_VECTOR(1559 DOWNTO 0)
 	);
 END COMPONENT;
@@ -586,11 +588,11 @@ SIGNAL	SYNTHESIZED_WIRE_3 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_4 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_5 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_6 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_83 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_84 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_84 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_85 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_86 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_10 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_86 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_87 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_12 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_13 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_14 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -601,7 +603,7 @@ SIGNAL	SYNTHESIZED_WIRE_18 :  STD_LOGIC_VECTOR(1559 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_20 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_21 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_22 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_23 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_23 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_24 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_25 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_26 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
@@ -609,11 +611,11 @@ SIGNAL	SYNTHESIZED_WIRE_27 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_28 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_29 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_30 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_31 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_32 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_31 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_32 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_33 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_34 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_35 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_35 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_36 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_37 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_38 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
@@ -621,11 +623,11 @@ SIGNAL	SYNTHESIZED_WIRE_39 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_40 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_41 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_42 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_43 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_43 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_44 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_45 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_46 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_47 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_45 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_46 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_47 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_48 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_49 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_50 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
@@ -641,20 +643,21 @@ SIGNAL	SYNTHESIZED_WIRE_59 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_60 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_61 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_62 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_63 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_64 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_65 :  STD_LOGIC_VECTOR(15 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_66 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_68 :  STD_LOGIC_VECTOR(15 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_69 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_70 :  STD_LOGIC_VECTOR(479 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_71 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_72 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_73 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_63 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_64 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_65 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_66 :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_67 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_69 :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_70 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_71 :  STD_LOGIC_VECTOR(479 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_72 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_73 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_74 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_75 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_87 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_82 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_75 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_76 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_88 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_83 :  STD_LOGIC;
 
 
 BEGIN 
@@ -677,9 +680,9 @@ PORT MAP(clk => clk_24_576MHz,
 		 i_spi_ncs => SPI_nCS0,
 		 i_spi_clk => SPI_CLK,
 		 i_spi_data => SPI_MOSI,
-		 o_cfg_wr_en => SYNTHESIZED_WIRE_83,
-		 o_cfg_wr_addr => SYNTHESIZED_WIRE_84,
-		 o_cfg_wr_data => SYNTHESIZED_WIRE_85);
+		 o_cfg_wr_en => SYNTHESIZED_WIRE_84,
+		 o_cfg_wr_addr => SYNTHESIZED_WIRE_85,
+		 o_cfg_wr_data => SYNTHESIZED_WIRE_86);
 
 
 b2v_inst0 : reset
@@ -736,16 +739,16 @@ GENERIC MAP(ADDR_WIDTH => 8,
 			RAM_DEPTH => 256
 			)
 PORT MAP(clk => clk_24_576MHz,
-		 cfg_wr_en => SYNTHESIZED_WIRE_83,
-		 cfg_wr_addr => SYNTHESIZED_WIRE_84,
-		 cfg_wr_data => SYNTHESIZED_WIRE_85,
+		 cfg_wr_en => SYNTHESIZED_WIRE_84,
+		 cfg_wr_addr => SYNTHESIZED_WIRE_85,
+		 cfg_wr_data => SYNTHESIZED_WIRE_86,
 		 channel_idx => SYNTHESIZED_WIRE_10,
-		 read_addr => SYNTHESIZED_WIRE_73);
+		 read_addr => SYNTHESIZED_WIRE_74);
 
 
 b2v_inst16 : reverse_mac
-PORT MAP(mac_address_i => SYNTHESIZED_WIRE_86,
-		 mac_address_o => SYNTHESIZED_WIRE_45);
+PORT MAP(mac_address_i => SYNTHESIZED_WIRE_87,
+		 mac_address_o => SYNTHESIZED_WIRE_46);
 
 
 b2v_inst17 : audioclk
@@ -759,7 +762,7 @@ b2v_inst19 : ethernet_reset
 PORT MAP(clk => SYNTHESIZED_WIRE_12,
 		 power_good => online,
 		 phy_rstn => aes50a_phy_rst_n_out,
-		 mac_rst => SYNTHESIZED_WIRE_43);
+		 mac_rst => SYNTHESIZED_WIRE_44);
 
 
 b2v_inst2 : spi_tx
@@ -778,11 +781,12 @@ b2v_inst20 : ace_audio_packet
 PORT MAP(tx_clk => mac_tx_clk,
 		 tx_busy => mac_tx_busy,
 		 tx_byte_sent => mac_tx_byte_sent,
-		 audio_sync => SYNTHESIZED_WIRE_17,
+		 audio_ready => SYNTHESIZED_WIRE_17,
 		 audio_in => SYNTHESIZED_WIRE_18,
-		 src_mac_address => SYNTHESIZED_WIRE_86,
-		 tx_enable => SYNTHESIZED_WIRE_44,
-		 tx_data => SYNTHESIZED_WIRE_46);
+		 src_mac_address => SYNTHESIZED_WIRE_87,
+		 tx_enable => SYNTHESIZED_WIRE_45,
+		 ace_tx_busy => SYNTHESIZED_WIRE_23,
+		 tx_data => SYNTHESIZED_WIRE_47);
 
 
 
@@ -790,28 +794,28 @@ b2v_inst22 : tdm_demux
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 data_in => audio_output(71 DOWNTO 48),
-		 ch1_out => SYNTHESIZED_WIRE_23,
-		 ch2_out => SYNTHESIZED_WIRE_24,
-		 ch3_out => SYNTHESIZED_WIRE_25,
-		 ch4_out => SYNTHESIZED_WIRE_26,
-		 ch5_out => SYNTHESIZED_WIRE_27,
-		 ch6_out => SYNTHESIZED_WIRE_28,
-		 ch7_out => SYNTHESIZED_WIRE_29,
-		 ch8_out => SYNTHESIZED_WIRE_30);
+		 ch1_out => SYNTHESIZED_WIRE_24,
+		 ch2_out => SYNTHESIZED_WIRE_25,
+		 ch3_out => SYNTHESIZED_WIRE_26,
+		 ch4_out => SYNTHESIZED_WIRE_27,
+		 ch5_out => SYNTHESIZED_WIRE_28,
+		 ch6_out => SYNTHESIZED_WIRE_29,
+		 ch7_out => SYNTHESIZED_WIRE_30,
+		 ch8_out => SYNTHESIZED_WIRE_31);
 
 
 b2v_inst23 : tdm_demux
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 data_in => audio_output(95 DOWNTO 72),
-		 ch1_out => SYNTHESIZED_WIRE_35,
-		 ch2_out => SYNTHESIZED_WIRE_36,
-		 ch3_out => SYNTHESIZED_WIRE_37,
-		 ch4_out => SYNTHESIZED_WIRE_38,
-		 ch5_out => SYNTHESIZED_WIRE_39,
-		 ch6_out => SYNTHESIZED_WIRE_40,
-		 ch7_out => SYNTHESIZED_WIRE_41,
-		 ch8_out => SYNTHESIZED_WIRE_42);
+		 ch1_out => SYNTHESIZED_WIRE_36,
+		 ch2_out => SYNTHESIZED_WIRE_37,
+		 ch3_out => SYNTHESIZED_WIRE_38,
+		 ch4_out => SYNTHESIZED_WIRE_39,
+		 ch5_out => SYNTHESIZED_WIRE_40,
+		 ch6_out => SYNTHESIZED_WIRE_41,
+		 ch7_out => SYNTHESIZED_WIRE_42,
+		 ch8_out => SYNTHESIZED_WIRE_43);
 
 
 b2v_inst24 : aes50_rmii_rxd
@@ -825,28 +829,28 @@ b2v_inst25 : tdm_demux
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 data_in => audio_output(71 DOWNTO 48),
-		 ch1_out => SYNTHESIZED_WIRE_47,
-		 ch2_out => SYNTHESIZED_WIRE_54,
-		 ch3_out => SYNTHESIZED_WIRE_55,
-		 ch4_out => SYNTHESIZED_WIRE_56,
-		 ch5_out => SYNTHESIZED_WIRE_57,
-		 ch6_out => SYNTHESIZED_WIRE_58,
-		 ch7_out => SYNTHESIZED_WIRE_59,
-		 ch8_out => SYNTHESIZED_WIRE_60);
+		 ch1_out => SYNTHESIZED_WIRE_48,
+		 ch2_out => SYNTHESIZED_WIRE_55,
+		 ch3_out => SYNTHESIZED_WIRE_56,
+		 ch4_out => SYNTHESIZED_WIRE_57,
+		 ch5_out => SYNTHESIZED_WIRE_58,
+		 ch6_out => SYNTHESIZED_WIRE_59,
+		 ch7_out => SYNTHESIZED_WIRE_60,
+		 ch8_out => SYNTHESIZED_WIRE_61);
 
 
 b2v_inst26 : tdm_demux
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 data_in => audio_output(95 DOWNTO 72),
-		 ch1_out => SYNTHESIZED_WIRE_61,
-		 ch2_out => SYNTHESIZED_WIRE_62,
-		 ch3_out => SYNTHESIZED_WIRE_48,
-		 ch4_out => SYNTHESIZED_WIRE_49,
-		 ch5_out => SYNTHESIZED_WIRE_50,
-		 ch6_out => SYNTHESIZED_WIRE_51,
-		 ch7_out => SYNTHESIZED_WIRE_52,
-		 ch8_out => SYNTHESIZED_WIRE_53);
+		 ch1_out => SYNTHESIZED_WIRE_62,
+		 ch2_out => SYNTHESIZED_WIRE_63,
+		 ch3_out => SYNTHESIZED_WIRE_49,
+		 ch4_out => SYNTHESIZED_WIRE_50,
+		 ch5_out => SYNTHESIZED_WIRE_51,
+		 ch6_out => SYNTHESIZED_WIRE_52,
+		 ch7_out => SYNTHESIZED_WIRE_53,
+		 ch8_out => SYNTHESIZED_WIRE_54);
 
 
 b2v_inst3 : spi_16bit_tx
@@ -870,6 +874,7 @@ PORT MAP(refclk => clk_50MHz,
 b2v_inst38 : tdm_ace_demux
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
+		 ace_tx_busy => SYNTHESIZED_WIRE_23,
 		 tdm0_in => audio_output(359 DOWNTO 336),
 		 tdm1_in => audio_output(383 DOWNTO 360),
 		 tdm2_in => audio_output(407 DOWNTO 384),
@@ -878,7 +883,7 @@ PORT MAP(bclk => clk_12_288MHz,
 		 tdm5_in => audio_output(479 DOWNTO 456),
 		 tdm6_in => audio_output(503 DOWNTO 480),
 		 tdm7_in => audio_output(527 DOWNTO 504),
-		 audio_sync => SYNTHESIZED_WIRE_17,
+		 audio_ready => SYNTHESIZED_WIRE_17,
 		 audio_out => SYNTHESIZED_WIRE_18);
 
 
@@ -889,28 +894,28 @@ GENERIC MAP(AES3_PREAMBLE_X => "10010011",
 			FRAME_COUNTER_RESET => "101111111"
 			)
 PORT MAP(bit_clock => clk_24_576MHz,
-		 ch1 => SYNTHESIZED_WIRE_23,
-		 ch2 => SYNTHESIZED_WIRE_24,
-		 ch3 => SYNTHESIZED_WIRE_25,
-		 ch4 => SYNTHESIZED_WIRE_26,
-		 ch5 => SYNTHESIZED_WIRE_27,
-		 ch6 => SYNTHESIZED_WIRE_28,
-		 ch7 => SYNTHESIZED_WIRE_29,
-		 ch8 => SYNTHESIZED_WIRE_30,
+		 ch1 => SYNTHESIZED_WIRE_24,
+		 ch2 => SYNTHESIZED_WIRE_25,
+		 ch3 => SYNTHESIZED_WIRE_26,
+		 ch4 => SYNTHESIZED_WIRE_27,
+		 ch5 => SYNTHESIZED_WIRE_28,
+		 ch6 => SYNTHESIZED_WIRE_29,
+		 ch7 => SYNTHESIZED_WIRE_30,
+		 ch8 => SYNTHESIZED_WIRE_31,
 		 ultranet_out_p => P16_A_TXP,
 		 ultranet_out_m => P16_A_TXM);
 
 
 b2v_inst4 : spi_tx
 PORT MAP(clk => clk_16MHz,
-		 i_start => SYNTHESIZED_WIRE_31,
-		 i_address => SYNTHESIZED_WIRE_32,
-		 i_data => SYNTHESIZED_WIRE_33,
-		 i_map => SYNTHESIZED_WIRE_34,
+		 i_start => SYNTHESIZED_WIRE_32,
+		 i_address => SYNTHESIZED_WIRE_33,
+		 i_data => SYNTHESIZED_WIRE_34,
+		 i_map => SYNTHESIZED_WIRE_35,
 		 o_nCS => AUX_AD_nCS,
 		 o_cclk => SYNTHESIZED_WIRE_3,
 		 o_cdata => SYNTHESIZED_WIRE_5,
-		 o_busy => SYNTHESIZED_WIRE_69);
+		 o_busy => SYNTHESIZED_WIRE_70);
 
 
 b2v_inst40 : ultranet_tx
@@ -920,14 +925,14 @@ GENERIC MAP(AES3_PREAMBLE_X => "10010011",
 			FRAME_COUNTER_RESET => "101111111"
 			)
 PORT MAP(bit_clock => clk_24_576MHz,
-		 ch1 => SYNTHESIZED_WIRE_35,
-		 ch2 => SYNTHESIZED_WIRE_36,
-		 ch3 => SYNTHESIZED_WIRE_37,
-		 ch4 => SYNTHESIZED_WIRE_38,
-		 ch5 => SYNTHESIZED_WIRE_39,
-		 ch6 => SYNTHESIZED_WIRE_40,
-		 ch7 => SYNTHESIZED_WIRE_41,
-		 ch8 => SYNTHESIZED_WIRE_42,
+		 ch1 => SYNTHESIZED_WIRE_36,
+		 ch2 => SYNTHESIZED_WIRE_37,
+		 ch3 => SYNTHESIZED_WIRE_38,
+		 ch4 => SYNTHESIZED_WIRE_39,
+		 ch5 => SYNTHESIZED_WIRE_40,
+		 ch6 => SYNTHESIZED_WIRE_41,
+		 ch7 => SYNTHESIZED_WIRE_42,
+		 ch8 => SYNTHESIZED_WIRE_43,
 		 ultranet_out_p => P16_B_TXP,
 		 ultranet_out_m => P16_B_TXM);
 
@@ -956,12 +961,12 @@ GENERIC MAP(DST_IP0 => 192,
 			SRC_MAC5 => 203,
 			SRC_PORT => 4023
 			)
-PORT MAP(		 dst_ip_address => SYNTHESIZED_WIRE_63,
-		 dst_mac_address => SYNTHESIZED_WIRE_64,
-		 dst_udp_port => SYNTHESIZED_WIRE_65,
-		 src_ip_address => SYNTHESIZED_WIRE_66,
-		 src_mac_address => SYNTHESIZED_WIRE_86,
-		 src_udp_port => SYNTHESIZED_WIRE_68);
+PORT MAP(		 dst_ip_address => SYNTHESIZED_WIRE_64,
+		 dst_mac_address => SYNTHESIZED_WIRE_65,
+		 dst_udp_port => SYNTHESIZED_WIRE_66,
+		 src_ip_address => SYNTHESIZED_WIRE_67,
+		 src_mac_address => SYNTHESIZED_WIRE_87,
+		 src_udp_port => SYNTHESIZED_WIRE_69);
 
 
 b2v_inst43 : clk_by_x
@@ -978,15 +983,15 @@ GENERIC MAP(MIIM_CLOCK_DIVIDER => 50,
 			MIIM_POLL_WAIT_TICKS => 10000000,
 			MIIM_RESET_WAIT_TICKS => 0
 			)
-PORT MAP(reset_i => SYNTHESIZED_WIRE_43,
+PORT MAP(reset_i => SYNTHESIZED_WIRE_44,
 		 rmii_clk_i => clk_50MHz,
 		 rmii_rx_er_i => aes50a_rmii_er_in,
 		 rmii_rx_crs_dv_i => aes50a_rmii_rxd(0),
 		 miim_clock_i => clk_50MHz,
-		 tx_enable_i => SYNTHESIZED_WIRE_44,
-		 mac_address_i => SYNTHESIZED_WIRE_45,
+		 tx_enable_i => SYNTHESIZED_WIRE_45,
+		 mac_address_i => SYNTHESIZED_WIRE_46,
 		 rmii_rxd_i => aes50a_rmii_rxd(2 DOWNTO 1),
-		 tx_data_i => SYNTHESIZED_WIRE_46,
+		 tx_data_i => SYNTHESIZED_WIRE_47,
 		 rmii_tx_en_o => aes50a_rmii_txd(0),
 		 tx_clock_o => mac_tx_clk,
 		 tx_byte_sent_o => mac_tx_byte_sent,
@@ -999,39 +1004,39 @@ PORT MAP(tx_clk => mac_tx_clk,
 		 tx_busy => mac_tx_busy,
 		 tx_byte_sent => mac_tx_byte_sent,
 		 audio_sync => tdm_fs,
-		 audio_ch0_in => SYNTHESIZED_WIRE_47,
-		 audio_ch10_in => SYNTHESIZED_WIRE_48,
-		 audio_ch11_in => SYNTHESIZED_WIRE_49,
-		 audio_ch12_in => SYNTHESIZED_WIRE_50,
-		 audio_ch13_in => SYNTHESIZED_WIRE_51,
-		 audio_ch14_in => SYNTHESIZED_WIRE_52,
-		 audio_ch15_in => SYNTHESIZED_WIRE_53,
-		 audio_ch1_in => SYNTHESIZED_WIRE_54,
-		 audio_ch2_in => SYNTHESIZED_WIRE_55,
-		 audio_ch3_in => SYNTHESIZED_WIRE_56,
-		 audio_ch4_in => SYNTHESIZED_WIRE_57,
-		 audio_ch5_in => SYNTHESIZED_WIRE_58,
-		 audio_ch6_in => SYNTHESIZED_WIRE_59,
-		 audio_ch7_in => SYNTHESIZED_WIRE_60,
-		 audio_ch8_in => SYNTHESIZED_WIRE_61,
-		 audio_ch9_in => SYNTHESIZED_WIRE_62,
-		 dst_ip_address => SYNTHESIZED_WIRE_63,
-		 dst_mac_address => SYNTHESIZED_WIRE_64,
-		 dst_udp_port => SYNTHESIZED_WIRE_65,
-		 src_ip_address => SYNTHESIZED_WIRE_66,
-		 src_mac_address => SYNTHESIZED_WIRE_86,
-		 src_udp_port => SYNTHESIZED_WIRE_68);
+		 audio_ch0_in => SYNTHESIZED_WIRE_48,
+		 audio_ch10_in => SYNTHESIZED_WIRE_49,
+		 audio_ch11_in => SYNTHESIZED_WIRE_50,
+		 audio_ch12_in => SYNTHESIZED_WIRE_51,
+		 audio_ch13_in => SYNTHESIZED_WIRE_52,
+		 audio_ch14_in => SYNTHESIZED_WIRE_53,
+		 audio_ch15_in => SYNTHESIZED_WIRE_54,
+		 audio_ch1_in => SYNTHESIZED_WIRE_55,
+		 audio_ch2_in => SYNTHESIZED_WIRE_56,
+		 audio_ch3_in => SYNTHESIZED_WIRE_57,
+		 audio_ch4_in => SYNTHESIZED_WIRE_58,
+		 audio_ch5_in => SYNTHESIZED_WIRE_59,
+		 audio_ch6_in => SYNTHESIZED_WIRE_60,
+		 audio_ch7_in => SYNTHESIZED_WIRE_61,
+		 audio_ch8_in => SYNTHESIZED_WIRE_62,
+		 audio_ch9_in => SYNTHESIZED_WIRE_63,
+		 dst_ip_address => SYNTHESIZED_WIRE_64,
+		 dst_mac_address => SYNTHESIZED_WIRE_65,
+		 dst_udp_port => SYNTHESIZED_WIRE_66,
+		 src_ip_address => SYNTHESIZED_WIRE_67,
+		 src_mac_address => SYNTHESIZED_WIRE_87,
+		 src_udp_port => SYNTHESIZED_WIRE_69);
 
 
 b2v_inst5 : m8000adc_config
 PORT MAP(clk => clk_16MHz,
 		 i_start => online,
-		 i_txbusy => SYNTHESIZED_WIRE_69,
-		 o_start => SYNTHESIZED_WIRE_31,
+		 i_txbusy => SYNTHESIZED_WIRE_70,
+		 o_start => SYNTHESIZED_WIRE_32,
 		 o_done => SYNTHESIZED_WIRE_1,
-		 o_address => SYNTHESIZED_WIRE_32,
-		 o_data => SYNTHESIZED_WIRE_33,
-		 o_map => SYNTHESIZED_WIRE_34);
+		 o_address => SYNTHESIZED_WIRE_33,
+		 o_data => SYNTHESIZED_WIRE_34,
+		 o_map => SYNTHESIZED_WIRE_35);
 
 
 b2v_inst51 : aes50_clk_ddr
@@ -1050,10 +1055,10 @@ GENERIC MAP(ADDR_WIDTH => 8,
 PORT MAP(clk => clk_24_576MHz,
 		 bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
-		 input_data => SYNTHESIZED_WIRE_70,
-		 o_ram_wr_en => SYNTHESIZED_WIRE_71,
-		 o_ram_data => SYNTHESIZED_WIRE_72,
-		 o_ram_write_addr => SYNTHESIZED_WIRE_74);
+		 input_data => SYNTHESIZED_WIRE_71,
+		 o_ram_wr_en => SYNTHESIZED_WIRE_72,
+		 o_ram_data => SYNTHESIZED_WIRE_73,
+		 o_ram_write_addr => SYNTHESIZED_WIRE_75);
 
 
 b2v_inst53 : audiomatrix_ram
@@ -1062,11 +1067,11 @@ GENERIC MAP(ADDR_WIDTH => 8,
 			RAM_DEPTH => 256
 			)
 PORT MAP(clk => clk_24_576MHz,
-		 wr_en => SYNTHESIZED_WIRE_71,
-		 i_data => SYNTHESIZED_WIRE_72,
-		 read_addr => SYNTHESIZED_WIRE_73,
-		 write_addr => SYNTHESIZED_WIRE_74,
-		 o_data => SYNTHESIZED_WIRE_75);
+		 wr_en => SYNTHESIZED_WIRE_72,
+		 i_data => SYNTHESIZED_WIRE_73,
+		 read_addr => SYNTHESIZED_WIRE_74,
+		 write_addr => SYNTHESIZED_WIRE_75,
+		 o_data => SYNTHESIZED_WIRE_76);
 
 
 b2v_inst54 : audiomatrix_ram_read
@@ -1078,7 +1083,7 @@ GENERIC MAP(ADDR_WIDTH => 8,
 PORT MAP(clk => clk_24_576MHz,
 		 bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
-		 ram_data => SYNTHESIZED_WIRE_75,
+		 ram_data => SYNTHESIZED_WIRE_76,
 		 channel_idx_out => SYNTHESIZED_WIRE_10,
 		 data_out => audio_output(479 DOWNTO 0));
 
@@ -1087,9 +1092,9 @@ PORT MAP(clk => clk_24_576MHz,
 
 b2v_inst7 : config_rxd
 PORT MAP(clk => clk_24_576MHz,
-		 cfg_wr_en => SYNTHESIZED_WIRE_83,
-		 cfg_wr_addr => SYNTHESIZED_WIRE_84,
-		 cfg_wr_data => SYNTHESIZED_WIRE_85);
+		 cfg_wr_en => SYNTHESIZED_WIRE_84,
+		 cfg_wr_addr => SYNTHESIZED_WIRE_85,
+		 cfg_wr_data => SYNTHESIZED_WIRE_86);
 
 
 
@@ -1100,7 +1105,7 @@ GENERIC MAP(DATA_WIDTH => 24,
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 tdm_in => tdm_input,
-		 data_out => SYNTHESIZED_WIRE_70);
+		 data_out => SYNTHESIZED_WIRE_71);
 
 
 b2v_inst9 : tdm_multichan_tx

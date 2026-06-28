@@ -1,0 +1,9 @@
+[Inputs]
+clk_in
+clk_in_inv
+reset
+d0
+d1
+[Outputs]
+Q
+[BiDir]

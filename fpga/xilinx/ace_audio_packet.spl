@@ -1,0 +1,12 @@
+[Inputs]
+tx_clk
+tx_busy
+tx_byte_sent
+audio_ready
+=src_mac_address[47:0]=
+=audio_in[1559:0]=
+[Outputs]
+tx_enable
+ace_tx_busy
+=tx_data[7:0]=
+[BiDir]

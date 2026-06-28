@@ -11,7 +11,7 @@ entity oddr_clock is
         reset   : in  STD_LOGIC;
 		  d0		 : in  STD_LOGIC;
 		  d1		 : in  STD_LOGIC;
-        clk_out : out STD_LOGIC
+        Q : out STD_LOGIC
     );
 end oddr_clock;
 
@@ -24,7 +24,7 @@ begin
         INIT => '0',
         SRTYPE => "SYNC")
     port map (
-        Q  => clk_out,
+        Q  => Q,
         C0 => clk_in,
         C1 => clk_in_inv,
         CE => '1',

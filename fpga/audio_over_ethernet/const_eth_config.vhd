@@ -5,14 +5,16 @@ use IEEE.NUMERIC_STD.ALL;
 entity const_eth_config is
 	generic
 	(
-		SRC_MAC0		: integer := 0;   -- AA = 00 = demo MAC-Address from Intel Triple Speed Ethernet example
-		SRC_MAC1		: integer := 28;  -- BB = 1c
-		SRC_MAC2		: integer := 35;  -- CC = 23
-		SRC_MAC3		: integer := 23;  -- DD = 17
-		SRC_MAC4		: integer := 74;  -- EE = 4a
-		SRC_MAC5		: integer := 203; -- FF = cb
+		-- used for ACE-Link and UDP-Sender
+		SRC_MAC0		: integer := 0;   -- AA = 00 [our MAC-Address / Sender]
+		SRC_MAC1		: integer := 4;   -- BB = 04
+		SRC_MAC2		: integer := 196; -- CC = C4
+		SRC_MAC3		: integer := 2;   -- DD = 02
+		SRC_MAC4		: integer := 233; -- EE = E9
+		SRC_MAC5		: integer := 110; -- FF = 6E
 
-		DST_MAC0		: integer := 0;   -- AA = 00
+		-- only used for UDP
+		DST_MAC0		: integer := 0;   -- AA = 00 
 		DST_MAC1		: integer := 36;  -- BB = 24
 		DST_MAC2		: integer := 155; -- CC = 9B
 		DST_MAC3		: integer := 127; -- DD = 7F

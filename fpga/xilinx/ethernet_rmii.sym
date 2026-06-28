@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<symbol version="7" name="ethernet_rmii">
+    <symboltype>BLOCK</symboltype>
+    <timestamp>2026-6-28T18:55:35</timestamp>
+    <pin polarity="Input" x="0" y="-1056" name="reset_i" />
+    <pin polarity="Input" x="0" y="-928" name="rmii_clk_i" />
+    <pin polarity="Input" x="0" y="-800" name="rmii_rx_er_i" />
+    <pin polarity="Input" x="0" y="-672" name="rmii_rx_crs_dv_i" />
+    <pin polarity="Input" x="0" y="-544" name="miim_clock_i" />
+    <pin polarity="Input" x="0" y="-416" name="tx_enable_i" />
+    <pin polarity="Input" x="0" y="-288" name="mac_address_i(47:0)" />
+    <pin polarity="Input" x="0" y="-160" name="rmii_rxd_i(1:0)" />
+    <pin polarity="Input" x="0" y="-32" name="tx_data_i(7:0)" />
+    <pin polarity="BiDirectional" x="560" y="-32" name="mdio_io" />
+    <pin polarity="Output" x="560" y="-1056" name="reset_o" />
+    <pin polarity="Output" x="560" y="-992" name="rmii_tx_er_o" />
+    <pin polarity="Output" x="560" y="-928" name="rmii_tx_en_o" />
+    <pin polarity="Output" x="560" y="-864" name="mdc_o" />
+    <pin polarity="Output" x="560" y="-800" name="link_up_o" />
+    <pin polarity="Output" x="560" y="-736" name="tx_clock_o" />
+    <pin polarity="Output" x="560" y="-672" name="tx_reset_o" />
+    <pin polarity="Output" x="560" y="-608" name="tx_byte_sent_o" />
+    <pin polarity="Output" x="560" y="-544" name="tx_busy_o" />
+    <pin polarity="Output" x="560" y="-480" name="rx_clock_o" />
+    <pin polarity="Output" x="560" y="-416" name="rx_reset_o" />
+    <pin polarity="Output" x="560" y="-352" name="rx_frame_o" />
+    <pin polarity="Output" x="560" y="-288" name="rx_byte_received_o" />
+    <pin polarity="Output" x="560" y="-224" name="rx_error_o" />
+    <pin polarity="Output" x="560" y="-160" name="rmii_txd_o(1:0)" />
+    <pin polarity="Output" x="560" y="-96" name="rx_data_o(7:0)" />
+    <graph>
+        <attrtext style="alignment:BCENTER;fontsize:56;fontname:Arial" attrname="SymbolName" x="280" y="-1096" type="symbol" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-1056" type="pin reset_i" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-928" type="pin rmii_clk_i" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-800" type="pin rmii_rx_er_i" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-672" type="pin rmii_rx_crs_dv_i" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-544" type="pin miim_clock_i" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-416" type="pin tx_enable_i" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-288" type="pin mac_address_i(47:0)" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-160" type="pin rmii_rxd_i(1:0)" />
+        <attrtext style="fontsize:24;fontname:Arial" attrname="PinName" x="72" y="-32" type="pin tx_data_i(7:0)" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-32" type="pin mdio_io" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-1056" type="pin reset_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-992" type="pin rmii_tx_er_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-928" type="pin rmii_tx_en_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-864" type="pin mdc_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-800" type="pin link_up_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-736" type="pin tx_clock_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-672" type="pin tx_reset_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-608" type="pin tx_byte_sent_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-544" type="pin tx_busy_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-480" type="pin rx_clock_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-416" type="pin rx_reset_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-352" type="pin rx_frame_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-288" type="pin rx_byte_received_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-224" type="pin rx_error_o" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-160" type="pin rmii_txd_o(1:0)" />
+        <attrtext style="alignment:RIGHT;fontsize:24;fontname:Arial" attrname="PinName" x="488" y="-96" type="pin rx_data_o(7:0)" />
+        <rect width="432" x="64" y="-1088" height="1088" />
+        <line x2="0" y1="-1056" y2="-1056" x1="64" />
+        <line x2="0" y1="-928" y2="-928" x1="64" />
+        <line x2="0" y1="-800" y2="-800" x1="64" />
+        <line x2="0" y1="-672" y2="-672" x1="64" />
+        <line x2="0" y1="-544" y2="-544" x1="64" />
+        <line x2="0" y1="-416" y2="-416" x1="64" />
+        <rect width="64" x="0" y="-300" height="24" />
+        <line x2="0" y1="-288" y2="-288" x1="64" />
+        <rect width="64" x="0" y="-172" height="24" />
+        <line x2="0" y1="-160" y2="-160" x1="64" />
+        <rect width="64" x="0" y="-44" height="24" />
+        <line x2="0" y1="-32" y2="-32" x1="64" />
+        <line x2="560" y1="-1056" y2="-1056" x1="496" />
+        <line x2="560" y1="-992" y2="-992" x1="496" />
+        <line x2="560" y1="-928" y2="-928" x1="496" />
+        <line x2="560" y1="-864" y2="-864" x1="496" />
+        <line x2="560" y1="-800" y2="-800" x1="496" />
+        <line x2="560" y1="-736" y2="-736" x1="496" />
+        <line x2="560" y1="-672" y2="-672" x1="496" />
+        <line x2="560" y1="-608" y2="-608" x1="496" />
+        <line x2="560" y1="-544" y2="-544" x1="496" />
+        <line x2="560" y1="-480" y2="-480" x1="496" />
+        <line x2="560" y1="-416" y2="-416" x1="496" />
+        <line x2="560" y1="-352" y2="-352" x1="496" />
+        <line x2="560" y1="-288" y2="-288" x1="496" />
+        <line x2="560" y1="-224" y2="-224" x1="496" />
+        <rect width="64" x="496" y="-172" height="24" />
+        <line x2="560" y1="-160" y2="-160" x1="496" />
+        <rect width="64" x="496" y="-108" height="24" />
+        <line x2="560" y1="-96" y2="-96" x1="496" />
+        <line x2="560" y1="-32" y2="-32" x1="496" />
+    </graph>
+</symbol>
