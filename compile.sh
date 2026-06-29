@@ -45,9 +45,14 @@ DATA_LINES=$((LINES - 2)) # leave two lines for status-information
 tput csr 0 $DATA_LINES
 clear
 
-update_progress() {
+update_progress()
+{
     local Percent=$1
     local Text=$2
+
+	# Text for log itself, to recognize the sections afterwards
+	echo "################ $Text #################"
+
     # save cursor-Position
     tput sc
     # jump to row = rowcount-2 to display separator
