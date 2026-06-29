@@ -170,7 +170,8 @@ else
 	echo "busybox-trylink is up to date."
 fi
 
-cp files/meminit.txt software/pyatk/bin/
+# no longer needed?
+#cp files/meminit.txt software/pyatk/bin/
 
 # patched source-files
 cp files/imximage.cfg u-boot/board/freescale/mx25pdk/imximage.cfg
