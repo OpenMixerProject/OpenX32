@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone 10 LP"
 set_global_assignment -name DEVICE auto
-set_global_assignment -name TOP_LEVEL_ENTITY main_lattice_audio_over_ethernet
+set_global_assignment -name TOP_LEVEL_ENTITY main_lattice
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 24.1STD.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:44:46  OCTOBER 26, 2025"
 set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
@@ -47,9 +47,6 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name VHDL_FILE ../../ethernet_mac/lattice/utility.vhd
-set_global_assignment -name VHDL_FILE ../../ethernet_mac/ethernet_types.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/ace_audio_packet.vhd
 set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_aux_encoder.vhd"
 set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_uart_rx.vhd"
 set_global_assignment -name VHDL_FILE "../../AES50/AES50 IP/SRC/aes50_aux_decoder.vhd"
@@ -102,7 +99,7 @@ set_global_assignment -name VHDL_FILE ../../audiomatrix_ram_write.vhd
 set_global_assignment -name VHDL_FILE ../../audiomatrix_ram_read.vhd
 set_global_assignment -name VHDL_FILE ../../audiomatrix_ram.vhd
 set_global_assignment -name VHDL_FILE ../../audiomatrix.vhd
-set_global_assignment -name BDF_FILE main_lattice_audio_over_ethernet.bdf
+set_global_assignment -name BDF_FILE main_lattice.bdf
 set_global_assignment -name VHDL_FILE ../../audioclk_triple.vhd
 set_global_assignment -name VHDL_FILE ../../aes50_consts.vhd
 set_global_assignment -name VHDL_FILE ../../tdm_rx.vhd
@@ -116,11 +113,4 @@ set_global_assignment -name VHDL_FILE ../../clkinverter.vhd
 set_global_assignment -name VHDL_FILE ../../debug_switch.vhd
 set_global_assignment -name VHDL_FILE ../../aes50_aux_to_spi.vhd
 set_global_assignment -name VHDL_FILE ../../audioclk_fs.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/udp_audio_packet.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/tdm_ace_demux.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/reverse_mac.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/ethernet_reset.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/ethernet_packet_switcher.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/const_eth_speed.vhd
-set_global_assignment -name VHDL_FILE ../../audio_over_ethernet/const_eth_config.vhd
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

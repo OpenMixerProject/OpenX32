@@ -21,6 +21,6 @@ git clone --depth 1 --single-branch https://github.com/ponty/framebuffer-vncserv
 git clone --depth 1 --single-branch https://github.com/LibVNC/libvncserver.git software/libvncserver
 git clone --depth 1 --single-branch https://github.com/OpenLightingProject/libartnet.git software/libartnet
 
-git clone --depth 1 --single-branch https://github.com/OpenMixerProject/OpenMixerControl.git software/omc
+git clone -b stable --depth 1 --single-branch https://github.com/OpenMixerProject/OpenMixerControl.git software/omc
 
 echo "Done."
