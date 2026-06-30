@@ -1,9 +1,0 @@
-[Inputs]
-[Outputs]
-=src_mac_address[47:0]=
-=src_ip_address[31:0]=
-=dst_mac_address[47:0]=
-=dst_ip_address[31:0]=
-=src_udp_port[15:0]=
-=dst_udp_port[15:0]=
-[BiDir]

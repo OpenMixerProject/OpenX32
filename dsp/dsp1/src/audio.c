@@ -219,7 +219,7 @@ void audioProcessData(void) {
 	    }
 	}
 
-	// copy channels from DSP2 using DMA-friendly memcpy
+	// copy channels from DSP2 without conversion
 	static const int dsp2DstIdx[TDM_INPUTS_DSP2] = {
 	    DSP_BUF_IDX_DSP2_FXRET,
 	    DSP_BUF_IDX_DSP2_FXINS,

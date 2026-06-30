@@ -7,11 +7,11 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : dcm2.vhd
--- /___/   /\     Timestamp : 03/01/2026 15:51:12
+-- /___/   /\     Timestamp : 06/29/2026 20:47:35
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
---Command: xaw2vhdl-intstyle O:/fpga/xilinx/dcm2.xaw -st dcm2.vhd
+--Command: xaw2vhdl-intstyle O:/openx32/fpga/xilinx/dcm2.xaw -st dcm2.vhd
 --Design Name: dcm2
 --Device: xc3s1400a-4ft256
 --

@@ -21,6 +21,17 @@ module aes50_rmii_txd (clkout, refclk, reset, data, dout)/* synthesis NGD_DRC_MA
 
     VLO scuba_vlo_inst (.Z(scuba_vlo));
 
+	 /*
+		OFS1P3DX
+		O = Output-Register
+		F = Positive Edge Triggered
+		S = SystemClock
+		1 = Positive Level Enable
+		P = Positive Level Asynchronous Clear
+		3 = Third type
+		D = D-FlipFlop
+		X = Specific Cell properties
+	 */
     ODDRX1F Inst4_ODDRX1F (.SCLK(refclk), .RST(reset), .D0(scuba_vhi), .D1(scuba_vlo), 
         .Q(buf_clkout));
 

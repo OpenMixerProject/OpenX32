@@ -445,6 +445,7 @@ void fxReverb::process() {
 		return;
 	}
 
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: generate multi-channel fx-input (inL -> _fxBuf[0,2,4,6], inR -> _fxBuf[1,3,5,7])
 		// =================================
@@ -466,11 +467,13 @@ void fxReverb::process() {
 
 		// Step 2: diffusion-process (_fxBuf[] -> diffusionDelay[] -> _fxBuf[])
 		// =================================
-        for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
+		#pragma loop_count(FX_REVERB_DIFFUSION_STEPS)
+		for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
 			// pointer to Delay-Line. Mitigates [d][i]-indirection within inner loop
 			int& head = _diffusionDelayLineHead[d];
 
 			// Step 2.1: Write and read data to/from delay-line
+			#pragma loop_count(FX_REVERB_INT_CHAN)
 			for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
 	        	// pointer to Delay-Line. Mitigates [d][i]-indirection within inner loop
 				sDiffusor& diffusor = _diffusor[d][c];
@@ -493,6 +496,7 @@ void fxReverb::process() {
 			hadamardMatrix(_fxBuf);
 
 			// Step 2.3: Flip some polarities
+			#pragma loop_count(FX_REVERB_INT_CHAN)
 			for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
 				if (_diffusor[d][c].flipPolarities) {
 					_fxBuf[c] = -_fxBuf[c];
@@ -511,6 +515,7 @@ void fxReverb::process() {
 		// Step 3: feedbackProcess (_fxBuf[] + delay[] * decay -> delay[] -> _fxBufOutput[])
 		// =================================
 		// Step 3.1: read delayed data from delay-line
+		#pragma loop_count(FX_REVERB_INT_CHAN)
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
 			int tail = _delay[c].head - _delay[c].tailOffset;
 			if (tail < 0) {
@@ -538,6 +543,7 @@ void fxReverb::process() {
 
 
 		// Step 3.3: write feedback-data to delay-line
+		#pragma loop_count(FX_REVERB_INT_CHAN)
 		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
 			int& head = _delay[c].head;
 			_delay[c].memory[head] = _fxBuf[c];

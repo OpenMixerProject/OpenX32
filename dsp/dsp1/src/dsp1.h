@@ -5,6 +5,7 @@
 #ifndef __DSP1_H__
 #define __DSP1_H__
 
+#include "version.h"
 #include "defines.h"
 
 // general includes

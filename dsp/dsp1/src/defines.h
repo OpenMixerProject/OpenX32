@@ -1,8 +1,6 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DSP_VERSION				0.50
-
 #define DEBUG_DISABLE_LOWCUT	0
 #define DEBUG_DISABLE_GATE		0
 #define DEBUG_DISABLE_EQ		0
@@ -15,7 +13,7 @@
 #define DEBUG_DISABLE_INTPUTDELAY	0
 #define DEBUG_DISABLE_OUTPUTDELAY	0
 
-#define ACTIVE_MIX_BUSSES		16	// 16 MixBusses are possible now
+#define ACTIVE_MIX_BUSSES		12	// 16 MixBusses are possible now
 
 #define USE_HIGHCUT				0
 

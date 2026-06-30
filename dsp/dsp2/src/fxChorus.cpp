@@ -127,6 +127,7 @@ void fxChorus::process() {
 		return;
 	}
 
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 	    float inL = _bufIn[0][s];
 	    float inR = _bufIn[1][s];

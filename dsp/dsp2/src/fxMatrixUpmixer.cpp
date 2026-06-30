@@ -111,6 +111,7 @@ void fxMatrixUpmixer::process() {
 	vecsmltf(&_bufTemp[0], 0.5f, &_bufTemp[0], SAMPLES_IN_BUFFER);
 
 	// feed delay line with current surround_signal
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		_delayLine[_delayLineHead++] = _bufTemp[s];
 		if (_delayLineHead == FX_MATRIXUPMIXER_BUFFER_SIZE) {
@@ -122,6 +123,7 @@ void fxMatrixUpmixer::process() {
 	while (tail < 0) {
 		tail += FX_MATRIXUPMIXER_BUFFER_SIZE;
 	}
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for	(int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		_bufTemp[s] = _delayLine[tail++];
 		if (tail == FX_MATRIXUPMIXER_BUFFER_SIZE) {
@@ -150,6 +152,7 @@ void fxMatrixUpmixer::process() {
 	// LFE = low_pass_120Hz(Center) as Center = (Lin + Rin) / 2
 
 	// Single-Pole LowPass: output = zoutput + coeff * (input - zoutput)
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		_bufOut[5][s] = _lowPassSubState + _lowPassSubCoeff * (_bufOut[2][s] - _lowPassSubState);
 		_lowPassSubState = _bufOut[5][s];

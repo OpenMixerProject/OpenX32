@@ -1,5 +1,0 @@
-[Inputs]
-=mac_address_i[47:0]=
-[Outputs]
-=mac_address_o[47:0]=
-[BiDir]
