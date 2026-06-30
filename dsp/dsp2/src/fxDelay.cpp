@@ -101,6 +101,7 @@ void fxDelay::process() {
 	float delayedSampleL;
 	float delayedSampleR;
 
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 	    // Step 1: read sample from delayLine
 		tail = _delayLineHead - _delayLineTailOffsetL;

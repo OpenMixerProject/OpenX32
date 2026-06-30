@@ -1,7 +1,7 @@
 
 # PlanAhead Launch Script for Pre-Synthesis Floorplanning, created by Project Navigator
 
-create_project -name OpenX32 -dir "O:/openx32/fpga/xilinx/planAhead_run_5" -part xc3s1400aft256-4
+create_project -name OpenX32 -dir "O:/openx32/fpga/xilinx/planAhead_run_1" -part xc3s1400aft256-4
 set_param project.pinAheadLayout yes
 set srcset [get_property srcset [current_run -impl]]
 set_property target_constrs_file "main.ucf" [current_fileset -constrset]
@@ -50,13 +50,16 @@ set_property library work $hdlfile
 set hdlfile [add_files [list {oddr_clk.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
-set hdlfile [add_files [list {iddr_clk.vhd}]]
-set_property file_type VHDL $hdlfile
-set_property library work $hdlfile
 set hdlfile [add_files [list {dcm2.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {dcm1.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {aes50_rmii_txd.vhd}]]
+set_property file_type VHDL $hdlfile
+set_property library work $hdlfile
+set hdlfile [add_files [list {aes50_rmii_rxd.vhd}]]
 set_property file_type VHDL $hdlfile
 set_property library work $hdlfile
 set hdlfile [add_files [list {../ultranet_tx.vhd}]]

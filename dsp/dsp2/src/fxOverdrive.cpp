@@ -97,6 +97,7 @@ void fxOverdrive::rxData(float data[], int len) {
 }
 
 void fxOverdrive::process() {
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		float clipOut;
 

@@ -161,11 +161,11 @@
         <signal name="XLXN_3662(7:0)" />
         <signal name="XLXN_2460" />
         <signal name="XLXN_2449(7:0)" />
-        <signal name="aes50a_rmii_tx_en" />
+        <signal name="aes50a_rmii_txd(0)" />
         <signal name="DA_nRESET" />
         <signal name="AD_nRESET" />
-        <signal name="aes50a_rmii_txd(1:0)" />
-        <signal name="aes50a_rmii_crs_dv" />
+        <signal name="aes50a_rmii_txd(2:1)" />
+        <signal name="aes50a_rmii_rxd(0)" />
         <signal name="mac_tx_byte_sent" />
         <signal name="mac_tx_busy" />
         <signal name="mac_tx_clk" />
@@ -185,14 +185,11 @@
         <signal name="audio_output(455:432)" />
         <signal name="audio_output(479:456)" />
         <signal name="XLXN_3937(47:0)" />
-        <signal name="aes50a_rmii_rxd(1:0)" />
+        <signal name="aes50a_rmii_rxd(2:1)" />
         <signal name="XLXN_4092(7:0)" />
         <signal name="imx25_uart4_txd" />
         <signal name="imx25_uart4_rxd" />
         <signal name="clk_50MHz_inv" />
-        <signal name="XLXN_4131" />
-        <signal name="XLXN_4150" />
-        <signal name="XLXN_4156" />
         <signal name="aes50a_clk_b_rx_nen_out" />
         <signal name="aes50a_clk_a_rx_nen_out" />
         <signal name="aes50a_clk_b_tx_en_out" />
@@ -201,19 +198,17 @@
         <signal name="aes50a_clk_a_tx_out" />
         <signal name="aes50a_clk_a_rx_in" />
         <signal name="aes50a_clk_b_rx_in" />
+        <signal name="aes50a_rmii_clk_out" />
         <signal name="aes50a_rmii_tx_en_out" />
         <signal name="aes50a_rmii_txd_0_out" />
-        <signal name="aes50a_rmii_txd(0)" />
         <signal name="aes50a_rmii_txd_1_out" />
-        <signal name="aes50a_rmii_txd(1)" />
-        <signal name="aes50a_rmii_clk_out" />
-        <signal name="XLXN_3665" />
-        <signal name="XLXN_3666" />
+        <signal name="aes50a_rmii_txd(2:0)" />
         <signal name="aes50a_rmii_crs_dv_in" />
-        <signal name="aes50a_rmii_rxd(0)" />
         <signal name="aes50a_rmii_rxd_0_in" />
-        <signal name="aes50a_rmii_rxd(1)" />
         <signal name="aes50a_rmii_rxd_1_in" />
+        <signal name="aes50a_rmii_rxd(2:0)" />
+        <signal name="XLXN_4198" />
+        <signal name="XLXN_4199" />
         <port polarity="Output" name="AD1_MCLK" />
         <port polarity="Output" name="AD1_BCLK" />
         <port polarity="Output" name="AD1_FSYNC" />
@@ -302,10 +297,10 @@
         <port polarity="Output" name="aes50a_clk_a_tx_out" />
         <port polarity="Input" name="aes50a_clk_a_rx_in" />
         <port polarity="Input" name="aes50a_clk_b_rx_in" />
+        <port polarity="Output" name="aes50a_rmii_clk_out" />
         <port polarity="Output" name="aes50a_rmii_tx_en_out" />
         <port polarity="Output" name="aes50a_rmii_txd_0_out" />
         <port polarity="Output" name="aes50a_rmii_txd_1_out" />
-        <port polarity="Output" name="aes50a_rmii_clk_out" />
         <port polarity="Input" name="aes50a_rmii_crs_dv_in" />
         <port polarity="Input" name="aes50a_rmii_rxd_0_in" />
         <port polarity="Input" name="aes50a_rmii_rxd_1_in" />
@@ -709,15 +704,29 @@
             <line x2="560" y1="-96" y2="-96" x1="496" />
             <line x2="560" y1="-32" y2="-32" x1="496" />
         </blockdef>
-        <blockdef name="iddr_clock">
-            <timestamp>2026-3-8T23:4:40</timestamp>
+        <blockdef name="aes50_rmii_txd">
+            <timestamp>2026-6-29T18:31:13</timestamp>
+            <line x2="384" y1="32" y2="32" x1="320" />
+            <line x2="384" y1="96" y2="96" x1="320" />
+            <line x2="384" y1="160" y2="160" x1="320" />
+            <line x2="0" y1="-224" y2="-224" x1="64" />
             <line x2="0" y1="-160" y2="-160" x1="64" />
-            <line x2="384" y1="-160" y2="-160" x1="320" />
-            <line x2="384" y1="-32" y2="-32" x1="320" />
-            <rect width="256" x="64" y="-192" height="256" />
-            <line x2="0" y1="-32" y2="-32" x1="64" />
-            <line x2="0" y1="32" y2="32" x1="64" />
             <line x2="0" y1="-96" y2="-96" x1="64" />
+            <rect width="64" x="0" y="-44" height="24" />
+            <line x2="0" y1="-32" y2="-32" x1="64" />
+            <rect width="256" x="64" y="-256" height="448" />
+        </blockdef>
+        <blockdef name="aes50_rmii_rxd">
+            <timestamp>2026-6-29T18:32:27</timestamp>
+            <line x2="0" y1="32" y2="32" x1="64" />
+            <line x2="0" y1="96" y2="96" x1="64" />
+            <line x2="0" y1="160" y2="160" x1="64" />
+            <line x2="0" y1="-224" y2="-224" x1="64" />
+            <line x2="0" y1="-160" y2="-160" x1="64" />
+            <line x2="0" y1="-96" y2="-96" x1="64" />
+            <rect width="64" x="320" y="-236" height="24" />
+            <line x2="384" y1="-224" y2="-224" x1="320" />
+            <rect width="256" x="64" y="-256" height="448" />
         </blockdef>
         <block symbolname="reset" name="XLXI_740">
             <blockpin signalname="clk_16MHz" name="clk" />
@@ -1137,16 +1146,16 @@
             <blockpin signalname="XLXN_3930" name="reset_i" />
             <blockpin signalname="clk_50MHz" name="rmii_clk_i" />
             <blockpin signalname="aes50a_rmii_er_in" name="rmii_rx_er_i" />
-            <blockpin signalname="aes50a_rmii_crs_dv" name="rmii_rx_crs_dv_i" />
+            <blockpin signalname="aes50a_rmii_rxd(0)" name="rmii_rx_crs_dv_i" />
             <blockpin signalname="clk_50MHz" name="miim_clock_i" />
             <blockpin signalname="XLXN_3936" name="tx_enable_i" />
             <blockpin signalname="XLXN_3937(47:0)" name="mac_address_i(47:0)" />
-            <blockpin signalname="aes50a_rmii_rxd(1:0)" name="rmii_rxd_i(1:0)" />
+            <blockpin signalname="aes50a_rmii_rxd(2:1)" name="rmii_rxd_i(1:0)" />
             <blockpin signalname="XLXN_4092(7:0)" name="tx_data_i(7:0)" />
             <blockpin name="mdio_io" />
             <blockpin name="reset_o" />
             <blockpin name="rmii_tx_er_o" />
-            <blockpin signalname="aes50a_rmii_tx_en" name="rmii_tx_en_o" />
+            <blockpin signalname="aes50a_rmii_txd(0)" name="rmii_tx_en_o" />
             <blockpin name="mdc_o" />
             <blockpin name="link_up_o" />
             <blockpin signalname="mac_tx_clk" name="tx_clock_o" />
@@ -1158,7 +1167,7 @@
             <blockpin name="rx_frame_o" />
             <blockpin name="rx_byte_received_o" />
             <blockpin name="rx_error_o" />
-            <blockpin signalname="aes50a_rmii_txd(1:0)" name="rmii_txd_o(1:0)" />
+            <blockpin signalname="aes50a_rmii_txd(2:1)" name="rmii_txd_o(1:0)" />
             <blockpin name="rx_data_o(7:0)" />
         </block>
         <block symbolname="clk_by_x" name="XLXI_1420">
@@ -1241,67 +1250,37 @@
             <blockpin signalname="aes50a_clk_b_rx_in" name="I" />
             <blockpin name="O" />
         </block>
-        <block symbolname="oddr_clock" name="XLXI_1472">
-            <blockpin signalname="clk_50MHz" name="clk_in" />
-            <blockpin signalname="clk_50MHz_inv" name="clk_in_inv" />
-            <blockpin signalname="rst" name="reset" />
-            <blockpin signalname="aes50a_rmii_txd(0)" name="d0" />
-            <blockpin signalname="aes50a_rmii_txd(0)" name="d1" />
-            <blockpin signalname="aes50a_rmii_txd_0_out" name="Q" />
-        </block>
-        <block symbolname="oddr_clock" name="XLXI_1475">
-            <blockpin signalname="clk_50MHz" name="clk_in" />
-            <blockpin signalname="clk_50MHz_inv" name="clk_in_inv" />
-            <blockpin signalname="rst" name="reset" />
-            <blockpin signalname="aes50a_rmii_txd(1)" name="d0" />
-            <blockpin signalname="aes50a_rmii_txd(1)" name="d1" />
-            <blockpin signalname="aes50a_rmii_txd_1_out" name="Q" />
-        </block>
         <block symbolname="gnd" name="XLXI_1332">
-            <blockpin signalname="XLXN_3665" name="G" />
+            <blockpin signalname="XLXN_4199" name="G" />
         </block>
         <block symbolname="vcc" name="XLXI_1333">
-            <blockpin signalname="XLXN_3666" name="P" />
+            <blockpin signalname="XLXN_4198" name="P" />
         </block>
         <block symbolname="oddr_clock" name="XLXI_1261">
             <blockpin signalname="clk_50MHz" name="clk_in" />
             <blockpin signalname="clk_50MHz_inv" name="clk_in_inv" />
             <blockpin signalname="rst" name="reset" />
-            <blockpin signalname="XLXN_3665" name="d0" />
-            <blockpin signalname="XLXN_3666" name="d1" />
+            <blockpin signalname="XLXN_4198" name="d0" />
+            <blockpin signalname="XLXN_4199" name="d1" />
             <blockpin signalname="aes50a_rmii_clk_out" name="Q" />
         </block>
-        <block symbolname="oddr_clock" name="XLXI_1470">
+        <block symbolname="aes50_rmii_txd" name="XLXI_1477">
             <blockpin signalname="clk_50MHz" name="clk_in" />
             <blockpin signalname="clk_50MHz_inv" name="clk_in_inv" />
             <blockpin signalname="rst" name="reset" />
-            <blockpin signalname="aes50a_rmii_tx_en" name="d0" />
-            <blockpin signalname="aes50a_rmii_tx_en" name="d1" />
-            <blockpin signalname="aes50a_rmii_tx_en_out" name="Q" />
+            <blockpin signalname="aes50a_rmii_txd(2:0)" name="data(2:0)" />
+            <blockpin signalname="aes50a_rmii_tx_en_out" name="rmii_tx_en" />
+            <blockpin signalname="aes50a_rmii_txd_0_out" name="rmii_txd0" />
+            <blockpin signalname="aes50a_rmii_txd_1_out" name="rmii_txd1" />
         </block>
-        <block symbolname="iddr_clock" name="XLXI_1468">
+        <block symbolname="aes50_rmii_rxd" name="XLXI_1480">
             <blockpin signalname="clk_50MHz" name="clk_in" />
-            <blockpin signalname="aes50a_rmii_crs_dv" name="q0" />
-            <blockpin name="q1" />
-            <blockpin signalname="rst" name="reset" />
-            <blockpin signalname="aes50a_rmii_crs_dv_in" name="d" />
             <blockpin signalname="clk_50MHz_inv" name="clk_in_inv" />
-        </block>
-        <block symbolname="iddr_clock" name="XLXI_1466">
-            <blockpin signalname="clk_50MHz" name="clk_in" />
-            <blockpin signalname="aes50a_rmii_rxd(0)" name="q0" />
-            <blockpin name="q1" />
             <blockpin signalname="rst" name="reset" />
-            <blockpin signalname="aes50a_rmii_rxd_0_in" name="d" />
-            <blockpin signalname="clk_50MHz_inv" name="clk_in_inv" />
-        </block>
-        <block symbolname="iddr_clock" name="XLXI_1463">
-            <blockpin signalname="clk_50MHz" name="clk_in" />
-            <blockpin signalname="aes50a_rmii_rxd(1)" name="q0" />
-            <blockpin name="q1" />
-            <blockpin signalname="rst" name="reset" />
-            <blockpin signalname="aes50a_rmii_rxd_1_in" name="d" />
-            <blockpin signalname="clk_50MHz_inv" name="clk_in_inv" />
+            <blockpin signalname="aes50a_rmii_rxd(2:0)" name="q(2:0)" />
+            <blockpin signalname="aes50a_rmii_crs_dv_in" name="rmii_crs_dv" />
+            <blockpin signalname="aes50a_rmii_rxd_0_in" name="rmii_rxd0" />
+            <blockpin signalname="aes50a_rmii_rxd_1_in" name="rmii_rxd1" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="7609" height="5382">
@@ -2307,7 +2286,7 @@
             <wire x2="3552" y1="3808" y2="3808" x1="3520" />
         </branch>
         <iomarker fontsize="28" x="3520" y="3808" name="aes50a_rmii_er_in" orien="R180" />
-        <branch name="aes50a_rmii_crs_dv">
+        <branch name="aes50a_rmii_rxd(0)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="3520" y="3936" type="branch" />
             <wire x2="3552" y1="3936" y2="3936" x1="3520" />
         </branch>
@@ -2322,7 +2301,7 @@
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="3520" y="3680" type="branch" />
             <wire x2="3552" y1="3680" y2="3680" x1="3520" />
         </branch>
-        <branch name="aes50a_rmii_tx_en">
+        <branch name="aes50a_rmii_txd(0)">
             <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="4160" y="3680" type="branch" />
             <wire x2="4160" y1="3680" y2="3680" x1="4112" />
         </branch>
@@ -2338,7 +2317,7 @@
             <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="4160" y="4064" type="branch" />
             <wire x2="4160" y1="4064" y2="4064" x1="4112" />
         </branch>
-        <branch name="aes50a_rmii_txd(1:0)">
+        <branch name="aes50a_rmii_txd(2:1)">
             <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="4160" y="4448" type="branch" />
             <wire x2="4160" y1="4448" y2="4448" x1="4112" />
         </branch>
@@ -2442,7 +2421,7 @@
             <wire x2="3520" y1="4320" y2="4704" x1="3520" />
             <wire x2="3552" y1="4320" y2="4320" x1="3520" />
         </branch>
-        <branch name="aes50a_rmii_rxd(1:0)">
+        <branch name="aes50a_rmii_rxd(2:1)">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="3440" y="4448" type="branch" />
             <wire x2="3552" y1="4448" y2="4448" x1="3440" />
         </branch>
@@ -2507,76 +2486,6 @@
         <iomarker fontsize="28" x="5840" y="4912" name="aes50a_clk_a_rx_in" orien="R180" />
         <iomarker fontsize="28" x="5840" y="4992" name="aes50a_clk_b_rx_in" orien="R180" />
         <branch name="clk_50MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="3552" type="branch" />
-            <wire x2="4656" y1="3552" y2="3552" x1="4592" />
-        </branch>
-        <branch name="aes50a_rmii_tx_en_out">
-            <wire x2="5056" y1="3552" y2="3552" x1="5040" />
-        </branch>
-        <branch name="aes50a_rmii_tx_en">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="3744" type="branch" />
-            <wire x2="4624" y1="3744" y2="3744" x1="4592" />
-            <wire x2="4656" y1="3744" y2="3744" x1="4624" />
-            <wire x2="4624" y1="3744" y2="3808" x1="4624" />
-            <wire x2="4656" y1="3808" y2="3808" x1="4624" />
-        </branch>
-        <branch name="rst">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="3680" type="branch" />
-            <wire x2="4656" y1="3680" y2="3680" x1="4592" />
-        </branch>
-        <branch name="clk_50MHz_inv">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="3616" type="branch" />
-            <wire x2="4656" y1="3616" y2="3616" x1="4592" />
-        </branch>
-        <branch name="aes50a_rmii_txd_0_out">
-            <wire x2="5056" y1="3952" y2="3952" x1="5040" />
-        </branch>
-        <branch name="clk_50MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="3952" type="branch" />
-            <wire x2="4656" y1="3952" y2="3952" x1="4560" />
-        </branch>
-        <branch name="aes50a_rmii_txd(0)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="4144" type="branch" />
-            <wire x2="4640" y1="4144" y2="4144" x1="4560" />
-            <wire x2="4656" y1="4144" y2="4144" x1="4640" />
-            <wire x2="4640" y1="4144" y2="4208" x1="4640" />
-            <wire x2="4656" y1="4208" y2="4208" x1="4640" />
-        </branch>
-        <instance x="4656" y="4048" name="XLXI_1472" orien="R0">
-        </instance>
-        <branch name="clk_50MHz_inv">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="4016" type="branch" />
-            <wire x2="4656" y1="4016" y2="4016" x1="4560" />
-        </branch>
-        <branch name="rst">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="4080" type="branch" />
-            <wire x2="4656" y1="4080" y2="4080" x1="4560" />
-        </branch>
-        <branch name="aes50a_rmii_txd_1_out">
-            <wire x2="5056" y1="4352" y2="4352" x1="5040" />
-        </branch>
-        <branch name="clk_50MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="4352" type="branch" />
-            <wire x2="4656" y1="4352" y2="4352" x1="4560" />
-        </branch>
-        <branch name="aes50a_rmii_txd(1)">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="4544" type="branch" />
-            <wire x2="4624" y1="4544" y2="4544" x1="4560" />
-            <wire x2="4656" y1="4544" y2="4544" x1="4624" />
-            <wire x2="4624" y1="4544" y2="4608" x1="4624" />
-            <wire x2="4656" y1="4608" y2="4608" x1="4624" />
-        </branch>
-        <instance x="4656" y="4448" name="XLXI_1475" orien="R0">
-        </instance>
-        <branch name="clk_50MHz_inv">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="4416" type="branch" />
-            <wire x2="4656" y1="4416" y2="4416" x1="4560" />
-        </branch>
-        <branch name="rst">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4560" y="4480" type="branch" />
-            <wire x2="4656" y1="4480" y2="4480" x1="4560" />
-        </branch>
-        <branch name="clk_50MHz">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4608" y="4752" type="branch" />
             <wire x2="4656" y1="4752" y2="4752" x1="4608" />
         </branch>
@@ -2587,91 +2496,80 @@
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="4880" type="branch" />
             <wire x2="4656" y1="4880" y2="4880" x1="4592" />
         </branch>
-        <branch name="XLXN_3665">
-            <wire x2="4656" y1="4944" y2="4944" x1="4624" />
-        </branch>
-        <instance x="4496" y="4880" name="XLXI_1332" orien="R90" />
-        <branch name="XLXN_3666">
-            <wire x2="4656" y1="5008" y2="5008" x1="4624" />
-        </branch>
-        <instance x="4624" y="4944" name="XLXI_1333" orien="M90" />
         <branch name="clk_50MHz_inv">
             <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4608" y="4816" type="branch" />
             <wire x2="4656" y1="4816" y2="4816" x1="4608" />
         </branch>
         <instance x="4656" y="4848" name="XLXI_1261" orien="R0">
         </instance>
-        <instance x="4656" y="3648" name="XLXI_1470" orien="R0">
-        </instance>
-        <iomarker fontsize="28" x="5056" y="3552" name="aes50a_rmii_tx_en_out" orien="R0" />
-        <iomarker fontsize="28" x="5056" y="3952" name="aes50a_rmii_txd_0_out" orien="R0" />
-        <iomarker fontsize="28" x="5056" y="4352" name="aes50a_rmii_txd_1_out" orien="R0" />
         <iomarker fontsize="28" x="5056" y="4752" name="aes50a_rmii_clk_out" orien="R0" />
-        <branch name="clk_50MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3264" type="branch" />
-            <wire x2="1184" y1="3264" y2="3264" x1="1088" />
+        <instance x="4656" y="4416" name="XLXI_1477" orien="R0">
+        </instance>
+        <branch name="aes50a_rmii_tx_en_out">
+            <wire x2="5056" y1="4448" y2="4448" x1="5040" />
         </branch>
-        <branch name="aes50a_rmii_crs_dv">
-            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="1600" y="3264" type="branch" />
-            <wire x2="1600" y1="3264" y2="3264" x1="1568" />
+        <branch name="aes50a_rmii_txd_0_out">
+            <wire x2="5056" y1="4512" y2="4512" x1="5040" />
+        </branch>
+        <branch name="aes50a_rmii_txd_1_out">
+            <wire x2="5056" y1="4576" y2="4576" x1="5040" />
+        </branch>
+        <branch name="clk_50MHz">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="4192" type="branch" />
+            <wire x2="4656" y1="4192" y2="4192" x1="4592" />
+        </branch>
+        <branch name="rst">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="4320" type="branch" />
+            <wire x2="4656" y1="4320" y2="4320" x1="4592" />
+        </branch>
+        <branch name="clk_50MHz_inv">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="4256" type="branch" />
+            <wire x2="4656" y1="4256" y2="4256" x1="4592" />
+        </branch>
+        <iomarker fontsize="28" x="5056" y="4448" name="aes50a_rmii_tx_en_out" orien="R0" />
+        <iomarker fontsize="28" x="5056" y="4512" name="aes50a_rmii_txd_0_out" orien="R0" />
+        <iomarker fontsize="28" x="5056" y="4576" name="aes50a_rmii_txd_1_out" orien="R0" />
+        <branch name="aes50a_rmii_txd(2:0)">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="4592" y="4384" type="branch" />
+            <wire x2="4656" y1="4384" y2="4384" x1="4592" />
+        </branch>
+        <instance x="1232" y="3824" name="XLXI_1480" orien="R0">
+        </instance>
+        <branch name="clk_50MHz">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1136" y="3600" type="branch" />
+            <wire x2="1232" y1="3600" y2="3600" x1="1136" />
+        </branch>
+        <branch name="clk_50MHz_inv">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1136" y="3664" type="branch" />
+            <wire x2="1232" y1="3664" y2="3664" x1="1136" />
+        </branch>
+        <branch name="rst">
+            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1136" y="3728" type="branch" />
+            <wire x2="1232" y1="3728" y2="3728" x1="1136" />
         </branch>
         <branch name="aes50a_rmii_crs_dv_in">
-            <wire x2="1184" y1="3456" y2="3456" x1="1168" />
+            <wire x2="1232" y1="3856" y2="3856" x1="1216" />
         </branch>
-        <branch name="clk_50MHz_inv">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3328" type="branch" />
-            <wire x2="1184" y1="3328" y2="3328" x1="1088" />
-        </branch>
-        <branch name="rst">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3392" type="branch" />
-            <wire x2="1184" y1="3392" y2="3392" x1="1088" />
-        </branch>
-        <instance x="1184" y="3424" name="XLXI_1468" orien="R0">
-        </instance>
-        <branch name="clk_50MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3584" type="branch" />
-            <wire x2="1184" y1="3584" y2="3584" x1="1088" />
-        </branch>
-        <branch name="aes50a_rmii_rxd(0)">
-            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="1600" y="3584" type="branch" />
-            <wire x2="1600" y1="3584" y2="3584" x1="1568" />
-        </branch>
-        <instance x="1184" y="3744" name="XLXI_1466" orien="R0">
-        </instance>
         <branch name="aes50a_rmii_rxd_0_in">
-            <wire x2="1184" y1="3776" y2="3776" x1="1168" />
-        </branch>
-        <branch name="clk_50MHz_inv">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3648" type="branch" />
-            <wire x2="1184" y1="3648" y2="3648" x1="1088" />
-        </branch>
-        <branch name="rst">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3712" type="branch" />
-            <wire x2="1184" y1="3712" y2="3712" x1="1088" />
-        </branch>
-        <branch name="clk_50MHz">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3904" type="branch" />
-            <wire x2="1184" y1="3904" y2="3904" x1="1088" />
-        </branch>
-        <branch name="aes50a_rmii_rxd(1)">
-            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="1600" y="3904" type="branch" />
-            <wire x2="1600" y1="3904" y2="3904" x1="1568" />
+            <wire x2="1232" y1="3920" y2="3920" x1="1216" />
         </branch>
         <branch name="aes50a_rmii_rxd_1_in">
-            <wire x2="1184" y1="4096" y2="4096" x1="1152" />
+            <wire x2="1232" y1="3984" y2="3984" x1="1216" />
         </branch>
-        <branch name="clk_50MHz_inv">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="3968" type="branch" />
-            <wire x2="1184" y1="3968" y2="3968" x1="1088" />
+        <iomarker fontsize="28" x="1216" y="3856" name="aes50a_rmii_crs_dv_in" orien="R180" />
+        <iomarker fontsize="28" x="1216" y="3920" name="aes50a_rmii_rxd_0_in" orien="R180" />
+        <branch name="aes50a_rmii_rxd(2:0)">
+            <attrtext style="alignment:SOFT-LEFT;fontsize:28;fontname:Arial" attrname="Name" x="1648" y="3600" type="branch" />
+            <wire x2="1648" y1="3600" y2="3600" x1="1616" />
         </branch>
-        <branch name="rst">
-            <attrtext style="alignment:SOFT-RIGHT;fontsize:28;fontname:Arial" attrname="Name" x="1088" y="4032" type="branch" />
-            <wire x2="1184" y1="4032" y2="4032" x1="1088" />
+        <iomarker fontsize="28" x="1216" y="3984" name="aes50a_rmii_rxd_1_in" orien="R180" />
+        <instance x="4592" y="4880" name="XLXI_1333" orien="M90" />
+        <instance x="4464" y="4944" name="XLXI_1332" orien="R90" />
+        <branch name="XLXN_4198">
+            <wire x2="4656" y1="4944" y2="4944" x1="4592" />
         </branch>
-        <instance x="1184" y="4064" name="XLXI_1463" orien="R0">
-        </instance>
-        <iomarker fontsize="28" x="1168" y="3456" name="aes50a_rmii_crs_dv_in" orien="R180" />
-        <iomarker fontsize="28" x="1168" y="3776" name="aes50a_rmii_rxd_0_in" orien="R180" />
-        <iomarker fontsize="28" x="1152" y="4096" name="aes50a_rmii_rxd_1_in" orien="R180" />
+        <branch name="XLXN_4199">
+            <wire x2="4656" y1="5008" y2="5008" x1="4592" />
+        </branch>
     </sheet>
 </drawing>

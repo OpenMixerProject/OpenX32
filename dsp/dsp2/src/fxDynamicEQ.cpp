@@ -144,6 +144,7 @@ void fxDynamicEQ::process() {
 	// so the calling-interval is SAMPLERATE / SAMPLES_IN_BUFFER
 	// 48000Hz / 16 = 3 kHz -> every 333 microseconds
 
+	#pragma loop_count(FX_DYNAMICEQ_BANDS)
 	for (int band = 0; band < FX_DYNAMICEQ_BANDS; band++) {
 		// Step 1: level detection and gain-calculation
 		// ==============================================================
@@ -173,6 +174,7 @@ void fxDynamicEQ::process() {
 		// Step 1.2: update envelope with peak-value of all 16 samples
 		float ctrlSignalL = 0;
 		float ctrlSignalR = 0;
+		#pragma loop_count(SAMPLES_IN_BUFFER)
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			ctrlSignalL = fmax(fabsf(_bufOut[0][s]), ctrlSignalL);
 			ctrlSignalR = fmax(fabsf(_bufOut[1][s]), ctrlSignalR);

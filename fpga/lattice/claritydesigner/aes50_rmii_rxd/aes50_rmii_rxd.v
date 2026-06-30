@@ -20,6 +20,17 @@ module aes50_rmii_rxd (clkin, reset, sclk, datain, q)/* synthesis NGD_DRC_MASK=1
     wire buf_dataini1;
     wire buf_dataini0;
 
+	 /*
+		IFS1P3DX
+		I = Input-Register
+		F = Positive Edge Triggered
+		S = SystemClock
+		1 = Positive Level Enable
+		P = Positive Level Asynchronous Clear
+		3 = Third type
+		D = D-FlipFlop
+		X = Specific Cell properties
+	 */
     IFS1P3DX Inst2_IFS1P3DX2 (.D(dataini_t2), .SP(scuba_vhi), .SCLK(clkin), 
         .CD(reset), .Q(q[2]));
 

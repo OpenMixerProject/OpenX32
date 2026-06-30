@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 06/28/2026 23:25:14
+-- /___/   /\     Timestamp : 06/30/2026 10:05:58
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -125,10 +125,12 @@ end main;
 
 architecture BEHAVIORAL of main is
    attribute BOX_TYPE   : string ;
-   signal aes50a_rmii_crs_dv      : std_logic;
-   signal aes50a_rmii_rxd         : std_logic_vector (1 downto 0);
-   signal aes50a_rmii_txd         : std_logic_vector (1 downto 0);
-   signal aes50a_rmii_tx_en       : std_logic;
+   signal aes50a_rmii_rxd         : std_logic_vector (2 downto 0);
+   signal aes50a_rmii_txd         : std_logic_vector (2 downto 0);
+   signal aes50a_tdm_in           : std_logic_vector (6 downto 0);
+   signal aes50a_tdm_out          : std_logic_vector (6 downto 0);
+   signal aes50_fs_mode           : std_logic_vector (1 downto 0);
+   signal aes50_sys_mode          : std_logic_vector (1 downto 0);
    signal audio_output            : std_logic_vector (479 downto 0);
    signal clk_12_288MHz           : std_logic;
    signal clk_16MHz               : std_logic;
@@ -138,9 +140,6 @@ architecture BEHAVIORAL of main is
    signal clk_50MHz_inv           : std_logic;
    signal clk_100MHz              : std_logic;
    signal config_bits             : std_logic_vector (7 downto 0);
-   signal mac_tx_busy             : std_logic;
-   signal mac_tx_byte_sent        : std_logic;
-   signal mac_tx_clk              : std_logic;
    signal online                  : std_logic;
    signal pll_locked              : std_logic;
    signal pripll_rst              : std_logic;
@@ -184,19 +183,29 @@ architecture BEHAVIORAL of main is
    signal XLXN_3062               : std_logic_vector (23 downto 0);
    signal XLXN_3063               : std_logic_vector (23 downto 0);
    signal XLXN_3064               : std_logic_vector (23 downto 0);
+   signal XLXN_3065               : std_logic_vector (19 downto 0);
+   signal XLXN_3066               : std_logic_vector (22 downto 0);
+   signal XLXN_3067               : std_logic_vector (22 downto 0);
+   signal XLXN_3068               : std_logic_vector (5 downto 0);
+   signal XLXN_3069               : std_logic_vector (14 downto 0);
+   signal XLXN_3070               : std_logic_vector (16 downto 0);
+   signal XLXN_3071               : std_logic_vector (19 downto 0);
+   signal XLXN_3072               : std_logic_vector (31 downto 0);
+   signal XLXN_3073               : std_logic_vector (31 downto 0);
+   signal XLXN_3074               : std_logic;
+   signal XLXN_3086               : std_logic;
+   signal XLXN_3087               : std_logic;
+   signal XLXN_3088               : std_logic;
+   signal XLXN_3089               : std_logic;
+   signal XLXN_3115               : std_logic;
+   signal XLXN_3123               : std_logic;
+   signal XLXN_3488               : std_logic_vector (9 downto 0);
+   signal XLXN_3489               : std_logic_vector (19 downto 0);
+   signal XLXN_3509               : std_logic;
    signal XLXN_3661               : std_logic_vector (7 downto 0);
    signal XLXN_3662               : std_logic_vector (7 downto 0);
-   signal XLXN_3665               : std_logic;
-   signal XLXN_3666               : std_logic;
-   signal XLXN_3858               : std_logic;
-   signal XLXN_3863               : std_logic_vector (1559 downto 0);
-   signal XLXN_3874               : std_logic;
-   signal XLXN_3892               : std_logic;
-   signal XLXN_3930               : std_logic;
-   signal XLXN_3936               : std_logic;
-   signal XLXN_3937               : std_logic_vector (47 downto 0);
-   signal XLXN_3939               : std_logic_vector (47 downto 0);
-   signal XLXN_4092               : std_logic_vector (7 downto 0);
+   signal XLXN_3793               : std_logic;
+   signal XLXN_3794               : std_logic;
    component audioclk
       port ( fs_x_1024_i : in    std_logic; 
              fs_x_512_o  : out   std_logic; 
@@ -359,10 +368,46 @@ architecture BEHAVIORAL of main is
              ch8_out : out   std_logic_vector (23 downto 0));
    end component;
    
+   component aes50_consts
+      port ( debug_out_signal_pulse_len        : out   std_logic_vector (19 
+            downto 0); 
+             first_transmit_start_counter_48k  : out   std_logic_vector (22 
+            downto 0); 
+             first_transmit_start_counter_44k1 : out   std_logic_vector (22 
+            downto 0); 
+             wd_aes_clk_timeout                : out   std_logic_vector (5 
+            downto 0); 
+             wd_aes_rx_dv_timeout              : out   std_logic_vector (14 
+            downto 0); 
+             mdix_timer_1ms_reference          : out   std_logic_vector (16 
+            downto 0); 
+             aes_clk_ok_counter_reference      : out   std_logic_vector (19 
+            downto 0); 
+             mult_clk625_48k                   : out   std_logic_vector (31 
+            downto 0); 
+             mult_clk625_44k1                  : out   std_logic_vector (31 
+            downto 0); 
+             uart_clks_per_bit                 : out   std_logic_vector (9 
+            downto 0); 
+             uart_timeout_clks                 : out   std_logic_vector (19 
+            downto 0));
+   end component;
+   
+   component aes50_rst
+      port ( clk100_i : in    std_logic; 
+             start_i  : in    std_logic; 
+             rst_o    : out   std_logic);
+   end component;
+   
    component GND
       port ( G : out   std_logic);
    end component;
    attribute BOX_TYPE of GND : component is "BLACK_BOX";
+   
+   component VCC
+      port ( P : out   std_logic);
+   end component;
+   attribute BOX_TYPE of VCC : component is "BLACK_BOX";
    
    component dcm1
       port ( CLKIN_IN   : in    std_logic; 
@@ -390,6 +435,77 @@ architecture BEHAVIORAL of main is
              Q          : out   std_logic);
    end component;
    
+   component aes50_top
+      port ( clk50_i                             : in    std_logic; 
+             clk100_i                            : in    std_logic; 
+             rst_i                               : in    std_logic; 
+             tdm8_i2s_mode_i                     : in    std_logic; 
+             aux_tx_tdm_uart_select_i            : in    std_logic; 
+             rmii_crs_dv_i                       : in    std_logic; 
+             aes50_clk_a_rx_i                    : in    std_logic; 
+             aes50_clk_b_rx_i                    : in    std_logic; 
+             clk_1024xfs_from_pll_i              : in    std_logic; 
+             pll_lock_n_i                        : in    std_logic; 
+             pll_init_busy_i                     : in    std_logic; 
+             wclk_readback_i                     : in    std_logic; 
+             bclk_readback_i                     : in    std_logic; 
+             i2s_i                               : in    std_logic; 
+             uart_i                              : in    std_logic; 
+             fs_mode_i                           : in    std_logic_vector (1 
+            downto 0); 
+             sys_mode_i                          : in    std_logic_vector (1 
+            downto 0); 
+             rmii_rxd_i                          : in    std_logic_vector (1 
+            downto 0); 
+             tdm_i                               : in    std_logic_vector (6 
+            downto 0); 
+             debug_out_signal_pulse_len_i        : in    std_logic_vector (19 
+            downto 0); 
+             first_transmit_start_counter_48k_i  : in    std_logic_vector (22 
+            downto 0); 
+             first_transmit_start_counter_44k1_i : in    std_logic_vector (22 
+            downto 0); 
+             wd_aes_clk_timeout_i                : in    std_logic_vector (5 
+            downto 0); 
+             wd_aes_rx_dv_timeout_i              : in    std_logic_vector (14 
+            downto 0); 
+             mdix_timer_1ms_reference_i          : in    std_logic_vector (16 
+            downto 0); 
+             aes_clk_ok_counter_reference_i      : in    std_logic_vector (19 
+            downto 0); 
+             mult_clk625_48k_i                   : in    std_logic_vector (31 
+            downto 0); 
+             mult_clk625_44k1_i                  : in    std_logic_vector (31 
+            downto 0); 
+             uart_clks_per_bit_i                 : in    std_logic_vector (9 
+            downto 0); 
+             uart_timeout_clks_i                 : in    std_logic_vector (19 
+            downto 0); 
+             rmii_tx_en_o                        : out   std_logic; 
+             phy_rst_n_o                         : out   std_logic; 
+             aes50_clk_a_tx_o                    : out   std_logic; 
+             aes50_clk_a_tx_en_o                 : out   std_logic; 
+             aes50_clk_b_tx_o                    : out   std_logic; 
+             aes50_clk_b_tx_en_o                 : out   std_logic; 
+             clk_to_pll_o                        : out   std_logic; 
+             mclk_o                              : out   std_logic; 
+             wclk_o                              : out   std_logic; 
+             bclk_o                              : out   std_logic; 
+             wclk_out_en_o                       : out   std_logic; 
+             bclk_out_en_o                       : out   std_logic; 
+             i2s_o                               : out   std_logic; 
+             aes_ok_o                            : out   std_logic; 
+             uart_o                              : out   std_logic; 
+             rmii_txd_o                          : out   std_logic_vector (1 
+            downto 0); 
+             pll_mult_value_o                    : out   std_logic_vector (31 
+            downto 0); 
+             tdm_o                               : out   std_logic_vector (6 
+            downto 0); 
+             dbg_o                               : out   std_logic_vector (7 
+            downto 0));
+   end component;
+   
    component config_rxd
       port ( clk         : in    std_logic; 
              cfg_wr_en   : in    std_logic; 
@@ -398,103 +514,24 @@ architecture BEHAVIORAL of main is
              config_bits : out   std_logic_vector (7 downto 0));
    end component;
    
-   component VCC
-      port ( P : out   std_logic);
-   end component;
-   attribute BOX_TYPE of VCC : component is "BLACK_BOX";
-   
-   component tdm_ace_demux
-      port ( bclk        : in    std_logic; 
-             fsync       : in    std_logic; 
-             ace_tx_busy : in    std_logic; 
-             tdm0_in     : in    std_logic_vector (23 downto 0); 
-             tdm1_in     : in    std_logic_vector (23 downto 0); 
-             tdm2_in     : in    std_logic_vector (23 downto 0); 
-             tdm3_in     : in    std_logic_vector (23 downto 0); 
-             tdm4_in     : in    std_logic_vector (23 downto 0); 
-             tdm5_in     : in    std_logic_vector (23 downto 0); 
-             tdm6_in     : in    std_logic_vector (23 downto 0); 
-             tdm7_in     : in    std_logic_vector (23 downto 0); 
-             audio_ready : out   std_logic; 
-             audio_out   : out   std_logic_vector (1559 downto 0));
+   component aes50_rmii_rxd
+      port ( clk_in      : in    std_logic; 
+             clk_in_inv  : in    std_logic; 
+             reset       : in    std_logic; 
+             q           : out   std_logic_vector (2 downto 0); 
+             rmii_crs_dv : in    std_logic; 
+             rmii_rxd0   : in    std_logic; 
+             rmii_rxd1   : in    std_logic);
    end component;
    
-   component ace_audio_packet
-      port ( tx_clk          : in    std_logic; 
-             tx_busy         : in    std_logic; 
-             tx_byte_sent    : in    std_logic; 
-             audio_ready     : in    std_logic; 
-             src_mac_address : in    std_logic_vector (47 downto 0); 
-             audio_in        : in    std_logic_vector (1559 downto 0); 
-             tx_enable       : out   std_logic; 
-             ace_tx_busy     : out   std_logic; 
-             tx_data         : out   std_logic_vector (7 downto 0));
-   end component;
-   
-   component const_eth_config
-      port ( src_mac_address : out   std_logic_vector (47 downto 0); 
-             src_ip_address  : out   std_logic_vector (31 downto 0); 
-             dst_mac_address : out   std_logic_vector (47 downto 0); 
-             dst_ip_address  : out   std_logic_vector (31 downto 0); 
-             src_udp_port    : out   std_logic_vector (15 downto 0); 
-             dst_udp_port    : out   std_logic_vector (15 downto 0));
-   end component;
-   
-   component reverse_mac
-      port ( mac_address_i : in    std_logic_vector (47 downto 0); 
-             mac_address_o : out   std_logic_vector (47 downto 0));
-   end component;
-   
-   component clk_by_x
-      port ( clk_in  : in    std_logic; 
-             clk_out : out   std_logic);
-   end component;
-   
-   component ethernet_reset
-      port ( clk            : in    std_logic; 
-             power_good     : in    std_logic; 
-             phy_rstn       : out   std_logic; 
-             mac_rst        : out   std_logic; 
-             sendArpRequest : out   std_logic; 
-             tx_online      : out   std_logic);
-   end component;
-   
-   component ethernet_rmii
-      port ( reset_i            : in    std_logic; 
-             rmii_clk_i         : in    std_logic; 
-             rmii_rx_er_i       : in    std_logic; 
-             rmii_rx_crs_dv_i   : in    std_logic; 
-             miim_clock_i       : in    std_logic; 
-             tx_enable_i        : in    std_logic; 
-             mac_address_i      : in    std_logic_vector (47 downto 0); 
-             rmii_rxd_i         : in    std_logic_vector (1 downto 0); 
-             tx_data_i          : in    std_logic_vector (7 downto 0); 
-             mdio_io            : inout std_logic; 
-             reset_o            : out   std_logic; 
-             rmii_tx_er_o       : out   std_logic; 
-             rmii_tx_en_o       : out   std_logic; 
-             mdc_o              : out   std_logic; 
-             link_up_o          : out   std_logic; 
-             tx_clock_o         : out   std_logic; 
-             tx_reset_o         : out   std_logic; 
-             tx_byte_sent_o     : out   std_logic; 
-             tx_busy_o          : out   std_logic; 
-             rx_clock_o         : out   std_logic; 
-             rx_reset_o         : out   std_logic; 
-             rx_frame_o         : out   std_logic; 
-             rx_byte_received_o : out   std_logic; 
-             rx_error_o         : out   std_logic; 
-             rmii_txd_o         : out   std_logic_vector (1 downto 0); 
-             rx_data_o          : out   std_logic_vector (7 downto 0));
-   end component;
-   
-   component iddr_clock
+   component aes50_rmii_txd
       port ( clk_in     : in    std_logic; 
-             q0         : out   std_logic; 
-             q1         : out   std_logic; 
+             clk_in_inv : in    std_logic; 
              reset      : in    std_logic; 
-             d          : in    std_logic; 
-             clk_in_inv : in    std_logic);
+             data       : in    std_logic_vector (2 downto 0); 
+             rmii_tx_en : out   std_logic; 
+             rmii_txd0  : out   std_logic; 
+             rmii_txd1  : out   std_logic);
    end component;
    
 begin
@@ -890,8 +927,115 @@ begin
       port map (I=>PLL_AUX,
                 O=>pll_locked);
    
+   XLXI_1108 : aes50_consts
+      port map (aes_clk_ok_counter_reference(19 downto 0)=>XLXN_3071(19 downto 
+            0),
+                debug_out_signal_pulse_len(19 downto 0)=>XLXN_3065(19 downto 0),
+                first_transmit_start_counter_44k1(22 downto 0)=>XLXN_3067(22 
+            downto 0),
+                first_transmit_start_counter_48k(22 downto 0)=>XLXN_3066(22 
+            downto 0),
+                mdix_timer_1ms_reference(16 downto 0)=>XLXN_3070(16 downto 0),
+                mult_clk625_44k1(31 downto 0)=>XLXN_3073(31 downto 0),
+                mult_clk625_48k(31 downto 0)=>XLXN_3072(31 downto 0),
+                uart_clks_per_bit(9 downto 0)=>XLXN_3488(9 downto 0),
+                uart_timeout_clks(19 downto 0)=>XLXN_3489(19 downto 0),
+                wd_aes_clk_timeout(5 downto 0)=>XLXN_3068(5 downto 0),
+                wd_aes_rx_dv_timeout(14 downto 0)=>XLXN_3069(14 downto 0));
+   
+   XLXI_1109 : aes50_rst
+      port map (clk100_i=>clk_100MHz,
+                start_i=>online,
+                rst_o=>XLXN_3074);
+   
+   XLXI_1110 : GND
+      port map (G=>XLXN_3086);
+   
+   XLXI_1111 : GND
+      port map (G=>XLXN_3088);
+   
+   XLXI_1112 : GND
+      port map (G=>XLXN_3087);
+   
+   XLXI_1113 : GND
+      port map (G=>XLXN_3089);
+   
+   XLXI_1114 : BUF
+      port map (I=>tdm_output(15),
+                O=>aes50a_tdm_in(1));
+   
+   XLXI_1115 : BUF
+      port map (I=>tdm_output(16),
+                O=>aes50a_tdm_in(2));
+   
+   XLXI_1116 : BUF
+      port map (I=>tdm_output(17),
+                O=>aes50a_tdm_in(3));
+   
+   XLXI_1117 : BUF
+      port map (I=>tdm_output(18),
+                O=>aes50a_tdm_in(4));
+   
+   XLXI_1118 : BUF
+      port map (I=>tdm_output(19),
+                O=>aes50a_tdm_in(5));
+   
+   XLXI_1119 : BUF
+      port map (I=>XLXN_3115,
+                O=>aes50a_tdm_in(6));
+   
+   XLXI_1120 : BUF
+      port map (I=>tdm_output(14),
+                O=>aes50a_tdm_in(0));
+   
+   XLXI_1133 : GND
+      port map (G=>XLXN_3115);
+   
+   XLXI_1134 : BUF
+      port map (I=>aes50a_tdm_out(0),
+                O=>tdm_input(14));
+   
+   XLXI_1135 : BUF
+      port map (I=>aes50a_tdm_out(1),
+                O=>tdm_input(15));
+   
+   XLXI_1136 : BUF
+      port map (I=>aes50a_tdm_out(3),
+                O=>tdm_input(17));
+   
+   XLXI_1137 : BUF
+      port map (I=>aes50a_tdm_out(4),
+                O=>tdm_input(18));
+   
+   XLXI_1138 : BUF
+      port map (I=>aes50a_tdm_out(5),
+                O=>tdm_input(19));
+   
+   XLXI_1139 : BUF
+      port map (I=>aes50a_tdm_out(6),
+                O=>XLXN_3123);
+   
+   XLXI_1140 : BUF
+      port map (I=>aes50a_tdm_out(2),
+                O=>tdm_input(16));
+   
+   XLXI_1141 : GND
+      port map (G=>aes50a_clk_a_rx_nen_out);
+   
    XLXI_1142 : GND
-      port map (G=>aes50a_clk_a_tx_out);
+      port map (G=>aes50a_clk_b_rx_nen_out);
+   
+   XLXI_1147 : GND
+      port map (G=>aes50_sys_mode(0));
+   
+   XLXI_1148 : GND
+      port map (G=>aes50_fs_mode(1));
+   
+   XLXI_1149 : VCC
+      port map (P=>aes50_fs_mode(0));
+   
+   XLXI_1150 : VCC
+      port map (P=>aes50_sys_mode(1));
    
    XLXI_1157 : dcm1
       port map (CLKIN_IN=>FPGACLK,
@@ -911,10 +1055,68 @@ begin
    XLXI_1261 : oddr_clock
       port map (clk_in=>clk_50MHz,
                 clk_in_inv=>clk_50MHz_inv,
-                d0=>XLXN_3665,
-                d1=>XLXN_3666,
+                d0=>XLXN_3794,
+                d1=>XLXN_3793,
                 reset=>rst,
                 Q=>aes50a_rmii_clk_out);
+   
+   XLXI_1276 : aes50_top
+      port map (aes_clk_ok_counter_reference_i(19 downto 0)=>XLXN_3071(19 
+            downto 0),
+                aes50_clk_a_rx_i=>aes50a_clk_a_rx_in,
+                aes50_clk_b_rx_i=>aes50a_clk_b_rx_in,
+                aux_tx_tdm_uart_select_i=>XLXN_3509,
+                bclk_readback_i=>clk_12_288MHz,
+                clk_1024xfs_from_pll_i=>clk_49_152MHz,
+                clk50_i=>clk_50MHz,
+                clk100_i=>clk_100MHz,
+                debug_out_signal_pulse_len_i(19 downto 0)=>XLXN_3065(19 downto 
+            0),
+                first_transmit_start_counter_44k1_i(22 downto 0)=>XLXN_3067(22 
+            downto 0),
+                first_transmit_start_counter_48k_i(22 downto 0)=>XLXN_3066(22 
+            downto 0),
+                fs_mode_i(1 downto 0)=>aes50_fs_mode(1 downto 0),
+                i2s_i=>XLXN_3089,
+                mdix_timer_1ms_reference_i(16 downto 0)=>XLXN_3070(16 downto 0),
+                mult_clk625_44k1_i(31 downto 0)=>XLXN_3073(31 downto 0),
+                mult_clk625_48k_i(31 downto 0)=>XLXN_3072(31 downto 0),
+                pll_init_busy_i=>XLXN_3088,
+                pll_lock_n_i=>XLXN_3087,
+                rmii_crs_dv_i=>aes50a_rmii_rxd(0),
+                rmii_rxd_i(1 downto 0)=>aes50a_rmii_rxd(2 downto 1),
+                rst_i=>XLXN_3074,
+                sys_mode_i(1 downto 0)=>aes50_sys_mode(1 downto 0),
+                tdm_i(6 downto 0)=>aes50a_tdm_in(6 downto 0),
+                tdm8_i2s_mode_i=>XLXN_3086,
+                uart_clks_per_bit_i(9 downto 0)=>XLXN_3488(9 downto 0),
+                uart_i=>imx25_uart4_txd,
+                uart_timeout_clks_i(19 downto 0)=>XLXN_3489(19 downto 0),
+                wclk_readback_i=>tdm_fs,
+                wd_aes_clk_timeout_i(5 downto 0)=>XLXN_3068(5 downto 0),
+                wd_aes_rx_dv_timeout_i(14 downto 0)=>XLXN_3069(14 downto 0),
+                aes_ok_o=>open,
+                aes50_clk_a_tx_en_o=>aes50a_clk_a_tx_en_out,
+                aes50_clk_a_tx_o=>aes50a_clk_a_tx_out,
+                aes50_clk_b_tx_en_o=>aes50a_clk_b_tx_en_out,
+                aes50_clk_b_tx_o=>aes50a_clk_b_tx_out,
+                bclk_o=>open,
+                bclk_out_en_o=>open,
+                clk_to_pll_o=>open,
+                dbg_o=>open,
+                i2s_o=>open,
+                mclk_o=>open,
+                phy_rst_n_o=>aes50a_phy_rst_n_out,
+                pll_mult_value_o=>open,
+                rmii_txd_o(1 downto 0)=>aes50a_rmii_txd(2 downto 1),
+                rmii_tx_en_o=>aes50a_rmii_txd(0),
+                tdm_o(6 downto 0)=>aes50a_tdm_out(6 downto 0),
+                uart_o=>imx25_uart4_rxd,
+                wclk_o=>open,
+                wclk_out_en_o=>open);
+   
+   XLXI_1286 : VCC
+      port map (P=>XLXN_3509);
    
    XLXI_1330 : config_rxd
       port map (cfg_wr_addr(7 downto 0)=>XLXN_3661(7 downto 0),
@@ -924,163 +1126,32 @@ begin
                 config_bits(7 downto 0)=>config_bits(7 downto 0));
    
    XLXI_1332 : GND
-      port map (G=>XLXN_3665);
+      port map (G=>XLXN_3794);
    
    XLXI_1333 : VCC
-      port map (P=>XLXN_3666);
+      port map (P=>XLXN_3793);
    
-   XLXI_1385 : BUF
-      port map (I=>imx25_uart4_txd,
-                O=>imx25_uart4_rxd);
-   
-   XLXI_1393 : GND
-      port map (G=>aes50a_clk_a_tx_en_out);
-   
-   XLXI_1394 : GND
-      port map (G=>aes50a_clk_b_tx_out);
-   
-   XLXI_1395 : GND
-      port map (G=>aes50a_clk_b_tx_en_out);
-   
-   XLXI_1396 : VCC
-      port map (P=>aes50a_clk_b_rx_nen_out);
-   
-   XLXI_1397 : VCC
-      port map (P=>aes50a_clk_a_rx_nen_out);
-   
-   XLXI_1409 : tdm_ace_demux
-      port map (ace_tx_busy=>XLXN_3892,
-                bclk=>clk_12_288MHz,
-                fsync=>tdm_fs,
-                tdm0_in(23 downto 0)=>audio_output(359 downto 336),
-                tdm1_in(23 downto 0)=>audio_output(383 downto 360),
-                tdm2_in(23 downto 0)=>audio_output(407 downto 384),
-                tdm3_in(23 downto 0)=>audio_output(431 downto 408),
-                tdm4_in(23 downto 0)=>audio_output(455 downto 432),
-                tdm5_in(23 downto 0)=>audio_output(479 downto 456),
-                tdm6_in(23 downto 0)=>audio_output(479 downto 456),
-                tdm7_in(23 downto 0)=>audio_output(479 downto 456),
-                audio_out(1559 downto 0)=>XLXN_3863(1559 downto 0),
-                audio_ready=>XLXN_3858);
-   
-   XLXI_1412 : ace_audio_packet
-      port map (audio_in(1559 downto 0)=>XLXN_3863(1559 downto 0),
-                audio_ready=>XLXN_3858,
-                src_mac_address(47 downto 0)=>XLXN_3939(47 downto 0),
-                tx_busy=>mac_tx_busy,
-                tx_byte_sent=>mac_tx_byte_sent,
-                tx_clk=>mac_tx_clk,
-                ace_tx_busy=>XLXN_3892,
-                tx_data(7 downto 0)=>XLXN_4092(7 downto 0),
-                tx_enable=>XLXN_3936);
-   
-   XLXI_1414 : const_eth_config
-      port map (dst_ip_address=>open,
-                dst_mac_address=>open,
-                dst_udp_port=>open,
-                src_ip_address=>open,
-                src_mac_address(47 downto 0)=>XLXN_3939(47 downto 0),
-                src_udp_port=>open);
-   
-   XLXI_1415 : reverse_mac
-      port map (mac_address_i(47 downto 0)=>XLXN_3939(47 downto 0),
-                mac_address_o(47 downto 0)=>XLXN_3937(47 downto 0));
-   
-   XLXI_1420 : clk_by_x
-      port map (clk_in=>clk_16MHz,
-                clk_out=>XLXN_3874);
-   
-   XLXI_1421 : ethernet_reset
-      port map (clk=>XLXN_3874,
-                power_good=>online,
-                mac_rst=>XLXN_3930,
-                phy_rstn=>aes50a_phy_rst_n_out,
-                sendArpRequest=>open,
-                tx_online=>open);
-   
-   XLXI_1434 : ethernet_rmii
-      port map (mac_address_i(47 downto 0)=>XLXN_3937(47 downto 0),
-                miim_clock_i=>clk_50MHz,
-                reset_i=>XLXN_3930,
-                rmii_clk_i=>clk_50MHz,
-                rmii_rxd_i(1 downto 0)=>aes50a_rmii_rxd(1 downto 0),
-                rmii_rx_crs_dv_i=>aes50a_rmii_crs_dv,
-                rmii_rx_er_i=>aes50a_rmii_er_in,
-                tx_data_i(7 downto 0)=>XLXN_4092(7 downto 0),
-                tx_enable_i=>XLXN_3936,
-                link_up_o=>open,
-                mdc_o=>open,
-                reset_o=>open,
-                rmii_txd_o(1 downto 0)=>aes50a_rmii_txd(1 downto 0),
-                rmii_tx_en_o=>aes50a_rmii_tx_en,
-                rmii_tx_er_o=>open,
-                rx_byte_received_o=>open,
-                rx_clock_o=>open,
-                rx_data_o=>open,
-                rx_error_o=>open,
-                rx_frame_o=>open,
-                rx_reset_o=>open,
-                tx_busy_o=>mac_tx_busy,
-                tx_byte_sent_o=>mac_tx_byte_sent,
-                tx_clock_o=>mac_tx_clk,
-                tx_reset_o=>open,
-                mdio_io=>open);
-   
-   XLXI_1435 : BUF
-      port map (I=>aes50a_clk_a_rx_in,
+   XLXI_1413 : BUF
+      port map (I=>aes50a_rmii_er_in,
                 O=>open);
    
-   XLXI_1436 : BUF
-      port map (I=>aes50a_clk_b_rx_in,
-                O=>open);
-   
-   XLXI_1463 : iddr_clock
+   XLXI_1432 : aes50_rmii_rxd
       port map (clk_in=>clk_50MHz,
                 clk_in_inv=>clk_50MHz_inv,
-                d=>aes50a_rmii_rxd_1_in,
                 reset=>rst,
-                q0=>aes50a_rmii_rxd(1),
-                q1=>open);
+                rmii_crs_dv=>aes50a_rmii_crs_dv_in,
+                rmii_rxd0=>aes50a_rmii_rxd_0_in,
+                rmii_rxd1=>aes50a_rmii_rxd_1_in,
+                q(2 downto 0)=>aes50a_rmii_rxd(2 downto 0));
    
-   XLXI_1466 : iddr_clock
+   XLXI_1433 : aes50_rmii_txd
       port map (clk_in=>clk_50MHz,
                 clk_in_inv=>clk_50MHz_inv,
-                d=>aes50a_rmii_rxd_0_in,
+                data(2 downto 0)=>aes50a_rmii_txd(2 downto 0),
                 reset=>rst,
-                q0=>aes50a_rmii_rxd(0),
-                q1=>open);
-   
-   XLXI_1468 : iddr_clock
-      port map (clk_in=>clk_50MHz,
-                clk_in_inv=>clk_50MHz_inv,
-                d=>aes50a_rmii_crs_dv_in,
-                reset=>rst,
-                q0=>aes50a_rmii_crs_dv,
-                q1=>open);
-   
-   XLXI_1470 : oddr_clock
-      port map (clk_in=>clk_50MHz,
-                clk_in_inv=>clk_50MHz_inv,
-                d0=>aes50a_rmii_tx_en,
-                d1=>aes50a_rmii_tx_en,
-                reset=>rst,
-                Q=>aes50a_rmii_tx_en_out);
-   
-   XLXI_1472 : oddr_clock
-      port map (clk_in=>clk_50MHz,
-                clk_in_inv=>clk_50MHz_inv,
-                d0=>aes50a_rmii_txd(0),
-                d1=>aes50a_rmii_txd(0),
-                reset=>rst,
-                Q=>aes50a_rmii_txd_0_out);
-   
-   XLXI_1475 : oddr_clock
-      port map (clk_in=>clk_50MHz,
-                clk_in_inv=>clk_50MHz_inv,
-                d0=>aes50a_rmii_txd(1),
-                d1=>aes50a_rmii_txd(1),
-                reset=>rst,
-                Q=>aes50a_rmii_txd_1_out);
+                rmii_txd0=>aes50a_rmii_txd_0_out,
+                rmii_txd1=>aes50a_rmii_txd_1_out,
+                rmii_tx_en=>aes50a_rmii_tx_en_out);
    
 end BEHAVIORAL;
 

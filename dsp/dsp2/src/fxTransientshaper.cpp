@@ -115,6 +115,7 @@ void fxTransientshaper::process() {
 		return;
 	}
 
+	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		// Step 1: write current sample in delay-line
 		_delayLine[_delayLineHead] = _bufIn[0][s];

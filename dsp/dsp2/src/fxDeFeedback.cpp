@@ -119,6 +119,7 @@ void fxDeFeedback::process() {
 	// has to be 0 when we want normal audio
     float current_mu = ai_decision * MU_MAX;
 
+	#pragma loop_count(SAMPLES_IN_BUFFER)
     for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
         // Step 2: simple FIR Filter for prediction
         float pred = 0;
@@ -140,6 +141,7 @@ void fxDeFeedback::process() {
         float step = current_mu / energy;
 
         // Step 4: update of the weights
+		#pragma loop_count(TAPS)
         for (int i = 0; i < TAPS; i++) {
             _weights[i] = (_weights[i] * LEAKAGE) + step * error * _history[i + (SAMPLES_IN_BUFFER - 1 - s)];
         }

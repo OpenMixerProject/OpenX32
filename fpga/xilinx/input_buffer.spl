@@ -1,6 +1,0 @@
-[Inputs]
-clock_i
-pad_i
-[Outputs]
-buffer_o
-[BiDir]

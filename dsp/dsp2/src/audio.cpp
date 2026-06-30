@@ -285,47 +285,33 @@ void audioFxChangeSlot(int fxSlot, int newFxId, int channelMode) {
 	#endif
 }
 
+#pragma optimize_for_speed
 void audioProcessData(void) {
 	audioProcessing = 1; // set global flag that we are processing now
 
-	int bufferSampleIndex;
-	int bufferTdmIndex;
-	int dspCh;
-	int bufferIndex;
-	int sampleOffset;
-	int tdmOffset;
-	int tdmBufferOffset;
-
-	//  ____            ___       _            _                  _
-	// |  _ \  ___     |_ _|_ __ | |_ ___ _ __| | ___  __ ___   _(_)_ __   __ _
-	// | | | |/ _ \_____| || '_ \| __/ _ \ '__| |/ _ \/ _` \ \ / / | '_ \ / _` |
-	// | |_| |  __/_____| || | | | ||  __/ |  | |  __/ (_| |\ V /| | | | | (_| |
-	// |____/ \___|    |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
-	//                                                                    |___/
+	//  ____        _          ___                   _
+	// |  _ \  __ _| |_ __ _  |_ _|_ __  _ __  _   _| |_
+	// | | | |/ _` | __/ _` |  | || '_ \| '_ \| | | | __|
+	// | |_| | (_| | || (_| |  | || | | | |_) | |_| | |_
+	// |____/ \__,_|\__\__,_| |___|_| |_| .__/ \__,_|\__|
+	//                                  |_|
 	// copy interleaved DMA input-buffer into channel buffers
-	sampleOffset = 0;
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = audioBufferOffset + sampleOffset;
+	int tdmOffset = 0;
+	#pragma loop_count(TDM_INPUTS)
+	for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+		int rxBase = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + audioBufferOffset;
 
-		// copy channels from DSP1
-		tdmOffset = 0;
-		tdmBufferOffset = 0;
-		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + tdmBufferOffset;
+		#pragma loop_count(CHANNELS_PER_TDM)
+		for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
+			float* dst = &audioBuffer[TAP_INPUT][tdmOffset + i_ch][0];
 
-			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = tdmOffset + i_ch;
-				bufferIndex = (bufferTdmIndex + i_ch);
-
-				// input from DSP1 side (we are receiving float data here)
-				memcpy(&audioBuffer[TAP_INPUT][dspCh][s], &audioRxBuf[bufferIndex], sizeof(float));
+			#pragma loop_count(SAMPLES_IN_BUFFER)
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				dst[s] = *(float*)&audioRxBuf[rxBase + s * CHANNELS_PER_TDM + i_ch];
 			}
-
-			tdmOffset += CHANNELS_PER_TDM;
-			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
 
-		sampleOffset += CHANNELS_PER_TDM;
+		tdmOffset += CHANNELS_PER_TDM;
 	}
 
 	// reset SPDIF-read-pointer to zero as we have new data in the buffer
@@ -356,21 +342,22 @@ void audioProcessData(void) {
 		// perform stereo-decompositing and 5.1 upmixing
 		fxUpmixerProcess();
 	#else
+		#pragma loop_count(8)
 		for (int i = 0; i < 8; i++) {
 			if (fxSlots[i] != NULL) {
 				fxSlots[i]->process();
 			}
 		}
 
-		// RTA (use AUX channel 8 (index 23) for this)
+		// process the RTA that will be displayed in Meter-Tab of OMC
 		rtaProcess(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_RTA_SOURCE][0]);
 
 		// create sinewave-audio on both oscillator-channels (takes around ~3% DSP Load)
+		#pragma loop_count(SAMPLES_IN_BUFFER)
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			time += (1.0f/48000.0f); // add 20.83us
-			if (time >= 2.0833333) {
-				// make sure that the float-value is not losing resolution by overflowing
-				time = 0;
+			time += (1.0f / 48000.0f); // add 20.83us
+			if (time >= 2.0833333f) {
+				time -= 2.0833333f; // wrap around every 100000 samples = ~2 seconds
 			}
 
 			// create sinewaves
@@ -384,37 +371,31 @@ void audioProcessData(void) {
 
 	// ========================================================
 
-	//  ___       _            _                  _
-	// |_ _|_ __ | |_ ___ _ __| | ___  __ ___   _(_)_ __   __ _
-	//  | || '_ \| __/ _ \ '__| |/ _ \/ _` \ \ / / | '_ \ / _` |
-	//  | || | | | ||  __/ |  | |  __/ (_| |\ V /| | | | | (_| |
-	// |___|_| |_|\__\___|_|  |_|\___|\__,_| \_/ |_|_| |_|\__, |
-	//                                                    |___/
+	//    ___        _               _
+	//   / _ \ _   _| |_ _ __  _   _| |_
+	//  | | | | | | | __| '_ \| | | | __|
+	//  | |_| | |_| | |_| |_) | |_| | |_
+	//   \___/ \__,_|\__| .__/ \__,_|\__|
+	//                  |_|
 	// copy channel buffers to interleaved output-buffer
-	sampleOffset = 0;
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		bufferSampleIndex = audioBufferOffset + sampleOffset;
+	tdmOffset = 0;
+	#pragma loop_count(TDM_INPUTS)
+	for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
+		int txBase = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + audioBufferOffset;
 
-		// copy data for DSP1
-		tdmOffset = 0;
-		tdmBufferOffset = 0;
-		for (int i_tdm = 0; i_tdm < TDM_INPUTS; i_tdm++) {
-			bufferTdmIndex = bufferSampleIndex + tdmBufferOffset;
+		#pragma loop_count(CHANNELS_PER_TDM)
+		for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
+			float* src = &audioBuffer[TAP_OUTPUT][tdmOffset + i_ch][0];
 
-			for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-				dspCh = tdmOffset + i_ch;
-				bufferIndex = (bufferTdmIndex + i_ch);
-
-				// output to DSP1 as float
-				memcpy(&audioTxBuf[bufferIndex], &audioBuffer[TAP_OUTPUT][dspCh][s], sizeof(float));
+			#pragma loop_count(SAMPLES_IN_BUFFER)
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				*(float*)&audioTxBuf[txBase + s * CHANNELS_PER_TDM + i_ch] = src[s];
 			}
-
-			tdmOffset += CHANNELS_PER_TDM;
-			tdmBufferOffset += (BUFFER_COUNT * BUFFER_SIZE);
 		}
 
-		sampleOffset += CHANNELS_PER_TDM;
+		tdmOffset += CHANNELS_PER_TDM;
 	}
+
 
 	// increment buffer-counter for next call
 	audioBufferOffset += BUFFER_SIZE;

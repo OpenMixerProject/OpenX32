@@ -90,6 +90,7 @@ void rtaProcess(float* __restrict inBuf) {
 			const float k = 0.07f;
 			const float denom = 1.0f / (expf(k * (float)(RTA_DISPLAY_BANDS - 1)) - 1.0f);
 
+			#pragma loop_count(RTA_DISPLAY_BANDS)
 			for (int i = 0; i < RTA_DISPLAY_BANDS; i++) {
 				// Step 1: logarithmix map-equation
 				// calculate the Bar-index i to the FFT-Bin-Index

@@ -3269,7 +3269,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 1944 1376 1960 1408)
+	(rect 1944 1440 1960 1472)
 	(text "VCC" (rect 0 7 9 27)(font "Arial" (font_size 6))(vertical))
 	(text "inst55" (rect 5 3 15 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -5867,11 +5867,6 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "aes50_phy_clk_data[1]" (rect 1970 1384 2077 1394)(font "DejaVu Sans Condensed" ))
-	(pt 1960 1392)
-	(pt 2072 1392)
-)
-(connector
 	(text "aes50_phy_clk_data[0]" (rect 1970 1416 2077 1426)(font "DejaVu Sans Condensed" ))
 	(pt 1960 1424)
 	(pt 2072 1424)
@@ -6032,6 +6027,11 @@ on the Quartus Prime software download page.
 (connector
 	(pt 896 1696)
 	(pt 176 1696)
+)
+(connector
+	(text "aes50_phy_clk_data[1]" (rect 1970 1448 2077 1458)(font "DejaVu Sans Condensed" ))
+	(pt 1960 1456)
+	(pt 2072 1456)
 )
 (junction (pt 1672 848))
 (junction (pt 1560 104))
