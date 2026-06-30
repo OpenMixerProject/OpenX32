@@ -13,6 +13,52 @@ You can easily try it out on your own mixer: [Steps to run OpenX32](https://gith
 
 <img width="400" height="300" alt="IMG_20260520_211131" src="https://github.com/user-attachments/assets/3b6788ed-f5ab-485c-a643-7fc6a8b7dcc3" />
 
+# Hardware Compatibility
+
+### FPGA: Xilinx or Lattice
+
+The X32 was originaly produced with a Xilinx Spartan 3A. Around Corona Behringer had to change the FPGA vendor due to component shortage - now the FPGA is a Lattice ECP5. You can find more Details about the FPGA [on our Website](https://openx32.com/FPGA/).
+
+You can determine, if your X32 has a Xilinx or Lattice FPGA: Turn on your X32 and look in the lower part of the boot screen. 
+
+**Xilinx FGPA**
+
+Loading resource file ...
+F**X**
+F**X**D1
+F**X**D12
+
+**Lattice FPGA**
+
+Loading resource file ...
+F**L**
+F**L**D1
+F**L**D12
+
+### OpenX32 to Behringer Devices - AES50
+
+Port "AES A" will connect to other AES50 Devices
+
+ to \ from                             |  OpenX32 - Xilinx FPGA | OpenX32 - Lattice FPGA | Wing     
+ ---                                   | :---:           | :---:           | :---:
+ X32 (Original Firmware, Xilinx FPGA)  |                 |                 |
+ X32 (Original Firmware, Lattice FPGA) |                 |                 |
+ X32 (OpenX32, Xilinx FPGA)            |                 |                 |
+ X32 (OpenX32, Lattice FPGA)           |                 |                 | lightly distorted Audio
+ S16 Stagebox (Xilinx FPGA)            | no Link         | no Link         |
+ S16 Stagebox (Lattice FPGA)           | distorted Audio | distorted Audio |
+ Wing                                  |                 | no Audio        |
+
+ ### OpenX32 to other Vendors Devices
+
+ Port "AES B" will connect to devices from other vendors (but only 100MBit based protocols are possible)
+
+to \ from | OpenX32 (Xilinx) | OpenX32 (Lattice) | Allen&Heath ACE
+--- | :---: | :---: | :---:
+OpenX32 (Xilinx)  |  | 
+OpenX32 (Lattice) |  | 
+Allen&Heath ACE   | work in progress (June 2026) | work in progress (June 2026)
+
 # Details
 
 This audio-mixing-console uses a Freescale/NXP i.MX253 Microcontroller with an ARM926EJ-S core that supports booting Linux.
