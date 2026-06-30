@@ -1,25 +1,17 @@
-# Service Anouncement
-
-We are currently (June 2026) in a repo transition phase 👷‍♂️
-
-- all software related things are moved to [OpenMixerControl](https://github.com/OpenMixerProject/OpenMixerControl)
-- this repository will remain all OS and hardware specific code
-
 # General
 
 ![alt_text](Documentation/OpenX32.png)
 
-https://openx32.com
-
 This repository contains software to load and start the Linux-Kernel on the Behringer X32 or Midas M32 and some userland tools.
 The main logic of our custom firmware lives in its own repository at [OpenMixerControl](https://github.com/OpenMixerProject/OpenMixerControl).
+
+Our fancy Website: https://openx32.com
 
 # Test it yourself
 
 You can easily try it out on your own mixer: [Steps to run OpenX32](https://github.com/OpenMixerProject/OpenX32/blob/main/README.md#steps-to-run-openx32-without-recompiling)
 
-<img width="4000" height="3000" alt="IMG_20260520_211131" src="https://github.com/user-attachments/assets/3b6788ed-f5ab-485c-a643-7fc6a8b7dcc3" />
-
+<img width="400" height="300" alt="IMG_20260520_211131" src="https://github.com/user-attachments/assets/3b6788ed-f5ab-485c-a643-7fc6a8b7dcc3" />
 
 # Details
 
