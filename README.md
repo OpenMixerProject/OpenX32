@@ -46,15 +46,13 @@ FLD12
 
 Port "AES A" will connect to other AES50 Devices
 
- to \ from                             |  OpenX32 - Xilinx FPGA | OpenX32 - Lattice FPGA | Wing     
- ---                                   | :---:           | :---:           | :---:
- X32 (Original Firmware, Xilinx FPGA)  |                 |                 |
- X32 (Original Firmware, Lattice FPGA) |                 |                 |
- X32 (OpenX32, Xilinx FPGA)            |                 |                 |
- X32 (OpenX32, Lattice FPGA)           |                 |                 | lightly distorted Audio
- S16 Stagebox (Xilinx FPGA)            | no Link         | no Link         |
- S16 Stagebox (Lattice FPGA)           | distorted Audio | distorted Audio |
- Wing                                  |                 | no Audio        |
+ to \ from                             |  OpenX32 - Xilinx FPGA | OpenX32 - Lattice FPGA | Wing                    | S16 Stagebox (Xilinx FPGA)   |  S16 Stagebox (Lattice FPGA)
+ ---                                   | :---:                  | :---:                  | :---:                   | :---:                        | :---:           
+ X32 (Original Firmware, Xilinx FPGA)  |                        |                        |                         |                              |
+ X32 (Original Firmware, Lattice FPGA) |                        |                        |                         |                              |
+ X32 (OpenX32, Xilinx FPGA)            |                        |                        |                         | no Link                      | distorted Audio
+ X32 (OpenX32, Lattice FPGA)           |                        |                        | lightly distorted Audio | no Link                      | distorted Audio
+
 
  ### OpenX32 to other Vendors Devices
 
