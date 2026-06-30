@@ -19,21 +19,28 @@ You can easily try it out on your own mixer: [Steps to run OpenX32](https://gith
 
 The X32 was originaly produced with a Xilinx Spartan 3A. Around Corona Behringer had to change the FPGA vendor due to component shortage - now the FPGA is a Lattice ECP5. You can find more Details about the FPGA [on our Website](https://openx32.com/FPGA/).
 
-You can determine, if your X32 has a Xilinx or Lattice FPGA: Turn on your X32 and look in the lower part of the boot screen. 
+You can determine, if your X32 has a Xilinx or Lattice FPGA: Turn on your X32 and look in the lower part of the boot screen.
 
-**Xilinx FGPA**
+<img width="1200" height="900" alt="Unbenannt" src="https://github.com/user-attachments/assets/25ee1ab4-6595-4874-81fb-4ba6f6589e04" />
 
+
+**Xilinx FGPA - X**
+
+```
 Loading resource file ...
-F**X**
-F**X**D1
-F**X**D12
+FX
+FXD1
+FXD12
+```
 
-**Lattice FPGA**
+**Lattice FPGA - L**
 
+```
 Loading resource file ...
-F**L**
-F**L**D1
-F**L**D12
+FL
+FLD1
+FLD12
+```
 
 ### OpenX32 to Behringer Devices - AES50
 
