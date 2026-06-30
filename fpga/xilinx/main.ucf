@@ -1,45 +1,36 @@
+# pin-locations
 NET "FPGACLK" LOC = T8;
-NET "FPGACLK" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "PLL_OUT" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "PLL_AUX" LOC = T9;
+NET "PLL_OUT" LOC = R9;
+NET "PLL_IN" LOC = P8;
+NET "PLL_CCLK" LOC = T10;
+NET "PLL_CDATA" LOC = P10;
+NET "PLL_nCS" LOC = P9;
+NET "imx25_uart3_txd" LOC = P11;
+NET "imx25_uart3_rxd" LOC = T12;
 NET "imx25_uart4_rxd" LOC = R11;
 NET "imx25_uart4_txd" LOC = T11;
-
 
 NET "AUX_nRST" LOC = A9;
 NET "AUX_nCS" LOC = B8;
 NET "AUX_CDATA" LOC = C8;
 NET "AUX_CCLK" LOC = A8;
-
-
-NET "PLL_CCLK" LOC = T10;
-NET "PLL_CDATA" LOC = P10;
-NET "PLL_nCS" LOC = P9;
-
 NET "AUX_AD" LOC = C10;
 NET "AUX_DA" LOC = A11;
-
-
-NET "PLL_OUT" LOC = R9;
-
-
-NET "PLL_IN" LOC = P8;
-
-
 NET "AUX_MCLK" LOC = B10;
 NET "AUX_SCLK" LOC = A10;
 NET "AUX_FSYNC" LOC = C9;
 
-
+NET "DA_nRESET" LOC = N3;
 NET "DA_BCLK" LOC = K1;
 NET "DA_DATA0" LOC = M3;
+NET "DA_DATA1" LOC = M1;
 NET "DA_FSYNC" LOC = L3;
 NET "DA_MCLK" LOC = K3;
 NET "DA_RX" LOC = L1;
 NET "DA_TX" LOC = L2;
-NET "imx25_uart3_txd" LOC = P11;
-NET "imx25_uart3_rxd" LOC = T12;
 
-
+NET "AD_nRESET" LOC = C7;
 NET "AD0_BCLK" LOC = A5;
 NET "AD0_DATA0" LOC = A6;
 NET "AD0_DATA1" LOC = B6;
@@ -54,12 +45,9 @@ NET "AD1_FSYNC" LOC = H3;
 NET "AD1_MCLK" LOC = G2;
 NET "AD1_RX" LOC = J1;
 NET "AD1_TX" LOC = J2;
-NET "DA_DATA1" LOC = M1;
-
 
 NET "CARD_BCLK" LOC = T3;
 NET "CARD_FSYNC" LOC = R3;
-NET "AD_nRESET" LOC = C7;
 NET "CARD_IN0" LOC = N6;
 NET "CARD_IN1" LOC = T5;
 NET "CARD_IN2" LOC = R5;
@@ -70,14 +58,12 @@ NET "CARD_OUT2" LOC = P7;
 NET "CARD_OUT3" LOC = T6;
 NET "CARD_TX" LOC = N1;
 NET "CARD_RX" LOC = P2;
-
+NET "CARD_RDY" LOC = T4;
 
 NET "P16_A_TXP" LOC = T13;
 NET "P16_A_TXM" LOC = R13;
 NET "P16_B_TXP" LOC = P12;
 NET "P16_B_TXM" LOC = N12;
-NET "DA_nRESET" LOC = N3;
-
 
 NET "DSP_DIN0" LOC = A4;
 NET "DSP_DIN1" LOC = B4;
@@ -90,21 +76,64 @@ NET "DSP_DOUTAUX" LOC = E2;
 NET "DSP_POUT0" LOC = D3;
 NET "DSP_POUT1" LOC = D1;
 
-
 NET "D_CLK" LOC = F3;
 NET "D_CLK2" LOC = G3;
 NET "D_FS" LOC = E1;
 NET "D_FS2" LOC = F1;
 
-
 NET "SPI_CLK" LOC = R14;
 NET "SPI_MOSI" LOC = T14;
-
-
 NET "SPI_nCS0" LOC = R15;
 NET "SPI_MISO" LOC = P13;
 
+NET "aes50a_clk_a_rx_in" LOC = A12;
+NET "aes50a_clk_a_rx_nen_out" LOC = B12;
+NET "aes50a_clk_a_tx_en_out" LOC = C12;
+NET "aes50a_clk_a_tx_out" LOC = A13;
+NET "aes50a_clk_b_rx_in" LOC = C13;
+NET "aes50a_clk_b_rx_nen_out" LOC = A14;
+NET "aes50a_clk_b_tx_en_out" LOC = B14;
+NET "aes50a_clk_b_tx_out" LOC = B15;
+NET "aes50a_phy_rst_n_out" LOC = C11;
+NET "aes50a_rmii_crs_dv_in" LOC = D14;
+NET "aes50a_rmii_tx_en_out" LOC = F16;
+NET "aes50a_rmii_txd_0_out" LOC = F15;
+NET "aes50a_rmii_txd_1_out" LOC = F14;
+NET "aes50a_rmii_clk_out" LOC = C16;
+NET "aes50a_rmii_rxd_0_in" LOC = D16;
+NET "aes50a_rmii_rxd_1_in" LOC = C15;
+NET "aes50a_rmii_er_in" LOC = D15;
 
+NET "aes50b_clk_a_rx_in" LOC = G16;
+NET "aes50b_clk_a_rx_nen_out" LOC = G14;
+NET "aes50b_clk_a_tx_en_out" LOC = H16;
+NET "aes50b_clk_a_tx_out" LOC = H15;
+NET "aes50b_clk_b_rx_in" LOC = J16;
+NET "aes50b_clk_b_rx_nen_out" LOC = J13;
+NET "aes50b_clk_b_tx_en_out" LOC = K16;
+NET "aes50b_clk_b_tx_out" LOC = K15;
+NET "aes50b_rmii_clk_out" LOC = K14;
+NET "aes50b_rmii_crs_dv_in" LOC = M15;
+NET "aes50b_rmii_er_in" LOC = M16;
+NET "aes50b_rmii_rxd_0_in" LOC = L14;
+NET "aes50b_rmii_rxd_1_in" LOC = L16;
+NET "aes50b_rmii_txd_0_out" LOC = N14;
+NET "aes50b_rmii_txd_1_out" LOC = P16;
+NET "aes50b_rmii_tx_en_out" LOC = N16;
+
+# specific routing- and timing-settings
+NET "FPGACLK" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "FPGACLK" TNM_NET = "FPGACLK";
+NET "PLL_OUT" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "PLL_OUT" TNM_NET = "PLL_OUT";
+NET "XLXI_53/clk_a1" TNM_NET = "XLXI_53/clk_a1";
+NET "XLXI_53/clk_b1" TNM_NET = "XLXI_53/clk_b1";
+TIMESPEC TS_FPGACLK = PERIOD "FPGACLK" 16 MHz HIGH 50 %;
+TIMESPEC TS_PLL_OUT = PERIOD "PLL_OUT" 49.152 MHz HIGH 50 %;
+TIMESPEC TS_XLXI_53_clk_a1 = PERIOD "XLXI_53/clk_a1" 24.576 MHz HIGH 50 %;
+TIMESPEC TS_XLXI_53_clk_b1 = PERIOD "XLXI_53/clk_b1" 12.288 MHz HIGH 50 %;
+
+# pin-voltage-settings
 NET "AD0_BCLK" IOSTANDARD = LVCMOS33;
 NET "AD0_DATA0" IOSTANDARD = LVCMOS33;
 NET "AD0_DATA1" IOSTANDARD = LVCMOS33;
@@ -160,6 +189,7 @@ NET "CARD_IN1" IOSTANDARD = LVCMOS33;
 NET "CARD_IN0" IOSTANDARD = LVCMOS33;
 NET "CARD_FSYNC" IOSTANDARD = LVCMOS33;
 NET "CARD_BCLK" IOSTANDARD = LVCMOS33;
+NET "CARD_RDY" IOSTANDARD = LVCMOS33;
 NET "AUX_SCLK" IOSTANDARD = LVCMOS33;
 NET "AUX_nRST" IOSTANDARD = LVCMOS33;
 NET "AUX_nCS" IOSTANDARD = LVCMOS33;
@@ -181,12 +211,43 @@ NET "AD0_TX" IOSTANDARD = LVCMOS33;
 NET "AD0_RX" IOSTANDARD = LVCMOS33;
 NET "AD0_MCLK" IOSTANDARD = LVCMOS33;
 NET "AD0_FSYNC" IOSTANDARD = LVCMOS33;
-
-
-NET "PLL_AUX" LOC = T9;
-
-
 NET "PLL_AUX" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_txd_1_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_txd_0_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_crs_dv_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_phy_rst_n_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_clk_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_b_rx_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50a_clk_a_rx_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_rxd_1_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_rxd_0_in" IOSTANDARD = LVCMOS33;
+NET "aes50a_rmii_er_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_a_rx_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_a_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_a_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_a_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_b_rx_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_b_rx_nen_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_b_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_b_tx_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_clk_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_crs_dv_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_er_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_rxd_0_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_rxd_1_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_tx_en_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_txd_0_out" IOSTANDARD = LVCMOS33;
+NET "aes50b_rmii_txd_1_out" IOSTANDARD = LVCMOS33;
+
+
+# pin-speed-settings
 NET "AD0_MCLK" SLEW = FAST;
 NET "AD0_BCLK" SLEW = FAST;
 NET "AD1_BCLK" SLEW = FAST;
@@ -216,61 +277,9 @@ NET "P16_B_TXM" SLEW = FAST;
 NET "P16_B_TXP" SLEW = FAST;
 NET "PLL_IN" SLEW = FAST;
 NET "SPI_MISO" SLEW = FAST;
-NET "CARD_RDY" LOC = T4;
-NET "CARD_RDY" IOSTANDARD = LVCMOS33;
-
-#Created by Constraints Editor (xc3s1400a-ft256-4) - 2026/02/28
-NET "FPGACLK" TNM_NET = "FPGACLK";
-NET "PLL_OUT" TNM_NET = "PLL_OUT";
-NET "XLXI_53/clk_a1" TNM_NET = XLXI_53/clk_a1;
-NET "XLXI_53/clk_b1" TNM_NET = XLXI_53/clk_b1;
-TIMESPEC TS_FPGACLK = PERIOD "FPGACLK" 16 MHz HIGH 50 %;
-TIMESPEC TS_PLL_OUT = PERIOD "PLL_OUT" 49.152 MHz HIGH 50 %;
-TIMESPEC TS_XLXI_53_clk_a1 = PERIOD "XLXI_53/clk_a1" 24.576 MHz HIGH 50 %;
-TIMESPEC TS_XLXI_53_clk_b1 = PERIOD "XLXI_53/clk_b1" 12.288 MHz HIGH 50 %;
-
-NET "aes50a_clk_a_rx_in" LOC = A12;
-NET "aes50a_clk_a_rx_nen_out" LOC = B12;
-NET "aes50a_clk_a_tx_en_out" LOC = C12;
-NET "aes50a_clk_a_tx_out" LOC = A13;
-NET "aes50a_clk_b_rx_in" LOC = C13;
-NET "aes50a_clk_b_rx_nen_out" LOC = A14;
-NET "aes50a_clk_b_tx_en_out" LOC = B14;
-NET "aes50a_clk_b_tx_out" LOC = B15;
-NET "aes50a_phy_rst_n_out" LOC = C11;
-NET "aes50a_rmii_crs_dv_in" LOC = D14;
-NET "aes50a_rmii_tx_en_out" LOC = F16;
-NET "aes50a_rmii_txd_0_out" LOC = F15;
-NET "aes50a_rmii_txd_1_out" LOC = F14;
-
-
-NET "aes50a_rmii_txd_1_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_rmii_txd_0_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_rmii_tx_en_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_rmii_crs_dv_in" IOSTANDARD = LVCMOS33;
-NET "aes50a_phy_rst_n_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_rmii_clk_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_b_tx_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_b_tx_en_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_b_rx_nen_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_b_rx_in" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_a_tx_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_a_tx_en_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_a_rx_nen_out" IOSTANDARD = LVCMOS33;
-NET "aes50a_clk_a_rx_in" IOSTANDARD = LVCMOS33;
-
-
-NET "aes50a_rmii_clk_out" LOC = C16;
-
-
-NET "aes50a_rmii_rxd_0_in" LOC = D16;
-NET "aes50a_rmii_rxd_1_in" LOC = C15;
-
-
-NET "aes50a_rmii_rxd_1_in" IOSTANDARD = LVCMOS33;
-NET "aes50a_rmii_rxd_0_in" IOSTANDARD = LVCMOS33;
-
-
+NET "AD0_TX" SLEW = SLOW;
+NET "D_FS2" SLEW = FAST;
+NET "D_FS" SLEW = FAST;
 NET "aes50a_rmii_txd_0_out" SLEW = FAST;
 NET "aes50a_rmii_txd_1_out" SLEW = FAST;
 NET "aes50a_rmii_tx_en_out" SLEW = FAST;
@@ -281,15 +290,14 @@ NET "aes50a_clk_b_tx_en_out" SLEW = FAST;
 NET "aes50a_clk_b_rx_nen_out" SLEW = FAST;
 NET "aes50a_clk_a_tx_out" SLEW = FAST;
 NET "aes50a_clk_a_tx_en_out" SLEW = FAST;
-NET "AD0_TX" SLEW = SLOW;
 NET "aes50a_clk_a_rx_nen_out" SLEW = FAST;
-NET "D_FS2" SLEW = FAST;
-NET "D_FS" SLEW = FAST;
-
-# PlanAhead Generated physical constraints 
-
-NET "aes50a_rmii_er_in" LOC = D15;
-
-# PlanAhead Generated IO constraints 
-
-NET "aes50a_rmii_er_in" IOSTANDARD = LVCMOS33;
+NET "aes50b_clk_a_tx_out" SLEW = FAST;
+NET "aes50b_clk_a_tx_en_out" SLEW = FAST;
+NET "aes50b_clk_a_rx_nen_out" SLEW = FAST;
+NET "aes50b_clk_b_rx_nen_out" SLEW = FAST;
+NET "aes50b_clk_b_tx_en_out" SLEW = FAST;
+NET "aes50b_clk_b_tx_out" SLEW = FAST;
+NET "aes50b_rmii_clk_out" SLEW = FAST;
+NET "aes50b_rmii_txd_0_out" SLEW = FAST;
+NET "aes50b_rmii_txd_1_out" SLEW = FAST;
+NET "aes50b_rmii_tx_en_out" SLEW = FAST;
