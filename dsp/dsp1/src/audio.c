@@ -182,6 +182,12 @@ void audioProcessData(void) {
 	- Main-Bus:
 	==============================
 */
+
+	cycle_t cycletemp;
+
+	START_CYCLE_COUNT(cycletemp);
+
+
 	audioProcessing = 1; // set global flag that we are processing now
 
 	int bufferSampleIndex;
@@ -242,6 +248,10 @@ void audioProcessData(void) {
 	    }
 	}
 
+	STOP_CYCLE_COUNT(cyclemap[1], cycletemp);
+
+
+
 	//   ____ _   _    _    _   _ _   _ _____ _     ____ _____ ____  ___ ____
 	//  / ___| | | |  / \  | \ | | \ | | ____| |   / ___|_   _|  _ \|_ _|  _ \
 	// | |   | |_| | / _ \ |  \| |  \| |  _| | |   \___ \ | | | |_) || || |_) |
@@ -278,6 +288,8 @@ void audioProcessData(void) {
 	//  | || | | | |_) | |_| | |_  | |_| |  __/ | (_| | |_| |  / /   |  _ < (_) | |_| | |_| | | | | (_| |
 	// |___|_| |_| .__/ \__,_|\__| |____/ \___|_|\__,_|\__, | /_/    |_| \_\___/ \__,_|\__|_|_| |_|\__, |
 	//           |_|                                   |___/                                       |___/
+	START_CYCLE_COUNT(cycletemp);
+
 	#if DEBUG_DISABLE_INTPUTDELAY == 0
 
 		// write to SDRAM
@@ -338,6 +350,9 @@ void audioProcessData(void) {
 		}
 	#endif
 
+	STOP_CYCLE_COUNT(cyclemap[2], cycletemp);
+
+	START_CYCLE_COUNT(cycletemp);
 	#if DEBUG_DISABLE_LOWCUT == 0
 	//				  _                            _
 	//				 | |    _____      _____ _   _| |_
@@ -367,6 +382,8 @@ void audioProcessData(void) {
 		dsp.lowcutStatesOutput[i_ch] = zout; // zoutput = output
 	}
 	#endif
+	STOP_CYCLE_COUNT(cyclemap[3], cycletemp);
+
 
 	#if USE_HIGHCUT == 1
 	//                _   _ _       _      ____      _
@@ -395,6 +412,7 @@ void audioProcessData(void) {
 	}
 	#endif
 
+	START_CYCLE_COUNT(cycletemp);
 	#if DEBUG_DISABLE_GATE == 0
 	//				  _   _       _                      _
 	//				 | \ | | ___ (_)___  ___  __ _  __ _| |_ ___
@@ -457,7 +475,9 @@ void audioProcessData(void) {
 	}
 
 	#endif
+	STOP_CYCLE_COUNT(cyclemap[4], cycletemp);
 
+	START_CYCLE_COUNT(cycletemp);
 	#if DEBUG_DISABLE_EQ == 0
 	//				  _____                  _ _
 	//				 | ____|__ _ _   _  __ _| (_)_______ _ __
@@ -483,7 +503,9 @@ void audioProcessData(void) {
 	// copy PRE_EQ-Tap to POST_EQ-TAP
 	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL][0], (CHANNELS_WITH_4BD_EQ - MAX_MAIN) * SAMPLES_IN_BUFFER * sizeof(float));
 	#endif
+	STOP_CYCLE_COUNT(cyclemap[5], cycletemp);
 
+	START_CYCLE_COUNT(cycletemp);
 	#if DEBUG_DISABLE_DYNAMICS == 0
 	//				  ____                              _
 	//				 |  _ \ _   _ _ __   __ _ _ __ ___ (_) ___ ___
@@ -565,6 +587,7 @@ void audioProcessData(void) {
     // no dynamics: copy all channels POST_EQ -> PRE_FADER
     memcpy(&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_POST_EQ] [DSP_BUF_IDX_DSPCHANNEL][0], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) * SAMPLES_IN_BUFFER * sizeof(float));
 	#endif
+    STOP_CYCLE_COUNT(cyclemap[6], cycletemp);
 
 	// copy data for DSP2-FX-Return-Channels from TAP_INPUT to TAP_PRE_FADER without processing. All other DSP2-channel have no volume-control yet
 	memcpy(&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSP2_FXRET][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSP2_FXRET][0], MAX_DSP2_FXRETURN * SAMPLES_IN_BUFFER * sizeof(float));
@@ -577,6 +600,7 @@ void audioProcessData(void) {
 	// calculate channel volume
 	// --------------------------------------------------------
 
+	START_CYCLE_COUNT(cycletemp);
 	#pragma loop_count(48) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN
 	for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
 		float* src = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
@@ -588,7 +612,9 @@ void audioProcessData(void) {
 			dst[s] = dsp.channelVolume[i_ch] * src[s];
 		}
 	}
+	STOP_CYCLE_COUNT(cyclemap[7], cycletemp);
 
+	START_CYCLE_COUNT(cycletemp);
 	#if DEBUG_DISABLE_MIXBUS == 0
 	//				  __  __ _____  ______  _   _ ____
 	//				 |  \/  |_ _\ \/ / __ )| | | / ___|
@@ -788,6 +814,7 @@ void audioProcessData(void) {
 	    audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][s]   = sumS;
 	}
     #endif
+	STOP_CYCLE_COUNT(cyclemap[8], cycletemp);
 
 	//	 __  __       _             _______  __  _____                  _ _
 	//	|  \/  | __ _(_)_ __    _  |  ___\ \/ / | ____|__ _ _   _  __ _| (_)_______ _ __
