@@ -72,16 +72,16 @@ void spiInit(void) {
 		// caution: chain-pointer registers must point to the LAST location in the TCB, hence tcb_address + 3
 
 		// audio-data of main-DSP-channels and FX-return
-		spiTx_tcb[0][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer <- DEBUG: jump to main-bus-audio-data directly without mixbusses and gains
-		spiTx_tcb[0][1] = (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); // ICSPI internal count
+		spiTx_tcb[0][0] = ((int)&spiTx_tcb[1][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer <- DEBUG: jump to main-bus-audio-data directly without mixbusses and gains
+		spiTx_tcb[0][1] = (MAX_CHAN_FPGA); // ICSPI internal count
 		spiTx_tcb[0][2] = SAMPLES_IN_BUFFER; // IMSPI internal modifier (offset for next index)
 		spiTx_tcb[0][3] = (int)&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL][0]; // IISPI internal index
 
 		// audio-data of mixbusses
-		spiTx_tcb[1][0] = ((int)&spiTx_tcb[4][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
-		spiTx_tcb[1][1] = ACTIVE_MIX_BUSSES * 0; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these volume-information. DSP will take to long
-		spiTx_tcb[1][2] = SAMPLES_IN_BUFFER; // IMSPI internal modifier (offset for next index)
-		spiTx_tcb[1][3] = (int)&audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS][0]; // IISPI internal index
+		spiTx_tcb[1][0] = ((int)&spiTx_tcb[2][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer
+		spiTx_tcb[1][1] = 16; // ICSPI internal count <- DEBUG: at the moment it is not possible to transmit these volume-information. DSP will take to long
+		spiTx_tcb[1][2] = 1; // IMSPI internal modifier (offset for next index)
+		spiTx_tcb[1][3] = (int)&cyclemap[1]; // IISPI internal index
 
 		// compressor gains
 		spiTx_tcb[2][0] = ((int)&spiTx_tcb[3][0] + 3) & OFFSET_MASK; // CPSPI chain-pointer

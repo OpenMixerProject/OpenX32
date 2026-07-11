@@ -47,15 +47,12 @@
 #include "audio.h"
 #include "fx.h"
 #include "spi.h"
-#include <cycles.h>
 
 // global data
 //static volatile uint32_t timerCounter;
-cycle_stats_t systemStats;
-uint32_t cyclesAudio;
-uint32_t cyclesMain;
-uint32_t cyclesTotal;
+//cycle_stats_t systemStats;
 uint32_t spiTimeoutCounter = 0;
+volatile uint32_t cyclemap[17];
 
 /*
 #pragma optimize_for_speed // interrupt handlers usually need to be optimized
@@ -106,6 +103,18 @@ void misc0ISR(int sig) {
 	adi_int_UninstallHandler(ADI_CID_P0I);
 }
 
+void led(void) {
+
+	static uint32_t counter = 0;
+
+	if (counter > 0xFFFFF) {
+		//			 toggle LED controlled by timer
+		sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
+		counter = 0;
+	}
+	counter++;
+}
+
 int main() {
 	// initialize all components
 	adi_initComponents();
@@ -135,25 +144,33 @@ int main() {
 	// turn-off LED
 	sysreg_bit_set(sysreg_FLAGS, FLG7);
 
-	CYCLES_INIT(systemStats);
+	cyclemap[0] = 0; // cycles in audioProcessData()
+	cyclemap[1] = 0; // DataInput
+	cyclemap[2] = 0; // InputDelay/Routing
+	cyclemap[3] = 0; // Lowcut
+	cyclemap[4] = 0; // Noisegate
+	cyclemap[5] = 0; // EQ
+	cyclemap[6] = 0; // Dynamics
+	cyclemap[7] = 0; // Channel/Fader
+	cyclemap[8] = 0; // Mixbus/Main-Out
+
+
+	cycle_t cycletemp;
 
 	// the main-loop
 	while(1) {
-		//if (timerCounter == 0) {
-		//	// toggle LED controlled by timer
-		//	sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
-		//}
+
+
+		led();
+
+
 
 		// check for new audio-data to process
 		if (audioReady) {
-			CYCLES_START(systemStats);
 
+			START_CYCLE_COUNT(cycletemp);
 			audioProcessData();
-
-			CYCLES_STOP(systemStats);
-			cyclesAudio = systemStats._cycles;
-			cyclesTotal = cyclesAudio + cyclesMain;
-			CYCLES_RESET(systemStats);
+			STOP_CYCLE_COUNT(cyclemap[0], cycletemp);
 
 			spiTimeoutCounter++; // will be incremented every 333 microseconds
 		}
@@ -162,13 +179,8 @@ int main() {
 		if (spiNewRxDataReady) {
 			spiTimeoutCounter = 0; // reset SPI counter
 
-			CYCLES_START(systemStats);
-
 			spiProcessRxData();
 
-			CYCLES_STOP(systemStats);
-			cyclesMain = systemStats._cycles;
-			CYCLES_RESET(systemStats);
 		}
 
 		// check if we have received some data over SPI within the last 250ms
@@ -181,5 +193,7 @@ int main() {
 		}
 
 		spiCallback();
+
+
 	}
 }

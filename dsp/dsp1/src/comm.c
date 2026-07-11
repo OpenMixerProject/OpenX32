@@ -135,7 +135,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					#elif USE_SPI_TXD_MODE == 2
 						spiCommData[2] = DSP_VERSION;
 						//spiCommData[3] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
-						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
+						spiCommData[3] = cyclemap[0]; // Cycles Audioprocessing
 						spiCommData[4] = audioGlitchCounter;
 
 						spiCommData[5] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];

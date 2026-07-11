@@ -34,15 +34,15 @@
 #include <sysreg.h>
 #include <signal.h>
 
+#include <cycle_count.h>
+
 // global variables
 extern volatile int audioProcessing;
 extern volatile int audioReady;
 extern volatile bool spiNewRxDataReady;
 extern int audioTx_tcb[8][BUFFER_COUNT][4];
 extern int audioRx_tcb[8][BUFFER_COUNT][4];
-extern uint32_t cyclesAudio;
-extern uint32_t cyclesMain;
-extern uint32_t cyclesTotal;
+extern volatile uint32_t cyclemap[17];
 
 typedef struct {
 	// filter-coefficients
