@@ -51,8 +51,8 @@
 	========================
 */
 
-volatile int audioReady = 0;
-volatile int audioProcessing = 0;
+volatile bool audioReady = false;
+volatile bool audioProcessing = false;
 volatile uint32_t audioGlitchCounter = 0;
 int audioBufferOffset = 0;
 
@@ -85,6 +85,12 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 
 #pragma align 8 // align for 2 floats
 float audioBuffer[5][1 + MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS + MAX_DSP2_FXINSERT + MAX_MATRIX + MAX_MAIN + MAX_DSP2_AUX + MAX_MONITOR][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
+
+#pragma section("seg_pmda")
+pm float vuBuffer[MAX_CHAN_FPGA];
+
+bool volatile SPI_interlock = false;
+
 //float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 //float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 float sampleBuffer[SAMPLES_IN_BUFFER]; // main channels can be calculated only after the other channels, so we can save some memory here
@@ -188,7 +194,7 @@ void audioProcessData(void) {
 	START_CYCLE_COUNT(cycletemp);
 
 
-	audioProcessing = 1; // set global flag that we are processing now
+	audioProcessing = true; // set global flag that we are processing now
 
 	int bufferSampleIndex;
 	int bufferTdmIndex;
@@ -225,6 +231,7 @@ void audioProcessData(void) {
 	    }
 	}
 
+
 	// copy channels from DSP2 without conversion
 	static const int dsp2DstIdx[TDM_INPUTS_DSP2] = {
 	    DSP_BUF_IDX_DSP2_FXRET,
@@ -249,8 +256,6 @@ void audioProcessData(void) {
 	}
 
 	STOP_CYCLE_COUNT(cyclemap[1], cycletemp);
-
-
 
 	//   ____ _   _    _    _   _ _   _ _____ _     ____ _____ ____  ___ ____
 	//  / ___| | | |  / \  | \ | | \ | | ____| |   / ___|_   _|  _ \|_ _|  _ \
@@ -337,6 +342,7 @@ void audioProcessData(void) {
 
 	#else
 		// route desired input-sources to one of the 40 DSP-channels directly
+		SPI_interlock = true;
 		#pragma loop_count(MAX_CHAN_FPGA)
 		for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
 			float* src = &dsp.inputSourcePtr[i_ch][0];
@@ -347,7 +353,11 @@ void audioProcessData(void) {
 			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 				dst[s] = src[s];
 			}
+
+			// copy first sample for VU-Data
+			vuBuffer[i_ch] = src[0];
 		}
+		SPI_interlock = false;
 	#endif
 
 	STOP_CYCLE_COUNT(cyclemap[2], cycletemp);
@@ -1104,19 +1114,11 @@ void audioProcessData(void) {
     	audioBufferOffset = 0;
     }
 
-	audioReady = 0; // clear global flag that audio is not ready anymore
-	audioProcessing = 0; // clear global flag that processing is done
+	audioReady = false; // clear global flag that audio is not ready anymore
+	audioProcessing = false; // clear global flag that processing is done
 }
 
-void audioRxISR(uint32_t iid, void *handlerarg) {
-	// we received new audio-data
-	// check if we are still processing the data, which means >100% CPU Load -> Crash System
-    if (audioProcessing) {
-    	audioGlitchCounter++;
-
-    	// this is not nice but without a debugger and profiling tools this is the easiest method to check if the algorithms are within the timing
-    	systemCrash();
-    }
-
-    audioReady = 1; // set flag, that we have new data to process
+void audioRxISR(uint32_t iid, void *handlerarg)
+{
+    audioReady = true; // set flag, that we have new data to process
 }

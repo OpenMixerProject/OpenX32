@@ -49,38 +49,11 @@
 #include "spi.h"
 
 // global data
-//static volatile uint32_t timerCounter;
-//cycle_stats_t systemStats;
 uint32_t spiTimeoutCounter = 0;
-volatile uint32_t cyclemap[17];
 
-/*
-#pragma optimize_for_speed // interrupt handlers usually need to be optimized
-#pragma section ("seg_int_code")  // handler functions perform better in internal memory
-static void timerIsr(uint32_t iid, void* handlerArg) {
-	volatile uint32_t *timer_counter = (uint32_t *) handlerArg;
-	// Don't call standard I/O functions or update non-volatile global data in interrupt handlers
+#pragma section("seg_pmda")
+pm volatile uint32_t cyclemap[17];
 
-	// You can use the handler arguments to identify the interrupt being handled (iid)
-	// and to access data via an interrupt specific callback pointer argument (handlerArg)
-	assert(iid == ADI_CID_TMZHI || iid == ADI_CID_TMZLI);
-	assert(handlerArg != NULL);
-
-	// increment timer-counter up to 100000 and wrap around
-	if (*timer_counter >= 100000) {
-		*timer_counter = 0;
-	}else{
-		*timer_counter += 1;
-	}
-}
-#pragma optimize_as_cmd_line // restore the optimizer settings to those for the build configuration
-
-void delay(int i) {
-    for (; i > 0; --i) {
-    	NOP();
-    }
-}
-*/
 
 void openx32Init(void) {
 	// initialize the default samplerate with 48kHz
@@ -103,13 +76,13 @@ void misc0ISR(int sig) {
 	adi_int_UninstallHandler(ADI_CID_P0I);
 }
 
-void led(void) {
-
+void led(void)
+{
 	static uint32_t counter = 0;
 
-	if (counter > 0xFFFFF) {
-		//			 toggle LED controlled by timer
-		sysreg_bit_tgl(sysreg_FLAGS, FLG7); // alternative: sysreg_bit_clr() / sysreg_bit_set()
+	if (counter > 0xFFFFF)
+	{
+		sysreg_bit_tgl(sysreg_FLAGS, FLG7);
 		counter = 0;
 	}
 	counter++;
@@ -127,9 +100,7 @@ int main() {
 
 	// install interrupt handlers (see Processor Hardware Reference v2.2 page B-5)
 	adi_int_InstallHandler(ADI_CID_P1I, (ADI_INT_HANDLER_PTR)spiISR, 0, true); // SPI Interrupt (called on new SPI-data)
-	//adi_int_InstallHandler(ADI_CID_P3I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT1 Interrupt (called on new audio-data)
 	adi_int_InstallHandler(ADI_CID_P11I, (ADI_INT_HANDLER_PTR)audioRxISR, 0, true); // SPORT7 Interrupt (called on new audio-data)
-	//adi_int_InstallHandler(ADI_CID_TMZHI, timerIsr, (void *)&timerCounter, true); // iid - high priority core timer. Use "ADI_CID_TMZLI" for low priority
 	adi_int_InstallHandler(ADI_CID_P0I, (ADI_INT_HANDLER_PTR)misc0ISR, 0, true); // MISCA0 Interrupt on P0I or P12I
 
 	// enable interrupts
@@ -137,55 +108,63 @@ int main() {
 	*pDAI_IRPTL_FE |= DAI_INT_28; // DAI Rising Edge Interrupt Latch Register
 	*pDAI_IMASK_FE |= DAI_INT_28; // DAI Rising Edge Interrupt Latch Register
 
-	// t_timer = (t_periode + 1) * t_count / f_clk = (1001 * 1000)/266MHz = 0.0037631579 s
-	//timer_set(1000, 1000); // set period to 1000 and counter to 1000 -> count 1000 x 1000 -> 266MHz = 3.7594ns = 3.7594ms
-	//timer_on(); // start timer
-
 	// turn-off LED
 	sysreg_bit_set(sysreg_FLAGS, FLG7);
 
-	cyclemap[0] = 0; // cycles in audioProcessData()
-	cyclemap[1] = 0; // DataInput
-	cyclemap[2] = 0; // InputDelay/Routing
-	cyclemap[3] = 0; // Lowcut
-	cyclemap[4] = 0; // Noisegate
-	cyclemap[5] = 0; // EQ
-	cyclemap[6] = 0; // Dynamics
-	cyclemap[7] = 0; // Channel/Fader
-	cyclemap[8] = 0; // Mixbus/Main-Out
+	cyclemap[0] = 16; // cycles in audioProcessData()
+	cyclemap[1] = 15; // DataInput
+	cyclemap[2] = 14; // InputDelay/Routing
+	cyclemap[3] = 13; // Lowcut
+	cyclemap[4] = 12; // Noisegate
+	cyclemap[5] = 11; // EQ
+	cyclemap[6] = 10; // Dynamics
+	cyclemap[7] = 9; // Channel/Fader
+	cyclemap[8] = 8; // Mixbus/Main-Out
+	cyclemap[9] = 7; //
+	cyclemap[10] = 6; //
+	cyclemap[11] = 5; //
+	cyclemap[12] = 4; //
+	cyclemap[13] = 3; //
+	cyclemap[14] = 2; //
+	cyclemap[15] = 1; //
+	cyclemap[16] = 0; //
 
 
 	cycle_t cycletemp;
 
 	// the main-loop
-	while(1) {
-
-
+	while(1)
+	{
 		led();
 
-
-
 		// check for new audio-data to process
-		if (audioReady) {
-
+		if (audioReady)
+		{
 			START_CYCLE_COUNT(cycletemp);
 			audioProcessData();
 			STOP_CYCLE_COUNT(cyclemap[0], cycletemp);
+
+			// copy cyclemap to spiCommData
+			for (int i = 0; i < 16; i++)
+			{
+
+			}
 
 			spiTimeoutCounter++; // will be incremented every 333 microseconds
 		}
 
 		// check for new SPI-data to process
-		if (spiNewRxDataReady) {
+		if (!SPI_interlock && spiNewRxDataReady)
+		{
 			spiTimeoutCounter = 0; // reset SPI counter
 
 			spiProcessRxData();
-
 		}
 
 		// check if we have received some data over SPI within the last 250ms
 		// we are receiving audio every 333 microseconds. 750 * 0.333us = 250ms
-		if (spiTimeoutCounter >= 750) {
+		if (spiTimeoutCounter >= 750)
+		{
 			// we ran into a SPI-timeout -> reset SPI system
 			spiCoreRxBegin();
 
@@ -193,7 +172,5 @@ int main() {
 		}
 
 		spiCallback();
-
-
 	}
 }

@@ -1,10 +1,10 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DEBUG_DISABLE_LOWCUT	0
-#define DEBUG_DISABLE_GATE		0
-#define DEBUG_DISABLE_EQ		0
-#define DEBUG_DISABLE_DYNAMICS	0
+#define DEBUG_DISABLE_LOWCUT	1
+#define DEBUG_DISABLE_GATE		1
+#define DEBUG_DISABLE_EQ		1
+#define DEBUG_DISABLE_DYNAMICS	1
 #define DEBUG_DISABLE_MIXBUS	1
 #define DEBUG_DISABLE_EQMIXBUS	1
 #define DEBUG_DISABLE_EQMAIN	1
@@ -32,7 +32,10 @@
 #define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
 #define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
+#define CYCLEMAP_LENGTH			16
+
 #define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
+#define SPI_DMA_COMMDATA_SIZE 3 + CYCLEMAP_LENGTH + MAX_CHAN_FPGA + 3
 
 #define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
 #define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)
@@ -68,9 +71,9 @@
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
-#define SPI_MAX_RX_PAYLOAD_SIZE	30  // 27 int-values + * + # + parameter
+#define SPI_MAX_RX_PAYLOAD_SIZE	50  // 27 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 2)  // store up to 2 payload-sets
-#define SPI_TX_BUFFER_SIZE		200 // transmit up to 200 values - must be dividable by 2!
+#define SPI_TX_BUFFER_SIZE		400 // transmit up to 200 values - must be dividable by 2!
 
 #define SAMPLERATE_MAX			48000
 #define	DELAYLINE_LENGTH_MS		500 // 500ms

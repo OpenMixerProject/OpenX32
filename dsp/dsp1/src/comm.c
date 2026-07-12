@@ -66,14 +66,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 	unsigned int* intValues = (unsigned int*)values;
 	float tmpValueFloat;
 
-	#if USE_SPI_TXD_MODE == 1
-		unsigned int parameter;
-		unsigned int _classId;
-		unsigned int _channel;
-		unsigned int _index;
-		unsigned int _valueCount;
-	#endif
-
 	switch (classId) {
 		case '?': // request-class
 			switch (channel) {
@@ -81,58 +73,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					// use this for reading data from the txBuffer without putting new data to buffer
 					break;
 				case 'u': // update-packet
-					#if USE_SPI_TXD_MODE == 0
-						spiCommData[0] = DSP_VERSION;
-						//spiCommData[0] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
-						memcpy(&spiCommData[1], &cyclesTotal, sizeof(float));
-
-						// VU-meters of main-channels
-						spiCommData[2] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
-						spiCommData[3] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
-						spiCommData[4] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
-						// VU-meters of all DSP input-channels and dynamics
-						for (int i = 0; i < 40; i++) {
-							//spiCommData[5 + i] = audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + i][0];
-							spiCommData[5 + i] = audioBuffer[TAP_INPUT][dsp.inputRouting[i]][0];
-							//spiCommData[45 + i] = dsp.compressorGain[i];
-							//spiCommData[85 + i] = dsp.gateGain[i];
-						}
-						spiSendArray('s', 'u', 0, 45, &spiCommData[0]);
-						//spiSendArray('s', 'u', 0, 85, &spiCommData[0]);
-						//spiSendArray('s', 'u', 0, 125, &spiCommData[0]);
-					#elif USE_SPI_TXD_MODE == 1
-						parameter = 0x0000002A; // *
-						memcpy(&spiCommData[0], &parameter, sizeof(uint32_t));
-
-						_classId = 's';
-						_channel = 'u';
-						_index = 0;
-						_valueCount = 2 + 40 + 8 + 8 + 3;
-						parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
-						memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
-						parameter = 0x00000023; // #
-						memcpy(&spiCommData[63], &parameter, sizeof(uint32_t));
-
-
-						spiCommData[2] = DSP_VERSION;
-						//spiCommData[0] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
-						memcpy(&spiCommData[3], &cyclesTotal, sizeof(uint32_t));
-
-						// VU-meters of all DSP input-channels and dynamics
-						for (int i = 0; i < 48; i++) {
-							spiCommData[4 + i] = audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i][0];
-						}
-						for (int i = 0; i < 8; i++) {
-							spiCommData[52 + i] = audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_MIXBUS][0];
-						}
-
-						// VU-meters of main-channels
-						spiCommData[60] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
-						spiCommData[61] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
-						spiCommData[62] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
-
-						spiDmaBegin((unsigned int*)&spiCommData[0], _valueCount + 3, false);
-					#elif USE_SPI_TXD_MODE == 2
 						spiCommData[2] = DSP_VERSION;
 						//spiCommData[3] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
 						spiCommData[3] = cyclemap[0]; // Cycles Audioprocessing
@@ -144,7 +84,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 						spiDmaBegin((unsigned int*)&spiCommData[0], 5, false); // start DMA-transmission and transmit the first 5 elements of spiCommData
 						// after this the DMA-chain will switch to the next spi_tcb
-					#endif
 
 					break;
 				default:
@@ -409,23 +348,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 			break;
 		case 'a': // Auxiliary
-			switch (index) {
-				case 0:
-					if (valueCount == 1) {
-						if (channel == 42) {
-							// LED Control
-							switch(intValues[0]) {
-								case 0:
-									break;
-								case 1:
-									break;
-								default:
-									break;
-							}
-						}
-					}
-					break;
-			}
 			break;
 		default:
 			break;
