@@ -74,17 +74,17 @@ void spiInit(void) {
 	unsigned int _index;
 	unsigned int _valueCount;
 
-	parameter = 0x0000002A; // *
+	parameter = '*';
 	memcpy(&spiCommData[0], &parameter, sizeof(uint32_t));
 
 	_classId = 's';
 	_channel = 'u';
 	_index = 0;
-	_valueCount = SPI_DMA_COMMDATA_SIZE - 3;
+	_valueCount = SPI_DMA_COMMDATA_SIZE;
 	parameter = (_valueCount << 24) + (_index << 16) + (_channel << 8) + _classId;
 	memcpy(&spiCommData[1], &parameter, sizeof(uint32_t));
 
-	parameter = 0x00000023; // #
+	parameter = '#';
 	memcpy(&spiCommData[SPI_DMA_COMMDATA_SIZE - 1], &parameter, sizeof(uint32_t));
 
 	spiRxRingBuffer.head = 0;

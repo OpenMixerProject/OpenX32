@@ -1,19 +1,19 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DEBUG_DISABLE_LOWCUT	1
-#define DEBUG_DISABLE_GATE		1
-#define DEBUG_DISABLE_EQ		1
-#define DEBUG_DISABLE_DYNAMICS	1
-#define DEBUG_DISABLE_MIXBUS	1
+#define DEBUG_DISABLE_LOWCUT	0
+#define DEBUG_DISABLE_GATE		0
+#define DEBUG_DISABLE_EQ		0
+#define DEBUG_DISABLE_DYNAMICS	0
+#define DEBUG_DISABLE_MIXBUS	0
 #define DEBUG_DISABLE_EQMIXBUS	1
 #define DEBUG_DISABLE_EQMAIN	1
-#define DEBUG_DISABLE_MATRIX	1
-#define DEBUG_DISABLE_MONITOR	1
-#define DEBUG_DISABLE_INTPUTDELAY	1
-#define DEBUG_DISABLE_OUTPUTDELAY	1
+#define DEBUG_DISABLE_MATRIX	0
+#define DEBUG_DISABLE_MONITOR	0
+#define DEBUG_DISABLE_INTPUTDELAY	0
+#define DEBUG_DISABLE_OUTPUTDELAY	0
 
-#define ACTIVE_MIX_BUSSES		0	// 16 MixBusses are possible now
+#define ACTIVE_MIX_BUSSES		8	// 16 MixBusses are possible now
 
 #define USE_HIGHCUT				0
 
@@ -32,10 +32,10 @@
 #define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
 #define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
-#define CYCLEMAP_LENGTH			16
+#define CYCLEMAP_SIZE			16
 
 #define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
-#define SPI_DMA_COMMDATA_SIZE 3 + CYCLEMAP_LENGTH + MAX_CHAN_FPGA + 3
+#define SPI_DMA_COMMDATA_SIZE 3 + CYCLEMAP_SIZE + MAX_CHAN_FPGA + 3 + 100
 
 #define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
 #define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)
