@@ -4,13 +4,7 @@
 #include "dsp1.h"
 #include "comm.h"
 
-#if USE_SPI_TXD_MODE == 0
-	extern float pm spiCommData[150];
-#elif USE_SPI_TXD_MODE == 1
-	extern float pm spiCommData[65];
-#elif USE_SPI_TXD_MODE == 2
-	extern float pm spiCommData[9];
-#endif
+extern float pm spiCommData[SPI_DMA_COMMDATA_SIZE];
 
 // variables and types for SPI-transmitter in Slave-Mode
 typedef struct {
@@ -18,6 +12,7 @@ typedef struct {
 	volatile int head; // write-pointer
 	volatile int tail; // read-pointer
 } sSpiRxRingBuffer;
+
 typedef struct {
 	unsigned int buffer[SPI_TX_BUFFER_SIZE];
 	volatile int head; // write-pointer
@@ -31,10 +26,5 @@ void spiDmaBegin(unsigned int* buffer, int len, bool receive);
 void spiDmaEnd(void);
 void spiISR(int sig);
 void spiProcessRxData(void);
-void spiPushValueToTxBuffer(unsigned int value);
-void spiSendArray(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values);
-void spiSendValue(unsigned short classId, unsigned short channel, unsigned short index, float value);
-void spiSendValue_uint32(unsigned short classId, unsigned short channel, unsigned short index, unsigned int value);
-//unsigned int spiMasterRxTx(unsigned int data);
 
 #endif

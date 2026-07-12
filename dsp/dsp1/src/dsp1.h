@@ -37,12 +37,12 @@
 #include <cycle_count.h>
 
 // global variables
-extern volatile int audioProcessing;
-extern volatile int audioReady;
+extern volatile bool audioProcessing;
+extern volatile bool audioReady;
 extern volatile bool spiNewRxDataReady;
 extern int audioTx_tcb[8][BUFFER_COUNT][4];
 extern int audioRx_tcb[8][BUFFER_COUNT][4];
-extern volatile uint32_t cyclemap[17];
+extern pm volatile uint32_t cyclemap[17];
 
 typedef struct {
 	// filter-coefficients
@@ -161,10 +161,7 @@ enum eBufferIndex {
 
 
 // function prototypes
-/*
-static void timerIsr(uint32_t iid, void* handlerArg);
-void delay(int i);
-*/
+
 void openx32Init(void);
 
 #endif /* __DSP1_H__ */
