@@ -64,7 +64,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 	float* floatValues = (float*)values;
 	unsigned int* intValues = (unsigned int*)values;
-	float tmpValueFloat;
+
 
 	switch (classId) {
 		case '?': // request-class
@@ -74,13 +74,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 				case 'u': // update-packet
 						spiCommData[2] = DSP_VERSION;
-						//spiCommData[3] = heap_space_unused(0); // returns free heap in 32-bit words. ID=0: internal RAM, ID=1: external SDRAM
-						spiCommData[3] = cyclemap[0]; // Cycles Audioprocessing
-						spiCommData[4] = audioGlitchCounter;
-
-						spiCommData[5] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINLEFT][0];
-						spiCommData[6] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINRIGHT][0];
-						spiCommData[7] = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MAINSUB][0];
+						spiCommData[3] = audioGlitchCounter;
 
 						spiDmaBegin((unsigned int*)&spiCommData[0], 5, false); // start DMA-transmission and transmit the first 5 elements of spiCommData
 						// after this the DMA-chain will switch to the next spi_tcb

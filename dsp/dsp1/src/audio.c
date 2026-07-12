@@ -25,6 +25,7 @@
 #include "audio.h"
 #include "system.h"
 #include "fx.h"
+#include "spi.h"
 
 /*
 	Used Audio-Mapping:
@@ -53,6 +54,7 @@
 
 volatile bool audioReady = false;
 volatile bool audioProcessing = false;
+volatile bool bufferSwitch = false;
 volatile uint32_t audioGlitchCounter = 0;
 int audioBufferOffset = 0;
 
@@ -64,7 +66,6 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 // internal buffers for audio-samples
 #if DEBUG_DISABLE_INTPUTDELAY == 0
 	// delay-lines in the external SDRAM
-	//float em delayLineInput[MAX_CHAN_FPGA][SAMPLES_IN_DELAYLINE];
 	float (*delayLineInput)[SAMPLES_IN_DELAYLINE] = (float (*)[SAMPLES_IN_DELAYLINE])((void*)SDRAM_AUDIO_START);
 
 	int delayLineHeadInput;
@@ -73,7 +74,6 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 
 #if DEBUG_DISABLE_OUTPUTDELAY == 0
 	// delay-lines in the external SDRAM
-	//float em delayLineOutput[MAX_CHAN_FPGA][SAMPLES_IN_DELAYLINE];
 	float (*delayLineOutput)[SAMPLES_IN_DELAYLINE] = (float (*)[SAMPLES_IN_DELAYLINE])((void*)(SDRAM_AUDIO_START + (MAX_CHAN_FPGA * SAMPLES_IN_DELAYLINE * sizeof(float))));
 
 	int delayLineHeadOutput;
@@ -85,14 +85,6 @@ int audioTxBuf[TDM_INPUTS * BUFFER_COUNT * BUFFER_SIZE] = {0}; // Ch1-8 | Ch9-16
 
 #pragma align 8 // align for 2 floats
 float audioBuffer[5][1 + MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS + MAX_DSP2_FXINSERT + MAX_MATRIX + MAX_MAIN + MAX_DSP2_AUX + MAX_MONITOR][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
-
-#pragma section("seg_pmda")
-pm float vuBuffer[MAX_CHAN_FPGA];
-
-bool volatile SPI_interlock = false;
-
-//float audioTempBufferChanA[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
-//float audioTempBufferChanB[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN] = {0};
 float sampleBuffer[SAMPLES_IN_BUFFER]; // main channels can be calculated only after the other channels, so we can save some memory here
 
 // TCB-arrays for SPORT {CPSPx Chainpointer, ICSPx Internal Count, IMSPx Internal Modifier, IISPx Internal Index}
@@ -194,7 +186,7 @@ void audioProcessData(void) {
 	START_CYCLE_COUNT(cycletemp);
 
 
-	audioProcessing = true; // set global flag that we are processing now
+
 
 	int bufferSampleIndex;
 	int bufferTdmIndex;
@@ -203,6 +195,9 @@ void audioProcessData(void) {
 	int sampleOffset;
 	int tdmOffset;
 	int tdmBufferOffset;
+
+	// switch buffer
+	audioBufferOffset = bufferSwitch ? 0 : BUFFER_SIZE;
 
 	audioSmoothVolume();
 
@@ -342,7 +337,6 @@ void audioProcessData(void) {
 
 	#else
 		// route desired input-sources to one of the 40 DSP-channels directly
-		SPI_interlock = true;
 		#pragma loop_count(MAX_CHAN_FPGA)
 		for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
 			float* src = &dsp.inputSourcePtr[i_ch][0];
@@ -353,14 +347,10 @@ void audioProcessData(void) {
 			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 				dst[s] = src[s];
 			}
-
-			// copy first sample for VU-Data
-			vuBuffer[i_ch] = src[0];
 		}
-		SPI_interlock = false;
 	#endif
-
 	STOP_CYCLE_COUNT(cyclemap[2], cycletemp);
+
 
 	START_CYCLE_COUNT(cycletemp);
 	#if DEBUG_DISABLE_LOWCUT == 0
@@ -1108,17 +1098,22 @@ void audioProcessData(void) {
 		sampleOffset += CHANNELS_PER_TDM;
 	}
 
-	// increment buffer-counter for next call
-	audioBufferOffset += BUFFER_SIZE;
-    if (audioBufferOffset >= (BUFFER_SIZE * BUFFER_COUNT)) {
-    	audioBufferOffset = 0;
-    }
+	// copy samples for VU-data
+	START_CYCLE_COUNT(cycletemp);
+	#pragma loop_count(92)
+	for (int i_ch = 0; i_ch < 92; i_ch++)
+	{
+		int tap = (i_ch < 40 ) ? TAP_PRE_EQ : TAP_POST_FADER; // TODO: needs to be refined
+		memcpy(&spiCommData[20 + i_ch], &audioBuffer[tap][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], sizeof(float));
+	}
+	STOP_CYCLE_COUNT(cyclemap[15], cycletemp);
 
-	audioReady = false; // clear global flag that audio is not ready anymore
-	audioProcessing = false; // clear global flag that processing is done
 }
 
 void audioRxISR(uint32_t iid, void *handlerarg)
 {
-    audioReady = true; // set flag, that we have new data to process
+	// aktiven buffer umschalten
+	bufferSwitch = !bufferSwitch;
+
+	audioReady = true; // set flag, that we have new data to process
 }

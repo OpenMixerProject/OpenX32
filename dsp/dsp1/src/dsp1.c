@@ -50,9 +50,7 @@
 
 // global data
 uint32_t spiTimeoutCounter = 0;
-
-#pragma section("seg_pmda")
-pm volatile uint32_t cyclemap[17];
+volatile uint32_t cyclemap[CYCLEMAP_SIZE];
 
 
 void openx32Init(void) {
@@ -111,23 +109,22 @@ int main() {
 	// turn-off LED
 	sysreg_bit_set(sysreg_FLAGS, FLG7);
 
-	cyclemap[0] = 16; // cycles in audioProcessData()
-	cyclemap[1] = 15; // DataInput
-	cyclemap[2] = 14; // InputDelay/Routing
-	cyclemap[3] = 13; // Lowcut
-	cyclemap[4] = 12; // Noisegate
-	cyclemap[5] = 11; // EQ
-	cyclemap[6] = 10; // Dynamics
-	cyclemap[7] = 9; // Channel/Fader
-	cyclemap[8] = 8; // Mixbus/Main-Out
-	cyclemap[9] = 7; //
-	cyclemap[10] = 6; //
-	cyclemap[11] = 5; //
-	cyclemap[12] = 4; //
-	cyclemap[13] = 3; //
-	cyclemap[14] = 2; //
-	cyclemap[15] = 1; //
-	cyclemap[16] = 0; //
+	cyclemap[0] = 0; // cycles in audioProcessData()
+	cyclemap[1] = 0; // DataInput
+	cyclemap[2] = 0; // InputDelay/Routing
+	cyclemap[3] = 0; // Lowcut
+	cyclemap[4] = 0; // Noisegate
+	cyclemap[5] = 0; // EQ
+	cyclemap[6] = 0; // Dynamics
+	cyclemap[7] = 0; // Channel/Fader
+	cyclemap[8] = 0; // Mixbus/Main-Out
+	cyclemap[9] = 0; //
+	cyclemap[10] = 0; //
+	cyclemap[11] = 0; //
+	cyclemap[12] = 0; //
+	cyclemap[13] = 0; //
+	cyclemap[14] = 0; //
+	cyclemap[15] = 0; // copy VU-Data
 
 
 	cycle_t cycletemp;
@@ -141,20 +138,25 @@ int main() {
 		if (audioReady)
 		{
 			START_CYCLE_COUNT(cycletemp);
-			audioProcessData();
+
+			audioReady = false; // clear global flag, so that audio is not ready anymore
+			audioProcessing = true; // set global flag that we are processing now
+			audioProcessData(); // process audio
+			audioProcessing = false; // clear global flag that processing is done
+
 			STOP_CYCLE_COUNT(cyclemap[0], cycletemp);
 
 			// copy cyclemap to spiCommData
 			for (int i = 0; i < 16; i++)
 			{
-
+				memcpy(&spiCommData[4 + i], (uint32_t*)&cyclemap[i], sizeof(uint32_t));
 			}
 
 			spiTimeoutCounter++; // will be incremented every 333 microseconds
 		}
 
 		// check for new SPI-data to process
-		if (!SPI_interlock && spiNewRxDataReady)
+		if (spiNewRxDataReady)
 		{
 			spiTimeoutCounter = 0; // reset SPI counter
 
