@@ -74,7 +74,8 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 				case 'u': // update-packet
 						spiCommData[2] = DSP_VERSION;
-						spiCommData[3] = audioGlitchCounter;
+						spiCommData[3] = audioGlitchCounterISR;
+						spiCommData[4] = 0.0f;
 
 						spiDmaBegin((unsigned int*)&spiCommData[0], 5, false); // start DMA-transmission and transmit the first 5 elements of spiCommData
 						// after this the DMA-chain will switch to the next spi_tcb

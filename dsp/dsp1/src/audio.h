@@ -4,7 +4,8 @@
 #include "dsp1.h"
 
 extern float audioBuffer[5][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MAIN + MAX_MATRIX + MAX_MONITOR][SAMPLES_IN_BUFFER];
-extern volatile uint32_t audioGlitchCounter;
+extern volatile uint32_t audioGlitchCounterISR;
+extern volatile bool mixbuss_bypass;
 
 #if DEBUG_DISABLE_DELAYLINE == 0
 	extern int delayLineTailOffsetInput[MAX_CHAN_FPGA]; // offset = (delayMs * sampleRate / 1000)

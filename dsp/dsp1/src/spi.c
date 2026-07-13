@@ -179,6 +179,7 @@ void spiDmaEnd(void) {
     spiCoreRxBegin();
 }
 
+#pragma optimize_for_speed
 void spiISR(int sig) {
 	// this interrupt is called either when the DMA transfer to SPI Master is completed
 	// or when data is available via Core-Mode (SPIRX is full). In this case this interrupt is active 1 PCLK after RXS is set
@@ -219,7 +220,8 @@ void spiISR(int sig) {
 	}
 }
 
-void spiProcessRxData(void) {
+void spiProcessRxData(void)
+{
 	spiNewRxDataReady = false;
 
 	// check for new valid data in spiRxBuffer

@@ -117,17 +117,17 @@ int main() {
 	cyclemap[5] = 0; // EQ
 	cyclemap[6] = 0; // Dynamics
 	cyclemap[7] = 0; // Channel/Fader
-	cyclemap[8] = 0; // Mixbus/Main-Out
-	cyclemap[9] = 0; //
-	cyclemap[10] = 0; //
-	cyclemap[11] = 0; //
-	cyclemap[12] = 0; //
-	cyclemap[13] = 0; //
-	cyclemap[14] = 0; //
+	cyclemap[8] = 0; // Mixbus
+	cyclemap[9] = 0; // Main-Out
+	cyclemap[10] = 0; // EQMain
+	cyclemap[11] = 0; // Main Volume
+	cyclemap[12] = 0; // Matrix
+	cyclemap[13] = 0; // Monitor
+	cyclemap[14] = 0; // Routing/OutputDelay
 	cyclemap[15] = 0; // copy VU-Data
 
-
 	cycle_t cycletemp;
+	cycle_t cycletemp2;
 
 	// the main-loop
 	while(1)
@@ -137,19 +137,23 @@ int main() {
 		// check for new audio-data to process
 		if (audioReady)
 		{
+			STOP_CYCLE_COUNT(cyclemap[16], cycletemp2);
 			START_CYCLE_COUNT(cycletemp);
 
 			audioReady = false; // clear global flag, so that audio is not ready anymore
 			audioProcessing = true; // set global flag that we are processing now
+
 			audioProcessData(); // process audio
+
 			audioProcessing = false; // clear global flag that processing is done
 
 			STOP_CYCLE_COUNT(cyclemap[0], cycletemp);
+			START_CYCLE_COUNT(cycletemp2);
 
 			// copy cyclemap to spiCommData
-			for (int i = 0; i < 16; i++)
+			for (int i = 0; i < CYCLEMAP_SIZE; i++)
 			{
-				memcpy(&spiCommData[4 + i], (uint32_t*)&cyclemap[i], sizeof(uint32_t));
+				memcpy(&spiCommData[SPI_DATA_CYCLE_MAP_STARTINDEX + i], (uint32_t*)&cyclemap[i], sizeof(uint32_t));
 			}
 
 			spiTimeoutCounter++; // will be incremented every 333 microseconds
