@@ -13,7 +13,7 @@
 #define DEBUG_DISABLE_INTPUTDELAY	0
 #define DEBUG_DISABLE_OUTPUTDELAY	0
 
-#define ACTIVE_MIX_BUSSES		8	// 16 MixBusses are possible now
+#define ACTIVE_MIX_BUSSES		16	// 16 MixBusses are possible now
 
 #define USE_HIGHCUT				0
 
@@ -32,7 +32,9 @@
 #define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
 #define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
-#define CYCLEMAP_SIZE			16
+#define CYCLEMAP_SIZE			17
+#define SPI_DATA_CYCLE_MAP_STARTINDEX 5
+#define SPI_DATA_VU_DATA_STARTINDEX SPI_DATA_CYCLE_MAP_STARTINDEX + CYCLEMAP_SIZE
 
 #define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 #define SPI_DMA_COMMDATA_SIZE 3 + CYCLEMAP_SIZE + MAX_CHAN_FPGA + 3 + 100

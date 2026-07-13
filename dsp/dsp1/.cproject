@@ -178,8 +178,8 @@
 								<option id="linker.option.runtimeinit.2024926075" name="Runtime initialization (-mem)" superClass="linker.option.runtimeinit" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="linker.option.threadsafelibraries.280046698" name="Link against thread-safe run-time libraries (-threads)" superClass="linker.option.threadsafelibraries" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="linker.option.gensymbolmap.316787546" name="Generate symbol map (-map)" superClass="linker.option.gensymbolmap" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="linker.option.stripallsymbols.1337578069" superClass="linker.option.stripallsymbols" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="linker.option.stripdbginfo.74679773" superClass="linker.option.stripdbginfo" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="linker.option.stripallsymbols.1337578069" name="Strip all symbols (-s)" superClass="linker.option.stripallsymbols" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="linker.option.stripdbginfo.74679773" name="Strip debug information (-S)" superClass="linker.option.stripdbginfo" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<inputType id="linker.doj.input.213605980" name="Object Files" superClass="linker.doj.input"/>
 							</tool>
 							<tool id="sharc.toolchain.archiver.1748186323" name="CrossCore SHARC Archiver" superClass="sharc.toolchain.archiver">
