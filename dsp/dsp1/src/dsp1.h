@@ -37,8 +37,6 @@
 #include <cycle_count.h>
 
 // global variables
-extern volatile bool audioProcessing;
-extern volatile bool audioReady;
 extern volatile bool spiNewRxDataReady;
 extern int audioTx_tcb[8][BUFFER_COUNT][4];
 extern int audioRx_tcb[8][BUFFER_COUNT][4];
@@ -63,7 +61,6 @@ typedef struct {
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
-	bool use_rms;
 
 	// online parameters
 	int holdTimer;
@@ -77,7 +74,6 @@ typedef struct {
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
-	bool use_rms;
 
 	// online parameters
 	int holdTimer;

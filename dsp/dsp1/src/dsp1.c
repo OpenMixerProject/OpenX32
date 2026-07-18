@@ -49,11 +49,11 @@
 #include "spi.h"
 
 // global data
-uint32_t spiTimeoutCounter = 0;
 volatile uint32_t cyclemap[CYCLEMAP_SIZE];
 
 
-void openx32Init(void) {
+void openx32Init(void)
+{
 	// initialize the default samplerate with 48kHz
 	// other samplerates up to 192kHz are possible with AD and DA converters
 	dsp.samplerate = 48000;
@@ -67,26 +67,16 @@ void openx32Init(void) {
 }
 
 // ISR is called once on first falling edge of FrameSync
-void misc0ISR(int sig) {
+void misc0ISR(int sig)
+{
 	systemSportInit();
 
 	// make sure, that this ISR is called only once
 	adi_int_UninstallHandler(ADI_CID_P0I);
 }
 
-void led(void)
+int main()
 {
-	static uint32_t counter = 0;
-
-	if (counter > 0xFFFFF)
-	{
-		sysreg_bit_tgl(sysreg_FLAGS, FLG7);
-		counter = 0;
-	}
-	counter++;
-}
-
-int main() {
 	// initialize all components
 	adi_initComponents();
 	systemPllInit();
@@ -126,55 +116,58 @@ int main() {
 	cyclemap[14] = 0; // Routing/OutputDelay
 	cyclemap[15] = 0; // copy VU-Data
 
-	cycle_t cycletemp;
-	cycle_t cycletemp2;
+	memset((uint32_t*)cyclemap, 0, sizeof(cyclemap));
+
+	uint32_t spiTimeoutCounter = 0;
 
 	// the main-loop
 	while(1)
 	{
-		led();
+		cycle_t cycletemp;
 
-		// check for new audio-data to process
 		if (audioReady)
 		{
-			STOP_CYCLE_COUNT(cyclemap[16], cycletemp2);
 			START_CYCLE_COUNT(cycletemp);
 
-			audioReady = false; // clear global flag, so that audio is not ready anymore
-			audioProcessing = true; // set global flag that we are processing now
-
+			audioReady = false;
 			audioProcessData(); // process audio
-
-			audioProcessing = false; // clear global flag that processing is done
+			spiTimeoutCounter++; // will be incremented every 333 microseconds
 
 			STOP_CYCLE_COUNT(cyclemap[0], cycletemp);
-			START_CYCLE_COUNT(cycletemp2);
-
-			// copy cyclemap to spiCommData
-			for (int i = 0; i < CYCLEMAP_SIZE; i++)
-			{
-				memcpy(&spiCommData[SPI_DATA_CYCLE_MAP_STARTINDEX + i], (uint32_t*)&cyclemap[i], sizeof(uint32_t));
-			}
-
-			spiTimeoutCounter++; // will be incremented every 333 microseconds
 		}
 
 		// check for new SPI-data to process
 		if (spiNewRxDataReady)
 		{
+			START_CYCLE_COUNT(cycletemp);
+
+			spiNewRxDataReady = false;
+
 			spiTimeoutCounter = 0; // reset SPI counter
 
+			// copy cyclemap to spiCommData
+
+			for (int i = 0; i < CYCLEMAP_SIZE; i++)
+			{
+				memcpy(&spiCommData[SPI_DATA_CYCLE_MAP_STARTINDEX + i], (uint32_t*)&cyclemap[i], sizeof(uint32_t));
+			}
+
+			STOP_CYCLE_COUNT(cyclemap[23], cycletemp);
+			START_CYCLE_COUNT(cycletemp);
+
 			spiProcessRxData();
+
+			STOP_CYCLE_COUNT(cyclemap[24], cycletemp);
 		}
 
 		// check if we have received some data over SPI within the last 250ms
 		// we are receiving audio every 333 microseconds. 750 * 0.333us = 250ms
 		if (spiTimeoutCounter >= 750)
 		{
+			spiTimeoutCounter = 0;
+
 			// we ran into a SPI-timeout -> reset SPI system
 			spiCoreRxBegin();
-
-			spiTimeoutCounter = 0;
 		}
 
 		spiCallback();

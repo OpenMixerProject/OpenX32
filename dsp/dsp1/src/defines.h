@@ -32,7 +32,7 @@
 #define DSP_BUF_IDX_MONRIGHT	91	// Monitor Right
 #define DSP_BUF_IDX_TALKBACK	92	// Talkback
 
-#define CYCLEMAP_SIZE			17
+#define CYCLEMAP_SIZE			33
 #define SPI_DATA_CYCLE_MAP_STARTINDEX 5
 #define SPI_DATA_VU_DATA_STARTINDEX SPI_DATA_CYCLE_MAP_STARTINDEX + CYCLEMAP_SIZE
 
@@ -73,7 +73,7 @@
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
-#define SPI_MAX_RX_PAYLOAD_SIZE	50  // 27 int-values + * + # + parameter
+#define SPI_MAX_RX_PAYLOAD_SIZE	100  // 27 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 2)  // store up to 2 payload-sets
 #define SPI_TX_BUFFER_SIZE		400 // transmit up to 200 values - must be dividable by 2!
 
