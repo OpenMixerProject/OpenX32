@@ -91,16 +91,17 @@ void spiInit(void) {
 	spiRxRingBuffer.tail = 0;
 }
 
-void spiCallback(void) {
-	if ((spiDesiredMode == 0) && (spiDmaMode)) {
+void spiCallback(void)
+{
+	if ((spiDesiredMode == 0) && (spiDmaMode))
+	{
 		// try to switch to SpiCoreMode
 
 		// check if chain-loading still in progress
-		if (!(SPICHS & *pSPIDMAC)) {
+		if (!(SPICHS & *pSPIDMAC))
+		{
 			spiDmaEnd(); // reconfigure to Core-Mode to receive new commands
 		}
-	}else if ((spiDesiredMode == 1) && (!spiDmaMode)) {
-		// try to switch to SpiDmaMode
 	}
 }
 
@@ -209,7 +210,7 @@ void spiISR(int sig) {
 				spiRxRingBuffer.head = next_head;
 				spiNewRxDataReady = (rxData == 0x00000023); // check for '#'
 			}else{
-				// buffer-overflow -> reject new data
+				cyclemap[25]++;
 			}
 		}
 
@@ -222,8 +223,6 @@ void spiISR(int sig) {
 
 void spiProcessRxData(void)
 {
-	spiNewRxDataReady = false;
-
 	// check for new valid data in spiRxBuffer
 	// we expect a message like:
 	// *LPV#

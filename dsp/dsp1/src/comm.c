@@ -74,7 +74,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 				case 'u': // update-packet
 						spiCommData[2] = DSP_VERSION;
-						spiCommData[3] = audioGlitchCounterISR;
+						spiCommData[3] = 0.0f;
 						spiCommData[4] = 0.0f;
 
 						spiDmaBegin((unsigned int*)&spiCommData[0], 5, false); // start DMA-transmission and transmit the first 5 elements of spiCommData
@@ -266,7 +266,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				dsp.dspChannelGate[channel].value_coeff_attack = floatValues[2];
 				dsp.dspChannelGate[channel].value_hold_ticks = floatValues[3];
 				dsp.dspChannelGate[channel].value_coeff_release = floatValues[4];
-				dsp.dspChannelGate[channel].use_rms = true; // TODO: implement in OMC
 			}
 			break;
 		case 'e': // Equalizer/Filter
@@ -339,7 +338,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				dsp.dspChannelCompressor[channel].value_coeff_attack = floatValues[3];
 				dsp.dspChannelCompressor[channel].value_hold_ticks = floatValues[4];
 				dsp.dspChannelCompressor[channel].value_coeff_release = floatValues[5];
-				dsp.dspChannelCompressor[channel].use_rms = true; // TODO: implement in OMC
 			}
 			break;
 		case 'a': // Auxiliary
