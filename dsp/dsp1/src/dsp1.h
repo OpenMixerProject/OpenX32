@@ -34,15 +34,14 @@
 #include <sysreg.h>
 #include <signal.h>
 
+#ifdef DO_CYCLE_COUNTS
+#include <cycle_count.h>
+#endif
+
 // global variables
-extern volatile int audioProcessing;
-extern volatile int audioReady;
-extern volatile bool spiNewRxDataReady;
 extern int audioTx_tcb[8][BUFFER_COUNT][4];
 extern int audioRx_tcb[8][BUFFER_COUNT][4];
-extern uint32_t cyclesAudio;
-extern uint32_t cyclesMain;
-extern uint32_t cyclesTotal;
+extern volatile uint32_t cyclemap[CYCLEMAP_SIZE];
 
 typedef struct {
 	// filter-coefficients
@@ -63,7 +62,6 @@ typedef struct {
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
-	bool use_rms;
 
 	// online parameters
 	int holdTimer;
@@ -77,7 +75,6 @@ typedef struct {
 	float value_coeff_attack;
 	float value_hold_ticks; // number of sample-ticks
 	float value_coeff_release;
-	bool use_rms;
 
 	// online parameters
 	int holdTimer;
@@ -161,10 +158,7 @@ enum eBufferIndex {
 
 
 // function prototypes
-/*
-static void timerIsr(uint32_t iid, void* handlerArg);
-void delay(int i);
-*/
+
 void openx32Init(void);
 
 #endif /* __DSP1_H__ */
