@@ -1,21 +1,31 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-#define DEBUG_DISABLE_LOWCUT	0
-#define DEBUG_DISABLE_GATE		0
-#define DEBUG_DISABLE_EQ		0
-#define DEBUG_DISABLE_DYNAMICS	0
-#define DEBUG_DISABLE_MIXBUS	0
+// ------------------------------------------------------------------------------------
+
+#define DO_CYCLE_COUNTS				   // enable cycle counter (and the DSP Load Indicator)
+#define DEBUG_COUNT_CYCLES_DETAIL 1    // adds ~300 cylces overhead
+
+
+//#define DEBUG_DISABLE_LOWCUT	0
+//#define DEBUG_DISABLE_GATE		0
+//#define DEBUG_DISABLE_EQ		0
+//#define DEBUG_DISABLE_DYNAMICS	0
+//#define DEBUG_DISABLE_MIXBUS	0
 #define DEBUG_DISABLE_EQMIXBUS	1
 #define DEBUG_DISABLE_EQMAIN	1
-#define DEBUG_DISABLE_MATRIX	0
-#define DEBUG_DISABLE_MONITOR	0
-#define DEBUG_DISABLE_INTPUTDELAY	0
-#define DEBUG_DISABLE_OUTPUTDELAY	0
+//#define DEBUG_DISABLE_MATRIX	0
+//#define DEBUG_DISABLE_MONITOR	0
+//#define DEBUG_DISABLE_INTPUTDELAY	0
+//#define DEBUG_DISABLE_OUTPUTDELAY	0
 
 #define ACTIVE_MIX_BUSSES		16	// 16 MixBusses are possible now
 
 #define USE_HIGHCUT				0
+
+#define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
+
+// ------------------------------------------------------------------------------------
 
 #define DSP_BUF_IDX_OFF			0	// no audio
 #define DSP_BUF_IDX_DSPCHANNEL	1	// DSP-Channel 1-32
@@ -35,8 +45,6 @@
 #define CYCLEMAP_SIZE			33
 #define SPI_DATA_CYCLE_MAP_STARTINDEX 5
 #define SPI_DATA_VU_DATA_STARTINDEX SPI_DATA_CYCLE_MAP_STARTINDEX + CYCLEMAP_SIZE
-
-#define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 #define SPI_DMA_COMMDATA_SIZE 3 + CYCLEMAP_SIZE + MAX_CHAN_FPGA + 3 + 100
 
 #define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
@@ -70,13 +78,12 @@
 #define M_PI					3.1415926535897932384626433832795f
 #define FLOAT_NORM_TO_INT32		2147483647.0f
 #define INT32_TO_FLOAT_NORM		(1.0f / 2147483647.0f)
-#define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
+
 #define PCI						(1 << 19)	//0x00080000
 #define OFFSET_MASK				0x7FFFF
 #define SPI_MAX_RX_PAYLOAD_SIZE	100  // 27 int-values + * + # + parameter
 #define SPI_RX_BUFFER_SIZE		(SPI_MAX_RX_PAYLOAD_SIZE * 2)  // store up to 2 payload-sets
 #define SPI_TX_BUFFER_SIZE		400 // transmit up to 200 values - must be dividable by 2!
-
 #define SAMPLERATE_MAX			48000
 #define	DELAYLINE_LENGTH_MS		500 // 500ms
 #define SAMPLES_IN_DELAYLINE	((SAMPLERATE_MAX * DELAYLINE_LENGTH_MS) / 1000)
@@ -84,6 +91,5 @@
 #define audioVolumeSmootherCoeff 0.01f // (30.0f / (48kHz/16 Samples)) = 0.01f
 
 #define em						section("seg_ext_data")		// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory
-#define DO_CYCLE_COUNTS				// enable cycle counter
 
 #endif /* DEFINES_H_ */

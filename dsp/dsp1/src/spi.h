@@ -6,6 +6,8 @@
 
 extern float pm spiCommData[SPI_DMA_COMMDATA_SIZE];
 
+extern volatile bool spiNewRxDataReady;
+
 // variables and types for SPI-transmitter in Slave-Mode
 typedef struct {
 	unsigned int buffer[SPI_RX_BUFFER_SIZE];

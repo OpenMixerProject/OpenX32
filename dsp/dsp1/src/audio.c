@@ -26,7 +26,10 @@
 #include "system.h"
 #include "fx.h"
 #include "spi.h"
+
+#if DEBUG_COUNT_CYCLES_DETAIL
 #include <cycle_count.h>
+#endif
 
 
 /*
@@ -54,8 +57,11 @@
 	========================
 */
 
+#pragma optimize_for_speed  // global switch
+
 volatile bool audioReady = false;
 volatile bool audioProcess = false;
+volatile bool audioGlitchDetected = false;
 bool bufferSwitch = false;
 
 
@@ -162,6 +168,7 @@ void audioSmoothVolume(void) {
 	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // temp = temp * coeff
 	vecvaddf(&dsp.channelVolume[0], &audioTempBufferChanA[0], &dsp.channelVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); // volume = volume + temp
 	*/
+	#pragma loop_count(64)
 	for (int i = 0; i < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + ACTIVE_MIX_BUSSES); i++) {
 		dsp.channelVolume[i] = dsp.channelVolume[i] + ((dsp.channelVolumeSet[i] - dsp.channelVolume[i]) * audioVolumeSmootherCoeff);
 	}
@@ -172,19 +179,24 @@ void audioSmoothVolume(void) {
 	vecsmltf(&audioTempBufferChanA[0], audioVolumeSmootherCoeff, &audioTempBufferChanA[0], 3); // temp = temp * coeff
 	vecvaddf(&dsp.mainVolume[0], &audioTempBufferChanA[0], &dsp.mainVolume[0], 3); // volume = volume + temp
 	*/
+
+	#pragma loop_count(3)
 	for (int i = 0; i < 3; i++) {
 		dsp.mainVolume[i] = dsp.mainVolume[i] + ((dsp.mainVolumeSet[i] - dsp.mainVolume[i]) * audioVolumeSmootherCoeff);
 	}
 }
 
+#pragma OP
 void audioProcessData(void)
 {
 	audioProcess = true;
 
+#if DEBUG_COUNT_CYCLES_DETAIL
 	cycle_t cycletemp;
 	cycle_t cycletemp_mb;
 
 	START_CYCLE_COUNT(cycletemp);
+#endif
 
 	int bufferSampleIndex;
 	int bufferTdmIndex;
@@ -197,11 +209,17 @@ void audioProcessData(void)
 	// switch buffer every ISR
 	int audioBufferOffset = bufferSwitch ? 0 : BUFFER_SIZE;
 
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[21], cycletemp);
+#endif
 
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
 	audioSmoothVolume();
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[22], cycletemp);
+#endif
 
 	//  ____        _          ___                   _
 	// |  _ \  __ _| |_ __ _  |_ _|_ __  _ __  _   _| |_
@@ -210,22 +228,68 @@ void audioProcessData(void)
 	// |____/ \__,_|\__\__,_| |___|_| |_| .__/ \__,_|\__|
 	//                                  |_|
 	// copy channels from FPGA and convert it to float
+
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-	#pragma loop_count(5) // TDM_INPUTS_FPGA
-	for (int i_tdm = 0; i_tdm < TDM_INPUTS_FPGA; i_tdm++) {
+#endif
+
+	/* produces more code, is a ~200 Cycles faster */
+//	#pragma loop_count(5) // TDM_INPUTS_FPGA
+//	for (int i_tdm = 0; i_tdm < TDM_INPUTS_FPGA; i_tdm++)
+//	{
+//	    int chBase = i_tdm * CHANNELS_PER_TDM;
+//	    int rxBase = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + audioBufferOffset;
+//
+//	    #pragma loop_count(CHANNELS_PER_TDM)
+//	    for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++)
+//	    {
+//	        int*   src = &audioRxBuf[rxBase + i_ch];
+//	        float* dst = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + i_ch][0];
+//
+//	        // Stride-Access from src to dst
+//	        #pragma loop_count(SAMPLES_IN_BUFFER)
+//	        for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
+//	        {
+//	            dst[s] = (float)src[s * CHANNELS_PER_TDM];
+//	        }
+//	    }
+//	}
+
+	/* produces less code, is a ~200 Cycles slower */
+	for (int i_tdm = 0; i_tdm < TDM_INPUTS_FPGA; i_tdm++)
+	{
 	    int chBase = i_tdm * CHANNELS_PER_TDM;
 	    int rxBase = (BUFFER_COUNT * BUFFER_SIZE * i_tdm) + audioBufferOffset;
 
-	    #pragma loop_count(CHANNELS_PER_TDM)
-	    for (int i_ch = 0; i_ch < CHANNELS_PER_TDM; i_ch++) {
-	        int*   src = &audioRxBuf[rxBase + i_ch];
-	        float* dst = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + i_ch][0];
+	    // Basis-Pointer auf den Start des aktuellen TDM-Blocks im SPORT-Buffer
+	    int* src = &audioRxBuf[rxBase];
 
-	        // Stride-Access from src to dst
-	        #pragma loop_count(SAMPLES_IN_BUFFER)
-	        for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-	            dst[s] = (float)src[s * CHANNELS_PER_TDM];
-	        }
+	    // Pointer für alle 8 Kanäle dieses TDMs vorab berechnen
+	    float* dst0 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 0][0];
+	    float* dst1 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 1][0];
+	    float* dst2 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 2][0];
+	    float* dst3 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 3][0];
+	    float* dst4 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 4][0];
+	    float* dst5 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 5][0];
+	    float* dst6 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 6][0];
+	    float* dst7 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSPCHANNEL + chBase + 7][0];
+
+	    #pragma loop_count(SAMPLES_IN_BUFFER) // 16
+	    #pragma vector_for
+	    for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
+	    {
+	        // Innerhalb eines Samples s liegen alle 8 Kanäle exakt hintereinander im TDM-Stream!
+	        *dst0++ = (float)src[0];
+	        *dst1++ = (float)src[1];
+	        *dst2++ = (float)src[2];
+	        *dst3++ = (float)src[3];
+	        *dst4++ = (float)src[4];
+	        *dst5++ = (float)src[5];
+	        *dst6++ = (float)src[6];
+	        *dst7++ = (float)src[7];
+
+	        // Weiterspringen zum nächsten kompletten TDM-Frame (nächstes Sample)
+	        src += CHANNELS_PER_TDM;
 	    }
 	}
 
@@ -253,7 +317,9 @@ void audioProcessData(void)
 	    }
 	}
 
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[1], cycletemp);
+#endif
 
 	//   ____ _   _    _    _   _ _   _ _____ _     ____ _____ ____  ___ ____
 	//  / ___| | | |  / \  | \ | | \ | | ____| |   / ___|_   _|  _ \|_ _|  _ \
@@ -285,78 +351,71 @@ void audioProcessData(void)
 	// vecvmltf(input_a[], input_b[], output[], sampleCount)
 	// vecsmltf(input_a[], scalar, output[], sampleCount)
 
+
+
+
 	//  ___                   _     ____       _                  __  ____             _   _
 	// |_ _|_ __  _ __  _   _| |_  |  _ \  ___| | __ _ _   _     / / |  _ \ ___  _   _| |_(_)_ __   __ _
 	//  | || '_ \| '_ \| | | | __| | | | |/ _ \ |/ _` | | | |   / /  | |_) / _ \| | | | __| | '_ \ / _` |
 	//  | || | | | |_) | |_| | |_  | |_| |  __/ | (_| | |_| |  / /   |  _ < (_) | |_| | |_| | | | | (_| |
 	// |___|_| |_| .__/ \__,_|\__| |____/ \___|_|\__,_|\__, | /_/    |_| \_\___/ \__,_|\__|_|_| |_|\__, |
 	//           |_|                                   |___/                                       |___/
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-
-	#if DEBUG_DISABLE_INTPUTDELAY == 0
-
-		// write to SDRAM
-		int wrapPoint = SAMPLES_IN_DELAYLINE - delayLineHeadInput;
-		#pragma loop_count(MAX_CHAN_FPGA)
-		for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
-			float* src = dsp.inputSourcePtr[i_ch];
-			float* dst = &delayLineInput[i_ch][delayLineHeadInput];
-
-			if (wrapPoint >= SAMPLES_IN_BUFFER) {
-				// no warp-around -> use memcpy with burst-mode
-				memcpy(dst, src, SAMPLES_IN_BUFFER * sizeof(float));
-			} else {
-				// warp-around: use two burst-writes
-				memcpy(dst,                      src,            wrapPoint                       * sizeof(float));
-				memcpy(&delayLineInput[i_ch][0], src + wrapPoint,(SAMPLES_IN_BUFFER - wrapPoint) * sizeof(float));
-			}
-		}
-		// update head only once
-		delayLineHeadInput += SAMPLES_IN_BUFFER;
-		if (delayLineHeadInput >= SAMPLES_IN_DELAYLINE) {
-			delayLineHeadInput -= SAMPLES_IN_DELAYLINE;
-		}
-
-		// read from SDRAM
-		#pragma loop_count(MAX_CHAN_FPGA)
-		for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
-			int tail = delayLineHeadInput - SAMPLES_IN_BUFFER - delayLineTailOffsetInput[i_ch];
-			if (tail < 0) {
-				tail += SAMPLES_IN_DELAYLINE;
-			}
-
-			float* dst = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-			int readWrap = SAMPLES_IN_DELAYLINE - tail;
-
-			if (readWrap >= SAMPLES_IN_BUFFER) {
-				// no warp-around -> use memcpy with burst-mode
-				memcpy(dst, &delayLineInput[i_ch][tail], SAMPLES_IN_BUFFER * sizeof(float));
-			} else {
-				// warp-around: use two burst-reads
-				memcpy(dst,            &delayLineInput[i_ch][tail], readWrap                        * sizeof(float));
-				memcpy(dst + readWrap, &delayLineInput[i_ch][0],   (SAMPLES_IN_BUFFER - readWrap)  * sizeof(float));
-			}
-		}
-
-	#else
-		// route desired input-sources to one of the 40 DSP-channels directly
-		#pragma loop_count(MAX_CHAN_FPGA)
-		for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
-			float* src = &dsp.inputSourcePtr[i_ch][0];
-			float* dst = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-
-			#pragma loop_count(SAMPLES_IN_BUFFER)
-			#pragma vector_for
-			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-				dst[s] = src[s];
-			}
-		}
 	#endif
+	// write to SDRAM
+	int wrapPoint = SAMPLES_IN_DELAYLINE - delayLineHeadInput;
+	#pragma loop_count(MAX_CHAN_FPGA)
+	for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
+		float* src = dsp.inputSourcePtr[i_ch];
+		float* dst = &delayLineInput[i_ch][delayLineHeadInput];
+
+		if (wrapPoint >= SAMPLES_IN_BUFFER) {
+			// no warp-around -> use memcpy with burst-mode
+			memcpy(dst, src, SAMPLES_IN_BUFFER * sizeof(float));
+		} else {
+			// warp-around: use two burst-writes
+			memcpy(dst,                      src,            wrapPoint                       * sizeof(float));
+			memcpy(&delayLineInput[i_ch][0], src + wrapPoint,(SAMPLES_IN_BUFFER - wrapPoint) * sizeof(float));
+		}
+	}
+	// update head only once
+	delayLineHeadInput += SAMPLES_IN_BUFFER;
+	if (delayLineHeadInput >= SAMPLES_IN_DELAYLINE) {
+		delayLineHeadInput -= SAMPLES_IN_DELAYLINE;
+	}
+
+	// read from SDRAM
+	#pragma loop_count(MAX_CHAN_FPGA)
+	for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
+		int tail = delayLineHeadInput - SAMPLES_IN_BUFFER - delayLineTailOffsetInput[i_ch];
+		if (tail < 0) {
+			tail += SAMPLES_IN_DELAYLINE;
+		}
+
+		float* dst = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		int readWrap = SAMPLES_IN_DELAYLINE - tail;
+
+		if (readWrap >= SAMPLES_IN_BUFFER) {
+			// no warp-around -> use memcpy with burst-mode
+			memcpy(dst, &delayLineInput[i_ch][tail], SAMPLES_IN_BUFFER * sizeof(float));
+		} else {
+			// warp-around: use two burst-reads
+			memcpy(dst,            &delayLineInput[i_ch][tail], readWrap                        * sizeof(float));
+			memcpy(dst + readWrap, &delayLineInput[i_ch][0],   (SAMPLES_IN_BUFFER - readWrap)  * sizeof(float));
+		}
+	}
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[2], cycletemp);
+#endif
 
 
+
+
+	#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-	#if DEBUG_DISABLE_LOWCUT == 0
+	#endif
+
 	//				  _                            _
 	//				 | |    _____      _____ _   _| |_
 	//				 | |   / _ \ \ /\ / / __| | | | __|
@@ -384,8 +443,11 @@ void audioProcessData(void)
 		dsp.lowcutStatesInput[i_ch]  = zinput; // zinput = input
 		dsp.lowcutStatesOutput[i_ch] = zout; // zoutput = output
 	}
-	#endif
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[3], cycletemp);
+#endif
+
+
 
 
 	#if USE_HIGHCUT == 1
@@ -415,8 +477,12 @@ void audioProcessData(void)
 	}
 	#endif
 
+
+
+
+	#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-	#if DEBUG_DISABLE_GATE == 0
+	#endif
 	//				  _   _       _                      _
 	//				 | \ | | ___ (_)___  ___  __ _  __ _| |_ ___
 	//				 |  \| |/ _ \| / __|/ _ \/ _` |/ _` | __/ _ \
@@ -474,8 +540,8 @@ void audioProcessData(void)
 		// apply calculated gain to samples
 		#pragma no_alias
 		#pragma align 8
-		#pragma loop_count(16, 16, 16)
-		for (int s = 0; s < 16; s++) {
+		#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
+		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			// Ein einziger MAC-Befehl (Multiply-Accumulate)!
 			env = (env * a1) + b0;
 			src_dst[s] *= env;
@@ -484,11 +550,16 @@ void audioProcessData(void)
 		// Envelope-Zustand EINMAL nach der Schleife speichern
 		dsp.gateEnvelope[i_ch] = env;
 	}
-	#endif
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[4], cycletemp);
+#endif
 
+
+
+
+	#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-	#if DEBUG_DISABLE_EQ == 0
+	#endif
 	//				  _____                  _ _
 	//				 | ____|__ _ _   _  __ _| (_)_______ _ __
 	//				 |  _| / _` | | | |/ _` | | |_  / _ \ '__|
@@ -509,24 +580,25 @@ void audioProcessData(void)
 					 SAMPLES_IN_BUFFER,
 					 EQ_4BD_BANDS);
 	}
-
-	#else
-	// copy PRE_EQ-Tap to POST_EQ-TAP
-	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL][0], (CHANNELS_WITH_4BD_EQ - MAX_MAIN) * SAMPLES_IN_BUFFER * sizeof(float));
-	#endif
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[5], cycletemp);
+#endif
 
+
+
+
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-	#if DEBUG_DISABLE_DYNAMICS == 0
+#endif
 	//				  ____                              _
 	//				 |  _ \ _   _ _ __   __ _ _ __ ___ (_) ___ ___
 	//				 | | | | | | | '_ \ / _` | '_ ` _ \| |/ __/ __|
 	//				 | |_| | |_| | | | | (_| | | | | | | | (__\__ \
 	//				 |____/ \__, |_| |_|\__,_|_| |_| |_|_|\___|___/
 	//				        |___/
-
 	#pragma loop_count(MAX_CHAN_FULLFEATURED)
-	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
+	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++)
+	{
 		float* src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 		float makeUp = dsp.compressorMakeup[i_ch];
@@ -535,7 +607,7 @@ void audioProcessData(void)
 
 
 		// calculate RMS over all 16 samples
-		#pragma loop_count(16, 16, 16)
+		#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
 		#pragma vector_for
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			refValue += src[s] * src[s];
@@ -585,15 +657,22 @@ void audioProcessData(void)
     int bypassCount = MAX_CHAN_FPGA + MAX_DSP2_FXRETURN - MAX_CHAN_FULLFEATURED;
 
     memcpy(&audioBuffer[TAP_PRE_FADER][bypassStart][0], &audioBuffer[TAP_POST_EQ] [bypassStart][0], bypassCount * SAMPLES_IN_BUFFER * sizeof(float));
-
-	#else
-    // no dynamics: copy all channels POST_EQ -> PRE_FADER
-    memcpy(&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_POST_EQ] [DSP_BUF_IDX_DSPCHANNEL][0], (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN) * SAMPLES_IN_BUFFER * sizeof(float));
-	#endif
+#if DEBUG_COUNT_CYCLES_DETAIL
     STOP_CYCLE_COUNT(cyclemap[6], cycletemp);
+#endif
+
+
+#if DEBUG_COUNT_CYCLES_DETAIL
+	START_CYCLE_COUNT(cycletemp);
+#endif
 
 	// copy data for DSP2-FX-Return-Channels from TAP_INPUT to TAP_PRE_FADER without processing. All other DSP2-channel have no volume-control yet
 	memcpy(&audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSP2_FXRET][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_DSP2_FXRET][0], MAX_DSP2_FXRETURN * SAMPLES_IN_BUFFER * sizeof(float));
+
+#if DEBUG_COUNT_CYCLES_DETAIL
+    STOP_CYCLE_COUNT(cyclemap[27], cycletemp);
+#endif
+
 
 	//   ____ _                            _   _____         _
 	//  / ___| |__   __ _ _ __  _ __   ___| | |  ___|_ _  __| | ___ _ __
@@ -603,7 +682,10 @@ void audioProcessData(void)
 	// calculate channel volume
 	// --------------------------------------------------------
 
+	#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+	#endif
+
 	#pragma loop_count(48) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN
 	for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
 		float* src = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
@@ -615,10 +697,17 @@ void audioProcessData(void)
 			dst[s] = dsp.channelVolume[i_ch] * src[s];
 		}
 	}
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[7], cycletemp);
+#endif
 
+
+
+
+	#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-	#if DEBUG_DISABLE_MIXBUS == 0
+	#endif
+
 	//				  __  __ _____  ______  _   _ ____
 	//				 |  \/  |_ _\ \/ / __ )| | | / ___|
 	//				 | |\/| || | \  /|  _ \| | | \___ \
@@ -627,12 +716,18 @@ void audioProcessData(void)
 	// calculate mixbus
 
 	// Step 1: Set Mixbus-Buffer to zero using memset
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp_mb);
+#endif
 	memset(mixbusAcc, 0, sizeof(mixbusAcc));
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[17], cycletemp_mb);
+#endif
 
 	// Step 2: Accumulate all channels
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp_mb);
+#endif
 	#pragma loop_count(48) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN
 	for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++)
 	{
@@ -641,7 +736,7 @@ void audioProcessData(void)
 		// 16 Busse aufgeteilt in 4er-Blöcke (16 / 4 = genau 4 Durchläufe)
 		// Wir teilen dem Compiler mit, dass die Schleife exakt 4x läuft (min, max, modulo)
 		#pragma loop_count(4, 4, 4)
-		for (int i_bus = 0; i_bus < 16; i_bus += 4)
+		for (int i_bus = 0; i_bus < ACTIVE_MIX_BUSSES ; i_bus += 4)
 		{
 			// Gains für 4 Busse gleichzeitig laden
 			float g0 = dsp.channelSendMixbusVolume[i_bus+0][i_ch];
@@ -672,44 +767,22 @@ void audioProcessData(void)
 			}
 		}
 	}
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[18], cycletemp_mb);
+#endif
 
 	// Step 3: write new samples back to main-buffer
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp_mb);
+#endif
 	memcpy(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS][0], &mixbusAcc[0][0], ACTIVE_MIX_BUSSES * SAMPLES_IN_BUFFER * sizeof(float));
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[19], cycletemp_mb);
+#endif
 
-	#if DEBUG_DISABLE_EQMIXBUS == 0
-	// copy INPUT-Tap to POST_EQ-TAP
-	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MIXBUS][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS][0], ACTIVE_MIX_BUSSES * SAMPLES_IN_BUFFER * sizeof(float));
-
-	// Hardware-Accelerated Biquad-Filter
-	#pragma loop_count(ACTIVE_MIX_BUSSES)
-	for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
-		// apply biquad EQ on POST_EQ-Tap directly
-		biquad_trans(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MIXBUS + i_ch][0],
-					 &dsp.peqCoeffs_6BD_EQ[i_ch][0],
-					 &dsp.peqStates_6BD_EQ[i_ch][0],
-					 SAMPLES_IN_BUFFER,
-					 EQ_6BD_BANDS);
-	}
-
-	// volume-control of the mixbus-channels
-	#pragma loop_count(ACTIVE_MIX_BUSSES)
-	for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
-		float* src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MIXBUS + i_ch][0];
-		float* dst = &audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MIXBUS + i_ch][0];
-
-		#pragma loop_count(SAMPLES_IN_BUFFER)
-		#pragma vector_for
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			dst[s] = dsp.channelVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + i_ch] * src[s];
-		}
-	}
-	#else
-
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp_mb);
-
+#endif
 	// volume-control of the mixbus-channels
 	#pragma loop_count(ACTIVE_MIX_BUSSES)
 	for (int i_ch = 0; i_ch < ACTIVE_MIX_BUSSES; i_ch++) {
@@ -722,10 +795,13 @@ void audioProcessData(void)
 			dst[s] = dsp.channelVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + i_ch] * src[s];
 		}
 	}
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[20], cycletemp_mb);
-	#endif
-	//}
-	STOP_CYCLE_COUNT(cyclemap[8], cycletemp);
+#endif
+
+#if DEBUG_COUNT_CYCLES_DETAIL
+	STOP_CYCLE_COUNT(cyclemap[8], cycletemp); // Mixbus
+#endif
 
 	//				  __  __       _              ___        _
 	//				 |  \/  | __ _(_)_ __        / _ \ _   _| |_
@@ -734,7 +810,10 @@ void audioProcessData(void)
 	//				 |_|  |_|\__,_|_|_| |_|      \___/ \__,_|\__|
 	// calculate summarized main left, right and sub. Source: 40 Channels from FPGA, 24 Channels from DSP2, 16 Channels Mixbus
 
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
+
 	#pragma loop_count(SAMPLES_IN_BUFFER)
 	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 		float sumL = 0;
@@ -754,49 +833,12 @@ void audioProcessData(void)
 		audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINRIGHT][s] = sumR;
 		audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][s]   = sumS;
 	}
-
-	#else
-	//				  __  __       _              ___        _
-	//				 |  \/  | __ _(_)_ __        / _ \ _   _| |_
-	//				 | |\/| |/ _` | | '_ \ _____| | | | | | | __|
-	//				 | |  | | (_| | | | | |_____| |_| | |_| | |_
-	//				 |_|  |_|\__,_|_|_| |_|      \___/ \__,_|\__|
-	// calculate summarized main left, right and sub. Source: 40 Channels from FPGA, 24 Channels from DSP2
-	// vecdotf(const float dm a[],	const float dm b[], int samples) -> A dot B = A0*B0 + A1*B1 + A2*B2 + ...
-
-	START_CYCLE_COUNT(cycletemp);
-/*
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINLEFT] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainLeftVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN);
-		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINRIGHT] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainRightVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN);
-		audioBuffer[TAP_INPUT][s][DSP_BUF_IDX_MAINSUB] = vecdotf(&audioBuffer[TAP_POST_FADER][s][DSP_BUF_IDX_DSPCHANNEL], &dsp.channelSendMainSubVolume[0], MAX_CHAN_FPGA + MAX_DSP2_FXRETURN);
-	}
-*/
-
-	// multiply main-signals using SIMD-support
-	// vecdotf(...) seems to produce quite a lot of overhead, so we use simple loops for multiplication so that the compiler will
-	// translate these loops into SIMD-commands using the parallel-MAC-feature of the SHARC
-	// this takes 5% less load compared to vecdotf()-function
-	#pragma loop_count(SAMPLES_IN_BUFFER)
-	for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-	    float sumL = 0;
-		float sumR = 0;
-	    float sumS = 0;
-
-		#pragma loop_count(48) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN
-	    for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
-		    float src = audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][s];
-	        sumL += src * dsp.channelSendMainLeftVolume[i_ch];
-	        sumR += src * dsp.channelSendMainRightVolume[i_ch];
-	        sumS += src * dsp.channelSendMainSubVolume[i_ch];
-	    }
-
-	    audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINLEFT][s]  = sumL;
-	    audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINRIGHT][s] = sumR;
-	    audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINSUB][s]   = sumS;
-	}
-    #endif
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[9], cycletemp);
+#endif
+
+
+
 
 	//	 __  __       _             _______  __  _____                  _ _
 	//	|  \/  | __ _(_)_ __    _  |  ___\ \/ / | ____|__ _ _   _  __ _| (_)_______ _ __
@@ -808,7 +850,9 @@ void audioProcessData(void)
 	// copy samples into new array
 
 	#if DEBUG_DISABLE_EQMAIN == 0
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
 	// copy INPUT-Tap to POST_EQ-TAP
 	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MAINLEFT][0], &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINLEFT][0], MAX_MAIN * SAMPLES_IN_BUFFER * sizeof(float));
 
@@ -825,7 +869,9 @@ void audioProcessData(void)
 	// TODO: process dynamics on main L/R/S
 
 	// main-volume
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
 	#pragma loop_count(3)
 	for (int i_ch = 0; i_ch < 3; i_ch++) {
 		float* src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_MAINLEFT + i_ch][0];
@@ -841,7 +887,9 @@ void audioProcessData(void)
 	STOP_CYCLE_COUNT(cyclemap[11], cycletemp);
 	#else
 	// main-volume
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
 	#pragma loop_count(3)
 	for (int i_ch = 0; i_ch < 3; i_ch++) {
 		float* src = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MAINLEFT + i_ch][0];
@@ -854,8 +902,12 @@ void audioProcessData(void)
 			dst[s] = gain * src[s];
 		}
 	}
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[11], cycletemp);
+#endif
 	#endif
+
+
 
 
 	//  __  __    _  _____ ____  _____  __
@@ -864,8 +916,10 @@ void audioProcessData(void)
 	// | |  | |/ ___ \| | |  _ < | | /  \
 	// |_|  |_/_/   \_\_| |_| \_\___/_/\_\
 	// calculate matrices
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
-	#if DEBUG_DISABLE_MATRIX == 0
+#endif
+
 	memset(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_MATRIX][0], 0, MAX_MATRIX * SAMPLES_IN_BUFFER * sizeof(float));
 
 	#pragma loop_count(MAX_MATRIX)
@@ -886,7 +940,7 @@ void audioProcessData(void)
 
 			float* src = &audioBuffer[taps[i_ch]][DSP_BUF_IDX_MIXBUS + i_ch][0];
 
-			#pragma loop_count(16, 16, 16)
+			#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
 			#pragma vector_for
 			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 				matrixInput[s] += sendGain * src[s];
@@ -902,7 +956,7 @@ void audioProcessData(void)
 
 			float* src = &audioBuffer[taps[MAX_MIXBUS + i_ch]][DSP_BUF_IDX_MIXBUS + i_ch][0];
 
-			#pragma loop_count(16, 16, 16)
+			#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
 			#pragma vector_for
 			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 				matrixInput[s] += sendGain * src[s];
@@ -910,21 +964,28 @@ void audioProcessData(void)
 		}
 
 		// matrix volume
-		#pragma loop_count(16, 16, 16)
+		#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
 		#pragma vector_for
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			matrixPostFader[s] = gain * matrixInput[s];
 		}
 	}
-	#endif
+
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[12], cycletemp);
+#endif
+
+
+
 
 	//  __  __  ___  _   _ ___ _____ ___  ____  ___ _   _  ____
 	// |  \/  |/ _ \| \ | |_ _|_   _/ _ \|  _ \|_ _| \ | |/ ___|
 	// | |\/| | | | |  \| || |  | || | | | |_) || ||  \| | |  _
 	// | |  | | |_| | |\  || |  | || |_| |  _ < | || |\  | |_| |
 	// |_|  |_|\___/|_| \_|___| |_| \___/|_| \_\___|_| \_|\____|
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
 	#if DEBUG_DISABLE_MONITOR == 0
 	if (dsp.soloActive) {
 		float* monLeft = &audioBuffer[TAP_POST_FADER][DSP_BUF_IDX_MONLEFT][0];
@@ -981,7 +1042,12 @@ void audioProcessData(void)
 		}
 	}
 	#endif
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[13], cycletemp);
+#endif
+
+
+
 
 	// ========================================================
 
@@ -991,7 +1057,9 @@ void audioProcessData(void)
 	// |  _ < (_) | |_| | |_| | | | | (_| |  / /   | |_| | |_| | |_| |_) | |_| | |_  | |_| |  __/ | (_| | |_| |
 	// |_| \_\___/ \__,_|\__|_|_| |_|\__, | /_/     \___/ \__,_|\__| .__/ \__,_|\__| |____/ \___|_|\__,_|\__, |
 	//                               |___/                         |_|                                   |___/
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
 
 	// write to SDRAM
 	wrapPoint = SAMPLES_IN_DELAYLINE - delayLineHeadOutput;
@@ -1081,28 +1149,37 @@ void audioProcessData(void)
 
 		sampleOffset += CHANNELS_PER_TDM;
 	}
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[14], cycletemp);
+#endif
+
 
 	// copy samples for VU-data
+#if DEBUG_COUNT_CYCLES_DETAIL
 	START_CYCLE_COUNT(cycletemp);
+#endif
 	#pragma loop_count(92)
 	for (int i_ch = 0; i_ch < 92; i_ch++)
 	{
 		int tap = (i_ch < 40 ) ? TAP_PRE_EQ : TAP_POST_FADER; // TODO: needs to be refined
 		memcpy(&spiCommData[SPI_DATA_VU_DATA_STARTINDEX + i_ch], &audioBuffer[tap][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], sizeof(float));
 	}
+#if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[15], cycletemp);
+#endif
 
 	audioProcess = false;
 }
 
+// New audio from TDM -> SPORT -> DMA is recevied
 void audioRxISR(uint32_t iid, void *handlerarg)
 {
+	// switch to other buffer (double buffering)
 	bufferSwitch = !bufferSwitch;
 
-	if (audioProcess)
-	{
-		cyclemap[26]++;
-	}
+	// signal to start processing the next 16 samples
 	audioReady = true;
+
+	// Glitch detection (audio process should not be running while this ISR fires)
+	audioGlitchDetected = audioProcess;
 }
