@@ -5,6 +5,7 @@
 
 extern volatile bool audioReady;
 extern volatile bool audioProcess;
+extern volatile bool audioGlitchDetected;
 
 extern float audioBuffer[5][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX_MAIN + MAX_MATRIX + MAX_MONITOR][SAMPLES_IN_BUFFER];
 

@@ -157,11 +157,13 @@
 								<option id="compiler.option.processpeed.434301771" name="Processor speed (MHz) (-D__PROCESSOR_SPEED__):" superClass="compiler.option.processpeed" useByScannerDiscovery="false" value="264" valueType="string"/>
 								<option id="compiler.option.compilerprofiling.1401197926" name="Enable compiler instrumented profiling (-p)" superClass="compiler.option.compilerprofiling" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="sharc.compiler.option.jumptables.123749344" name="Jump tables in PM (-section switch=seg_pmda)" superClass="sharc.compiler.option.jumptables" useByScannerDiscovery="false" value="false" valueType="boolean"/>
-								<option id="compiler.option.codesize.698936" name="Optimize for code size/speed (0 - smallest, 100 - fastest) (-Ov)" superClass="compiler.option.codesize" useByScannerDiscovery="false" value="100" valueType="string"/>
+								<option id="compiler.option.codesize.698936" name="Optimize for code size/speed (0 - smallest, 100 - fastest) (-Ov)" superClass="compiler.option.codesize" useByScannerDiscovery="false" value="0" valueType="string"/>
+								<option id="compiler.option.funcdeclnoproto.702061411" name="Function declarations without prototypes (-warn-protos)" superClass="compiler.option.funcdeclnoproto" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="compiler.option.inlinefuncnotinline.1272191313" name="Inline function calls not inlined (--diag_warning,call_not_inlined)" superClass="compiler.option.inlinefuncnotinline" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="compiler.inputType.1421259369" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="sharc.toolchain.linker.279780464" name="CrossCore SHARC Linker" superClass="sharc.toolchain.linker">
-								<option defaultValue="true" id="linker.option.individmap.930685340" name="Individually map functions and data items (-ip)" superClass="linker.option.individmap" useByScannerDiscovery="false" valueType="boolean"/>
+								<option defaultValue="true" id="linker.option.individmap.930685340" name="Individually map functions and data items (-ip)" superClass="linker.option.individmap" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="linker.option.eliminateunused.516549805" name="Eliminate unused objects (-e)" superClass="linker.option.eliminateunused" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="linker.option.usedbglib.512504402" name="Use Debug System libraries (-add-debug-libpaths)" superClass="linker.option.usedbglib" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="linker.option.proc.1457962255" name="-proc" superClass="linker.option.proc" useByScannerDiscovery="false" value=" ADSP-21371" valueType="string"/>

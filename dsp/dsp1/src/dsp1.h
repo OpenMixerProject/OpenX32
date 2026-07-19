@@ -34,10 +34,11 @@
 #include <sysreg.h>
 #include <signal.h>
 
+#ifdef DO_CYCLE_COUNTS
 #include <cycle_count.h>
+#endif
 
 // global variables
-extern volatile bool spiNewRxDataReady;
 extern int audioTx_tcb[8][BUFFER_COUNT][4];
 extern int audioRx_tcb[8][BUFFER_COUNT][4];
 extern volatile uint32_t cyclemap[CYCLEMAP_SIZE];

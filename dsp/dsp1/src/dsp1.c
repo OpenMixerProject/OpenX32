@@ -160,6 +160,13 @@ int main()
 			STOP_CYCLE_COUNT(cyclemap[24], cycletemp);
 		}
 
+		// Glitch detection counter
+		if (audioGlitchDetected)
+		{
+			audioGlitchDetected = false;
+			cyclemap[26]++;
+		}
+
 		// check if we have received some data over SPI within the last 250ms
 		// we are receiving audio every 333 microseconds. 750 * 0.333us = 250ms
 		if (spiTimeoutCounter >= 750)
