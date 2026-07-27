@@ -98,6 +98,8 @@ struct {
 	float compressorMakeup[MAX_CHAN_FULLFEATURED];
 	//float compressorGainSmoothed[MAX_CHAN_FULLFEATURED];
 
+	bool eqActive[CHANNELS_WITH_4BD_EQ];
+
 	float pm peqCoeffs_4BD_EQ[CHANNELS_WITH_4BD_EQ][5 * EQ_4BD_BANDS]; // store in program memory
 	float dm peqStates_4BD_EQ[CHANNELS_WITH_4BD_EQ][2 * EQ_4BD_BANDS]; // store in data memory
 	float pm peqCoeffs_6BD_EQ[CHANNELS_WITH_6BD_EQ][5 * EQ_6BD_BANDS]; // store in program memory
