@@ -144,6 +144,8 @@ void audioInit(void) {
 	dsp.monitorMainTapPoint = TAP_POST_FADER;
 	dsp.monitorVolume = 1.0f;
 
+	memset(dsp.eqActive, 0, sizeof(dsp.eqActive));
+
 /*
 	// initialize memories
 	memset(dsp.lowcutStatesInput, 0, sizeof(dsp.lowcutStatesInput));
@@ -572,13 +574,17 @@ void audioProcessData(void)
 	memcpy(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL][0], &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL][0], (CHANNELS_WITH_4BD_EQ - MAX_MAIN) * SAMPLES_IN_BUFFER * sizeof(float));
 
 	#pragma loop_count(48) // CHANNELS_WITH_4BD_EQ - MAX_MAIN
-	for (int i_ch = 0; i_ch < (CHANNELS_WITH_4BD_EQ - MAX_MAIN); i_ch++) {
-		// apply biquad EQ on POST_EQ-Tap directly
-		biquad_trans(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0],
-					 &dsp.peqCoeffs_4BD_EQ[i_ch][0],
-					 &dsp.peqStates_4BD_EQ[i_ch][0],
-					 SAMPLES_IN_BUFFER,
-					 EQ_4BD_BANDS);
+	for (int i_ch = 0; i_ch < (CHANNELS_WITH_4BD_EQ - MAX_MAIN); i_ch++)
+	{
+		if (dsp.eqActive[i_ch])
+		{
+			// apply biquad EQ on POST_EQ-Tap directly
+			biquad_trans(&audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0],
+						 &dsp.peqCoeffs_4BD_EQ[i_ch][0],
+						 &dsp.peqStates_4BD_EQ[i_ch][0],
+						 SAMPLES_IN_BUFFER,
+						 EQ_4BD_BANDS);
+		}
 	}
 #if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[5], cycletemp);

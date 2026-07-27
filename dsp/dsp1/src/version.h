@@ -1,1 +1,1 @@
-#define DSP_VERSION 0.60
+#define DSP_VERSION 0.61
