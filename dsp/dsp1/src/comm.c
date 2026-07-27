@@ -285,9 +285,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						return;
 					}
 
-					if ((valueCount == (5 * EQ_4BD_BANDS)) && (channel < CHANNELS_WITH_4BD_EQ)) {
+					if ((valueCount == (5 * EQ_4BD_BANDS) + 1) && (channel < CHANNELS_WITH_4BD_EQ)) {
 						// copy biquad-coefficients
-						memcpy(&dsp.peqCoeffs_4BD_EQ[channel][0], &floatValues[0], valueCount * sizeof(float));
+						memcpy(&dsp.peqCoeffs_4BD_EQ[channel][0], &floatValues[0], (valueCount - 1) * sizeof(float));
+						dsp.eqActive[channel] = floatValues[5 * EQ_4BD_BANDS] != 0;
 					}
 					break;
 				case 'r': // reset channel-parameters
