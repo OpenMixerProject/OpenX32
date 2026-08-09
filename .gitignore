@@ -143,3 +143,5 @@ fpga/lattice/claritydesigner/lattice_pll_phy/syn_results
 ._Real_._Math_.vhd
 software/x32ctrl/.vscode/launch.json
 software/x32ctrl/.vscode/tasks.json
+/dsp/dsp1/system/*.backup
+/dsp/dsp2/system/*.backup
