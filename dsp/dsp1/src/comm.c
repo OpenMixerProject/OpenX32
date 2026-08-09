@@ -138,40 +138,40 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			break;
 		case 'v': // volume
 			switch (index) {
-				case 0: // Volume DSP-Channels / FX-Return / Mixbusses
+				case DSP_SETTINGS_VOLUME: // Volume DSP-Channels / FX-Return / Mixbusses
 					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS)) {
 						return;
 					}
 
-					if (valueCount == 4) {
-						dsp.channelVolumeSet[channel] = floatValues[0];
-						dsp.channelSendMainLeftVolume[channel] = floatValues[1];
-						dsp.channelSendMainRightVolume[channel] = floatValues[2];
-						dsp.channelSendMainSubVolume[channel] = floatValues[3];
+					if (valueCount == 5)
+					{
+						dsp_settings.trim_pu[channel] = floatValues[0];
+						dsp.channelVolumeSet[channel] = floatValues[1];
+						dsp.channelSendMainLeftVolume[channel] = floatValues[2];
+						dsp.channelSendMainRightVolume[channel] = floatValues[3];
+						dsp.channelSendMainSubVolume[channel] = floatValues[4];
 					}
 					break;
-				case 1: // unused
-					break;
 
-				case 2: // Matrix-Channels
+				case DSP_SETTINGS_MATRIX_VOLUME: // Matrix-Channels
 					#if DEBUG_DISABLE_MATRIX == 0
 					if (valueCount == 1) {
 						dsp.matrixVolume[channel] = floatValues[0];
 					}
 					#endif
 					break;
-				case 3: // Main-Channels
+				case DSP_SETTINGS_MAIN_VOLUME: // Main-Channels
 					if (valueCount == 3) {
 						memcpy(&dsp.mainVolumeSet[0], &floatValues[0], 3 * sizeof(float));
 					}
 					break;
-				case 4: // Monitoring
+				case DSP_SETTINGS_MONITORING_VOLUME: // Monitoring
 					if (valueCount == 1) {
 						dsp.monitorVolume = floatValues[0];
 					}
 					break;
 
-				case 10: // Solo DSP-Channel / FX-Return / Mixbusses
+				case DSP_SETTINGS_SOLO: // Solo DSP-Channel / FX-Return / Mixbusses
 					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS)) {
 						return;
 					}
@@ -183,11 +183,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 					break;
 
-				case 11: // unused
-					break;
-
-				#if DEBUG_DISABLE_MATRIX == 0
-				case 12: // Matrix Solo
+				case DSP_SETTINGS_MATRIX_SOLO: // Matrix Solo
 					if (channel >= (MAX_MATRIX)) {
 						return;
 					}
@@ -197,9 +193,8 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						dsp.soloActive = (intValues[1] > 0);
 					}
 					break;
-				#endif
 
-				case 13: // Solo Main
+				case DSP_SETTINGS_MAIN_SOLO: // Solo Main
 					if (valueCount == 3) {
 						dsp.mainLrSolo = (intValues[0] > 0);
 						dsp.mainSubSolo = (intValues[1] > 0);
@@ -211,7 +206,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 					break;
 			}
 			break;
-		#if DEBUG_DISABLE_DELAYLINE == 0
 		case 'd': // delay for input or output
 			if (channel >= MAX_CHAN_FPGA) {
 				return;
@@ -230,19 +224,17 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				#endif
 			}
 			break;
-		#endif
-			case 's': // sends to Mixbus
-				if (valueCount == MAX_MIXBUS) {
-					if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
-						return;
-					}
-
-					for (int i = 0; i < MAX_MIXBUS; i++) {
-						dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
-					}
+		case 's': // sends to Mixbus
+			if (valueCount == MAX_MIXBUS) {
+				if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
+					return;
 				}
-				break;
-		#if DEBUG_DISABLE_MATRIX == 0
+
+				for (int i = 0; i < MAX_MIXBUS; i++) {
+					dsp.channelSendMixbusVolume[i][channel] = floatValues[i];
+				}
+			}
+			break;
 		case 'm': // sends to Matrix
 			if (valueCount == (MAX_MIXBUS + MAX_MAIN)) {
 				if (channel >= (MAX_MATRIX)) {
@@ -254,7 +246,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				}
 			}
 			break;
-		#endif
 		case 'g': // gate
 			if (channel >= (MAX_CHAN_FULLFEATURED)) {
 				return;
@@ -340,8 +331,6 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 				dsp.dspChannelCompressor[channel].value_hold_ticks = floatValues[4];
 				dsp.dspChannelCompressor[channel].value_coeff_release = floatValues[5];
 			}
-			break;
-		case 'a': // Auxiliary
 			break;
 		default:
 			break;

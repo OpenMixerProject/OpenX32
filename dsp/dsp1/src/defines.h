@@ -1,23 +1,18 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
+#include "defines_settings.h"
+
+
+
 // ------------------------------------------------------------------------------------
 
 #define DO_CYCLE_COUNTS				   // enable cycle counter (and the DSP Load Indicator)
 #define DEBUG_COUNT_CYCLES_DETAIL 1    // adds ~300 cylces overhead
 
-
-//#define DEBUG_DISABLE_LOWCUT	0
-//#define DEBUG_DISABLE_GATE		0
-//#define DEBUG_DISABLE_EQ		0
-//#define DEBUG_DISABLE_DYNAMICS	0
-//#define DEBUG_DISABLE_MIXBUS	0
 #define DEBUG_DISABLE_EQMIXBUS	1
 #define DEBUG_DISABLE_EQMAIN	1
-//#define DEBUG_DISABLE_MATRIX	0
-//#define DEBUG_DISABLE_MONITOR	0
-//#define DEBUG_DISABLE_INTPUTDELAY	0
-//#define DEBUG_DISABLE_OUTPUTDELAY	0
+
 
 #define ACTIVE_MIX_BUSSES		16	// 16 MixBusses are possible now
 
@@ -65,7 +60,7 @@
 #define EQ_4BD_BANDS			4
 #define CHANNELS_WITH_6BD_EQ	(MAX_MIXBUS + MAX_MAIN)
 #define EQ_6BD_BANDS			6
-#define MAX_CHAN_FULLFEATURED	32	// depending on the overall load not all channels can be full-featured (gate + dynamics)
+#define MAX_CHAN_FULLFEATURED	40	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 #define MAX_CHAN_REDUCED		(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN - MAX_CHAN_FULLFEATURED)	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 
 #define CHANNELS_PER_TDM		8
