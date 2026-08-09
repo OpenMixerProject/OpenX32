@@ -422,12 +422,3 @@ void systemSportInit() {
 	*pSPCTL6 |= SPEN_A | SPEN_B;
 	*pSPCTL7 |= SPEN_A | SPEN_B;
 }
-
-// endless loop for the case, that CPU-load is above 100% so that
-// new audio-data cannot be processed
-void systemCrash(void) {
-	//sysreg_bit_clr(sysreg_FLAGS, FLG7);
-    //while(1) {
-    //	NOP();
-    //}
-}
