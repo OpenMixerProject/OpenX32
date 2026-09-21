@@ -231,6 +231,12 @@ An overview of the current FPGA-project can be found in the PDF-file of the top-
 
 #### Sidenode for Lattice-FPGA
 
+Install Quartus Prime
+(Linux Download -> https://www.altera.com/downloads/fpga-development-tools/quartus-prime-lite-edition-design-software-version-25-1-linux)
+
+<img width="1105" height="835" alt="grafik" src="https://github.com/user-attachments/assets/2a3c3d20-439e-4523-bf79-9838167ad527" />
+
+
 As AES50 is based on common 100MBit/s ethernet, we started playing around with audio-over-IP and audio-over-ethernet next to AES50. So there are two project-files for the Lattice FPGA at the moment:
 * fpga\lattice\QuartusPrime\openx32_aes50.qpf
 * fpga\lattice\QuartusPrime\openx32_audio_over_ethernet.qpf
