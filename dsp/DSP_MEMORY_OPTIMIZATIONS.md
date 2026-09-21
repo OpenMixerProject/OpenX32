@@ -13,7 +13,7 @@ Both measurements are clean CCES 2.12.1 Release builds of the same configuration
 | DXE size | 338,596 bytes | 337,112 bytes | 1,484 bytes smaller |
 | LDR size | 56,740 bytes | 56,128 bytes | 612 bytes smaller |
 
-DSP1's code size remains unchanged. Its linker layout was tightened so that the fixed delay lines cannot collide with future linker-managed SDRAM data.
+No DSP1 memory saving is claimed. Its linker layout was tightened so that the fixed delay lines cannot collide with future linker-managed SDRAM data.
 
 ## What changed
 

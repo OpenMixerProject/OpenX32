@@ -9,12 +9,12 @@
 
 void host_dsp1_init(void) {
     memset(&dsp, 0, sizeof(dsp));
-    dsp.samplerate = 48000.0f;
+    dsp_settings.samplerate = 48000.0f;
 }
 
 void host_dsp1_reset(void) {
     memset(&dsp, 0, sizeof(dsp));
-    dsp.samplerate = 48000.0f;
+    dsp_settings.samplerate = 48000.0f;
 }
 
 void host_dsp1_set_main_volume(int idx, float current, float target) {

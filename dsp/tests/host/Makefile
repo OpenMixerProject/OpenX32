@@ -53,7 +53,7 @@ $(BUILD_DIR)/dsp1_fx.o: ../../dsp1/src/fx.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/dsp1_audio.o: ../../dsp1/src/audio.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -Wno-comment -Wno-unused-variable -Wno-unused-parameter -c $< -o $@
+	$(CC) $(CFLAGS) -Wno-address -Wno-comment -Wno-unused-variable -Wno-unused-parameter -c $< -o $@
 
 $(BUILD_DIR)/dsp1_host_harness.o: src/dsp1_host_harness.c src/dsp1_host_harness.h | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
