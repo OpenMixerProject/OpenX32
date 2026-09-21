@@ -168,8 +168,8 @@ MEMORY
    */
 
    /*
-    Segment	Start (Logisch)	Ende (Logisch)	Breite	Physischer Bereich (DM-Sicht)	Größe
-	Code (PM)	0x00400000	0x0042AAAA	32-bit	0x04000000 - 0x0403FFFF	1 MB
+    Segment	Start (Logisch)	Ende (Logisch)	Breite	Physischer Bereich (DM-Sicht)	Grï¿½ï¿½e
+	Code (PM)	0x002AAAAB	0x002D5555	32-bit	0x04000000 - 0x0403FFFF	1 MB (explicit seg_ext_code only; boot safety unverified)
 	Data (DM)	0x04040000	0x0407FFFF	32-bit	0x04040000 - 0x0407FFFF	1 MB
 	Audio (DM)	0x04080000	0x043FFFFF	32-bit	0x04080000 - 0x043FFFFF	14 MB
    */
@@ -182,7 +182,7 @@ MEMORY
    */
    //mem_sdram_data          { TYPE(DM RAM SYNCHRONOUS) START(0x04000000) END(0x0407FFFF) WIDTH(32) } // 2MB SDRAM = 0.5k Words for system-data
    mem_sdram_data          { TYPE(DM RAM SYNCHRONOUS) START(0x04040000) END(0x0407FFFF) WIDTH(32) } // 1MB SDRAM = 0.25k Words for system-data
-   mem_sdram_audio         { TYPE(DM RAM SYNCHRONOUS) START(0x04080000) END(0x043FFFFF) WIDTH(32) } // 14MB SDRAM = 3M Words for audio-data (this memory is hidden for the CCES-linker)
+   mem_sdram_audio         { TYPE(DM RAM SYNCHRONOUS) START(0x04080000) END(0x043FFFFF) WIDTH(32) } // 14 MiB SDRAM = 0x380000 32-bit words for audio data
 
    /*
    ** Physical address (P)          0x40_0000 ... 0x5F_FFFF
@@ -190,9 +190,9 @@ MEMORY
    ** L=P*(2/3)
    */
    
-   // Caution: Addressbus for program-code starts at 0x00400000 instead of 0x04000000 for external SDRAM
-   //mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x002AAAAB) END(0x003FFFFF) WIDTH(32) }
-   mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x00400000) END(0x0042AAAA) WIDTH(32) } // allow first 1MB of external SDRAM for Code: 0x40000 (DM-Words) * 2/3 = 0x2AAAA (PM-Words Offset)
+   // ADSP-21371 PM view of the first 1 MiB physical partition (0x2AAAB PM words). External
+   // execution remains unverified and is accepted only from seg_ext_code.
+   mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x002AAAAB) END(0x002D5555) WIDTH(32) }
    mem_flash               { TYPE(DM RAM ASYNCHRONOUS) START(0x08000000) END(0x083FFFFF) WIDTH(8) }
    
    /*$VDSG<insert-new-memory-segments>                          */
@@ -630,7 +630,8 @@ PROCESSOR p0
          /* Text inserted between these $VDSG comments will be preserved */
          /*$VDSG<insert-input-sections-at-the-start-of-dxe_sdram_code>  */
          
-         INPUT_SECTIONS( $OBJS_LIBS(seg_ext_code seg_pmco) )
+         // Never spill ordinary seg_pmco into unverified external instruction memory.
+         INPUT_SECTIONS( $OBJS_LIBS(seg_ext_code) )
          
          /*$VDSG<insert-input-sections-at-the-end-of-dxe_sdram_code>  */
          /* Text inserted between these $VDSG comments will be preserved */
@@ -716,4 +717,3 @@ PROCESSOR p0
       
    } /* SECTIONS */
 } /* p0 */
-

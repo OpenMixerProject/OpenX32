@@ -1,22 +1,23 @@
+#include "../../../dsp2/src/defines.h"
 #include "test_framework.h"
 
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 
-// Linker definitions from dsp2/system/startup_ldf/app.ldf (line 185):
-// mem_sdram_audio { TYPE(DM RAM SYNCHRONOUS) START(0x04080000) END(0x043FFFFF) WIDTH(32) }
-// 14MB SDRAM = 3.5M Words for audio-data (32-bit words)
-static const uint32_t LINKER_AUDIO_START = 0x04080000U;
-static const uint32_t LINKER_AUDIO_END   = 0x043FFFFFU;
-static const uint32_t TOTAL_AUDIO_WORDS  = LINKER_AUDIO_END - LINKER_AUDIO_START + 1U; // 0x00380000 (3,670,016 words)
+// Production constants are the single source of truth. SHARC DM addresses are
+// 32-bit word addresses; host byte counts are used only for reporting.
+static const uint32_t LINKER_AUDIO_START = SDRAM_AUDIO_START_WORD_ADDRESS;
+static const uint32_t LINKER_AUDIO_END   = SDRAM_AUDIO_END_WORD_ADDRESS;
+static const uint32_t TOTAL_AUDIO_WORDS  = SDRAM_AUDIO_CAPACITY_WORDS;
 static const uint32_t TOTAL_AUDIO_BYTES  = TOTAL_AUDIO_WORDS * 4U; // 14,680,064 bytes (14 MB)
 
-static const int NUM_FX_SLOTS = 8;
+static const int NUM_FX_SLOTS = SDRAM_AUDIO_SLOT_COUNT;
 
 // Correct word-based sizing:
 // 14MB SDRAM = 3,670,016 words.
 // Sliced into 8 slots -> 3,670,016 / 8 = 458,752 words per slot (0x00070000 words = 1.75 MB).
-static const uint32_t WORDS_PER_SLOT = TOTAL_AUDIO_WORDS / NUM_FX_SLOTS; // 0x70000 words
+static const uint32_t WORDS_PER_SLOT = SDRAM_AUDIO_SLOT_CAPACITY_WORDS; // 0x70000 words
 static const uint32_t BYTES_PER_SLOT = WORDS_PER_SLOT * 4U;               // 1,835,008 bytes
 
 struct FxSlotRange {
@@ -124,7 +125,7 @@ TEST_CASE(dsp2_memory_layout_demonstrate_suspected_production_failures) {
     ASSERT_EQ(sus_slots[1].end_addr, 0x0457FFFFU);
 
     // Failure 3: Slot 7 ends far beyond SDRAM hardware memory
-    // Slot 7 ends at 0x0509FFFF (overflows SDRAM by 0xCA0000 = 13.25 million words)
+    // Slot 7 ends at 0x04FFFFFF (overflows SDRAM by 0xC00000 = 12,582,912 words)
     ASSERT_GT(sus_slots[7].end_addr, LINKER_AUDIO_END);
     ASSERT_EQ(sus_slots[7].end_addr, 0x04FFFFFFU);
 
@@ -143,6 +144,30 @@ TEST_CASE(dsp2_memory_layout_demonstrate_suspected_production_failures) {
     uint32_t corrected_start_with_byte_stride_end = LINKER_AUDIO_START + (8U * SUSPECTED_PROD_STRIDE_WORDS) - 1U;
     ASSERT_GT(corrected_start_with_byte_stride_end, LINKER_AUDIO_END);
     ASSERT_EQ(corrected_start_with_byte_stride_end, 0x04E7FFFFU); // Exceeds by 0xA80000 words!
+}
+
+TEST_CASE(dsp2_memory_layout_largest_effects_fit_one_slot) {
+    // fxDelay allocates two 500 ms lines at the maximum 48 kHz sample rate.
+    const uint32_t delay_words = 2U * ((48000U * 500U) / 1000U);
+    ASSERT_EQ(delay_words, 48000U);
+    ASSERT_LE(delay_words, WORDS_PER_SLOT);
+
+    // Independently reproduce the allocations in fxReverb's constructor:
+    // four 8-channel diffusion banks followed by eight feedback delays.
+    const uint32_t reverb_base_words = (48000U * 475U) / 1000U;
+    uint32_t reverb_words = 0;
+    for (int step = 0; step < 4; ++step) {
+        reverb_words += static_cast<uint32_t>(std::ceil(
+            static_cast<double>(reverb_base_words) / std::pow(2.0, step + 1))) * 8U;
+    }
+    for (int channel = 0; channel < 8; ++channel) {
+        reverb_words += static_cast<uint32_t>(std::ceil(
+            static_cast<double>(reverb_base_words) * std::pow(2.0, channel / 8.0)));
+    }
+
+    ASSERT_EQ(reverb_words, 422915U);
+    ASSERT_LE(reverb_words, WORDS_PER_SLOT);
+    ASSERT_EQ(WORDS_PER_SLOT - reverb_words, 35837U);
 }
 
 int main() {

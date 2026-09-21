@@ -148,7 +148,7 @@ void systemExternalMemoryInit() {
 	*pAMICTL1 = AMIEN | BW16 | WS23; // minimum WaitState without ACK is WS2
 
 	// dummy access to initialize the controller
-	int dummy = *(int*)SDRAM_START;
+	int dummy = *(int*)SDRAM_START_WORD_ADDRESS;
 	NOP();
 	NOP();
 	NOP();
@@ -157,8 +157,8 @@ void systemExternalMemoryInit() {
 
 /*
 	// clear audio-memory that is used by fxRack
-    float* ptr = (float*)SDRAM_AUDIO_START;
-    for (int i = 0; i < (SDRAM_AUDIO_SIZE_BYTE / sizeof(float)); i++) {
+    float* ptr = (float*)SDRAM_AUDIO_START_WORD_ADDRESS;
+    for (int i = 0; i < SDRAM_AUDIO_CAPACITY_WORDS; i++) {
         ptr[i] = 0.0f;
     }
 */

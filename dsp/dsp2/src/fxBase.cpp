@@ -24,14 +24,16 @@
 
 #include "fxBase.h"
 
+#pragma optimize_for_space
 fx::fx(int fxSlot, float* bufIn[], float* bufOut[], int channelMode) {
 	// take the memory-slot-address (we have 8 of them)
 	_startup = true;
 	_fxSlot = fxSlot;
 	_channelMode = channelMode;
 
-	// calculate the base-address in memory for this effect. We have 1MB for each channel
-	_memoryAddress = (SDRAM_AUDIO_START + (_fxSlot * (SDRAM_AUDIO_SIZE_BYTE / 8))); // we are using 8 fx-slots so divide by 8
+	// SHARC pointers use 32-bit word addresses. Each effect owns one disjoint
+	// 0x70000-word (1.75 MiB) slot in the audio SDRAM partition.
+	_memoryAddress = SDRAM_AUDIO_START_WORD_ADDRESS + (_fxSlot * SDRAM_AUDIO_SLOT_CAPACITY_WORDS);
 
 	_sampleRate = 48000.0f;
 }
@@ -46,7 +48,7 @@ void fx::setSampleRate(float sampleRate) {
 void fx::clearMemory() {
 	// initialize the memory with zeros
     float* ptr = (float*)_memoryAddress;
-    for (int i = 0; i < ((SDRAM_AUDIO_SIZE_BYTE / 8) / sizeof(float)); i++) {
+    for (int i = 0; i < SDRAM_AUDIO_SLOT_CAPACITY_WORDS; i++) {
         ptr[i] = 0.0f;
     }
 }
