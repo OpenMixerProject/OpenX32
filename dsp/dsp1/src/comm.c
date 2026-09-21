@@ -145,7 +145,11 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 
 					if (valueCount == 5)
 					{
-						dsp_settings.trim_pu[channel] = floatValues[0];
+						// Trim only on the 40 DSP-Channels
+						if (channel < MAX_CHAN_FPGA)
+						{
+							dsp_settings.trim_pu[channel] = floatValues[0];
+						}
 						dsp.channelVolumeSet[channel] = floatValues[1];
 						dsp.channelSendMainLeftVolume[channel] = floatValues[2];
 						dsp.channelSendMainRightVolume[channel] = floatValues[3];

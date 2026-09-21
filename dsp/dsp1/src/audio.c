@@ -181,7 +181,7 @@ void audioSmoothVolume(void) {
 	}
 }
 
-#pragma OP
+#pragma optimize_for_speed
 void audioProcessData(void)
 {
 	audioProcess = true;
@@ -522,9 +522,9 @@ void audioProcessData(void)
 
 		// calculate RMS over all 16 samples
 		#pragma no_alias
-		#pragma align 8
 		#pragma vector_for
 		#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
+		#pragma align 8
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			refValue += src_dst[s] * src_dst[s];
 		}
@@ -558,7 +558,6 @@ void audioProcessData(void)
 
 		// apply calculated gain to samples
 		#pragma no_alias
-		#pragma align 8
 		#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
 			// Ein einziger MAC-Befehl (Multiply-Accumulate)!
@@ -763,7 +762,6 @@ void audioProcessData(void)
 		#pragma no_alias
 		#pragma vector_for
 		#pragma loop_count(SAMPLES_IN_BUFFER)
-		#pragma align 8
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
 		{
 			src[s] = 0;
@@ -797,7 +795,6 @@ void audioProcessData(void)
 			#pragma no_alias
 			#pragma vector_for
 			#pragma loop_count(SAMPLES_IN_BUFFER)
-			#pragma align 8
 			for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
 			{
 				// OPTIMIERUNG: Das Sample nur EINMAL aus dem Speicher holen!

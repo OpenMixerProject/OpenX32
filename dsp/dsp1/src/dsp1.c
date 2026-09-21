@@ -131,11 +131,19 @@ int main()
 	memset((uint32_t*)cyclemap, 0, sizeof(cyclemap));
 
 	uint32_t spiTimeoutCounter = 0;
+	uint32_t LedCounter = 0;
 
 	// the main-loop
 	while(1)
 	{
 		cycle_t cycletemp;
+
+		LedCounter++;
+		if (LedCounter > 100000)
+		{
+			sysreg_bit_tgl(sysreg_FLAGS, FLG7);
+			LedCounter = 0;
+		}
 
 		if (audioReady)
 		{

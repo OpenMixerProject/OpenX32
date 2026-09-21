@@ -8,6 +8,5 @@ void systemPllInit(void);
 void systemExternalMemoryInit(void);
 void systemSruInit(void);
 void systemSportInit(void);
-void systemCrash(void);
 
 #endif

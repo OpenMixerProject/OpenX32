@@ -143,7 +143,7 @@ struct
 struct
 {
 	float samplerate;
-	float pm trim_pu[MAX_CHAN_FULLFEATURED];
+	float pm trim_pu[MAX_CHAN_FPGA];
 
 } dsp_settings;
 
