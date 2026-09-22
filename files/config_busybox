@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Busybox version: 1.39.0.git
-# Tue Jun  2 00:14:54 2026
+# Tue Sep 22 14:42:18 2026
 #
 CONFIG_HAVE_DOT_CONFIG=y
 
@@ -953,11 +953,11 @@ CONFIG_FEATURE_IP_ROUTE_DIR=""
 # CONFIG_NAMEIF is not set
 # CONFIG_FEATURE_NAMEIF_EXTENDED is not set
 # CONFIG_NBDCLIENT is not set
-# CONFIG_NC is not set
-# CONFIG_NETCAT is not set
-# CONFIG_NC_SERVER is not set
-# CONFIG_NC_EXTRA is not set
-# CONFIG_NC_110_COMPAT is not set
+CONFIG_NC=y
+CONFIG_NETCAT=y
+CONFIG_NC_SERVER=y
+CONFIG_NC_EXTRA=y
+CONFIG_NC_110_COMPAT=y
 CONFIG_NETSTAT=y
 CONFIG_FEATURE_NETSTAT_WIDE=y
 CONFIG_FEATURE_NETSTAT_PRG=y
