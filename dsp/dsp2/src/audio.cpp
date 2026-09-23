@@ -83,9 +83,9 @@ float pm audioBuffer[2][MAX_CHAN][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][C
 int pm audioRx_tcb[4][BUFFER_COUNT][4];
 int pm audioTx_tcb[4][BUFFER_COUNT][4];
 
-// the next array is our FX-delay-memory in the external SDRAM. It is a dummy-array to display the audio-memory as "used"
-// each individual effect has full control of its memory area and can create smaller sub-arrays within this memory-area
-//float am fxDelayLine[8][2][SDRAM_AUDIO_SIZE_BYTE / (8 * 2 * 4)]; // 8 FX-Slots, 2 Channels, 229000 samples = 4.77 seconds
+// FX delay memory is manually addressed. Each effect owns one complete,
+// disjoint SDRAM_AUDIO_SLOT_CAPACITY_WORDS region.
+//float am fxDelayLine[SDRAM_AUDIO_SLOT_COUNT][SDRAM_AUDIO_SLOT_CAPACITY_WORDS];
 
 float time = 0;
 
@@ -177,6 +177,7 @@ void audioInit(void) {
 	#endif
 }
 
+#pragma optimize_for_space
 void audioFxData(int fxSlot, float* data, int len) {
 	#if (FX_USE_UPMIXER == 0)
 		// passthrough data to desired fx-slot

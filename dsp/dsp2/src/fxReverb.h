@@ -92,44 +92,4 @@ class fxReverb : public fx {
     	float _fxBufFeedback[FX_REVERB_INT_CHAN];
 };
 
-/*
-	// this is a small program to calculate the memory-demand of this Reverb
-	#include <stdio.h>
-	#include <stdint.h>
-	#include <math.h>
-
-	#define SDRAM_AUDIO_SIZE_BYTE	(14 * 1024 * 1024) / 8
-
-	#define FX_REVERB_INT_CHAN          8
-	#define FX_REVERB_DIFFUSION_STEPS   4
-	#define SAMPLERATE_MAX              48000
-
-	#define FX_REVERB_DELAY_MS_MAX		475
-	#define FX_REVERB_BUFFER_SIZE 		((SAMPLERATE_MAX * FX_REVERB_DELAY_MS_MAX) / 1000)
-
-	int _diffusionDelayLineLength[FX_REVERB_DIFFUSION_STEPS];
-	int _delayLineLength[FX_REVERB_INT_CHAN];
-	int _memoryUsed = 0;
-
-	int main()
-	{
-		for (int d = 0; d < FX_REVERB_DIFFUSION_STEPS; d++) {
-			_diffusionDelayLineLength[d] = (int)ceilf(FX_REVERB_BUFFER_SIZE / (2 * (d + 1)));
-
-			_memoryUsed += _diffusionDelayLineLength[d] * FX_REVERB_INT_CHAN * sizeof(float);
-		}
-		for (int c = 0; c < FX_REVERB_INT_CHAN; c++) {
-			_delayLineLength[c] = (int)ceilf(FX_REVERB_BUFFER_SIZE * powf(2.0f, (float)c / (float)FX_REVERB_INT_CHAN));
-			_memoryUsed += (_delayLineLength[c] * sizeof(float));
-		}
-
-
-		printf("Used memory       = %d bytes\n", _memoryUsed);
-		printf("Available memory  = %d bytes\n", SDRAM_AUDIO_SIZE_BYTE);
-		printf("Free memory left  = %d bytes\n", SDRAM_AUDIO_SIZE_BYTE - _memoryUsed);
-
-		return 0;
-	}
-*/
-
 #endif /* FXREVERB_H_ */
