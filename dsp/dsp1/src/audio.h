@@ -18,6 +18,8 @@ extern float audioBuffer[5][1 + MAX_CHAN_FPGA + MAX_CHAN_DSP2 + MAX_MIXBUS + MAX
 void audioInit(void);
 void audioSmoothVolume(void);
 void audioProcessData(void);
+void audioSetMixbusSendTapPoint(int channel, int bus, int tapPoint);
+void audioSetAltEq(int channel, const float* coeffs, bool enable);
 void audioRxISR(uint32_t , void *);
 
 #endif

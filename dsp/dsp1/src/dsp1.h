@@ -103,7 +103,15 @@ struct
 	#else
 		float channelSendMixbusVolume[MAX_MIXBUS][MAX_CHAN_FPGA + MAX_DSP2_FXRETURN]; // in p.u.
 	#endif
-	short channelSendMixbusTapPoint[MAX_MIXBUS][MAX_CHAN_FPGA + MAX_DSP2_FXRETURN];
+	// source buffer of every channel->mixbus send. It points into audioBuffer at the tap point of this send
+	float* channelSendMixbusSrc[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN][MAX_MIXBUS];
+	unsigned int channelSendAltEqMask[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN]; // bit n set: send to mixbus n uses TAP_ALT_EQ
+
+	// alternative EQ (e.g. occlusion-EQ for in-ear-monitoring) for up to MAX_ALTEQ_SLOTS channels
+	int channelAltEqSlot[MAX_CHAN_FPGA]; // -1 = channel has no alternative EQ
+	int altEqSlotChannel[MAX_ALTEQ_SLOTS]; // -1 = slot is free
+	float pm peqCoeffs_ALT_EQ[MAX_ALTEQ_SLOTS][5 * EQ_ALT_BANDS]; // store in program memory
+	float dm peqStates_ALT_EQ[MAX_ALTEQ_SLOTS][2 * EQ_ALT_BANDS]; // store in data memory
 
 	#pragma align 8 // align for 2 floats
 	float pm channelSendMainLeftVolume[MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS]; // in p.u.
@@ -152,7 +160,8 @@ enum eBufferIndex {
 	TAP_PRE_EQ,
 	TAP_POST_EQ,
 	TAP_PRE_FADER,
-	TAP_POST_FADER
+	TAP_POST_FADER,
+	TAP_ALT_EQ		// only for mixbus-sends: TAP_PRE_FADER + alternative EQ of the channel (no own audioBuffer)
 };
 
 

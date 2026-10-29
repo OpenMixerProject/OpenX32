@@ -93,6 +93,10 @@ float delayReadBuffer[MAX_CHAN_FPGA][SAMPLES_IN_BUFFER];
 #pragma align 8 // align for 2 floats
 float audioBuffer[5][1 + MAX_CHAN_FPGA + MAX_DSP2_FXRETURN + MAX_MIXBUS + MAX_DSP2_FXINSERT + MAX_MATRIX + MAX_MAIN + MAX_DSP2_AUX + MAX_MONITOR][SAMPLES_IN_BUFFER]; // audioBuffer[TAPPOINT][CHANNEL][SAMPLE]
 
+// output of the alternative EQs (TAP_ALT_EQ)
+#pragma align 8
+float altEqBuffer[MAX_ALTEQ_SLOTS][SAMPLES_IN_BUFFER];
+
 //#pragma align 8 // align for 2 floats
 //#pragma section("seg_pmda")
 //float pm mixbusAcc[ACTIVE_MIX_BUSSES][SAMPLES_IN_BUFFER];
@@ -139,6 +143,20 @@ void audioInit(void) {
 
 	memset(dsp.eqActive, 0, sizeof(dsp.eqActive));
 
+	for (int i_slot = 0; i_slot < MAX_ALTEQ_SLOTS; i_slot++) {
+		dsp.altEqSlotChannel[i_slot] = -1;
+	}
+	for (int i_ch = 0; i_ch < MAX_CHAN_FPGA; i_ch++) {
+		dsp.channelAltEqSlot[i_ch] = -1;
+	}
+
+	// all sends start pre-fader until the i.MX25 sends the tap points
+	for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++) {
+		for (int i_bus = 0; i_bus < MAX_MIXBUS; i_bus++) {
+			audioSetMixbusSendTapPoint(i_ch, i_bus, TAP_PRE_FADER);
+		}
+	}
+
 /*
 	// initialize memories
 	memset(dsp.lowcutStatesInput, 0, sizeof(dsp.lowcutStatesInput));
@@ -151,6 +169,69 @@ void audioInit(void) {
 		delayLineHeadInput = 0;
 		delayLineHeadOutput = 0;
 	#endif
+}
+
+void audioSetMixbusSendTapPoint(int channel, int bus, int tapPoint) {
+	if ((channel < 0) || (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) || (bus < 0) || (bus >= MAX_MIXBUS)) {
+		return;
+	}
+	if ((tapPoint < TAP_INPUT) || (tapPoint > TAP_ALT_EQ)) {
+		return;
+	}
+
+	if (tapPoint == TAP_ALT_EQ) {
+		dsp.channelSendAltEqMask[channel] |= (1u << bus);
+
+		int slot = (channel < MAX_CHAN_FPGA) ? dsp.channelAltEqSlot[channel] : -1;
+		if (slot >= 0) {
+			dsp.channelSendMixbusSrc[channel][bus] = &altEqBuffer[slot][0];
+		} else {
+			// no alternative EQ on this channel (yet): behave like TAP_PRE_FADER
+			dsp.channelSendMixbusSrc[channel][bus] = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + channel][0];
+		}
+	} else {
+		dsp.channelSendAltEqMask[channel] &= ~(1u << bus);
+		dsp.channelSendMixbusSrc[channel][bus] = &audioBuffer[tapPoint][DSP_BUF_IDX_DSPCHANNEL + channel][0];
+	}
+}
+
+void audioSetAltEq(int channel, const float* coeffs, bool enable) {
+	if ((channel < 0) || (channel >= MAX_CHAN_FPGA)) {
+		return;
+	}
+
+	int slot = dsp.channelAltEqSlot[channel];
+	if (enable) {
+		if (slot < 0) {
+			// take the first free slot. If all slots are in use the sends stay pre-fader
+			for (int i_slot = 0; i_slot < MAX_ALTEQ_SLOTS; i_slot++) {
+				if (dsp.altEqSlotChannel[i_slot] < 0) {
+					slot = i_slot;
+					break;
+				}
+			}
+			if (slot < 0) {
+				return;
+			}
+			dsp.altEqSlotChannel[slot] = channel;
+			dsp.channelAltEqSlot[channel] = slot;
+			memset(&dsp.peqStates_ALT_EQ[slot][0], 0, 2 * EQ_ALT_BANDS * sizeof(float));
+		}
+		memcpy(&dsp.peqCoeffs_ALT_EQ[slot][0], coeffs, 5 * EQ_ALT_BANDS * sizeof(float));
+	} else {
+		if (slot < 0) {
+			return;
+		}
+		dsp.altEqSlotChannel[slot] = -1;
+		dsp.channelAltEqSlot[channel] = -1;
+	}
+
+	// point all TAP_ALT_EQ-sends of this channel to the new source
+	for (int i_bus = 0; i_bus < MAX_MIXBUS; i_bus++) {
+		if (dsp.channelSendAltEqMask[channel] & (1u << i_bus)) {
+			audioSetMixbusSendTapPoint(channel, i_bus, TAP_ALT_EQ);
+		}
+	}
 }
 
 void audioSmoothVolume(void) {
@@ -708,6 +789,31 @@ void audioProcessData(void)
 #endif
 
 
+	// alternative EQ (e.g. occlusion-EQ for in-ear-monitoring): TAP_PRE_FADER + own EQ, used by mixbus-sends with TAP_ALT_EQ
+#if DEBUG_COUNT_CYCLES_DETAIL
+	START_CYCLE_COUNT(cycletemp);
+#endif
+	#pragma loop_count(MAX_ALTEQ_SLOTS)
+	for (int i_slot = 0; i_slot < MAX_ALTEQ_SLOTS; i_slot++)
+	{
+		int i_ch = dsp.altEqSlotChannel[i_slot];
+		if (i_ch < 0)
+		{
+			continue;
+		}
+
+		memcpy(&altEqBuffer[i_slot][0], &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0], SAMPLES_IN_BUFFER * sizeof(float));
+		biquad_trans(&altEqBuffer[i_slot][0],
+					 &dsp.peqCoeffs_ALT_EQ[i_slot][0],
+					 &dsp.peqStates_ALT_EQ[i_slot][0],
+					 SAMPLES_IN_BUFFER,
+					 EQ_ALT_BANDS);
+	}
+#if DEBUG_COUNT_CYCLES_DETAIL
+	STOP_CYCLE_COUNT(cyclemap[28], cycletemp);
+#endif
+
+
 	//   ____ _                            _   _____         _
 	//  / ___| |__   __ _ _ __  _ __   ___| | |  ___|_ _  __| | ___ _ __
 	// | |   | '_ \ / _` | '_ \| '_ \ / _ \ | | |_ / _` |/ _` |/ _ \ '__|
@@ -755,25 +861,14 @@ void audioProcessData(void)
 	START_CYCLE_COUNT(cycletemp_mb);
 	#endif
 
-	#pragma loop_count(48) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN
-	for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++)
-	{
-		float* restrict src = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-		#pragma no_alias
-		#pragma vector_for
-		#pragma loop_count(SAMPLES_IN_BUFFER)
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
-		{
-			src[s] = 0;
-		}
-	}
-
-
+	// clear the mixbus accumulators
+	memset(&audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS][0], 0, ACTIVE_MIX_BUSSES * SAMPLES_IN_BUFFER * sizeof(float));
 
 	#pragma loop_count(48) // MAX_CHAN_FPGA + MAX_DSP2_FXRETURN
 	for (int i_ch = 0; i_ch < (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN); i_ch++)
 	{
-		float* restrict src = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		// every send has its own tap point and therefore its own source buffer
+		float* const* srcPtr = &dsp.channelSendMixbusSrc[i_ch][0];
 
 		// 16 Busse aufgeteilt in 4er-Blöcke (16 / 4 = genau 4 Durchläufe)
 		// Wir teilen dem Compiler mit, dass die Schleife exakt 4x läuft (min, max, modulo)
@@ -792,19 +887,42 @@ void audioProcessData(void)
 			float* restrict acc2 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS + i_bus + 2][0];
 			float* restrict acc3 = &audioBuffer[TAP_INPUT][DSP_BUF_IDX_MIXBUS + i_bus + 3][0];
 
-			#pragma no_alias
-			#pragma vector_for
-			#pragma loop_count(SAMPLES_IN_BUFFER)
-			for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
-			{
-				// OPTIMIERUNG: Das Sample nur EINMAL aus dem Speicher holen!
-				float in_sample = src[s];
+			const float* restrict src0 = srcPtr[i_bus + 0];
+			const float* restrict src1 = srcPtr[i_bus + 1];
+			const float* restrict src2 = srcPtr[i_bus + 2];
+			const float* restrict src3 = srcPtr[i_bus + 3];
 
-				// Auf 4 Busse gleichzeitig aufaddieren
-				acc0[s] += g0 * in_sample;
-				acc1[s] += g1 * in_sample;
-				acc2[s] += g2 * in_sample;
-				acc3[s] += g3 * in_sample;
+			if ((src0 == src1) && (src1 == src2) && (src2 == src3))
+			{
+				// all 4 sends use the same tap point (the common case)
+				#pragma no_alias
+				#pragma vector_for
+				#pragma loop_count(SAMPLES_IN_BUFFER)
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
+				{
+					// OPTIMIERUNG: Das Sample nur EINMAL aus dem Speicher holen!
+					float in_sample = src0[s];
+
+					// Auf 4 Busse gleichzeitig aufaddieren
+					acc0[s] += g0 * in_sample;
+					acc1[s] += g1 * in_sample;
+					acc2[s] += g2 * in_sample;
+					acc3[s] += g3 * in_sample;
+				}
+			}
+			else
+			{
+				// mixed tap points within these 4 sends
+				#pragma no_alias
+				#pragma vector_for
+				#pragma loop_count(SAMPLES_IN_BUFFER)
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
+				{
+					acc0[s] += g0 * src0[s];
+					acc1[s] += g1 * src1[s];
+					acc2[s] += g2 * src2[s];
+					acc3[s] += g3 * src3[s];
+				}
 			}
 		}
 	}

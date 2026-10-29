@@ -60,6 +60,8 @@
 #define EQ_4BD_BANDS			4
 #define CHANNELS_WITH_6BD_EQ	(MAX_MIXBUS + MAX_MAIN)
 #define EQ_6BD_BANDS			6
+#define MAX_ALTEQ_SLOTS			8	// channels that can have an alternative EQ (e.g. occlusion-EQ for in-ear-monitoring)
+#define EQ_ALT_BANDS			3
 #define MAX_CHAN_FULLFEATURED	40	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 #define MAX_CHAN_REDUCED		(MAX_CHAN_FPGA + MAX_DSP2_FXRETURN - MAX_CHAN_FULLFEATURED)	// depending on the overall load not all channels can be full-featured (gate + dynamics)
 

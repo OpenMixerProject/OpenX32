@@ -56,6 +56,7 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 	'e' equalizer
 		index 'l': lowcut
 		index 'e': eq
+		index 'a': alternative eq (used by mixbus-sends with TAP_ALT_EQ)
 		index 'r': reset
 	'c' compressor
 	'a' auxiliary
@@ -86,6 +87,10 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			}
 			break;
 		case 'r': // DSP routing
+			if (intValues[1] > TAP_POST_FADER) {
+				return; // TAP_ALT_EQ has no audioBuffer and is only valid for mixbus-sends
+			}
+
 			switch (index) {
 				case 0:
 					if (channel >= MAX_CHAN_FPGA) {
@@ -114,20 +119,18 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 			if (valueCount == 2) {
 				switch (index) {
 					case 0: // ChannelSend-TapPoint
-						if (channel >= (MAX_CHAN_FPGA + MAX_DSP2_FXRETURN)) {
-							return;
-						}
-						dsp.channelSendMixbusTapPoint[intValues[0]][channel] = intValues[1];
+						// intValues[0] contains the mixbus, intValues[1] the tapPoint for this send
+						audioSetMixbusSendTapPoint(channel, intValues[0], intValues[1]);
 						break;
 					#if DEBUG_DISABLE_MATRIX == 0
 					case 1: // MixbusSend-TapPoint
-						if (channel >= (MAX_MIXBUS)) {
+						if ((channel >= (MAX_MIXBUS)) || (intValues[1] > TAP_POST_FADER)) {
 							return;
 						}
 						dsp.sendMatrixTapPoint[intValues[0]][channel] = intValues[1];
 						break;
 					case 2: // MainSend-TapPoint
-						if (channel >= (MAX_MAIN)) {
+						if ((channel >= (MAX_MAIN)) || (intValues[1] > TAP_POST_FADER)) {
 							return;
 						}
 						dsp.sendMatrixTapPoint[intValues[0]][MAX_MIXBUS + channel] = intValues[1];
@@ -284,6 +287,11 @@ void commExecCommand(unsigned short classId, unsigned short channel, unsigned sh
 						// copy biquad-coefficients
 						memcpy(&dsp.peqCoeffs_4BD_EQ[channel][0], &floatValues[0], (valueCount - 1) * sizeof(float));
 						dsp.eqActive[channel] = floatValues[5 * EQ_4BD_BANDS] != 0;
+					}
+					break;
+				case 'a': // alternative EQ (e.g. occlusion-EQ for in-ear-monitoring)
+					if (valueCount == (5 * EQ_ALT_BANDS) + 1) {
+						audioSetAltEq(channel, &floatValues[0], floatValues[5 * EQ_ALT_BANDS] != 0);
 					}
 					break;
 				case 'r': // reset channel-parameters
