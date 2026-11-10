@@ -12,7 +12,7 @@ sudo tar -xf toolchains/cross-arm-arm926ej.tar.xz -C /
 
 # download, compile and install libz into /opt/cross
 cd /tmp
-wget https://zlib.net/zlib-1.3.2.tar.gz
+wget https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz
 tar -xf zlib-1.3.2.tar.gz
 rm zlib-1.3.2.tar.gz
 cd zlib-1.3.2
