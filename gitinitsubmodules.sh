@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Preparing shared SHARC DSP sources..."
+git -C "$(dirname "$0")" submodule update --init -- dsp || exit 1
+
 echo "Preparing checkout of u-boot v2020.10 without history..."
 git clone --depth 1 --single-branch --branch v2020.10 https://github.com/u-boot/u-boot.git
 

@@ -21,3 +21,7 @@
 [submodule "pyatk"]
 	path = software/pyatk
 	ignore = dirty
+
+[submodule "dsp"]
+	path = dsp
+	url = https://github.com/OpenMixerProject/OpenAudioDSP.git

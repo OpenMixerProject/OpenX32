@@ -253,13 +253,15 @@ As the Lattice Diamond Software has no graphical editor, the toolchain looks lik
 
 ### Step 4: Compiling code for the SHARC DSPs
 
-The X32 uses two AnalogDevices 21371 SHARC DSPs for mixing. These devices are supported by the CrossCore EmbeddedStudio v2.12:
+The X32 uses two AnalogDevices 21371 SHARC DSPs for mixing. Their firmware is maintained in [OpenAudioDSP](https://github.com/OpenMixerProject/OpenAudioDSP), included here as the `dsp` submodule. Shared processing is separated from X32-specific board support so other SHARC consoles can reuse it. These devices are supported by CrossCore EmbeddedStudio v2.12:
+
+Initialize the pinned DSP sources with `git submodule update --init -- dsp` (also done by `gitinitsubmodules.sh`).
 
 1. Download CrossCore EmbeddedStudio v2.12.x: https://www.analog.com/en/resources/evaluation-hardware-and-software/software/adswt-cces.html#software-overview
 2. Request 90-day Trial-Software from Analog Devices
-3. Open the DSP-project in the folder "dsp"
-4. Use "Project -> Compile all..." to compile current project and "dsp1.ldr" will be generated
-5. copy "dsp1.ldr" to the USB-thumbdrive and load it either with "./dspconfig dsp1.ldr" or with the main-control-software "./omc --D1 dsp1.ldr"
+3. Import the `dsp1` and `dsp2` projects from `dsp/targets/x32` without copying them into the workspace; their relative links compile the shared processing sources directly
+4. Build the Release configurations to generate `dsp/targets/x32/dsp1/Release/dsp1.ldr` and `dsp/targets/x32/dsp2/Release/dsp2.ldr`. See [DSP build and porting notes](dsp/README.md) for build hooks and memory-map requirements
+5. Copy the loader files to the USB-thumbdrive and load them with the existing tools, for example `./dspconfig dsp1.ldr` or `./omc --D1 dsp1.ldr --D2 dsp2.ldr`. The loader filenames and boot-time paths have not changed
 
 DSP1 is the main-DSP receiving and sending all 40 audio-channels from and to the FPGA that is routing the audio to and from the individual sources. Within this first DSP the 32 + x main-channels are processed (noise-gate, multi-band-EQs, compressor, general mixing).
 
