@@ -13,6 +13,12 @@ You can easily try it out on your own mixer: [Steps to run OpenX32](https://gith
 
 <img width="400" height="300" alt="IMG_20260520_211131" src="https://github.com/user-attachments/assets/3b6788ed-f5ab-485c-a643-7fc6a8b7dcc3" />
 
+# Sponsors
+
+[Analog Devices](https://www.analog.com) sponsored us a licence for CrossCore Embedded Studio - many thanks!
+
+<img width="200" alt="grafik" src="https://github.com/user-attachments/assets/5e1ba20c-b4e0-454a-b10e-205d58897fa8" />
+
 # Hardware Compatibility
 
 ### FPGA: Xilinx or Lattice
@@ -289,6 +295,3 @@ see also: [Article in our Discourse](https://discourse.openmixerproject.de/t/mid
 * LibVNC (https://github.com/LibVNC/libvncserver)
 * pyATK in Version 0.1.0 (https://github.com/hbock/pyatk)
 * Glaze library from commit 0c2893a (https://github.com/stephenberry/glaze)
-                        
-## Stargazers over time
-[![Stargazers over time](https://starchart.cc/OpenMixerProject/OpenX32.svg?variant=adaptive)](https://starchart.cc/OpenMixerProject/OpenX32)
