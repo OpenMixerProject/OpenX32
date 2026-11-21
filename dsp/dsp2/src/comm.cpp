@@ -26,6 +26,7 @@
 #include "spi.h"
 #include "audio.h"
 
+#pragma optimize_for_space
 void commExecCommand(unsigned short classId, unsigned short channel, unsigned short index, unsigned short valueCount, void* values) {
 	/*
 	  SPI ClassIds:

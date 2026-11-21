@@ -163,14 +163,18 @@ MEMORY
    /*$VDSG<customize-sdram-mem-partition>                       */
    /* This code is preserved if the LDF is re-generated.        */
    
-   mem_sdram_data          { TYPE(DM RAM SYNCHRONOUS) START(0x04000000) END(0x043FFFFF) WIDTH(32) }
+   // 0x04200000..0x043fffff is reserved for the fixed input/output delay lines.
+   // Do not expose the reserved upper 8 MiB to ordinary linker allocations.
+   mem_sdram_data          { TYPE(DM RAM SYNCHRONOUS) START(0x04000000) END(0x041FFFFF) WIDTH(32) }
 
    /*
    ** Physical address (P)          0x40_0000 ... 0x5F_FFFF
    ** PM 48-bit Logical address (L) 0x2A_AAAB ... 0x3F_FFFF
    ** L=P*(2/3)
    */
-   mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x002AAAAB) END(0x003FFFFF) WIDTH(32) }
+   // PM logical view of only the lower physical SDRAM partition. The next PM
+   // word would touch the physical half reserved for delays.
+   mem_sdram_code          { TYPE(PM RAM SYNCHRONOUS) START(0x002AAAAB) END(0x00355554) WIDTH(32) }
    /*$VDSG<customize-sdram-mem-partition>                       */
    
    mem_flash               { TYPE(DM RAM ASYNCHRONOUS) START(0x08000000) END(0x083FFFFF) WIDTH(8) }
@@ -638,4 +642,3 @@ PROCESSOR p0
       
    } /* SECTIONS */
 } /* p0 */
-

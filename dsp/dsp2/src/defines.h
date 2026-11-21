@@ -1,6 +1,8 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
+#include <limits.h>
+
 #define FX_USE_REVERB				1	// this effect takes a lot of ressource so that Multiband-Compressor and DynamicEQ cannot be used at the moment
 #define FX_USE_DEFEEDBACK			1
 #define FX_USE_MULTIBANDCOMPRESSOR	0	// this effect takes a lot of ressources and cannot be used together with reverb
@@ -50,11 +52,27 @@
 
 #define USE_SPI_TXD_MODE		2 // 0 = CoreWrite, 1 = DMA Single, 2 = DMA-Chaining
 
-#define SDRAM_START  			0x04000000	// start address of SDRAM on Bank1 (nMS1)
-#define SDRAM_AUDIO_START  		0x04200000	// start address of audio-data in SDRAM on Bank1 (nMS1)
-#define SDRAM_AUDIO_SIZE_BYTE	(14 * 1024 * 1024)	// we are using 1MB for external program-code, 1MB for system-data and remaining 14MB for audio-data
-// we are slicing the external 16MB SDRAM into parts for each effect-slot
-//#define SDRAM_FX_x			(SDRAM_START + (x * (SDRAM_SIZE_BYTE / 8)))
+#define SDRAM_START_WORD_ADDRESS			0x04000000U	// first 32-bit SHARC word in SDRAM Bank 1 (nMS1)
+#define SDRAM_AUDIO_START_WORD_ADDRESS	0x04080000U	// first 32-bit SHARC word reserved for FX audio
+#define SDRAM_AUDIO_END_WORD_ADDRESS		0x043FFFFFU	// final 32-bit SHARC word reserved for FX audio (inclusive)
+#define SDRAM_AUDIO_CAPACITY_WORDS		(SDRAM_AUDIO_END_WORD_ADDRESS - SDRAM_AUDIO_START_WORD_ADDRESS + 1U)
+#define SDRAM_AUDIO_SLOT_COUNT			8U
+#define SDRAM_AUDIO_SLOT_CAPACITY_WORDS	(SDRAM_AUDIO_CAPACITY_WORDS / SDRAM_AUDIO_SLOT_COUNT)
+
+#if SDRAM_AUDIO_CAPACITY_WORDS <= 0
+	#error "DSP2 audio SDRAM capacity must be positive"
+#endif
+#if (SDRAM_AUDIO_CAPACITY_WORDS % SDRAM_AUDIO_SLOT_COUNT) != 0
+	#error "DSP2 audio SDRAM must divide exactly into eight FX slots"
+#endif
+#if (SDRAM_AUDIO_START_WORD_ADDRESS + (SDRAM_AUDIO_SLOT_COUNT * SDRAM_AUDIO_SLOT_CAPACITY_WORDS) - 1U) != SDRAM_AUDIO_END_WORD_ADDRESS
+	#error "DSP2 final FX slot must end at the audio SDRAM boundary"
+#endif
+
+typedef char dsp2_float_must_be_32_bits[((sizeof(float) * CHAR_BIT) == 32) ? 1 : -1];
+#if CHAR_BIT == 32
+typedef char dsp2_float_must_be_one_sharc_word[(sizeof(float) == 1) ? 1 : -1];
+#endif
 
 #define MAX_CHAN				24
 #define MAX_CHAN_EQS			4
@@ -83,10 +101,8 @@
 #define DO_CYCLE_COUNTS				// enable cycle counter
 
 // defines for memory-access
-// our external RAM is sliced into multiple regions:
-// 1) external program-code
-// 2) external data-memory for variables  -> defined as "em" afterwards
-// 3) external data-memory for audio-data -> defined as "am" afterwards
+// External SDRAM is partitioned into ordinary data and audio data. External
+// execution is intentionally not used until the X32 boot path is proven safe.
 #define em						section("seg_ext_data")		// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory, am = AudioMemory
 #define am						section("seg_ext_audio")	// pm = ProgramMemory, dm = DataMemory, em = ExternalMemory, am = AudioMemory
 
