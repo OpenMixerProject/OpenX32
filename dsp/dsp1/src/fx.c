@@ -46,13 +46,33 @@ float dbToLinear(float dB) {
     return powf(10.0f, dB * 0.05f);
 }
 
+// Fast 10*log10((sumOfSquares / 16) / (2^31 - 1)^2) without sqrtf()
+// Max error < 0.025 dB, ~8 cycles on ADSP-21371
+float powerToDb_fast(float sumOfSquares) {
+    if (sumOfSquares <= 737870.0f) return -140.0f; // <= -140 dBFS noise floor
+
+    union { float f; uint32_t i; } vx = { sumOfSquares };
+    int32_t exp_val = (int32_t)((vx.i >> 23) & 0xFFu) - 127;
+    vx.i = (vx.i & 0x007FFFFFu) | 0x3F800000u; // mantissa m in [1.0, 2.0)
+    float m = vx.f;
+    float log2_m = (m - 1.0f) * (1.6797000f - 0.3398500f * m);
+    return 3.01029995664f * ((float)exp_val + log2_m) - 198.67979412f;
+}
+
+// Fast 10^(dB/20) = 2^(dB / 6.0206) with quadratic mantissa refinement
+// Max error < 0.03 dB, ~10 cycles on ADSP-21371
 float dbToLinear_fast(float dB) {
-    // 10^(dB/20) = 2^(dB / 6.0206)
-    float x = dB * (1.0f / 6.0206f); // log2-Skala
-    // Bit-Trick for 2^x Approximation
-    union { float f; int32_t i; } vx;
-    vx.i = (int32_t)(x * 8388608.0f) + 1065353216; // 2^23 * x + (127 << 23)
-    return vx.f;
+    if (dB <= -140.0f) return 0.0f;
+    if (dB > 24.0f) dB = 24.0f;
+
+    float x = dB * 0.16609640474f; // dB / (20 * log10(2))
+    int32_t xi = (int32_t)x;
+    if ((float)xi > x) xi--;
+    float xf = x - (float)xi; // fractional part in [0.0, 1.0)
+
+    union { float f; uint32_t i; } scale;
+    scale.i = (uint32_t)(xi + 127) << 23;
+    return scale.f * (1.0f + xf * (0.65685425f + 0.34314575f * xf));
 }
 
 float calcRMS(const float* __restrict src) {

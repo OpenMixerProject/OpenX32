@@ -46,11 +46,14 @@ extern volatile uint32_t cyclemap[CYCLEMAP_SIZE];
 typedef struct {
 	// filter-data from i.MX25
 	bool value_enable;
-	float value_threshold; // linear
-	float value_gainmin; // linear
+	float value_thresholdSq16; // 16 * (threshold_linear)^2 for zero-sqrt gate compare
+	float value_gainmin; // linear (10^(-range/20))
 	float value_coeff_attack;
-	float value_hold_ticks; // number of sample-ticks
+	float value_hold_ticks; // number of sample-ticks (16-sample blocks)
 	float value_coeff_release;
+	float value_thresholdDb; // threshold in dBFS (for expander mode)
+	float value_negRangeDb; // -range in dB (for expander attenuation floor)
+	float value_expanderSlope; // 0.0f = hard Gate, (ratio - 1.0f) = Expander (1.0=2:1, 2.0=3:1, 3.0=4:1)
 
 	// online parameters
 	int holdTimer;
@@ -58,12 +61,13 @@ typedef struct {
 
 typedef struct {
 	// filter-data from i.MX25
-	float value_thresholdDb; // indB
-	//float value_threshold; // linear
-	float value_1_minus_1_by_ratio; // here the precalculated (1.0f - 1.0f/ratio) is sent by OMC
+	float value_thresholdDb; // in dBFS
+	float value_1_minus_1_by_ratio; // precalculated (1.0f - 1.0f/ratio) sent by OMC
 	float value_coeff_attack;
-	float value_hold_ticks; // number of sample-ticks
+	float value_hold_ticks; // number of sample-ticks (16-sample blocks)
 	float value_coeff_release;
+	float value_kneeHalf; // 0.5f * kneeWidthDb (0.0f for hard knee)
+	float value_kneeCoeff; // precalculated -(1 - 1/ratio) / (2 * kneeWidthDb), or 0.0f for hard knee
 
 	// online parameters
 	int holdTimer;
@@ -71,14 +75,14 @@ typedef struct {
 
 struct
 {
-	float lowcutEnable[MAX_CHAN_FULLFEATURED];
-	float lowcutCoeff[MAX_CHAN_FULLFEATURED];
-	float lowcutStatesInput[MAX_CHAN_FULLFEATURED];
-	float lowcutStatesOutput[MAX_CHAN_FULLFEATURED];
+	bool lowcutEnable[MAX_CHAN_FULLFEATURED];
+	float pm lowcutCoeffs[MAX_CHAN_FULLFEATURED][5 * LOWCUT_SECTIONS]; // interleaved for biquad_trans()
+	float dm lowcutStates[MAX_CHAN_FULLFEATURED][2 * LOWCUT_SECTIONS];
 
 	#if USE_HIGHCUT == 1
-	float highcutCoeff[MAX_CHAN_FULLFEATURED];
-	float highcutStates[MAX_CHAN_FULLFEATURED];
+	bool highcutEnable[MAX_CHAN_FULLFEATURED];
+	float pm highcutCoeffs[MAX_CHAN_FULLFEATURED][5 * HIGHCUT_SECTIONS]; // non-interleaved for 1-section biquad_trans()
+	float dm highcutStates[MAX_CHAN_FULLFEATURED][2 * HIGHCUT_SECTIONS];
 	#endif
 
 	float gateEnvelope[MAX_CHAN_FULLFEATURED];

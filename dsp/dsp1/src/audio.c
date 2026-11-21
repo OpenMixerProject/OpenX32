@@ -25,6 +25,7 @@
 #include "audio.h"
 #include "system.h"
 #include "fx.h"
+#include "dynamics_asm.h"
 #include "spi.h"
 
 #if DEBUG_COUNT_CYCLES_DETAIL
@@ -430,66 +431,36 @@ void audioProcessData(void)
 	//				 | |__| (_) \ V  V / (__| |_| | |_
 	//				 |_____\___/ \_/\_/ \___|\__,_|\__|
 	//
-	// Single-Pole LOW-CUT: output = coeff * (zoutput + input - zinput)
+	// Cascaded 2-section SIMD Biquad LOW-CUT (6/12/18/24 dB/oct Butterworth HPF)
+	// + 1-section Biquad HIGH-CUT (12 dB/oct Butterworth LPF)
 	#pragma loop_count(MAX_CHAN_FULLFEATURED)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++)
 	{
-		if (!dsp.lowcutEnable)
+		float* buf = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+
+		if (dsp.lowcutEnable[i_ch])
 		{
-			continue;
+			biquad_trans(buf,
+			             &dsp.lowcutCoeffs[i_ch][0],
+			             &dsp.lowcutStates[i_ch][0],
+			             SAMPLES_IN_BUFFER,
+			             LOWCUT_SECTIONS);
 		}
 
-		float* buf    = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-		float  coeff  = dsp.lowcutCoeff[i_ch];
-		float  zinput = dsp.lowcutStatesInput[i_ch];
-		float  zout   = dsp.lowcutStatesOutput[i_ch];
-
-		// optimized loop for SHARC-pipeline
-		#pragma loop_count(SAMPLES_IN_BUFFER)
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			float in  = buf[s];
-			float out = coeff * (zout + in - zinput);
-			buf[s]    = out;
-			zinput    = in;
-			zout      = out;
+		#if USE_HIGHCUT == 1
+		if (dsp.highcutEnable[i_ch])
+		{
+			biquad_trans(buf,
+			             &dsp.highcutCoeffs[i_ch][0],
+			             &dsp.highcutStates[i_ch][0],
+			             SAMPLES_IN_BUFFER,
+			             HIGHCUT_SECTIONS);
 		}
-
-		dsp.lowcutStatesInput[i_ch]  = zinput; // zinput = input
-		dsp.lowcutStatesOutput[i_ch] = zout; // zoutput = output
+		#endif
 	}
 #if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[3], cycletemp);
 #endif
-
-
-
-
-	#if USE_HIGHCUT == 1
-	//                _   _ _       _      ____      _
-	//               | | | (_) __ _| |__  / ___|   _| |_
-	//               | |_| | |/ _` | '_ \| |  | | | | __|
-	//               |  _  | | (_| | | | | |__| |_| | |_
-	//               |_| |_|_|\__, |_| |_|\____\__,_|\__|
-	//                        |___/
-
-	// Single-Pole HIGH-CUT: output = zoutput + coeff * (input - zoutput)
-	#pragma loop_count(MAX_CHAN_FULLFEATURED)
-	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++) {
-		float* buf    = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-		float  coeff  = dsp.highcutCoeff[i_ch];
-		float  zout   = dsp.highcutStates[i_ch];
-
-		// optimized loop for SHARC-pipeline
-		#pragma loop_count(SAMPLES_IN_BUFFER)
-		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			float in  = buf[s];
-			float out = zout + coeff * (in - zout);
-			buf[s]    = out;
-			zout      = out;
-		}
-		dsp.highcutStates[i_ch] = zout; // zoutput = output
-	}
-	#endif
 
 
 
@@ -514,24 +485,56 @@ void audioProcessData(void)
 		// 1. Pointer-Aliasing auflösen
 		float* restrict src_dst = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 
-		// 2. Struct-Zugriffe aus der Schleife ziehen (State Caching)
-		float env = dsp.gateEnvelope[i_ch]; // Zustand nur EINMAL aus RAM lesen
-		int holdTimer = dsp.dspChannelGate[i_ch].holdTimer;
-		float threshold = dsp.dspChannelGate[i_ch].value_threshold;
-		float refValue = 0.0f;
+		#if USE_SHARC_ASM_DYNAMICS == 1
+		sGate* gate = &dsp.dspChannelGate[i_ch];
+		sGateAsmParams gParams;
+		gParams.thresholdSq16 = gate->value_thresholdSq16;
+		gParams.gainMin       = gate->value_gainmin;
+		gParams.coeffAttack   = gate->value_coeff_attack;
+		gParams.holdTicks     = gate->value_hold_ticks;
+		gParams.coeffRelease  = gate->value_coeff_release;
+		gParams.thresholdDb   = gate->value_thresholdDb;
+		gParams.negRangeDb    = gate->value_negRangeDb;
+		gParams.expanderSlope = gate->value_expanderSlope;
+		gParams.env           = dsp.gateEnvelope[i_ch];
+		gParams.holdTimer     = gate->holdTimer;
+		fxGateBlock_asm(src_dst, &gParams);
+		dsp.gateEnvelope[i_ch] = gParams.env;
+		gate->holdTimer        = gParams.holdTimer;
+		#else
+		// 2. Cache struct fields in registers (zero-sqrt power detector)
+		sGate* gate = &dsp.dspChannelGate[i_ch];
+		float env = dsp.gateEnvelope[i_ch];
+		int holdTimer = gate->holdTimer;
+		float sumOfSquares = 0.0f;
 
-		// calculate RMS over all 16 samples
+		// SIMD sum-of-squares over 16 samples (no sqrtf needed!)
 		#pragma no_alias
 		#pragma vector_for
 		#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
 		#pragma align 8
 		for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-			refValue += src_dst[s] * src_dst[s];
+			sumOfSquares += src_dst[s] * src_dst[s];
 		}
-		refValue = sqrtf(refValue * 0.0625f);
 
-		// calculation of the envelope
-		float targetGainLinear = (refValue < threshold) ? 0.0f : 1.0f;
+		// Gate vs Expander gain computer
+		float targetGainLinear = 1.0f;
+		float expSlope = gate->value_expanderSlope;
+		if (expSlope == 0.0f) {
+			// Hard Gate mode: zero-transcendental power compare, respects Range (value_gainmin)
+			targetGainLinear = (sumOfSquares < gate->value_thresholdSq16) ? gate->value_gainmin : 1.0f;
+		} else {
+			// Downward Expander mode (2:1 / 3:1 / 4:1) clamped to Range
+			float levelDb = powerToDb_fast(sumOfSquares);
+			float diffDb = levelDb - gate->value_thresholdDb;
+			if (diffDb < 0.0f) {
+				float attenDb = diffDb * expSlope;
+				if (attenDb < gate->value_negRangeDb) {
+					attenDb = gate->value_negRangeDb;
+				}
+				targetGainLinear = dbToLinear_fast(attenDb);
+			}
+		}
 		float coeff = 0.0f;
 
 		// Attack / Hold / Release Logic
@@ -567,6 +570,7 @@ void audioProcessData(void)
 
 		// Envelope-Zustand EINMAL nach der Schleife speichern
 		dsp.gateEnvelope[i_ch] = env;
+		#endif
 	}
 #if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[4], cycletemp);
@@ -621,63 +625,108 @@ void audioProcessData(void)
 	#pragma loop_count(MAX_CHAN_FULLFEATURED)
 	for (int i_ch = 0; i_ch < MAX_CHAN_FULLFEATURED; i_ch++)
 	{
-		float* src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
-		float* dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float* restrict src = &audioBuffer[TAP_POST_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
+		float* restrict dst = &audioBuffer[TAP_PRE_FADER][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 
-		if (dsp.compressorEnable)
+		if (dsp.compressorEnable[i_ch])
 		{
+			#if USE_SHARC_ASM_DYNAMICS == 1
+			sCompressor* comp = &dsp.dspChannelCompressor[i_ch];
+			sCompAsmParams cParams;
+			cParams.thresholdDb  = comp->value_thresholdDb;
+			cParams.slope        = comp->value_1_minus_1_by_ratio;
+			cParams.makeup       = dsp.compressorMakeup[i_ch];
+			cParams.coeffAttack  = comp->value_coeff_attack;
+			cParams.holdTicks    = comp->value_hold_ticks;
+			cParams.coeffRelease = comp->value_coeff_release;
+			cParams.kneeHalf     = comp->value_kneeHalf;
+			cParams.kneeCoeff    = comp->value_kneeCoeff;
+			cParams.env          = dsp.compressorEnvelope[i_ch];
+			cParams.holdTimer    = comp->holdTimer;
+			fxCompressorBlock_asm(src, dst, &cParams);
+			dsp.compressorEnvelope[i_ch] = cParams.env;
+			comp->holdTimer              = cParams.holdTimer;
+			#else
+			sCompressor* comp = &dsp.dspChannelCompressor[i_ch];
 			float makeUp = dsp.compressorMakeup[i_ch];
+			float env = dsp.compressorEnvelope[i_ch];
+			int holdTimer = comp->holdTimer;
 			float coeff = 0.0f;
-			float refValue = 0.0f;
+			float sumOfSquares = 0.0f;
 
-
-			// calculate RMS over all 16 samples
-			#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
-			#pragma vector_for
-			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-				refValue += src[s] * src[s];
-			}
-			refValue = sqrtf(refValue * 0.0625f); // divide by 16 samples
-
-			// calculation of the envelope
-			refValue = linearToDb_fast(refValue * INT32_TO_FLOAT_NORM);
-			float targetGainDb = 0.0f;
-			if (refValue > dsp.dspChannelCompressor[i_ch].value_thresholdDb) {
-				targetGainDb = (dsp.dspChannelCompressor[i_ch].value_thresholdDb - refValue) * dsp.dspChannelCompressor[i_ch].value_1_minus_1_by_ratio;
-			}
-
-			// Attack / Hold / Release Logic
-			float targetGainLinear = dbToLinear_fast(targetGainDb);
-
-			// calculation of the envelope
-			if (targetGainLinear < dsp.compressorEnvelope[i_ch]) {
-				// Attack
-				coeff = dsp.dspChannelCompressor[i_ch].value_coeff_attack;
-				dsp.dspChannelCompressor[i_ch].holdTimer = dsp.dspChannelCompressor[i_ch].value_hold_ticks; // Reset Hold-Timer
+			// Detector: 0ms attack uses instant block-peak lookahead (zero transient overshoot);
+			// >0ms attack uses SIMD sum-of-squares RMS (zero sqrtf!)
+			if (comp->value_coeff_attack >= 0.999f) {
+				float maxAbs = 0.0f;
+				#pragma no_alias
+				#pragma vector_for
+				#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
+				#pragma align 8
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+					float a = fabsf(src[s]);
+					if (a > maxAbs) maxAbs = a;
+				}
+				sumOfSquares = (float)SAMPLES_IN_BUFFER * (maxAbs * maxAbs);
 			} else {
-				// Hold -> Release
-				if (dsp.dspChannelCompressor[i_ch].holdTimer > 0) {
-					dsp.dspChannelCompressor[i_ch].holdTimer--;
-				}else{
-					coeff = dsp.dspChannelCompressor[i_ch].value_coeff_release;
+				#pragma no_alias
+				#pragma vector_for
+				#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
+				#pragma align 8
+				for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+					sumOfSquares += src[s] * src[s];
 				}
 			}
 
-			// apply calculated gain to samples
-			#pragma loop_count(SAMPLES_IN_BUFFER)
-			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
-				dsp.compressorEnvelope[i_ch] += coeff * (targetGainLinear - dsp.compressorEnvelope[i_ch]);
+			// Fast power-to-dBFS + quadratic multi-stage soft-knee gain computer
+			float levelDb = powerToDb_fast(sumOfSquares);
+			float overshoot = levelDb - comp->value_thresholdDb;
+			float kneeHalf = comp->value_kneeHalf;
+			float targetGainDb = 0.0f;
 
-				// use small low-pass-filter to smooth the envelope even more
-				//dsp.compressorGainSmoothed[i_ch] = dsp.compressorEnvelope[i_ch] + 0.990f * (dsp.compressorGainSmoothed[i_ch] - dsp.compressorEnvelope[i_ch]);
-				//dst[s] = src[s] * dsp.compressorGainSmoothed[i_ch] * makeUp;
-
-				// direct use of envelope
-				dst[s] = src[s] * dsp.compressorEnvelope[i_ch] * makeUp;
+			if (overshoot >= kneeHalf) {
+				// Above knee (also handles hard knee when kneeHalf == 0)
+				if (overshoot > 0.0f) {
+					targetGainDb = -overshoot * comp->value_1_minus_1_by_ratio;
+				}
+			} else if (overshoot > -kneeHalf) {
+				// Inside quadratic soft-knee region: -(1 - 1/R) / (2*W) * (overshoot + W/2)^2
+				float u = overshoot + kneeHalf;
+				targetGainDb = comp->value_kneeCoeff * (u * u);
 			}
+
+			float targetGainLinear = (targetGainDb < 0.0f) ? dbToLinear_fast(targetGainDb) : 1.0f;
+
+			// Attack / Hold / Release logic
+			if (targetGainLinear < env) {
+				coeff = comp->value_coeff_attack;
+				holdTimer = (int)comp->value_hold_ticks;
+			} else {
+				if (holdTimer > 0) {
+					holdTimer--;
+				} else {
+					coeff = comp->value_coeff_release;
+				}
+			}
+			comp->holdTimer = holdTimer;
+
+			// 1-MAC envelope smoother in registers + parallel makeup scaling
+			float a1 = 1.0f - coeff;
+			float b0 = coeff * targetGainLinear;
+
+			#pragma no_alias
+			#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
+			for (int s = 0; s < SAMPLES_IN_BUFFER; s++) {
+				env = (env * a1) + b0;
+				dst[s] = (src[s] * makeUp) * env;
+			}
+			dsp.compressorEnvelope[i_ch] = env;
+			#endif
 		}
-		else // compressor disabled
+		else // compressor disabled -> SIMD bypass copy
 		{
+			#pragma no_alias
+			#pragma vector_for
+			#pragma loop_count(SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER, SAMPLES_IN_BUFFER)
 			for (int s = 0; s < SAMPLES_IN_BUFFER; s++)
 			{
 				dst[s] = src[s];

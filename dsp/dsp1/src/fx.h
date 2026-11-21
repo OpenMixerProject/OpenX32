@@ -6,6 +6,7 @@
 // function prototypes
 float linearToDb(float linear);
 float linearToDb_fast(float linear);
+float powerToDb_fast(float sumOfSquares);
 float dbToLinear(float dB);
 float dbToLinear_fast(float dB);
 float calcRMS(const float* __restrict src);
