@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Tue Jun 30 12:16:30 2026"
+-- CREATED		"Sat Nov 21 21:10:38 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -172,6 +172,68 @@ COMPONENT cs2000cp_config
 	);
 END COMPONENT;
 
+COMPONENT aes50_top
+GENERIC (G_FSYNC_DELAY : INTEGER;
+			G_SIM_ASSM_SAMPLES : INTEGER;
+			G_SUPPORT_44K1 : BOOLEAN;
+			G_TDM_AUX : BOOLEAN;
+			G_TX_LEAD_ADJ : INTEGER;
+			G_UART_AUX : BOOLEAN;
+			G_UART_FIFO_AW : INTEGER
+			);
+	PORT(clk50_i : IN STD_LOGIC;
+		 rst_i : IN STD_LOGIC;
+		 tdm8_i2s_mode_i : IN STD_LOGIC;
+		 aux_tx_tdm_uart_select_i : IN STD_LOGIC;
+		 rmii_crs_dv_i : IN STD_LOGIC;
+		 aes50_clk_a_rx_i : IN STD_LOGIC;
+		 aes50_clk_b_rx_i : IN STD_LOGIC;
+		 clk_1024xfs_from_pll_i : IN STD_LOGIC;
+		 pll_lock_n_i : IN STD_LOGIC;
+		 pll_init_busy_i : IN STD_LOGIC;
+		 wclk_readback_i : IN STD_LOGIC;
+		 bclk_readback_i : IN STD_LOGIC;
+		 i2s_i : IN STD_LOGIC;
+		 uart_i : IN STD_LOGIC;
+		 aes_clk_ok_counter_reference_i : IN natural range 0 to 1000000;
+		 debug_out_signal_pulse_len_i : IN natural range 0 to 1000000;
+		 first_transmit_start_counter_44k1_i : IN natural range 0 to 5000000;
+		 first_transmit_start_counter_48k_i : IN natural range 0 to 5000000;
+		 fs_mode_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 mdix_timer_1ms_reference_i : IN natural range 0 to 100000;
+		 mult_clk625_44k1_i : IN natural;
+		 mult_clk625_48k_i : IN natural;
+		 rmii_rxd_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 sys_mode_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 tdm_i : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
+		 uart_clks_per_bit_i : IN natural range 0 to 65535;
+		 uart_timeout_clks_i : IN natural range 0 to 16777215;
+		 wd_aes_clk_timeout_i : IN natural range 0 to 50;
+		 wd_aes_rx_dv_timeout_i : IN natural range 0 to 20000;
+		 rmii_tx_en_o : OUT STD_LOGIC;
+		 phy_rst_n_o : OUT STD_LOGIC;
+		 aes50_clk_a_tx_o : OUT STD_LOGIC;
+		 aes50_clk_a_tx_en_o : OUT STD_LOGIC;
+		 aes50_clk_b_tx_o : OUT STD_LOGIC;
+		 aes50_clk_b_tx_en_o : OUT STD_LOGIC;
+		 clk_to_pll_o : OUT STD_LOGIC;
+		 mclk_o : OUT STD_LOGIC;
+		 wclk_o : OUT STD_LOGIC;
+		 bclk_o : OUT STD_LOGIC;
+		 wclk_out_en_o : OUT STD_LOGIC;
+		 bclk_out_en_o : OUT STD_LOGIC;
+		 i2s_o : OUT STD_LOGIC;
+		 aes_ok_o : OUT STD_LOGIC;
+		 uart_o : OUT STD_LOGIC;
+		 uart_overflow_o : OUT STD_LOGIC;
+		 dbg_o : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		 pll_mult_value_o : OUT natural;
+		 rmii_txd_o : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 tdm_o : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
+	);
+END COMPONENT;
+
+
 COMPONENT pcm1690dac_config
 	PORT(clk : IN STD_LOGIC;
 		 i_start : IN STD_LOGIC;
@@ -215,12 +277,6 @@ GENERIC (ADDR_WIDTH : INTEGER;
 	);
 END COMPONENT;
 
-COMPONENT reverse_mac
-	PORT(mac_address_i : IN STD_LOGIC_VECTOR(47 DOWNTO 0);
-		 mac_address_o : OUT STD_LOGIC_VECTOR(47 DOWNTO 0)
-	);
-END COMPONENT;
-
 COMPONENT audioclk
 	PORT(fs_x_1024_i : IN STD_LOGIC;
 		 fs_x_512_o : OUT STD_LOGIC;
@@ -229,13 +285,18 @@ COMPONENT audioclk
 	);
 END COMPONENT;
 
-COMPONENT ethernet_reset
-	PORT(clk : IN STD_LOGIC;
-		 power_good : IN STD_LOGIC;
-		 phy_rstn : OUT STD_LOGIC;
-		 mac_rst : OUT STD_LOGIC;
-		 sendArpRequest : OUT STD_LOGIC;
-		 tx_online : OUT STD_LOGIC
+COMPONENT aes50_consts
+	PORT(		 aes_clk_ok_counter_reference : OUT natural range 0 to 1000000;
+		 debug_out_signal_pulse_len : OUT natural range 0 to 1000000;
+		 first_transmit_start_counter_44k1 : OUT natural range 0 to 5000000;
+		 first_transmit_start_counter_48k : OUT natural range 0 to 5000000;
+		 mdix_timer_1ms_reference : OUT natural range 0 to 100000;
+		 mult_clk625_44k1 : OUT natural;
+		 mult_clk625_48k : OUT natural;
+		 uart_clks_per_bit : OUT natural range 0 to 65535;
+		 uart_timeout_clks : OUT natural range 0 to 16777215;
+		 wd_aes_clk_timeout : OUT natural range 0 to 50;
+		 wd_aes_rx_dv_timeout : OUT natural range 0 to 20000
 	);
 END COMPONENT;
 
@@ -249,19 +310,6 @@ COMPONENT spi_tx
 		 o_cclk : OUT STD_LOGIC;
 		 o_cdata : OUT STD_LOGIC;
 		 o_busy : OUT STD_LOGIC
-	);
-END COMPONENT;
-
-COMPONENT ace_audio_packet
-	PORT(tx_clk : IN STD_LOGIC;
-		 tx_busy : IN STD_LOGIC;
-		 tx_byte_sent : IN STD_LOGIC;
-		 audio_ready : IN STD_LOGIC;
-		 audio_in : IN STD_LOGIC_VECTOR(1559 DOWNTO 0);
-		 src_mac_address : IN STD_LOGIC_VECTOR(47 DOWNTO 0);
-		 tx_enable : OUT STD_LOGIC;
-		 ace_tx_busy : OUT STD_LOGIC;
-		 tx_data : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 	);
 END COMPONENT;
 
@@ -317,23 +365,6 @@ COMPONENT aes50_rst
 	);
 END COMPONENT;
 
-COMPONENT tdm_ace_demux
-	PORT(bclk : IN STD_LOGIC;
-		 fsync : IN STD_LOGIC;
-		 ace_tx_busy : IN STD_LOGIC;
-		 tdm0_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 tdm1_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 tdm2_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 tdm3_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 tdm4_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 tdm5_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 tdm6_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 tdm7_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ready : OUT STD_LOGIC;
-		 audio_out : OUT STD_LOGIC_VECTOR(1559 DOWNTO 0)
-	);
-END COMPONENT;
-
 COMPONENT ultranet_tx
 GENERIC (AES3_PREAMBLE_X : STD_LOGIC_VECTOR(7 DOWNTO 0);
 			AES3_PREAMBLE_Y : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -351,115 +382,6 @@ GENERIC (AES3_PREAMBLE_X : STD_LOGIC_VECTOR(7 DOWNTO 0);
 		 ch8 : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
 		 ultranet_out_p : OUT STD_LOGIC;
 		 ultranet_out_m : OUT STD_LOGIC
-	);
-END COMPONENT;
-
-COMPONENT const_eth_config
-GENERIC (DST_IP0 : INTEGER;
-			DST_IP1 : INTEGER;
-			DST_IP2 : INTEGER;
-			DST_IP3 : INTEGER;
-			DST_MAC0 : INTEGER;
-			DST_MAC1 : INTEGER;
-			DST_MAC2 : INTEGER;
-			DST_MAC3 : INTEGER;
-			DST_MAC4 : INTEGER;
-			DST_MAC5 : INTEGER;
-			DST_PORT : INTEGER;
-			SRC_IP0 : INTEGER;
-			SRC_IP1 : INTEGER;
-			SRC_IP2 : INTEGER;
-			SRC_IP3 : INTEGER;
-			SRC_MAC0 : INTEGER;
-			SRC_MAC1 : INTEGER;
-			SRC_MAC2 : INTEGER;
-			SRC_MAC3 : INTEGER;
-			SRC_MAC4 : INTEGER;
-			SRC_MAC5 : INTEGER;
-			SRC_PORT : INTEGER
-			);
-	PORT(		 dst_ip_address : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 dst_mac_address : OUT STD_LOGIC_VECTOR(47 DOWNTO 0);
-		 dst_udp_port : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 src_ip_address : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 src_mac_address : OUT STD_LOGIC_VECTOR(47 DOWNTO 0);
-		 src_udp_port : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT clk_by_x
-GENERIC (divider : INTEGER
-			);
-	PORT(clk_in : IN STD_LOGIC;
-		 clk_out : OUT STD_LOGIC
-	);
-END COMPONENT;
-
-COMPONENT ethernet_rmii
-GENERIC (MIIM_CLOCK_DIVIDER : INTEGER;
-			MIIM_DISABLE : BOOLEAN;
-			MIIM_PHY_ADDRESS : STD_LOGIC_VECTOR(4 DOWNTO 0);
-			MIIM_POLL_WAIT_TICKS : INTEGER;
-			MIIM_RESET_WAIT_TICKS : INTEGER
-			);
-	PORT(reset_i : IN STD_LOGIC;
-		 rmii_clk_i : IN STD_LOGIC;
-		 rmii_rx_er_i : IN STD_LOGIC;
-		 rmii_rx_crs_dv_i : IN STD_LOGIC;
-		 miim_clock_i : IN STD_LOGIC;
-		 tx_enable_i : IN STD_LOGIC;
-		 mdio_io : INOUT STD_LOGIC;
-		 mac_address_i : IN STD_LOGIC_VECTOR(47 DOWNTO 0);
-		 rmii_rxd_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 tx_data_i : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 reset_o : OUT STD_LOGIC;
-		 rmii_tx_er_o : OUT STD_LOGIC;
-		 rmii_tx_en_o : OUT STD_LOGIC;
-		 mdc_o : OUT STD_LOGIC;
-		 link_up_o : OUT STD_LOGIC;
-		 tx_clock_o : OUT STD_LOGIC;
-		 tx_reset_o : OUT STD_LOGIC;
-		 tx_byte_sent_o : OUT STD_LOGIC;
-		 tx_busy_o : OUT STD_LOGIC;
-		 rx_clock_o : OUT STD_LOGIC;
-		 rx_reset_o : OUT STD_LOGIC;
-		 rx_frame_o : OUT STD_LOGIC;
-		 rx_byte_received_o : OUT STD_LOGIC;
-		 rx_error_o : OUT STD_LOGIC;
-		 rmii_txd_o : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 rx_data_o : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT udp_audio_packet
-	PORT(tx_clk : IN STD_LOGIC;
-		 tx_busy : IN STD_LOGIC;
-		 tx_byte_sent : IN STD_LOGIC;
-		 audio_sync : IN STD_LOGIC;
-		 audio_ch0_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch10_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch11_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch12_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch13_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch14_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch15_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch1_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch2_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch3_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch4_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch5_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch6_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch7_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch8_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 audio_ch9_in : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 dst_ip_address : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 dst_mac_address : IN STD_LOGIC_VECTOR(47 DOWNTO 0);
-		 dst_udp_port : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 src_ip_address : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 src_mac_address : IN STD_LOGIC_VECTOR(47 DOWNTO 0);
-		 src_udp_port : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 tx_enable : OUT STD_LOGIC;
-		 tx_data : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 	);
 END COMPONENT;
 
@@ -493,7 +415,7 @@ GENERIC (ADDR_WIDTH : INTEGER;
 	PORT(clk : IN STD_LOGIC;
 		 bclk : IN STD_LOGIC;
 		 fsync : IN STD_LOGIC;
-		 input_data : IN STD_LOGIC_VECTOR(479 DOWNTO 0);
+		 input_data : IN STD_LOGIC_VECTOR(623 DOWNTO 0);
 		 o_ram_wr_en : OUT STD_LOGIC;
 		 o_ram_data : OUT STD_LOGIC_VECTOR(23 DOWNTO 0);
 		 o_ram_write_addr : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
@@ -525,75 +447,7 @@ GENERIC (ADDR_WIDTH : INTEGER;
 		 fsync : IN STD_LOGIC;
 		 ram_data : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
 		 channel_idx_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 data_out : OUT STD_LOGIC_VECTOR(479 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT aes50_consts
-	PORT(		 aes_clk_ok_counter_reference : OUT STD_LOGIC_VECTOR(19 DOWNTO 0);
-		 debug_out_signal_pulse_len : OUT STD_LOGIC_VECTOR(19 DOWNTO 0);
-		 first_transmit_start_counter_44k1 : OUT STD_LOGIC_VECTOR(22 DOWNTO 0);
-		 first_transmit_start_counter_48k : OUT STD_LOGIC_VECTOR(22 DOWNTO 0);
-		 mdix_timer_1ms_reference : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
-		 mult_clk625_44k1 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 mult_clk625_48k : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 uart_clks_per_bit : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
-		 uart_timeout_clks : OUT STD_LOGIC_VECTOR(19 DOWNTO 0);
-		 wd_aes_clk_timeout : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
-		 wd_aes_rx_dv_timeout : OUT STD_LOGIC_VECTOR(14 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT aes50_top
-	PORT(clk50_i : IN STD_LOGIC;
-		 clk100_i : IN STD_LOGIC;
-		 rst_i : IN STD_LOGIC;
-		 tdm8_i2s_mode_i : IN STD_LOGIC;
-		 aux_tx_tdm_uart_select_i : IN STD_LOGIC;
-		 rmii_crs_dv_i : IN STD_LOGIC;
-		 aes50_clk_a_rx_i : IN STD_LOGIC;
-		 aes50_clk_b_rx_i : IN STD_LOGIC;
-		 clk_1024xfs_from_pll_i : IN STD_LOGIC;
-		 pll_lock_n_i : IN STD_LOGIC;
-		 pll_init_busy_i : IN STD_LOGIC;
-		 wclk_readback_i : IN STD_LOGIC;
-		 bclk_readback_i : IN STD_LOGIC;
-		 i2s_i : IN STD_LOGIC;
-		 uart_i : IN STD_LOGIC;
-		 aes_clk_ok_counter_reference_i : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
-		 debug_out_signal_pulse_len_i : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
-		 first_transmit_start_counter_44k1_i : IN STD_LOGIC_VECTOR(22 DOWNTO 0);
-		 first_transmit_start_counter_48k_i : IN STD_LOGIC_VECTOR(22 DOWNTO 0);
-		 fs_mode_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 mdix_timer_1ms_reference_i : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
-		 mult_clk625_44k1_i : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 mult_clk625_48k_i : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 rmii_rxd_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 sys_mode_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 tdm_i : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
-		 uart_clks_per_bit_i : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		 uart_timeout_clks_i : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
-		 wd_aes_clk_timeout_i : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
-		 wd_aes_rx_dv_timeout_i : IN STD_LOGIC_VECTOR(14 DOWNTO 0);
-		 rmii_tx_en_o : OUT STD_LOGIC;
-		 phy_rst_n_o : OUT STD_LOGIC;
-		 aes50_clk_a_tx_o : OUT STD_LOGIC;
-		 aes50_clk_a_tx_en_o : OUT STD_LOGIC;
-		 aes50_clk_b_tx_o : OUT STD_LOGIC;
-		 aes50_clk_b_tx_en_o : OUT STD_LOGIC;
-		 clk_to_pll_o : OUT STD_LOGIC;
-		 mclk_o : OUT STD_LOGIC;
-		 wclk_o : OUT STD_LOGIC;
-		 bclk_o : OUT STD_LOGIC;
-		 wclk_out_en_o : OUT STD_LOGIC;
-		 bclk_out_en_o : OUT STD_LOGIC;
-		 i2s_o : OUT STD_LOGIC;
-		 aes_ok_o : OUT STD_LOGIC;
-		 uart_o : OUT STD_LOGIC;
-		 dbg_o : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 pll_mult_value_o : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 rmii_txd_o : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 tdm_o : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
+		 data_out : OUT STD_LOGIC_VECTOR(623 DOWNTO 0)
 	);
 END COMPONENT;
 
@@ -612,8 +466,8 @@ GENERIC (DATA_WIDTH : INTEGER;
 			);
 	PORT(bclk : IN STD_LOGIC;
 		 fsync : IN STD_LOGIC;
-		 tdm_in : IN STD_LOGIC_VECTOR(19 DOWNTO 0);
-		 data_out : OUT STD_LOGIC_VECTOR(479 DOWNTO 0)
+		 tdm_in : IN STD_LOGIC_VECTOR(25 DOWNTO 0);
+		 data_out : OUT STD_LOGIC_VECTOR(623 DOWNTO 0)
 	);
 END COMPONENT;
 
@@ -623,8 +477,8 @@ GENERIC (DATA_WIDTH : INTEGER;
 			);
 	PORT(bclk : IN STD_LOGIC;
 		 fsync : IN STD_LOGIC;
-		 data_in : IN STD_LOGIC_VECTOR(479 DOWNTO 0);
-		 tdm_out : OUT STD_LOGIC_VECTOR(19 DOWNTO 0)
+		 data_in : IN STD_LOGIC_VECTOR(623 DOWNTO 0);
+		 tdm_out : OUT STD_LOGIC_VECTOR(25 DOWNTO 0)
 	);
 END COMPONENT;
 
@@ -645,6 +499,7 @@ COMPONENT lattice_pll_phy
 END COMPONENT;
 
 SIGNAL	aes50_fs_mode :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+SIGNAL	aes50_reset :  STD_LOGIC;
 SIGNAL	aes50_sys_mode :  STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL	aes50a_debug :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	aes50a_phy_clk :  STD_LOGIC_VECTOR(0 TO 0);
@@ -656,13 +511,17 @@ SIGNAL	aes50a_rmii_txd_out :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50a_tdm_in :  STD_LOGIC_VECTOR(6 DOWNTO 0);
 SIGNAL	aes50a_tdm_out :  STD_LOGIC_VECTOR(6 DOWNTO 0);
 SIGNAL	aes50a_uart_tx :  STD_LOGIC;
+SIGNAL	aes50b_debug :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	aes50b_phy_clk :  STD_LOGIC_VECTOR(0 TO 0);
 SIGNAL	aes50b_phy_clk_data :  STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL	aes50b_rmii_rxd :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50b_rmii_rxd_in :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50b_rmii_txd :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	aes50b_rmii_txd_out :  STD_LOGIC_VECTOR(2 DOWNTO 0);
-SIGNAL	audio_output :  STD_LOGIC_VECTOR(527 DOWNTO 0);
+SIGNAL	aes50b_tdm_in :  STD_LOGIC_VECTOR(6 DOWNTO 0);
+SIGNAL	aes50b_tdm_out :  STD_LOGIC_VECTOR(6 DOWNTO 0);
+SIGNAL	aes50b_uart_loopback :  STD_LOGIC;
+SIGNAL	audio_output :  STD_LOGIC_VECTOR(623 DOWNTO 0);
 SIGNAL	clk_100MHz :  STD_LOGIC;
 SIGNAL	clk_12_288MHz :  STD_LOGIC;
 SIGNAL	clk_16MHz :  STD_LOGIC;
@@ -670,17 +529,14 @@ SIGNAL	clk_24_576MHz :  STD_LOGIC;
 SIGNAL	clk_49_152MHz :  STD_LOGIC;
 SIGNAL	clk_50MHz :  STD_LOGIC;
 SIGNAL	configbits :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	mac_tx_busy :  STD_LOGIC;
-SIGNAL	mac_tx_byte_sent :  STD_LOGIC;
-SIGNAL	mac_tx_clk :  STD_LOGIC;
 SIGNAL	online :  STD_LOGIC;
 SIGNAL	pll_locked :  STD_LOGIC;
 SIGNAL	pripll_rst :  STD_LOGIC;
 SIGNAL	rst :  STD_LOGIC;
 SIGNAL	secpll_rst :  STD_LOGIC;
 SIGNAL	tdm_fs :  STD_LOGIC;
-SIGNAL	tdm_input :  STD_LOGIC_VECTOR(19 DOWNTO 0);
-SIGNAL	tdm_output :  STD_LOGIC_VECTOR(19 DOWNTO 0);
+SIGNAL	tdm_input :  STD_LOGIC_VECTOR(25 DOWNTO 0);
+SIGNAL	tdm_output :  STD_LOGIC_VECTOR(25 DOWNTO 0);
 SIGNAL	unusedClockA :  STD_LOGIC;
 SIGNAL	unusedClockB :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_0 :  STD_LOGIC;
@@ -689,49 +545,50 @@ SIGNAL	SYNTHESIZED_WIRE_2 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_3 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_4 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_5 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_6 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_101 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_102 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_103 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_10 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_104 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_12 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_13 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_14 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_15 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_16 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_6 :  natural range 0 to 1000000; -- aes_clk_ok_counter_reference
+SIGNAL	SYNTHESIZED_WIRE_7 :  natural range 0 to 1000000; -- debug_out_signal_pulse_len
+SIGNAL	SYNTHESIZED_WIRE_8 :  natural range 0 to 5000000; -- first_transmit_start_counter_44k1
+SIGNAL	SYNTHESIZED_WIRE_9 :  natural range 0 to 5000000; -- first_transmit_start_counter_48k
+SIGNAL	SYNTHESIZED_WIRE_10 :  natural range 0 to 100000; -- mdix_timer_1ms_reference
+SIGNAL	SYNTHESIZED_WIRE_11 :  natural; -- mult_clk625_44k1
+SIGNAL	SYNTHESIZED_WIRE_12 :  natural; -- mult_clk625_48k
+SIGNAL	SYNTHESIZED_WIRE_13 :  natural range 0 to 65535; -- uart_clks_per_bit
+SIGNAL	SYNTHESIZED_WIRE_14 :  natural range 0 to 16777215; -- uart_timeout_clks
+SIGNAL	SYNTHESIZED_WIRE_15 :  natural range 0 to 50; -- wd_aes_clk_timeout
+SIGNAL	SYNTHESIZED_WIRE_16 :  natural range 0 to 20000; -- wd_aes_rx_dv_timeout
 SIGNAL	SYNTHESIZED_WIRE_17 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_18 :  STD_LOGIC_VECTOR(1559 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_18 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_19 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_20 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_21 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_22 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_23 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_24 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_25 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_26 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_27 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_28 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_29 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_30 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_31 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_32 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_33 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_34 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_35 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_36 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_37 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_38 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_39 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_40 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_41 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_42 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_43 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_44 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_45 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_46 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_47 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_48 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_49 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_21 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_22 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_80 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_81 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_82 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_26 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_27 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_28 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_29 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_30 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_31 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_32 :  natural range 0 to 1000000; -- aes_clk_ok_counter_reference
+SIGNAL	SYNTHESIZED_WIRE_33 :  natural range 0 to 1000000; -- debug_out_signal_pulse_len
+SIGNAL	SYNTHESIZED_WIRE_34 :  natural range 0 to 5000000; -- first_transmit_start_counter_44k1
+SIGNAL	SYNTHESIZED_WIRE_35 :  natural range 0 to 5000000; -- first_transmit_start_counter_48k
+SIGNAL	SYNTHESIZED_WIRE_36 :  natural range 0 to 100000; -- mdix_timer_1ms_reference
+SIGNAL	SYNTHESIZED_WIRE_37 :  natural; -- mult_clk625_44k1
+SIGNAL	SYNTHESIZED_WIRE_38 :  natural; -- mult_clk625_48k
+SIGNAL	SYNTHESIZED_WIRE_39 :  natural range 0 to 65535; -- uart_clks_per_bit
+SIGNAL	SYNTHESIZED_WIRE_40 :  natural range 0 to 16777215; -- uart_timeout_clks
+SIGNAL	SYNTHESIZED_WIRE_41 :  natural range 0 to 50; -- wd_aes_clk_timeout
+SIGNAL	SYNTHESIZED_WIRE_42 :  natural range 0 to 20000; -- wd_aes_rx_dv_timeout
+SIGNAL	SYNTHESIZED_WIRE_43 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_44 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_45 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_46 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_47 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_48 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_49 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_50 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_51 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_52 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
@@ -740,43 +597,25 @@ SIGNAL	SYNTHESIZED_WIRE_54 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_55 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_56 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_57 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_58 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_59 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_60 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_61 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_58 :  STD_LOGIC;
+SIGNAL	SYNTHESIZED_WIRE_59 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_60 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_61 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_62 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_63 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_64 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_65 :  STD_LOGIC_VECTOR(47 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_66 :  STD_LOGIC_VECTOR(15 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_67 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_69 :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_64 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_65 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_66 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_67 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_68 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_69 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_70 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_71 :  STD_LOGIC_VECTOR(479 DOWNTO 0);
+SIGNAL	SYNTHESIZED_WIRE_71 :  STD_LOGIC_VECTOR(623 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_72 :  STD_LOGIC;
 SIGNAL	SYNTHESIZED_WIRE_73 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_74 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_75 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	SYNTHESIZED_WIRE_76 :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_77 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_78 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_79 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_80 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_81 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_82 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_83 :  STD_LOGIC_VECTOR(19 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_84 :  STD_LOGIC_VECTOR(19 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_85 :  STD_LOGIC_VECTOR(22 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_86 :  STD_LOGIC_VECTOR(22 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_87 :  STD_LOGIC_VECTOR(16 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_88 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_89 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_90 :  STD_LOGIC_VECTOR(9 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_91 :  STD_LOGIC_VECTOR(19 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_92 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_93 :  STD_LOGIC_VECTOR(14 DOWNTO 0);
-SIGNAL	SYNTHESIZED_WIRE_105 :  STD_LOGIC;
-SIGNAL	SYNTHESIZED_WIRE_100 :  STD_LOGIC;
 
 
 BEGIN 
@@ -785,19 +624,20 @@ AD0_TX <= imx25_uart3_txd;
 AD1_TX <= imx25_uart3_txd;
 CARD_TX <= imx25_uart3_txd;
 SPI_MISO <= SPI_MOSI;
-aes50b_clk_a_tx_out <= '0';
-aes50b_clk_b_tx_out <= '0';
-aes50b_clk_a_tx_en_out <= '0';
-aes50b_clk_b_tx_en_out <= '0';
-aes50b_clk_a_rx_nen_out <= '1';
-aes50b_clk_b_rx_nen_out <= '1';
+aes50b_clk_a_rx_nen_out <= '0';
+aes50b_clk_b_rx_nen_out <= '0';
 aes50a_clk_a_rx_nen_out <= '0';
 aes50a_clk_b_rx_nen_out <= '0';
-SYNTHESIZED_WIRE_78 <= '0';
-SYNTHESIZED_WIRE_79 <= '1';
-SYNTHESIZED_WIRE_80 <= '0';
-SYNTHESIZED_WIRE_81 <= '0';
-SYNTHESIZED_WIRE_82 <= '0';
+SYNTHESIZED_WIRE_1 <= '0';
+SYNTHESIZED_WIRE_2 <= '1';
+SYNTHESIZED_WIRE_3 <= '0';
+SYNTHESIZED_WIRE_4 <= '0';
+SYNTHESIZED_WIRE_5 <= '0';
+SYNTHESIZED_WIRE_27 <= '0';
+SYNTHESIZED_WIRE_28 <= '1';
+SYNTHESIZED_WIRE_29 <= '0';
+SYNTHESIZED_WIRE_30 <= '0';
+SYNTHESIZED_WIRE_31 <= '0';
 
 
 
@@ -806,9 +646,9 @@ PORT MAP(clk => clk_24_576MHz,
 		 i_spi_ncs => SPI_nCS0,
 		 i_spi_clk => SPI_CLK,
 		 i_spi_data => SPI_MOSI,
-		 o_cfg_wr_en => SYNTHESIZED_WIRE_101,
-		 o_cfg_wr_addr => SYNTHESIZED_WIRE_102,
-		 o_cfg_wr_data => SYNTHESIZED_WIRE_103);
+		 o_cfg_wr_en => SYNTHESIZED_WIRE_80,
+		 o_cfg_wr_addr => SYNTHESIZED_WIRE_81,
+		 o_cfg_wr_data => SYNTHESIZED_WIRE_82);
 
 
 b2v_inst0 : reset
@@ -822,30 +662,79 @@ b2v_inst1 : cs2000cp_config
 PORT MAP(clk => clk_16MHz,
 		 i_start => pripll_rst,
 		 i_txbusy => SYNTHESIZED_WIRE_0,
-		 o_start => SYNTHESIZED_WIRE_13,
-		 o_address => SYNTHESIZED_WIRE_14,
-		 o_data => SYNTHESIZED_WIRE_15,
-		 o_map => SYNTHESIZED_WIRE_16);
+		 o_start => SYNTHESIZED_WIRE_43,
+		 o_address => SYNTHESIZED_WIRE_44,
+		 o_data => SYNTHESIZED_WIRE_45,
+		 o_map => SYNTHESIZED_WIRE_46);
+
+
+b2v_inst10 : aes50_top
+GENERIC MAP(G_FSYNC_DELAY => 1,
+			G_SIM_ASSM_SAMPLES => 2048,
+			G_SUPPORT_44K1 => true,
+			G_TDM_AUX => true,
+			G_TX_LEAD_ADJ => 0,
+			G_UART_AUX => true,
+			G_UART_FIFO_AW => 11
+			)
+PORT MAP(clk50_i => clk_50MHz,
+		 rst_i => aes50_reset,
+		 tdm8_i2s_mode_i => SYNTHESIZED_WIRE_1,
+		 aux_tx_tdm_uart_select_i => SYNTHESIZED_WIRE_2,
+		 rmii_crs_dv_i => aes50a_rmii_rxd(0),
+		 aes50_clk_a_rx_i => aes50a_clk_a_rx_in,
+		 aes50_clk_b_rx_i => aes50a_clk_b_rx_in,
+		 clk_1024xfs_from_pll_i => clk_49_152MHz,
+		 pll_lock_n_i => SYNTHESIZED_WIRE_3,
+		 pll_init_busy_i => SYNTHESIZED_WIRE_4,
+		 wclk_readback_i => tdm_fs,
+		 bclk_readback_i => clk_12_288MHz,
+		 i2s_i => SYNTHESIZED_WIRE_5,
+		 uart_i => imx25_uart4_txd,
+		 aes_clk_ok_counter_reference_i => SYNTHESIZED_WIRE_6,
+		 debug_out_signal_pulse_len_i => SYNTHESIZED_WIRE_7,
+		 first_transmit_start_counter_44k1_i => SYNTHESIZED_WIRE_8,
+		 first_transmit_start_counter_48k_i => SYNTHESIZED_WIRE_9,
+		 fs_mode_i => aes50_fs_mode,
+		 mdix_timer_1ms_reference_i => SYNTHESIZED_WIRE_10,
+		 mult_clk625_44k1_i => SYNTHESIZED_WIRE_11,
+		 mult_clk625_48k_i => SYNTHESIZED_WIRE_12,
+		 rmii_rxd_i => aes50a_rmii_rxd(2 DOWNTO 1),
+		 sys_mode_i => aes50_sys_mode,
+		 tdm_i => aes50a_tdm_in,
+		 uart_clks_per_bit_i => SYNTHESIZED_WIRE_13,
+		 uart_timeout_clks_i => SYNTHESIZED_WIRE_14,
+		 wd_aes_clk_timeout_i => SYNTHESIZED_WIRE_15,
+		 wd_aes_rx_dv_timeout_i => SYNTHESIZED_WIRE_16,
+		 rmii_tx_en_o => aes50a_rmii_txd(0),
+		 phy_rst_n_o => aes50a_phy_rst_n_out,
+		 aes50_clk_a_tx_o => aes50a_clk_a_tx_out,
+		 aes50_clk_a_tx_en_o => aes50a_clk_a_tx_en_out,
+		 aes50_clk_b_tx_o => aes50a_clk_b_tx_out,
+		 aes50_clk_b_tx_en_o => aes50a_clk_b_tx_en_out,
+		 uart_o => aes50a_uart_tx,
+		 rmii_txd_o => aes50a_rmii_txd(2 DOWNTO 1),
+		 tdm_o => aes50a_tdm_out);
 
 
 b2v_inst11 : pcm1690dac_config
 PORT MAP(clk => clk_16MHz,
-		 i_start => SYNTHESIZED_WIRE_1,
-		 i_txbusy => SYNTHESIZED_WIRE_2,
-		 o_start => SYNTHESIZED_WIRE_20,
-		 o_address => SYNTHESIZED_WIRE_21,
-		 o_data => SYNTHESIZED_WIRE_22);
+		 i_start => SYNTHESIZED_WIRE_17,
+		 i_txbusy => SYNTHESIZED_WIRE_18,
+		 o_start => SYNTHESIZED_WIRE_47,
+		 o_address => SYNTHESIZED_WIRE_48,
+		 o_data => SYNTHESIZED_WIRE_49);
 
 
 b2v_inst12 : or2_gate
-PORT MAP(in1 => SYNTHESIZED_WIRE_3,
-		 in2 => SYNTHESIZED_WIRE_4,
+PORT MAP(in1 => SYNTHESIZED_WIRE_19,
+		 in2 => SYNTHESIZED_WIRE_20,
 		 output => AUX_CCLK);
 
 
 b2v_inst13 : or2_gate
-PORT MAP(in1 => SYNTHESIZED_WIRE_5,
-		 in2 => SYNTHESIZED_WIRE_6,
+PORT MAP(in1 => SYNTHESIZED_WIRE_21,
+		 in2 => SYNTHESIZED_WIRE_22,
 		 output => AUX_CDATA);
 
 
@@ -865,16 +754,59 @@ GENERIC MAP(ADDR_WIDTH => 8,
 			RAM_DEPTH => 256
 			)
 PORT MAP(clk => clk_24_576MHz,
-		 cfg_wr_en => SYNTHESIZED_WIRE_101,
-		 cfg_wr_addr => SYNTHESIZED_WIRE_102,
-		 cfg_wr_data => SYNTHESIZED_WIRE_103,
-		 channel_idx => SYNTHESIZED_WIRE_10,
+		 cfg_wr_en => SYNTHESIZED_WIRE_80,
+		 cfg_wr_addr => SYNTHESIZED_WIRE_81,
+		 cfg_wr_data => SYNTHESIZED_WIRE_82,
+		 channel_idx => SYNTHESIZED_WIRE_26,
 		 read_addr => SYNTHESIZED_WIRE_74);
 
 
-b2v_inst16 : reverse_mac
-PORT MAP(mac_address_i => SYNTHESIZED_WIRE_104,
-		 mac_address_o => SYNTHESIZED_WIRE_46);
+b2v_inst16 : aes50_top
+GENERIC MAP(G_FSYNC_DELAY => 1,
+			G_SIM_ASSM_SAMPLES => 2048,
+			G_SUPPORT_44K1 => true,
+			G_TDM_AUX => true,
+			G_TX_LEAD_ADJ => 0,
+			G_UART_AUX => true,
+			G_UART_FIFO_AW => 11
+			)
+PORT MAP(clk50_i => clk_50MHz,
+		 rst_i => aes50_reset,
+		 tdm8_i2s_mode_i => SYNTHESIZED_WIRE_27,
+		 aux_tx_tdm_uart_select_i => SYNTHESIZED_WIRE_28,
+		 rmii_crs_dv_i => aes50b_rmii_rxd(0),
+		 aes50_clk_a_rx_i => aes50b_clk_a_rx_in,
+		 aes50_clk_b_rx_i => aes50b_clk_b_rx_in,
+		 clk_1024xfs_from_pll_i => clk_49_152MHz,
+		 pll_lock_n_i => SYNTHESIZED_WIRE_29,
+		 pll_init_busy_i => SYNTHESIZED_WIRE_30,
+		 wclk_readback_i => tdm_fs,
+		 bclk_readback_i => clk_12_288MHz,
+		 i2s_i => SYNTHESIZED_WIRE_31,
+		 uart_i => aes50b_uart_loopback,
+		 aes_clk_ok_counter_reference_i => SYNTHESIZED_WIRE_32,
+		 debug_out_signal_pulse_len_i => SYNTHESIZED_WIRE_33,
+		 first_transmit_start_counter_44k1_i => SYNTHESIZED_WIRE_34,
+		 first_transmit_start_counter_48k_i => SYNTHESIZED_WIRE_35,
+		 fs_mode_i => aes50_fs_mode,
+		 mdix_timer_1ms_reference_i => SYNTHESIZED_WIRE_36,
+		 mult_clk625_44k1_i => SYNTHESIZED_WIRE_37,
+		 mult_clk625_48k_i => SYNTHESIZED_WIRE_38,
+		 rmii_rxd_i => aes50b_rmii_rxd(2 DOWNTO 1),
+		 sys_mode_i => aes50_sys_mode,
+		 tdm_i => aes50b_tdm_in,
+		 uart_clks_per_bit_i => SYNTHESIZED_WIRE_39,
+		 uart_timeout_clks_i => SYNTHESIZED_WIRE_40,
+		 wd_aes_clk_timeout_i => SYNTHESIZED_WIRE_41,
+		 wd_aes_rx_dv_timeout_i => SYNTHESIZED_WIRE_42,
+		 rmii_tx_en_o => aes50b_rmii_txd(0),
+		 aes50_clk_a_tx_o => aes50b_clk_a_tx_out,
+		 aes50_clk_a_tx_en_o => aes50b_clk_a_tx_en_out,
+		 aes50_clk_b_tx_o => aes50b_clk_b_tx_out,
+		 aes50_clk_b_tx_en_o => aes50b_clk_b_tx_en_out,
+		 uart_o => aes50b_uart_loopback,
+		 rmii_txd_o => aes50b_rmii_txd(2 DOWNTO 1),
+		 tdm_o => aes50b_tdm_out);
 
 
 b2v_inst17 : audioclk
@@ -884,63 +816,72 @@ PORT MAP(fs_x_1024_i => clk_49_152MHz,
 		 fs_o => tdm_fs);
 
 
-b2v_inst19 : ethernet_reset
-PORT MAP(clk => SYNTHESIZED_WIRE_12,
-		 power_good => online,
-		 mac_rst => SYNTHESIZED_WIRE_44);
+b2v_inst18 : aes50_consts
+PORT MAP(		 aes_clk_ok_counter_reference => SYNTHESIZED_WIRE_6,
+		 debug_out_signal_pulse_len => SYNTHESIZED_WIRE_7,
+		 first_transmit_start_counter_44k1 => SYNTHESIZED_WIRE_8,
+		 first_transmit_start_counter_48k => SYNTHESIZED_WIRE_9,
+		 mdix_timer_1ms_reference => SYNTHESIZED_WIRE_10,
+		 mult_clk625_44k1 => SYNTHESIZED_WIRE_11,
+		 mult_clk625_48k => SYNTHESIZED_WIRE_12,
+		 uart_clks_per_bit => SYNTHESIZED_WIRE_13,
+		 uart_timeout_clks => SYNTHESIZED_WIRE_14,
+		 wd_aes_clk_timeout => SYNTHESIZED_WIRE_15,
+		 wd_aes_rx_dv_timeout => SYNTHESIZED_WIRE_16);
+
+
+b2v_inst19 : aes50_consts
+PORT MAP(		 aes_clk_ok_counter_reference => SYNTHESIZED_WIRE_32,
+		 debug_out_signal_pulse_len => SYNTHESIZED_WIRE_33,
+		 first_transmit_start_counter_44k1 => SYNTHESIZED_WIRE_34,
+		 first_transmit_start_counter_48k => SYNTHESIZED_WIRE_35,
+		 mdix_timer_1ms_reference => SYNTHESIZED_WIRE_36,
+		 mult_clk625_44k1 => SYNTHESIZED_WIRE_37,
+		 mult_clk625_48k => SYNTHESIZED_WIRE_38,
+		 uart_clks_per_bit => SYNTHESIZED_WIRE_39,
+		 uart_timeout_clks => SYNTHESIZED_WIRE_40,
+		 wd_aes_clk_timeout => SYNTHESIZED_WIRE_41,
+		 wd_aes_rx_dv_timeout => SYNTHESIZED_WIRE_42);
 
 
 b2v_inst2 : spi_tx
 PORT MAP(clk => clk_16MHz,
-		 i_start => SYNTHESIZED_WIRE_13,
-		 i_address => SYNTHESIZED_WIRE_14,
-		 i_data => SYNTHESIZED_WIRE_15,
-		 i_map => SYNTHESIZED_WIRE_16,
+		 i_start => SYNTHESIZED_WIRE_43,
+		 i_address => SYNTHESIZED_WIRE_44,
+		 i_data => SYNTHESIZED_WIRE_45,
+		 i_map => SYNTHESIZED_WIRE_46,
 		 o_nCS => PLL_nCS,
 		 o_cclk => PLL_CCLK,
 		 o_cdata => PLL_CDATA,
 		 o_busy => SYNTHESIZED_WIRE_0);
 
 
-b2v_inst20 : ace_audio_packet
-PORT MAP(tx_clk => mac_tx_clk,
-		 tx_busy => mac_tx_busy,
-		 tx_byte_sent => mac_tx_byte_sent,
-		 audio_ready => SYNTHESIZED_WIRE_17,
-		 audio_in => SYNTHESIZED_WIRE_18,
-		 src_mac_address => SYNTHESIZED_WIRE_104,
-		 tx_enable => SYNTHESIZED_WIRE_45,
-		 ace_tx_busy => SYNTHESIZED_WIRE_23,
-		 tx_data => SYNTHESIZED_WIRE_47);
-
-
-
 b2v_inst22 : tdm_demux
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 data_in => audio_output(71 DOWNTO 48),
-		 ch1_out => SYNTHESIZED_WIRE_24,
-		 ch2_out => SYNTHESIZED_WIRE_25,
-		 ch3_out => SYNTHESIZED_WIRE_26,
-		 ch4_out => SYNTHESIZED_WIRE_27,
-		 ch5_out => SYNTHESIZED_WIRE_28,
-		 ch6_out => SYNTHESIZED_WIRE_29,
-		 ch7_out => SYNTHESIZED_WIRE_30,
-		 ch8_out => SYNTHESIZED_WIRE_31);
+		 ch1_out => SYNTHESIZED_WIRE_50,
+		 ch2_out => SYNTHESIZED_WIRE_51,
+		 ch3_out => SYNTHESIZED_WIRE_52,
+		 ch4_out => SYNTHESIZED_WIRE_53,
+		 ch5_out => SYNTHESIZED_WIRE_54,
+		 ch6_out => SYNTHESIZED_WIRE_55,
+		 ch7_out => SYNTHESIZED_WIRE_56,
+		 ch8_out => SYNTHESIZED_WIRE_57);
 
 
 b2v_inst23 : tdm_demux
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 data_in => audio_output(95 DOWNTO 72),
-		 ch1_out => SYNTHESIZED_WIRE_36,
-		 ch2_out => SYNTHESIZED_WIRE_37,
-		 ch3_out => SYNTHESIZED_WIRE_38,
-		 ch4_out => SYNTHESIZED_WIRE_39,
-		 ch5_out => SYNTHESIZED_WIRE_40,
-		 ch6_out => SYNTHESIZED_WIRE_41,
-		 ch7_out => SYNTHESIZED_WIRE_42,
-		 ch8_out => SYNTHESIZED_WIRE_43);
+		 ch1_out => SYNTHESIZED_WIRE_62,
+		 ch2_out => SYNTHESIZED_WIRE_63,
+		 ch3_out => SYNTHESIZED_WIRE_64,
+		 ch4_out => SYNTHESIZED_WIRE_65,
+		 ch5_out => SYNTHESIZED_WIRE_66,
+		 ch6_out => SYNTHESIZED_WIRE_67,
+		 ch7_out => SYNTHESIZED_WIRE_68,
+		 ch8_out => SYNTHESIZED_WIRE_69);
 
 
 b2v_inst24 : aes50_rmii_rxd
@@ -950,44 +891,17 @@ PORT MAP(clkin => clk_50MHz,
 		 q => aes50b_rmii_rxd);
 
 
-b2v_inst25 : tdm_demux
-PORT MAP(bclk => clk_12_288MHz,
-		 fsync => tdm_fs,
-		 data_in => audio_output(71 DOWNTO 48),
-		 ch1_out => SYNTHESIZED_WIRE_48,
-		 ch2_out => SYNTHESIZED_WIRE_55,
-		 ch3_out => SYNTHESIZED_WIRE_56,
-		 ch4_out => SYNTHESIZED_WIRE_57,
-		 ch5_out => SYNTHESIZED_WIRE_58,
-		 ch6_out => SYNTHESIZED_WIRE_59,
-		 ch7_out => SYNTHESIZED_WIRE_60,
-		 ch8_out => SYNTHESIZED_WIRE_61);
-
-
-b2v_inst26 : tdm_demux
-PORT MAP(bclk => clk_12_288MHz,
-		 fsync => tdm_fs,
-		 data_in => audio_output(95 DOWNTO 72),
-		 ch1_out => SYNTHESIZED_WIRE_62,
-		 ch2_out => SYNTHESIZED_WIRE_63,
-		 ch3_out => SYNTHESIZED_WIRE_49,
-		 ch4_out => SYNTHESIZED_WIRE_50,
-		 ch5_out => SYNTHESIZED_WIRE_51,
-		 ch6_out => SYNTHESIZED_WIRE_52,
-		 ch7_out => SYNTHESIZED_WIRE_53,
-		 ch8_out => SYNTHESIZED_WIRE_54);
-
 
 
 b2v_inst3 : spi_16bit_tx
 PORT MAP(clk => clk_16MHz,
-		 i_start => SYNTHESIZED_WIRE_20,
-		 i_address => SYNTHESIZED_WIRE_21,
-		 i_data => SYNTHESIZED_WIRE_22,
+		 i_start => SYNTHESIZED_WIRE_47,
+		 i_address => SYNTHESIZED_WIRE_48,
+		 i_data => SYNTHESIZED_WIRE_49,
 		 o_nCS => AUX_DA_nCS,
-		 o_cclk => SYNTHESIZED_WIRE_4,
-		 o_cdata => SYNTHESIZED_WIRE_6,
-		 o_busy => SYNTHESIZED_WIRE_2);
+		 o_cclk => SYNTHESIZED_WIRE_20,
+		 o_cdata => SYNTHESIZED_WIRE_22,
+		 o_busy => SYNTHESIZED_WIRE_18);
 
 
 b2v_inst34 : aes50_rmii_txd
@@ -998,25 +912,9 @@ PORT MAP(refclk => clk_50MHz,
 
 
 b2v_inst37 : aes50_rst
-PORT MAP(clk100_i => clk_100MHz,
+PORT MAP(clk100_i => clk_50MHz,
 		 start_i => online,
-		 rst_o => SYNTHESIZED_WIRE_77);
-
-
-b2v_inst38 : tdm_ace_demux
-PORT MAP(bclk => clk_12_288MHz,
-		 fsync => tdm_fs,
-		 ace_tx_busy => SYNTHESIZED_WIRE_23,
-		 tdm0_in => audio_output(359 DOWNTO 336),
-		 tdm1_in => audio_output(383 DOWNTO 360),
-		 tdm2_in => audio_output(407 DOWNTO 384),
-		 tdm3_in => audio_output(431 DOWNTO 408),
-		 tdm4_in => audio_output(455 DOWNTO 432),
-		 tdm5_in => audio_output(479 DOWNTO 456),
-		 tdm6_in => audio_output(503 DOWNTO 480),
-		 tdm7_in => audio_output(527 DOWNTO 504),
-		 audio_ready => SYNTHESIZED_WIRE_17,
-		 audio_out => SYNTHESIZED_WIRE_18);
+		 rst_o => aes50_reset);
 
 
 b2v_inst39 : ultranet_tx
@@ -1026,27 +924,27 @@ GENERIC MAP(AES3_PREAMBLE_X => "10010011",
 			FRAME_COUNTER_RESET => "101111111"
 			)
 PORT MAP(bit_clock => clk_24_576MHz,
-		 ch1 => SYNTHESIZED_WIRE_24,
-		 ch2 => SYNTHESIZED_WIRE_25,
-		 ch3 => SYNTHESIZED_WIRE_26,
-		 ch4 => SYNTHESIZED_WIRE_27,
-		 ch5 => SYNTHESIZED_WIRE_28,
-		 ch6 => SYNTHESIZED_WIRE_29,
-		 ch7 => SYNTHESIZED_WIRE_30,
-		 ch8 => SYNTHESIZED_WIRE_31,
+		 ch1 => SYNTHESIZED_WIRE_50,
+		 ch2 => SYNTHESIZED_WIRE_51,
+		 ch3 => SYNTHESIZED_WIRE_52,
+		 ch4 => SYNTHESIZED_WIRE_53,
+		 ch5 => SYNTHESIZED_WIRE_54,
+		 ch6 => SYNTHESIZED_WIRE_55,
+		 ch7 => SYNTHESIZED_WIRE_56,
+		 ch8 => SYNTHESIZED_WIRE_57,
 		 ultranet_out_p => P16_A_TXP,
 		 ultranet_out_m => P16_A_TXM);
 
 
 b2v_inst4 : spi_tx
 PORT MAP(clk => clk_16MHz,
-		 i_start => SYNTHESIZED_WIRE_32,
-		 i_address => SYNTHESIZED_WIRE_33,
-		 i_data => SYNTHESIZED_WIRE_34,
-		 i_map => SYNTHESIZED_WIRE_35,
+		 i_start => SYNTHESIZED_WIRE_58,
+		 i_address => SYNTHESIZED_WIRE_59,
+		 i_data => SYNTHESIZED_WIRE_60,
+		 i_map => SYNTHESIZED_WIRE_61,
 		 o_nCS => AUX_AD_nCS,
-		 o_cclk => SYNTHESIZED_WIRE_3,
-		 o_cdata => SYNTHESIZED_WIRE_5,
+		 o_cclk => SYNTHESIZED_WIRE_19,
+		 o_cdata => SYNTHESIZED_WIRE_21,
 		 o_busy => SYNTHESIZED_WIRE_70);
 
 
@@ -1057,107 +955,16 @@ GENERIC MAP(AES3_PREAMBLE_X => "10010011",
 			FRAME_COUNTER_RESET => "101111111"
 			)
 PORT MAP(bit_clock => clk_24_576MHz,
-		 ch1 => SYNTHESIZED_WIRE_36,
-		 ch2 => SYNTHESIZED_WIRE_37,
-		 ch3 => SYNTHESIZED_WIRE_38,
-		 ch4 => SYNTHESIZED_WIRE_39,
-		 ch5 => SYNTHESIZED_WIRE_40,
-		 ch6 => SYNTHESIZED_WIRE_41,
-		 ch7 => SYNTHESIZED_WIRE_42,
-		 ch8 => SYNTHESIZED_WIRE_43,
+		 ch1 => SYNTHESIZED_WIRE_62,
+		 ch2 => SYNTHESIZED_WIRE_63,
+		 ch3 => SYNTHESIZED_WIRE_64,
+		 ch4 => SYNTHESIZED_WIRE_65,
+		 ch5 => SYNTHESIZED_WIRE_66,
+		 ch6 => SYNTHESIZED_WIRE_67,
+		 ch7 => SYNTHESIZED_WIRE_68,
+		 ch8 => SYNTHESIZED_WIRE_69,
 		 ultranet_out_p => P16_B_TXP,
 		 ultranet_out_m => P16_B_TXM);
-
-
-b2v_inst41 : const_eth_config
-GENERIC MAP(DST_IP0 => 192,
-			DST_IP1 => 168,
-			DST_IP2 => 50,
-			DST_IP3 => 98,
-			DST_MAC0 => 0,
-			DST_MAC1 => 36,
-			DST_MAC2 => 155,
-			DST_MAC3 => 127,
-			DST_MAC4 => 185,
-			DST_MAC5 => 42,
-			DST_PORT => 4023,
-			SRC_IP0 => 192,
-			SRC_IP1 => 168,
-			SRC_IP2 => 50,
-			SRC_IP3 => 99,
-			SRC_MAC0 => 0,
-			SRC_MAC1 => 28,
-			SRC_MAC2 => 35,
-			SRC_MAC3 => 23,
-			SRC_MAC4 => 74,
-			SRC_MAC5 => 203,
-			SRC_PORT => 4023
-			)
-PORT MAP(		 dst_ip_address => SYNTHESIZED_WIRE_64,
-		 dst_mac_address => SYNTHESIZED_WIRE_65,
-		 dst_udp_port => SYNTHESIZED_WIRE_66,
-		 src_ip_address => SYNTHESIZED_WIRE_67,
-		 src_mac_address => SYNTHESIZED_WIRE_104,
-		 src_udp_port => SYNTHESIZED_WIRE_69);
-
-
-b2v_inst43 : clk_by_x
-GENERIC MAP(divider => 16000
-			)
-PORT MAP(clk_in => clk_16MHz,
-		 clk_out => SYNTHESIZED_WIRE_12);
-
-
-b2v_inst44 : ethernet_rmii
-GENERIC MAP(MIIM_CLOCK_DIVIDER => 50,
-			MIIM_DISABLE => false,
-			MIIM_PHY_ADDRESS => "00000",
-			MIIM_POLL_WAIT_TICKS => 10000000,
-			MIIM_RESET_WAIT_TICKS => 0
-			)
-PORT MAP(reset_i => SYNTHESIZED_WIRE_44,
-		 rmii_clk_i => clk_50MHz,
-		 rmii_rx_er_i => aes50b_rmii_er_in,
-		 rmii_rx_crs_dv_i => aes50b_rmii_rxd(0),
-		 miim_clock_i => clk_50MHz,
-		 tx_enable_i => SYNTHESIZED_WIRE_45,
-		 mac_address_i => SYNTHESIZED_WIRE_46,
-		 rmii_rxd_i => aes50b_rmii_rxd(2 DOWNTO 1),
-		 tx_data_i => SYNTHESIZED_WIRE_47,
-		 rmii_tx_en_o => aes50b_rmii_txd(0),
-		 tx_clock_o => mac_tx_clk,
-		 tx_byte_sent_o => mac_tx_byte_sent,
-		 tx_busy_o => mac_tx_busy,
-		 rmii_txd_o => aes50b_rmii_txd(2 DOWNTO 1));
-
-
-b2v_inst45 : udp_audio_packet
-PORT MAP(tx_clk => mac_tx_clk,
-		 tx_busy => mac_tx_busy,
-		 tx_byte_sent => mac_tx_byte_sent,
-		 audio_sync => tdm_fs,
-		 audio_ch0_in => SYNTHESIZED_WIRE_48,
-		 audio_ch10_in => SYNTHESIZED_WIRE_49,
-		 audio_ch11_in => SYNTHESIZED_WIRE_50,
-		 audio_ch12_in => SYNTHESIZED_WIRE_51,
-		 audio_ch13_in => SYNTHESIZED_WIRE_52,
-		 audio_ch14_in => SYNTHESIZED_WIRE_53,
-		 audio_ch15_in => SYNTHESIZED_WIRE_54,
-		 audio_ch1_in => SYNTHESIZED_WIRE_55,
-		 audio_ch2_in => SYNTHESIZED_WIRE_56,
-		 audio_ch3_in => SYNTHESIZED_WIRE_57,
-		 audio_ch4_in => SYNTHESIZED_WIRE_58,
-		 audio_ch5_in => SYNTHESIZED_WIRE_59,
-		 audio_ch6_in => SYNTHESIZED_WIRE_60,
-		 audio_ch7_in => SYNTHESIZED_WIRE_61,
-		 audio_ch8_in => SYNTHESIZED_WIRE_62,
-		 audio_ch9_in => SYNTHESIZED_WIRE_63,
-		 dst_ip_address => SYNTHESIZED_WIRE_64,
-		 dst_mac_address => SYNTHESIZED_WIRE_65,
-		 dst_udp_port => SYNTHESIZED_WIRE_66,
-		 src_ip_address => SYNTHESIZED_WIRE_67,
-		 src_mac_address => SYNTHESIZED_WIRE_104,
-		 src_udp_port => SYNTHESIZED_WIRE_69);
 
 aes50a_tdm_in(0) <= tdm_output(14);
 
@@ -1176,11 +983,11 @@ b2v_inst5 : m8000adc_config
 PORT MAP(clk => clk_16MHz,
 		 i_start => online,
 		 i_txbusy => SYNTHESIZED_WIRE_70,
-		 o_start => SYNTHESIZED_WIRE_32,
-		 o_done => SYNTHESIZED_WIRE_1,
-		 o_address => SYNTHESIZED_WIRE_33,
-		 o_data => SYNTHESIZED_WIRE_34,
-		 o_map => SYNTHESIZED_WIRE_35);
+		 o_start => SYNTHESIZED_WIRE_58,
+		 o_done => SYNTHESIZED_WIRE_17,
+		 o_address => SYNTHESIZED_WIRE_59,
+		 o_data => SYNTHESIZED_WIRE_60,
+		 o_map => SYNTHESIZED_WIRE_61);
 
 aes50a_tdm_in(4) <= tdm_output(18);
 
@@ -1196,8 +1003,8 @@ PORT MAP(refclk => clk_50MHz,
 b2v_inst52 : audiomatrix_ram_write
 GENERIC MAP(ADDR_WIDTH => 8,
 			DATA_WIDTH => 24,
-			NUM_INPUT_PORTS => 160,
-			TDM_RECEIVER => 20
+			NUM_INPUT_PORTS => 208,
+			TDM_RECEIVER => 26
 			)
 PORT MAP(clk => clk_24_576MHz,
 		 bclk => clk_12_288MHz,
@@ -1224,15 +1031,15 @@ PORT MAP(clk => clk_24_576MHz,
 b2v_inst54 : audiomatrix_ram_read
 GENERIC MAP(ADDR_WIDTH => 8,
 			DATA_WIDTH => 24,
-			NUM_OUTPUT_PORTS => 160,
-			TDM_SENDER => 20
+			NUM_OUTPUT_PORTS => 208,
+			TDM_SENDER => 26
 			)
 PORT MAP(clk => clk_24_576MHz,
 		 bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
 		 ram_data => SYNTHESIZED_WIRE_76,
-		 channel_idx_out => SYNTHESIZED_WIRE_10,
-		 data_out => audio_output(479 DOWNTO 0));
+		 channel_idx_out => SYNTHESIZED_WIRE_26,
+		 data_out => audio_output);
 
 
 aes50a_tdm_in(5) <= tdm_output(19);
@@ -1258,76 +1065,31 @@ tdm_input(19) <= aes50a_tdm_out(5);
 
 
 
-
-b2v_inst65 : aes50_consts
-PORT MAP(		 aes_clk_ok_counter_reference => SYNTHESIZED_WIRE_83,
-		 debug_out_signal_pulse_len => SYNTHESIZED_WIRE_84,
-		 first_transmit_start_counter_44k1 => SYNTHESIZED_WIRE_85,
-		 first_transmit_start_counter_48k => SYNTHESIZED_WIRE_86,
-		 mdix_timer_1ms_reference => SYNTHESIZED_WIRE_87,
-		 mult_clk625_44k1 => SYNTHESIZED_WIRE_88,
-		 mult_clk625_48k => SYNTHESIZED_WIRE_89,
-		 uart_clks_per_bit => SYNTHESIZED_WIRE_90,
-		 uart_timeout_clks => SYNTHESIZED_WIRE_91,
-		 wd_aes_clk_timeout => SYNTHESIZED_WIRE_92,
-		 wd_aes_rx_dv_timeout => SYNTHESIZED_WIRE_93);
+aes50b_tdm_in(0) <= tdm_output(20);
 
 
 
-b2v_inst67 : aes50_top
-PORT MAP(clk50_i => clk_50MHz,
-		 clk100_i => clk_100MHz,
-		 rst_i => SYNTHESIZED_WIRE_77,
-		 tdm8_i2s_mode_i => SYNTHESIZED_WIRE_78,
-		 aux_tx_tdm_uart_select_i => SYNTHESIZED_WIRE_79,
-		 rmii_crs_dv_i => aes50a_rmii_rxd(0),
-		 aes50_clk_a_rx_i => aes50a_clk_a_rx_in,
-		 aes50_clk_b_rx_i => aes50a_clk_b_rx_in,
-		 clk_1024xfs_from_pll_i => clk_49_152MHz,
-		 pll_lock_n_i => SYNTHESIZED_WIRE_80,
-		 pll_init_busy_i => SYNTHESIZED_WIRE_81,
-		 wclk_readback_i => tdm_fs,
-		 bclk_readback_i => clk_12_288MHz,
-		 i2s_i => SYNTHESIZED_WIRE_82,
-		 uart_i => imx25_uart4_txd,
-		 aes_clk_ok_counter_reference_i => SYNTHESIZED_WIRE_83,
-		 debug_out_signal_pulse_len_i => SYNTHESIZED_WIRE_84,
-		 first_transmit_start_counter_44k1_i => SYNTHESIZED_WIRE_85,
-		 first_transmit_start_counter_48k_i => SYNTHESIZED_WIRE_86,
-		 fs_mode_i => aes50_fs_mode,
-		 mdix_timer_1ms_reference_i => SYNTHESIZED_WIRE_87,
-		 mult_clk625_44k1_i => SYNTHESIZED_WIRE_88,
-		 mult_clk625_48k_i => SYNTHESIZED_WIRE_89,
-		 rmii_rxd_i => aes50a_rmii_rxd(2 DOWNTO 1),
-		 sys_mode_i => aes50_sys_mode,
-		 tdm_i => aes50a_tdm_in,
-		 uart_clks_per_bit_i => SYNTHESIZED_WIRE_90,
-		 uart_timeout_clks_i => SYNTHESIZED_WIRE_91,
-		 wd_aes_clk_timeout_i => SYNTHESIZED_WIRE_92,
-		 wd_aes_rx_dv_timeout_i => SYNTHESIZED_WIRE_93,
-		 rmii_tx_en_o => aes50a_rmii_txd(0),
-		 phy_rst_n_o => aes50a_phy_rst_n_out,
-		 aes50_clk_a_tx_o => aes50a_clk_a_tx_out,
-		 aes50_clk_a_tx_en_o => aes50a_clk_a_tx_en_out,
-		 aes50_clk_b_tx_o => aes50a_clk_b_tx_out,
-		 aes50_clk_b_tx_en_o => aes50a_clk_b_tx_en_out,
-		 uart_o => aes50a_uart_tx,
-		 rmii_txd_o => aes50a_rmii_txd(2 DOWNTO 1),
-		 tdm_o => aes50a_tdm_out);
+aes50b_tdm_in(1) <= tdm_output(21);
+
 
 
 
 
 b2v_inst7 : config_rxd
 PORT MAP(clk => clk_24_576MHz,
-		 cfg_wr_en => SYNTHESIZED_WIRE_101,
-		 cfg_wr_addr => SYNTHESIZED_WIRE_102,
-		 cfg_wr_data => SYNTHESIZED_WIRE_103);
+		 cfg_wr_en => SYNTHESIZED_WIRE_80,
+		 cfg_wr_addr => SYNTHESIZED_WIRE_81,
+		 cfg_wr_data => SYNTHESIZED_WIRE_82);
 
 
 
 
 
+aes50b_tdm_in(2) <= tdm_output(22);
+
+
+
+aes50b_tdm_in(3) <= tdm_output(23);
 
 
 
@@ -1336,7 +1098,7 @@ PORT MAP(clk => clk_24_576MHz,
 
 b2v_inst8 : tdm_multichan_rx
 GENERIC MAP(DATA_WIDTH => 24,
-			TDM_RECEIVER => 20
+			TDM_RECEIVER => 26
 			)
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
@@ -1344,15 +1106,46 @@ PORT MAP(bclk => clk_12_288MHz,
 		 data_out => SYNTHESIZED_WIRE_71);
 
 
+aes50b_tdm_in(4) <= tdm_output(24);
+
+
+aes50b_tdm_in(5) <= tdm_output(25);
+
+
+
+
+
+
+
+
+
 
 b2v_inst9 : tdm_multichan_tx
 GENERIC MAP(DATA_WIDTH => 24,
-			TDM_RECEIVER => 20
+			TDM_RECEIVER => 26
 			)
 PORT MAP(bclk => clk_12_288MHz,
 		 fsync => tdm_fs,
-		 data_in => audio_output(479 DOWNTO 0),
+		 data_in => audio_output,
 		 tdm_out => tdm_output);
+
+tdm_input(20) <= aes50b_tdm_out(0);
+
+
+tdm_input(21) <= aes50b_tdm_out(1);
+
+
+tdm_input(22) <= aes50b_tdm_out(2);
+
+
+tdm_input(23) <= aes50b_tdm_out(3);
+
+
+tdm_input(24) <= aes50b_tdm_out(4);
+
+
+tdm_input(25) <= aes50b_tdm_out(5);
+
 
 
 b2v_inst_aes50_clk : aes50_clk_ddr
@@ -1364,8 +1157,7 @@ PORT MAP(refclk => clk_50MHz,
 
 b2v_inst_pll : lattice_pll
 PORT MAP(CLKI => clk_16MHz,
-		 RST => pripll_rst,
-		 CLKOS => clk_100MHz);
+		 RST => pripll_rst);
 
 
 b2v_inst_pll_phy : lattice_pll_phy
@@ -1437,17 +1229,18 @@ aes50_fs_mode(0) <= '1';
 aes50_fs_mode(1) <= '0';
 aes50_sys_mode(1) <= '1';
 aes50_sys_mode(0) <= '0';
-aes50a_phy_clk_data(1) <= '1';
 aes50a_phy_clk_data(0) <= '0';
+aes50a_phy_clk_data(1) <= '1';
 aes50a_rmii_rxd_in(0) <= aes50a_rmii_crs_dv_in;
 aes50a_rmii_rxd_in(1) <= aes50a_rmii_rxd_0_in;
 aes50a_rmii_rxd_in(2) <= aes50a_rmii_rxd_1_in;
 aes50a_tdm_in(6) <= '0';
 aes50b_phy_clk_data(0) <= '0';
 aes50b_phy_clk_data(1) <= '1';
+aes50b_rmii_rxd_in(0) <= aes50b_rmii_crs_dv_in;
 aes50b_rmii_rxd_in(1) <= aes50b_rmii_rxd_0_in;
 aes50b_rmii_rxd_in(2) <= aes50b_rmii_rxd_1_in;
-aes50b_rmii_rxd_in(0) <= aes50b_rmii_crs_dv_in;
+aes50b_tdm_in(6) <= '0';
 tdm_input(0) <= AD0_DATA1;
 tdm_input(1) <= AD0_DATA0;
 tdm_input(2) <= AD1_DATA1;

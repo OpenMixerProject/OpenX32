@@ -1,0 +1,102 @@
+SIGNAL	SYNTHESIZED_WIRE_6 :  natural range 0 to 1000000; -- aes_clk_ok_counter_reference
+SIGNAL	SYNTHESIZED_WIRE_7 :  natural range 0 to 1000000; -- debug_out_signal_pulse_len
+SIGNAL	SYNTHESIZED_WIRE_8 :  natural range 0 to 5000000; -- first_transmit_start_counter_44k1
+SIGNAL	SYNTHESIZED_WIRE_9 :  natural range 0 to 5000000; -- first_transmit_start_counter_48k
+SIGNAL	SYNTHESIZED_WIRE_10 :  natural range 0 to 100000; -- mdix_timer_1ms_reference
+SIGNAL	SYNTHESIZED_WIRE_11 :  natural; -- mult_clk625_44k1
+SIGNAL	SYNTHESIZED_WIRE_12 :  natural; -- mult_clk625_48k
+SIGNAL	SYNTHESIZED_WIRE_13 :  natural range 0 to 65535; -- uart_clks_per_bit
+SIGNAL	SYNTHESIZED_WIRE_14 :  natural range 0 to 16777215; -- uart_timeout_clks
+SIGNAL	SYNTHESIZED_WIRE_15 :  natural range 0 to 50; -- wd_aes_clk_timeout
+SIGNAL	SYNTHESIZED_WIRE_16 :  natural range 0 to 20000; -- wd_aes_rx_dv_timeout
+
+SIGNAL	SYNTHESIZED_WIRE_32 :  natural range 0 to 1000000; -- aes_clk_ok_counter_reference
+SIGNAL	SYNTHESIZED_WIRE_33 :  natural range 0 to 1000000; -- debug_out_signal_pulse_len
+SIGNAL	SYNTHESIZED_WIRE_34 :  natural range 0 to 5000000; -- first_transmit_start_counter_44k1
+SIGNAL	SYNTHESIZED_WIRE_35 :  natural range 0 to 5000000; -- first_transmit_start_counter_48k
+SIGNAL	SYNTHESIZED_WIRE_36 :  natural range 0 to 100000; -- mdix_timer_1ms_reference
+SIGNAL	SYNTHESIZED_WIRE_37 :  natural; -- mult_clk625_44k1
+SIGNAL	SYNTHESIZED_WIRE_38 :  natural; -- mult_clk625_48k
+SIGNAL	SYNTHESIZED_WIRE_39 :  natural range 0 to 65535; -- uart_clks_per_bit
+SIGNAL	SYNTHESIZED_WIRE_40 :  natural range 0 to 16777215; -- uart_timeout_clks
+SIGNAL	SYNTHESIZED_WIRE_41 :  natural range 0 to 50; -- wd_aes_clk_timeout
+SIGNAL	SYNTHESIZED_WIRE_42 :  natural range 0 to 20000; -- wd_aes_rx_dv_timeout
+
+
+COMPONENT aes50_consts
+	PORT(		 aes_clk_ok_counter_reference : OUT natural range 0 to 1000000;
+		 debug_out_signal_pulse_len : OUT natural range 0 to 1000000;
+		 first_transmit_start_counter_44k1 : OUT natural range 0 to 5000000;
+		 first_transmit_start_counter_48k : OUT natural range 0 to 5000000;
+		 mdix_timer_1ms_reference : OUT natural range 0 to 100000;
+		 mult_clk625_44k1 : OUT natural;
+		 mult_clk625_48k : OUT natural;
+		 uart_clks_per_bit : OUT natural range 0 to 65535;
+		 uart_timeout_clks : OUT natural range 0 to 16777215;
+		 wd_aes_clk_timeout : OUT natural range 0 to 50;
+		 wd_aes_rx_dv_timeout : OUT natural range 0 to 20000
+	);
+END COMPONENT;
+
+
+COMPONENT aes50_top
+GENERIC (G_FSYNC_DELAY : INTEGER;
+			G_SIM_ASSM_SAMPLES : INTEGER;
+			G_SUPPORT_44K1 : BOOLEAN;
+			G_TDM_AUX : BOOLEAN;
+			G_TX_LEAD_ADJ : INTEGER;
+			G_UART_AUX : BOOLEAN;
+			G_UART_FIFO_AW : INTEGER
+			);
+	PORT(clk50_i : IN STD_LOGIC;
+		 rst_i : IN STD_LOGIC;
+		 tdm8_i2s_mode_i : IN STD_LOGIC;
+		 aux_tx_tdm_uart_select_i : IN STD_LOGIC;
+		 rmii_crs_dv_i : IN STD_LOGIC;
+		 aes50_clk_a_rx_i : IN STD_LOGIC;
+		 aes50_clk_b_rx_i : IN STD_LOGIC;
+		 clk_1024xfs_from_pll_i : IN STD_LOGIC;
+		 pll_lock_n_i : IN STD_LOGIC;
+		 pll_init_busy_i : IN STD_LOGIC;
+		 wclk_readback_i : IN STD_LOGIC;
+		 bclk_readback_i : IN STD_LOGIC;
+		 i2s_i : IN STD_LOGIC;
+		 uart_i : IN STD_LOGIC;
+		 aes_clk_ok_counter_reference_i : IN natural range 0 to 1000000;
+		 debug_out_signal_pulse_len_i : IN natural range 0 to 1000000;
+		 first_transmit_start_counter_44k1_i : IN natural range 0 to 5000000;
+		 first_transmit_start_counter_48k_i : IN natural range 0 to 5000000;
+		 fs_mode_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 mdix_timer_1ms_reference_i : IN natural range 0 to 100000;
+		 mult_clk625_44k1_i : IN natural;
+		 mult_clk625_48k_i : IN natural;
+		 rmii_rxd_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 sys_mode_i : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 tdm_i : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
+		 uart_clks_per_bit_i : IN natural range 0 to 65535;
+		 uart_timeout_clks_i : IN natural range 0 to 16777215;
+		 wd_aes_clk_timeout_i : IN natural range 0 to 50;
+		 wd_aes_rx_dv_timeout_i : IN natural range 0 to 20000;
+		 rmii_tx_en_o : OUT STD_LOGIC;
+		 phy_rst_n_o : OUT STD_LOGIC;
+		 aes50_clk_a_tx_o : OUT STD_LOGIC;
+		 aes50_clk_a_tx_en_o : OUT STD_LOGIC;
+		 aes50_clk_b_tx_o : OUT STD_LOGIC;
+		 aes50_clk_b_tx_en_o : OUT STD_LOGIC;
+		 clk_to_pll_o : OUT STD_LOGIC;
+		 mclk_o : OUT STD_LOGIC;
+		 wclk_o : OUT STD_LOGIC;
+		 bclk_o : OUT STD_LOGIC;
+		 wclk_out_en_o : OUT STD_LOGIC;
+		 bclk_out_en_o : OUT STD_LOGIC;
+		 i2s_o : OUT STD_LOGIC;
+		 aes_ok_o : OUT STD_LOGIC;
+		 uart_o : OUT STD_LOGIC;
+		 uart_overflow_o : OUT STD_LOGIC;
+		 dbg_o : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		 pll_mult_value_o : OUT natural;
+		 rmii_txd_o : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+		 tdm_o : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
+	);
+END COMPONENT;
+

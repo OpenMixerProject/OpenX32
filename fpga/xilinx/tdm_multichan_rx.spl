@@ -1,0 +1,7 @@
+[Inputs]
+bclk
+fsync
+=tdm_in[25:0]=
+[Outputs]
+=data_out[623:0]=
+[BiDir]

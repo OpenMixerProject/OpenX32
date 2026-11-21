@@ -438,7 +438,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 2936 1512 3136 1528)
+	(rect 1864 1312 2064 1328)
 	(text "INPUT" (rect 157 0 185 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_crs_dv_in" (rect 5 0 108 10)(font "DejaVu Sans Condensed" ))
 	(pt 200 8)
@@ -454,7 +454,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 2928 1528 3128 1544)
+	(rect 1864 1328 2064 1344)
 	(text "INPUT" (rect 157 0 185 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_rxd_0_in" (rect 5 0 105 10)(font "DejaVu Sans Condensed" ))
 	(pt 200 8)
@@ -470,7 +470,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 2928 1544 3128 1560)
+	(rect 1864 1344 2064 1360)
 	(text "INPUT" (rect 157 0 185 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_rxd_1_in" (rect 5 0 105 10)(font "DejaVu Sans Condensed" ))
 	(pt 200 8)
@@ -486,7 +486,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 3240 1312 3424 1328)
+	(rect 1920 1272 2104 1288)
 	(text "INPUT" (rect 141 0 169 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_er_in" (rect 5 0 88 10)(font "DejaVu Sans Condensed" ))
 	(pt 184 8)
@@ -502,7 +502,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 3032 1656 3224 1672)
+	(rect 2272 1344 2464 1360)
 	(text "INPUT" (rect 149 0 177 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_a_rx_in" (rect 5 0 94 10)(font "DejaVu Sans Condensed" ))
 	(pt 192 8)
@@ -518,7 +518,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 3032 1672 3224 1688)
+	(rect 2272 1360 2464 1376)
 	(text "INPUT" (rect 149 0 177 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_b_rx_in" (rect 5 0 94 10)(font "DejaVu Sans Condensed" ))
 	(pt 192 8)
@@ -534,7 +534,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 392 1520 568 1536)
+	(rect 312 1512 488 1528)
 	(text "INPUT" (rect 133 0 161 9)(font "Arial" (font_size 6)))
 	(text "imx25_uart4_txd" (rect 5 0 86 10)(font "Arial" ))
 	(pt 176 8)
@@ -598,7 +598,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 400 1392 592 1408)
+	(rect 416 1392 608 1408)
 	(text "INPUT" (rect 149 0 177 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_a_rx_in" (rect 5 0 94 10)(font "DejaVu Sans Condensed" ))
 	(pt 192 8)
@@ -614,7 +614,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(input)
-	(rect 400 1408 592 1424)
+	(rect 416 1408 608 1424)
 	(text "INPUT" (rect 149 0 177 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_b_rx_in" (rect 5 0 94 10)(font "DejaVu Sans Condensed" ))
 	(pt 192 8)
@@ -1446,7 +1446,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3088 1696 3280 1712)
+	(rect 2840 1264 3032 1280)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_a_tx_out" (rect 90 0 186 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1462,7 +1462,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3088 1712 3280 1728)
+	(rect 2840 1296 3032 1312)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_b_tx_out" (rect 90 0 186 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1478,7 +1478,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3088 1728 3297 1744)
+	(rect 3064 1280 3273 1296)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_a_tx_en_out" (rect 90 0 203 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1494,7 +1494,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3088 1744 3297 1760)
+	(rect 3064 1312 3273 1328)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_b_tx_en_out" (rect 90 0 203 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1510,7 +1510,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3088 1760 3303 1776)
+	(rect 3064 1296 3279 1312)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_a_rx_nen_out" (rect 90 0 209 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1526,7 +1526,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3088 1776 3303 1792)
+	(rect 3064 1328 3279 1344)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_clk_b_rx_nen_out" (rect 90 0 209 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1542,7 +1542,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3760 1848 3950 1864)
+	(rect 3384 1640 3574 1656)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_clk_out" (rect 90 0 184 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1558,7 +1558,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3760 1704 3963 1720)
+	(rect 3400 1192 3603 1208)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_tx_en_out" (rect 90 0 197 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1574,7 +1574,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3760 1720 3963 1736)
+	(rect 3400 1208 3603 1224)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_txd_0_out" (rect 90 0 197 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1590,7 +1590,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 3760 1736 3963 1752)
+	(rect 3400 1224 3603 1240)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50b_rmii_txd_1_out" (rect 90 0 197 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1606,7 +1606,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1232 1616 1408 1632)
+	(rect 1264 1632 1440 1648)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "imx25_uart4_rxd" (rect 90 0 169 11)(font "Intel Clear" ))
 	(pt 0 8)
@@ -1638,7 +1638,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1000 1280 1199 1296)
+	(rect 1016 1296 1215 1312)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_phy_rst_n_out" (rect 90 0 193 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1654,7 +1654,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1232 1312 1441 1328)
+	(rect 1248 1328 1457 1344)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_a_tx_en_out" (rect 90 0 203 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1670,7 +1670,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1000 1296 1192 1312)
+	(rect 1016 1312 1208 1328)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_a_tx_out" (rect 90 0 186 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1686,7 +1686,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1000 1328 1192 1344)
+	(rect 1016 1344 1208 1360)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_b_tx_out" (rect 90 0 186 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1702,7 +1702,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1232 1344 1441 1360)
+	(rect 1248 1360 1457 1376)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_b_tx_en_out" (rect 90 0 203 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1750,7 +1750,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1232 1328 1447 1344)
+	(rect 1248 1344 1463 1360)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_a_rx_nen_out" (rect 90 0 209 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1766,7 +1766,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1232 1360 1447 1376)
+	(rect 1248 1376 1463 1392)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_clk_b_rx_nen_out" (rect 90 0 209 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -1782,7 +1782,7 @@ on the Quartus Prime software download page.
 )
 (pin
 	(output)
-	(rect 1568 1784 1758 1800)
+	(rect 1536 1752 1726 1768)
 	(text "OUTPUT" (rect 1 0 39 9)(font "Arial" (font_size 6)))
 	(text "aes50a_rmii_clk_out" (rect 90 0 184 10)(font "DejaVu Sans Condensed" ))
 	(pt 0 8)
@@ -2805,267 +2805,6 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1224 520 1640 632)
-	(text "audiomatrix_ram_write" (rect 5 0 114 10)(font "Arial" ))
-	(text "inst52" (rect 8 96 37 106)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "clk" (rect 0 0 14 10)(font "Arial" ))
-		(text "clk" (rect 21 27 35 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
-		(text "bclk" (rect 21 43 41 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
-		(text "fsync" (rect 21 59 50 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "input_data[((tdm_receiver*data_width)-1)..0]" (rect 0 0 215 10)(font "Arial" ))
-		(text "input_data[((tdm_receiver*data_width)-1)..0]" (rect 21 75 236 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80)(line_width 3))
-	)
-	(port
-		(pt 416 32)
-		(output)
-		(text "o_ram_write_addr[(addr_width-1)..0]" (rect 0 0 174 10)(font "Arial" ))
-		(text "o_ram_write_addr[(addr_width-1)..0]" (rect 248 27 422 37)(font "Arial" ))
-		(line (pt 416 32)(pt 400 32)(line_width 3))
-	)
-	(port
-		(pt 416 48)
-		(output)
-		(text "o_ram_data[(data_width-1)..0]" (rect 0 0 146 10)(font "Arial" ))
-		(text "o_ram_data[(data_width-1)..0]" (rect 272 43 418 53)(font "Arial" ))
-		(line (pt 416 48)(pt 400 48)(line_width 3))
-	)
-	(port
-		(pt 416 64)
-		(output)
-		(text "o_ram_wr_en" (rect 0 0 64 10)(font "Arial" ))
-		(text "o_ram_wr_en" (rect 341 59 405 69)(font "Arial" ))
-		(line (pt 416 64)(pt 400 64))
-	)
-	(parameter
-		"TDM_RECEIVER"
-		"20"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DATA_WIDTH"
-		"24"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"NUM_INPUT_PORTS"
-		"160"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"ADDR_WIDTH"
-		"8"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 400 96))
-	)
-	(annotation_block (parameter)(rect 1296 440 1530 505))
-)
-(symbol
-	(rect 2160 456 2528 568)
-	(text "audiomatrix_ram_read" (rect 5 0 113 10)(font "Arial" ))
-	(text "inst54" (rect 8 96 37 106)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "clk" (rect 0 0 14 10)(font "Arial" ))
-		(text "clk" (rect 21 27 35 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
-		(text "bclk" (rect 21 43 41 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
-		(text "fsync" (rect 21 59 50 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "ram_data[(data_width-1)..0]" (rect 0 0 134 10)(font "Arial" ))
-		(text "ram_data[(data_width-1)..0]" (rect 21 75 155 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80)(line_width 3))
-	)
-	(port
-		(pt 368 32)
-		(output)
-		(text "channel_idx_out[(addr_width-1)..0]" (rect 0 0 167 10)(font "Arial" ))
-		(text "channel_idx_out[(addr_width-1)..0]" (rect 206 27 373 37)(font "Arial" ))
-		(line (pt 368 32)(pt 352 32)(line_width 3))
-	)
-	(port
-		(pt 368 48)
-		(output)
-		(text "data_out[((tdm_sender*data_width)-1)..0]" (rect 0 0 200 10)(font "Arial" ))
-		(text "data_out[((tdm_sender*data_width)-1)..0]" (rect 178 43 378 53)(font "Arial" ))
-		(line (pt 368 48)(pt 352 48)(line_width 3))
-	)
-	(parameter
-		"TDM_SENDER"
-		"20"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DATA_WIDTH"
-		"24"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"NUM_OUTPUT_PORTS"
-		"160"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"ADDR_WIDTH"
-		"8"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 352 96))
-	)
-	(annotation_block (parameter)(rect 2240 376 2485 441))
-)
-(symbol
-	(rect 712 568 1088 680)
-	(text "tdm_multichan_rx" (rect 5 0 92 10)(font "Arial" ))
-	(text "inst8" (rect 8 96 31 106)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
-		(text "bclk" (rect 21 27 41 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
-		(text "fsync" (rect 21 43 50 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "tdm_in[(tdm_receiver-1)..0]" (rect 0 0 134 10)(font "Arial" ))
-		(text "tdm_in[(tdm_receiver-1)..0]" (rect 21 59 155 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 376 32)
-		(output)
-		(text "data_out[((tdm_receiver*data_width)-1)..0]" (rect 0 0 207 10)(font "Arial" ))
-		(text "data_out[((tdm_receiver*data_width)-1)..0]" (rect 180 27 387 37)(font "Arial" ))
-		(line (pt 376 32)(pt 360 32)(line_width 3))
-	)
-	(parameter
-		"TDM_RECEIVER"
-		"20"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DATA_WIDTH"
-		"24"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 360 96))
-	)
-	(annotation_block (parameter)(rect 784 520 1000 560))
-)
-(symbol
-	(rect 2752 440 3128 552)
-	(text "tdm_multichan_tx" (rect 5 0 92 10)(font "Arial" ))
-	(text "inst9" (rect 8 96 31 106)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
-		(text "bclk" (rect 21 27 41 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
-		(text "fsync" (rect 21 43 50 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "data_in[((tdm_receiver*data_width)-1)..0]" (rect 0 0 200 10)(font "Arial" ))
-		(text "data_in[((tdm_receiver*data_width)-1)..0]" (rect 21 59 221 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 376 32)
-		(output)
-		(text "tdm_out[(tdm_receiver-1)..0]" (rect 0 0 141 10)(font "Arial" ))
-		(text "tdm_out[(tdm_receiver-1)..0]" (rect 236 27 377 37)(font "Arial" ))
-		(line (pt 376 32)(pt 360 32)(line_width 3))
-	)
-	(parameter
-		"TDM_RECEIVER"
-		"20"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DATA_WIDTH"
-		"24"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 360 96))
-	)
-	(annotation_block (parameter)(rect 2816 392 3032 432))
-)
-(symbol
-	(rect 3000 1688 3032 1720)
-	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
-	(text "inst76" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
-	(port
-		(pt 32 16)
-		(output)
-		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
-		(line (pt 24 16)(pt 32 16))
-	)
-	(drawing
-		(line (pt 24 8)(pt 16 16))
-		(line (pt 16 16)(pt 24 24))
-		(line (pt 24 8)(pt 24 24))
-	)
-	(rotate270)
-)
-(symbol
 	(rect 3272 40 3448 216)
 	(text "uart_collector" (rect 5 0 72 10)(font "Arial" ))
 	(text "inst14" (rect 8 160 37 170)(font "Arial" ))
@@ -3324,45 +3063,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 2632 1256 2912 1336)
-	(text "reverse_mac" (rect 5 0 69 10)(font "Arial" ))
-	(text "inst16" (rect 8 64 36 74)(font "DejaVu Sans Condensed" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "mac_address_i[47..0]" (rect 0 0 106 10)(font "Arial" ))
-		(text "mac_address_i[47..0]" (rect 21 27 127 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32)(line_width 3))
-	)
-	(port
-		(pt 280 32)
-		(output)
-		(text "mac_address_o[47..0]" (rect 0 0 109 10)(font "Arial" ))
-		(text "mac_address_o[47..0]" (rect 167 27 276 37)(font "Arial" ))
-		(line (pt 280 32)(pt 264 32)(line_width 3))
-	)
-	(drawing
-		(rectangle (rect 16 16 264 64))
-	)
-)
-(symbol
-	(rect 3016 1752 3032 1784)
-	(text "VCC" (rect 0 5 9 25)(font "Arial" (font_size 6))(vertical))
-	(text "inst21" (rect 5 1 15 29)(font "DejaVu Sans Condensed" )(vertical)(invisible))
-	(port
-		(pt 16 16)
-		(output)
-		(text "1" (rect 19 7 24 18)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 7 8 18 13)(font "Courier New" (bold))(vertical)(invisible))
-		(line (pt 16 16)(pt 8 16))
-	)
-	(drawing
-		(line (pt 8 24)(pt 8 8))
-	)
-	(rotate90)
-)
-(symbol
-	(rect 3224 1432 3392 1544)
+	(rect 1960 1144 2128 1256)
 	(text "aes50_rmii_rxd" (rect 5 0 79 10)(font "Arial" ))
 	(text "inst24" (rect 8 96 36 106)(font "DejaVu Sans Condensed" ))
 	(port
@@ -3405,7 +3106,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 3456 1640 3632 1752)
+	(rect 3096 1128 3272 1240)
 	(text "aes50_rmii_txd" (rect 5 0 79 10)(font "Arial" ))
 	(text "inst34" (rect 8 96 36 106)(font "DejaVu Sans Condensed" ))
 	(port
@@ -3448,7 +3149,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 3456 1776 3632 1888)
+	(rect 3080 1568 3256 1680)
 	(text "aes50_clk_ddr" (rect 5 0 76 10)(font "Arial" ))
 	(text "inst51" (rect 8 96 36 106)(font "DejaVu Sans Condensed" ))
 	(port
@@ -3491,7 +3192,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 3304 1848 3336 1880)
+	(rect 2928 1640 2960 1672)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst62" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -3509,7 +3210,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 3320 1880 3336 1912)
+	(rect 2944 1672 2960 1704)
 	(text "VCC" (rect 0 7 9 27)(font "Arial" (font_size 6))(vertical))
 	(text "inst55" (rect 5 3 15 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -3523,1005 +3224,6 @@ on the Quartus Prime software download page.
 		(line (pt 8 8)(pt 8 24))
 	)
 	(flipy_rotate90)
-)
-(symbol
-	(rect 2960 1160 3176 1272)
-	(text "ethernet_reset" (rect 5 0 75 10)(font "Arial" ))
-	(text "inst19" (rect 8 96 37 106)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "clk" (rect 0 0 14 10)(font "Arial" ))
-		(text "clk" (rect 21 27 35 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "power_good" (rect 0 0 57 10)(font "Arial" ))
-		(text "power_good" (rect 21 43 78 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 216 32)
-		(output)
-		(text "phy_rstn" (rect 0 0 43 10)(font "Arial" ))
-		(text "phy_rstn" (rect 159 27 202 37)(font "Arial" ))
-		(line (pt 216 32)(pt 200 32))
-	)
-	(port
-		(pt 216 48)
-		(output)
-		(text "mac_rst" (rect 0 0 40 10)(font "Arial" ))
-		(text "mac_rst" (rect 162 43 202 53)(font "Arial" ))
-		(line (pt 216 48)(pt 200 48))
-	)
-	(port
-		(pt 216 64)
-		(output)
-		(text "sendArpRequest" (rect 0 0 81 10)(font "Arial" ))
-		(text "sendArpRequest" (rect 127 59 208 69)(font "Arial" ))
-		(line (pt 216 64)(pt 200 64))
-	)
-	(port
-		(pt 216 80)
-		(output)
-		(text "tx_online" (rect 0 0 43 10)(font "Arial" ))
-		(text "tx_online" (rect 159 75 202 85)(font "Arial" ))
-		(line (pt 216 80)(pt 200 80))
-	)
-	(drawing
-		(rectangle (rect 16 16 200 96))
-	)
-)
-(symbol
-	(rect 2688 1160 2840 1240)
-	(text "clk_by_x" (rect 5 0 49 10)(font "Arial" ))
-	(text "inst43" (rect 8 64 36 74)(font "DejaVu Sans Condensed" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "clk_in" (rect 0 0 28 10)(font "Arial" ))
-		(text "clk_in" (rect 21 27 49 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 152 32)
-		(output)
-		(text "clk_out" (rect 0 0 35 10)(font "Arial" ))
-		(text "clk_out" (rect 102 27 137 37)(font "Arial" ))
-		(line (pt 152 32)(pt 136 32))
-	)
-	(parameter
-		"divider"
-		"16000"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 136 64))
-	)
-	(annotation_block (parameter)(rect 2664 1120 2856 1152))
-)
-(symbol
-	(rect 2632 1736 2880 2200)
-	(text "udp_audio_packet" (rect 5 0 93 10)(font "Arial" ))
-	(text "inst45" (rect 8 448 36 458)(font "DejaVu Sans Condensed" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "src_mac_address[47..0]" (rect 0 0 119 10)(font "Arial" ))
-		(text "src_mac_address[47..0]" (rect 21 27 140 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32)(line_width 3))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "src_ip_address[31..0]" (rect 0 0 106 10)(font "Arial" ))
-		(text "src_ip_address[31..0]" (rect 21 43 127 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48)(line_width 3))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "dst_mac_address[47..0]" (rect 0 0 119 10)(font "Arial" ))
-		(text "dst_mac_address[47..0]" (rect 21 59 140 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "dst_ip_address[31..0]" (rect 0 0 106 10)(font "Arial" ))
-		(text "dst_ip_address[31..0]" (rect 21 75 127 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80)(line_width 3))
-	)
-	(port
-		(pt 0 96)
-		(input)
-		(text "src_udp_port[15..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "src_udp_port[15..0]" (rect 21 91 116 101)(font "Arial" ))
-		(line (pt 0 96)(pt 16 96)(line_width 3))
-	)
-	(port
-		(pt 0 112)
-		(input)
-		(text "dst_udp_port[15..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "dst_udp_port[15..0]" (rect 21 107 116 117)(font "Arial" ))
-		(line (pt 0 112)(pt 16 112)(line_width 3))
-	)
-	(port
-		(pt 0 128)
-		(input)
-		(text "tx_clk" (rect 0 0 29 10)(font "Arial" ))
-		(text "tx_clk" (rect 21 123 50 133)(font "Arial" ))
-		(line (pt 0 128)(pt 16 128))
-	)
-	(port
-		(pt 0 144)
-		(input)
-		(text "tx_busy" (rect 0 0 40 10)(font "Arial" ))
-		(text "tx_busy" (rect 21 139 61 149)(font "Arial" ))
-		(line (pt 0 144)(pt 16 144))
-	)
-	(port
-		(pt 0 160)
-		(input)
-		(text "tx_byte_sent" (rect 0 0 64 10)(font "Arial" ))
-		(text "tx_byte_sent" (rect 21 155 85 165)(font "Arial" ))
-		(line (pt 0 160)(pt 16 160))
-	)
-	(port
-		(pt 0 176)
-		(input)
-		(text "audio_ch0_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch0_in[23..0]" (rect 21 171 116 181)(font "Arial" ))
-		(line (pt 0 176)(pt 16 176)(line_width 3))
-	)
-	(port
-		(pt 0 192)
-		(input)
-		(text "audio_ch1_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch1_in[23..0]" (rect 21 187 116 197)(font "Arial" ))
-		(line (pt 0 192)(pt 16 192)(line_width 3))
-	)
-	(port
-		(pt 0 208)
-		(input)
-		(text "audio_ch2_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch2_in[23..0]" (rect 21 203 116 213)(font "Arial" ))
-		(line (pt 0 208)(pt 16 208)(line_width 3))
-	)
-	(port
-		(pt 0 224)
-		(input)
-		(text "audio_ch3_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch3_in[23..0]" (rect 21 219 116 229)(font "Arial" ))
-		(line (pt 0 224)(pt 16 224)(line_width 3))
-	)
-	(port
-		(pt 0 240)
-		(input)
-		(text "audio_ch4_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch4_in[23..0]" (rect 21 235 116 245)(font "Arial" ))
-		(line (pt 0 240)(pt 16 240)(line_width 3))
-	)
-	(port
-		(pt 0 256)
-		(input)
-		(text "audio_ch5_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch5_in[23..0]" (rect 21 251 116 261)(font "Arial" ))
-		(line (pt 0 256)(pt 16 256)(line_width 3))
-	)
-	(port
-		(pt 0 272)
-		(input)
-		(text "audio_ch6_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch6_in[23..0]" (rect 21 267 116 277)(font "Arial" ))
-		(line (pt 0 272)(pt 16 272)(line_width 3))
-	)
-	(port
-		(pt 0 288)
-		(input)
-		(text "audio_ch7_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch7_in[23..0]" (rect 21 283 116 293)(font "Arial" ))
-		(line (pt 0 288)(pt 16 288)(line_width 3))
-	)
-	(port
-		(pt 0 304)
-		(input)
-		(text "audio_ch8_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch8_in[23..0]" (rect 21 299 116 309)(font "Arial" ))
-		(line (pt 0 304)(pt 16 304)(line_width 3))
-	)
-	(port
-		(pt 0 320)
-		(input)
-		(text "audio_ch9_in[23..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "audio_ch9_in[23..0]" (rect 21 315 116 325)(font "Arial" ))
-		(line (pt 0 320)(pt 16 320)(line_width 3))
-	)
-	(port
-		(pt 0 336)
-		(input)
-		(text "audio_ch10_in[23..0]" (rect 0 0 101 10)(font "Arial" ))
-		(text "audio_ch10_in[23..0]" (rect 21 331 122 341)(font "Arial" ))
-		(line (pt 0 336)(pt 16 336)(line_width 3))
-	)
-	(port
-		(pt 0 352)
-		(input)
-		(text "audio_ch11_in[23..0]" (rect 0 0 101 10)(font "Arial" ))
-		(text "audio_ch11_in[23..0]" (rect 21 347 122 357)(font "Arial" ))
-		(line (pt 0 352)(pt 16 352)(line_width 3))
-	)
-	(port
-		(pt 0 368)
-		(input)
-		(text "audio_ch12_in[23..0]" (rect 0 0 101 10)(font "Arial" ))
-		(text "audio_ch12_in[23..0]" (rect 21 363 122 373)(font "Arial" ))
-		(line (pt 0 368)(pt 16 368)(line_width 3))
-	)
-	(port
-		(pt 0 384)
-		(input)
-		(text "audio_ch13_in[23..0]" (rect 0 0 101 10)(font "Arial" ))
-		(text "audio_ch13_in[23..0]" (rect 21 379 122 389)(font "Arial" ))
-		(line (pt 0 384)(pt 16 384)(line_width 3))
-	)
-	(port
-		(pt 0 400)
-		(input)
-		(text "audio_ch14_in[23..0]" (rect 0 0 101 10)(font "Arial" ))
-		(text "audio_ch14_in[23..0]" (rect 21 395 122 405)(font "Arial" ))
-		(line (pt 0 400)(pt 16 400)(line_width 3))
-	)
-	(port
-		(pt 0 416)
-		(input)
-		(text "audio_ch15_in[23..0]" (rect 0 0 101 10)(font "Arial" ))
-		(text "audio_ch15_in[23..0]" (rect 21 411 122 421)(font "Arial" ))
-		(line (pt 0 416)(pt 16 416)(line_width 3))
-	)
-	(port
-		(pt 0 432)
-		(input)
-		(text "audio_sync" (rect 0 0 56 10)(font "Arial" ))
-		(text "audio_sync" (rect 21 427 77 437)(font "Arial" ))
-		(line (pt 0 432)(pt 16 432))
-	)
-	(port
-		(pt 248 32)
-		(output)
-		(text "tx_enable" (rect 0 0 47 10)(font "Arial" ))
-		(text "tx_enable" (rect 188 27 235 37)(font "Arial" ))
-		(line (pt 248 32)(pt 232 32))
-	)
-	(port
-		(pt 248 48)
-		(output)
-		(text "tx_data[7..0]" (rect 0 0 62 10)(font "Arial" ))
-		(text "tx_data[7..0]" (rect 175 43 237 53)(font "Arial" ))
-		(line (pt 248 48)(pt 232 48)(line_width 3))
-	)
-	(drawing
-		(rectangle (rect 16 16 232 448))
-	)
-)
-(symbol
-	(rect 2304 1736 2504 1880)
-	(text "const_eth_config" (rect 5 0 89 10)(font "Arial" ))
-	(text "inst41" (rect 8 128 37 138)(font "Arial" ))
-	(port
-		(pt 200 32)
-		(output)
-		(text "src_mac_address[47..0]" (rect 0 0 119 10)(font "Arial" ))
-		(text "src_mac_address[47..0]" (rect 79 27 198 37)(font "Arial" ))
-		(line (pt 200 32)(pt 184 32)(line_width 3))
-	)
-	(port
-		(pt 200 48)
-		(output)
-		(text "src_ip_address[31..0]" (rect 0 0 106 10)(font "Arial" ))
-		(text "src_ip_address[31..0]" (rect 90 43 196 53)(font "Arial" ))
-		(line (pt 200 48)(pt 184 48)(line_width 3))
-	)
-	(port
-		(pt 200 64)
-		(output)
-		(text "dst_mac_address[47..0]" (rect 0 0 119 10)(font "Arial" ))
-		(text "dst_mac_address[47..0]" (rect 79 59 198 69)(font "Arial" ))
-		(line (pt 200 64)(pt 184 64)(line_width 3))
-	)
-	(port
-		(pt 200 80)
-		(output)
-		(text "dst_ip_address[31..0]" (rect 0 0 106 10)(font "Arial" ))
-		(text "dst_ip_address[31..0]" (rect 90 75 196 85)(font "Arial" ))
-		(line (pt 200 80)(pt 184 80)(line_width 3))
-	)
-	(port
-		(pt 200 96)
-		(output)
-		(text "src_udp_port[15..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "src_udp_port[15..0]" (rect 99 91 194 101)(font "Arial" ))
-		(line (pt 200 96)(pt 184 96)(line_width 3))
-	)
-	(port
-		(pt 200 112)
-		(output)
-		(text "dst_udp_port[15..0]" (rect 0 0 95 10)(font "Arial" ))
-		(text "dst_udp_port[15..0]" (rect 99 107 194 117)(font "Arial" ))
-		(line (pt 200 112)(pt 184 112)(line_width 3))
-	)
-	(parameter
-		"SRC_MAC0"
-		"0"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_MAC1"
-		"28"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_MAC2"
-		"35"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_MAC3"
-		"23"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_MAC4"
-		"74"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_MAC5"
-		"203"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_MAC0"
-		"0"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_MAC1"
-		"36"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_MAC2"
-		"155"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_MAC3"
-		"127"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_MAC4"
-		"185"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_MAC5"
-		"42"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_IP0"
-		"192"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_IP1"
-		"168"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_IP2"
-		"50"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_IP3"
-		"99"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"SRC_PORT"
-		"4023"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_IP0"
-		"192"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_IP1"
-		"168"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_IP2"
-		"50"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_IP3"
-		"98"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"DST_PORT"
-		"4023"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(drawing
-		(rectangle (rect 16 16 184 128))
-	)
-	(annotation_block (parameter)(rect 2088 1736 2280 1872))
-)
-(symbol
-	(rect 2200 1880 2416 2056)
-	(text "tdm_demux" (rect 5 0 62 10)(font "Arial" ))
-	(text "inst25" (rect 8 160 36 170)(font "DejaVu Sans Condensed" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
-		(text "bclk" (rect 21 27 41 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
-		(text "fsync" (rect 21 43 50 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "data_in[23..0]" (rect 0 0 67 10)(font "Arial" ))
-		(text "data_in[23..0]" (rect 21 59 88 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 216 32)
-		(output)
-		(text "ch1_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch1_out[23..0]" (rect 136 27 206 37)(font "Arial" ))
-		(line (pt 216 32)(pt 200 32)(line_width 3))
-	)
-	(port
-		(pt 216 48)
-		(output)
-		(text "ch2_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch2_out[23..0]" (rect 136 43 206 53)(font "Arial" ))
-		(line (pt 216 48)(pt 200 48)(line_width 3))
-	)
-	(port
-		(pt 216 64)
-		(output)
-		(text "ch3_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch3_out[23..0]" (rect 136 59 206 69)(font "Arial" ))
-		(line (pt 216 64)(pt 200 64)(line_width 3))
-	)
-	(port
-		(pt 216 80)
-		(output)
-		(text "ch4_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch4_out[23..0]" (rect 136 75 206 85)(font "Arial" ))
-		(line (pt 216 80)(pt 200 80)(line_width 3))
-	)
-	(port
-		(pt 216 96)
-		(output)
-		(text "ch5_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch5_out[23..0]" (rect 136 91 206 101)(font "Arial" ))
-		(line (pt 216 96)(pt 200 96)(line_width 3))
-	)
-	(port
-		(pt 216 112)
-		(output)
-		(text "ch6_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch6_out[23..0]" (rect 136 107 206 117)(font "Arial" ))
-		(line (pt 216 112)(pt 200 112)(line_width 3))
-	)
-	(port
-		(pt 216 128)
-		(output)
-		(text "ch7_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch7_out[23..0]" (rect 136 123 206 133)(font "Arial" ))
-		(line (pt 216 128)(pt 200 128)(line_width 3))
-	)
-	(port
-		(pt 216 144)
-		(output)
-		(text "ch8_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch8_out[23..0]" (rect 136 139 206 149)(font "Arial" ))
-		(line (pt 216 144)(pt 200 144)(line_width 3))
-	)
-	(drawing
-		(rectangle (rect 16 16 200 160))
-	)
-)
-(symbol
-	(rect 2200 2056 2416 2232)
-	(text "tdm_demux" (rect 5 0 62 10)(font "Arial" ))
-	(text "inst26" (rect 8 160 36 170)(font "DejaVu Sans Condensed" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
-		(text "bclk" (rect 21 27 41 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
-		(text "fsync" (rect 21 43 50 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "data_in[23..0]" (rect 0 0 67 10)(font "Arial" ))
-		(text "data_in[23..0]" (rect 21 59 88 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 216 32)
-		(output)
-		(text "ch1_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch1_out[23..0]" (rect 136 27 206 37)(font "Arial" ))
-		(line (pt 216 32)(pt 200 32)(line_width 3))
-	)
-	(port
-		(pt 216 48)
-		(output)
-		(text "ch2_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch2_out[23..0]" (rect 136 43 206 53)(font "Arial" ))
-		(line (pt 216 48)(pt 200 48)(line_width 3))
-	)
-	(port
-		(pt 216 64)
-		(output)
-		(text "ch3_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch3_out[23..0]" (rect 136 59 206 69)(font "Arial" ))
-		(line (pt 216 64)(pt 200 64)(line_width 3))
-	)
-	(port
-		(pt 216 80)
-		(output)
-		(text "ch4_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch4_out[23..0]" (rect 136 75 206 85)(font "Arial" ))
-		(line (pt 216 80)(pt 200 80)(line_width 3))
-	)
-	(port
-		(pt 216 96)
-		(output)
-		(text "ch5_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch5_out[23..0]" (rect 136 91 206 101)(font "Arial" ))
-		(line (pt 216 96)(pt 200 96)(line_width 3))
-	)
-	(port
-		(pt 216 112)
-		(output)
-		(text "ch6_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch6_out[23..0]" (rect 136 107 206 117)(font "Arial" ))
-		(line (pt 216 112)(pt 200 112)(line_width 3))
-	)
-	(port
-		(pt 216 128)
-		(output)
-		(text "ch7_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch7_out[23..0]" (rect 136 123 206 133)(font "Arial" ))
-		(line (pt 216 128)(pt 200 128)(line_width 3))
-	)
-	(port
-		(pt 216 144)
-		(output)
-		(text "ch8_out[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "ch8_out[23..0]" (rect 136 139 206 149)(font "Arial" ))
-		(line (pt 216 144)(pt 200 144)(line_width 3))
-	)
-	(drawing
-		(rectangle (rect 16 16 200 160))
-	)
-)
-(symbol
-	(rect 3552 1240 3824 1576)
-	(text "ethernet_rmii" (rect 5 0 68 10)(font "Arial" ))
-	(text "inst44" (rect 8 320 37 330)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "reset_i" (rect 0 0 33 10)(font "Arial" ))
-		(text "reset_i" (rect 21 27 54 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "mac_address_i[47..0]" (rect 0 0 106 10)(font "Arial" ))
-		(text "mac_address_i[47..0]" (rect 21 43 127 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48)(line_width 3))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "rmii_clk_i" (rect 0 0 46 10)(font "Arial" ))
-		(text "rmii_clk_i" (rect 21 59 67 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "rmii_rx_er_i" (rect 0 0 56 10)(font "Arial" ))
-		(text "rmii_rx_er_i" (rect 21 75 77 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80))
-	)
-	(port
-		(pt 0 96)
-		(input)
-		(text "rmii_rx_crs_dv_i" (rect 0 0 81 10)(font "Arial" ))
-		(text "rmii_rx_crs_dv_i" (rect 21 91 102 101)(font "Arial" ))
-		(line (pt 0 96)(pt 16 96))
-	)
-	(port
-		(pt 0 112)
-		(input)
-		(text "rmii_rxd_i[1..0]" (rect 0 0 73 10)(font "Arial" ))
-		(text "rmii_rxd_i[1..0]" (rect 21 107 94 117)(font "Arial" ))
-		(line (pt 0 112)(pt 16 112)(line_width 3))
-	)
-	(port
-		(pt 0 128)
-		(input)
-		(text "miim_clock_i" (rect 0 0 63 10)(font "Arial" ))
-		(text "miim_clock_i" (rect 21 123 84 133)(font "Arial" ))
-		(line (pt 0 128)(pt 16 128))
-	)
-	(port
-		(pt 0 144)
-		(input)
-		(text "tx_enable_i" (rect 0 0 55 10)(font "Arial" ))
-		(text "tx_enable_i" (rect 21 139 76 149)(font "Arial" ))
-		(line (pt 0 144)(pt 16 144))
-	)
-	(port
-		(pt 0 160)
-		(input)
-		(text "tx_data_i[7..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tx_data_i[7..0]" (rect 21 155 91 165)(font "Arial" ))
-		(line (pt 0 160)(pt 16 160)(line_width 3))
-	)
-	(port
-		(pt 272 32)
-		(output)
-		(text "reset_o" (rect 0 0 36 10)(font "Arial" ))
-		(text "reset_o" (rect 221 27 257 37)(font "Arial" ))
-		(line (pt 272 32)(pt 256 32))
-	)
-	(port
-		(pt 272 48)
-		(output)
-		(text "rmii_tx_er_o" (rect 0 0 60 10)(font "Arial" ))
-		(text "rmii_tx_er_o" (rect 201 43 261 53)(font "Arial" ))
-		(line (pt 272 48)(pt 256 48))
-	)
-	(port
-		(pt 272 64)
-		(output)
-		(text "rmii_tx_en_o" (rect 0 0 62 10)(font "Arial" ))
-		(text "rmii_tx_en_o" (rect 199 59 261 69)(font "Arial" ))
-		(line (pt 272 64)(pt 256 64))
-	)
-	(port
-		(pt 272 80)
-		(output)
-		(text "rmii_txd_o[1..0]" (rect 0 0 76 10)(font "Arial" ))
-		(text "rmii_txd_o[1..0]" (rect 187 75 263 85)(font "Arial" ))
-		(line (pt 272 80)(pt 256 80)(line_width 3))
-	)
-	(port
-		(pt 272 96)
-		(output)
-		(text "mdc_o" (rect 0 0 33 10)(font "Arial" ))
-		(text "mdc_o" (rect 224 91 257 101)(font "Arial" ))
-		(line (pt 272 96)(pt 256 96))
-	)
-	(port
-		(pt 272 128)
-		(output)
-		(text "link_up_o" (rect 0 0 46 10)(font "Arial" ))
-		(text "link_up_o" (rect 213 123 259 133)(font "Arial" ))
-		(line (pt 272 128)(pt 256 128))
-	)
-	(port
-		(pt 272 144)
-		(output)
-		(text "tx_clock_o" (rect 0 0 53 10)(font "Arial" ))
-		(text "tx_clock_o" (rect 207 139 260 149)(font "Arial" ))
-		(line (pt 272 144)(pt 256 144))
-	)
-	(port
-		(pt 272 160)
-		(output)
-		(text "tx_reset_o" (rect 0 0 51 10)(font "Arial" ))
-		(text "tx_reset_o" (rect 208 155 259 165)(font "Arial" ))
-		(line (pt 272 160)(pt 256 160))
-	)
-	(port
-		(pt 272 176)
-		(output)
-		(text "tx_byte_sent_o" (rect 0 0 76 10)(font "Arial" ))
-		(text "tx_byte_sent_o" (rect 187 171 263 181)(font "Arial" ))
-		(line (pt 272 176)(pt 256 176))
-	)
-	(port
-		(pt 272 192)
-		(output)
-		(text "tx_busy_o" (rect 0 0 51 10)(font "Arial" ))
-		(text "tx_busy_o" (rect 208 187 259 197)(font "Arial" ))
-		(line (pt 272 192)(pt 256 192))
-	)
-	(port
-		(pt 272 208)
-		(output)
-		(text "rx_clock_o" (rect 0 0 53 10)(font "Arial" ))
-		(text "rx_clock_o" (rect 207 203 260 213)(font "Arial" ))
-		(line (pt 272 208)(pt 256 208))
-	)
-	(port
-		(pt 272 224)
-		(output)
-		(text "rx_reset_o" (rect 0 0 51 10)(font "Arial" ))
-		(text "rx_reset_o" (rect 208 219 259 229)(font "Arial" ))
-		(line (pt 272 224)(pt 256 224))
-	)
-	(port
-		(pt 272 240)
-		(output)
-		(text "rx_frame_o" (rect 0 0 56 10)(font "Arial" ))
-		(text "rx_frame_o" (rect 204 235 260 245)(font "Arial" ))
-		(line (pt 272 240)(pt 256 240))
-	)
-	(port
-		(pt 272 256)
-		(output)
-		(text "rx_data_o[7..0]" (rect 0 0 74 10)(font "Arial" ))
-		(text "rx_data_o[7..0]" (rect 189 251 263 261)(font "Arial" ))
-		(line (pt 272 256)(pt 256 256)(line_width 3))
-	)
-	(port
-		(pt 272 272)
-		(output)
-		(text "rx_byte_received_o" (rect 0 0 97 10)(font "Arial" ))
-		(text "rx_byte_received_o" (rect 169 267 266 277)(font "Arial" ))
-		(line (pt 272 272)(pt 256 272))
-	)
-	(port
-		(pt 272 288)
-		(output)
-		(text "rx_error_o" (rect 0 0 49 10)(font "Arial" ))
-		(text "rx_error_o" (rect 210 283 259 293)(font "Arial" ))
-		(line (pt 272 288)(pt 256 288))
-	)
-	(port
-		(pt 272 112)
-		(bidir)
-		(text "mdio_io" (rect 0 0 37 10)(font "Arial" ))
-		(text "mdio_io" (rect 221 107 258 117)(font "Arial" ))
-		(line (pt 272 112)(pt 256 112))
-	)
-	(parameter
-		"MIIM_PHY_ADDRESS"
-		"00000"
-		""
-		(type "PARAMETER_UNSIGNED_BIN")	)
-	(parameter
-		"MIIM_RESET_WAIT_TICKS"
-		"0"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"MIIM_POLL_WAIT_TICKS"
-		"10000000"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"MIIM_CLOCK_DIVIDER"
-		"50"
-		""
-		(type "PARAMETER_SIGNED_DEC")	)
-	(parameter
-		"MIIM_DISABLE"
-		"false"
-		""
-		(type "PARAMETER_ENUM")	)
-	(drawing
-		(rectangle (rect 16 16 256 320))
-	)
-	(annotation_block (parameter)(rect 3536 1152 3840 1232))
-)
-(symbol
-	(rect 2240 1432 2472 1672)
-	(text "tdm_ace_demux" (rect 5 0 86 10)(font "Arial" ))
-	(text "inst38" (rect 8 224 37 234)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
-		(text "bclk" (rect 21 27 41 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
-		(text "fsync" (rect 21 43 50 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "tdm0_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm0_in[23..0]" (rect 21 59 91 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 3))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "tdm1_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm1_in[23..0]" (rect 21 75 91 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80)(line_width 3))
-	)
-	(port
-		(pt 0 96)
-		(input)
-		(text "tdm2_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm2_in[23..0]" (rect 21 91 91 101)(font "Arial" ))
-		(line (pt 0 96)(pt 16 96)(line_width 3))
-	)
-	(port
-		(pt 0 112)
-		(input)
-		(text "tdm3_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm3_in[23..0]" (rect 21 107 91 117)(font "Arial" ))
-		(line (pt 0 112)(pt 16 112)(line_width 3))
-	)
-	(port
-		(pt 0 128)
-		(input)
-		(text "tdm4_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm4_in[23..0]" (rect 21 123 91 133)(font "Arial" ))
-		(line (pt 0 128)(pt 16 128)(line_width 3))
-	)
-	(port
-		(pt 0 144)
-		(input)
-		(text "tdm5_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm5_in[23..0]" (rect 21 139 91 149)(font "Arial" ))
-		(line (pt 0 144)(pt 16 144)(line_width 3))
-	)
-	(port
-		(pt 0 160)
-		(input)
-		(text "tdm6_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm6_in[23..0]" (rect 21 155 91 165)(font "Arial" ))
-		(line (pt 0 160)(pt 16 160)(line_width 3))
-	)
-	(port
-		(pt 0 176)
-		(input)
-		(text "tdm7_in[23..0]" (rect 0 0 70 10)(font "Arial" ))
-		(text "tdm7_in[23..0]" (rect 21 171 91 181)(font "Arial" ))
-		(line (pt 0 176)(pt 16 176)(line_width 3))
-	)
-	(port
-		(pt 0 192)
-		(input)
-		(text "ace_tx_busy" (rect 0 0 63 10)(font "Arial" ))
-		(text "ace_tx_busy" (rect 21 187 84 197)(font "Arial" ))
-		(line (pt 0 192)(pt 16 192))
-	)
-	(port
-		(pt 232 32)
-		(output)
-		(text "audio_out[1559..0]" (rect 0 0 90 10)(font "Arial" ))
-		(text "audio_out[1559..0]" (rect 135 27 225 37)(font "Arial" ))
-		(line (pt 232 32)(pt 216 32)(line_width 3))
-	)
-	(port
-		(pt 232 48)
-		(output)
-		(text "audio_ready" (rect 0 0 60 10)(font "Arial" ))
-		(text "audio_ready" (rect 161 43 221 53)(font "Arial" ))
-		(line (pt 232 48)(pt 216 48))
-	)
-	(drawing
-		(rectangle (rect 16 16 216 224))
-	)
-)
-(symbol
-	(rect 2648 1368 2904 1512)
-	(text "ace_audio_packet" (rect 5 0 93 10)(font "Arial" ))
-	(text "inst20" (rect 8 128 37 138)(font "Arial" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "src_mac_address[47..0]" (rect 0 0 119 10)(font "Arial" ))
-		(text "src_mac_address[47..0]" (rect 21 27 140 37)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32)(line_width 3))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "tx_clk" (rect 0 0 29 10)(font "Arial" ))
-		(text "tx_clk" (rect 21 43 50 53)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48))
-	)
-	(port
-		(pt 0 64)
-		(input)
-		(text "tx_busy" (rect 0 0 40 10)(font "Arial" ))
-		(text "tx_busy" (rect 21 59 61 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64))
-	)
-	(port
-		(pt 0 80)
-		(input)
-		(text "tx_byte_sent" (rect 0 0 64 10)(font "Arial" ))
-		(text "tx_byte_sent" (rect 21 75 85 85)(font "Arial" ))
-		(line (pt 0 80)(pt 16 80))
-	)
-	(port
-		(pt 0 96)
-		(input)
-		(text "audio_in[1559..0]" (rect 0 0 83 10)(font "Arial" ))
-		(text "audio_in[1559..0]" (rect 21 91 104 101)(font "Arial" ))
-		(line (pt 0 96)(pt 16 96)(line_width 3))
-	)
-	(port
-		(pt 0 112)
-		(input)
-		(text "audio_ready" (rect 0 0 60 10)(font "Arial" ))
-		(text "audio_ready" (rect 21 107 81 117)(font "Arial" ))
-		(line (pt 0 112)(pt 16 112))
-	)
-	(port
-		(pt 256 32)
-		(output)
-		(text "tx_enable" (rect 0 0 47 10)(font "Arial" ))
-		(text "tx_enable" (rect 196 27 243 37)(font "Arial" ))
-		(line (pt 256 32)(pt 240 32))
-	)
-	(port
-		(pt 256 48)
-		(output)
-		(text "tx_data[7..0]" (rect 0 0 62 10)(font "Arial" ))
-		(text "tx_data[7..0]" (rect 183 43 245 53)(font "Arial" ))
-		(line (pt 256 48)(pt 240 48)(line_width 3))
-	)
-	(port
-		(pt 256 64)
-		(output)
-		(text "ace_tx_busy" (rect 0 0 63 10)(font "Arial" ))
-		(text "ace_tx_busy" (rect 182 59 245 69)(font "Arial" ))
-		(line (pt 256 64)(pt 240 64))
-	)
-	(drawing
-		(rectangle (rect 16 16 240 128))
-	)
 )
 (symbol
 	(rect 312 1256 464 1336)
@@ -4697,7 +3399,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1272 1392 1320 1424)
+	(rect 1304 1408 1352 1440)
 	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
 	(text "inst57" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
 	(port
@@ -4721,7 +3423,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1272 1424 1320 1456)
+	(rect 1304 1440 1352 1472)
 	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
 	(text "inst58" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
 	(port
@@ -4745,7 +3447,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1272 1456 1320 1488)
+	(rect 1304 1472 1352 1504)
 	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
 	(text "inst59" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
 	(port
@@ -4769,7 +3471,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1272 1488 1320 1520)
+	(rect 1304 1504 1352 1536)
 	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
 	(text "inst60" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
 	(port
@@ -4793,7 +3495,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1272 1520 1320 1552)
+	(rect 1304 1536 1352 1568)
 	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
 	(text "inst61" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
 	(port
@@ -4817,7 +3519,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 1272 1552 1320 1584)
+	(rect 1304 1568 1352 1600)
 	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
 	(text "inst63" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
 	(port
@@ -4841,7 +3543,7 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 592 1320 624 1352)
+	(rect 608 1320 640 1352)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst66" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -4859,7 +3561,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 592 1512 624 1544)
+	(rect 608 1512 640 1544)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst68" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -4945,7 +3647,7 @@ on the Quartus Prime software download page.
 	(rotate90)
 )
 (symbol
-	(rect 1192 1320 1224 1352)
+	(rect 1208 1336 1240 1368)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst75" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -4963,7 +3665,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 1192 1352 1224 1384)
+	(rect 1208 1368 1240 1400)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst77" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -4981,7 +3683,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 592 1432 624 1464)
+	(rect 608 1432 640 1464)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst78" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -4999,7 +3701,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 560 1448 592 1480)
+	(rect 576 1448 608 1480)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst79" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -5017,7 +3719,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 1000 1776 1032 1808)
+	(rect 1080 1752 1112 1784)
 	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
 	(text "inst64" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -5035,7 +3737,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 1008 1744 1024 1776)
+	(rect 1088 1776 1104 1808)
 	(text "VCC" (rect 0 5 9 25)(font "Arial" (font_size 6))(vertical))
 	(text "inst71" (rect 5 1 15 29)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -5051,7 +3753,7 @@ on the Quartus Prime software download page.
 	(rotate90)
 )
 (symbol
-	(rect 576 1336 592 1368)
+	(rect 592 1336 608 1368)
 	(text "VCC" (rect 0 7 9 27)(font "Arial" (font_size 6))(vertical))
 	(text "inst27" (rect 5 3 15 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
 	(port
@@ -5065,91 +3767,6 @@ on the Quartus Prime software download page.
 		(line (pt 8 8)(pt 8 24))
 	)
 	(flipy_rotate90)
-)
-(symbol
-	(rect 304 1528 568 1768)
-	(text "aes50_consts" (rect 5 0 73 10)(font "Arial" ))
-	(text "inst65" (rect 8 224 36 234)(font "DejaVu Sans Condensed" ))
-	(port
-		(pt 264 32)
-		(output)
-		(text "debug_out_signal_pulse_len[19..0]" (rect 0 0 168 10)(font "Arial" ))
-		(text "debug_out_signal_pulse_len[19..0]" (rect 101 27 269 37)(font "Arial" ))
-		(line (pt 264 32)(pt 248 32)(line_width 3))
-	)
-	(port
-		(pt 264 48)
-		(output)
-		(text "first_transmit_start_counter_48k[22..0]" (rect 0 0 192 10)(font "Arial" ))
-		(text "first_transmit_start_counter_48k[22..0]" (rect 81 43 273 53)(font "Arial" ))
-		(line (pt 264 48)(pt 248 48)(line_width 3))
-	)
-	(port
-		(pt 264 64)
-		(output)
-		(text "first_transmit_start_counter_44k1[22..0]" (rect 0 0 198 10)(font "Arial" ))
-		(text "first_transmit_start_counter_44k1[22..0]" (rect 76 59 274 69)(font "Arial" ))
-		(line (pt 264 64)(pt 248 64)(line_width 3))
-	)
-	(port
-		(pt 264 80)
-		(output)
-		(text "wd_aes_clk_timeout[5..0]" (rect 0 0 125 10)(font "Arial" ))
-		(text "wd_aes_clk_timeout[5..0]" (rect 138 75 263 85)(font "Arial" ))
-		(line (pt 264 80)(pt 248 80)(line_width 3))
-	)
-	(port
-		(pt 264 96)
-		(output)
-		(text "wd_aes_rx_dv_timeout[14..0]" (rect 0 0 145 10)(font "Arial" ))
-		(text "wd_aes_rx_dv_timeout[14..0]" (rect 121 91 266 101)(font "Arial" ))
-		(line (pt 264 96)(pt 248 96)(line_width 3))
-	)
-	(port
-		(pt 264 112)
-		(output)
-		(text "mdix_timer_1ms_reference[16..0]" (rect 0 0 166 10)(font "Arial" ))
-		(text "mdix_timer_1ms_reference[16..0]" (rect 103 107 269 117)(font "Arial" ))
-		(line (pt 264 112)(pt 248 112)(line_width 3))
-	)
-	(port
-		(pt 264 128)
-		(output)
-		(text "aes_clk_ok_counter_reference[19..0]" (rect 0 0 182 10)(font "Arial" ))
-		(text "aes_clk_ok_counter_reference[19..0]" (rect 89 123 271 133)(font "Arial" ))
-		(line (pt 264 128)(pt 248 128)(line_width 3))
-	)
-	(port
-		(pt 264 144)
-		(output)
-		(text "mult_clk625_48k[31..0]" (rect 0 0 114 10)(font "Arial" ))
-		(text "mult_clk625_48k[31..0]" (rect 147 139 261 149)(font "Arial" ))
-		(line (pt 264 144)(pt 248 144)(line_width 3))
-	)
-	(port
-		(pt 264 160)
-		(output)
-		(text "mult_clk625_44k1[31..0]" (rect 0 0 120 10)(font "Arial" ))
-		(text "mult_clk625_44k1[31..0]" (rect 142 155 262 165)(font "Arial" ))
-		(line (pt 264 160)(pt 248 160)(line_width 3))
-	)
-	(port
-		(pt 264 176)
-		(output)
-		(text "uart_clks_per_bit[9..0]" (rect 0 0 109 10)(font "Arial" ))
-		(text "uart_clks_per_bit[9..0]" (rect 151 171 260 181)(font "Arial" ))
-		(line (pt 264 176)(pt 248 176)(line_width 3))
-	)
-	(port
-		(pt 264 192)
-		(output)
-		(text "uart_timeout_clks[19..0]" (rect 0 0 119 10)(font "Arial" ))
-		(text "uart_timeout_clks[19..0]" (rect 143 187 262 197)(font "Arial" ))
-		(line (pt 264 192)(pt 248 192)(line_width 3))
-	)
-	(drawing
-		(rectangle (rect 16 16 248 224))
-	)
 )
 (symbol
 	(rect 160 1624 192 1656)
@@ -5170,7 +3787,7 @@ on the Quartus Prime software download page.
 	(rotate270)
 )
 (symbol
-	(rect 1272 1712 1448 1824)
+	(rect 1240 1680 1416 1792)
 	(text "aes50_clk_ddr" (rect 5 0 76 10)(font "Arial" ))
 	(text "inst_aes50_clk" (rect 8 96 75 106)(font "DejaVu Sans Condensed" ))
 	(port
@@ -5299,9 +3916,672 @@ on the Quartus Prime software download page.
 	)
 )
 (symbol
-	(rect 632 1224 992 1752)
+	(rect 304 1528 568 1768)
+	(text "aes50_consts" (rect 5 0 73 10)(font "Arial" ))
+	(text "inst18" (rect 8 224 37 234)(font "Arial" ))
+	(port
+		(pt 264 32)
+		(output)
+		(text "debug_out_signal_pulse_len[19..0]" (rect 0 0 168 10)(font "Arial" ))
+		(text "debug_out_signal_pulse_len[19..0]" (rect 101 27 243 37)(font "Arial" ))
+		(line (pt 264 32)(pt 248 32)(line_width 3))
+	)
+	(port
+		(pt 264 48)
+		(output)
+		(text "first_transmit_start_counter_48k[22..0]" (rect 0 0 192 10)(font "Arial" ))
+		(text "first_transmit_start_counter_48k[22..0]" (rect 81 43 243 53)(font "Arial" ))
+		(line (pt 264 48)(pt 248 48)(line_width 3))
+	)
+	(port
+		(pt 264 64)
+		(output)
+		(text "first_transmit_start_counter_44k1[22..0]" (rect 0 0 198 10)(font "Arial" ))
+		(text "first_transmit_start_counter_44k1[22..0]" (rect 76 59 243 69)(font "Arial" ))
+		(line (pt 264 64)(pt 248 64)(line_width 3))
+	)
+	(port
+		(pt 264 80)
+		(output)
+		(text "wd_aes_clk_timeout[5..0]" (rect 0 0 125 10)(font "Arial" ))
+		(text "wd_aes_clk_timeout[5..0]" (rect 138 75 243 85)(font "Arial" ))
+		(line (pt 264 80)(pt 248 80)(line_width 3))
+	)
+	(port
+		(pt 264 96)
+		(output)
+		(text "wd_aes_rx_dv_timeout[14..0]" (rect 0 0 145 10)(font "Arial" ))
+		(text "wd_aes_rx_dv_timeout[14..0]" (rect 121 91 243 101)(font "Arial" ))
+		(line (pt 264 96)(pt 248 96)(line_width 3))
+	)
+	(port
+		(pt 264 112)
+		(output)
+		(text "mdix_timer_1ms_reference[16..0]" (rect 0 0 166 10)(font "Arial" ))
+		(text "mdix_timer_1ms_reference[16..0]" (rect 103 107 243 117)(font "Arial" ))
+		(line (pt 264 112)(pt 248 112)(line_width 3))
+	)
+	(port
+		(pt 264 128)
+		(output)
+		(text "aes_clk_ok_counter_reference[19..0]" (rect 0 0 182 10)(font "Arial" ))
+		(text "aes_clk_ok_counter_reference[19..0]" (rect 89 123 243 133)(font "Arial" ))
+		(line (pt 264 128)(pt 248 128)(line_width 3))
+	)
+	(port
+		(pt 264 144)
+		(output)
+		(text "mult_clk625_48k[30..0]" (rect 0 0 114 10)(font "Arial" ))
+		(text "mult_clk625_48k[30..0]" (rect 147 139 243 149)(font "Arial" ))
+		(line (pt 264 144)(pt 248 144)(line_width 3))
+	)
+	(port
+		(pt 264 160)
+		(output)
+		(text "mult_clk625_44k1[30..0]" (rect 0 0 120 10)(font "Arial" ))
+		(text "mult_clk625_44k1[30..0]" (rect 142 155 243 165)(font "Arial" ))
+		(line (pt 264 160)(pt 248 160)(line_width 3))
+	)
+	(port
+		(pt 264 176)
+		(output)
+		(text "uart_clks_per_bit[15..0]" (rect 0 0 115 10)(font "Arial" ))
+		(text "uart_clks_per_bit[15..0]" (rect 146 171 243 181)(font "Arial" ))
+		(line (pt 264 176)(pt 248 176)(line_width 3))
+	)
+	(port
+		(pt 264 192)
+		(output)
+		(text "uart_timeout_clks[23..0]" (rect 0 0 119 10)(font "Arial" ))
+		(text "uart_timeout_clks[23..0]" (rect 143 187 243 197)(font "Arial" ))
+		(line (pt 264 192)(pt 248 192)(line_width 3))
+	)
+	(drawing
+		(rectangle (rect 16 16 248 224))
+	)
+)
+(symbol
+	(rect 712 568 1088 680)
+	(text "tdm_multichan_rx" (rect 5 0 92 10)(font "Arial" ))
+	(text "inst8" (rect 8 96 31 106)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
+		(text "bclk" (rect 21 27 41 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
+		(text "fsync" (rect 21 43 50 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "tdm_in[(tdm_receiver-1)..0]" (rect 0 0 134 10)(font "Arial" ))
+		(text "tdm_in[(tdm_receiver-1)..0]" (rect 21 59 155 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 376 32)
+		(output)
+		(text "data_out[((tdm_receiver*data_width)-1)..0]" (rect 0 0 207 10)(font "Arial" ))
+		(text "data_out[((tdm_receiver*data_width)-1)..0]" (rect 180 27 387 37)(font "Arial" ))
+		(line (pt 376 32)(pt 360 32)(line_width 3))
+	)
+	(parameter
+		"TDM_RECEIVER"
+		"26"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 360 96))
+	)
+	(annotation_block (parameter)(rect 784 520 997 559))
+)
+(symbol
+	(rect 1224 520 1640 632)
+	(text "audiomatrix_ram_write" (rect 5 0 114 10)(font "Arial" ))
+	(text "inst52" (rect 8 96 37 106)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
+		(text "bclk" (rect 21 43 41 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
+		(text "fsync" (rect 21 59 50 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "input_data[((tdm_receiver*data_width)-1)..0]" (rect 0 0 215 10)(font "Arial" ))
+		(text "input_data[((tdm_receiver*data_width)-1)..0]" (rect 21 75 236 85)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 3))
+	)
+	(port
+		(pt 416 32)
+		(output)
+		(text "o_ram_write_addr[(addr_width-1)..0]" (rect 0 0 174 10)(font "Arial" ))
+		(text "o_ram_write_addr[(addr_width-1)..0]" (rect 248 27 422 37)(font "Arial" ))
+		(line (pt 416 32)(pt 400 32)(line_width 3))
+	)
+	(port
+		(pt 416 48)
+		(output)
+		(text "o_ram_data[(data_width-1)..0]" (rect 0 0 146 10)(font "Arial" ))
+		(text "o_ram_data[(data_width-1)..0]" (rect 272 43 418 53)(font "Arial" ))
+		(line (pt 416 48)(pt 400 48)(line_width 3))
+	)
+	(port
+		(pt 416 64)
+		(output)
+		(text "o_ram_wr_en" (rect 0 0 64 10)(font "Arial" ))
+		(text "o_ram_wr_en" (rect 341 59 405 69)(font "Arial" ))
+		(line (pt 416 64)(pt 400 64))
+	)
+	(parameter
+		"TDM_RECEIVER"
+		"26"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"NUM_INPUT_PORTS"
+		"208"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"ADDR_WIDTH"
+		"8"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 400 96))
+	)
+	(annotation_block (parameter)(rect 1296 440 1530 505))
+)
+(symbol
+	(rect 2160 456 2528 568)
+	(text "audiomatrix_ram_read" (rect 5 0 113 10)(font "Arial" ))
+	(text "inst54" (rect 8 96 37 106)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
+		(text "bclk" (rect 21 43 41 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
+		(text "fsync" (rect 21 59 50 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "ram_data[(data_width-1)..0]" (rect 0 0 134 10)(font "Arial" ))
+		(text "ram_data[(data_width-1)..0]" (rect 21 75 155 85)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 3))
+	)
+	(port
+		(pt 368 32)
+		(output)
+		(text "channel_idx_out[(addr_width-1)..0]" (rect 0 0 167 10)(font "Arial" ))
+		(text "channel_idx_out[(addr_width-1)..0]" (rect 206 27 373 37)(font "Arial" ))
+		(line (pt 368 32)(pt 352 32)(line_width 3))
+	)
+	(port
+		(pt 368 48)
+		(output)
+		(text "data_out[((tdm_sender*data_width)-1)..0]" (rect 0 0 200 10)(font "Arial" ))
+		(text "data_out[((tdm_sender*data_width)-1)..0]" (rect 178 43 378 53)(font "Arial" ))
+		(line (pt 368 48)(pt 352 48)(line_width 3))
+	)
+	(parameter
+		"TDM_SENDER"
+		"26"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"NUM_OUTPUT_PORTS"
+		"208"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"ADDR_WIDTH"
+		"8"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 352 96))
+	)
+	(annotation_block (parameter)(rect 2240 376 2485 441))
+)
+(symbol
+	(rect 2752 440 3128 552)
+	(text "tdm_multichan_tx" (rect 5 0 92 10)(font "Arial" ))
+	(text "inst9" (rect 8 96 31 106)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "bclk" (rect 0 0 20 10)(font "Arial" ))
+		(text "bclk" (rect 21 27 41 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "fsync" (rect 0 0 29 10)(font "Arial" ))
+		(text "fsync" (rect 21 43 50 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "data_in[((tdm_receiver*data_width)-1)..0]" (rect 0 0 200 10)(font "Arial" ))
+		(text "data_in[((tdm_receiver*data_width)-1)..0]" (rect 21 59 221 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 376 32)
+		(output)
+		(text "tdm_out[(tdm_receiver-1)..0]" (rect 0 0 141 10)(font "Arial" ))
+		(text "tdm_out[(tdm_receiver-1)..0]" (rect 236 27 377 37)(font "Arial" ))
+		(line (pt 376 32)(pt 360 32)(line_width 3))
+	)
+	(parameter
+		"TDM_RECEIVER"
+		"26"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"DATA_WIDTH"
+		"24"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 360 96))
+	)
+	(annotation_block (parameter)(rect 2816 392 3029 431))
+)
+(symbol
+	(rect 2112 1480 2376 1720)
+	(text "aes50_consts" (rect 5 0 73 10)(font "Arial" ))
+	(text "inst19" (rect 8 224 36 234)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 264 32)
+		(output)
+		(text "debug_out_signal_pulse_len[19..0]" (rect 0 0 168 10)(font "Arial" ))
+		(text "debug_out_signal_pulse_len[19..0]" (rect 101 27 269 37)(font "Arial" ))
+		(line (pt 264 32)(pt 248 32)(line_width 3))
+	)
+	(port
+		(pt 264 48)
+		(output)
+		(text "first_transmit_start_counter_48k[22..0]" (rect 0 0 192 10)(font "Arial" ))
+		(text "first_transmit_start_counter_48k[22..0]" (rect 81 43 273 53)(font "Arial" ))
+		(line (pt 264 48)(pt 248 48)(line_width 3))
+	)
+	(port
+		(pt 264 64)
+		(output)
+		(text "first_transmit_start_counter_44k1[22..0]" (rect 0 0 198 10)(font "Arial" ))
+		(text "first_transmit_start_counter_44k1[22..0]" (rect 76 59 274 69)(font "Arial" ))
+		(line (pt 264 64)(pt 248 64)(line_width 3))
+	)
+	(port
+		(pt 264 80)
+		(output)
+		(text "wd_aes_clk_timeout[5..0]" (rect 0 0 125 10)(font "Arial" ))
+		(text "wd_aes_clk_timeout[5..0]" (rect 138 75 263 85)(font "Arial" ))
+		(line (pt 264 80)(pt 248 80)(line_width 3))
+	)
+	(port
+		(pt 264 96)
+		(output)
+		(text "wd_aes_rx_dv_timeout[14..0]" (rect 0 0 145 10)(font "Arial" ))
+		(text "wd_aes_rx_dv_timeout[14..0]" (rect 121 91 266 101)(font "Arial" ))
+		(line (pt 264 96)(pt 248 96)(line_width 3))
+	)
+	(port
+		(pt 264 112)
+		(output)
+		(text "mdix_timer_1ms_reference[16..0]" (rect 0 0 166 10)(font "Arial" ))
+		(text "mdix_timer_1ms_reference[16..0]" (rect 103 107 269 117)(font "Arial" ))
+		(line (pt 264 112)(pt 248 112)(line_width 3))
+	)
+	(port
+		(pt 264 128)
+		(output)
+		(text "aes_clk_ok_counter_reference[19..0]" (rect 0 0 182 10)(font "Arial" ))
+		(text "aes_clk_ok_counter_reference[19..0]" (rect 89 123 271 133)(font "Arial" ))
+		(line (pt 264 128)(pt 248 128)(line_width 3))
+	)
+	(port
+		(pt 264 144)
+		(output)
+		(text "mult_clk625_48k[30..0]" (rect 0 0 114 10)(font "Arial" ))
+		(text "mult_clk625_48k[30..0]" (rect 147 139 261 149)(font "Arial" ))
+		(line (pt 264 144)(pt 248 144)(line_width 3))
+	)
+	(port
+		(pt 264 160)
+		(output)
+		(text "mult_clk625_44k1[30..0]" (rect 0 0 120 10)(font "Arial" ))
+		(text "mult_clk625_44k1[30..0]" (rect 142 155 262 165)(font "Arial" ))
+		(line (pt 264 160)(pt 248 160)(line_width 3))
+	)
+	(port
+		(pt 264 176)
+		(output)
+		(text "uart_clks_per_bit[15..0]" (rect 0 0 115 10)(font "Arial" ))
+		(text "uart_clks_per_bit[15..0]" (rect 146 171 261 181)(font "Arial" ))
+		(line (pt 264 176)(pt 248 176)(line_width 3))
+	)
+	(port
+		(pt 264 192)
+		(output)
+		(text "uart_timeout_clks[23..0]" (rect 0 0 119 10)(font "Arial" ))
+		(text "uart_timeout_clks[23..0]" (rect 143 187 262 197)(font "Arial" ))
+		(line (pt 264 192)(pt 248 192)(line_width 3))
+	)
+	(drawing
+		(rectangle (rect 16 16 248 224))
+	)
+)
+(symbol
+	(rect 1952 1392 2000 1424)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst65" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 1952 1424 2000 1456)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst67" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 1952 1456 2000 1488)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst74" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 1952 1488 2000 1520)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst76" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 1952 1520 2000 1552)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst81" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 1952 1552 2000 1584)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst82" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 1960 1584 1992 1616)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst83" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 2432 1272 2464 1304)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst84" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 2416 1288 2432 1320)
+	(text "VCC" (rect 0 7 9 27)(font "Arial" (font_size 6))(vertical))
+	(text "inst28" (rect 5 3 15 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 16 16)
+		(output)
+		(text "1" (rect 19 7 24 18)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 7 19 18 24)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 16 16)(pt 8 16))
+	)
+	(drawing
+		(line (pt 8 8)(pt 8 24))
+	)
+	(flipy_rotate90)
+)
+(symbol
+	(rect 2432 1384 2464 1416)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst85" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 2400 1400 2432 1432)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst86" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 2432 1464 2464 1496)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst87" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 648 1240 1008 1768)
 	(text "aes50_top" (rect 5 0 55 10)(font "Arial" ))
-	(text "inst67" (rect 8 512 36 522)(font "DejaVu Sans Condensed" ))
+	(text "inst10" (rect 8 512 37 522)(font "Arial" ))
 	(port
 		(pt 0 32)
 		(input)
@@ -5312,205 +4592,198 @@ on the Quartus Prime software download page.
 	(port
 		(pt 0 48)
 		(input)
-		(text "clk100_i" (rect 0 0 40 10)(font "Arial" ))
-		(text "clk100_i" (rect 21 43 61 53)(font "Arial" ))
+		(text "rst_i" (rect 0 0 21 10)(font "Arial" ))
+		(text "rst_i" (rect 21 43 42 53)(font "Arial" ))
 		(line (pt 0 48)(pt 16 48))
 	)
 	(port
 		(pt 0 64)
 		(input)
-		(text "rst_i" (rect 0 0 21 10)(font "Arial" ))
-		(text "rst_i" (rect 21 59 42 69)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64))
+		(text "fs_mode_i[1..0]" (rect 0 0 77 10)(font "Arial" ))
+		(text "fs_mode_i[1..0]" (rect 21 59 98 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
 	)
 	(port
 		(pt 0 80)
 		(input)
-		(text "fs_mode_i[1..0]" (rect 0 0 77 10)(font "Arial" ))
-		(text "fs_mode_i[1..0]" (rect 21 75 98 85)(font "Arial" ))
+		(text "sys_mode_i[1..0]" (rect 0 0 86 10)(font "Arial" ))
+		(text "sys_mode_i[1..0]" (rect 21 75 107 85)(font "Arial" ))
 		(line (pt 0 80)(pt 16 80)(line_width 3))
 	)
 	(port
 		(pt 0 96)
 		(input)
-		(text "sys_mode_i[1..0]" (rect 0 0 86 10)(font "Arial" ))
-		(text "sys_mode_i[1..0]" (rect 21 91 107 101)(font "Arial" ))
-		(line (pt 0 96)(pt 16 96)(line_width 3))
+		(text "tdm8_i2s_mode_i" (rect 0 0 86 10)(font "Arial" ))
+		(text "tdm8_i2s_mode_i" (rect 21 91 107 101)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96))
 	)
 	(port
 		(pt 0 112)
 		(input)
-		(text "tdm8_i2s_mode_i" (rect 0 0 86 10)(font "Arial" ))
-		(text "tdm8_i2s_mode_i" (rect 21 107 107 117)(font "Arial" ))
+		(text "aux_tx_tdm_uart_select_i" (rect 0 0 126 10)(font "Arial" ))
+		(text "aux_tx_tdm_uart_select_i" (rect 21 107 147 117)(font "Arial" ))
 		(line (pt 0 112)(pt 16 112))
 	)
 	(port
 		(pt 0 128)
 		(input)
-		(text "aux_tx_tdm_uart_select_i" (rect 0 0 126 10)(font "Arial" ))
-		(text "aux_tx_tdm_uart_select_i" (rect 21 123 147 133)(font "Arial" ))
+		(text "rmii_crs_dv_i" (rect 0 0 66 10)(font "Arial" ))
+		(text "rmii_crs_dv_i" (rect 21 123 87 133)(font "Arial" ))
 		(line (pt 0 128)(pt 16 128))
 	)
 	(port
 		(pt 0 144)
 		(input)
-		(text "rmii_crs_dv_i" (rect 0 0 66 10)(font "Arial" ))
-		(text "rmii_crs_dv_i" (rect 21 139 87 149)(font "Arial" ))
-		(line (pt 0 144)(pt 16 144))
+		(text "rmii_rxd_i[1..0]" (rect 0 0 73 10)(font "Arial" ))
+		(text "rmii_rxd_i[1..0]" (rect 21 139 94 149)(font "Arial" ))
+		(line (pt 0 144)(pt 16 144)(line_width 3))
 	)
 	(port
 		(pt 0 160)
 		(input)
-		(text "rmii_rxd_i[1..0]" (rect 0 0 73 10)(font "Arial" ))
-		(text "rmii_rxd_i[1..0]" (rect 21 155 94 165)(font "Arial" ))
-		(line (pt 0 160)(pt 16 160)(line_width 3))
+		(text "aes50_clk_a_rx_i" (rect 0 0 84 10)(font "Arial" ))
+		(text "aes50_clk_a_rx_i" (rect 21 155 105 165)(font "Arial" ))
+		(line (pt 0 160)(pt 16 160))
 	)
 	(port
 		(pt 0 176)
 		(input)
-		(text "aes50_clk_a_rx_i" (rect 0 0 84 10)(font "Arial" ))
-		(text "aes50_clk_a_rx_i" (rect 21 171 105 181)(font "Arial" ))
+		(text "aes50_clk_b_rx_i" (rect 0 0 84 10)(font "Arial" ))
+		(text "aes50_clk_b_rx_i" (rect 21 171 105 181)(font "Arial" ))
 		(line (pt 0 176)(pt 16 176))
 	)
 	(port
 		(pt 0 192)
 		(input)
-		(text "aes50_clk_b_rx_i" (rect 0 0 84 10)(font "Arial" ))
-		(text "aes50_clk_b_rx_i" (rect 21 187 105 197)(font "Arial" ))
+		(text "clk_1024xfs_from_pll_i" (rect 0 0 114 10)(font "Arial" ))
+		(text "clk_1024xfs_from_pll_i" (rect 21 187 135 197)(font "Arial" ))
 		(line (pt 0 192)(pt 16 192))
 	)
 	(port
 		(pt 0 208)
 		(input)
-		(text "clk_1024xfs_from_pll_i" (rect 0 0 114 10)(font "Arial" ))
-		(text "clk_1024xfs_from_pll_i" (rect 21 203 135 213)(font "Arial" ))
+		(text "pll_lock_n_i" (rect 0 0 56 10)(font "Arial" ))
+		(text "pll_lock_n_i" (rect 21 203 77 213)(font "Arial" ))
 		(line (pt 0 208)(pt 16 208))
 	)
 	(port
 		(pt 0 224)
 		(input)
-		(text "pll_lock_n_i" (rect 0 0 56 10)(font "Arial" ))
-		(text "pll_lock_n_i" (rect 21 219 77 229)(font "Arial" ))
+		(text "pll_init_busy_i" (rect 0 0 69 10)(font "Arial" ))
+		(text "pll_init_busy_i" (rect 21 219 90 229)(font "Arial" ))
 		(line (pt 0 224)(pt 16 224))
 	)
 	(port
 		(pt 0 240)
 		(input)
-		(text "pll_init_busy_i" (rect 0 0 69 10)(font "Arial" ))
-		(text "pll_init_busy_i" (rect 21 235 90 245)(font "Arial" ))
+		(text "wclk_readback_i" (rect 0 0 80 10)(font "Arial" ))
+		(text "wclk_readback_i" (rect 21 235 101 245)(font "Arial" ))
 		(line (pt 0 240)(pt 16 240))
 	)
 	(port
 		(pt 0 256)
 		(input)
-		(text "wclk_readback_i" (rect 0 0 80 10)(font "Arial" ))
-		(text "wclk_readback_i" (rect 21 251 101 261)(font "Arial" ))
+		(text "bclk_readback_i" (rect 0 0 79 10)(font "Arial" ))
+		(text "bclk_readback_i" (rect 21 251 100 261)(font "Arial" ))
 		(line (pt 0 256)(pt 16 256))
 	)
 	(port
 		(pt 0 272)
 		(input)
-		(text "bclk_readback_i" (rect 0 0 79 10)(font "Arial" ))
-		(text "bclk_readback_i" (rect 21 267 100 277)(font "Arial" ))
-		(line (pt 0 272)(pt 16 272))
+		(text "tdm_i[6..0]" (rect 0 0 53 10)(font "Arial" ))
+		(text "tdm_i[6..0]" (rect 21 267 74 277)(font "Arial" ))
+		(line (pt 0 272)(pt 16 272)(line_width 3))
 	)
 	(port
 		(pt 0 288)
 		(input)
-		(text "tdm_i[6..0]" (rect 0 0 53 10)(font "Arial" ))
-		(text "tdm_i[6..0]" (rect 21 283 74 293)(font "Arial" ))
-		(line (pt 0 288)(pt 16 288)(line_width 3))
+		(text "i2s_i" (rect 0 0 22 10)(font "Arial" ))
+		(text "i2s_i" (rect 21 283 43 293)(font "Arial" ))
+		(line (pt 0 288)(pt 16 288))
 	)
 	(port
 		(pt 0 304)
 		(input)
-		(text "i2s_i" (rect 0 0 22 10)(font "Arial" ))
-		(text "i2s_i" (rect 21 299 43 309)(font "Arial" ))
+		(text "uart_i" (rect 0 0 27 10)(font "Arial" ))
+		(text "uart_i" (rect 21 299 48 309)(font "Arial" ))
 		(line (pt 0 304)(pt 16 304))
 	)
 	(port
 		(pt 0 320)
 		(input)
-		(text "uart_i" (rect 0 0 27 10)(font "Arial" ))
-		(text "uart_i" (rect 21 315 48 325)(font "Arial" ))
-		(line (pt 0 320)(pt 16 320))
+		(text "debug_out_signal_pulse_len_i[19..0]" (rect 0 0 177 10)(font "Arial" ))
+		(text "debug_out_signal_pulse_len_i[19..0]" (rect 21 315 198 325)(font "Arial" ))
+		(line (pt 0 320)(pt 16 320)(line_width 3))
 	)
 	(port
 		(pt 0 336)
 		(input)
-		(text "debug_out_signal_pulse_len_i[19..0]" (rect 0 0 177 10)(font "Arial" ))
-		(text "debug_out_signal_pulse_len_i[19..0]" (rect 21 331 198 341)(font "Arial" ))
+		(text "first_transmit_start_counter_48k_i[22..0]" (rect 0 0 200 10)(font "Arial" ))
+		(text "first_transmit_start_counter_48k_i[22..0]" (rect 21 331 221 341)(font "Arial" ))
 		(line (pt 0 336)(pt 16 336)(line_width 3))
 	)
 	(port
 		(pt 0 352)
 		(input)
-		(text "first_transmit_start_counter_48k_i[22..0]" (rect 0 0 200 10)(font "Arial" ))
-		(text "first_transmit_start_counter_48k_i[22..0]" (rect 21 347 221 357)(font "Arial" ))
+		(text "first_transmit_start_counter_44k1_i[22..0]" (rect 0 0 206 10)(font "Arial" ))
+		(text "first_transmit_start_counter_44k1_i[22..0]" (rect 21 347 227 357)(font "Arial" ))
 		(line (pt 0 352)(pt 16 352)(line_width 3))
 	)
 	(port
 		(pt 0 368)
 		(input)
-		(text "first_transmit_start_counter_44k1_i[22..0]" (rect 0 0 206 10)(font "Arial" ))
-		(text "first_transmit_start_counter_44k1_i[22..0]" (rect 21 363 227 373)(font "Arial" ))
+		(text "wd_aes_clk_timeout_i[5..0]" (rect 0 0 133 10)(font "Arial" ))
+		(text "wd_aes_clk_timeout_i[5..0]" (rect 21 363 154 373)(font "Arial" ))
 		(line (pt 0 368)(pt 16 368)(line_width 3))
 	)
 	(port
 		(pt 0 384)
 		(input)
-		(text "wd_aes_clk_timeout_i[5..0]" (rect 0 0 133 10)(font "Arial" ))
-		(text "wd_aes_clk_timeout_i[5..0]" (rect 21 379 154 389)(font "Arial" ))
+		(text "wd_aes_rx_dv_timeout_i[14..0]" (rect 0 0 153 10)(font "Arial" ))
+		(text "wd_aes_rx_dv_timeout_i[14..0]" (rect 21 379 174 389)(font "Arial" ))
 		(line (pt 0 384)(pt 16 384)(line_width 3))
 	)
 	(port
 		(pt 0 400)
 		(input)
-		(text "wd_aes_rx_dv_timeout_i[14..0]" (rect 0 0 153 10)(font "Arial" ))
-		(text "wd_aes_rx_dv_timeout_i[14..0]" (rect 21 395 174 405)(font "Arial" ))
+		(text "mdix_timer_1ms_reference_i[16..0]" (rect 0 0 174 10)(font "Arial" ))
+		(text "mdix_timer_1ms_reference_i[16..0]" (rect 21 395 195 405)(font "Arial" ))
 		(line (pt 0 400)(pt 16 400)(line_width 3))
 	)
 	(port
 		(pt 0 416)
 		(input)
-		(text "mdix_timer_1ms_reference_i[16..0]" (rect 0 0 174 10)(font "Arial" ))
-		(text "mdix_timer_1ms_reference_i[16..0]" (rect 21 411 195 421)(font "Arial" ))
+		(text "aes_clk_ok_counter_reference_i[19..0]" (rect 0 0 191 10)(font "Arial" ))
+		(text "aes_clk_ok_counter_reference_i[19..0]" (rect 21 411 212 421)(font "Arial" ))
 		(line (pt 0 416)(pt 16 416)(line_width 3))
 	)
 	(port
 		(pt 0 432)
 		(input)
-		(text "aes_clk_ok_counter_reference_i[19..0]" (rect 0 0 191 10)(font "Arial" ))
-		(text "aes_clk_ok_counter_reference_i[19..0]" (rect 21 427 212 437)(font "Arial" ))
+		(text "mult_clk625_48k_i[30..0]" (rect 0 0 122 10)(font "Arial" ))
+		(text "mult_clk625_48k_i[30..0]" (rect 21 427 143 437)(font "Arial" ))
 		(line (pt 0 432)(pt 16 432)(line_width 3))
 	)
 	(port
 		(pt 0 448)
 		(input)
-		(text "mult_clk625_48k_i[31..0]" (rect 0 0 122 10)(font "Arial" ))
-		(text "mult_clk625_48k_i[31..0]" (rect 21 443 143 453)(font "Arial" ))
+		(text "mult_clk625_44k1_i[30..0]" (rect 0 0 128 10)(font "Arial" ))
+		(text "mult_clk625_44k1_i[30..0]" (rect 21 443 149 453)(font "Arial" ))
 		(line (pt 0 448)(pt 16 448)(line_width 3))
 	)
 	(port
 		(pt 0 464)
 		(input)
-		(text "mult_clk625_44k1_i[31..0]" (rect 0 0 128 10)(font "Arial" ))
-		(text "mult_clk625_44k1_i[31..0]" (rect 21 459 149 469)(font "Arial" ))
+		(text "uart_clks_per_bit_i[15..0]" (rect 0 0 123 10)(font "Arial" ))
+		(text "uart_clks_per_bit_i[15..0]" (rect 21 459 144 469)(font "Arial" ))
 		(line (pt 0 464)(pt 16 464)(line_width 3))
 	)
 	(port
 		(pt 0 480)
 		(input)
-		(text "uart_clks_per_bit_i[9..0]" (rect 0 0 118 10)(font "Arial" ))
-		(text "uart_clks_per_bit_i[9..0]" (rect 21 475 139 485)(font "Arial" ))
+		(text "uart_timeout_clks_i[23..0]" (rect 0 0 127 10)(font "Arial" ))
+		(text "uart_timeout_clks_i[23..0]" (rect 21 475 148 485)(font "Arial" ))
 		(line (pt 0 480)(pt 16 480)(line_width 3))
-	)
-	(port
-		(pt 0 496)
-		(input)
-		(text "uart_timeout_clks_i[19..0]" (rect 0 0 127 10)(font "Arial" ))
-		(text "uart_timeout_clks_i[19..0]" (rect 21 491 148 501)(font "Arial" ))
-		(line (pt 0 496)(pt 16 496)(line_width 3))
 	)
 	(port
 		(pt 360 32)
@@ -5571,8 +4844,8 @@ on the Quartus Prime software download page.
 	(port
 		(pt 360 160)
 		(output)
-		(text "pll_mult_value_o[31..0]" (rect 0 0 114 10)(font "Arial" ))
-		(text "pll_mult_value_o[31..0]" (rect 243 155 357 165)(font "Arial" ))
+		(text "pll_mult_value_o[30..0]" (rect 0 0 114 10)(font "Arial" ))
+		(text "pll_mult_value_o[30..0]" (rect 243 155 357 165)(font "Arial" ))
 		(line (pt 360 160)(pt 344 160)(line_width 3))
 	)
 	(port
@@ -5645,8 +4918,618 @@ on the Quartus Prime software download page.
 		(text "uart_o" (rect 314 315 344 325)(font "Arial" ))
 		(line (pt 360 320)(pt 344 320))
 	)
+	(port
+		(pt 360 336)
+		(output)
+		(text "uart_overflow_o" (rect 0 0 79 10)(font "Arial" ))
+		(text "uart_overflow_o" (rect 273 331 352 341)(font "Arial" ))
+		(line (pt 360 336)(pt 344 336))
+	)
+	(parameter
+		"G_SUPPORT_44K1"
+		"true"
+		""
+		(type "PARAMETER_ENUM")	)
+	(parameter
+		"G_UART_AUX"
+		"true"
+		""
+		(type "PARAMETER_ENUM")	)
+	(parameter
+		"G_TDM_AUX"
+		"true"
+		""
+		(type "PARAMETER_ENUM")	)
+	(parameter
+		"G_UART_FIFO_AW"
+		"11"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"G_FSYNC_DELAY"
+		"1"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"G_TX_LEAD_ADJ"
+		"0"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"G_SIM_ASSM_SAMPLES"
+		"2048"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
 		(rectangle (rect 16 16 344 512))
+	)
+	(annotation_block (parameter)(rect 696 1784 951 1888))
+)
+(symbol
+	(rect 2472 1192 2832 1720)
+	(text "aes50_top" (rect 5 0 55 10)(font "Arial" ))
+	(text "inst16" (rect 8 512 37 522)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk50_i" (rect 0 0 34 10)(font "Arial" ))
+		(text "clk50_i" (rect 21 27 55 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "rst_i" (rect 0 0 21 10)(font "Arial" ))
+		(text "rst_i" (rect 21 43 42 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "fs_mode_i[1..0]" (rect 0 0 77 10)(font "Arial" ))
+		(text "fs_mode_i[1..0]" (rect 21 59 98 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 3))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "sys_mode_i[1..0]" (rect 0 0 86 10)(font "Arial" ))
+		(text "sys_mode_i[1..0]" (rect 21 75 107 85)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 3))
+	)
+	(port
+		(pt 0 96)
+		(input)
+		(text "tdm8_i2s_mode_i" (rect 0 0 86 10)(font "Arial" ))
+		(text "tdm8_i2s_mode_i" (rect 21 91 107 101)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96))
+	)
+	(port
+		(pt 0 112)
+		(input)
+		(text "aux_tx_tdm_uart_select_i" (rect 0 0 126 10)(font "Arial" ))
+		(text "aux_tx_tdm_uart_select_i" (rect 21 107 147 117)(font "Arial" ))
+		(line (pt 0 112)(pt 16 112))
+	)
+	(port
+		(pt 0 128)
+		(input)
+		(text "rmii_crs_dv_i" (rect 0 0 66 10)(font "Arial" ))
+		(text "rmii_crs_dv_i" (rect 21 123 87 133)(font "Arial" ))
+		(line (pt 0 128)(pt 16 128))
+	)
+	(port
+		(pt 0 144)
+		(input)
+		(text "rmii_rxd_i[1..0]" (rect 0 0 73 10)(font "Arial" ))
+		(text "rmii_rxd_i[1..0]" (rect 21 139 94 149)(font "Arial" ))
+		(line (pt 0 144)(pt 16 144)(line_width 3))
+	)
+	(port
+		(pt 0 160)
+		(input)
+		(text "aes50_clk_a_rx_i" (rect 0 0 84 10)(font "Arial" ))
+		(text "aes50_clk_a_rx_i" (rect 21 155 105 165)(font "Arial" ))
+		(line (pt 0 160)(pt 16 160))
+	)
+	(port
+		(pt 0 176)
+		(input)
+		(text "aes50_clk_b_rx_i" (rect 0 0 84 10)(font "Arial" ))
+		(text "aes50_clk_b_rx_i" (rect 21 171 105 181)(font "Arial" ))
+		(line (pt 0 176)(pt 16 176))
+	)
+	(port
+		(pt 0 192)
+		(input)
+		(text "clk_1024xfs_from_pll_i" (rect 0 0 114 10)(font "Arial" ))
+		(text "clk_1024xfs_from_pll_i" (rect 21 187 135 197)(font "Arial" ))
+		(line (pt 0 192)(pt 16 192))
+	)
+	(port
+		(pt 0 208)
+		(input)
+		(text "pll_lock_n_i" (rect 0 0 56 10)(font "Arial" ))
+		(text "pll_lock_n_i" (rect 21 203 77 213)(font "Arial" ))
+		(line (pt 0 208)(pt 16 208))
+	)
+	(port
+		(pt 0 224)
+		(input)
+		(text "pll_init_busy_i" (rect 0 0 69 10)(font "Arial" ))
+		(text "pll_init_busy_i" (rect 21 219 90 229)(font "Arial" ))
+		(line (pt 0 224)(pt 16 224))
+	)
+	(port
+		(pt 0 240)
+		(input)
+		(text "wclk_readback_i" (rect 0 0 80 10)(font "Arial" ))
+		(text "wclk_readback_i" (rect 21 235 101 245)(font "Arial" ))
+		(line (pt 0 240)(pt 16 240))
+	)
+	(port
+		(pt 0 256)
+		(input)
+		(text "bclk_readback_i" (rect 0 0 79 10)(font "Arial" ))
+		(text "bclk_readback_i" (rect 21 251 100 261)(font "Arial" ))
+		(line (pt 0 256)(pt 16 256))
+	)
+	(port
+		(pt 0 272)
+		(input)
+		(text "tdm_i[6..0]" (rect 0 0 53 10)(font "Arial" ))
+		(text "tdm_i[6..0]" (rect 21 267 74 277)(font "Arial" ))
+		(line (pt 0 272)(pt 16 272)(line_width 3))
+	)
+	(port
+		(pt 0 288)
+		(input)
+		(text "i2s_i" (rect 0 0 22 10)(font "Arial" ))
+		(text "i2s_i" (rect 21 283 43 293)(font "Arial" ))
+		(line (pt 0 288)(pt 16 288))
+	)
+	(port
+		(pt 0 304)
+		(input)
+		(text "uart_i" (rect 0 0 27 10)(font "Arial" ))
+		(text "uart_i" (rect 21 299 48 309)(font "Arial" ))
+		(line (pt 0 304)(pt 16 304))
+	)
+	(port
+		(pt 0 320)
+		(input)
+		(text "debug_out_signal_pulse_len_i[19..0]" (rect 0 0 177 10)(font "Arial" ))
+		(text "debug_out_signal_pulse_len_i[19..0]" (rect 21 315 198 325)(font "Arial" ))
+		(line (pt 0 320)(pt 16 320)(line_width 3))
+	)
+	(port
+		(pt 0 336)
+		(input)
+		(text "first_transmit_start_counter_48k_i[22..0]" (rect 0 0 200 10)(font "Arial" ))
+		(text "first_transmit_start_counter_48k_i[22..0]" (rect 21 331 221 341)(font "Arial" ))
+		(line (pt 0 336)(pt 16 336)(line_width 3))
+	)
+	(port
+		(pt 0 352)
+		(input)
+		(text "first_transmit_start_counter_44k1_i[22..0]" (rect 0 0 206 10)(font "Arial" ))
+		(text "first_transmit_start_counter_44k1_i[22..0]" (rect 21 347 227 357)(font "Arial" ))
+		(line (pt 0 352)(pt 16 352)(line_width 3))
+	)
+	(port
+		(pt 0 368)
+		(input)
+		(text "wd_aes_clk_timeout_i[5..0]" (rect 0 0 133 10)(font "Arial" ))
+		(text "wd_aes_clk_timeout_i[5..0]" (rect 21 363 154 373)(font "Arial" ))
+		(line (pt 0 368)(pt 16 368)(line_width 3))
+	)
+	(port
+		(pt 0 384)
+		(input)
+		(text "wd_aes_rx_dv_timeout_i[14..0]" (rect 0 0 153 10)(font "Arial" ))
+		(text "wd_aes_rx_dv_timeout_i[14..0]" (rect 21 379 174 389)(font "Arial" ))
+		(line (pt 0 384)(pt 16 384)(line_width 3))
+	)
+	(port
+		(pt 0 400)
+		(input)
+		(text "mdix_timer_1ms_reference_i[16..0]" (rect 0 0 174 10)(font "Arial" ))
+		(text "mdix_timer_1ms_reference_i[16..0]" (rect 21 395 195 405)(font "Arial" ))
+		(line (pt 0 400)(pt 16 400)(line_width 3))
+	)
+	(port
+		(pt 0 416)
+		(input)
+		(text "aes_clk_ok_counter_reference_i[19..0]" (rect 0 0 191 10)(font "Arial" ))
+		(text "aes_clk_ok_counter_reference_i[19..0]" (rect 21 411 212 421)(font "Arial" ))
+		(line (pt 0 416)(pt 16 416)(line_width 3))
+	)
+	(port
+		(pt 0 432)
+		(input)
+		(text "mult_clk625_48k_i[30..0]" (rect 0 0 122 10)(font "Arial" ))
+		(text "mult_clk625_48k_i[30..0]" (rect 21 427 143 437)(font "Arial" ))
+		(line (pt 0 432)(pt 16 432)(line_width 3))
+	)
+	(port
+		(pt 0 448)
+		(input)
+		(text "mult_clk625_44k1_i[30..0]" (rect 0 0 128 10)(font "Arial" ))
+		(text "mult_clk625_44k1_i[30..0]" (rect 21 443 149 453)(font "Arial" ))
+		(line (pt 0 448)(pt 16 448)(line_width 3))
+	)
+	(port
+		(pt 0 464)
+		(input)
+		(text "uart_clks_per_bit_i[15..0]" (rect 0 0 123 10)(font "Arial" ))
+		(text "uart_clks_per_bit_i[15..0]" (rect 21 459 144 469)(font "Arial" ))
+		(line (pt 0 464)(pt 16 464)(line_width 3))
+	)
+	(port
+		(pt 0 480)
+		(input)
+		(text "uart_timeout_clks_i[23..0]" (rect 0 0 127 10)(font "Arial" ))
+		(text "uart_timeout_clks_i[23..0]" (rect 21 475 148 485)(font "Arial" ))
+		(line (pt 0 480)(pt 16 480)(line_width 3))
+	)
+	(port
+		(pt 360 32)
+		(output)
+		(text "rmii_tx_en_o" (rect 0 0 62 10)(font "Arial" ))
+		(text "rmii_tx_en_o" (rect 287 27 349 37)(font "Arial" ))
+		(line (pt 360 32)(pt 344 32))
+	)
+	(port
+		(pt 360 48)
+		(output)
+		(text "rmii_txd_o[1..0]" (rect 0 0 76 10)(font "Arial" ))
+		(text "rmii_txd_o[1..0]" (rect 275 43 351 53)(font "Arial" ))
+		(line (pt 360 48)(pt 344 48)(line_width 3))
+	)
+	(port
+		(pt 360 64)
+		(output)
+		(text "phy_rst_n_o" (rect 0 0 61 10)(font "Arial" ))
+		(text "phy_rst_n_o" (rect 288 59 349 69)(font "Arial" ))
+		(line (pt 360 64)(pt 344 64))
+	)
+	(port
+		(pt 360 80)
+		(output)
+		(text "aes50_clk_a_tx_o" (rect 0 0 88 10)(font "Arial" ))
+		(text "aes50_clk_a_tx_o" (rect 265 75 353 85)(font "Arial" ))
+		(line (pt 360 80)(pt 344 80))
+	)
+	(port
+		(pt 360 96)
+		(output)
+		(text "aes50_clk_a_tx_en_o" (rect 0 0 106 10)(font "Arial" ))
+		(text "aes50_clk_a_tx_en_o" (rect 250 91 356 101)(font "Arial" ))
+		(line (pt 360 96)(pt 344 96))
+	)
+	(port
+		(pt 360 112)
+		(output)
+		(text "aes50_clk_b_tx_o" (rect 0 0 88 10)(font "Arial" ))
+		(text "aes50_clk_b_tx_o" (rect 265 107 353 117)(font "Arial" ))
+		(line (pt 360 112)(pt 344 112))
+	)
+	(port
+		(pt 360 128)
+		(output)
+		(text "aes50_clk_b_tx_en_o" (rect 0 0 106 10)(font "Arial" ))
+		(text "aes50_clk_b_tx_en_o" (rect 250 123 356 133)(font "Arial" ))
+		(line (pt 360 128)(pt 344 128))
+	)
+	(port
+		(pt 360 144)
+		(output)
+		(text "clk_to_pll_o" (rect 0 0 57 10)(font "Arial" ))
+		(text "clk_to_pll_o" (rect 291 139 348 149)(font "Arial" ))
+		(line (pt 360 144)(pt 344 144))
+	)
+	(port
+		(pt 360 160)
+		(output)
+		(text "pll_mult_value_o[30..0]" (rect 0 0 114 10)(font "Arial" ))
+		(text "pll_mult_value_o[30..0]" (rect 243 155 357 165)(font "Arial" ))
+		(line (pt 360 160)(pt 344 160)(line_width 3))
+	)
+	(port
+		(pt 360 176)
+		(output)
+		(text "mclk_o" (rect 0 0 35 10)(font "Arial" ))
+		(text "mclk_o" (rect 310 171 345 181)(font "Arial" ))
+		(line (pt 360 176)(pt 344 176))
+	)
+	(port
+		(pt 360 192)
+		(output)
+		(text "wclk_o" (rect 0 0 33 10)(font "Arial" ))
+		(text "wclk_o" (rect 312 187 345 197)(font "Arial" ))
+		(line (pt 360 192)(pt 344 192))
+	)
+	(port
+		(pt 360 208)
+		(output)
+		(text "bclk_o" (rect 0 0 31 10)(font "Arial" ))
+		(text "bclk_o" (rect 313 203 344 213)(font "Arial" ))
+		(line (pt 360 208)(pt 344 208))
+	)
+	(port
+		(pt 360 224)
+		(output)
+		(text "wclk_out_en_o" (rect 0 0 71 10)(font "Arial" ))
+		(text "wclk_out_en_o" (rect 279 219 350 229)(font "Arial" ))
+		(line (pt 360 224)(pt 344 224))
+	)
+	(port
+		(pt 360 240)
+		(output)
+		(text "bclk_out_en_o" (rect 0 0 70 10)(font "Arial" ))
+		(text "bclk_out_en_o" (rect 280 235 350 245)(font "Arial" ))
+		(line (pt 360 240)(pt 344 240))
+	)
+	(port
+		(pt 360 256)
+		(output)
+		(text "tdm_o[6..0]" (rect 0 0 56 10)(font "Arial" ))
+		(text "tdm_o[6..0]" (rect 292 251 348 261)(font "Arial" ))
+		(line (pt 360 256)(pt 344 256)(line_width 3))
+	)
+	(port
+		(pt 360 272)
+		(output)
+		(text "i2s_o" (rect 0 0 25 10)(font "Arial" ))
+		(text "i2s_o" (rect 318 267 343 277)(font "Arial" ))
+		(line (pt 360 272)(pt 344 272))
+	)
+	(port
+		(pt 360 288)
+		(output)
+		(text "aes_ok_o" (rect 0 0 47 10)(font "Arial" ))
+		(text "aes_ok_o" (rect 300 283 347 293)(font "Arial" ))
+		(line (pt 360 288)(pt 344 288))
+	)
+	(port
+		(pt 360 304)
+		(output)
+		(text "dbg_o[7..0]" (rect 0 0 55 10)(font "Arial" ))
+		(text "dbg_o[7..0]" (rect 293 299 348 309)(font "Arial" ))
+		(line (pt 360 304)(pt 344 304)(line_width 3))
+	)
+	(port
+		(pt 360 320)
+		(output)
+		(text "uart_o" (rect 0 0 30 10)(font "Arial" ))
+		(text "uart_o" (rect 314 315 344 325)(font "Arial" ))
+		(line (pt 360 320)(pt 344 320))
+	)
+	(port
+		(pt 360 336)
+		(output)
+		(text "uart_overflow_o" (rect 0 0 79 10)(font "Arial" ))
+		(text "uart_overflow_o" (rect 273 331 352 341)(font "Arial" ))
+		(line (pt 360 336)(pt 344 336))
+	)
+	(parameter
+		"G_SUPPORT_44K1"
+		"true"
+		""
+		(type "PARAMETER_ENUM")	)
+	(parameter
+		"G_UART_AUX"
+		"true"
+		""
+		(type "PARAMETER_ENUM")	)
+	(parameter
+		"G_TDM_AUX"
+		"true"
+		""
+		(type "PARAMETER_ENUM")	)
+	(parameter
+		"G_UART_FIFO_AW"
+		"11"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"G_FSYNC_DELAY"
+		"1"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"G_TX_LEAD_ADJ"
+		"0"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(parameter
+		"G_SIM_ASSM_SAMPLES"
+		"2048"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 344 512))
+	)
+	(annotation_block (parameter)(rect 2520 1736 2775 1840))
+)
+(symbol
+	(rect 3024 1288 3056 1320)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst88" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 3024 1320 3056 1352)
+	(text "GND" (rect 7 8 16 29)(font "Arial" (font_size 6))(vertical))
+	(text "inst89" (rect 1 3 11 31)(font "DejaVu Sans Condensed" )(vertical)(invisible))
+	(port
+		(pt 32 16)
+		(output)
+		(text "1" (rect 18 0 23 11)(font "Courier New" (bold))(invisible))
+		(text "1" (rect 21 18 32 23)(font "Courier New" (bold))(vertical)(invisible))
+		(line (pt 24 16)(pt 32 16))
+	)
+	(drawing
+		(line (pt 24 8)(pt 16 16))
+		(line (pt 16 16)(pt 24 24))
+		(line (pt 24 8)(pt 24 24))
+	)
+	(rotate270)
+)
+(symbol
+	(rect 3112 1360 3160 1392)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst90" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 3112 1392 3160 1424)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst91" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 3112 1424 3160 1456)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst92" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 3112 1456 3160 1488)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst93" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 3112 1488 3160 1520)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst94" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 3112 1520 3160 1552)
+	(text "WIRE" (rect 1 0 24 9)(font "Arial" (font_size 6)))
+	(text "inst95" (rect 3 21 31 31)(font "DejaVu Sans Condensed" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 18)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 18)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 25)(pt 32 16))
 	)
 )
 (connector
@@ -6142,12 +6025,6 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "audio_output[479..0]" (rect 2650 496 2749 506)(font "DejaVu Sans Condensed" ))
-	(pt 2528 504)
-	(pt 2752 504)
-	(bus)
-)
-(connector
 	(text "tdm_output[0]" (rect 3114 384 3181 394)(font "DejaVu Sans Condensed" ))
 	(pt 3104 392)
 	(pt 3192 392)
@@ -6361,20 +6238,8 @@ on the Quartus Prime software download page.
 	(pt 712 616)
 )
 (connector
-	(text "tdm_input[19..0]" (rect 642 624 721 634)(font "DejaVu Sans Condensed" ))
-	(pt 632 632)
-	(pt 712 632)
-	(bus)
-)
-(connector
 	(pt 1088 600)
 	(pt 1224 600)
-	(bus)
-)
-(connector
-	(text "tdm_output[19..0]" (rect 3146 464 3232 474)(font "DejaVu Sans Condensed" ))
-	(pt 3128 472)
-	(pt 3232 472)
 	(bus)
 )
 (connector
@@ -6741,692 +6606,6 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "mac_tx_clk" (rect 2538 1856 2589 1866)(font "DejaVu Sans Condensed" ))
-	(pt 2632 1864)
-	(pt 2528 1864)
-)
-(connector
-	(text "mac_tx_busy" (rect 2538 1872 2599 1882)(font "DejaVu Sans Condensed" ))
-	(pt 2632 1880)
-	(pt 2528 1880)
-)
-(connector
-	(text "mac_tx_byte_sent" (rect 2538 1888 2622 1898)(font "DejaVu Sans Condensed" ))
-	(pt 2632 1896)
-	(pt 2528 1896)
-)
-(connector
-	(text "tdm_fs" (rect 2538 2160 2569 2170)(font "DejaVu Sans Condensed" ))
-	(pt 2632 2168)
-	(pt 2528 2168)
-)
-(connector
-	(pt 2504 1784)
-	(pt 2632 1784)
-	(bus)
-)
-(connector
-	(pt 2504 1800)
-	(pt 2632 1800)
-	(bus)
-)
-(connector
-	(pt 2504 1816)
-	(pt 2632 1816)
-	(bus)
-)
-(connector
-	(pt 2504 1832)
-	(pt 2632 1832)
-	(bus)
-)
-(connector
-	(pt 2504 1848)
-	(pt 2632 1848)
-	(bus)
-)
-(connector
-	(text "clk_50MHz" (rect 3450 1360 3499 1370)(font "DejaVu Sans Condensed" ))
-	(pt 3552 1368)
-	(pt 3440 1368)
-)
-(connector
-	(text "clk_50MHz" (rect 3450 1296 3499 1306)(font "DejaVu Sans Condensed" ))
-	(pt 3552 1304)
-	(pt 3440 1304)
-)
-(connector
-	(pt 3424 1320)
-	(pt 3552 1320)
-)
-(connector
-	(pt 3552 1272)
-	(pt 3512 1272)
-)
-(connector
-	(text "mac_tx_clk" (rect 2554 1400 2610 1410)(font "Arial" ))
-	(pt 2544 1416)
-	(pt 2648 1416)
-)
-(connector
-	(text "mac_tx_busy" (rect 2554 1416 2621 1426)(font "Arial" ))
-	(pt 2544 1432)
-	(pt 2648 1432)
-)
-(connector
-	(text "mac_tx_byte_sent" (rect 2554 1432 2646 1442)(font "Arial" ))
-	(pt 2544 1448)
-	(pt 2648 1448)
-)
-(connector
-	(pt 2520 1400)
-	(pt 2648 1400)
-	(bus)
-)
-(connector
-	(pt 2472 1464)
-	(pt 2648 1464)
-	(bus)
-)
-(connector
-	(pt 2472 1480)
-	(pt 2648 1480)
-)
-(connector
-	(pt 2520 1288)
-	(pt 2632 1288)
-	(bus)
-)
-(connector
-	(pt 2912 1288)
-	(pt 3552 1288)
-	(bus)
-)
-(connector
-	(text "clk_12_288MHz" (rect 2138 1448 2214 1459)(font "Intel Clear" ))
-	(pt 2240 1464)
-	(pt 2128 1464)
-)
-(connector
-	(text "tdm_fs" (rect 2138 1464 2171 1475)(font "Intel Clear" ))
-	(pt 2240 1480)
-	(pt 2128 1480)
-)
-(connector
-	(text "audio_output[359..336]" (rect 2138 1480 2250 1491)(font "Intel Clear" ))
-	(pt 2240 1496)
-	(pt 2128 1496)
-	(bus)
-)
-(connector
-	(text "audio_output[383..360]" (rect 2138 1496 2250 1507)(font "Intel Clear" ))
-	(pt 2240 1512)
-	(pt 2128 1512)
-	(bus)
-)
-(connector
-	(text "audio_output[407..384]" (rect 2138 1512 2250 1523)(font "Intel Clear" ))
-	(pt 2240 1528)
-	(pt 2128 1528)
-	(bus)
-)
-(connector
-	(text "audio_output[431..408]" (rect 2138 1528 2250 1539)(font "Intel Clear" ))
-	(pt 2240 1544)
-	(pt 2128 1544)
-	(bus)
-)
-(connector
-	(text "audio_output[455..432]" (rect 2138 1544 2250 1555)(font "Intel Clear" ))
-	(pt 2240 1560)
-	(pt 2128 1560)
-	(bus)
-)
-(connector
-	(text "audio_output[479..456]" (rect 2138 1560 2250 1571)(font "Intel Clear" ))
-	(pt 2240 1576)
-	(pt 2128 1576)
-	(bus)
-)
-(connector
-	(text "audio_output[503..480]" (rect 2138 1576 2250 1587)(font "Intel Clear" ))
-	(pt 2240 1592)
-	(pt 2128 1592)
-	(bus)
-)
-(connector
-	(text "audio_output[527..504]" (rect 2138 1592 2250 1603)(font "Intel Clear" ))
-	(pt 2240 1608)
-	(pt 2128 1608)
-	(bus)
-)
-(connector
-	(text "clk_50MHz" (rect 3138 1456 3187 1466)(font "DejaVu Sans Condensed" ))
-	(pt 3128 1464)
-	(pt 3224 1464)
-)
-(connector
-	(text "rst" (rect 3138 1472 3149 1482)(font "DejaVu Sans Condensed" ))
-	(pt 3128 1480)
-	(pt 3224 1480)
-)
-(connector
-	(pt 2632 2040)
-	(pt 2448 2040)
-	(bus)
-)
-(connector
-	(pt 2632 2056)
-	(pt 2456 2056)
-	(bus)
-)
-(connector
-	(pt 2632 2072)
-	(pt 2464 2072)
-	(bus)
-)
-(connector
-	(pt 2632 2088)
-	(pt 2472 2088)
-	(bus)
-)
-(connector
-	(pt 2632 2104)
-	(pt 2480 2104)
-	(bus)
-)
-(connector
-	(pt 2632 2120)
-	(pt 2488 2120)
-	(bus)
-)
-(connector
-	(pt 2632 2136)
-	(pt 2496 2136)
-	(bus)
-)
-(connector
-	(pt 2632 2152)
-	(pt 2504 2152)
-	(bus)
-)
-(connector
-	(pt 2448 2040)
-	(pt 2448 2088)
-	(bus)
-)
-(connector
-	(pt 2456 2056)
-	(pt 2456 2104)
-	(bus)
-)
-(connector
-	(pt 2464 2072)
-	(pt 2464 2120)
-	(bus)
-)
-(connector
-	(pt 2472 2088)
-	(pt 2472 2136)
-	(bus)
-)
-(connector
-	(pt 2480 2104)
-	(pt 2480 2152)
-	(bus)
-)
-(connector
-	(pt 2488 2120)
-	(pt 2488 2168)
-	(bus)
-)
-(connector
-	(pt 2496 2136)
-	(pt 2496 2184)
-	(bus)
-)
-(connector
-	(pt 2504 2152)
-	(pt 2504 2200)
-	(bus)
-)
-(connector
-	(text "clk_12_288MHz" (rect 2106 2072 2182 2083)(font "Intel Clear" ))
-	(pt 2096 2088)
-	(pt 2200 2088)
-)
-(connector
-	(text "tdm_fs" (rect 2106 2088 2139 2099)(font "Intel Clear" ))
-	(pt 2096 2104)
-	(pt 2200 2104)
-)
-(connector
-	(text "audio_output[95..72]" (rect 2106 2104 2206 2115)(font "Intel Clear" ))
-	(pt 2096 2120)
-	(pt 2200 2120)
-	(bus)
-)
-(connector
-	(pt 2448 2088)
-	(pt 2416 2088)
-	(bus)
-)
-(connector
-	(pt 2456 2104)
-	(pt 2416 2104)
-	(bus)
-)
-(connector
-	(pt 2464 2120)
-	(pt 2416 2120)
-	(bus)
-)
-(connector
-	(pt 2472 2136)
-	(pt 2416 2136)
-	(bus)
-)
-(connector
-	(pt 2480 2152)
-	(pt 2416 2152)
-	(bus)
-)
-(connector
-	(pt 2488 2168)
-	(pt 2416 2168)
-	(bus)
-)
-(connector
-	(pt 2496 2184)
-	(pt 2416 2184)
-	(bus)
-)
-(connector
-	(pt 2504 2200)
-	(pt 2416 2200)
-	(bus)
-)
-(connector
-	(text "clk_12_288MHz" (rect 2106 1896 2182 1907)(font "Intel Clear" ))
-	(pt 2096 1912)
-	(pt 2200 1912)
-)
-(connector
-	(text "tdm_fs" (rect 2106 1912 2139 1923)(font "Intel Clear" ))
-	(pt 2096 1928)
-	(pt 2200 1928)
-)
-(connector
-	(text "audio_output[71..48]" (rect 2106 1928 2206 1939)(font "Intel Clear" ))
-	(pt 2096 1944)
-	(pt 2200 1944)
-	(bus)
-)
-(connector
-	(pt 2416 1912)
-	(pt 2632 1912)
-	(bus)
-)
-(connector
-	(pt 2416 1928)
-	(pt 2632 1928)
-	(bus)
-)
-(connector
-	(pt 2416 1944)
-	(pt 2632 1944)
-	(bus)
-)
-(connector
-	(pt 2416 1960)
-	(pt 2632 1960)
-	(bus)
-)
-(connector
-	(pt 2416 1976)
-	(pt 2632 1976)
-	(bus)
-)
-(connector
-	(pt 2416 1992)
-	(pt 2632 1992)
-	(bus)
-)
-(connector
-	(pt 2416 2008)
-	(pt 2632 2008)
-	(bus)
-)
-(connector
-	(pt 2416 2024)
-	(pt 2632 2024)
-	(bus)
-)
-(connector
-	(pt 3512 1208)
-	(pt 3176 1208)
-)
-(connector
-	(pt 3512 1272)
-	(pt 3512 1208)
-)
-(connector
-	(pt 2840 1192)
-	(pt 2960 1192)
-)
-(connector
-	(text "online" (rect 2906 1200 2934 1210)(font "DejaVu Sans Condensed" ))
-	(pt 2896 1208)
-	(pt 2960 1208)
-)
-(connector
-	(text "clk_16MHz" (rect 2618 1184 2667 1194)(font "DejaVu Sans Condensed" ))
-	(pt 2608 1192)
-	(pt 2688 1192)
-)
-(connector
-	(text "mac_tx_byte_sent" (rect 3834 1400 3926 1410)(font "Arial" ))
-	(pt 3824 1416)
-	(pt 3912 1416)
-)
-(connector
-	(text "mac_tx_busy" (rect 3834 1416 3901 1426)(font "Arial" ))
-	(pt 3912 1432)
-	(pt 3824 1432)
-)
-(connector
-	(text "mac_tx_clk" (rect 3834 1368 3890 1378)(font "Arial" ))
-	(pt 3912 1384)
-	(pt 3824 1384)
-)
-(connector
-	(pt 3512 1584)
-	(pt 3512 1384)
-)
-(connector
-	(pt 3552 1384)
-	(pt 3512 1384)
-)
-(connector
-	(pt 3528 1600)
-	(pt 3528 1400)
-	(bus)
-)
-(connector
-	(pt 3552 1400)
-	(pt 3528 1400)
-	(bus)
-)
-(connector
-	(pt 3512 1584)
-	(pt 3024 1584)
-)
-(connector
-	(pt 3024 1400)
-	(pt 3024 1584)
-)
-(connector
-	(pt 3024 1400)
-	(pt 2904 1400)
-)
-(connector
-	(pt 3528 1600)
-	(pt 3016 1600)
-	(bus)
-)
-(connector
-	(pt 3016 1416)
-	(pt 3016 1600)
-	(bus)
-)
-(connector
-	(pt 3016 1416)
-	(pt 2904 1416)
-	(bus)
-)
-(connector
-	(pt 2904 1432)
-	(pt 2912 1432)
-)
-(connector
-	(pt 2192 1624)
-	(pt 2240 1624)
-)
-(connector
-	(pt 2912 1432)
-	(pt 2912 1696)
-)
-(connector
-	(pt 2192 1624)
-	(pt 2192 1696)
-)
-(connector
-	(pt 2912 1696)
-	(pt 2192 1696)
-)
-(connector
-	(pt 3056 1784)
-	(pt 3056 1768)
-)
-(connector
-	(pt 3056 1736)
-	(pt 3088 1736)
-)
-(connector
-	(pt 3056 1720)
-	(pt 3088 1720)
-)
-(connector
-	(pt 3056 1752)
-	(pt 3088 1752)
-)
-(connector
-	(pt 3056 1784)
-	(pt 3088 1784)
-)
-(connector
-	(text "rst" (rect 3346 1680 3357 1690)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1688)
-	(pt 3456 1688)
-)
-(connector
-	(text "clk_50MHz" (rect 3346 1800 3395 1810)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1808)
-	(pt 3456 1808)
-)
-(connector
-	(text "rst" (rect 3346 1816 3357 1826)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1824)
-	(pt 3456 1824)
-)
-(connector
-	(text "clk_50MHz" (rect 3346 1664 3395 1674)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1672)
-	(pt 3456 1672)
-)
-(connector
-	(pt 2504 1768)
-	(pt 2520 1768)
-	(bus)
-)
-(connector
-	(pt 2520 1768)
-	(pt 2632 1768)
-	(bus)
-)
-(connector
-	(pt 2520 1288)
-	(pt 2520 1400)
-	(bus)
-)
-(connector
-	(pt 2520 1400)
-	(pt 2520 1768)
-	(bus)
-)
-(connector
-	(pt 3032 1704)
-	(pt 3056 1704)
-)
-(connector
-	(pt 3056 1704)
-	(pt 3088 1704)
-)
-(connector
-	(pt 3056 1704)
-	(pt 3056 1720)
-)
-(connector
-	(pt 3056 1720)
-	(pt 3056 1736)
-)
-(connector
-	(pt 3056 1736)
-	(pt 3056 1752)
-)
-(connector
-	(pt 3032 1768)
-	(pt 3056 1768)
-)
-(connector
-	(pt 3056 1768)
-	(pt 3088 1768)
-)
-(connector
-	(text "aes50b_rmii_rxd_in[1]" (rect 3130 1528 3232 1538)(font "DejaVu Sans Condensed" ))
-	(pt 3128 1536)
-	(pt 3208 1536)
-)
-(connector
-	(text "aes50b_rmii_rxd_in[2]" (rect 3130 1544 3232 1554)(font "DejaVu Sans Condensed" ))
-	(pt 3128 1552)
-	(pt 3208 1552)
-)
-(connector
-	(text "aes50b_rmii_rxd_in[0]" (rect 3136 1512 3238 1522)(font "DejaVu Sans Condensed" ))
-	(pt 3136 1520)
-	(pt 3216 1520)
-)
-(connector
-	(text "aes50b_rmii_rxd_in[2..0]" (rect 3128 1488 3243 1498)(font "DejaVu Sans Condensed" ))
-	(pt 3128 1496)
-	(pt 3224 1496)
-	(bus)
-)
-(connector
-	(text "aes50b_rmii_rxd[0]" (rect 3450 1328 3539 1338)(font "DejaVu Sans Condensed" ))
-	(pt 3552 1336)
-	(pt 3440 1336)
-)
-(connector
-	(text "aes50b_rmii_rxd[2..1]" (rect 3450 1344 3552 1354)(font "DejaVu Sans Condensed" ))
-	(pt 3552 1352)
-	(pt 3440 1352)
-	(bus)
-)
-(connector
-	(text "aes50b_rmii_rxd[2..0]" (rect 3402 1472 3504 1482)(font "DejaVu Sans Condensed" ))
-	(pt 3392 1480)
-	(pt 3496 1480)
-	(bus)
-)
-(connector
-	(text "aes50b_rmii_txd[2..0]" (rect 3346 1696 3448 1706)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1704)
-	(pt 3456 1704)
-	(bus)
-)
-(connector
-	(text "aes50b_phy_clk_data[1..0]" (rect 3346 1832 3472 1842)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1840)
-	(pt 3456 1840)
-	(bus)
-)
-(connector
-	(text "aes50b_phy_clk_data[0]" (rect 3346 1856 3459 1866)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1864)
-	(pt 3448 1864)
-)
-(connector
-	(text "aes50b_phy_clk_data[1]" (rect 3346 1888 3459 1898)(font "DejaVu Sans Condensed" ))
-	(pt 3336 1896)
-	(pt 3448 1896)
-)
-(connector
-	(text "aes50b_phy_clk[0..0]" (rect 3642 1816 3742 1826)(font "DejaVu Sans Condensed" ))
-	(pt 3632 1824)
-	(pt 3760 1824)
-	(bus)
-)
-(connector
-	(text "aes50b_phy_clk[0]" (rect 3658 1848 3745 1858)(font "DejaVu Sans Condensed" ))
-	(pt 3648 1856)
-	(pt 3760 1856)
-)
-(connector
-	(text "aes50b_rmii_txd_out[2..0]" (rect 3642 1680 3764 1690)(font "DejaVu Sans Condensed" ))
-	(pt 3632 1688)
-	(pt 3760 1688)
-	(bus)
-)
-(connector
-	(text "aes50b_rmii_txd_out[0]" (rect 3658 1704 3767 1714)(font "DejaVu Sans Condensed" ))
-	(pt 3648 1712)
-	(pt 3760 1712)
-)
-(connector
-	(text "aes50b_rmii_txd_out[1]" (rect 3658 1720 3767 1730)(font "DejaVu Sans Condensed" ))
-	(pt 3648 1728)
-	(pt 3760 1728)
-)
-(connector
-	(text "aes50b_rmii_txd_out[2]" (rect 3658 1736 3767 1746)(font "DejaVu Sans Condensed" ))
-	(pt 3648 1744)
-	(pt 3760 1744)
-)
-(connector
-	(text "aes50b_rmii_txd[0]" (rect 3834 1296 3923 1306)(font "DejaVu Sans Condensed" ))
-	(pt 3824 1304)
-	(pt 3936 1304)
-)
-(connector
-	(text "aes50b_rmii_txd[2..1]" (rect 3834 1312 3936 1322)(font "DejaVu Sans Condensed" ))
-	(pt 3824 1320)
-	(pt 3936 1320)
-	(bus)
-)
-(connector
-	(pt 992 1288)
-	(pt 1000 1288)
-)
-(connector
-	(pt 992 1304)
-	(pt 1000 1304)
-)
-(connector
-	(pt 992 1336)
-	(pt 1000 1336)
-)
-(connector
-	(text "aes50_fs_mode[1..0]" (rect 498 1296 597 1306)(font "DejaVu Sans Condensed" ))
-	(pt 632 1304)
-	(pt 488 1304)
-	(bus)
-)
-(connector
-	(text "clk_100MHz" (rect 498 1264 553 1274)(font "DejaVu Sans Condensed" ))
-	(pt 632 1272)
-	(pt 488 1272)
-)
-(connector
-	(pt 1232 1336)
-	(pt 1224 1336)
-)
-(connector
-	(pt 1232 1368)
-	(pt 1224 1368)
-)
-(connector
 	(text "tdm_output[14]" (rect 74 1440 147 1450)(font "DejaVu Sans Condensed" ))
 	(pt 152 1448)
 	(pt 64 1448)
@@ -7477,16 +6656,6 @@ on the Quartus Prime software download page.
 	(pt 944 1160)
 )
 (connector
-	(text "aes50a_tdm_out[6..0]" (rect 1002 1472 1105 1482)(font "DejaVu Sans Condensed" ))
-	(pt 992 1480)
-	(pt 1112 1480)
-	(bus)
-)
-(connector
-	(pt 464 1288)
-	(pt 632 1288)
-)
-(connector
 	(text "aes50a_tdm_in[0]" (rect 210 1440 293 1450)(font "DejaVu Sans Condensed" ))
 	(pt 200 1448)
 	(pt 296 1448)
@@ -7515,34 +6684,6 @@ on the Quartus Prime software download page.
 	(text "aes50a_tdm_in[5]" (rect 210 1600 293 1610)(font "DejaVu Sans Condensed" ))
 	(pt 200 1608)
 	(pt 296 1608)
-)
-(connector
-	(text "clk_100MHz" (rect 258 1280 313 1290)(font "DejaVu Sans Condensed" ))
-	(pt 312 1288)
-	(pt 248 1288)
-)
-(connector
-	(pt 632 1336)
-	(pt 624 1336)
-)
-(connector
-	(pt 992 1320)
-	(pt 1232 1320)
-)
-(connector
-	(pt 992 1352)
-	(pt 1232 1352)
-)
-(connector
-	(text "aes50a_rmii_txd[0]" (rect 1002 1248 1091 1258)(font "DejaVu Sans Condensed" ))
-	(pt 992 1256)
-	(pt 1136 1256)
-)
-(connector
-	(text "aes50a_rmii_txd[2..1]" (rect 1002 1264 1104 1274)(font "DejaVu Sans Condensed" ))
-	(pt 992 1272)
-	(pt 1136 1272)
-	(bus)
 )
 (connector
 	(text "clk_50MHz" (rect 1178 1184 1227 1194)(font "DejaVu Sans Condensed" ))
@@ -7619,219 +6760,9 @@ on the Quartus Prime software download page.
 	(bus)
 )
 (connector
-	(text "clk_50MHz" (rect 498 1248 547 1258)(font "DejaVu Sans Condensed" ))
-	(pt 632 1256)
-	(pt 488 1256)
-)
-(connector
-	(text "aes50a_debug[7..0]" (rect 1002 1520 1096 1530)(font "DejaVu Sans Condensed" ))
-	(pt 992 1528)
-	(pt 1112 1528)
-	(bus)
-)
-(connector
-	(text "aes50a_uart_tx" (rect 1002 1536 1073 1546)(font "DejaVu Sans Condensed" ))
-	(pt 1112 1544)
-	(pt 992 1544)
-)
-(connector
-	(text "clk_50MHz" (rect 1170 1736 1219 1746)(font "DejaVu Sans Condensed" ))
-	(pt 1272 1744)
-	(pt 1160 1744)
-)
-(connector
-	(text "rst" (rect 1170 1752 1181 1763)(font "Intel Clear" ))
-	(pt 1272 1760)
-	(pt 1160 1760)
-)
-(connector
-	(pt 568 1560)
-	(pt 632 1560)
-	(bus)
-)
-(connector
-	(pt 568 1576)
-	(pt 632 1576)
-	(bus)
-)
-(connector
-	(pt 568 1592)
-	(pt 632 1592)
-	(bus)
-)
-(connector
-	(pt 568 1608)
-	(pt 632 1608)
-	(bus)
-)
-(connector
-	(pt 568 1624)
-	(pt 632 1624)
-	(bus)
-)
-(connector
-	(pt 568 1640)
-	(pt 632 1640)
-	(bus)
-)
-(connector
-	(pt 568 1656)
-	(pt 632 1656)
-	(bus)
-)
-(connector
-	(pt 568 1672)
-	(pt 632 1672)
-	(bus)
-)
-(connector
-	(pt 568 1688)
-	(pt 632 1688)
-	(bus)
-)
-(connector
-	(pt 568 1528)
-	(pt 576 1528)
-)
-(connector
-	(pt 576 1528)
-	(pt 576 1544)
-)
-(connector
-	(pt 576 1544)
-	(pt 632 1544)
-)
-(connector
-	(pt 632 1528)
-	(pt 624 1528)
-)
-(connector
-	(text "aes50a_tdm_in[6..0]" (rect 498 1504 594 1514)(font "DejaVu Sans Condensed" ))
-	(pt 632 1512)
-	(pt 488 1512)
-	(bus)
-)
-(connector
-	(pt 632 1448)
-	(pt 624 1448)
-)
-(connector
-	(pt 632 1464)
-	(pt 592 1464)
-)
-(connector
-	(text "aes50a_rmii_rxd[0]" (rect 498 1360 587 1370)(font "DejaVu Sans Condensed" ))
-	(pt 632 1368)
-	(pt 488 1368)
-)
-(connector
-	(text "aes50a_rmii_rxd[2..1]" (rect 498 1376 600 1386)(font "DejaVu Sans Condensed" ))
-	(pt 632 1384)
-	(pt 488 1384)
-	(bus)
-)
-(connector
-	(pt 592 1400)
-	(pt 632 1400)
-)
-(connector
-	(pt 592 1416)
-	(pt 632 1416)
-)
-(connector
-	(pt 592 1352)
-	(pt 632 1352)
-)
-(connector
-	(pt 568 1704)
-	(pt 632 1704)
-	(bus)
-)
-(connector
-	(pt 632 1720)
-	(pt 568 1720)
-	(bus)
-)
-(connector
-	(text "tdm_input[14]" (rect 1330 1400 1396 1410)(font "DejaVu Sans Condensed" ))
-	(pt 1320 1408)
-	(pt 1400 1408)
-)
-(connector
-	(text "tdm_input[15]" (rect 1330 1432 1396 1442)(font "DejaVu Sans Condensed" ))
-	(pt 1320 1440)
-	(pt 1400 1440)
-)
-(connector
-	(text "tdm_input[16]" (rect 1330 1464 1396 1474)(font "DejaVu Sans Condensed" ))
-	(pt 1320 1472)
-	(pt 1400 1472)
-)
-(connector
-	(text "tdm_input[17]" (rect 1330 1496 1396 1506)(font "DejaVu Sans Condensed" ))
-	(pt 1320 1504)
-	(pt 1400 1504)
-)
-(connector
-	(text "tdm_input[18]" (rect 1330 1528 1396 1538)(font "DejaVu Sans Condensed" ))
-	(pt 1320 1536)
-	(pt 1400 1536)
-)
-(connector
-	(text "tdm_input[19]" (rect 1330 1560 1396 1570)(font "DejaVu Sans Condensed" ))
-	(pt 1320 1568)
-	(pt 1400 1568)
-)
-(connector
-	(text "aes50a_tdm_out[0]" (rect 1186 1400 1276 1410)(font "DejaVu Sans Condensed" ))
-	(pt 1176 1408)
-	(pt 1272 1408)
-)
-(connector
-	(text "aes50a_tdm_out[1]" (rect 1186 1432 1276 1442)(font "DejaVu Sans Condensed" ))
-	(pt 1176 1440)
-	(pt 1272 1440)
-)
-(connector
-	(text "aes50a_tdm_out[2]" (rect 1186 1464 1276 1474)(font "DejaVu Sans Condensed" ))
-	(pt 1176 1472)
-	(pt 1272 1472)
-)
-(connector
-	(text "aes50a_tdm_out[3]" (rect 1186 1496 1276 1506)(font "DejaVu Sans Condensed" ))
-	(pt 1176 1504)
-	(pt 1272 1504)
-)
-(connector
-	(text "aes50a_tdm_out[4]" (rect 1186 1528 1276 1538)(font "DejaVu Sans Condensed" ))
-	(pt 1176 1536)
-	(pt 1272 1536)
-)
-(connector
-	(text "aes50a_tdm_out[5]" (rect 1186 1560 1276 1570)(font "DejaVu Sans Condensed" ))
-	(pt 1176 1568)
-	(pt 1272 1568)
-)
-(connector
-	(text "aes50a_uart_tx" (rect 1146 1616 1217 1626)(font "DejaVu Sans Condensed" ))
-	(pt 1136 1624)
-	(pt 1232 1624)
-)
-(connector
-	(text "clk_49_152MHz" (rect 498 1424 569 1434)(font "DejaVu Sans Condensed" ))
-	(pt 632 1432)
-	(pt 488 1432)
-)
-(connector
 	(text "aes50a_tdm_in[6]" (rect 210 1632 293 1642)(font "DejaVu Sans Condensed" ))
 	(pt 192 1640)
 	(pt 296 1640)
-)
-(connector
-	(text "aes50_sys_mode[1..0]" (rect 498 1312 604 1322)(font "DejaVu Sans Condensed" ))
-	(pt 632 1320)
-	(pt 488 1320)
-	(bus)
 )
 (connector
 	(text "online" (rect 258 1296 286 1307)(font "Intel Clear" ))
@@ -7839,41 +6770,772 @@ on the Quartus Prime software download page.
 	(pt 248 1304)
 )
 (connector
-	(text "tdm_fs" (rect 498 1472 531 1483)(font "Intel Clear" ))
-	(pt 488 1480)
-	(pt 632 1480)
+	(text "clk_50MHz" (rect 514 1264 563 1274)(font "DejaVu Sans Condensed" ))
+	(pt 648 1272)
+	(pt 504 1272)
 )
 (connector
-	(text "clk_12_288MHz" (rect 498 1488 574 1499)(font "Intel Clear" ))
-	(pt 488 1496)
-	(pt 632 1496)
-)
-(connector
-	(text "aes50a_phy_clk_data[1]" (rect 1034 1752 1147 1762)(font "DejaVu Sans Condensed" ))
-	(pt 1024 1760)
-	(pt 1120 1760)
-)
-(connector
-	(text "aes50a_phy_clk_data[0]" (rect 1032 1784 1145 1794)(font "DejaVu Sans Condensed" ))
-	(pt 1032 1792)
-	(pt 1120 1792)
-)
-(connector
-	(text "aes50a_phy_clk_data[1..0]" (rect 1170 1768 1296 1778)(font "DejaVu Sans Condensed" ))
-	(pt 1272 1776)
-	(pt 1160 1776)
+	(text "aes50_fs_mode[1..0]" (rect 514 1296 613 1306)(font "DejaVu Sans Condensed" ))
+	(pt 648 1304)
+	(pt 504 1304)
 	(bus)
 )
 (connector
-	(text "aes50a_phy_clk[0..0]" (rect 1458 1744 1558 1754)(font "DejaVu Sans Condensed" ))
-	(pt 1448 1760)
+	(text "aes50_sys_mode[1..0]" (rect 514 1312 620 1322)(font "DejaVu Sans Condensed" ))
+	(pt 648 1320)
+	(pt 504 1320)
+	(bus)
+)
+(connector
+	(pt 648 1336)
+	(pt 640 1336)
+)
+(connector
+	(pt 608 1352)
+	(pt 648 1352)
+)
+(connector
+	(text "aes50a_rmii_rxd[0]" (rect 514 1360 603 1370)(font "DejaVu Sans Condensed" ))
+	(pt 648 1368)
+	(pt 504 1368)
+)
+(connector
+	(text "aes50a_rmii_rxd[2..1]" (rect 514 1376 616 1386)(font "DejaVu Sans Condensed" ))
+	(pt 648 1384)
+	(pt 504 1384)
+	(bus)
+)
+(connector
+	(pt 608 1400)
+	(pt 648 1400)
+)
+(connector
+	(pt 608 1416)
+	(pt 648 1416)
+)
+(connector
+	(text "clk_49_152MHz" (rect 514 1424 585 1434)(font "DejaVu Sans Condensed" ))
+	(pt 648 1432)
+	(pt 504 1432)
+)
+(connector
+	(pt 648 1448)
+	(pt 640 1448)
+)
+(connector
+	(pt 648 1464)
+	(pt 608 1464)
+)
+(connector
+	(text "tdm_fs" (rect 514 1472 547 1483)(font "Intel Clear" ))
+	(pt 504 1480)
+	(pt 648 1480)
+)
+(connector
+	(text "clk_12_288MHz" (rect 514 1488 590 1499)(font "Intel Clear" ))
+	(pt 504 1496)
+	(pt 648 1496)
+)
+(connector
+	(text "aes50a_tdm_in[6..0]" (rect 514 1504 610 1514)(font "DejaVu Sans Condensed" ))
+	(pt 648 1512)
+	(pt 504 1512)
+	(bus)
+)
+(connector
+	(pt 648 1528)
+	(pt 640 1528)
+)
+(connector
+	(pt 576 1544)
+	(pt 648 1544)
+)
+(connector
+	(pt 576 1544)
+	(pt 576 1520)
+)
+(connector
+	(pt 488 1520)
+	(pt 576 1520)
+)
+(connector
+	(text "aes50a_uart_tx" (rect 1018 1552 1089 1562)(font "DejaVu Sans Condensed" ))
+	(pt 1128 1560)
+	(pt 1008 1560)
+)
+(connector
+	(text "aes50a_debug[7..0]" (rect 1018 1536 1112 1546)(font "DejaVu Sans Condensed" ))
+	(pt 1008 1544)
+	(pt 1128 1544)
+	(bus)
+)
+(connector
+	(text "aes50a_tdm_out[6..0]" (rect 1018 1488 1121 1498)(font "DejaVu Sans Condensed" ))
+	(pt 1008 1496)
+	(pt 1128 1496)
+	(bus)
+)
+(connector
+	(text "tdm_input[14]" (rect 1362 1416 1428 1426)(font "DejaVu Sans Condensed" ))
+	(pt 1352 1424)
+	(pt 1432 1424)
+)
+(connector
+	(text "tdm_input[15]" (rect 1362 1448 1428 1458)(font "DejaVu Sans Condensed" ))
+	(pt 1352 1456)
+	(pt 1432 1456)
+)
+(connector
+	(text "tdm_input[16]" (rect 1362 1480 1428 1490)(font "DejaVu Sans Condensed" ))
+	(pt 1352 1488)
+	(pt 1432 1488)
+)
+(connector
+	(text "tdm_input[17]" (rect 1362 1512 1428 1522)(font "DejaVu Sans Condensed" ))
+	(pt 1352 1520)
+	(pt 1432 1520)
+)
+(connector
+	(text "tdm_input[18]" (rect 1362 1544 1428 1554)(font "DejaVu Sans Condensed" ))
+	(pt 1352 1552)
+	(pt 1432 1552)
+)
+(connector
+	(text "tdm_input[19]" (rect 1362 1576 1428 1586)(font "DejaVu Sans Condensed" ))
+	(pt 1352 1584)
+	(pt 1432 1584)
+)
+(connector
+	(text "aes50a_tdm_out[0]" (rect 1218 1416 1308 1426)(font "DejaVu Sans Condensed" ))
+	(pt 1208 1424)
+	(pt 1304 1424)
+)
+(connector
+	(text "aes50a_tdm_out[1]" (rect 1218 1448 1308 1458)(font "DejaVu Sans Condensed" ))
+	(pt 1208 1456)
+	(pt 1304 1456)
+)
+(connector
+	(text "aes50a_tdm_out[2]" (rect 1218 1480 1308 1490)(font "DejaVu Sans Condensed" ))
+	(pt 1208 1488)
+	(pt 1304 1488)
+)
+(connector
+	(text "aes50a_tdm_out[3]" (rect 1218 1512 1308 1522)(font "DejaVu Sans Condensed" ))
+	(pt 1208 1520)
+	(pt 1304 1520)
+)
+(connector
+	(text "aes50a_tdm_out[4]" (rect 1218 1544 1308 1554)(font "DejaVu Sans Condensed" ))
+	(pt 1208 1552)
+	(pt 1304 1552)
+)
+(connector
+	(text "aes50a_tdm_out[5]" (rect 1218 1576 1308 1586)(font "DejaVu Sans Condensed" ))
+	(pt 1208 1584)
+	(pt 1304 1584)
+)
+(connector
+	(text "aes50a_uart_tx" (rect 1178 1632 1249 1642)(font "DejaVu Sans Condensed" ))
+	(pt 1168 1640)
+	(pt 1264 1640)
+)
+(connector
+	(pt 1008 1352)
+	(pt 1016 1352)
+)
+(connector
+	(pt 1248 1352)
+	(pt 1240 1352)
+)
+(connector
+	(pt 1248 1384)
+	(pt 1240 1384)
+)
+(connector
+	(pt 1008 1368)
+	(pt 1248 1368)
+)
+(connector
+	(pt 1008 1320)
+	(pt 1016 1320)
+)
+(connector
+	(pt 1008 1304)
+	(pt 1016 1304)
+)
+(connector
+	(text "aes50a_rmii_txd[2..1]" (rect 1018 1280 1120 1290)(font "DejaVu Sans Condensed" ))
+	(pt 1008 1288)
+	(pt 1152 1288)
+	(bus)
+)
+(connector
+	(text "aes50a_rmii_txd[0]" (rect 1018 1264 1107 1274)(font "DejaVu Sans Condensed" ))
+	(pt 1008 1272)
+	(pt 1152 1272)
+)
+(connector
+	(pt 648 1560)
+	(pt 568 1560)
+	(bus)
+)
+(connector
+	(pt 648 1576)
+	(pt 568 1576)
+	(bus)
+)
+(connector
+	(pt 648 1592)
+	(pt 568 1592)
+	(bus)
+)
+(connector
+	(pt 648 1608)
+	(pt 568 1608)
+	(bus)
+)
+(connector
+	(pt 648 1624)
+	(pt 568 1624)
+	(bus)
+)
+(connector
+	(pt 648 1640)
+	(pt 568 1640)
+	(bus)
+)
+(connector
+	(pt 648 1656)
+	(pt 568 1656)
+	(bus)
+)
+(connector
+	(pt 648 1672)
+	(pt 568 1672)
+	(bus)
+)
+(connector
+	(pt 648 1688)
+	(pt 568 1688)
+	(bus)
+)
+(connector
+	(pt 648 1704)
+	(pt 568 1704)
+	(bus)
+)
+(connector
+	(pt 648 1720)
+	(pt 568 1720)
+	(bus)
+)
+(connector
+	(text "tdm_input[25..0]" (rect 642 624 721 634)(font "DejaVu Sans Condensed" ))
+	(pt 632 632)
+	(pt 712 632)
+	(bus)
+)
+(connector
+	(text "tdm_output[25..0]" (rect 3146 464 3232 474)(font "DejaVu Sans Condensed" ))
+	(pt 3128 472)
+	(pt 3232 472)
+	(bus)
+)
+(connector
+	(text "aes50_reset" (rect 506 1280 562 1290)(font "DejaVu Sans Condensed" ))
+	(pt 464 1288)
+	(pt 648 1288)
+)
+(connector
+	(pt 1008 1336)
+	(pt 1248 1336)
+)
+(connector
+	(text "clk_50MHz" (rect 1874 1168 1923 1178)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1176)
+	(pt 1960 1176)
+)
+(connector
+	(text "rst" (rect 1874 1184 1885 1194)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1192)
+	(pt 1960 1192)
+)
+(connector
+	(text "aes50b_rmii_rxd_in[2..0]" (rect 1864 1200 1979 1210)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1208)
+	(pt 1960 1208)
+	(bus)
+)
+(connector
+	(text "tdm_output[20]" (rect 1874 1400 1947 1410)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1408)
+	(pt 1952 1408)
+)
+(connector
+	(text "tdm_output[21]" (rect 1874 1432 1947 1442)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1440)
+	(pt 1952 1440)
+)
+(connector
+	(text "tdm_output[22]" (rect 1874 1464 1947 1474)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1472)
+	(pt 1952 1472)
+)
+(connector
+	(text "tdm_output[23]" (rect 1874 1496 1947 1506)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1504)
+	(pt 1952 1504)
+)
+(connector
+	(text "tdm_output[24]" (rect 1874 1528 1947 1538)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1536)
+	(pt 1952 1536)
+)
+(connector
+	(text "tdm_output[25]" (rect 1874 1560 1947 1570)(font "DejaVu Sans Condensed" ))
+	(pt 1864 1568)
+	(pt 1952 1568)
+)
+(connector
+	(text "clk_50MHz" (rect 2338 1216 2387 1226)(font "DejaVu Sans Condensed" ))
+	(pt 2472 1224)
+	(pt 2328 1224)
+)
+(connector
+	(text "aes50_fs_mode[1..0]" (rect 2338 1248 2437 1258)(font "DejaVu Sans Condensed" ))
+	(pt 2472 1256)
+	(pt 2328 1256)
+	(bus)
+)
+(connector
+	(text "aes50_sys_mode[1..0]" (rect 2338 1264 2444 1274)(font "DejaVu Sans Condensed" ))
+	(pt 2472 1272)
+	(pt 2328 1272)
+	(bus)
+)
+(connector
+	(pt 2472 1288)
+	(pt 2464 1288)
+)
+(connector
+	(text "aes50_reset" (rect 2338 1232 2394 1242)(font "DejaVu Sans Condensed" ))
+	(pt 2472 1240)
+	(pt 2328 1240)
+)
+(connector
+	(text "aes50b_rmii_rxd[0]" (rect 2338 1312 2427 1322)(font "DejaVu Sans Condensed" ))
+	(pt 2328 1320)
+	(pt 2472 1320)
+)
+(connector
+	(text "aes50b_rmii_rxd[2..1]" (rect 2338 1328 2440 1338)(font "DejaVu Sans Condensed" ))
+	(pt 2472 1336)
+	(pt 2328 1336)
+	(bus)
+)
+(connector
+	(text "clk_49_152MHz" (rect 2338 1376 2409 1386)(font "DejaVu Sans Condensed" ))
+	(pt 2472 1384)
+	(pt 2328 1384)
+)
+(connector
+	(pt 2472 1400)
+	(pt 2464 1400)
+)
+(connector
+	(text "tdm_fs" (rect 2338 1424 2371 1435)(font "Intel Clear" ))
+	(pt 2328 1432)
+	(pt 2472 1432)
+)
+(connector
+	(text "clk_12_288MHz" (rect 2338 1440 2414 1451)(font "Intel Clear" ))
+	(pt 2328 1448)
+	(pt 2472 1448)
+)
+(connector
+	(pt 2472 1352)
+	(pt 2464 1352)
+)
+(connector
+	(pt 2472 1368)
+	(pt 2464 1368)
+)
+(connector
+	(pt 2472 1480)
+	(pt 2464 1480)
+)
+(connector
+	(pt 2472 1496)
+	(pt 2400 1496)
+)
+(connector
+	(pt 2400 1496)
+	(pt 2400 1472)
+)
+(connector
+	(pt 2832 1272)
+	(pt 2840 1272)
+)
+(connector
+	(pt 2832 1304)
+	(pt 2840 1304)
+)
+(connector
+	(pt 3064 1304)
+	(pt 3056 1304)
+)
+(connector
+	(pt 3064 1336)
+	(pt 3056 1336)
+)
+(connector
+	(text "aes50b_tdm_out[0]" (rect 3026 1368 3116 1378)(font "DejaVu Sans Condensed" ))
+	(pt 3016 1376)
+	(pt 3112 1376)
+)
+(connector
+	(text "aes50b_tdm_out[1]" (rect 3026 1400 3116 1410)(font "DejaVu Sans Condensed" ))
+	(pt 3016 1408)
+	(pt 3112 1408)
+)
+(connector
+	(text "aes50b_tdm_out[2]" (rect 3026 1432 3116 1442)(font "DejaVu Sans Condensed" ))
+	(pt 3016 1440)
+	(pt 3112 1440)
+)
+(connector
+	(text "aes50b_tdm_out[3]" (rect 3026 1464 3116 1474)(font "DejaVu Sans Condensed" ))
+	(pt 3016 1472)
+	(pt 3112 1472)
+)
+(connector
+	(text "aes50b_tdm_out[4]" (rect 3026 1496 3116 1506)(font "DejaVu Sans Condensed" ))
+	(pt 3016 1504)
+	(pt 3112 1504)
+)
+(connector
+	(text "aes50b_tdm_out[5]" (rect 3026 1528 3116 1538)(font "DejaVu Sans Condensed" ))
+	(pt 3016 1536)
+	(pt 3112 1536)
+)
+(connector
+	(text "clk_50MHz" (rect 2986 1152 3035 1162)(font "DejaVu Sans Condensed" ))
+	(pt 2976 1160)
+	(pt 3096 1160)
+)
+(connector
+	(text "rst" (rect 2986 1168 2997 1178)(font "DejaVu Sans Condensed" ))
+	(pt 2976 1176)
+	(pt 3096 1176)
+)
+(connector
+	(text "aes50b_rmii_txd[2..0]" (rect 2986 1184 3088 1194)(font "DejaVu Sans Condensed" ))
+	(pt 2976 1192)
+	(pt 3096 1192)
+	(bus)
+)
+(connector
+	(text "aes50b_rmii_txd_out[0]" (rect 3298 1192 3407 1202)(font "DejaVu Sans Condensed" ))
+	(pt 3288 1200)
+	(pt 3400 1200)
+)
+(connector
+	(text "aes50b_rmii_txd_out[1]" (rect 3298 1208 3407 1218)(font "DejaVu Sans Condensed" ))
+	(pt 3288 1216)
+	(pt 3400 1216)
+)
+(connector
+	(text "aes50b_rmii_txd_out[2]" (rect 3298 1224 3407 1234)(font "DejaVu Sans Condensed" ))
+	(pt 3288 1232)
+	(pt 3400 1232)
+)
+(connector
+	(text "aes50b_rmii_rxd[2..0]" (rect 2138 1184 2240 1194)(font "DejaVu Sans Condensed" ))
+	(pt 2128 1192)
+	(pt 2232 1192)
+	(bus)
+)
+(connector
+	(text "aes50b_rmii_txd_out[2..0]" (rect 3282 1168 3404 1178)(font "DejaVu Sans Condensed" ))
+	(pt 3272 1176)
+	(pt 3400 1176)
+	(bus)
+)
+(connector
+	(pt 2376 1512)
+	(pt 2472 1512)
+	(bus)
+)
+(connector
+	(pt 2376 1528)
+	(pt 2472 1528)
+	(bus)
+)
+(connector
+	(pt 2376 1544)
+	(pt 2472 1544)
+	(bus)
+)
+(connector
+	(pt 2376 1560)
+	(pt 2472 1560)
+	(bus)
+)
+(connector
+	(pt 2376 1576)
+	(pt 2472 1576)
+	(bus)
+)
+(connector
+	(pt 2376 1592)
+	(pt 2472 1592)
+	(bus)
+)
+(connector
+	(pt 2376 1608)
+	(pt 2472 1608)
+	(bus)
+)
+(connector
+	(pt 2376 1624)
+	(pt 2472 1624)
+	(bus)
+)
+(connector
+	(pt 2376 1640)
+	(pt 2472 1640)
+	(bus)
+)
+(connector
+	(pt 2376 1656)
+	(pt 2472 1656)
+	(bus)
+)
+(connector
+	(pt 2376 1672)
+	(pt 2472 1672)
+	(bus)
+)
+(connector
+	(text "aes50b_tdm_in[0]" (rect 2010 1400 2093 1410)(font "DejaVu Sans Condensed" ))
+	(pt 2000 1408)
+	(pt 2096 1408)
+)
+(connector
+	(text "aes50b_tdm_in[1]" (rect 2010 1432 2093 1442)(font "DejaVu Sans Condensed" ))
+	(pt 2000 1440)
+	(pt 2096 1440)
+)
+(connector
+	(text "aes50b_tdm_in[2]" (rect 2010 1464 2093 1474)(font "DejaVu Sans Condensed" ))
+	(pt 2000 1472)
+	(pt 2096 1472)
+)
+(connector
+	(text "aes50b_tdm_in[3]" (rect 2010 1496 2093 1506)(font "DejaVu Sans Condensed" ))
+	(pt 2000 1504)
+	(pt 2096 1504)
+)
+(connector
+	(text "aes50b_tdm_in[4]" (rect 2010 1528 2093 1538)(font "DejaVu Sans Condensed" ))
+	(pt 2000 1536)
+	(pt 2096 1536)
+)
+(connector
+	(text "aes50b_tdm_in[5]" (rect 2010 1560 2093 1570)(font "DejaVu Sans Condensed" ))
+	(pt 2000 1568)
+	(pt 2096 1568)
+)
+(connector
+	(text "aes50b_tdm_in[6]" (rect 2010 1592 2093 1602)(font "DejaVu Sans Condensed" ))
+	(pt 1992 1600)
+	(pt 2096 1600)
+)
+(connector
+	(pt 2432 1304)
+	(pt 2472 1304)
+)
+(connector
+	(pt 2432 1416)
+	(pt 2472 1416)
+)
+(connector
+	(text "aes50b_rmii_txd[0]" (rect 2842 1216 2931 1226)(font "DejaVu Sans Condensed" ))
+	(pt 2832 1224)
+	(pt 2976 1224)
+)
+(connector
+	(text "aes50b_rmii_txd[2..1]" (rect 2842 1232 2944 1242)(font "DejaVu Sans Condensed" ))
+	(pt 2832 1240)
+	(pt 2976 1240)
+	(bus)
+)
+(connector
+	(pt 2832 1288)
+	(pt 3064 1288)
+)
+(connector
+	(pt 2832 1320)
+	(pt 3064 1320)
+)
+(connector
+	(text "aes50b_tdm_out[6..0]" (rect 2842 1440 2945 1450)(font "DejaVu Sans Condensed" ))
+	(pt 2832 1448)
+	(pt 2952 1448)
+	(bus)
+)
+(connector
+	(text "aes50b_debug[7..0]" (rect 2842 1488 2936 1498)(font "DejaVu Sans Condensed" ))
+	(pt 2832 1496)
+	(pt 2952 1496)
+	(bus)
+)
+(connector
+	(text "tdm_input[20]" (rect 3170 1368 3236 1378)(font "DejaVu Sans Condensed" ))
+	(pt 3160 1376)
+	(pt 3240 1376)
+)
+(connector
+	(text "tdm_input[21]" (rect 3170 1400 3236 1410)(font "DejaVu Sans Condensed" ))
+	(pt 3160 1408)
+	(pt 3240 1408)
+)
+(connector
+	(text "tdm_input[22]" (rect 3170 1432 3236 1442)(font "DejaVu Sans Condensed" ))
+	(pt 3160 1440)
+	(pt 3240 1440)
+)
+(connector
+	(text "tdm_input[23]" (rect 3170 1464 3236 1474)(font "DejaVu Sans Condensed" ))
+	(pt 3160 1472)
+	(pt 3240 1472)
+)
+(connector
+	(text "tdm_input[24]" (rect 3170 1496 3236 1506)(font "DejaVu Sans Condensed" ))
+	(pt 3160 1504)
+	(pt 3240 1504)
+)
+(connector
+	(text "tdm_input[25]" (rect 3170 1528 3236 1538)(font "DejaVu Sans Condensed" ))
+	(pt 3160 1536)
+	(pt 3240 1536)
+)
+(connector
+	(text "aes50b_rmii_rxd_in[0]" (rect 2064 1312 2166 1322)(font "DejaVu Sans Condensed" ))
+	(pt 2064 1320)
+	(pt 2144 1320)
+)
+(connector
+	(text "aes50b_rmii_rxd_in[1]" (rect 2066 1328 2168 1338)(font "DejaVu Sans Condensed" ))
+	(pt 2064 1336)
+	(pt 2144 1336)
+)
+(connector
+	(text "aes50b_rmii_rxd_in[2]" (rect 2066 1344 2168 1354)(font "DejaVu Sans Condensed" ))
+	(pt 2064 1352)
+	(pt 2144 1352)
+)
+(connector
+	(text "clk_50MHz" (rect 2970 1592 3019 1602)(font "DejaVu Sans Condensed" ))
+	(pt 2960 1600)
+	(pt 3080 1600)
+)
+(connector
+	(text "rst" (rect 2970 1608 2981 1618)(font "DejaVu Sans Condensed" ))
+	(pt 2960 1616)
+	(pt 3080 1616)
+)
+(connector
+	(text "aes50b_phy_clk_data[1..0]" (rect 2970 1624 3096 1634)(font "DejaVu Sans Condensed" ))
+	(pt 2960 1632)
+	(pt 3080 1632)
+	(bus)
+)
+(connector
+	(text "aes50b_phy_clk[0]" (rect 3282 1640 3369 1650)(font "DejaVu Sans Condensed" ))
+	(pt 3272 1648)
+	(pt 3384 1648)
+)
+(connector
+	(text "aes50b_phy_clk[0..0]" (rect 3266 1608 3366 1618)(font "DejaVu Sans Condensed" ))
+	(pt 3256 1616)
+	(pt 3384 1616)
+	(bus)
+)
+(connector
+	(text "aes50b_phy_clk_data[0]" (rect 2970 1648 3083 1658)(font "DejaVu Sans Condensed" ))
+	(pt 2960 1656)
+	(pt 3072 1656)
+)
+(connector
+	(text "aes50b_phy_clk_data[1]" (rect 2970 1680 3083 1690)(font "DejaVu Sans Condensed" ))
+	(pt 2960 1688)
+	(pt 3072 1688)
+)
+(connector
+	(text "clk_50MHz" (rect 1138 1704 1187 1714)(font "DejaVu Sans Condensed" ))
+	(pt 1240 1712)
+	(pt 1128 1712)
+)
+(connector
+	(text "rst" (rect 1138 1720 1149 1731)(font "Intel Clear" ))
+	(pt 1240 1728)
+	(pt 1128 1728)
+)
+(connector
+	(text "aes50a_phy_clk_data[1..0]" (rect 1138 1736 1264 1746)(font "DejaVu Sans Condensed" ))
+	(pt 1240 1744)
+	(pt 1128 1744)
+	(bus)
+)
+(connector
+	(text "aes50a_phy_clk[0]" (rect 1442 1752 1529 1762)(font "DejaVu Sans Condensed" ))
+	(pt 1432 1760)
 	(pt 1536 1760)
+)
+(connector
+	(text "aes50a_phy_clk_data[0]" (rect 1112 1760 1225 1770)(font "DejaVu Sans Condensed" ))
+	(pt 1112 1768)
+	(pt 1200 1768)
+)
+(connector
+	(text "aes50a_phy_clk_data[1]" (rect 1114 1784 1227 1794)(font "DejaVu Sans Condensed" ))
+	(pt 1104 1792)
+	(pt 1200 1792)
+)
+(connector
+	(text "aes50a_phy_clk[0..0]" (rect 1426 1712 1526 1722)(font "DejaVu Sans Condensed" ))
+	(pt 1416 1728)
+	(pt 1504 1728)
 	(bus)
 )
 (connector
-	(text "aes50a_phy_clk[0]" (rect 1474 1784 1561 1794)(font "DejaVu Sans Condensed" ))
-	(pt 1464 1792)
-	(pt 1568 1792)
+	(text "clk_50MHz" (rect 258 1280 307 1290)(font "DejaVu Sans Condensed" ))
+	(pt 312 1288)
+	(pt 248 1288)
+)
+(connector
+	(text "aes50b_uart_loopback" (rect 2216 1464 2321 1474)(font "DejaVu Sans Condensed" ))
+	(pt 2208 1472)
+	(pt 2400 1472)
+)
+(connector
+	(text "aes50b_uart_loopback" (rect 2842 1504 2947 1514)(font "DejaVu Sans Condensed" ))
+	(pt 2832 1512)
+	(pt 2952 1512)
+)
+(connector
+	(text "audio_output[623..0]" (rect 2650 496 2749 506)(font "DejaVu Sans Condensed" ))
+	(pt 2528 504)
+	(pt 2752 504)
+	(bus)
+)
+(connector
+	(text "aes50b_tdm_in[6..0]" (rect 2338 1456 2434 1466)(font "DejaVu Sans Condensed" ))
+	(pt 2472 1464)
+	(pt 2328 1464)
+	(bus)
 )
 (junction (pt 1672 848))
 (junction (pt 1560 104))
@@ -7888,12 +7550,6 @@ on the Quartus Prime software download page.
 (junction (pt 1976 832))
 (junction (pt 3352 272))
 (junction (pt 3352 264))
-(junction (pt 2520 1400))
-(junction (pt 2520 1768))
-(junction (pt 3056 1720))
-(junction (pt 3056 1704))
-(junction (pt 3056 1736))
-(junction (pt 3056 1768))
 (text "PLL Configuration" (rect 48 16 147 29)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "UART to i.MX25 (UART-Communication to Boards)" (rect 3064 16 3344 29)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "AUX Config" (rect 1784 16 1847 29)(font "Intel Clear" (color 255 0 0)(font_size 8)))
@@ -7924,24 +7580,33 @@ on the Quartus Prime software download page.
 (text "FrameSync has to be aligned with falling edge of 12.288MHz" (rect 1184 296 1532 309)(font "DejaVu Sans Condensed" (font_size 8)))
 (text "lattice_pll creates 100MHz for the AES50 core" (rect 752 -24 1013 -11)(font "DejaVu Sans Condensed" (font_size 8)))
 (text "lattice_pll_phy creates 50MHz for ethernet-transceiver" (rect 752 -8 1065 5)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "Audio-Over-IP-Output" (rect 2072 1112 2198 1125)(font "Intel Clear" (color 255 0 0)(font_size 8)))
-(text "Option 1: Allen and Heath ACE Link" (rect 2072 1128 2271 1141)(font "Intel Clear" (color 255 0 0)(font_size 8)))
-(text "Option 2: UDP-Transmission" (rect 2072 1144 2228 1157)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "Set fixed to 48kHz" (rect 680 1128 785 1141)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1376 1016 1389)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1488 1016 1501)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1504 1016 1517)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1440 1016 1453)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1456 1016 1469)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1392 1032 1405)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1504 1032 1517)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1520 1032 1533)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1456 1032 1469)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1472 1032 1485)(font "DejaVu Sans Condensed" (font_size 8)))
 (text "AES50A-Input/Output" (rect 56 1120 181 1133)(font "Intel Clear" (color 255 0 0)(font_size 8)))
 (text "Set fixed to TDM-Slave" (rect 840 1128 973 1141)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1408 1016 1421)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1424 1016 1437)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1392 1016 1405)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1424 1032 1437)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1440 1032 1453)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1408 1032 1421)(font "DejaVu Sans Condensed" (font_size 8)))
 (text "00 --> 44.1 kHz\n01 --> 48 kHz\n10 --> n.a.\n11 --> n.a." (rect 560 1144 649 1196)(font "DejaVu Sans Condensed" (font_size 8)))
 (text "00 --> AES50 Slave & I2S/TDM Master\n01 --> AES50 Master & I2S/TDM Master\n10 --> AES50 Master & I2S/TDM Slave\n11 --> undefined" (rect 976 1144 1204 1196)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "7th TDM8-channel is for AUX-Data (Headamp-Control)" (rect 1168 1592 1483 1605)(font "DejaVu Sans Condensed" (font_size 8)))
-(text "n/c" (rect 1000 1360 1016 1373)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "7th TDM8-channel is for AUX-Data (Headamp-Control)" (rect 1168 1608 1483 1621)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1376 1032 1389)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 1016 1568 1032 1581)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "AES50B-Input/Output" (rect 1856 1112 1979 1125)(font "Intel Clear" (color 255 0 0)(font_size 8)))
+(text "n/c" (rect 2840 1344 2856 1357)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1456 2856 1469)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1472 2856 1485)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1408 2856 1421)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1424 2856 1437)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1376 2856 1389)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1392 2856 1405)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1360 2856 1373)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1328 2856 1341)(font "DejaVu Sans Condensed" (font_size 8)))
+(text "n/c" (rect 2840 1520 2856 1533)(font "DejaVu Sans Condensed" (font_size 8)))
 (rectangle (rect 1176 8 1760 192)(color 0 0 255)(line_width 3))
 (rectangle (rect 40 8 1160 328)(color 0 0 255)(line_width 3))
 (rectangle (rect 3056 8 3696 328)(color 0 0 255)(line_width 3))
@@ -7950,5 +7615,5 @@ on the Quartus Prime software download page.
 (rectangle (rect 40 352 1104 800)(color 0 0 255)(line_width 3))
 (rectangle (rect 2640 352 3696 712)(color 0 0 255)(line_width 3))
 (rectangle (rect 2640 728 4384 1088)(color 0 0 255)(line_width 3))
-(rectangle (rect 2056 1104 3992 2232)(color 0 0 255)(line_width 3))
+(rectangle (rect 1840 1112 3648 1856)(color 0 0 255)(line_width 3))
 (rectangle (rect 40 1112 1816 1848)(color 0 0 255)(line_width 3))
