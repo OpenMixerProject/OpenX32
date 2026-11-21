@@ -36,7 +36,7 @@ use ieee.numeric_std.all; -- lib for unsigned and signed
 
 entity tdm_multichan_tx is
 	generic (
-		TDM_RECEIVER	: integer := 20;	-- 26 TDM8 receiver are connected
+		TDM_RECEIVER	: integer := 26;	-- 26 TDM8 receiver are connected
 		DATA_WIDTH		: integer := 24	-- 24-bit audio-samples
 	);
 	port (

@@ -1,0 +1,9 @@
+[Inputs]
+clk
+bclk
+fsync
+=ram_data[23:0]=
+[Outputs]
+=channel_idx_out[7:0]=
+=data_out[623:0]=
+[BiDir]

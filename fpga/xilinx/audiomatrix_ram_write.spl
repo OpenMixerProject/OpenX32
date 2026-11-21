@@ -1,0 +1,10 @@
+[Inputs]
+clk
+bclk
+fsync
+=input_data[623:0]=
+[Outputs]
+o_ram_wr_en
+=o_ram_write_addr[7:0]=
+=o_ram_data[23:0]=
+[BiDir]
