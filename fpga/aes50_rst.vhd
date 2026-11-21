@@ -4,19 +4,19 @@ use ieee.numeric_std.all;
 
 entity aes50_rst is
 	port (
-		clk100_i	: in std_logic;
+		clk50_i	: in std_logic;
 		start_i	: in std_logic;
 		
-		rst_o		: out std_logic
+		rst_o		: out std_logic := '1'
 	);
 end entity;
 
 architecture behavioral of aes50_rst is
-	signal zstart	: std_logic;
+	signal zstart	: std_logic := '0';
 begin
-	process (clk100_i)
+	process (clk50_i)
 	begin
-		if rising_edge(clk100_i) then
+		if rising_edge(clk50_i) then
 			zstart <= start_i;
 			
 			if (start_i = '0') then

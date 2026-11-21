@@ -18,6 +18,8 @@ software/libvncserver/
 software/libartnet/
 software/omc/
 fpga/AES50/
+fpga/AES50v2/
+fpga/openinferno/
 fpga/ethernet_mac/
 software/x32ctrl/lv_port_linux/
 

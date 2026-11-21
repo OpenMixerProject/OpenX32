@@ -50,7 +50,8 @@ entity cs2000cp_config is
 		o_address	: out std_logic_vector(7 downto 0);
 		o_map			: out std_logic_vector(7 downto 0);
 		o_data		: out std_logic_vector(7 downto 0);
-		o_start		: out std_logic
+		o_start		: out std_logic;
+		o_done		: out std_logic
 	);
 end entity;
 
@@ -174,4 +175,5 @@ begin
 	o_map <= mapaddress;
 	o_data <= data;
 	o_start <= start;
+	o_done <= '1' when s_SM = s_Done else '0';
 end behavioral;

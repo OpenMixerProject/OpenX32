@@ -156,7 +156,6 @@ architecture BEHAVIORAL of main is
    signal clk_49_152MHz           : std_logic;
    signal clk_50MHz               : std_logic;
    signal clk_50MHz_inv           : std_logic;
-   signal clk_100MHz              : std_logic;
    signal config_bits             : std_logic_vector (7 downto 0);
    signal mac_tx_busy             : std_logic;
    signal mac_tx_byte_sent        : std_logic;
@@ -426,7 +425,7 @@ architecture BEHAVIORAL of main is
    end component;
    
    component aes50_rst
-      port ( clk100_i : in    std_logic; 
+      port ( clk50_i  : in    std_logic; 
              start_i  : in    std_logic; 
              rst_o    : out   std_logic);
    end component;
@@ -440,14 +439,6 @@ architecture BEHAVIORAL of main is
       port ( P : out   std_logic);
    end component;
    attribute BOX_TYPE of VCC : component is "BLACK_BOX";
-   
-   component dcm1
-      port ( CLKIN_IN   : in    std_logic; 
-             RST_IN     : in    std_logic; 
-             LOCKED_OUT : out   std_logic; 
-             CLKFX_OUT  : out   std_logic; 
-             CLK0_OUT   : out   std_logic);
-   end component;
    
    component dcm2
       port ( CLKIN_IN     : in    std_logic; 
@@ -467,9 +458,8 @@ architecture BEHAVIORAL of main is
              Q          : out   std_logic);
    end component;
    
-   component aes50_top
+   component aes50_v2_wrapper
       port ( clk50_i                             : in    std_logic; 
-             clk100_i                            : in    std_logic; 
              rst_i                               : in    std_logic; 
              tdm8_i2s_mode_i                     : in    std_logic; 
              aux_tx_tdm_uart_select_i            : in    std_logic; 
@@ -528,6 +518,7 @@ architecture BEHAVIORAL of main is
              i2s_o                               : out   std_logic; 
              aes_ok_o                            : out   std_logic; 
              uart_o                              : out   std_logic; 
+             uart_overflow_o                     : out   std_logic; 
              rmii_txd_o                          : out   std_logic_vector (1 
             downto 0); 
              pll_mult_value_o                    : out   std_logic_vector (31 
@@ -1061,7 +1052,7 @@ begin
                 wd_aes_rx_dv_timeout(14 downto 0)=>XLXN_3069(14 downto 0));
    
    XLXI_1109 : aes50_rst
-      port map (clk100_i=>clk_100MHz,
+      port map (clk50_i=>clk_50MHz,
                 start_i=>online,
                 rst_o=>XLXN_3074);
    
@@ -1154,13 +1145,6 @@ begin
    XLXI_1150 : VCC
       port map (P=>aes50_sys_mode(1));
    
-   XLXI_1157 : dcm1
-      port map (CLKIN_IN=>FPGACLK,
-                RST_IN=>pripll_rst,
-                CLKFX_OUT=>clk_100MHz,
-                CLK0_OUT=>open,
-                LOCKED_OUT=>open);
-   
    XLXI_1158 : dcm2
       port map (CLKIN_IN=>FPGACLK,
                 RST_IN=>pripll_rst,
@@ -1177,7 +1161,7 @@ begin
                 reset=>rst,
                 Q=>aes50a_rmii_clk_out);
    
-   XLXI_1276 : aes50_top
+   XLXI_1276 : aes50_v2_wrapper
       port map (aes_clk_ok_counter_reference_i(19 downto 0)=>XLXN_3071(19 
             downto 0),
                 aes50_clk_a_rx_i=>aes50a_clk_a_rx_in,
@@ -1186,7 +1170,6 @@ begin
                 bclk_readback_i=>clk_12_288MHz,
                 clk_1024xfs_from_pll_i=>clk_49_152MHz,
                 clk50_i=>clk_50MHz,
-                clk100_i=>clk_100MHz,
                 debug_out_signal_pulse_len_i(19 downto 0)=>XLXN_3065(19 downto 
             0),
                 first_transmit_start_counter_44k1_i(22 downto 0)=>XLXN_3067(22 
@@ -1229,6 +1212,7 @@ begin
                 rmii_tx_en_o=>aes50a_rmii_txd(0),
                 tdm_o(6 downto 0)=>aes50a_tdm_out(6 downto 0),
                 uart_o=>imx25_uart4_rxd,
+                uart_overflow_o=>open,
                 wclk_o=>open,
                 wclk_out_en_o=>open);
    
