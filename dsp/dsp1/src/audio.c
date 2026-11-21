@@ -25,6 +25,7 @@
 #include "audio.h"
 #include "system.h"
 #include "fx.h"
+#include "dynamics_asm.h"
 #include "spi.h"
 
 #if DEBUG_COUNT_CYCLES_DETAIL
@@ -514,6 +515,20 @@ void audioProcessData(void)
 		// 1. Pointer-Aliasing auflösen
 		float* restrict src_dst = &audioBuffer[TAP_PRE_EQ][DSP_BUF_IDX_DSPCHANNEL + i_ch][0];
 
+		#if USE_SHARC_ASM_DYNAMICS == 1
+		sGate* gate = &dsp.dspChannelGate[i_ch];
+		sGateAsmParams gParams;
+		gParams.threshold    = gate->value_threshold;
+		gParams.gainMin      = gate->value_gainmin;
+		gParams.coeffAttack  = gate->value_coeff_attack;
+		gParams.holdTicks    = gate->value_hold_ticks;
+		gParams.coeffRelease = gate->value_coeff_release;
+		gParams.env          = dsp.gateEnvelope[i_ch];
+		gParams.holdTimer    = gate->holdTimer;
+		fxGateBlock_asm(src_dst, &gParams);
+		dsp.gateEnvelope[i_ch] = gParams.env;
+		gate->holdTimer        = gParams.holdTimer;
+		#else
 		// 2. Struct-Zugriffe aus der Schleife ziehen (State Caching)
 		float env = dsp.gateEnvelope[i_ch]; // Zustand nur EINMAL aus RAM lesen
 		int holdTimer = dsp.dspChannelGate[i_ch].holdTimer;
@@ -567,6 +582,7 @@ void audioProcessData(void)
 
 		// Envelope-Zustand EINMAL nach der Schleife speichern
 		dsp.gateEnvelope[i_ch] = env;
+		#endif
 	}
 #if DEBUG_COUNT_CYCLES_DETAIL
 	STOP_CYCLE_COUNT(cyclemap[4], cycletemp);
@@ -626,6 +642,21 @@ void audioProcessData(void)
 
 		if (dsp.compressorEnable)
 		{
+			#if USE_SHARC_ASM_DYNAMICS == 1
+			sCompressor* comp = &dsp.dspChannelCompressor[i_ch];
+			sCompAsmParams cParams;
+			cParams.thresholdDb  = comp->value_thresholdDb;
+			cParams.slope        = comp->value_1_minus_1_by_ratio;
+			cParams.makeup       = dsp.compressorMakeup[i_ch];
+			cParams.coeffAttack  = comp->value_coeff_attack;
+			cParams.holdTicks    = comp->value_hold_ticks;
+			cParams.coeffRelease = comp->value_coeff_release;
+			cParams.env          = dsp.compressorEnvelope[i_ch];
+			cParams.holdTimer    = comp->holdTimer;
+			fxCompressorBlock_asm(src, dst, &cParams);
+			dsp.compressorEnvelope[i_ch] = cParams.env;
+			comp->holdTimer              = cParams.holdTimer;
+			#else
 			float makeUp = dsp.compressorMakeup[i_ch];
 			float coeff = 0.0f;
 			float refValue = 0.0f;
@@ -675,6 +706,7 @@ void audioProcessData(void)
 				// direct use of envelope
 				dst[s] = src[s] * dsp.compressorEnvelope[i_ch] * makeUp;
 			}
+			#endif
 		}
 		else // compressor disabled
 		{

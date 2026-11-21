@@ -17,6 +17,7 @@
 #define ACTIVE_MIX_BUSSES		16	// 16 MixBusses are possible now
 
 #define USE_HIGHCUT				0
+#define USE_SHARC_ASM_DYNAMICS	1	// 1: use ADSP-21371 assembly dynamics kernels (dynamics_asm.asm), 0: C fallback
 
 #define SRUDEBUG  					// Check SRU Routings for errors. Can be removed on final design
 
