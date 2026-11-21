@@ -23,18 +23,18 @@ end entity;
 
 architecture behavioral of aes50_consts is
 begin
-	-- settings for 100 MHz
-	debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(1000000, 20));
-	first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(4249500, 23));
-	first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(4610800, 23));
-	wd_aes_clk_timeout <= std_logic_vector(to_unsigned(50, 6));
-	wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(15000, 15));
-	mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(100000, 17));
-	aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(1000000, 20));
-	mult_clk625_48k <= std_logic_vector(to_unsigned(8246337, 32));
-	mult_clk625_44k1 <= std_logic_vector(to_unsigned(7576322, 32));
-	uart_clks_per_bit <= std_logic_vector(to_unsigned(868, 10));
-	uart_timeout_clks <= std_logic_vector(to_unsigned(1000000, 20));
+	-- settings for AES50v2 (50 MHz RMII clock domain)
+	debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(500000, 20));      -- 10 ms @ 50 MHz
+	first_transmit_start_counter_48k <= std_logic_vector(to_unsigned(0, 23));     -- unused in AES50v2
+	first_transmit_start_counter_44k1 <= std_logic_vector(to_unsigned(0, 23));    -- unused in AES50v2
+	wd_aes_clk_timeout <= std_logic_vector(to_unsigned(25, 6));                   -- 0.5 us @ 50 MHz
+	wd_aes_rx_dv_timeout <= std_logic_vector(to_unsigned(7500, 15));              -- 150 us @ 50 MHz
+	mdix_timer_1ms_reference <= std_logic_vector(to_unsigned(50000, 17));         -- 1 ms @ 50 MHz
+	aes_clk_ok_counter_reference <= std_logic_vector(to_unsigned(500000, 20));    -- 10 ms @ 50 MHz
+	mult_clk625_48k <= std_logic_vector(to_unsigned(8246337, 32));                -- unchanged (6.25 MHz PLL ref)
+	mult_clk625_44k1 <= std_logic_vector(to_unsigned(7576322, 32));               -- unchanged (6.25 MHz PLL ref)
+	uart_clks_per_bit <= std_logic_vector(to_unsigned(434, 10));                  -- 115200 baud @ 50 MHz
+	uart_timeout_clks <= std_logic_vector(to_unsigned(500000, 20));               -- 10 ms @ 50 MHz
 	
 	-- settings for 90 MHz
 	--debug_out_signal_pulse_len <= std_logic_vector(to_unsigned(900000, 20));

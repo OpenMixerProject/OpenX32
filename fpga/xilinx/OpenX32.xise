@@ -146,53 +146,125 @@
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="45"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="55"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_clockmanager.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../AES50v2/rtl/aes50_pkg.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="50"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="24"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="8"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_cs2x00_pll_controller.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../AES50v2/rtl/aes50_dpram.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="51"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="9"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_dual_port_bram.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../AES50v2/rtl/aes50_fifo.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="52"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="12"/>
-    </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_i2c_master.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="53"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
-    </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_ring_buffer.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="54"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="11"/>
-    </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_rmii_crc32.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="55"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="10"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_rmii_transceiver.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="56"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="23"/>
+    <file xil_pn:name="../AES50v2/rtl/aes50_uart.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="53"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="11"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_rx.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../AES50v2/rtl/aes50_link_ctrl.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="54"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="12"/>
+    </file>
+    <file xil_pn:name="../AES50v2/rtl/aes50_clk_audio.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="55"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="20"/>
+    </file>
+    <file xil_pn:name="../AES50v2/rtl/aes50_tdm_serdes.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="56"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="21"/>
+    </file>
+    <file xil_pn:name="../AES50v2/rtl/aes50_tx_framer.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="57"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="22"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_tdm_if.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../AES50v2/rtl/aes50_rx_deframer.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="58"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="21"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="23"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_top.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../AES50v2/rtl/aes50_aux_uart_enc.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="59"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="24"/>
+    </file>
+    <file xil_pn:name="../AES50v2/rtl/aes50_aux_uart_dec.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="60"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="25"/>
+    </file>
+    <file xil_pn:name="../AES50v2/rtl/aes50_core.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="61"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="26"/>
+    </file>
+    <file xil_pn:name="../AES50v2/rtl/aes50_par_core.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="64"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="59"/>
+    </file>
+    <file xil_pn:name="../AES50v2/rtl/aes50_top.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="62"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="57"/>
     </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_tx.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="60"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="20"/>
+    <file xil_pn:name="../aes50_v2_wrapper.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="63"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="58"/>
     </file>
-    <file xil_pn:name="dcm1.xaw" xil_pn:type="FILE_XAW">
+    <file xil_pn:name="../src_96k_48k.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="65"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="29"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="60"/>
+    </file>
+    <file xil_pn:name="../spi_reg_bridge.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="66"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="61"/>
+    </file>
+    <file xil_pn:name="../aes50_par_bridge.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="67"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="62"/>
+    </file>
+    <file xil_pn:name="../openx32_core.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="68"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="63"/>
+    </file>
+    <file xil_pn:name="top_spartan3a.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="69"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="64"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/aoip_regs.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="70"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="65"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/inferno_regs.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="71"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="66"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/inferno_tx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="72"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="67"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/inferno_rx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="73"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="68"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/cpu_pktq.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="74"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="69"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/ptp_clock.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="75"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="70"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/fs_phase.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="76"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="71"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/rmii_rx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="77"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="72"/>
+    </file>
+    <file xil_pn:name="../openinferno/rtl/rmii_tx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="78"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="73"/>
+    </file>
+    <file xil_pn:name="../inferno_port_x32.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="79"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="74"/>
     </file>
     <file xil_pn:name="dcm2.xaw" xil_pn:type="FILE_XAW">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="66"/>
@@ -225,22 +297,6 @@
     <file xil_pn:name="iddr_clk.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="121"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
-    </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_aux_decoder.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="122"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="26"/>
-    </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_aux_encoder.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="123"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="25"/>
-    </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_uart_rx.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="124"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="9"/>
-    </file>
-    <file xil_pn:name="../AES50/AES50 IP/SRC/aes50_uart_tx.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="125"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="8"/>
     </file>
     <file xil_pn:name="../audio_over_ethernet/ace_audio_packet.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="138"/>
@@ -473,9 +529,9 @@
     <property xil_pn:name="ISim UUT Instance Name" xil_pn:value="UUT" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Map" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Par" xil_pn:value="false" xil_pn:valueState="default"/>
-    <property xil_pn:name="Implementation Top" xil_pn:value="Module|main" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top File" xil_pn:value="main.sch" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/main" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|top_spartan3a|rtl" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top File" xil_pn:value="top_spartan3a.vhd" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/top_spartan3a" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Include 'uselib Directive in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include SIMPRIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include UNISIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
