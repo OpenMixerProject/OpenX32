@@ -56,13 +56,25 @@ void openx32Init(void)
 {
 	// initialize the default samplerate with 48kHz
 	// other samplerates up to 192kHz are possible with AD and DA converters
-	dsp.samplerate = 48000;
+	dsp_settings.samplerate = 48000;
 
-	// initialize states of dynamics
+	// initialize states
 	for (int ch = 0; ch < MAX_CHAN_FULLFEATURED; ch++) {
+
+		dsp_settings.trim_pu[ch] = 1.0f;
+
+		dsp.lowcutEnable[ch] = false;
+		dsp.dspChannelGate[ch].value_enable = false;
 		dsp.gateEnvelope[ch] = 1.0f;
+
+		dsp.compressorEnable[ch] = false;
 		dsp.compressorEnvelope[ch] = 1.0f;
 		dsp.dspChannelCompressor[ch].holdTimer = 0;
+	}
+
+	for(int ch = 0; ch < CHANNELS_WITH_4BD_EQ; ch++)
+	{
+		dsp.eqActive[ch] = false;
 	}
 }
 

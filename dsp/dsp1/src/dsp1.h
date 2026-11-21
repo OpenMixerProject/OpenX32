@@ -44,19 +44,8 @@ extern int audioRx_tcb[8][BUFFER_COUNT][4];
 extern volatile uint32_t cyclemap[CYCLEMAP_SIZE];
 
 typedef struct {
-	// filter-coefficients
-	double a[3];
-	double b[3];
-} sLR12;
-
-typedef struct {
-	// filter-coefficients
-	double a[5];
-	double b[5];
-} sLR24;
-
-typedef struct {
 	// filter-data from i.MX25
+	bool value_enable;
 	float value_threshold; // linear
 	float value_gainmin; // linear
 	float value_coeff_attack;
@@ -80,9 +69,9 @@ typedef struct {
 	int holdTimer;
 } sCompressor;
 
-struct {
-	float samplerate;
-
+struct
+{
+	float lowcutEnable[MAX_CHAN_FULLFEATURED];
 	float lowcutCoeff[MAX_CHAN_FULLFEATURED];
 	float lowcutStatesInput[MAX_CHAN_FULLFEATURED];
 	float lowcutStatesOutput[MAX_CHAN_FULLFEATURED];
@@ -94,6 +83,7 @@ struct {
 
 	float gateEnvelope[MAX_CHAN_FULLFEATURED];
 
+	bool compressorEnable[MAX_CHAN_FULLFEATURED];
 	float compressorEnvelope[MAX_CHAN_FULLFEATURED];
 	float compressorMakeup[MAX_CHAN_FULLFEATURED];
 	//float compressorGainSmoothed[MAX_CHAN_FULLFEATURED];
@@ -149,6 +139,13 @@ struct {
 	float monitorVolume;
 	bool soloActive;
 } dsp;
+
+struct
+{
+	float samplerate;
+	float pm trim_pu[MAX_CHAN_FULLFEATURED];
+
+} dsp_settings;
 
 enum eBufferIndex {
     TAP_INPUT,
