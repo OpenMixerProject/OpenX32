@@ -7,17 +7,32 @@ The main logic of our custom firmware lives in its own repository at [OpenMixerC
 
 Our fancy Website: https://openx32.com
 
-# Test it yourself
+## Test it yourself
 
 You can easily try it out on your own mixer: [Steps to run OpenX32](https://github.com/OpenMixerProject/OpenX32/blob/main/README.md#steps-to-run-openx32-without-recompiling)
 
 <img width="400" height="300" alt="IMG_20260520_211131" src="https://github.com/user-attachments/assets/3b6788ed-f5ab-485c-a643-7fc6a8b7dcc3" />
 
-# Sponsors
+## Bugs and Ideas
+
+Please report Bugs or Submit Ideas in our zentral [Ticketsystem](https://github.com/OpenMixerProject/Ticketsystem/issues)
+
+## Progress-O-Meter / Roadmap
+
+Description | State
+-----|-------
+Sort XLR Input/Output Routing on X32 Compact / Rack | 👀 In Progress - https://github.com/OpenMixerProject/OpenMixerControl/issues/13
+Quality Control | 👀 In Progress - https://github.com/OpenMixerProject/OpenMixerControl/issues/31
+Stable Release 1.0 | Planned end of 2026
+Modular FPGA |
+Modular DSP |
+
+## Sponsors
 
 [Analog Devices](https://www.analog.com) sponsored us a licence for CrossCore Embedded Studio - many thanks!
 
 <img width="200" alt="grafik" src="https://github.com/user-attachments/assets/5e1ba20c-b4e0-454a-b10e-205d58897fa8" />
+
 
 # Hardware Compatibility
 
