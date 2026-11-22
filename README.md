@@ -15,7 +15,7 @@ You can easily try it out on your own mixer: [Steps to run OpenX32](https://gith
 
 ## Bugs and Ideas
 
-Please report Bugs or Submit Ideas in our zentral [Ticketsystem](https://github.com/OpenMixerProject/Ticketsystem/issues)
+Please report Bugs or Submit Ideas in our central [Ticketsystem](https://github.com/OpenMixerProject/Ticketsystem/issues)
 
 ## Progress-O-Meter / Roadmap
 
