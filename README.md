@@ -2,30 +2,33 @@
 
 ![alt_text](Documentation/OpenX32.png)
 
+https://openx32.com
+
 This repository contains software to load and start the Linux-Kernel on the Behringer X32 or Midas M32 and some userland tools.
 The main logic of our custom firmware lives in its own repository at [OpenMixerControl](https://github.com/OpenMixerProject/OpenMixerControl).
 
-Our fancy Website: https://openx32.com
-
-## Test it yourself
+## Try it yourself
 
 You can easily try it out on your own mixer: [Steps to run OpenX32](https://github.com/OpenMixerProject/OpenX32/blob/main/README.md#steps-to-run-openx32-without-recompiling)
 
 <img width="400" height="300" alt="IMG_20260520_211131" src="https://github.com/user-attachments/assets/3b6788ed-f5ab-485c-a643-7fc6a8b7dcc3" />
 
-## Bugs and Ideas
+## Bugs 🐛 and Ideas
 
 Please report Bugs or Submit Ideas in our central [Ticketsystem](https://github.com/OpenMixerProject/Ticketsystem/issues)
 
-## Progress-O-Meter / Roadmap
+## Roadmap
+
+Here on our Progress-O-Meter 🚀 we show the state of big milestones:
 
 Description | State
 -----|-------
-Sort XLR Input/Output Routing on X32 Compact / Rack | 👀 In Progress - https://github.com/OpenMixerProject/OpenMixerControl/issues/13
 Quality Control | 👀 In Progress - https://github.com/OpenMixerProject/OpenMixerControl/issues/31
-**Stable Release 1.0** | Planned end of 2026
+**Stable Release 1.0** | [Planned end of 2026](https://github.com/OpenMixerProject/Ticketsystem/milestone/1)
+**Release 1.1** | [Content](https://github.com/OpenMixerProject/Ticketsystem/milestone/3)
 Modular FPGA | Proof of Concept - https://github.com/OpenMixerProject/Ticketsystem/issues/1
 Modular DSP | Proof of Concept - https://github.com/OpenMixerProject/Ticketsystem/issues/2
+**Stable Release 2.0** | [Content](https://github.com/OpenMixerProject/Ticketsystem/milestone/2)
 
 ## Sponsors
 
