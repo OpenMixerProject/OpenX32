@@ -23,7 +23,7 @@ Description | State
 -----|-------
 Sort XLR Input/Output Routing on X32 Compact / Rack | 👀 In Progress - https://github.com/OpenMixerProject/OpenMixerControl/issues/13
 Quality Control | 👀 In Progress - https://github.com/OpenMixerProject/OpenMixerControl/issues/31
-Stable Release 1.0 | Planned end of 2026
+**Stable Release 1.0** | Planned end of 2026
 Modular FPGA | Proof of Concept - https://github.com/OpenMixerProject/Ticketsystem/issues/1
 Modular DSP | Proof of Concept - https://github.com/OpenMixerProject/Ticketsystem/issues/2
 
