@@ -15,7 +15,7 @@
 
 -- PROGRAM		"Quartus Prime"
 -- VERSION		"Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition"
--- CREATED		"Sat Nov 21 21:10:38 2026"
+-- CREATED		"Thu Nov 26 15:17:06 2026"
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -280,6 +280,8 @@ COMPONENT audioclk
 	PORT(fs_x_1024_i : IN STD_LOGIC;
 		 fs_x_512_o : OUT STD_LOGIC;
 		 fs_x_256_o : OUT STD_LOGIC;
+		 fs_x_128_o : OUT STD_LOGIC;
+		 fs_x_64_o : OUT STD_LOGIC;
 		 fs_o : OUT STD_LOGIC
 	);
 END COMPONENT;
@@ -525,8 +527,10 @@ SIGNAL	clk_100MHz :  STD_LOGIC;
 SIGNAL	clk_12_288MHz :  STD_LOGIC;
 SIGNAL	clk_16MHz :  STD_LOGIC;
 SIGNAL	clk_24_576MHz :  STD_LOGIC;
+SIGNAL	clk_3_072MHz :  STD_LOGIC;
 SIGNAL	clk_49_152MHz :  STD_LOGIC;
 SIGNAL	clk_50MHz :  STD_LOGIC;
+SIGNAL	clk_6_144MHz :  STD_LOGIC;
 SIGNAL	configbits :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	online :  STD_LOGIC;
 SIGNAL	pll_locked :  STD_LOGIC;
@@ -812,6 +816,7 @@ b2v_inst17 : audioclk
 PORT MAP(fs_x_1024_i => clk_49_152MHz,
 		 fs_x_512_o => clk_24_576MHz,
 		 fs_x_256_o => clk_12_288MHz,
+		 fs_x_64_o => clk_3_072MHz,
 		 fs_o => tdm_fs);
 
 
@@ -1190,7 +1195,7 @@ CARD_BCLK <= clk_12_288MHz;
 CARD_FSYNC <= tdm_fs;
 D_CLK <= clk_12_288MHz;
 D_FS <= tdm_fs;
-D_CLK2 <= clk_24_576MHz;
+D_CLK2 <= clk_3_072MHz;
 D_FS2 <= tdm_fs;
 DA_MCLK <= clk_12_288MHz;
 DA_BCLK <= clk_12_288MHz;

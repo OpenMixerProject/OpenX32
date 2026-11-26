@@ -21,9 +21,9 @@ on the Quartus Prime software download page.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 216 128)
+	(rect 16 16 216 160)
 	(text "audioclk" (rect 5 0 35 12)(font "Arial" ))
-	(text "inst" (rect 8 96 20 108)(font "Arial" ))
+	(text "inst" (rect 8 128 20 140)(font "Arial" ))
 	(port
 		(pt 0 32)
 		(input)
@@ -48,11 +48,25 @@ on the Quartus Prime software download page.
 	(port
 		(pt 200 64)
 		(output)
-		(text "fs_o" (rect 0 0 18 12)(font "Arial" ))
-		(text "fs_o" (rect 161 59 179 71)(font "Arial" ))
+		(text "fs_x_128_o" (rect 0 0 48 12)(font "Arial" ))
+		(text "fs_x_128_o" (rect 131 59 179 71)(font "Arial" ))
 		(line (pt 200 64)(pt 184 64)(line_width 1))
 	)
+	(port
+		(pt 200 80)
+		(output)
+		(text "fs_x_64_o" (rect 0 0 46 12)(font "Arial" ))
+		(text "fs_x_64_o" (rect 133 75 179 87)(font "Arial" ))
+		(line (pt 200 80)(pt 184 80)(line_width 1))
+	)
+	(port
+		(pt 200 96)
+		(output)
+		(text "fs_o" (rect 0 0 18 12)(font "Arial" ))
+		(text "fs_o" (rect 161 91 179 103)(font "Arial" ))
+		(line (pt 200 96)(pt 184 96)(line_width 1))
+	)
 	(drawing
-		(rectangle (rect 16 16 184 96)(line_width 1))
+		(rectangle (rect 16 16 184 128)(line_width 1))
 	)
 )
