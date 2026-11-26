@@ -19,7 +19,7 @@
 
     dsp_codec: dsp-codec {
         #sound-dai-cells = <0>;
-        compatible = "linux,snd-soc-dummy";
+        compatible = "linux,spdif-dit";
         status = "okay";
     };
 
@@ -386,21 +386,21 @@ leds {
 		fsl,audmux-port = <AUD_PORT_1>;
 		fsl,port-config = <
 			(IMX_AUDMUX_V2_PTCR_SYN |
+			 IMX_AUDMUX_V2_PTCR_TFSDIR |
 			 IMX_AUDMUX_V2_PTCR_TFSEL(AUD_PORT_6) |
+			 IMX_AUDMUX_V2_PTCR_TCLKDIR |
 			 IMX_AUDMUX_V2_PTCR_TCSEL(AUD_PORT_6))
 			(IMX_AUDMUX_V2_PDCR_RXDSEL(AUD_PORT_6))
 		>;
 	};
 
-    port6 {
+	port6 {
 		fsl,audmux-port = <AUD_PORT_6>;
 		fsl,port-config = <
-			(IMX_AUDMUX_V2_PTCR_SYN |
-			 IMX_AUDMUX_V2_PTCR_TFSDIR |
-			 IMX_AUDMUX_V2_PTCR_TCLKDIR)
+			(IMX_AUDMUX_V2_PTCR_SYN)
 			(IMX_AUDMUX_V2_PDCR_RXDSEL(AUD_PORT_1))
 		>;
-    };
+	};
 };
 
 &tsc {
