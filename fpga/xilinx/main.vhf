@@ -7,11 +7,11 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : sch2hdl
 --  /   /         Filename : main.vhf
--- /___/   /\     Timestamp : 11/21/2026 19:18:01
+-- /___/   /\     Timestamp : 11/26/2026 15:21:14
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
---Command: sch2hdl -intstyle ise -family spartan3a -flat -suppress -vhdl O:/openx32/fpga/xilinx/main.vhf -w O:/openx32/fpga/xilinx/main.sch
+--Command: sch2hdl -intstyle ise -family spartan3a -flat -suppress -vhdl O:/OpenX32/fpga/xilinx/main.vhf -w O:/OpenX32/fpga/xilinx/main.sch
 --Design Name: main
 --Device: spartan3a
 --Purpose:
@@ -155,6 +155,8 @@ architecture BEHAVIORAL of main is
    signal aes50_reset             : std_logic;
    signal aes50_sys_mode          : std_logic_vector (1 downto 0);
    signal audio_output            : std_logic_vector (623 downto 0);
+   signal clk_3_072MHz            : std_logic;
+   signal clk_6_144MHz            : std_logic;
    signal clk_12_288MHz           : std_logic;
    signal clk_16MHz               : std_logic;
    signal clk_24_576MHz           : std_logic;
@@ -580,8 +582,8 @@ begin
    XLXI_53 : audioclk
       port map (fs_x_1024_i=>clk_49_152MHz,
                 fs_o=>tdm_fs,
-                fs_x_64_o=>open,
-                fs_x_128_o=>open,
+                fs_x_64_o=>clk_3_072MHz,
+                fs_x_128_o=>clk_6_144MHz,
                 fs_x_256_o=>clk_12_288MHz,
                 fs_x_512_o=>clk_24_576MHz);
    
@@ -728,7 +730,7 @@ begin
                 O=>D_FS);
    
    XLXI_704 : BUF
-      port map (I=>clk_12_288MHz,
+      port map (I=>clk_3_072MHz,
                 O=>D_CLK2);
    
    XLXI_705 : BUF
